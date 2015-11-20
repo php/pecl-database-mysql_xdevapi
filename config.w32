@@ -1,0 +1,28 @@
+// $Id$
+// vim:ft=javascript
+
+ARG_WITH("xmysqlnd", "MySQL Hybrid Native Client Driver", "yes");
+if (PHP_XMYSQLND != "no") {
+
+	if (CHECK_LIB("ws2_32.lib", "xmysqlnd")) {
+		xmysqlnd_source = 
+			"php_xmysqlnd.c " +
+			"xmysqlnd_driver.c " +
+			"xmysqlnd_extension_plugin.c " +
+			"xmysqlnd_node_session.c " +
+			"xmysqlnd_protocol_frame_codec.c " +
+			"xmysqlnd_statistics.c " +
+			"xmysqlnd_user_api.c " +
+			"php_mysqlx.c " +
+			"mysqlx_class_properties.c " +
+			"mysqlx_driver.c " +
+			"mysqlx_exception.c " +
+			"mysqlx_node_session.c " +
+			"mysqlx_object.c "
+			;
+
+		EXTENSION("xmysqlnd", xmysqlnd_source, false, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
+		AC_DEFINE("MYSQLND_SSL_SUPPORTED", 1, "SSL support");
+		PHP_INSTALL_HEADERS("", "ext/xmysqlnd");
+	}
+}
