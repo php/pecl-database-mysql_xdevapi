@@ -70,6 +70,12 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 						 mysqlx_message__capabilities_set.cc \
 						 mysqlx_message__capabilities.cc \
 						 mysqlx_message__capability.c \
+						 mysqlx_message__stmt_execute.cc \
+						 mysqlx_message__stmt_execute_ok.cc \
+						 mysqlx_resultset__column_metadata.cc \
+						 mysqlx_resultset__resultset_metadata.cc \
+						 mysqlx_resultset__data_row.cc \
+						 mysqlx_message__data_fetch_done.cc \
 						 mysqlx_node_connection.c \
 						 mysqlx_node_pfc.c \
 						 mysqlx_node_session.c \

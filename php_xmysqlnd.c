@@ -133,6 +133,8 @@ static PHP_MINIT_FUNCTION(xmysqlnd)
  */
 static PHP_MSHUTDOWN_FUNCTION(xmysqlnd)
 {
+	mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+
 	xmysqlnd_library_end();
 
 	UNREGISTER_INI_ENTRIES();
@@ -146,8 +148,6 @@ static PHP_MSHUTDOWN_FUNCTION(xmysqlnd)
  */
 static PHP_RINIT_FUNCTION(xmysqlnd)
 {
-	mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-
 	if (XMYSQLND_G(debug)) {
 		struct st_mysqlnd_plugin_trace_log * trace_log_plugin = mysqlnd_plugin_find("debug_trace");
 		XMYSQLND_G(dbg) = NULL;

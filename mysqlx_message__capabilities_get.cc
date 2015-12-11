@@ -195,13 +195,12 @@ PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	RETVAL_FALSE;
-	{
-		Mysqlx::Connection::Capabilities & message = object->response;
 
+	{
 		zend_uchar packet_type;
-		size_t payload_size;
-		zend_uchar * payload;
 		do {
+			size_t payload_size;
+			zend_uchar * payload;
 			ret = codec->pfc->data->m.receive(codec->pfc, connection->vio,
 											  &packet_type,
 											  &payload, &payload_size,
@@ -212,10 +211,12 @@ PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 			}
 			const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
 			switch (packet_type) {
-				case Mysqlx::ServerMessages_Type_CONN_CAPABILITIES:
+				case Mysqlx::ServerMessages_Type_CONN_CAPABILITIES: {
+					Mysqlx::Connection::Capabilities & message = object->response;
 					message.ParseFromArray(payload, payload_size);
 					capabilities_to_zv(message, return_value);
 					break;
+				}
 				case Mysqlx::ServerMessages_Type_ERROR:{
 					Mysqlx::Error error;
 					error.ParseFromArray(payload, payload_size);

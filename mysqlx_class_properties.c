@@ -49,6 +49,8 @@ static void
 mysqlx_add_property(HashTable * properties, const MYSQLND_CSTRING property_name, const func_mysqlx_property_get get, const func_mysqlx_property_set set)
 {
 	struct st_mysqlx_property property;
+	DBG_ENTER("mysqlx_add_property");
+	DBG_INF_FMT("property=%s  getter=%p setter=%p", property_name.s, get, set);
 
 	property.name		= zend_string_init(property_name.s, property_name.l, 1);
 	property.get_value	= get? get : mysqlx_property_get_forbidden;
@@ -57,6 +59,7 @@ mysqlx_add_property(HashTable * properties, const MYSQLND_CSTRING property_name,
 	zend_hash_add_mem(properties, property.name, &property, sizeof(struct st_mysqlx_property));
 
 	zend_string_release(property.name);
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -81,6 +84,7 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 	zval *retval;
 	const struct st_mysqlx_object * mysqlx_obj;
 	const struct st_mysqlx_property * property = NULL;
+	DBG_ENTER("mysqlx_property_get_value");
 
 	mysqlx_obj = Z_MYSQLX_P(object);
 
@@ -90,17 +94,22 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 		member = &tmp_member;
 	}
 
+	DBG_INF_FMT("property=%s", Z_STRVAL_P(member));
+
 	if (mysqlx_obj->properties != NULL) {
 		property = zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member));
 	}
 
 	if (property) {
+		DBG_INF("internal property");
 		retval = property->get_value(mysqlx_obj, rv);
 		if (retval == NULL) {
+			DBG_INF("uninitialized_zval");
 			retval = &EG(uninitialized_zval);
 		}
 	} else {
-		zend_object_handlers *standard_handlers = zend_get_std_object_handlers();
+		const zend_object_handlers * standard_handlers = zend_get_std_object_handlers();
+		DBG_INF("hash property");
 		retval = standard_handlers->read_property(object, member, type, cache_slot, rv);
 	}
 
@@ -108,7 +117,7 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 		zval_dtor(member);
 	}
 
-	return retval;
+	DBG_RETURN(retval);
 }
 /* }}} */
 
@@ -120,12 +129,15 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 	zval tmp_member;
 	struct st_mysqlx_object * mysqlx_obj;
 	const struct st_mysqlx_property * property = NULL;
+	DBG_ENTER("mysqlx_property_set_value");
 
 	if (Z_TYPE_P(member) != IS_STRING) {
 		ZVAL_COPY(&tmp_member, member);
 		convert_to_string(&tmp_member);
 		member = &tmp_member;
 	}
+
+	DBG_INF_FMT("property=%s", Z_STRVAL_P(member));
 
 	mysqlx_obj = Z_MYSQLX_P(object);
 
@@ -143,6 +155,7 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 	if (member == &tmp_member) {
 		zval_dtor(member);
 	}
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -154,25 +167,30 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 	const struct st_mysqlx_object * mysqlx_obj = Z_MYSQLX_P(object);
 	const struct st_mysqlx_property * property;
 	int ret = 0;
+	DBG_ENTER("mysqlx_object_has_property");
 
 	if ((property = zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member))) != NULL) {
 		switch (has_set_exists) {
 			case 0:{
-				zval rv;
-				zval *value = mysqlx_property_get_value(object, member, BP_VAR_IS, cache_slot, &rv);
+				zval rv, *value;
+				ZVAL_UNDEF(&rv);
+				value = mysqlx_property_get_value(object, member, BP_VAR_IS, cache_slot, &rv);
 				if (value != &EG(uninitialized_zval)) {
 					ret = Z_TYPE_P(value) != IS_NULL? 1 : 0;
 					zval_ptr_dtor(value);
 				}
+				DBG_INF("type 0");
 				break;
 			}
 			case 1: {
-				zval rv;
-				zval *value = mysqlx_property_get_value(object, member, BP_VAR_IS, cache_slot, &rv);
+				zval rv, *value;
+				ZVAL_UNDEF(&rv);
+				value = mysqlx_property_get_value(object, member, BP_VAR_IS, cache_slot, &rv);
 				if (value != &EG(uninitialized_zval)) {
 					convert_to_boolean(value);
 					ret = Z_TYPE_P(value) == IS_TRUE ? 1 : 0;
 				}
+				DBG_INF("type 1");
 				break;
 			}
 			case 2:
@@ -183,10 +201,11 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 		}
 	} else {
 		const zend_object_handlers * standard_handlers = zend_get_std_object_handlers();
+		DBG_INF("hash property");
 		ret = standard_handlers->has_property(object, member, has_set_exists, cache_slot);
 	}
 
-	return ret;
+	DBG_RETURN(ret);
 }
 /* }}} */
 

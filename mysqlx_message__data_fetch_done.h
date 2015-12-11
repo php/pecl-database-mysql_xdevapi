@@ -15,36 +15,18 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
+#ifndef MYSQLX_MESSAGE__DATA_FETCH_DONE_H
+#define MYSQLX_MESSAGE__DATA_FETCH_DONE_H
 
-#ifndef XMYSQLND_WIREPROTOCOL_H
-#define XMYSQLND_WIREPROTOCOL_H
-
-#include "mysqlx_node_connection.h"
-#include "mysqlx_node_pfc.h"
-
-#ifdef __cplusplus
-
-#include "proto_gen/mysqlx.pb.h"
-
-extern "C" size_t
-xmysqlnd_send_protobuf_message(struct st_mysqlx_node_connection * connection, struct st_mysqlx_node_pfc * codec,
-							   const Mysqlx::ClientMessages::Type packet_type, ::google::protobuf::Message & proto_message,
-							   const bool simulate);
-
-extern "C"
-{
+#ifdef  __cplusplus
+#include "proto_gen/mysqlx_resultset.pb.h"
+void mysqlx_new_data_fetch_done(zval * return_value, const Mysqlx::Resultset::FetchDone & message);
+#else
+void mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS);
 #endif
 
-
-void xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const size_t payload_size);
-void xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const size_t payload_size);
-
-
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
-
-#endif	/* XMYSQLND_WIREPROTOCOL_H */
+#endif /* MYSQLX_MESSAGE__DATA_FETCH_DONE_H */
 
 /*
  * Local variables:

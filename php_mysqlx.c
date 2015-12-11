@@ -35,6 +35,12 @@
 #include "mysqlx_message__capabilities_set.h"
 #include "mysqlx_message__capability.h"
 #include "mysqlx_message__capabilities.h"
+#include "mysqlx_message__stmt_execute.h"
+#include "mysqlx_message__stmt_execute_ok.h"
+#include "mysqlx_resultset__column_metadata.h"
+#include "mysqlx_resultset__resultset_metadata.h"
+#include "mysqlx_resultset__data_row.h"
+#include "mysqlx_message__data_fetch_done.h"
 
 
 /* {{{ mysqlx_minit_classes */
@@ -74,6 +80,14 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_message__auth_continue_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_message__auth_ok_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
+	mysqlx_register_message__stmt_execute_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_message__stmt_execute_ok_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
+	mysqlx_register_column_metadata_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_data_row_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
 
 	/* xmysqlnd_real_connect flags */
 	REGISTER_LONG_CONSTANT("XMYSQLND_CLIENT_SSL", CLIENT_SSL, CONST_CS | CONST_PERSISTENT);
@@ -87,6 +101,14 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 PHPAPI int
 mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 {
+	mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_resultset_metadata_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_column_metadata_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+
+	mysqlx_unregister_message__stmt_execute_ok_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_message__stmt_execute_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+
 	mysqlx_unregister_message__auth_ok_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_message__auth_continue_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_message__auth_start_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

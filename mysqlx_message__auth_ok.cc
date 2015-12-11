@@ -24,19 +24,13 @@
 #include "xmysqlnd_node_session.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
-#include "mysqlx_message__capability.h"
-#include "mysqlx_message__capabilities.h"
 
 #include "xmysqlnd_wireprotocol.h"
-#include "xmysqlnd_zval2any.h"
 
 #include <new>
-#include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_connection.pb.h"
-#include "proto_gen/mysqlx_session.pb.h"
 
 #include "mysqlx_message__ok.h"
 #include "mysqlx_message__error.h"

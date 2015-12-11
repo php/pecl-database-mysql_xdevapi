@@ -24,19 +24,13 @@
 #include "xmysqlnd_node_session.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
-#include "mysqlx_message__capability.h"
-#include "mysqlx_message__capabilities.h"
 
 #include "xmysqlnd_wireprotocol.h"
-#include "xmysqlnd_zval2any.h"
 
 #include <new>
-#include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_connection.pb.h"
-#include "proto_gen/mysqlx_session.pb.h"
 
 #include "mysqlx_message__ok.h"
 #include "mysqlx_message__error.h"
@@ -48,8 +42,6 @@ static zend_class_entry *mysqlx_message__auth_start_class_entry;
 
 struct st_mysqlx_message__auth_start
 {
-	Mysqlx::Connection::Capabilities response;
-	Mysqlx::Error error;
 	zend_bool persistent;
 };
 
@@ -143,11 +135,12 @@ PHP_METHOD(mysqlx_message__auth_start, read_response)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	RETVAL_FALSE;
+
 	{
 		zend_uchar packet_type;
-		size_t payload_size;
-		zend_uchar * payload;
 		do {
+			size_t payload_size;
+			zend_uchar * payload;
 			ret = codec->pfc->data->m.receive(codec->pfc, connection->vio,
 											  &packet_type,
 											  &payload, &payload_size,

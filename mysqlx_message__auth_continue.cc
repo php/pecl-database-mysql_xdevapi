@@ -24,19 +24,13 @@
 #include "xmysqlnd_node_session.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
-#include "mysqlx_message__capability.h"
-#include "mysqlx_message__capabilities.h"
 
 #include "xmysqlnd_wireprotocol.h"
-#include "xmysqlnd_zval2any.h"
 
 #include <new>
-#include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_connection.pb.h"
-#include "proto_gen/mysqlx_session.pb.h"
 
 #include "mysqlx_message__ok.h"
 #include "mysqlx_message__error.h"
@@ -117,7 +111,8 @@ mysqlx_auth_continue_send(const char * schema, size_t schema_len,
 	DBG_INF_FMT("response_size=%u", (uint) response.size());
 	proto_message.set_auth_data(response.c_str(), response.size());
 
-	DBG_RETURN(xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SESS_AUTHENTICATE_CONTINUE, proto_message, false));
+	size_t ret = xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SESS_AUTHENTICATE_CONTINUE, proto_message, false);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -192,11 +187,13 @@ PHP_METHOD(mysqlx_message__auth_continue, read_response)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	RETVAL_FALSE;
+
 	{
 		zend_uchar packet_type;
-		size_t payload_size;
-		zend_uchar * payload;
 		do {
+			size_t payload_size;
+			zend_uchar * payload;
+
 			ret = codec->pfc->data->m.receive(codec->pfc, connection->vio,
 											  &packet_type,
 											  &payload, &payload_size,
@@ -225,8 +222,8 @@ PHP_METHOD(mysqlx_message__auth_continue, read_response)
 					}
 					case Mysqlx::ServerMessages_Type_NOTICE:
 						break;
-				default:
-					php_error_docref(NULL, E_WARNING, "Returned unexpected packet type %s", Mysqlx::ServerMessages_Type_Name(type).c_str());
+					default:
+						php_error_docref(NULL, E_WARNING, "Returned unexpected packet type %s", Mysqlx::ServerMessages_Type_Name(type).c_str());
 				}
 				mnd_efree(payload);
 			}

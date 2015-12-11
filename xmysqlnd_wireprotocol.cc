@@ -341,7 +341,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			DBG_INF_FMT("stmt     [%s]=[%*s]", has_stmt? "SET":"NOT SET",
 											   has_stmt? message.stmt().size() : sizeof("n/a") - 1,
 											   has_stmt? message.stmt().c_str() : "n/a");
-			DBG_INF_FMT("namespace[%s]=[%s]", has_metadata? "SET":"NOT SET",
+			DBG_INF_FMT("comp_meta[%s]=[%s]", has_metadata? "SET":"NOT SET",
 											  has_metadata? (message.compact_metadata()? "YES":"NO") : "n/a");
 			DBG_INF_FMT("%d arguments", message.args_size());
 			if (message.args_size()) {
@@ -583,52 +583,52 @@ xmysqlnd_dump_column_meta(const Mysqlx::Resultset::ColumnMetaData & meta)
 	DBG_ENTER("xmysqlnd_dump_column_meta");
 
 	const bool has_type = meta.has_type();
-	DBG_INF_FMT("type [%s] is %s", has_type? "SET":"NOT SET",
-								   has_type? Mysqlx::Resultset::ColumnMetaData::FieldType_Name(meta.type()).c_str() : "n/a");
+	DBG_INF_FMT("type [%s] is [%s]", has_type? "SET":"NOT SET",
+									 has_type? Mysqlx::Resultset::ColumnMetaData::FieldType_Name(meta.type()).c_str() : "n/a");
 
 	const bool has_name = meta.has_name();
-	DBG_INF_FMT("name[%s] is %s", has_name? "SET":"NOT SET",
-								  has_name? meta.name().c_str() : "n/a");
+	DBG_INF_FMT("name[%s] is [%s]", has_name? "SET":"NOT SET",
+									has_name? meta.name().c_str() : "n/a");
 
 	const bool has_orig_name = meta.has_original_name();
-	DBG_INF_FMT("orig_name[%s] is %s", has_orig_name? "SET":"NOT SET",
-									   has_orig_name? meta.original_name().c_str() : "n/a");
+	DBG_INF_FMT("orig_name[%s] is [%s]", has_orig_name? "SET":"NOT SET",
+										 has_orig_name? meta.original_name().c_str() : "n/a");
 
 	const bool has_table = meta.has_table();
-	DBG_INF_FMT("table[%s] is %s", has_table? "SET":"NOT SET",
+	DBG_INF_FMT("table[%s] is [%s]", has_table? "SET":"NOT SET",
 								   has_table? meta.table().c_str() : "n/a");
 
 	const bool has_orig_table = meta.has_original_table();
-	DBG_INF_FMT("orig_table[%s] is %s", has_orig_table? "SET":"NOT SET",
-										has_orig_table? meta.original_table().c_str() : "n/a");
+	DBG_INF_FMT("orig_table[%s] is [%s]", has_orig_table? "SET":"NOT SET",
+										  has_orig_table? meta.original_table().c_str() : "n/a");
 
 	const bool has_schema = meta.has_schema();
-	DBG_INF_FMT("schema[%s] is %s", has_schema? "SET":"NOT SET",
-									has_schema? meta.schema().c_str() : "n/a");
+	DBG_INF_FMT("schema[%s] is [%s]", has_schema? "SET":"NOT SET",
+									  has_schema? meta.schema().c_str() : "n/a");
 
 	const bool has_catalog = meta.has_catalog();
-	DBG_INF_FMT("catalog[%s] is %s", has_catalog? "SET":"NOT SET",
-									 has_catalog? meta.catalog().c_str() : "n/a");
+	DBG_INF_FMT("catalog[%s] is [%s]", has_catalog? "SET":"NOT SET",
+									   has_catalog? meta.catalog().c_str() : "n/a");
 
 	const bool has_collation = meta.has_collation();
-	DBG_INF_FMT("collation[%s] is "MYSQLND_LLU_SPEC, has_collation? "SET":"NOT SET",
-													 has_collation? meta.collation() : 0);
+	DBG_INF_FMT("collation[%s] is ["MYSQLND_LLU_SPEC"]", has_collation? "SET":"NOT SET",
+														 has_collation? meta.collation() : 0);
 
 	const bool has_frac_digits = meta.has_fractional_digits();
-	DBG_INF_FMT("frac_digits[%s] is %u", has_frac_digits? "SET":"NOT SET",
-										 has_frac_digits? meta.fractional_digits() : 0);
+	DBG_INF_FMT("frac_digits[%s] is [%u]", has_frac_digits? "SET":"NOT SET",
+										   has_frac_digits? meta.fractional_digits() : 0);
 
 	const bool has_length = meta.has_length();
-	DBG_INF_FMT("length[%s] is %u", has_length? "SET":"NOT SET",
-									has_length? meta.length() : 0);
+	DBG_INF_FMT("length[%s] is [%u]", has_length? "SET":"NOT SET",
+									  has_length? meta.length() : 0);
 
 	const bool has_flags = meta.has_flags();
-	DBG_INF_FMT("flags[%s] is %u", has_flags? "SET":"NOT SET",
-								   has_flags? meta.flags() : 0);
+	DBG_INF_FMT("flags[%s] is [%u]", has_flags? "SET":"NOT SET",
+									 has_flags? meta.flags() : 0);
 
 	const bool has_content_type = meta.has_flags();
-	DBG_INF_FMT("flags[%s] is %u", has_content_type? "SET":"NOT SET",
-								   has_content_type? meta.content_type() : 0);
+	DBG_INF_FMT("content_type[%s] is [%u]", has_content_type? "SET":"NOT SET",
+											has_content_type? meta.content_type() : 0);
 
 	DBG_VOID_RETURN;
 }
@@ -769,7 +769,8 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ServerMessages_Type_Name(type).c_str(), (uint) payload_size);
 	{
 		static char hexconvtab[] = "0123456789abcdef";
-		char * message_dump = new char[payload_size*3];
+		char * message_dump = new char[payload_size*3 + 1];
+		message_dump[payload_size*3] = '\0';
 		for (unsigned int i = 0; i < payload_size; i++) {
 			message_dump[i*3+0] = hexconvtab[((const char*)payload)[i] >> 4];
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
