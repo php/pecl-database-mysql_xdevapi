@@ -28,8 +28,7 @@
 
 extern "C" size_t
 xmysqlnd_send_protobuf_message(struct st_mysqlx_node_connection * connection, struct st_mysqlx_node_pfc * codec,
-							   const Mysqlx::ClientMessages::Type packet_type, ::google::protobuf::Message & proto_message,
-							   const bool simulate);
+							   const Mysqlx::ClientMessages::Type packet_type, ::google::protobuf::Message & proto_message);
 
 extern "C"
 {

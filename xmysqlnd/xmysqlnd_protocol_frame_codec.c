@@ -54,8 +54,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 									const size_t count,
 									size_t * bytes_sent,
 									MYSQLND_STATS * const stats,
-									MYSQLND_ERROR_INFO * const error_info,
-									const zend_bool simulate)
+									MYSQLND_ERROR_INFO * const error_info)
 {
 	zend_uchar header[XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE];
 	size_t packets_sent = 1;
@@ -72,9 +71,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 #ifdef PHP_DEBUG
 	xmysqlnd_dump_client_message(packet_type, buffer, count);
 #endif
-	if (simulate) {
-		DBG_RETURN(PASS);
-	}
 
 	*bytes_sent = 0;
 	do {

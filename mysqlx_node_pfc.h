@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_PFC_H
 #define MYSQLX_NODE_PFC_H
 
-#include "xmysqlnd_protocol_frame_codec.h"
+#include <xmysqlnd/xmysqlnd_protocol_frame_codec.h>
 
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_node_pfc_class_entry;

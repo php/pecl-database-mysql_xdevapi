@@ -15,19 +15,18 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysqlnd_alloc.h"
-#include "ext/mysqlnd/mysqlnd_statistics.h"
-#include "xmysqlnd.h"
-#include "xmysqlnd_node_session.h"
+#include <php.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+#include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
+#include <xmysqlnd/xmysqlnd_wireprotocol.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
-
-#include "xmysqlnd_wireprotocol.h"
 
 #include <new>
 #include "proto_gen/mysqlx_connection.pb.h"
@@ -103,7 +102,7 @@ PHP_METHOD(mysqlx_message__auth_start, send)
 		proto_message.set_mech_name(auth_mech_name, auth_mech_name_len);
 		proto_message.set_auth_data(auth_data, auth_data_len);
 
-		RETVAL_LONG(xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SESS_AUTHENTICATE_START, proto_message, false));
+		RETVAL_LONG(xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SESS_AUTHENTICATE_START, proto_message));
 	}
 	DBG_VOID_RETURN;
 }

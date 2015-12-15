@@ -23,8 +23,8 @@
 #include "ext/mysqlnd/mysqlnd_structs.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "ext/mysqlnd/mysqlnd_statistics.h"
-#include "xmysqlnd.h"
-#include "xmysqlnd_priv.h"
+#include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_priv.h"
 #include "php_mysqlx.h"
 
 #include "ext/standard/info.h"

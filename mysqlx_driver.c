@@ -15,11 +15,11 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "xmysqlnd.h"
-#include "xmysqlnd_driver.h"
+#include <php.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_driver.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 

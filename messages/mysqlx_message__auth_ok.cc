@@ -15,19 +15,17 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysqlnd_alloc.h"
-#include "ext/mysqlnd/mysqlnd_statistics.h"
-#include "xmysqlnd.h"
-#include "xmysqlnd_node_session.h"
+#include <php.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+#include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
-
-#include "xmysqlnd_wireprotocol.h"
 
 #include <new>
 #include "proto_gen/mysqlx_connection.pb.h"

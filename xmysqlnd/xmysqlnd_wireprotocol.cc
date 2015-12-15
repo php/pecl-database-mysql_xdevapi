@@ -21,7 +21,7 @@
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"
-#include "mysqlx_message__capabilities.h"
+#include "messages/mysqlx_message__capabilities.h"
 #include "xmysqlnd_zval2any.h"
 
 #include "proto_gen/mysqlx.pb.h"
@@ -872,8 +872,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 /* {{{ xmysqlnd_send_protobuf_message */
 extern "C" size_t
 xmysqlnd_send_protobuf_message(struct st_mysqlx_node_connection * connection, struct st_mysqlx_node_pfc * codec,
-							   const Mysqlx::ClientMessages::Type packet_type, ::google::protobuf::Message & proto_message,
-							   const bool simulate)
+							   const Mysqlx::ClientMessages::Type packet_type, ::google::protobuf::Message & proto_message)
 {
 	size_t ret;
 	DBG_ENTER("xmysqlnd_send_protobuf_message");
@@ -892,7 +891,7 @@ xmysqlnd_send_protobuf_message(struct st_mysqlx_node_connection * connection, st
 								   (zend_uchar *) payload, payload_size,
 								   &bytes_sent,
 								   connection->stats,
-								   connection->error_info, simulate? TRUE:FALSE);
+								   connection->error_info);
 	mnd_efree(payload);
 }
 /* }}} */

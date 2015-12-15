@@ -15,13 +15,13 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysqlnd_alloc.h"
-#include "ext/mysqlnd/mysqlnd_statistics.h"
-#include "xmysqlnd.h"
-#include "xmysqlnd_node_session.h"
+#include <php.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+#include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
@@ -70,8 +70,7 @@ PHP_METHOD(mysqlx_node_pfc, send)
 								   (const zend_uchar*) payload.s, payload.l,
 								   &bytes_sent,
 								   connection->stats,
-								   connection->error_info,
-								   FALSE);
+								   connection->error_info);
 
 	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;

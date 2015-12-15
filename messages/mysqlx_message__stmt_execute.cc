@@ -15,19 +15,18 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysqlnd_alloc.h"
-#include "ext/mysqlnd/mysqlnd_statistics.h"
-#include "xmysqlnd.h"
-#include "xmysqlnd_node_session.h"
+#include <php.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+#include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
+#include <xmysqlnd/xmysqlnd_wireprotocol.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
-
-#include "xmysqlnd_wireprotocol.h"
 
 #include <new>
 #include "proto_gen/mysqlx_session.pb.h"
@@ -57,17 +56,6 @@ struct st_mysqlx_message__stmt_execute
 		DBG_VOID_RETURN; \
 	} \
 } \
-
-#if 0
-/* */
-ZEND_BEGIN_ARG_INFO_EX(mysqlx_message__stmt_execute__send, 0, ZEND_RETURN_VALUE, 5)
-	ZEND_ARG_TYPE_INFO(0, namespace_, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, stmt, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, compact_metadata, IS_BOOL, 0)
-	ZEND_ARG_TYPE_INFO(0, node_pfc, IS_OBJECT, 0)
-	ZEND_ARG_TYPE_INFO(0, node_connection, IS_OBJECT, 0)
-ZEND_END_ARG_INFO()
-#endif
 
 ZEND_BEGIN_ARG_INFO_EX(mysqlx_message__stmt_execute__read_response, 0, ZEND_RETURN_VALUE, 2)
 	ZEND_ARG_TYPE_INFO(0, node_pfc, IS_OBJECT, 0)
@@ -110,7 +98,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 		proto_message.set_stmt(stmt, stmt_len);
 		proto_message.set_compact_metadata(compact_metadata);
 
-		RETVAL_LONG(xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SQL_STMT_EXECUTE, proto_message, false));
+		RETVAL_LONG(xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SQL_STMT_EXECUTE, proto_message));
 	}
 	DBG_VOID_RETURN;
 }
