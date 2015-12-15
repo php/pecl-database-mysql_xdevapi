@@ -27,6 +27,7 @@
 #include "mysqlx_node_session.h"
 #include "mysqlx_message__capability.h"
 #include "mysqlx_resultset__resultset_metadata.h"
+#include "mysqlx_resultset__column_metadata.h"
 
 #include <new>
 #include "xmysqlnd_zval2any.h"
@@ -44,20 +45,22 @@ PHP_METHOD(mysqlx_resultset_metadata, add)
 {
 	zval * resultset_metadata_zv = NULL;
 	struct st_mysqlx_resultset_metadata * resultset_metadata = NULL;
-	zval * capability_zv = NULL;
+	zval * column_metadata_zv = NULL;
+	struct st_mysqlx_column_metadata * column_metadata = NULL;
 
 	DBG_ENTER("mysqlx_node_connection::add");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
 												&resultset_metadata_zv, mysqlx_resultset_metadata_class_entry,
-												&capability_zv, mysqlx_message__capability_class_entry))
+												&column_metadata_zv, mysqlx_column_metadata_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 	MYSQLX_FETCH_MESSAGE__RESULTSET_METADATA_FROM_ZVAL(resultset_metadata, resultset_metadata_zv);
-	if (Z_REFCOUNTED_P(capability_zv)) {
-		Z_ADDREF_P(capability_zv);
+
+	if (Z_REFCOUNTED_P(column_metadata_zv)) {
+		Z_ADDREF_P(column_metadata_zv);
 	}
-	zend_hash_next_index_insert(&resultset_metadata->resultset_metadata_ht, capability_zv);
+	zend_hash_next_index_insert(&resultset_metadata->resultset_metadata_ht, column_metadata_zv);
 	RETVAL_ZVAL(resultset_metadata_zv, 1 /*copy*/, 0 /*dtor*/);
 	DBG_VOID_RETURN;
 }

@@ -22,7 +22,6 @@
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"
 #include "mysqlx_message__capabilities.h"
-
 #include "xmysqlnd_zval2any.h"
 
 #include "proto_gen/mysqlx.pb.h"
@@ -270,7 +269,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			message_dump[i*3+2] = ' ';
 		}
 		DBG_INF_FMT("payload[%u]=[%*s]", (uint) payload_size, payload_size, message_dump);
-		delete message_dump;
+		delete [] message_dump;
 	}
 	switch (type) {
 		case Mysqlx::ClientMessages_Type_CON_CAPABILITIES_GET:
@@ -777,7 +776,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 			message_dump[i*3+2] = ' ';
 		}
 		DBG_INF_FMT("payload[%u]=[%s]", (uint) payload_size, message_dump);	
-		delete message_dump;
+		delete [] message_dump;
 	}
 	switch (type) {
 		case Mysqlx::ServerMessages_Type_OK:{
