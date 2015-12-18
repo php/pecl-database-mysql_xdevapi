@@ -112,6 +112,8 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 									   MYSQLND_VIO * const vio,
+									   zend_uchar * prealloc_buffer,
+									   const size_t prealloc_buffer_len,
 									   zend_uchar * packet_type,
 									   zend_uchar ** buffer,
 									   size_t * count,
@@ -128,7 +130,11 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 	if (PASS == vio->data->m.network_read(vio, header, XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE, stats, error_info)) {
 		*packet_type = XMYSQLND_PACKET_TYPE_LOAD(header + XMYSQLND_PAYLOAD_LENGTH_SIZE);
 		*count = XMYSQLND_PAYLOAD_LENGTH_LOAD(header) - XMYSQLND_PACKET_TYPE_SIZE;
-		*buffer = (zend_uchar*) mnd_emalloc(*count);
+		if (*count > prealloc_buffer_len || !prealloc_buffer) {
+			*buffer = (zend_uchar*) mnd_emalloc(*count);
+		} else {
+			*buffer = prealloc_buffer;
+		}
 		if (PASS == vio->data->m.network_read(vio, *buffer, *count, stats, error_info)) {
 #ifdef PHP_DEBUG
 			xmysqlnd_dump_server_message(*packet_type, *buffer, *count);

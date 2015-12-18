@@ -34,7 +34,7 @@ typedef void				(*func_xmysqlnd_pfc__dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STA
 typedef enum_func_status	(*func_xmysqlnd_pfc__reset)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const conn_stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_pfc__set_client_option)(XMYSQLND_PFC * const pfc, enum_xmysqlnd_client_option option, const char * const value);
 typedef enum_func_status	(*func_xmysqlnd_pfc__send)(XMYSQLND_PFC * const pfc, MYSQLND_VIO * const vio, zend_uchar packet_type, const zend_uchar * const buffer, const size_t count, size_t * bytes_sent, MYSQLND_STATS * const conn_stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_pfc__receive)(XMYSQLND_PFC * const pfc, MYSQLND_VIO * const vio, zend_uchar * packet_type, zend_uchar ** buffer, size_t * count, MYSQLND_STATS * const conn_stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_pfc__receive)(XMYSQLND_PFC * const pfc, MYSQLND_VIO * const vio, zend_uchar * prealloc_buffer, const size_t prealloc_buffer_len, zend_uchar * packet_type, zend_uchar ** buffer, size_t * count, MYSQLND_STATS * const conn_stats, MYSQLND_ERROR_INFO * const error_info);
 typedef void				(*func_xmysqlnd_pfc__free_contents)(XMYSQLND_PFC * pfc);
 
 

@@ -76,46 +76,6 @@ ZEND_BEGIN_ARG_INFO_EX(mysqlx_message__auth_continue__read_response, 0, ZEND_RET
 ZEND_END_ARG_INFO()
 
 
-static const char hexconvtab[] = "0123456789abcdef";
-
-static size_t
-mysqlx_auth_continue_send(const char * schema, size_t schema_len,
-						  const char * user, size_t user_len,
-						  const char * password, size_t password_len,
-						  const char * salt, size_t salt_len,
-						  struct st_mysqlx_node_connection * connection,
-						  struct st_mysqlx_node_pfc * codec)
-{
-	Mysqlx::Session::AuthenticateContinue proto_message;
-	DBG_ENTER("mysqlx_auth_continue_send");
-
-	std::string response(schema, schema_len);
-	response.append(1, '\0');
-	response.append(user, user_len);
-	response.append(1, '\0'); 
-	if (password && password_len) {
-		zend_uchar hash[SCRAMBLE_LENGTH];
-
-		php_mysqlnd_scramble(hash, (zend_uchar*) salt, (const zend_uchar*) password, password_len);
-		char hexed_hash[SCRAMBLE_LENGTH*2];
-		for (unsigned int i = 0; i < SCRAMBLE_LENGTH; i++) {
-			hexed_hash[i*2] = hexconvtab[hash[i] >> 4];
-			hexed_hash[i*2 + 1] = hexconvtab[hash[i] & 15];
-		}
-		DBG_INF_FMT("hexed_hash=%s", hexed_hash);
-		response.append(1, '*');
-		response.append(hexed_hash, SCRAMBLE_LENGTH*2);
-	}
-	response.append(1, '\0');
-	DBG_INF_FMT("response_size=%u", (uint) response.size());
-	proto_message.set_auth_data(response.c_str(), response.size());
-
-	const size_t ret = xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SESS_AUTHENTICATE_CONTINUE, proto_message);
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ proto long mysqlx_message__auth_continue::send(object messsage, string user, string password, string schema, object pfc, object connection) */
 PHP_METHOD(mysqlx_message__auth_continue, send)
 {
@@ -153,9 +113,14 @@ PHP_METHOD(mysqlx_message__auth_continue, send)
 		DBG_VOID_RETURN;
 	}
 
-	RETVAL_LONG(mysqlx_auth_continue_send(schema, schema_len, user, user_len, password, password_len,
-										  object->message.auth_data().c_str(), object->message.auth_data().size(),
-										  connection, codec));
+	const MYSQLND_CSTRING schema_par = {schema, schema_len};
+	const MYSQLND_CSTRING user_par = {user, user_len};
+	const MYSQLND_CSTRING password_par = {password, password_len};
+	const MYSQLND_CSTRING salt_par = {object->message.auth_data().c_str(), object->message.auth_data().size()};
+	
+	enum_func_status ret = xmysqlnd_send__authentication_continue(schema_par, user_par, password_par, salt_par,
+																  connection->vio, codec->pfc, connection->stats, connection->error_info);
+	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -187,48 +152,11 @@ PHP_METHOD(mysqlx_message__auth_continue, read_response)
 
 	RETVAL_FALSE;
 
-	{
-		zend_uchar packet_type;
-		do {
-			size_t payload_size;
-			zend_uchar * payload;
-
-			ret = codec->pfc->data->m.receive(codec->pfc, connection->vio,
-											  &packet_type,
-											  &payload, &payload_size,
-											  connection->stats,
-											  connection->error_info);
-			if (ret == PASS) {
-				const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
-				switch (type) {
-					case Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_CONTINUE: {
-						Mysqlx::Session::AuthenticateContinue auth_continue;
-						auth_continue.ParseFromArray(payload, payload_size);
-						mysqlx_new_message__auth_continue(return_value, auth_continue);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_OK: {
-						Mysqlx::Session::AuthenticateOk auth_ok;
-						auth_ok.ParseFromArray(payload, payload_size);
-						mysqlx_new_message__auth_ok(return_value, auth_ok);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_ERROR: {
-						Mysqlx::Error error;
-						error.ParseFromArray(payload, payload_size);
-						mysqlx_new_message__error(return_value, error);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_NOTICE:
-						break;
-					default:
-						php_error_docref(NULL, E_WARNING, "Returned unexpected packet type %s", Mysqlx::ServerMessages_Type_Name(type).c_str());
-				}
-				mnd_efree(payload);
-			}
-		} while (packet_type == Mysqlx::ServerMessages_Type_NOTICE);
+	ret = xmysqlnd_read__authentication_continue(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	if (FAIL == ret) {
+		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}
-	
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

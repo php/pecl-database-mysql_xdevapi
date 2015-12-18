@@ -101,6 +101,7 @@ PHP_METHOD(mysqlx_node_pfc, receive)
 		zend_uchar packet_type;
 		zend_uchar * read_buffer = NULL;
 		if (PASS == codec->pfc->data->m.receive(codec->pfc, connection->vio,
+												NULL, 0, /* prealloc buffer */
 												&packet_type,
 												&read_buffer,
 												&count,

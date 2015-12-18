@@ -30,6 +30,8 @@ struct st_mysqlx_message__error
 };
 
 void mysqlx_new_message__error(zval * return_value, const Mysqlx::Error & message);
+void mysqlx_new_message__error(zval * return_value, const char * msg, const char * sql_state, const unsigned int code);
+
 void dump_mysqlx_error(const Mysqlx::Error & error);
 
 #define MYSQLX_FETCH_MESSAGE__ERROR__FROM_ZVAL(_to, _from) \

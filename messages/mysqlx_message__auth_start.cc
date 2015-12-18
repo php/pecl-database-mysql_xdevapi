@@ -97,13 +97,10 @@ PHP_METHOD(mysqlx_message__auth_start, send)
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
-	{
-		Mysqlx::Session::AuthenticateStart proto_message;
-		proto_message.set_mech_name(auth_mech_name, auth_mech_name_len);
-		proto_message.set_auth_data(auth_data, auth_data_len);
-
-		RETVAL_LONG(xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SESS_AUTHENTICATE_START, proto_message));
-	}
+	const MYSQLND_CSTRING mech_name = {auth_mech_name, auth_mech_name_len};
+	const MYSQLND_CSTRING mech_data = {auth_data, auth_data_len};
+	enum_func_status ret = xmysqlnd_send__authentication_start(mech_name, mech_data, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -118,7 +115,6 @@ PHP_METHOD(mysqlx_message__auth_start, read_response)
 	struct st_mysqlx_message__auth_start * object;
 	struct st_mysqlx_node_connection * connection;
 	struct st_mysqlx_node_pfc * codec;
-	size_t ret = 0;
 
 	DBG_ENTER("mysqlx_message__auth_start::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -135,48 +131,10 @@ PHP_METHOD(mysqlx_message__auth_start, read_response)
 
 	RETVAL_FALSE;
 
-	{
-		zend_uchar packet_type;
-		do {
-			size_t payload_size;
-			zend_uchar * payload;
-			ret = codec->pfc->data->m.receive(codec->pfc, connection->vio,
-											  &packet_type,
-											  &payload, &payload_size,
-											  connection->stats,
-											  connection->error_info);
-			if (ret == PASS) {
-				const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
-				switch (type) {
-					case Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_CONTINUE: {
-						Mysqlx::Session::AuthenticateContinue auth_continue;
-						auth_continue.ParseFromArray(payload, payload_size);
-						mysqlx_new_message__auth_continue(return_value, auth_continue);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_OK: {
-						Mysqlx::Session::AuthenticateOk auth_ok;
-						auth_ok.ParseFromArray(payload, payload_size);
-						mysqlx_new_message__auth_ok(return_value, auth_ok);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_ERROR: {
-						Mysqlx::Error error;
-						error.ParseFromArray(payload, payload_size);
-						mysqlx_new_message__error(return_value, error);
-						dump_mysqlx_error(error);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_NOTICE:
-						break;
-					default:
-						php_error_docref(NULL, E_WARNING, "Returned unexpected packet type %s", Mysqlx::ServerMessages_Type_Name(type).c_str());
-				}
-				mnd_efree(payload);
-			}
-		} while (packet_type == Mysqlx::ServerMessages_Type_NOTICE);
+	enum_func_status ret = xmysqlnd_read__authentication_start(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	if (FAIL == ret) {
+		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}
-	
 	DBG_VOID_RETURN;
 }
 /* }}} */

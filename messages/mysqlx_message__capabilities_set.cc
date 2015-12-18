@@ -102,32 +102,33 @@ PHP_METHOD(mysqlx_message__capabilities_set, send)
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
-	Mysqlx::Connection::CapabilitiesSet proto_message;
 	{
-		zval * entry;
-		size_t cap_count = zend_hash_num_elements(&capabilities->capabilities_ht);
+		const size_t cap_count = zend_hash_num_elements(&capabilities->capabilities_ht);
 		if (!cap_count) {
 			php_error_docref(NULL, E_WARNING, "Zero Capabilities");
 			DBG_VOID_RETURN;
 		}
-
+		zval ** capability_names = (zval **) mnd_ecalloc(cap_count, sizeof(zval*));
+		zval ** capability_values = (zval **) mnd_ecalloc(cap_count, sizeof(zval*));
+		unsigned i = 0;
+		zval * entry;
 		ZEND_HASH_FOREACH_VAL(&capabilities->capabilities_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_message__capability_class_entry) {
 				struct st_mysqlx_message__capability * capability_entry = NULL;
 				MYSQLX_FETCH_MESSAGE__CAPABILITY_FROM_ZVAL(capability_entry, entry);
-				{
-					Mysqlx::Connection::Capability* new_object = proto_message.mutable_capabilities()->add_capabilities();
-					new_object->set_name(Z_STRVAL(capability_entry->capability_name), Z_STRLEN(capability_entry->capability_name));
-					Mysqlx::Datatypes::Any any_entry;
-					zval2any(&capability_entry->capability_value, any_entry);
-					new_object->mutable_value()->CopyFrom(any_entry);
-				}
-			}
-		} ZEND_HASH_FOREACH_END();
-	}
-	RETVAL_LONG(xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_CON_CAPABILITIES_SET, proto_message));
 
-	RETVAL_LONG(ret);
+				capability_names[i] = &capability_entry->capability_name;
+				capability_values[i] = &capability_entry->capability_value;
+			}
+			i++;
+		} ZEND_HASH_FOREACH_END();
+
+		enum_func_status ret = xmysqlnd_send__capabilities_set(cap_count, capability_names, capability_values, connection->vio, codec->pfc, connection->stats, connection->error_info);
+		RETVAL_BOOL(ret == PASS);
+		mnd_efree(capability_names);
+		mnd_efree(capability_values);
+	}
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -142,7 +143,6 @@ PHP_METHOD(mysqlx_message__capabilities_set, read_response)
 	struct st_mysqlx_message__capabilities_set * object;
 	struct st_mysqlx_node_connection * connection;
 	struct st_mysqlx_node_pfc * codec;
-	size_t ret = 0;
 
 	DBG_ENTER("mysqlx_message__capabilities_set::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -158,44 +158,13 @@ PHP_METHOD(mysqlx_message__capabilities_set, read_response)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	RETVAL_FALSE;
-	{
-		Mysqlx::Connection::Capabilities & proto_message = object->response;
-		zend_uchar packet_type;
-		size_t payload_size;
-		zend_uchar * payload;
-		do {
-			ret = codec->pfc->data->m.receive(codec->pfc, connection->vio,
-											  &packet_type,
-											  &payload, &payload_size,
-											  connection->stats,
-											  connection->error_info);
-			if (ret == FAIL) {
-				break;
-			}
-			const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
-			switch (type) {
-				case Mysqlx::ServerMessages_Type_OK: {
-					Mysqlx::Ok ok_response;
-					ok_response.ParseFromArray(payload, payload_size);
-					mysqlx_new_message__ok(return_value, ok_response);
-					break;
-				}
-				case Mysqlx::ServerMessages_Type_ERROR: {
-					Mysqlx::Error error;
-					error.ParseFromArray(payload, payload_size);
-					mysqlx_new_message__error(return_value, error);
-					dump_mysqlx_error(error);
-					break;
-				}
-				case Mysqlx::ServerMessages_Type_NOTICE:
-					break;
-				default:
-					php_error_docref(NULL, E_WARNING, "Returned unexpected packet type %s", Mysqlx::ServerMessages_Type_Name(type).c_str());
-			}
-			mnd_efree(payload);
-		} while (packet_type == Mysqlx::ServerMessages_Type_NOTICE);
+
+
+	enum_func_status ret = xmysqlnd_read__capabilities_set(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	if (FAIL == ret) {
+		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}
-	
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

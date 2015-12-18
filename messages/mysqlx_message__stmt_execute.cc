@@ -92,14 +92,12 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
-	{
-		Mysqlx::Sql::StmtExecute proto_message;
-		proto_message.set_namespace_(namespace_, namespace_len);
-		proto_message.set_stmt(stmt, stmt_len);
-		proto_message.set_compact_metadata(compact_metadata);
+	const MYSQLND_CSTRING namespace_par = {namespace_, namespace_len};
+	const MYSQLND_CSTRING stmt_par = {stmt, stmt_len};
+	
+	enum_func_status ret = xmysqlnd_send__sql_stmt_execute(namespace_par, stmt_par, compact_metadata, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	RETVAL_BOOL(ret == PASS);
 
-		RETVAL_LONG(xmysqlnd_send_protobuf_message(connection, codec, Mysqlx::ClientMessages_Type_SQL_STMT_EXECUTE, proto_message));
-	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -114,7 +112,6 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 	struct st_mysqlx_message__stmt_execute * object;
 	struct st_mysqlx_node_connection * connection;
 	struct st_mysqlx_node_pfc * codec;
-	size_t ret = 0;
 
 	DBG_ENTER("mysqlx_message__stmt_execute::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -131,69 +128,9 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 
 	RETVAL_FALSE;
 
-	{
-		zend_uchar packet_type;
-		do {
-			size_t payload_size;
-			zend_uchar * payload;
-			ret = codec->pfc->data->m.receive(codec->pfc, connection->vio,
-											  &packet_type,
-											  &payload, &payload_size,
-											  connection->stats,
-											  connection->error_info);
-			if (ret == PASS) {
-				const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
-				switch (type) {
-					case Mysqlx::ServerMessages_Type_ERROR: {
-						Mysqlx::Error error;
-						error.ParseFromArray(payload, payload_size);
-						mysqlx_new_message__error(return_value, error);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_NOTICE:
-						break;
-					case Mysqlx::ServerMessages_Type_SQL_STMT_EXECUTE_OK: {
-						Mysqlx::Sql::StmtExecuteOk message;
-						message.ParseFromArray(payload, payload_size);
-						mysqlx_new_stmt_execute_ok(return_value, message);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_RESULTSET_COLUMN_META_DATA: {
-						Mysqlx::Resultset::ColumnMetaData message;
-						message.ParseFromArray(payload, payload_size);
-						mysqlx_new_column_metadata(return_value, message);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_RESULTSET_ROW: {
-						Mysqlx::Resultset::Row message;
-						message.ParseFromArray(payload, payload_size);
-						mysqlx_new_data_row(return_value, message);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_RESULTSET_FETCH_SUSPENDED: {
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE: {
-						Mysqlx::Resultset::FetchDone message;
-						message.ParseFromArray(payload, payload_size);
-						mysqlx_new_data_fetch_done(return_value, message);
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_RESULTSETS: {
-						break;
-					}
-					case Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS: {
-						Mysqlx::Resultset::Row message;
-						message.ParseFromArray(payload, payload_size);
-//						mysqlx_new_column_metadata(return_value, message);
-						break;
-					}
-					default:
-						php_error_docref(NULL, E_WARNING, "Returned unexpected packet type %s", Mysqlx::ServerMessages_Type_Name(type).c_str());
-				}
-				mnd_efree(payload);
-			}
-		} while (packet_type == Mysqlx::ServerMessages_Type_NOTICE);
+	enum_func_status ret = xmysqlnd_read__stmt_execute(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	if (FAIL == ret) {
+		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}
 	
 	DBG_VOID_RETURN;

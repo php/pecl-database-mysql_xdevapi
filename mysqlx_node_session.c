@@ -136,14 +136,7 @@ static HashTable mysqlx_node_session_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_session_property_entries[] =
 {
-#ifdef USE_PROPERTIES
-	{{"errno",			sizeof("errno") - 1},			link_errno_read, NULL},
-	{{"error",			sizeof("error") - 1},			link_error_read, NULL},
-	{{"server_info",	sizeof("server_info") - 1},		link_server_info_read, NULL},
-	{{"server_version",	sizeof("server_version") - 1},	link_server_version_read, NULL},
-	{{"sqlstate",		sizeof("sqlstate") - 1},		link_sqlstate_read, NULL},
-#endif
-	{{NULL, 			0},								NULL, NULL}
+	{{NULL,	0}, NULL, NULL}
 };
 
 /* {{{ mysqlx_node_session_free_storage */
@@ -209,20 +202,6 @@ mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_session_properties, mysqlx_node_session_property_entries);
-#ifdef USE_PROPERTIES
-	/*
-	  Now register the properties, per name, to the class_entry. When someone uses this
-	  name from PHP then PHP will call read_property/write_property/has_property,
-	  and then we will look into the array initialized above (in this case
-	  mysqlx_node_session_properties), to find the proper getter/setter for the
-	  specific property. Finally we execute the getter/setter.
-	*/
-	zend_declare_property_null(mysqlx_node_session_class_entry, "errno",			sizeof("errno") - 1,			ZEND_ACC_PUBLIC);
-	zend_declare_property_null(mysqlx_node_session_class_entry, "error",			sizeof("error") - 1,			ZEND_ACC_PUBLIC);
-	zend_declare_property_null(mysqlx_node_session_class_entry, "server_info", 		sizeof("server_info") - 1,		ZEND_ACC_PUBLIC);
-	zend_declare_property_null(mysqlx_node_session_class_entry, "server_version", 	sizeof("server_version") - 1,	ZEND_ACC_PUBLIC);
-	zend_declare_property_null(mysqlx_node_session_class_entry, "sqlstate", 		sizeof("sqlstate") - 1,			ZEND_ACC_PUBLIC);
-#endif
 }
 /* }}} */
 

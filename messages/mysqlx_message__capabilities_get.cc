@@ -29,6 +29,7 @@
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 
+#include <xmysqlnd/xmysqlnd_wireprotocol.h>
 
 #include <new>
 #include "proto_gen/mysqlx.pb.h"
@@ -91,26 +92,7 @@ PHP_METHOD(mysqlx_message__capabilities_get, send)
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
-	{
-		Mysqlx::Connection::CapabilitiesGet message;
-		const zend_uchar packet_type = Mysqlx::ClientMessages_Type_CON_CAPABILITIES_GET;
-		const size_t payload_size = message.ByteSize();
-		size_t bytes_sent;
-		void * payload = payload_size? mnd_emalloc(payload_size) : NULL;
-		if (payload_size && !payload) {
-			php_error_docref(NULL, E_WARNING, "Memory allocation problem");
-			RETVAL_NULL();
-			DBG_VOID_RETURN;
-		}
-		message.SerializeToArray(payload, payload_size);
-		ret = codec->pfc->data->m.send(codec->pfc, connection->vio,
-									   packet_type,
-									   (zend_uchar *) payload, payload_size,
-									   &bytes_sent,
-									   connection->stats,
-									   connection->error_info);
-		mnd_efree(payload);
-	}
+	ret = xmysqlnd_send__capabilities_get(connection->vio, codec->pfc, connection->stats, connection->error_info);
 
 	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;
@@ -195,40 +177,9 @@ PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 
 	RETVAL_FALSE;
 
-	{
-		zend_uchar packet_type;
-		do {
-			size_t payload_size;
-			zend_uchar * payload;
-			ret = codec->pfc->data->m.receive(codec->pfc, connection->vio,
-											  &packet_type,
-											  &payload, &payload_size,
-											  connection->stats,
-											  connection->error_info);
-			if (ret == FAIL) {
-				break;
-			}
-			const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
-			switch (packet_type) {
-				case Mysqlx::ServerMessages_Type_CONN_CAPABILITIES: {
-					Mysqlx::Connection::Capabilities & message = object->response;
-					message.ParseFromArray(payload, payload_size);
-					capabilities_to_zv(message, return_value);
-					break;
-				}
-				case Mysqlx::ServerMessages_Type_ERROR:{
-					Mysqlx::Error error;
-					error.ParseFromArray(payload, payload_size);
-					mysqlx_new_message__error(return_value, error);
-					break;
-				}
-				case Mysqlx::ServerMessages_Type_NOTICE:
-					break;
-				default:
-					php_error_docref(NULL, E_WARNING, "Returned unexpected packet type %s", Mysqlx::ServerMessages_Type_Name(type).c_str());
-			}
-			mnd_efree(payload);
-		} while (packet_type == Mysqlx::ServerMessages_Type_NOTICE);
+	ret = xmysqlnd_read__capabilities_get(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	if (FAIL == ret) {
+		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}
 	
 	DBG_VOID_RETURN;

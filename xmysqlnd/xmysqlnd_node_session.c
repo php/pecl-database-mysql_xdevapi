@@ -26,6 +26,7 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_extension_plugin.h"
+#include "xmysqlnd_wireprotocol.h"
 
 
 /* {{{ xmysqlnd_node_session_state::get */
@@ -122,14 +123,16 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESS
 		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
 		printf("Time to handshake!!!");
 			/* HANDSHAKE HERE */
-#if 0
-		size_t client_flags = set_capabilities;
-		struct st_mysqlnd_protocol_command * command = session->command_factory(COM_HANDSHAKE, session, &username, &password, &database, client_flags);
-		if (command) {
-			ret = command->run(command);
-			command->free_command(command);
+		if (PASS == xmysqlnd_send__capabilities_get(session->vio, session->protocol_frame_codec, session->stats, session->error_info)) {
+			zval capabilities;
+			ZVAL_NULL(&capabilities);
+			ret = xmysqlnd_read__capabilities_get(&capabilities, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+			if (PASS == ret) {
+				/* Do something with the capabilities */
+			}
+			zval_dtor(&capabilities);
+			ret = FAIL;//break for now 
 		}
-#endif
 	}
 	DBG_RETURN(ret);
 }
@@ -310,28 +313,6 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, escape_string)(XMYSQLND_NODE_SESSION_
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::query */
-static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session_data, query)(XMYSQLND_NODE_SESSION_DATA * session, const char * const query, const size_t query_len)
-{
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), query);
-	enum_func_status ret = FAIL;
-	DBG_ENTER("xmysqlnd_node_session_data::query");
-	DBG_INF_FMT("session=%p query=%s", session, query);
-
-	if (PASS == session->m->local_tx_start(session, this_func)) {
-		if (PASS == session->m->send_query(session, query, query_len, MYSQLND_SEND_QUERY_IMPLICIT) &&
-			PASS == session->m->reap_query(session, MYSQLND_REAP_RESULT_IMPLICIT))
-		{
-			ret = PASS;
-		}
-		session->m->local_tx_end(session, this_func, ret);
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_node_session_data::send_query */
 static enum_func_status
 MYSQLND_METHOD(xmysqlnd_node_session_data, send_query)(XMYSQLND_NODE_SESSION_DATA * session, const char * const query, const size_t query_len,
@@ -372,28 +353,6 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, reap_query)(XMYSQLND_NODE_SESSION_DAT
 		if (type == MYSQLND_REAP_RESULT_EXPLICIT) {
 			session->m->local_tx_end(session, this_func, ret);
 		}
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session_data::select_db */
-static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session_data, select_db)(XMYSQLND_NODE_SESSION_DATA * const session, const char * const db, const size_t db_len)
-{
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), select_db);
-	enum_func_status ret = FAIL;
-
-	DBG_ENTER("xmysqlnd_node_session_data::select_db");
-	DBG_INF_FMT("db=%s", db);
-
-	if (PASS == session->m->local_tx_start(session, this_func)) {
-		//const MYSQLND_CSTRING database = {db, db_len};
-		
-		/* HANDLE COM_INIT_DB here */
-
-		session->m->local_tx_end(session, this_func, ret);
 	}
 	DBG_RETURN(ret);
 }
@@ -476,9 +435,9 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, get_protocol_info)(const XMYSQLND_NOD
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::charset_name */
+/* {{{ xmysqlnd_node_session_data::get_charset_name */
 static const char *
-MYSQLND_METHOD(xmysqlnd_node_session_data, charset_name)(const XMYSQLND_NODE_SESSION_DATA * const session)
+MYSQLND_METHOD(xmysqlnd_node_session_data, get_charset_name)(const XMYSQLND_NODE_SESSION_DATA * const session)
 {
 	return session->charset->name;
 }
@@ -689,7 +648,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DAT
 	switch (state) {
 		case NODE_SESSION_NON_AUTHENTICATED:
 		case NODE_SESSION_READY:
-			DBG_INF("Connection clean, sending COM_QUIT");
+			DBG_INF("Connection clean, sending CON_CLOSE");
 			if (net_stream) {
 				/* HANDLE COM_QUIT here */
 				vio->data->m.close_stream(vio, session->stats, session->error_info);
@@ -796,11 +755,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 	MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, connect),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, escape_string),
-	MYSQLND_METHOD(xmysqlnd_node_session_data, query),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, send_query),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, reap_query),
-
-	MYSQLND_METHOD(xmysqlnd_node_session_data, select_db),
 
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_error_no),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_error),
@@ -810,7 +766,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_server_version_string),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_server_host_info),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_protocol_info),
-	MYSQLND_METHOD(xmysqlnd_node_session_data, charset_name),
+	MYSQLND_METHOD(xmysqlnd_node_session_data, get_charset_name),
 
 	MYSQLND_METHOD(xmysqlnd_node_session_data, set_server_option),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, set_client_option),
@@ -886,6 +842,11 @@ MYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_h
 			password.s = "";
 			password.l = 0;
 		}
+		if (!database.s) {
+			DBG_INF_FMT("no password given, using empty string");
+			database.s = "";
+			database.l = 0;
+		}
 
 		ret = session->m->connect(session, hostname, username, password, database, socket_or_pipe, port, set_capabilities);
 
@@ -907,6 +868,48 @@ MYSQLND_METHOD(xmysqlnd_node_session, dtor)(XMYSQLND_NODE_SESSION * session)
 	mnd_pefree(session, session->persistent);
 
 	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_session::select_db */
+static enum_func_status
+MYSQLND_METHOD(xmysqlnd_node_session, select_db)(XMYSQLND_NODE_SESSION * session_handle, const char * const db, const size_t db_len)
+{
+	enum_func_status ret = FAIL;
+	char query[3+ 1 + 2 + 64*4 + 1];
+	const size_t query_len = snprintf(query, sizeof(query), "USE `%*s`", db_len, db);
+
+	DBG_ENTER("xmysqlnd_node_session::select_db");
+	DBG_INF_FMT("db=%s", db);
+
+	ret = session_handle->m->query(session_handle, query, query_len);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_session::query */
+static enum_func_status
+MYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle, const char * const query, const size_t query_len)
+{
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), query);
+	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
+	enum_func_status ret = FAIL;
+
+	DBG_ENTER("xmysqlnd_node_session::close");
+	if (PASS == session->m->local_tx_start(session, this_func)) {
+		if (PASS == session->m->send_query(session, query, query_len, MYSQLND_SEND_QUERY_IMPLICIT) &&
+			PASS == session->m->reap_query(session, MYSQLND_REAP_RESULT_IMPLICIT))
+		{
+			ret = PASS;
+		}
+
+		/* If we do it after free_reference/dtor then we might crash */
+		session->m->local_tx_end(session, this_func, ret);
+	}
+
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -950,6 +953,8 @@ MYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_han
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	MYSQLND_METHOD(xmysqlnd_node_session, test),
 	MYSQLND_METHOD(xmysqlnd_node_session, connect),
+	MYSQLND_METHOD(xmysqlnd_node_session, select_db),
+	MYSQLND_METHOD(xmysqlnd_node_session, query),
 	MYSQLND_METHOD(xmysqlnd_node_session, dtor),
 	MYSQLND_METHOD(xmysqlnd_node_session, close),
 MYSQLND_CLASS_METHODS_END;
