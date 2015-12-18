@@ -19,10 +19,7 @@
 #define MYSQLX_MESSAGE__CAPABILITIES_GET_H
 
 
-#ifdef  __cplusplus
-void capabilities_to_zv(const Mysqlx::Connection::Capabilities & message, zval * return_value);
-void zv_to_capabilities(const zval * from, Mysqlx::Connection::Capabilities & message);
-#else
+#ifndef  __cplusplus
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_message__capabilities_get_class_entry;
 void mysqlx_register_message__capabilities_get_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
