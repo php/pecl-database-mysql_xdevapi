@@ -105,6 +105,41 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DAT
 /* }}} */
 
 
+/* {{{ proto xmysqlnd_get_tls_capability */
+static zend_bool
+xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
+{
+	zval * zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), "tls", sizeof("tls") - 1);
+	if (!zv || Z_TYPE_P(zv) == IS_UNDEF) {
+		*found = FALSE;
+		return FALSE;
+	}
+	*found = TRUE;
+	convert_to_boolean(zv);
+	return Z_TYPE_P(zv) == IS_TRUE? TRUE:FALSE;
+}
+/* }}} */
+
+
+/* {{{ proto xmysqlnd_is_mysql41_supported */
+static zend_bool
+xmysqlnd_is_mysql41_supported(const zval * capabilities)
+{
+	zval * entry;
+	const zval * auth_mechs = zend_hash_str_find(Z_ARRVAL_P(capabilities), "authentication.mechanisms", sizeof("authentication.mechanisms") - 1);
+	if (!capabilities || Z_TYPE_P(auth_mechs) != IS_ARRAY) {
+		return FALSE;
+	}
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mechs), entry) {
+		if (!strcasecmp(Z_STRVAL_P(entry), "MYSQL41")) {
+			return TRUE;
+		}
+	} ZEND_HASH_FOREACH_END();
+	return FALSE;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_session_data::connect_handshake */
 static enum_func_status
 MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESSION_DATA * session,
@@ -128,6 +163,11 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESS
 			ZVAL_NULL(&capabilities);
 			ret = xmysqlnd_read__capabilities_get(&capabilities, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
 			if (PASS == ret) {
+				zend_bool tls_set;
+				const zend_bool tls = xmysqlnd_get_tls_capability(&capabilities, &tls_set);
+				const zend_bool mysql41_supported = xmysqlnd_is_mysql41_supported(&capabilities);
+				DBG_INF_FMT("tls=%d tls_set=%d", tls, tls_set);
+				DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
 				/* Do something with the capabilities */
 			}
 			zval_dtor(&capabilities);

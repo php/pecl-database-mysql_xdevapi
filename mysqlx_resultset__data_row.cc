@@ -93,6 +93,7 @@ PHP_METHOD(mysqlx_data_row, decode)
 		}
 		const struct st_mysqlx_column_metadata * meta_ar[column_count];
 		unsigned int i = 0;
+		/* ZEND_HASH_FOREACH_PTR ?? */
 		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {
 				struct st_mysqlx_column_metadata * column_entry = NULL;
