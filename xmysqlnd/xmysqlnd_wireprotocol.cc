@@ -593,6 +593,11 @@ auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue 
 	if (ctx->auth_start_response_zval) {
 		mysqlx_new_message__auth_continue(ctx->auth_start_response_zval, message);
 	}
+	if (message.has_auth_data()) {
+		const zend_bool persistent = FALSE;
+		ctx->out_auth_data.l = message.auth_data().size();
+		ctx->out_auth_data.s = mnd_pestrndup(message.auth_data().c_str(), ctx->out_auth_data.l, persistent);
+	}
 	DBG_RETURN(HND_PASS);
 }
 /* }}} */
@@ -659,6 +664,37 @@ xmysqlnd_authentication_start__send_request(struct st_xmysqlnd_auth_start_messag
 /* }}} */
 
 
+/* {{{ xmysqlnd_authentication_start__continue */
+extern "C" zend_bool
+xmysqlnd_authentication_start__continue(const struct st_xmysqlnd_auth_start_message_ctx * msg)
+{
+	return (msg->server_message_type == XMSG_AUTH_CONTINUE) ? TRUE:FALSE;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_authentication_start__ok */
+extern "C" zend_bool
+xmysqlnd_authentication_start__ok(const struct st_xmysqlnd_auth_start_message_ctx * msg)
+{
+	return (msg->server_message_type == XMSG_AUTH_OK) ? TRUE:FALSE;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_authentication_start__free_resources */
+extern "C" void
+xmysqlnd_authentication_start__free_resources(struct st_xmysqlnd_auth_start_message_ctx * msg)
+{
+	if (msg->out_auth_data.s) {
+		mnd_efree(msg->out_auth_data.s);
+		msg->out_auth_data.s = NULL;
+		msg->out_auth_data.l = 0;
+	}
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_get_auth_start_message */
 extern "C" struct st_xmysqlnd_auth_start_message_ctx
 xmysqlnd_get_auth_start_message(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -669,8 +705,12 @@ xmysqlnd_get_auth_start_message(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * erro
 		error_info,
 		NULL,
 		XMSG_NONE,
+		{NULL, 0},
 		xmysqlnd_authentication_start__send_request,
 		xmysqlnd_authentication_start__read_response,
+		xmysqlnd_authentication_start__continue,
+		xmysqlnd_authentication_start__ok,
+		xmysqlnd_authentication_start__free_resources,
 	};
 	return ctx;
 }
@@ -712,6 +752,11 @@ auth_continue_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContin
 	ctx->server_message_type = XMSG_AUTH_CONTINUE;
 	if (ctx->auth_continue_response_zval) {
 		mysqlx_new_message__auth_continue(ctx->auth_continue_response_zval, message);
+	}
+	if (message.has_auth_data()) {
+		const zend_bool persistent = FALSE;
+		ctx->out_auth_data.l = message.auth_data().size();
+		ctx->out_auth_data.s = mnd_pestrndup(message.auth_data().c_str(), ctx->out_auth_data.l, persistent);
 	}
 	DBG_RETURN(HND_PASS);
 }
@@ -811,6 +856,36 @@ xmysqlnd_authentication_continue__send_request(struct st_xmysqlnd_auth_continue_
 /* }}} */
 
 
+/* {{{ xmysqlnd_authentication_continue__continue */
+extern "C" zend_bool
+xmysqlnd_authentication_continue__continue(const struct st_xmysqlnd_auth_continue_message_ctx * msg)
+{
+	return (msg->server_message_type == XMSG_AUTH_CONTINUE) ? TRUE:FALSE;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_authentication_start__ok */
+extern "C" zend_bool
+xmysqlnd_authentication_continue__ok(const struct st_xmysqlnd_auth_continue_message_ctx * msg)
+{
+	return (msg->server_message_type == XMSG_AUTH_OK) ? TRUE:FALSE;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_authentication_continue__free_resources */
+extern "C" void
+xmysqlnd_authentication_continue__free_resources(struct st_xmysqlnd_auth_continue_message_ctx * msg)
+{
+	if (msg->out_auth_data.s) {
+		mnd_efree(msg->out_auth_data.s);
+		msg->out_auth_data.s = NULL;
+		msg->out_auth_data.l = 0;
+	}
+}
+/* }}} */
+
 
 /* {{{ xmysqlnd_get_auth_continue_message */
 extern "C" struct st_xmysqlnd_auth_continue_message_ctx
@@ -822,8 +897,12 @@ xmysqlnd_get_auth_continue_message(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * e
 		error_info,
 		NULL,
 		XMSG_NONE,
+		{NULL, 0},
 		xmysqlnd_authentication_continue__send_request,
 		xmysqlnd_authentication_continue__read_response,
+		xmysqlnd_authentication_continue__continue,
+		xmysqlnd_authentication_continue__ok,
+		xmysqlnd_authentication_continue__free_resources,
 	};
 	return ctx;
 }

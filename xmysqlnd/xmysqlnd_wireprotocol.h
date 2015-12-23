@@ -112,9 +112,15 @@ struct st_xmysqlnd_auth_start_message_ctx
 	MYSQLND_ERROR_INFO * error_info;
 	zval * auth_start_response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
+	MYSQLND_STRING out_auth_data;
 	
 	enum_func_status (*send_request)(struct st_xmysqlnd_auth_start_message_ctx * msg, const MYSQLND_CSTRING auth_mech_name, const MYSQLND_CSTRING auth_data, SEND_READ_CTX_DEF);
 	enum_func_status (*read_response)(struct st_xmysqlnd_auth_start_message_ctx * msg, zval * auth_start_response, SEND_READ_CTX_DEF);
+
+	zend_bool (*continue_auth)(const struct st_xmysqlnd_auth_start_message_ctx * msg);
+	zend_bool (*finished)(const struct st_xmysqlnd_auth_start_message_ctx * msg);
+
+	void (*free_resources)(struct st_xmysqlnd_auth_start_message_ctx * msg);
 };
 struct st_xmysqlnd_auth_start_message_ctx xmysqlnd_get_auth_start_message(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
@@ -125,9 +131,15 @@ struct st_xmysqlnd_auth_continue_message_ctx
 	MYSQLND_ERROR_INFO * error_info;
 	zval * auth_continue_response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
+	MYSQLND_STRING out_auth_data;
 
 	enum_func_status (*send_request)(struct st_xmysqlnd_auth_continue_message_ctx * msg, const MYSQLND_CSTRING schema, const MYSQLND_CSTRING user, const MYSQLND_CSTRING password, const MYSQLND_CSTRING salt, SEND_READ_CTX_DEF);
 	enum_func_status (*read_response)(struct st_xmysqlnd_auth_continue_message_ctx * msg, zval * auth_continue_response, SEND_READ_CTX_DEF);
+
+	zend_bool (*continue_auth)(const struct st_xmysqlnd_auth_continue_message_ctx * msg);
+	zend_bool (*finished)(const struct st_xmysqlnd_auth_continue_message_ctx * msg);
+
+	void (*free_resources)(struct st_xmysqlnd_auth_continue_message_ctx * msg);
 };
 struct st_xmysqlnd_auth_continue_message_ctx xmysqlnd_get_auth_continue_message(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 

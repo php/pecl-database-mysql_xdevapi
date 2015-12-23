@@ -171,15 +171,26 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESS
 				DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
 				if (mysql41_supported) {
 					const MYSQLND_CSTRING mech_name = {"MYSQL41", sizeof("MYSQL41") - 1};
-//					ret = xmysqlnd_send__authentication_start(mech_name, username, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+					struct st_xmysqlnd_auth_start_message_ctx auth_start_msg = xmysqlnd_get_auth_start_message(session->stats, session->error_info);
+					ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
 					if (ret == PASS) {
-#if 0
-						ret = xmysqlnd_read__authentication_start(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+						ret = auth_start_msg.read_response(&auth_start_msg, NULL, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
 						if (PASS == ret) {
+							if (auth_start_msg.continue_auth(&auth_start_msg) && auth_start_msg.out_auth_data.s) {
+								struct st_xmysqlnd_auth_continue_message_ctx auth_cont_msg = xmysqlnd_get_auth_continue_message(session->stats, session->error_info);
+								const MYSQLND_CSTRING salt_par = {auth_start_msg.out_auth_data.s, auth_start_msg.out_auth_data.l};
 
+								ret = auth_cont_msg.send_request(&auth_cont_msg, database, username, password, salt_par, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+								if (PASS == ret) {
+									ret = auth_cont_msg.read_response(&auth_cont_msg, NULL, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+									if (PASS == ret && auth_cont_msg.finished(&auth_cont_msg)) {
+										DBG_INF("AUTHENTICATED. YAY!");
+									}
+								}
+							}
 						}
-#endif
 					}
+					auth_start_msg.free_resources(&auth_start_msg);
 				}
 			}
 			zval_dtor(&capabilities);
