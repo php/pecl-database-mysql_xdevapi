@@ -43,6 +43,7 @@ static zend_class_entry *mysqlx_message__stmt_execute_class_entry;
 
 struct st_mysqlx_message__stmt_execute
 {
+	struct st_xmysqlnd_sql_stmt_execute_message_ctx msg;
 	zend_bool persistent;
 };
 
@@ -66,7 +67,7 @@ ZEND_END_ARG_INFO()
 /* {{{ proto long mysqlx_message__stmt_execute::send(object messsage, string auth_mechanism, string auth_data, object pfc, object connection) */
 PHP_METHOD(mysqlx_message__stmt_execute, send)
 {
-	zval * message_zv;
+	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
 	char * namespace_ = NULL;
@@ -74,12 +75,13 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 	char * stmt = NULL;
 	size_t stmt_len = 0;
 	zend_bool compact_metadata;
+	struct st_mysqlx_message__stmt_execute * object;
 	struct st_mysqlx_node_connection * connection;
 	struct st_mysqlx_node_pfc * codec;
 
 	DBG_ENTER("mysqlx_message__stmt_execute::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OssbOO",
-												&message_zv, mysqlx_message__stmt_execute_class_entry,
+												&object_zv, mysqlx_message__stmt_execute_class_entry,
 												&namespace_, &namespace_len,
 												&stmt, &stmt_len,
 												&compact_metadata, 
@@ -89,13 +91,14 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 		DBG_VOID_RETURN;
 	}
 
+	MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_FROM_ZVAL(object, object_zv);
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	const MYSQLND_CSTRING namespace_par = {namespace_, namespace_len};
 	const MYSQLND_CSTRING stmt_par = {stmt, stmt_len};
-	
-	enum_func_status ret = xmysqlnd_send__sql_stmt_execute(namespace_par, stmt_par, compact_metadata, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	object->msg = xmysqlnd_get_sql_stmt_execute_message(connection->stats, connection->error_info);
+	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata, connection->vio, codec->pfc, connection->stats, connection->error_info);
 	RETVAL_BOOL(ret == PASS);
 
 	DBG_VOID_RETURN;
@@ -128,7 +131,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 
 	RETVAL_FALSE;
 
-	enum_func_status ret = xmysqlnd_read__stmt_execute(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	enum_func_status ret = object->msg.read_response(&object->msg, return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

@@ -41,6 +41,7 @@ zend_class_entry *mysqlx_message__capabilities_get_class_entry;
 
 struct st_mysqlx_message__capabilities_get
 {
+	struct st_xmysqlnd_capabilities_get_message_ctx msg;
 	zend_bool persistent;
 };
 
@@ -70,28 +71,29 @@ ZEND_END_ARG_INFO()
 /* {{{ proto bool mysqlx_message__capabilities_get::send(object messsage, object pfc, object connection) */
 PHP_METHOD(mysqlx_message__capabilities_get, send)
 {
-	zval * message_zv;
+	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_message__capabilities_get * message;
+	struct st_mysqlx_message__capabilities_get * object;
 	struct st_mysqlx_node_connection * connection;
 	struct st_mysqlx_node_pfc * codec;
 	enum_func_status ret = FAIL;
 
 	DBG_ENTER("mysqlx_message__capabilities_get::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
-												&message_zv, mysqlx_message__capabilities_get_class_entry,
+												&object_zv, mysqlx_message__capabilities_get_class_entry,
 												&codec_zv, mysqlx_node_pfc_class_entry,
 												&connection_zv, mysqlx_node_connection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_MESSAGE__CAPABILITIES_GET__FROM_ZVAL(message, message_zv);
+	MYSQLX_FETCH_MESSAGE__CAPABILITIES_GET__FROM_ZVAL(object, object_zv);
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
-	ret = xmysqlnd_send__capabilities_get(connection->vio, codec->pfc, connection->stats, connection->error_info);
+	object->msg = xmysqlnd_get_capabilities_get_message(connection->stats, connection->error_info);
+	ret = object->msg.send_request(&object->msg, connection->vio, codec->pfc, connection->stats, connection->error_info);
 
 	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;
@@ -125,7 +127,7 @@ PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 
 	RETVAL_FALSE;
 
-	ret = xmysqlnd_read__capabilities_get(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	ret = object->msg.read_response(&object->msg, return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

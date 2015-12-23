@@ -25,6 +25,7 @@
 #include "xmysqlnd_priv.h" // XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_wireprotocol.h"
+#include "xmysqlnd_protocol_dumper.h"
 #include "xmysqlnd_driver.h"
 
 #define XMYSQLND_PACKET_TYPE_SIZE	1

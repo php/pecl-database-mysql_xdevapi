@@ -156,19 +156,31 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESS
 		PASS == session->protocol_frame_codec->data->m.reset(session->protocol_frame_codec, session->stats, session->error_info))
 	{
 		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
+		struct st_xmysqlnd_capabilities_get_message_ctx caps_get = xmysqlnd_get_capabilities_get_message(session->stats, session->error_info);
 		printf("Time to handshake!!!");
 			/* HANDSHAKE HERE */
-		if (PASS == xmysqlnd_send__capabilities_get(session->vio, session->protocol_frame_codec, session->stats, session->error_info)) {
+		if (PASS == caps_get.send_request(&caps_get, session->vio, session->protocol_frame_codec, session->stats, session->error_info)) {
 			zval capabilities;
 			ZVAL_NULL(&capabilities);
-			ret = xmysqlnd_read__capabilities_get(&capabilities, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+			ret = caps_get.read_response(&caps_get, &capabilities, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
 			if (PASS == ret) {
 				zend_bool tls_set;
 				const zend_bool tls = xmysqlnd_get_tls_capability(&capabilities, &tls_set);
 				const zend_bool mysql41_supported = xmysqlnd_is_mysql41_supported(&capabilities);
 				DBG_INF_FMT("tls=%d tls_set=%d", tls, tls_set);
 				DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
-				/* Do something with the capabilities */
+				if (mysql41_supported) {
+					const MYSQLND_CSTRING mech_name = {"MYSQL41", sizeof("MYSQL41") - 1};
+//					ret = xmysqlnd_send__authentication_start(mech_name, username, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+					if (ret == PASS) {
+#if 0
+						ret = xmysqlnd_read__authentication_start(return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+						if (PASS == ret) {
+
+						}
+#endif
+					}
+				}
 			}
 			zval_dtor(&capabilities);
 			ret = FAIL;//break for now 
