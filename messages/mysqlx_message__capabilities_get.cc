@@ -92,8 +92,9 @@ PHP_METHOD(mysqlx_message__capabilities_get, send)
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
-	object->msg = xmysqlnd_get_capabilities_get_message(connection->stats, connection->error_info);
-	ret = object->msg.send_request(&object->msg, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(connection->vio, codec->pfc, connection->stats, connection->error_info);
+	object->msg = msg_factory.get__capabilities(&msg_factory);
+	ret = object->msg.send_request(&object->msg);
 
 	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;
@@ -127,7 +128,7 @@ PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 
 	RETVAL_FALSE;
 
-	ret = object->msg.read_response(&object->msg, return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	ret = object->msg.read_response(&object->msg, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

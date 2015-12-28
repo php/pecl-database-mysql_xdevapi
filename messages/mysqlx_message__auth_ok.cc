@@ -74,7 +74,7 @@ PHP_METHOD(mysqlx_message__auth_ok, response)
 	MYSQLX_FETCH_MESSAGE__AUTH_OK_FROM_ZVAL(object, object_zv);
 
 	if (object->message.has_auth_data()) {
-		RETURN_STRINGL(object->message.auth_data().c_str(), object->message.auth_data().size());
+		RETVAL_STRINGL(object->message.auth_data().c_str(), object->message.auth_data().size());
 	}
 	DBG_VOID_RETURN;
 }

@@ -114,14 +114,14 @@ PHP_METHOD(mysqlx_message__auth_continue, send)
 		DBG_VOID_RETURN;
 	}
 
-	object->msg = xmysqlnd_get_auth_continue_message(connection->stats, connection->error_info);
+	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(connection->vio, codec->pfc, connection->stats, connection->error_info);
+	object->msg = msg_factory.get__auth_continue(&msg_factory);
 	const MYSQLND_CSTRING schema_par = {schema, schema_len};
 	const MYSQLND_CSTRING user_par = {user, user_len};
 	const MYSQLND_CSTRING password_par = {password, password_len};
 	const MYSQLND_CSTRING salt_par = {object->message.auth_data().c_str(), object->message.auth_data().size()};
 	
-	enum_func_status ret = object->msg.send_request(&object->msg, schema_par, user_par, password_par, salt_par,
-													connection->vio, codec->pfc, connection->stats, connection->error_info);
+	enum_func_status ret = object->msg.send_request(&object->msg, schema_par, user_par, password_par, salt_par);
 	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;
 }
@@ -154,7 +154,7 @@ PHP_METHOD(mysqlx_message__auth_continue, read_response)
 
 	RETVAL_FALSE;
 
-	ret = object->msg.read_response(&object->msg, return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	ret = object->msg.read_response(&object->msg, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

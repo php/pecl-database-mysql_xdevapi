@@ -97,8 +97,10 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 
 	const MYSQLND_CSTRING namespace_par = {namespace_, namespace_len};
 	const MYSQLND_CSTRING stmt_par = {stmt, stmt_len};
-	object->msg = xmysqlnd_get_sql_stmt_execute_message(connection->stats, connection->error_info);
-	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata, connection->vio, codec->pfc, connection->stats, connection->error_info);
+
+	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(connection->vio, codec->pfc, connection->stats, connection->error_info);
+	object->msg = msg_factory.get__sql_stmt_execute(&msg_factory);
+	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata);
 	RETVAL_BOOL(ret == PASS);
 
 	DBG_VOID_RETURN;
@@ -131,7 +133,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 
 	RETVAL_FALSE;
 
-	enum_func_status ret = object->msg.read_response(&object->msg, return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	enum_func_status ret = object->msg.read_response(&object->msg, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

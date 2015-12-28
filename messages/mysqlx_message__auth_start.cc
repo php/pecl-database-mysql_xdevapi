@@ -102,9 +102,10 @@ PHP_METHOD(mysqlx_message__auth_start, send)
 
 	const MYSQLND_CSTRING mech_name = {auth_mech_name, auth_mech_name_len};
 	const MYSQLND_CSTRING mech_data = {auth_data, auth_data_len};
-	object->msg = xmysqlnd_get_auth_start_message(connection->stats, connection->error_info);
+	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(connection->vio, codec->pfc, connection->stats, connection->error_info);
+	object->msg = msg_factory.get__auth_start(&msg_factory);
 	
-	enum_func_status ret = object->msg.send_request(&object->msg, mech_name, mech_data, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	enum_func_status ret = object->msg.send_request(&object->msg, mech_name, mech_data);
 	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;
 }
@@ -135,7 +136,7 @@ PHP_METHOD(mysqlx_message__auth_start, read_response)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	RETVAL_FALSE;
-	enum_func_status ret = object->msg.read_response(&object->msg, return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	enum_func_status ret = object->msg.read_response(&object->msg, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

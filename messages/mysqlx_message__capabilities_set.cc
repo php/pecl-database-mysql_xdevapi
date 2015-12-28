@@ -127,8 +127,9 @@ PHP_METHOD(mysqlx_message__capabilities_set, send)
 			i++;
 		} ZEND_HASH_FOREACH_END();
 
-		object->msg = xmysqlnd_get_capabilities_set_message(connection->stats, connection->error_info);
-		enum_func_status ret = object->msg.send_request(&object->msg, cap_count, capability_names, capability_values, connection->vio, codec->pfc, connection->stats, connection->error_info);
+		struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(connection->vio, codec->pfc, connection->stats, connection->error_info);
+		object->msg = msg_factory.get__capabilities_set(&msg_factory);
+		enum_func_status ret = object->msg.send_request(&object->msg, cap_count, capability_names, capability_values);
 		RETVAL_BOOL(ret == PASS);
 		mnd_efree(capability_names);
 		mnd_efree(capability_values);
@@ -165,7 +166,7 @@ PHP_METHOD(mysqlx_message__capabilities_set, read_response)
 	RETVAL_FALSE;
 
 
-	enum_func_status ret = object->msg.read_response(&object->msg, return_value, connection->vio, codec->pfc, connection->stats, connection->error_info);
+	enum_func_status ret = object->msg.read_response(&object->msg, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

@@ -156,13 +156,14 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESS
 		PASS == session->protocol_frame_codec->data->m.reset(session->protocol_frame_codec, session->stats, session->error_info))
 	{
 		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
-		struct st_xmysqlnd_capabilities_get_message_ctx caps_get = xmysqlnd_get_capabilities_get_message(session->stats, session->error_info);
+		struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+		struct st_xmysqlnd_capabilities_get_message_ctx caps_get = msg_factory.get__capabilities(&msg_factory);
 		printf("Time to handshake!!!");
 			/* HANDSHAKE HERE */
-		if (PASS == caps_get.send_request(&caps_get, session->vio, session->protocol_frame_codec, session->stats, session->error_info)) {
+		if (PASS == caps_get.send_request(&caps_get)) {
 			zval capabilities;
 			ZVAL_NULL(&capabilities);
-			ret = caps_get.read_response(&caps_get, &capabilities, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+			ret = caps_get.read_response(&caps_get, &capabilities);
 			if (PASS == ret) {
 				zend_bool tls_set;
 				const zend_bool tls = xmysqlnd_get_tls_capability(&capabilities, &tls_set);
@@ -171,18 +172,18 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESS
 				DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
 				if (mysql41_supported) {
 					const MYSQLND_CSTRING mech_name = {"MYSQL41", sizeof("MYSQL41") - 1};
-					struct st_xmysqlnd_auth_start_message_ctx auth_start_msg = xmysqlnd_get_auth_start_message(session->stats, session->error_info);
-					ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+					struct st_xmysqlnd_auth_start_message_ctx auth_start_msg = msg_factory.get__auth_start(&msg_factory);
+					ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username);
 					if (ret == PASS) {
-						ret = auth_start_msg.read_response(&auth_start_msg, NULL, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+						ret = auth_start_msg.read_response(&auth_start_msg, NULL);
 						if (PASS == ret) {
 							if (auth_start_msg.continue_auth(&auth_start_msg) && auth_start_msg.out_auth_data.s) {
-								struct st_xmysqlnd_auth_continue_message_ctx auth_cont_msg = xmysqlnd_get_auth_continue_message(session->stats, session->error_info);
+								struct st_xmysqlnd_auth_continue_message_ctx auth_cont_msg = msg_factory.get__auth_continue(&msg_factory);
 								const MYSQLND_CSTRING salt_par = {auth_start_msg.out_auth_data.s, auth_start_msg.out_auth_data.l};
 
-								ret = auth_cont_msg.send_request(&auth_cont_msg, database, username, password, salt_par, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+								ret = auth_cont_msg.send_request(&auth_cont_msg, database, username, password, salt_par);
 								if (PASS == ret) {
-									ret = auth_cont_msg.read_response(&auth_cont_msg, NULL, session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+									ret = auth_cont_msg.read_response(&auth_cont_msg, NULL);
 									if (PASS == ret && auth_cont_msg.finished(&auth_cont_msg)) {
 										DBG_INF("AUTHENTICATED. YAY!");
 									}
