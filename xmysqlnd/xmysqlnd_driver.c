@@ -24,7 +24,8 @@
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_query_result.h"
+#include "xmysqlnd_node_query.h"
+#include "xmysqlnd_node_query_result_meta.h"
 
 static zend_bool xmysqlnd_library_initted = FALSE;
 
@@ -98,28 +99,28 @@ PHPAPI unsigned int xmysqlnd_get_client_version()
 static XMYSQLND_NODE_SESSION *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, const zend_bool persistent)
 {
-	const size_t alloc_size_ret = sizeof(XMYSQLND_NODE_SESSION) + mysqlnd_plugin_count() * sizeof(void *);
-	const size_t alloc_size_ret_data = sizeof(XMYSQLND_NODE_SESSION_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_SESSION * new_object;
+	const size_t alloc_size = sizeof(XMYSQLND_NODE_SESSION) + mysqlnd_plugin_count() * sizeof(void *);
+	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_SESSION_DATA) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_NODE_SESSION * object;
 	XMYSQLND_NODE_SESSION_DATA * data;
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session");
 	DBG_INF_FMT("persistent=%u", persistent);
-	new_object = mnd_pecalloc(1, alloc_size_ret, persistent);
-	if (!new_object) {
+	object = mnd_pecalloc(1, alloc_size, persistent);
+	if (!object) {
 		DBG_RETURN(NULL);
 	}
-	new_object->data = mnd_pecalloc(1, alloc_size_ret_data, persistent);
-	if (!new_object->data) {
-		mnd_pefree(new_object, persistent);
+	object->data = mnd_pecalloc(1, data_alloc_size, persistent);
+	if (!object->data) {
+		mnd_pefree(object, persistent);
 		DBG_RETURN(NULL);
 	}
-	new_object->persistent = persistent;
-	new_object->m = xmysqlnd_node_session_get_methods();
-	data = new_object->data;
+	object->persistent = persistent;
+	object->m = xmysqlnd_node_session_get_methods();
+	data = object->data;
 
 	if (FAIL == mysqlnd_error_info_init(&data->error_info_impl, persistent)) {
-		new_object->m->dtor(new_object);
+		object->m->dtor(object);
 		DBG_RETURN(NULL);
 	}
 	data->error_info = &data->error_info_impl;
@@ -136,56 +137,102 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS
 
 	mysqlnd_stats_init(&data->stats, STAT_LAST, persistent);
 
-	data->protocol_frame_codec = xmysqlnd_pfc_init(persistent, factory, data->stats, data->error_info);
-	data->vio = mysqlnd_vio_init(persistent, NULL, data->stats, data->error_info);
+	data->io.pfc = xmysqlnd_pfc_init(persistent, factory, data->stats, data->error_info);
+	data->io.vio = mysqlnd_vio_init(persistent, NULL, data->stats, data->error_info);
 
 	data->charset = mysqlnd_find_charset_name(XMYSQLND_NODE_SESSION_CHARSET);
 
-	if (!data->protocol_frame_codec || !data->vio || !data->charset) {
-		new_object->m->dtor(new_object);
+	if (!data->io.pfc || !data->io.vio || !data->charset) {
+		object->m->dtor(object);
 		DBG_RETURN(NULL);
 	}
 
-	DBG_RETURN(new_object);
+	DBG_RETURN(object);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_object_factory::get_node_query_result */
-static XMYSQLND_NODE_QUERY_RESULT *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query_result)(XMYSQLND_NODE_SESSION_DATA * session, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_object_factory::get_node_query */
+static XMYSQLND_NODE_QUERY *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query)(XMYSQLND_NODE_SESSION_DATA * session, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	const size_t alloc_size = sizeof(XMYSQLND_NODE_QUERY_RESULT) + mysqlnd_plugin_count() * sizeof(void *);
-	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_QUERY_RESULT_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_QUERY_RESULT * result = mnd_pecalloc(1, alloc_size, persistent);
-	XMYSQLND_NODE_QUERY_RESULT_DATA * result_data = mnd_pecalloc(1, data_alloc_size, persistent);
+	const size_t alloc_size = sizeof(XMYSQLND_NODE_QUERY) + mysqlnd_plugin_count() * sizeof(void *);
+	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_QUERY_DATA) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_NODE_QUERY * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_NODE_QUERY_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
 
-	DBG_ENTER("xmysqlnd_object_factory::get_node_query_result");
+	DBG_ENTER("xmysqlnd_object_factory::get_node_query");
 	DBG_INF_FMT("persistent=%u", persistent);
-	if (result && result_data) {
-		result->data = result_data;
-		result->persistent = result->data->persistent = persistent;
-		result->data->m = *xmysqlnd_node_query_result_get_methods();
+	if (object && object_data) {
+		object->data = object_data;
+		object->persistent = object->data->persistent = persistent;
+		object->data->m = *xmysqlnd_node_query_result_get_methods();
 
-		if (!(result->data->session = session->m->get_reference(session))) {
-			result->data->m.dtor(result, stats, error_info);
-			result = NULL;
+		if (!(object->data->session = session->m->get_reference(session))) {
+			object->data->m.dtor(object, stats, error_info);
+			object = NULL;
 		}
-		if (PASS != result->data->m.init(result, stats, error_info)) {
-			result->data->m.dtor(result, stats, error_info);
-			result = NULL;
+		if (PASS != object->data->m.init(object, stats, error_info)) {
+			object->data->m.dtor(object, stats, error_info);
+			object = NULL;
 		}
 	} else {
-		if (result_data) {
-			mnd_pefree(result_data, persistent);
-			result_data = NULL;
+		if (object_data) {
+			mnd_pefree(object_data, persistent);
+			object_data = NULL;
 		}
-		if (result) {
-			mnd_pefree(result, persistent);
-			result = NULL;
+		if (object) {
+			mnd_pefree(object, persistent);
+			object = NULL;
 		}
 	}
-	DBG_RETURN(result);
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_object_factory::get_node_query_result_meta */
+static XMYSQLND_NODE_QUERY_RESULT_META *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query_result_meta)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_NODE_QUERY_RESULT_META) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_NODE_QUERY_RESULT_META * object = mnd_pecalloc(1, alloc_size, persistent);
+
+	DBG_ENTER("xmysqlnd_object_factory::get_node_query_result_meta");
+	DBG_INF_FMT("persistent=%u", persistent);
+	if (object) {
+		object->persistent = persistent;
+		object->m = xmysqlnd_node_query_result_meta_get_methods();
+
+		if (PASS != object->m->init(object, stats, error_info)) {
+			object->m->dtor(object, stats, error_info);
+			object = NULL;
+		}
+	}
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_object_factory::get_result_field_meta */
+static XMYSQLND_RESULT_FIELD_META *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_RESULT_FIELD_META) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_RESULT_FIELD_META * object = mnd_pecalloc(1, alloc_size, persistent);
+
+	DBG_ENTER("xmysqlnd_object_factory::get_result_field_meta");
+	DBG_INF_FMT("persistent=%u", persistent);
+	if (object) {
+		object->persistent = persistent;
+		object->m = xmysqlnd_result_field_meta_get_methods();
+
+		if (PASS != object->m->init(object, stats, error_info)) {
+			object->m->dtor(object, stats, error_info);
+			object = NULL;
+		}
+	}
+	DBG_RETURN(object);
 }
 /* }}} */
 
@@ -194,41 +241,43 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query_result)(XMYSQLND_NODE_SE
 static XMYSQLND_PFC *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	const size_t pfc_alloc_size = sizeof(XMYSQLND_PFC) + mysqlnd_plugin_count() * sizeof(void *);
-	const size_t pfc_data_alloc_size = sizeof(MYSQLND_PFC_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_PFC * pfc = mnd_pecalloc(1, pfc_alloc_size, persistent);
-	XMYSQLND_PFC_DATA * pfc_data = mnd_pecalloc(1, pfc_data_alloc_size, persistent);
+	const size_t alloc_size = sizeof(XMYSQLND_PFC) + mysqlnd_plugin_count() * sizeof(void *);
+	const size_t data_alloc_size = sizeof(MYSQLND_PFC_DATA) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_PFC * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_PFC_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
 
 	DBG_ENTER("xmysqlnd_object_factory::get_pfc");
 	DBG_INF_FMT("persistent=%u", persistent);
-	if (pfc && pfc_data) {
-		pfc->data = pfc_data;
-		pfc->persistent = pfc->data->persistent = persistent;
-		pfc->data->m = *xmysqlnd_pfc_get_methods();
+	if (object && object_data) {
+		object->data = object_data;
+		object->persistent = object->data->persistent = persistent;
+		object->data->m = *xmysqlnd_pfc_get_methods();
 
-		if (PASS != pfc->data->m.init(pfc, stats, error_info)) {
-			pfc->data->m.dtor(pfc, stats, error_info);
-			pfc = NULL;
+		if (PASS != object->data->m.init(object, stats, error_info)) {
+			object->data->m.dtor(object, stats, error_info);
+			object = NULL;
 		}
-		pfc->data->max_packet_size = XMYSQLND_MAX_PACKET_SIZE;
+		object->data->max_packet_size = XMYSQLND_MAX_PACKET_SIZE;
 	} else {
-		if (pfc_data) {
-			mnd_pefree(pfc_data, persistent);
-			pfc_data = NULL;
+		if (object_data) {
+			mnd_pefree(object_data, persistent);
+			object_data = NULL;
 		}
-		if (pfc) {
-			mnd_pefree(pfc, persistent);
-			pfc = NULL;
+		if (object) {
+			mnd_pefree(object, persistent);
+			object = NULL;
 		}
 	}
-	DBG_RETURN(pfc);
+	DBG_RETURN(object);
 }
 /* }}} */
 
 
 MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session),
-	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query_result),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query_result_meta),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc),
 MYSQLND_CLASS_METHODS_END;
 

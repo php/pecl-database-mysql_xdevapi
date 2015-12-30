@@ -95,11 +95,13 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
+
+	const XMYSQLND_L3_IO io = {connection->vio, codec->pfc};
+	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, connection->stats, connection->error_info);
+	object->msg = msg_factory.get__sql_stmt_execute(&msg_factory);
+
 	const MYSQLND_CSTRING namespace_par = {namespace_, namespace_len};
 	const MYSQLND_CSTRING stmt_par = {stmt, stmt_len};
-
-	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(connection->vio, codec->pfc, connection->stats, connection->error_info);
-	object->msg = msg_factory.get__sql_stmt_execute(&msg_factory);
 	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata);
 	RETVAL_BOOL(ret == PASS);
 
@@ -133,7 +135,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 
 	RETVAL_FALSE;
 
-	enum_func_status ret = object->msg.read_response(&object->msg, return_value);
+	enum_func_status ret = object->msg.read_response(&object->msg, NULL, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

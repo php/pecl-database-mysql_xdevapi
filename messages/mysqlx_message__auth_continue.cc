@@ -114,8 +114,11 @@ PHP_METHOD(mysqlx_message__auth_continue, send)
 		DBG_VOID_RETURN;
 	}
 
-	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(connection->vio, codec->pfc, connection->stats, connection->error_info);
+	const XMYSQLND_L3_IO io = {connection->vio, codec->pfc};
+	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, connection->stats, connection->error_info);
 	object->msg = msg_factory.get__auth_continue(&msg_factory);
+
+
 	const MYSQLND_CSTRING schema_par = {schema, schema_len};
 	const MYSQLND_CSTRING user_par = {user, user_len};
 	const MYSQLND_CSTRING password_par = {password, password_len};

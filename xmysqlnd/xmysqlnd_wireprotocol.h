@@ -19,14 +19,19 @@
 #ifndef XMYSQLND_WIREPROTOCOL_H
 #define XMYSQLND_WIREPROTOCOL_H
 
+struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_level3_io;
+
 #include <ext/mysqlnd/mysqlnd_vio.h>
 #include "xmysqlnd/xmysqlnd_protocol_frame_codec.h"
 
 #ifdef __cplusplus
 #include "proto_gen/mysqlx.pb.h"
+#endif
 
 enum xmysqlnd_client_message_type
 {
+#ifdef __cplusplus
 	COM_CAPABILITIES_GET	= Mysqlx::ClientMessages_Type_CON_CAPABILITIES_GET,
 	COM_CAPABILITIES_SET	= Mysqlx::ClientMessages_Type_CON_CAPABILITIES_SET,
 	COM_CONN_CLOSE			= Mysqlx::ClientMessages_Type_CON_CLOSE,
@@ -40,12 +45,14 @@ enum xmysqlnd_client_message_type
 	COM_CRUD_UPDATE			= Mysqlx::ClientMessages_Type_CRUD_UPDATE,
 	COM_CRUD_DELETE			= Mysqlx::ClientMessages_Type_CRUD_DELETE,
 	COM_EXPECTATIONS_OPEN	= Mysqlx::ClientMessages_Type_EXPECT_OPEN,
-	COM_EXPECTATIONS_CLOSE = Mysqlx::ClientMessages_Type_EXPECT_CLOSE,
+	COM_EXPECTATIONS_CLOSE	= Mysqlx::ClientMessages_Type_EXPECT_CLOSE,
+#endif
 	COM_NONE = 255
 };
 
 enum xmysqlnd_server_message_type
 {
+#ifdef __cplusplus
 	XMSG_OK						= Mysqlx::ServerMessages_Type_OK,
 	XMSG_ERROR					= Mysqlx::ServerMessages_Type_ERROR,
 	XMSG_CAPABILITIES			= Mysqlx::ServerMessages_Type_CONN_CAPABILITIES,
@@ -59,22 +66,13 @@ enum xmysqlnd_server_message_type
 	XMSG_RSET_FETCH_DONE_MORE_RSETS = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_RESULTSETS,
 	XMSG_STMT_EXECUTE_OK		= Mysqlx::ServerMessages_Type_SQL_STMT_EXECUTE_OK,
 	XMSG_RSET_FETCH_DONE_MORE_OUT = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS,
+#endif
 	XMSG_NONE = 255
 };
+
+#ifdef __cplusplus
 extern "C"
 {
-
-#else
-enum xmysqlnd_client_message_type
-{
-	COM_NONE = 255
-};
-
-enum xmysqlnd_server_message_type
-{
-	XMSG_NONE = 255
-};
-
 #endif
 
 #define SEND_READ_CTX_DEF			MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info
@@ -151,12 +149,14 @@ struct st_xmysqlnd_auth_continue_message_ctx
 struct st_xmysqlnd_sql_stmt_execute_message_ctx
 {
 	enum_func_status (*send_request)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt, const zend_bool compact_meta);
-	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg, zval * response);
+	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg, struct st_xmysqlnd_node_session_data * const session, zval * response);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
+	struct st_xmysqlnd_node_session_data * session;
+	struct st_xmysqlnd_node_query_result_meta * result_meta;
 	zval * response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 };
@@ -182,15 +182,15 @@ struct st_xmysqlnd_message_factory
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
-	struct st_xmysqlnd_capabilities_get_message_ctx	(*get__capabilities_get)(struct st_xmysqlnd_message_factory * factory);
-	struct st_xmysqlnd_capabilities_set_message_ctx	(*get__capabilities_set)(struct st_xmysqlnd_message_factory * factory);
-	struct st_xmysqlnd_auth_start_message_ctx		(*get__auth_start)(struct st_xmysqlnd_message_factory * factory);
-	struct st_xmysqlnd_auth_continue_message_ctx	(*get__auth_continue)(struct st_xmysqlnd_message_factory * factory);
-	struct st_xmysqlnd_sql_stmt_execute_message_ctx	(*get__sql_stmt_execute)(struct st_xmysqlnd_message_factory * factory);
-	struct st_xmysqlnd_connection_close_ctx			(*get__connection_close)(struct st_xmysqlnd_message_factory * factory);
+	struct st_xmysqlnd_capabilities_get_message_ctx	(*get__capabilities_get)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_capabilities_set_message_ctx	(*get__capabilities_set)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_auth_start_message_ctx		(*get__auth_start)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_auth_continue_message_ctx	(*get__auth_continue)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_sql_stmt_execute_message_ctx	(*get__sql_stmt_execute)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_connection_close_ctx			(*get__connection_close)(const struct st_xmysqlnd_message_factory * const factory);
 };
 
-struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_xmysqlnd_level3_io * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 
 #ifdef __cplusplus

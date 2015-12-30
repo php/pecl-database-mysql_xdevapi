@@ -92,8 +92,10 @@ PHP_METHOD(mysqlx_message__capabilities_get, send)
 	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
-	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(connection->vio, codec->pfc, connection->stats, connection->error_info);
+	const XMYSQLND_L3_IO io = {connection->vio, codec->pfc};
+	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, connection->stats, connection->error_info);
 	object->msg = msg_factory.get__capabilities_get(&msg_factory);
+
 	ret = object->msg.send_request(&object->msg);
 
 	RETVAL_BOOL(ret == PASS);

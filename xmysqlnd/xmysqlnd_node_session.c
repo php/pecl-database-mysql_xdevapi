@@ -25,6 +25,7 @@
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
+#include "xmysqlnd_node_query.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_wireprotocol.h"
 
@@ -150,11 +151,11 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 						const size_t set_capabilities)
 {
 	enum_func_status ret = FAIL;
-	struct st_xmysqlnd_message_factory msg_factory;
+	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
 	struct st_xmysqlnd_capabilities_get_message_ctx caps_get;
 	DBG_ENTER("xmysqlnd_node_session_data::authenticate");
 
-	msg_factory = xmysqlnd_get_message_factory(session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+	
 	caps_get = msg_factory.get__capabilities_get(&msg_factory);
 
 	if (PASS == caps_get.send_request(&caps_get)) {
@@ -215,8 +216,8 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESS
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_session_data::connect_handshake");
 
-	if (PASS == session->vio->data->m.connect(session->vio, scheme, session->persistent, session->stats, session->error_info) &&
-		PASS == session->protocol_frame_codec->data->m.reset(session->protocol_frame_codec, session->stats, session->error_info))
+	if (PASS == session->io.vio->data->m.connect(session->io.vio, scheme, session->persistent, session->stats, session->error_info) &&
+		PASS == session->io.pfc->data->m.reset(session->io.pfc, session->stats, session->error_info))
 	{
 		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
 		ret = session->m->authenticate(session, scheme, username, password, database, set_capabilities);
@@ -293,9 +294,9 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA *
 		session->username.s		= mnd_pestrndup(username.s, session->username.l, session->persistent);
 		session->password.l		= password.l;
 		session->password.s		= mnd_pestrndup(password.s, session->password.l, session->persistent);
-		session->port				= port;
-		session->current_db.l = database.l;
-		session->current_db.s = mnd_pestrndup(database.s, session->current_db.l, session->persistent);
+		session->port			= port;
+		session->current_db.l	= database.l;
+		session->current_db.s	= mnd_pestrndup(database.s, session->current_db.l, session->persistent);
 
 		if (!session->username.s || !session->password.s|| !session->current_db.s) {
 			SET_OOM_ERROR(session->error_info);
@@ -401,36 +402,22 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, escape_string)(XMYSQLND_NODE_SESSION_
 
 
 /* {{{ xmysqlnd_node_session_data::send_query */
-static XMYSQLND_NODE_QUERY_RESULT *
+static XMYSQLND_NODE_QUERY *
 MYSQLND_METHOD(xmysqlnd_node_session_data, send_query)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), send_query);
 	enum_func_status ret = FAIL;
-	XMYSQLND_NODE_QUERY_RESULT * result = NULL;
+	XMYSQLND_NODE_QUERY * result = NULL;
 	DBG_ENTER("xmysqlnd_node_session_data::send_query");
 	DBG_INF_FMT("query=%s", query.s);
 
 	if (type == MYSQLND_SEND_QUERY_IMPLICIT || PASS == session->m->local_tx_start(session, this_func))
 	{
-		struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(session->vio, session->protocol_frame_codec, session->stats, session->error_info);
-
-		const MYSQLND_CSTRING namespace_par = {"sql", sizeof("sql") - 1};
-
-		struct st_xmysqlnd_sql_stmt_execute_message_ctx msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
-		ret = msg_stmt_exec.send_request(&msg_stmt_exec, namespace_par, query, FALSE);
-		DBG_INF_FMT("%s", ret == PASS? "PASS":"FAIL");
-		result = xmysqlnd_node_query_result_init(session, session->persistent, &session->object_factory, session->stats, session->error_info);
-
-		DBG_RETURN(result);
-#if 0
-		if (PASS == ret) {
-			DBG_INF("STMT successfully sent");
-			ret = msg_stmt_exec.read_response(&msg_stmt_exec, NULL);
-			if (PASS == ret) {
-				DBG_INF("STMT read first response");
-			}
+		result = xmysqlnd_node_query_init(session, session->persistent, &session->object_factory, session->stats, session->error_info);
+		if (result) {
+			result->data->m.send_query(result, query, session->stats, session->error_info);
 		}
-#endif
+
 		if (type == MYSQLND_SEND_QUERY_EXPLICIT) {
 			session->m->local_tx_end(session, this_func, ret);
 		}
@@ -577,7 +564,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, set_client_option)(XMYSQLND_NODE_SESS
 	}
 	switch (option) {
 		case XMYSQLND_OPT_READ_TIMEOUT:
-			ret = session->vio->data->m.set_client_option(session->vio, option, value);
+			ret = session->io.vio->data->m.set_client_option(session->io.vio, option, value);
 			break;
 		default:
 			ret = FAIL;
@@ -601,12 +588,12 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, free_contents)(XMYSQLND_NODE_SESSION_
 
 	DBG_ENTER("xmysqlnd_node_session_data::free_contents");
 
-	if (session->protocol_frame_codec) {
-		session->protocol_frame_codec->data->m.free_contents(session->protocol_frame_codec);
+	if (session->io.pfc) {
+		session->io.pfc->data->m.free_contents(session->io.pfc);
 	}
 
-	if (session->vio) {
-		session->vio->data->m.free_contents(session->vio);
+	if (session->io.vio) {
+		session->io.vio->data->m.free_contents(session->io.vio);
 	}
 
 	DBG_INF("Freeing memory of members");
@@ -665,14 +652,14 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, dtor)(XMYSQLND_NODE_SESSION_DATA * se
 	session->m->free_contents(session);
 	session->m->free_options(session);
 
-	if (session->protocol_frame_codec) {
-		xmysqlnd_pfc_free(session->protocol_frame_codec, session->stats, session->error_info);
-		session->protocol_frame_codec = NULL;
+	if (session->io.pfc) {
+		xmysqlnd_pfc_free(session->io.pfc, session->stats, session->error_info);
+		session->io.pfc = NULL;
 	}
 
-	if (session->vio) {
-		mysqlnd_vio_free(session->vio, session->stats, session->error_info);
-		session->vio = NULL;
+	if (session->io.vio) {
+		mysqlnd_vio_free(session->io.vio, session->stats, session->error_info);
+		session->io.vio = NULL;
 	}
 
 	if (session->stats) {
@@ -733,7 +720,7 @@ static enum_func_status
 MYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DATA * const session)
 {
 	enum_func_status ret = PASS;
-	MYSQLND_VIO * vio = session->vio;
+	MYSQLND_VIO * vio = session->io.vio;
 	php_stream * net_stream = vio->data->m.get_stream(vio);
 	const enum xmysqlnd_node_session_state state = GET_SESSION_STATE(&session->state);
 
@@ -750,7 +737,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DAT
 	switch (state) {
 		case NODE_SESSION_NON_AUTHENTICATED:
 		case NODE_SESSION_READY: {
-			struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
 			struct st_xmysqlnd_connection_close_ctx conn_close_msg = msg_factory.get__connection_close(&msg_factory);
 			DBG_INF("Connection clean, sending CON_CLOSE");
 			conn_close_msg.send_request(&conn_close_msg);
@@ -794,7 +781,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, ssl_set)(XMYSQLND_NODE_SESSION_DATA *
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), ssl_set);
 	enum_func_status ret = FAIL;
-	MYSQLND_VIO * vio = session->vio;
+	MYSQLND_VIO * vio = session->io.vio;
 	DBG_ENTER("xmysqlnd_node_session_data::ssl_set");
 
 	if (PASS == session->m->local_tx_start(session, this_func)) {
@@ -1008,8 +995,9 @@ MYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_han
 
 	DBG_ENTER("xmysqlnd_node_session::close");
 	if (PASS == session->m->local_tx_start(session, this_func)) {
-		XMYSQLND_NODE_QUERY_RESULT * result = session->m->send_query(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
-		if (result && PASS == result->data->m.read_result(result)) {
+		XMYSQLND_NODE_QUERY * result = session->m->send_query(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		if (result && PASS == result->data->m.read_result(result, session->stats, session->error_info)) {
+			xmysqlnd_node_query_free(result, session->stats, session->error_info);
 			ret = PASS;
 		}
 
