@@ -99,7 +99,7 @@ PHP_METHOD(mysqlx_node_session, query)
 {
 	zval * session_zv;
 	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_STRING query = {NULL, 0};
+	MYSQLND_CSTRING query = {NULL, 0};
 
 	DBG_ENTER("mysqlx_node_session::query");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &session_zv, mysqlx_node_session_class_entry, &(query.s), &(query.l)) == FAILURE) {
@@ -113,7 +113,7 @@ PHP_METHOD(mysqlx_node_session, query)
 	}
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(session, session_zv);
 
-	xmysqlnd_node_session_test(session, query.s? query.s : "N/A");
+	xmysqlnd_node_session_query(session, query);
 
 	RETVAL_FALSE;
 	DBG_VOID_RETURN;

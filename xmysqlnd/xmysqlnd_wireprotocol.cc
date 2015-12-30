@@ -937,7 +937,7 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 /* }}} */
 
 
-/* {{{ auth_start_on_NOTICE */
+/* {{{ stmt_execute_on_NOTICE */
 static enum_hnd_func_status
 stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
@@ -1105,6 +1105,110 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 /* }}} */
 
 
+/**************************************  CON_CLOSE **************************************************/
+/* {{{ con_close_on_OK */
+static enum_hnd_func_status
+con_close_on_OK(const Mysqlx::Ok & message, void * context)
+{
+	struct st_xmysqlnd_connection_close_ctx * ctx = static_cast<struct st_xmysqlnd_connection_close_ctx *>(context);
+	ctx->server_message_type = XMSG_OK;
+	return HND_PASS;
+}
+/* }}} */
+
+
+/* {{{ con_close_on_ERROR */
+static enum_hnd_func_status
+con_close_on_ERROR(const Mysqlx::Error & error, void * context)
+{
+	struct st_xmysqlnd_connection_close_ctx * ctx = static_cast<struct st_xmysqlnd_connection_close_ctx *>(context);
+	ctx->server_message_type = XMSG_ERROR;
+	SET_CLIENT_ERROR(ctx->error_info,
+					 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
+					 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
+					 error.has_msg()? error.msg().c_str() : "Unknown server error");
+	return HND_PASS_RETURN_FAIL;
+}
+/* }}} */
+
+
+/* {{{ con_close_on_NOTICE */
+static enum_hnd_func_status
+con_close_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
+{
+	struct st_xmysqlnd_connection_close_ctx * ctx = static_cast<struct st_xmysqlnd_connection_close_ctx *>(context);
+	ctx->server_message_type = XMSG_NOTICE;
+	return HND_AGAIN;
+}
+/* }}} */
+
+
+static struct st_xmysqlnd_server_messages_handlers con_close_handlers =
+{
+	con_close_on_OK,		// on_OK
+	con_close_on_ERROR,		// on_ERROR
+	NULL,					// on_CAPABILITIES
+	NULL,					// on_AUTHENTICATE_CONTINUE
+	NULL,					// on_AUTHENTICATE_OK
+	con_close_on_NOTICE,	// on_NOTICE
+	NULL,					// on_RSET_COLUMN_META
+	NULL,					// on_RSET_ROW
+	NULL,					// on_RSET_FETCH_DONE
+	NULL,					// on_RESULTSET_FETCH_SUSPENDED
+	NULL,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	NULL,					// on_SQL_STMT_EXECUTE_OK
+	NULL,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	NULL,					// on_UNEXPECTED
+	NULL,					// on_UNKNOWN
+};
+
+
+/* {{{ xmysqlnd_con_close__read_response */
+extern "C" enum_func_status
+xmysqlnd_con_close__read_response(struct st_xmysqlnd_connection_close_ctx * msg)
+{
+	enum_func_status ret;
+	DBG_ENTER("xmysqlnd_con_close__read_response");
+	ret = xmysqlnd_receive_message(&con_close_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_con_close__send_request */
+extern "C" enum_func_status
+xmysqlnd_con_close__send_request(struct st_xmysqlnd_connection_close_ctx * msg)
+{
+	size_t bytes_sent;
+	Mysqlx::Session::Close message;
+
+	return xmysqlnd_send_message(COM_CONN_CLOSE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+}
+/* }}} */
+
+
+
+/* {{{ xmysqlnd_con_close__get_message */
+static struct st_xmysqlnd_connection_close_ctx
+xmysqlnd_con_close__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+{
+	struct st_xmysqlnd_connection_close_ctx ctx = 
+	{
+		xmysqlnd_con_close__send_request,
+		xmysqlnd_con_close__read_response,
+		vio,
+		pfc,
+		stats,
+		error_info,
+		XMSG_NONE,
+	};
+	return ctx;
+}
+/* }}} */
+
+
+/**************************************  FACTORY **************************************************/
+
 /* {{{ xmysqlnd_get_capabilities_get_message_aux */
 static struct st_xmysqlnd_capabilities_get_message_ctx
 xmysqlnd_get_capabilities_get_message_aux(struct st_xmysqlnd_message_factory * factory)
@@ -1150,6 +1254,15 @@ xmysqlnd_get_sql_stmt_execute_message_aux(struct st_xmysqlnd_message_factory * f
 /* }}} */
 
 
+/* {{{ xmysqlnd_get_con_close_message_aux */
+static struct st_xmysqlnd_connection_close_ctx
+xmysqlnd_get_con_close_message_aux(struct st_xmysqlnd_message_factory * factory)
+{
+	return xmysqlnd_con_close__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_get_message_factory */
 extern "C" struct st_xmysqlnd_message_factory
 xmysqlnd_get_message_factory(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -1165,6 +1278,7 @@ xmysqlnd_get_message_factory(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STAT
 		xmysqlnd_get_auth_start_message_aux,
 		xmysqlnd_get_auth_continue_message_aux,
 		xmysqlnd_get_sql_stmt_execute_message_aux,
+		xmysqlnd_get_con_close_message_aux,
 	};
 	return factory;
 }

@@ -22,16 +22,20 @@
 #include "xmysqlnd_enum_n_def.h"
 
 struct st_xmysqlnd_node_session;
+struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_node_query_result;
 struct st_xmysqlnd_protocol_frame_codec;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
 
 typedef struct st_xmysqlnd_node_session * (*func_xmysqlnd_object_factory__get_node_session)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory, const zend_bool persistent);
+typedef struct st_xmysqlnd_node_query_result * (*func_xmysqlnd_object_factory__get_node_query_result)(struct st_xmysqlnd_node_session_data * session, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_protocol_frame_codec * (*func_xmysqlnd_object_factory__get_pfc)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 {
 	func_xmysqlnd_object_factory__get_node_session get_node_session;
+	func_xmysqlnd_object_factory__get_node_query_result get_node_query_result;
 	func_xmysqlnd_object_factory__get_pfc get_protocol_frame_codec;
 };
 

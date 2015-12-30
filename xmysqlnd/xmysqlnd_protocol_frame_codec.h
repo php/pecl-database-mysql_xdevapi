@@ -17,8 +17,8 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef MYSQLND_PROTOCOL_FRAME_CODEC_H
-#define MYSQLND_PROTOCOL_FRAME_CODEC_H
+#ifndef XMYSQLND_PROTOCOL_FRAME_CODEC_H
+#define XMYSQLND_PROTOCOL_FRAME_CODEC_H
 
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
@@ -79,7 +79,7 @@ PHPAPI void xmysqlnd_pfc_free(XMYSQLND_PFC * const net, MYSQLND_STATS * stats, M
 } /* extern "C" */
 #endif
 
-#endif /* MYSQLND_PROTOCOL_FRAME_CODEC_H */
+#endif /* XMYSQLND_PROTOCOL_FRAME_CODEC_H */
 
 /*
  * Local variables:

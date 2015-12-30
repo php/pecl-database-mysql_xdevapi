@@ -23,10 +23,11 @@
 
 PHPAPI MYSQLND_STATS *xmysqlnd_global_stats = NULL;
 
+
+
 /* {{{ mysqlnd_stats_values_names */
 const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 {
-
 	{ MYSQLND_STR_W_LEN("bytes_sent") },
 	{ MYSQLND_STR_W_LEN("bytes_received") },
 	{ MYSQLND_STR_W_LEN("packets_sent") },

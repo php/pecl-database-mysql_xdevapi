@@ -140,6 +140,69 @@ xmysqlnd_is_mysql41_supported(const zval * capabilities)
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_session_data::authenticate */
+static enum_func_status
+MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_DATA * session,
+						const MYSQLND_CSTRING scheme,
+						const MYSQLND_CSTRING username,
+						const MYSQLND_CSTRING password,
+						const MYSQLND_CSTRING database,
+						const size_t set_capabilities)
+{
+	enum_func_status ret = FAIL;
+	struct st_xmysqlnd_message_factory msg_factory;
+	struct st_xmysqlnd_capabilities_get_message_ctx caps_get;
+	DBG_ENTER("xmysqlnd_node_session_data::authenticate");
+
+	msg_factory = xmysqlnd_get_message_factory(session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+	caps_get = msg_factory.get__capabilities_get(&msg_factory);
+
+	if (PASS == caps_get.send_request(&caps_get)) {
+		zval capabilities;
+		ZVAL_NULL(&capabilities);
+		ret = caps_get.read_response(&caps_get, &capabilities);
+		if (PASS == ret) {
+			zend_bool tls_set;
+			const zend_bool tls = xmysqlnd_get_tls_capability(&capabilities, &tls_set);
+			const zend_bool mysql41_supported = xmysqlnd_is_mysql41_supported(&capabilities);
+			DBG_INF_FMT("tls=%d tls_set=%d", tls, tls_set);
+			DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
+			if (0 && tls) {
+
+			} else if (mysql41_supported) {
+				const MYSQLND_CSTRING mech_name = {"MYSQL41", sizeof("MYSQL41") - 1};
+				struct st_xmysqlnd_auth_start_message_ctx auth_start_msg = msg_factory.get__auth_start(&msg_factory);
+
+				ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username);
+				if (ret == PASS) {
+					ret = auth_start_msg.read_response(&auth_start_msg, NULL);
+					if (PASS == ret) {
+						if (auth_start_msg.continue_auth(&auth_start_msg) && auth_start_msg.out_auth_data.s) {
+							struct st_xmysqlnd_auth_continue_message_ctx auth_cont_msg = msg_factory.get__auth_continue(&msg_factory);
+							const MYSQLND_CSTRING salt_par = {auth_start_msg.out_auth_data.s, auth_start_msg.out_auth_data.l};
+
+							ret = auth_cont_msg.send_request(&auth_cont_msg, database, username, password, salt_par);
+							if (PASS == ret) {
+								ret = auth_cont_msg.read_response(&auth_cont_msg, NULL);
+								if (PASS == ret && auth_cont_msg.finished(&auth_cont_msg)) {
+									DBG_INF("AUTHENTICATED. YAY!");
+								}
+							}
+						}
+					}
+				}
+				auth_start_msg.free_resources(&auth_start_msg);
+			}
+		}
+		zval_dtor(&capabilities);
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+
 /* {{{ xmysqlnd_node_session_data::connect_handshake */
 static enum_func_status
 MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESSION_DATA * session,
@@ -156,47 +219,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESS
 		PASS == session->protocol_frame_codec->data->m.reset(session->protocol_frame_codec, session->stats, session->error_info))
 	{
 		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
-		struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(session->vio, session->protocol_frame_codec, session->stats, session->error_info);
-		struct st_xmysqlnd_capabilities_get_message_ctx caps_get = msg_factory.get__capabilities(&msg_factory);
-		printf("Time to handshake!!!");
-			/* HANDSHAKE HERE */
-		if (PASS == caps_get.send_request(&caps_get)) {
-			zval capabilities;
-			ZVAL_NULL(&capabilities);
-			ret = caps_get.read_response(&caps_get, &capabilities);
-			if (PASS == ret) {
-				zend_bool tls_set;
-				const zend_bool tls = xmysqlnd_get_tls_capability(&capabilities, &tls_set);
-				const zend_bool mysql41_supported = xmysqlnd_is_mysql41_supported(&capabilities);
-				DBG_INF_FMT("tls=%d tls_set=%d", tls, tls_set);
-				DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
-				if (mysql41_supported) {
-					const MYSQLND_CSTRING mech_name = {"MYSQL41", sizeof("MYSQL41") - 1};
-					struct st_xmysqlnd_auth_start_message_ctx auth_start_msg = msg_factory.get__auth_start(&msg_factory);
-					ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username);
-					if (ret == PASS) {
-						ret = auth_start_msg.read_response(&auth_start_msg, NULL);
-						if (PASS == ret) {
-							if (auth_start_msg.continue_auth(&auth_start_msg) && auth_start_msg.out_auth_data.s) {
-								struct st_xmysqlnd_auth_continue_message_ctx auth_cont_msg = msg_factory.get__auth_continue(&msg_factory);
-								const MYSQLND_CSTRING salt_par = {auth_start_msg.out_auth_data.s, auth_start_msg.out_auth_data.l};
-
-								ret = auth_cont_msg.send_request(&auth_cont_msg, database, username, password, salt_par);
-								if (PASS == ret) {
-									ret = auth_cont_msg.read_response(&auth_cont_msg, NULL);
-									if (PASS == ret && auth_cont_msg.finished(&auth_cont_msg)) {
-										DBG_INF("AUTHENTICATED. YAY!");
-									}
-								}
-							}
-						}
-					}
-					auth_start_msg.free_resources(&auth_start_msg);
-				}
-			}
-			zval_dtor(&capabilities);
-			ret = FAIL;//break for now 
-		}
+		ret = session->m->authenticate(session, scheme, username, password, database, set_capabilities);
 	}
 	DBG_RETURN(ret);
 }
@@ -329,7 +352,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA *
 
 		SET_EMPTY_ERROR(session->error_info);
 
-		XMYSQLND_INC_SESSION_STATISTIC_W_VALUE2(session->stats, XMYSQLND_STAT_CONNECT_SUCCESS, 1, STAT_OPENED_CONNECTIONS, 1);
+		XMYSQLND_INC_SESSION_STATISTIC_W_VALUE2(session->stats, XMYSQLND_STAT_CONNECT_SUCCESS, 1, XMYSQLND_STAT_OPENED_CONNECTIONS, 1);
 		if (reconnect) {
 			XMYSQLND_INC_GLOBAL_STATISTIC(XMYSQLND_STAT_RECONNECT);
 		}
@@ -378,30 +401,45 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, escape_string)(XMYSQLND_NODE_SESSION_
 
 
 /* {{{ xmysqlnd_node_session_data::send_query */
-static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session_data, send_query)(XMYSQLND_NODE_SESSION_DATA * session, const char * const query, const size_t query_len,
-													   enum_mysqlnd_send_query_type type)
+static XMYSQLND_NODE_QUERY_RESULT *
+MYSQLND_METHOD(xmysqlnd_node_session_data, send_query)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), send_query);
 	enum_func_status ret = FAIL;
+	XMYSQLND_NODE_QUERY_RESULT * result = NULL;
 	DBG_ENTER("xmysqlnd_node_session_data::send_query");
-	DBG_INF_FMT("query=%s", query);
+	DBG_INF_FMT("query=%s", query.s);
 
 	if (type == MYSQLND_SEND_QUERY_IMPLICIT || PASS == session->m->local_tx_start(session, this_func))
 	{
-		// const MYSQLND_CSTRING query_string = {query, query_len};
+		struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(session->vio, session->protocol_frame_codec, session->stats, session->error_info);
 
-		/* HANDLE COM_QUERY here */
+		const MYSQLND_CSTRING namespace_par = {"sql", sizeof("sql") - 1};
 
+		struct st_xmysqlnd_sql_stmt_execute_message_ctx msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
+		ret = msg_stmt_exec.send_request(&msg_stmt_exec, namespace_par, query, FALSE);
+		DBG_INF_FMT("%s", ret == PASS? "PASS":"FAIL");
+		result = xmysqlnd_node_query_result_init(session, session->persistent, &session->object_factory, session->stats, session->error_info);
+
+		DBG_RETURN(result);
+#if 0
+		if (PASS == ret) {
+			DBG_INF("STMT successfully sent");
+			ret = msg_stmt_exec.read_response(&msg_stmt_exec, NULL);
+			if (PASS == ret) {
+				DBG_INF("STMT read first response");
+			}
+		}
+#endif
 		if (type == MYSQLND_SEND_QUERY_EXPLICIT) {
 			session->m->local_tx_end(session, this_func, ret);
 		}
 	}
-	DBG_RETURN(ret);
+	DBG_RETURN(result);
 }
 /* }}} */
 
-
+#if 0
 /* {{{ xmysqlnd_node_session_data::reap_query */
 static enum_func_status
 MYSQLND_METHOD(xmysqlnd_node_session_data, reap_query)(XMYSQLND_NODE_SESSION_DATA * session, enum_mysqlnd_reap_result_type type)
@@ -421,7 +459,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, reap_query)(XMYSQLND_NODE_SESSION_DAT
 	DBG_RETURN(ret);
 }
 /* }}} */
-
+#endif
 
 /* {{{ xmysqlnd_node_session_data::get_error_no */
 static unsigned int
@@ -711,14 +749,20 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DAT
 	}
 	switch (state) {
 		case NODE_SESSION_NON_AUTHENTICATED:
-		case NODE_SESSION_READY:
+		case NODE_SESSION_READY: {
+			struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(session->vio, session->protocol_frame_codec, session->stats, session->error_info);
+			struct st_xmysqlnd_connection_close_ctx conn_close_msg = msg_factory.get__connection_close(&msg_factory);
 			DBG_INF("Connection clean, sending CON_CLOSE");
+			conn_close_msg.send_request(&conn_close_msg);
+			conn_close_msg.read_response(&conn_close_msg);
+			
 			if (net_stream) {
 				/* HANDLE COM_QUIT here */
 				vio->data->m.close_stream(vio, session->stats, session->error_info);
 			}
 			SET_SESSION_STATE(&session->state, NODE_SESSION_CLOSE_SENT);
 			break;
+		}
 		case NODE_SESSION_ALLOCED:
 			/*
 			  Allocated but not connected or there was failure when trying
@@ -817,10 +861,10 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, get_client_api_capabilities)(const XM
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake),
+	MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, connect),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, escape_string),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, send_query),
-	MYSQLND_METHOD(xmysqlnd_node_session_data, reap_query),
 
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_error_no),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_error),
@@ -938,16 +982,17 @@ MYSQLND_METHOD(xmysqlnd_node_session, dtor)(XMYSQLND_NODE_SESSION * session)
 
 /* {{{ xmysqlnd_node_session::select_db */
 static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session, select_db)(XMYSQLND_NODE_SESSION * session_handle, const char * const db, const size_t db_len)
+MYSQLND_METHOD(xmysqlnd_node_session, select_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret = FAIL;
 	char query[3+ 1 + 2 + 64*4 + 1];
-	const size_t query_len = snprintf(query, sizeof(query), "USE `%*s`", db_len, db);
+	const size_t query_len = snprintf(query, sizeof(query), "USE `%*s`", db.l, db.s);
+	const MYSQLND_CSTRING select_query = { query, query_len };
 
 	DBG_ENTER("xmysqlnd_node_session::select_db");
 	DBG_INF_FMT("db=%s", db);
 
-	ret = session_handle->m->query(session_handle, query, query_len);
+	ret = session_handle->m->query(session_handle, select_query);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -955,7 +1000,7 @@ MYSQLND_METHOD(xmysqlnd_node_session, select_db)(XMYSQLND_NODE_SESSION * session
 
 /* {{{ xmysqlnd_node_session::query */
 static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle, const char * const query, const size_t query_len)
+MYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING query)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), query);
 	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
@@ -963,9 +1008,8 @@ MYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_han
 
 	DBG_ENTER("xmysqlnd_node_session::close");
 	if (PASS == session->m->local_tx_start(session, this_func)) {
-		if (PASS == session->m->send_query(session, query, query_len, MYSQLND_SEND_QUERY_IMPLICIT) &&
-			PASS == session->m->reap_query(session, MYSQLND_REAP_RESULT_IMPLICIT))
-		{
+		XMYSQLND_NODE_QUERY_RESULT * result = session->m->send_query(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		if (result && PASS == result->data->m.read_result(result)) {
 			ret = PASS;
 		}
 
