@@ -50,56 +50,56 @@ xmysqlnd_plugin__get_node_session_plugin_area(const XMYSQLND_NODE_SESSION * sess
 
 /* {{{ xmysqlnd_plugin__get_node_session_data_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_session_data_plugin_area(const XMYSQLND_NODE_SESSION_DATA * session, const unsigned int plugin_id)
+xmysqlnd_plugin__get_node_session_data_plugin_area(const XMYSQLND_NODE_SESSION_DATA * object, const unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_node_session_data_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
-	if (!session || plugin_id >= mysqlnd_plugin_count()) {
+	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return NULL;
 	}
-	DBG_RETURN((void *)((char *)session + sizeof(XMYSQLND_NODE_SESSION_DATA) + plugin_id * sizeof(void *)));
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_SESSION_DATA) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_plugin__get_node_query_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_query_plugin_area(const XMYSQLND_NODE_QUERY * result, const unsigned int plugin_id)
+xmysqlnd_plugin__get_node_query_plugin_area(const XMYSQLND_NODE_QUERY * object, const unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_node_query_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
-	if (!result || plugin_id >= mysqlnd_plugin_count()) {
+	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return NULL;
 	}
-	DBG_RETURN((void *)((char *)result + sizeof(XMYSQLND_NODE_QUERY) + plugin_id * sizeof(void *)));
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_QUERY) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_plugin__get_node_query_result_meta_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_query_result_meta_plugin_area(const XMYSQLND_NODE_QUERY_RESULT_META * meta, const unsigned int plugin_id)
+xmysqlnd_plugin__get_node_query_result_meta_plugin_area(const XMYSQLND_NODE_QUERY_RESULT_META * object, const unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_node_query_result_meta_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
-	if (!meta || plugin_id >= mysqlnd_plugin_count()) {
+	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return NULL;
 	}
-	DBG_RETURN((void *)((char *)meta + sizeof(XMYSQLND_NODE_QUERY_RESULT_META) + plugin_id * sizeof(void *)));
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_QUERY_RESULT_META) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_plugin__get_plugin_pfc_data */
 static void **
-xmysqlnd_plugin__get_plugin_pfc_data(const XMYSQLND_PFC * pfc, unsigned int plugin_id)
+xmysqlnd_plugin__get_plugin_pfc_data(const XMYSQLND_PFC * object, unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_plugin_pfc_data");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
-	if (!pfc || plugin_id >= mysqlnd_plugin_count()) {
+	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return NULL;
 	}
-	DBG_RETURN((void *)((char *)pfc + sizeof(XMYSQLND_PFC) + plugin_id * sizeof(void *)));
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_PFC) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 

@@ -172,7 +172,7 @@ void
 mysqlx_new_message__auth_ok(zval * return_value, const Mysqlx::Session::AuthenticateOk & message)
 {
 	struct st_mysqlx_message__auth_ok * obj;
-	DBG_ENTER("mysqlx_new_message__auth_ok")
+	DBG_ENTER("mysqlx_new_message__auth_ok");
 	object_init_ex(return_value, mysqlx_message__auth_ok_class_entry);
 	MYSQLX_FETCH_MESSAGE__AUTH_OK_FROM_ZVAL(obj, return_value);
 	obj->message.CopyFrom(message);

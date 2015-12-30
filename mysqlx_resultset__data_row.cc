@@ -486,7 +486,7 @@ void
 mysqlx_new_data_row(zval * return_value, const Mysqlx::Resultset::Row & message)
 {
 	struct st_mysqlx_data_row * obj;
-	DBG_ENTER("mysqlx_new_data_row")
+	DBG_ENTER("mysqlx_new_data_row");
 	object_init_ex(return_value, mysqlx_data_row_class_entry);
 	MYSQLX_FETCH_MESSAGE__DATA_ROW_FROM_ZVAL(obj, return_value);
 	obj->message.CopyFrom(message);

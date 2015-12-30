@@ -154,7 +154,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS
 
 /* {{{ xmysqlnd_object_factory::get_node_query */
 static XMYSQLND_NODE_QUERY *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query)(XMYSQLND_NODE_SESSION_DATA * session, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_QUERY) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_QUERY_DATA) + mysqlnd_plugin_count() * sizeof(void *);
@@ -168,11 +168,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query)(XMYSQLND_NODE_SESSION_D
 		object->persistent = object->data->persistent = persistent;
 		object->data->m = *xmysqlnd_node_query_result_get_methods();
 
-		if (!(object->data->session = session->m->get_reference(session))) {
-			object->data->m.dtor(object, stats, error_info);
-			object = NULL;
-		}
-		if (PASS != object->data->m.init(object, stats, error_info)) {
+		if (PASS != object->data->m.init(object, session, query, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
 			object = NULL;
 		}

@@ -155,7 +155,7 @@ void
 mysqlx_new_message__ok(zval * return_value, const Mysqlx::Ok & message)
 {
 	struct st_mysqlx_message__ok * ok;
-	DBG_ENTER("mysqlx_new_message__ok")
+	DBG_ENTER("mysqlx_new_message__ok");
 	object_init_ex(return_value, mysqlx_message__ok_class_entry);
 	MYSQLX_FETCH_MESSAGE__OK__FROM_ZVAL(ok, return_value);
 	ok->message.CopyFrom(message);

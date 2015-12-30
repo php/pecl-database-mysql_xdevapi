@@ -475,7 +475,7 @@ void
 mysqlx_new_column_metadata(zval * return_value, const Mysqlx::Resultset::ColumnMetaData & message)
 {
 	struct st_mysqlx_column_metadata * obj;
-	DBG_ENTER("mysqlx_new_column_metadata")
+	DBG_ENTER("mysqlx_new_column_metadata");
 	object_init_ex(return_value, mysqlx_column_metadata_class_entry);
 	MYSQLX_FETCH_MESSAGE__COLUMN_METADATA_FROM_ZVAL(obj, return_value);
 	obj->message.CopyFrom(message);

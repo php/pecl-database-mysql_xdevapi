@@ -38,8 +38,8 @@ enum xmysqlnd_node_query_state
 	XNODE_QR_EOF,
 };
 
-typedef enum_func_status	(*func_xmysqlnd_node_query__init)(XMYSQLND_NODE_QUERY * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_node_query__send_query)(XMYSQLND_NODE_QUERY * const result, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_query__init)(XMYSQLND_NODE_QUERY * const result, struct st_xmysqlnd_node_session_data * const session, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_query__send_query)(XMYSQLND_NODE_QUERY * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_query__read_result)(XMYSQLND_NODE_QUERY * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_query__skip_result)(XMYSQLND_NODE_QUERY * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef zend_bool			(*func_xmysqlnd_node_query__eof)(const XMYSQLND_NODE_QUERY * const result);
@@ -61,6 +61,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query)
 struct st_xmysqlnd_node_query_data
 {
 	struct st_xmysqlnd_node_session_data * session;
+	MYSQLND_STRING query;
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx msg_stmt_exec;
 	enum xmysqlnd_node_query_state state;
 	struct st_xmysqlnd_node_session_data * metadata;
@@ -80,7 +81,7 @@ struct st_xmysqlnd_node_query
 
 
 PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_node_query);
-PHPAPI XMYSQLND_NODE_QUERY * xmysqlnd_node_query_init(struct st_xmysqlnd_node_session_data * session, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI XMYSQLND_NODE_QUERY * xmysqlnd_node_query_init(struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_node_query_free(XMYSQLND_NODE_QUERY * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus
 } /* extern "C" */

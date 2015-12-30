@@ -1014,6 +1014,8 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 			field->m->set_content_type(field, message.content_type());
 		}
 		ctx->result_meta->m->add_field(ctx->result_meta, field, ctx->stats, ctx->error_info);
+		
+//		xmysqlnd_node_query_result_meta_free(ctx->result_meta, ctx->stats, ctx->error_info);
 		DBG_RETURN(HND_AGAIN);
 	} else if (ctx->response_zval) {
 		mysqlx_new_column_metadata(ctx->response_zval, message);

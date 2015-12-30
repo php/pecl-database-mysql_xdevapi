@@ -30,16 +30,26 @@
 
 /* {{{ xmysqlnd_node_query::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_query, init)(XMYSQLND_NODE_QUERY * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_node_query, init)(XMYSQLND_NODE_QUERY * const result,
+										   XMYSQLND_NODE_SESSION_DATA * const session,
+										   const MYSQLND_CSTRING query,
+										   MYSQLND_STATS * const stats,
+										   MYSQLND_ERROR_INFO * const error_info)
 {
-	return PASS;
+	DBG_ENTER("xmysqlnd_node_query::init");
+	if (!(result->data->session = session->m->get_reference(session))) {
+		return FAIL;
+	}
+	result->data->query = mnd_dup_cstring(query, result->data->persistent);
+	DBG_INF_FMT("query=[%d]%*s", result->data->query.l, result->data->query.l, result->data->query.s);
+	DBG_RETURN(PASS);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_node_query::read_metadata */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_query, send_query)(XMYSQLND_NODE_QUERY * const result, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_node_query, send_query)(XMYSQLND_NODE_QUERY * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	const MYSQLND_CSTRING namespace_par = {"sql", sizeof("sql") - 1};
 	MYSQLND_VIO * vio = result->data->session->io.vio;
@@ -50,7 +60,7 @@ XMYSQLND_METHOD(xmysqlnd_node_query, send_query)(XMYSQLND_NODE_QUERY * const res
 	DBG_ENTER("xmysqlnd_node_query::send_query");
 
 	result->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
-	ret = result->data->msg_stmt_exec.send_request(&result->data->msg_stmt_exec, namespace_par, query, FALSE);
+	ret = result->data->msg_stmt_exec.send_request(&result->data->msg_stmt_exec, namespace_par, mnd_str2c(result->data->query), FALSE);
 	DBG_INF_FMT("%s", ret == PASS? "PASS":"FAIL");
 
 	DBG_RETURN(PASS);
@@ -96,7 +106,9 @@ static void
 XMYSQLND_METHOD(xmysqlnd_node_query, free_contents)(XMYSQLND_NODE_QUERY * const result)
 {
 	DBG_ENTER("xmysqlnd_node_query::free_contents");
-
+	if (result->data->query.s) {
+		mnd_pefree(result->data->query.s, result->data->persistent);
+	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -132,12 +144,14 @@ MYSQLND_CLASS_METHODS_END;
 
 /* {{{ xmysqlnd_node_query_init */
 PHPAPI XMYSQLND_NODE_QUERY *
-xmysqlnd_node_query_init(XMYSQLND_NODE_SESSION_DATA * session, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_node_query_init(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_QUERY * result = NULL;
 	DBG_ENTER("xmysqlnd_node_query_init");
-	result = factory->get_node_query(session, persistent, stats, error_info);
+	if (query.s && query.l) {
+		result = factory->get_node_query(session, query, persistent, stats, error_info);	
+	}
 	DBG_RETURN(result);
 }
 /* }}} */

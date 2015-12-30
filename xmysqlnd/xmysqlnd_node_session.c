@@ -413,9 +413,9 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, send_query)(XMYSQLND_NODE_SESSION_DAT
 
 	if (type == MYSQLND_SEND_QUERY_IMPLICIT || PASS == session->m->local_tx_start(session, this_func))
 	{
-		result = xmysqlnd_node_query_init(session, session->persistent, &session->object_factory, session->stats, session->error_info);
+		result = xmysqlnd_node_query_init(session, query, session->persistent, &session->object_factory, session->stats, session->error_info);
 		if (result) {
-			result->data->m.send_query(result, query, session->stats, session->error_info);
+			result->data->m.send_query(result, session->stats, session->error_info);
 		}
 
 		if (type == MYSQLND_SEND_QUERY_EXPLICIT) {

@@ -262,7 +262,7 @@ void
 mysqlx_new_message__auth_continue(zval * return_value, const Mysqlx::Session::AuthenticateContinue & message)
 {
 	struct st_mysqlx_message__auth_continue * obj;
-	DBG_ENTER("mysqlx_new_message__auth_continue")
+	DBG_ENTER("mysqlx_new_message__auth_continue");
 	object_init_ex(return_value, mysqlx_message__auth_continue_class_entry);
 	MYSQLX_FETCH_MESSAGE__AUTH_CONTINUE_FROM_ZVAL(obj, return_value);
 	obj->message.CopyFrom(message);

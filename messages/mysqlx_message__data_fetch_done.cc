@@ -139,7 +139,7 @@ void
 mysqlx_new_data_fetch_done(zval * return_value, const Mysqlx::Resultset::FetchDone & message)
 {
 	struct st_mysqlx_message__data_fetch_done * obj;
-	DBG_ENTER("mysqlx_new_data_fetch_done")
+	DBG_ENTER("mysqlx_new_data_fetch_done");
 	object_init_ex(return_value, mysqlx_message__data_fetch_done_class_entry);
 	MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_OK_FROM_ZVAL(obj, return_value);
 	obj->message.CopyFrom(message);

@@ -53,7 +53,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_type)(XMYSQLND_RESULT_FIELD_META
 
 /* {{{ xmysqlnd_set_mysqlnd_string */
 static inline enum_func_status
-xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, const size_t value_len, const zend_bool persistent)
+xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, const size_t value_len, const zend_bool persistent MYSQLND_MEM_D)
 {
 	if (value) {
 		str->s = value_len? mnd_pestrndup(value, value_len, persistent) : (char *) empty_str;
@@ -70,7 +70,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_name)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_name");
-	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->name, str, len, field->persistent));
+	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->name, str, len, field->persistent MYSQLND_MEM_C));
 }
 /* }}} */
 
@@ -80,7 +80,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_original_name)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_original_name");
-	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->original_name, str, len, field->persistent));
+	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->original_name, str, len, field->persistent MYSQLND_MEM_C));
 }
 /* }}} */
 
@@ -90,7 +90,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_table)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_table");
-	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->table, str, len, field->persistent));
+	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->table, str, len, field->persistent MYSQLND_MEM_C));
 }
 /* }}} */
 
@@ -100,7 +100,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_original_table)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_original_table");
-	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->original_table, str, len, field->persistent));
+	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->original_table, str, len, field->persistent MYSQLND_MEM_C));
 }
 /* }}} */
 
@@ -110,7 +110,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_schema)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_schema");
-	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->schema, str, len, field->persistent));
+	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->schema, str, len, field->persistent MYSQLND_MEM_C));
 }
 /* }}} */
 
@@ -120,7 +120,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_catalog)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_catalog");
-	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->catalog, str, len, field->persistent));
+	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->catalog, str, len, field->persistent MYSQLND_MEM_C));
 }
 /* }}} */
 
@@ -189,35 +189,35 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_content_type)(XMYSQLND_RESULT_FI
 static void
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD_META * const field)
 {
-	const zend_bool persisent = field->persistent;
+	const zend_bool persistent = field->persistent;
 	DBG_ENTER("xmysqlnd_result_field_meta::free_contents");
 	if (field->name.s && field->name.s != empty_str) {
-		mnd_pefree(field->name.s, persisent);
+		mnd_pefree(field->name.s, persistent);
 		field->name.s = NULL;
 		field->name.l = 0;
 	}
 	if (field->original_name.s && field->original_name.s != empty_str) {
-		mnd_pefree(field->original_name.s, persisent);
+		mnd_pefree(field->original_name.s, persistent);
 		field->original_name.s = NULL;
 		field->original_name.l = 0;
 	}
 	if (field->table.s && field->table.s != empty_str) {
-		mnd_pefree(field->table.s, persisent);
+		mnd_pefree(field->table.s, persistent);
 		field->table.s = NULL;
 		field->table.l = 0;
 	}
 	if (field->original_table.s && field->original_table.s != empty_str) {
-		mnd_pefree(field->original_table.s, persisent);
+		mnd_pefree(field->original_table.s, persistent);
 		field->original_table.s = NULL;
 		field->original_table.l = 0;
 	}
 	if (field->schema.s && field->schema.s != empty_str) {
-		mnd_pefree(field->schema.s, persisent);
+		mnd_pefree(field->schema.s, persistent);
 		field->schema.s = NULL;
 		field->schema.l = 0;
 	}
 	if (field->catalog.s && field->catalog.s != empty_str) {
-		mnd_pefree(field->catalog.s, persisent);
+		mnd_pefree(field->catalog.s, persistent);
 		field->catalog.s = NULL;
 		field->catalog.l = 0;
 	}
@@ -232,12 +232,12 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD
 
 /* {{{ xmysqlnd_result_field_meta::dtor */
 static void
-XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(XMYSQLND_RESULT_FIELD_META * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(XMYSQLND_RESULT_FIELD_META * const field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::dtor");
-	if (result) {
-		result->m->free_contents(result);
-		mnd_pefree(result, result->persistent);
+	if (field) {
+		field->m->free_contents(field);
+		mnd_pefree(field, field->persistent);
 	}
 	DBG_VOID_RETURN;
 }

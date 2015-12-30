@@ -22,7 +22,7 @@
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
-struct st_xmysqlnd_node_query_result;
+struct st_xmysqlnd_node_query;
 struct st_xmysqlnd_node_query_result_meta;
 struct st_xmysqlnd_protocol_frame_codec;
 
@@ -37,7 +37,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters
 {
 	void ** (*get_node_session_area)(const struct st_xmysqlnd_node_session * conn, const unsigned int plugin_id);
 	void ** (*get_node_session_data_data_area)(const struct st_xmysqlnd_node_session_data * conn, const unsigned int plugin_id);
-	void ** (*get_node_query_result_area)(const struct st_xmysqlnd_node_query_result * result, unsigned int plugin_id);
+	void ** (*get_node_query_area)(const struct st_xmysqlnd_node_query * result, unsigned int plugin_id);
 	void ** (*get_node_query_result_meta_area)(const struct st_xmysqlnd_node_query_result_meta * result, unsigned int plugin_id);
 	void ** (*get_pfc_area)(const struct st_xmysqlnd_protocol_frame_codec * pfc, unsigned int plugin_id);
 };
@@ -46,7 +46,7 @@ extern struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_gette
 
 #define xmysqlnd_plugin_get_node_session_plugin_area(s, p_id)				xmysqlnd_plugin_area_getters.get_node_session_area((s), (p_id))
 #define xmysqlnd_plugin_get_node_session_data_plugin_area(s, p_id)			xmysqlnd_plugin_area_getters.get_node_session_data_data_area((s), (p_id))
-#define xmysqlnd_plugin_get_node_query_result_plugin_area(r, p_id)			xmysqlnd_plugin_area_getters.get_node_query_result_area((r), (p_id))
+#define xmysqlnd_plugin_get_node_query_result_plugin_area(r, p_id)			xmysqlnd_plugin_area_getters.get_node_query_area((r), (p_id))
 #define xmysqlnd_plugin_get_node_query_result_meta_plugin_area(m, p_id)		xmysqlnd_plugin_area_getters.get_node_query_result_meta_area((m), (p_id))
 #define xmysqlnd_plugin_get_pfc_plugin_area(pfc, p_id)						xmysqlnd_plugin_area_getters.get_pfc_area((pfc), (p_id))
 
