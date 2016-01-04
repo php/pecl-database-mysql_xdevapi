@@ -24,6 +24,7 @@
 #include "xmysqlnd_wireprotocol.h" /* struct st_xmysqlnd_sql_stmt_execute_message_ctx */
 
 struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_node_stmt_result;
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,18 +32,13 @@ extern "C" {
 typedef struct st_xmysqlnd_node_stmt		XMYSQLND_NODE_STMT;
 typedef struct st_xmysqlnd_node_stmt_data	XMYSQLND_NODE_STMT_DATA;
 
-enum xmysqlnd_node_stmt_state
-{
-	XNODE_QR_WAIT_META,
-	XNODE_QR_READING_ROWS,
-	XNODE_QR_EOF,
-};
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt, struct st_xmysqlnd_node_session_data * const session, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_node_stmt__read_result)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef struct st_xmysqlnd_node_stmt_result * (*func_xmysqlnd_node_stmt__read_result)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__skip_result)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef zend_bool			(*func_xmysqlnd_node_stmt__eof)(const XMYSQLND_NODE_STMT * const stmt);
+typedef XMYSQLND_NODE_STMT *(*func_xmysqlnd_node_stmt__get_reference)(XMYSQLND_NODE_STMT * const stmt);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt__free_reference)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void				(*func_xmysqlnd_node_stmt__free_contents)(XMYSQLND_NODE_STMT * const stmt);
 typedef void				(*func_xmysqlnd_node_stmt__dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
@@ -52,7 +48,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__send_query send_query;
 	func_xmysqlnd_node_stmt__read_result read_result;
 	func_xmysqlnd_node_stmt__skip_result skip_result;
-	func_xmysqlnd_node_stmt__eof eof;
+	func_xmysqlnd_node_stmt__get_reference get_reference;
+	func_xmysqlnd_node_stmt__free_reference free_reference;
 	func_xmysqlnd_node_stmt__free_contents free_contents;
 	func_xmysqlnd_node_stmt__dtor dtor;
 };
@@ -63,10 +60,8 @@ struct st_xmysqlnd_node_stmt_data
 	struct st_xmysqlnd_node_session_data * session;
 	MYSQLND_STRING query;
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx msg_stmt_exec;
-	enum xmysqlnd_node_stmt_state state;
-	struct st_xmysqlnd_node_session_data * metadata;
-	size_t row_count;
 
+	unsigned int	refcount;
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) m;
 	zend_bool		persistent;
 };

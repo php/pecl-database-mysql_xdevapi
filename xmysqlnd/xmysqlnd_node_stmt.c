@@ -27,6 +27,7 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt.h"
+#include "xmysqlnd_node_stmt_result.h"
 
 /* {{{ xmysqlnd_node_stmt::init */
 static enum_func_status
@@ -69,14 +70,16 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt,
 
 
 /* {{{ xmysqlnd_node_stmt::read_result */
-static enum_func_status
+static struct st_xmysqlnd_node_stmt_result *
 XMYSQLND_METHOD(xmysqlnd_node_stmt, read_result)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret;
+	XMYSQLND_NODE_STMT_RESULT * result = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt::read_result");
 
-	ret = stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, stmt->data->session, NULL);
-	DBG_RETURN(ret);
+	if (PASS == stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, stmt->data->session, NULL)) {
+	
+	}
+	DBG_RETURN(result);
 }
 /* }}} */
 
@@ -91,12 +94,29 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_result)(XMYSQLND_NODE_STMT * const stmt
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::eof */
-static zend_bool
-XMYSQLND_METHOD(xmysqlnd_node_stmt, eof)(const XMYSQLND_NODE_STMT * const stmt)
+/* {{{ xmysqlnd_node_stmt::get_reference */
+static XMYSQLND_NODE_STMT *
+XMYSQLND_METHOD(xmysqlnd_node_stmt, get_reference)(XMYSQLND_NODE_STMT * const stmt)
 {
-	DBG_ENTER("xmysqlnd_node_stmt::eof");
-	DBG_RETURN(stmt->data->state == XNODE_QR_EOF);
+	DBG_ENTER("xmysqlnd_node_stmt::get_reference");
+	++stmt->data->refcount;
+	DBG_INF_FMT("session=%p new_refcount=%u", stmt, stmt->data->refcount);
+	DBG_RETURN(stmt);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt::free_reference */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+{
+	enum_func_status ret = PASS;
+	DBG_ENTER("xmysqlnd_node_stmt::free_reference");
+	DBG_INF_FMT("stmt=%p old_refcount=%u", stmt, stmt->data->refcount);
+	if (!(--stmt->data->refcount)) {
+		stmt->data->m.dtor(stmt, stats, error_info);
+	}
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -136,7 +156,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_result),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_result),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, eof),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, get_reference),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor),
 MYSQLND_CLASS_METHODS_END;

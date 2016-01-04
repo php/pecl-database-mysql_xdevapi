@@ -207,8 +207,6 @@ struct st_xmysqlnd_node_session_data
 	  How many result sets reference this connection.
 	  It won't be freed until this number reaches 0.
 	  The last one, please close the door! :-)
-	  The result set objects can determine by inspecting
-	  'quit_sent' whether the connection is still valid.
 	*/
 	unsigned int	refcount;
 
