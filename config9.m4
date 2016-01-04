@@ -50,7 +50,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
   xmysqlnd_sources="     php_xmysqlnd.c \
                          xmysqlnd/xmysqlnd_driver.c \
 						 xmysqlnd/xmysqlnd_extension_plugin.c \
-						 xmysqlnd/xmysqlnd_node_query.c \
+						 xmysqlnd/xmysqlnd_node_stmt.c \
 						 xmysqlnd/xmysqlnd_node_query_result_meta.c \
 						 xmysqlnd/xmysqlnd_node_session.c \
 						 xmysqlnd/xmysqlnd_protocol_frame_codec.c \

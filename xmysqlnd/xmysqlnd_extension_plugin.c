@@ -25,7 +25,7 @@
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_query.h"
+#include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_query_result_meta.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_extension_plugin.h"
@@ -62,16 +62,16 @@ xmysqlnd_plugin__get_node_session_data_plugin_area(const XMYSQLND_NODE_SESSION_D
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_query_plugin_area */
+/* {{{ xmysqlnd_plugin__get_node_stmt_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_query_plugin_area(const XMYSQLND_NODE_QUERY * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_node_stmt_plugin_area(const XMYSQLND_NODE_STMT * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_query_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_node_stmt_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return NULL;
 	}
-	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_QUERY) + plugin_id * sizeof(void *)));
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_STMT) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
@@ -107,7 +107,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 {
 	xmysqlnd_plugin__get_node_session_plugin_area,
 	xmysqlnd_plugin__get_node_session_data_plugin_area,
-	xmysqlnd_plugin__get_node_query_plugin_area,
+	xmysqlnd_plugin__get_node_stmt_plugin_area,
 	xmysqlnd_plugin__get_node_query_result_meta_plugin_area,
 	xmysqlnd_plugin__get_plugin_pfc_data,
 };
@@ -166,18 +166,18 @@ _xmysqlnd_node_session_data_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node
 
 
 /* {{{ _xmysqlnd_node_query_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query) *
+static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) *
 _xmysqlnd_node_query_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_query);
+	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_node_query_set_methods */
 static void
-_xmysqlnd_node_query_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query) *methods)
+_xmysqlnd_node_query_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) *methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_query) = *methods;
+	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt) = *methods;
 }
 /* }}} */
 

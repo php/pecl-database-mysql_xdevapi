@@ -1,4 +1,4 @@
-/*
+ /*
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
@@ -26,7 +26,7 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 
-struct st_xmysqlnd_node_query;
+struct st_xmysqlnd_node_stmt;
 
 PHPAPI void xmysqlnd_node_session_module_init();
 
@@ -100,7 +100,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect_handshake)(X
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__authenticate)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING hostname, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
 typedef zend_ulong			(*func_xmysqlnd_node_session_data__escape_string)(XMYSQLND_NODE_SESSION_DATA * const session, char *newstr, const char *escapestr, size_t escapestr_len);
-typedef struct st_xmysqlnd_node_query *	(*func_xmysqlnd_node_session_data__send_query)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type);
+typedef struct st_xmysqlnd_node_stmt *	(*func_xmysqlnd_node_session_data__create_statement)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type);
 
 
 typedef unsigned int		(*func_xmysqlnd_node_session_data__get_error_no)(const XMYSQLND_NODE_SESSION_DATA * const session);
@@ -143,7 +143,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 	func_xmysqlnd_node_session_data__authenticate authenticate;
 	func_xmysqlnd_node_session_data__connect connect;
 	func_xmysqlnd_node_session_data__escape_string escape_string;
-	func_xmysqlnd_node_session_data__send_query send_query;
+	func_xmysqlnd_node_session_data__create_statement create_statement;
 
 	func_xmysqlnd_node_session_data__get_error_no get_error_no;
 	func_xmysqlnd_node_session_data__get_error_str get_error_str;
@@ -273,7 +273,6 @@ PHPAPI XMYSQLND_NODE_SESSION * xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSI
 
 #define xmysqlnd_node_session_close(session, host, user, pass, db, s_or_p, port, caps)	(session)->m->close((session), XMYSQLND_CLOSE_EXPLICIT)
 #define xmysqlnd_node_session_query(session, q)											(session)->m->query((session), (q))
-#define xmysqlnd_node_session_send_query(session, q)									(session)->data->m->send_query((session)->data, (q), MYSQLND_SEND_QUERY_EXPLICIT)
 
 
 #endif	/* XMYSQLND_NODE_SESSION_H */

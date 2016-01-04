@@ -25,7 +25,7 @@
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_query.h"
+#include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_wireprotocol.h"
 
@@ -401,52 +401,27 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, escape_string)(XMYSQLND_NODE_SESSION_
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::send_query */
-static XMYSQLND_NODE_QUERY *
-MYSQLND_METHOD(xmysqlnd_node_session_data, send_query)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
+/* {{{ xmysqlnd_node_session_data::create_statement */
+static XMYSQLND_NODE_STMT *
+MYSQLND_METHOD(xmysqlnd_node_session_data, create_statement)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), send_query);
-	enum_func_status ret = FAIL;
-	XMYSQLND_NODE_QUERY * result = NULL;
-	DBG_ENTER("xmysqlnd_node_session_data::send_query");
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), create_statement);
+	XMYSQLND_NODE_STMT * stmt = NULL;
+	DBG_ENTER("xmysqlnd_node_session_data::create_statement");
 	DBG_INF_FMT("query=%s", query.s);
 
 	if (type == MYSQLND_SEND_QUERY_IMPLICIT || PASS == session->m->local_tx_start(session, this_func))
 	{
-		result = xmysqlnd_node_query_init(session, query, session->persistent, &session->object_factory, session->stats, session->error_info);
-		if (result) {
-			result->data->m.send_query(result, session->stats, session->error_info);
-		}
+		stmt = xmysqlnd_node_stmt_init(session, query, session->persistent, &session->object_factory, session->stats, session->error_info);
 
 		if (type == MYSQLND_SEND_QUERY_EXPLICIT) {
-			session->m->local_tx_end(session, this_func, ret);
+			session->m->local_tx_end(session, this_func, stmt ? PASS:FAIL);
 		}
 	}
-	DBG_RETURN(result);
+	DBG_RETURN(stmt);
 }
 /* }}} */
 
-#if 0
-/* {{{ xmysqlnd_node_session_data::reap_query */
-static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session_data, reap_query)(XMYSQLND_NODE_SESSION_DATA * session, enum_mysqlnd_reap_result_type type)
-{
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), reap_query);
-	enum_func_status ret = FAIL;
-	DBG_ENTER("xmysqlnd_node_session_data::reap_query");
-
-	if (type == MYSQLND_REAP_RESULT_IMPLICIT || PASS == session->m->local_tx_start(session, this_func))
-	{
-		/* HANDLE COM_REAP_RESULT_HERE here */
-
-		if (type == MYSQLND_REAP_RESULT_EXPLICIT) {
-			session->m->local_tx_end(session, this_func, ret);
-		}
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-#endif
 
 /* {{{ xmysqlnd_node_session_data::get_error_no */
 static unsigned int
@@ -851,7 +826,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 	MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, connect),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, escape_string),
-	MYSQLND_METHOD(xmysqlnd_node_session_data, send_query),
+	MYSQLND_METHOD(xmysqlnd_node_session_data, create_statement),
 
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_error_no),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_error),
@@ -995,10 +970,14 @@ MYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_han
 
 	DBG_ENTER("xmysqlnd_node_session::close");
 	if (PASS == session->m->local_tx_start(session, this_func)) {
-		XMYSQLND_NODE_QUERY * result = session->m->send_query(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
-		if (result && PASS == result->data->m.read_result(result, session->stats, session->error_info)) {
-			xmysqlnd_node_query_free(result, session->stats, session->error_info);
-			ret = PASS;
+		XMYSQLND_NODE_STMT * stmt = session->m->create_statement(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		if (stmt) {
+			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info) &&
+				PASS == stmt->data->m.read_result(stmt, session->stats, session->error_info))
+			{
+				ret = PASS;
+			}
+			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
 		}
 
 		/* If we do it after free_reference/dtor then we might crash */

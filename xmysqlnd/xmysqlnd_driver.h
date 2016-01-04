@@ -23,22 +23,22 @@
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
-struct st_xmysqlnd_node_query;
+struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_result_field_meta;
 struct st_xmysqlnd_protocol_frame_codec;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
 
 typedef struct st_xmysqlnd_node_session *			(*func_xmysqlnd_object_factory__get_node_session)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory, const zend_bool persistent);
-typedef struct st_xmysqlnd_node_query *				(*func_xmysqlnd_object_factory__get_node_query)(struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_node_query_result_meta * (*func_xmysqlnd_object_factory__get_node_query_result_meta)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef struct st_xmysqlnd_node_stmt *				(*func_xmysqlnd_object_factory__get_node_stmt)(struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef struct st_xmysqlnd_node_query_result_meta *	(*func_xmysqlnd_object_factory__get_node_query_result_meta)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_result_field_meta *		(*func_xmysqlnd_object_factory__get_result_field_meta)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_protocol_frame_codec *	(*func_xmysqlnd_object_factory__get_pfc)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 {
 	func_xmysqlnd_object_factory__get_node_session get_node_session;
-	func_xmysqlnd_object_factory__get_node_query get_node_query;
+	func_xmysqlnd_object_factory__get_node_stmt get_node_stmt;
 	func_xmysqlnd_object_factory__get_node_query_result_meta get_node_query_result_meta;
 	func_xmysqlnd_object_factory__get_result_field_meta get_result_field_meta;
 	func_xmysqlnd_object_factory__get_pfc get_protocol_frame_codec;

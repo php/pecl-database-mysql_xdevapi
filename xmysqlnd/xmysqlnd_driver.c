@@ -24,7 +24,7 @@
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_query.h"
+#include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_query_result_meta.h"
 
 static zend_bool xmysqlnd_library_initted = FALSE;
@@ -152,14 +152,14 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS
 /* }}} */
 
 
-/* {{{ xmysqlnd_object_factory::get_node_query */
-static XMYSQLND_NODE_QUERY *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_object_factory::get_node_stmt */
+static XMYSQLND_NODE_STMT *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	const size_t alloc_size = sizeof(XMYSQLND_NODE_QUERY) + mysqlnd_plugin_count() * sizeof(void *);
-	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_QUERY_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_QUERY * object = mnd_pecalloc(1, alloc_size, persistent);
-	XMYSQLND_NODE_QUERY_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
+	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT) + mysqlnd_plugin_count() * sizeof(void *);
+	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_STMT_DATA) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_NODE_STMT * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_NODE_STMT_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_query");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -271,7 +271,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const zend_bool persistent, MY
 
 MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session),
-	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_query_result_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc),
