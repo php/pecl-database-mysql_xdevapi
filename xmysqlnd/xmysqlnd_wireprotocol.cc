@@ -26,7 +26,7 @@
 #include "xmysqlnd_zval2any.h"
 
 #include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_query_result_meta.h"
+#include "xmysqlnd_node_stmt_result_meta.h"
 
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_connection.pb.h"
@@ -964,7 +964,7 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	ctx->server_message_type = XMSG_COLUMN_METADATA;
 	if (ctx->session) {
 		if (!ctx->result_meta) {
-			ctx->result_meta = xmysqlnd_node_query_result_meta_init(ctx->session->persistent, &ctx->session->object_factory, ctx->stats, ctx->error_info);
+			ctx->result_meta = xmysqlnd_node_stmt_result_meta_init(ctx->session->persistent, &ctx->session->object_factory, ctx->stats, ctx->error_info);
 			if (!ctx->result_meta) {
 				SET_OOM_ERROR(ctx->error_info);
 				DBG_RETURN(HND_FAIL);
@@ -1015,7 +1015,7 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 		}
 		ctx->result_meta->m->add_field(ctx->result_meta, field, ctx->stats, ctx->error_info);
 		
-//		xmysqlnd_node_query_result_meta_free(ctx->result_meta, ctx->stats, ctx->error_info);
+//		xmysqlnd_node_stmt_result_meta_free(ctx->result_meta, ctx->stats, ctx->error_info);
 		DBG_RETURN(HND_AGAIN);
 	} else if (ctx->response_zval) {
 		mysqlx_new_column_metadata(ctx->response_zval, message);

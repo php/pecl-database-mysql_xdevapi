@@ -16,8 +16,8 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef XMYSQLND_NODE_QUERY_RESULT_META_H
-#define XMYSQLND_NODE_QUERY_RESULT_META_H
+#ifndef XMYSQLND_NODE_STMT_RESULT_META_H
+#define XMYSQLND_NODE_STMT_RESULT_META_H
 
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
@@ -117,41 +117,41 @@ PHPAPI void xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD_META * const f
 
 /*******************************************************************************************************************************************/
 
-typedef struct st_xmysqlnd_node_query_result_meta XMYSQLND_NODE_QUERY_RESULT_META;
+typedef struct st_xmysqlnd_node_stmt_result_meta XMYSQLND_NODE_STMT_RESULT_META;
 
-typedef enum_func_status	(*func_xmysqlnd_node_query_result_meta__init)(XMYSQLND_NODE_QUERY_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_node_query_result_meta__add_field)(XMYSQLND_NODE_QUERY_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef void				(*func_xmysqlnd_node_query_result_meta__free_contents)(XMYSQLND_NODE_QUERY_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef void				(*func_xmysqlnd_node_query_result_meta__dtor)(XMYSQLND_NODE_QUERY_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_meta__init)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_meta__add_field)(XMYSQLND_NODE_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef void				(*func_xmysqlnd_node_stmt_result_meta__free_contents)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef void				(*func_xmysqlnd_node_stmt_result_meta__dtor)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query_result_meta)
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta)
 {
-	func_xmysqlnd_node_query_result_meta__init init;
-	func_xmysqlnd_node_query_result_meta__add_field add_field;
-	func_xmysqlnd_node_query_result_meta__free_contents free_contents;
-	func_xmysqlnd_node_query_result_meta__dtor dtor;
+	func_xmysqlnd_node_stmt_result_meta__init init;
+	func_xmysqlnd_node_stmt_result_meta__add_field add_field;
+	func_xmysqlnd_node_stmt_result_meta__free_contents free_contents;
+	func_xmysqlnd_node_stmt_result_meta__dtor dtor;
 };
 
 
-struct st_xmysqlnd_node_query_result_meta
+struct st_xmysqlnd_node_stmt_result_meta
 {
 	unsigned int field_count;
 	XMYSQLND_RESULT_FIELD_META ** fields;
 	unsigned int fields_size;
 
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query_result_meta) * m;
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) * m;
 	zend_bool		persistent;
 };
 
 
-PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_node_query_result_meta);
-PHPAPI XMYSQLND_NODE_QUERY_RESULT_META * xmysqlnd_node_query_result_meta_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-PHPAPI void xmysqlnd_node_query_result_meta_free(XMYSQLND_NODE_QUERY_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_node_stmt_result_meta);
+PHPAPI XMYSQLND_NODE_STMT_RESULT_META * xmysqlnd_node_stmt_result_meta_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI void xmysqlnd_node_stmt_result_meta_free(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif /* XMYSQLND_NODE_QUERY_RESULT_META_H */
+#endif /* XMYSQLND_NODE_STMT_RESULT_META_H */
 
 /*
  * Local variables:

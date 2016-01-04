@@ -24,7 +24,7 @@ struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_stmt_result;
-struct st_xmysqlnd_node_query_result_meta;
+struct st_xmysqlnd_node_stmt_result_meta;
 struct st_xmysqlnd_protocol_frame_codec;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
@@ -32,7 +32,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result);
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query_result_meta);
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec);
 
 struct st_xmysqlnd_plugin__plugin_area_getters
@@ -41,7 +41,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters
 	void ** (*get_node_session_data_data_area)(const struct st_xmysqlnd_node_session_data * conn, const unsigned int plugin_id);
 	void ** (*get_node_stmt_area)(const struct st_xmysqlnd_node_stmt * stmt, unsigned int plugin_id);
 	void ** (*get_node_stmt_result_area)(const struct st_xmysqlnd_node_stmt_result * result, unsigned int plugin_id);
-	void ** (*get_node_query_result_meta_area)(const struct st_xmysqlnd_node_query_result_meta * result, unsigned int plugin_id);
+	void ** (*get_node_query_result_meta_area)(const struct st_xmysqlnd_node_stmt_result_meta * result, unsigned int plugin_id);
 	void ** (*get_pfc_area)(const struct st_xmysqlnd_protocol_frame_codec * pfc, unsigned int plugin_id);
 };
 
@@ -89,9 +89,9 @@ struct st_xmysqlnd_plugin_methods_xetters
 
 	struct st_xmnd_node_query_result_meta_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query_result_meta) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query_result_meta) *methods);
-	} node_query_result_meta;
+		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) * (*get)();
+		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) *methods);
+	} node_stmt_result_meta;
 
 	struct st_xmnd_result_field_meta_xetters
 	{
@@ -124,14 +124,14 @@ extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters
 #define xmysqlnd_node_stmt_result_get_methods()			xmysqlnd_plugin_methods_xetters.node_stmt_result.get()
 #define xmysqlnd_node_stmt_result_set_methods(m)		xmysqlnd_plugin_methods_xetters.node_stmt_result.set((m))
 
-#define xmysqlnd_node_query_result_meta_get_methods()	xmysqlnd_plugin_methods_xetters.node_query_result_meta.get()
-#define xmysqlnd_node_query_result_meta_set_methods(m)	xmysqlnd_plugin_methods_xetters.node_query_result_meta.set((m))
+#define xmysqlnd_node_stmt_result_meta_get_methods()	xmysqlnd_plugin_methods_xetters.node_stmt_result_meta.get()
+#define xmysqlnd_node_stmt_result_meta_set_methods(m)	xmysqlnd_plugin_methods_xetters.node_stmt_result_meta.set((m))
 
-#define xmysqlnd_result_field_meta_get_methods()	xmysqlnd_plugin_methods_xetters.result_field_meta.get()
-#define xmysqlnd_result_field_meta_set_methods(m)	xmysqlnd_plugin_methods_xetters.result_field_meta.set((m))
+#define xmysqlnd_result_field_meta_get_methods()		xmysqlnd_plugin_methods_xetters.result_field_meta.get()
+#define xmysqlnd_result_field_meta_set_methods(m)		xmysqlnd_plugin_methods_xetters.result_field_meta.set((m))
 
-#define xmysqlnd_pfc_get_methods()		xmysqlnd_plugin_methods_xetters.pfc.get()
-#define xmysqlnd_pfc_set_methods(m)		xmysqlnd_plugin_methods_xetters.pfc.set((m))
+#define xmysqlnd_pfc_get_methods()						xmysqlnd_plugin_methods_xetters.pfc.get()
+#define xmysqlnd_pfc_set_methods(m)						xmysqlnd_plugin_methods_xetters.pfc.set((m))
 
 #endif	/* XMYSQLND_EXTENSION_PLUGIN_H */
 

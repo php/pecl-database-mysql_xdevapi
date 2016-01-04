@@ -156,7 +156,7 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 	struct st_xmysqlnd_node_session_data * session;
-	struct st_xmysqlnd_node_query_result_meta * result_meta;
+	struct st_xmysqlnd_node_stmt_result_meta * result_meta;
 	zval * response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 };

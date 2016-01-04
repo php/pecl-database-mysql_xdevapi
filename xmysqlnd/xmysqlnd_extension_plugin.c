@@ -27,7 +27,7 @@
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
-#include "xmysqlnd_node_query_result_meta.h"
+#include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_extension_plugin.h"
 
@@ -93,14 +93,14 @@ xmysqlnd_plugin__get_node_stmt_result_plugin_area(const XMYSQLND_NODE_STMT_RESUL
 
 /* {{{ xmysqlnd_plugin__get_node_query_result_meta_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_query_result_meta_plugin_area(const XMYSQLND_NODE_QUERY_RESULT_META * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_node_query_result_meta_plugin_area(const XMYSQLND_NODE_STMT_RESULT_META * object, const unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_node_query_result_meta_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return NULL;
 	}
-	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_QUERY_RESULT_META) + plugin_id * sizeof(void *)));
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_STMT_RESULT_META) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
@@ -215,19 +215,19 @@ _xmysqlnd_node_stmt_result_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_
 /* }}} */
 
 
-/* {{{ _xmysqlnd_node_query_result_meta_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query_result_meta) *
-_xmysqlnd_node_query_result_meta_get_methods()
+/* {{{ _xmysqlnd_node_stmt_result_meta_get_methods */
+static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) *
+_xmysqlnd_node_stmt_result_meta_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_query_result_meta);
+	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result_meta);
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_node_query_result_meta_set_methods */
+/* {{{ _xmysqlnd_node_stmt_result_meta_set_methods */
 static void
-_xmysqlnd_node_query_result_meta_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_query_result_meta) *methods)
+_xmysqlnd_node_stmt_result_meta_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) *methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_query_result_meta) = *methods;
+	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result_meta) = *methods;
 }
 /* }}} */
 
@@ -290,8 +290,8 @@ struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
 		_xmysqlnd_node_stmt_result_set_methods,
 	},
 	{
-		_xmysqlnd_node_query_result_meta_get_methods,
-		_xmysqlnd_node_query_result_meta_set_methods,
+		_xmysqlnd_node_stmt_result_meta_get_methods,
+		_xmysqlnd_node_stmt_result_meta_set_methods,
 	},
 	{
 		_xmysqlnd_result_field_meta_get_methods,

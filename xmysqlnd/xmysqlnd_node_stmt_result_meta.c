@@ -26,7 +26,7 @@
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_wireprotocol.h"
 #include "xmysqlnd_driver.h"
-#include "xmysqlnd_node_query_result_meta.h"
+#include "xmysqlnd_node_stmt_result_meta.h"
 
 static const char * empty_str = "";
 
@@ -291,20 +291,20 @@ xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD_META * const object, MYSQL
 /*******************************************************************************************************************************************/
 
 
-/* {{{ xmysqlnd_node_query_result_meta::init */
+/* {{{ xmysqlnd_node_stmt_result_meta::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, init)(XMYSQLND_NODE_QUERY_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, init)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	return PASS;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_query_result_meta::add_field */
+/* {{{ xmysqlnd_node_stmt_result_meta::add_field */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, add_field)(XMYSQLND_NODE_QUERY_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, add_field)(XMYSQLND_NODE_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_query_result_meta::add_field");
+	DBG_ENTER("xmysqlnd_node_stmt_result_meta::add_field");
 	if (!meta->fields || meta->field_count == meta->fields_size) {
 		meta->fields_size += 8;
 		meta->fields = mnd_perealloc(meta->fields, meta->fields_size * sizeof(field), meta->persistent);
@@ -320,12 +320,12 @@ XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, add_field)(XMYSQLND_NODE_QUERY_
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_query_result_meta::free_contents */
+/* {{{ xmysqlnd_node_stmt_result_meta::free_contents */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, free_contents)(XMYSQLND_NODE_QUERY_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, free_contents)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	unsigned int i = 0;
-	DBG_ENTER("xmysqlnd_node_query_result_meta::free_contents");
+	DBG_ENTER("xmysqlnd_node_stmt_result_meta::free_contents");
 	for (; i < meta->field_count; ++i) {
 		meta->fields[i]->m->dtor(meta->fields[i], stats, error_info);
 	}
@@ -334,11 +334,11 @@ XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, free_contents)(XMYSQLND_NODE_QU
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_query_result_meta::dtor */
+/* {{{ xmysqlnd_node_stmt_result_meta::dtor */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, dtor)(XMYSQLND_NODE_QUERY_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, dtor)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_query_result_meta::dtor");
+	DBG_ENTER("xmysqlnd_node_stmt_result_meta::dtor");
 	if (meta) {
 		meta->m->free_contents(meta, stats, error_info);
 		mnd_pefree(meta, meta->persistent);
@@ -348,32 +348,32 @@ XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, dtor)(XMYSQLND_NODE_QUERY_RESUL
 /* }}} */
 
 
-MYSQLND_CLASS_METHODS_START(xmysqlnd_node_query_result_meta)
-	XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, init),
-	XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, add_field),
-	XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_node_query_result_meta, dtor),
+MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result_meta)
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, init),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, add_field),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, free_contents),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, dtor),
 MYSQLND_CLASS_METHODS_END;
 
 
-/* {{{ xmysqlnd_node_query_result_meta_init */
-PHPAPI XMYSQLND_NODE_QUERY_RESULT_META *
-xmysqlnd_node_query_result_meta_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_node_stmt_result_meta_init */
+PHPAPI XMYSQLND_NODE_STMT_RESULT_META *
+xmysqlnd_node_stmt_result_meta_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
-	XMYSQLND_NODE_QUERY_RESULT_META * object = NULL;
-	DBG_ENTER("xmysqlnd_node_query_result_meta_init");
-	object = factory->get_node_query_result_meta(persistent, stats, error_info);
+	XMYSQLND_NODE_STMT_RESULT_META * object = NULL;
+	DBG_ENTER("xmysqlnd_node_stmt_result_meta_init");
+	object = factory->get_node_stmt_result_meta(persistent, stats, error_info);
 	DBG_RETURN(object);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_query_result_meta_free */
+/* {{{ xmysqlnd_node_stmt_result_meta_free */
 PHPAPI void
-xmysqlnd_node_query_result_meta_free(XMYSQLND_NODE_QUERY_RESULT_META * const object, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_node_stmt_result_meta_free(XMYSQLND_NODE_STMT_RESULT_META * const object, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_query_result_meta_free");
+	DBG_ENTER("xmysqlnd_node_stmt_result_meta_free");
 	if (object) {
 		object->m->dtor(object, stats, error_info);
 	}
