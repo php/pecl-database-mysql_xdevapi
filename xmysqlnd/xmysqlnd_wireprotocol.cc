@@ -1010,17 +1010,17 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
 				if (ctx->result) {
-					ctx->result->data->m.set_affected_items_count(ctx->result, scalar2uint(message.value()));
+					ctx->result->data->exec_state->m->set_affected_items_count(ctx->result->data->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
 				if (ctx->result) {
-					ctx->result->data->m.set_found_items_count(ctx->result, scalar2uint(message.value()));
+					ctx->result->data->exec_state->m->set_found_items_count(ctx->result->data->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
 				if (ctx->result) {
-					ctx->result->data->m.set_matched_items_count(ctx->result, scalar2uint(message.value()));
+					ctx->result->data->exec_state->m->set_matched_items_count(ctx->result->data->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:

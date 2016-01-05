@@ -111,6 +111,12 @@ struct st_xmysqlnd_plugin_methods_xetters
 		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * (*get)();
 		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * methods);
 	} warning_list;
+
+	struct st_xmnd_stmt_execution_state_xetters
+	{
+		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * (*get)();
+		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * methods);
+	} stmt_exec_state;
 };
 
 extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters;
@@ -140,9 +146,11 @@ extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters
 #define xmysqlnd_pfc_get_methods()						xmysqlnd_plugin_methods_xetters.pfc.get()
 #define xmysqlnd_pfc_set_methods(m)						xmysqlnd_plugin_methods_xetters.pfc.set((m))
 
-
 #define xmysqlnd_warning_list_get_methods()				xmysqlnd_plugin_methods_xetters.warning_list.get()
 #define xmysqlnd_warning_list_set_methods(m)			xmysqlnd_plugin_methods_xetters.warning_list.set((m))
+
+#define xmysqlnd_stmt_execution_state_get_methods()		xmysqlnd_plugin_methods_xetters.stmt_exec_state.get()
+#define xmysqlnd_stmt_execution_state_set_methods(m)	xmysqlnd_plugin_methods_xetters.stmt_exec_state.set((m))
 
 #endif	/* XMYSQLND_EXTENSION_PLUGIN_H */
 

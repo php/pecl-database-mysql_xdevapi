@@ -28,6 +28,7 @@ struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_result_field_meta;
 struct st_xmysqlnd_protocol_frame_codec;
 struct st_xmysqlnd_warning_list;
+struct st_xmysqlnd_stmt_execution_state;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
 
@@ -38,6 +39,7 @@ typedef struct st_xmysqlnd_node_stmt_result_meta *	(*func_xmysqlnd_object_factor
 typedef struct st_xmysqlnd_result_field_meta *		(*func_xmysqlnd_object_factory__get_result_field_meta)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_protocol_frame_codec *	(*func_xmysqlnd_object_factory__get_pfc)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_warning_list *			(*func_xmysqlnd_object_factory__get_warning_list)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef struct st_xmysqlnd_stmt_execution_state *	(*func_xmysqlnd_object_factory__get_stmt_execution_state)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 {
@@ -48,6 +50,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 	func_xmysqlnd_object_factory__get_result_field_meta get_result_field_meta;
 	func_xmysqlnd_object_factory__get_pfc get_protocol_frame_codec;
 	func_xmysqlnd_object_factory__get_warning_list get_warning_list;
+	func_xmysqlnd_object_factory__get_stmt_execution_state get_stmt_execution_state;
 };
 
 PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_object_factory);

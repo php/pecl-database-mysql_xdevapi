@@ -350,6 +350,32 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list)(MYSQLND_CLASS_METHODS
 /* }}} */
 
 
+/* {{{ xmysqlnd_object_factory::get_stmt_execution_state */
+static XMYSQLND_STMT_EXECUTION_STATE *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+																   const zend_bool persistent,
+																   MYSQLND_STATS * stats,
+																   MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_STMT_EXECUTION_STATE) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_STMT_EXECUTION_STATE * object = mnd_pecalloc(1, alloc_size, persistent);
+
+	DBG_ENTER("xmysqlnd_object_factory::get_stmt_execution_state");
+	DBG_INF_FMT("persistent=%u", persistent);
+	if (object) {
+		object->persistent = persistent;
+		object->m = xmysqlnd_stmt_execution_state_get_methods();
+
+		if (PASS != object->m->init(object, factory, stats, error_info)) {
+			object->m->dtor(object);
+			object = NULL;
+		}
+	}
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
 MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt),
@@ -358,6 +384,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state),
 MYSQLND_CLASS_METHODS_END;
 
 /*
