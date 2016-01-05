@@ -320,6 +320,26 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, add_field)(XMYSQLND_NODE_STMT_RE
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt_result_meta::count */
+static unsigned int
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, count)(const XMYSQLND_NODE_STMT_RESULT_META * const meta)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result_meta::count");
+	DBG_RETURN(meta->field_count);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result_meta::get_field */
+static const XMYSQLND_RESULT_FIELD_META *
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, get_field)(const XMYSQLND_NODE_STMT_RESULT_META * const meta, unsigned int field)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result_meta::get_field");
+	DBG_RETURN((meta->field_count > 0 && field < meta->field_count)? meta->fields[field] : NULL);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_stmt_result_meta::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, free_contents)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -351,6 +371,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, dtor)(XMYSQLND_NODE_STMT_RESULT_
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result_meta)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, init),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, add_field),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, count),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, get_field),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, dtor),
 MYSQLND_CLASS_METHODS_END;

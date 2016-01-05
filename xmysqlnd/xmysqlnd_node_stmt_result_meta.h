@@ -121,6 +121,8 @@ typedef struct st_xmysqlnd_node_stmt_result_meta XMYSQLND_NODE_STMT_RESULT_META;
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_meta__init)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_meta__add_field)(XMYSQLND_NODE_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef unsigned int		(*func_xmysqlnd_node_stmt_result_meta__get_field_count)(const XMYSQLND_NODE_STMT_RESULT_META * const meta);
+typedef const XMYSQLND_RESULT_FIELD_META * (*func_xmysqlnd_node_stmt_result_meta__get_field)(const XMYSQLND_NODE_STMT_RESULT_META * const meta, unsigned int field);
 typedef void				(*func_xmysqlnd_node_stmt_result_meta__free_contents)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void				(*func_xmysqlnd_node_stmt_result_meta__dtor)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
@@ -128,6 +130,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta)
 {
 	func_xmysqlnd_node_stmt_result_meta__init init;
 	func_xmysqlnd_node_stmt_result_meta__add_field add_field;
+	func_xmysqlnd_node_stmt_result_meta__get_field_count get_field_count;
+	func_xmysqlnd_node_stmt_result_meta__get_field get_field;
 	func_xmysqlnd_node_stmt_result_meta__free_contents free_contents;
 	func_xmysqlnd_node_stmt_result_meta__dtor dtor;
 };

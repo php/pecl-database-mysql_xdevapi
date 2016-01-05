@@ -135,7 +135,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 
 	RETVAL_FALSE;
 
-	enum_func_status ret = object->msg.read_response(&object->msg, NULL, return_value);
+	enum_func_status ret = object->msg.read_response(&object->msg, NULL, NULL, NULL, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

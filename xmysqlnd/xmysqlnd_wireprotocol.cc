@@ -26,6 +26,7 @@
 #include "xmysqlnd_zval2any.h"
 
 #include "xmysqlnd_node_session.h"
+#include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 
 #include "proto_gen/mysqlx.pb.h"
@@ -963,13 +964,6 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 
 	ctx->server_message_type = XMSG_COLUMN_METADATA;
 	if (ctx->session) {
-		if (!ctx->result_meta) {
-			ctx->result_meta = xmysqlnd_node_stmt_result_meta_init(ctx->session->persistent, &ctx->session->object_factory, ctx->stats, ctx->error_info);
-			if (!ctx->result_meta) {
-				SET_OOM_ERROR(ctx->error_info);
-				DBG_RETURN(HND_FAIL);
-			}
-		}
 		XMYSQLND_RESULT_FIELD_META * field = xmysqlnd_result_field_meta_init(ctx->session->persistent, &ctx->session->object_factory, ctx->stats, ctx->error_info);
 		if (!field) {
 			ctx->result_meta->m->dtor(ctx->result_meta, ctx->stats, ctx->error_info);
@@ -1014,8 +1008,6 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 			field->m->set_content_type(field, message.content_type());
 		}
 		ctx->result_meta->m->add_field(ctx->result_meta, field, ctx->stats, ctx->error_info);
-		
-//		xmysqlnd_node_stmt_result_meta_free(ctx->result_meta, ctx->stats, ctx->error_info);
 		DBG_RETURN(HND_AGAIN);
 	} else if (ctx->response_zval) {
 		mysqlx_new_column_metadata(ctx->response_zval, message);
@@ -1025,6 +1017,283 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 /* }}} */
 
 #include "mysqlx_resultset__data_row.h"
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/wire_format_lite.h>
+#include <ext/mysqlnd/mysql_float_to_double.h>
+
+/* {{{ xmysqlnd_row_to_zval_array */
+static enum_func_status
+xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
+						   const XMYSQLND_NODE_STMT_RESULT_META * meta,
+						   zval * return_value)
+{
+	enum_func_status ret = PASS;
+	const unsigned int column_count = meta->m->get_field_count(meta);
+	unsigned int i;
+	DBG_ENTER("xmysqlnd_row_to_zval_array");
+
+	for (i = 0; i < column_count; ++i) {
+//		const Mysqlx::Resultset::ColumnMetaData & meta = meta_ar[i]->message;
+		const uint8_t * buf = reinterpret_cast<const uint8_t*>(message.field(i).c_str());
+		const size_t buf_size = message.field(i).size();
+		zval * zv = &(return_value[i]);
+		DBG_INF_FMT("buf_size=%u", (uint) buf_size);
+		for (unsigned j = 0; j < buf_size; j++) {
+			DBG_INF_FMT("[%02u]=x%02X", j, buf[j]);
+		}
+		/*
+		  Precaution, as if something misbehaves and doesn't initialize `zv` then `zv` will be at
+		  the same place in the stack and have the previous value. String reuse will lead to
+		  double-free and a crash.
+		*/
+		ZVAL_NULL(zv);
+		if (buf_size == 0) {
+			goto skip_switch;
+		}
+		switch (meta->m->get_field(meta, i)->type) {
+			case XMYSQLND_TYPE_SIGNED_INT:{
+				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+				::google::protobuf::uint64 gval;
+				DBG_INF("SINT");
+				if (input_stream.ReadVarint64(&gval)) {
+					int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
+#if SIZEOF_ZEND_LONG==4
+					if (UNEXPECTED(ival >= ZEND_LONG_MAX)) {
+						ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, ival));
+					} else
+#endif
+					{
+						ZVAL_LONG(zv, ival);
+					}
+				} else {
+					php_error_docref(NULL, E_WARNING, "Error decoding SINT");
+					ret = FAIL;
+				}
+				break;
+			}
+			case XMYSQLND_TYPE_BIT:
+				DBG_INF("BIT handled as UINT");
+			case XMYSQLND_TYPE_UNSIGNED_INT:{
+				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+				::google::protobuf::uint64 gval;
+				DBG_INF("UINT");
+				if (input_stream.ReadVarint64(&gval)) {
+#if SIZEOF_ZEND_LONG==8
+					if (gval > 9223372036854775807L) {
+#elif SIZEOF_ZEND_LONG==4
+					if (gval > L64(2147483647) {
+#endif
+						ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
+					} else {
+						ZVAL_LONG(zv, gval);
+					}
+				} else {
+					php_error_docref(NULL, E_WARNING, "Error decoding UINT");
+					ret = FAIL;
+				}
+				break;
+			}
+			case XMYSQLND_TYPE_DOUBLE:{
+				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+				::google::protobuf::uint64 gval;
+				DBG_INF("DOUBLE");
+				if (input_stream.ReadLittleEndian64(&gval)) {
+					ZVAL_DOUBLE(zv, ::google::protobuf::internal::WireFormatLite::DecodeDouble(gval));
+				} else {
+					php_error_docref(NULL, E_WARNING, "Error decoding DOUBLE");
+					ZVAL_NULL(zv);
+					ret = FAIL;
+				}
+				break;
+			}
+			case XMYSQLND_TYPE_FLOAT:{
+				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+				::google::protobuf::uint32 gval;
+				DBG_INF("FLOAT");
+				if (input_stream.ReadLittleEndian32(&gval)) {
+					const float fval = ::google::protobuf::internal::WireFormatLite::DecodeFloat(gval);
+					const unsigned int fractional_digits = meta->m->get_field(meta, i)->fractional_digits;
+#ifndef NOT_FIXED_DEC
+# define NOT_FIXED_DEC 31
+#endif
+					const double dval = mysql_float_to_double(fval, (fractional_digits >= NOT_FIXED_DEC) ? -1 : fractional_digits);
+
+					ZVAL_DOUBLE(zv, dval);
+				} else {
+					php_error_docref(NULL, E_WARNING, "Error decoding FLOAT");
+					ret = FAIL;
+				}
+				break;
+			}
+			case XMYSQLND_TYPE_ENUM:
+				DBG_INF("ENUM handled as STRING");
+			case XMYSQLND_TYPE_BYTES:{
+				if (buf_size) {
+					DBG_INF("STRING");
+					ZVAL_STRINGL(zv, reinterpret_cast<const char *>(buf), buf_size - 1); /* skip the ending \0 */
+				} else {
+					DBG_INF("NULL");
+					ZVAL_NULL(zv);
+					ret = FAIL;
+				}
+				break;
+			}
+			case XMYSQLND_TYPE_TIME:{
+				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+				::google::protobuf::uint64 neg = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
+				DBG_INF("TIME");
+				if (!buf_size) {
+					break;
+				}
+				if (buf_size == 1) {
+					if (!buf[0]) {
+						#define	TIME_NULL_VALUE "00:00:00.00"
+						ZVAL_NEW_STR(&(return_value[i]), zend_string_init(TIME_NULL_VALUE, sizeof(TIME_NULL_VALUE)-1, 0));
+						#undef TIME_NULL_VALUE
+					} else {
+						ZVAL_NULL(zv);
+						php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+						ret = FAIL;
+					}
+					break;
+				}
+				do {
+					if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("neg  ="MYSQLND_LLU_SPEC, neg);
+					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours="MYSQLND_LLU_SPEC, hours);
+					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins ="MYSQLND_LLU_SPEC, minutes);
+					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs ="MYSQLND_LLU_SPEC, seconds);
+					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs="MYSQLND_LLU_SPEC, useconds);
+				} while (0);
+				#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
+				ZVAL_NEW_STR(zv, strpprintf(0, TIME_FMT_STR , neg? "-":"",
+										    (unsigned int) hours,
+											(unsigned int) minutes,
+											(unsigned int) seconds,
+											(unsigned int) useconds));
+				#undef TIME_FMT_STR
+				break;
+			}
+			case XMYSQLND_TYPE_DATETIME:{
+				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+				::google::protobuf::uint64 year = 0, month = 0, day = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
+				DBG_INF("DATETIME");
+				if (!buf_size) {
+					break;
+				}
+				if (buf_size == 1) {
+					if (!buf[0]) {
+						#define	DATETIME_NULL_VALUE "0000-00-00 00:00:00.00"
+						ZVAL_NEW_STR(&(return_value[i]), zend_string_init(DATETIME_NULL_VALUE, sizeof(DATETIME_NULL_VALUE)-1, 0));
+						#undef DATETIME_NULL_VALUE
+					} else {
+						php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+						ret = FAIL;
+					}
+					break;
+				}
+				do {
+					if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("year ="MYSQLND_LLU_SPEC, year);
+					if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("month="MYSQLND_LLU_SPEC, month);
+					if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("day  ="MYSQLND_LLU_SPEC, day);
+					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours="MYSQLND_LLU_SPEC, hours);
+					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins ="MYSQLND_LLU_SPEC, minutes);
+					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs ="MYSQLND_LLU_SPEC, seconds);
+					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs="MYSQLND_LLU_SPEC, useconds);
+				} while (0);
+				#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
+				ZVAL_NEW_STR(zv, strpprintf(0, DATETIME_FMT_STR ,
+											 (unsigned int) year,
+											 (unsigned int) month,
+											 (unsigned int) day,
+											 (unsigned int) hours,
+											 (unsigned int) minutes,
+											 (unsigned int) seconds,
+											 (unsigned int) useconds));
+				#undef DATETIME_FMT_STR
+				break;
+			}
+			case XMYSQLND_TYPE_SET:{
+				DBG_INF("SET");
+				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+				::google::protobuf::uint64 gval;
+				bool length_read_ok = true;
+				array_init(zv);
+				if (buf_size == 1 && buf[0] == 0x1) { /* Empty set */
+					break;
+				}
+				while (length_read_ok) {
+					if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
+						char * set_value = NULL;
+						int rest_buffer_size = 0;
+						if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
+							zval set_entry;
+							DBG_INF_FMT("value length=%3u  rest_buffer_size=%3d", (uint) gval, rest_buffer_size);
+							if (gval > rest_buffer_size) {
+								php_error_docref(NULL, E_WARNING, "Length pointing outside of the buffer");
+								ret = FAIL;
+								break;
+							}
+							ZVAL_STRINGL(&set_entry, set_value, gval);
+							zend_hash_next_index_insert(Z_ARRVAL_P(zv), &set_entry);
+							if (!input_stream.Skip(gval)) {
+								break;
+							}
+						}
+					}
+				}
+				DBG_INF_FMT("set elements=%u", zend_hash_num_elements(Z_ARRVAL_P(zv)));
+				break;
+			}
+			case XMYSQLND_TYPE_DECIMAL:{
+				DBG_INF("DECIMAL");
+				if (!buf_size) {
+					break;
+				}
+				if (buf_size == 1) {
+					php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME");
+				}
+				const uint8_t scale = buf[0];
+				const uint8_t last_byte = buf[buf_size - 1]; /* last byte is the sign and the last 4 bits, if any */
+				const uint8_t sign = ((last_byte & 0xF)? last_byte  : last_byte >> 4) & 0xF;
+				const size_t digits = (buf_size - 2 /* scale & last */) * 2  + ((last_byte & 0xF) > 0x9? 1:0);
+				DBG_INF_FMT("scale     =%u", (uint) scale);
+				DBG_INF_FMT("sign      =%u", (uint) sign);
+				DBG_INF_FMT("digits    =%u", (uint) digits);
+				if (!digits) {
+					php_error_docref(NULL, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
+					ret = FAIL;
+					break;
+				}
+				const size_t d_val_len = digits + (sign == 0xD? 1:0) + (digits > scale? 1:0); /* one for the dot, one for the sign*/
+				char * d_val = new char [d_val_len + 1];
+				d_val[d_val_len] = '\0';
+				char * p = d_val;
+				if (sign == 0xD) {
+					*(p++) = '-';
+				}
+				const size_t dot_position = digits - scale - 1;
+				for (unsigned int pos = 0; pos < digits; ++pos) {
+					const size_t offset = 1 + (pos >> 1);
+					/* if uneven (&0x01) then use the second 4-bits, otherwise shift (>>) the first 4 to the right and then use them */
+					const uint8_t digit = (pos & 0x01 ? buf[offset] : buf[offset] >> 4) & 0x0F; 
+					*(p++) = '0' + digit;
+					if (pos == dot_position) {
+						*(p++) = '.';
+					}
+				}
+				DBG_INF_FMT("value=%*s", d_val_len, d_val);
+				ZVAL_STRINGL(zv, d_val, d_val_len);
+				delete [] d_val;
+				break;
+			}
+		}
+skip_switch:
+		;
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
 
 /* {{{ stmt_execute_on_RSET_ROW */
 static enum_hnd_func_status
@@ -1034,6 +1303,15 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 	ctx->server_message_type = XMSG_RSET_ROW;
 	if (ctx->response_zval) {
 		mysqlx_new_data_row(ctx->response_zval, message);
+		return HND_PASS;
+	}
+	if (ctx->result) {
+		zval * row = ctx->result->data->m.create_row(ctx->result, ctx->result_meta, ctx->stats, ctx->error_info);
+		if (row && PASS == xmysqlnd_row_to_zval_array(message, ctx->result_meta, row)) {
+			ctx->result->data->m.add_row(ctx->result, row, ctx->result_meta, ctx->stats, ctx->error_info);
+		}
+
+		return HND_AGAIN;
 	}
 }
 /* }}} */
@@ -1118,12 +1396,19 @@ static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 
 /* {{{ xmysqlnd_sql_stmt_execute__read_response */
 extern "C" enum_func_status
-xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg, XMYSQLND_NODE_SESSION_DATA * const session, zval * response)
+xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
+										 XMYSQLND_NODE_SESSION_DATA * const session,
+										 XMYSQLND_NODE_STMT_RESULT * const result,
+										 XMYSQLND_NODE_STMT_RESULT_META * const meta,
+										 zval * response)
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_read__stmt_execute");
 	msg->session = session;
 	msg->response_zval = response;
+	msg->result = result;
+	msg->result_meta = meta;
+
 	ret = xmysqlnd_receive_message(&stmt_execute_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
@@ -1133,7 +1418,9 @@ xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_sql_stmt_execute_mes
 /* {{{ xmysqlnd_sql_stmt_execute__send_request */
 extern "C" enum_func_status
 xmysqlnd_sql_stmt_execute__send_request(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
-										const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt, const zend_bool compact_meta)
+										const MYSQLND_CSTRING namespace_,
+										const MYSQLND_CSTRING stmt,
+										const zend_bool compact_meta)
 {
 	size_t bytes_sent;
 	Mysqlx::Sql::StmtExecute message;
@@ -1160,6 +1447,7 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		stats,
 		error_info,
 		NULL, /* session */
+		NULL, /* result */
 		NULL, /* result_meta */
 		NULL, /* response_zval */
 		XMSG_NONE,

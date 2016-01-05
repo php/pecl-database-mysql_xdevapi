@@ -28,19 +28,21 @@
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
+#include "xmysqlnd_node_stmt_result_meta.h"
 
 /* {{{ xmysqlnd_node_stmt::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
-										   XMYSQLND_NODE_SESSION_DATA * const session,
-										   const MYSQLND_CSTRING query,
-										   MYSQLND_STATS * const stats,
-										   MYSQLND_ERROR_INFO * const error_info)
+										  XMYSQLND_NODE_SESSION_DATA * const session,
+										  const MYSQLND_CSTRING query,
+										  MYSQLND_STATS * const stats,
+										  MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt::init");
 	if (!(stmt->data->session = session->m->get_reference(session))) {
 		return FAIL;
 	}
+	stmt->data->m.get_reference(stmt);
 	stmt->data->query = mnd_dup_cstring(query, stmt->data->persistent);
 	DBG_INF_FMT("query=[%d]%*s", stmt->data->query.l, stmt->data->query.l, stmt->data->query.s);
 	DBG_RETURN(PASS);
@@ -74,10 +76,31 @@ static struct st_xmysqlnd_node_stmt_result *
 XMYSQLND_METHOD(xmysqlnd_node_stmt, read_result)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_NODE_STMT_RESULT * result = NULL;
+	XMYSQLND_NODE_STMT_RESULT_META * meta = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt::read_result");
 
-	if (PASS == stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, stmt->data->session, NULL)) {
-	
+	result = xmysqlnd_node_stmt_result_init(stmt, stmt->persistent, &stmt->data->session->object_factory, stats, error_info);
+	meta = xmysqlnd_node_stmt_result_meta_init(stmt->persistent, &stmt->data->session->object_factory, stats, error_info);
+	if (!meta || !result) {
+		SET_OOM_ERROR(error_info);
+		DBG_RETURN(NULL);
+	}
+
+	/*
+	  Maybe we can inject a callbacks that creates `meta` on demand, but we still DI it.
+	  This way we don't pre-create `meta` and in case of UPSERT we don't waste cycles.
+	  For now, we just pre-create.
+	*/
+
+	if (PASS == stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, stmt->data->session, result, meta, NULL)) {
+		if (!meta->m->get_field_count(meta))
+		{
+			/* Short path, an UPSERT statement */
+			xmysqlnd_node_stmt_result_meta_free(meta, stats, error_info);
+			meta = NULL;
+		} else {
+			result->data->m.attach_meta(result, meta, stats, error_info);
+		}
 	}
 	DBG_RETURN(result);
 }
@@ -88,8 +111,10 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_result)(XMYSQLND_NODE_STMT * const stmt
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_result)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
+	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_node_stmt::skip_result");
-	DBG_RETURN(PASS);
+	ret = stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, NULL, NULL, NULL, NULL);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -183,6 +208,7 @@ PHPAPI void
 xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_free");
+	DBG_INF_FMT("stmt=%p  stmt->data=%p  dtor=%p", stmt, stmt? stmt->data:NULL, stmt? stmt->data->m.dtor:NULL);
 	if (stmt) {
 		if (!stats) {
 			stats = stmt->data->session->stats;
@@ -190,7 +216,7 @@ xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, 
 		if (!error_info) {
 			error_info = stmt->data->session->error_info;
 		}
-		stmt->data->m.dtor(stmt, stats, error_info);
+		stmt->data->m.free_reference(stmt, stats, error_info);
 	}
 	DBG_VOID_RETURN;
 }

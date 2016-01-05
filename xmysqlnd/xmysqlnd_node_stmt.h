@@ -71,7 +71,7 @@ struct st_xmysqlnd_node_stmt
 {
 	XMYSQLND_NODE_STMT_DATA * data;
 
-	zend_bool 		persistent;
+	zend_bool		persistent;
 };
 
 

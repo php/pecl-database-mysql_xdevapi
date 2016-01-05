@@ -22,6 +22,7 @@
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
+#include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 
@@ -114,16 +115,14 @@ PHP_METHOD(mysqlx_node_session, query)
 	}
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(session, session_zv);
 
-//	RETVAL_BOOL(PASS == xmysqlnd_node_session_query(session, query));
 	{
 		MYSQLND_STATS * stats = session->data->stats;
 		MYSQLND_ERROR_INFO * error_info = session->data->error_info;
 		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
-			if (PASS == stmt->data->m.send_query(stmt, stats, error_info) &&
-				PASS == stmt->data->m.read_result(stmt, stats, error_info))
-			{
-			
+			if (PASS == stmt->data->m.send_query(stmt, stats, error_info)) {
+				XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.read_result(stmt, stats, error_info);
+				xmysqlnd_node_stmt_result_free(result, stats, error_info);
 			}
 			xmysqlnd_node_stmt_free(stmt, stats, error_info);
 		}

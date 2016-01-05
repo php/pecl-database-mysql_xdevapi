@@ -20,6 +20,8 @@
 #define XMYSQLND_WIREPROTOCOL_H
 
 struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_node_stmt_result;
+struct st_xmysqlnd_node_stmt_result_meta;
 struct st_xmysqlnd_level3_io;
 
 #include <ext/mysqlnd/mysqlnd_vio.h>
@@ -94,8 +96,11 @@ struct st_xmysqlnd_capabilities_get_message_ctx
 
 struct st_xmysqlnd_capabilities_set_message_ctx
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_capabilities_set_message_ctx * msg, const size_t cap_count, zval ** capabilities_names, zval ** capabilities_values);
-	enum_func_status (*read_response)(struct st_xmysqlnd_capabilities_set_message_ctx * msg, zval * return_value);
+	enum_func_status (*send_request)(struct st_xmysqlnd_capabilities_set_message_ctx * msg,
+									 const size_t cap_count, zval ** capabilities_names, zval ** capabilities_values);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_capabilities_set_message_ctx * msg,
+									  zval * return_value);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
@@ -108,8 +113,12 @@ struct st_xmysqlnd_capabilities_set_message_ctx
 
 struct st_xmysqlnd_auth_start_message_ctx
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_auth_start_message_ctx * msg, const MYSQLND_CSTRING auth_mech_name, const MYSQLND_CSTRING auth_data);
-	enum_func_status (*read_response)(struct st_xmysqlnd_auth_start_message_ctx * msg, zval * auth_start_response);
+	enum_func_status (*send_request)(struct st_xmysqlnd_auth_start_message_ctx * msg,
+									 const MYSQLND_CSTRING auth_mech_name,
+									 const MYSQLND_CSTRING auth_data);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_auth_start_message_ctx * msg,
+									  zval * auth_start_response);
 
 	zend_bool (*continue_auth)(const struct st_xmysqlnd_auth_start_message_ctx * msg);
 	zend_bool (*finished)(const struct st_xmysqlnd_auth_start_message_ctx * msg);
@@ -128,8 +137,14 @@ struct st_xmysqlnd_auth_start_message_ctx
 
 struct st_xmysqlnd_auth_continue_message_ctx
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_auth_continue_message_ctx * msg, const MYSQLND_CSTRING schema, const MYSQLND_CSTRING user, const MYSQLND_CSTRING password, const MYSQLND_CSTRING salt);
-	enum_func_status (*read_response)(struct st_xmysqlnd_auth_continue_message_ctx * msg, zval * auth_continue_response);
+	enum_func_status (*send_request)(struct st_xmysqlnd_auth_continue_message_ctx * msg,
+									 const MYSQLND_CSTRING schema,
+									 const MYSQLND_CSTRING user,
+									 const MYSQLND_CSTRING password,
+									 const MYSQLND_CSTRING salt);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_auth_continue_message_ctx * msg,
+									  zval * auth_continue_response);
 
 	zend_bool (*continue_auth)(const struct st_xmysqlnd_auth_continue_message_ctx * msg);
 	zend_bool (*finished)(const struct st_xmysqlnd_auth_continue_message_ctx * msg);
@@ -148,14 +163,23 @@ struct st_xmysqlnd_auth_continue_message_ctx
 
 struct st_xmysqlnd_sql_stmt_execute_message_ctx
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt, const zend_bool compact_meta);
-	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg, struct st_xmysqlnd_node_session_data * const session, zval * response);
+	enum_func_status (*send_request)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
+									 const MYSQLND_CSTRING namespace_,
+									 const MYSQLND_CSTRING stmt,
+									 const zend_bool compact_meta);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
+									  struct st_xmysqlnd_node_session_data * const session,
+									  struct st_xmysqlnd_node_stmt_result * const result,
+									  struct st_xmysqlnd_node_stmt_result_meta * const meta,
+									  zval * response);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 	struct st_xmysqlnd_node_session_data * session;
+	struct st_xmysqlnd_node_stmt_result * result;
 	struct st_xmysqlnd_node_stmt_result_meta * result_meta;
 	zval * response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
