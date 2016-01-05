@@ -1518,7 +1518,7 @@ stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone & message, vo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE;
-	return HND_PASS;
+	return HND_AGAIN; /* After FETCH_DONE a STMT_EXECUTE_OK is expected */
 }
 /* }}} */
 
@@ -1540,6 +1540,7 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMor
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE_MORE_RSETS;
+//	return HND_AGAIN;
 	return HND_PASS;
 }
 /* }}} */
