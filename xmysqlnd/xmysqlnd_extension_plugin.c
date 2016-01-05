@@ -18,10 +18,7 @@
 */
 #include "php.h"
 #include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_priv.h"
-#include "ext/mysqlnd/mysqlnd_result.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysqlnd_ext_plugin.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"

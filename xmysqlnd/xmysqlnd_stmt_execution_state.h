@@ -19,7 +19,6 @@
 #ifndef XMYSQLND_STMT_EXECUTION_STATE_H
 #define XMYSQLND_STMT_EXECUTION_STATE_H
 
-#include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
 
 #ifdef __cplusplus

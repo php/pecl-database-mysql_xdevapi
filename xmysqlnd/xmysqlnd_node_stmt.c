@@ -17,13 +17,8 @@
 */
 #include "php.h"
 #include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_connection.h"
-#include "ext/mysqlnd/mysqlnd_priv.h"
-#include "ext/mysqlnd/mysqlnd_wireprotocol.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "xmysqlnd.h"
-#include "xmysqlnd_priv.h" // XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3
-#include "xmysqlnd_wireprotocol.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt.h"

@@ -17,9 +17,6 @@
 */
 #include "php.h"
 #include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_connection.h"
-#include "ext/mysqlnd/mysqlnd_priv.h"
-#include "ext/mysqlnd/mysqlnd_wireprotocol.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"

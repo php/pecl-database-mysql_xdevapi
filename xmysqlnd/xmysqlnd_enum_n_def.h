@@ -23,9 +23,6 @@
 #define XMYSQLND_MAX_PACKET_SIZE		(1024L * 1024L)  /* TODO: not -1 ? */
 #define XMYSQLND_NODE_SESSION_CHARSET	"utf8"
 
-
-
-
 typedef enum xmysqlnd_collected_stats
 {
 	XMYSQLND_STAT_BYTES_SENT,

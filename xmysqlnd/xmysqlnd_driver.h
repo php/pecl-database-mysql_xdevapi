@@ -19,8 +19,6 @@
 #ifndef XMYSQLND_DRIVER_H
 #define XMYSQLND_DRIVER_H
 
-#include "xmysqlnd_enum_n_def.h"
-
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
 struct st_xmysqlnd_node_stmt;

@@ -19,7 +19,6 @@
 #ifndef XMYSQLND_WARNING_LIST_H
 #define XMYSQLND_WARNING_LIST_H
 
-#include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
 
 #ifdef __cplusplus

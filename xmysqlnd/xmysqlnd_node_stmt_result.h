@@ -19,9 +19,7 @@
 #ifndef XMYSQLND_NODE_STMT_RESULT_H
 #define XMYSQLND_NODE_STMT_RESULT_H
 
-#include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
-#include "xmysqlnd_wireprotocol.h" /* struct st_xmysqlnd_sql_stmt_execute_message_ctx */
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
 
