@@ -50,19 +50,88 @@ static size_t
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_affected_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::get_affected_items_count");
-	DBG_RETURN(result->data->affected_items);
+	DBG_RETURN(result->data->items_affected);
 }
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt_result::get_matched_items_count */
+static size_t
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_matched_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::get_matched_items_count");
+	DBG_RETURN(result->data->items_matched);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::get_found_items_count */
+static size_t
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_found_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::get_found_items_count");
+	DBG_RETURN(result->data->items_found);
+}
+/* }}} */
+
+
+
 /* {{{ xmysqlnd_node_stmt_result::get_last_insert_id */
-static int64_t
+static uint64_t
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_last_insert_id)(const XMYSQLND_NODE_STMT_RESULT * const result)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::get_last_insert_id");
 	DBG_RETURN(result->data->last_insert_id);
 }
 /* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::set_affected_items_count */
+static void
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_affected_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result, const size_t value)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::set_affected_items_count");
+	DBG_INF_FMT("value="MYSQLND_LLU_SPEC, value);
+	result->data->items_affected = value;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::set_matched_items_count */
+static void
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_matched_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result, const size_t value)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::set_matched_items_count");
+	DBG_INF_FMT("value="MYSQLND_LLU_SPEC, value);
+	result->data->items_matched = value;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::set_found_items_count */
+static void
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_found_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result, const size_t value)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::set_found_items_count");
+	DBG_INF_FMT("value="MYSQLND_LLU_SPEC, value);
+	result->data->items_found = value;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::set_last_insert_id */
+static void
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_last_insert_id)(const XMYSQLND_NODE_STMT_RESULT * const result, const uint64_t value)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::set_last_insert_id");
+	result->data->last_insert_id = value;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 
 
 /* {{{ xmysqlnd_node_stmt_result::get_warning_count */
@@ -236,6 +305,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RES
 			result->data->m.destroy_row(result, result->data->rows[row], stats, error_info);
 		}
 		mnd_pefree(result->data->rows, result->data->persistent);
+
+		xmysqlnd_node_stmt_result_meta_free(result->data->meta, stats, error_info);
 	}
 	DBG_VOID_RETURN;
 }
@@ -262,7 +333,13 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, dtor)(XMYSQLND_NODE_STMT_RESULT * con
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, init),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_affected_items_count),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_matched_items_count),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_found_items_count),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_last_insert_id),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_affected_items_count),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_matched_items_count),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_found_items_count),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_last_insert_id),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning_count),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count),

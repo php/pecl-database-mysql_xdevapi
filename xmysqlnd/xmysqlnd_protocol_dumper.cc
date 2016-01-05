@@ -631,6 +631,7 @@ xmysqlnd_dump_column_meta(const Mysqlx::Resultset::ColumnMetaData & meta)
 }
 /* }}} */
 
+
 /* {{{ xmysqlnd_dump_warning */
 static void
 xmysqlnd_dump_warning(const Mysqlx::Notice::Warning & warning)
@@ -717,18 +718,21 @@ xmysqlnd_dump_notice_frame(const Mysqlx::Notice::Frame & frame)
 		switch (frame.type()) {
 			case 1:{ /* Warning */
 				Mysqlx::Notice::Warning message;
+				DBG_INF("Warning");
 				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
 				xmysqlnd_dump_warning(message);
 				break;
 			}
 			case 2:{ /* SessionVariableChanged */
 				Mysqlx::Notice::SessionVariableChanged message;
+				DBG_INF("SessionVariableChanged");
 				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
 				xmysqlnd_dump_changed_variable(message);
 				break;
 			}
 			case 3:{ /* SessionStateChanged */
 				Mysqlx::Notice::SessionStateChanged message;
+				DBG_INF("SessionStateChanged");
 				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
 				xmysqlnd_dump_changed_state(message);
 				break;

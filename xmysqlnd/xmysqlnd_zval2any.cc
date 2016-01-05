@@ -207,7 +207,133 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 /* }}} */
 
 
-/* {{{ any2log */
+/* {{{ scalar2uint */
+uint64_t
+scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
+{
+	uint64_t ret = 0;
+	DBG_ENTER("scalar2uint");
+	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
+	switch (scalar.type()) {
+		case Scalar_Type_V_SINT:
+			ret = scalar.v_signed_int();
+			break;
+		case Scalar_Type_V_UINT:
+			ret = scalar.v_unsigned_int();
+			break;
+		case Scalar_Type_V_NULL:
+			ret = 0;
+			break;
+		case Scalar_Type_V_OCTETS:
+			ret = ZEND_STRTOL(scalar.v_opaque().c_str(), NULL, 10);
+			break;
+		case Scalar_Type_V_DOUBLE:
+			ret = scalar.v_double();
+			break;
+		case Scalar_Type_V_FLOAT:
+			ret = mysql_float_to_double(scalar.v_float(), -1);
+			break;
+		case Scalar_Type_V_BOOL:
+			ret = scalar.v_bool();
+			break;
+		case Scalar_Type_V_STRING:
+			ret = ZEND_STRTOL(scalar.v_string().value().c_str(), NULL, 10);
+			break;
+		default:
+			;// assert
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ scalar2uint */
+int64_t
+scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
+{
+	int64_t ret = 0;
+	DBG_ENTER("scalar2uint");
+	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
+	switch (scalar.type()) {
+		case Scalar_Type_V_SINT:
+			ret = scalar.v_signed_int();
+			break;
+		case Scalar_Type_V_UINT:
+			ret = scalar.v_unsigned_int();
+			break;
+		case Scalar_Type_V_NULL:
+			ret = 0;
+			break;
+		case Scalar_Type_V_OCTETS:
+			ret = ZEND_STRTOL(scalar.v_opaque().c_str(), NULL, 10);
+			break;
+		case Scalar_Type_V_DOUBLE:
+			ret = scalar.v_double();
+			break;
+		case Scalar_Type_V_FLOAT:
+			ret = mysql_float_to_double(scalar.v_float(), -1);
+			break;
+		case Scalar_Type_V_BOOL:
+			ret = scalar.v_bool();
+			break;
+		case Scalar_Type_V_STRING:
+			ret = ZEND_STRTOL(scalar.v_string().value().c_str(), NULL, 10);
+			break;
+		default:
+			;// assert
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ scalar2string */
+MYSQLND_STRING
+scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
+{
+	MYSQLND_STRING ret = {NULL, 0};
+	DBG_ENTER("scalar2string");
+	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
+	switch (scalar.type()) {
+		case Scalar_Type_V_SINT:
+			ret.l = mnd_sprintf(&ret.s, 0, MYSQLND_LLU_SPEC, scalar.v_signed_int());
+			break;
+		case Scalar_Type_V_UINT:
+			ret.l = mnd_sprintf(&ret.s, 0, MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+			break;
+		case Scalar_Type_V_NULL:
+			break;
+		case Scalar_Type_V_OCTETS: {
+			const MYSQLND_CSTRING from = { scalar.v_opaque().c_str(), scalar.v_opaque().size() };
+			ret = mnd_dup_cstring(from, FALSE /*persistent*/);
+			break;
+		}
+		case Scalar_Type_V_DOUBLE:
+			ret.l = mnd_sprintf(&ret.s, 0, "%f", scalar.v_double());
+			break;
+		case Scalar_Type_V_FLOAT:
+			ret.l = mnd_sprintf(&ret.s, 0, "%f", mysql_float_to_double(scalar.v_float(), -1));
+			break;
+		case Scalar_Type_V_BOOL:{
+			const MYSQLND_CSTRING from = { scalar.v_bool()? "TRUE":"FALSE", scalar.v_bool()? sizeof("TRUE")-1: sizeof("FALSE")-1 };
+			ret = mnd_dup_cstring(from, FALSE /*persistent*/);
+			break;
+		}
+		case Scalar_Type_V_STRING:{
+			const MYSQLND_CSTRING from = { scalar.v_string().value().c_str(), scalar.v_string().value().size() };
+			ret = mnd_dup_cstring(from, FALSE /*persistent*/);
+			break;
+		}
+		default:
+			;// assert
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+
+/* {{{ scalar2log */
 void
 scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 {

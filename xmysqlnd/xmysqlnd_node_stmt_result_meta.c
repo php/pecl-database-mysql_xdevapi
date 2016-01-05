@@ -344,10 +344,14 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, get_field)(const XMYSQLND_NODE_S
 static void
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, free_contents)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	unsigned int i = 0;
 	DBG_ENTER("xmysqlnd_node_stmt_result_meta::free_contents");
-	for (; i < meta->field_count; ++i) {
-		meta->fields[i]->m->dtor(meta->fields[i], stats, error_info);
+	if (meta->fields) {
+		unsigned int i = 0;
+		for (; i < meta->field_count; ++i) {
+			meta->fields[i]->m->dtor(meta->fields[i], stats, error_info);
+		}
+		mnd_pefree(meta->fields, meta->persistent);
+		meta->fields = NULL;
 	}
 	DBG_VOID_RETURN;
 }

@@ -941,13 +941,206 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 /* }}} */
 
 
+/* {{{ xmysqlnd_inspect_warning */
+static void
+xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
+{
+	DBG_ENTER("xmysqlnd_inspect_warning");
+
+	const bool has_level = warning.has_level();
+	DBG_INF_FMT("level[%s] is %s", has_level? "SET":"NOT SET",
+								   has_level? Mysqlx::Notice::Warning::Level_Name(warning.level()).c_str() : "n/a");
+
+	const bool has_code = warning.has_code();
+	DBG_INF_FMT("code[%s] is %u", has_code? "SET":"NOT SET",
+								  has_code? warning.code() : 0);
+
+	const bool has_msg = warning.has_msg();
+	DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
+									  has_msg? warning.msg().c_str() : "n/a");
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_inspect_changed_variable */
+static void
+xmysqlnd_inspect_changed_variable(const Mysqlx::Notice::SessionVariableChanged & message, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
+{
+	DBG_ENTER("xmysqlnd_inspect_changed_variable");
+
+	const bool has_param = message.has_param();
+	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
+								   has_param? message.param().c_str() : "n/a");
+
+	const bool has_value = message.has_value();
+	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
+	if (has_value) {
+		scalar2log(message.value());
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_inspect_changed_state */
+static void
+xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & message, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
+{
+	const bool has_param = message.has_param();
+	const bool has_value = message.has_value();
+	DBG_ENTER("xmysqlnd_inspect_changed_state");
+	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
+								   has_param? Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str() : "n/a");
+
+
+	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
+	if (has_param && has_value) {
+		switch (message.param()) {
+			case Mysqlx::Notice::SessionStateChanged::CURRENT_SCHEMA:
+				break;
+			case Mysqlx::Notice::SessionStateChanged::ACCOUNT_EXPIRED:
+				break;
+			case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:
+				break;
+			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
+				if (ctx->result) {
+					ctx->result->data->m.set_affected_items_count(ctx->result, scalar2uint(message.value()));
+				}
+				break;
+			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
+				if (ctx->result) {
+					ctx->result->data->m.set_found_items_count(ctx->result, scalar2uint(message.value()));
+				}
+				break;
+			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
+				if (ctx->result) {
+					ctx->result->data->m.set_matched_items_count(ctx->result, scalar2uint(message.value()));
+				}
+				break;
+			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
+				break;
+			case Mysqlx::Notice::SessionStateChanged::TRX_ROLLEDBACK:
+				break;
+			case Mysqlx::Notice::SessionStateChanged::PRODUCED_MESSAGE:
+				break;
+			case Mysqlx::Notice::SessionStateChanged::CLIENT_ID_ASSIGNED:
+				break;
+			default:
+				DBG_ERR_FMT("Unknown param name %d", message.param());
+				break;
+		}
+	}
+	if (has_value) {
+		scalar2log(message.value());
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_inspect_notice_frame */
+static void
+xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
+{
+	DBG_ENTER("xmysqlnd_inspect_notice_frame");
+
+	const bool has_scope = frame.has_scope();
+	DBG_INF_FMT("scope[%s] is %s", has_scope? "SET":"NOT SET",
+								   has_scope? Mysqlx::Notice::Frame::Scope_Name(frame.scope()).c_str() : "n/a");
+
+	const bool has_payload = frame.has_payload();
+	DBG_INF_FMT("payload is %s", has_payload? "SET":"NOT SET");
+
+	const bool has_type = frame.has_type();
+
+	DBG_INF_FMT("type is %s", has_type? "SET":"NOT SET");
+	if (has_scope && frame.scope() == Mysqlx::Notice::Frame_Scope_LOCAL && has_type && has_payload) {
+		switch (frame.type()) {
+			case 1:{ /* Warning */
+					Mysqlx::Notice::Warning message;
+					DBG_INF("Warning");
+					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					xmysqlnd_inspect_warning(message, ctx);
+					break;
+				}
+			case 2:{ /* SessionVariableChanged */
+					Mysqlx::Notice::SessionVariableChanged message;
+					DBG_INF("SessionVariableChanged");
+					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					xmysqlnd_inspect_changed_variable(message, ctx);
+					break;
+				}
+			case 3:{ /* SessionStateChanged */
+					Mysqlx::Notice::SessionStateChanged message;
+					DBG_INF("SessionStateChanged");
+					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					xmysqlnd_inspect_changed_state(message, ctx);
+				}
+				break;
+			default:
+				DBG_ERR_FMT("Unknown type %d", frame.type());
+				break;
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ stmt_execute_on_NOTICE */
 static enum_hnd_func_status
 stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	DBG_ENTER("stmt_execute_on_NOTICE");
 	ctx->server_message_type = XMSG_NOTICE;
-	return HND_AGAIN;
+	xmysqlnd_inspect_notice_frame(message, ctx);
+	/* In case of UPSERT we get
+ | | | >xmysqlnd_dump_server_message
+| | | | | info : packet is NOTICE   payload_size=14
+| | | | | info : payload[14]=[08 03 10 02 1a 08 08 04 12 04 08 02 18 01 ]
+| | | | | >xmysqlnd_dump_notice_frame
+| | | | | | info : scope[SET] is LOCAL
+| | | | | | info : payload is SET
+| | | | | | info : type is SET
+| | | | | | >xmysqlnd_dump_changed_state
+| | | | | | | info : param[SET] is ROWS_AFFECTED
+| | | | | | | info : value is SET
+| | | | | | | >scalar2log
+| | | | | | | | info : subtype=V_UINT
+| | | | | | | | info : value=1
+| | | | | | | <scalar2log
+| | | | | | <xmysqlnd_dump_changed_state
+| | | | | <xmysqlnd_dump_notice_frame
+| | | | <xmysqlnd_dump_server_message
+
+and
+
+| | | | >xmysqlnd_dump_server_message
+| | | | | info : packet is NOTICE   payload_size=14
+| | | | | info : payload[14]=[08 03 10 02 1a 08 08 03 12 04 08 02 18 01 ]
+| | | | | >xmysqlnd_dump_notice_frame
+| | | | | | info : scope[SET] is LOCAL
+| | | | | | info : payload is SET
+| | | | | | info : type is SET
+| | | | | | >xmysqlnd_dump_changed_state
+| | | | | | | info : param[SET] is GENERATED_INSERT_ID
+| | | | | | | info : value is SET
+| | | | | | | >scalar2log
+| | | | | | | | info : subtype=V_UINT
+| | | | | | | | info : value=1
+| | | | | | | <scalar2log
+| | | | | | <xmysqlnd_dump_changed_state
+| | | | | <xmysqlnd_dump_notice_frame
+| | | | <xmysqlnd_dump_server_message
+
+		These have to update the result set's last_insert_id and affected_items_count.
+	*/
+	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
 
@@ -1033,7 +1226,6 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 	DBG_ENTER("xmysqlnd_row_to_zval_array");
 
 	for (i = 0; i < column_count; ++i) {
-//		const Mysqlx::Resultset::ColumnMetaData & meta = meta_ar[i]->message;
 		const uint8_t * buf = reinterpret_cast<const uint8_t*>(message.field(i).c_str());
 		const size_t buf_size = message.field(i).size();
 		zval * zv = &(return_value[i]);
