@@ -155,7 +155,12 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS
 
 /* {{{ xmysqlnd_object_factory::get_node_stmt */
 static XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+														XMYSQLND_NODE_SESSION_DATA * session,
+														const MYSQLND_CSTRING query,
+														const zend_bool persistent,
+														MYSQLND_STATS * stats,
+														MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_STMT_DATA) + mysqlnd_plugin_count() * sizeof(void *);
@@ -190,7 +195,11 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(XMYSQLND_NODE_SESSION_DA
 
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result */
 static XMYSQLND_NODE_STMT_RESULT *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(XMYSQLND_NODE_STMT * stmt, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+															   XMYSQLND_NODE_STMT * stmt,
+															   const zend_bool persistent,
+															   MYSQLND_STATS * stats,
+															   MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT_RESULT) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_STMT_RESULT_DATA) + mysqlnd_plugin_count() * sizeof(void *);
@@ -204,7 +213,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(XMYSQLND_NODE_STM
 		object->persistent = object->data->persistent = persistent;
 		object->data->m = *xmysqlnd_node_stmt_result_get_methods();
 
-		if (PASS != object->data->m.init(object, stmt, stats, error_info)) {
+		if (PASS != object->data->m.init(object, factory, stmt, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
@@ -225,7 +234,10 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(XMYSQLND_NODE_STM
 
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result_meta */
 static XMYSQLND_NODE_STMT_RESULT_META *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+																	const zend_bool persistent,
+																	MYSQLND_STATS * stats,
+																	MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT_RESULT_META) + mysqlnd_plugin_count() * sizeof(void *);
 	XMYSQLND_NODE_STMT_RESULT_META * object = mnd_pecalloc(1, alloc_size, persistent);
@@ -248,7 +260,10 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(const zend_b
 
 /* {{{ xmysqlnd_object_factory::get_result_field_meta */
 static XMYSQLND_RESULT_FIELD_META *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+																const zend_bool persistent,
+																MYSQLND_STATS * stats,
+																MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_RESULT_FIELD_META) + mysqlnd_plugin_count() * sizeof(void *);
 	XMYSQLND_RESULT_FIELD_META * object = mnd_pecalloc(1, alloc_size, persistent);
@@ -271,7 +286,10 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(const zend_bool 
 
 /* {{{ xmysqlnd_object_factory::get_pfc */
 static XMYSQLND_PFC *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+												  const zend_bool persistent,
+												  MYSQLND_STATS * stats,
+												  MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_PFC) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(MYSQLND_PFC_DATA) + mysqlnd_plugin_count() * sizeof(void *);
@@ -305,6 +323,32 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const zend_bool persistent, MY
 /* }}} */
 
 
+/* {{{ xmysqlnd_object_factory::get_warning_list */
+static XMYSQLND_WARNING_LIST *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+														   const zend_bool persistent,
+														   MYSQLND_STATS * stats,
+														   MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_WARNING_LIST) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_WARNING_LIST * object = mnd_pecalloc(1, alloc_size, persistent);
+
+	DBG_ENTER("xmysqlnd_object_factory::get_warning_list");
+	DBG_INF_FMT("persistent=%u", persistent);
+	if (object) {
+		object->persistent = persistent;
+		object->m = xmysqlnd_warning_list_get_methods();
+
+		if (PASS != object->m->init(object, factory, stats, error_info)) {
+			object->m->dtor(object);
+			object = NULL;
+		}
+	}
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
 MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt),
@@ -312,6 +356,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list),
 MYSQLND_CLASS_METHODS_END;
 
 /*

@@ -34,6 +34,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec);
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list);
 
 struct st_xmysqlnd_plugin__plugin_area_getters
 {
@@ -104,6 +105,12 @@ struct st_xmysqlnd_plugin_methods_xetters
 		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * (*get)();
 		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * methods);
 	} pfc;
+
+	struct st_xmnd_warning_list_xetters
+	{
+		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * (*get)();
+		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * methods);
+	} warning_list;
 };
 
 extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters;
@@ -132,6 +139,10 @@ extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters
 
 #define xmysqlnd_pfc_get_methods()						xmysqlnd_plugin_methods_xetters.pfc.get()
 #define xmysqlnd_pfc_set_methods(m)						xmysqlnd_plugin_methods_xetters.pfc.set((m))
+
+
+#define xmysqlnd_warning_list_get_methods()				xmysqlnd_plugin_methods_xetters.warning_list.get()
+#define xmysqlnd_warning_list_set_methods(m)			xmysqlnd_plugin_methods_xetters.warning_list.set((m))
 
 #endif	/* XMYSQLND_EXTENSION_PLUGIN_H */
 

@@ -47,8 +47,43 @@ typedef struct st_xmysqlnd_cwarning
 	enum xmysqlnd_stmt_warning_level level;
 } XMYSQLND_WARNING;
 
+typedef struct st_xmysqlnd_warning_list XMYSQLND_WARNING_LIST;
 
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__init)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status		(*func_xmysqlnd_warning_list__init)(XMYSQLND_WARNING_LIST * const warn_list, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef unsigned int			(*func_xmysqlnd_warning_list__count)(const XMYSQLND_WARNING_LIST * const warn_list);
+typedef const XMYSQLND_WARNING	(*func_xmysqlnd_warning_list__get_warning)(const XMYSQLND_WARNING_LIST * const warn_list, unsigned int offset);
+typedef void					(*func_xmysqlnd_warning_list__add_warning)(XMYSQLND_WARNING_LIST * const warn_list, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+typedef void					(*func_xmysqlnd_warning_list__free_contents)(XMYSQLND_WARNING_LIST * const warn_list);
+typedef void					(*func_xmysqlnd_warning_list__dtor)(XMYSQLND_WARNING_LIST * const warn_list);
+
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list)
+{
+	func_xmysqlnd_warning_list__init init;
+	func_xmysqlnd_warning_list__add_warning add_warning;
+	func_xmysqlnd_warning_list__count count;
+	func_xmysqlnd_warning_list__get_warning get_warning;
+
+	func_xmysqlnd_warning_list__free_contents free_contents;
+	func_xmysqlnd_warning_list__dtor dtor;
+};
+
+struct st_xmysqlnd_warning_list
+{
+	unsigned int warning_count;
+	struct st_xmysqlnd_warning * warnings;
+	unsigned int warnings_allocated;
+
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) *m;
+	zend_bool persistent;
+};
+
+PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_warning_list);
+PHPAPI XMYSQLND_WARNING_LIST * xmysqlnd_warning_list_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI void xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const list);
+
+
+
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__init)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef size_t				(*func_xmysqlnd_node_stmt_result__get_affected_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
 typedef size_t				(*func_xmysqlnd_node_stmt_result__get_matched_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
 typedef size_t				(*func_xmysqlnd_node_stmt_result__get_found_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
@@ -59,10 +94,11 @@ typedef void				(*func_xmysqlnd_node_stmt_result__set_matched_items_count)(const
 typedef void				(*func_xmysqlnd_node_stmt_result__set_found_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result, const size_t value);
 typedef void				(*func_xmysqlnd_node_stmt_result__set_last_insert_id)(const XMYSQLND_NODE_STMT_RESULT * const result, const uint64_t value);
 
+#if 0
 typedef unsigned int		(*func_xmysqlnd_node_stmt_result__get_warning_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
 typedef const XMYSQLND_WARNING	(*func_xmysqlnd_node_stmt_result__get_warning)(const XMYSQLND_NODE_STMT_RESULT * const result, unsigned int offset);
 typedef void				(*func_xmysqlnd_node_stmt_result__add_warning)(XMYSQLND_NODE_STMT_RESULT * const result, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
-
+#endif
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__has_data)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__next)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -92,11 +128,11 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 	func_xmysqlnd_node_stmt_result__set_matched_items_count set_matched_items_count;
 	func_xmysqlnd_node_stmt_result__set_found_items_count set_found_items_count;
 	func_xmysqlnd_node_stmt_result__set_last_insert_id set_last_insert_id;
-
+#if 0
 	func_xmysqlnd_node_stmt_result__get_warning_count get_warning_count;
 	func_xmysqlnd_node_stmt_result__get_warning get_warning;
 	func_xmysqlnd_node_stmt_result__add_warning add_warning;
-
+#endif
 
 	func_xmysqlnd_node_stmt_result__has_data has_data;
 	func_xmysqlnd_node_stmt_result__next next;
@@ -126,10 +162,12 @@ struct st_xmysqlnd_node_stmt_result_data
 	size_t items_found;
 	uint64_t last_insert_id;
 	/*UUID  last_document_id; */
+	XMYSQLND_WARNING_LIST * warnings;
+#if 0
 	unsigned int warning_count;
 	struct st_xmysqlnd_warning *warnings;
 	unsigned int warnings_allocated;
-
+#endif
 	zval ** rows; /* every row is a memory segment of field_count * sizeof(zval) */
 	size_t rows_allocated;
 

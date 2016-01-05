@@ -196,7 +196,7 @@ xmysqlnd_node_stmt_init(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTR
 	XMYSQLND_NODE_STMT * stmt = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt_init");
 	if (query.s && query.l) {
-		stmt = factory->get_node_stmt(session, query, persistent, stats, error_info);	
+		stmt = factory->get_node_stmt(factory, session, query, persistent, stats, error_info);	
 	}
 	DBG_RETURN(stmt);
 }

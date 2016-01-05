@@ -225,7 +225,7 @@ xmysqlnd_pfc_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqln
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_PFC * pfc = NULL;
 	DBG_ENTER("xmysqlnd_pfc_init");
-	pfc = factory->get_protocol_frame_codec(persistent, stats, error_info);
+	pfc = factory->get_protocol_frame_codec(factory, persistent, stats, error_info);
 	DBG_RETURN(pfc);
 }
 /* }}} */

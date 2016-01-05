@@ -32,13 +32,17 @@
 /* {{{ xmysqlnd_node_stmt_result::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, init)(XMYSQLND_NODE_STMT_RESULT * const result,
+												 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
 												 XMYSQLND_NODE_STMT * const stmt,
 												 MYSQLND_STATS * const stats,
 												 MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::init");
 	if (!(result->data->stmt = stmt->data->m.get_reference(stmt))) {
-		return FAIL;
+		DBG_RETURN(FAIL);
+	}
+	if (!(result->data->warnings = xmysqlnd_warning_list_init(result->data->persistent, factory, stats, error_info))) {
+		DBG_RETURN(FAIL);	
 	}
 	DBG_RETURN(PASS);
 }
@@ -128,67 +132,6 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_last_insert_id)(const XMYSQLND_NO
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::set_last_insert_id");
 	result->data->last_insert_id = value;
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-
-/* {{{ xmysqlnd_node_stmt_result::get_warning_count */
-static unsigned int
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning_count)(const XMYSQLND_NODE_STMT_RESULT * const result)
-{
-	DBG_ENTER("xmysqlnd_node_stmt_result::get_warning_count");
-	DBG_RETURN(result->data->warning_count);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_stmt_result::get_warning */
-static const XMYSQLND_WARNING
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning)(const XMYSQLND_NODE_STMT_RESULT * const result, unsigned int offset)
-{
-	XMYSQLND_WARNING ret = { {NULL, 0}, 0, XSTMT_WARN_NONE };
-	DBG_ENTER("xmysqlnd_node_stmt_result::get_warning");
-	if (offset < result->data->warning_count) {
-		ret.message = mnd_str2c(result->data->warnings[offset].message);
-		ret.code = result->data->warnings[offset].code;
-		ret.level = result->data->warnings[offset].level;
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_stmt_result::get_row_count */
-static size_t
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count)(const XMYSQLND_NODE_STMT_RESULT * const result)
-{
-	DBG_ENTER("xmysqlnd_node_stmt_result::get_affected_items_count");
-	DBG_RETURN(result->data->row_count);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_stmt_result::add_warning */
-static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_warning)(XMYSQLND_NODE_STMT_RESULT * const result,
-														const enum xmysqlnd_stmt_warning_level level,
-														const unsigned int code,
-														const MYSQLND_CSTRING message)
-{
-	DBG_ENTER("xmysqlnd_node_stmt_result::add_warning");
-	if (!result->data->warnings || result->data->warnings_allocated == result->data->warning_count) {
-		result->data->warnings_allocated = ((result->data->warnings_allocated + 1) * 5)/ 3;
-		result->data->warnings = mnd_perealloc(result->data->warnings,
-											   result->data->warnings_allocated * sizeof(struct st_xmysqlnd_warning),
-											   result->data->persistent);
-	}
-
-	{
-		const struct st_xmysqlnd_warning warn = { mnd_dup_cstring(message, result->data->persistent), code, level };
-		result->data->warnings[result->data->warning_count++] = warn;
-	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -301,6 +244,16 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row)(XMYSQLND_NODE_STMT_RESULT * 
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt_result::get_row_count */
+static size_t
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count)(const XMYSQLND_NODE_STMT_RESULT * const result)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::get_row_count");
+	DBG_RETURN(result->data->row_count);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_stmt_result::attach_meta */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta)(XMYSQLND_NODE_STMT_RESULT * const result, XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
@@ -336,15 +289,14 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RES
 			result->data->m.destroy_row(result, result->data->rows[row], stats, error_info);
 		}
 		mnd_pefree(result->data->rows, pers);
+		result->data->rows = NULL;
 
 		xmysqlnd_node_stmt_result_meta_free(result->data->meta, stats, error_info);
+		result->data->meta = NULL;
 	}
 	if (result->data->warnings) {
-		unsigned int i = 0;
-		for (;i < result->data->warning_count; ++i) {
-			mnd_pefree(result->data->warnings[i].message.s, pers);
-		}
-		mnd_pefree(result->data->warnings, pers);
+		xmysqlnd_warning_list_free(result->data->warnings);
+		result->data->warnings = NULL;
 	}
 	DBG_VOID_RETURN;
 }
@@ -358,7 +310,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, dtor)(XMYSQLND_NODE_STMT_RESULT * con
 	DBG_ENTER("xmysqlnd_node_stmt_result::dtor");
 	if (result) {
 		result->data->m.free_contents(result, stats, error_info);
-		result->data->stmt->data->m.free_reference(result->data->stmt, stats, error_info);
+		if (result->data->stmt) {
+			result->data->stmt->data->m.free_reference(result->data->stmt, stats, error_info);
+		}
 
 		mnd_pefree(result->data, result->data->persistent);
 		mnd_pefree(result, result->persistent);
@@ -378,18 +332,18 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_matched_items_count),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_found_items_count),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_last_insert_id),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning_count),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_warning),
+
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, has_data),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, next),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, eof),
+
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, create_row),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, destroy_row),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count),
+
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, dtor),
@@ -403,7 +357,7 @@ xmysqlnd_node_stmt_result_init(XMYSQLND_NODE_STMT * stmt, const zend_bool persis
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_STMT_RESULT * result = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt_result_init");
-	result = factory->get_node_stmt_result(stmt, persistent, stats, error_info);	
+	result = factory->get_node_stmt_result(factory, stmt, persistent, stats, error_info);	
 	DBG_RETURN(result);
 }
 /* }}} */
@@ -427,6 +381,145 @@ xmysqlnd_node_stmt_result_free(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+
+
+/* {{{ xmysqlnd_warning_list::init */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_warning_list, init)(XMYSQLND_WARNING_LIST * const warn_list,
+											 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+											 MYSQLND_STATS * const stats,
+											 MYSQLND_ERROR_INFO * const error_info)
+{
+	DBG_ENTER("xmysqlnd_warning_list::init");
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_warning_list::add_warning */
+static void
+XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * const warn_list,
+													const enum xmysqlnd_stmt_warning_level level,
+													const unsigned int code,
+													const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("xmysqlnd_warning_list::add_warning");
+	if (!warn_list->warnings || warn_list->warnings_allocated == warn_list->warning_count) {
+		warn_list->warnings_allocated = ((warn_list->warnings_allocated + 1) * 5)/ 3;
+		warn_list->warnings = mnd_perealloc(warn_list->warnings,
+											warn_list->warnings_allocated * sizeof(struct st_xmysqlnd_warning),
+											warn_list->persistent);
+	}
+
+	{
+		const struct st_xmysqlnd_warning warn = { mnd_dup_cstring(message, warn_list->persistent), code, level };
+		warn_list->warnings[warn_list->warning_count++] = warn;
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_warning_list::count */
+static unsigned int
+XMYSQLND_METHOD(xmysqlnd_warning_list, count)(const XMYSQLND_WARNING_LIST * const warn_list)
+{
+	DBG_ENTER("xmysqlnd_warning_list::count");
+	DBG_RETURN(warn_list->warning_count);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_warning_list::get_warning */
+static const XMYSQLND_WARNING
+XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST * const warn_list, unsigned int offset)
+{
+	XMYSQLND_WARNING ret = { {NULL, 0}, 0, XSTMT_WARN_NONE };
+	DBG_ENTER("xmysqlnd_warning_list::get_warning");
+	if (offset < warn_list->warning_count) {
+		ret.message = mnd_str2c(warn_list->warnings[offset].message);
+		ret.code = warn_list->warnings[offset].code;
+		ret.level = warn_list->warnings[offset].level;
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_warning_list::free_contents */
+static void
+XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * const warn_list)
+{
+	const zend_bool pers = warn_list->persistent;
+
+	DBG_ENTER("xmysqlnd_warning_list::free_contents");
+	if (warn_list->warnings) {
+		if (warn_list->warning_count) {
+			unsigned int i = 0;
+			DBG_INF_FMT("Freeing %u warning(s)", warn_list->warning_count);
+			for (;i < warn_list->warning_count; ++i) {
+				mnd_pefree(warn_list->warnings[i].message.s, pers);
+			}
+		}
+		mnd_pefree(warn_list->warnings, pers);
+		warn_list->warnings = NULL;
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_warning_list::dtor */
+static void
+XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_list)
+{
+	DBG_ENTER("xmysqlnd_warning_list::dtor");
+	if (warn_list) {
+		warn_list->m->free_contents(warn_list);
+		mnd_pefree(warn_list, warn_list->persistent);
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+MYSQLND_CLASS_METHODS_START(xmysqlnd_warning_list)
+	XMYSQLND_METHOD(xmysqlnd_warning_list, init),
+	XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning),
+	XMYSQLND_METHOD(xmysqlnd_warning_list, count),
+	XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning),
+	XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents),
+	XMYSQLND_METHOD(xmysqlnd_warning_list, dtor),
+MYSQLND_CLASS_METHODS_END;
+
+
+/* {{{ xmysqlnd_warning_list_init */
+PHPAPI XMYSQLND_WARNING_LIST *
+xmysqlnd_warning_list_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+{
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
+	XMYSQLND_WARNING_LIST * result = NULL;
+	DBG_ENTER("xmysqlnd_warning_list_init");
+	result = factory->get_warning_list(factory, persistent, stats, error_info);	
+	DBG_RETURN(result);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_warning_list_free */
+PHPAPI void
+xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const warn_list)
+{
+	DBG_ENTER("xmysqlnd_warning_list_free");
+	DBG_INF_FMT("warn_list=%p", warn_list);
+	if (warn_list) {
+		warn_list->m->dtor(warn_list);
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 
 /*
  * Local variables:

@@ -267,6 +267,24 @@ _xmysqlnd_pfc_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_fr
 /* }}} */
 
 
+/* {{{ _xmysqlnd_warning_list_get_methods */
+static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) *
+_xmysqlnd_warning_list_get_methods()
+{
+	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_warning_list);
+}
+/* }}} */
+
+
+/* {{{ _xmysqlnd_warning_list_set_methods */
+static void
+_xmysqlnd_warning_list_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * methods)
+{
+	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_warning_list) = *methods;
+}
+/* }}} */
+
+
 struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
 {
 	{
@@ -300,6 +318,10 @@ struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
 	{
 		_xmysqlnd_pfc_get_methods,
 		_xmysqlnd_pfc_set_methods,
+	},
+	{
+		_xmysqlnd_warning_list_get_methods,
+		_xmysqlnd_warning_list_set_methods,
 	},
 };
 

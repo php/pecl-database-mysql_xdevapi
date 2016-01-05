@@ -962,7 +962,7 @@ xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmys
 		DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
 										  has_msg? warning.msg().c_str() : "n/a");
 
-		ctx->result->data->m.add_warning(ctx->result, level, code, warn_message);
+		ctx->result->data->warnings->m->add_warning(ctx->result->data->warnings, level, code, warn_message);
 	}
 
 	DBG_VOID_RETURN;
