@@ -29,6 +29,7 @@
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_protocol_frame_codec.h"
+#include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_extension_plugin.h"
 
 static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) *xmysqlnd_node_session_methods;

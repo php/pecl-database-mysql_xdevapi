@@ -27,6 +27,7 @@
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd_warning_list.h"
 
 static zend_bool xmysqlnd_library_initted = FALSE;
 

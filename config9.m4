@@ -57,6 +57,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 						 xmysqlnd/xmysqlnd_protocol_frame_codec.c \
  						 xmysqlnd/xmysqlnd_protocol_dumper.cc \
                          xmysqlnd/xmysqlnd_statistics.c \
+                         xmysqlnd/xmysqlnd_warning_list.c \
 						 xmysqlnd/xmysqlnd_wireprotocol.cc \
 						 xmysqlnd/xmysqlnd_zval2any.cc \
 					"
