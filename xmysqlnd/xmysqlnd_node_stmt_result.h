@@ -32,27 +32,51 @@ extern "C" {
 typedef struct st_xmysqlnd_node_stmt_result			XMYSQLND_NODE_STMT_RESULT;
 typedef struct st_xmysqlnd_node_stmt_result_data	XMYSQLND_NODE_STMT_RESULT_DATA;
 
+struct st_xmysqlnd_warning
+{
+	MYSQLND_STRING	message;
+	unsigned int	code;
+	enum xmysqlnd_stmt_warning_level level;
+};
+
+
+typedef struct st_xmysqlnd_cwarning
+{
+	MYSQLND_CSTRING	message;
+	unsigned int	code;
+	enum xmysqlnd_stmt_warning_level level;
+} XMYSQLND_WARNING;
+
+
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__init)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef size_t				(*func_xmysqlnd_node_stmt_result__get_affected_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
 typedef size_t				(*func_xmysqlnd_node_stmt_result__get_matched_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
 typedef size_t				(*func_xmysqlnd_node_stmt_result__get_found_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
 typedef uint64_t			(*func_xmysqlnd_node_stmt_result__get_last_insert_id)(const XMYSQLND_NODE_STMT_RESULT * const result);
+
 typedef void				(*func_xmysqlnd_node_stmt_result__set_affected_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result, const size_t value);
 typedef void				(*func_xmysqlnd_node_stmt_result__set_matched_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result, const size_t value);
 typedef void				(*func_xmysqlnd_node_stmt_result__set_found_items_count)(const XMYSQLND_NODE_STMT_RESULT * const result, const size_t value);
 typedef void				(*func_xmysqlnd_node_stmt_result__set_last_insert_id)(const XMYSQLND_NODE_STMT_RESULT * const result, const uint64_t value);
+
 typedef unsigned int		(*func_xmysqlnd_node_stmt_result__get_warning_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
-typedef const char *		(*func_xmysqlnd_node_stmt_result__get_warning)(const XMYSQLND_NODE_STMT_RESULT * const result, unsigned int offset);
-typedef size_t				(*func_xmysqlnd_node_stmt_result__get_row_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
+typedef const XMYSQLND_WARNING	(*func_xmysqlnd_node_stmt_result__get_warning)(const XMYSQLND_NODE_STMT_RESULT * const result, unsigned int offset);
+typedef void				(*func_xmysqlnd_node_stmt_result__add_warning)(XMYSQLND_NODE_STMT_RESULT * const result, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+
+
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__has_data)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__next)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_all)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef zend_bool			(*func_xmysqlnd_node_stmt_result__eof)(const XMYSQLND_NODE_STMT_RESULT * const result);
+
 typedef zval *				(*func_xmysqlnd_node_stmt_result__create_row)(XMYSQLND_NODE_STMT_RESULT * const result, const struct st_xmysqlnd_node_stmt_result_meta * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef void				(*func_xmysqlnd_node_stmt_result__destroy_row)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__add_row)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, const struct st_xmysqlnd_node_stmt_result_meta * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef size_t				(*func_xmysqlnd_node_stmt_result__get_row_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
+
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_meta)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_node_stmt_result_meta * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+
 typedef void				(*func_xmysqlnd_node_stmt_result__free_contents)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef void				(*func_xmysqlnd_node_stmt_result__dtor)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
@@ -63,22 +87,30 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 	func_xmysqlnd_node_stmt_result__get_matched_items_count get_matched_items_count;
 	func_xmysqlnd_node_stmt_result__get_found_items_count get_found_items_count;
 	func_xmysqlnd_node_stmt_result__get_last_insert_id get_last_insert_id;
+
 	func_xmysqlnd_node_stmt_result__set_affected_items_count set_affected_items_count;
 	func_xmysqlnd_node_stmt_result__set_matched_items_count set_matched_items_count;
 	func_xmysqlnd_node_stmt_result__set_found_items_count set_found_items_count;
 	func_xmysqlnd_node_stmt_result__set_last_insert_id set_last_insert_id;
+
 	func_xmysqlnd_node_stmt_result__get_warning_count get_warning_count;
 	func_xmysqlnd_node_stmt_result__get_warning get_warning;
-	func_xmysqlnd_node_stmt_result__get_row_count get_row_count;
+	func_xmysqlnd_node_stmt_result__add_warning add_warning;
+
+
 	func_xmysqlnd_node_stmt_result__has_data has_data;
 	func_xmysqlnd_node_stmt_result__next next;
 	func_xmysqlnd_node_stmt_result__fetch fetch;
 	func_xmysqlnd_node_stmt_result__fetch_all fetch_all;
 	func_xmysqlnd_node_stmt_result__eof eof;
+
 	func_xmysqlnd_node_stmt_result__create_row create_row;
 	func_xmysqlnd_node_stmt_result__destroy_row destroy_row;
 	func_xmysqlnd_node_stmt_result__add_row add_row;
+	func_xmysqlnd_node_stmt_result__get_row_count get_row_count;
+
 	func_xmysqlnd_node_stmt_result__attach_meta attach_meta;
+
 	func_xmysqlnd_node_stmt_result__free_contents free_contents;
 	func_xmysqlnd_node_stmt_result__dtor dtor;
 };
@@ -95,7 +127,8 @@ struct st_xmysqlnd_node_stmt_result_data
 	uint64_t last_insert_id;
 	/*UUID  last_document_id; */
 	unsigned int warning_count;
-	char ** warnings;
+	struct st_xmysqlnd_warning *warnings;
+	unsigned int warnings_allocated;
 
 	zval ** rows; /* every row is a memory segment of field_count * sizeof(zval) */
 	size_t rows_allocated;

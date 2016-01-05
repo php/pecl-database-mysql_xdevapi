@@ -145,11 +145,17 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning_count)(const XMYSQLND_NOD
 
 
 /* {{{ xmysqlnd_node_stmt_result::get_warning */
-static const char *
+static const XMYSQLND_WARNING
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning)(const XMYSQLND_NODE_STMT_RESULT * const result, unsigned int offset)
 {
+	XMYSQLND_WARNING ret = { {NULL, 0}, 0, XSTMT_WARN_NONE };
 	DBG_ENTER("xmysqlnd_node_stmt_result::get_warning");
-	DBG_RETURN(offset < result->data->warning_count? result->data->warnings[offset]:NULL);
+	if (offset < result->data->warning_count) {
+		ret.message = mnd_str2c(result->data->warnings[offset].message);
+		ret.code = result->data->warnings[offset].code;
+		ret.level = result->data->warnings[offset].level;
+	}
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -160,6 +166,30 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count)(const XMYSQLND_NODE_ST
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::get_affected_items_count");
 	DBG_RETURN(result->data->row_count);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::add_warning */
+static void
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_warning)(XMYSQLND_NODE_STMT_RESULT * const result,
+														const enum xmysqlnd_stmt_warning_level level,
+														const unsigned int code,
+														const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::add_warning");
+	if (!result->data->warnings || result->data->warnings_allocated == result->data->warning_count) {
+		result->data->warnings_allocated = ((result->data->warnings_allocated + 1) * 5)/ 3;
+		result->data->warnings = mnd_perealloc(result->data->warnings,
+											   result->data->warnings_allocated * sizeof(struct st_xmysqlnd_warning),
+											   result->data->persistent);
+	}
+
+	{
+		const struct st_xmysqlnd_warning warn = { mnd_dup_cstring(message, result->data->persistent), code, level };
+		result->data->warnings[result->data->warning_count++] = warn;
+	}
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -291,6 +321,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta)(XMYSQLND_NODE_STMT_RESUL
 static void
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
+	const zend_bool pers = result->data->persistent;
 	DBG_ENTER("xmysqlnd_node_stmt_result::free_contents");
 	DBG_INF_FMT("rows=%p  meta=%p", result->data->rows, result->data->meta);
 	if (result->data->rows && result->data->meta) {
@@ -304,9 +335,16 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RES
 			}
 			result->data->m.destroy_row(result, result->data->rows[row], stats, error_info);
 		}
-		mnd_pefree(result->data->rows, result->data->persistent);
+		mnd_pefree(result->data->rows, pers);
 
 		xmysqlnd_node_stmt_result_meta_free(result->data->meta, stats, error_info);
+	}
+	if (result->data->warnings) {
+		unsigned int i = 0;
+		for (;i < result->data->warning_count; ++i) {
+			mnd_pefree(result->data->warnings[i].message.s, pers);
+		}
+		mnd_pefree(result->data->warnings, pers);
 	}
 	DBG_VOID_RETURN;
 }
@@ -342,7 +380,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, set_last_insert_id),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning_count),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_warning),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_warning),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, has_data),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, next),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch),
@@ -351,6 +389,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, create_row),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, destroy_row),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, dtor),

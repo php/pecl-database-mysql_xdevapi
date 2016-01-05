@@ -29,6 +29,7 @@ struct st_xmysqlnd_level3_io;
 
 #ifdef __cplusplus
 #include "proto_gen/mysqlx.pb.h"
+#include "proto_gen/mysqlx_notice.pb.h"
 #endif
 
 enum xmysqlnd_client_message_type
@@ -70,6 +71,16 @@ enum xmysqlnd_server_message_type
 	XMSG_RSET_FETCH_DONE_MORE_OUT = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS,
 #endif
 	XMSG_NONE = 255
+};
+
+enum xmysqlnd_stmt_warning_level
+{
+#ifdef __cplusplus
+	XSTMT_WARN_NOTE = Mysqlx::Notice::Warning_Level_NOTE,
+	XSTMT_WARN_WARNING = Mysqlx::Notice::Warning_Level_WARNING,
+	XSTMT_WARN_ERROR = Mysqlx::Notice::Warning_Level_ERROR,
+#endif
+	XSTMT_WARN_NONE = 255,
 };
 
 #ifdef __cplusplus

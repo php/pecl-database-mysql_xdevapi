@@ -29,13 +29,12 @@
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 
-#include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_connection.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
-#include "proto_gen/mysqlx_notice.pb.h"
 #include "proto_gen/mysqlx_resultset.pb.h"
 #include "proto_gen/mysqlx_session.pb.h"
 #include "proto_gen/mysqlx_sql.pb.h"
+
 
 /* {{{ xmysqlnd_client_message_type_is_valid */
 zend_bool
@@ -946,18 +945,25 @@ static void
 xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
 {
 	DBG_ENTER("xmysqlnd_inspect_warning");
+	if (ctx->result) {
+		const bool has_level = warning.has_level();
+		const bool has_code = warning.has_code();
+		const bool has_msg = warning.has_msg();
+		const unsigned int code = has_code? warning.code() : 1000;
+		const enum xmysqlnd_stmt_warning_level level = has_level? (enum xmysqlnd_stmt_warning_level) warning.level() : XSTMT_WARN_WARNING;
+		const MYSQLND_CSTRING warn_message = { has_msg? warning.msg().c_str():"", has_msg? warning.msg().size():0 };
 
-	const bool has_level = warning.has_level();
-	DBG_INF_FMT("level[%s] is %s", has_level? "SET":"NOT SET",
-								   has_level? Mysqlx::Notice::Warning::Level_Name(warning.level()).c_str() : "n/a");
+		DBG_INF_FMT("level[%s] is %s", has_level? "SET":"NOT SET",
+									   has_level? Mysqlx::Notice::Warning::Level_Name(warning.level()).c_str() : "n/a");
 
-	const bool has_code = warning.has_code();
-	DBG_INF_FMT("code[%s] is %u", has_code? "SET":"NOT SET",
-								  has_code? warning.code() : 0);
+		DBG_INF_FMT("code[%s] is %u", has_code? "SET":"NOT SET",
+									  has_code? warning.code() : 0);
 
-	const bool has_msg = warning.has_msg();
-	DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
-									  has_msg? warning.msg().c_str() : "n/a");
+		DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
+										  has_msg? warning.msg().c_str() : "n/a");
+
+		ctx->result->data->m.add_warning(ctx->result, level, code, warn_message);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -976,9 +982,6 @@ xmysqlnd_inspect_changed_variable(const Mysqlx::Notice::SessionVariableChanged &
 
 	const bool has_value = message.has_value();
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
-	if (has_value) {
-		scalar2log(message.value());
-	}
 
 	DBG_VOID_RETURN;
 }
