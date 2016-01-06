@@ -285,8 +285,8 @@ mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_node_session", mysqlx_node_session_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysqlx", "node_session", mysqlx_node_session_methods);
+//		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_node_session", mysqlx_node_session_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSession", mysqlx_node_session_methods);
 		tmp_ce.create_object = php_mysqlx_node_session_object_allocator;
 		mysqlx_node_session_class_entry = zend_register_internal_class(&tmp_ce);
 	}
@@ -304,6 +304,14 @@ void
 mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_node_session_properties);
+}
+/* }}} */
+
+
+/* {{{ proto bool getNodeSession(string URI)
+   Bind variables to a prepared statement as parameters */
+PHP_FUNCTION(mysqlx__getNodeSession)
+{
 }
 /* }}} */
 

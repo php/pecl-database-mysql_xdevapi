@@ -216,8 +216,8 @@ mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_hand
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_node_sql_statement_result", mysqlx_node_sql_statement_result_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysqlx", "node_sql_statement_result", mysqlx_node_sql_statement_result_methods);
+//		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_node_sql_statement_result", mysqlx_node_sql_statement_result_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSqlStatementResult", mysqlx_node_sql_statement_result_methods);
 		tmp_ce.create_object = php_mysqlx_node_sql_statement_result_object_allocator;
 		mysqlx_node_sql_statement_result_class_entry = zend_register_internal_class(&tmp_ce);
 	}

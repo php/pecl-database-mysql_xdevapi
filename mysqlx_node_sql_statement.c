@@ -189,8 +189,8 @@ mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * 
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_node_sql_statement", mysqlx_node_sql_statement_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysqlx", "node_sql_statement", mysqlx_node_sql_statement_methods);
+//		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_node_sql_statement", mysqlx_node_sql_statement_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSqlStatement", mysqlx_node_sql_statement_methods);
 		tmp_ce.create_object = php_mysqlx_node_sql_statement_object_allocator;
 		mysqlx_node_sql_statement_class_entry = zend_register_internal_class(&tmp_ce);
 	}
