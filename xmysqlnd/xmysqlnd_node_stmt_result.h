@@ -35,10 +35,10 @@ typedef struct st_xmysqlnd_node_stmt_result_data	XMYSQLND_NODE_STMT_RESULT_DATA;
 
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__init)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__has_data)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__next)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_all)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_current)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_one)(XMYSQLND_NODE_STMT_RESULT * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_all)(XMYSQLND_NODE_STMT_RESULT * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef zend_bool			(*func_xmysqlnd_node_stmt_result__eof)(const XMYSQLND_NODE_STMT_RESULT * const result);
 
 typedef zval *				(*func_xmysqlnd_node_stmt_result__create_row)(XMYSQLND_NODE_STMT_RESULT * const result, const struct st_xmysqlnd_node_stmt_result_meta * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -55,9 +55,9 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 {
 	func_xmysqlnd_node_stmt_result__init init;
 
-	func_xmysqlnd_node_stmt_result__has_data has_data;
 	func_xmysqlnd_node_stmt_result__next next;
-	func_xmysqlnd_node_stmt_result__fetch fetch;
+	func_xmysqlnd_node_stmt_result__fetch_current fetch_current;
+	func_xmysqlnd_node_stmt_result__fetch_one fetch_one;
 	func_xmysqlnd_node_stmt_result__fetch_all fetch_all;
 	func_xmysqlnd_node_stmt_result__eof eof;
 
@@ -83,6 +83,7 @@ struct st_xmysqlnd_node_stmt_result_data
 	zval ** rows; /* every row is a memory segment of field_count * sizeof(zval) */
 	size_t row_count;
 	size_t rows_allocated;
+	size_t row_cursor;
 
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) m;
 	zend_bool		persistent;

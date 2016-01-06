@@ -98,6 +98,12 @@ struct st_xmysqlnd_result_field_meta
 	uint32_t length;
 	uint32_t flags;
 	uint32_t content_type;
+	struct
+	{
+		zend_string * sname;
+		zend_bool	is_numeric;
+		zend_ulong	key;
+	} zend_hash_key;
 
 	zend_bool type_set:1;
 	zend_bool collation_set:1;

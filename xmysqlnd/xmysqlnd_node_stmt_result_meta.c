@@ -28,7 +28,6 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 
-static const char * empty_str = "";
 
 /* {{{ xmysqlnd_result_field_meta::init */
 static enum_func_status
@@ -56,7 +55,7 @@ static inline enum_func_status
 xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, const size_t value_len, const zend_bool persistent MYSQLND_MEM_D)
 {
 	if (value) {
-		str->s = value_len? mnd_pestrndup(value, value_len, persistent) : (char *) empty_str;
+		str->s = value_len? mnd_pestrndup(value, value_len, persistent) : (char *) mysqlnd_empty_string;
 		str->l = value_len;
 		return str->s? PASS:FAIL;
 	}
@@ -69,8 +68,23 @@ xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, cons
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_name)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
+	zend_ulong idx;
+
 	DBG_ENTER("xmysqlnd_result_field_meta::set_name");
-	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->name, str, len, field->persistent MYSQLND_MEM_C));
+	if (len) {
+		field->zend_hash_key.sname = zend_string_init(str, len, field->persistent);
+		field->name.s = ZSTR_VAL(field->zend_hash_key.sname);
+	} else {
+		field->zend_hash_key.sname = ZSTR_EMPTY_ALLOC();
+		field->name.s = (char*) mysqlnd_empty_string;
+	}
+	field->name.l = len;
+
+	if (field->zend_hash_key.is_numeric == ZEND_HANDLE_NUMERIC(field->zend_hash_key.sname, idx)) {
+		field->zend_hash_key.key = idx;
+	}
+
+	DBG_RETURN(field->name.s? PASS:FAIL);
 }
 /* }}} */
 
@@ -191,36 +205,43 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD
 {
 	const zend_bool persistent = field->persistent;
 	DBG_ENTER("xmysqlnd_result_field_meta::free_contents");
-	if (field->name.s && field->name.s != empty_str) {
-		mnd_pefree(field->name.s, persistent);
-		field->name.s = NULL;
-		field->name.l = 0;
-	}
-	if (field->original_name.s && field->original_name.s != empty_str) {
+
+	/* Don't free field->name.s as it is a pointer to field->zend_hash_key.sname */
+	field->name.s = NULL;
+	field->name.l = 0;
+
+	if (field->original_name.s && field->original_name.s != mysqlnd_empty_string) {
 		mnd_pefree(field->original_name.s, persistent);
 		field->original_name.s = NULL;
 		field->original_name.l = 0;
 	}
-	if (field->table.s && field->table.s != empty_str) {
+	if (field->table.s && field->table.s != mysqlnd_empty_string) {
 		mnd_pefree(field->table.s, persistent);
 		field->table.s = NULL;
 		field->table.l = 0;
 	}
-	if (field->original_table.s && field->original_table.s != empty_str) {
+	if (field->original_table.s && field->original_table.s != mysqlnd_empty_string) {
 		mnd_pefree(field->original_table.s, persistent);
 		field->original_table.s = NULL;
 		field->original_table.l = 0;
 	}
-	if (field->schema.s && field->schema.s != empty_str) {
+	if (field->schema.s && field->schema.s != mysqlnd_empty_string) {
 		mnd_pefree(field->schema.s, persistent);
 		field->schema.s = NULL;
 		field->schema.l = 0;
 	}
-	if (field->catalog.s && field->catalog.s != empty_str) {
+	if (field->catalog.s && field->catalog.s != mysqlnd_empty_string) {
 		mnd_pefree(field->catalog.s, persistent);
 		field->catalog.s = NULL;
 		field->catalog.l = 0;
 	}
+	if (field->zend_hash_key.sname) {
+		zend_string_release(field->zend_hash_key.sname);
+		field->zend_hash_key.sname = NULL;
+	}
+	field->zend_hash_key.is_numeric = FALSE;
+	field->zend_hash_key.key = 0;
+
 	field->collation_set =
 		field->fractional_digits_set =
 			field->length_set =

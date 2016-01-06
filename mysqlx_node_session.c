@@ -25,6 +25,9 @@
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_node_session.h"
+#include "mysqlx_node_sql_statement.h"
+
 
 static zend_class_entry *mysqlx_node_session_class_entry;
 
@@ -36,6 +39,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__connect, 0, ZEND_RETURN_VALU
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__query, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(0, query, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__create_statement, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, query, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -96,7 +104,7 @@ PHP_METHOD(mysqlx_node_session, connect)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_session_query(object session, string query) */
+/* {{{ proto mixed mysqlx_node_session::query(object session, string query) */
 PHP_METHOD(mysqlx_node_session, query)
 {
 	zval * session_zv;
@@ -137,7 +145,7 @@ PHP_METHOD(mysqlx_node_session, query)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_session_query_and_discard(object session, string query) */
+/* {{{ proto mixed mysqlx_node_session::query_and_discard(object session, string query) */
 PHP_METHOD(mysqlx_node_session, query_and_discard)
 {
 	zval * session_zv;
@@ -173,12 +181,44 @@ PHP_METHOD(mysqlx_node_session, query_and_discard)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_session::createStatement(object session, string query) */
+PHP_METHOD(mysqlx_node_session, createStatement)
+{
+	zval * session_zv;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING query = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_session::createStatement");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &session_zv, mysqlx_node_session_class_entry, &(query.s), &(query.l)) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	if (!query.l) {
+		php_error_docref(NULL, E_WARNING, "Empty query");
+		RETVAL_FALSE;
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(session, session_zv);
+
+	{
+		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement(session->data, query, MYSQLND_SEND_QUERY_EXPLICIT);
+		if (stmt) {
+			mysqlx_new_sql_stmt(return_value, stmt);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_node_session, connect, arginfo_mysqlx_node_session__connect, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, query, arginfo_mysqlx_node_session__query, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, query_and_discard, arginfo_mysqlx_node_session__query, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, createStatement, arginfo_mysqlx_node_session__create_statement, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
