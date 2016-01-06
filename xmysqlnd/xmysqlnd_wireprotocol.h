@@ -172,6 +172,24 @@ struct st_xmysqlnd_auth_continue_message_ctx
 };
 
 
+struct st_xmysqlnd_result_create_bind
+{
+	struct st_xmysqlnd_node_stmt_result * (*create)(void * context);
+	void * ctx;
+};
+
+struct st_xmysqlnd_meta_create_bind
+{
+	struct st_xmysqlnd_node_stmt_result_meta * (*create)(void * context);
+	void * ctx;
+};
+
+struct st_xmysqlnd_meta_field_create_bind
+{
+	struct st_xmysqlnd_result_field_meta * (*create)(void * context);
+	void * ctx;
+};
+
 struct st_xmysqlnd_sql_stmt_execute_message_ctx
 {
 	enum_func_status (*send_request)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
@@ -181,8 +199,9 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 
 	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
 									  struct st_xmysqlnd_node_session_data * const session,
-									  struct st_xmysqlnd_node_stmt_result * const result,
-									  struct st_xmysqlnd_node_stmt_result_meta * const meta,
+									  struct st_xmysqlnd_result_create_bind create_result,
+									  struct st_xmysqlnd_meta_create_bind create_meta,
+									  struct st_xmysqlnd_meta_field_create_bind create_meta_field,
 									  zval * response);
 
 	MYSQLND_VIO * vio;
@@ -190,8 +209,11 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 	struct st_xmysqlnd_node_session_data * session;
-	struct st_xmysqlnd_node_stmt_result * result;
-	struct st_xmysqlnd_node_stmt_result_meta * result_meta;
+	struct st_xmysqlnd_node_stmt_result * current_result;
+	struct st_xmysqlnd_node_stmt_result_meta * current_meta;
+	struct st_xmysqlnd_result_create_bind create_result;
+	struct st_xmysqlnd_meta_create_bind create_meta;
+	struct st_xmysqlnd_meta_field_create_bind create_meta_field;
 	zval * response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 };

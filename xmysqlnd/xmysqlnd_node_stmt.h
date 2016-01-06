@@ -36,6 +36,9 @@ typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * c
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef struct st_xmysqlnd_node_stmt_result * (*func_xmysqlnd_node_stmt__read_result)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__skip_result)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__create_result)(void * ctx);
+typedef struct st_xmysqlnd_node_stmt_result_meta *	(*func_xmysqlnd_node_stmt__create_meta)(void * ctx);
+typedef struct st_xmysqlnd_result_field_meta *		(*func_xmysqlnd_node_stmt__create_meta_field)(void * ctx);
 typedef XMYSQLND_NODE_STMT *(*func_xmysqlnd_node_stmt__get_reference)(XMYSQLND_NODE_STMT * const stmt);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__free_reference)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void				(*func_xmysqlnd_node_stmt__free_contents)(XMYSQLND_NODE_STMT * const stmt);
@@ -47,6 +50,9 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__send_query send_query;
 	func_xmysqlnd_node_stmt__read_result read_result;
 	func_xmysqlnd_node_stmt__skip_result skip_result;
+	func_xmysqlnd_node_stmt__create_result create_result; 			/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_meta create_meta; 				/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_meta_field create_meta_field;	/* export the function for binding */
 	func_xmysqlnd_node_stmt__get_reference get_reference;
 	func_xmysqlnd_node_stmt__free_reference free_reference;
 	func_xmysqlnd_node_stmt__free_contents free_contents;

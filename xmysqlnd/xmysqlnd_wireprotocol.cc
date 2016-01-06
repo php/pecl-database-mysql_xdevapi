@@ -945,7 +945,7 @@ static void
 xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
 {
 	DBG_ENTER("xmysqlnd_inspect_warning");
-	if (ctx->result) {
+	if (ctx->current_result) {
 		const bool has_level = warning.has_level();
 		const bool has_code = warning.has_code();
 		const bool has_msg = warning.has_msg();
@@ -962,7 +962,7 @@ xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmys
 		DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
 										  has_msg? warning.msg().c_str() : "n/a");
 
-		ctx->result->data->warnings->m->add_warning(ctx->result->data->warnings, level, code, warn_message);
+		ctx->current_result->data->warnings->m->add_warning(ctx->current_result->data->warnings, level, code, warn_message);
 	}
 
 	DBG_VOID_RETURN;
@@ -1009,18 +1009,18 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 			case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
-				if (ctx->result) {
-					ctx->result->data->exec_state->m->set_affected_items_count(ctx->result->data->exec_state, scalar2uint(message.value()));
+				if (ctx->current_result) {
+					ctx->current_result->data->exec_state->m->set_affected_items_count(ctx->current_result->data->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
-				if (ctx->result) {
-					ctx->result->data->exec_state->m->set_found_items_count(ctx->result->data->exec_state, scalar2uint(message.value()));
+				if (ctx->current_result) {
+					ctx->current_result->data->exec_state->m->set_found_items_count(ctx->current_result->data->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
-				if (ctx->result) {
-					ctx->result->data->exec_state->m->set_matched_items_count(ctx->result->data->exec_state, scalar2uint(message.value()));
+				if (ctx->current_result) {
+					ctx->current_result->data->exec_state->m->set_matched_items_count(ctx->current_result->data->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
@@ -1159,11 +1159,16 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	DBG_ENTER("stmt_execute_on_COLUMN_META");
 
 	ctx->server_message_type = XMSG_COLUMN_METADATA;
-	if (ctx->session) {
-		XMYSQLND_RESULT_FIELD_META * field = xmysqlnd_result_field_meta_init(ctx->session->persistent, &ctx->session->object_factory, ctx->stats, ctx->error_info);
+	if (!ctx->current_meta && ctx->create_meta.create) {
+		ctx->current_meta = ctx->create_meta.create(ctx->create_meta.ctx);
+	}
+
+	XMYSQLND_RESULT_FIELD_META * field = NULL;
+	if (ctx->session && ctx->current_meta && ctx->create_meta_field.create) {
+		XMYSQLND_RESULT_FIELD_META * field = ctx->create_meta_field.create(ctx->create_meta_field.ctx);
 		if (!field) {
-			ctx->result_meta->m->dtor(ctx->result_meta, ctx->stats, ctx->error_info);
-			ctx->result_meta = NULL;
+			ctx->current_meta->m->dtor(ctx->current_meta, ctx->stats, ctx->error_info);
+			ctx->current_meta = NULL;
 			SET_OOM_ERROR(ctx->error_info);
 			DBG_RETURN(HND_FAIL);
 		}
@@ -1203,7 +1208,7 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 		if (message.has_content_type()) {
 			field->m->set_content_type(field, message.content_type());
 		}
-		ctx->result_meta->m->add_field(ctx->result_meta, field, ctx->stats, ctx->error_info);
+		ctx->current_meta->m->add_field(ctx->current_meta, field, ctx->stats, ctx->error_info);
 		DBG_RETURN(HND_AGAIN);
 	} else if (ctx->response_zval) {
 		mysqlx_new_column_metadata(ctx->response_zval, message);
@@ -1500,10 +1505,16 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 		mysqlx_new_data_row(ctx->response_zval, message);
 		return HND_PASS;
 	}
-	if (ctx->result) {
-		zval * row = ctx->result->data->m.create_row(ctx->result, ctx->result_meta, ctx->stats, ctx->error_info);
-		if (row && PASS == xmysqlnd_row_to_zval_array(message, ctx->result_meta, row)) {
-			ctx->result->data->m.add_row(ctx->result, row, ctx->result_meta, ctx->stats, ctx->error_info);
+	if (!ctx->current_result && ctx->create_result.create) {
+		ctx->current_result = ctx->create_result.create(ctx->create_result.ctx);
+		if (ctx->current_result && ctx->current_meta) {
+			ctx->current_result->data->m.attach_meta(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
+		}
+	}
+	if (ctx->current_result) {
+		zval * row = ctx->current_result->data->m.create_row(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
+		if (row && PASS == xmysqlnd_row_to_zval_array(message, ctx->current_meta, row)) {
+			ctx->current_result->data->m.add_row(ctx->current_result, row, ctx->current_meta, ctx->stats, ctx->error_info);
 		}
 
 		return HND_AGAIN;
@@ -1594,16 +1605,18 @@ static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 extern "C" enum_func_status
 xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
 										 XMYSQLND_NODE_SESSION_DATA * const session,
-										 XMYSQLND_NODE_STMT_RESULT * const result,
-										 XMYSQLND_NODE_STMT_RESULT_META * const meta,
+										 struct st_xmysqlnd_result_create_bind create_result,
+										 struct st_xmysqlnd_meta_create_bind create_meta,
+										 struct st_xmysqlnd_meta_field_create_bind create_meta_field,
 										 zval * response)
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_read__stmt_execute");
 	msg->session = session;
 	msg->response_zval = response;
-	msg->result = result;
-	msg->result_meta = meta;
+	msg->create_result = create_result;
+	msg->create_meta = create_meta;
+	msg->create_meta_field = create_meta_field;
 
 	ret = xmysqlnd_receive_message(&stmt_execute_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
@@ -1643,8 +1656,11 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		stats,
 		error_info,
 		NULL, /* session */
-		NULL, /* result */
-		NULL, /* result_meta */
+		NULL, /* current_result */
+		NULL, /* current_meta */
+		{ NULL, NULL}, /* create result */
+		{ NULL, NULL}, /* create meta */
+		{ NULL, NULL}, /* create meta field */
 		NULL, /* response_zval */
 		XMSG_NONE,
 	};
