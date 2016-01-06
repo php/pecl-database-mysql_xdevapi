@@ -59,7 +59,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt,
 
 	stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 	ret = stmt->data->msg_stmt_exec.send_request(&stmt->data->msg_stmt_exec, namespace_par, mnd_str2c(stmt->data->query), FALSE);
-	DBG_INF_FMT("%s", ret == PASS? "PASS":"FAIL");
+	DBG_INF_FMT("send_request returned %s", PASS == ret? "PASS":"FAIL");
 
 	DBG_RETURN(PASS);
 }
@@ -135,7 +135,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::skip_result */
+/* {{{ xmysqlnd_node_stmt::skip_one_result */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -143,10 +143,25 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const 
 	const struct st_xmysqlnd_meta_create_bind create_meta = { NULL, NULL };
 	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { NULL, NULL };
 	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_node_stmt::skip_result");
+	DBG_ENTER("xmysqlnd_node_stmt::skip_one_result");
 	ret = stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, create_result, create_meta, create_meta_field, NULL);
 	*has_more = stmt->data->msg_stmt_exec.has_more;
 	DBG_INF_FMT("has_more=%s", *has_more? "TRUE":"FALSE");
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt::skip_all_results */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_all_results)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+{
+	enum_func_status ret;
+	zend_bool has_more;
+	DBG_ENTER("xmysqlnd_node_stmt::skip_all_results");
+	do {
+		ret = stmt->data->m.skip_one_result(stmt, &has_more, stats, error_info);
+	} while (PASS == ret && has_more == TRUE);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -211,12 +226,17 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQL
 
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, init),
+
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query),
+
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_all_results),
+
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, create_result),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta_field),
+
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, get_reference),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, free_contents),

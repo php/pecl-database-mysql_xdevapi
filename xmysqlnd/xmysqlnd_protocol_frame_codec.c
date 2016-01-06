@@ -126,6 +126,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 
 	DBG_ENTER("xmysqlnd_pfc::receive");
 	if (!vio || FALSE == vio->data->m.has_valid_stream(vio)) {
+		DBG_INF("FAIL");
 		DBG_RETURN(FAIL);
 	}
 	if (PASS == vio->data->m.network_read(vio, header, XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE, stats, error_info)) {
@@ -145,9 +146,11 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 				XMYSQLND_STAT_PROTOCOL_OVERHEAD_IN, packets_received * (XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE),
 				XMYSQLND_STAT_PACKETS_RECEIVED, packets_received);
 
+			DBG_INF("PASS");
 			DBG_RETURN(PASS);
 		}
 	}
+	DBG_INF("FAIL");
 	DBG_RETURN(FAIL);
 }
 /* }}} */

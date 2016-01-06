@@ -137,11 +137,48 @@ PHP_METHOD(mysqlx_node_session, query)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_session_query_and_discard(object session, string query) */
+PHP_METHOD(mysqlx_node_session, query_and_discard)
+{
+	zval * session_zv;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING query = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_session::query_and_discard");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &session_zv, mysqlx_node_session_class_entry, &(query.s), &(query.l)) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	if (!query.l) {
+		php_error_docref(NULL, E_WARNING, "Empty query");
+		RETVAL_FALSE;
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(session, session_zv);
+
+	{
+		MYSQLND_STATS * stats = session->data->stats;
+		MYSQLND_ERROR_INFO * error_info = session->data->error_info;
+		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		if (stmt) {
+			if (PASS == stmt->data->m.send_query(stmt, stats, error_info)) {
+				stmt->data->m.skip_all_results(stmt, stats, error_info);
+			}
+			xmysqlnd_node_stmt_free(stmt, stats, error_info);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_node_session, connect, arginfo_mysqlx_node_session__connect, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, query, arginfo_mysqlx_node_session__query, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, query_and_discard, arginfo_mysqlx_node_session__query, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

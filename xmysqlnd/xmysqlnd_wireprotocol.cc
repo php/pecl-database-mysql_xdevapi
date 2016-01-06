@@ -37,8 +37,8 @@
 
 
 /* {{{ xmysqlnd_client_message_type_is_valid */
-zend_bool
-xmysqlnd_client_message_type_is_valid(enum xmysqlnd_client_message_type type)
+static inline zend_bool
+xmysqlnd_client_message_type_is_valid(const enum xmysqlnd_client_message_type type)
 {
 	return Mysqlx::ClientMessages::Type_IsValid((Mysqlx::ClientMessages_Type) type);
 }
@@ -46,8 +46,8 @@ xmysqlnd_client_message_type_is_valid(enum xmysqlnd_client_message_type type)
 
 
 /* {{{ xmysqlnd_server_message_type_is_valid */
-zend_bool
-xmysqlnd_server_message_type_is_valid(zend_uchar type)
+static inline zend_bool
+xmysqlnd_server_message_type_is_valid(const zend_uchar type)
 {
 	DBG_ENTER("xmysqlnd_server_message_type_is_valid");
 	zend_bool ret = Mysqlx::ServerMessages::Type_IsValid((Mysqlx::ServerMessages_Type) type);
@@ -1164,12 +1164,17 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	}
 
 	XMYSQLND_RESULT_FIELD_META * field = NULL;
-	if (ctx->current_meta && ctx->create_meta_field.create) {
+	if (ctx->response_zval) {
+		mysqlx_new_column_metadata(ctx->response_zval, message);
+		DBG_INF("HND_PASS");
+		DBG_RETURN(HND_PASS); /* typically this should be HND_AGAIN */
+	} else if (ctx->current_meta && ctx->create_meta_field.create) {
 		XMYSQLND_RESULT_FIELD_META * field = ctx->create_meta_field.create(ctx->create_meta_field.ctx);
 		if (!field) {
 			ctx->current_meta->m->dtor(ctx->current_meta, ctx->stats, ctx->error_info);
 			ctx->current_meta = NULL;
 			SET_OOM_ERROR(ctx->error_info);
+			DBG_INF("HND_FAIL");
 			DBG_RETURN(HND_FAIL);
 		}
 		if (message.has_type()) {
@@ -1209,10 +1214,12 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 			field->m->set_content_type(field, message.content_type());
 		}
 		ctx->current_meta->m->add_field(ctx->current_meta, field, ctx->stats, ctx->error_info);
+		DBG_INF("HND_AGAIN");
 		DBG_RETURN(HND_AGAIN);
-	} else if (ctx->response_zval) {
-		mysqlx_new_column_metadata(ctx->response_zval, message);
-		DBG_RETURN(HND_PASS); /* typically this should be HND_AGAIN */
+	} else {
+		/* skipping */
+		DBG_INF("HND_AGAIN");
+		DBG_RETURN(HND_AGAIN);	
 	}
 }
 /* }}} */
@@ -1500,11 +1507,13 @@ static enum_hnd_func_status
 stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	DBG_ENTER("stmt_execute_on_RSET_ROW");
 	ctx->has_more = TRUE;
 	ctx->server_message_type = XMSG_RSET_ROW;
 	if (ctx->response_zval) {
 		mysqlx_new_data_row(ctx->response_zval, message);
-		return HND_PASS;
+		DBG_INF("HND_PASS");
+		DBG_RETURN(HND_PASS);
 	}
 	if (!ctx->current_result && ctx->create_result.create) {
 		ctx->current_result = ctx->create_result.create(ctx->create_result.ctx);
@@ -1517,9 +1526,9 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 		if (row && PASS == xmysqlnd_row_to_zval_array(message, ctx->current_meta, row)) {
 			ctx->current_result->data->m.add_row(ctx->current_result, row, ctx->current_meta, ctx->stats, ctx->error_info);
 		}
-
-		return HND_AGAIN;
 	}
+	DBG_INF("HND_AGAIN");
+	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
 
@@ -1529,10 +1538,11 @@ static enum_hnd_func_status
 stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE");
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE;
 	ctx->current_meta = NULL;
 	ctx->has_more = FALSE;
-	return HND_AGAIN; /* After FETCH_DONE a STMT_EXECUTE_OK is expected */
+	DBG_RETURN(HND_AGAIN); /* After FETCH_DONE a STMT_EXECUTE_OK is expected */
 }
 /* }}} */
 
@@ -1542,9 +1552,10 @@ static enum_hnd_func_status
 stmt_execute_on_RSET_FETCH_SUSPENDED(void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	DBG_ENTER("stmt_execute_on_RSET_FETCH_SUSPENDED");
 	ctx->server_message_type = XMGS_RSET_FETCH_SUSPENDED;
 	ctx->has_more = TRUE;
-	return HND_PASS;
+	DBG_RETURN(HND_PASS);
 }
 /* }}} */
 
@@ -1554,11 +1565,11 @@ static enum_hnd_func_status
 stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMoreResultsets & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS");
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE_MORE_RSETS;
 	ctx->current_meta = NULL;
 	ctx->has_more = TRUE;
-//	return HND_AGAIN;
-	return HND_PASS;
+	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
 
@@ -1569,12 +1580,13 @@ static enum_hnd_func_status
 stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
 	ctx->server_message_type = XMSG_STMT_EXECUTE_OK;
 	ctx->has_more = FALSE;
 	if (ctx->response_zval) {
 		mysqlx_new_stmt_execute_ok(ctx->response_zval, message);
 	}
-	return HND_PASS;
+	DBG_RETURN(HND_PASS);
 }
 /* }}} */
 
@@ -1584,8 +1596,9 @@ static enum_hnd_func_status
 stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDoneMoreOutParams & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
 	ctx->has_more = TRUE;
-	return HND_PASS;
+	DBG_RETURN(HND_PASS);
 }
 /* }}} */
 
@@ -1627,6 +1640,7 @@ xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_sql_stmt_execute_mes
 	msg->current_meta = NULL;
 
 	ret = xmysqlnd_receive_message(&stmt_execute_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	DBG_INF_FMT("xmysqlnd_receive_message returned %s", PASS == ret? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1639,13 +1653,17 @@ xmysqlnd_sql_stmt_execute__send_request(struct st_xmysqlnd_sql_stmt_execute_mess
 										const MYSQLND_CSTRING stmt,
 										const zend_bool compact_meta)
 {
+	enum_func_status ret;
 	size_t bytes_sent;
 	Mysqlx::Sql::StmtExecute message;
+	DBG_ENTER("xmysqlnd_sql_stmt_execute__send_request");
 
 	message.set_namespace_(namespace_.s, namespace_.l);
 	message.set_stmt(stmt.s, stmt.l);
 	message.set_compact_metadata(compact_meta? true:false);
-	return xmysqlnd_send_message(COM_SQL_STMT_EXECUTE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+	ret = xmysqlnd_send_message(COM_SQL_STMT_EXECUTE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+	DBG_INF_FMT("xmysqlnd_send_message returned %s", PASS == ret? "PASS":"FAIL");
+	DBG_RETURN(ret);
 }
 /* }}} */
 
