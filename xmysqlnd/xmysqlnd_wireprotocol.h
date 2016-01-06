@@ -198,7 +198,6 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 									 const zend_bool compact_meta);
 
 	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
-									  struct st_xmysqlnd_node_session_data * const session,
 									  struct st_xmysqlnd_result_create_bind create_result,
 									  struct st_xmysqlnd_meta_create_bind create_meta,
 									  struct st_xmysqlnd_meta_field_create_bind create_meta_field,
@@ -208,12 +207,12 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
-	struct st_xmysqlnd_node_session_data * session;
 	struct st_xmysqlnd_node_stmt_result * current_result;
 	struct st_xmysqlnd_node_stmt_result_meta * current_meta;
 	struct st_xmysqlnd_result_create_bind create_result;
 	struct st_xmysqlnd_meta_create_bind create_meta;
 	struct st_xmysqlnd_meta_field_create_bind create_meta_field;
+	zend_bool has_more;
 	zval * response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 };

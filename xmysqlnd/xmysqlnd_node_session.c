@@ -972,10 +972,13 @@ MYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_han
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		XMYSQLND_NODE_STMT * stmt = session->m->create_statement(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
-			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info) &&
-				PASS == stmt->data->m.read_result(stmt, session->stats, session->error_info))
-			{
-				ret = PASS;
+			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
+				zend_bool has_more = FALSE;
+				do {
+					if (PASS == stmt->data->m.read_one_result(stmt, &has_more, session->stats, session->error_info)) {
+						ret = PASS;
+					}
+				} while (has_more == TRUE);
 			}
 			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
 		}

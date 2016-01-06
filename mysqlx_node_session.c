@@ -121,8 +121,12 @@ PHP_METHOD(mysqlx_node_session, query)
 		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, stats, error_info)) {
-				XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.read_result(stmt, stats, error_info);
-				xmysqlnd_node_stmt_result_free(result, stats, error_info);
+				zend_bool has_more = FALSE;
+				do {
+					XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.read_one_result(stmt, &has_more, stats, error_info);
+					xmysqlnd_node_stmt_result_free(result, stats, error_info);
+					DBG_INF_FMT("has_more=%s", has_more? "TRUE":"FALSE");
+				} while (has_more == TRUE);
 			}
 			xmysqlnd_node_stmt_free(stmt, stats, error_info);
 		}
