@@ -81,7 +81,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, hasData)
 
 	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_BOOL(object && object->result && FALSE == object->result->data->m.eof(object->result));
+	RETVAL_BOOL(object && object->result && FALSE == object->result->m.eof(object->result));
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -104,12 +104,12 @@ PHP_METHOD(mysqlx_node_sql_statement_result, fetchOne)
 
 	RETVAL_FALSE;
 
-	if (object && object->result && FALSE == object->result->data->m.eof(object->result)) {
+	if (object && object->result && FALSE == object->result->m.eof(object->result)) {
 		zval row;
 		ZVAL_UNDEF(&row);
-		if (PASS == object->result->data->m.fetch_current(object->result, &row, NULL, NULL)) {
+		if (PASS == object->result->m.fetch_current(object->result, &row, NULL, NULL)) {
 			ZVAL_COPY_VALUE(return_value, &row);
-			object->result->data->m.next(object->result, NULL, NULL);
+			object->result->m.next(object->result, NULL, NULL);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -135,7 +135,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, fetchAll)
 	if (object && object->result) {
 		zval set;
 		ZVAL_UNDEF(&set);
-		if (PASS == object->result->data->m.fetch_all(object->result, &set, NULL, NULL)) {
+		if (PASS == object->result->m.fetch_all(object->result, &set, NULL, NULL)) {
 			ZVAL_COPY_VALUE(return_value, &set);
 		}
 	}

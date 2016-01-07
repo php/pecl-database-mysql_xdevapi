@@ -22,6 +22,9 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
+#include "xmysqlnd_node_stmt_result_data.h"
+#include "xmysqlnd_warning_list.h"
+#include "xmysqlnd_stmt_execution_state.h"
 
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_stmt_result_meta;
@@ -31,7 +34,7 @@ extern "C" {
 #endif
 
 typedef struct st_xmysqlnd_node_stmt_result			XMYSQLND_NODE_STMT_RESULT;
-typedef struct st_xmysqlnd_node_stmt_result_data	XMYSQLND_NODE_STMT_RESULT_DATA;
+struct st_xmysqlnd_node_stmt_result_data;
 
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__init)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -77,27 +80,13 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 };
 
 
-struct st_xmysqlnd_node_stmt_result_data
-{
-	struct st_xmysqlnd_node_stmt * stmt;
-	struct st_xmysqlnd_node_stmt_result_meta * meta;
-	XMYSQLND_STMT_EXECUTION_STATE * exec_state;
-
-	XMYSQLND_WARNING_LIST * warnings;
-	zval ** rows; /* every row is a memory segment of field_count * sizeof(zval) */
-	size_t row_count;
-	size_t rows_allocated;
-	size_t row_cursor;
-
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) m;
-	zend_bool		persistent;
-};
-
-
 struct st_xmysqlnd_node_stmt_result
 {
-	XMYSQLND_NODE_STMT_RESULT_DATA * data;
+	struct st_xmysqlnd_node_stmt_result_data * buffered;
+	XMYSQLND_WARNING_LIST * warnings;
+	XMYSQLND_STMT_EXECUTION_STATE * exec_state;
 
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) m;
 	zend_bool		persistent;
 };
 
@@ -105,6 +94,7 @@ struct st_xmysqlnd_node_stmt_result
 PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_node_stmt_result);
 PHPAPI XMYSQLND_NODE_STMT_RESULT * xmysqlnd_node_stmt_result_init(struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_node_stmt_result_free(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

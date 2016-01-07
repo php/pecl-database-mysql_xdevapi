@@ -27,6 +27,7 @@
 
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt_result.h"
+#include "xmysqlnd_node_stmt_result_data.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 
 #include "proto_gen/mysqlx_connection.pb.h"
@@ -961,7 +962,7 @@ xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmys
 		DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
 										  has_msg? warning.msg().c_str() : "n/a");
 
-		ctx->current_result->data->warnings->m->add_warning(ctx->current_result->data->warnings, level, code, warn_message);
+		ctx->current_result->warnings->m->add_warning(ctx->current_result->warnings, level, code, warn_message);
 	}
 
 	DBG_VOID_RETURN;
@@ -1009,17 +1010,17 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
 				if (ctx->current_result) {
-					ctx->current_result->data->exec_state->m->set_affected_items_count(ctx->current_result->data->exec_state, scalar2uint(message.value()));
+					ctx->current_result->exec_state->m->set_affected_items_count(ctx->current_result->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
 				if (ctx->current_result) {
-					ctx->current_result->data->exec_state->m->set_found_items_count(ctx->current_result->data->exec_state, scalar2uint(message.value()));
+					ctx->current_result->exec_state->m->set_found_items_count(ctx->current_result->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
 				if (ctx->current_result) {
-					ctx->current_result->data->exec_state->m->set_matched_items_count(ctx->current_result->data->exec_state, scalar2uint(message.value()));
+					ctx->current_result->exec_state->m->set_matched_items_count(ctx->current_result->exec_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
@@ -1520,13 +1521,13 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 	if (!ctx->current_result && ctx->create_result.create) {
 		ctx->current_result = ctx->create_result.create(ctx->create_result.ctx);
 		if (ctx->current_result && ctx->current_meta) {
-			ctx->current_result->data->m.attach_meta(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
+			ctx->current_result->m.attach_meta(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
 		}
 	}
 	if (ctx->current_result) {
-		zval * row = ctx->current_result->data->m.create_row(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
+		zval * row = ctx->current_result->m.create_row(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
 		if (row && PASS == xmysqlnd_row_to_zval_array(message, ctx->current_meta, row)) {
-			ctx->current_result->data->m.add_row(ctx->current_result, row, ctx->stats, ctx->error_info);
+			ctx->current_result->m.add_row(ctx->current_result, row, ctx->stats, ctx->error_info);
 		}
 	}
 	DBG_INF((ctx->prefetch_counter - 1)? "HND_AGAIN":"HND_PASS");
