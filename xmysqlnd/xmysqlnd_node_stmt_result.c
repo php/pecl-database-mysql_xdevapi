@@ -169,14 +169,15 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, destroy_row)(XMYSQLND_NODE_STMT_RESUL
 
 /* {{{ xmysqlnd_node_stmt_result::add_row */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, const XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
+	const XMYSQLND_NODE_STMT_RESULT_META * const meta = result->data->meta;
 	const unsigned int column_count = meta->m->get_field_count(meta);
 	unsigned int i = 0;
 	DBG_ENTER("xmysqlnd_node_stmt_result::add_row");
 	if (!result->data->rows || result->data->rows_allocated == result->data->row_count) {
 		result->data->rows_allocated = ((result->data->rows_allocated + 2) * 5)/ 3;
-		result->data->rows = mnd_perealloc(result->data->rows, result->data->rows_allocated * sizeof(zval), result->data->persistent);
+		result->data->rows = mnd_perealloc(result->data->rows, result->data->rows_allocated * sizeof(zval*), result->data->persistent);
 	}
 	if (row) {
 		result->data->rows[result->data->row_count++] = row;
@@ -184,6 +185,19 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row)(XMYSQLND_NODE_STMT_RESULT * 
 			zval_ptr_dtor(&(row[i]));
 		}
 	}
+	DBG_INF_FMT("row_count=%u  rows_allocated=%u", (uint) result->data->row_count, (uint) result->data->rows_allocated);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::empty_rows */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, empty_rows)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::empty_rows");
+
+	result->data->m.free_rows_contents(result, stats, error_info);
 	DBG_INF_FMT("row_count=%u  rows_allocated=%u", (uint) result->data->row_count, (uint) result->data->rows_allocated);
 	DBG_RETURN(PASS);
 }
@@ -216,30 +230,70 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta)(XMYSQLND_NODE_STMT_RESUL
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt_result::free_contents */
+/* {{{ xmysqlnd_node_stmt_result::free_rows_contents */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows_contents)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	const zend_bool pers = result->data->persistent;
-	DBG_ENTER("xmysqlnd_node_stmt_result::free_contents");
+	DBG_ENTER("xmysqlnd_node_stmt_result::free_rows_contents");
 	DBG_INF_FMT("rows=%p  meta=%p", result->data->rows, result->data->meta);
+
 	if (result->data->rows && result->data->meta) {
 		const unsigned int col_count = result->data->meta->m->get_field_count(result->data->meta);
 		unsigned int row;
 		unsigned int col;
+
 		DBG_INF_FMT("Freeing %u rows with %u columns each", result->data->row_count, col_count);
+
 		for (row = 0; row < result->data->row_count; ++row) {
 			for (col = 0; col < col_count; ++col) {
-				zval_ptr_dtor(&(result->data->rows[row][col]));			
+				zval_ptr_dtor(&(result->data->rows[row][col]));
 			}
 			result->data->m.destroy_row(result, result->data->rows[row], stats, error_info);
+			result->data->rows[row] = NULL;
 		}
+		result->data->row_count = 0;
+		result->data->row_cursor = 0;
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::free_rows */
+static void
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::free_rows");
+	DBG_INF_FMT("rows=%p  meta=%p", result->data->rows, result->data->meta);
+
+	if (result->data->rows) {
+		const zend_bool pers = result->data->persistent;
+
+		result->data->m.free_rows_contents(result, stats, error_info);
+
 		mnd_pefree(result->data->rows, pers);
 		result->data->rows = NULL;
 
+		result->data->rows_allocated = 0;
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::free_contents */
+static void
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::free_contents");
+
+	result->data->m.free_rows(result, stats, error_info);
+
+	if (result->data->meta) {
 		xmysqlnd_node_stmt_result_meta_free(result->data->meta, stats, error_info);
 		result->data->meta = NULL;
 	}
+
 	if (result->data->warnings) {
 		xmysqlnd_warning_list_free(result->data->warnings);
 		result->data->warnings = NULL;
@@ -285,6 +339,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, destroy_row),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows_contents),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows),
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents),

@@ -49,7 +49,7 @@ struct st_mysqlx_node_sql_statement_result
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_sql_statement_result *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s\n", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -216,7 +216,6 @@ mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_hand
 
 	{
 		zend_class_entry tmp_ce;
-//		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_node_sql_statement_result", mysqlx_node_sql_statement_result_methods);
 		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSqlStatementResult", mysqlx_node_sql_statement_result_methods);
 		tmp_ce.create_object = php_mysqlx_node_sql_statement_result_object_allocator;
 		mysqlx_node_sql_statement_result_class_entry = zend_register_internal_class(&tmp_ce);

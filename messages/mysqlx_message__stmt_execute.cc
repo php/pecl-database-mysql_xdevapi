@@ -138,8 +138,11 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 	const struct st_xmysqlnd_result_create_bind create_result = { NULL, NULL };
 	const struct st_xmysqlnd_meta_create_bind create_meta =  { NULL, NULL };
 	const struct st_xmysqlnd_meta_field_create_bind create_meta_field =  { NULL, NULL };
-
-	enum_func_status ret = object->msg.read_response(&object->msg, create_result, create_meta, create_meta_field, return_value);
+	enum_func_status ret = object->msg.init_read(&object->msg, create_result, create_meta, create_meta_field);
+	if (FAIL == ret) {
+		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
+	}
+	ret = object->msg.read_response(&object->msg, 1, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

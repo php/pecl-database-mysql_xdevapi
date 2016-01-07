@@ -197,11 +197,15 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 									 const MYSQLND_CSTRING stmt,
 									 const zend_bool compact_meta);
 
-	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
-									  struct st_xmysqlnd_result_create_bind create_result,
-									  struct st_xmysqlnd_meta_create_bind create_meta,
-									  struct st_xmysqlnd_meta_field_create_bind create_meta_field,
-									  zval * response);
+
+	enum_func_status (*init_read)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
+								  const struct st_xmysqlnd_result_create_bind create_result,
+								  const struct st_xmysqlnd_meta_create_bind create_meta,
+								  const struct st_xmysqlnd_meta_field_create_bind create_meta_field);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
+									  const size_t rows,
+									  zval * const response);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
@@ -212,7 +216,10 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 	struct st_xmysqlnd_result_create_bind create_result;
 	struct st_xmysqlnd_meta_create_bind create_meta;
 	struct st_xmysqlnd_meta_field_create_bind create_meta_field;
-	zend_bool has_more;
+	zend_bool has_more_results:1;
+	zend_bool has_more_rows_in_set:1;
+	zend_bool read_started:1;
+	size_t prefetch_counter;
 	zval * response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 };

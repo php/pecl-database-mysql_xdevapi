@@ -57,6 +57,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt,
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_node_stmt::send_query");
 
+	stmt->data->partial_read_started = FALSE;
 	stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 	ret = stmt->data->msg_stmt_exec.send_request(&stmt->data->msg_stmt_exec, namespace_par, mnd_str2c(stmt->data->query), FALSE);
 	DBG_INF_FMT("send_request returned %s", PASS == ret? "PASS":"FAIL");
@@ -65,18 +66,12 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt,
 }
 /* }}} */
 
-struct st_create_result_or_meta_ctx
-{
-	XMYSQLND_NODE_STMT * stmt;
-	MYSQLND_STATS * stats;
-	MYSQLND_ERROR_INFO * error_info;
-};
 
 /* {{{ xmysqlnd_node_stmt::create_result */
 static XMYSQLND_NODE_STMT_RESULT *
 XMYSQLND_METHOD(xmysqlnd_node_stmt, create_result)(void * context)
 {
-	struct st_create_result_or_meta_ctx * ctx = (struct st_create_result_or_meta_ctx *) context;
+	struct st_xmysqlnd_create_result_or_meta_ctx * ctx = (struct st_xmysqlnd_create_result_or_meta_ctx *) context;
 	XMYSQLND_NODE_STMT_RESULT * result;
 	DBG_ENTER("xmysqlnd_node_stmt::create_result");
 	result = xmysqlnd_node_stmt_result_init(ctx->stmt, ctx->stmt->persistent, &ctx->stmt->data->session->object_factory, ctx->stats, ctx->error_info);
@@ -89,7 +84,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, create_result)(void * context)
 static XMYSQLND_NODE_STMT_RESULT_META *
 XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta)(void * context)
 {
-	struct st_create_result_or_meta_ctx * ctx = (struct st_create_result_or_meta_ctx *) context;
+	struct st_xmysqlnd_create_result_or_meta_ctx * ctx = (struct st_xmysqlnd_create_result_or_meta_ctx *) context;
 	XMYSQLND_NODE_STMT_RESULT_META * meta;
 	DBG_ENTER("xmysqlnd_node_stmt::create_meta");
 	meta = xmysqlnd_node_stmt_result_meta_init(ctx->stmt->persistent, &ctx->stmt->data->session->object_factory, ctx->stats, ctx->error_info);
@@ -102,7 +97,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta)(void * context)
 static XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta_field)(void * context)
 {
-	struct st_create_result_or_meta_ctx * ctx = (struct st_create_result_or_meta_ctx *) context;
+	struct st_xmysqlnd_create_result_or_meta_ctx * ctx = (struct st_xmysqlnd_create_result_or_meta_ctx *) context;
 	XMYSQLND_RESULT_FIELD_META * field;
 	DBG_ENTER("xmysqlnd_node_stmt::create_meta_field");
 	field = xmysqlnd_result_field_meta_init(ctx->stmt->persistent, &ctx->stmt->data->session->object_factory, ctx->stats, ctx->error_info);
@@ -111,43 +106,99 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta_field)(void * context)
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt::has_more_results */
+static zend_bool
+XMYSQLND_METHOD(xmysqlnd_node_stmt, has_more_results)(const XMYSQLND_NODE_STMT * const stmt)
+{
+	DBG_ENTER("xmysqlnd_node_stmt::has_more_results");
+	DBG_INF_FMT("has_more=%s", stmt->data->msg_stmt_exec.has_more_results? "TRUE":"FALSE");
+	DBG_RETURN(stmt->data->msg_stmt_exec.has_more_results);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_stmt::read_one_result */
 static struct st_xmysqlnd_node_stmt_result *
-XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result_fully)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_create_result_or_meta_ctx create_ctx = { stmt, stats, error_info };
+	struct st_xmysqlnd_create_result_or_meta_ctx create_ctx = { stmt, stats, error_info };
 	const struct st_xmysqlnd_result_create_bind create_result = { stmt->data->m.create_result, &create_ctx };
 	const struct st_xmysqlnd_meta_create_bind create_meta = { stmt->data->m.create_meta, &create_ctx };
 	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { stmt->data->m.create_meta_field, &create_ctx };
-	DBG_ENTER("xmysqlnd_node_stmt::read_one_result");
+	DBG_ENTER("xmysqlnd_node_stmt::read_one_result_fully");
 
 	/*
 	  Maybe we can inject a callbacks that creates `meta` on demand, but we still DI it.
 	  This way we don't pre-create `meta` and in case of UPSERT we don't waste cycles.
 	  For now, we just pre-create.
 	*/
+	if (FAIL == stmt->data->msg_stmt_exec.init_read(&stmt->data->msg_stmt_exec, create_result, create_meta, create_meta_field)) {
+		DBG_RETURN(NULL);
+	}
 
-	stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, create_result, create_meta, create_meta_field, NULL);
-	*has_more = stmt->data->msg_stmt_exec.has_more;
-	DBG_INF_FMT("has_more=%s", *has_more? "TRUE":"FALSE");
+	stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, (size_t)~0, NULL);
+	*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
+	DBG_INF_FMT("has_more=%s", *has_more_results? "TRUE":"FALSE");
 	DBG_RETURN(stmt->data->msg_stmt_exec.current_result);
 }
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt::read_one_result */
+static struct st_xmysqlnd_node_stmt_result *
+XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result_partially)(XMYSQLND_NODE_STMT * const stmt, const size_t rows, zend_bool * const has_more_rows_in_set, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+{
+	const struct st_xmysqlnd_result_create_bind create_result = { stmt->data->m.create_result, &stmt->data->read_ctx };
+	const struct st_xmysqlnd_meta_create_bind create_meta = { stmt->data->m.create_meta, &stmt->data->read_ctx };
+	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { stmt->data->m.create_meta_field, &stmt->data->read_ctx };
+	DBG_ENTER("xmysqlnd_node_stmt::read_one_result_partially");
+	DBG_INF_FMT("rows="MYSQLND_LLU_SPEC, rows);
+
+	if (FALSE == stmt->data->partial_read_started) {
+		stmt->data->read_ctx.stmt = stmt;
+		stmt->data->read_ctx.stats = stats;
+		stmt->data->read_ctx.error_info = error_info;
+		if (FAIL == stmt->data->msg_stmt_exec.init_read(&stmt->data->msg_stmt_exec, create_result, create_meta, create_meta_field)) {
+			DBG_RETURN(NULL);
+		}
+		stmt->data->partial_read_started = TRUE;
+	}
+	/*
+	  We can't be sure about more rows in the set, so we speculate if rows == 0.
+	  If rows > 0, then we will read at least 1 row and we will be sure
+	*/
+	*has_more_rows_in_set = TRUE;
+	*has_more_results = FALSE;
+
+	if (rows) {
+		stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, rows, NULL);
+		*has_more_rows_in_set = stmt->data->msg_stmt_exec.has_more_rows_in_set;
+		*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
+	}
+	DBG_INF_FMT("has_more=%s", *has_more_results? "TRUE":"FALSE");
+	DBG_RETURN(stmt->data->msg_stmt_exec.current_result);
+}
+/* }}} */
+
+
+
 /* {{{ xmysqlnd_node_stmt::skip_one_result */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	const struct st_xmysqlnd_result_create_bind create_result = { NULL, NULL };
 	const struct st_xmysqlnd_meta_create_bind create_meta = { NULL, NULL };
 	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { NULL, NULL };
-	enum_func_status ret;
+
 	DBG_ENTER("xmysqlnd_node_stmt::skip_one_result");
-	ret = stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, create_result, create_meta, create_meta_field, NULL);
-	*has_more = stmt->data->msg_stmt_exec.has_more;
-	DBG_INF_FMT("has_more=%s", *has_more? "TRUE":"FALSE");
-	DBG_RETURN(ret);
+	if (FAIL == stmt->data->msg_stmt_exec.init_read(&stmt->data->msg_stmt_exec, create_result, create_meta, create_meta_field)) {
+		DBG_RETURN(FAIL);
+	}
+
+	stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, (size_t)~0, NULL);
+	*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
+	DBG_INF_FMT("has_more=%s", *has_more_results? "TRUE":"FALSE");
+	DBG_RETURN(PASS);
 }
 /* }}} */
 
@@ -229,7 +280,9 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, has_more_results),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result_fully),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result_partially),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_all_results),
 

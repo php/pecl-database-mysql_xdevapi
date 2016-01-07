@@ -58,7 +58,7 @@ struct st_mysqlx_node_session
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_session *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s\n", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -267,7 +267,6 @@ mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx
 
 	{
 		zend_class_entry tmp_ce;
-//		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_node_session", mysqlx_node_session_methods);
 		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSession", mysqlx_node_session_methods);
 		tmp_ce.create_object = php_mysqlx_node_session_object_allocator;
 		mysqlx_node_session_class_entry = zend_register_internal_class(&tmp_ce);
@@ -300,7 +299,7 @@ mysqlx_new_node_session(zval * return_value)
 /* }}} */
 
 
-/* {{{ proto bool getNodeSession(string hostname, string username, string password, int port)
+/* {{{ proto bool mysqlx\\getNodeSession(string hostname, string username, string password, int port)
    Bind variables to a prepared statement as parameters */
 PHP_FUNCTION(mysqlx__getNodeSession)
 {
@@ -312,7 +311,7 @@ PHP_FUNCTION(mysqlx__getNodeSession)
 	size_t set_capabilities = 0;
 	size_t client_api_flags = 0;
 
-	DBG_ENTER("mysqlx_node_session::connect");
+	DBG_ENTER("mysqlx__getNodeSession");
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "sss|l",
 										 &(hostname.s), &(hostname.l), 
 										 &(username.s), &(username.l),

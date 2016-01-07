@@ -75,7 +75,6 @@ xmysqlnd_send_protobuf_message(struct st_mysqlx_node_connection * connection, st
 	void * payload = payload_size? mnd_emalloc(payload_size) : NULL;
 	if (payload_size && !payload) {
 		php_error_docref(NULL, E_WARNING, "Memory allocation problem");
-		
 		DBG_RETURN(0);
 	}
 	message.SerializeToArray(payload, payload_size);
@@ -1156,11 +1155,12 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_COLUMN_META");
-	ctx->has_more = TRUE;
+	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_COLUMN_METADATA;
 	if (!ctx->current_meta && ctx->create_meta.create) {
 		ctx->current_meta = ctx->create_meta.create(ctx->create_meta.ctx);
 		ctx->current_result = NULL; /* so we don't use the previous result which could have been freed */
+		ctx->has_more_rows_in_set = TRUE;
 	}
 
 	XMYSQLND_RESULT_FIELD_META * field = NULL;
@@ -1508,7 +1508,9 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_ROW");
-	ctx->has_more = TRUE;
+	DBG_INF_FMT("prefetch_counter="MYSQLND_LLU_SPEC, ctx->prefetch_counter);
+
+	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_RSET_ROW;
 	if (ctx->response_zval) {
 		mysqlx_new_data_row(ctx->response_zval, message);
@@ -1524,11 +1526,11 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 	if (ctx->current_result) {
 		zval * row = ctx->current_result->data->m.create_row(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
 		if (row && PASS == xmysqlnd_row_to_zval_array(message, ctx->current_meta, row)) {
-			ctx->current_result->data->m.add_row(ctx->current_result, row, ctx->current_meta, ctx->stats, ctx->error_info);
+			ctx->current_result->data->m.add_row(ctx->current_result, row, ctx->stats, ctx->error_info);
 		}
 	}
-	DBG_INF("HND_AGAIN");
-	DBG_RETURN(HND_AGAIN);
+	DBG_INF((ctx->prefetch_counter - 1)? "HND_AGAIN":"HND_PASS");
+	DBG_RETURN(--ctx->prefetch_counter? HND_AGAIN : HND_PASS);
 }
 /* }}} */
 
@@ -1541,7 +1543,8 @@ stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone & message, vo
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE");
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE;
 	ctx->current_meta = NULL;
-	ctx->has_more = FALSE;
+	ctx->has_more_results = FALSE;
+	ctx->has_more_rows_in_set = FALSE;
 	DBG_RETURN(HND_AGAIN); /* After FETCH_DONE a STMT_EXECUTE_OK is expected */
 }
 /* }}} */
@@ -1554,7 +1557,7 @@ stmt_execute_on_RSET_FETCH_SUSPENDED(void * context)
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_SUSPENDED");
 	ctx->server_message_type = XMGS_RSET_FETCH_SUSPENDED;
-	ctx->has_more = TRUE;
+	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
 }
 /* }}} */
@@ -1568,8 +1571,9 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMor
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS");
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE_MORE_RSETS;
 	ctx->current_meta = NULL;
-	ctx->has_more = TRUE;
-	DBG_RETURN(HND_AGAIN);
+	ctx->has_more_results = TRUE;
+	ctx->has_more_rows_in_set = FALSE;
+	DBG_RETURN(HND_PASS);
 }
 /* }}} */
 
@@ -1582,7 +1586,7 @@ stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk & message, void
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
 	ctx->server_message_type = XMSG_STMT_EXECUTE_OK;
-	ctx->has_more = FALSE;
+	ctx->has_more_results = FALSE;
 	if (ctx->response_zval) {
 		mysqlx_new_stmt_execute_ok(ctx->response_zval, message);
 	}
@@ -1597,7 +1601,7 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
-	ctx->has_more = TRUE;
+	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
 }
 /* }}} */
@@ -1622,24 +1626,46 @@ static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 	NULL,								// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_sql_stmt_execute__read_response */
+
+/* {{{ xmysqlnd_sql_stmt_execute__init_read */
 extern "C" enum_func_status
-xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
-										 struct st_xmysqlnd_result_create_bind create_result,
-										 struct st_xmysqlnd_meta_create_bind create_meta,
-										 struct st_xmysqlnd_meta_field_create_bind create_meta_field,
-										 zval * response)
+xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
+									 const struct st_xmysqlnd_result_create_bind create_result,
+									 const struct st_xmysqlnd_meta_create_bind create_meta,
+									 const struct st_xmysqlnd_meta_field_create_bind create_meta_field)
 {
-	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_read__stmt_execute");
-	msg->response_zval = response;
-	msg->create_result = create_result;
-	msg->create_meta = create_meta;
-	msg->create_meta_field = create_meta_field;
+	DBG_ENTER("xmysqlnd_sql_stmt_execute__init_read");
 	msg->current_result = NULL;
 	msg->current_meta = NULL;
 
-	ret = xmysqlnd_receive_message(&stmt_execute_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	msg->create_result = create_result;
+	msg->create_meta = create_meta;
+	msg->create_meta_field = create_meta_field;
+
+	msg->has_more_results = FALSE;
+	msg->has_more_rows_in_set = FALSE;
+	msg->read_started = FALSE;
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_sql_stmt_execute__read_response */
+extern "C" enum_func_status
+xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
+										 const size_t rows,
+										 zval * const response)
+{
+	enum_func_status ret = PASS;
+	DBG_ENTER("xmysqlnd_sql_stmt_execute__read_response");
+	msg->current_result = NULL;
+	msg->current_meta = NULL;
+
+	if (rows || response) {
+		msg->prefetch_counter = rows;
+		msg->response_zval = response;
+		ret = xmysqlnd_receive_message(&stmt_execute_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	}
 	DBG_INF_FMT("xmysqlnd_receive_message returned %s", PASS == ret? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
@@ -1668,7 +1694,6 @@ xmysqlnd_sql_stmt_execute__send_request(struct st_xmysqlnd_sql_stmt_execute_mess
 /* }}} */
 
 
-
 /* {{{ xmysqlnd_get_sql_stmt_execute_message */
 static struct st_xmysqlnd_sql_stmt_execute_message_ctx
 xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -1676,6 +1701,7 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx ctx = 
 	{
 		xmysqlnd_sql_stmt_execute__send_request,
+		xmysqlnd_sql_stmt_execute__init_read,
 		xmysqlnd_sql_stmt_execute__read_response,
 		vio,
 		pfc,
@@ -1686,7 +1712,10 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		{ NULL, NULL}, /* create result */
 		{ NULL, NULL}, /* create meta */
 		{ NULL, NULL}, /* create meta field */
-		FALSE, /* has_more */
+		FALSE, /* has_more_results */
+		FALSE, /* has_more_rows_in_set */
+		FALSE, /* read_started */
+		0, /* prefetch counter */
 		NULL, /* response_zval */
 		XMSG_NONE,
 	};
