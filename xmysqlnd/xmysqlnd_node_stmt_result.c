@@ -23,6 +23,7 @@
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
+#include "xmysqlnd_node_stmt_result_buffered.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 
 
@@ -35,7 +36,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, init)(XMYSQLND_NODE_STMT_RESULT * con
 												 MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::init");
-	result->buffered = xmysqlnd_node_stmt_result_data_init(stmt, result->persistent, factory, stats, error_info);
+	result->buffered = xmysqlnd_node_stmt_result_buffered_init(stmt, result->persistent, factory, stats, error_info);
 	result->warnings = xmysqlnd_warning_list_init(result->persistent, factory, stats, error_info);
 	result->exec_state = xmysqlnd_stmt_execution_state_init(result->persistent, factory, stats, error_info);
 	DBG_RETURN(result->buffered && result->warnings && result->exec_state? PASS:FAIL);
@@ -196,7 +197,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RES
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::free_contents");
 	if (result->buffered) {
-		xmysqlnd_node_stmt_result_data_free(result->buffered, stats, error_info);
+		xmysqlnd_node_stmt_result_buffered_free(result->buffered, stats, error_info);
 	}
 	/*
 	   This might not be the proper place because after this the object cannot be reused only can be dtored.

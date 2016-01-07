@@ -22,11 +22,11 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
-#include "xmysqlnd_node_stmt_result_data.h"
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
 
 struct st_xmysqlnd_node_stmt;
+struct st_xmysqlnd_node_stmt_result_buffered;
 struct st_xmysqlnd_node_stmt_result_meta;
 
 #ifdef __cplusplus
@@ -34,8 +34,6 @@ extern "C" {
 #endif
 
 typedef struct st_xmysqlnd_node_stmt_result			XMYSQLND_NODE_STMT_RESULT;
-struct st_xmysqlnd_node_stmt_result_data;
-
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__init)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__next)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -82,7 +80,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 
 struct st_xmysqlnd_node_stmt_result
 {
-	struct st_xmysqlnd_node_stmt_result_data * buffered;
+	struct st_xmysqlnd_node_stmt_result_buffered * buffered;
 	XMYSQLND_WARNING_LIST * warnings;
 	XMYSQLND_STMT_EXECUTION_STATE * exec_state;
 
