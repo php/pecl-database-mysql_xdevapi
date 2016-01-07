@@ -199,6 +199,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(MYSQLND_CLASS_METHODS_TY
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result */
 static XMYSQLND_NODE_STMT_RESULT *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+															   unsigned int type,
 															   XMYSQLND_NODE_STMT * stmt,
 															   const zend_bool persistent,
 															   MYSQLND_STATS * stats,
@@ -212,7 +213,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_MET
 	if (object) {
 		object->m = *xmysqlnd_node_stmt_result_get_methods();
 
-		if (PASS != object->m.init(object, factory, stmt, stats, error_info)) {
+		if (PASS != object->m.init(object, factory, type, stmt, stats, error_info)) {
 			object->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
