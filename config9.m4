@@ -53,7 +53,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 						 xmysqlnd/xmysqlnd_node_stmt.c \
 						 xmysqlnd/xmysqlnd_node_stmt_result.c \
 						 xmysqlnd/xmysqlnd_node_stmt_result_buffered.c \
-						 xmysqlnd/xmysqlnd_node_stmt_fw_result.c \
+						 xmysqlnd/xmysqlnd_node_stmt_result_fwd.c \
 						 xmysqlnd/xmysqlnd_node_stmt_result_meta.c \
 						 xmysqlnd/xmysqlnd_node_session.c \
 						 xmysqlnd/xmysqlnd_protocol_frame_codec.c \

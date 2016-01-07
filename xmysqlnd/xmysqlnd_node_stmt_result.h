@@ -22,11 +22,10 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
-#include "xmysqlnd_warning_list.h"
-#include "xmysqlnd_stmt_execution_state.h"
 
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_stmt_result_buffered;
+struct st_xmysqlnd_node_stmt_result_fwd;
 struct st_xmysqlnd_node_stmt_result_meta;
 
 #ifdef __cplusplus
@@ -81,6 +80,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 struct st_xmysqlnd_node_stmt_result
 {
 	struct st_xmysqlnd_node_stmt_result_buffered * buffered;
+	struct st_xmysqlnd_node_stmt_result_fwd * fwd;
 	XMYSQLND_WARNING_LIST * warnings;
 	XMYSQLND_STMT_EXECUTION_STATE * exec_state;
 

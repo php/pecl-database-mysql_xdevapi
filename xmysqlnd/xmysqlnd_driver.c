@@ -27,6 +27,7 @@
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_buffered.h"
+#include "xmysqlnd_node_stmt_result_fwd.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_warning_list.h"
 
@@ -247,6 +248,32 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_buffered)(MYSQLND_
 /* }}} */
 
 
+/* {{{ xmysqlnd_object_factory::get_node_stmt_result_fwd */
+static XMYSQLND_NODE_STMT_RESULT_FWD *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_fwd)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+																   XMYSQLND_NODE_STMT * stmt,
+																   const zend_bool persistent,
+																   MYSQLND_STATS * stats,
+																   MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT_RESULT_FWD) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_NODE_STMT_RESULT_FWD * object = mnd_pecalloc(1, alloc_size, persistent);
+
+	DBG_ENTER("xmysqlnd_object_factory::get_node_stmt_result_fwd");
+	DBG_INF_FMT("persistent=%u", persistent);
+	if (object) {
+		object->m = *xmysqlnd_node_stmt_result_fwd_get_methods();
+
+		if (PASS != object->m.init(object, factory, stmt, stats, error_info)) {
+			object->m.dtor(object, stats, error_info);
+			object = NULL;
+		}
+	}
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result_meta */
 static XMYSQLND_NODE_STMT_RESULT_META *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
@@ -395,6 +422,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_buffered),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_fwd),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc),

@@ -27,7 +27,6 @@
 
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt_result.h"
-#include "xmysqlnd_node_stmt_result_buffered.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 
 #include "proto_gen/mysqlx_connection.pb.h"
