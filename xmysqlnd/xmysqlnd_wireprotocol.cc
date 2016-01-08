@@ -1229,6 +1229,36 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 #include <google/protobuf/wire_format_lite.h>
 #include <ext/mysqlnd/mysql_float_to_double.h>
 
+static const char * zt2str[] =
+{
+	"UNDEF",
+	"NULL",
+	"FALSE",
+	"TRUE",
+	"LONG",
+	"DOUBLE",
+	"STRING",
+	"ARRAY",
+	"OBJECT",
+	"RESOURCE",
+	"REFERENCE",
+};
+
+/* {{{ ztype2str */
+static inline const char *
+ztype2str(const zval * const zv)
+{
+	const unsigned int type = Z_TYPE_P(zv);
+	if (type > IS_REFERENCE) return "n/a";
+	return zt2str[type];
+}
+/* }}} */
+
+extern "C"
+{
+#include "ext/standard/php_var.h" //var_dump
+}
+
 /* {{{ xmysqlnd_row_to_zval_array */
 static enum_func_status
 xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
@@ -1244,10 +1274,13 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 		const uint8_t * buf = reinterpret_cast<const uint8_t*>(message.field(i).c_str());
 		const size_t buf_size = message.field(i).size();
 		zval * zv = &(return_value[i]);
-		DBG_INF_FMT("buf_size=%u", (uint) buf_size);
+		DBG_INF_FMT("[%2u]buf_size=%u", i, (uint) buf_size);
+		DBG_INF_FMT("[%2u]name    =%s", i, meta->m->get_field(meta, i)->name.s);
+#if 0
 		for (unsigned j = 0; j < buf_size; j++) {
 			DBG_INF_FMT("[%02u]=x%02X", j, buf[j]);
 		}
+#endif
 		/*
 		  Precaution, as if something misbehaves and doesn't initialize `zv` then `zv` will be at
 		  the same place in the stack and have the previous value. String reuse will lead to
@@ -1261,29 +1294,32 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_SIGNED_INT:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 gval;
-				DBG_INF("SINT");
+				DBG_INF_FMT("[%2u]type    =SINT", i);
 				if (input_stream.ReadVarint64(&gval)) {
 					int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
 #if SIZEOF_ZEND_LONG==4
 					if (UNEXPECTED(ival >= ZEND_LONG_MAX)) {
 						ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, ival));
+						DBG_INF_FMT("[%2u]value(S)=%s", i, Z_STRVAL_P(zv));
 					} else
 #endif
 					{
 						ZVAL_LONG(zv, ival);
+						DBG_INF_FMT("[%2u]value(L)=%lu", i, Z_LVAL_P(zv));
 					}
 				} else {
+					DBG_ERR("Error decoding SINT");
 					php_error_docref(NULL, E_WARNING, "Error decoding SINT");
 					ret = FAIL;
 				}
 				break;
 			}
 			case XMYSQLND_TYPE_BIT:
-				DBG_INF("BIT handled as UINT");
+				DBG_INF_FMT("[%2u]type    =BIT handled as UINT", i);
 			case XMYSQLND_TYPE_UNSIGNED_INT:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 gval;
-				DBG_INF("UINT");
+				DBG_INF_FMT("[%2u]type    =UINT", i);
 				if (input_stream.ReadVarint64(&gval)) {
 #if SIZEOF_ZEND_LONG==8
 					if (gval > 9223372036854775807L) {
@@ -1291,10 +1327,13 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 					if (gval > L64(2147483647) {
 #endif
 						ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
+						DBG_INF_FMT("[%2u]value(S)=%s", i, Z_STRVAL_P(zv));
 					} else {
 						ZVAL_LONG(zv, gval);
+						DBG_INF_FMT("[%2u]value(L)=%lu", i, Z_LVAL_P(zv));
 					}
 				} else {
+					DBG_ERR("Error decoding UINT");
 					php_error_docref(NULL, E_WARNING, "Error decoding UINT");
 					ret = FAIL;
 				}
@@ -1303,10 +1342,12 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_DOUBLE:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 gval;
-				DBG_INF("DOUBLE");
+				DBG_INF_FMT("[%2u]type    =DOUBLE", i);
 				if (input_stream.ReadLittleEndian64(&gval)) {
 					ZVAL_DOUBLE(zv, ::google::protobuf::internal::WireFormatLite::DecodeDouble(gval));
+					DBG_INF_FMT("[%2u]value   =%10.15f", i, Z_DVAL_P(zv));
 				} else {
+					DBG_ERR("Error decoding DOUBLE");
 					php_error_docref(NULL, E_WARNING, "Error decoding DOUBLE");
 					ZVAL_NULL(zv);
 					ret = FAIL;
@@ -1316,7 +1357,7 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_FLOAT:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint32 gval;
-				DBG_INF("FLOAT");
+				DBG_INF_FMT("[%2u]type    =FLOAT", i);
 				if (input_stream.ReadLittleEndian32(&gval)) {
 					const float fval = ::google::protobuf::internal::WireFormatLite::DecodeFloat(gval);
 					const unsigned int fractional_digits = meta->m->get_field(meta, i)->fractional_digits;
@@ -1326,20 +1367,24 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 					const double dval = mysql_float_to_double(fval, (fractional_digits >= NOT_FIXED_DEC) ? -1 : fractional_digits);
 
 					ZVAL_DOUBLE(zv, dval);
+					DBG_INF_FMT("[%2u]value   =%f", i, Z_DVAL_P(zv));
 				} else {
+					DBG_ERR("Error decoding FLOAT");
 					php_error_docref(NULL, E_WARNING, "Error decoding FLOAT");
 					ret = FAIL;
 				}
 				break;
 			}
 			case XMYSQLND_TYPE_ENUM:
-				DBG_INF("ENUM handled as STRING");
+				DBG_INF_FMT("[%2u]type    =ENUM handled as STRING", i);
 			case XMYSQLND_TYPE_BYTES:{
 				if (buf_size) {
-					DBG_INF("STRING");
+					DBG_INF_FMT("[%2u]type    =STRING", i);
 					ZVAL_STRINGL(zv, reinterpret_cast<const char *>(buf), buf_size - 1); /* skip the ending \0 */
+					DBG_INF_FMT("[%2u]value   =%s", i, Z_STRVAL_P(zv));
 				} else {
-					DBG_INF("NULL");
+					DBG_ERR("Zero length buffer. NOT ALLOWED in the protocol");
+					DBG_INF_FMT("[%2u]value   =NULL", i);
 					ZVAL_NULL(zv);
 					ret = FAIL;
 				}
@@ -1348,7 +1393,7 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_TIME:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 neg = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
-				DBG_INF("TIME");
+				DBG_INF_FMT("[%2u]type    =TIME", i);
 				if (!buf_size) {
 					break;
 				}
@@ -1365,11 +1410,11 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 					break;
 				}
 				do {
-					if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("neg  ="MYSQLND_LLU_SPEC, neg);
-					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours="MYSQLND_LLU_SPEC, hours);
-					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins ="MYSQLND_LLU_SPEC, minutes);
-					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs ="MYSQLND_LLU_SPEC, seconds);
-					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs="MYSQLND_LLU_SPEC, useconds);
+					if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("[%2u]neg     ="MYSQLND_LLU_SPEC, i, neg);
+					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("[%2u]hours   ="MYSQLND_LLU_SPEC, i, hours);
+					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("[%2u]mins    ="MYSQLND_LLU_SPEC, i, minutes);
+					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("[%2u]secs    ="MYSQLND_LLU_SPEC, i, seconds);
+					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("[%2u]usecs   ="MYSQLND_LLU_SPEC, i, useconds);
 				} while (0);
 				#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
 				ZVAL_NEW_STR(zv, strpprintf(0, TIME_FMT_STR , neg? "-":"",
@@ -1383,7 +1428,7 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_DATETIME:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 year = 0, month = 0, day = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
-				DBG_INF("DATETIME");
+				DBG_INF_FMT("[%2u]type    =DATETIME", i);
 				if (!buf_size) {
 					break;
 				}
@@ -1399,13 +1444,13 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 					break;
 				}
 				do {
-					if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("year ="MYSQLND_LLU_SPEC, year);
-					if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("month="MYSQLND_LLU_SPEC, month);
-					if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("day  ="MYSQLND_LLU_SPEC, day);
-					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours="MYSQLND_LLU_SPEC, hours);
-					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins ="MYSQLND_LLU_SPEC, minutes);
-					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs ="MYSQLND_LLU_SPEC, seconds);
-					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs="MYSQLND_LLU_SPEC, useconds);
+					if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("[%2u]year    ="MYSQLND_LLU_SPEC, i, year);
+					if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("[%2u]month   ="MYSQLND_LLU_SPEC, i, month);
+					if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("[%2u]day     ="MYSQLND_LLU_SPEC, i, day);
+					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("[%2u]hours   ="MYSQLND_LLU_SPEC, i, hours);
+					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("[%2u]mins    ="MYSQLND_LLU_SPEC, i, minutes);
+					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("[%2u]secs    ="MYSQLND_LLU_SPEC, i, seconds);
+					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("[%2u]usecs   ="MYSQLND_LLU_SPEC, i, useconds);
 				} while (0);
 				#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
 				ZVAL_NEW_STR(zv, strpprintf(0, DATETIME_FMT_STR ,
@@ -1420,7 +1465,8 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 				break;
 			}
 			case XMYSQLND_TYPE_SET:{
-				DBG_INF("SET");
+				unsigned int j = 0;
+				DBG_INF_FMT("[%2u]type    =SET", i);
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 gval;
 				bool length_read_ok = true;
@@ -1434,39 +1480,44 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 						int rest_buffer_size = 0;
 						if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 							zval set_entry;
-							DBG_INF_FMT("value length=%3u  rest_buffer_size=%3d", (uint) gval, rest_buffer_size);
+							DBG_INF_FMT("[%2u][%u]value length=%3u  rest_buffer_size=%3d", i, j, (uint) gval, rest_buffer_size);
 							if (gval > rest_buffer_size) {
+								DBG_ERR_FMT("[%2u]Length pointing outside of the buffer", i);
 								php_error_docref(NULL, E_WARNING, "Length pointing outside of the buffer");
 								ret = FAIL;
 								break;
 							}
 							ZVAL_STRINGL(&set_entry, set_value, gval);
+							DBG_INF_FMT("[%2u][%u]subvalue=%s", i, j, Z_STRVAL(set_entry));
 							zend_hash_next_index_insert(Z_ARRVAL_P(zv), &set_entry);
 							if (!input_stream.Skip(gval)) {
 								break;
 							}
 						}
 					}
+					j++;
 				}
-				DBG_INF_FMT("set elements=%u", zend_hash_num_elements(Z_ARRVAL_P(zv)));
+				DBG_INF_FMT("[%2u]set elements=%u", i, zend_hash_num_elements(Z_ARRVAL_P(zv)));
 				break;
 			}
 			case XMYSQLND_TYPE_DECIMAL:{
-				DBG_INF("DECIMAL");
+				DBG_INF_FMT("[%2u]type    =DECIMAL", i);
 				if (!buf_size) {
 					break;
 				}
 				if (buf_size == 1) {
-					php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME");
+					DBG_ERR_FMT("[%2u]Unexpected value for first byte of TIME", i);
+					php_error_docref(NULL, E_WARNING, "Unexpected value for first byte of TIME");
 				}
 				const uint8_t scale = buf[0];
 				const uint8_t last_byte = buf[buf_size - 1]; /* last byte is the sign and the last 4 bits, if any */
 				const uint8_t sign = ((last_byte & 0xF)? last_byte  : last_byte >> 4) & 0xF;
 				const size_t digits = (buf_size - 2 /* scale & last */) * 2  + ((last_byte & 0xF) > 0x9? 1:0);
-				DBG_INF_FMT("scale     =%u", (uint) scale);
-				DBG_INF_FMT("sign      =%u", (uint) sign);
-				DBG_INF_FMT("digits    =%u", (uint) digits);
+				DBG_INF_FMT("[%2u]scale   =%u", i, (uint) scale);
+				DBG_INF_FMT("[%2u]sign    =%u", i, (uint) sign);
+				DBG_INF_FMT("[%2u]digits  =%u", i, (uint) digits);
 				if (!digits) {
+					DBG_ERR_FMT("[%2u]Wrong value for DECIMAL. scale=%u  last_byte=%u", i, (uint) scale, last_byte);
 					php_error_docref(NULL, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
 					ret = FAIL;
 					break;
@@ -1488,12 +1539,15 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 						*(p++) = '.';
 					}
 				}
-				DBG_INF_FMT("value=%*s", d_val_len, d_val);
+				DBG_INF_FMT("[%2u]value   =%*s", i, d_val_len, d_val);
 				ZVAL_STRINGL(zv, d_val, d_val_len);
 				delete [] d_val;
 				break;
 			}
 		}
+		DBG_INF_FMT("[%2u]TYPE(zv)=%s", i, ztype2str(zv));
+//		php_var_dump(zv, 1);
+		DBG_INF("");
 skip_switch:
 		;
 	}

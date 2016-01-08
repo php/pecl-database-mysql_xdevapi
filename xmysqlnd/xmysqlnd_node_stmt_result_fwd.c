@@ -206,9 +206,6 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, destroy_row)(XMYSQLND_NODE_STMT_R
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, add_row)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	const XMYSQLND_NODE_STMT_RESULT_META * const meta = result->meta;
-	const unsigned int column_count = meta->m->get_field_count(meta);
-	unsigned int i = 0;
 	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::add_row");
 	DBG_INF_FMT("row=%p", row);
 
@@ -219,11 +216,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, add_row)(XMYSQLND_NODE_STMT_RESUL
 
 	if (row) {
 		result->rows[result->row_count++] = row;
-		for (; i < column_count; i++) {
-			zval_ptr_dtor(&(row[i]));
-		}
+		++result->total_row_count;
 	}
-	++result->total_row_count;
 
 	DBG_INF_FMT("row_count=%u  rows_allocated=%u  total_row_count=%u", (uint) result->row_count,
 																	   (uint) result->rows_allocated,

@@ -355,8 +355,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, count)(const XMYSQLND_NODE_STMT_
 static const XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, get_field)(const XMYSQLND_NODE_STMT_RESULT_META * const meta, unsigned int field)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_meta::get_field");
-	DBG_RETURN((meta->field_count > 0 && field < meta->field_count)? meta->fields[field] : NULL);
+//	DBG_ENTER("xmysqlnd_node_stmt_result_meta::get_field");
+	return((meta->field_count > 0 && field < meta->field_count)? meta->fields[field] : NULL);
 }
 /* }}} */
 
