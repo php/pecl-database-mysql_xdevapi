@@ -67,6 +67,8 @@ PHP_METHOD(mysqlx_node_sql_statement, __construct)
 /* }}} */
 
 
+#define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 3
+
 /* {{{ proto mixed mysqlx_node_sql_statement::execute(object session, int flags) */
 PHP_METHOD(mysqlx_node_sql_statement, execute)
 {
@@ -92,6 +94,7 @@ PHP_METHOD(mysqlx_node_sql_statement, execute)
 	}
 	DBG_INF_FMT("flags=%lu", flags);
 	DBG_INF_FMT("%sSYNC", (flags & MYSQLX_EXECUTE_FLAG_ASYNC)? "A":"");
+	DBG_INF_FMT("%s", (flags & MYSQLX_EXECUTE_FLAG_BUFFERED)? "BUFFERED":"FWD");
 
 	if (TRUE == object->in_execution) {
 		php_error_docref(NULL, E_WARNING, "Statement in execution. Please fetch all data first.");
@@ -107,7 +110,12 @@ PHP_METHOD(mysqlx_node_sql_statement, execute)
 				DBG_INF("ASYNC");
 				RETVAL_BOOL(PASS == object->send_query_status);
 			} else {
-				XMYSQLND_NODE_STMT_RESULT * result = object->stmt->data->m.read_one_result(stmt, &object->has_more_results, NULL, NULL);
+				XMYSQLND_NODE_STMT_RESULT * result;
+				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
+					result = object->stmt->data->m.get_buffered_result(stmt, &object->has_more_results, NULL, NULL);
+				} else {
+					result = object->stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, NULL, NULL);
+				}
 
 				DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
 							object->has_more_results? "TRUE":"FALSE",
@@ -167,7 +175,13 @@ PHP_METHOD(mysqlx_node_sql_statement, readResult)
 	RETVAL_FALSE;
 	if (PASS == object->send_query_status) {
 		XMYSQLND_NODE_STMT * stmt = object->stmt;
-		XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.read_one_result(stmt, &object->has_more_results, NULL, NULL);
+		XMYSQLND_NODE_STMT_RESULT * result;
+
+		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
+			result = object->stmt->data->m.get_buffered_result(stmt, &object->has_more_results, NULL, NULL);
+		} else {
+			result = object->stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, NULL, NULL);
+		}
 
 		DBG_INF_FMT("has_more_results=%s", object->has_more_results? "TRUE":"FALSE");
 		if (result) {

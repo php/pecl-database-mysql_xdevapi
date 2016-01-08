@@ -200,6 +200,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(MYSQLND_CLASS_METHODS_TY
 static XMYSQLND_NODE_STMT_RESULT *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
 															   unsigned int type,
+															   const size_t prefetch_rows,
 															   XMYSQLND_NODE_STMT * stmt,
 															   const zend_bool persistent,
 															   MYSQLND_STATS * stats,
@@ -213,7 +214,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_MET
 	if (object) {
 		object->m = *xmysqlnd_node_stmt_result_get_methods();
 
-		if (PASS != object->m.init(object, factory, type, stmt, stats, error_info)) {
+		if (PASS != object->m.init(object, factory, type, prefetch_rows, stmt, stats, error_info)) {
 			object->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
@@ -226,10 +227,10 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_MET
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result_buffered */
 static XMYSQLND_NODE_STMT_RESULT_BUFFERED *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_buffered)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
-																	XMYSQLND_NODE_STMT * stmt,
-																	const zend_bool persistent,
-																	MYSQLND_STATS * stats,
-																	MYSQLND_ERROR_INFO * error_info)
+																		XMYSQLND_NODE_STMT * stmt,
+																		const zend_bool persistent,
+																		MYSQLND_STATS * stats,
+																		MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT_RESULT_BUFFERED) + mysqlnd_plugin_count() * sizeof(void *);
 	XMYSQLND_NODE_STMT_RESULT_BUFFERED * object = mnd_pecalloc(1, alloc_size, persistent);
@@ -252,6 +253,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_buffered)(MYSQLND_
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result_fwd */
 static XMYSQLND_NODE_STMT_RESULT_FWD *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_fwd)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+																   const size_t prefetch_rows,
 																   XMYSQLND_NODE_STMT * stmt,
 																   const zend_bool persistent,
 																   MYSQLND_STATS * stats,
@@ -265,7 +267,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_fwd)(MYSQLND_CLASS
 	if (object) {
 		object->m = *xmysqlnd_node_stmt_result_fwd_get_methods();
 
-		if (PASS != object->m.init(object, factory, stmt, stats, error_info)) {
+		if (PASS != object->m.init(object, factory, prefetch_rows, stmt, stats, error_info)) {
 			object->m.dtor(object, stats, error_info);
 			object = NULL;
 		}

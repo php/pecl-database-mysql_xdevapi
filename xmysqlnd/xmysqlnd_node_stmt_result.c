@@ -33,13 +33,14 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, init)(XMYSQLND_NODE_STMT_RESULT * const result,
 												 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
 												 enum xmysqlnd_result_type type,
+												 const size_t prefetch_rows,
 												 XMYSQLND_NODE_STMT * const stmt,
 												 MYSQLND_STATS * const stats,
 												 MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::init");
 	if (type == XMYSQLND_RESULT_FWD_ONLY) {
-		result->fwd = xmysqlnd_node_stmt_result_fwd_init(stmt, result->persistent, factory, stats, error_info);
+		result->fwd = xmysqlnd_node_stmt_result_fwd_init(prefetch_rows, stmt, result->persistent, factory, stats, error_info);
 	} else {
 		result->buffered = xmysqlnd_node_stmt_result_buffered_init(stmt, result->persistent, factory, stats, error_info);
 	}
@@ -313,12 +314,12 @@ MYSQLND_CLASS_METHODS_END;
 
 /* {{{ xmysqlnd_node_stmt_result_init */
 PHPAPI XMYSQLND_NODE_STMT_RESULT *
-xmysqlnd_node_stmt_result_init(enum xmysqlnd_result_type type, XMYSQLND_NODE_STMT * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_node_stmt_result_init(enum xmysqlnd_result_type type, const size_t prefetch_rows, XMYSQLND_NODE_STMT * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_STMT_RESULT * result = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt_result_init");
-	result = factory->get_node_stmt_result(factory, type, stmt, persistent, stats, error_info);
+	result = factory->get_node_stmt_result(factory, type, prefetch_rows, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
 /* }}} */

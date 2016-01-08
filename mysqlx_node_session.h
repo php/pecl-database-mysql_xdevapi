@@ -18,13 +18,6 @@
 #ifndef MYSQLX_NODE_SESSION_H
 #define MYSQLX_NODE_SESSION_H
 
-enum mysqlx_execute_flags
-{
-	MYSQLX_EXECUTE_FLAG_ASYNC = 1,
-};
-
-#define MYSQLX_EXECUTE_ALL_FLAGS	(0 | MYSQLX_EXECUTE_FLAG_ASYNC)
-
 enum_func_status mysqlx_new_node_session(zval * return_value);
 void mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS);

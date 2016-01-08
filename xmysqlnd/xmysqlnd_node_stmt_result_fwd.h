@@ -31,7 +31,7 @@ extern "C" {
 typedef struct st_xmysqlnd_node_stmt_result_fwd	XMYSQLND_NODE_STMT_RESULT_FWD;
 
 
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__init)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__init)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__next)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__fetch_current)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__fetch_one)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -84,13 +84,16 @@ struct st_xmysqlnd_node_stmt_result_fwd
 	size_t rows_allocated;
 	size_t row_cursor;
 
+	size_t total_row_count;
+
+	size_t prefetch_rows;
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_fwd) m;
 	zend_bool		persistent;
 };
 
 PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_node_stmt_result_fwd);
 
-PHPAPI XMYSQLND_NODE_STMT_RESULT_FWD * xmysqlnd_node_stmt_result_fwd_init(struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI XMYSQLND_NODE_STMT_RESULT_FWD * xmysqlnd_node_stmt_result_fwd_init(const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_node_stmt_result_fwd_free(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 #ifdef __cplusplus

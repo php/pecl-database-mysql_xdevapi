@@ -18,6 +18,14 @@
 #ifndef MYSQLX_NODE_SQL_STATEMENT_H
 #define MYSQLX_NODE_SQL_STATEMENT_H
 
+enum mysqlx_execute_flags
+{
+	MYSQLX_EXECUTE_FLAG_ASYNC = 1 << 0,
+	MYSQLX_EXECUTE_FLAG_BUFFERED = 1 << 1,
+};
+
+#define MYSQLX_EXECUTE_ALL_FLAGS	(0 | MYSQLX_EXECUTE_FLAG_ASYNC | MYSQLX_EXECUTE_FLAG_BUFFERED)
+
 struct st_xmysqlnd_node_stmt;
 void mysqlx_new_sql_stmt(zval * return_value, struct st_xmysqlnd_node_stmt * stmt);
 void mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);

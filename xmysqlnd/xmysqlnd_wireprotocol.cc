@@ -1509,6 +1509,8 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_ROW");
 	DBG_INF_FMT("prefetch_counter="MYSQLND_LLU_SPEC, ctx->prefetch_counter);
+	DBG_INF_FMT("current_meta=%p", ctx->current_meta);
+	DBG_INF_FMT("current_result=%p", ctx->current_result);
 
 	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_RSET_ROW;
@@ -1658,10 +1660,9 @@ xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_sql_stmt_execute_mes
 {
 	enum_func_status ret = PASS;
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__read_response");
-	msg->current_result = NULL;
-	msg->current_meta = NULL;
 
 	if (rows || response) {
+		DBG_INF_FMT("Prefetching "MYSQLND_LLU_SPEC" row(s)", rows);
 		msg->prefetch_counter = rows;
 		msg->response_zval = response;
 		ret = xmysqlnd_receive_message(&stmt_execute_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
