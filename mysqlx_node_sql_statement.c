@@ -36,7 +36,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__has_more_results, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__read_result, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__get_result, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 struct st_mysqlx_node_sql_statement
@@ -151,19 +151,20 @@ PHP_METHOD(mysqlx_node_sql_statement, hasMoreResults)
 	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_BOOL(object->stmt->data->m.has_more_results(object->stmt));
+	DBG_INF_FMT("%s", Z_TYPE_P(return_value) == IS_TRUE? "YES":"NO");
 
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_sql_statement::readResult(object session) */
-PHP_METHOD(mysqlx_node_sql_statement, readResult)
+/* {{{ mysqlx_node_sql_statement_read_result */
+static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS)
 {
 	struct st_mysqlx_node_sql_statement * object;
 	zval * object_zv;
 
-	DBG_ENTER("mysqlx_node_sql_statement::readResult");
+	DBG_ENTER("mysqlx_node_sql_statement::getResult");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_sql_statement_class_entry))
 	{
@@ -190,6 +191,22 @@ PHP_METHOD(mysqlx_node_sql_statement, readResult)
 	}
 
 	DBG_VOID_RETURN;
+
+}
+/* }}} */
+
+/* {{{ proto mixed mysqlx_node_sql_statement::readResult(object session) */
+PHP_METHOD(mysqlx_node_sql_statement, getResult)
+{
+	mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement::readResult(object session) */
+PHP_METHOD(mysqlx_node_sql_statement, getNextResult)
+{
+	mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 /* }}} */
 
@@ -200,7 +217,8 @@ static const zend_function_entry mysqlx_node_sql_statement_methods[] = {
 	PHP_ME(mysqlx_node_sql_statement, __construct,	NULL,	ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_node_sql_statement, execute, arginfo_mysqlx_node_sql_statement__execute, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement, hasMoreResults, arginfo_mysqlx_node_sql_statement__has_more_results, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_sql_statement, readResult, arginfo_mysqlx_node_sql_statement__read_result, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement, getResult, arginfo_mysqlx_node_sql_statement__get_result, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement, getNextResult, arginfo_mysqlx_node_sql_statement__get_result, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
