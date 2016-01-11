@@ -193,6 +193,12 @@ static PHP_RSHUTDOWN_FUNCTION(xmysqlnd)
 /* }}} */
 #endif
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx__get_node_session, 0, ZEND_RETURN_VALUE, 3)
+	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, username, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, password, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
+ZEND_END_ARG_INFO()
 /*
   This is a hack. We need proper forward declaration by including a header file. This will happen
   when xmysqlnd and mysqlx get split.
@@ -207,7 +213,7 @@ PHP_FUNCTION(mysqlx__getNodeSession);
 
 /* {{{ mysqlx_functions */
 static const zend_function_entry mysqlx_functions[] = {
-	ZEND_NS_NAMED_FE(MYSQLX_NAMESPACE, getNodeSession, ZEND_FN(mysqlx__getNodeSession), NULL)
+	ZEND_NS_NAMED_FE(MYSQLX_NAMESPACE, getNodeSession, ZEND_FN(mysqlx__getNodeSession), arginfo_mysqlx__get_node_session)
 	PHP_FE_END
 };
 /* }}} */

@@ -31,13 +31,6 @@
 
 static zend_class_entry *mysqlx_node_session_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__connect, 0, ZEND_RETURN_VALUE, 3)
-	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, username, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, password, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__query, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, query, IS_STRING, 0)
 ZEND_END_ARG_INFO()
@@ -289,11 +282,11 @@ mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_sql_stmt */
+/* {{{ mysqlx_new_node_session */
 enum_func_status
 mysqlx_new_node_session(zval * return_value)
 {
-	DBG_ENTER("mysqlx_new_sql_stmt");
+	DBG_ENTER("mysqlx_new_node_session");
 	DBG_RETURN(SUCCESS == object_init_ex(return_value, mysqlx_node_session_class_entry)? PASS:FAIL);
 }
 /* }}} */
