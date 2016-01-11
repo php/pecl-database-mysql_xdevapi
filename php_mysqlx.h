@@ -19,7 +19,7 @@
 #ifndef PHP_MYSQLX_H
 #define PHP_MYSQLX_H
 
-#include "php.h"
+#define MYSQLX_VERSION "v1.0.0"
 
 PHPAPI int mysqlx_minit_classes(INIT_FUNC_ARGS);
 PHPAPI int mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS);

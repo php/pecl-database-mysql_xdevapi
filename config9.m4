@@ -78,6 +78,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 						 mysqlx_node_sql_statement.c \
 						 mysqlx_node_sql_statement_result.c \
 						 mysqlx_node_sql_statement_result_iterator.c \
+						 mysqlx_session.c \
 						 mysqlx_object.c \
 						 mysqlx_warning.c \
 					"
