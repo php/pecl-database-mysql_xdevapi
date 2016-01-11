@@ -69,7 +69,7 @@ PHP_METHOD(mysqlx_node_sql_statement, __construct)
 
 #define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 3
 
-/* {{{ proto mixed mysqlx_node_sql_statement::execute(object session, int flags) */
+/* {{{ proto mixed mysqlx_node_sql_statement::execute(object statement, int flags) */
 PHP_METHOD(mysqlx_node_sql_statement, execute)
 {
 	struct st_mysqlx_node_sql_statement * object;
@@ -135,7 +135,7 @@ PHP_METHOD(mysqlx_node_sql_statement, execute)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_sql_statement::hasMoreResults(object session) */
+/* {{{ proto mixed mysqlx_node_sql_statement::hasMoreResults(object statement) */
 PHP_METHOD(mysqlx_node_sql_statement, hasMoreResults)
 {
 	struct st_mysqlx_node_sql_statement * object;
@@ -152,6 +152,86 @@ PHP_METHOD(mysqlx_node_sql_statement, hasMoreResults)
 
 	RETVAL_BOOL(object->stmt->data->m.has_more_results(object->stmt));
 	DBG_INF_FMT("%s", Z_TYPE_P(return_value) == IS_TRUE? "YES":"NO");
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement::getAffectedItemsCount(object statement) */
+PHP_METHOD(mysqlx_node_sql_statement, getAffectedItemsCount)
+{
+	struct st_mysqlx_node_sql_statement * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_sql_statement::getAffectedItemsCount");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement::getLastInsertId(object statement) */
+PHP_METHOD(mysqlx_node_sql_statement, getLastInsertId)
+{
+	struct st_mysqlx_node_sql_statement * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_sql_statement::getAffectedItemsCount");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement::getWarningCount(object statement) */
+PHP_METHOD(mysqlx_node_sql_statement, getWarningCount)
+{
+	struct st_mysqlx_node_sql_statement * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_sql_statement::getWarningCount");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement::getWarnings(object statement) */
+PHP_METHOD(mysqlx_node_sql_statement, getWarnings)
+{
+	struct st_mysqlx_node_sql_statement * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_sql_statement::getWarningCount");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
 
 	DBG_VOID_RETURN;
 }

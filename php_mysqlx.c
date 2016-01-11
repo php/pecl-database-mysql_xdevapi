@@ -27,6 +27,7 @@
 #include "mysqlx_node_pfc.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_object.h"
+#include "mysqlx_warning.h"
 
 #include "messages/mysqlx_message__ok.h"
 #include "messages/mysqlx_message__error.h"
@@ -61,6 +62,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	mysqlx_std_object_handlers.get_debug_info = mysqlx_object_get_debug_info;
 
+	mysqlx_register_warning_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_exception_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_driver_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -135,6 +137,7 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_warning_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	UNREGISTER_INI_ENTRIES();
 	return SUCCESS;
