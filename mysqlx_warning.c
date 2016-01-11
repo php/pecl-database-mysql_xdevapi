@@ -50,6 +50,7 @@ struct st_mysqlx_warning
 
 
 /* {{{ mysqlx_warning::__construct */
+static
 PHP_METHOD(mysqlx_warning, __construct)
 {
 }

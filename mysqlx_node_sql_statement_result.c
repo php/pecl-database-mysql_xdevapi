@@ -65,6 +65,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ mysqlx_node_sql_statement_result::__construct */
+static
 PHP_METHOD(mysqlx_node_sql_statement_result, __construct)
 {
 }
@@ -72,6 +73,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, __construct)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::hasData(object result) */
+static
 PHP_METHOD(mysqlx_node_sql_statement_result, hasData)
 {
 	zval * object_zv;
@@ -93,6 +95,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, hasData)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::fetchOne(object result) */
+static
 PHP_METHOD(mysqlx_node_sql_statement_result, fetchOne)
 {
 	zval * object_zv;
@@ -123,6 +126,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, fetchOne)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::fetchAll(object result) */
+static
 PHP_METHOD(mysqlx_node_sql_statement_result, fetchAll)
 {
 	zval * object_zv;
@@ -150,6 +154,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, fetchAll)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getAffectedItemsCount(object result) */
+static
 PHP_METHOD(mysqlx_node_sql_statement_result, getAffectedItemsCount)
 {
 	zval * object_zv;
@@ -181,6 +186,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getAffectedItemsCount)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getLastInsertId(object result) */
+static
 PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 {
 	zval * object_zv;
@@ -213,6 +219,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getWarningCount(object result) */
+static
 PHP_METHOD(mysqlx_node_sql_statement_result, getWarningCount)
 {
 	zval * object_zv;
@@ -244,6 +251,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getWarningCount)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getWarnings(object result) */
+static
 PHP_METHOD(mysqlx_node_sql_statement_result, getWarnings)
 {
 	zval * object_zv;
@@ -287,6 +295,7 @@ static const zend_function_entry mysqlx_node_sql_statement_result_methods[] = {
 	PHP_ME(mysqlx_node_sql_statement_result, hasData,				arginfo_mysqlx_node_sql_statement_result__has_data,					ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, fetchOne,				arginfo_mysqlx_node_sql_statement_result__fetch_one,				ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, fetchAll,				arginfo_mysqlx_node_sql_statement_result__fetch_all,				ZEND_ACC_PUBLIC)
+
 	PHP_ME(mysqlx_node_sql_statement_result, getAffectedItemsCount,	arginfo_mysqlx_node_sql_statement_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getLastInsertId, 		arginfo_mysqlx_node_sql_statement_result__get_last_insert_id,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarningCount,		arginfo_mysqlx_node_sql_statement_result__get_warning_count,		ZEND_ACC_PUBLIC)

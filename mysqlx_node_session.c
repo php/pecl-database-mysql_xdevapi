@@ -97,6 +97,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__pop_execution_context, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__execute_batch, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, context, Mysqlx\\BatchContext, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
@@ -130,6 +131,7 @@ struct st_mysqlx_node_session
 
 
 /* {{{ proto mixed mysqlx_node_session::query(object session, string query) */
+static
 PHP_METHOD(mysqlx_node_session, query)
 {
 	zval * object_zv;
@@ -174,6 +176,7 @@ PHP_METHOD(mysqlx_node_session, query)
 
 
 /* {{{ proto mixed mysqlx_node_session::query_and_discard(object session, string query) */
+static
 PHP_METHOD(mysqlx_node_session, query_and_discard)
 {
 	zval * object_zv;
@@ -212,6 +215,7 @@ PHP_METHOD(mysqlx_node_session, query_and_discard)
 
 
 /* {{{ proto mixed mysqlx_node_session::createStatement(object session, string query) */
+static
 PHP_METHOD(mysqlx_node_session, createStatement)
 {
 	zval * object_zv;
@@ -246,6 +250,7 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 
 
 /* {{{ mysqlx_node_session::__construct */
+static
 PHP_METHOD(mysqlx_node_session, __construct)
 {
 }
@@ -253,6 +258,7 @@ PHP_METHOD(mysqlx_node_session, __construct)
 
 
 /* {{{ mysqlx_node_session::getSchemas */
+static
 PHP_METHOD(mysqlx_node_session, getSchemas)
 {
 	zval * object_zv;
@@ -275,6 +281,7 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 
 
 /* {{{ mysqlx_node_session::getSchema */
+static
 PHP_METHOD(mysqlx_node_session, getSchema)
 {
 	zval * object_zv;
@@ -297,6 +304,7 @@ PHP_METHOD(mysqlx_node_session, getSchema)
 
 
 /* {{{ mysqlx_node_session::getDefaultSchema */
+static
 PHP_METHOD(mysqlx_node_session, getDefaultSchema)
 {
 	zval * object_zv;
@@ -319,6 +327,7 @@ PHP_METHOD(mysqlx_node_session, getDefaultSchema)
 
 
 /* {{{ mysqlx_node_session::createSchema */
+static
 PHP_METHOD(mysqlx_node_session, createSchema)
 {
 	zval * object_zv;
@@ -341,6 +350,7 @@ PHP_METHOD(mysqlx_node_session, createSchema)
 
 
 /* {{{ mysqlx_node_session::dropSchema */
+static
 PHP_METHOD(mysqlx_node_session, dropSchema)
 {
 	zval * object_zv;
@@ -363,6 +373,7 @@ PHP_METHOD(mysqlx_node_session, dropSchema)
 
 
 /* {{{ mysqlx_node_session::startTransaction */
+static
 PHP_METHOD(mysqlx_node_session, startTransaction)
 {
 	zval * object_zv;
@@ -385,6 +396,7 @@ PHP_METHOD(mysqlx_node_session, startTransaction)
 
 
 /* {{{ mysqlx_node_session::commit */
+static
 PHP_METHOD(mysqlx_node_session, commit)
 {
 	zval * object_zv;
@@ -407,6 +419,7 @@ PHP_METHOD(mysqlx_node_session, commit)
 
 
 /* {{{ mysqlx_node_session::rollback */
+static
 PHP_METHOD(mysqlx_node_session, rollback)
 {
 	zval * object_zv;
@@ -429,6 +442,7 @@ PHP_METHOD(mysqlx_node_session, rollback)
 
 
 /* {{{ mysqlx_node_session::wrapInTransaction */
+static
 PHP_METHOD(mysqlx_node_session, wrapInTransaction)
 {
 	zval * object_zv;
@@ -451,6 +465,7 @@ PHP_METHOD(mysqlx_node_session, wrapInTransaction)
 
 
 /* {{{ mysqlx_node_session::createTransactionContext */
+static
 PHP_METHOD(mysqlx_node_session, createTransactionContext)
 {
 	zval * object_zv;
@@ -473,6 +488,7 @@ PHP_METHOD(mysqlx_node_session, createTransactionContext)
 
 
 /* {{{ mysqlx_node_session::pushExecutionContext */
+static
 PHP_METHOD(mysqlx_node_session, pushExecutionContext)
 {
 	zval * object_zv;
@@ -495,6 +511,7 @@ PHP_METHOD(mysqlx_node_session, pushExecutionContext)
 
 
 /* {{{ mysqlx_node_session::popExecutionContext */
+static
 PHP_METHOD(mysqlx_node_session, popExecutionContext)
 {
 	zval * object_zv;
@@ -517,6 +534,7 @@ PHP_METHOD(mysqlx_node_session, popExecutionContext)
 
 
 /* {{{ mysqlx_node_session::executeBatch */
+static
 PHP_METHOD(mysqlx_node_session, executeBatch)
 {
 	zval * object_zv;
@@ -539,6 +557,7 @@ PHP_METHOD(mysqlx_node_session, executeBatch)
 
 
 /* {{{ mysqlx_node_session::getUri */
+static
 PHP_METHOD(mysqlx_node_session, getUri)
 {
 	zval * object_zv;
@@ -561,6 +580,7 @@ PHP_METHOD(mysqlx_node_session, getUri)
 
 
 /* {{{ mysqlx_node_session::close */
+static
 PHP_METHOD(mysqlx_node_session, close)
 {
 	zval * object_zv;

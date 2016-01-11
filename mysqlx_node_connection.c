@@ -74,6 +74,7 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 
 
 /* {{{ proto bool mysqlx_node_connection::connect(object connection, string hostname, string username, string password) */
+static
 PHP_METHOD(mysqlx_node_connection, connect)
 {
 	zval * connection_zv;
@@ -124,6 +125,7 @@ PHP_METHOD(mysqlx_node_connection, connect)
 
 
 /* {{{ proto long mysqlx_node_connection::send(object session, string payload) */
+static
 PHP_METHOD(mysqlx_node_connection, send)
 {
 	zval * connection_zv;
@@ -156,6 +158,7 @@ PHP_METHOD(mysqlx_node_connection, send)
 
 
 /* {{{ proto long mysqlx_node_connection::receive(object connection, long bytes) */
+static
 PHP_METHOD(mysqlx_node_connection, receive)
 {
 	zval * connection_zv;

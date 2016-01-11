@@ -42,6 +42,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ proto bool mysqlx_node_pfc::send(object pfc, object connection, long packet_type, string payload) */
+static
 PHP_METHOD(mysqlx_node_pfc, send)
 {
 	zval * codec_zv;
@@ -79,6 +80,7 @@ PHP_METHOD(mysqlx_node_pfc, send)
 
 
 /* {{{ proto mixed mysqlx_node_pfc::receive(object pfc, object connection) */
+static
 PHP_METHOD(mysqlx_node_pfc, receive)
 {
 	zval * codec_zv;
