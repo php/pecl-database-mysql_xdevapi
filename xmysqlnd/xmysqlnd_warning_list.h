@@ -20,10 +20,12 @@
 #define XMYSQLND_WARNING_LIST_H
 
 #include "xmysqlnd_driver.h"
+#include "xmysqlnd_wireprotocol.h" /* enum xmysqlnd_stmt_warning_level */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 struct st_xmysqlnd_warning
 {

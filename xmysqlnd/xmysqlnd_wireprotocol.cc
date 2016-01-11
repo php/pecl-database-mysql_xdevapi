@@ -930,10 +930,13 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	ctx->server_message_type = XMSG_ERROR;
-	SET_CLIENT_ERROR(ctx->error_info,
-					 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
-					 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
-					 error.has_msg()? error.msg().c_str() : "Unknown server error");
+//	if (ctx->error_info)
+	{
+		SET_CLIENT_ERROR(ctx->error_info,
+						 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
+						 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
+						 error.has_msg()? error.msg().c_str() : "Unknown server error");
+	}
 	return HND_PASS_RETURN_FAIL;
 }
 /* }}} */
@@ -1738,7 +1741,10 @@ xmysqlnd_sql_stmt_execute__send_request(struct st_xmysqlnd_sql_stmt_execute_mess
 	size_t bytes_sent;
 	Mysqlx::Sql::StmtExecute message;
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__send_request");
-
+	{
+//		Mysqlx::Datatypes::Any * arg = message.add_args();
+//		arg->set_type((Mysqlx::Datatypes::Any_Type) XMYSQLND_TYPE_SIGNED_INT);
+	}
 	message.set_namespace_(namespace_.s, namespace_.l);
 	message.set_stmt(stmt.s, stmt.l);
 	message.set_compact_metadata(compact_meta? true:false);

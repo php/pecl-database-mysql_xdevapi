@@ -133,6 +133,17 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, fetch_all)(XMYSQLND_NODE_STM
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt_result::rewind */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, rewind)(XMYSQLND_NODE_STMT_RESULT_BUFFERED * const result)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result_buffered::rewind");
+	result->row_cursor = 0;
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_stmt_result::eof */
 static zend_bool
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, eof)(const XMYSQLND_NODE_STMT_RESULT_BUFFERED * const result)
@@ -323,6 +334,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result_buffered)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, fetch_current),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, fetch_one),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, fetch_all),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, rewind),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, eof),
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, create_row),

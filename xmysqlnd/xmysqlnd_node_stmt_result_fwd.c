@@ -80,6 +80,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_current)(XMYSQLND_NODE_STMT
 {
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::fetch_current");
+	++result->total_fetched;
 	ret = result->m.fetch_one(result, result->row_cursor, row, stats, error_info);
 	DBG_INF_FMT("%s", PASS == ret? "PASS":"FAIL");
 	DBG_RETURN(ret);
@@ -119,6 +120,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_one)(XMYSQLND_NODE_STMT_RES
 			}
 		}
 	}
+	++result->total_fetched;
 	DBG_RETURN(PASS);
 }
 /* }}} */
@@ -144,12 +146,30 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_all)(XMYSQLND_NODE_STMT_RES
 			zend_hash_next_index_insert(Z_ARRVAL_P(set), &row);
 		}
 	}
+
 	if (result->row_count) {
+		result->total_fetched += result->row_count;
+
 		/* Remove what we have, as we don't need it anymore */
 		result->m.free_rows_contents(result, stats, error_info);
 	}
 	DBG_INF_FMT("total_row_count="MYSQLND_LLU_SPEC, result->total_row_count);
 	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::rewind */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, rewind)(XMYSQLND_NODE_STMT_RESULT_FWD * const result)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::rewind");
+	if (result->total_fetched == 0 && result->row_cursor == 0) {
+		DBG_RETURN(PASS);
+	} else {
+		php_error_docref(NULL, E_WARNING, "rewind() not possible with a forward only result set. Use a buffered result instead"); 		
+		DBG_RETURN(FAIL);	
+	}
 }
 /* }}} */
 
@@ -347,6 +367,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result_fwd)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_current),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_one),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_all),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, rewind),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, eof),
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, create_row),

@@ -37,7 +37,6 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 	if (!(stmt->data->session = session->m->get_reference(session))) {
 		return FAIL;
 	}
-	stmt->data->m.get_reference(stmt);
 	stmt->data->query = mnd_dup_cstring(query, stmt->data->persistent);
 	DBG_INF_FMT("query=[%d]%*s", stmt->data->query.l, stmt->data->query.l, stmt->data->query.s);
 	DBG_RETURN(PASS);
@@ -239,7 +238,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_reference)(XMYSQLND_NODE_STMT * const st
 {
 	DBG_ENTER("xmysqlnd_node_stmt::get_reference");
 	++stmt->data->refcount;
-	DBG_INF_FMT("session=%p new_refcount=%u", stmt, stmt->data->refcount);
+	DBG_INF_FMT("stmt=%p new_refcount=%u", stmt, stmt->data->refcount);
 	DBG_RETURN(stmt);
 }
 /* }}} */
@@ -321,7 +320,10 @@ xmysqlnd_node_stmt_init(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTR
 	XMYSQLND_NODE_STMT * stmt = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt_init");
 	if (query.s && query.l) {
-		stmt = factory->get_node_stmt(factory, session, query, persistent, stats, error_info);	
+		stmt = factory->get_node_stmt(factory, session, query, persistent, stats, error_info);
+		if (stmt) {
+			stmt = stmt->data->m.get_reference(stmt);
+		}
 	}
 	DBG_RETURN(stmt);
 }

@@ -15,33 +15,12 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_SQL_STATEMENT_RESULT_H
-#define MYSQLX_NODE_SQL_STATEMENT_RESULT_H
+#ifndef MYSQLX_NODE_SQL_STATEMENT_RESULT_ITERATOR_H
+#define MYSQLX_NODE_SQL_STATEMENT_RESULT_ITERATOR_H
 
-struct st_xmysqlnd_node_stmt_result;
+void mysqlx_register_node_sql_statement_result_iterator(zend_class_entry * ce);
 
-struct st_mysqlx_node_sql_statement_result
-{
-	struct st_xmysqlnd_node_stmt_result * result;
-};
-
-
-#define MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(_to, _from) \
-{ \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_sql_statement_result *) mysqlx_object->ptr; \
-	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
-void mysqlx_new_sql_stmt_result(zval * return_value, struct st_xmysqlnd_node_stmt_result * result);
-void mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS);
-
-#endif /* MYSQLX_NODE_SQL_STATEMENT_RESULT_H */
+#endif /* MYSQLX_NODE_SQL_STATEMENT_RESULT_ITERATOR_H */
 
 /*
  * Local variables:

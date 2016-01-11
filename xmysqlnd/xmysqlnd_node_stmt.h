@@ -60,12 +60,13 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__skip_all_results skip_all_results;
 
 	func_xmysqlnd_node_stmt__create_result create_result_fwd; 			/* export the function for binding */
-	func_xmysqlnd_node_stmt__create_result create_result_buffered; 			/* export the function for binding */
-	func_xmysqlnd_node_stmt__create_meta create_meta; 				/* export the function for binding */
-	func_xmysqlnd_node_stmt__create_meta_field create_meta_field;	/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_result create_result_buffered; 		/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_meta create_meta; 					/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_meta_field create_meta_field;		/* export the function for binding */
 
 	func_xmysqlnd_node_stmt__get_reference get_reference;
 	func_xmysqlnd_node_stmt__free_reference free_reference;
+
 	func_xmysqlnd_node_stmt__free_contents free_contents;
 	func_xmysqlnd_node_stmt__dtor dtor;
 };

@@ -36,6 +36,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__next)(XMYSQLND_NO
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__fetch_current)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__fetch_one)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__fetch_all)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_fwd__rewind)(XMYSQLND_NODE_STMT_RESULT_FWD * const result);
 typedef zend_bool			(*func_xmysqlnd_node_stmt_result_fwd__eof)(const XMYSQLND_NODE_STMT_RESULT_FWD * const result);
 
 typedef zval *				(*func_xmysqlnd_node_stmt_result_fwd__create_row)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, const struct st_xmysqlnd_node_stmt_result_meta * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -58,6 +59,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_fwd)
 	func_xmysqlnd_node_stmt_result_fwd__fetch_current fetch_current;
 	func_xmysqlnd_node_stmt_result_fwd__fetch_one fetch_one;
 	func_xmysqlnd_node_stmt_result_fwd__fetch_all fetch_all;
+	func_xmysqlnd_node_stmt_result_fwd__rewind rewind;
 	func_xmysqlnd_node_stmt_result_fwd__eof eof;
 
 	func_xmysqlnd_node_stmt_result_fwd__create_row create_row;
@@ -85,6 +87,7 @@ struct st_xmysqlnd_node_stmt_result_fwd
 	size_t row_cursor;
 
 	size_t total_row_count;
+	size_t total_fetched;
 
 	size_t prefetch_rows;
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_fwd) m;

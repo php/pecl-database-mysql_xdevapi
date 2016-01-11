@@ -24,6 +24,8 @@
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_node_sql_statement_result_iterator.h"
+#include "mysqlx_node_sql_statement_result.h"
 
 static zend_class_entry *mysqlx_node_sql_statement_result_class_entry;
 
@@ -38,22 +40,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__fetch_all, 0, Z
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_sql_statement_result
-{
-	XMYSQLND_NODE_STMT_RESULT * result;
-};
-
-
-#define MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(_to, _from) \
-{ \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_sql_statement_result *) mysqlx_object->ptr; \
-	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-} \
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__query, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, query, IS_STRING, 0)
@@ -213,12 +199,14 @@ mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_hand
 {
 	mysqlx_object_node_sql_statement_result_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_node_sql_statement_result_handlers.free_obj = mysqlx_node_sql_statement_result_free_storage;
-
 	{
 		zend_class_entry tmp_ce;
 		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSqlStatementResult", mysqlx_node_sql_statement_result_methods);
 		tmp_ce.create_object = php_mysqlx_node_sql_statement_result_object_allocator;
+
 		mysqlx_node_sql_statement_result_class_entry = zend_register_internal_class(&tmp_ce);
+
+		mysqlx_register_node_sql_statement_result_iterator(mysqlx_node_sql_statement_result_class_entry);
 	}
 
 	zend_hash_init(&mysqlx_node_sql_statement_result_properties, 0, NULL, mysqlx_free_property_cb, 1);
