@@ -22,6 +22,8 @@
 struct st_xmysqlnd_node_session_data;
 struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_node_stmt_result_meta;
+struct st_xmysqlnd_stmt_execution_state;
+struct st_xmysqlnd_warning_list;
 struct st_xmysqlnd_level3_io;
 
 #include <ext/mysqlnd/mysqlnd_vio.h>
@@ -172,9 +174,9 @@ struct st_xmysqlnd_auth_continue_message_ctx
 };
 
 
-struct st_xmysqlnd_result_create_bind
+struct st_xmysqlnd_rowset_create_bind
 {
-	struct st_xmysqlnd_node_stmt_result * (*create)(void * context);
+	struct st_xmysqlnd_rowset * (*create)(void * context);
 	void * ctx;
 };
 
@@ -190,6 +192,20 @@ struct st_xmysqlnd_meta_field_create_bind
 	void * ctx;
 };
 
+struct st_xmysqlnd_execution_state_create_bind
+{
+	struct st_xmysqlnd_stmt_execution_state * (*create)(void * context);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_warning_list_create_bind
+{
+	struct st_xmysqlnd_warning_list * (*create)(void * context);
+	void * ctx;
+};
+
+
 struct st_xmysqlnd_sql_stmt_execute_message_ctx
 {
 	enum_func_status (*send_request)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
@@ -201,9 +217,11 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 
 
 	enum_func_status (*init_read)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
-								  const struct st_xmysqlnd_result_create_bind create_result,
+								  const struct st_xmysqlnd_rowset_create_bind create_rowset,
 								  const struct st_xmysqlnd_meta_create_bind create_meta,
-								  const struct st_xmysqlnd_meta_field_create_bind create_meta_field);
+								  const struct st_xmysqlnd_meta_field_create_bind create_meta_field,
+								  const struct st_xmysqlnd_execution_state_create_bind create_execution_state,
+								  const struct st_xmysqlnd_warning_list_create_bind create_warning_list);
 
 	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
 									  const size_t rows,
@@ -213,11 +231,15 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
-	struct st_xmysqlnd_node_stmt_result * current_result;
+	struct st_xmysqlnd_rowset * current_rowset;
 	struct st_xmysqlnd_node_stmt_result_meta * current_meta;
-	struct st_xmysqlnd_result_create_bind create_result;
+	struct st_xmysqlnd_stmt_execution_state * current_execution_state;
+	struct st_xmysqlnd_warning_list * current_warning_list;
+	struct st_xmysqlnd_rowset_create_bind create_rowset;
 	struct st_xmysqlnd_meta_create_bind create_meta;
 	struct st_xmysqlnd_meta_field_create_bind create_meta_field;
+	struct st_xmysqlnd_execution_state_create_bind create_execution_state;
+	struct st_xmysqlnd_warning_list_create_bind create_warning_list;
 	zend_bool has_more_results:1;
 	zend_bool has_more_rows_in_set:1;
 	zend_bool read_started:1;

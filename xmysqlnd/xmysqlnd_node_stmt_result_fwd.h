@@ -65,7 +65,9 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_fwd)
 	func_xmysqlnd_node_stmt_result_fwd__create_row create_row;
 	func_xmysqlnd_node_stmt_result_fwd__destroy_row destroy_row;
 	func_xmysqlnd_node_stmt_result_fwd__add_row add_row;
+
 	func_xmysqlnd_node_stmt_result_fwd__get_row_count get_row_count;
+
 	func_xmysqlnd_node_stmt_result_fwd__free_rows_contents free_rows_contents;
 	func_xmysqlnd_node_stmt_result_fwd__free_rows free_rows;
 

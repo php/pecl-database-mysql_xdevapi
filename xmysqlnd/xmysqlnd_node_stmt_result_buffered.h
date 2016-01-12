@@ -28,7 +28,7 @@ struct st_xmysqlnd_node_stmt_result_meta;
 extern "C" {
 #endif
 
-typedef struct st_xmysqlnd_node_stmt_result_buffered	XMYSQLND_NODE_STMT_RESULT_BUFFERED;
+typedef struct st_xmysqlnd_node_stmt_result_buffered XMYSQLND_NODE_STMT_RESULT_BUFFERED;
 
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_buffered__init)(XMYSQLND_NODE_STMT_RESULT_BUFFERED * const result, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, struct st_xmysqlnd_node_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);

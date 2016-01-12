@@ -26,27 +26,19 @@
 #include "xmysqlnd_node_stmt_result_buffered.h"
 #include "xmysqlnd_node_stmt_result_fwd.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
-
+#include "xmysqlnd_warning_list.h"
+#include "xmysqlnd_stmt_execution_state.h"
+#include "xmysqlnd_rowset.h"
 
 /* {{{ xmysqlnd_node_stmt_result::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, init)(XMYSQLND_NODE_STMT_RESULT * const result,
 												 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
-												 enum xmysqlnd_result_type type,
-												 const size_t prefetch_rows,
-												 XMYSQLND_NODE_STMT * const stmt,
 												 MYSQLND_STATS * const stats,
 												 MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::init");
-	if (type == XMYSQLND_RESULT_FWD_ONLY) {
-		result->fwd = xmysqlnd_node_stmt_result_fwd_init(prefetch_rows, stmt, result->persistent, factory, stats, error_info);
-	} else {
-		result->buffered = xmysqlnd_node_stmt_result_buffered_init(stmt, result->persistent, factory, stats, error_info);
-	}
-	result->warnings = xmysqlnd_warning_list_init(result->persistent, factory, stats, error_info);
-	result->exec_state = xmysqlnd_stmt_execution_state_init(result->persistent, factory, stats, error_info);
-	DBG_RETURN((result->buffered || result->fwd) && result->warnings && result->exec_state? PASS:FAIL);
+	DBG_RETURN(PASS);
 }
 /* }}} */
 
@@ -57,10 +49,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, next)(XMYSQLND_NODE_STMT_RESULT * con
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_node_stmt_result::next");
-	if (result->fwd) {
-		ret = result->fwd->m.next(result->fwd, stats, error_info);
-	} else if (result->buffered) {
-		ret = result->buffered->m.next(result->buffered, stats, error_info);
+	if (result->rowset) {
+		ret = result->rowset->m.next(result->rowset, stats, error_info);
 	}
 	DBG_RETURN(ret);
 }
@@ -73,10 +63,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_current)(XMYSQLND_NODE_STMT_RES
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_one");
-	if (result->fwd) {
-		ret = result->fwd->m.fetch_current(result->fwd, row, stats, error_info);
-	} else if (result->buffered) {
-		ret = result->buffered->m.fetch_current(result->buffered, row, stats, error_info);
+	if (result->rowset) {
+		ret = result->rowset->m.fetch_current(result->rowset, row, stats, error_info);
 	}
 	DBG_RETURN(ret);
 }
@@ -89,10 +77,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one)(XMYSQLND_NODE_STMT_RESULT 
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_one");
-	if (result->fwd) {
-		ret = result->fwd->m.fetch_one(result->fwd, row_cursor, row, stats, error_info);
-	} else if (result->buffered) {
-		ret = result->buffered->m.fetch_one(result->buffered, row_cursor, row, stats, error_info);
+	if (result->rowset) {
+		ret = result->rowset->m.fetch_one(result->rowset, row_cursor, row, stats, error_info);
 	}
 	DBG_RETURN(ret);
 }
@@ -105,10 +91,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all)(XMYSQLND_NODE_STMT_RESULT 
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_all");
-	if (result->fwd) {
-		ret = result->fwd->m.fetch_all(result->fwd, set, stats, error_info);
-	} else if (result->buffered) {
-		ret = result->buffered->m.fetch_all(result->buffered, set, stats, error_info);
+	if (result->rowset) {
+		ret = result->rowset->m.fetch_all(result->rowset, set, stats, error_info);
 	}
 	DBG_RETURN(ret);
 }
@@ -121,10 +105,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, rewind)(XMYSQLND_NODE_STMT_RESULT * c
 {
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_stmt_result::rewind");
-	if (result->fwd) {
-		ret = result->fwd->m.rewind(result->fwd);
-	} else if (result->buffered) {
-		ret = result->buffered->m.rewind(result->buffered);
+	if (result->rowset) {
+		ret = result->rowset->m.rewind(result->rowset);
 	}
 	DBG_RETURN(ret);
 }
@@ -137,10 +119,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, eof)(const XMYSQLND_NODE_STMT_RESULT 
 {
 	zend_bool ret;
 	DBG_ENTER("xmysqlnd_node_stmt_result::eof");
-	if (result->fwd) {
-		ret = result->fwd->m.eof(result->fwd);
-	} else if (result->buffered) {
-		ret = result->buffered->m.eof(result->buffered);
+	if (result->rowset) {
+		ret = result->rowset->m.eof(result->rowset);
 	}
 	DBG_RETURN(ret);
 }
@@ -156,10 +136,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, create_row)(XMYSQLND_NODE_STMT_RESULT
 {
 	zval * ret;
 	DBG_ENTER("xmysqlnd_node_stmt_result::create_row");
-	if (result->fwd) {
-		ret = result->fwd->m.create_row(result->fwd, meta, stats, error_info);
-	} else if (result->buffered) {
-		ret = result->buffered->m.create_row(result->buffered, meta, stats, error_info);
+	if (result->rowset) {
+		ret = result->rowset->m.create_row(result->rowset, meta, stats, error_info);
 	}
 	DBG_RETURN(ret);
 }
@@ -174,10 +152,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, destroy_row)(XMYSQLND_NODE_STMT_RESUL
 														MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::destroy_row");
-	if (result->fwd) {
-		result->fwd->m.destroy_row(result->fwd, row, stats, error_info);
-	} else if (result->buffered) {
-		result->buffered->m.destroy_row(result->buffered, row, stats, error_info);
+	if (result->rowset) {
+		result->rowset->m.destroy_row(result->rowset, row, stats, error_info);
 	}
 	DBG_VOID_RETURN;
 }
@@ -190,10 +166,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row)(XMYSQLND_NODE_STMT_RESULT * 
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_node_stmt_result::add_row");
-	if (result->fwd) {
-		ret = result->fwd->m.add_row(result->fwd, row, stats, error_info);
-	} else if (result->buffered) {
-		ret = result->buffered->m.add_row(result->buffered, row, stats, error_info);
+	if (result->rowset) {
+		ret = result->rowset->m.add_row(result->rowset, row, stats, error_info);
 	}
 	DBG_RETURN(ret);
 }
@@ -206,26 +180,61 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count)(const XMYSQLND_NODE_ST
 {
 	size_t ret;
 	DBG_ENTER("xmysqlnd_node_stmt_result::get_row_count");
-	if (result->fwd) {
-		ret = result->fwd->m.get_row_count(result->fwd);
-	} else if (result->buffered) {
-		ret = result->buffered->m.get_row_count(result->buffered);
+	if (result->rowset) {
+		ret = result->rowset->m.get_row_count(result->rowset);
 	}
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt_result::attach_meta */
+/* {{{ xmysqlnd_node_stmt_result::attach_rowset */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta)(XMYSQLND_NODE_STMT_RESULT * const result, XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_rowset)(XMYSQLND_NODE_STMT_RESULT * const result, XMYSQLND_ROWSET * const rowset, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_node_stmt_result::attach_meta");
-	if (result->fwd) {
-		ret = result->fwd->m.attach_meta(result->fwd, meta, stats, error_info);
-	} else if (result->buffered) {
-		ret = result->buffered->m.attach_meta(result->buffered, meta, stats, error_info);
+	DBG_ENTER("xmysqlnd_node_stmt_result::attach_rowset");
+	DBG_INF_FMT("current_rowset=%p   rowset=%p", result->rowset, rowset);
+	if (result->rowset && result->rowset != rowset) {
+		xmysqlnd_rowset_free(result->rowset, stats, error_info);		
+	}
+	result->rowset = rowset;
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::attach_execution_state */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_execution_state)(XMYSQLND_NODE_STMT_RESULT * const result, XMYSQLND_STMT_EXECUTION_STATE * const exec_state)
+{
+	enum_func_status ret = PASS;
+	DBG_ENTER("xmysqlnd_node_stmt_result::attach_execution_state");
+	DBG_INF_FMT("current_exec_state=%p   exec_state=%p", result->exec_state, exec_state);
+	if (exec_state) {
+		if (result->exec_state && result->exec_state != exec_state) {
+			xmysqlnd_stmt_execution_state_free(result->exec_state);
+			result->exec_state = NULL;
+		}
+		result->exec_state = exec_state;
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::attach_warning_list */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_warning_list)(XMYSQLND_NODE_STMT_RESULT * const result, XMYSQLND_WARNING_LIST * const warning_list)
+{
+	enum_func_status ret = PASS;
+	DBG_ENTER("xmysqlnd_node_stmt_result::attach_warning_list");
+	DBG_INF_FMT("current_warnings=%p   warnings=%p", result->warnings, warning_list);
+	if (warning_list) {
+		if (result->warnings && result->warnings != warning_list) {
+			xmysqlnd_warning_list_free(result->warnings);
+			result->warnings = NULL;
+		}
+		result->warnings = warning_list;
 	}
 	DBG_RETURN(ret);
 }
@@ -264,10 +273,8 @@ static void
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows_contents)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::free_rows_contents");
-	if (result->fwd) {
-		result->fwd->m.free_rows_contents(result->fwd, stats, error_info);
-	} else if (result->buffered) {
-		result->buffered->m.free_rows_contents(result->buffered, stats, error_info);	
+	if (result->rowset) {
+		result->rowset->m.free_rows_contents(result->rowset, stats, error_info);
 	}
 	DBG_VOID_RETURN;
 }
@@ -279,10 +286,8 @@ static void
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::free_rows");
-	if (result->fwd) {
-		result->fwd->m.free_rows(result->fwd, stats, error_info);
-	} else if (result->buffered) {
-		result->buffered->m.free_rows(result->buffered, stats, error_info);
+	if (result->rowset) {
+		result->rowset->m.free_rows(result->rowset, stats, error_info);
 	}
 	DBG_VOID_RETURN;
 }
@@ -294,10 +299,9 @@ static void
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::free_contents");
-	if (result->fwd) {
-		xmysqlnd_node_stmt_result_fwd_free(result->fwd, stats, error_info);
-	} else if (result->buffered) {
-		xmysqlnd_node_stmt_result_buffered_free(result->buffered, stats, error_info);
+	if (result->rowset) {
+		xmysqlnd_rowset_free(result->rowset, stats, error_info);
+		result->rowset = NULL;
 	}
 	/*
 	   This might not be the proper place because after this the object cannot be reused only can be dtored.
@@ -349,7 +353,9 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_rowset),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_execution_state),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_warning_list),
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_reference),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_reference),
@@ -362,12 +368,12 @@ MYSQLND_CLASS_METHODS_END;
 
 /* {{{ xmysqlnd_node_stmt_result_init */
 PHPAPI XMYSQLND_NODE_STMT_RESULT *
-xmysqlnd_node_stmt_result_init(enum xmysqlnd_result_type type, const size_t prefetch_rows, XMYSQLND_NODE_STMT * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_node_stmt_result_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_STMT_RESULT * result = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt_result_init");
-	result = factory->get_node_stmt_result(factory, type, prefetch_rows, stmt, persistent, stats, error_info);
+	result = factory->get_node_stmt_result(factory, persistent, stats, error_info);
 	if (result) {
 		result = result->m.get_reference(result);
 	}

@@ -24,6 +24,9 @@
 
 struct st_xmysqlnd_node_session_data;
 struct st_xmysqlnd_node_stmt_result;
+struct st_xmysqlnd_stmt_execution_state;
+struct st_xmysqlnd_warning_list;
+struct st_xmysqlnd_rowset;
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +35,7 @@ typedef struct st_xmysqlnd_node_stmt		XMYSQLND_NODE_STMT;
 typedef struct st_xmysqlnd_node_stmt_data	XMYSQLND_NODE_STMT_DATA;
 
 
-typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt, struct st_xmysqlnd_node_session_data * const session, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, struct st_xmysqlnd_node_session_data * const session, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, zval * param_zv);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef zend_bool			(*func_xmysqlnd_node_stmt__has_more_results)(const XMYSQLND_NODE_STMT * const stmt);
@@ -41,9 +44,11 @@ typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__get_fw
 typedef enum_func_status							(*func_xmysqlnd_node_stmt__skip_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status							(*func_xmysqlnd_node_stmt__skip_all_results)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
-typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__create_result)(void * ctx);
+typedef struct st_xmysqlnd_rowset *					(*func_xmysqlnd_node_stmt__create_rowset)(void * ctx);
 typedef struct st_xmysqlnd_node_stmt_result_meta *	(*func_xmysqlnd_node_stmt__create_meta)(void * ctx);
 typedef struct st_xmysqlnd_result_field_meta *		(*func_xmysqlnd_node_stmt__create_meta_field)(void * ctx);
+typedef struct st_xmysqlnd_stmt_execution_state *	(*func_xmysqlnd_node_stmt__create_execution_state)(void * ctx);
+typedef struct st_xmysqlnd_warning_list *			(*func_xmysqlnd_node_stmt__create_warning_list)(void * ctx);
 
 typedef XMYSQLND_NODE_STMT *(*func_xmysqlnd_node_stmt__get_reference)(XMYSQLND_NODE_STMT * const stmt);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__free_reference)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -61,10 +66,12 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__skip_one_result skip_one_result;
 	func_xmysqlnd_node_stmt__skip_all_results skip_all_results;
 
-	func_xmysqlnd_node_stmt__create_result create_result_fwd; 			/* export the function for binding */
-	func_xmysqlnd_node_stmt__create_result create_result_buffered; 		/* export the function for binding */
-	func_xmysqlnd_node_stmt__create_meta create_meta; 					/* export the function for binding */
-	func_xmysqlnd_node_stmt__create_meta_field create_meta_field;		/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_rowset create_rowset_fwd; 				/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_rowset create_rowset_buffered; 			/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_meta create_meta; 						/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_meta_field create_meta_field;			/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_execution_state create_execution_state;	/* export the function for binding */
+	func_xmysqlnd_node_stmt__create_warning_list create_warning_list; 		/* export the function for binding */
 
 	func_xmysqlnd_node_stmt__get_reference get_reference;
 	func_xmysqlnd_node_stmt__free_reference free_reference;
@@ -82,7 +89,7 @@ struct st_xmysqlnd_node_stmt_data
 	MYSQLND_STRING query;
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx msg_stmt_exec;
 
-	struct st_xmysqlnd_create_result_or_meta_ctx
+	struct st_xmysqlnd_node_stmt_bind_ctx
 	{
 		XMYSQLND_NODE_STMT * stmt;
 		MYSQLND_STATS * stats;
@@ -90,6 +97,8 @@ struct st_xmysqlnd_node_stmt_data
 		size_t fwd_prefetch_count;
 	} read_ctx;
 	zend_bool partial_read_started;
+
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory;
 
 	unsigned int	refcount;
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) m;

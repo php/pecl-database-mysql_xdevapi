@@ -28,6 +28,9 @@
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd_warning_list.h"
+#include "xmysqlnd_stmt_execution_state.h"
+#include "xmysqlnd_rowset.h"
 
 #include "proto_gen/mysqlx_connection.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
@@ -947,8 +950,11 @@ static void
 xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
 {
 	DBG_ENTER("xmysqlnd_inspect_warning");
-	DBG_INF_FMT("current_result=%p", ctx->current_result);
-	if (ctx->current_result) {
+	DBG_INF_FMT("current_warning_list=%p", ctx->current_warning_list);
+	if (!ctx->current_warning_list) {
+		ctx->current_warning_list = ctx->create_warning_list.create(ctx->create_warning_list.ctx);
+	}
+	if (ctx->current_warning_list) {
 		const bool has_level = warning.has_level();
 		const bool has_code = warning.has_code();
 		const bool has_msg = warning.has_msg();
@@ -965,7 +971,7 @@ xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmys
 		DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
 										  has_msg? warning.msg().c_str() : "n/a");
 
-		ctx->current_result->warnings->m->add_warning(ctx->current_result->warnings, level, code, warn_message);
+		ctx->current_warning_list->m->add_warning(ctx->current_warning_list, level, code, warn_message);
 	}
 
 	DBG_VOID_RETURN;
@@ -998,10 +1004,13 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 	const bool has_param = message.has_param();
 	const bool has_value = message.has_value();
 	DBG_ENTER("xmysqlnd_inspect_changed_state");
-	DBG_INF_FMT("current_result=%p", ctx->current_result);
+	DBG_INF_FMT("current_execution_state=%p", ctx->current_execution_state);
 	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
 								   has_param? Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str() : "n/a");
 
+	if (!ctx->current_execution_state && ctx->create_execution_state.create) {
+		ctx->current_execution_state = ctx->create_execution_state.create(ctx->create_execution_state.ctx);
+	}
 
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 	if (has_param && has_value) {
@@ -1011,20 +1020,23 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 			case Mysqlx::Notice::SessionStateChanged::ACCOUNT_EXPIRED:
 				break;
 			case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:
+				if (ctx->current_execution_state) {
+					ctx->current_execution_state->m->set_last_insert_id(ctx->current_execution_state, scalar2uint(message.value()));
+				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
-				if (ctx->current_result) {
-					ctx->current_result->exec_state->m->set_affected_items_count(ctx->current_result->exec_state, scalar2uint(message.value()));
+				if (ctx->current_execution_state) {
+					ctx->current_execution_state->m->set_affected_items_count(ctx->current_execution_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
-				if (ctx->current_result) {
-					ctx->current_result->exec_state->m->set_found_items_count(ctx->current_result->exec_state, scalar2uint(message.value()));
+				if (ctx->current_execution_state) {
+					ctx->current_execution_state->m->set_found_items_count(ctx->current_execution_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
-				if (ctx->current_result) {
-					ctx->current_result->exec_state->m->set_matched_items_count(ctx->current_result->exec_state, scalar2uint(message.value()));
+				if (ctx->current_execution_state) {
+					ctx->current_execution_state->m->set_matched_items_count(ctx->current_execution_state, scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
@@ -1104,6 +1116,7 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_NOTICE");
+	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->server_message_type = XMSG_NOTICE;
 	xmysqlnd_inspect_notice_frame(message, ctx);
 	DBG_RETURN(HND_AGAIN);
@@ -1119,18 +1132,18 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_COLUMN_META");
-	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
+	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_COLUMN_METADATA;
 	if (!ctx->current_meta && ctx->create_meta.create) {
 		ctx->current_meta = ctx->create_meta.create(ctx->create_meta.ctx);
-		ctx->current_result = NULL; /* so we don't use the previous result which could have been freed */
+		ctx->current_rowset = NULL; /* so we don't use the previous result which could have been freed */
 		ctx->has_more_rows_in_set = TRUE;
 	}
-	if (!ctx->current_result && ctx->create_result.create) {
-		ctx->current_result = ctx->create_result.create(ctx->create_result.ctx);
-		if (ctx->current_result && ctx->current_meta) {
-			ctx->current_result->m.attach_meta(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
+	if (!ctx->current_rowset && ctx->create_rowset.create) {
+		ctx->current_rowset = ctx->create_rowset.create(ctx->create_rowset.ctx);
+		if (ctx->current_rowset && ctx->current_meta) {
+			ctx->current_rowset->m.attach_meta(ctx->current_rowset, ctx->current_meta, ctx->stats, ctx->error_info);
 		}
 	}
 
@@ -1534,7 +1547,7 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_ROW");
 	DBG_INF_FMT("prefetch_counter="MYSQLND_LLU_SPEC, ctx->prefetch_counter);
-	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
+	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 
 	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_RSET_ROW;
@@ -1543,10 +1556,10 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 		DBG_INF("HND_PASS");
 		DBG_RETURN(HND_PASS);
 	}
-	if (ctx->current_result) {
-		zval * row = ctx->current_result->m.create_row(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
+	if (ctx->current_rowset) {
+		zval * row = ctx->current_rowset->m.create_row(ctx->current_rowset, ctx->current_meta, ctx->stats, ctx->error_info);
 		if (row && PASS == xmysqlnd_row_to_zval_array(message, ctx->current_meta, row)) {
-			ctx->current_result->m.add_row(ctx->current_result, row, ctx->stats, ctx->error_info);
+			ctx->current_rowset->m.add_row(ctx->current_rowset, row, ctx->stats, ctx->error_info);
 		}
 	}
 	DBG_INF((ctx->prefetch_counter - 1)? "HND_AGAIN":"HND_PASS");
@@ -1561,7 +1574,7 @@ stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone & message, vo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE");
-	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
+	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE;
 	ctx->current_meta = NULL;
 	ctx->has_more_results = FALSE;
@@ -1577,7 +1590,7 @@ stmt_execute_on_RSET_FETCH_SUSPENDED(void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_SUSPENDED");
-	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
+	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->server_message_type = XMGS_RSET_FETCH_SUSPENDED;
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
@@ -1607,7 +1620,7 @@ stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk & message, void
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
-	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
+	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->server_message_type = XMSG_STMT_EXECUTE_OK;
 	ctx->has_more_results = FALSE;
 	if (ctx->response_zval) {
@@ -1624,7 +1637,7 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
-	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
+	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
 }
@@ -1654,17 +1667,23 @@ static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 /* {{{ xmysqlnd_sql_stmt_execute__init_read */
 extern "C" enum_func_status
 xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
-									 const struct st_xmysqlnd_result_create_bind create_result,
+									 const struct st_xmysqlnd_rowset_create_bind create_rowset,
 									 const struct st_xmysqlnd_meta_create_bind create_meta,
-									 const struct st_xmysqlnd_meta_field_create_bind create_meta_field)
+									 const struct st_xmysqlnd_meta_field_create_bind create_meta_field,
+									 const struct st_xmysqlnd_execution_state_create_bind create_execution_state,
+									 const struct st_xmysqlnd_warning_list_create_bind create_warning_list)
 {
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__init_read");
-	msg->current_result = NULL;
+	msg->current_rowset = NULL;
 	msg->current_meta = NULL;
+	msg->current_execution_state = NULL;
+	msg->current_warning_list = NULL;
 
-	msg->create_result = create_result;
+	msg->create_rowset = create_rowset;
 	msg->create_meta = create_meta;
 	msg->create_meta_field = create_meta_field;
+	msg->create_execution_state = create_execution_state;
+	msg->create_warning_list = create_warning_list;
 
 	msg->has_more_results = FALSE;
 	msg->has_more_rows_in_set = FALSE;
@@ -1708,19 +1727,20 @@ xmysqlnd_sql_stmt_execute__send_request(struct st_xmysqlnd_sql_stmt_execute_mess
 	size_t bytes_sent;
 	Mysqlx::Sql::StmtExecute message;
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__send_request");
-#if 1
+
 	if (params) {
 		for (unsigned int i = 0; i < param_count; ++i) {
 			Mysqlx::Datatypes::Any * arg = message.add_args();
 			zval2any(&params[i], *arg);
 		}
 	}
-#endif
 
 	message.set_namespace_(namespace_.s, namespace_.l);
 	message.set_stmt(stmt.s, stmt.l);
 	message.set_compact_metadata(compact_meta? true:false);
+
 	ret = xmysqlnd_send_message(COM_SQL_STMT_EXECUTE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+
 	DBG_INF_FMT("xmysqlnd_send_message returned %s", PASS == ret? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
@@ -1740,11 +1760,15 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		pfc,
 		stats,
 		error_info,
-		NULL, /* current_result */
+		NULL, /* current_rowset */
 		NULL, /* current_meta */
+		NULL, /* current_exec_state */
+		NULL, /* current_warning_list */
 		{ NULL, NULL}, /* create result */
 		{ NULL, NULL}, /* create meta */
 		{ NULL, NULL}, /* create meta field */
+		{ NULL, NULL}, /* create execution state */
+		{ NULL, NULL}, /* create warning list */
 		FALSE, /* has_more_results */
 		FALSE, /* has_more_rows_in_set */
 		FALSE, /* read_started */

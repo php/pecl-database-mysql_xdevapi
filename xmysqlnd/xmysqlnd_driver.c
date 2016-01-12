@@ -30,6 +30,8 @@
 #include "xmysqlnd_node_stmt_result_fwd.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_warning_list.h"
+#include "xmysqlnd_stmt_execution_state.h"
+#include "xmysqlnd_rowset.h"
 
 static zend_bool xmysqlnd_library_initted = FALSE;
 
@@ -177,7 +179,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(MYSQLND_CLASS_METHODS_TY
 		object->persistent = object->data->persistent = persistent;
 		object->data->m = *xmysqlnd_node_stmt_get_methods();
 
-		if (PASS != object->data->m.init(object, session, query, stats, error_info)) {
+		if (PASS != object->data->m.init(object, factory, session, query, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
@@ -199,9 +201,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(MYSQLND_CLASS_METHODS_TY
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result */
 static XMYSQLND_NODE_STMT_RESULT *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
-															   unsigned int type,
-															   const size_t prefetch_rows,
-															   XMYSQLND_NODE_STMT * stmt,
 															   const zend_bool persistent,
 															   MYSQLND_STATS * stats,
 															   MYSQLND_ERROR_INFO * error_info)
@@ -214,7 +213,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_MET
 	if (object) {
 		object->m = *xmysqlnd_node_stmt_result_get_methods();
 
-		if (PASS != object->m.init(object, factory, type, prefetch_rows, stmt, stats, error_info)) {
+		if (PASS != object->m.init(object, factory, stats, error_info)) {
 			object->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
@@ -268,6 +267,34 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_fwd)(MYSQLND_CLASS
 		object->m = *xmysqlnd_node_stmt_result_fwd_get_methods();
 
 		if (PASS != object->m.init(object, factory, prefetch_rows, stmt, stats, error_info)) {
+			object->m.dtor(object, stats, error_info);
+			object = NULL;
+		}
+	}
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_object_factory::get_rowset */
+static XMYSQLND_ROWSET *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+													 unsigned int type,
+													 const size_t prefetch_rows,
+													 XMYSQLND_NODE_STMT * stmt,
+													 const zend_bool persistent,
+													 MYSQLND_STATS * stats,
+													 MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_ROWSET) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_ROWSET * object = mnd_pecalloc(1, alloc_size, persistent);
+
+	DBG_ENTER("xmysqlnd_object_factory::get_rowset");
+	DBG_INF_FMT("persistent=%u", persistent);
+	if (object) {
+		object->m = *xmysqlnd_rowset_get_methods();
+
+		if (PASS != object->m.init(object, factory, type, prefetch_rows, stmt, stats, error_info)) {
 			object->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
@@ -426,6 +453,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_buffered),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_fwd),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc),

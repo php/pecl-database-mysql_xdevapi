@@ -22,6 +22,8 @@
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
+#include <xmysqlnd/xmysqlnd_warning_list.h>
+#include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"

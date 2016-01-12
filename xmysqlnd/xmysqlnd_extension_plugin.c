@@ -29,7 +29,9 @@
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_warning_list.h"
+#include "xmysqlnd_stmt_execution_state.h"
 #include "xmysqlnd_extension_plugin.h"
+#include "xmysqlnd_rowset.h"
 
 static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) *xmysqlnd_node_session_methods;
 static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) *xmysqlnd_node_session_data_methods;
@@ -133,6 +135,20 @@ xmysqlnd_plugin__get_node_query_result_meta_plugin_area(const XMYSQLND_NODE_STMT
 /* }}} */
 
 
+/* {{{ xmysqlnd_plugin__get_rowset_plugin_area */
+static void **
+xmysqlnd_plugin__get_rowset_plugin_area(const XMYSQLND_ROWSET * object, const unsigned int plugin_id)
+{
+	DBG_ENTER("xmysqlnd_plugin__get_rowset_plugin_area");
+	DBG_INF_FMT("plugin_id=%u", plugin_id);
+	if (!object || plugin_id >= mysqlnd_plugin_count()) {
+		return NULL;
+	}
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_ROWSET) + plugin_id * sizeof(void *)));
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_plugin__get_plugin_pfc_data */
 static void **
 xmysqlnd_plugin__get_plugin_pfc_data(const XMYSQLND_PFC * object, unsigned int plugin_id)
@@ -155,6 +171,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 	xmysqlnd_plugin__get_node_stmt_result_buffered_plugin_area,
 	xmysqlnd_plugin__get_node_stmt_result_fwd_plugin_area,
 	xmysqlnd_plugin__get_node_query_result_meta_plugin_area,
+	xmysqlnd_plugin__get_rowset_plugin_area,
 	xmysqlnd_plugin__get_plugin_pfc_data,
 };
 
@@ -313,6 +330,23 @@ _xmysqlnd_result_field_meta_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_resu
 /* }}} */
 
 
+/* {{{ _xmysqlnd_rowset_get_methods */
+static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *
+_xmysqlnd_rowset_get_methods()
+{
+	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset);
+}
+/* }}} */
+
+/* {{{ _xmysqlnd_rowset_set_methods */
+static void
+_xmysqlnd_rowset_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *methods)
+{
+	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset) = *methods;
+}
+/* }}} */
+
+
 /* {{{ _xmysqlnd_pfc_get_methods */
 static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) *
 _xmysqlnd_pfc_get_methods()
@@ -404,6 +438,10 @@ struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
 	{
 		_xmysqlnd_result_field_meta_get_methods,
 		_xmysqlnd_result_field_meta_set_methods,
+	},
+	{
+		_xmysqlnd_rowset_get_methods,
+		_xmysqlnd_rowset_set_methods,
 	},
 	{
 		_xmysqlnd_pfc_get_methods,

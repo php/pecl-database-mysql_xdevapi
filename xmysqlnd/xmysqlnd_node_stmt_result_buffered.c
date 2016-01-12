@@ -191,6 +191,8 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_buffered, add_row)(XMYSQLND_NODE_STMT_RESULT_BUFFERED * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result_buffered::add_row");
+	DBG_INF_FMT("row=%p", row);
+
 	if (!result->rows || result->rows_allocated == result->row_count) {
 		result->rows_allocated = ((result->rows_allocated + 2) * 5)/ 3;
 		result->rows = mnd_perealloc(result->rows, result->rows_allocated * sizeof(zval*), result->persistent);

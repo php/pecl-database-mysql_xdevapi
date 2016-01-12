@@ -135,10 +135,12 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 
 	RETVAL_FALSE;
 
-	const struct st_xmysqlnd_result_create_bind create_result = { NULL, NULL };
+	const struct st_xmysqlnd_rowset_create_bind create_rowset = { NULL, NULL };
 	const struct st_xmysqlnd_meta_create_bind create_meta =  { NULL, NULL };
 	const struct st_xmysqlnd_meta_field_create_bind create_meta_field =  { NULL, NULL };
-	enum_func_status ret = object->msg.init_read(&object->msg, create_result, create_meta, create_meta_field);
+	const struct st_xmysqlnd_execution_state_create_bind create_execution_state = { NULL, NULL };
+	const struct st_xmysqlnd_warning_list_create_bind create_warning_list = { NULL, NULL };
+	enum_func_status ret = object->msg.init_read(&object->msg, create_rowset, create_meta, create_meta_field, create_execution_state, create_warning_list);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

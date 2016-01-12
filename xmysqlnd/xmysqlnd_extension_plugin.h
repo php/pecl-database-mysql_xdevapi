@@ -27,6 +27,7 @@ struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_node_stmt_result_buffered;
 struct st_xmysqlnd_node_stmt_result_fwd;
 struct st_xmysqlnd_node_stmt_result_meta;
+struct st_xmysqlnd_rowset;
 struct st_xmysqlnd_protocol_frame_codec;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
@@ -37,6 +38,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_buffered);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_fwd);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta);
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list);
 
@@ -49,6 +51,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters
 	void ** (*get_node_stmt_result_buffered_area)(const struct st_xmysqlnd_node_stmt_result_buffered * result, unsigned int plugin_id);
 	void ** (*get_node_stmt_result_fwd_area)(const struct st_xmysqlnd_node_stmt_result_fwd * result, unsigned int plugin_id);
 	void ** (*get_node_query_result_meta_area)(const struct st_xmysqlnd_node_stmt_result_meta * result, unsigned int plugin_id);
+	void ** (*get_rowset_area)(const struct st_xmysqlnd_rowset * result, unsigned int plugin_id);
 	void ** (*get_pfc_area)(const struct st_xmysqlnd_protocol_frame_codec * pfc, unsigned int plugin_id);
 };
 
@@ -61,6 +64,7 @@ extern struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_gette
 #define xmysqlnd_plugin_get_node_stmt_result_buffered_plugin_area(r, p_id)	xmysqlnd_plugin_area_getters.get_node_stmt_result_buffered_area((r), (p_id))
 #define xmysqlnd_plugin_get_node_stmt_result_fwd_plugin_area(r, p_id)		xmysqlnd_plugin_area_getters.get_node_stmt_result_fwd_area((r), (p_id))
 #define xmysqlnd_plugin_get_node_query_result_meta_plugin_area(m, p_id)		xmysqlnd_plugin_area_getters.get_node_query_result_meta_area((m), (p_id))
+#define xmysqlnd_plugin_get_rowset_plugin_area(r, p_id)						xmysqlnd_plugin_area_getters.get_rowset_area((r), (p_id))
 #define xmysqlnd_plugin_get_pfc_plugin_area(pfc, p_id)						xmysqlnd_plugin_area_getters.get_pfc_area((pfc), (p_id))
 
 
@@ -120,6 +124,12 @@ struct st_xmysqlnd_plugin_methods_xetters
 		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) *methods);
 	} result_field_meta;
 
+	struct st_xmnd_rowset_xetters
+	{
+		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) * (*get)();
+		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *methods);
+	} rowset;
+
 	struct st_xmnd_pfc_xetters
 	{
 		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * (*get)();
@@ -168,6 +178,9 @@ extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters
 
 #define xmysqlnd_result_field_meta_get_methods()		xmysqlnd_plugin_methods_xetters.result_field_meta.get()
 #define xmysqlnd_result_field_meta_set_methods(m)		xmysqlnd_plugin_methods_xetters.result_field_meta.set((m))
+
+#define xmysqlnd_rowset_get_methods()					xmysqlnd_plugin_methods_xetters.rowset.get()
+#define xmysqlnd_rowset_set_methods(m)					xmysqlnd_plugin_methods_xetters.rowset.set((m))
 
 #define xmysqlnd_pfc_get_methods()						xmysqlnd_plugin_methods_xetters.pfc.get()
 #define xmysqlnd_pfc_set_methods(m)						xmysqlnd_plugin_methods_xetters.pfc.set((m))
