@@ -195,7 +195,9 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 	enum_func_status (*send_request)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
 									 const MYSQLND_CSTRING namespace_,
 									 const MYSQLND_CSTRING stmt,
-									 const zend_bool compact_meta);
+									 const zend_bool compact_meta,
+									 const zval * const params,
+									 const unsigned int param_count);
 
 
 	enum_func_status (*init_read)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,

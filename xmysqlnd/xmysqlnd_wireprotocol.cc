@@ -947,6 +947,7 @@ static void
 xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
 {
 	DBG_ENTER("xmysqlnd_inspect_warning");
+	DBG_INF_FMT("current_result=%p", ctx->current_result);
 	if (ctx->current_result) {
 		const bool has_level = warning.has_level();
 		const bool has_code = warning.has_code();
@@ -997,6 +998,7 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 	const bool has_param = message.has_param();
 	const bool has_value = message.has_value();
 	DBG_ENTER("xmysqlnd_inspect_changed_state");
+	DBG_INF_FMT("current_result=%p", ctx->current_result);
 	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
 								   has_param? Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str() : "n/a");
 
@@ -1104,47 +1106,6 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 	DBG_ENTER("stmt_execute_on_NOTICE");
 	ctx->server_message_type = XMSG_NOTICE;
 	xmysqlnd_inspect_notice_frame(message, ctx);
-	/* In case of UPSERT we get
- | | | >xmysqlnd_dump_server_message
-| | | | | info : packet is NOTICE   payload_size=14
-| | | | | info : payload[14]=[08 03 10 02 1a 08 08 04 12 04 08 02 18 01 ]
-| | | | | >xmysqlnd_dump_notice_frame
-| | | | | | info : scope[SET] is LOCAL
-| | | | | | info : payload is SET
-| | | | | | info : type is SET
-| | | | | | >xmysqlnd_dump_changed_state
-| | | | | | | info : param[SET] is ROWS_AFFECTED
-| | | | | | | info : value is SET
-| | | | | | | >scalar2log
-| | | | | | | | info : subtype=V_UINT
-| | | | | | | | info : value=1
-| | | | | | | <scalar2log
-| | | | | | <xmysqlnd_dump_changed_state
-| | | | | <xmysqlnd_dump_notice_frame
-| | | | <xmysqlnd_dump_server_message
-
-and
-
-| | | | >xmysqlnd_dump_server_message
-| | | | | info : packet is NOTICE   payload_size=14
-| | | | | info : payload[14]=[08 03 10 02 1a 08 08 03 12 04 08 02 18 01 ]
-| | | | | >xmysqlnd_dump_notice_frame
-| | | | | | info : scope[SET] is LOCAL
-| | | | | | info : payload is SET
-| | | | | | info : type is SET
-| | | | | | >xmysqlnd_dump_changed_state
-| | | | | | | info : param[SET] is GENERATED_INSERT_ID
-| | | | | | | info : value is SET
-| | | | | | | >scalar2log
-| | | | | | | | info : subtype=V_UINT
-| | | | | | | | info : value=1
-| | | | | | | <scalar2log
-| | | | | | <xmysqlnd_dump_changed_state
-| | | | | <xmysqlnd_dump_notice_frame
-| | | | <xmysqlnd_dump_server_message
-
-		These have to update the result set's last_insert_id and affected_items_count.
-	*/
 	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
@@ -1158,12 +1119,19 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_COLUMN_META");
+	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
 	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_COLUMN_METADATA;
 	if (!ctx->current_meta && ctx->create_meta.create) {
 		ctx->current_meta = ctx->create_meta.create(ctx->create_meta.ctx);
 		ctx->current_result = NULL; /* so we don't use the previous result which could have been freed */
 		ctx->has_more_rows_in_set = TRUE;
+	}
+	if (!ctx->current_result && ctx->create_result.create) {
+		ctx->current_result = ctx->create_result.create(ctx->create_result.ctx);
+		if (ctx->current_result && ctx->current_meta) {
+			ctx->current_result->m.attach_meta(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
+		}
 	}
 
 	XMYSQLND_RESULT_FIELD_META * field = NULL;
@@ -1566,8 +1534,7 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_ROW");
 	DBG_INF_FMT("prefetch_counter="MYSQLND_LLU_SPEC, ctx->prefetch_counter);
-	DBG_INF_FMT("current_meta=%p", ctx->current_meta);
-	DBG_INF_FMT("current_result=%p", ctx->current_result);
+	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
 
 	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_RSET_ROW;
@@ -1575,12 +1542,6 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 		mysqlx_new_data_row(ctx->response_zval, message);
 		DBG_INF("HND_PASS");
 		DBG_RETURN(HND_PASS);
-	}
-	if (!ctx->current_result && ctx->create_result.create) {
-		ctx->current_result = ctx->create_result.create(ctx->create_result.ctx);
-		if (ctx->current_result && ctx->current_meta) {
-			ctx->current_result->m.attach_meta(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
-		}
 	}
 	if (ctx->current_result) {
 		zval * row = ctx->current_result->m.create_row(ctx->current_result, ctx->current_meta, ctx->stats, ctx->error_info);
@@ -1600,6 +1561,7 @@ stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone & message, vo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE");
+	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE;
 	ctx->current_meta = NULL;
 	ctx->has_more_results = FALSE;
@@ -1615,6 +1577,7 @@ stmt_execute_on_RSET_FETCH_SUSPENDED(void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_SUSPENDED");
+	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
 	ctx->server_message_type = XMGS_RSET_FETCH_SUSPENDED;
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
@@ -1644,6 +1607,7 @@ stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk & message, void
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
+	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
 	ctx->server_message_type = XMSG_STMT_EXECUTE_OK;
 	ctx->has_more_results = FALSE;
 	if (ctx->response_zval) {
@@ -1660,6 +1624,7 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
+	DBG_INF_FMT("current_meta=%p   current_result=%p", ctx->current_meta, ctx->current_result);
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
 }
@@ -1735,16 +1700,23 @@ extern "C" enum_func_status
 xmysqlnd_sql_stmt_execute__send_request(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
 										const MYSQLND_CSTRING namespace_,
 										const MYSQLND_CSTRING stmt,
-										const zend_bool compact_meta)
+										const zend_bool compact_meta,
+										const zval * const params,
+										const unsigned int param_count)
 {
 	enum_func_status ret;
 	size_t bytes_sent;
 	Mysqlx::Sql::StmtExecute message;
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__send_request");
-	{
-//		Mysqlx::Datatypes::Any * arg = message.add_args();
-//		arg->set_type((Mysqlx::Datatypes::Any_Type) XMYSQLND_TYPE_SIGNED_INT);
+#if 1
+	if (params) {
+		for (unsigned int i = 0; i < param_count; ++i) {
+			Mysqlx::Datatypes::Any * arg = message.add_args();
+			zval2any(&params[i], *arg);
+		}
 	}
+#endif
+
 	message.set_namespace_(namespace_.s, namespace_.l);
 	message.set_stmt(stmt.s, stmt.l);
 	message.set_compact_metadata(compact_meta? true:false);

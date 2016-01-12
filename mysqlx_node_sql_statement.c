@@ -30,11 +30,24 @@
 
 static zend_class_entry *mysqlx_node_sql_statement_class_entry;
 
+#define MAX_STMT_PARAMS 1000
+
+#define DONT_ALLOW_NULL 0
+#define NO_PASS_BY_REF 0
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__bind, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, param_no, IS_LONG, DONT_ALLOW_NULL)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, param)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__has_more_results, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
+
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__get_result, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -64,6 +77,42 @@ struct st_mysqlx_node_sql_statement
 static
 PHP_METHOD(mysqlx_node_sql_statement, __construct)
 {
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement::bind(object statement, int param_no, mixed value) */
+static
+PHP_METHOD(mysqlx_node_sql_statement, bind)
+{
+	struct st_mysqlx_node_sql_statement * object;
+	zval * object_zv;
+	zend_long param_no;
+	zval * param_zv;
+
+	DBG_ENTER("mysqlx_node_sql_statement::bind");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Olz",
+												&object_zv, mysqlx_node_sql_statement_class_entry,
+												&param_no, &param_zv))
+	{
+		DBG_VOID_RETURN;
+	}
+	if (param_no >= MAX_STMT_PARAMS) {
+		php_error_docref(NULL, E_WARNING, "param_no too big. Allowed are %", MAX_STMT_PARAMS);
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
+	RETVAL_TRUE;
+	if (TRUE == object->in_execution) {
+		php_error_docref(NULL, E_WARNING, "Statement in execution. Please fetch all data first.");
+	} else if (object->stmt) {
+		object->stmt->data->m.bind_one_param(object->stmt, param_no, param_zv);
+	}
+//	Z_TRY_ADDREF_P(object_zv);
+//	RETVAL_ZVAL(object_zv, 1 /*copy*/, 0 /*dtor*/);
+
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -187,14 +236,13 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS)
 			result = object->stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, NULL, NULL);
 		}
 
-		DBG_INF_FMT("has_more_results=%s", object->has_more_results? "TRUE":"FALSE");
+		DBG_INF_FMT("result=%p  has_more_results=%s", result, object->has_more_results? "TRUE":"FALSE");
 		if (result) {
 			mysqlx_new_sql_stmt_result(return_value, result);
 		}
 	}
 
 	DBG_VOID_RETURN;
-
 }
 /* }}} */
 
@@ -220,6 +268,7 @@ PHP_METHOD(mysqlx_node_sql_statement, getNextResult)
 /* {{{ mysqlx_node_sql_statement_methods[] */
 static const zend_function_entry mysqlx_node_sql_statement_methods[] = {
 	PHP_ME(mysqlx_node_sql_statement, __construct,		NULL,													ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_sql_statement, bind,				arginfo_mysqlx_node_sql_statement__bind,				ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement, execute,			arginfo_mysqlx_node_sql_statement__execute,				ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement, hasMoreResults,	arginfo_mysqlx_node_sql_statement__has_more_results,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement, getResult,		arginfo_mysqlx_node_sql_statement__get_result, 			ZEND_ACC_PUBLIC)

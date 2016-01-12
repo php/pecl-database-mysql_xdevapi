@@ -30,7 +30,7 @@ using namespace Mysqlx::Datatypes;
 
 /* {{{ zval2any */
 enum_func_status
-zval2any(const zval * zv, Mysqlx::Datatypes::Any & any)
+zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 {
 	DBG_ENTER("zval2any");
 	switch (Z_TYPE_P(zv)) {

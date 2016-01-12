@@ -44,6 +44,31 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt::bind_one_param */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, zval * param_zv)
+{
+	enum_func_status ret = FAIL;
+	DBG_ENTER("xmysqlnd_node_stmt::bind_one_param");
+	if (!stmt->data->params || param_no >= stmt->data->params_allocated) {
+		stmt->data->params = mnd_perealloc(stmt->data->params, (param_no + 1) * sizeof(zval), stmt->data->persistent);
+		if (!stmt->data->params) {
+			DBG_RETURN(FAIL);
+		}
+		/* Now we have a hole between the last allocated and the new param_no which is not zeroed. Zero it! */
+		memset(&stmt->data->params[stmt->data->params_allocated], 0, (param_no - stmt->data->params_allocated + 1) * sizeof(zval));
+
+		stmt->data->params_allocated = param_no + 1;
+	}
+	zval_ptr_dtor(&stmt->data->params[param_no]);
+
+	ZVAL_COPY_VALUE(&stmt->data->params[param_no], param_zv);
+	Z_TRY_ADDREF(stmt->data->params[param_no]);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_stmt::send_query */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
@@ -58,7 +83,12 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt,
 
 	stmt->data->partial_read_started = FALSE;
 	stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
-	ret = stmt->data->msg_stmt_exec.send_request(&stmt->data->msg_stmt_exec, namespace_par, mnd_str2c(stmt->data->query), FALSE);
+	ret = stmt->data->msg_stmt_exec.send_request(&stmt->data->msg_stmt_exec,
+												 namespace_par,
+												 mnd_str2c(stmt->data->query),
+												 FALSE,
+												 stmt->data->params,
+												 stmt->data->params_allocated);
 	DBG_INF_FMT("send_request returned %s", PASS == ret? "PASS":"FAIL");
 
 	DBG_RETURN(PASS);
@@ -150,7 +180,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 
 	stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, (size_t)~0, NULL);
 	*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
-	DBG_INF_FMT("has_more=%s", *has_more_results? "TRUE":"FALSE");
+	DBG_INF_FMT("result=%p  has_more=%s", stmt->data->msg_stmt_exec.current_result, *has_more_results? "TRUE":"FALSE");
 	DBG_RETURN(stmt->data->msg_stmt_exec.current_result);
 }
 /* }}} */
@@ -189,7 +219,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 		*has_more_rows_in_set = stmt->data->msg_stmt_exec.has_more_rows_in_set;
 		*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
 	}
-	DBG_INF_FMT("has_more=%s", *has_more_results? "TRUE":"FALSE");
+	DBG_INF_FMT("result=%p  has_more=%s", stmt->data->msg_stmt_exec.current_result, *has_more_results? "TRUE":"FALSE");
 	DBG_RETURN(stmt->data->msg_stmt_exec.current_result);
 }
 /* }}} */
@@ -263,10 +293,21 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference)(XMYSQLND_NODE_STMT * const s
 static void
 XMYSQLND_METHOD(xmysqlnd_node_stmt, free_contents)(XMYSQLND_NODE_STMT * const stmt)
 {
+	const zend_bool pers = stmt->data->persistent;
 	DBG_ENTER("xmysqlnd_node_stmt::free_contents");
 	if (stmt->data->query.s) {
-		mnd_pefree(stmt->data->query.s, stmt->data->persistent);
+		mnd_pefree(stmt->data->query.s, pers);
+		stmt->data->query.s = NULL;
 	}
+	if (stmt->data->params) {
+		unsigned int i = 0;
+		for (; i < stmt->data->params_allocated; ++i) {
+			zval_ptr_dtor(&stmt->data->params[i]);
+		}
+		mnd_pefree(stmt->data->params, pers);
+		stmt->data->params = NULL;
+	}
+	stmt->data->params_allocated = 0;
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -292,6 +333,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQL
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, init),
 
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query),
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, has_more_results),

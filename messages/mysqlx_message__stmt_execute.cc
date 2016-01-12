@@ -102,7 +102,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 
 	const MYSQLND_CSTRING namespace_par = {namespace_, namespace_len};
 	const MYSQLND_CSTRING stmt_par = {stmt, stmt_len};
-	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata);
+	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata, NULL, 0);
 	RETVAL_BOOL(ret == PASS);
 
 	DBG_VOID_RETURN;

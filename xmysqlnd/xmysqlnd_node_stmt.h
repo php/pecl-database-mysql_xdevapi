@@ -33,6 +33,7 @@ typedef struct st_xmysqlnd_node_stmt_data	XMYSQLND_NODE_STMT_DATA;
 
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt, struct st_xmysqlnd_node_session_data * const session, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt__bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, zval * param_zv);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef zend_bool			(*func_xmysqlnd_node_stmt__has_more_results)(const XMYSQLND_NODE_STMT * const stmt);
 typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__get_buffered_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -52,6 +53,7 @@ typedef void				(*func_xmysqlnd_node_stmt__dtor)(XMYSQLND_NODE_STMT * const stmt
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 {
 	func_xmysqlnd_node_stmt__init init;
+	func_xmysqlnd_node_stmt__bind_one_param bind_one_param;
 	func_xmysqlnd_node_stmt__send_query send_query;
 	func_xmysqlnd_node_stmt__has_more_results has_more_results;
 	func_xmysqlnd_node_stmt__get_buffered_result get_buffered_result;
@@ -75,6 +77,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 struct st_xmysqlnd_node_stmt_data
 {
 	struct st_xmysqlnd_node_session_data * session;
+	zval * params;
+	unsigned int params_allocated;
 	MYSQLND_STRING query;
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx msg_stmt_exec;
 
