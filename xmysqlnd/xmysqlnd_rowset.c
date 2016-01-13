@@ -34,12 +34,12 @@
 /* {{{ xmysqlnd_node_stmt_result::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, init)(XMYSQLND_ROWSET * const result,
-												 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
-												 enum xmysqlnd_rowset_type type,
-												 const size_t prefetch_rows,
-												 XMYSQLND_NODE_STMT * const stmt,
-												 MYSQLND_STATS * const stats,
-												 MYSQLND_ERROR_INFO * const error_info)
+									   MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+									   enum xmysqlnd_rowset_type type,
+									   const size_t prefetch_rows,
+									   XMYSQLND_NODE_STMT * const stmt,
+									   MYSQLND_STATS * const stats,
+									   MYSQLND_ERROR_INFO * const error_info)
 {
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_stmt_result::init");

@@ -1099,7 +1099,7 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_connect */
+/* {{{ xmysqlnd_node_session_module_init */
 PHPAPI void
 xmysqlnd_node_session_module_init()
 {
