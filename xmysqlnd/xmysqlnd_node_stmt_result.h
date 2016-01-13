@@ -22,8 +22,6 @@
 #include "xmysqlnd_driver.h"
 
 struct st_xmysqlnd_node_stmt;
-struct st_xmysqlnd_node_stmt_result_buffered;
-struct st_xmysqlnd_node_stmt_result_fwd;
 struct st_xmysqlnd_node_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_rowset;

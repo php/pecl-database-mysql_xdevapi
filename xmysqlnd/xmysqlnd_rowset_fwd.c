@@ -24,19 +24,19 @@
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
-#include "xmysqlnd_node_stmt_result_fwd.h"
+#include "xmysqlnd_rowset_fwd.h"
 
 
 /* {{{ xmysqlnd_node_stmt_result::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, init)(XMYSQLND_NODE_STMT_RESULT_FWD * const result,
-													 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
-													 const size_t prefetch_rows,
-													 XMYSQLND_NODE_STMT * const stmt,
-													 MYSQLND_STATS * const stats,
-													 MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, init)(XMYSQLND_ROWSET_FWD * const result,
+										   MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+										   const size_t prefetch_rows,
+										   XMYSQLND_NODE_STMT * const stmt,
+										   MYSQLND_STATS * const stats,
+										   MYSQLND_ERROR_INFO * const error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::init");
+	DBG_ENTER("xmysqlnd_rowset_fwd::init");
 	result->stmt = stmt->data->m.get_reference(stmt);
 	result->prefetch_rows = prefetch_rows;
 	DBG_RETURN(result->stmt? PASS:FAIL);
@@ -46,12 +46,12 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, init)(XMYSQLND_NODE_STMT_RESULT_F
 
 /* {{{ xmysqlnd_node_stmt_result::next */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, next)(XMYSQLND_NODE_STMT_RESULT_FWD * const result,
-													 MYSQLND_STATS * const stats,
-													 MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
+										   MYSQLND_STATS * const stats,
+										   MYSQLND_ERROR_INFO * const error_info)
 {
 	const zend_bool no_more_on_the_line = !result->stmt->data->msg_stmt_exec.has_more_rows_in_set;
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::next");
+	DBG_ENTER("xmysqlnd_rowset_fwd::next");
 	DBG_INF_FMT("row_cursor="MYSQLND_LLU_SPEC"  row_count="MYSQLND_LLU_SPEC, result->row_cursor, result->row_count);
 
 	if ((result->row_count - result->row_cursor) == 1 && !no_more_on_the_line) {
@@ -76,10 +76,10 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, next)(XMYSQLND_NODE_STMT_RESULT_F
 
 /* {{{ xmysqlnd_node_stmt_result::fetch_current */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_current)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_current)(XMYSQLND_ROWSET_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	enum_func_status ret = FAIL;
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::fetch_current");
+	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_current");
 	++result->total_fetched;
 	ret = result->m.fetch_one(result, result->row_cursor, row, stats, error_info);
 	DBG_INF_FMT("%s", PASS == ret? "PASS":"FAIL");
@@ -90,15 +90,15 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_current)(XMYSQLND_NODE_STMT
 
 /* {{{ xmysqlnd_node_stmt_result::fetch_one */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_one)(XMYSQLND_NODE_STMT_RESULT_FWD * const result,
-														  const size_t row_cursor,
-														  zval * row,
-														  MYSQLND_STATS * const stats,
-														  MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_one)(XMYSQLND_ROWSET_FWD * const result,
+												const size_t row_cursor,
+												zval * row,
+												MYSQLND_STATS * const stats,
+												MYSQLND_ERROR_INFO * const error_info)
 {
 	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
 	const size_t row_count = result->row_count;
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::fetch_one");
+	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_one");
 	DBG_INF_FMT("row_cursor="MYSQLND_LLU_SPEC"  row_count="MYSQLND_LLU_SPEC, result->row_cursor, result->row_count);
 	if (row_cursor >= row_count || !result->rows[row_cursor]) {
 		DBG_RETURN(FAIL);
@@ -128,10 +128,10 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_one)(XMYSQLND_NODE_STMT_RES
 
 /* {{{ xmysqlnd_node_stmt_result::fetch_all */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_all)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	size_t row_cursor = 0;
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::fetch_all");
+	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_all");
 
 	/* read the rest. If this was the first, then we will prefetch everythin, otherwise we will read whatever is left */
 	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, (size_t)~0, NULL)) {
@@ -161,9 +161,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_all)(XMYSQLND_NODE_STMT_RES
 
 /* {{{ xmysqlnd_node_stmt_result::rewind */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, rewind)(XMYSQLND_NODE_STMT_RESULT_FWD * const result)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, rewind)(XMYSQLND_ROWSET_FWD * const result)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::rewind");
+	DBG_ENTER("xmysqlnd_rowset_fwd::rewind");
 	if (result->total_fetched == 0 && result->row_cursor == 0) {
 		DBG_RETURN(PASS);
 	} else {
@@ -176,11 +176,11 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, rewind)(XMYSQLND_NODE_STMT_RESULT
 
 /* {{{ xmysqlnd_node_stmt_result::eof */
 static zend_bool
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, eof)(const XMYSQLND_NODE_STMT_RESULT_FWD * const result)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, eof)(const XMYSQLND_ROWSET_FWD * const result)
 {
 	const zend_bool no_more_prefetched = result->row_cursor >= result->row_count;
 	const zend_bool no_more_on_the_line = !result->stmt->data->msg_stmt_exec.has_more_rows_in_set;
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::eof");
+	DBG_ENTER("xmysqlnd_rowset_fwd::eof");
 	DBG_INF_FMT("no_more_prefetched=%s", no_more_prefetched? "TRUE":"FALSE");
 	DBG_INF_FMT("no_more_on_the_line=%s", no_more_on_the_line? "TRUE":"FALSE");
 	DBG_INF_FMT("eof=%s", no_more_on_the_line && no_more_prefetched ? "TRUE":"FALSE");
@@ -191,14 +191,14 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, eof)(const XMYSQLND_NODE_STMT_RES
 
 /* {{{ xmysqlnd_node_stmt_result::create_row */
 static zval *
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, create_row)(XMYSQLND_NODE_STMT_RESULT_FWD * const result,
-														   const XMYSQLND_NODE_STMT_RESULT_META * const meta,
-														   MYSQLND_STATS * const stats,
-														   MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, create_row)(XMYSQLND_ROWSET_FWD * const result,
+												 const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+												 MYSQLND_STATS * const stats,
+												 MYSQLND_ERROR_INFO * const error_info)
 {
 	const unsigned int column_count = meta->m->get_field_count(meta);
 	zval * row = mnd_pecalloc(column_count, sizeof(zval), result->persistent);
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::create_row");
+	DBG_ENTER("xmysqlnd_rowset_fwd::create_row");
 	DBG_INF_FMT("row=%p", row);
 	DBG_RETURN(row);
 }
@@ -207,12 +207,12 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, create_row)(XMYSQLND_NODE_STMT_RE
 
 /* {{{ xmysqlnd_node_stmt_result::destroy_row */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, destroy_row)(XMYSQLND_NODE_STMT_RESULT_FWD * const result,
-															zval * row,
-															MYSQLND_STATS * const stats,
-															MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, destroy_row)(XMYSQLND_ROWSET_FWD * const result,
+												  zval * row,
+												  MYSQLND_STATS * const stats,
+												  MYSQLND_ERROR_INFO * const error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::destroy_row");
+	DBG_ENTER("xmysqlnd_rowset_fwd::destroy_row");
 	DBG_INF_FMT("row=%p", row);
 	if (row) {
 		mnd_pefree(row, result->persistent);
@@ -224,9 +224,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, destroy_row)(XMYSQLND_NODE_STMT_R
 
 /* {{{ xmysqlnd_node_stmt_result::add_row */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, add_row)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, add_row)(XMYSQLND_ROWSET_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::add_row");
+	DBG_ENTER("xmysqlnd_rowset_fwd::add_row");
 	DBG_INF_FMT("row=%p", row);
 
 	if (!result->rows || result->rows_allocated == result->row_count) {
@@ -249,9 +249,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, add_row)(XMYSQLND_NODE_STMT_RESUL
 
 /* {{{ xmysqlnd_node_stmt_result::get_row_count */
 static size_t
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, get_row_count)(const XMYSQLND_NODE_STMT_RESULT_FWD * const result)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, get_row_count)(const XMYSQLND_ROWSET_FWD * const result)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::get_row_count");
+	DBG_ENTER("xmysqlnd_rowset_fwd::get_row_count");
 	DBG_INF_FMT("count=%u", (uint) result->row_count);
 	DBG_RETURN(result->row_count);
 }
@@ -260,9 +260,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, get_row_count)(const XMYSQLND_NOD
 
 /* {{{ xmysqlnd_node_stmt_result::attach_meta */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, attach_meta)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, attach_meta)(XMYSQLND_ROWSET_FWD * const result, XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::attach_meta");
+	DBG_ENTER("xmysqlnd_rowset_fwd::attach_meta");
 	if (meta) {
 		if (result->meta) {
 			xmysqlnd_node_stmt_result_meta_free(result->meta, stats, error_info);
@@ -276,9 +276,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, attach_meta)(XMYSQLND_NODE_STMT_R
 
 /* {{{ xmysqlnd_node_stmt_result::free_rows_contents */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_rows_contents)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows_contents)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::free_rows_contents");
+	DBG_ENTER("xmysqlnd_rowset_fwd::free_rows_contents");
 	DBG_INF_FMT("rows=%p  meta=%p", result->rows, result->meta);
 
 	if (result->rows && result->meta) {
@@ -305,9 +305,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_rows_contents)(XMYSQLND_NODE
 
 /* {{{ xmysqlnd_node_stmt_result::free_rows */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_rows)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::free_rows");
+	DBG_ENTER("xmysqlnd_rowset_fwd::free_rows");
 	DBG_INF_FMT("rows=%p  meta=%p", result->rows, result->meta);
 
 	if (result->rows) {
@@ -327,9 +327,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_rows)(XMYSQLND_NODE_STMT_RES
 
 /* {{{ xmysqlnd_node_stmt_result::free_contents */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_contents)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_contents)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::free_contents");
+	DBG_ENTER("xmysqlnd_rowset_fwd::free_contents");
 
 	result->m.free_rows(result, stats, error_info);
 
@@ -344,9 +344,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_contents)(XMYSQLND_NODE_STMT
 
 /* {{{ xmysqlnd_node_stmt_result::dtor */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, dtor)(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, dtor)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd::dtor");
+	DBG_ENTER("xmysqlnd_rowset_fwd::dtor");
 	if (result) {
 		result->m.free_contents(result, stats, error_info);
 		if (result->stmt) {
@@ -360,47 +360,47 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, dtor)(XMYSQLND_NODE_STMT_RESULT_F
 /* }}} */
 
 
-MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result_fwd)
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, init),
+MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset_fwd)
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, init),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, next),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_current),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_one),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, fetch_all),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, rewind),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, eof),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_current),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_one),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, rewind),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, eof),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, create_row),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, destroy_row),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, add_row),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, get_row_count),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_rows_contents),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_rows),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, create_row),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, destroy_row),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, add_row),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, get_row_count),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows_contents),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, attach_meta),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_fwd, dtor),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, attach_meta),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_contents),
+	XMYSQLND_METHOD(xmysqlnd_rowset_fwd, dtor),
 MYSQLND_CLASS_METHODS_END;
 
 
-/* {{{ xmysqlnd_node_stmt_result_fwd_init */
-PHPAPI XMYSQLND_NODE_STMT_RESULT_FWD *
-xmysqlnd_node_stmt_result_fwd_init(const size_t prefetch_rows, XMYSQLND_NODE_STMT * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_rowset_fwd_init */
+PHPAPI XMYSQLND_ROWSET_FWD *
+xmysqlnd_rowset_fwd_init(const size_t prefetch_rows, XMYSQLND_NODE_STMT * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
-	XMYSQLND_NODE_STMT_RESULT_FWD * result = NULL;
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd_init");
-	result = factory->get_node_stmt_result_fwd(factory, prefetch_rows, stmt, persistent, stats, error_info);
+	XMYSQLND_ROWSET_FWD * result = NULL;
+	DBG_ENTER("xmysqlnd_rowset_fwd_init");
+	result = factory->get_rowset_fwd(factory, prefetch_rows, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt_result_fwd_free */
+/* {{{ xmysqlnd_rowset_fwd_free */
 PHPAPI void
-xmysqlnd_node_stmt_result_fwd_free(XMYSQLND_NODE_STMT_RESULT_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_rowset_fwd_free(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_fwd_free");
+	DBG_ENTER("xmysqlnd_rowset_fwd_free");
 	DBG_INF_FMT("result=%p", result);
 	if (result) {
 		result->m.dtor(result, stats, error_info);

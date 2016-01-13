@@ -111,7 +111,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, create_rowset_fwd)(void * context)
 	struct st_xmysqlnd_node_stmt_bind_ctx * ctx = (struct st_xmysqlnd_node_stmt_bind_ctx *) context;
 	XMYSQLND_ROWSET * result;
 	DBG_ENTER("xmysqlnd_node_stmt::create_rowset_fwd");
-	result = xmysqlnd_rowset_init(XMYSQLND_ROWSET_FWD_ONLY, ctx->fwd_prefetch_count, ctx->stmt, ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
+	result = xmysqlnd_rowset_init(XMYSQLND_TYPE_ROWSET_FWD_ONLY, ctx->fwd_prefetch_count, ctx->stmt, ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
 	DBG_RETURN(result);
 }
 /* }}} */
@@ -124,7 +124,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, create_rowset_buffered)(void * context)
 	struct st_xmysqlnd_node_stmt_bind_ctx * ctx = (struct st_xmysqlnd_node_stmt_bind_ctx *) context;
 	XMYSQLND_ROWSET * result;
 	DBG_ENTER("xmysqlnd_node_stmt::create_rowset_buffered");
-	result = xmysqlnd_rowset_init(XMYSQLND_ROWSET_BUFFERED, (size_t)~0, ctx->stmt, ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
+	result = xmysqlnd_rowset_init(XMYSQLND_TYPE_ROWSET_BUFFERED, (size_t)~0, ctx->stmt, ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
 	DBG_RETURN(result);
 }
 /* }}} */

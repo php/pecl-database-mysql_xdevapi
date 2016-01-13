@@ -22,14 +22,14 @@
 #include "xmysqlnd_driver.h"
 
 struct st_xmysqlnd_node_stmt;
-struct st_xmysqlnd_node_sql_stmt_buffered;
-struct st_xmysqlnd_node_sql_stmt_fwd;
+struct st_xmysqlnd_rowset_buffered;
+struct st_xmysqlnd_rowset_fwd;
 struct st_xmysqlnd_node_stmt_result_meta;
 
 enum xmysqlnd_rowset_type
 {
-	XMYSQLND_ROWSET_BUFFERED = 1,
-	XMYSQLND_ROWSET_FWD_ONLY = 2,
+	XMYSQLND_TYPE_ROWSET_BUFFERED = 1,
+	XMYSQLND_TYPE_ROWSET_FWD_ONLY = 2,
 };
 
 #ifdef __cplusplus
@@ -85,8 +85,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset)
 
 struct st_xmysqlnd_rowset
 {
-	struct st_xmysqlnd_node_stmt_result_buffered * buffered;
-	struct st_xmysqlnd_node_stmt_result_fwd * fwd;
+	struct st_xmysqlnd_rowset_buffered * buffered;
+	struct st_xmysqlnd_rowset_fwd * fwd;
 	enum xmysqlnd_rowset_type type;
 
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) m;

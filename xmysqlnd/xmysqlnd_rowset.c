@@ -23,8 +23,8 @@
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
-#include "xmysqlnd_node_stmt_result_buffered.h"
-#include "xmysqlnd_node_stmt_result_fwd.h"
+#include "xmysqlnd_rowset_buffered.h"
+#include "xmysqlnd_rowset_fwd.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
@@ -44,14 +44,14 @@ XMYSQLND_METHOD(xmysqlnd_rowset, init)(XMYSQLND_ROWSET * const result,
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_stmt_result::init");
 	switch (type) {
-		case XMYSQLND_ROWSET_FWD_ONLY:
-			result->fwd = xmysqlnd_node_stmt_result_fwd_init(prefetch_rows, stmt, result->persistent, factory, stats, error_info);
+		case XMYSQLND_TYPE_ROWSET_FWD_ONLY:
+			result->fwd = xmysqlnd_rowset_fwd_init(prefetch_rows, stmt, result->persistent, factory, stats, error_info);
 			if (result->fwd) {
 				ret = PASS;
 			}
 			break;
-		case XMYSQLND_ROWSET_BUFFERED:
-			result->buffered = xmysqlnd_node_stmt_result_buffered_init(stmt, result->persistent, factory, stats, error_info);
+		case XMYSQLND_TYPE_ROWSET_BUFFERED:
+			result->buffered = xmysqlnd_rowset_buffered_init(stmt, result->persistent, factory, stats, error_info);
 			if (result->buffered) {
 				ret = PASS;
 			}
@@ -283,9 +283,9 @@ XMYSQLND_METHOD(xmysqlnd_rowset, free_contents)(XMYSQLND_ROWSET * const result, 
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result::free_contents");
 	if (result->fwd) {
-		xmysqlnd_node_stmt_result_fwd_free(result->fwd, stats, error_info);
+		xmysqlnd_rowset_fwd_free(result->fwd, stats, error_info);
 	} else if (result->buffered) {
-		xmysqlnd_node_stmt_result_buffered_free(result->buffered, stats, error_info);
+		xmysqlnd_rowset_buffered_free(result->buffered, stats, error_info);
 	}
 	DBG_VOID_RETURN;
 }

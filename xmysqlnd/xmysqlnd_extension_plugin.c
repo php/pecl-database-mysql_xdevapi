@@ -24,14 +24,14 @@
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
-#include "xmysqlnd_node_stmt_result_buffered.h"
-#include "xmysqlnd_node_stmt_result_fwd.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_protocol_frame_codec.h"
-#include "xmysqlnd_warning_list.h"
-#include "xmysqlnd_stmt_execution_state.h"
-#include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_rowset.h"
+#include "xmysqlnd_rowset_fwd.h"
+#include "xmysqlnd_rowset_buffered.h"
+#include "xmysqlnd_stmt_execution_state.h"
+#include "xmysqlnd_warning_list.h"
+#include "xmysqlnd_extension_plugin.h"
 
 static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) *xmysqlnd_node_session_methods;
 static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) *xmysqlnd_node_session_data_methods;
@@ -93,30 +93,30 @@ xmysqlnd_plugin__get_node_stmt_result_plugin_area(const XMYSQLND_NODE_STMT_RESUL
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_stmt_result_buffered_plugin_area */
+/* {{{ xmysqlnd_plugin__get_rowset_buffered_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_stmt_result_buffered_plugin_area(const XMYSQLND_NODE_STMT_RESULT_BUFFERED * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_rowset_buffered_plugin_area(const XMYSQLND_ROWSET_BUFFERED * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_stmt_result_buffered_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_rowset_buffered_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return NULL;
 	}
-	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_STMT_RESULT_BUFFERED) + plugin_id * sizeof(void *)));
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_ROWSET_BUFFERED) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_stmt_result_fwd_plugin_area */
+/* {{{ xmysqlnd_plugin__get_rowset_fwd_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_stmt_result_fwd_plugin_area(const XMYSQLND_NODE_STMT_RESULT_FWD * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_rowset_fwd_plugin_area(const XMYSQLND_ROWSET_FWD * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_stmt_result_fwd_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_rowset_fwd_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return NULL;
 	}
-	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_STMT_RESULT_FWD) + plugin_id * sizeof(void *)));
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_ROWSET_FWD) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
@@ -168,8 +168,8 @@ struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 	xmysqlnd_plugin__get_node_session_data_plugin_area,
 	xmysqlnd_plugin__get_node_stmt_plugin_area,
 	xmysqlnd_plugin__get_node_stmt_result_plugin_area,
-	xmysqlnd_plugin__get_node_stmt_result_buffered_plugin_area,
-	xmysqlnd_plugin__get_node_stmt_result_fwd_plugin_area,
+	xmysqlnd_plugin__get_rowset_buffered_plugin_area,
+	xmysqlnd_plugin__get_rowset_fwd_plugin_area,
 	xmysqlnd_plugin__get_node_query_result_meta_plugin_area,
 	xmysqlnd_plugin__get_rowset_plugin_area,
 	xmysqlnd_plugin__get_plugin_pfc_data,
@@ -262,36 +262,36 @@ _xmysqlnd_node_stmt_result_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_
 /* }}} */
 
 
-/* {{{ _xmysqlnd_node_stmt_result_buffered_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_buffered) *
-_xmysqlnd_node_stmt_result_buffered_get_methods()
+/* {{{ _xmysqlnd_rowset_buffered_get_methods */
+static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) *
+_xmysqlnd_rowset_buffered_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result_buffered);
+	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset_buffered);
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_node_stmt_result_buffered_set_methods */
+/* {{{ _xmysqlnd_rowset_buffered_set_methods */
 static void
-_xmysqlnd_node_stmt_result_buffered_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_buffered) *methods)
+_xmysqlnd_rowset_buffered_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) *methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result_buffered) = *methods;
+	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset_buffered) = *methods;
 }
 /* }}} */
 
 
-/* {{{ _xmysqlnd_node_stmt_result_fwd_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_fwd) *
-_xmysqlnd_node_stmt_result_fwd_get_methods()
+/* {{{ _xmysqlnd_rowset_fwd_get_methods */
+static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) *
+_xmysqlnd_rowset_fwd_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result_fwd);
+	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset_fwd);
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_node_stmt_result_fwd_set_methods */
+/* {{{ _xmysqlnd_rowset_fwd_set_methods */
 static void
-_xmysqlnd_node_stmt_result_fwd_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_fwd) *methods)
+_xmysqlnd_rowset_fwd_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) *methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result_fwd) = *methods;
+	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset_fwd) = *methods;
 }
 /* }}} */
 
@@ -424,12 +424,12 @@ struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
 		_xmysqlnd_node_stmt_result_set_methods,
 	},
 	{
-		_xmysqlnd_node_stmt_result_buffered_get_methods,
-		_xmysqlnd_node_stmt_result_buffered_set_methods,
+		_xmysqlnd_rowset_buffered_get_methods,
+		_xmysqlnd_rowset_buffered_set_methods,
 	},
 	{
-		_xmysqlnd_node_stmt_result_fwd_get_methods,
-		_xmysqlnd_node_stmt_result_fwd_set_methods,
+		_xmysqlnd_rowset_fwd_get_methods,
+		_xmysqlnd_rowset_fwd_set_methods,
 	},
 	{
 		_xmysqlnd_node_stmt_result_meta_get_methods,
