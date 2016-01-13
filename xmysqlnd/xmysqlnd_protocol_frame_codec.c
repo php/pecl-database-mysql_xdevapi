@@ -38,7 +38,7 @@
 
 /* {{{ xmysqlnd_pfc::reset */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_pfc, reset)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const conn_stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_pfc, reset)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_pfc::reset");
 	DBG_RETURN(PASS);
@@ -184,7 +184,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, free_contents)(XMYSQLND_PFC * pfc)
 
 /* {{{ xmysqlnd_pfc::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const pfc, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	return PASS;
 }
@@ -223,7 +223,7 @@ MYSQLND_CLASS_METHODS_END;
 
 /* {{{ xmysqlnd_pfc_init */
 PHPAPI XMYSQLND_PFC *
-xmysqlnd_pfc_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_pfc_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_PFC * pfc = NULL;

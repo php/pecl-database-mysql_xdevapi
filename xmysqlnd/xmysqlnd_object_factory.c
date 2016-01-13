@@ -32,16 +32,18 @@
 #include "xmysqlnd_rowset_buffered.h"
 #include "xmysqlnd_stmt_execution_state.h"
 #include "xmysqlnd_warning_list.h"
+#include "xmysqlnd_object_factory.h"
 
 
 /* {{{ mysqlnd_object_factory::get_node_session */
 static XMYSQLND_NODE_SESSION *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, const zend_bool persistent)
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+														   const zend_bool persistent,
+														   MYSQLND_STATS * stats,
+														   MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_SESSION) + mysqlnd_plugin_count() * sizeof(void *);
-	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_SESSION_DATA) + mysqlnd_plugin_count() * sizeof(void *);
 	XMYSQLND_NODE_SESSION * object;
-	XMYSQLND_NODE_SESSION_DATA * data;
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -49,43 +51,76 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS
 	if (!object) {
 		DBG_RETURN(NULL);
 	}
-	object->data = mnd_pecalloc(1, data_alloc_size, persistent);
-	if (!object->data) {
-		mnd_pefree(object, persistent);
-		DBG_RETURN(NULL);
-	}
 	object->persistent = persistent;
 	object->m = xmysqlnd_node_session_get_methods();
-	data = object->data;
 
-	if (FAIL == mysqlnd_error_info_init(&data->error_info_impl, persistent)) {
+	if (FAIL == object->m->init(object, factory, stats, error_info)) {
+		object->m->dtor(object);
+		DBG_RETURN(NULL);	
+	}
+
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
+/* {{{ mysqlnd_object_factory::get_node_session_data */
+static XMYSQLND_NODE_SESSION_DATA *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+																const zend_bool persistent,
+																MYSQLND_STATS * stats,
+																MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_NODE_SESSION_DATA) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_NODE_SESSION_DATA * object;
+
+	DBG_ENTER("xmysqlnd_object_factory::get_node_session_data");
+	DBG_INF_FMT("persistent=%u", persistent);
+	object = mnd_pecalloc(1, alloc_size, persistent);
+	if (!object) {
+		DBG_RETURN(NULL);
+	}
+	object->m = xmysqlnd_node_session_data_get_methods();
+
+	if (FAIL == mysqlnd_error_info_init(&object->error_info_impl, persistent)) {
 		object->m->dtor(object);
 		DBG_RETURN(NULL);
 	}
-	data->error_info = &data->error_info_impl;
+	object->error_info = error_info? error_info : &object->error_info_impl;
+//	object->error_info = &object->error_info_impl;
 
-	data->options = &(data->options_impl);
+	object->options = &(object->options_impl);
 
-	data->persistent = persistent;
-	data->m = xmysqlnd_node_session_data_get_methods();
-	data->object_factory = *factory;
+	object->persistent = persistent;
+	object->m = xmysqlnd_node_session_data_get_methods();
+	object->object_factory = *factory;
 
-	xmysqlnd_node_session_state_init(&data->state);
+	xmysqlnd_node_session_state_init(&object->state);
 
-	data->m->get_reference(data);
+	object->m->get_reference(object);
 
-	mysqlnd_stats_init(&data->stats, STAT_LAST, persistent);
+	if (stats) {
+		object->stats = stats;
+		object->own_stats = FALSE;
+	} else {
+		mysqlnd_stats_init(&object->stats, STAT_LAST, persistent);
+		object->own_stats = TRUE;
+	}
 
-	data->io.pfc = xmysqlnd_pfc_init(persistent, factory, data->stats, data->error_info);
-	data->io.vio = mysqlnd_vio_init(persistent, NULL, data->stats, data->error_info);
+	object->io.pfc = xmysqlnd_pfc_init(persistent, factory, object->stats, object->error_info);
+	object->io.vio = mysqlnd_vio_init(persistent, NULL, object->stats, object->error_info);
 
-	data->charset = mysqlnd_find_charset_name(XMYSQLND_NODE_SESSION_CHARSET);
+	object->charset = mysqlnd_find_charset_name(XMYSQLND_NODE_SESSION_CHARSET);
 
-	if (!data->io.pfc || !data->io.vio || !data->charset) {
+	if (!object->io.pfc || !object->io.vio || !object->charset) {
 		object->m->dtor(object);
 		DBG_RETURN(NULL);
 	}
 
+	if (FAIL == object->m->init(object, factory, object->stats, object->error_info)) {
+		object->m->dtor(object);
+		DBG_RETURN(NULL);
+	}
 	DBG_RETURN(object);
 }
 /* }}} */
@@ -308,7 +343,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(MYSQLND_CLASS_METHODS_TYPE(xmy
 		object->persistent = object->data->persistent = persistent;
 		object->data->m = *xmysqlnd_pfc_get_methods();
 
-		if (PASS != object->data->m.init(object, stats, error_info)) {
+		if (PASS != object->data->m.init(object, factory, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
@@ -382,6 +417,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state)(MYSQLND_CLASS
 
 MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered),
