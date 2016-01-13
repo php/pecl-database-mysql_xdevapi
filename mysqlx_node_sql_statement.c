@@ -42,6 +42,7 @@ ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__execute, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, flags, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
@@ -347,6 +348,9 @@ mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * 
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_sql_statement_properties, mysqlx_node_sql_statement_property_entries);
+
+	zend_declare_class_constant_long(mysqlx_node_sql_statement_class_entry, "EXECUTE_ASYNC", sizeof("EXECUTE_ASYNC") - 1, MYSQLX_EXECUTE_FLAG_ASYNC);
+	zend_declare_class_constant_long(mysqlx_node_sql_statement_class_entry, "BUFFERED", sizeof("BUFFERED") - 1, MYSQLX_EXECUTE_FLAG_BUFFERED);
 }
 /* }}} */
 
