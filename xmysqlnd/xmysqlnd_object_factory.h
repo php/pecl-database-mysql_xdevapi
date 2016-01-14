@@ -62,7 +62,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 	func_xmysqlnd_object_factory__get_stmt_execution_state get_stmt_execution_state;
 };
 
-PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_object_factory);
+MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_object_factory);
 
 #endif	/* XMYSQLND_OBJECT_FACTORY_H */
 

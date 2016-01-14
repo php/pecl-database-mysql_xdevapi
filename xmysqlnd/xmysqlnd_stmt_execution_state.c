@@ -168,7 +168,7 @@ MYSQLND_CLASS_METHODS_END;
 PHPAPI XMYSQLND_STMT_EXECUTION_STATE *
 xmysqlnd_stmt_execution_state_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_STMT_EXECUTION_STATE * result = NULL;
 	DBG_ENTER("xmysqlnd_stmt_execution_state_init");
 	result = factory->get_stmt_execution_state(factory, persistent, stats, error_info);	

@@ -1072,7 +1072,7 @@ MYSQLND_CLASS_METHODS_END;
 PHPAPI XMYSQLND_NODE_SESSION *
 xmysqlnd_node_session_init(const size_t client_flags, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_SESSION * session;
 
 	DBG_ENTER("xmysqlnd_node_session_init");

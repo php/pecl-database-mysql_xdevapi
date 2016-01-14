@@ -336,7 +336,7 @@ MYSQLND_CLASS_METHODS_END;
 PHPAPI XMYSQLND_ROWSET *
 xmysqlnd_rowset_init(const enum xmysqlnd_rowset_type type, const size_t prefetch_rows, XMYSQLND_NODE_STMT * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_ROWSET * result = NULL;
 	DBG_ENTER("xmysqlnd_rowset_init");
 	result = factory->get_rowset(factory, type, prefetch_rows, stmt, persistent, stats, error_info);

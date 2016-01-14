@@ -138,7 +138,7 @@ MYSQLND_CLASS_METHODS_END;
 PHPAPI XMYSQLND_WARNING_LIST *
 xmysqlnd_warning_list_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_WARNING_LIST * result = NULL;
 	DBG_ENTER("xmysqlnd_warning_list_init");
 	result = factory->get_warning_list(factory, persistent, stats, error_info);	

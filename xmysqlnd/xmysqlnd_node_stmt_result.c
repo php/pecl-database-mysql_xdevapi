@@ -370,7 +370,7 @@ MYSQLND_CLASS_METHODS_END;
 PHPAPI XMYSQLND_NODE_STMT_RESULT *
 xmysqlnd_node_stmt_result_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_STMT_RESULT * result = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt_result_init");
 	result = factory->get_node_stmt_result(factory, persistent, stats, error_info);

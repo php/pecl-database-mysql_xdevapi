@@ -181,7 +181,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *
 _xmysqlnd_object_factory_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 }
 /* }}} */
 
@@ -189,7 +189,7 @@ _xmysqlnd_object_factory_get_methods()
 static void
 _xmysqlnd_object_factory_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_object_factory) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory) = methods;
 }
 /* }}} */
 

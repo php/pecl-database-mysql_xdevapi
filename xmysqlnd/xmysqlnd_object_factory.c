@@ -430,6 +430,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state),
 MYSQLND_CLASS_METHODS_END;
 
+MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_object_factory);
+
 /*
  * Local variables:
  * tab-width: 4
