@@ -209,7 +209,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * co
 
 MYSQLND_CLASS_METHODS_START(xmysqlnd_protocol_packet_frame_codec)
 	XMYSQLND_METHOD(xmysqlnd_pfc, init),
-	XMYSQLND_METHOD(xmysqlnd_pfc, dtor),
 	XMYSQLND_METHOD(xmysqlnd_pfc, reset),
 
 	XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option),
@@ -218,6 +217,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_protocol_packet_frame_codec)
 	XMYSQLND_METHOD(xmysqlnd_pfc, receive),
 
 	XMYSQLND_METHOD(xmysqlnd_pfc, free_contents),
+	XMYSQLND_METHOD(xmysqlnd_pfc, dtor),
 MYSQLND_CLASS_METHODS_END;
 
 
