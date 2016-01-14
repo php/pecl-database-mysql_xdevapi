@@ -383,6 +383,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state)(const MYSQLND
 /* }}} */
 
 
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data),
@@ -398,7 +399,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state),
 MYSQLND_CLASS_METHODS_END;
 
-MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_object_factory);
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_object_factory);
 
 /*
  * Local variables:

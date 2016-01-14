@@ -89,6 +89,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 };
 
 
+
 struct st_xmysqlnd_node_stmt_result
 {
 	struct st_xmysqlnd_rowset * rowset;
@@ -101,7 +102,7 @@ struct st_xmysqlnd_node_stmt_result
 };
 
 
-PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_node_stmt_result);
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt_result);
 PHPAPI XMYSQLND_NODE_STMT_RESULT * xmysqlnd_node_stmt_result_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_node_stmt_result_free(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 

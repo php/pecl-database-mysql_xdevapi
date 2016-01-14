@@ -264,6 +264,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(XMYSQLND_RESULT_FIELD_META * c
 }
 /* }}} */
 
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_result_field_meta)
 	XMYSQLND_METHOD(xmysqlnd_result_field_meta, init),
 	XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_type),
@@ -282,6 +283,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_result_field_meta)
 	XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor),
 MYSQLND_CLASS_METHODS_END;
 
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_result_field_meta);
 
 /* {{{ xmysqlnd_result_field_meta_create */
 PHPAPI XMYSQLND_RESULT_FIELD_META *
@@ -347,8 +350,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, add_field)(XMYSQLND_NODE_STMT_RE
 static unsigned int
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, count)(const XMYSQLND_NODE_STMT_RESULT_META * const meta)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_result_meta::count");
-	DBG_RETURN(meta->field_count);
+	return (meta->field_count);
 }
 /* }}} */
 
@@ -357,7 +359,6 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, count)(const XMYSQLND_NODE_STMT_
 static const XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, get_field)(const XMYSQLND_NODE_STMT_RESULT_META * const meta, unsigned int field)
 {
-//	DBG_ENTER("xmysqlnd_node_stmt_result_meta::get_field");
 	return((meta->field_count > 0 && field < meta->field_count)? meta->fields[field] : NULL);
 }
 /* }}} */
@@ -395,6 +396,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, dtor)(XMYSQLND_NODE_STMT_RESULT_
 /* }}} */
 
 
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result_meta)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, init),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, add_field),
@@ -404,6 +406,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result_meta)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, dtor),
 MYSQLND_CLASS_METHODS_END;
 
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_stmt_result_meta);
 
 /* {{{ xmysqlnd_node_stmt_result_meta_create */
 PHPAPI XMYSQLND_NODE_STMT_RESULT_META *

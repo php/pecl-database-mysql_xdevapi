@@ -50,7 +50,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec)
 	func_xmysqlnd_pfc__dtor dtor;
 };
 
-
 struct st_xmysqlnd_protocol_frame_codec_data
 {
 	php_stream		*stream;
@@ -72,7 +71,7 @@ struct st_xmysqlnd_protocol_frame_codec
 };
 
 
-PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_protocol_packet_frame_codec);
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_protocol_packet_frame_codec);
 PHPAPI XMYSQLND_PFC * xmysqlnd_pfc_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_pfc_free(XMYSQLND_PFC * const net, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus

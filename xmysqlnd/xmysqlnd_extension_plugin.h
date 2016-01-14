@@ -72,94 +72,94 @@ struct st_xmysqlnd_plugin_methods_xetters
 {
 	struct st_xmnd_object_factory_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const methods);
 	} object_factory;
 
 	struct st_xmnd_node_session_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * const methods);
 	} node_session;
 
 	struct st_xmnd_node_session_data_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * const methods);
 	} node_session_data;
 
 	struct st_xmnd_node_stmt_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) * const methods);
 	} node_stmt;
 
 	struct st_xmnd_node_stmt_result_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) * const methods);
 	} node_stmt_result;
 
 	struct st_xmnd_rowset_buffered_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) * const methods);
 	} rowset_buffered;
 
 	struct st_xmnd_rowset_fwd_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) * const methods);
 	} rowset_fwd;
 
 	struct st_xmnd_node_query_result_meta_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) * const methods);
 	} node_stmt_result_meta;
 
 	struct st_xmnd_result_field_meta_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) * const methods);
 	} result_field_meta;
 
 	struct st_xmnd_rowset_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) * const methods);
 	} rowset;
 
 	struct st_xmnd_pfc_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * const methods);
 	} pfc;
 
 	struct st_xmnd_warning_list_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * const methods);
 	} warning_list;
 
 	struct st_xmnd_stmt_execution_state_xetters
 	{
-		MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * (*get)();
-		void (*set)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * const methods);
 	} stmt_exec_state;
 };
 
-extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters;
+PHPAPI extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters;
 
 
-#define xmysqlnd_object_factory_get_methods()	xmysqlnd_plugin_methods_xetters.object_factory.get()
-#define xmysqlnd_object_factory_set_methods(m)	xmysqlnd_plugin_methods_xetters.object_factory.set((m))
+#define xmysqlnd_object_factory_get_methods()			xmysqlnd_plugin_methods_xetters.object_factory.get()
+#define xmysqlnd_object_factory_set_methods(m)			xmysqlnd_plugin_methods_xetters.object_factory.set((m))
 
-#define xmysqlnd_node_session_get_methods()			xmysqlnd_plugin_methods_xetters.node_session.get()
-#define xmysqlnd_node_session_set_methods(m)		xmysqlnd_plugin_methods_xetters.node_session.set((m))
+#define xmysqlnd_node_session_get_methods()				xmysqlnd_plugin_methods_xetters.node_session.get()
+#define xmysqlnd_node_session_set_methods(m)			xmysqlnd_plugin_methods_xetters.node_session.set((m))
 
-#define xmysqlnd_node_session_data_get_methods()	xmysqlnd_plugin_methods_xetters.node_session_data.get()
-#define xmysqlnd_node_session_data_set_methods(m)	xmysqlnd_plugin_methods_xetters.node_session_data.set((m))
+#define xmysqlnd_node_session_data_get_methods()		xmysqlnd_plugin_methods_xetters.node_session_data.get()
+#define xmysqlnd_node_session_data_set_methods(m)		xmysqlnd_plugin_methods_xetters.node_session_data.set((m))
 
 #define xmysqlnd_node_stmt_get_methods()				xmysqlnd_plugin_methods_xetters.node_stmt.get()
 #define xmysqlnd_node_stmt_set_methods(m)				xmysqlnd_plugin_methods_xetters.node_stmt.set((m))

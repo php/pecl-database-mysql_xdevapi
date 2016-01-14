@@ -208,6 +208,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * co
 /* }}} */
 
 
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_protocol_packet_frame_codec)
 	XMYSQLND_METHOD(xmysqlnd_pfc, init),
 	XMYSQLND_METHOD(xmysqlnd_pfc, reset),
@@ -221,6 +222,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_protocol_packet_frame_codec)
 	XMYSQLND_METHOD(xmysqlnd_pfc, dtor),
 MYSQLND_CLASS_METHODS_END;
 
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_protocol_packet_frame_codec);
 
 /* {{{ xmysqlnd_pfc_create */
 PHPAPI XMYSQLND_PFC *

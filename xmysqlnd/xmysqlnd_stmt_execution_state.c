@@ -148,6 +148,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor)(XMYSQLND_STMT_EXECUTION_STA
 /* }}} */
 
 
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt_execution_state)
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, init),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_affected_items_count),
@@ -163,6 +164,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt_execution_state)
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor),
 MYSQLND_CLASS_METHODS_END;
 
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_stmt_execution_state);
 
 /* {{{ xmysqlnd_stmt_execution_state_create */
 PHPAPI XMYSQLND_STMT_EXECUTION_STATE *

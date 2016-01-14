@@ -444,7 +444,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQL
 }
 /* }}} */
 
-
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, init),
 
@@ -470,6 +470,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor),
 MYSQLND_CLASS_METHODS_END;
 
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_stmt);
 
 /* {{{ xmysqlnd_node_stmt_create */
 PHPAPI XMYSQLND_NODE_STMT *

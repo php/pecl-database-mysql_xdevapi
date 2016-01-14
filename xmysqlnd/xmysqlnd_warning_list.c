@@ -124,6 +124,7 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_
 /* }}} */
 
 
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_warning_list)
 	XMYSQLND_METHOD(xmysqlnd_warning_list, init),
 	XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning),
@@ -133,6 +134,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_warning_list)
 	XMYSQLND_METHOD(xmysqlnd_warning_list, dtor),
 MYSQLND_CLASS_METHODS_END;
 
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_warning_list);
 
 /* {{{ xmysqlnd_warning_list_create */
 PHPAPI XMYSQLND_WARNING_LIST *

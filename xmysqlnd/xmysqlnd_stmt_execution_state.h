@@ -58,7 +58,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state)
 	func_xmysqlnd_stmt_execution_state__dtor dtor;
 };
 
-
 struct st_xmysqlnd_stmt_execution_state
 {
 	size_t items_affected;
@@ -67,11 +66,11 @@ struct st_xmysqlnd_stmt_execution_state
 	uint64_t last_insert_id;
 	/*UUID  last_document_id; */
 
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) *m;
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * m;
 	zend_bool persistent;
 };
 
-PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_stmt_execution_state);
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_stmt_execution_state);
 PHPAPI XMYSQLND_STMT_EXECUTION_STATE * xmysqlnd_stmt_execution_state_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state);
 

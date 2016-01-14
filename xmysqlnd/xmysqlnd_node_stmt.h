@@ -80,7 +80,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__dtor dtor;
 };
 
-
 struct st_xmysqlnd_node_stmt_data
 {
 	struct st_xmysqlnd_node_session_data * session;
@@ -114,7 +113,7 @@ struct st_xmysqlnd_node_stmt
 };
 
 
-PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_node_stmt);
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt);
 PHPAPI XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING query, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus

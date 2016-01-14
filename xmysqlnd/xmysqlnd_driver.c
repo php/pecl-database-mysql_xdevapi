@@ -63,8 +63,6 @@ PHPAPI void xmysqlnd_library_init(void)
 	if (xmysqlnd_library_initted == FALSE) {
 		xmysqlnd_library_initted = TRUE;
 
-		xmysqlnd_node_session_module_init();
-
 		/* Should be calloc, as mnd_calloc will reference LOCK_access*/
 		mysqlnd_stats_init(&xmysqlnd_global_stats, XMYSQLND_STAT_LAST, 1);
 		{

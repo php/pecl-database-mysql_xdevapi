@@ -329,6 +329,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, dtor)(XMYSQLND_ROWSET_BUFFERED * const
 /* }}} */
 
 
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset_buffered)
 	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, init),
 
@@ -351,6 +352,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset_buffered)
 	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, dtor),
 MYSQLND_CLASS_METHODS_END;
 
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset_buffered);
 
 /* {{{ xmysqlnd_rowset_buffered_create */
 PHPAPI XMYSQLND_ROWSET_BUFFERED *

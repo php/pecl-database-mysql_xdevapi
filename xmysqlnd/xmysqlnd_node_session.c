@@ -864,7 +864,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, get_client_api_capabilities)(const XM
 /* }}} */
 
 
-
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 	MYSQLND_METHOD(xmysqlnd_node_session_data, init),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme),
@@ -906,9 +906,14 @@ MYSQLND_CLASS_METHODS_END;
 
 
 
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session_data);
+
 /* {{{ xmysqlnd_node_session::init */
 static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+MYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_handle,
+											const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+											MYSQLND_STATS * stats,
+											MYSQLND_ERROR_INFO * error_info)
 {
 	XMYSQLND_NODE_SESSION_DATA * session_data;
 	DBG_ENTER("xmysqlnd_node_session::init");
@@ -1070,6 +1075,7 @@ MYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_han
 /* }}} */
 
 
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	MYSQLND_METHOD(xmysqlnd_node_session, init),
 	MYSQLND_METHOD(xmysqlnd_node_session, connect),
@@ -1079,6 +1085,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	MYSQLND_METHOD(xmysqlnd_node_session, close),
 MYSQLND_CLASS_METHODS_END;
 
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session);
 
 /* {{{ xmysqlnd_node_session_create */
 PHPAPI XMYSQLND_NODE_SESSION *
@@ -1143,15 +1151,6 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 }
 /* }}} */
 
-
-/* {{{ xmysqlnd_node_session_module_init */
-PHPAPI void
-xmysqlnd_node_session_module_init()
-{
-	xmysqlnd_node_session_set_methods(&MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_session));
-	xmysqlnd_node_session_data_set_methods(&MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_session_data));
-}
-/* }}} */
 
 /*
  * Local variables:

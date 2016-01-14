@@ -77,7 +77,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd)
 	func_xmysqlnd_rowset_fwd__dtor dtor;
 };
 
-
 struct st_xmysqlnd_rowset_fwd
 {
 	struct st_xmysqlnd_node_stmt * stmt;
@@ -96,8 +95,8 @@ struct st_xmysqlnd_rowset_fwd
 	zend_bool		persistent;
 };
 
-PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_rowset_fwd);
 
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_rowset_fwd);
 PHPAPI XMYSQLND_ROWSET_FWD * xmysqlnd_rowset_fwd_create(const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_rowset_fwd_free(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 

@@ -224,7 +224,7 @@ struct st_xmysqlnd_node_session_data
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)  * object_factory;
 
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * m;
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * m;
 
 	/* persistent connection */
 	zend_bool		persistent;
@@ -249,16 +249,20 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 	func_xmysqlnd_node_session__close close;
 };
 
+
 struct st_xmysqlnd_node_session
 {
 	XMYSQLND_NODE_SESSION_DATA * data;
 	zend_bool persistent;
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * m;
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * m;
 };
 
 
 #define xmysqlnd_node_session_test(session, data)											(session)->m->test((session), (data))
 //#define xmysqlnd_node_session_connect(session, host, user, pass, db, s_or_p, port, caps)	(session)->m->connect((session), (host), (user), (pass), (db), (s_or_p), (port), (caps))
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session_data);
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session);
 
 PHPAPI XMYSQLND_NODE_SESSION * xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 

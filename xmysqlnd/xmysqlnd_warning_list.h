@@ -68,11 +68,12 @@ struct st_xmysqlnd_warning_list
 	struct st_xmysqlnd_warning * warnings;
 	unsigned int warnings_allocated;
 
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) *m;
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * m;
 	zend_bool persistent;
 };
 
-PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_warning_list);
+
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_warning_list);
 PHPAPI XMYSQLND_WARNING_LIST * xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const list);
 

@@ -306,7 +306,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, dtor)(XMYSQLND_ROWSET * const result, MYSQLND_S
 }
 /* }}} */
 
-
+static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset)
 	XMYSQLND_METHOD(xmysqlnd_rowset, init),
 
@@ -331,6 +331,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset)
 MYSQLND_CLASS_METHODS_END;
 
 
+PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset);
 
 /* {{{ xmysqlnd_rowset_create */
 PHPAPI XMYSQLND_ROWSET *

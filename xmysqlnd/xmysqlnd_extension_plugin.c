@@ -33,9 +33,6 @@
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_extension_plugin.h"
 
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) *xmysqlnd_node_session_methods;
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) *xmysqlnd_node_session_data_methods;
-
 
 /* {{{ xmysqlnd_plugin__get_node_session_plugin_area */
 static void **
@@ -178,7 +175,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 
 
 /* {{{ _xmysqlnd_object_factory_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *
 _xmysqlnd_object_factory_get_methods()
 {
 	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
@@ -187,7 +184,7 @@ _xmysqlnd_object_factory_get_methods()
 
 /* {{{ _xmysqlnd_object_factory_set_methods */
 static void
-_xmysqlnd_object_factory_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *methods)
+_xmysqlnd_object_factory_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const methods)
 {
 	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory) = methods;
 }
@@ -195,213 +192,213 @@ _xmysqlnd_object_factory_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_
 
 
 /* {{{ _xmysqlnd_node_session_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) *
 _xmysqlnd_node_session_get_methods()
 {
-	return xmysqlnd_node_session_methods;
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_session);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_node_session_set_methods */
 static void
-_xmysqlnd_node_session_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) *methods)
+_xmysqlnd_node_session_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * const methods)
 {
-	xmysqlnd_node_session_methods = methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_session) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_node_session_data_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) *
 _xmysqlnd_node_session_data_get_methods()
 {
-	return xmysqlnd_node_session_data_methods;
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_session_data);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_node_session_data_set_methods */
 static void
-_xmysqlnd_node_session_data_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * methods)
+_xmysqlnd_node_session_data_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * const methods)
 {
-	xmysqlnd_node_session_data_methods = methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_session_data) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_node_stmt_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) *
 _xmysqlnd_node_stmt_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_stmt);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_node_stmt_set_methods */
 static void
-_xmysqlnd_node_stmt_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) *methods)
+_xmysqlnd_node_stmt_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_stmt) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_node_stmt_result_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) *
 _xmysqlnd_node_stmt_result_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_stmt_result);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_node_stmt_result_set_methods */
 static void
-_xmysqlnd_node_stmt_result_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) *methods)
+_xmysqlnd_node_stmt_result_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_stmt_result) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_rowset_buffered_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) *
 _xmysqlnd_rowset_buffered_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset_buffered);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_rowset_buffered);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_rowset_buffered_set_methods */
 static void
-_xmysqlnd_rowset_buffered_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) *methods)
+_xmysqlnd_rowset_buffered_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset_buffered) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_rowset_buffered) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_rowset_fwd_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) *
 _xmysqlnd_rowset_fwd_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset_fwd);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_rowset_fwd);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_rowset_fwd_set_methods */
 static void
-_xmysqlnd_rowset_fwd_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) *methods)
+_xmysqlnd_rowset_fwd_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset_fwd) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_rowset_fwd) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_node_stmt_result_meta_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) *
 _xmysqlnd_node_stmt_result_meta_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result_meta);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_stmt_result_meta);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_node_stmt_result_meta_set_methods */
 static void
-_xmysqlnd_node_stmt_result_meta_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) *methods)
+_xmysqlnd_node_stmt_result_meta_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_stmt_result_meta) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_stmt_result_meta) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_result_field_meta_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) *
 _xmysqlnd_result_field_meta_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_result_field_meta);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_result_field_meta);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_result_field_meta_set_methods */
 static void
-_xmysqlnd_result_field_meta_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) *methods)
+_xmysqlnd_result_field_meta_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_result_field_meta) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_result_field_meta) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_rowset_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *
 _xmysqlnd_rowset_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_rowset);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_rowset_set_methods */
 static void
-_xmysqlnd_rowset_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *methods)
+_xmysqlnd_rowset_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_rowset) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_rowset) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_pfc_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) *
 _xmysqlnd_pfc_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_protocol_packet_frame_codec);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_protocol_packet_frame_codec);
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_pfc_set_methods */
 static void
-_xmysqlnd_pfc_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * methods)
+_xmysqlnd_pfc_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_protocol_packet_frame_codec) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_protocol_packet_frame_codec) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_warning_list_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) *
 _xmysqlnd_warning_list_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_warning_list);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_warning_list);
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_warning_list_set_methods */
 static void
-_xmysqlnd_warning_list_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * methods)
+_xmysqlnd_warning_list_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_warning_list) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_warning_list) = methods;
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_stmt_execution_state_get_methods */
-static MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) *
 _xmysqlnd_stmt_execution_state_get_methods()
 {
-	return &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_stmt_execution_state);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_stmt_execution_state);
 }
 /* }}} */
 
 
 /* {{{ _xmysqlnd_stmt_execution_state_set_methods */
 static void
-_xmysqlnd_stmt_execution_state_set_methods(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * methods)
+_xmysqlnd_stmt_execution_state_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * const methods)
 {
-	MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_stmt_execution_state) = *methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_stmt_execution_state) = methods;
 }
 /* }}} */
 
 
-struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
+PHPAPI struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
 {
 	{
 		_xmysqlnd_object_factory_get_methods,
