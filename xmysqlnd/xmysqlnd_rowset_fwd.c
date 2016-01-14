@@ -30,7 +30,7 @@
 /* {{{ xmysqlnd_node_stmt_result::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, init)(XMYSQLND_ROWSET_FWD * const result,
-										   MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+										   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 										   const size_t prefetch_rows,
 										   XMYSQLND_NODE_STMT * const stmt,
 										   MYSQLND_STATS * const stats,
@@ -383,14 +383,18 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset_fwd)
 MYSQLND_CLASS_METHODS_END;
 
 
-/* {{{ xmysqlnd_rowset_fwd_init */
+/* {{{ xmysqlnd_rowset_fwd_create */
 PHPAPI XMYSQLND_ROWSET_FWD *
-xmysqlnd_rowset_fwd_init(const size_t prefetch_rows, XMYSQLND_NODE_STMT * stmt, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
+						   XMYSQLND_NODE_STMT * stmt,
+						   const zend_bool persistent,
+						   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+						   MYSQLND_STATS * stats,
+						   MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_ROWSET_FWD * result = NULL;
-	DBG_ENTER("xmysqlnd_rowset_fwd_init");
-	result = factory->get_rowset_fwd(factory, prefetch_rows, stmt, persistent, stats, error_info);
+	DBG_ENTER("xmysqlnd_rowset_fwd_create");
+	result = object_factory->get_rowset_fwd(object_factory, prefetch_rows, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
 /* }}} */

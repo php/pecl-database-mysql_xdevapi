@@ -29,7 +29,7 @@ extern "C" {
 typedef struct st_xmysqlnd_protocol_frame_codec			XMYSQLND_PFC;
 typedef struct st_xmysqlnd_protocol_frame_codec_data	XMYSQLND_PFC_DATA;
 
-typedef enum_func_status	(*func_xmysqlnd_pfc__init)(XMYSQLND_PFC * const pfc, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_pfc__init)(XMYSQLND_PFC * const pfc, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_pfc__reset)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_pfc__set_client_option)(XMYSQLND_PFC * const pfc, enum_xmysqlnd_client_option option, const char * const value);
 typedef enum_func_status	(*func_xmysqlnd_pfc__send)(XMYSQLND_PFC * const pfc, MYSQLND_VIO * const vio, zend_uchar packet_type, const zend_uchar * const buffer, const size_t count, size_t * bytes_sent, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -73,7 +73,7 @@ struct st_xmysqlnd_protocol_frame_codec
 
 
 PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_protocol_packet_frame_codec);
-PHPAPI XMYSQLND_PFC * xmysqlnd_pfc_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI XMYSQLND_PFC * xmysqlnd_pfc_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_pfc_free(XMYSQLND_PFC * const net, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus
 } /* extern "C" */

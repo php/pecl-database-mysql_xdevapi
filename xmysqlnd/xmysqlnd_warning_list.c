@@ -27,7 +27,7 @@
 /* {{{ xmysqlnd_warning_list::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_warning_list, init)(XMYSQLND_WARNING_LIST * const warn_list,
-											 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+											 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 											 MYSQLND_STATS * const stats,
 											 MYSQLND_ERROR_INFO * const error_info)
 {
@@ -134,14 +134,13 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_warning_list)
 MYSQLND_CLASS_METHODS_END;
 
 
-/* {{{ xmysqlnd_warning_list_init */
+/* {{{ xmysqlnd_warning_list_create */
 PHPAPI XMYSQLND_WARNING_LIST *
-xmysqlnd_warning_list_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_WARNING_LIST * result = NULL;
-	DBG_ENTER("xmysqlnd_warning_list_init");
-	result = factory->get_warning_list(factory, persistent, stats, error_info);	
+	DBG_ENTER("xmysqlnd_warning_list_create");
+	result = object_factory->get_warning_list(object_factory, persistent, stats, error_info);	
 	DBG_RETURN(result);
 }
 /* }}} */

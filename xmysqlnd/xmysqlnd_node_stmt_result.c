@@ -33,7 +33,7 @@
 /* {{{ xmysqlnd_node_stmt_result::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, init)(XMYSQLND_NODE_STMT_RESULT * const result,
-												 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+												 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 												 MYSQLND_STATS * const stats,
 												 MYSQLND_ERROR_INFO * const error_info)
 {
@@ -366,14 +366,16 @@ MYSQLND_CLASS_METHODS_END;
 
 
 
-/* {{{ xmysqlnd_node_stmt_result_init */
+/* {{{ xmysqlnd_node_stmt_result_create */
 PHPAPI XMYSQLND_NODE_STMT_RESULT *
-xmysqlnd_node_stmt_result_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_node_stmt_result_create(const zend_bool persistent,
+								 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+								 MYSQLND_STATS * stats,
+								 MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_STMT_RESULT * result = NULL;
-	DBG_ENTER("xmysqlnd_node_stmt_result_init");
-	result = factory->get_node_stmt_result(factory, persistent, stats, error_info);
+	DBG_ENTER("xmysqlnd_node_stmt_result_create");
+	result = object_factory->get_node_stmt_result(object_factory, persistent, stats, error_info);
 	if (result) {
 		result = result->m.get_reference(result);
 	}

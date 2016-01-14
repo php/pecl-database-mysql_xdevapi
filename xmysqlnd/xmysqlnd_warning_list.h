@@ -44,7 +44,7 @@ typedef struct st_xmysqlnd_cwarning
 
 typedef struct st_xmysqlnd_warning_list XMYSQLND_WARNING_LIST;
 
-typedef enum_func_status		(*func_xmysqlnd_warning_list__init)(XMYSQLND_WARNING_LIST * const warn_list, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status		(*func_xmysqlnd_warning_list__init)(XMYSQLND_WARNING_LIST * const warn_list, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef unsigned int			(*func_xmysqlnd_warning_list__count)(const XMYSQLND_WARNING_LIST * const warn_list);
 typedef const XMYSQLND_WARNING	(*func_xmysqlnd_warning_list__get_warning)(const XMYSQLND_WARNING_LIST * const warn_list, unsigned int offset);
 typedef void					(*func_xmysqlnd_warning_list__add_warning)(XMYSQLND_WARNING_LIST * const warn_list, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
@@ -73,7 +73,7 @@ struct st_xmysqlnd_warning_list
 };
 
 PHPAPI extern MYSQLND_CLASS_METHOD_TABLE_NAME_FORWARD(xmysqlnd_warning_list);
-PHPAPI XMYSQLND_WARNING_LIST * xmysqlnd_warning_list_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI XMYSQLND_WARNING_LIST * xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHPAPI void xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const list);
 
 #ifdef __cplusplus

@@ -670,6 +670,7 @@ mysqlx_node_session_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_node_session_object_allocator(zend_class_entry * class_type)
 {
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
 	struct st_mysqlx_node_session * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_node_session));
 	MYSQLND_STATS * stats = NULL;
@@ -681,7 +682,7 @@ php_mysqlx_node_session_object_allocator(zend_class_entry * class_type)
 	}
 	mysqlx_object->ptr = object;
 
-	if (!(object->session = xmysqlnd_node_session_init(0, FALSE, NULL, stats, error_info))) {
+	if (!(object->session = xmysqlnd_node_session_create(0, FALSE, factory, stats, error_info))) {
 		mnd_efree(object);
 		mnd_efree(mysqlx_object);
 		DBG_RETURN(NULL);

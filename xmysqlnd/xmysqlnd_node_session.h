@@ -96,7 +96,7 @@ typedef struct st_xmysqlnd_level3_io
 typedef struct st_xmysqlnd_node_session XMYSQLND_NODE_SESSION;
 typedef struct st_xmysqlnd_node_session_data XMYSQLND_NODE_SESSION_DATA;
 
-typedef enum_func_status	(*func_xmysqlnd_node_session_data__init)(XMYSQLND_NODE_SESSION_DATA * session, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_session_data__init)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect_handshake)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__authenticate)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING hostname, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
@@ -222,7 +222,7 @@ struct st_xmysqlnd_node_session_data
 	MYSQLND_STATS	* stats;
 	zend_bool		own_stats;
 
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) object_factory;
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)  * object_factory;
 
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * m;
 
@@ -232,8 +232,7 @@ struct st_xmysqlnd_node_session_data
 
 
 
-typedef enum_func_status	(*func_xmysqlnd_node_session__test)(XMYSQLND_NODE_SESSION * session, const char * test_data);
-typedef enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_NODE_SESSION * session, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_session__connect)(XMYSQLND_NODE_SESSION * session, MYSQLND_CSTRING hostname, MYSQLND_CSTRING username, MYSQLND_CSTRING password, MYSQLND_CSTRING database, MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session__select_db)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING db);
 typedef enum_func_status	(*func_xmysqlnd_node_session__query)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING query);
@@ -243,7 +242,6 @@ typedef enum_func_status	(*func_xmysqlnd_node_session__close)(XMYSQLND_NODE_SESS
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 {
 	func_xmysqlnd_node_session__init init;
-	func_xmysqlnd_node_session__test test;
 	func_xmysqlnd_node_session__connect connect;
 	func_xmysqlnd_node_session__select_db select_db;
 	func_xmysqlnd_node_session__query query;
@@ -262,17 +260,17 @@ struct st_xmysqlnd_node_session
 #define xmysqlnd_node_session_test(session, data)											(session)->m->test((session), (data))
 //#define xmysqlnd_node_session_connect(session, host, user, pass, db, s_or_p, port, caps)	(session)->m->connect((session), (host), (user), (pass), (db), (s_or_p), (port), (caps))
 
-PHPAPI XMYSQLND_NODE_SESSION * xmysqlnd_node_session_init(const size_t client_flags, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI XMYSQLND_NODE_SESSION * xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 PHPAPI XMYSQLND_NODE_SESSION * xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
-											const MYSQLND_CSTRING hostname,
-											const MYSQLND_CSTRING username,
-											const MYSQLND_CSTRING password,
-											const MYSQLND_CSTRING database,
-											const MYSQLND_CSTRING socket_or_pipe,
-											unsigned int port,
-											size_t set_capabilities,
-											size_t client_api_flags);
+															 const MYSQLND_CSTRING hostname,
+															 const MYSQLND_CSTRING username,
+															 const MYSQLND_CSTRING password,
+															 const MYSQLND_CSTRING database,
+															 const MYSQLND_CSTRING socket_or_pipe,
+															 unsigned int port,
+															 size_t set_capabilities,
+															 size_t client_api_flags);
 
 #define xmysqlnd_node_session_close(session, host, user, pass, db, s_or_p, port, caps)	(session)->m->close((session), XMYSQLND_CLOSE_EXPLICIT)
 #define xmysqlnd_node_session_query(session, q)											(session)->m->query((session), (q))

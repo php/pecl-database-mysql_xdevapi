@@ -37,7 +37,7 @@
 
 /* {{{ mysqlnd_object_factory::get_node_session */
 static XMYSQLND_NODE_SESSION *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 														   const zend_bool persistent,
 														   MYSQLND_STATS * stats,
 														   MYSQLND_ERROR_INFO * error_info)
@@ -66,7 +66,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(MYSQLND_CLASS_METHODS
 
 /* {{{ mysqlnd_object_factory::get_node_session_data */
 static XMYSQLND_NODE_SESSION_DATA *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 																const zend_bool persistent,
 																MYSQLND_STATS * stats,
 																MYSQLND_ERROR_INFO * error_info)
@@ -80,44 +80,12 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(MYSQLND_CLASS_ME
 	if (!object) {
 		DBG_RETURN(NULL);
 	}
-	object->m = xmysqlnd_node_session_data_get_methods();
-
-	if (FAIL == mysqlnd_error_info_init(&object->error_info_impl, persistent)) {
-		object->m->dtor(object);
-		DBG_RETURN(NULL);
-	}
-	object->error_info = error_info? error_info : &object->error_info_impl;
-//	object->error_info = &object->error_info_impl;
-
-	object->options = &(object->options_impl);
-
 	object->persistent = persistent;
 	object->m = xmysqlnd_node_session_data_get_methods();
-	object->object_factory = *factory;
-
-	xmysqlnd_node_session_state_init(&object->state);
-
 	object->m->get_reference(object);
 
-	if (stats) {
-		object->stats = stats;
-		object->own_stats = FALSE;
-	} else {
-		mysqlnd_stats_init(&object->stats, STAT_LAST, persistent);
-		object->own_stats = TRUE;
-	}
 
-	object->io.pfc = xmysqlnd_pfc_init(persistent, factory, object->stats, object->error_info);
-	object->io.vio = mysqlnd_vio_init(persistent, NULL, object->stats, object->error_info);
-
-	object->charset = mysqlnd_find_charset_name(XMYSQLND_NODE_SESSION_CHARSET);
-
-	if (!object->io.pfc || !object->io.vio || !object->charset) {
-		object->m->dtor(object);
-		DBG_RETURN(NULL);
-	}
-
-	if (FAIL == object->m->init(object, factory, object->stats, object->error_info)) {
+	if (FAIL == object->m->init(object, factory, stats, error_info)) {
 		object->m->dtor(object);
 		DBG_RETURN(NULL);
 	}
@@ -128,7 +96,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(MYSQLND_CLASS_ME
 
 /* {{{ xmysqlnd_object_factory::get_node_stmt */
 static XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 														XMYSQLND_NODE_SESSION_DATA * session,
 														const MYSQLND_CSTRING query,
 														const zend_bool persistent,
@@ -168,7 +136,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(MYSQLND_CLASS_METHODS_TY
 
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result */
 static XMYSQLND_NODE_STMT_RESULT *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 															   const zend_bool persistent,
 															   MYSQLND_STATS * stats,
 															   MYSQLND_ERROR_INFO * error_info)
@@ -193,7 +161,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(MYSQLND_CLASS_MET
 
 /* {{{ xmysqlnd_object_factory::get_rowset_buffered */
 static XMYSQLND_ROWSET_BUFFERED *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 															  XMYSQLND_NODE_STMT * stmt,
 															  const zend_bool persistent,
 															  MYSQLND_STATS * stats,
@@ -219,7 +187,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered)(MYSQLND_CLASS_METH
 
 /* {{{ xmysqlnd_object_factory::get_rowset_fwd */
 static XMYSQLND_ROWSET_FWD *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_fwd)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_fwd)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 														 const size_t prefetch_rows,
 														 XMYSQLND_NODE_STMT * stmt,
 														 const zend_bool persistent,
@@ -246,7 +214,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_fwd)(MYSQLND_CLASS_METHODS_T
 
 /* {{{ xmysqlnd_object_factory::get_rowset */
 static XMYSQLND_ROWSET *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 													 unsigned int type,
 													 const size_t prefetch_rows,
 													 XMYSQLND_NODE_STMT * stmt,
@@ -274,7 +242,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(MYSQLND_CLASS_METHODS_TYPE(
 
 /* {{{ xmysqlnd_object_factory::get_node_stmt_result_meta */
 static XMYSQLND_NODE_STMT_RESULT_META *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 																	const zend_bool persistent,
 																	MYSQLND_STATS * stats,
 																	MYSQLND_ERROR_INFO * error_info)
@@ -300,7 +268,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(MYSQLND_CLAS
 
 /* {{{ xmysqlnd_object_factory::get_result_field_meta */
 static XMYSQLND_RESULT_FIELD_META *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 																const zend_bool persistent,
 																MYSQLND_STATS * stats,
 																MYSQLND_ERROR_INFO * error_info)
@@ -326,7 +294,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(MYSQLND_CLASS_ME
 
 /* {{{ xmysqlnd_object_factory::get_pfc */
 static XMYSQLND_PFC *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 												  const zend_bool persistent,
 												  MYSQLND_STATS * stats,
 												  MYSQLND_ERROR_INFO * error_info)
@@ -365,7 +333,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(MYSQLND_CLASS_METHODS_TYPE(xmy
 
 /* {{{ xmysqlnd_object_factory::get_warning_list */
 static XMYSQLND_WARNING_LIST *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 														   const zend_bool persistent,
 														   MYSQLND_STATS * stats,
 														   MYSQLND_ERROR_INFO * error_info)
@@ -391,7 +359,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list)(MYSQLND_CLASS_METHODS
 
 /* {{{ xmysqlnd_object_factory::get_stmt_execution_state */
 static XMYSQLND_STMT_EXECUTION_STATE *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state)(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 																   const zend_bool persistent,
 																   MYSQLND_STATS * stats,
 																   MYSQLND_ERROR_INFO * error_info)

@@ -283,14 +283,16 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_result_field_meta)
 MYSQLND_CLASS_METHODS_END;
 
 
-/* {{{ xmysqlnd_result_field_meta_init */
+/* {{{ xmysqlnd_result_field_meta_create */
 PHPAPI XMYSQLND_RESULT_FIELD_META *
-xmysqlnd_result_field_meta_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_result_field_meta_create(const zend_bool persistent,
+								  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+								  MYSQLND_STATS * stats,
+								  MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_RESULT_FIELD_META * object = NULL;
-	DBG_ENTER("xmysqlnd_result_field_meta_init");
-	object = factory->get_result_field_meta(factory, persistent, stats, error_info);
+	DBG_ENTER("xmysqlnd_result_field_meta_create");
+	object = object_factory->get_result_field_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);
 }
 /* }}} */
@@ -403,14 +405,16 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result_meta)
 MYSQLND_CLASS_METHODS_END;
 
 
-/* {{{ xmysqlnd_node_stmt_result_meta_init */
+/* {{{ xmysqlnd_node_stmt_result_meta_create */
 PHPAPI XMYSQLND_NODE_STMT_RESULT_META *
-xmysqlnd_node_stmt_result_meta_init(const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_node_stmt_result_meta_create(const zend_bool persistent,
+									  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+									  MYSQLND_STATS * stats,
+									  MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_STMT_RESULT_META * object = NULL;
-	DBG_ENTER("xmysqlnd_node_stmt_result_meta_init");
-	object = factory->get_node_stmt_result_meta(factory, persistent, stats, error_info);
+	DBG_ENTER("xmysqlnd_node_stmt_result_meta_create");
+	object = object_factory->get_node_stmt_result_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);
 }
 /* }}} */

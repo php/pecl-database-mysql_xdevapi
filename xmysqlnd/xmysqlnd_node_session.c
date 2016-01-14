@@ -73,11 +73,45 @@ xmysqlnd_node_session_state_init(XMYSQLND_NODE_SESSION_STATE * const state)
 
 /* {{{ xmysqlnd_node_session_data::init */
 static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session_data, init)(XMYSQLND_NODE_SESSION_DATA * session, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+MYSQLND_METHOD(xmysqlnd_node_session_data, init)(XMYSQLND_NODE_SESSION_DATA * object,
+												 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+												 MYSQLND_STATS * stats,
+												 MYSQLND_ERROR_INFO * error_info)
 {
-	enum_func_status ret = PASS;
 	DBG_ENTER("xmysqlnd_node_session_data::init");
-	DBG_RETURN(ret);
+
+	object->object_factory = factory;
+
+	if (error_info) {
+		object->error_info = error_info? error_info : &object->error_info_impl;
+	} else {
+		if (FAIL == mysqlnd_error_info_init(&object->error_info_impl, object->persistent)) {
+			DBG_RETURN(FAIL);
+		}
+		object->error_info = &object->error_info_impl;
+	}
+
+	object->options = &(object->options_impl);
+
+	xmysqlnd_node_session_state_init(&object->state);
+
+	if (stats) {
+		object->stats = stats;
+		object->own_stats = FALSE;
+	} else {
+		mysqlnd_stats_init(&object->stats, STAT_LAST, object->persistent);
+		object->own_stats = TRUE;
+	}
+
+	object->io.pfc = xmysqlnd_pfc_create(object->persistent, object->object_factory, object->stats, object->error_info);
+	object->io.vio = mysqlnd_vio_init(object->persistent, NULL, object->stats, object->error_info);
+
+	object->charset = mysqlnd_find_charset_name(XMYSQLND_NODE_SESSION_CHARSET);
+
+	if (!object->io.pfc || !object->io.vio || !object->charset) {
+		DBG_RETURN(FAIL);
+	}
+	DBG_RETURN(PASS);
 }
 /* }}} */
 
@@ -423,7 +457,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, create_statement)(XMYSQLND_NODE_SESSI
 
 	if (type == MYSQLND_SEND_QUERY_IMPLICIT || PASS == session->m->local_tx_start(session, this_func))
 	{
-		stmt = xmysqlnd_node_stmt_init(session, query, session->persistent, &session->object_factory, session->stats, session->error_info);
+		stmt = xmysqlnd_node_stmt_create(session, query, session->persistent, session->object_factory, session->stats, session->error_info);
 
 		if (type == MYSQLND_SEND_QUERY_EXPLICIT) {
 			session->m->local_tx_end(session, this_func, stmt ? PASS:FAIL);
@@ -872,30 +906,9 @@ MYSQLND_CLASS_METHODS_END;
 
 
 
-/* {{{ xmysqlnd_node_session::test */
-static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session, test)(XMYSQLND_NODE_SESSION * session_handle, const char * test_data)
-{
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), test);
-	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
-	enum_func_status ret = PASS;
-
-	DBG_ENTER("xmysqlnd_node_session::test");
-
-	if (PASS == session->m->local_tx_start(session, this_func)) {
-
-		printf("TEST %s!!!!\n", test_data);
-
-		session->m->local_tx_end(session, this_func, ret);
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_node_session::init */
 static enum_func_status
-MYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_handle, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+MYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	XMYSQLND_NODE_SESSION_DATA * session_data;
 	DBG_ENTER("xmysqlnd_node_session::init");
@@ -1059,7 +1072,6 @@ MYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_han
 
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	MYSQLND_METHOD(xmysqlnd_node_session, init),
-	MYSQLND_METHOD(xmysqlnd_node_session, test),
 	MYSQLND_METHOD(xmysqlnd_node_session, connect),
 	MYSQLND_METHOD(xmysqlnd_node_session, select_db),
 	MYSQLND_METHOD(xmysqlnd_node_session, query),
@@ -1068,15 +1080,14 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 MYSQLND_CLASS_METHODS_END;
 
 
-/* {{{ xmysqlnd_node_session_init */
+/* {{{ xmysqlnd_node_session_create */
 PHPAPI XMYSQLND_NODE_SESSION *
-xmysqlnd_node_session_init(const size_t client_flags, const zend_bool persistent, MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * factory = object_factory? object_factory : MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	XMYSQLND_NODE_SESSION * session;
 
-	DBG_ENTER("xmysqlnd_node_session_init");
-	session = factory->get_node_session(factory, persistent, stats, error_info);
+	DBG_ENTER("xmysqlnd_node_session_create");
+	session = object_factory->get_node_session(object_factory, persistent, stats, error_info);
 	if (session && session->data) {
 		session->data->m->negotiate_client_api_capabilities(session->data, client_flags);
 	}
@@ -1098,6 +1109,7 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 							  size_t client_api_flags
 						)
 {
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	enum_func_status ret = FAIL;
 	zend_bool self_alloced = FALSE;
 	/* may need to pass these from outside */
@@ -1109,7 +1121,7 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 
 	if (!session) {
 		self_alloced = TRUE;
-		if (!(session = xmysqlnd_node_session_init(client_api_flags, FALSE, NULL, stats, error_info))) {
+		if (!(session = xmysqlnd_node_session_create(client_api_flags, FALSE, factory, stats, error_info))) {
 			/* OOM */
 			DBG_RETURN(NULL);
 		}

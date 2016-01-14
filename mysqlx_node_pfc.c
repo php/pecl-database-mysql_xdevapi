@@ -163,6 +163,7 @@ mysqlx_node_pfc_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_node_pfc_object_allocator(zend_class_entry * class_type)
 {
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	const zend_bool persistent = FALSE;
 	struct st_mysqlx_object * mysqlx_object = mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
 	struct st_mysqlx_node_pfc * codec = mnd_pecalloc(1, sizeof(struct st_mysqlx_node_pfc), persistent);
@@ -179,7 +180,7 @@ php_mysqlx_node_pfc_object_allocator(zend_class_entry * class_type)
 	codec->error_info = &codec->error_info_impl;
 	mysqlnd_stats_init(&codec->stats, STAT_LAST, persistent);
 
-	if (!(codec->pfc = xmysqlnd_pfc_init(persistent, NULL /*factory*/, codec->stats, codec->error_info))){
+	if (!(codec->pfc = xmysqlnd_pfc_create(persistent, factory, codec->stats, codec->error_info))){
 		goto err;
 	}
 
