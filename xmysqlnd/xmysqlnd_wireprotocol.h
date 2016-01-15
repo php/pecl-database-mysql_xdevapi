@@ -257,6 +257,7 @@ struct st_xmysqlnd_on_warning_bind
 
 
 
+
 struct st_xmysqlnd_sql_stmt_execute_message_ctx
 {
 	enum_func_status (*send_request)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
@@ -290,6 +291,7 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 	struct st_xmysqlnd_on_warning_bind on_warning;
 	struct st_xmysqlnd_on_error_bind on_error;
 	struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
+
 
 	unsigned int field_count:16;
 	zend_bool has_more_results:1;

@@ -40,6 +40,80 @@
 #include "proto_gen/mysqlx_sql.pb.h"
 
 
+struct st_xmysqlnd_inspect_warning_bind
+{
+	enum_hnd_func_status (*handler)(void * context, const Mysqlx::Notice::Warning & warning);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_inspect_changed_variable_bind
+{
+	enum_hnd_func_status (*handler)(void * context, const Mysqlx::Notice::SessionVariableChanged & message);
+	void * ctx;
+};
+
+struct st_xmysqlnd_inspect_changed_state_bind
+{
+	enum_hnd_func_status (*handler)(void * context, const Mysqlx::Notice::SessionStateChanged & message);
+	void * ctx;
+};
+
+
+/* {{{ xmysqlnd_inspect_notice_frame_ex */
+static enum_hnd_func_status
+xmysqlnd_inspect_notice_frame_ex(const Mysqlx::Notice::Frame & frame,
+								 const struct st_xmysqlnd_inspect_warning_bind inspect_warning,
+								 const struct st_xmysqlnd_inspect_changed_variable_bind inspect_changed_variable,
+								 const struct st_xmysqlnd_inspect_changed_state_bind inspect_changed_state)
+{
+	enum_hnd_func_status ret = HND_AGAIN;
+	DBG_ENTER("xmysqlnd_inspect_notice_frame_ex");
+
+	const bool has_scope = frame.has_scope();
+	DBG_INF_FMT("scope[%s] is %s", has_scope? "SET":"NOT SET",
+								   has_scope? Mysqlx::Notice::Frame::Scope_Name(frame.scope()).c_str() : "n/a");
+
+	const bool has_payload = frame.has_payload();
+	DBG_INF_FMT("payload is %s", has_payload? "SET":"NOT SET");
+
+	const bool has_type = frame.has_type();
+
+	DBG_INF_FMT("type is %s", has_type? "SET":"NOT SET");
+	if (has_scope && frame.scope() == Mysqlx::Notice::Frame_Scope_LOCAL && has_type && has_payload) {
+		switch (frame.type()) {
+			case 1:{ /* Warning */
+					Mysqlx::Notice::Warning message;
+					DBG_INF("Warning");
+					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					ret = inspect_warning.handler(inspect_warning.ctx, message);
+					break;
+				}
+			case 2:{ /* SessionVariableChanged */
+					Mysqlx::Notice::SessionVariableChanged message;
+					DBG_INF("SessionVariableChanged");
+					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					ret = inspect_changed_variable.handler(inspect_changed_variable.ctx, message);
+					break;
+				}
+			case 3:{ /* SessionStateChanged */
+					Mysqlx::Notice::SessionStateChanged message;
+					DBG_INF("SessionStateChanged");
+					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					ret = inspect_changed_state.handler(inspect_changed_state.ctx, message);
+				}
+				break;
+			default:
+				DBG_ERR_FMT("Unknown type %d", frame.type());
+				break;
+		}
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+
 /* {{{ xmysqlnd_client_message_type_is_valid */
 static inline zend_bool
 xmysqlnd_client_message_type_is_valid(const enum xmysqlnd_client_message_type type)
@@ -1036,12 +1110,13 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_warning */
+/* {{{ xmysqlnd_inspect_warning_ex */
 static enum_hnd_func_status
-xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
+xmysqlnd_inspect_warning_ex(void * context, const Mysqlx::Notice::Warning & warning)
 {
+	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	enum_hnd_func_status ret = HND_PASS;
-	DBG_ENTER("xmysqlnd_inspect_warning");
+	DBG_ENTER("xmysqlnd_inspect_warning_ex");
 	DBG_INF_FMT("on_warning=%p", ctx->on_warning.handler);
 
 	const bool has_level = warning.has_level();
@@ -1066,12 +1141,13 @@ xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmys
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_changed_variable */
+/* {{{ xmysqlnd_inspect_changed_variable_ex */
 static enum_hnd_func_status
-xmysqlnd_inspect_changed_variable(const Mysqlx::Notice::SessionVariableChanged & message, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
+xmysqlnd_inspect_changed_variable_ex(void * context, const Mysqlx::Notice::SessionVariableChanged & message)
 {
+	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	enum_hnd_func_status ret = HND_AGAIN;
-	DBG_ENTER("xmysqlnd_inspect_changed_variable");
+	DBG_ENTER("xmysqlnd_inspect_changed_variable_ex");
 
 	const bool has_param = message.has_param();
 	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
@@ -1085,14 +1161,15 @@ xmysqlnd_inspect_changed_variable(const Mysqlx::Notice::SessionVariableChanged &
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_changed_state */
+/* {{{ xmysqlnd_inspect_changed_state_ex */
 static enum_hnd_func_status
-xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & message, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
+xmysqlnd_inspect_changed_state_ex(void * context, const Mysqlx::Notice::SessionStateChanged & message)
 {
+	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	enum_hnd_func_status ret = HND_AGAIN;
 	const bool has_param = message.has_param();
 	const bool has_value = message.has_value();
-	DBG_ENTER("xmysqlnd_inspect_changed_state");
+	DBG_ENTER("xmysqlnd_inspect_changed_state_ex");
 	DBG_INF_FMT("on_execution_state_handler=%p", ctx->on_execution_state_change.handler);
 	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
 								   has_param? Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str() : "n/a");
@@ -1154,65 +1231,19 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_notice_frame */
-static enum_hnd_func_status
-xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
-{
-	enum_hnd_func_status ret = HND_AGAIN;
-	DBG_ENTER("xmysqlnd_inspect_notice_frame");
-
-	const bool has_scope = frame.has_scope();
-	DBG_INF_FMT("scope[%s] is %s", has_scope? "SET":"NOT SET",
-								   has_scope? Mysqlx::Notice::Frame::Scope_Name(frame.scope()).c_str() : "n/a");
-
-	const bool has_payload = frame.has_payload();
-	DBG_INF_FMT("payload is %s", has_payload? "SET":"NOT SET");
-
-	const bool has_type = frame.has_type();
-
-	DBG_INF_FMT("type is %s", has_type? "SET":"NOT SET");
-	if (has_scope && frame.scope() == Mysqlx::Notice::Frame_Scope_LOCAL && has_type && has_payload) {
-		switch (frame.type()) {
-			case 1:{ /* Warning */
-					Mysqlx::Notice::Warning message;
-					DBG_INF("Warning");
-					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					ret = xmysqlnd_inspect_warning(message, ctx);
-					break;
-				}
-			case 2:{ /* SessionVariableChanged */
-					Mysqlx::Notice::SessionVariableChanged message;
-					DBG_INF("SessionVariableChanged");
-					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					ret = xmysqlnd_inspect_changed_variable(message, ctx);
-					break;
-				}
-			case 3:{ /* SessionStateChanged */
-					Mysqlx::Notice::SessionStateChanged message;
-					DBG_INF("SessionStateChanged");
-					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					ret = xmysqlnd_inspect_changed_state(message, ctx);
-				}
-				break;
-			default:
-				DBG_ERR_FMT("Unknown type %d", frame.type());
-				break;
-		}
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ stmt_execute_on_NOTICE */
 static enum_hnd_func_status
 stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	const struct st_xmysqlnd_inspect_warning_bind inspect_warning = { xmysqlnd_inspect_warning_ex, ctx };
+	const struct st_xmysqlnd_inspect_changed_variable_bind inspect_changed_variable = { xmysqlnd_inspect_changed_variable_ex, ctx };
+	const struct st_xmysqlnd_inspect_changed_state_bind inspect_changed_state = { xmysqlnd_inspect_changed_state_ex, ctx };
 	DBG_ENTER("stmt_execute_on_NOTICE");
 	ctx->server_message_type = XMSG_NOTICE;
 
-	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message, ctx);
+	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame_ex(message, inspect_warning, inspect_changed_variable, inspect_changed_state);
+
 
 	DBG_RETURN(ret);
 }
