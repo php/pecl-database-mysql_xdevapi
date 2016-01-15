@@ -173,13 +173,16 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getAffectedItemsCount)
 	RETVAL_FALSE;
 	if (object->result) {
 		const XMYSQLND_STMT_EXECUTION_STATE * exec_state = object->result->exec_state;
-		const size_t value = exec_state->m->get_affected_items_count(exec_state);
-		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-			ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
-			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
-		} else {
-			ZVAL_LONG(return_value, value);
-			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
+		/* Maybe check here if there was an error and throw an Exception or return a warning */
+		if (exec_state) {
+			const size_t value = exec_state->m->get_affected_items_count(exec_state);
+			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
+				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
+			} else {
+				ZVAL_LONG(return_value, value);
+				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
+			}
 		}
 	}
 	DBG_VOID_RETURN;
@@ -205,13 +208,16 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 	RETVAL_FALSE;
 	if (object->result && object->result->exec_state) {
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
-		const size_t value = exec_state->m->get_last_insert_id(exec_state);
-		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-			ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
-			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
-		} else {
-			ZVAL_LONG(return_value, value);
-			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
+		/* Maybe check here if there was an error and throw an Exception or return a warning */
+		if (exec_state) {
+			const size_t value = exec_state->m->get_last_insert_id(exec_state);
+			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
+				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
+			} else {
+				ZVAL_LONG(return_value, value);
+				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
+			}
 		}
 	}
 	DBG_VOID_RETURN;
@@ -236,15 +242,18 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getWarningCount)
 	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
-	if (object->result && object->result->warnings) {
+	if (object->result) {
 		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
-		const size_t value = warnings->m->count(warnings);
-		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-			ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
-			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
-		} else {
-			ZVAL_LONG(return_value, value);
-			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
+		/* Maybe check here if there was an error and throw an Exception or return a warning */
+		if (warnings) {
+			const size_t value = warnings->m->count(warnings);
+			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
+				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
+			} else {
+				ZVAL_LONG(return_value, value);
+				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
+			}
 		}
 	}
 	DBG_VOID_RETURN;
@@ -268,20 +277,23 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getWarnings)
 	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
-	if (object->result && object->result->warnings) {
+	if (object->result) {
 		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
-		const size_t count = warnings->m->count(warnings);
-		unsigned int i = 0;
-		array_init_size(return_value, count);
-		for (; i < count; ++i) {
-			const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
-			zval warning_zv;
+		/* Maybe check here if there was an error and throw an Exception or return a warning */
+		if (warnings) {
+			const size_t count = warnings->m->count(warnings);
+			unsigned int i = 0;
+			array_init_size(return_value, count);
+			for (; i < count; ++i) {
+				const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
+				zval warning_zv;
 
-			ZVAL_UNDEF(&warning_zv);
-			mysqlx_new_warning(&warning_zv, warning.message, warning.level, warning.code);
+				ZVAL_UNDEF(&warning_zv);
+				mysqlx_new_warning(&warning_zv, warning.message, warning.level, warning.code);
 
-			if (Z_TYPE(warning_zv) != IS_UNDEF) {
-				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &warning_zv);
+				if (Z_TYPE(warning_zv) != IS_UNDEF) {
+					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &warning_zv);
+				}
 			}
 		}
 	}

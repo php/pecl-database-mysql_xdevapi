@@ -133,17 +133,6 @@ xmysqlnd_send_message(enum xmysqlnd_client_message_type packet_type, ::google::p
 
 
 
-typedef enum xmysqlnd_handler_func_status
-{
-	HND_PASS = PASS,
-	HND_FAIL = FAIL,
-	HND_PASS_RETURN_FAIL,
-	HND_AGAIN,
-	HND_AGAIN_ASYNC,
-} enum_hnd_func_status;
-
-
-
 struct st_xmysqlnd_server_messages_handlers
 {
 	enum_hnd_func_status (*on_OK)(const Mysqlx::Ok & message, void * context);
@@ -931,58 +920,69 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 static enum_hnd_func_status
 stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 {
+	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	DBG_ENTER("stmt_execute_on_ERROR");
 	ctx->server_message_type = XMSG_ERROR;
-//	if (ctx->error_info)
-	{
-		SET_CLIENT_ERROR(ctx->error_info,
-						 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
-						 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
-						 error.has_msg()? error.msg().c_str() : "Unknown server error");
+
+	const bool has_code = error.has_code();
+	const bool has_sql_state = error.has_sql_state();
+	const bool has_msg = error.has_msg();
+
+	const MYSQLND_CSTRING sql_state = {
+		has_sql_state? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
+		has_sql_state? error.sql_state().size()  : sizeof(UNKNOWN_SQLSTATE) - 1
+	};
+	const unsigned int code = has_code? error.code() : CR_UNKNOWN_ERROR;
+	const MYSQLND_CSTRING error_message = {
+		has_msg? error.msg().c_str() : "Unknown server error",
+		has_msg? error.msg().size() : sizeof("Unknown server error") - 1
+	};
+
+	if (ctx->on_error.handler) {
+		ret = ctx->on_error.handler(ctx->on_error.ctx, code, sql_state, error_message);
 	}
-	return HND_PASS_RETURN_FAIL;
+
+	DBG_RETURN(ret);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_inspect_warning */
-static void
+static enum_hnd_func_status
 xmysqlnd_inspect_warning(const Mysqlx::Notice::Warning & warning, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
 {
+	enum_hnd_func_status ret = HND_PASS;
 	DBG_ENTER("xmysqlnd_inspect_warning");
-	DBG_INF_FMT("current_warning_list=%p", ctx->current_warning_list);
-	if (!ctx->current_warning_list) {
-		ctx->current_warning_list = ctx->create_warning_list.create(ctx->create_warning_list.ctx);
+	DBG_INF_FMT("on_warning=%p", ctx->on_warning.handler);
+
+	const bool has_level = warning.has_level();
+	const bool has_code = warning.has_code();
+	const bool has_msg = warning.has_msg();
+	const unsigned int code = has_code? warning.code() : 1000;
+	const enum xmysqlnd_stmt_warning_level level = has_level? (enum xmysqlnd_stmt_warning_level) warning.level() : XSTMT_WARN_WARNING;
+	const MYSQLND_CSTRING warn_message = { has_msg? warning.msg().c_str():"", has_msg? warning.msg().size():0 };
+
+	DBG_INF_FMT("level[%s] is %s", has_level? "SET":"NOT SET",
+								   has_level? Mysqlx::Notice::Warning::Level_Name(warning.level()).c_str() : "n/a");
+	DBG_INF_FMT("code[%s] is %u", has_code? "SET":"NOT SET",
+								  has_code? warning.code() : 0);
+	DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
+									  has_msg? warning.msg().c_str() : "n/a");
+
+	if (ctx->on_warning.handler) {
+		ret = ctx->on_warning.handler(ctx->on_warning.ctx, level, code, warn_message);
 	}
-	if (ctx->current_warning_list) {
-		const bool has_level = warning.has_level();
-		const bool has_code = warning.has_code();
-		const bool has_msg = warning.has_msg();
-		const unsigned int code = has_code? warning.code() : 1000;
-		const enum xmysqlnd_stmt_warning_level level = has_level? (enum xmysqlnd_stmt_warning_level) warning.level() : XSTMT_WARN_WARNING;
-		const MYSQLND_CSTRING warn_message = { has_msg? warning.msg().c_str():"", has_msg? warning.msg().size():0 };
-
-		DBG_INF_FMT("level[%s] is %s", has_level? "SET":"NOT SET",
-									   has_level? Mysqlx::Notice::Warning::Level_Name(warning.level()).c_str() : "n/a");
-
-		DBG_INF_FMT("code[%s] is %u", has_code? "SET":"NOT SET",
-									  has_code? warning.code() : 0);
-
-		DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
-										  has_msg? warning.msg().c_str() : "n/a");
-
-		ctx->current_warning_list->m->add_warning(ctx->current_warning_list, level, code, warn_message);
-	}
-
-	DBG_VOID_RETURN;
+	DBG_RETURN(ret);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_inspect_changed_variable */
-static void
+static enum_hnd_func_status
 xmysqlnd_inspect_changed_variable(const Mysqlx::Notice::SessionVariableChanged & message, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
 {
+	enum_hnd_func_status ret = HND_AGAIN;
 	DBG_ENTER("xmysqlnd_inspect_changed_variable");
 
 	const bool has_param = message.has_param();
@@ -992,25 +992,22 @@ xmysqlnd_inspect_changed_variable(const Mysqlx::Notice::SessionVariableChanged &
 	const bool has_value = message.has_value();
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(ret);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_inspect_changed_state */
-static void
+static enum_hnd_func_status
 xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & message, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
 {
+	enum_hnd_func_status ret = HND_AGAIN;
 	const bool has_param = message.has_param();
 	const bool has_value = message.has_value();
 	DBG_ENTER("xmysqlnd_inspect_changed_state");
-	DBG_INF_FMT("current_execution_state=%p", ctx->current_execution_state);
+	DBG_INF_FMT("on_execution_state_handler=%p", ctx->on_execution_state_change.handler);
 	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
 								   has_param? Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str() : "n/a");
-
-	if (!ctx->current_execution_state && ctx->create_execution_state.create) {
-		ctx->current_execution_state = ctx->create_execution_state.create(ctx->create_execution_state.ctx);
-	}
 
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 	if (has_param && has_value) {
@@ -1020,23 +1017,31 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 			case Mysqlx::Notice::SessionStateChanged::ACCOUNT_EXPIRED:
 				break;
 			case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:
-				if (ctx->current_execution_state) {
-					ctx->current_execution_state->m->set_last_insert_id(ctx->current_execution_state, scalar2uint(message.value()));
+				if (ctx->on_execution_state_change.handler) {
+					ret = ctx->on_execution_state_change.handler(ctx->on_execution_state_change.ctx,
+																 EXEC_STATE_GENERATED_INSERT_ID,
+																 scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
-				if (ctx->current_execution_state) {
-					ctx->current_execution_state->m->set_affected_items_count(ctx->current_execution_state, scalar2uint(message.value()));
+				if (ctx->on_execution_state_change.handler) {
+					ret = ctx->on_execution_state_change.handler(ctx->on_execution_state_change.ctx,
+																 EXEC_STATE_ROWS_AFFECTED,
+																 scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
-				if (ctx->current_execution_state) {
-					ctx->current_execution_state->m->set_found_items_count(ctx->current_execution_state, scalar2uint(message.value()));
+				if (ctx->on_execution_state_change.handler) {
+					ctx->on_execution_state_change.handler(ctx->on_execution_state_change.ctx,
+														   EXEC_STATE_ROWS_FOUND,
+														   scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
-				if (ctx->current_execution_state) {
-					ctx->current_execution_state->m->set_matched_items_count(ctx->current_execution_state, scalar2uint(message.value()));
+				if (ctx->on_execution_state_change.handler) {
+					ret = ctx->on_execution_state_change.handler(ctx->on_execution_state_change.ctx,
+																 EXEC_STATE_ROWS_MATCHED,
+																 scalar2uint(message.value()));
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
@@ -1056,15 +1061,16 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 		scalar2log(message.value());
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(ret);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_inspect_notice_frame */
-static void
+static enum_hnd_func_status
 xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame, struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx)
 {
+	enum_hnd_func_status ret = HND_AGAIN;
 	DBG_ENTER("xmysqlnd_inspect_notice_frame");
 
 	const bool has_scope = frame.has_scope();
@@ -1083,21 +1089,21 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame, struct st_xmy
 					Mysqlx::Notice::Warning message;
 					DBG_INF("Warning");
 					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					xmysqlnd_inspect_warning(message, ctx);
+					ret = xmysqlnd_inspect_warning(message, ctx);
 					break;
 				}
 			case 2:{ /* SessionVariableChanged */
 					Mysqlx::Notice::SessionVariableChanged message;
 					DBG_INF("SessionVariableChanged");
 					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					xmysqlnd_inspect_changed_variable(message, ctx);
+					ret = xmysqlnd_inspect_changed_variable(message, ctx);
 					break;
 				}
 			case 3:{ /* SessionStateChanged */
 					Mysqlx::Notice::SessionStateChanged message;
 					DBG_INF("SessionStateChanged");
 					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					xmysqlnd_inspect_changed_state(message, ctx);
+					ret = xmysqlnd_inspect_changed_state(message, ctx);
 				}
 				break;
 			default:
@@ -1105,7 +1111,7 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame, struct st_xmy
 				break;
 		}
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -1116,10 +1122,11 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_NOTICE");
-	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->server_message_type = XMSG_NOTICE;
-	xmysqlnd_inspect_notice_frame(message, ctx);
-	DBG_RETURN(HND_AGAIN);
+
+	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message, ctx);
+
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -1130,34 +1137,29 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 static enum_hnd_func_status
 stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, void * context)
 {
+	enum_hnd_func_status ret = HND_AGAIN;
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+
 	DBG_ENTER("stmt_execute_on_COLUMN_META");
-	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
+	DBG_INF_FMT("on_meta_field=%p", ctx->on_meta_field.handler);
+
 	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_COLUMN_METADATA;
-	if (!ctx->current_meta && ctx->create_meta.create) {
-		ctx->current_meta = ctx->create_meta.create(ctx->create_meta.ctx);
-		ctx->current_rowset = NULL; /* so we don't use the previous result which could have been freed */
-		ctx->has_more_rows_in_set = TRUE;
-	}
-	if (!ctx->current_rowset && ctx->create_rowset.create) {
-		ctx->current_rowset = ctx->create_rowset.create(ctx->create_rowset.ctx);
-		if (ctx->current_rowset && ctx->current_meta) {
-			ctx->current_rowset->m.attach_meta(ctx->current_rowset, ctx->current_meta, ctx->stats, ctx->error_info);
-		}
-	}
+
+	++ctx->field_count;
+	DBG_INF_FMT("field_count=%u", ctx->field_count);
 
 	XMYSQLND_RESULT_FIELD_META * field = NULL;
 	if (ctx->response_zval) {
 		mysqlx_new_column_metadata(ctx->response_zval, message);
 		DBG_INF("HND_PASS");
 		DBG_RETURN(HND_PASS); /* typically this should be HND_AGAIN */
-	} else if (ctx->current_meta && ctx->create_meta_field.create) {
+	} else if (ctx->create_meta_field.create && ctx->on_meta_field.handler) {
 		XMYSQLND_RESULT_FIELD_META * field = ctx->create_meta_field.create(ctx->create_meta_field.ctx);
 		if (!field) {
-			ctx->current_meta->m->dtor(ctx->current_meta, ctx->stats, ctx->error_info);
-			ctx->current_meta = NULL;
-			SET_OOM_ERROR(ctx->error_info);
+			if (ctx->error_info) {
+				SET_OOM_ERROR(ctx->error_info);
+			}
 			DBG_INF("HND_FAIL");
 			DBG_RETURN(HND_FAIL);
 		}
@@ -1197,13 +1199,15 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 		if (message.has_content_type()) {
 			field->m->set_content_type(field, message.content_type());
 		}
-		ctx->current_meta->m->add_field(ctx->current_meta, field, ctx->stats, ctx->error_info);
-		DBG_INF("HND_AGAIN");
-		DBG_RETURN(HND_AGAIN);
+
+		ret = ctx->on_meta_field.handler(ctx->on_meta_field.ctx, field);
+
+		DBG_INF_FMT("ret=%s", ret == HND_AGAIN? "HND_AGAIN":"n/a");
+		DBG_RETURN(ret);
 	} else {
 		/* skipping */
 		DBG_INF("HND_AGAIN");
-		DBG_RETURN(HND_AGAIN);	
+		DBG_RETURN(ret);
 	}
 }
 /* }}} */
@@ -1238,28 +1242,21 @@ ztype2str(const zval * const zv)
 }
 /* }}} */
 
-extern "C"
-{
-#include "ext/standard/php_var.h" //var_dump
-}
 
-/* {{{ xmysqlnd_row_to_zval_array */
+/* {{{ xmysqlnd_row_field_to_zval */
 static enum_func_status
-xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
-						   const XMYSQLND_NODE_STMT_RESULT_META * meta,
-						   zval * return_value)
+xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
+						   const XMYSQLND_RESULT_FIELD_META * const field_meta,
+						   const unsigned int i,
+						   zval * zv)
 {
 	enum_func_status ret = PASS;
-	const unsigned int column_count = meta->m->get_field_count(meta);
-	unsigned int i;
-	DBG_ENTER("xmysqlnd_row_to_zval_array");
-
-	for (i = 0; i < column_count; ++i) {
-		const uint8_t * buf = reinterpret_cast<const uint8_t*>(message.field(i).c_str());
-		const size_t buf_size = message.field(i).size();
-		zval * zv = &(return_value[i]);
-		DBG_INF_FMT("[%2u]buf_size=%u", i, (uint) buf_size);
-		DBG_INF_FMT("[%2u]name    =%s", i, meta->m->get_field(meta, i)->name.s);
+	const uint8_t * buf = reinterpret_cast<const uint8_t*>(buffer.s);
+	const size_t buf_size = buffer.l;
+	DBG_ENTER("xmysqlnd_row_field_to_zval");
+	{
+		DBG_INF_FMT("buf_size=%u", (uint) buf_size);
+		DBG_INF_FMT("name    =%s", field_meta->name.s);
 #if 0
 		for (unsigned j = 0; j < buf_size; j++) {
 			DBG_INF_FMT("[%02u]=x%02X", j, buf[j]);
@@ -1274,22 +1271,22 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 		if (buf_size == 0) {
 			goto skip_switch;
 		}
-		switch (meta->m->get_field(meta, i)->type) {
+		switch (field_meta->type) {
 			case XMYSQLND_TYPE_SIGNED_INT:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 gval;
-				DBG_INF_FMT("[%2u]type    =SINT", i);
+				DBG_INF("type    =SINT");
 				if (input_stream.ReadVarint64(&gval)) {
 					int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
 #if SIZEOF_ZEND_LONG==4
 					if (UNEXPECTED(ival >= ZEND_LONG_MAX)) {
 						ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, ival));
-						DBG_INF_FMT("[%2u]value(S)=%s", i, Z_STRVAL_P(zv));
+						DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(zv));
 					} else
 #endif
 					{
 						ZVAL_LONG(zv, ival);
-						DBG_INF_FMT("[%2u]value(L)=%lu", i, Z_LVAL_P(zv));
+						DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(zv));
 					}
 				} else {
 					DBG_ERR("Error decoding SINT");
@@ -1299,11 +1296,11 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 				break;
 			}
 			case XMYSQLND_TYPE_BIT:
-				DBG_INF_FMT("[%2u]type    =BIT handled as UINT", i);
+				DBG_INF("type    =BIT handled as UINT");
 			case XMYSQLND_TYPE_UNSIGNED_INT:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 gval;
-				DBG_INF_FMT("[%2u]type    =UINT", i);
+				DBG_INF("type    =UINT");
 				if (input_stream.ReadVarint64(&gval)) {
 #if SIZEOF_ZEND_LONG==8
 					if (gval > 9223372036854775807L) {
@@ -1311,10 +1308,10 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 					if (gval > L64(2147483647) {
 #endif
 						ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
-						DBG_INF_FMT("[%2u]value(S)=%s", i, Z_STRVAL_P(zv));
+						DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(zv));
 					} else {
 						ZVAL_LONG(zv, gval);
-						DBG_INF_FMT("[%2u]value(L)=%lu", i, Z_LVAL_P(zv));
+						DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(zv));
 					}
 				} else {
 					DBG_ERR("Error decoding UINT");
@@ -1326,10 +1323,10 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_DOUBLE:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 gval;
-				DBG_INF_FMT("[%2u]type    =DOUBLE", i);
+				DBG_INF("type    =DOUBLE");
 				if (input_stream.ReadLittleEndian64(&gval)) {
 					ZVAL_DOUBLE(zv, ::google::protobuf::internal::WireFormatLite::DecodeDouble(gval));
-					DBG_INF_FMT("[%2u]value   =%10.15f", i, Z_DVAL_P(zv));
+					DBG_INF_FMT("value   =%10.15f", Z_DVAL_P(zv));
 				} else {
 					DBG_ERR("Error decoding DOUBLE");
 					php_error_docref(NULL, E_WARNING, "Error decoding DOUBLE");
@@ -1341,17 +1338,17 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_FLOAT:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint32 gval;
-				DBG_INF_FMT("[%2u]type    =FLOAT", i);
+				DBG_INF_FMT("type    =FLOAT");
 				if (input_stream.ReadLittleEndian32(&gval)) {
 					const float fval = ::google::protobuf::internal::WireFormatLite::DecodeFloat(gval);
-					const unsigned int fractional_digits = meta->m->get_field(meta, i)->fractional_digits;
+					const unsigned int fractional_digits = field_meta->fractional_digits;
 #ifndef NOT_FIXED_DEC
 # define NOT_FIXED_DEC 31
 #endif
 					const double dval = mysql_float_to_double(fval, (fractional_digits >= NOT_FIXED_DEC) ? -1 : fractional_digits);
 
 					ZVAL_DOUBLE(zv, dval);
-					DBG_INF_FMT("[%2u]value   =%f", i, Z_DVAL_P(zv));
+					DBG_INF_FMT("value   =%f", Z_DVAL_P(zv));
 				} else {
 					DBG_ERR("Error decoding FLOAT");
 					php_error_docref(NULL, E_WARNING, "Error decoding FLOAT");
@@ -1360,15 +1357,15 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 				break;
 			}
 			case XMYSQLND_TYPE_ENUM:
-				DBG_INF_FMT("[%2u]type    =ENUM handled as STRING", i);
+				DBG_INF("type    =ENUM handled as STRING");
 			case XMYSQLND_TYPE_BYTES:{
 				if (buf_size) {
-					DBG_INF_FMT("[%2u]type    =STRING", i);
+					DBG_INF("type    =STRING");
 					ZVAL_STRINGL(zv, reinterpret_cast<const char *>(buf), buf_size - 1); /* skip the ending \0 */
-					DBG_INF_FMT("[%2u]value   =%s", i, Z_STRVAL_P(zv));
+					DBG_INF_FMT("value   =%s", Z_STRVAL_P(zv));
 				} else {
 					DBG_ERR("Zero length buffer. NOT ALLOWED in the protocol");
-					DBG_INF_FMT("[%2u]value   =NULL", i);
+					DBG_INF("value   =NULL");
 					ZVAL_NULL(zv);
 					ret = FAIL;
 				}
@@ -1377,14 +1374,14 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_TIME:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 neg = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
-				DBG_INF_FMT("[%2u]type    =TIME", i);
+				DBG_INF("[%2u]type    =TIME");
 				if (!buf_size) {
 					break;
 				}
 				if (buf_size == 1) {
 					if (!buf[0]) {
 						#define	TIME_NULL_VALUE "00:00:00.00"
-						ZVAL_NEW_STR(&(return_value[i]), zend_string_init(TIME_NULL_VALUE, sizeof(TIME_NULL_VALUE)-1, 0));
+						ZVAL_NEW_STR(zv, zend_string_init(TIME_NULL_VALUE, sizeof(TIME_NULL_VALUE)-1, 0));
 						#undef TIME_NULL_VALUE
 					} else {
 						ZVAL_NULL(zv);
@@ -1394,11 +1391,11 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 					break;
 				}
 				do {
-					if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("[%2u]neg     ="MYSQLND_LLU_SPEC, i, neg);
-					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("[%2u]hours   ="MYSQLND_LLU_SPEC, i, hours);
-					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("[%2u]mins    ="MYSQLND_LLU_SPEC, i, minutes);
-					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("[%2u]secs    ="MYSQLND_LLU_SPEC, i, seconds);
-					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("[%2u]usecs   ="MYSQLND_LLU_SPEC, i, useconds);
+					if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("neg     ="MYSQLND_LLU_SPEC, neg);
+					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours   ="MYSQLND_LLU_SPEC, hours);
+					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins    ="MYSQLND_LLU_SPEC, minutes);
+					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs    ="MYSQLND_LLU_SPEC, seconds);
+					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs   ="MYSQLND_LLU_SPEC, useconds);
 				} while (0);
 				#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
 				ZVAL_NEW_STR(zv, strpprintf(0, TIME_FMT_STR , neg? "-":"",
@@ -1412,14 +1409,14 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			case XMYSQLND_TYPE_DATETIME:{
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 year = 0, month = 0, day = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
-				DBG_INF_FMT("[%2u]type    =DATETIME", i);
+				DBG_INF("type    =DATETIME");
 				if (!buf_size) {
 					break;
 				}
 				if (buf_size == 1) {
 					if (!buf[0]) {
 						#define	DATETIME_NULL_VALUE "0000-00-00 00:00:00.00"
-						ZVAL_NEW_STR(&(return_value[i]), zend_string_init(DATETIME_NULL_VALUE, sizeof(DATETIME_NULL_VALUE)-1, 0));
+						ZVAL_NEW_STR(zv, zend_string_init(DATETIME_NULL_VALUE, sizeof(DATETIME_NULL_VALUE)-1, 0));
 						#undef DATETIME_NULL_VALUE
 					} else {
 						php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
@@ -1428,13 +1425,13 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 					break;
 				}
 				do {
-					if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("[%2u]year    ="MYSQLND_LLU_SPEC, i, year);
-					if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("[%2u]month   ="MYSQLND_LLU_SPEC, i, month);
-					if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("[%2u]day     ="MYSQLND_LLU_SPEC, i, day);
-					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("[%2u]hours   ="MYSQLND_LLU_SPEC, i, hours);
-					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("[%2u]mins    ="MYSQLND_LLU_SPEC, i, minutes);
-					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("[%2u]secs    ="MYSQLND_LLU_SPEC, i, seconds);
-					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("[%2u]usecs   ="MYSQLND_LLU_SPEC, i, useconds);
+					if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("year    ="MYSQLND_LLU_SPEC, year);
+					if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("month   ="MYSQLND_LLU_SPEC, month);
+					if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("day     ="MYSQLND_LLU_SPEC, day);
+					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours   ="MYSQLND_LLU_SPEC, hours);
+					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins    ="MYSQLND_LLU_SPEC, minutes);
+					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs    ="MYSQLND_LLU_SPEC, seconds);
+					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs   ="MYSQLND_LLU_SPEC, useconds);
 				} while (0);
 				#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
 				ZVAL_NEW_STR(zv, strpprintf(0, DATETIME_FMT_STR ,
@@ -1450,7 +1447,7 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 			}
 			case XMYSQLND_TYPE_SET:{
 				unsigned int j = 0;
-				DBG_INF_FMT("[%2u]type    =SET", i);
+				DBG_INF_FMT("type    =SET");
 				::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 				::google::protobuf::uint64 gval;
 				bool length_read_ok = true;
@@ -1464,15 +1461,15 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 						int rest_buffer_size = 0;
 						if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 							zval set_entry;
-							DBG_INF_FMT("[%2u][%u]value length=%3u  rest_buffer_size=%3d", i, j, (uint) gval, rest_buffer_size);
+							DBG_INF_FMT("[%u]value length=%3u  rest_buffer_size=%3d", j, (uint) gval, rest_buffer_size);
 							if (gval > rest_buffer_size) {
-								DBG_ERR_FMT("[%2u]Length pointing outside of the buffer", i);
+								DBG_ERR("Length pointing outside of the buffer");
 								php_error_docref(NULL, E_WARNING, "Length pointing outside of the buffer");
 								ret = FAIL;
 								break;
 							}
 							ZVAL_STRINGL(&set_entry, set_value, gval);
-							DBG_INF_FMT("[%2u][%u]subvalue=%s", i, j, Z_STRVAL(set_entry));
+							DBG_INF_FMT("[%u]subvalue=%s", j, Z_STRVAL(set_entry));
 							zend_hash_next_index_insert(Z_ARRVAL_P(zv), &set_entry);
 							if (!input_stream.Skip(gval)) {
 								break;
@@ -1481,27 +1478,27 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 					}
 					j++;
 				}
-				DBG_INF_FMT("[%2u]set elements=%u", i, zend_hash_num_elements(Z_ARRVAL_P(zv)));
+				DBG_INF_FMT("set elements=%u", zend_hash_num_elements(Z_ARRVAL_P(zv)));
 				break;
 			}
 			case XMYSQLND_TYPE_DECIMAL:{
-				DBG_INF_FMT("[%2u]type    =DECIMAL", i);
+				DBG_INF("type    =DECIMAL");
 				if (!buf_size) {
 					break;
 				}
 				if (buf_size == 1) {
-					DBG_ERR_FMT("[%2u]Unexpected value for first byte of TIME", i);
+					DBG_ERR_FMT("Unexpected value for first byte of TIME");
 					php_error_docref(NULL, E_WARNING, "Unexpected value for first byte of TIME");
 				}
 				const uint8_t scale = buf[0];
 				const uint8_t last_byte = buf[buf_size - 1]; /* last byte is the sign and the last 4 bits, if any */
 				const uint8_t sign = ((last_byte & 0xF)? last_byte  : last_byte >> 4) & 0xF;
 				const size_t digits = (buf_size - 2 /* scale & last */) * 2  + ((last_byte & 0xF) > 0x9? 1:0);
-				DBG_INF_FMT("[%2u]scale   =%u", i, (uint) scale);
-				DBG_INF_FMT("[%2u]sign    =%u", i, (uint) sign);
-				DBG_INF_FMT("[%2u]digits  =%u", i, (uint) digits);
+				DBG_INF_FMT("scale   =%u", (uint) scale);
+				DBG_INF_FMT("sign    =%u", (uint) sign);
+				DBG_INF_FMT("digits  =%u", (uint) digits);
 				if (!digits) {
-					DBG_ERR_FMT("[%2u]Wrong value for DECIMAL. scale=%u  last_byte=%u", i, (uint) scale, last_byte);
+					DBG_ERR_FMT("Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
 					php_error_docref(NULL, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
 					ret = FAIL;
 					break;
@@ -1523,14 +1520,13 @@ xmysqlnd_row_to_zval_array(const Mysqlx::Resultset::Row & message,
 						*(p++) = '.';
 					}
 				}
-				DBG_INF_FMT("[%2u]value   =%*s", i, d_val_len, d_val);
+				DBG_INF_FMT("value   =%*s", d_val_len, d_val);
 				ZVAL_STRINGL(zv, d_val, d_val_len);
 				delete [] d_val;
 				break;
 			}
 		}
-		DBG_INF_FMT("[%2u]TYPE(zv)=%s", i, ztype2str(zv));
-//		php_var_dump(zv, 1);
+		DBG_INF_FMT("TYPE(zv)=%s", ztype2str(zv));
 		DBG_INF("");
 skip_switch:
 		;
@@ -1544,10 +1540,10 @@ skip_switch:
 static enum_hnd_func_status
 stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 {
+	enum_hnd_func_status ret = HND_AGAIN;
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_ROW");
 	DBG_INF_FMT("prefetch_counter="MYSQLND_LLU_SPEC, ctx->prefetch_counter);
-	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 
 	ctx->has_more_results = TRUE;
 	ctx->server_message_type = XMSG_RSET_ROW;
@@ -1556,14 +1552,19 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 		DBG_INF("HND_PASS");
 		DBG_RETURN(HND_PASS);
 	}
-	if (ctx->current_rowset) {
-		zval * row = ctx->current_rowset->m.create_row(ctx->current_rowset, ctx->current_meta, ctx->stats, ctx->error_info);
-		if (row && PASS == xmysqlnd_row_to_zval_array(message, ctx->current_meta, row)) {
-			ctx->current_rowset->m.add_row(ctx->current_rowset, row, ctx->stats, ctx->error_info);
+	if (ctx->on_row_field.handler) {
+		for (unsigned int i = 0; i < ctx->field_count; ++i) {
+			const MYSQLND_CSTRING buffer = { message.field(i).c_str(), message.field(i).size() }; 
+			ret = ctx->on_row_field.handler(ctx->on_row_field.ctx, buffer, i, xmysqlnd_row_field_to_zval);
+			if (ret != HND_PASS && ret != HND_AGAIN) {
+				DBG_ERR("Something was wrong");
+				DBG_RETURN(ret);
+			}
 		}
+		ret = --ctx->prefetch_counter? HND_AGAIN : HND_PASS;
 	}
-	DBG_INF((ctx->prefetch_counter - 1)? "HND_AGAIN":"HND_PASS");
-	DBG_RETURN(--ctx->prefetch_counter? HND_AGAIN : HND_PASS);
+	DBG_INF(ret == HND_AGAIN? "HND_AGAIN":"HND_PASS");
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -1574,9 +1575,7 @@ stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone & message, vo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE");
-	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE;
-	ctx->current_meta = NULL;
 	ctx->has_more_results = FALSE;
 	ctx->has_more_rows_in_set = FALSE;
 	DBG_RETURN(HND_AGAIN); /* After FETCH_DONE a STMT_EXECUTE_OK is expected */
@@ -1590,7 +1589,6 @@ stmt_execute_on_RSET_FETCH_SUSPENDED(void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_SUSPENDED");
-	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->server_message_type = XMGS_RSET_FETCH_SUSPENDED;
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
@@ -1605,7 +1603,6 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMor
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS");
 	ctx->server_message_type = XMSG_RSET_FETCH_DONE_MORE_RSETS;
-	ctx->current_meta = NULL;
 	ctx->has_more_results = TRUE;
 	ctx->has_more_rows_in_set = FALSE;
 	DBG_RETURN(HND_PASS);
@@ -1620,7 +1617,6 @@ stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk & message, void
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
-	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->server_message_type = XMSG_STMT_EXECUTE_OK;
 	ctx->has_more_results = FALSE;
 	if (ctx->response_zval) {
@@ -1637,7 +1633,6 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
-	DBG_INF_FMT("current_meta=%p   current_rowset=%p", ctx->current_meta, ctx->current_rowset);
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
 }
@@ -1667,24 +1662,23 @@ static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 /* {{{ xmysqlnd_sql_stmt_execute__init_read */
 extern "C" enum_func_status
 xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
-									 const struct st_xmysqlnd_rowset_create_bind create_rowset,
-									 const struct st_xmysqlnd_meta_create_bind create_meta,
 									 const struct st_xmysqlnd_meta_field_create_bind create_meta_field,
-									 const struct st_xmysqlnd_execution_state_create_bind create_execution_state,
-									 const struct st_xmysqlnd_warning_list_create_bind create_warning_list)
+									 const struct st_xmysqlnd_on_row_field_bind on_row_field,
+									 const struct st_xmysqlnd_on_meta_field_bind on_meta_field,
+									 const struct st_xmysqlnd_on_warning_bind on_warning,
+									 const struct st_xmysqlnd_on_error_bind on_error,
+									 const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change)
 {
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__init_read");
-	msg->current_rowset = NULL;
-	msg->current_meta = NULL;
-	msg->current_execution_state = NULL;
-	msg->current_warning_list = NULL;
-
-	msg->create_rowset = create_rowset;
-	msg->create_meta = create_meta;
 	msg->create_meta_field = create_meta_field;
-	msg->create_execution_state = create_execution_state;
-	msg->create_warning_list = create_warning_list;
 
+	msg->on_row_field = on_row_field;
+	msg->on_meta_field = on_meta_field;
+	msg->on_warning = on_warning;
+	msg->on_error = on_error;
+	msg->on_execution_state_change = on_execution_state_change;
+
+	msg->field_count = 0;
 	msg->has_more_results = FALSE;
 	msg->has_more_rows_in_set = FALSE;
 	msg->read_started = FALSE;
@@ -1760,19 +1754,20 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		pfc,
 		stats,
 		error_info,
-		NULL, /* current_rowset */
-		NULL, /* current_meta */
-		NULL, /* current_exec_state */
-		NULL, /* current_warning_list */
-		{ NULL, NULL}, /* create result */
-		{ NULL, NULL}, /* create meta */
+
 		{ NULL, NULL}, /* create meta field */
-		{ NULL, NULL}, /* create execution state */
-		{ NULL, NULL}, /* create warning list */
+
+		{ NULL, NULL}, /* on_row_field */
+		{ NULL, NULL}, /* on_meta_field */
+		{ NULL, NULL}, /* on_warning */
+		{ NULL, NULL}, /* on_error */
+		{ NULL, NULL}, /* on_execution_state_change */
+
+		0,     /* field_count*/
 		FALSE, /* has_more_results */
 		FALSE, /* has_more_rows_in_set */
 		FALSE, /* read_started */
-		0, /* prefetch counter */
+		0,     /* prefetch counter */
 		NULL, /* response_zval */
 		XMSG_NONE,
 	};
