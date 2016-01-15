@@ -24,6 +24,7 @@
 #include "xmysqlnd_wireprotocol.h"
 #include "messages/mysqlx_message__capabilities.h"
 #include "xmysqlnd_zval2any.h"
+#include "xmysqlnd_protocol_dumper.h"
 
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_stmt_result.h"
@@ -638,18 +639,34 @@ auth_start_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 static enum_hnd_func_status
 auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue & message, void * context)
 {
+	enum_hnd_func_status ret = HND_PASS;
 	struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_start_message_ctx *>(context);
 	DBG_ENTER("auth_start_on_AUTHENTICATE_CONTINUE");
 	ctx->server_message_type = XMSG_AUTH_CONTINUE;
 	if (ctx->auth_start_response_zval) {
 		mysqlx_new_message__auth_continue(ctx->auth_start_response_zval, message);
 	}
-	if (message.has_auth_data()) {
-		const zend_bool persistent = FALSE;
-		ctx->out_auth_data.l = message.auth_data().size();
-		ctx->out_auth_data.s = mnd_pestrndup(message.auth_data().c_str(), ctx->out_auth_data.l, persistent);
+	if (ctx->on_auth_continue.handler) {
+		const MYSQLND_CSTRING handler_input = { message.auth_data().c_str(), message.auth_data().size() };
+		MYSQLND_STRING handler_output = { NULL, 0 };
+
+		ret = ctx->on_auth_continue.handler(ctx->on_auth_continue.ctx, handler_input, &handler_output);
+		DBG_INF_FMT("handler_output[%d]=[%s]", handler_output.l, handler_output.s);
+		if (handler_output.s) {
+			size_t bytes_sent;
+			Mysqlx::Session::AuthenticateContinue message;
+			message.set_auth_data(handler_output.s, handler_output.l);
+
+			if (FAIL == xmysqlnd_send_message(COM_AUTH_CONTINUE, message, ctx->vio, ctx->pfc, ctx->stats, ctx->error_info, &bytes_sent)) {
+				ret = HND_FAIL;
+			}
+		
+			/* send */
+			mnd_efree(handler_output.s);
+		}
+
 	}
-	DBG_RETURN(HND_PASS);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -693,10 +710,12 @@ static struct st_xmysqlnd_server_messages_handlers auth_start_handlers =
 /* {{{ xmysqlnd_authentication_start__init_read */
 extern "C" enum_func_status
 xmysqlnd_authentication_start__init_read(struct st_xmysqlnd_auth_start_message_ctx * const msg,
-										 const struct st_xmysqlnd_on_error_bind on_error)
+										 const struct st_xmysqlnd_on_error_bind on_error,
+										 const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue)
 {
 	DBG_ENTER("xmysqlnd_authentication_start__init_read");
 	msg->on_error = on_error;
+	msg->on_auth_continue = on_auth_continue;
 	DBG_RETURN(PASS);
 }
 /* }}} */
@@ -747,19 +766,6 @@ xmysqlnd_authentication_start__ok(const struct st_xmysqlnd_auth_start_message_ct
 /* }}} */
 
 
-/* {{{ xmysqlnd_authentication_start__free_resources */
-extern "C" void
-xmysqlnd_authentication_start__free_resources(struct st_xmysqlnd_auth_start_message_ctx * msg)
-{
-	if (msg->out_auth_data.s) {
-		mnd_efree(msg->out_auth_data.s);
-		msg->out_auth_data.s = NULL;
-		msg->out_auth_data.l = 0;
-	}
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_get_auth_start_message */
 static struct st_xmysqlnd_auth_start_message_ctx
 xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -771,15 +777,14 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		xmysqlnd_authentication_start__init_read,
 		xmysqlnd_authentication_start__continue,
 		xmysqlnd_authentication_start__ok,
-		xmysqlnd_authentication_start__free_resources,
 		vio,
 		pfc,
 		stats,
 		error_info,
 		{ NULL, NULL },		/* on_error */
+		{ NULL, NULL }, 	/* on_auth_continue */
 		NULL,				/* zval */
 		XMSG_NONE,
-		{NULL, 0},
 	};
 	return ctx;
 }
@@ -909,26 +914,28 @@ xmysqlnd_authentication_continue__send_request(struct st_xmysqlnd_auth_continue_
 	size_t bytes_sent;
 	Mysqlx::Session::AuthenticateContinue message;
 	DBG_ENTER("xmysqlnd_authentication_continue__send_request");
+	char hexed_hash[SCRAMBLE_LENGTH*2];
+	if (password.s && password.l) {
+		zend_uchar hash[SCRAMBLE_LENGTH];
+
+		php_mysqlnd_scramble(hash, (zend_uchar*) salt.s, (const zend_uchar*) password.s, password.l);
+		for (unsigned int i = 0; i < SCRAMBLE_LENGTH; i++) {
+			hexed_hash[i*2] = hexconvtab[hash[i] >> 4];
+			hexed_hash[i*2 + 1] = hexconvtab[hash[i] & 15];
+		}
+		DBG_INF_FMT("hexed_hash=%s", hexed_hash);
+	}
 
 	std::string response(schema.s, schema.l);
 	response.append(1, '\0');
 	response.append(user.s, user.l);
 	response.append(1, '\0'); 
 	if (password.s && password.l) {
-		zend_uchar hash[SCRAMBLE_LENGTH];
-
-		php_mysqlnd_scramble(hash, (zend_uchar*) salt.s, (const zend_uchar*) password.s, password.l);
-		char hexed_hash[SCRAMBLE_LENGTH*2];
-		for (unsigned int i = 0; i < SCRAMBLE_LENGTH; i++) {
-			hexed_hash[i*2] = hexconvtab[hash[i] >> 4];
-			hexed_hash[i*2 + 1] = hexconvtab[hash[i] & 15];
-		}
-		DBG_INF_FMT("hexed_hash=%s", hexed_hash);
 		response.append(1, '*');
 		response.append(hexed_hash, SCRAMBLE_LENGTH*2);
 	}
 	response.append(1, '\0');
-	DBG_INF_FMT("response_size=%u", (uint) response.size());
+	xmysqlnd_dump_string_to_log("response_size", response.c_str(), response.size());
 	message.set_auth_data(response.c_str(), response.size());
 
 	enum_func_status ret = xmysqlnd_send_message(COM_AUTH_CONTINUE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);

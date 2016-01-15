@@ -32,6 +32,27 @@
 #include "proto_gen/mysqlx_session.pb.h"
 #include "proto_gen/mysqlx_sql.pb.h"
 
+static char hexconvtab[] = "0123456789abcdef";
+
+/* {{{ xmysqlnd_dump_string_to_log */
+extern "C" void
+xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len) 
+{
+	char message_dump[len * 3 + 1];
+	DBG_ENTER("dump_string_to_log");
+	message_dump[len * 3] = '\0';
+	unsigned int i = 0;
+	for (; i < len; ++i) {
+		message_dump[i*3+0] = hexconvtab[ s[i] >> 4];
+		message_dump[i*3+1] = hexconvtab[ s[i] & 15];
+		message_dump[i*3+2] = ' ';
+	}
+	DBG_INF_FMT("%s[%u]=[%*s]", prefix, (uint) len, len, message_dump);
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_dump_column_identifier */
 static void
 xmysqlnd_dump_column_identifier(const Mysqlx::Expr::ColumnIdentifier & column)
@@ -258,7 +279,6 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 	const Mysqlx::ClientMessages_Type type = (Mysqlx::ClientMessages_Type)(packet_type);
 	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ClientMessages_Type_Name(type).c_str(), (uint) payload_size);
 	{
-		static char hexconvtab[] = "0123456789abcdef";
 		char * message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
 		for (unsigned int i = 0; i < payload_size; i++) {
@@ -769,7 +789,6 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 	const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
 	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ServerMessages_Type_Name(type).c_str(), (uint) payload_size);
 	{
-		static char hexconvtab[] = "0123456789abcdef";
 		char * message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
 		for (unsigned int i = 0; i < payload_size; i++) {

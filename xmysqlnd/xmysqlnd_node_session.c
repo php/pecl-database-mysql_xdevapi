@@ -28,7 +28,7 @@
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_wireprotocol.h"
-
+#include "xmysqlnd_protocol_dumper.h"
 
 /* {{{ xmysqlnd_node_session_state::get */
 static enum xmysqlnd_node_session_state
@@ -165,6 +165,71 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error)(void * context, const unsi
 }
 /* }}} */
 
+struct st_xmysqlnd_auth_41_ctx
+{
+	XMYSQLND_NODE_SESSION_DATA * session;
+	MYSQLND_CSTRING scheme;
+	MYSQLND_CSTRING username;
+	MYSQLND_CSTRING password;
+	MYSQLND_CSTRING database;
+
+};
+
+#include "ext/mysqlnd/mysqlnd_auth.h" /* php_mysqlnd_scramble */
+
+static const char hexconvtab[] = "0123456789abcdef";
+
+
+
+/* {{{ xmysqlnd_node_stmt::handler_on_auth_continue */
+static enum_hnd_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * output)
+{
+	const MYSQLND_CSTRING salt = input;
+	struct st_xmysqlnd_auth_41_ctx * ctx = (struct st_xmysqlnd_auth_41_ctx *) context;
+	DBG_ENTER("xmysqlnd_node_stmt::handler_on_auth_continue");
+	DBG_INF_FMT("salt[%d]=%s", salt.l, salt.s);
+	if (salt.s) {
+		const zend_bool to_hex = ctx->password.s && ctx->password.l;
+		char hexed_hash[SCRAMBLE_LENGTH*2];
+		if (to_hex) {
+			zend_uchar hash[SCRAMBLE_LENGTH];
+			unsigned int i;
+
+			php_mysqlnd_scramble(hash, (zend_uchar*) salt.s, (const zend_uchar*) ctx->password.s, ctx->password.l);
+			for (i = 0; i < SCRAMBLE_LENGTH; i++) {
+				hexed_hash[i*2] = hexconvtab[hash[i] >> 4];
+				hexed_hash[i*2 + 1] = hexconvtab[hash[i] & 15];
+			}
+			DBG_INF_FMT("hexed_hash=%s", hexed_hash);
+		}
+
+		{
+			char answer[ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex? SCRAMBLE_LENGTH*2 : 0) + 1];
+			char *p = answer;
+			memcpy(p, ctx->database.s, ctx->database.l);
+			p+= ctx->database.l;
+			*p++ = '\0';
+			memcpy(p, ctx->username.s, ctx->username.l);
+			p+= ctx->username.l;
+			*p++ = '\0';
+			if (to_hex) {
+				*p++ = '*';
+				memcpy(p, hexed_hash, SCRAMBLE_LENGTH*2);
+				p+= SCRAMBLE_LENGTH*2;
+			}
+			*p++ = '\0';
+			output->l = p - answer;
+			output->s = mnd_emalloc(output->l);
+			memcpy(output->s, answer, output->l);
+
+			xmysqlnd_dump_string_to_log("output", output->s, output->l);
+		}
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
 
 /* {{{ proto xmysqlnd_get_tls_capability */
 static zend_bool
@@ -213,6 +278,9 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 	enum_func_status ret = FAIL;
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
 	const struct st_xmysqlnd_on_error_bind on_error = { session->m->handler_on_error, (void*) session };
+	struct st_xmysqlnd_auth_41_ctx auth_ctx = { session, scheme, username, password, database };
+	const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue = { session->m->handler_on_auth_continue, &auth_ctx };
+
 	struct st_xmysqlnd_capabilities_get_message_ctx caps_get;
 	DBG_ENTER("xmysqlnd_node_session_data::authenticate");
 	
@@ -237,26 +305,12 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 
 				ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username);
 				if (ret == PASS) {
-					auth_start_msg.init_read(&auth_start_msg, on_error);
+					auth_start_msg.init_read(&auth_start_msg, on_error, on_auth_continue);
 					ret = auth_start_msg.read_response(&auth_start_msg, NULL);
 					if (PASS == ret) {
-						if (auth_start_msg.continue_auth(&auth_start_msg) && auth_start_msg.out_auth_data.s) {
-							struct st_xmysqlnd_auth_continue_message_ctx auth_cont_msg = msg_factory.get__auth_continue(&msg_factory);
-							const MYSQLND_CSTRING salt_par = {auth_start_msg.out_auth_data.s, auth_start_msg.out_auth_data.l};
-
-							ret = auth_cont_msg.send_request(&auth_cont_msg, database, username, password, salt_par);
-							if (PASS == ret) {
-								auth_cont_msg.init_read(&auth_cont_msg, on_error);
-
-								ret = auth_cont_msg.read_response(&auth_cont_msg, NULL);
-								if (PASS == ret && auth_cont_msg.finished(&auth_cont_msg)) {
-									DBG_INF("AUTHENTICATED. YAY!");
-								}
-							}
-						}
+						DBG_INF("AUTHENTICATED. YAY!");
 					}
 				}
-				auth_start_msg.free_resources(&auth_start_msg);
 			}
 		}
 		zval_dtor(&capabilities);
@@ -923,6 +977,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_client_api_capabilities),
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_auth_continue)
 MYSQLND_CLASS_METHODS_END;
 
 
