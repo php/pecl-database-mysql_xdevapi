@@ -311,6 +311,37 @@ xmysqlnd_receive_message(struct st_xmysqlnd_server_messages_handlers * handlers,
 /* }}} */
 
 
+/* {{{ on_ERROR */
+static enum_hnd_func_status
+on_ERROR(const Mysqlx::Error & error, const struct st_xmysqlnd_on_error_bind on_error)
+{
+	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	DBG_ENTER("on_ERROR");
+
+	if (on_error.handler) {
+
+		const bool has_code = error.has_code();
+		const bool has_sql_state = error.has_sql_state();
+		const bool has_msg = error.has_msg();
+
+		const MYSQLND_CSTRING sql_state = {
+			has_sql_state? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
+			has_sql_state? error.sql_state().size()  : sizeof(UNKNOWN_SQLSTATE) - 1
+		};
+		const unsigned int code = has_code? error.code() : CR_UNKNOWN_ERROR;
+		const MYSQLND_CSTRING error_message = {
+			has_msg? error.msg().c_str() : "Unknown server error",
+			has_msg? error.msg().size() : sizeof("Unknown server error") - 1
+		};
+
+		ret = on_error.handler(on_error.ctx, code, sql_state, error_message);
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /************************************** CAPABILITIES GET **************************************************/
 /* {{{ proto capabilities_to_zv */
 static void
@@ -338,13 +369,12 @@ capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * re
 static enum_hnd_func_status
 capabilities_get_on_ERROR(const Mysqlx::Error & error, void * context)
 {
+	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	struct st_xmysqlnd_capabilities_get_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_get_message_ctx *>(context);
+	DBG_ENTER("capabilities_get_on_ERROR")
 	ctx->server_message_type = XMSG_ERROR;
-	SET_CLIENT_ERROR(ctx->error_info,
-					 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
-					 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
-					 error.has_msg()? error.msg().c_str() : "Unknown server error");
-	return HND_PASS_RETURN_FAIL;
+	on_ERROR(error, ctx->on_error);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -416,6 +446,16 @@ xmysqlnd_capabilities_get__send_request(struct st_xmysqlnd_capabilities_get_mess
 /* }}} */
 
 
+/* {{{ xmysqlnd_capabilities_get__init_read */
+extern "C" enum_func_status
+xmysqlnd_capabilities_get__init_read(struct st_xmysqlnd_capabilities_get_message_ctx * const msg,
+									 const struct st_xmysqlnd_on_error_bind on_error)
+{
+	DBG_ENTER("xmysqlnd_capabilities_get__init_read");
+	msg->on_error = on_error;
+	DBG_RETURN(PASS);
+}
+/* }}} */
 
 
 /* {{{ xmysqlnd_get_capabilities_get_message */
@@ -426,11 +466,13 @@ xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 	{
 		xmysqlnd_capabilities_get__send_request,
 		xmysqlnd_capabilities_get__read_response,
+		xmysqlnd_capabilities_get__init_read,
 		vio,
 		pfc,
 		stats,
 		error_info,
-		NULL,
+		{ NULL, NULL }, /* on_error */
+		NULL, /* zval */
 		XMSG_NONE,
 	};
 	return ctx;
@@ -459,13 +501,11 @@ static enum_hnd_func_status
 capabilities_set_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_capabilities_set_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_set_message_ctx *>(context);
-	DBG_ENTER("capabilities_set_on_ERROR");
+	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	DBG_ENTER("capabilities_set_on_ERROR")
 	ctx->server_message_type = XMSG_ERROR;
-	SET_CLIENT_ERROR(ctx->error_info,
-					 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
-					 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
-					 error.has_msg()? error.msg().c_str() : "Unknown server error");
-	DBG_RETURN(HND_PASS_RETURN_FAIL);
+	on_ERROR(error, ctx->on_error);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -532,6 +572,18 @@ xmysqlnd_capabilities_set__send_request(struct st_xmysqlnd_capabilities_set_mess
 /* }}} */
 
 
+/* {{{ xmysqlnd_capabilities_set__init_read */
+extern "C" enum_func_status
+xmysqlnd_capabilities_set__init_read(struct st_xmysqlnd_capabilities_set_message_ctx * const msg,
+									 const struct st_xmysqlnd_on_error_bind on_error)
+{
+	DBG_ENTER("xmysqlnd_capabilities_set__init_read");
+	msg->on_error = on_error;
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_get_capabilities_set_message */
 static struct st_xmysqlnd_capabilities_set_message_ctx
 xmysqlnd_get_capabilities_set_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -540,11 +592,13 @@ xmysqlnd_get_capabilities_set_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 	{
 		xmysqlnd_capabilities_set__send_request,
 		xmysqlnd_capabilities_set__read_response,
+		xmysqlnd_capabilities_set__init_read,
 		vio,
 		pfc,
 		stats,
 		error_info,
-		NULL,
+		{ NULL, NULL },	/* on_error */
+		NULL,			/* zval */
 		XMSG_NONE,
 	};
 	return ctx;
@@ -558,12 +612,11 @@ static enum_hnd_func_status
 auth_start_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_start_message_ctx *>(context);
+	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	DBG_ENTER("auth_start_on_ERROR")
 	ctx->server_message_type = XMSG_ERROR;
-	SET_CLIENT_ERROR(ctx->error_info,
-					 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
-					 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
-					 error.has_msg()? error.msg().c_str() : "Unknown server error");
-	return HND_PASS_RETURN_FAIL;
+	on_ERROR(error, ctx->on_error);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -637,6 +690,18 @@ static struct st_xmysqlnd_server_messages_handlers auth_start_handlers =
 	NULL,							// on_UNKNOWN
 };
 
+/* {{{ xmysqlnd_authentication_start__init_read */
+extern "C" enum_func_status
+xmysqlnd_authentication_start__init_read(struct st_xmysqlnd_auth_start_message_ctx * const msg,
+										 const struct st_xmysqlnd_on_error_bind on_error)
+{
+	DBG_ENTER("xmysqlnd_authentication_start__init_read");
+	msg->on_error = on_error;
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_authentication_start__read_response */
 extern "C" enum_func_status
 xmysqlnd_authentication_start__read_response(struct st_xmysqlnd_auth_start_message_ctx * msg, zval * auth_start_response)
@@ -703,6 +768,7 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 	{
 		xmysqlnd_authentication_start__send_request,
 		xmysqlnd_authentication_start__read_response,
+		xmysqlnd_authentication_start__init_read,
 		xmysqlnd_authentication_start__continue,
 		xmysqlnd_authentication_start__ok,
 		xmysqlnd_authentication_start__free_resources,
@@ -710,7 +776,8 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		pfc,
 		stats,
 		error_info,
-		NULL,
+		{ NULL, NULL },		/* on_error */
+		NULL,				/* zval */
 		XMSG_NONE,
 		{NULL, 0},
 	};
@@ -724,12 +791,11 @@ static enum_hnd_func_status
 auth_continue_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_auth_continue_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_continue_message_ctx *>(context);
+	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	DBG_ENTER("auth_continue_on_ERROR")
 	ctx->server_message_type = XMSG_ERROR;
-	SET_CLIENT_ERROR(ctx->error_info,
-					 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
-					 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
-					 error.has_msg()? error.msg().c_str() : "Unknown server error");
-	return HND_PASS_RETURN_FAIL;
+	on_ERROR(error, ctx->on_error);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -799,6 +865,19 @@ static struct st_xmysqlnd_server_messages_handlers auth_continue_handlers =
 	NULL,							// on_UNEXPECTED
 	NULL,							// on_UNKNOWN
 };
+
+
+/* {{{ xmysqlnd_authentication_continue__init_read */
+extern "C" enum_func_status
+xmysqlnd_authentication_continue__init_read(struct st_xmysqlnd_auth_continue_message_ctx * const msg,
+											const struct st_xmysqlnd_on_error_bind on_error)
+{
+	DBG_ENTER("xmysqlnd_authentication_continue__init_read");
+	msg->on_error = on_error;
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
 
 /* {{{ xmysqlnd_authentication_continue__read_response */
 extern "C" enum_func_status
@@ -897,6 +976,7 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 	{
 		xmysqlnd_authentication_continue__send_request,
 		xmysqlnd_authentication_continue__read_response,
+		xmysqlnd_authentication_continue__init_read,
 		xmysqlnd_authentication_continue__continue,
 		xmysqlnd_authentication_continue__ok,
 		xmysqlnd_authentication_continue__free_resources,
@@ -904,7 +984,8 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 		pfc,
 		stats,
 		error_info,
-		NULL,
+		{ NULL, NULL },		/* on_error */
+		NULL,				/* zval */
 		XMSG_NONE,
 		{NULL, 0}
 	};

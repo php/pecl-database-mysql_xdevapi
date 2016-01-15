@@ -113,24 +113,25 @@ extern "C"
 #endif
 
 
-typedef enum xmysqlnd_handler_func_status
+struct st_xmysqlnd_on_error_bind
 {
-	HND_PASS = PASS,
-	HND_FAIL = FAIL,
-	HND_PASS_RETURN_FAIL,
-	HND_AGAIN,
-	HND_AGAIN_ASYNC,
-} enum_hnd_func_status;
+	enum_hnd_func_status (*handler)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	void * ctx;
+};
+
 
 struct st_xmysqlnd_capabilities_get_message_ctx
 {
 	enum_func_status (*send_request)(struct st_xmysqlnd_capabilities_get_message_ctx * msg);
 	enum_func_status (*read_response)(struct st_xmysqlnd_capabilities_get_message_ctx * msg, zval * capabilities);
+	enum_func_status (*init_read)(struct st_xmysqlnd_capabilities_get_message_ctx * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
+	struct st_xmysqlnd_on_error_bind on_error;
 	zval * capabilities_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 };
@@ -144,10 +145,13 @@ struct st_xmysqlnd_capabilities_set_message_ctx
 	enum_func_status (*read_response)(struct st_xmysqlnd_capabilities_set_message_ctx * msg,
 									  zval * return_value);
 
+	enum_func_status (*init_read)(struct st_xmysqlnd_capabilities_set_message_ctx * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
+	struct st_xmysqlnd_on_error_bind on_error;
 	zval * return_value_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 };
@@ -162,6 +166,9 @@ struct st_xmysqlnd_auth_start_message_ctx
 	enum_func_status (*read_response)(struct st_xmysqlnd_auth_start_message_ctx * msg,
 									  zval * auth_start_response);
 
+	enum_func_status (*init_read)(struct st_xmysqlnd_auth_start_message_ctx * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
+
 	zend_bool (*continue_auth)(const struct st_xmysqlnd_auth_start_message_ctx * msg);
 	zend_bool (*finished)(const struct st_xmysqlnd_auth_start_message_ctx * msg);
 
@@ -171,6 +178,7 @@ struct st_xmysqlnd_auth_start_message_ctx
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
+	struct st_xmysqlnd_on_error_bind on_error;
 	zval * auth_start_response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 	MYSQLND_STRING out_auth_data;	
@@ -188,6 +196,9 @@ struct st_xmysqlnd_auth_continue_message_ctx
 	enum_func_status (*read_response)(struct st_xmysqlnd_auth_continue_message_ctx * msg,
 									  zval * auth_continue_response);
 
+	enum_func_status (*init_read)(struct st_xmysqlnd_auth_continue_message_ctx * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
+
 	zend_bool (*continue_auth)(const struct st_xmysqlnd_auth_continue_message_ctx * msg);
 	zend_bool (*finished)(const struct st_xmysqlnd_auth_continue_message_ctx * msg);
 
@@ -197,6 +208,7 @@ struct st_xmysqlnd_auth_continue_message_ctx
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
+	struct st_xmysqlnd_on_error_bind on_error;
 	zval * auth_continue_response_zval;
 	enum xmysqlnd_server_message_type server_message_type;
 	MYSQLND_STRING out_auth_data;
@@ -237,11 +249,6 @@ struct st_xmysqlnd_on_warning_bind
 	void * ctx;
 };
 
-struct st_xmysqlnd_on_error_bind
-{
-	enum_hnd_func_status (*handler)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
-	void * ctx;
-};
 
 
 struct st_xmysqlnd_sql_stmt_execute_message_ctx

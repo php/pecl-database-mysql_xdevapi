@@ -25,6 +25,15 @@ PHPAPI void xmysqlnd_library_end(void);
 PHPAPI const char * xmysqlnd_get_client_info();
 PHPAPI unsigned int xmysqlnd_get_client_version();
 
+typedef enum xmysqlnd_handler_func_status
+{
+	HND_PASS = PASS,
+	HND_FAIL = FAIL,
+	HND_PASS_RETURN_FAIL,
+	HND_AGAIN,
+	HND_AGAIN_ASYNC,
+} enum_hnd_func_status;
+
 #include "xmysqlnd_object_factory.h"
 
 #endif	/* XMYSQLND_DRIVER_H */

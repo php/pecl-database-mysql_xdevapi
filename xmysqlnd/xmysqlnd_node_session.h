@@ -136,6 +136,8 @@ typedef size_t				(*func_xmysqlnd_node_session_data__get_client_api_capabilities
 
 typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__get_scheme)(XMYSQLND_NODE_SESSION_DATA * session, MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned int port, zend_bool * unix_socket, zend_bool * named_pipe);
 
+typedef enum_hnd_func_status (*func_xmysqlnd_node_session_data__handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 {
@@ -176,6 +178,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 
 	func_xmysqlnd_node_session_data__negotiate_client_api_capabilities negotiate_client_api_capabilities;
 	func_xmysqlnd_node_session_data__get_client_api_capabilities get_client_api_capabilities;
+
+	func_xmysqlnd_node_session_data__handler_on_error handler_on_error;	/* export the function which is used as network event handler */
 };
 
 

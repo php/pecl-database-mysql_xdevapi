@@ -151,6 +151,21 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DAT
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt::handler_on_warning */
+static enum_hnd_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	XMYSQLND_NODE_SESSION_DATA * session = (XMYSQLND_NODE_SESSION_DATA *) context;
+	DBG_ENTER("xmysqlnd_node_stmt::handler_on_error");
+	if (session->error_info) {
+		SET_CLIENT_ERROR(session->error_info, code, sql_state.s, message.s);
+	}
+	php_error_docref(NULL, E_WARNING, "[%4u][%s] %s", code, sql_state.s? sql_state.s:"", message.s? message.s:"");
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
 /* {{{ proto xmysqlnd_get_tls_capability */
 static zend_bool
 xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
@@ -197,15 +212,16 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 {
 	enum_func_status ret = FAIL;
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
+	const struct st_xmysqlnd_on_error_bind on_error = { session->m->handler_on_error, (void*) session };
 	struct st_xmysqlnd_capabilities_get_message_ctx caps_get;
 	DBG_ENTER("xmysqlnd_node_session_data::authenticate");
-
 	
 	caps_get = msg_factory.get__capabilities_get(&msg_factory);
 
 	if (PASS == caps_get.send_request(&caps_get)) {
 		zval capabilities;
 		ZVAL_NULL(&capabilities);
+		caps_get.init_read(&caps_get, on_error);
 		ret = caps_get.read_response(&caps_get, &capabilities);
 		if (PASS == ret) {
 			zend_bool tls_set;
@@ -221,6 +237,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 
 				ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username);
 				if (ret == PASS) {
+					auth_start_msg.init_read(&auth_start_msg, on_error);
 					ret = auth_start_msg.read_response(&auth_start_msg, NULL);
 					if (PASS == ret) {
 						if (auth_start_msg.continue_auth(&auth_start_msg) && auth_start_msg.out_auth_data.s) {
@@ -229,6 +246,8 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 
 							ret = auth_cont_msg.send_request(&auth_cont_msg, database, username, password, salt_par);
 							if (PASS == ret) {
+								auth_cont_msg.init_read(&auth_cont_msg, on_error);
+
 								ret = auth_cont_msg.read_response(&auth_cont_msg, NULL);
 								if (PASS == ret && auth_cont_msg.finished(&auth_cont_msg)) {
 									DBG_INF("AUTHENTICATED. YAY!");
@@ -902,6 +921,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 
 	MYSQLND_METHOD(xmysqlnd_node_session_data, negotiate_client_api_capabilities),
 	MYSQLND_METHOD(xmysqlnd_node_session_data, get_client_api_capabilities),
+
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error),
 MYSQLND_CLASS_METHODS_END;
 
 
