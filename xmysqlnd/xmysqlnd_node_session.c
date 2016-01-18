@@ -307,7 +307,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 	const struct st_xmysqlnd_on_error_bind on_error = { session->m->handler_on_error, (void*) session };
 	const struct st_xmysqlnd_on_client_id_bind on_client_id = { session->m->set_client_id, (void*) session };
 	const struct st_xmysqlnd_on_warning_bind on_warning = { NULL, (void*) session };
-	const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change = { NULL, (void*) session };
+	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { NULL, (void*) session };
 	struct st_xmysqlnd_auth_41_ctx auth_ctx = { session, scheme, username, password, database };
 	const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue = { session->m->handler_on_auth_continue, &auth_ctx };
 
@@ -335,7 +335,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 
 				ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username);
 				if (ret == PASS) {
-					auth_start_msg.init_read(&auth_start_msg, on_auth_continue, on_warning, on_error, on_client_id, on_session_variable_change);
+					auth_start_msg.init_read(&auth_start_msg, on_auth_continue, on_warning, on_error, on_client_id, on_session_var_change);
 					ret = auth_start_msg.read_response(&auth_start_msg, NULL);
 					if (PASS == ret) {
 						DBG_INF("AUTHENTICATED. YAY!");

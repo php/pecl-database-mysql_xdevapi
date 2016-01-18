@@ -56,7 +56,7 @@ struct st_xmysqlnd_inspect_changed_variable_bind
 
 /* {{{ xmysqlnd_inspect_changed_variable */
 static enum_hnd_func_status
-xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change, const Mysqlx::Notice::SessionVariableChanged & message)
+xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change, const Mysqlx::Notice::SessionVariableChanged & message)
 {
 	enum_hnd_func_status ret = HND_AGAIN;
 	DBG_ENTER("xmysqlnd_inspect_changed_variable");
@@ -72,7 +72,7 @@ xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_variable_c
 		zval zv;
 		ZVAL_UNDEF(&zv);
 		if (PASS == scalar2zval(message.value(), &zv)) {
-			ret = on_session_variable_change.handler(on_session_variable_change.ctx, name, &zv);
+			ret = on_session_var_change.handler(on_session_var_change.ctx, name, &zv);
 		}
 	}
 
@@ -147,6 +147,7 @@ xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_
 static enum_hnd_func_status
 xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & message,
 							   const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change,
+							   const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change,
 							   const struct st_xmysqlnd_on_client_id_bind on_client_id)
 {
 	enum_hnd_func_status ret = HND_AGAIN;
@@ -154,6 +155,8 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 	const bool has_value = message.has_value();
 	DBG_ENTER("xmysqlnd_inspect_changed_state");
 	DBG_INF_FMT("on_execution_state_handler=%p", on_exec_state_change.handler);
+	DBG_INF_FMT("on_trx_state_change=%p", on_trx_state_change.handler);
+	DBG_INF_FMT("on_client_id=%p", on_client_id.handler);
 	DBG_INF_FMT("param is %s", has_param? "SET":"NOT SET");
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 	if (has_param && has_value) {
@@ -170,7 +173,15 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
+				if (on_trx_state_change.handler) {
+					ret = on_trx_state_change.handler(on_trx_state_change.ctx, TRX_STATE_COMMITTED);
+				}
+				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_ROLLEDBACK:
+				if (on_trx_state_change.handler) {
+					ret = on_trx_state_change.handler(on_trx_state_change.ctx, TRX_STATE_ROLLEDBACK);
+				}
+				break;
 			case Mysqlx::Notice::SessionStateChanged::PRODUCED_MESSAGE:
 				break;
 			case Mysqlx::Notice::SessionStateChanged::CLIENT_ID_ASSIGNED:
@@ -194,8 +205,9 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 static enum_hnd_func_status
 xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 							  const struct st_xmysqlnd_on_warning_bind on_warning,
-							  const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change,
+							  const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change,
 							  const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change,
+							  const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change,
 							  const struct st_xmysqlnd_on_client_id_bind on_client_id)
 {
 	enum_hnd_func_status ret = HND_AGAIN;
@@ -226,8 +238,8 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 					Mysqlx::Notice::SessionVariableChanged message;
 					DBG_INF("SessionVariableChanged");
 					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					if (on_session_variable_change.handler) {
-						ret = xmysqlnd_inspect_changed_variable(on_session_variable_change, message);
+					if (on_session_var_change.handler) {
+						ret = xmysqlnd_inspect_changed_variable(on_session_var_change, message);
 					}
 					break;
 				}
@@ -235,7 +247,7 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 					Mysqlx::Notice::SessionStateChanged message;
 					DBG_INF("SessionStateChanged");
 					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					ret = xmysqlnd_inspect_changed_state(message, on_exec_state_change, on_client_id);
+					ret = xmysqlnd_inspect_changed_state(message, on_exec_state_change, on_trx_state_change, on_client_id);
 				}
 				break;
 			default:
@@ -714,9 +726,9 @@ capabilities_set_on_ERROR(const Mysqlx::Error & error, void * context)
 /* }}} */
 
 
-/* {{{ capabilities_on_NOTICE */
+/* {{{ capabilities_set_on_NOTICE */
 static enum_hnd_func_status
-capabilities_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
+capabilities_set_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_capabilities_set_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_set_message_ctx *>(context);
 	return HND_AGAIN;
@@ -731,7 +743,7 @@ static struct st_xmysqlnd_server_messages_handlers capabilities_set_handlers =
 	NULL,							// on_CAPABILITIES
 	NULL,							// on_AUTHENTICATE_CONTINUE
 	NULL,							// on_AUTHENTICATE_OK
-	capabilities_on_NOTICE,
+	capabilities_set_on_NOTICE,		// on_NOTICE
 	NULL,							// on_RSET_COLUMN_META
 	NULL,							// on_RSET_ROW
 	NULL,							// on_RSET_FETCH_DONE
@@ -828,15 +840,17 @@ auth_start_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	const struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<const struct st_xmysqlnd_auth_start_message_ctx *>(context);
 	const struct st_xmysqlnd_on_warning_bind on_warning = { NULL, NULL };
-	const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change = { NULL, NULL };
+	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { NULL, NULL };
 	const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change = { NULL, NULL };
+	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { NULL, NULL };
 
 	DBG_ENTER("auth_start_on_NOTICE");
 
 	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
 															 on_warning,
-															 on_session_variable_change,
+															 on_session_var_change,
 															 on_execution_state_change,
+															 on_trx_state_change,
 															 ctx->on_client_id);
 	DBG_RETURN(ret);
 }
@@ -922,14 +936,14 @@ xmysqlnd_authentication_start__init_read(struct st_xmysqlnd_auth_start_message_c
 										 const struct st_xmysqlnd_on_warning_bind on_warning,
 										 const struct st_xmysqlnd_on_error_bind on_error,
 										 const struct st_xmysqlnd_on_client_id_bind on_client_id,
-										 const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change)
+										 const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change)
 {
 	DBG_ENTER("xmysqlnd_authentication_start__init_read");
 	msg->on_auth_continue = on_auth_continue;
 	msg->on_warning = on_warning;
 	msg->on_error = on_error;
 	msg->on_client_id = on_client_id;
-	msg->on_session_variable_change = on_session_variable_change;
+	msg->on_session_var_change = on_session_var_change;
 	DBG_RETURN(PASS);
 }
 /* }}} */
@@ -978,7 +992,7 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		{ NULL, NULL }, 	/* on_warning */
 		{ NULL, NULL },		/* on_error */
 		{ NULL, NULL }, 	/* on_client_id */
-		{ NULL, NULL }, 	/* on_session_variable_change */
+		{ NULL, NULL }, 	/* on_session_var_change */
 		NULL,				/* zval */
 	};
 	return ctx;
@@ -1199,8 +1213,9 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 
 	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
 															 ctx->on_warning,
-															 ctx->on_session_variable_change,
+															 ctx->on_session_var_change,
 															 ctx->on_execution_state_change,
+															 ctx->on_trx_state_change,
 															 on_client_id);
 
 	DBG_RETURN(ret);
@@ -1739,7 +1754,8 @@ xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_sql_stmt_execute_message
 									 const struct st_xmysqlnd_on_warning_bind on_warning,
 									 const struct st_xmysqlnd_on_error_bind on_error,
 									 const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
-									 const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change)
+									 const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change,
+									 const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change)
 {
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__init_read");
 	msg->create_meta_field = create_meta_field;
@@ -1749,7 +1765,8 @@ xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_sql_stmt_execute_message
 	msg->on_warning = on_warning;
 	msg->on_error = on_error;
 	msg->on_execution_state_change = on_execution_state_change;
-	msg->on_session_variable_change = on_session_variable_change;
+	msg->on_session_var_change = on_session_var_change;
+	msg->on_trx_state_change = on_trx_state_change;
 
 	msg->field_count = 0;
 	msg->has_more_results = FALSE;
@@ -1835,7 +1852,8 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		{ NULL, NULL}, /* on_warning */
 		{ NULL, NULL}, /* on_error */
 		{ NULL, NULL}, /* on_execution_state_change */
-		{ NULL, NULL}, /* on_session_variable_change */
+		{ NULL, NULL}, /* on_session_var_change */
+		{ NULL, NULL}, /* on_trx_state_change */
 
 		0,     /* field_count*/
 		FALSE, /* has_more_results */

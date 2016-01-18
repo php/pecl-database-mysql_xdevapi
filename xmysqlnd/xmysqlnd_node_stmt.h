@@ -49,10 +49,12 @@ typedef struct st_xmysqlnd_node_stmt_result_meta *	(*func_xmysqlnd_node_stmt__cr
 typedef struct st_xmysqlnd_result_field_meta *		(*func_xmysqlnd_node_stmt__create_meta_field)(void * ctx);
 typedef struct st_xmysqlnd_stmt_execution_state *	(*func_xmysqlnd_node_stmt__create_execution_state)(void * ctx);
 typedef struct st_xmysqlnd_warning_list *			(*func_xmysqlnd_node_stmt__create_warning_list)(void * ctx);
+
 typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_row_field)(void * context, const MYSQLND_CSTRING buffer, const unsigned int idx, func_xmysqlnd_wireprotocol__row_field_decoder decoder);
 typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_meta_field)(void * context, struct st_xmysqlnd_result_field_meta * field);
 typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_warning)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
-typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_on_exec_state_change)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value);
+typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_exec_state_change)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value);
+typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_trx_state_change)(void * context, const enum xmysqlnd_transaction_state_type type);
 
 typedef XMYSQLND_NODE_STMT *(*func_xmysqlnd_node_stmt__get_reference)(XMYSQLND_NODE_STMT * const stmt);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__free_reference)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -78,7 +80,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__handler_on_row_field handler_on_row_field;
 	func_xmysqlnd_node_stmt__handler_on_meta_field handler_on_meta_field;
 	func_xmysqlnd_node_stmt__handler_on_warning handler_on_warning;			/* export the function for binding */
-	func_xmysqlnd_node_stmt__handler_on_on_exec_state_change handler_on_on_exec_state_change;/* export the function for binding */
+	func_xmysqlnd_node_stmt__handler_on_exec_state_change handler_on_exec_state_change;/* export the function for binding */
+	func_xmysqlnd_node_stmt__handler_on_trx_state_change handler_on_trx_state_change;/* export the function for binding */
 
 	func_xmysqlnd_node_stmt__get_reference get_reference;
 	func_xmysqlnd_node_stmt__free_reference free_reference;

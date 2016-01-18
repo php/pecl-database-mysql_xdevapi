@@ -130,7 +130,7 @@ struct st_xmysqlnd_on_error_bind
 };
 
 
-struct st_xmysqlnd_on_session_variable_change_bind
+struct st_xmysqlnd_on_session_var_change_bind
 {
 	enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING name, const zval * value);
 	void * ctx;
@@ -201,7 +201,7 @@ struct st_xmysqlnd_auth_start_message_ctx
 								  const struct st_xmysqlnd_on_warning_bind on_warning,
 								  const struct st_xmysqlnd_on_error_bind on_error,
 								  const struct st_xmysqlnd_on_client_id_bind on_client_id,
-								  const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change);
+								  const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
@@ -211,7 +211,7 @@ struct st_xmysqlnd_auth_start_message_ctx
 	struct st_xmysqlnd_on_warning_bind on_warning;
 	struct st_xmysqlnd_on_error_bind on_error;
 	struct st_xmysqlnd_on_client_id_bind on_client_id;
-	struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change;
+	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
 	zval * auth_start_response_zval;
 };
 
@@ -267,6 +267,12 @@ struct st_xmysqlnd_on_execution_state_change_bind
 };
 
 
+struct st_xmysqlnd_on_trx_state_change_bind
+{
+	enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_transaction_state_type type);
+	void * ctx;
+};
+
 
 struct st_xmysqlnd_sql_stmt_execute_message_ctx
 {
@@ -285,7 +291,8 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 								  const struct st_xmysqlnd_on_warning_bind on_warning,
 								  const struct st_xmysqlnd_on_error_bind on_error,
 								  const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
-								  const struct st_xmysqlnd_on_session_variable_change_bind);
+								  const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change,
+								  const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change);
 
 	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
 									  const size_t rows,
@@ -302,7 +309,8 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 	struct st_xmysqlnd_on_warning_bind on_warning;
 	struct st_xmysqlnd_on_error_bind on_error;
 	struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
-	struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change;
+	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
+	struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
 
 	unsigned int field_count:16;
 	zend_bool has_more_results:1;
