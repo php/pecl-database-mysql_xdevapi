@@ -133,7 +133,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const resu
 	size_t row_cursor = 0;
 	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_all");
 
-	/* read the rest. If this was the first, then we will prefetch everythin, otherwise we will read whatever is left */
+	/* read the rest. If this was the first, then we will prefetch everything, otherwise we will read whatever is left */
 	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, (size_t)~0, NULL)) {
 		DBG_RETURN(FAIL);
 	}

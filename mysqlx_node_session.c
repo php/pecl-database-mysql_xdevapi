@@ -45,6 +45,17 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__create_statement, 0, ZEND_RE
 ZEND_END_ARG_INFO()
 
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__quote_name, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__get_server_version, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__get_client_id, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__get_schemas, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -242,6 +253,91 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt);
 		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_session::quoteName(object session, string query) */
+static
+PHP_METHOD(mysqlx_node_session, quoteName)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING name = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_session::quoteName");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry, &(name.s), &(name.l)) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+
+	session = object->session;
+
+	{
+		MYSQLND_STRING quoted_name = session->data->m->quote_name(session->data, name);
+		RETVAL_STRINGL(quoted_name.s, quoted_name.l);
+		if (quoted_name.s) {
+			mnd_efree(quoted_name.s);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_session::getServerVersion(object session) */
+static
+PHP_METHOD(mysqlx_node_session, getServerVersion)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	XMYSQLND_NODE_SESSION * session;
+
+	DBG_ENTER("mysqlx_node_session::getServerVersion");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+
+	session = object->session;
+	if (session) {
+		RETVAL_LONG(session->data->m->get_server_version(session->data));
+	} else {
+		RETVAL_FALSE;
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_session::getClientId(object session) */
+static
+PHP_METHOD(mysqlx_node_session, getClientId)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	XMYSQLND_NODE_SESSION * session;
+
+	DBG_ENTER("mysqlx_node_session::getClientId");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+
+	session = object->session;
+	if (session) {
+		RETVAL_LONG(session->data->m->get_client_id(session->data));
+	} else {
+		RETVAL_FALSE;
 	}
 
 	DBG_VOID_RETURN;
@@ -609,6 +705,9 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_node_session, query,					arginfo_mysqlx_node_session__query, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, query_and_discard,		arginfo_mysqlx_node_session__query, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, createStatement,		arginfo_mysqlx_node_session__create_statement, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, quoteName,				arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, getServerVersion,		arginfo_mysqlx_node_session__get_server_version, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, getClientId,			arginfo_mysqlx_node_session__get_client_id, ZEND_ACC_PUBLIC)
 #if 1
 	PHP_ME(mysqlx_node_session, getSchemas,				arginfo_mysqlx_node_session__get_schemas, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, getSchema,				arginfo_mysqlx_node_session__get_schema, ZEND_ACC_PUBLIC)

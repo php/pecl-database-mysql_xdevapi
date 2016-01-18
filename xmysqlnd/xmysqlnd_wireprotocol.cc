@@ -53,12 +53,6 @@ struct st_xmysqlnd_inspect_changed_variable_bind
 	void * ctx;
 };
 
-struct st_xmysqlnd_inspect_changed_state_bind
-{
-	enum_hnd_func_status (*handler)(void * context, const Mysqlx::Notice::SessionStateChanged & message);
-	void * ctx;
-};
-
 
 /* {{{ xmysqlnd_inspect_changed_variable */
 static enum_hnd_func_status
@@ -116,15 +110,96 @@ xmysqlnd_inspect_warning(const struct st_xmysqlnd_on_warning_bind on_warning, co
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_notice_frame_ex */
+/* {{{ xmysqlnd_inspect_changed_exec_state*/
 static enum_hnd_func_status
-xmysqlnd_inspect_notice_frame_ex(const Mysqlx::Notice::Frame & frame,
-								 const struct st_xmysqlnd_on_warning_bind on_warning,
-								 const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change,
-								 const struct st_xmysqlnd_inspect_changed_state_bind inspect_changed_state)
+xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change, const Mysqlx::Notice::SessionStateChanged & message)
 {
 	enum_hnd_func_status ret = HND_AGAIN;
-	DBG_ENTER("xmysqlnd_inspect_notice_frame_ex");
+	enum xmysqlnd_execution_state_type state_type = EXEC_STATE_NONE;
+	DBG_ENTER("xmysqlnd_inspect_changed_exec_state");
+	DBG_INF_FMT("on_execution_state_handler=%p", on_execution_state_change.handler);
+	DBG_INF_FMT("param is %s", Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str());
+
+	switch (message.param()) {
+		case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:	state_type = EXEC_STATE_GENERATED_INSERT_ID;	break;
+		case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:		state_type = EXEC_STATE_ROWS_AFFECTED;			break;
+		case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:			state_type = EXEC_STATE_ROWS_FOUND;				break;
+		case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:			state_type = EXEC_STATE_ROWS_MATCHED;			break;
+		default:
+			DBG_ERR_FMT("Unknown param name %d. Please add it to the switch", message.param());
+			php_error_docref("Unknown param name %d in %s::%d. Please add it to the switch", message.param(), __FILE__, __LINE__);
+			break;
+	}
+	if (state_type != EXEC_STATE_NONE) {
+		ret = on_execution_state_change.handler(on_execution_state_change.ctx, state_type, scalar2uint(message.value()));
+	}
+
+#ifdef PHP_DEBUG
+	scalar2log(message.value());
+#endif
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_inspect_changed_state */
+static enum_hnd_func_status
+xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & message,
+							   const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change,
+							   const struct st_xmysqlnd_on_client_id_bind on_client_id)
+{
+	enum_hnd_func_status ret = HND_AGAIN;
+	const bool has_param = message.has_param();
+	const bool has_value = message.has_value();
+	DBG_ENTER("xmysqlnd_inspect_changed_state");
+	DBG_INF_FMT("on_execution_state_handler=%p", on_exec_state_change.handler);
+	DBG_INF_FMT("param is %s", has_param? "SET":"NOT SET");
+	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
+	if (has_param && has_value) {
+		switch (message.param()) {
+			case Mysqlx::Notice::SessionStateChanged::CURRENT_SCHEMA:
+			case Mysqlx::Notice::SessionStateChanged::ACCOUNT_EXPIRED:
+				break;
+			case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:
+			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
+			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
+			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
+				if (on_exec_state_change.handler) {
+					ret = xmysqlnd_inspect_changed_exec_state(on_exec_state_change, message);
+				}
+				break;
+			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
+			case Mysqlx::Notice::SessionStateChanged::TRX_ROLLEDBACK:
+			case Mysqlx::Notice::SessionStateChanged::PRODUCED_MESSAGE:
+				break;
+			case Mysqlx::Notice::SessionStateChanged::CLIENT_ID_ASSIGNED:
+				if (on_client_id.handler) {
+					const enum_func_status status = on_client_id.handler(on_client_id.ctx, scalar2uint(message.value()));
+					ret = (status == PASS)? HND_AGAIN : HND_FAIL;
+				}
+				break;
+		}
+	}
+	if (has_value) {
+		scalar2log(message.value());
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_inspect_notice_frame */
+static enum_hnd_func_status
+xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
+							  const struct st_xmysqlnd_on_warning_bind on_warning,
+							  const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change,
+							  const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change,
+							  const struct st_xmysqlnd_on_client_id_bind on_client_id)
+{
+	enum_hnd_func_status ret = HND_AGAIN;
+	DBG_ENTER("xmysqlnd_inspect_notice_frame");
 
 	const bool has_scope = frame.has_scope();
 	DBG_INF_FMT("scope[%s] is %s", has_scope? "SET":"NOT SET",
@@ -160,7 +235,7 @@ xmysqlnd_inspect_notice_frame_ex(const Mysqlx::Notice::Frame & frame,
 					Mysqlx::Notice::SessionStateChanged message;
 					DBG_INF("SessionStateChanged");
 					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					ret = inspect_changed_state.handler(inspect_changed_state.ctx, message);
+					ret = xmysqlnd_inspect_changed_state(message, on_exec_state_change, on_client_id);
 				}
 				break;
 			default:
@@ -751,8 +826,19 @@ auth_start_on_ERROR(const Mysqlx::Error & error, void * context)
 static enum_hnd_func_status
 auth_start_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_start_message_ctx *>(context);
-	return HND_AGAIN;
+	const struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<const struct st_xmysqlnd_auth_start_message_ctx *>(context);
+	const struct st_xmysqlnd_on_warning_bind on_warning = { NULL, NULL };
+	const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change = { NULL, NULL };
+	const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change = { NULL, NULL };
+
+	DBG_ENTER("auth_start_on_NOTICE");
+
+	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
+															 on_warning,
+															 on_session_variable_change,
+															 on_execution_state_change,
+															 ctx->on_client_id);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -832,12 +918,18 @@ static struct st_xmysqlnd_server_messages_handlers auth_start_handlers =
 /* {{{ xmysqlnd_authentication_start__init_read */
 extern "C" enum_func_status
 xmysqlnd_authentication_start__init_read(struct st_xmysqlnd_auth_start_message_ctx * const msg,
+										 const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue,
+										 const struct st_xmysqlnd_on_warning_bind on_warning,
 										 const struct st_xmysqlnd_on_error_bind on_error,
-										 const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue)
+										 const struct st_xmysqlnd_on_client_id_bind on_client_id,
+										 const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change)
 {
 	DBG_ENTER("xmysqlnd_authentication_start__init_read");
-	msg->on_error = on_error;
 	msg->on_auth_continue = on_auth_continue;
+	msg->on_warning = on_warning;
+	msg->on_error = on_error;
+	msg->on_client_id = on_client_id;
+	msg->on_session_variable_change = on_session_variable_change;
 	DBG_RETURN(PASS);
 }
 /* }}} */
@@ -849,7 +941,6 @@ xmysqlnd_authentication_start__read_response(struct st_xmysqlnd_auth_start_messa
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_read__authentication_start");
-	DBG_INF_FMT("auth_start_response=%p", auth_start_response);
 	msg->auth_start_response_zval = auth_start_response;
 	ret = xmysqlnd_receive_message(&auth_start_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
@@ -883,8 +974,11 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		pfc,
 		stats,
 		error_info,
-		{ NULL, NULL },		/* on_error */
 		{ NULL, NULL }, 	/* on_auth_continue */
+		{ NULL, NULL }, 	/* on_warning */
+		{ NULL, NULL },		/* on_error */
+		{ NULL, NULL }, 	/* on_client_id */
+		{ NULL, NULL }, 	/* on_session_variable_change */
 		NULL,				/* zval */
 	};
 	return ctx;
@@ -1095,89 +1189,19 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_changed_exec_state*/
-static enum_hnd_func_status
-xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change, const Mysqlx::Notice::SessionStateChanged & message)
-{
-	enum_hnd_func_status ret = HND_AGAIN;
-	enum xmysqlnd_execution_state_type state_type = EXEC_STATE_NONE;
-	DBG_ENTER("xmysqlnd_inspect_changed_exec_state");
-	DBG_INF_FMT("on_execution_state_handler=%p", on_execution_state_change.handler);
-	DBG_INF_FMT("param is %s", Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str());
-
-	switch (message.param()) {
-		case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:	state_type = EXEC_STATE_GENERATED_INSERT_ID;	break;
-		case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:		state_type = EXEC_STATE_ROWS_AFFECTED;			break;
-		case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:			state_type = EXEC_STATE_ROWS_FOUND;				break;
-		case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:			state_type = EXEC_STATE_ROWS_MATCHED;			break;
-		default:
-			DBG_ERR_FMT("Unknown param name %d. Please add it to the switch", message.param());
-			php_error_docref("Unknown param name %d in %s::%d. Please add it to the switch", message.param(), __FILE__, __LINE__);
-			break;
-	}
-	if (state_type != EXEC_STATE_NONE) {
-		ret = on_execution_state_change.handler(on_execution_state_change.ctx, state_type, scalar2uint(message.value()));
-	}
-
-#ifdef PHP_DEBUG
-	scalar2log(message.value());
-#endif
-
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_inspect_changed_state */
-static enum_hnd_func_status
-xmysqlnd_inspect_changed_state(void * context, const Mysqlx::Notice::SessionStateChanged & message)
-{
-	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
-	enum_hnd_func_status ret = HND_AGAIN;
-	const bool has_param = message.has_param();
-	const bool has_value = message.has_value();
-	DBG_ENTER("xmysqlnd_inspect_changed_state");
-	DBG_INF_FMT("on_execution_state_handler=%p", ctx->on_execution_state_change.handler);
-	DBG_INF_FMT("param is %s", has_param? "SET":"NOT SET");
-	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
-	if (has_param && has_value) {
-		switch (message.param()) {
-			case Mysqlx::Notice::SessionStateChanged::CURRENT_SCHEMA:
-			case Mysqlx::Notice::SessionStateChanged::ACCOUNT_EXPIRED:
-				break;
-			case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:
-			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
-			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
-			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
-				if (ctx->on_execution_state_change.handler) {
-					xmysqlnd_inspect_changed_exec_state(ctx->on_execution_state_change, message);
-				}
-				break;
-			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
-			case Mysqlx::Notice::SessionStateChanged::TRX_ROLLEDBACK:
-			case Mysqlx::Notice::SessionStateChanged::PRODUCED_MESSAGE:
-			case Mysqlx::Notice::SessionStateChanged::CLIENT_ID_ASSIGNED:
-				break;
-		}
-	}
-	if (has_value) {
-		scalar2log(message.value());
-	}
-
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ stmt_execute_on_NOTICE */
 static enum_hnd_func_status
 stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
-	const struct st_xmysqlnd_inspect_changed_state_bind inspect_changed_state = { xmysqlnd_inspect_changed_state, ctx };
+	const struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<const struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
+	const struct st_xmysqlnd_on_client_id_bind on_client_id = { NULL, NULL };
 	DBG_ENTER("stmt_execute_on_NOTICE");
 
-	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame_ex(message, ctx->on_warning, ctx->on_session_variable_change, inspect_changed_state);
+	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
+															 ctx->on_warning,
+															 ctx->on_session_variable_change,
+															 ctx->on_execution_state_change,
+															 on_client_id);
 
 	DBG_RETURN(ret);
 }

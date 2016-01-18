@@ -110,6 +110,41 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one)(XMYSQLND_ROWSET_BUFFERED * 
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt_result::fetch_one_c */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one_c)(XMYSQLND_ROWSET_BUFFERED * const result,
+													   const size_t row_cursor,
+													   zval ** row,
+													   const zend_bool duplicate,
+													   MYSQLND_STATS * const stats,
+													   MYSQLND_ERROR_INFO * const error_info)
+{
+	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
+	const size_t row_count = result->row_count;
+	DBG_ENTER("xmysqlnd_rowset_buffered::fetch_one_c");
+	if (row_cursor >= row_count || !result->rows[row_cursor]) {
+		DBG_RETURN(FAIL);
+	}
+	if (field_count &&
+		(*row = mnd_ecalloc(field_count, sizeof(zval))))
+	{
+		const zval * const row_cursor_zv = result->rows[row_cursor];
+		unsigned int col = 0;
+		for (;col < field_count; ++col) {
+			const zval * const from = &row_cursor_zv[col];
+			zval * to = &(*row)[col];
+			if (duplicate) {
+				ZVAL_DUP(to, from);
+			} else {
+				ZVAL_COPY_VALUE(to, from);
+			}
+		}
+	}
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_stmt_result::fetch_all */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all)(XMYSQLND_ROWSET_BUFFERED * const result,
@@ -126,6 +161,41 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all)(XMYSQLND_ROWSET_BUFFERED * 
 		ZVAL_UNDEF(&row);
 		if (PASS == result->m.fetch_one(result, row_cursor, &row, stats, error_info)) {
 			zend_hash_next_index_insert(Z_ARRVAL_P(set), &row);
+		}
+	}
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::fetch_all_c */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED * const result,
+													   zval ** set,
+													   const zend_bool duplicate,
+													   MYSQLND_STATS * const stats,
+													   MYSQLND_ERROR_INFO * const error_info)
+{
+	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
+	const size_t row_count = result->row_count;
+	DBG_ENTER("xmysqlnd_rowset_buffered::fetch_all_c");
+	DBG_INF_FMT("dupli=%s", duplicate? "YES":"NO");
+	DBG_INF_FMT("rows =%u  cols=%u", (uint) row_count, (uint) field_count);
+	DBG_INF_FMT("cells=%u", (uint) (row_count * field_count));
+	if ((*set = mnd_ecalloc(row_count * field_count, sizeof(zval)))) {
+		size_t row = 0;
+		for (;row < row_count; ++row) {
+			const zval * const from_row_zv = result->rows[row];
+			unsigned int col = 0;
+			for (;col < field_count; ++col) {
+				const zval * const from = &from_row_zv[col];
+				zval * to = &(*set)[row * col];
+				if (duplicate) {
+					ZVAL_DUP(to, from);
+				} else {
+					ZVAL_COPY_VALUE(to, from);
+				}
+			}
 		}
 	}
 	DBG_RETURN(PASS);
@@ -336,7 +406,9 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset_buffered)
 	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, next),
 	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_current),
 	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one),
+	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one_c),
 	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all),
+	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c),
 	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, rewind),
 	XMYSQLND_METHOD(xmysqlnd_rowset_buffered, eof),
 

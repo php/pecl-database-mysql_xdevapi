@@ -102,13 +102,14 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__authenticate)(XMYSQL
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING hostname, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
 typedef zend_ulong			(*func_xmysqlnd_node_session_data__escape_string)(XMYSQLND_NODE_SESSION_DATA * const session, char *newstr, const char *escapestr, size_t escapestr_len);
 typedef struct st_xmysqlnd_node_stmt *	(*func_xmysqlnd_node_session_data__create_statement)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type);
+typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__quote_name)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING name);
 
 
 typedef unsigned int		(*func_xmysqlnd_node_session_data__get_error_no)(const XMYSQLND_NODE_SESSION_DATA * const session);
 typedef const char *		(*func_xmysqlnd_node_session_data__get_error_str)(const XMYSQLND_NODE_SESSION_DATA * const session);
 typedef const char *		(*func_xmysqlnd_node_session_data__get_sqlstate)(const XMYSQLND_NODE_SESSION_DATA * const session);
 
-typedef zend_ulong			(*func_xmysqlnd_node_session_data__get_server_version)(const XMYSQLND_NODE_SESSION_DATA * const session);
+typedef zend_ulong			(*func_xmysqlnd_node_session_data__get_server_version)(XMYSQLND_NODE_SESSION_DATA * const session);
 typedef const char *		(*func_xmysqlnd_node_session_data__get_server_information)(const XMYSQLND_NODE_SESSION_DATA * const session);
 typedef const char *		(*func_xmysqlnd_node_session_data__get_host_information)(const XMYSQLND_NODE_SESSION_DATA * const session);
 typedef const char *		(*func_xmysqlnd_node_session_data__get_protocol_information)(const XMYSQLND_NODE_SESSION_DATA * const session);
@@ -134,10 +135,12 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__local_tx_end)(XMYSQL
 typedef size_t				(*func_xmysqlnd_node_session_data__negotiate_client_api_capabilities)(XMYSQLND_NODE_SESSION_DATA * const session, const size_t flags);
 typedef size_t				(*func_xmysqlnd_node_session_data__get_client_api_capabilities)(const XMYSQLND_NODE_SESSION_DATA * const session);
 
-typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__get_scheme)(XMYSQLND_NODE_SESSION_DATA * session, MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned int port, zend_bool * unix_socket, zend_bool * named_pipe);
+typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__get_scheme)(XMYSQLND_NODE_SESSION_DATA * session, MYSQLND_CSTRING hostname, MYSQLND_CSTRING * socket_or_pipe, unsigned int port, zend_bool * unix_socket, zend_bool * named_pipe);
 
 typedef enum_hnd_func_status (*func_xmysqlnd_node_session_data__handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 typedef enum_hnd_func_status (*func_xmysqlnd_node_session_data__handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * output);
+typedef enum_func_status	(*func_xmysqlnd_node_session_data__set_client_id)(void * context, const size_t id);
+typedef size_t				(*func_xmysqlnd_node_session_data__get_client_id)(const XMYSQLND_NODE_SESSION_DATA * const session);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 {
@@ -148,6 +151,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 	func_xmysqlnd_node_session_data__connect connect;
 	func_xmysqlnd_node_session_data__escape_string escape_string;
 	func_xmysqlnd_node_session_data__create_statement create_statement;
+	func_xmysqlnd_node_session_data__quote_name quote_name;
 
 	func_xmysqlnd_node_session_data__get_error_no get_error_no;
 	func_xmysqlnd_node_session_data__get_error_str get_error_str;
@@ -181,6 +185,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 
 	func_xmysqlnd_node_session_data__handler_on_error handler_on_error;	/* export the function which is used as network event handler */
 	func_xmysqlnd_node_session_data__handler_on_auth_continue handler_on_auth_continue;
+	func_xmysqlnd_node_session_data__set_client_id set_client_id;
+	func_xmysqlnd_node_session_data__get_client_id get_client_id;
 };
 
 
@@ -201,6 +207,7 @@ struct st_xmysqlnd_node_session_data
 	MYSQLND_STRING	unix_socket;
 	char			*server_host_info;
 	char			*server_version_string;
+	size_t			client_id;
 
 	const MYSQLND_CHARSET * charset;
 

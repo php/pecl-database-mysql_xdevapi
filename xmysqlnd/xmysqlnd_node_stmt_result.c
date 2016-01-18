@@ -52,20 +52,22 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, next)(XMYSQLND_NODE_STMT_RESULT * con
 	if (result->rowset) {
 		ret = result->rowset->m.next(result->rowset, stats, error_info);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt_result::fetch_one */
+/* {{{ xmysqlnd_node_stmt_result::fetch_current */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_current)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_one");
+	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_current");
 	if (result->rowset) {
 		ret = result->rowset->m.fetch_current(result->rowset, row, stats, error_info);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -80,6 +82,22 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one)(XMYSQLND_NODE_STMT_RESULT 
 	if (result->rowset) {
 		ret = result->rowset->m.fetch_one(result->rowset, row_cursor, row, stats, error_info);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::fetch_one_c */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one_c)(XMYSQLND_NODE_STMT_RESULT * const result, const size_t row_cursor, zval ** row, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+{
+	enum_func_status ret;
+	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_one_c");
+	if (result->rowset) {
+		ret = result->rowset->m.fetch_one_c(result->rowset, row_cursor, row, duplicate, stats, error_info);
+	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -94,6 +112,22 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all)(XMYSQLND_NODE_STMT_RESULT 
 	if (result->rowset) {
 		ret = result->rowset->m.fetch_all(result->rowset, set, stats, error_info);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt_result::fetch_all_c */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all_c)(XMYSQLND_NODE_STMT_RESULT * const result, zval ** set, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+{
+	enum_func_status ret;
+	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_all_c");
+	if (result->rowset) {
+		ret = result->rowset->m.fetch_all_c(result->rowset, set, duplicate, stats, error_info);
+	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -108,6 +142,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, rewind)(XMYSQLND_NODE_STMT_RESULT * c
 	if (result->rowset) {
 		ret = result->rowset->m.rewind(result->rowset);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -122,6 +157,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, eof)(const XMYSQLND_NODE_STMT_RESULT 
 	if (result->rowset) {
 		ret = result->rowset->m.eof(result->rowset);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -169,6 +205,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row)(XMYSQLND_NODE_STMT_RESULT * 
 	if (result->rowset) {
 		ret = result->rowset->m.add_row(result->rowset, row, stats, error_info);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -183,6 +220,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count)(const XMYSQLND_NODE_ST
 	if (result->rowset) {
 		ret = result->rowset->m.get_row_count(result->rowset);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -217,6 +255,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_execution_state)(XMYSQLND_NODE
 		}
 		result->exec_state = exec_state;
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -236,6 +275,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_warning_list)(XMYSQLND_NODE_ST
 		}
 		result->warnings = warning_list;
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -263,6 +303,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_reference)(XMYSQLND_NODE_STMT_RE
 	if (!(--result->refcount)) {
 		result->m.dtor(result, stats, error_info);
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -343,7 +384,9 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, next),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_current),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one_c),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all_c),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, rewind),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, eof),
 

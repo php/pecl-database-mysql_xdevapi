@@ -42,7 +42,9 @@ typedef enum_func_status	(*func_xmysqlnd_rowset__init)(XMYSQLND_ROWSET * const r
 typedef enum_func_status	(*func_xmysqlnd_rowset__next)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_rowset__fetch_current)(XMYSQLND_ROWSET * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_rowset__fetch_one)(XMYSQLND_ROWSET * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_rowset__fetch_one_c)(XMYSQLND_ROWSET * const result, const size_t row_cursor, zval ** row, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_rowset__fetch_all)(XMYSQLND_ROWSET * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_rowset__fetch_all_c)(XMYSQLND_ROWSET * const result, zval ** set, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_rowset__rewind)(XMYSQLND_ROWSET * const result);
 typedef zend_bool			(*func_xmysqlnd_rowset__eof)(const XMYSQLND_ROWSET * const result);
 
@@ -65,7 +67,9 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset)
 	func_xmysqlnd_rowset__next next;
 	func_xmysqlnd_rowset__fetch_current fetch_current;
 	func_xmysqlnd_rowset__fetch_one fetch_one;
+	func_xmysqlnd_rowset__fetch_one_c fetch_one_c;
 	func_xmysqlnd_rowset__fetch_all fetch_all;
+	func_xmysqlnd_rowset__fetch_all_c fetch_all_c;
 	func_xmysqlnd_rowset__rewind rewind;
 	func_xmysqlnd_rowset__eof eof;
 

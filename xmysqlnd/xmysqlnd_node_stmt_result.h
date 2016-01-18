@@ -37,7 +37,9 @@ typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__init)(XMYSQLND_NODE_S
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__next)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_current)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_one)(XMYSQLND_NODE_STMT_RESULT * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_one_c)(XMYSQLND_NODE_STMT_RESULT * const result, const size_t row_cursor, zval ** row, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_all)(XMYSQLND_NODE_STMT_RESULT * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_all_c)(XMYSQLND_NODE_STMT_RESULT * const result, zval ** set, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__rewind)(XMYSQLND_NODE_STMT_RESULT * const result);
 typedef zend_bool			(*func_xmysqlnd_node_stmt_result__eof)(const XMYSQLND_NODE_STMT_RESULT * const result);
 
@@ -66,7 +68,9 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 	func_xmysqlnd_node_stmt_result__next next;
 	func_xmysqlnd_node_stmt_result__fetch_current fetch_current;
 	func_xmysqlnd_node_stmt_result__fetch_one fetch_one;
+	func_xmysqlnd_node_stmt_result__fetch_one_c fetch_one_c;
 	func_xmysqlnd_node_stmt_result__fetch_all fetch_all;
+	func_xmysqlnd_node_stmt_result__fetch_all_c fetch_all_c;
 	func_xmysqlnd_node_stmt_result__rewind rewind;
 	func_xmysqlnd_node_stmt_result__eof eof;
 
