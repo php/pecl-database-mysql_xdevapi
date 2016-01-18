@@ -141,7 +141,8 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 	const struct st_xmysqlnd_on_warning_bind on_warning = { NULL, NULL };
 	const struct st_xmysqlnd_on_error_bind on_error = { NULL, NULL };
 	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { NULL, NULL };
-	enum_func_status ret = object->msg.init_read(&object->msg, create_meta_field, on_row_field, on_meta_field, on_warning, on_error, on_exec_state_change);
+	const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change = { NULL, NULL };
+	enum_func_status ret = object->msg.init_read(&object->msg, create_meta_field, on_row_field, on_meta_field, on_warning, on_error, on_exec_state_change, on_session_variable_change);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

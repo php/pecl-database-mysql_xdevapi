@@ -118,6 +118,7 @@ static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::set_last_insert_id");
+	DBG_INF_FMT("value="MYSQLND_LLU_SPEC, value);
 	state->last_insert_id = value;
 	DBG_VOID_RETURN;
 }

@@ -60,11 +60,67 @@ struct st_xmysqlnd_inspect_changed_state_bind
 };
 
 
+/* {{{ xmysqlnd_inspect_changed_variable */
+static enum_hnd_func_status
+xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change, const Mysqlx::Notice::SessionVariableChanged & message)
+{
+	enum_hnd_func_status ret = HND_AGAIN;
+	DBG_ENTER("xmysqlnd_inspect_changed_variable");
+
+	const bool has_param = message.has_param();
+	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
+								   has_param? message.param().c_str() : "n/a");
+
+	const bool has_value = message.has_value();
+	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
+	if (has_param && has_value) {
+		const MYSQLND_CSTRING name = { message.param().c_str(), message.param().size() };
+		zval zv;
+		ZVAL_UNDEF(&zv);
+		if (PASS == scalar2zval(message.value(), &zv)) {
+			ret = on_session_variable_change.handler(on_session_variable_change.ctx, name, &zv);
+		}
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_inspect_warning */
+static enum_hnd_func_status
+xmysqlnd_inspect_warning(const struct st_xmysqlnd_on_warning_bind on_warning, const Mysqlx::Notice::Warning & warning)
+{
+	enum_hnd_func_status ret = HND_PASS;
+	DBG_ENTER("xmysqlnd_inspect_warning");
+	DBG_INF_FMT("on_warning=%p", on_warning.handler);
+	if (on_warning.handler) {
+		const bool has_level = warning.has_level();
+		const bool has_code = warning.has_code();
+		const bool has_msg = warning.has_msg();
+		const unsigned int code = has_code? warning.code() : 1000;
+		const enum xmysqlnd_stmt_warning_level level = has_level? (enum xmysqlnd_stmt_warning_level) warning.level() : XSTMT_WARN_WARNING;
+		const MYSQLND_CSTRING warn_message = { has_msg? warning.msg().c_str():"", has_msg? warning.msg().size():0 };
+
+		DBG_INF_FMT("level[%s] is %s", has_level? "SET":"NOT SET",
+									   has_level? Mysqlx::Notice::Warning::Level_Name(warning.level()).c_str() : "n/a");
+		DBG_INF_FMT("code[%s] is %u", has_code? "SET":"NOT SET",
+									  has_code? warning.code() : 0);
+		DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
+										  has_msg? warning.msg().c_str() : "n/a");
+
+		ret = on_warning.handler(on_warning.ctx, level, code, warn_message);
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_inspect_notice_frame_ex */
 static enum_hnd_func_status
 xmysqlnd_inspect_notice_frame_ex(const Mysqlx::Notice::Frame & frame,
-								 const struct st_xmysqlnd_inspect_warning_bind inspect_warning,
-								 const struct st_xmysqlnd_inspect_changed_variable_bind inspect_changed_variable,
+								 const struct st_xmysqlnd_on_warning_bind on_warning,
+								 const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change,
 								 const struct st_xmysqlnd_inspect_changed_state_bind inspect_changed_state)
 {
 	enum_hnd_func_status ret = HND_AGAIN;
@@ -86,14 +142,18 @@ xmysqlnd_inspect_notice_frame_ex(const Mysqlx::Notice::Frame & frame,
 					Mysqlx::Notice::Warning message;
 					DBG_INF("Warning");
 					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					ret = inspect_warning.handler(inspect_warning.ctx, message);
+					if (on_warning.handler) {
+						ret = xmysqlnd_inspect_warning(on_warning, message);
+					}
 					break;
 				}
 			case 2:{ /* SessionVariableChanged */
 					Mysqlx::Notice::SessionVariableChanged message;
 					DBG_INF("SessionVariableChanged");
 					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
-					ret = inspect_changed_variable.handler(inspect_changed_variable.ctx, message);
+					if (on_session_variable_change.handler) {
+						ret = xmysqlnd_inspect_changed_variable(on_session_variable_change, message);
+					}
 					break;
 				}
 			case 3:{ /* SessionStateChanged */
@@ -447,7 +507,6 @@ capabilities_get_on_ERROR(const Mysqlx::Error & error, void * context)
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	struct st_xmysqlnd_capabilities_get_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_get_message_ctx *>(context);
 	DBG_ENTER("capabilities_get_on_ERROR")
-	ctx->server_message_type = XMSG_ERROR;
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
@@ -459,7 +518,6 @@ static enum_hnd_func_status
 capabilities_get_on_CAPABILITIES(const Mysqlx::Connection::Capabilities & message, void * context)
 {
 	struct st_xmysqlnd_capabilities_get_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_get_message_ctx *>(context);
-	ctx->server_message_type = XMSG_CAPABILITIES;
 	capabilities_to_zval(message, ctx->capabilities_zval);
 	return HND_PASS;
 }
@@ -471,7 +529,6 @@ static enum_hnd_func_status
 capabilities_get_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_capabilities_get_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_get_message_ctx *>(context);
-	ctx->server_message_type = XMSG_NOTICE;
 	return HND_AGAIN;
 }
 /* }}} */
@@ -548,7 +605,6 @@ xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		error_info,
 		{ NULL, NULL }, /* on_error */
 		NULL, /* zval */
-		XMSG_NONE,
 	};
 	return ctx;
 }
@@ -563,7 +619,6 @@ static enum_hnd_func_status
 capabilities_set_on_OK(const Mysqlx::Ok & message, void * context)
 {
 	struct st_xmysqlnd_capabilities_set_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_set_message_ctx *>(context);
-	ctx->server_message_type = XMSG_OK;
 	if (ctx->return_value_zval) {
 		mysqlx_new_message__ok(ctx->return_value_zval, message);
 	}
@@ -578,7 +633,6 @@ capabilities_set_on_ERROR(const Mysqlx::Error & error, void * context)
 	struct st_xmysqlnd_capabilities_set_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_set_message_ctx *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	DBG_ENTER("capabilities_set_on_ERROR")
-	ctx->server_message_type = XMSG_ERROR;
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
@@ -590,7 +644,6 @@ static enum_hnd_func_status
 capabilities_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_capabilities_set_message_ctx * ctx = static_cast<struct st_xmysqlnd_capabilities_set_message_ctx *>(context);
-	ctx->server_message_type = XMSG_NOTICE;
 	return HND_AGAIN;
 }
 /* }}} */
@@ -674,7 +727,6 @@ xmysqlnd_get_capabilities_set_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		error_info,
 		{ NULL, NULL },	/* on_error */
 		NULL,			/* zval */
-		XMSG_NONE,
 	};
 	return ctx;
 }
@@ -689,7 +741,6 @@ auth_start_on_ERROR(const Mysqlx::Error & error, void * context)
 	struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_start_message_ctx *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	DBG_ENTER("auth_start_on_ERROR")
-	ctx->server_message_type = XMSG_ERROR;
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
@@ -701,7 +752,6 @@ static enum_hnd_func_status
 auth_start_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_start_message_ctx *>(context);
-	ctx->server_message_type = XMSG_NOTICE;
 	return HND_AGAIN;
 }
 /* }}} */
@@ -716,7 +766,6 @@ auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue 
 	enum_hnd_func_status ret = HND_PASS;
 	struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_start_message_ctx *>(context);
 	DBG_ENTER("auth_start_on_AUTHENTICATE_CONTINUE");
-	ctx->server_message_type = XMSG_AUTH_CONTINUE;
 	if (ctx->auth_start_response_zval) {
 		mysqlx_new_message__auth_continue(ctx->auth_start_response_zval, message);
 	}
@@ -751,7 +800,6 @@ auth_start_on_AUTHENTICATE_OK(const Mysqlx::Session::AuthenticateOk & message, v
 {
 	struct st_xmysqlnd_auth_start_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_start_message_ctx *>(context);
 	DBG_ENTER("auth_start_on_AUTHENTICATE_OK");
-	ctx->server_message_type = XMSG_AUTH_OK;
 	DBG_INF_FMT("ctx->auth_start_response_zval=%p", ctx->auth_start_response_zval);
 	if (ctx->auth_start_response_zval) {
 		mysqlx_new_message__auth_ok(ctx->auth_start_response_zval, message);
@@ -822,24 +870,6 @@ xmysqlnd_authentication_start__send_request(struct st_xmysqlnd_auth_start_messag
 /* }}} */
 
 
-/* {{{ xmysqlnd_authentication_start__continue */
-extern "C" zend_bool
-xmysqlnd_authentication_start__continue(const struct st_xmysqlnd_auth_start_message_ctx * msg)
-{
-	return (msg->server_message_type == XMSG_AUTH_CONTINUE) ? TRUE:FALSE;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_authentication_start__ok */
-extern "C" zend_bool
-xmysqlnd_authentication_start__ok(const struct st_xmysqlnd_auth_start_message_ctx * msg)
-{
-	return (msg->server_message_type == XMSG_AUTH_OK) ? TRUE:FALSE;
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_get_auth_start_message */
 static struct st_xmysqlnd_auth_start_message_ctx
 xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -849,8 +879,6 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		xmysqlnd_authentication_start__send_request,
 		xmysqlnd_authentication_start__read_response,
 		xmysqlnd_authentication_start__init_read,
-		xmysqlnd_authentication_start__continue,
-		xmysqlnd_authentication_start__ok,
 		vio,
 		pfc,
 		stats,
@@ -858,13 +886,13 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		{ NULL, NULL },		/* on_error */
 		{ NULL, NULL }, 	/* on_auth_continue */
 		NULL,				/* zval */
-		XMSG_NONE,
 	};
 	return ctx;
 }
 /* }}} */
 
 /************************************** AUTH_CONTINUE **************************************************/
+#if AUTH_CONTINUE
 /* {{{ auth_continue_on_ERROR */
 static enum_hnd_func_status
 auth_continue_on_ERROR(const Mysqlx::Error & error, void * context)
@@ -872,7 +900,6 @@ auth_continue_on_ERROR(const Mysqlx::Error & error, void * context)
 	struct st_xmysqlnd_auth_continue_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_continue_message_ctx *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	DBG_ENTER("auth_continue_on_ERROR")
-	ctx->server_message_type = XMSG_ERROR;
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
@@ -896,14 +923,8 @@ auth_continue_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContin
 {
 	struct st_xmysqlnd_auth_continue_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_continue_message_ctx *>(context);
 	DBG_ENTER("auth_continue_on_AUTHENTICATE_CONTINUE");
-	ctx->server_message_type = XMSG_AUTH_CONTINUE;
 	if (ctx->auth_continue_response_zval) {
 		mysqlx_new_message__auth_continue(ctx->auth_continue_response_zval, message);
-	}
-	if (message.has_auth_data()) {
-		const zend_bool persistent = FALSE;
-		ctx->out_auth_data.l = message.auth_data().size();
-		ctx->out_auth_data.s = mnd_pestrndup(message.auth_data().c_str(), ctx->out_auth_data.l, persistent);
 	}
 	DBG_RETURN(HND_PASS);
 }
@@ -916,7 +937,6 @@ auth_continue_on_AUTHENTICATE_OK(const Mysqlx::Session::AuthenticateOk & message
 {
 	struct st_xmysqlnd_auth_continue_message_ctx * ctx = static_cast<struct st_xmysqlnd_auth_continue_message_ctx *>(context);
 	DBG_ENTER("auth_continue_on_AUTHENTICATE_OK");
-	ctx->server_message_type = XMSG_AUTH_OK;
 	if (ctx->auth_continue_response_zval) {
 		mysqlx_new_message__auth_ok(ctx->auth_continue_response_zval, message);
 	}
@@ -1018,37 +1038,6 @@ xmysqlnd_authentication_continue__send_request(struct st_xmysqlnd_auth_continue_
 /* }}} */
 
 
-/* {{{ xmysqlnd_authentication_continue__continue */
-extern "C" zend_bool
-xmysqlnd_authentication_continue__continue(const struct st_xmysqlnd_auth_continue_message_ctx * msg)
-{
-	return (msg->server_message_type == XMSG_AUTH_CONTINUE) ? TRUE:FALSE;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_authentication_start__ok */
-extern "C" zend_bool
-xmysqlnd_authentication_continue__ok(const struct st_xmysqlnd_auth_continue_message_ctx * msg)
-{
-	return (msg->server_message_type == XMSG_AUTH_OK) ? TRUE:FALSE;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_authentication_continue__free_resources */
-extern "C" void
-xmysqlnd_authentication_continue__free_resources(struct st_xmysqlnd_auth_continue_message_ctx * msg)
-{
-	if (msg->out_auth_data.s) {
-		mnd_efree(msg->out_auth_data.s);
-		msg->out_auth_data.s = NULL;
-		msg->out_auth_data.l = 0;
-	}
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_get_auth_continue_message */
 static struct st_xmysqlnd_auth_continue_message_ctx
 xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -1058,21 +1047,18 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 		xmysqlnd_authentication_continue__send_request,
 		xmysqlnd_authentication_continue__read_response,
 		xmysqlnd_authentication_continue__init_read,
-		xmysqlnd_authentication_continue__continue,
-		xmysqlnd_authentication_continue__ok,
-		xmysqlnd_authentication_continue__free_resources,
 		vio,
 		pfc,
 		stats,
 		error_info,
 		{ NULL, NULL },		/* on_error */
 		NULL,				/* zval */
-		XMSG_NONE,
-		{NULL, 0}
 	};
 	return ctx;
 }
 /* }}} */
+
+#endif /* if AUTH_CONTINUE */
 
 /**************************************  STMT_EXECUTE **************************************************/
 #include "messages/mysqlx_message__ok.h"
@@ -1085,7 +1071,6 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_ERROR");
-	ctx->server_message_type = XMSG_ERROR;
 
 	const bool has_code = error.has_code();
 	const bool has_sql_state = error.has_sql_state();
@@ -1110,115 +1095,68 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_warning_ex */
+/* {{{ xmysqlnd_inspect_changed_exec_state*/
 static enum_hnd_func_status
-xmysqlnd_inspect_warning_ex(void * context, const Mysqlx::Notice::Warning & warning)
+xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change, const Mysqlx::Notice::SessionStateChanged & message)
 {
-	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
-	enum_hnd_func_status ret = HND_PASS;
-	DBG_ENTER("xmysqlnd_inspect_warning_ex");
-	DBG_INF_FMT("on_warning=%p", ctx->on_warning.handler);
+	enum_hnd_func_status ret = HND_AGAIN;
+	enum xmysqlnd_execution_state_type state_type = EXEC_STATE_NONE;
+	DBG_ENTER("xmysqlnd_inspect_changed_exec_state");
+	DBG_INF_FMT("on_execution_state_handler=%p", on_execution_state_change.handler);
+	DBG_INF_FMT("param is %s", Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str());
 
-	const bool has_level = warning.has_level();
-	const bool has_code = warning.has_code();
-	const bool has_msg = warning.has_msg();
-	const unsigned int code = has_code? warning.code() : 1000;
-	const enum xmysqlnd_stmt_warning_level level = has_level? (enum xmysqlnd_stmt_warning_level) warning.level() : XSTMT_WARN_WARNING;
-	const MYSQLND_CSTRING warn_message = { has_msg? warning.msg().c_str():"", has_msg? warning.msg().size():0 };
-
-	DBG_INF_FMT("level[%s] is %s", has_level? "SET":"NOT SET",
-								   has_level? Mysqlx::Notice::Warning::Level_Name(warning.level()).c_str() : "n/a");
-	DBG_INF_FMT("code[%s] is %u", has_code? "SET":"NOT SET",
-								  has_code? warning.code() : 0);
-	DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
-									  has_msg? warning.msg().c_str() : "n/a");
-
-	if (ctx->on_warning.handler) {
-		ret = ctx->on_warning.handler(ctx->on_warning.ctx, level, code, warn_message);
+	switch (message.param()) {
+		case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:	state_type = EXEC_STATE_GENERATED_INSERT_ID;	break;
+		case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:		state_type = EXEC_STATE_ROWS_AFFECTED;			break;
+		case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:			state_type = EXEC_STATE_ROWS_FOUND;				break;
+		case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:			state_type = EXEC_STATE_ROWS_MATCHED;			break;
+		default:
+			DBG_ERR_FMT("Unknown param name %d. Please add it to the switch", message.param());
+			php_error_docref("Unknown param name %d in %s::%d. Please add it to the switch", message.param(), __FILE__, __LINE__);
+			break;
 	}
-	DBG_RETURN(ret);
-}
-/* }}} */
+	if (state_type != EXEC_STATE_NONE) {
+		ret = on_execution_state_change.handler(on_execution_state_change.ctx, state_type, scalar2uint(message.value()));
+	}
 
-
-/* {{{ xmysqlnd_inspect_changed_variable_ex */
-static enum_hnd_func_status
-xmysqlnd_inspect_changed_variable_ex(void * context, const Mysqlx::Notice::SessionVariableChanged & message)
-{
-	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
-	enum_hnd_func_status ret = HND_AGAIN;
-	DBG_ENTER("xmysqlnd_inspect_changed_variable_ex");
-
-	const bool has_param = message.has_param();
-	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
-								   has_param? message.param().c_str() : "n/a");
-
-	const bool has_value = message.has_value();
-	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
+#ifdef PHP_DEBUG
+	scalar2log(message.value());
+#endif
 
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_changed_state_ex */
+/* {{{ xmysqlnd_inspect_changed_state */
 static enum_hnd_func_status
-xmysqlnd_inspect_changed_state_ex(void * context, const Mysqlx::Notice::SessionStateChanged & message)
+xmysqlnd_inspect_changed_state(void * context, const Mysqlx::Notice::SessionStateChanged & message)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	enum_hnd_func_status ret = HND_AGAIN;
 	const bool has_param = message.has_param();
 	const bool has_value = message.has_value();
-	DBG_ENTER("xmysqlnd_inspect_changed_state_ex");
+	DBG_ENTER("xmysqlnd_inspect_changed_state");
 	DBG_INF_FMT("on_execution_state_handler=%p", ctx->on_execution_state_change.handler);
-	DBG_INF_FMT("param[%s] is %s", has_param? "SET":"NOT SET",
-								   has_param? Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str() : "n/a");
-
+	DBG_INF_FMT("param is %s", has_param? "SET":"NOT SET");
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 	if (has_param && has_value) {
 		switch (message.param()) {
 			case Mysqlx::Notice::SessionStateChanged::CURRENT_SCHEMA:
-				break;
 			case Mysqlx::Notice::SessionStateChanged::ACCOUNT_EXPIRED:
 				break;
 			case Mysqlx::Notice::SessionStateChanged::GENERATED_INSERT_ID:
-				if (ctx->on_execution_state_change.handler) {
-					ret = ctx->on_execution_state_change.handler(ctx->on_execution_state_change.ctx,
-																 EXEC_STATE_GENERATED_INSERT_ID,
-																 scalar2uint(message.value()));
-				}
-				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_AFFECTED:
-				if (ctx->on_execution_state_change.handler) {
-					ret = ctx->on_execution_state_change.handler(ctx->on_execution_state_change.ctx,
-																 EXEC_STATE_ROWS_AFFECTED,
-																 scalar2uint(message.value()));
-				}
-				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_FOUND:
-				if (ctx->on_execution_state_change.handler) {
-					ctx->on_execution_state_change.handler(ctx->on_execution_state_change.ctx,
-														   EXEC_STATE_ROWS_FOUND,
-														   scalar2uint(message.value()));
-				}
-				break;
 			case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:
 				if (ctx->on_execution_state_change.handler) {
-					ret = ctx->on_execution_state_change.handler(ctx->on_execution_state_change.ctx,
-																 EXEC_STATE_ROWS_MATCHED,
-																 scalar2uint(message.value()));
+					xmysqlnd_inspect_changed_exec_state(ctx->on_execution_state_change, message);
 				}
 				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_COMMITTED:
-				break;
 			case Mysqlx::Notice::SessionStateChanged::TRX_ROLLEDBACK:
-				break;
 			case Mysqlx::Notice::SessionStateChanged::PRODUCED_MESSAGE:
-				break;
 			case Mysqlx::Notice::SessionStateChanged::CLIENT_ID_ASSIGNED:
-				break;
-			default:
-				DBG_ERR_FMT("Unknown param name %d", message.param());
 				break;
 		}
 	}
@@ -1236,14 +1174,10 @@ static enum_hnd_func_status
 stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
-	const struct st_xmysqlnd_inspect_warning_bind inspect_warning = { xmysqlnd_inspect_warning_ex, ctx };
-	const struct st_xmysqlnd_inspect_changed_variable_bind inspect_changed_variable = { xmysqlnd_inspect_changed_variable_ex, ctx };
-	const struct st_xmysqlnd_inspect_changed_state_bind inspect_changed_state = { xmysqlnd_inspect_changed_state_ex, ctx };
+	const struct st_xmysqlnd_inspect_changed_state_bind inspect_changed_state = { xmysqlnd_inspect_changed_state, ctx };
 	DBG_ENTER("stmt_execute_on_NOTICE");
-	ctx->server_message_type = XMSG_NOTICE;
 
-	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame_ex(message, inspect_warning, inspect_changed_variable, inspect_changed_state);
-
+	enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame_ex(message, ctx->on_warning, ctx->on_session_variable_change, inspect_changed_state);
 
 	DBG_RETURN(ret);
 }
@@ -1263,7 +1197,6 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	DBG_INF_FMT("on_meta_field=%p", ctx->on_meta_field.handler);
 
 	ctx->has_more_results = TRUE;
-	ctx->server_message_type = XMSG_COLUMN_METADATA;
 
 	++ctx->field_count;
 	DBG_INF_FMT("field_count=%u", ctx->field_count);
@@ -1665,7 +1598,6 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 	DBG_INF_FMT("prefetch_counter="MYSQLND_LLU_SPEC, ctx->prefetch_counter);
 
 	ctx->has_more_results = TRUE;
-	ctx->server_message_type = XMSG_RSET_ROW;
 	if (ctx->response_zval) {
 		mysqlx_new_data_row(ctx->response_zval, message);
 		DBG_INF("HND_PASS");
@@ -1694,7 +1626,6 @@ stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone & message, vo
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE");
-	ctx->server_message_type = XMSG_RSET_FETCH_DONE;
 	ctx->has_more_results = FALSE;
 	ctx->has_more_rows_in_set = FALSE;
 	DBG_RETURN(HND_AGAIN); /* After FETCH_DONE a STMT_EXECUTE_OK is expected */
@@ -1708,7 +1639,6 @@ stmt_execute_on_RSET_FETCH_SUSPENDED(void * context)
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_SUSPENDED");
-	ctx->server_message_type = XMGS_RSET_FETCH_SUSPENDED;
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
 }
@@ -1721,7 +1651,6 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMor
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS");
-	ctx->server_message_type = XMSG_RSET_FETCH_DONE_MORE_RSETS;
 	ctx->has_more_results = TRUE;
 	ctx->has_more_rows_in_set = FALSE;
 	DBG_RETURN(HND_PASS);
@@ -1736,7 +1665,6 @@ stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk & message, void
 {
 	struct st_xmysqlnd_sql_stmt_execute_message_ctx * ctx = static_cast<struct st_xmysqlnd_sql_stmt_execute_message_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
-	ctx->server_message_type = XMSG_STMT_EXECUTE_OK;
 	ctx->has_more_results = FALSE;
 	if (ctx->response_zval) {
 		mysqlx_new_stmt_execute_ok(ctx->response_zval, message);
@@ -1786,7 +1714,8 @@ xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_sql_stmt_execute_message
 									 const struct st_xmysqlnd_on_meta_field_bind on_meta_field,
 									 const struct st_xmysqlnd_on_warning_bind on_warning,
 									 const struct st_xmysqlnd_on_error_bind on_error,
-									 const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change)
+									 const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
+									 const struct st_xmysqlnd_on_session_variable_change_bind on_session_variable_change)
 {
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__init_read");
 	msg->create_meta_field = create_meta_field;
@@ -1796,6 +1725,7 @@ xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_sql_stmt_execute_message
 	msg->on_warning = on_warning;
 	msg->on_error = on_error;
 	msg->on_execution_state_change = on_execution_state_change;
+	msg->on_session_variable_change = on_session_variable_change;
 
 	msg->field_count = 0;
 	msg->has_more_results = FALSE;
@@ -1881,14 +1811,14 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		{ NULL, NULL}, /* on_warning */
 		{ NULL, NULL}, /* on_error */
 		{ NULL, NULL}, /* on_execution_state_change */
+		{ NULL, NULL}, /* on_session_variable_change */
 
 		0,     /* field_count*/
 		FALSE, /* has_more_results */
 		FALSE, /* has_more_rows_in_set */
 		FALSE, /* read_started */
 		0,     /* prefetch counter */
-		NULL, /* response_zval */
-		XMSG_NONE,
+		NULL,  /* response_zval */
 	};
 	return ctx;
 }
@@ -1901,7 +1831,6 @@ static enum_hnd_func_status
 con_close_on_OK(const Mysqlx::Ok & message, void * context)
 {
 	struct st_xmysqlnd_connection_close_ctx * ctx = static_cast<struct st_xmysqlnd_connection_close_ctx *>(context);
-	ctx->server_message_type = XMSG_OK;
 	return HND_PASS;
 }
 /* }}} */
@@ -1912,7 +1841,6 @@ static enum_hnd_func_status
 con_close_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_connection_close_ctx * ctx = static_cast<struct st_xmysqlnd_connection_close_ctx *>(context);
-	ctx->server_message_type = XMSG_ERROR;
 	SET_CLIENT_ERROR(ctx->error_info,
 					 error.has_code()? error.code() : CR_UNKNOWN_ERROR,
 					 error.has_sql_state()? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
@@ -1927,7 +1855,6 @@ static enum_hnd_func_status
 con_close_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	struct st_xmysqlnd_connection_close_ctx * ctx = static_cast<struct st_xmysqlnd_connection_close_ctx *>(context);
-	ctx->server_message_type = XMSG_NOTICE;
 	return HND_AGAIN;
 }
 /* }}} */
@@ -1990,7 +1917,6 @@ xmysqlnd_con_close__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		pfc,
 		stats,
 		error_info,
-		XMSG_NONE,
 	};
 	return ctx;
 }
@@ -2025,7 +1951,7 @@ xmysqlnd_get_auth_start_message_aux(const struct st_xmysqlnd_message_factory * c
 }
 /* }}} */
 
-
+#if AUTH_CONTINUE
 /* {{{ xmysqlnd_get_auth_continue_message_aux */
 static struct st_xmysqlnd_auth_continue_message_ctx
 xmysqlnd_get_auth_continue_message_aux(const struct st_xmysqlnd_message_factory * const factory)
@@ -2033,7 +1959,7 @@ xmysqlnd_get_auth_continue_message_aux(const struct st_xmysqlnd_message_factory 
 	return xmysqlnd_get_auth_continue_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
 /* }}} */
-
+#endif
 
 /* {{{ xmysqlnd_get_sql_stmt_execute_message_aux */
 static struct st_xmysqlnd_sql_stmt_execute_message_ctx
@@ -2066,7 +1992,9 @@ xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * st
 		xmysqlnd_get_capabilities_get_message_aux,
 		xmysqlnd_get_capabilities_set_message_aux,
 		xmysqlnd_get_auth_start_message_aux,
+#if AUTH_CONTINUE
 		xmysqlnd_get_auth_continue_message_aux,
+#endif
 		xmysqlnd_get_sql_stmt_execute_message_aux,
 		xmysqlnd_get_con_close_message_aux,
 	};

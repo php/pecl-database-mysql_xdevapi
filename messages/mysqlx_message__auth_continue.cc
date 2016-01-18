@@ -186,10 +186,7 @@ mysqlx_message__auth_continue_free_storage(zend_object * object)
 	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	struct st_mysqlx_message__auth_continue * message = (struct st_mysqlx_message__auth_continue  *) mysqlx_object->ptr;
 
-	if (message) {
-		message->msg.free_resources(&message->msg);
-		delete message;
-	}
+	delete message;
 	mysqlx_object_free_storage(object); 
 }
 /* }}} */
