@@ -279,11 +279,35 @@ static const zend_function_entry mysqlx_node_sql_statement_methods[] = {
 /* }}} */
 
 
+/* {{{ mysqlx_node_sql_statement_property__statement */
+static zval *
+mysqlx_node_sql_statement_property__statement(const struct st_mysqlx_object * obj, zval * return_value)
+{
+	const struct st_mysqlx_node_sql_statement * object = (const struct st_mysqlx_node_sql_statement *) (obj->ptr);
+	DBG_ENTER("mysqlx_node_sql_statement_property__statement");
+	if (object->stmt && object->stmt->data->query.s) {
+		ZVAL_STRINGL(return_value, object->stmt->data->query.s, object->stmt->data->query.l);
+	} else {
+		/*
+		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
+		  and ISSET will say 'true' while for EG(unin) it is false.
+		  In short:
+		  return NULL; -> isset()===false, value is NULL
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		*/
+		return_value = NULL;
+	}
+	DBG_RETURN(return_value);
+}
+/* }}} */
+
+
 static zend_object_handlers mysqlx_object_node_sql_statement_handlers;
 static HashTable mysqlx_node_sql_statement_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_sql_statement_property_entries[] =
 {
+	{{"statement",	sizeof("statement") - 1}, mysqlx_node_sql_statement_property__statement,	NULL},
 	{{NULL,	0}, NULL, NULL}
 };
 
@@ -349,6 +373,9 @@ mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_sql_statement_properties, mysqlx_node_sql_statement_property_entries);
 
+	/* The following is needed for the Reflection API */
+	zend_declare_property_null(mysqlx_node_sql_statement_class_entry, "statement",	sizeof("statement") - 1, ZEND_ACC_PUBLIC);
+
 	zend_declare_class_constant_long(mysqlx_node_sql_statement_class_entry, "EXECUTE_ASYNC", sizeof("EXECUTE_ASYNC") - 1, MYSQLX_EXECUTE_FLAG_ASYNC);
 	zend_declare_class_constant_long(mysqlx_node_sql_statement_class_entry, "BUFFERED", sizeof("BUFFERED") - 1, MYSQLX_EXECUTE_FLAG_BUFFERED);
 }
@@ -377,7 +404,7 @@ mysqlx_new_sql_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt)
 	mysqlx_object = Z_MYSQLX_P(return_value);
 	object = (struct st_mysqlx_node_sql_statement *) mysqlx_object->ptr;
 	if (!object) {
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		DBG_VOID_RETURN;
 	}
 

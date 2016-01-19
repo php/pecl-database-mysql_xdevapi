@@ -22,6 +22,7 @@
 #include "mysqlx_session.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_node_session.h"
+#include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_connection.h"
@@ -47,6 +48,8 @@
 #include "messages/mysqlx_message__data_fetch_done.h"
 
 
+#define MESSAGE_CLASSES 0
+
 /* {{{ mysqlx_minit_classes */
 PHPAPI int
 mysqlx_minit_classes(INIT_FUNC_ARGS)
@@ -71,14 +74,16 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	mysqlx_register_node_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
+	mysqlx_register_node_schema_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
 	mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
+#if MESSAGE_CLASSES
 	mysqlx_register_node_connection_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_pfc_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-
 	mysqlx_register_message__ok_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_message__error_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_message__capability_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -97,7 +102,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_data_row_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-
+#endif
 
 	/* xmysqlnd_real_connect flags */
 	REGISTER_LONG_CONSTANT("XMYSQLND_CLIENT_SSL", CLIENT_SSL, CONST_CS | CONST_PERSISTENT);
@@ -111,6 +116,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 PHPAPI int
 mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 {
+#if MESSAGE_CLASSES
 	mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_resultset_metadata_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
@@ -129,11 +135,13 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_message__capability_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_message__error_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_message__ok_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-
 	mysqlx_unregister_node_pfc_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_connection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+#endif
+
 	mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_node_schema_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

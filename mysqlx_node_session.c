@@ -21,11 +21,13 @@
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
+#include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
+#include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
 
 #include "mysqlx_session.h"
@@ -151,7 +153,9 @@ PHP_METHOD(mysqlx_node_session, query)
 	MYSQLND_CSTRING query = {NULL, 0};
 
 	DBG_ENTER("mysqlx_node_session::query");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry, &(query.s), &(query.l)) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry,
+																	   &(query.s), &(query.l)) == FAILURE)
+	{
 		DBG_VOID_RETURN;
 	}
 
@@ -162,12 +166,10 @@ PHP_METHOD(mysqlx_node_session, query)
 	}
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
-	session = object->session;
-
-	{
+	if ((session = object->session)) {
 		MYSQLND_STATS * stats = session->data->stats;
 		MYSQLND_ERROR_INFO * error_info = session->data->error_info;
-		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, stats, error_info)) {
 				zend_bool has_more = FALSE;
@@ -207,11 +209,10 @@ PHP_METHOD(mysqlx_node_session, query_and_discard)
 	}
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
-	session = object->session;
-	{
+	if ((session = object->session)) {
 		MYSQLND_STATS * stats = session->data->stats;
 		MYSQLND_ERROR_INFO * error_info = session->data->error_info;
-		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, stats, error_info)) {
 				stmt->data->m.skip_all_results(stmt, stats, error_info);
@@ -235,7 +236,9 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 	MYSQLND_CSTRING query = {NULL, 0};
 
 	DBG_ENTER("mysqlx_node_session::createStatement");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry, &(query.s), &(query.l)) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry,
+																	   &(query.s), &(query.l)) == FAILURE)
+	{
 		DBG_VOID_RETURN;
 	}
 
@@ -246,10 +249,8 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 	}
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
-	session = object->session;
-
-	{
-		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement(session->data, query, MYSQLND_SEND_QUERY_EXPLICIT);
+	if ((session = object->session)) {
+		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_EXPLICIT);
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt);
 		}
@@ -270,15 +271,15 @@ PHP_METHOD(mysqlx_node_session, quoteName)
 	MYSQLND_CSTRING name = {NULL, 0};
 
 	DBG_ENTER("mysqlx_node_session::quoteName");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry, &(name.s), &(name.l)) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry,
+																	   &(name.s), &(name.l)) == FAILURE)
+	{
 		DBG_VOID_RETURN;
 	}
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
-	session = object->session;
-
-	{
+	if ((session = object->session)) {
 		MYSQLND_STRING quoted_name = session->data->m->quote_name(session->data, name);
 		RETVAL_STRINGL(quoted_name.s, quoted_name.l);
 		if (quoted_name.s) {
@@ -306,8 +307,7 @@ PHP_METHOD(mysqlx_node_session, getServerVersion)
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
-	session = object->session;
-	if (session) {
+	if ((session = object->session)) {
 		RETVAL_LONG(session->data->m->get_server_version(session->data));
 	} else {
 		RETVAL_FALSE;
@@ -333,8 +333,7 @@ PHP_METHOD(mysqlx_node_session, getClientId)
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
-	session = object->session;
-	if (session) {
+	if ((session = object->session)) {
 		RETVAL_LONG(session->data->m->get_client_id(session->data));
 	} else {
 		RETVAL_FALSE;
@@ -383,15 +382,21 @@ PHP_METHOD(mysqlx_node_session, getSchema)
 	zval * object_zv;
 	struct st_mysqlx_node_session * object;
 	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING schema_name = {NULL, 0};
 
 	DBG_ENTER("mysqlx_node_session::getSchema");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry,
+																	   &(schema_name.s), &(schema_name.l)) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 	if ((session = object->session)) {
-
+		XMYSQLND_NODE_SCHEMA * schema = session->data->m->create_schema_object(session->data, schema_name);
+		if (schema) {
+			mysqlx_new_node_schema(return_value, schema);
+		}
+		
 	}
 
 	DBG_VOID_RETURN;

@@ -24,6 +24,7 @@
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_driver.h"
+#include "xmysqlnd_node_schema.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_wireprotocol.h"
@@ -549,13 +550,13 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, escape_string)(XMYSQLND_NODE_SESSION
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::create_statement */
+/* {{{ xmysqlnd_node_session_data::create_statement_object */
 static XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, create_statement)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
+XMYSQLND_METHOD(xmysqlnd_node_session_data, create_statement_object)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), create_statement);
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), create_statement_object);
 	XMYSQLND_NODE_STMT * stmt = NULL;
-	DBG_ENTER("xmysqlnd_node_session_data::create_statement");
+	DBG_ENTER("xmysqlnd_node_session_data::create_statement_object");
 	DBG_INF_FMT("query=%s", query.s);
 
 	if (type == MYSQLND_SEND_QUERY_IMPLICIT || PASS == session->m->local_tx_start(session, this_func))
@@ -609,6 +610,25 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DA
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_session_data::create_schema_object */
+static XMYSQLND_NODE_SCHEMA *
+XMYSQLND_METHOD(xmysqlnd_node_session_data, create_schema_object)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING schema_name)
+{
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), create_schema_object);
+	XMYSQLND_NODE_SCHEMA * schema = NULL;
+	DBG_ENTER("xmysqlnd_node_session_data::create_schema_object");
+	DBG_INF_FMT("schema_name=%s", schema_name.s);
+
+	if (PASS == session->m->local_tx_start(session, this_func)) {
+		schema = xmysqlnd_node_schema_create(session, schema_name, session->persistent, session->object_factory, session->stats, session->error_info);
+
+		session->m->local_tx_end(session, this_func, schema ? PASS:FAIL);
+	}
+	DBG_RETURN(schema);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_session_data::get_error_no */
 static unsigned int
 XMYSQLND_METHOD(xmysqlnd_node_session_data, get_error_no)(const XMYSQLND_NODE_SESSION_DATA * const session)
@@ -645,7 +665,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_server_version)(XMYSQLND_NODE_SE
 	DBG_ENTER("xmysqlnd_node_session_data::get_server_version");
 	if (!(p = session->server_version_string)) {
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
-		XMYSQLND_NODE_STMT * stmt = session->m->create_statement(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				zend_bool has_more = FALSE;
@@ -1054,8 +1074,9 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, connect),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, escape_string),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, create_statement),
+	XMYSQLND_METHOD(xmysqlnd_node_session_data, create_statement_object),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name),
+	XMYSQLND_METHOD(xmysqlnd_node_session_data, create_schema_object),
 
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_error_no),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_error),
@@ -1205,7 +1226,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_ha
 
 	DBG_ENTER("xmysqlnd_node_session::close");
 	if (PASS == session->m->local_tx_start(session, this_func)) {
-		XMYSQLND_NODE_STMT * stmt = session->m->create_statement(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				zend_bool has_more = FALSE;

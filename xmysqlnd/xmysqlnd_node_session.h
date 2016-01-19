@@ -26,6 +26,7 @@
 #include "xmysqlnd_protocol_frame_codec.h"
 
 struct st_xmysqlnd_node_stmt;
+struct st_xmysqlnd_node_schema;
 
 PHPAPI void xmysqlnd_node_session_module_init();
 
@@ -100,8 +101,9 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect_handshake)(X
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__authenticate)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING hostname, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
 typedef zend_ulong			(*func_xmysqlnd_node_session_data__escape_string)(XMYSQLND_NODE_SESSION_DATA * const session, char *newstr, const char *escapestr, size_t escapestr_len);
-typedef struct st_xmysqlnd_node_stmt *	(*func_xmysqlnd_node_session_data__create_statement)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type);
-typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__quote_name)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING name);
+typedef struct st_xmysqlnd_node_stmt *		(*func_xmysqlnd_node_session_data__create_statement_object)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type);
+typedef MYSQLND_STRING						(*func_xmysqlnd_node_session_data__quote_name)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING name);
+typedef struct st_xmysqlnd_node_schema *	(*func_xmysqlnd_node_session_data__create_schema_object)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query);
 
 
 typedef unsigned int		(*func_xmysqlnd_node_session_data__get_error_no)(const XMYSQLND_NODE_SESSION_DATA * const session);
@@ -149,8 +151,9 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 	func_xmysqlnd_node_session_data__authenticate authenticate;
 	func_xmysqlnd_node_session_data__connect connect;
 	func_xmysqlnd_node_session_data__escape_string escape_string;
-	func_xmysqlnd_node_session_data__create_statement create_statement;
+	func_xmysqlnd_node_session_data__create_statement_object create_statement_object;
 	func_xmysqlnd_node_session_data__quote_name quote_name;
+	func_xmysqlnd_node_session_data__create_schema_object create_schema_object;
 
 	func_xmysqlnd_node_session_data__get_error_no get_error_no;
 	func_xmysqlnd_node_session_data__get_error_str get_error_str;
