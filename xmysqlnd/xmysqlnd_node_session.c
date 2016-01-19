@@ -311,7 +311,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 	struct st_xmysqlnd_auth_41_ctx auth_ctx = { session, scheme, username, password, database };
 	const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue = { session->m->handler_on_auth_continue, &auth_ctx };
 
-	struct st_xmysqlnd_capabilities_get_message_ctx caps_get;
+	struct st_xmysqlnd_msg__capabilities_get caps_get;
 	DBG_ENTER("xmysqlnd_node_session_data::authenticate");
 	
 	caps_get = msg_factory.get__capabilities_get(&msg_factory);
@@ -331,7 +331,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_D
 
 			} else if (mysql41_supported) {
 				const MYSQLND_CSTRING mech_name = {"MYSQL41", sizeof("MYSQL41") - 1};
-				struct st_xmysqlnd_auth_start_message_ctx auth_start_msg = msg_factory.get__auth_start(&msg_factory);
+				struct st_xmysqlnd_msg__auth_start auth_start_msg = msg_factory.get__auth_start(&msg_factory);
 
 				ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username);
 				if (ret == PASS) {
@@ -940,7 +940,7 @@ MYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DAT
 		case NODE_SESSION_NON_AUTHENTICATED:
 		case NODE_SESSION_READY: {
 			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
-			struct st_xmysqlnd_connection_close_ctx conn_close_msg = msg_factory.get__connection_close(&msg_factory);
+			struct st_xmysqlnd_msg__connection_close conn_close_msg = msg_factory.get__connection_close(&msg_factory);
 			DBG_INF("Connection clean, sending CON_CLOSE");
 			conn_close_msg.send_request(&conn_close_msg);
 			conn_close_msg.read_response(&conn_close_msg);

@@ -49,7 +49,7 @@ struct st_mysqlx_message__capabilities_set
 	Mysqlx::Connection::Capabilities response;
 	Mysqlx::Error error;
 
-	struct st_xmysqlnd_capabilities_set_message_ctx msg;
+	struct st_xmysqlnd_msg__capabilities_set msg;
 	zend_bool persistent;
 };
 

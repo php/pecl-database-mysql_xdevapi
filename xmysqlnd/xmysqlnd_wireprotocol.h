@@ -139,11 +139,11 @@ struct st_xmysqlnd_on_session_var_change_bind
 
 
 
-struct st_xmysqlnd_capabilities_get_message_ctx
+struct st_xmysqlnd_msg__capabilities_get
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_capabilities_get_message_ctx * msg);
-	enum_func_status (*read_response)(struct st_xmysqlnd_capabilities_get_message_ctx * msg, zval * capabilities);
-	enum_func_status (*init_read)(struct st_xmysqlnd_capabilities_get_message_ctx * const msg,
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__capabilities_get * msg);
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__capabilities_get * msg, zval * capabilities);
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__capabilities_get * const msg,
 								  const struct st_xmysqlnd_on_error_bind on_error);
 
 	MYSQLND_VIO * vio;
@@ -155,15 +155,15 @@ struct st_xmysqlnd_capabilities_get_message_ctx
 };
 
 
-struct st_xmysqlnd_capabilities_set_message_ctx
+struct st_xmysqlnd_msg__capabilities_set
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_capabilities_set_message_ctx * msg,
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__capabilities_set * msg,
 									 const size_t cap_count, zval ** capabilities_names, zval ** capabilities_values);
 
-	enum_func_status (*read_response)(struct st_xmysqlnd_capabilities_set_message_ctx * msg,
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__capabilities_set * msg,
 									  zval * return_value);
 
-	enum_func_status (*init_read)(struct st_xmysqlnd_capabilities_set_message_ctx * const msg,
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__capabilities_set * const msg,
 								  const struct st_xmysqlnd_on_error_bind on_error);
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
@@ -187,16 +187,16 @@ struct st_xmysqlnd_on_client_id_bind
 };
 
 
-struct st_xmysqlnd_auth_start_message_ctx
+struct st_xmysqlnd_msg__auth_start
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_auth_start_message_ctx * msg,
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__auth_start * msg,
 									 const MYSQLND_CSTRING auth_mech_name,
 									 const MYSQLND_CSTRING auth_data);
 
-	enum_func_status (*read_response)(struct st_xmysqlnd_auth_start_message_ctx * msg,
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__auth_start * msg,
 									  zval * auth_start_response);
 
-	enum_func_status (*init_read)(struct st_xmysqlnd_auth_start_message_ctx * const msg,
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__auth_start * const msg,
 								  const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue,
 								  const struct st_xmysqlnd_on_warning_bind on_warning,
 								  const struct st_xmysqlnd_on_error_bind on_error,
@@ -216,18 +216,18 @@ struct st_xmysqlnd_auth_start_message_ctx
 };
 
 #if AUTH_CONTINUE
-struct st_xmysqlnd_auth_continue_message_ctx
+struct st_xmysqlnd_msg__auth_continue
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_auth_continue_message_ctx * msg,
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__auth_continue * msg,
 									 const MYSQLND_CSTRING schema,
 									 const MYSQLND_CSTRING user,
 									 const MYSQLND_CSTRING password,
 									 const MYSQLND_CSTRING salt);
 
-	enum_func_status (*read_response)(struct st_xmysqlnd_auth_continue_message_ctx * msg,
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__auth_continue * msg,
 									  zval * auth_continue_response);
 
-	enum_func_status (*init_read)(struct st_xmysqlnd_auth_continue_message_ctx * const msg,
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__auth_continue * const msg,
 								  const struct st_xmysqlnd_on_error_bind on_error);
 
 	MYSQLND_VIO * vio;
@@ -274,9 +274,9 @@ struct st_xmysqlnd_on_trx_state_change_bind
 };
 
 
-struct st_xmysqlnd_sql_stmt_execute_message_ctx
+struct st_xmysqlnd_msg__sql_stmt_execute
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * msg,
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__sql_stmt_execute * msg,
 									 const MYSQLND_CSTRING namespace_,
 									 const MYSQLND_CSTRING stmt,
 									 const zend_bool compact_meta,
@@ -284,7 +284,7 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 									 const unsigned int param_count);
 
 
-	enum_func_status (*init_read)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__sql_stmt_execute * const msg,
 								  const struct st_xmysqlnd_meta_field_create_bind create_meta_field,
 								  const struct st_xmysqlnd_on_row_field_bind on_row_field,
 								  const struct st_xmysqlnd_on_meta_field_bind on_meta_field,
@@ -294,7 +294,7 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 								  const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change,
 								  const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change);
 
-	enum_func_status (*read_response)(struct st_xmysqlnd_sql_stmt_execute_message_ctx * const msg,
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__sql_stmt_execute * const msg,
 									  const size_t rows,
 									  zval * const response);
 
@@ -322,10 +322,10 @@ struct st_xmysqlnd_sql_stmt_execute_message_ctx
 
 
 
-struct st_xmysqlnd_connection_close_ctx
+struct st_xmysqlnd_msg__connection_close
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_connection_close_ctx * msg);
-	enum_func_status (*read_response)(struct st_xmysqlnd_connection_close_ctx * msg);
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__connection_close * msg);
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__connection_close * msg);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
@@ -340,14 +340,14 @@ struct st_xmysqlnd_message_factory
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
-	struct st_xmysqlnd_capabilities_get_message_ctx	(*get__capabilities_get)(const struct st_xmysqlnd_message_factory * const factory);
-	struct st_xmysqlnd_capabilities_set_message_ctx	(*get__capabilities_set)(const struct st_xmysqlnd_message_factory * const factory);
-	struct st_xmysqlnd_auth_start_message_ctx		(*get__auth_start)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__capabilities_get	(*get__capabilities_get)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__capabilities_set	(*get__capabilities_set)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__auth_start			(*get__auth_start)(const struct st_xmysqlnd_message_factory * const factory);
 #if AUTH_CONTINUE
-	struct st_xmysqlnd_auth_continue_message_ctx	(*get__auth_continue)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__auth_continue		(*get__auth_continue)(const struct st_xmysqlnd_message_factory * const factory);
 #endif
-	struct st_xmysqlnd_sql_stmt_execute_message_ctx	(*get__sql_stmt_execute)(const struct st_xmysqlnd_message_factory * const factory);
-	struct st_xmysqlnd_connection_close_ctx			(*get__connection_close)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__sql_stmt_execute)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const struct st_xmysqlnd_message_factory * const factory);
 };
 
 struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_xmysqlnd_level3_io * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);

@@ -20,7 +20,7 @@
 #define XMYSQLND_NODE_STMT_H
 
 #include "xmysqlnd_driver.h"
-#include "xmysqlnd_wireprotocol.h" /* struct st_xmysqlnd_sql_stmt_execute_message_ctx */
+#include "xmysqlnd_wireprotocol.h" /* struct st_xmysqlnd_msg__sql_stmt_execute */
 
 struct st_xmysqlnd_node_session_data;
 struct st_xmysqlnd_node_stmt_result;
@@ -96,7 +96,7 @@ struct st_xmysqlnd_node_stmt_data
 	zval * params;
 	unsigned int params_allocated;
 	MYSQLND_STRING query;
-	struct st_xmysqlnd_sql_stmt_execute_message_ctx msg_stmt_exec;
+	struct st_xmysqlnd_msg__sql_stmt_execute msg_stmt_exec;
 
 	struct st_xmysqlnd_node_stmt_bind_ctx
 	{

@@ -46,7 +46,7 @@ static zend_class_entry *mysqlx_message__auth_continue_class_entry;
 struct st_mysqlx_message__auth_continue
 {
 	Mysqlx::Session::AuthenticateContinue message;
-	struct st_xmysqlnd_auth_continue_message_ctx msg;
+	struct st_xmysqlnd_msg__auth_continue msg;
 	zend_bool persistent;
 };
 
