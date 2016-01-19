@@ -79,9 +79,9 @@ enum xmysqlnd_server_message_type
 enum xmysqlnd_stmt_warning_level
 {
 #ifdef __cplusplus
-	XSTMT_WARN_NOTE = Mysqlx::Notice::Warning_Level_NOTE,
-	XSTMT_WARN_WARNING = Mysqlx::Notice::Warning_Level_WARNING,
-	XSTMT_WARN_ERROR = Mysqlx::Notice::Warning_Level_ERROR,
+	XSTMT_WARN_NOTE		= Mysqlx::Notice::Warning_Level_NOTE,
+	XSTMT_WARN_WARNING	= Mysqlx::Notice::Warning_Level_WARNING,
+	XSTMT_WARN_ERROR	= Mysqlx::Notice::Warning_Level_ERROR,
 #endif
 	XSTMT_WARN_NONE = 255,
 };
@@ -141,7 +141,10 @@ struct st_xmysqlnd_on_session_var_change_bind
 struct st_xmysqlnd_msg__capabilities_get
 {
 	enum_func_status (*send_request)(struct st_xmysqlnd_msg__capabilities_get * msg);
-	enum_func_status (*read_response)(struct st_xmysqlnd_msg__capabilities_get * msg, zval * capabilities);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__capabilities_get * msg,
+									  zval * capabilities);
+
 	enum_func_status (*init_read)(struct st_xmysqlnd_msg__capabilities_get * const msg,
 								  const struct st_xmysqlnd_on_error_bind on_error);
 
@@ -324,12 +327,90 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 struct st_xmysqlnd_msg__connection_close
 {
 	enum_func_status (*send_request)(struct st_xmysqlnd_msg__connection_close * msg);
+
 	enum_func_status (*read_response)(struct st_xmysqlnd_msg__connection_close * msg);
+
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__connection_close * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
+};
+
+
+struct st_xmysqlnd_msg__crud_insert
+{
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__crud_insert * msg);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__crud_insert * msg);
+
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__crud_insert * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
+};
+
+
+struct st_xmysqlnd_msg__crud_find
+{
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__crud_find * msg);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__crud_find * msg);
+
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__crud_find * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
+};
+
+
+struct st_xmysqlnd_msg__crud_delete
+{
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__crud_delete * msg);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__crud_delete * msg);
+
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__crud_delete * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
+};
+
+
+struct st_xmysqlnd_msg__crud_update
+{
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__crud_update * msg);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__crud_update * msg);
+
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__crud_update * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
 };
 
 
@@ -347,6 +428,10 @@ struct st_xmysqlnd_message_factory
 #endif
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__sql_stmt_execute)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__crud_insert			(*get__crud_insert)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__crud_find			(*get__crud_find)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__crud_delete			(*get__crud_delete)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__crud_update			(*get__crud_update)(const struct st_xmysqlnd_message_factory * const factory);
 };
 
 struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_xmysqlnd_level3_io * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
