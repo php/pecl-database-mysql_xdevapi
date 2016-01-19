@@ -22,6 +22,7 @@
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_rowset_buffered;
@@ -33,6 +34,7 @@ struct st_xmysqlnd_protocol_frame_codec;
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data);
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered);
@@ -46,6 +48,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters
 {
 	void ** (*get_node_session_area)(const struct st_xmysqlnd_node_session * conn, const unsigned int plugin_id);
 	void ** (*get_node_session_data_data_area)(const struct st_xmysqlnd_node_session_data * conn, const unsigned int plugin_id);
+	void ** (*get_node_schema_area)(const struct st_xmysqlnd_node_schema * stmt, unsigned int plugin_id);
 	void ** (*get_node_stmt_area)(const struct st_xmysqlnd_node_stmt * stmt, unsigned int plugin_id);
 	void ** (*get_node_stmt_result_area)(const struct st_xmysqlnd_node_stmt_result * result, unsigned int plugin_id);
 	void ** (*get_rowset_buffered_area)(const struct st_xmysqlnd_rowset_buffered * result, unsigned int plugin_id);
@@ -59,6 +62,7 @@ extern struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_gette
 
 #define xmysqlnd_plugin_get_node_session_plugin_area(s, p_id)				xmysqlnd_plugin_area_getters.get_node_session_area((s), (p_id))
 #define xmysqlnd_plugin_get_node_session_data_plugin_area(s, p_id)			xmysqlnd_plugin_area_getters.get_node_session_data_data_area((s), (p_id))
+#define xmysqlnd_plugin_get_node_schema_plugin_area(s, p_id)				xmysqlnd_plugin_area_getters.get_node_schema_area((s), (p_id))
 #define xmysqlnd_plugin_get_node_stmt_plugin_area(s, p_id)					xmysqlnd_plugin_area_getters.get_node_stmt_area((s), (p_id))
 #define xmysqlnd_plugin_get_node_stmt_result_plugin_area(r, p_id)			xmysqlnd_plugin_area_getters.get_node_stmt_result_area((r), (p_id))
 #define xmysqlnd_plugin_get_rowset_buffered_plugin_area(r, p_id)	xmysqlnd_plugin_area_getters.get_rowset_buffered_area((r), (p_id))
@@ -87,6 +91,12 @@ struct st_xmysqlnd_plugin_methods_xetters
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * const methods);
 	} node_session_data;
+
+	struct st_xmnd_node_schema_xetters
+	{
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema) * const methods);
+	} node_schema;
 
 	struct st_xmnd_node_stmt_xetters
 	{
@@ -160,6 +170,9 @@ PHPAPI extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_
 
 #define xmysqlnd_node_session_data_get_methods()		xmysqlnd_plugin_methods_xetters.node_session_data.get()
 #define xmysqlnd_node_session_data_set_methods(m)		xmysqlnd_plugin_methods_xetters.node_session_data.set((m))
+
+#define xmysqlnd_node_schema_get_methods()				xmysqlnd_plugin_methods_xetters.node_schema.get()
+#define xmysqlnd_node_schema_set_methods(m)				xmysqlnd_plugin_methods_xetters.node_schema.set((m))
 
 #define xmysqlnd_node_stmt_get_methods()				xmysqlnd_plugin_methods_xetters.node_stmt.get()
 #define xmysqlnd_node_stmt_set_methods(m)				xmysqlnd_plugin_methods_xetters.node_stmt.set((m))

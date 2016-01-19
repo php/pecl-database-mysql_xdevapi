@@ -23,6 +23,7 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_node_session.h"
+#include "xmysqlnd_node_schema.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
@@ -88,6 +89,46 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CL
 	if (FAIL == object->m->init(object, factory, stats, error_info)) {
 		object->m->dtor(object);
 		DBG_RETURN(NULL);
+	}
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_object_factory::get_node_schema */
+static XMYSQLND_NODE_SCHEMA *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_schema)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+														  XMYSQLND_NODE_SESSION_DATA * session,
+														  const MYSQLND_CSTRING schema_name,
+														  const zend_bool persistent,
+														  MYSQLND_STATS * stats,
+														  MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_NODE_SCHEMA) + mysqlnd_plugin_count() * sizeof(void *);
+	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_SCHEMA_DATA) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_NODE_SCHEMA * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_NODE_SCHEMA_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
+
+	DBG_ENTER("xmysqlnd_object_factory::get_node_schema");
+	DBG_INF_FMT("persistent=%u", persistent);
+	if (object && object_data) {
+		object->data = object_data;
+		object->persistent = object->data->persistent = persistent;
+		object->data->m = *xmysqlnd_node_schema_get_methods();
+
+		if (PASS != object->data->m.init(object, factory, session, schema_name, stats, error_info)) {
+			object->data->m.dtor(object, stats, error_info);
+			object = NULL;
+		}
+	} else {
+		if (object_data) {
+			mnd_pefree(object_data, persistent);
+			object_data = NULL;
+		}
+		if (object) {
+			mnd_pefree(object, persistent);
+			object = NULL;
+		}
 	}
 	DBG_RETURN(object);
 }
@@ -387,6 +428,7 @@ static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_schema),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered),

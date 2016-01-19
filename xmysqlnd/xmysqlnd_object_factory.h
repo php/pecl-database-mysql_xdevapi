@@ -34,6 +34,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
 
 typedef struct st_xmysqlnd_node_session *			(*func_xmysqlnd_object_factory__get_node_session)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_node_session_data *		(*func_xmysqlnd_object_factory__get_node_session_data)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef struct st_xmysqlnd_node_schema *			(*func_xmysqlnd_object_factory__get_node_schema)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING schema_name, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_node_stmt *				(*func_xmysqlnd_object_factory__get_node_stmt)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_object_factory__get_node_stmt_result)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef struct st_xmysqlnd_rowset_buffered *		(*func_xmysqlnd_object_factory__get_rowset_buffered)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -49,6 +50,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 {
 	func_xmysqlnd_object_factory__get_node_session get_node_session;
 	func_xmysqlnd_object_factory__get_node_session_data get_node_session_data;
+	func_xmysqlnd_object_factory__get_node_schema get_node_schema;
 	func_xmysqlnd_object_factory__get_node_stmt get_node_stmt;
 	func_xmysqlnd_object_factory__get_node_stmt_result get_node_stmt_result;
 	func_xmysqlnd_object_factory__get_rowset_buffered get_rowset_buffered;
