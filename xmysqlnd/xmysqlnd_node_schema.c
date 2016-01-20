@@ -38,7 +38,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, init)(XMYSQLND_NODE_SCHEMA * const schema,
 		return FAIL;
 	}
 	schema->data->schema_name = mnd_dup_cstring(schema_name, schema->data->persistent);
-	DBG_INF_FMT("query=[%d]%*s", schema->data->schema_name.l, schema->data->schema_name.l, schema->data->schema_name.s);
+	DBG_INF_FMT("name=[%d]%*s", schema->data->schema_name.l, schema->data->schema_name.l, schema->data->schema_name.s);
 
 	schema->data->object_factory = object_factory;
 
@@ -118,17 +118,22 @@ PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_schema);
 
 /* {{{ xmysqlnd_node_schema_create */
 PHPAPI XMYSQLND_NODE_SCHEMA *
-xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING schema_name, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION_DATA * session,
+							const MYSQLND_CSTRING schema_name,
+							const zend_bool persistent,
+							const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+							MYSQLND_STATS * stats,
+							MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_SCHEMA * schema = NULL;
+	XMYSQLND_NODE_SCHEMA * ret = NULL;
 	DBG_ENTER("xmysqlnd_node_schema_create");
 	if (schema_name.s && schema_name.l) {
-		schema = object_factory->get_node_schema(object_factory, session, schema_name, persistent, stats, error_info);
-		if (schema) {
-			schema = schema->data->m.get_reference(schema);
+		ret = object_factory->get_node_schema(object_factory, session, schema_name, persistent, stats, error_info);
+		if (ret) {
+			ret = ret->data->m.get_reference(ret);
 		}
 	}
-	DBG_RETURN(schema);
+	DBG_RETURN(ret);
 }
 /* }}} */
 

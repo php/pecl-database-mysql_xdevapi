@@ -24,6 +24,7 @@
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_schema.h"
+#include "xmysqlnd_node_collection.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
@@ -117,6 +118,46 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_schema)(const MYSQLND_CLASS_ME
 		object->data->m = *xmysqlnd_node_schema_get_methods();
 
 		if (PASS != object->data->m.init(object, factory, session, schema_name, stats, error_info)) {
+			object->data->m.dtor(object, stats, error_info);
+			object = NULL;
+		}
+	} else {
+		if (object_data) {
+			mnd_pefree(object_data, persistent);
+			object_data = NULL;
+		}
+		if (object) {
+			mnd_pefree(object, persistent);
+			object = NULL;
+		}
+	}
+	DBG_RETURN(object);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_object_factory::get_node_collection */
+static XMYSQLND_NODE_COLLECTION *
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_collection)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+															  XMYSQLND_NODE_SCHEMA * schema,
+															  const MYSQLND_CSTRING collection_name,
+															  const zend_bool persistent,
+															  MYSQLND_STATS * stats,
+															  MYSQLND_ERROR_INFO * error_info)
+{
+	const size_t alloc_size = sizeof(XMYSQLND_NODE_COLLECTION) + mysqlnd_plugin_count() * sizeof(void *);
+	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_COLLECTION_DATA) + mysqlnd_plugin_count() * sizeof(void *);
+	XMYSQLND_NODE_COLLECTION * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_NODE_COLLECTION_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
+
+	DBG_ENTER("xmysqlnd_object_factory::get_node_collection");
+	DBG_INF_FMT("persistent=%u", persistent);
+	if (object && object_data) {
+		object->data = object_data;
+		object->persistent = object->data->persistent = persistent;
+		object->data->m = *xmysqlnd_node_collection_get_methods();
+
+		if (PASS != object->data->m.init(object, factory, schema, collection_name, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
@@ -429,6 +470,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_schema),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_collection),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered),

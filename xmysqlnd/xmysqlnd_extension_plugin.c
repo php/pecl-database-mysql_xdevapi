@@ -22,6 +22,7 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_schema.h"
+#include "xmysqlnd_node_collection.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
@@ -72,6 +73,20 @@ xmysqlnd_plugin__get_node_schema_plugin_area(const XMYSQLND_NODE_SCHEMA * object
 		return NULL;
 	}
 	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_SCHEMA) + plugin_id * sizeof(void *)));
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_plugin__get_node_collection_plugin_area */
+static void **
+xmysqlnd_plugin__get_node_collection_plugin_area(const XMYSQLND_NODE_COLLECTION * object, const unsigned int plugin_id)
+{
+	DBG_ENTER("xmysqlnd_plugin__get_node_collection_plugin_area");
+	DBG_INF_FMT("plugin_id=%u", plugin_id);
+	if (!object || plugin_id >= mysqlnd_plugin_count()) {
+		return NULL;
+	}
+	DBG_RETURN((void *)((char *)object + sizeof(XMYSQLND_NODE_COLLECTION) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
@@ -178,6 +193,7 @@ struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 	xmysqlnd_plugin__get_node_session_plugin_area,
 	xmysqlnd_plugin__get_node_session_data_plugin_area,
 	xmysqlnd_plugin__get_node_schema_plugin_area,
+	xmysqlnd_plugin__get_node_collection_plugin_area,
 	xmysqlnd_plugin__get_node_stmt_plugin_area,
 	xmysqlnd_plugin__get_node_stmt_result_plugin_area,
 	xmysqlnd_plugin__get_rowset_buffered_plugin_area,
@@ -253,6 +269,23 @@ static void
 _xmysqlnd_node_schema_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema) * const methods)
 {
 	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_schema) = methods;
+}
+/* }}} */
+
+
+/* {{{ _xmysqlnd_node_collection_get_methods */
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection) *
+_xmysqlnd_node_collection_get_methods()
+{
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_collection);
+}
+/* }}} */
+
+/* {{{ _xmysqlnd_node_collection_set_methods */
+static void
+_xmysqlnd_node_collection_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection) * const methods)
+{
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_collection) = methods;
 }
 /* }}} */
 
@@ -447,6 +480,10 @@ PHPAPI struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters
 	{
 		_xmysqlnd_node_schema_get_methods,
 		_xmysqlnd_node_schema_set_methods,
+	},
+	{
+		_xmysqlnd_node_collection_get_methods,
+		_xmysqlnd_node_collection_set_methods,
 	},
 	{
 		_xmysqlnd_node_stmt_get_methods,

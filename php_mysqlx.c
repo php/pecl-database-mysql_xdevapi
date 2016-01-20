@@ -23,13 +23,20 @@
 #include "mysqlx_exception.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_schema.h"
+#include "mysqlx_node_collection.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_sql_statement_result.h"
-#include "mysqlx_node_connection.h"
-#include "mysqlx_node_pfc.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_object.h"
 #include "mysqlx_warning.h"
+
+#define MESSAGE_CLASSES 0
+
+
+#if MESSAGE_CLASSES
+
+#include "mysqlx_node_connection.h"
+#include "mysqlx_node_pfc.h"
 
 #include "messages/mysqlx_message__ok.h"
 #include "messages/mysqlx_message__error.h"
@@ -47,8 +54,8 @@
 #include "mysqlx_resultset__data_row.h"
 #include "messages/mysqlx_message__data_fetch_done.h"
 
+#endif
 
-#define MESSAGE_CLASSES 0
 
 /* {{{ mysqlx_minit_classes */
 PHPAPI int
@@ -75,6 +82,8 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_node_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_schema_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
+	mysqlx_register_node_collection_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
@@ -141,6 +150,7 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 
 	mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_schema_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

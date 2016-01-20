@@ -20,6 +20,9 @@
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_node_schema;
+struct st_xmysqlnd_node_schema_data;
+struct st_xmysqlnd_node_collection;
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_node_stmt_rowset;
@@ -32,25 +35,108 @@ struct st_xmysqlnd_stmt_execution_state;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
 
-typedef struct st_xmysqlnd_node_session *			(*func_xmysqlnd_object_factory__get_node_session)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_node_session_data *		(*func_xmysqlnd_object_factory__get_node_session_data)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_node_schema *			(*func_xmysqlnd_object_factory__get_node_schema)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING schema_name, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_node_stmt *				(*func_xmysqlnd_object_factory__get_node_stmt)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING query, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_object_factory__get_node_stmt_result)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_rowset_buffered *		(*func_xmysqlnd_object_factory__get_rowset_buffered)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_rowset_fwd *	(*func_xmysqlnd_object_factory__get_rowset_fwd)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_rowset *					(*func_xmysqlnd_object_factory__get_rowset)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, unsigned int type, const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_node_stmt_result_meta *	(*func_xmysqlnd_object_factory__get_node_stmt_result_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_result_field_meta *		(*func_xmysqlnd_object_factory__get_result_field_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_protocol_frame_codec *	(*func_xmysqlnd_object_factory__get_pfc)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_warning_list *			(*func_xmysqlnd_object_factory__get_warning_list)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef struct st_xmysqlnd_stmt_execution_state *	(*func_xmysqlnd_object_factory__get_stmt_execution_state)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const zend_bool persistent, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef struct st_xmysqlnd_node_session * (*func_xmysqlnd_object_factory__get_node_session)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_node_session_data * (*func_xmysqlnd_object_factory__get_node_session_data)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_node_schema * (*func_xmysqlnd_object_factory__get_node_schema)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			struct st_xmysqlnd_node_session_data * session,
+			const MYSQLND_CSTRING schema_name,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+	
+typedef struct st_xmysqlnd_node_collection * (*func_xmysqlnd_object_factory__get_node_collection)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			struct st_xmysqlnd_node_schema * schema,
+			const MYSQLND_CSTRING collection_name,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_object_factory__get_node_stmt)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			struct st_xmysqlnd_node_session_data * session,
+			const MYSQLND_CSTRING query,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_node_stmt_result * (*func_xmysqlnd_object_factory__get_node_stmt_result)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_rowset_buffered * (*func_xmysqlnd_object_factory__get_rowset_buffered)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			struct st_xmysqlnd_node_stmt * stmt,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_rowset_fwd *	(*func_xmysqlnd_object_factory__get_rowset_fwd)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const size_t prefetch_rows,
+			struct st_xmysqlnd_node_stmt * stmt,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_rowset * (*func_xmysqlnd_object_factory__get_rowset)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			unsigned int type,
+			const size_t prefetch_rows,
+			struct st_xmysqlnd_node_stmt * stmt,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_node_stmt_result_meta * (*func_xmysqlnd_object_factory__get_node_stmt_result_meta)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_result_field_meta * (*func_xmysqlnd_object_factory__get_result_field_meta)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_protocol_frame_codec * (*func_xmysqlnd_object_factory__get_pfc)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_warning_list * (*func_xmysqlnd_object_factory__get_warning_list)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
+
+typedef struct st_xmysqlnd_stmt_execution_state *(*func_xmysqlnd_object_factory__get_stmt_execution_state)(
+			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+			const zend_bool persistent,
+			MYSQLND_STATS * stats,
+			MYSQLND_ERROR_INFO * error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 {
 	func_xmysqlnd_object_factory__get_node_session get_node_session;
 	func_xmysqlnd_object_factory__get_node_session_data get_node_session_data;
 	func_xmysqlnd_object_factory__get_node_schema get_node_schema;
+	func_xmysqlnd_object_factory__get_node_collection get_node_collection;
 	func_xmysqlnd_object_factory__get_node_stmt get_node_stmt;
 	func_xmysqlnd_object_factory__get_node_stmt_result get_node_stmt_result;
 	func_xmysqlnd_object_factory__get_rowset_buffered get_rowset_buffered;

@@ -50,11 +50,12 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
   xmysqlnd_sources="     php_xmysqlnd.c \
                          xmysqlnd/xmysqlnd_driver.c \
 						 xmysqlnd/xmysqlnd_extension_plugin.c \
+                         xmysqlnd/xmysqlnd_node_collection.c \
                          xmysqlnd/xmysqlnd_node_schema.c \
+						 xmysqlnd/xmysqlnd_node_session.c \
 						 xmysqlnd/xmysqlnd_node_stmt.c \
 						 xmysqlnd/xmysqlnd_node_stmt_result.c \
 						 xmysqlnd/xmysqlnd_node_stmt_result_meta.c \
-						 xmysqlnd/xmysqlnd_node_session.c \
 						 xmysqlnd/xmysqlnd_object_factory.c \
 						 xmysqlnd/xmysqlnd_protocol_frame_codec.c \
  						 xmysqlnd/xmysqlnd_protocol_dumper.cc \
@@ -79,6 +80,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 						 mysqlx_node_pfc.c \
 						 mysqlx_node_schema.c \
 						 mysqlx_node_session.c \
+						 mysqlx_node_collection.c \
 						 mysqlx_node_sql_statement.c \
 						 mysqlx_node_sql_statement_result.c \
 						 mysqlx_node_sql_statement_result_iterator.c \
