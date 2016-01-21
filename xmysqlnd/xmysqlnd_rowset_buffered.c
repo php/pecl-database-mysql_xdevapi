@@ -186,10 +186,11 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED 
 		size_t row = 0;
 		for (;row < row_count; ++row) {
 			const zval * const from_row_zv = result->rows[row];
+			const size_t offset = row * field_count;
 			unsigned int col = 0;
 			for (;col < field_count; ++col) {
 				const zval * const from = &from_row_zv[col];
-				zval * to = &(*set)[row * col];
+				zval * const to = &(*set)[offset + col];
 				if (duplicate) {
 					ZVAL_DUP(to, from);
 				} else {

@@ -322,7 +322,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 		DBG_RETURN(NULL);
 	}
 
-	stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, (size_t)~0, NULL);
+	if (FAIL == stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, (size_t)~0, NULL)) {
+		DBG_RETURN(NULL);
+	}
 	*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
 	DBG_INF_FMT("rowset     =%p  has_more=%s", create_ctx.rowset, *has_more_results? "TRUE":"FALSE");
 	DBG_INF_FMT("exec_state =%p", create_ctx.exec_state);
@@ -402,7 +404,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 	stmt->data->read_ctx.fwd_prefetch_count = rows;
 
 	if (rows) {
-		stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, rows, NULL);
+		if (FAIL == stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, rows, NULL)) {
+			DBG_RETURN(NULL);		
+		}
 		*has_more_rows_in_set = stmt->data->msg_stmt_exec.has_more_rows_in_set;
 		*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
 	}
@@ -462,7 +466,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const 
 		DBG_RETURN(FAIL);
 	}
 
-	stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, (size_t)~0, NULL);
+	if (FAIL == stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, (size_t)~0, NULL)) {
+		DBG_RETURN(FAIL);
+	}
 	*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
 	DBG_INF_FMT("has_more=%s", *has_more_results? "TRUE":"FALSE");
 	if (create_ctx.exec_state) {

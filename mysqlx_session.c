@@ -80,10 +80,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__execute_batch, 0, ZEND_RETURN_VAL
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_uri, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__close, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -92,7 +88,6 @@ ZEND_END_ARG_INFO()
 static const zend_function_entry mysqlx_session_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_session, getSchemas, arginfo_mysqlx_session__get_schemas)
 	PHP_ABSTRACT_ME(mysqlx_session, getSchema, arginfo_mysqlx_session__get_schema)
-	PHP_ABSTRACT_ME(mysqlx_session, getDefaultSchema, arginfo_mysqlx_session__get_default_schema)
 
 	PHP_ABSTRACT_ME(mysqlx_session, createSchema, arginfo_mysqlx_session__create_schema)
 	PHP_ABSTRACT_ME(mysqlx_session, dropSchema, arginfo_mysqlx_session__drop_schema)
@@ -109,8 +104,6 @@ static const zend_function_entry mysqlx_session_methods[] = {
 
 	PHP_ABSTRACT_ME(mysqlx_session, executeBatch, arginfo_mysqlx_session__execute_batch)
 
-
-	PHP_ABSTRACT_ME(mysqlx_session, getUri, arginfo_mysqlx_session__get_uri)
 	PHP_ABSTRACT_ME(mysqlx_session, close, arginfo_mysqlx_session__close)
 
 	{NULL, NULL, NULL}

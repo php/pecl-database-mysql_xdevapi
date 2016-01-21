@@ -248,7 +248,10 @@ struct st_xmysqlnd_node_session_data
 
 typedef enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_session__connect)(XMYSQLND_NODE_SESSION * session, MYSQLND_CSTRING hostname, MYSQLND_CSTRING username, MYSQLND_CSTRING password, MYSQLND_CSTRING database, MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
+typedef enum_func_status	(*func_xmysqlnd_node_session__create_db)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING db);
 typedef enum_func_status	(*func_xmysqlnd_node_session__select_db)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING db);
+typedef enum_func_status	(*func_xmysqlnd_node_session__drop_db)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING db);
+typedef enum_func_status	(*func_xmysqlnd_node_session__list_dbs)(XMYSQLND_NODE_SESSION * session, MYSQLND_STRING ** const list, unsigned int * const count);
 typedef enum_func_status	(*func_xmysqlnd_node_session__query)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING query);
 typedef void				(*func_xmysqlnd_node_session__dtor)(XMYSQLND_NODE_SESSION * session);
 typedef enum_func_status	(*func_xmysqlnd_node_session__close)(XMYSQLND_NODE_SESSION * session, const enum_xmysqlnd_node_session_close_type close_type);
@@ -257,7 +260,10 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 {
 	func_xmysqlnd_node_session__init init;
 	func_xmysqlnd_node_session__connect connect;
+	func_xmysqlnd_node_session__create_db create_db;
 	func_xmysqlnd_node_session__select_db select_db;
+	func_xmysqlnd_node_session__drop_db drop_db;
+	func_xmysqlnd_node_session__list_dbs list_dbs;
 	func_xmysqlnd_node_session__query query;
 	func_xmysqlnd_node_session__dtor dtor;
 	func_xmysqlnd_node_session__close close;

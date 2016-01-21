@@ -527,7 +527,9 @@ xmysqlnd_receive_message(struct st_xmysqlnd_server_messages_handlers * handlers,
 			DBG_INF("HND_AGAIN. Reading new packet from the network");
 		}
 	} while (hnd_ret == HND_AGAIN);
-	ret = (HND_PASS || HND_AGAIN_ASYNC)? PASS:FAIL;
+	DBG_INF_FMT("hnd_ret=%d", hnd_ret);
+	ret = (hnd_ret == HND_PASS || hnd_ret == HND_AGAIN_ASYNC)? PASS:FAIL;
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1175,11 +1177,11 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 /* {{{ stmt_execute_on_ERROR */
 static enum_hnd_func_status
 stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
-{
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+{	
 	struct st_xmysqlnd_msg__sql_stmt_execute * ctx = static_cast<struct st_xmysqlnd_msg__sql_stmt_execute *>(context);
 	DBG_ENTER("stmt_execute_on_ERROR");
-
+	enum_hnd_func_status ret = on_ERROR(error, ctx->on_error);
+#if 0
 	const bool has_code = error.has_code();
 	const bool has_sql_state = error.has_sql_state();
 	const bool has_msg = error.has_msg();
@@ -1197,7 +1199,7 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 	if (ctx->on_error.handler) {
 		ret = ctx->on_error.handler(ctx->on_error.ctx, code, sql_state, error_message);
 	}
-
+#endif
 	DBG_RETURN(ret);
 }
 /* }}} */

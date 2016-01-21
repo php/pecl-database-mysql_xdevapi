@@ -689,7 +689,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_server_version)(XMYSQLND_NODE_SE
 					if (PASS == res->m.fetch_all_c(res, &set, FALSE /* don't duplicate, reference it */, session->stats, session->error_info) &&
 						Z_TYPE(set[0 * 0]) == IS_STRING)
 					{
-//						DBG_INF_FMT("type = %u", Z_TYPE(set[0 * 0]));
 						DBG_INF_FMT("Found %*s", Z_STRLEN(set[0 * 0]), Z_STRVAL(set[0 * 0]));
 						session->server_version_string = mnd_pestrndup(Z_STRVAL(set[0 * 0]), Z_STRLEN(set[0 * 0]), session->persistent);
 					}
@@ -1197,20 +1196,110 @@ XMYSQLND_METHOD(xmysqlnd_node_session, dtor)(XMYSQLND_NODE_SESSION * session)
 }
 /* }}} */
 
+static enum_func_status
+xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
+{
+	enum_func_status ret = FAIL;
+	const MYSQLND_STRING quoted_db = session_handle->data->m->quote_name(session_handle->data, db);
+	DBG_ENTER("xmysqlnd_schema_operation");
+	DBG_INF_FMT("db=%s", db);
+
+	if (quoted_db.s && quoted_db.l) {
+		const size_t query_len = operation.l + quoted_db.l;
+		char query[query_len + 1];
+		memcpy(query, operation.s, operation.l);
+		memcpy(query + operation.l, quoted_db.s, quoted_db.l);
+		query[query_len] = '\0';
+		const MYSQLND_CSTRING select_query = { query, query_len };
+		mnd_efree(quoted_db.s);
+
+		ret = session_handle->m->query(session_handle, select_query);
+	}
+	DBG_RETURN(ret);
+
+}
 
 /* {{{ xmysqlnd_node_session::select_db */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, select_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
 {
-	enum_func_status ret = FAIL;
-	char query[3+ 1 + 2 + 64*4 + 1];
-	const size_t query_len = snprintf(query, sizeof(query), "USE `%*s`", db.l, db.s);
-	const MYSQLND_CSTRING select_query = { query, query_len };
-
+	enum_func_status ret;
+	static const MYSQLND_CSTRING operation = { "USE ", sizeof("USE ") - 1 };
 	DBG_ENTER("xmysqlnd_node_session::select_db");
-	DBG_INF_FMT("db=%s", db);
+	ret = xmysqlnd_schema_operation(session_handle, operation, db);
+	DBG_RETURN(ret);
+}
+/* }}} */
 
-	ret = session_handle->m->query(session_handle, select_query);
+
+/* {{{ xmysqlnd_node_session::create_db */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_session, create_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
+{
+	enum_func_status ret;
+	static const MYSQLND_CSTRING operation = { "CREATE DATABASE ", sizeof("CREATE DATABASE ") - 1 };
+	DBG_ENTER("xmysqlnd_node_session::create_db");
+	ret = xmysqlnd_schema_operation(session_handle, operation, db);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_session::drop_db */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_session, drop_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
+{
+	enum_func_status ret;
+	static const MYSQLND_CSTRING operation = { "DROP DATABASE ", sizeof("DROP DATABASE ") - 1 };
+	DBG_ENTER("xmysqlnd_node_session::drop_db");
+	ret = xmysqlnd_schema_operation(session_handle, operation, db);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_session::list_dbs */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_session, list_dbs)(XMYSQLND_NODE_SESSION * session_handle, MYSQLND_STRING ** const list, unsigned int * const db_count)
+{
+	enum_func_status ret;
+	const MYSQLND_CSTRING list_query = { "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
+	DBG_ENTER("xmysqlnd_node_session::list_dbs");
+	if (session_handle) {
+		XMYSQLND_NODE_SESSION_DATA * const session = session_handle->data;
+		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, list_query, MYSQLND_SEND_QUERY_IMPLICIT);
+		if (stmt) {
+			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
+				zend_bool has_more = FALSE;
+				XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, session->stats, session->error_info);
+				if (result) {
+					zval * set = NULL;
+					ret = PASS;
+					if (PASS == result->m.fetch_all_c(result, &set, FALSE /* don't duplicate, reference it */, session->stats, session->error_info)) {
+						unsigned int row = 0;
+						*db_count = result->m.get_row_count(result);
+						if (*db_count) {
+							*list = mnd_emalloc(*db_count * sizeof(MYSQLND_STRING));
+							for (; row < *db_count; ++row) {
+								static const unsigned int field = 0;
+								const zval * zv = & set[row * (field + 1)];
+								(*list)[row].l = Z_STRLEN_P(zv);
+								(*list)[row].s = mnd_pememdup(Z_STRVAL_P(zv), (*list)[row].l + 1, 0);
+								DBG_INF_FMT("Found %*s", (*list)[row].l, (*list)[row].s);
+							}
+						}
+					}
+					if (set) {
+						mnd_efree(set);
+					}
+					xmysqlnd_node_stmt_result_free(result, session->stats, session->error_info);
+				} else {
+					ret = FAIL;
+				}
+			}
+			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
+		}
+	}
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1224,17 +1313,21 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_ha
 	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
 	enum_func_status ret = FAIL;
 
-	DBG_ENTER("xmysqlnd_node_session::close");
+	DBG_ENTER("xmysqlnd_node_session::query");
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
-				zend_bool has_more = FALSE;
 				do {
-					if (PASS == stmt->data->m.get_buffered_result(stmt, &has_more, session->stats, session->error_info)) {
+					zend_bool has_more = FALSE;
+					XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, session->stats, session->error_info);
+					if (result) {
 						ret = PASS;
+						xmysqlnd_node_stmt_result_free(result, session->stats, session->error_info);
+					} else {
+						ret = FAIL;
 					}
-				} while (has_more == TRUE);
+				} while (stmt->data->m.has_more_results(stmt) == TRUE);
 			}
 			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
 		}
@@ -1242,7 +1335,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_ha
 		/* If we do it after free_reference/dtor then we might crash */
 		session->m->local_tx_end(session, this_func, ret);
 	}
-
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1288,7 +1381,10 @@ static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	XMYSQLND_METHOD(xmysqlnd_node_session, init),
 	XMYSQLND_METHOD(xmysqlnd_node_session, connect),
+	XMYSQLND_METHOD(xmysqlnd_node_session, create_db),
 	XMYSQLND_METHOD(xmysqlnd_node_session, select_db),
+	XMYSQLND_METHOD(xmysqlnd_node_session, drop_db),
+	XMYSQLND_METHOD(xmysqlnd_node_session, list_dbs),
 	XMYSQLND_METHOD(xmysqlnd_node_session, query),
 	XMYSQLND_METHOD(xmysqlnd_node_session, dtor),
 	XMYSQLND_METHOD(xmysqlnd_node_session, close),

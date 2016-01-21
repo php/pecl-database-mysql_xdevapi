@@ -28,9 +28,9 @@ typedef enum xmysqlnd_handler_func_status
 {
 	HND_PASS = PASS,
 	HND_FAIL = FAIL,
-	HND_PASS_RETURN_FAIL,
-	HND_AGAIN,
-	HND_AGAIN_ASYNC,
+	HND_PASS_RETURN_FAIL = 3,
+	HND_AGAIN = 4,
+	HND_AGAIN_ASYNC = 5,
 } enum_hnd_func_status;
 
 #include "xmysqlnd_object_factory.h"
