@@ -176,12 +176,17 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field)(void * context, const 
 			ctx->current_row = ctx->rowset->m.create_row(ctx->rowset, ctx->meta, ctx->stats, ctx->error_info);
 		}
 		decoder(buffer, ctx->meta->m->get_field(ctx->meta, idx), idx, &ctx->current_row[idx]);
-//		ctx->current_row
 
 		if ((idx + 1) == ctx->meta->m->get_field_count(ctx->meta)) {
-			ctx->rowset->m.add_row(ctx->rowset, ctx->current_row, ctx->stats, ctx->error_info);
+			if (ctx->on_row.handler) {
+
+				ret = ctx->on_row.handler(ctx->on_row.ctx, ctx->stmt, ctx->meta, ctx->current_row, ctx->stats, ctx->error_info);
+
+				ctx->rowset->m.destroy_row(ctx->rowset, ctx->current_row, ctx->stats, ctx->error_info);
+			} else {
+				ctx->rowset->m.add_row(ctx->rowset, ctx->current_row, ctx->stats, ctx->error_info);
+			}
 		}
-//		ctx->meta->m->add_field(ctx->meta, field, ctx->stats, ctx->error_info);
 	}
 	DBG_RETURN(ret);
 }
@@ -208,6 +213,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_meta_field)(void * context, struc
 }
 /* }}} */
 
+
 /* {{{ xmysqlnd_node_stmt::handler_on_warning */
 static enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
@@ -216,11 +222,30 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning)(void * context, const en
 	enum_hnd_func_status ret = HND_AGAIN;
 
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_warning");
-	if (!ctx->warnings) {
-		ctx->warnings = xmysqlnd_warning_list_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
+	if (ctx->on_warning.handler) {
+		ret = ctx->on_warning.handler(ctx->on_warning.ctx, ctx->stmt, level, code, message);
+	} else {
+		if (!ctx->warnings) {
+			ctx->warnings = xmysqlnd_warning_list_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
+		}
+		if (ctx->warnings) {
+			ctx->warnings->m->add_warning(ctx->warnings, level, code, message);
+		}
 	}
-	if (ctx->warnings) {
-		ctx->warnings->m->add_warning(ctx->warnings, level, code, message);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt::handler_on_error */
+static enum_hnd_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	struct st_xmysqlnd_node_stmt_bind_ctx * ctx = (struct st_xmysqlnd_node_stmt_bind_ctx *) context;
+	enum_hnd_func_status ret = HND_AGAIN;
+	DBG_ENTER("xmysqlnd_node_stmt::handler_on_error");
+	if (ctx->on_error.handler) {
+		ret = ctx->on_error.handler(ctx->on_error.ctx, ctx->stmt, code, sql_state, message);
 	}
 	DBG_RETURN(ret);
 }
@@ -273,6 +298,113 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_trx_state_change)(void * context,
 
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_trx_state_change");
 	DBG_INF_FMT("type=%s", type == TRX_STATE_COMMITTED? "COMMITTED":(type == TRX_STATE_ROLLEDBACK? "ROLLED BACK":"n/a"));
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_stmt::read_one_result */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const stmt,
+													 const struct st_xmysqlnd_node_stmt_on_row_bind on_row,
+													 const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
+													 const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
+													 const struct st_xmysqlnd_node_stmt_on_status_bind on_status,
+													 zend_bool * const has_more_results,
+													 MYSQLND_STATS * const stats,
+													 MYSQLND_ERROR_INFO * const error_info)
+{
+	struct st_xmysqlnd_node_stmt_bind_ctx create_ctx =
+	{
+		stmt,
+		stats,
+		error_info,
+		stmt->data->m.create_rowset_buffered,
+		0,		/* fwd_prefetch_count */
+		NULL,	/* current_row */
+		NULL,	/* rowset */
+		NULL,	/* meta */
+		NULL,	/* warnings */
+		NULL,	/* exec_state */
+		on_row,
+		on_warning,
+		on_error,
+		on_status
+	};
+	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { stmt->data->m.create_meta_field, &create_ctx };
+	const struct st_xmysqlnd_on_row_field_bind on_row_field_msg = { stmt->data->m.handler_on_row_field, &create_ctx };
+	const struct st_xmysqlnd_on_meta_field_bind on_meta_field_msg = { stmt->data->m.handler_on_meta_field, &create_ctx };
+	const struct st_xmysqlnd_on_warning_bind on_warning_msg = { stmt->data->m.handler_on_warning, &create_ctx };
+	const struct st_xmysqlnd_on_error_bind on_error_msg = { on_error.handler? stmt->data->m.handler_on_error : NULL , on_error.handler? &create_ctx : NULL };
+	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { stmt->data->m.handler_on_exec_state_change, &create_ctx };
+	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { NULL, NULL };
+	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { stmt->data->m.handler_on_trx_state_change, &create_ctx };
+	DBG_ENTER("xmysqlnd_node_stmt::read_one_result");
+
+	/*
+	  Maybe we can inject a callbacks that creates `meta` on demand, but we still DI it.
+	  This way we don't pre-create `meta` and in case of UPSERT we don't waste cycles.
+	  For now, we just pre-create.
+	*/
+	if (FAIL == stmt->data->msg_stmt_exec.init_read(&stmt->data->msg_stmt_exec,
+													create_meta_field,
+													on_row_field_msg,
+													on_meta_field_msg,
+													on_warning_msg,
+													on_error_msg,
+													on_exec_state_change,
+													on_session_var_change,
+													on_trx_state_change)) {
+		DBG_RETURN(FAIL);
+	}
+
+	if (FAIL == stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, (size_t)~0, NULL)) {
+		DBG_RETURN(FAIL);
+	}
+	*has_more_results = stmt->data->msg_stmt_exec.has_more_results;
+	DBG_INF_FMT("rowset     =%p  has_more=%s", create_ctx.rowset, *has_more_results? "TRUE":"FALSE");
+	DBG_INF_FMT("exec_state =%p", create_ctx.exec_state);
+	DBG_INF_FMT("warnings   =%p", create_ctx.warnings);
+
+
+	if (create_ctx.rowset) {
+		xmysqlnd_rowset_free(create_ctx.rowset, stats, error_info);
+		create_ctx.rowset = NULL;
+	}
+	if (create_ctx.exec_state) {
+		xmysqlnd_stmt_execution_state_free(create_ctx.exec_state);
+		create_ctx.exec_state = NULL;
+	}
+	if (create_ctx.warnings) {
+		xmysqlnd_warning_list_free(create_ctx.warnings);
+		create_ctx.warnings = NULL;
+	}
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+/* {{{ xmysqlnd_node_stmt::read_all_results */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const stmt,
+													  const struct st_xmysqlnd_node_stmt_on_row_bind on_row,
+													  const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
+													  const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
+													  const struct st_xmysqlnd_node_stmt_on_status_bind on_status,
+													  const struct st_xmysqlnd_node_stmt_on_result_start_bind on_result_start_bind,
+													  MYSQLND_STATS * const stats,
+													  MYSQLND_ERROR_INFO * const error_info)
+{
+	enum_func_status ret = FAIL;
+	zend_bool has_more;
+	DBG_ENTER("xmysqlnd_node_stmt::read_all_results");
+	do {
+		has_more = FALSE;
+		if (on_result_start_bind.handler) {
+			on_result_start_bind.handler(on_result_start_bind.ctx, stmt);
+		}
+		ret = stmt->data->m.read_one_result(stmt, on_row, on_warning, on_error, on_status, &has_more, stats, error_info);
+	
+	} while (ret == PASS && has_more == TRUE);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -568,6 +700,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results),
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, has_more_results),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result),
@@ -583,6 +717,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_meta_field),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_exec_state_change),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_trx_state_change),
 

@@ -34,10 +34,62 @@ typedef struct st_xmysqlnd_node_stmt		XMYSQLND_NODE_STMT;
 typedef struct st_xmysqlnd_node_stmt_data	XMYSQLND_NODE_STMT_DATA;
 
 
+struct st_xmysqlnd_node_stmt_on_result_start_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_STMT * const stmt);
+	void * ctx;
+};
+
+struct st_xmysqlnd_node_stmt_on_row_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_STMT * const stmt, const struct st_xmysqlnd_node_stmt_result_meta * const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_node_stmt_on_warning_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_node_stmt_on_error_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_node_stmt_on_status_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_STMT * const stmt, const struct st_xmysqlnd_stmt_execution_state * const exec_state);
+	void * ctx;
+};
+
+
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, struct st_xmysqlnd_node_session_data * const session, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, zval * param_zv);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef zend_bool			(*func_xmysqlnd_node_stmt__has_more_results)(const XMYSQLND_NODE_STMT * const stmt);
+
+typedef enum_func_status	(*func_xmysqlnd_node_stmt__read_one_result)(XMYSQLND_NODE_STMT * const stmt,
+																		const struct st_xmysqlnd_node_stmt_on_row_bind on_row,
+																		const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
+																		const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
+																		const struct st_xmysqlnd_node_stmt_on_status_bind on_status,
+																		zend_bool * const has_more_results,
+																		MYSQLND_STATS * const stats,
+																		MYSQLND_ERROR_INFO * const error_info);
+
+typedef enum_func_status	(*func_xmysqlnd_node_stmt__read_all_results)(XMYSQLND_NODE_STMT * const stmt,
+																		 const struct st_xmysqlnd_node_stmt_on_row_bind on_row,
+																		 const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
+																		 const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
+																		 const struct st_xmysqlnd_node_stmt_on_status_bind on_status,
+																		 const struct st_xmysqlnd_node_stmt_on_result_start_bind on_result_start_bind,
+																		 MYSQLND_STATS * const stats,
+																		 MYSQLND_ERROR_INFO * const error_info);
+typedef zend_bool									(*func_xmysqlnd_node_stmt__has_more_results)(const XMYSQLND_NODE_STMT * const stmt);
 typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__get_buffered_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__get_fwd_result)(XMYSQLND_NODE_STMT * const stmt, const size_t rows, zend_bool * const has_more_rows_in_set, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status							(*func_xmysqlnd_node_stmt__skip_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -52,6 +104,7 @@ typedef struct st_xmysqlnd_warning_list *			(*func_xmysqlnd_node_stmt__create_wa
 typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_row_field)(void * context, const MYSQLND_CSTRING buffer, const unsigned int idx, func_xmysqlnd_wireprotocol__row_field_decoder decoder);
 typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_meta_field)(void * context, struct st_xmysqlnd_result_field_meta * field);
 typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_warning)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_exec_state_change)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value);
 typedef enum_hnd_func_status						(*func_xmysqlnd_node_stmt__handler_on_trx_state_change)(void * context, const enum xmysqlnd_transaction_state_type type);
 
@@ -65,6 +118,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__init init;
 	func_xmysqlnd_node_stmt__bind_one_param bind_one_param;
 	func_xmysqlnd_node_stmt__send_query send_query;
+	func_xmysqlnd_node_stmt__read_one_result read_one_result;
+	func_xmysqlnd_node_stmt__read_all_results read_all_results;
 	func_xmysqlnd_node_stmt__has_more_results has_more_results;
 	func_xmysqlnd_node_stmt__get_buffered_result get_buffered_result;
 	func_xmysqlnd_node_stmt__get_fwd_result get_fwd_result;
@@ -76,9 +131,10 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__create_meta create_meta; 						/* export the function for binding */
 	func_xmysqlnd_node_stmt__create_meta_field create_meta_field;			/* export the function for binding */
 
-	func_xmysqlnd_node_stmt__handler_on_row_field handler_on_row_field;
-	func_xmysqlnd_node_stmt__handler_on_meta_field handler_on_meta_field;
+	func_xmysqlnd_node_stmt__handler_on_row_field handler_on_row_field;		/* export the function for binding */
+	func_xmysqlnd_node_stmt__handler_on_meta_field handler_on_meta_field;	/* export the function for binding */
 	func_xmysqlnd_node_stmt__handler_on_warning handler_on_warning;			/* export the function for binding */
+	func_xmysqlnd_node_stmt__handler_on_error handler_on_error;				/* export the function for binding */
 	func_xmysqlnd_node_stmt__handler_on_exec_state_change handler_on_exec_state_change;/* export the function for binding */
 	func_xmysqlnd_node_stmt__handler_on_trx_state_change handler_on_trx_state_change;/* export the function for binding */
 
@@ -109,6 +165,11 @@ struct st_xmysqlnd_node_stmt_data
 		struct st_xmysqlnd_node_stmt_result_meta * meta;
 		struct st_xmysqlnd_warning_list * warnings;
 		struct st_xmysqlnd_stmt_execution_state * exec_state;
+
+		struct st_xmysqlnd_node_stmt_on_row_bind on_row;
+		struct st_xmysqlnd_node_stmt_on_warning_bind on_warning;
+		struct st_xmysqlnd_node_stmt_on_error_bind on_error;
+		struct st_xmysqlnd_node_stmt_on_status_bind on_status;
 	} read_ctx;
 	zend_bool partial_read_started;
 

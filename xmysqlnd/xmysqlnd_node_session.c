@@ -1257,6 +1257,49 @@ XMYSQLND_METHOD(xmysqlnd_node_session, drop_db)(XMYSQLND_NODE_SESSION * session_
 }
 /* }}} */
 
+struct st_xmysqlnd_list_dbs_ctx
+{
+	MYSQLND_STRING ** list;
+	unsigned int * db_count;
+};
+
+/* {{{ list_dbs_handler_on_row */
+static enum_hnd_func_status
+list_dbs_handler_on_row(void * context,
+						XMYSQLND_NODE_STMT * const stmt,
+						const struct st_xmysqlnd_node_stmt_result_meta * const meta,
+						const zval * const row,
+						MYSQLND_STATS * const stats,
+						MYSQLND_ERROR_INFO * const error_info)
+{
+	struct st_xmysqlnd_list_dbs_ctx * ctx = (struct st_xmysqlnd_list_dbs_ctx *) context;
+	DBG_ENTER("list_dbs_handler_on_row");
+	if (ctx && ctx->db_count && ctx->list && row) {
+		const unsigned int row_num = *ctx->db_count;
+		*ctx->list = mnd_erealloc(*ctx->list, *ctx->db_count * sizeof(MYSQLND_STRING));
+		{
+			(*ctx->list)[row_num].l = Z_STRLEN(row[0]);
+			(*ctx->list)[row_num].s = mnd_pememdup(Z_STRVAL(row[0]), (*ctx->list)[row_num].l + 1, 0);
+			DBG_INF_FMT("Found %*s", (*ctx->list)[row_num].l, (*ctx->list)[row_num].s);
+		}
+
+		++*ctx->db_count;
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ list_dbs_handler_on_error */
+static enum_hnd_func_status
+list_dbs_handler_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("list_dbs_handler_on_row");
+
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
 
 /* {{{ xmysqlnd_node_session::list_dbs */
 static enum_func_status
@@ -1271,31 +1314,12 @@ XMYSQLND_METHOD(xmysqlnd_node_session, list_dbs)(XMYSQLND_NODE_SESSION * session
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				zend_bool has_more = FALSE;
-				XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, session->stats, session->error_info);
-				if (result) {
-					zval * set = NULL;
-					ret = PASS;
-					if (PASS == result->m.fetch_all_c(result, &set, FALSE /* don't duplicate, reference it */, session->stats, session->error_info)) {
-						unsigned int row = 0;
-						*db_count = result->m.get_row_count(result);
-						if (*db_count) {
-							*list = mnd_emalloc(*db_count * sizeof(MYSQLND_STRING));
-							for (; row < *db_count; ++row) {
-								static const unsigned int field = 0;
-								const zval * zv = & set[row * (field + 1)];
-								(*list)[row].l = Z_STRLEN_P(zv);
-								(*list)[row].s = mnd_pememdup(Z_STRVAL_P(zv), (*list)[row].l + 1, 0);
-								DBG_INF_FMT("Found %*s", (*list)[row].l, (*list)[row].s);
-							}
-						}
-					}
-					if (set) {
-						mnd_efree(set);
-					}
-					xmysqlnd_node_stmt_result_free(result, session->stats, session->error_info);
-				} else {
-					ret = FAIL;
-				}
+				struct st_xmysqlnd_list_dbs_ctx list_dbs_ctx = { list, db_count };
+				const struct st_xmysqlnd_node_stmt_on_row_bind on_row = { list_dbs_handler_on_row, &list_dbs_ctx };
+				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { NULL, NULL };
+				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { list_dbs_handler_on_error, &list_dbs_ctx };
+				const struct st_xmysqlnd_node_stmt_on_status_bind on_status = { NULL, NULL };
+				ret = stmt->data->m.read_one_result(stmt, on_row, on_warning, on_error, on_status, &has_more, session->stats, session->error_info);
 			}
 			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
 		}
