@@ -364,7 +364,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(const MYSQLND_CL
 		object->persistent = persistent;
 		object->m = xmysqlnd_result_field_meta_get_methods();
 
-		if (PASS != object->m->init(object, stats, error_info)) {
+		if (PASS != object->m->init(object, factory, stats, error_info)) {
 			object->m->dtor(object, stats, error_info);
 			object = NULL;
 		}

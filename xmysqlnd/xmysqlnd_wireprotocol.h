@@ -35,6 +35,11 @@ struct st_xmysqlnd_level3_io;
 #include "proto_gen/mysqlx_notice.pb.h"
 #endif
 
+#ifdef __cplusplus
+extern "C"
+#endif
+MYSQLND_CSTRING xmysqlnd_field_type_name(const unsigned int type);
+
 enum xmysqlnd_client_message_type
 {
 #ifdef __cplusplus

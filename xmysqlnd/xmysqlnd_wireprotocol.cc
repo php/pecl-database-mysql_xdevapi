@@ -54,6 +54,19 @@ struct st_xmysqlnd_inspect_changed_variable_bind
 };
 
 
+/* {{{ xmysqlnd_field_type_name */
+extern "C" MYSQLND_CSTRING
+xmysqlnd_field_type_name(const unsigned int type)
+{
+	MYSQLND_CSTRING ret = { NULL, 0 };
+	const std::string & field = Mysqlx::Resultset::ColumnMetaData::FieldType_Name((Mysqlx::Resultset::ColumnMetaData::FieldType) type);
+	ret.s = field.c_str();
+	ret.l = field.size();
+	return ret;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_inspect_changed_variable */
 static enum_hnd_func_status
 xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change, const Mysqlx::Notice::SessionVariableChanged & message)

@@ -47,7 +47,7 @@ extern "C" {
 #endif
 
 typedef struct st_xmysqlnd_result_field_meta XMYSQLND_RESULT_FIELD_META;
-typedef enum_func_status	(*func_xmysqlnd_result_field_meta__init)(XMYSQLND_RESULT_FIELD_META * const field, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_result_field_meta__init)(XMYSQLND_RESULT_FIELD_META * const field, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_result_field_meta__set_type)(XMYSQLND_RESULT_FIELD_META * const field, enum xmysqlnd_field_type type);
 typedef enum_func_status	(*func_xmysqlnd_result_field_meta__set_name)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len);
 typedef enum_func_status	(*func_xmysqlnd_result_field_meta__set_original_name)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len);
@@ -60,6 +60,7 @@ typedef enum_func_status	(*func_xmysqlnd_result_field_meta__set_fractional_digit
 typedef enum_func_status	(*func_xmysqlnd_result_field_meta__set_length)(XMYSQLND_RESULT_FIELD_META * const field, const uint32_t length);
 typedef enum_func_status	(*func_xmysqlnd_result_field_meta__set_flags)(XMYSQLND_RESULT_FIELD_META * const field, const uint32_t flags);
 typedef enum_func_status	(*func_xmysqlnd_result_field_meta__set_content_type)(XMYSQLND_RESULT_FIELD_META * const field, const uint32_t content_type);
+typedef XMYSQLND_RESULT_FIELD_META * (*func_xmysqlnd_result_field_meta__clone)(const XMYSQLND_RESULT_FIELD_META * const field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void				(*func_xmysqlnd_result_field_meta__free_contents)(XMYSQLND_RESULT_FIELD_META * const field);
 typedef void				(*func_xmysqlnd_result_field_meta__dtor)(XMYSQLND_RESULT_FIELD_META * const field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
@@ -79,6 +80,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta)
 	func_xmysqlnd_result_field_meta__set_length set_length;
 	func_xmysqlnd_result_field_meta__set_flags set_flags;
 	func_xmysqlnd_result_field_meta__set_content_type set_content_type;
+	func_xmysqlnd_result_field_meta__clone clone;
 	func_xmysqlnd_result_field_meta__free_contents free_contents;
 	func_xmysqlnd_result_field_meta__dtor dtor;
 };
@@ -111,6 +113,7 @@ struct st_xmysqlnd_result_field_meta
 	zend_bool flags_set:1;
 	zend_bool content_type_set:1;
 
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) * m;
 	zend_bool persistent;
 };

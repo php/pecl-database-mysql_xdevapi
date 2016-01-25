@@ -31,8 +31,12 @@
 
 /* {{{ xmysqlnd_result_field_meta::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_result_field_meta, init)(XMYSQLND_RESULT_FIELD_META * const field, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_result_field_meta, init)(XMYSQLND_RESULT_FIELD_META * const field,
+												  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+												  MYSQLND_STATS * const stats,
+												  MYSQLND_ERROR_INFO * const error_info)
 {
+	field->object_factory = factory;
 	return PASS;
 }
 /* }}} */
@@ -199,6 +203,32 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_content_type)(XMYSQLND_RESULT_FI
 /* }}} */
 
 
+/* {{{ xmysqlnd_result_field_meta::clone */
+static XMYSQLND_RESULT_FIELD_META *
+XMYSQLND_METHOD(xmysqlnd_result_field_meta, clone)(const XMYSQLND_RESULT_FIELD_META * const origin, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+{
+	XMYSQLND_RESULT_FIELD_META * cloned = NULL;
+	DBG_ENTER("xmysqlnd_result_field_meta::clone");
+	cloned = xmysqlnd_result_field_meta_create(origin->persistent, origin->object_factory, stats, error_info);
+	if (cloned) {
+		cloned->m->set_type(cloned, origin->type);
+		cloned->m->set_name(cloned, origin->name.s, origin->name.l);
+		cloned->m->set_original_name(cloned, origin->original_name.s, origin->original_name.l);
+		cloned->m->set_table(cloned, origin->table.s, origin->table.l);
+		cloned->m->set_original_table(cloned, origin->original_table.s, origin->original_table.l);
+		cloned->m->set_schema(cloned, origin->schema.s, origin->schema.l);
+		cloned->m->set_catalog(cloned, origin->catalog.s, origin->catalog.l);
+		cloned->m->set_collation(cloned, origin->collation);
+		cloned->m->set_fractional_digits(cloned, origin->fractional_digits);
+		cloned->m->set_length(cloned, origin->length);
+		cloned->m->set_flags(cloned, origin->flags);
+		cloned->m->set_content_type(cloned, origin->content_type);
+	}
+	DBG_RETURN(cloned);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_result_field_meta::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD_META * const field)
@@ -251,6 +281,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD
 }
 /* }}} */
 
+
 /* {{{ xmysqlnd_result_field_meta::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(XMYSQLND_RESULT_FIELD_META * const field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -263,6 +294,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(XMYSQLND_RESULT_FIELD_META * c
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_result_field_meta)
@@ -279,6 +311,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_result_field_meta)
 	XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_length),
 	XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_flags),
 	XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_content_type),
+	XMYSQLND_METHOD(xmysqlnd_result_field_meta, clone),
 	XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor),
 MYSQLND_CLASS_METHODS_END;

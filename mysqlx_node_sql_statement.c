@@ -22,8 +22,10 @@
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
+#include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_field_metadata.h"
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_session.h"
@@ -78,6 +80,176 @@ struct st_mysqlx_node_sql_statement
 static
 PHP_METHOD(mysqlx_node_sql_statement, __construct)
 {
+}
+/* }}} */
+
+struct st_xmysqlnd_exec_with_cb_ctx
+{
+	struct {
+		zend_fcall_info fci;
+		zend_fcall_info_cache fci_cache;
+	} on_row;
+	struct {
+		zend_fcall_info fci;
+		zend_fcall_info_cache fci_cache;
+	} on_error;
+	zval * ctx;
+};
+
+/* {{{ exec_with_cb_handle_on_row */
+static enum_hnd_func_status
+exec_with_cb_handle_on_row(void * context,
+						   XMYSQLND_NODE_STMT * const stmt,
+						   const struct st_xmysqlnd_node_stmt_result_meta * const meta,
+						   const zval * const row,
+						   MYSQLND_STATS * const stats,
+						   MYSQLND_ERROR_INFO * const error_info)
+{
+	enum_hnd_func_status ret = HND_AGAIN;
+	struct st_xmysqlnd_exec_with_cb_ctx * ctx = (struct st_xmysqlnd_exec_with_cb_ctx *) context;
+	DBG_ENTER("exec_with_cb_handle_on_row");
+	if (ctx && row) {
+		zval params[2];
+		zval * row_container = &params[0];
+		zval * meta_container = &params[1];
+		zval return_value;
+		unsigned int i = 0;
+		const unsigned int col_count = meta->m->get_field_count(meta);
+
+		array_init_size(row_container, col_count);
+		array_init_size(meta_container, col_count);
+		for (; i < col_count; ++i) {
+			const XMYSQLND_RESULT_FIELD_META * field_meta = meta->m->get_field(meta, i);
+			zval meta_field_zv;
+			ZVAL_UNDEF(&meta_field_zv);
+			mysqlx_new_field_metadata(&meta_field_zv, meta->m->get_field(meta, i));
+			zend_hash_next_index_insert(Z_ARRVAL_P(meta_container), &meta_field_zv);
+
+			if (field_meta->zend_hash_key.is_numeric == FALSE) {
+				zend_hash_update(Z_ARRVAL_P(row_container), field_meta->zend_hash_key.sname, (zval *) &row[i]);
+			} else {
+				zend_hash_index_update(Z_ARRVAL_P(row_container), field_meta->zend_hash_key.key, (zval *) &row[i]);
+			}
+		}
+
+		ZVAL_UNDEF(&return_value);
+		ctx->on_row.fci.retval = &return_value;
+		ctx->on_row.fci.params = params;
+		ctx->on_row.fci.param_count = 2;
+
+		if (zend_call_function(&ctx->on_row.fci, &ctx->on_row.fci_cache) == SUCCESS) {
+			if (Z_TYPE(return_value) != IS_UNDEF) {
+				zval_ptr_dtor(&return_value);
+			}
+		} else {
+			ret = HND_FAIL;
+		}
+		zval_ptr_dtor(row_container);
+		zval_ptr_dtor(meta_container);
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ exec_with_cb_handle_on_error */
+static enum_hnd_func_status
+exec_with_cb_handle_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	struct st_xmysqlnd_exec_with_cb_ctx * ctx = (struct st_xmysqlnd_exec_with_cb_ctx *) context;
+	DBG_ENTER("exec_with_cb_handle_on_error");
+	if (ctx) {
+		zval params[3];
+		zval * code_zv = &params[0];
+		zval * sql_state_zv = &params[1];
+		zval * message_zv = &params[2];
+		zval return_value;
+
+		ZVAL_LONG(code_zv, code);
+		ZVAL_STRINGL(sql_state_zv, sql_state.s, sql_state.l);
+		ZVAL_STRINGL(message_zv, message.s, message.l);
+
+		ZVAL_UNDEF(&return_value);
+		ctx->on_error.fci.retval = &return_value;
+		ctx->on_error.fci.params = params;
+		ctx->on_error.fci.param_count = 3;
+
+		if (zend_call_function(&ctx->on_error.fci, &ctx->on_error.fci_cache) == SUCCESS) {
+			if (Z_TYPE(return_value) != IS_UNDEF) {
+				zval_ptr_dtor(&return_value);
+			}
+		} else {
+			ret = HND_FAIL;
+		}
+		zval_ptr_dtor(sql_state_zv);
+		zval_ptr_dtor(message_zv);
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+#if 0
+#ifndef FAST_ZPP
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "f*", &fci, &fci_cache, &fci.params, &fci.param_count) == FAILURE) {
+		return;
+	}
+#else
+	ZEND_PARSE_PARAMETERS_START(1, -1)
+		Z_PARAM_FUNC(fci, fci_cache)
+		Z_PARAM_VARIADIC('*', fci.params, fci.param_count)
+	ZEND_PARSE_PARAMETERS_END();
+#endif
+
+#endif
+
+/* {{{ proto mixed mysqlx_node_sql_statement::executeWithCallback(object statement, callable on_row_cb, callable on_error_cb[, [mixed param,]]) */
+static
+PHP_METHOD(mysqlx_node_sql_statement, executeWithCallback)
+{
+	struct st_mysqlx_node_sql_statement * object;
+	zval * object_zv;
+	struct st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx;
+	DBG_ENTER("mysqlx_node_sql_statement::executeWithCallback");
+	memset(&xmysqlnd_exec_with_cb_ctx, sizeof(struct st_xmysqlnd_exec_with_cb_ctx), 0);
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Offz",
+												&object_zv, mysqlx_node_sql_statement_class_entry,
+												&xmysqlnd_exec_with_cb_ctx.on_row.fci, &xmysqlnd_exec_with_cb_ctx.on_row.fci_cache,
+												&xmysqlnd_exec_with_cb_ctx.on_error.fci, &xmysqlnd_exec_with_cb_ctx.on_error.fci_cache,
+												&xmysqlnd_exec_with_cb_ctx.ctx))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
+	RETVAL_TRUE;
+	if (TRUE == object->in_execution) {
+		php_error_docref(NULL, E_WARNING, "Statement in execution. Please fetch all data first.");
+	} else if (object->stmt) {
+		XMYSQLND_NODE_STMT * stmt = object->stmt;
+
+		object->has_more_rows_in_set = FALSE;
+		object->has_more_results = FALSE;
+		object->send_query_status = stmt->data->m.send_query(stmt, NULL, NULL);
+
+		if (PASS == object->send_query_status) {
+			enum_func_status ret;
+			zend_bool has_more = FALSE;
+			const struct st_xmysqlnd_node_stmt_on_row_bind on_row = { exec_with_cb_handle_on_row, &xmysqlnd_exec_with_cb_ctx };
+			const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { NULL, NULL };
+			const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { exec_with_cb_handle_on_error, &xmysqlnd_exec_with_cb_ctx };
+			const struct st_xmysqlnd_node_stmt_on_status_bind on_status = { NULL, NULL };
+
+			xmysqlnd_exec_with_cb_ctx.on_error.fci.params = xmysqlnd_exec_with_cb_ctx.on_row.fci.params;
+			xmysqlnd_exec_with_cb_ctx.on_error.fci.param_count = xmysqlnd_exec_with_cb_ctx.on_row.fci.param_count;
+			
+			ret = stmt->data->m.read_one_result(stmt, on_row, on_warning, on_error, on_status, &has_more, NULL, NULL);
+
+			RETVAL_BOOL(ret == PASS);
+		}
+	}
+
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -269,6 +441,7 @@ PHP_METHOD(mysqlx_node_sql_statement, getNextResult)
 /* {{{ mysqlx_node_sql_statement_methods[] */
 static const zend_function_entry mysqlx_node_sql_statement_methods[] = {
 	PHP_ME(mysqlx_node_sql_statement, __construct,		NULL,													ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_sql_statement, executeWithCallback,NULL,												ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement, bind,				arginfo_mysqlx_node_sql_statement__bind,				ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement, execute,			arginfo_mysqlx_node_sql_statement__execute,				ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement, hasMoreResults,	arginfo_mysqlx_node_sql_statement__has_more_results,	ZEND_ACC_PUBLIC)

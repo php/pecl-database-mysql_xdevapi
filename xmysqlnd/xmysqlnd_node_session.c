@@ -1294,7 +1294,7 @@ list_dbs_handler_on_row(void * context,
 static enum_hnd_func_status
 list_dbs_handler_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
-	DBG_ENTER("list_dbs_handler_on_row");
+	DBG_ENTER("list_dbs_handler_on_error");
 
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
@@ -1311,6 +1311,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, list_dbs)(XMYSQLND_NODE_SESSION * session
 	if (session_handle) {
 		XMYSQLND_NODE_SESSION_DATA * const session = session_handle->data;
 		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, list_query, MYSQLND_SEND_QUERY_IMPLICIT);
+//		*(int*) NULL = 0;
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				zend_bool has_more = FALSE;
