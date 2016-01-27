@@ -15,24 +15,15 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_SQL_STATEMENT_H
-#define MYSQLX_NODE_SQL_STATEMENT_H
+#ifndef MYSQLX_EXECUTION_STATUS_H
+#define MYSQLX_EXECUTION_STATUS_H
+struct st_xmysqlnd_stmt_execution_state;
 
-enum mysqlx_execute_flags
-{
-	MYSQLX_EXECUTE_FLAG_ASYNC = 1 << 0,
-	MYSQLX_EXECUTE_FLAG_BUFFERED = 1 << 1,
-	MYSQLX_EXECUTE_FLAG_CALLBACKS = 1 << 2,
-};
+void mysqlx_new_execution_status(zval * return_value, const struct st_xmysqlnd_stmt_execution_state * const status);
+void mysqlx_register_execution_status_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_execution_status_class(SHUTDOWN_FUNC_ARGS);
 
-#define MYSQLX_EXECUTE_ALL_FLAGS	(0 | MYSQLX_EXECUTE_FLAG_ASYNC | MYSQLX_EXECUTE_FLAG_BUFFERED)
-
-struct st_xmysqlnd_node_stmt;
-void mysqlx_new_sql_stmt(zval * return_value, struct st_xmysqlnd_node_stmt * stmt);
-void mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS);
-
-#endif /* MYSQLX_NODE_SQL_STATEMENT_H */
+#endif /* MYSQLX_EXECUTION_STATUS_H */
 
 /*
  * Local variables:

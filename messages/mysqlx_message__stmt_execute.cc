@@ -143,11 +143,15 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { NULL, NULL };
 	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { NULL, NULL };
 	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { NULL, NULL };
-	enum_func_status ret = object->msg.init_read(&object->msg, create_meta_field, on_row_field, on_meta_field, on_warning, on_error, on_exec_state_change, on_session_var_change, on_trx_state_change);
+	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { NULL, NULL };
+	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { NULL, NULL };
+	enum_func_status ret = object->msg.init_read(&object->msg, create_meta_field, on_row_field, on_meta_field, on_warning,
+												 on_error, on_exec_state_change, on_session_var_change, on_trx_state_change,
+												 on_stmt_execute_ok, on_resultset_end);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}
-	ret = object->msg.read_response(&object->msg, 1, return_value);
+	ret = object->msg.read_response(&object->msg, return_value);
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}

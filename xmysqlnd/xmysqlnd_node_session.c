@@ -121,11 +121,11 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, init)(XMYSQLND_NODE_SESSION_DATA * o
 /* {{{ xmysqlnd_node_session_data::get_scheme */
 static MYSQLND_STRING
 XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DATA * session,
-													  MYSQLND_CSTRING hostname,
-													  MYSQLND_CSTRING * socket_or_pipe,
-													  unsigned int port,
-													  zend_bool * unix_socket,
-													  zend_bool * named_pipe)
+														MYSQLND_CSTRING hostname,
+														MYSQLND_CSTRING * socket_or_pipe,
+														unsigned int port,
+														zend_bool * unix_socket,
+														zend_bool * named_pipe)
 {
 	MYSQLND_STRING transport;
 	DBG_ENTER("xmysqlnd_node_session_data::get_scheme");
@@ -792,10 +792,8 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_option)(XMYSQLND_NODE_SES
 	}
 	session->m->local_tx_end(session, this_func, ret);
 	DBG_RETURN(ret);
-//oom:
-	SET_OOM_ERROR(session->error_info);
-	session->m->local_tx_end(session, this_func, FAIL);
 end:
+	session->m->local_tx_end(session, this_func, FAIL);
 	DBG_RETURN(FAIL);
 }
 /* }}} */
@@ -898,7 +896,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, dtor)(XMYSQLND_NODE_SESSION_DATA * s
 static void
 XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options)(XMYSQLND_NODE_SESSION_DATA * session)
 {
-//	const zend_bool pers = session->persistent;
 }
 /* }}} */
 
@@ -1311,7 +1308,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session, list_dbs)(XMYSQLND_NODE_SESSION * session
 	if (session_handle) {
 		XMYSQLND_NODE_SESSION_DATA * const session = session_handle->data;
 		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, list_query, MYSQLND_SEND_QUERY_IMPLICIT);
-//		*(int*) NULL = 0;
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				zend_bool has_more = FALSE;
@@ -1319,8 +1315,17 @@ XMYSQLND_METHOD(xmysqlnd_node_session, list_dbs)(XMYSQLND_NODE_SESSION * session
 				const struct st_xmysqlnd_node_stmt_on_row_bind on_row = { list_dbs_handler_on_row, &list_dbs_ctx };
 				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { NULL, NULL };
 				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { list_dbs_handler_on_error, &list_dbs_ctx };
-				const struct st_xmysqlnd_node_stmt_on_status_bind on_status = { NULL, NULL };
-				ret = stmt->data->m.read_one_result(stmt, on_row, on_warning, on_error, on_status, &has_more, session->stats, session->error_info);
+				const struct st_xmysqlnd_node_stmt_on_resultset_end_bind on_resultset_end = { NULL, NULL };
+				const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok = { NULL, NULL };
+				ret = stmt->data->m.read_one_result(stmt,
+													on_row,
+													on_warning,
+													on_error,
+													on_resultset_end,
+													on_statement_ok,
+													&has_more,
+													session->stats,
+													session->error_info);
 			}
 			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
 		}

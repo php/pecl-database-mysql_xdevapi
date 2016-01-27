@@ -73,6 +73,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 						 mysqlx_class_properties.c \
 						 mysqlx_driver.c \
 						 mysqlx_exception.c \
+						 mysqlx_execution_status.c \
 						 mysqlx_field_metadata.c \
 						 mysqlx_resultset__column_metadata.cc \
 						 mysqlx_resultset__resultset_metadata.cc \

@@ -19,7 +19,7 @@
 #define MYSQLX_FIELD_METADATA_H
 struct st_xmysqlnd_result_field_meta;
 
-void mysqlx_new_field_metadata(zval * return_value, const struct st_xmysqlnd_result_field_meta * field_meta);
+void mysqlx_new_field_metadata(zval * return_value, const struct st_xmysqlnd_result_field_meta * const field_meta);
 void mysqlx_register_field_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_field_metadata_class(SHUTDOWN_FUNC_ARGS);
 

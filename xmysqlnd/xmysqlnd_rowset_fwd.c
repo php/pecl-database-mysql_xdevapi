@@ -60,9 +60,9 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
 			/* Remove what we have */
 			result->m.free_rows_contents(result, stats, error_info);
 		}
-
+		result->stmt->data->read_ctx.prefetch_counter = result->stmt->data->read_ctx.fwd_prefetch_count;
 		/* read rows */
-		if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, result->prefetch_rows, NULL)) {
+		if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, NULL)) {
 			DBG_RETURN(FAIL);
 		}
 	} else {
@@ -134,7 +134,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const resu
 	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_all");
 
 	/* read the rest. If this was the first, then we will prefetch everything, otherwise we will read whatever is left */
-	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, (size_t)~0, NULL)) {
+	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, NULL)) {
 		DBG_RETURN(FAIL);
 	}
 

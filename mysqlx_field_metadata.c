@@ -16,7 +16,6 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
-#include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -51,7 +50,7 @@ struct st_mysqlx_field_metadata
 } \
 
 
-/* {{{ mysqlx_field_metadata_free_storage */
+/* {{{ mysqlx_field_metadata::__construct */
 PHP_METHOD(mysqlx_field_metadata, __construct)
 {
 }
@@ -354,13 +353,12 @@ mysqlx_unregister_field_metadata_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_field_metadata */
 void
-mysqlx_new_field_metadata(zval * return_value, const XMYSQLND_RESULT_FIELD_META * field_meta)
+mysqlx_new_field_metadata(zval * return_value, const XMYSQLND_RESULT_FIELD_META * const field_meta)
 {
 	struct st_mysqlx_field_metadata * obj;
 	DBG_ENTER("mysqlx_new_field_metadata");
 	object_init_ex(return_value, mysqlx_field_metadata_class_entry);
 	MYSQLX_FETCH__FIELD_METADATA_FROM_ZVAL(obj, return_value);
-	/* This has to be cloned */
 	obj->field_meta = field_meta->m->clone(field_meta, NULL, NULL);;
 	DBG_VOID_RETURN;
 }

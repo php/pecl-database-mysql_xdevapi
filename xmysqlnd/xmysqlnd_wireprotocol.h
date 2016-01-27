@@ -281,6 +281,19 @@ struct st_xmysqlnd_on_trx_state_change_bind
 };
 
 
+struct st_xmysqlnd_on_stmt_execute_ok_bind
+{
+	enum_hnd_func_status (*handler)(void * context);
+	void * ctx;
+};
+
+struct st_xmysqlnd_on_resultset_end_bind
+{
+	enum_hnd_func_status (*handler)(void * context, const zend_bool has_more);
+	void * ctx;
+};
+
+
 struct st_xmysqlnd_msg__sql_stmt_execute
 {
 	enum_func_status (*send_request)(struct st_xmysqlnd_msg__sql_stmt_execute * msg,
@@ -299,12 +312,16 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 								  const struct st_xmysqlnd_on_error_bind on_error,
 								  const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
 								  const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change,
-								  const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change);
+								  const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change,
+								  const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok,
+								  const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end);
+
 
 	enum_func_status (*read_response)(struct st_xmysqlnd_msg__sql_stmt_execute * const msg,
-									  const size_t rows,
 									  zval * const response);
-
+#if 0
+	enum_func_status (*continue_read)(struct st_xmysqlnd_msg__sql_stmt_execute * const msg);
+#endif
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
@@ -318,12 +335,13 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 	struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
 	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
 	struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
+	struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok;
+	struct st_xmysqlnd_on_resultset_end_bind on_resultset_end;
 
 	unsigned int field_count:16;
 	zend_bool has_more_results:1;
 	zend_bool has_more_rows_in_set:1;
 	zend_bool read_started:1;
-	size_t prefetch_counter;
 	zval * response_zval;
 };
 
