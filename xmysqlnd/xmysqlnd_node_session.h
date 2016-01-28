@@ -24,6 +24,7 @@
 #include <ext/mysqlnd/mysqlnd_vio.h>
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
+#include "xmysqlnd_node_stmt.h"
 
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_schema;
@@ -245,13 +246,60 @@ struct st_xmysqlnd_node_session_data
 };
 
 
+struct st_xmysqlnd_node_session_on_result_start_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt);
+	void * ctx;
+};
+
+struct st_xmysqlnd_node_session_on_row_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const struct st_xmysqlnd_node_stmt_result_meta * const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_node_session_on_warning_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_node_session_on_error_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_node_session_on_result_end_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const zend_bool has_more);
+	void * ctx;
+};
+
+
+struct st_xmysqlnd_node_session_on_statement_ok_bind
+{
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const struct st_xmysqlnd_stmt_execution_state * const exec_state);
+	void * ctx;
+};
+
+
 
 typedef enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_session__connect)(XMYSQLND_NODE_SESSION * session, MYSQLND_CSTRING hostname, MYSQLND_CSTRING username, MYSQLND_CSTRING password, MYSQLND_CSTRING database, MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session__create_db)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING db);
 typedef enum_func_status	(*func_xmysqlnd_node_session__select_db)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING db);
 typedef enum_func_status	(*func_xmysqlnd_node_session__drop_db)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING db);
-typedef enum_func_status	(*func_xmysqlnd_node_session__list_dbs)(XMYSQLND_NODE_SESSION * session, MYSQLND_STRING ** const list, unsigned int * const count);
+typedef enum_func_status	(*func_xmysqlnd_node_session__query_cb)(XMYSQLND_NODE_SESSION * session,
+																	const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start,
+																	const struct st_xmysqlnd_node_session_on_row_bind on_row,
+																	const struct st_xmysqlnd_node_session_on_warning_bind on_warning,
+																	const struct st_xmysqlnd_node_session_on_error_bind on_error,
+																	const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end,
+																	const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok);
 typedef enum_func_status	(*func_xmysqlnd_node_session__query)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING query);
 typedef void				(*func_xmysqlnd_node_session__dtor)(XMYSQLND_NODE_SESSION * session);
 typedef enum_func_status	(*func_xmysqlnd_node_session__close)(XMYSQLND_NODE_SESSION * session, const enum_xmysqlnd_node_session_close_type close_type);
@@ -263,8 +311,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 	func_xmysqlnd_node_session__create_db create_db;
 	func_xmysqlnd_node_session__select_db select_db;
 	func_xmysqlnd_node_session__drop_db drop_db;
-	func_xmysqlnd_node_session__list_dbs list_dbs;
 	func_xmysqlnd_node_session__query query;
+	func_xmysqlnd_node_session__query_cb query_cb;
 	func_xmysqlnd_node_session__dtor dtor;
 	func_xmysqlnd_node_session__close close;
 };

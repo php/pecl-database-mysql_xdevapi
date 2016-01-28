@@ -345,7 +345,7 @@ mysqlx_fetch_data_with_callback(struct st_mysqlx_node_sql_statement * object, st
 	const struct st_xmysqlnd_node_stmt_on_row_bind on_row = { exec_with_cb_handle_on_row, xmysqlnd_exec_with_cb_ctx };
 	const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { NULL, NULL };
 	const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { exec_with_cb_handle_on_error, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_node_stmt_on_resultset_end_bind on_resultset_end = { on_rset_end_passed? exec_with_cb_handle_on_resultset_end : NULL, xmysqlnd_exec_with_cb_ctx };
+	const struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end = { on_rset_end_passed? exec_with_cb_handle_on_resultset_end : NULL, xmysqlnd_exec_with_cb_ctx };
 	const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok = { on_stmt_ok_passed? exec_with_cb_handle_on_statement_ok : NULL, xmysqlnd_exec_with_cb_ctx };
 
 	DBG_ENTER("mysqlx_fetch_data_with_callback");

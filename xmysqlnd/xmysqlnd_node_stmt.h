@@ -61,7 +61,7 @@ struct st_xmysqlnd_node_stmt_on_error_bind
 };
 
 
-struct st_xmysqlnd_node_stmt_on_resultset_end_bind
+struct st_xmysqlnd_node_stmt_on_result_end_bind
 {
 	enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_STMT * const stmt, const zend_bool has_more);
 	void * ctx;
@@ -83,7 +83,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_stmt__read_one_result)(XMYSQLND_NO
 																		const struct st_xmysqlnd_node_stmt_on_row_bind on_row,
 																		const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
 																		const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
-																		const struct st_xmysqlnd_node_stmt_on_resultset_end_bind on_resultset_end,
+																		const struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end,
 																		const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok,
 																		zend_bool * const has_more_results,
 																		MYSQLND_STATS * const stats,
@@ -94,7 +94,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_stmt__read_all_results)(XMYSQLND_N
 																		 const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
 																		 const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
 																		 const struct st_xmysqlnd_node_stmt_on_result_start_bind on_result_start,
-																		 const struct st_xmysqlnd_node_stmt_on_resultset_end_bind on_resultset_end,
+																		 const struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end,
 																		 const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok,
 																		 MYSQLND_STATS * const stats,
 																		 MYSQLND_ERROR_INFO * const error_info);
@@ -184,7 +184,7 @@ struct st_xmysqlnd_node_stmt_data
 		struct st_xmysqlnd_node_stmt_on_row_bind on_row;
 		struct st_xmysqlnd_node_stmt_on_warning_bind on_warning;
 		struct st_xmysqlnd_node_stmt_on_error_bind on_error;
-		struct st_xmysqlnd_node_stmt_on_resultset_end_bind on_resultset_end;
+		struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end;
 		struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok;
 	} read_ctx;
 	zend_bool partial_read_started;

@@ -24,6 +24,7 @@
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
+#include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
@@ -345,6 +346,65 @@ PHP_METHOD(mysqlx_node_session, __construct)
 /* }}} */
 
 
+
+struct st_mysqlx_get_schemas_ctx
+{
+	XMYSQLND_NODE_SESSION * session;
+	zval * list;
+};
+
+
+/* {{{ get_schemas_handler_on_row */
+static enum_hnd_func_status
+get_schemas_handler_on_row(void * context,
+						   XMYSQLND_NODE_SESSION * const session,
+						   XMYSQLND_NODE_STMT * const stmt,
+						   const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+						   const zval * const row,
+						   MYSQLND_STATS * const stats,
+						   MYSQLND_ERROR_INFO * const error_info)
+{
+	const struct st_mysqlx_get_schemas_ctx * ctx = (const struct st_mysqlx_get_schemas_ctx *) context;
+	DBG_ENTER("get_schemas_handler_on_row");
+	if (ctx && ctx->list && row) {
+		if (Z_TYPE_P(ctx->list) != IS_ARRAY) {
+			array_init(ctx->list);
+		}
+		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
+			const MYSQLND_CSTRING schema_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
+			XMYSQLND_NODE_SCHEMA * schema = session->data->m->create_schema_object(session->data, schema_name);
+			if (schema) {
+				zval zv;
+				ZVAL_UNDEF(&zv);
+				mysqlx_new_node_schema(&zv, schema);
+				zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+			}
+		}
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ get_schemas_handler_on_error */
+static enum_hnd_func_status
+get_schemas_handler_on_error(void * context,
+							 XMYSQLND_NODE_SESSION * const session,
+							 XMYSQLND_NODE_STMT * const stmt,
+							 const unsigned int code,
+							 const MYSQLND_CSTRING sql_state,
+							 const MYSQLND_CSTRING message)
+{
+	const struct st_mysqlx_get_schemas_ctx * ctx = (const struct st_mysqlx_get_schemas_ctx *) context;
+	DBG_ENTER("get_schemas_handler_on_error");
+	if (ctx->session) {
+		ctx->session->data->m->handler_on_error(ctx->session->data, code, sql_state, message);
+	}
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
 /* {{{ mysqlx_node_session::getSchemas(object session) */
 static
 PHP_METHOD(mysqlx_node_session, getSchemas)
@@ -361,25 +421,21 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if ((session = object->session)) {
-		MYSQLND_STRING * db_list = NULL;
-		unsigned int db_count = 0;
+		zval list;
+		struct st_mysqlx_get_schemas_ctx ctx = { session, &list };
+		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, &ctx };
+		const struct st_xmysqlnd_node_session_on_row_bind on_row = { get_schemas_handler_on_row, &ctx };
+		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { get_schemas_handler_on_error, &ctx };
+		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { NULL, NULL };
 
-		if ((PASS == object->session->m->list_dbs(object->session, &db_list, &db_count)) && db_list) {
-			unsigned int i = 0;
-			array_init_size(return_value, db_count);
+		ZVAL_UNDEF(&list);
 
-			for (; i < db_count; ++i) {
-				XMYSQLND_NODE_SCHEMA * schema = session->data->m->create_schema_object(session->data, mnd_str2c(db_list[i]));
-				if (schema) {
-					zval zv;
-					ZVAL_UNDEF(&zv);
-					mysqlx_new_node_schema(&zv, schema);
-					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &zv);
-				}
-			}
-		}
-		if (db_list) {
-			mnd_efree(db_list);
+		if (PASS == object->session->m->query_cb(object->session, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+			ZVAL_COPY_VALUE(return_value, &list);
+		} else {
+			zval_dtor(&list);
 		}
 	}
 

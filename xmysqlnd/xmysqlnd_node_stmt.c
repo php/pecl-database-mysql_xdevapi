@@ -351,7 +351,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 													 const struct st_xmysqlnd_node_stmt_on_row_bind on_row,
 													 const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
 													 const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
-													 const struct st_xmysqlnd_node_stmt_on_resultset_end_bind on_resultset_end,
+													 const struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end,
 													 const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok,
 													 zend_bool * const has_more_results,
 													 MYSQLND_STATS * const stats,
@@ -446,7 +446,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const
 													  const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
 													  const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
 													  const struct st_xmysqlnd_node_stmt_on_result_start_bind on_result_start,
-													  const struct st_xmysqlnd_node_stmt_on_resultset_end_bind on_resultset_end,
+													  const struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end,
 													  const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info)
