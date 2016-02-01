@@ -42,7 +42,7 @@ struct st_mysqlx_warning
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_warning *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -191,7 +191,7 @@ mysqlx_register_warning_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysqlx", "Warning", mysqlx_warning_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "Warning", mysqlx_warning_methods);
 		tmp_ce.create_object = php_mysqlx_warning_object_allocator;
 		mysqlx_warning_class_entry = zend_register_internal_class(&tmp_ce);
 	}

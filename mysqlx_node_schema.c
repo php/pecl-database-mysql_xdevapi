@@ -46,7 +46,7 @@ struct st_mysqlx_node_schema
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_schema *) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->schema) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
 	} \
 } \
@@ -215,7 +215,7 @@ mysqlx_new_node_schema(zval * return_value, XMYSQLND_NODE_SCHEMA * schema)
 	mysqlx_object = Z_MYSQLX_P(return_value);
 	object = (struct st_mysqlx_node_schema *) mysqlx_object->ptr;
 	if (!object) {
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		DBG_VOID_RETURN;
 	}
 

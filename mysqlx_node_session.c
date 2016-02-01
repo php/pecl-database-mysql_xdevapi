@@ -38,11 +38,6 @@ static zend_class_entry *mysqlx_node_session_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__query, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, query, IS_STRING, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__create_statement, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, query, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
@@ -122,6 +117,7 @@ ZEND_END_ARG_INFO()
 struct st_mysqlx_node_session
 {
 	XMYSQLND_NODE_SESSION * session;
+	zend_bool closed;
 };
 
 
@@ -130,94 +126,15 @@ struct st_mysqlx_node_session
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_session *) mysqlx_object->ptr; \
 	if (!(_to) && !(_to)->session) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		if ((_to)->closed) { \
+			php_error_docref(NULL, E_WARNING, "closed session"); \
+		} else { \
+			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		} \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
 } \
-
-
-/* {{{ proto mixed mysqlx_node_session::query(object session, string query) */
-static
-PHP_METHOD(mysqlx_node_session, query)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING query = {NULL, 0};
-
-	DBG_ENTER("mysqlx_node_session::query");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry,
-																	   &(query.s), &(query.l)) == FAILURE)
-	{
-		DBG_VOID_RETURN;
-	}
-
-	if (!query.l) {
-		php_error_docref(NULL, E_WARNING, "Empty query");
-		RETVAL_FALSE;
-		DBG_VOID_RETURN;
-	}
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-
-	if ((session = object->session)) {
-		MYSQLND_STATS * stats = session->data->stats;
-		MYSQLND_ERROR_INFO * error_info = session->data->error_info;
-		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
-		if (stmt) {
-			if (PASS == stmt->data->m.send_query(stmt, stats, error_info)) {
-				zend_bool has_more = FALSE;
-				do {
-					XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, stats, error_info);
-					xmysqlnd_node_stmt_result_free(result, stats, error_info);
-					DBG_INF_FMT("has_more=%s", has_more? "TRUE":"FALSE");
-				} while (has_more == TRUE);
-			}
-			xmysqlnd_node_stmt_free(stmt, stats, error_info);
-		}
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ proto mixed mysqlx_node_session::query_and_discard(object session, string query) */
-static
-PHP_METHOD(mysqlx_node_session, query_and_discard)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING query = {NULL, 0};
-
-	DBG_ENTER("mysqlx_node_session::query_and_discard");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry, &(query.s), &(query.l)) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	if (!query.l) {
-		php_error_docref(NULL, E_WARNING, "Empty query");
-		RETVAL_FALSE;
-		DBG_VOID_RETURN;
-	}
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-
-	if ((session = object->session)) {
-		MYSQLND_STATS * stats = session->data->stats;
-		MYSQLND_ERROR_INFO * error_info = session->data->error_info;
-		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_IMPLICIT);
-		if (stmt) {
-			if (PASS == stmt->data->m.send_query(stmt, stats, error_info)) {
-				stmt->data->m.skip_all_results(stmt, stats, error_info);
-			}
-			xmysqlnd_node_stmt_free(stmt, stats, error_info);
-		}
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
 
 
 /* {{{ proto mixed mysqlx_node_session::createStatement(object session, string query) */
@@ -247,6 +164,66 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_EXPLICIT);
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_session::executeSql(object session, string query [[, mixed param]]) */
+static
+PHP_METHOD(mysqlx_node_session, executeSql)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING query = {NULL, 0};
+	zval * args = NULL;
+	int argc = 0;
+
+	DBG_ENTER("mysqlx_node_session::executeSql");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os*", &object_zv, mysqlx_node_session_class_entry,
+																	   &(query.s), &(query.l),
+																	   &args, &argc) == FAILURE)
+	{
+		DBG_VOID_RETURN;
+	}
+
+	if (!query.l) {
+		php_error_docref(NULL, E_WARNING, "Empty query");
+		RETVAL_FALSE;
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+
+	if ((session = object->session)) {
+		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_EXPLICIT);
+		if (stmt) {
+			zval stmt_zv;
+			ZVAL_UNDEF(&stmt_zv);
+			mysqlx_new_sql_stmt(&stmt_zv, stmt);
+			if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+				zval zv;
+				unsigned int i = 0;
+				ZVAL_UNDEF(&zv);
+
+				for (; i < argc; ++i) {
+					ZVAL_UNDEF(&zv);
+					mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], i, &zv);
+					if (Z_TYPE(zv) == IS_FALSE) {
+						goto end;
+					}
+					zval_dtor(&zv);
+				}
+				ZVAL_UNDEF(&zv);
+
+				mysqlx_node_sql_statement_execute(&stmt_zv, MYSQLX_EXECUTE_FLAG_BUFFERED, &zv);
+				ZVAL_COPY(return_value, &zv);
+			}
+end:
+			zval_ptr_dtor(&stmt_zv);
 		}
 	}
 
@@ -734,6 +711,7 @@ PHP_METHOD(mysqlx_node_session, close)
 	if ((session = object->session)) {
 		session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
 		object->session = NULL;
+		object->closed = TRUE;
 		RETVAL_TRUE;
 	}
 
@@ -745,13 +723,12 @@ PHP_METHOD(mysqlx_node_session, close)
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_node_session, __construct, NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_session, query,					arginfo_mysqlx_node_session__query, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, query_and_discard,		arginfo_mysqlx_node_session__query, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, createStatement,		arginfo_mysqlx_node_session__create_statement, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, executeSql,				NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, quoteName,				arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, getServerVersion,		arginfo_mysqlx_node_session__get_server_version, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, getClientId,			arginfo_mysqlx_node_session__get_client_id, ZEND_ACC_PUBLIC)
-#if 1
+
 	PHP_ME(mysqlx_node_session, getSchemas,				arginfo_mysqlx_node_session__get_schemas, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, getSchema,				arginfo_mysqlx_node_session__get_schema, ZEND_ACC_PUBLIC)
 
@@ -772,7 +749,6 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 
 
 	PHP_ME(mysqlx_node_session, close,					arginfo_mysqlx_node_session__close, ZEND_ACC_PUBLIC)
-#endif
 	{NULL, NULL, NULL}
 };
 /* }}} */

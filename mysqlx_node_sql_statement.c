@@ -26,6 +26,7 @@
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_field_metadata.h"
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_sql_statement.h"
@@ -72,7 +73,7 @@ struct st_mysqlx_node_sql_statement
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_sql_statement *) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->stmt) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
 	} \
 } \
@@ -90,6 +91,10 @@ struct st_xmysqlnd_exec_with_cb_ctx
 		zend_fcall_info fci;
 		zend_fcall_info_cache fci_cache;
 	} on_row;
+	struct {
+		zend_fcall_info fci;
+		zend_fcall_info_cache fci_cache;
+	} on_warning;
 	struct {
 		zend_fcall_info fci;
 		zend_fcall_info_cache fci_cache;
@@ -191,6 +196,46 @@ exec_with_cb_handle_on_row(void * context,
 			break;
 	}
 #endif
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ exec_with_cb_handle_on_warning */
+static enum_hnd_func_status
+exec_with_cb_handle_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+{
+	enum_hnd_func_status ret = HND_AGAIN;
+	struct st_xmysqlnd_exec_with_cb_ctx * ctx = (struct st_xmysqlnd_exec_with_cb_ctx *) context;
+	DBG_ENTER("exec_with_cb_handle_on_warning");
+	if (ctx) {
+		zval params[3];
+		zval * user_context = &params[0];
+		zval * code_zv = &params[1];
+		zval * message_zv = &params[2];
+		zval return_value;
+
+		ZVAL_LONG(code_zv, code);
+		ZVAL_STRINGL(message_zv, message.s, message.l);
+
+		ZVAL_COPY(user_context, ctx->ctx);
+
+		ZVAL_UNDEF(&return_value);
+		ctx->on_warning.fci.retval = &return_value;
+		ctx->on_warning.fci.params = params;
+		ctx->on_warning.fci.param_count = 3;
+
+		if (zend_call_function(&ctx->on_warning.fci, &ctx->on_warning.fci_cache) == SUCCESS) {
+			if (Z_TYPE(return_value) != IS_UNDEF) {
+				zval_ptr_dtor(&return_value);
+			}
+		} else {
+			ret = HND_FAIL;
+		}
+		zval_ptr_dtor(&params[0]);
+		zval_ptr_dtor(&params[1]);
+		zval_ptr_dtor(&params[2]);
+	}
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -343,7 +388,7 @@ mysqlx_fetch_data_with_callback(struct st_mysqlx_node_sql_statement * object, st
 	const zend_bool on_stmt_ok_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_stmt_ok.fci);
 
 	const struct st_xmysqlnd_node_stmt_on_row_bind on_row = { exec_with_cb_handle_on_row, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { NULL, NULL };
+	const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { exec_with_cb_handle_on_warning, xmysqlnd_exec_with_cb_ctx };
 	const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { exec_with_cb_handle_on_error, xmysqlnd_exec_with_cb_ctx };
 	const struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end = { on_rset_end_passed? exec_with_cb_handle_on_resultset_end : NULL, xmysqlnd_exec_with_cb_ctx };
 	const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok = { on_stmt_ok_passed? exec_with_cb_handle_on_statement_ok : NULL, xmysqlnd_exec_with_cb_ctx };
@@ -369,11 +414,28 @@ mysqlx_fetch_data_with_callback(struct st_mysqlx_node_sql_statement * object, st
 /* }}} */
 
 
+/* {{{ mysqlx_node_sql_statement_bind_one_param */
+void
+mysqlx_node_sql_statement_bind_one_param(zval * object_zv, zval * param_zv, const zend_long param_no, zval * return_value)
+{
+	struct st_mysqlx_node_sql_statement * object;
+	DBG_ENTER("mysqlx_node_sql_statement_bind_one_param");
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
+	RETVAL_TRUE;
+	if (TRUE == object->in_execution) {
+		php_error_docref(NULL, E_WARNING, "Statement in execution. Please fetch all data first.");
+	} else if (object->stmt) {
+		object->stmt->data->m.bind_one_param(object->stmt, param_no, param_zv);
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_sql_statement::bind(object statement, int param_no, mixed value) */
 static
 PHP_METHOD(mysqlx_node_sql_statement, bind)
 {
-	struct st_mysqlx_node_sql_statement * object;
 	zval * object_zv;
 	zend_long param_no;
 	zval * param_zv;
@@ -389,43 +451,43 @@ PHP_METHOD(mysqlx_node_sql_statement, bind)
 		php_error_docref(NULL, E_WARNING, "param_no too big. Allowed are %", MAX_STMT_PARAMS);
 		DBG_VOID_RETURN;
 	}
-
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
-	RETVAL_TRUE;
-	if (TRUE == object->in_execution) {
-		php_error_docref(NULL, E_WARNING, "Statement in execution. Please fetch all data first.");
-	} else if (object->stmt) {
-		object->stmt->data->m.bind_one_param(object->stmt, param_no, param_zv);
-	}
-//	Z_TRY_ADDREF_P(object_zv);
-//	RETVAL_ZVAL(object_zv, 1 /*copy*/, 0 /*dtor*/);
+	mysqlx_node_sql_statement_bind_one_param(object_zv, param_zv, param_no, return_value);
 
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
 
-#define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 3
-
-
-/* {{{ proto mixed mysqlx_node_sql_statement::execute(object statement, int flags) */
-static
-PHP_METHOD(mysqlx_node_sql_statement, execute)
+/* {{{ mysqlnx_node_sql_stmt_on_warning */
+static enum_hnd_func_status
+mysqlnx_node_sql_stmt_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
-	struct st_mysqlx_node_sql_statement * object;
-	zval * object_zv;
-	zend_long flags = 0;
+	DBG_ENTER("mysqlnx_node_sql_stmt_on_warning");
+	php_error_docref(NULL, E_WARNING, "[%d] %*s", code, message.l, message.s);
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
 
-	DBG_ENTER("mysqlx_node_sql_statement_execute_no_cb");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
-												&object_zv, mysqlx_node_sql_statement_class_entry,
-												&flags))
-	{
-		DBG_VOID_RETURN;
-	}
+
+/* {{{ mysqlnx_node_sql_stmt_on_error */
+static enum_hnd_func_status
+mysqlnx_node_sql_stmt_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("mysqlnx_node_sql_stmt_on_error");
+	mysqlx_new_exception(code, sql_state, message);
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
+#define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 3
+void
+mysqlx_node_sql_statement_execute(zval * object_zv, const zend_long flags, zval * return_value)
+{
+	struct st_mysqlx_node_sql_statement * object = NULL;
+	DBG_ENTER("mysqlx_node_sql_statement_execute");
 
 	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
 	if ((flags | MYSQLX_EXECUTE_ALL_FLAGS) != MYSQLX_EXECUTE_ALL_FLAGS) {
@@ -450,11 +512,13 @@ PHP_METHOD(mysqlx_node_sql_statement, execute)
 				DBG_INF("ASYNC");
 				RETVAL_BOOL(PASS == object->send_query_status);
 			} else {
+				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { mysqlnx_node_sql_stmt_on_warning, NULL };
+				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { mysqlnx_node_sql_stmt_on_error, NULL };
 				XMYSQLND_NODE_STMT_RESULT * result;
 				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-					result = object->stmt->data->m.get_buffered_result(stmt, &object->has_more_results, NULL, NULL);
+					result = object->stmt->data->m.get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, NULL, NULL);
 				} else {
-					result = object->stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, NULL, NULL);
+					result = object->stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, NULL, NULL);
 				}
 
 				DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
@@ -470,6 +534,28 @@ PHP_METHOD(mysqlx_node_sql_statement, execute)
 			}
 		}
 	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement::execute(object statement, int flags) */
+static
+PHP_METHOD(mysqlx_node_sql_statement, execute)
+{
+	zend_long flags = 0;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_sql_statement::execute");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+												&object_zv, mysqlx_node_sql_statement_class_entry,
+												&flags))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	mysqlx_node_sql_statement_execute(object_zv, flags, return_value);
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -516,9 +602,10 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS)
 			DBG_VOID_RETURN;
 		}
 	} else {
-		if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Offf!f!z",
+		if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Offff!f!z",
 													&object_zv, mysqlx_node_sql_statement_class_entry,
 													&xmysqlnd_exec_with_cb_ctx.on_row.fci, &xmysqlnd_exec_with_cb_ctx.on_row.fci_cache,
+													&xmysqlnd_exec_with_cb_ctx.on_warning.fci, &xmysqlnd_exec_with_cb_ctx.on_warning.fci_cache,
 													&xmysqlnd_exec_with_cb_ctx.on_error.fci, &xmysqlnd_exec_with_cb_ctx.on_error.fci_cache,
 													&xmysqlnd_exec_with_cb_ctx.on_rset_end.fci, &xmysqlnd_exec_with_cb_ctx.on_rset_end.fci_cache,
 													&xmysqlnd_exec_with_cb_ctx.on_stmt_ok.fci, &xmysqlnd_exec_with_cb_ctx.on_stmt_ok.fci_cache,
@@ -538,12 +625,14 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS)
 		if (use_callbacks) {
 			RETVAL_BOOL(PASS == mysqlx_fetch_data_with_callback(object, &xmysqlnd_exec_with_cb_ctx));
 		} else {
+			const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { mysqlnx_node_sql_stmt_on_warning, NULL };
+			const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { mysqlnx_node_sql_stmt_on_error, NULL };
 			XMYSQLND_NODE_STMT_RESULT * result;
 
 			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-				result = object->stmt->data->m.get_buffered_result(stmt, &object->has_more_results, NULL, NULL);
+				result = object->stmt->data->m.get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, NULL, NULL);
 			} else {
-				result = object->stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, NULL, NULL);
+				result = object->stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, NULL, NULL);
 			}
 
 			DBG_INF_FMT("result=%p  has_more_results=%s", result, object->has_more_results? "TRUE":"FALSE");
@@ -715,7 +804,7 @@ mysqlx_new_sql_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt)
 	mysqlx_object = Z_MYSQLX_P(return_value);
 	object = (struct st_mysqlx_node_sql_statement *) mysqlx_object->ptr;
 	if (!object) {
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		DBG_VOID_RETURN;
 	}
 

@@ -669,22 +669,10 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_server_version)(XMYSQLND_NODE_SE
 		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
+				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { NULL, NULL };
+				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { NULL, NULL };
 				zend_bool has_more = FALSE;
-				XMYSQLND_NODE_STMT_RESULT * res = stmt->data->m.get_buffered_result(stmt, &has_more, session->stats, session->error_info);
-#if 0
-				if (res) {
-					zval * row = NULL;
-					if (PASS == res->m.fetch_one_c(res, 0, &row, FALSE /* don't duplicate, reference it */, session->stats, session->error_info) &&
-						Z_TYPE(row[0]) == IS_STRING)
-					{
-						DBG_INF_FMT("Found %*s", Z_STRLEN(row[0]), Z_STRVAL(row[0]));
-						session->server_version_string = mnd_pestrndup(Z_STRVAL(row[0]), Z_STRLEN(row[0]), session->persistent);
-					}
-					if (row) {
-						mnd_efree(row);
-					}
-				}
-#endif
+				XMYSQLND_NODE_STMT_RESULT * res = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, session->stats, session->error_info);
 				if (res) {
 					zval * set = NULL;
 					if (PASS == res->m.fetch_all_c(res, &set, FALSE /* don't duplicate, reference it */, session->stats, session->error_info) &&
@@ -1256,44 +1244,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session, drop_db)(XMYSQLND_NODE_SESSION * session_
 /* }}} */
 
 
-#if 0
-/* {{{ xmysqlnd_node_session::list_dbs */
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, list_dbs)(XMYSQLND_NODE_SESSION * session_handle, MYSQLND_STRING ** const list, unsigned int * const db_count)
-{
-	enum_func_status ret;
-	const MYSQLND_CSTRING list_query = { "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
-	DBG_ENTER("xmysqlnd_node_session::list_dbs");
-	if (session_handle) {
-		XMYSQLND_NODE_SESSION_DATA * const session = session_handle->data;
-		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, list_query, MYSQLND_SEND_QUERY_IMPLICIT);
-		if (stmt) {
-			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
-				zend_bool has_more = FALSE;
-				struct st_xmysqlnd_list_dbs_ctx list_dbs_ctx = { list, db_count };
-				const struct st_xmysqlnd_node_stmt_on_row_bind on_row = { list_dbs_handler_on_row, &list_dbs_ctx };
-				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { NULL, NULL };
-				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { list_dbs_handler_on_error, &list_dbs_ctx };
-				const struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end = { NULL, NULL };
-				const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok = { NULL, NULL };
-				ret = stmt->data->m.read_one_result(stmt,
-													on_row,
-													on_warning,
-													on_error,
-													on_resultset_end,
-													on_statement_ok,
-													&has_more,
-													session->stats,
-													session->error_info);
-			}
-			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
-		}
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-#endif
-
 /* {{{ st_xmysqlnd_query_cb_ctx */
 struct st_xmysqlnd_query_cb_ctx
 {
@@ -1479,6 +1429,17 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 /* }}} */
 
 
+/* {{{ mysqlnx_node_sql_stmt_on_warning */
+static enum_hnd_func_status
+xmysqlnd_node_session_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("mysqlnx_node_sql_stmt_on_warning");
+	php_error_docref(NULL, E_WARNING, "[%d] %*s", code, message.l, message.s);
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_session::query */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING query)
@@ -1493,8 +1454,10 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_ha
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				do {
+					const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { xmysqlnd_node_session_on_warning, NULL };
+					const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { NULL, NULL };
 					zend_bool has_more = FALSE;
-					XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, session->stats, session->error_info);
+					XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, session->stats, session->error_info);
 					if (result) {
 						ret = PASS;
 						xmysqlnd_node_stmt_result_free(result, session->stats, session->error_info);

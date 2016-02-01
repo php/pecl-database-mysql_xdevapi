@@ -554,9 +554,9 @@ on_ERROR(const Mysqlx::Error & error, const struct st_xmysqlnd_on_error_bind on_
 {
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	DBG_ENTER("on_ERROR");
+	DBG_INF_FMT("on_error.handler=%p", on_error.handler);
 
 	if (on_error.handler) {
-
 		const bool has_code = error.has_code();
 		const bool has_sql_state = error.has_sql_state();
 		const bool has_msg = error.has_msg();
@@ -573,7 +573,6 @@ on_ERROR(const Mysqlx::Error & error, const struct st_xmysqlnd_on_error_bind on_
 
 		ret = on_error.handler(on_error.ctx, code, sql_state, error_message);
 	}
-
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -598,8 +597,6 @@ capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * re
 	DBG_VOID_RETURN;
 }
 /* }}} */
-
-
 
 
 /* {{{ capabilities_get_on_ERROR */
@@ -1194,25 +1191,6 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 	struct st_xmysqlnd_msg__sql_stmt_execute * ctx = static_cast<struct st_xmysqlnd_msg__sql_stmt_execute *>(context);
 	DBG_ENTER("stmt_execute_on_ERROR");
 	enum_hnd_func_status ret = on_ERROR(error, ctx->on_error);
-#if 0
-	const bool has_code = error.has_code();
-	const bool has_sql_state = error.has_sql_state();
-	const bool has_msg = error.has_msg();
-
-	const MYSQLND_CSTRING sql_state = {
-		has_sql_state? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
-		has_sql_state? error.sql_state().size()  : sizeof(UNKNOWN_SQLSTATE) - 1
-	};
-	const unsigned int code = has_code? error.code() : CR_UNKNOWN_ERROR;
-	const MYSQLND_CSTRING error_message = {
-		has_msg? error.msg().c_str() : "Unknown server error",
-		has_msg? error.msg().size() : sizeof("Unknown server error") - 1
-	};
-
-	if (ctx->on_error.handler) {
-		ret = ctx->on_error.handler(ctx->on_error.ctx, code, sql_state, error_message);
-	}
-#endif
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1788,6 +1766,16 @@ xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_msg__sql_stmt_execute * 
 									 const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end)
 {
 	DBG_ENTER("xmysqlnd_sql_stmt_execute__init_read");
+	DBG_INF_FMT("on_row_field.handler  =%p", on_row_field.handler);
+	DBG_INF_FMT("on_meta_field.handler =%p", on_meta_field.handler);
+	DBG_INF_FMT("on_warning.handler    =%p", on_warning.handler);
+	DBG_INF_FMT("on_error.handler      =%p", on_error.handler);
+	DBG_INF_FMT("on_execution_state_change.handler=%p", on_execution_state_change.handler);
+	DBG_INF_FMT("on_session_var_change.handler    =%p", on_session_var_change.handler);
+	DBG_INF_FMT("on_trx_state_change.handler      =%p", on_trx_state_change.handler);
+	DBG_INF_FMT("on_stmt_execute_ok.handler       =%p", on_stmt_execute_ok.handler);
+	DBG_INF_FMT("on_resultset_end.handler         =%p", on_resultset_end.handler);
+
 	msg->create_meta_field = create_meta_field;
 
 	msg->on_row_field = on_row_field;

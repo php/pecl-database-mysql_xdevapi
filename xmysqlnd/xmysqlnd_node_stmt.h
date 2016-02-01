@@ -99,8 +99,23 @@ typedef enum_func_status	(*func_xmysqlnd_node_stmt__read_all_results)(XMYSQLND_N
 																		 MYSQLND_STATS * const stats,
 																		 MYSQLND_ERROR_INFO * const error_info);
 typedef zend_bool									(*func_xmysqlnd_node_stmt__has_more_results)(const XMYSQLND_NODE_STMT * const stmt);
-typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__get_buffered_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__get_fwd_result)(XMYSQLND_NODE_STMT * const stmt, const size_t rows, zend_bool * const has_more_rows_in_set, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+
+typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__get_buffered_result)(XMYSQLND_NODE_STMT * const stmt,
+																									zend_bool * const has_more_results,
+																									const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
+																									const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
+																									MYSQLND_STATS * const stats,
+																									MYSQLND_ERROR_INFO * const error_info);
+
+typedef struct st_xmysqlnd_node_stmt_result *		(*func_xmysqlnd_node_stmt__get_fwd_result)(XMYSQLND_NODE_STMT * const stmt,
+																							   const size_t rows,
+																							   zend_bool * const has_more_rows_in_set,
+																							   zend_bool * const has_more_results,
+																							   const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning,
+																							   const struct st_xmysqlnd_node_stmt_on_error_bind on_error,
+																							   MYSQLND_STATS * const stats,
+																							   MYSQLND_ERROR_INFO * const error_info);
+
 typedef enum_func_status							(*func_xmysqlnd_node_stmt__skip_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status							(*func_xmysqlnd_node_stmt__skip_all_results)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
