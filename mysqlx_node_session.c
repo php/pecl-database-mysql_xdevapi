@@ -38,7 +38,7 @@ static zend_class_entry *mysqlx_node_session_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__create_statement, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, query, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
@@ -49,7 +49,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__quote_name, 0, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 
-#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__get_server_version, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -101,7 +101,7 @@ struct st_mysqlx_node_session
 } \
 
 
-#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
 /* {{{ proto mixed mysqlx_node_session::createStatement(object session, string query) */
 static
 PHP_METHOD(mysqlx_node_session, createStatement)
@@ -229,7 +229,7 @@ PHP_METHOD(mysqlx_node_session, quoteName)
 /* }}} */
 
 
-#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
 /* {{{ proto mixed mysqlx_node_session::getServerVersion(object session) */
 static
 PHP_METHOD(mysqlx_node_session, getServerVersion)
@@ -502,12 +502,12 @@ PHP_METHOD(mysqlx_node_session, close)
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_node_session, __construct, 		NULL, ZEND_ACC_PRIVATE)
-#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
 	PHP_ME(mysqlx_node_session, createStatement,	arginfo_mysqlx_node_session__create_statement, ZEND_ACC_PUBLIC)
 #endif
 	PHP_ME(mysqlx_node_session, executeSql,			NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, quoteName,			arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
-#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
 	PHP_ME(mysqlx_node_session, getServerVersion,	arginfo_mysqlx_node_session__get_server_version, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, getClientId,		arginfo_mysqlx_node_session__get_client_id, ZEND_ACC_PUBLIC)
 #endif

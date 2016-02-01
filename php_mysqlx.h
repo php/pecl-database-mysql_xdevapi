@@ -20,8 +20,25 @@
 
 #define MYSQLX_VERSION "v1.0.0"
 
-PHPAPI int mysqlx_minit_classes(INIT_FUNC_ARGS);
-PHPAPI int mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS);
+#define phpext_mysqlx_ptr &mysqlx_module_entry
+extern zend_module_entry mysqlx_module_entry;
+
+#ifdef ZTS
+#include "TSRM.h"
+#endif
+
+ZEND_BEGIN_MODULE_GLOBALS(mysqlx)
+	zend_bool unused;
+ZEND_END_MODULE_GLOBALS(mysqlx)
+
+
+PHPAPI ZEND_EXTERN_MODULE_GLOBALS(mysqlx)
+#define MYSQLX_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(mysqlx, v)
+
+#if defined(ZTS) && defined(COMPILE_DL_MYSQLX)
+ZEND_TSRMLS_CACHE_EXTERN();
+#endif
+
 
 #endif	/* PHP_MYSQLX_H */
 

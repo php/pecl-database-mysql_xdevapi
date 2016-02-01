@@ -23,7 +23,6 @@
 #include "ext/mysqlnd/mysqlnd_statistics.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
-#include "php_mysqlx.h"
 
 #include "ext/standard/info.h"
 #include "zend_smart_str.h"
@@ -127,8 +126,6 @@ static PHP_MINIT_FUNCTION(xmysqlnd)
 
 	xmysqlnd_library_init();
 
-	mysqlx_minit_classes(INIT_FUNC_ARGS_PASSTHRU);
-
 	return SUCCESS;
 }
 /* }}} */
@@ -138,8 +135,6 @@ static PHP_MINIT_FUNCTION(xmysqlnd)
  */
 static PHP_MSHUTDOWN_FUNCTION(xmysqlnd)
 {
-	mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-
 	xmysqlnd_library_end();
 
 	UNREGISTER_INI_ENTRIES();
@@ -198,31 +193,6 @@ static PHP_RSHUTDOWN_FUNCTION(xmysqlnd)
 /* }}} */
 #endif
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx__get_node_session, 0, ZEND_RETURN_VALUE, 3)
-	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, username, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, password, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
-ZEND_END_ARG_INFO()
-/*
-  This is a hack. We need proper forward declaration by including a header file. This will happen
-  when xmysqlnd and mysqlx get split.
-*/
-PHP_FUNCTION(mysqlx__getNodeSession);
-
-/*
-  We need a proper macro, that is included in all mysqlx_ files which register classes by using INIT_NS_CLASS_ENTRY.
-  For now we use in these files const string "Mysqlx".
-*/
-#define MYSQLX_NAMESPACE "Mysqlx"
-
-/* {{{ mysqlx_functions */
-static const zend_function_entry mysqlx_functions[] = {
-	ZEND_NS_NAMED_FE(MYSQLX_NAMESPACE, getNodeSession, ZEND_FN(mysqlx__getNodeSession), arginfo_mysqlx__get_node_session)
-	PHP_FE_END
-};
-/* }}} */
-
 
 /* {{{ xmysqlnd_deps */
 static const zend_module_dep xmysqlnd_deps[] = {
@@ -239,7 +209,7 @@ zend_module_entry xmysqlnd_module_entry = {
 	NULL,
 	xmysqlnd_deps,
 	"xmysqlnd",
-	mysqlx_functions, /* xmysqlnd_functions */ /* when xmysqlnd and mysqlx get split this will be NULL */
+	NULL, /* xmysqlnd_functions */
 	PHP_MINIT(xmysqlnd),
 	PHP_MSHUTDOWN(xmysqlnd),
 #if PHP_DEBUG

@@ -74,45 +74,6 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 						 xmysqlnd/xmysqlnd_zval2any.cc \
 					"
 
-  mysqlx_base_sources="	 php_mysqlx.c \
-						 mysqlx_class_properties.c \
-						 mysqlx_driver.c \
-						 mysqlx_exception.c \
-						 mysqlx_execution_status.c \
-						 mysqlx_field_metadata.c \
-						 mysqlx_resultset__column_metadata.cc \
-						 mysqlx_resultset__resultset_metadata.cc \
-						 mysqlx_resultset__data_row.cc \
-						 mysqlx_node_connection.c \
-						 mysqlx_node_pfc.c \
-						 mysqlx_node_schema.c \
-						 mysqlx_node_session.c \
-						 mysqlx_node_collection.c \
-						 mysqlx_node_sql_statement.c \
-						 mysqlx_node_sql_statement_result.c \
-						 mysqlx_node_sql_statement_result_iterator.c \
-						 mysqlx_session.c \
-						 mysqlx_object.c \
-						 mysqlx_warning.c \
-					"
-
-  mysqlx_messages="      messages/mysqlx_message__error.cc \
-						 messages/mysqlx_message__ok.cc \
-						 messages/mysqlx_message__auth_start.cc \
-						 messages/mysqlx_message__auth_continue.cc \
-						 messages/mysqlx_message__auth_ok.cc \
-						 messages/mysqlx_message__capabilities_get.cc \
-						 messages/mysqlx_message__capabilities_set.cc \
-						 messages/mysqlx_message__capabilities.cc \
-						 messages/mysqlx_message__capability.c \
-						 messages/mysqlx_message__stmt_execute.cc \
-						 messages/mysqlx_message__stmt_execute_ok.cc \
-						 messages/mysqlx_message__data_fetch_done.cc \
-					"
-
-
-
-
   AC_DEFINE([XMYSQLND_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
 
   test -z "$PHP_OPENSSL" && PHP_OPENSSL=no
@@ -131,7 +92,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
   PHP_ADD_BUILD_DIR($ext_builddir/messages)
   PHP_ADD_BUILD_DIR($ext_builddir/proto_gen)
 
-  this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_sources $mysqlx_base_sources $mysqlx_messages"
+  this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_sources"
   PHP_NEW_EXTENSION(xmysqlnd, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
   PHP_ADD_BUILD_DIR([ext/xmysqlnd], 1)
   PHP_INSTALL_HEADERS([ext/xmysqlnd/])
