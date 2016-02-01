@@ -71,44 +71,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__drop_schema, 0, ZEND_RETURN_
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__start_transaction, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__commit, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__rollback, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__wrap_in_transaction, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, transaction_options, Mysqlx\\TransactionOptions, DONT_ALLOW_NULL)
-	ZEND_ARG_CALLABLE_INFO(NO_PASS_BY_REF, callback, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__create_transaction_context, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, options, Mysqlx\\TransactionContextOptions, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__push_execution_context, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, context, Mysqlx\\ExecutionContext, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__pop_execution_context, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__execute_batch, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, context, Mysqlx\\BatchContext, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__close, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -504,195 +466,6 @@ PHP_METHOD(mysqlx_node_session, dropSchema)
 /* }}} */
 
 
-/* {{{ mysqlx_node_session::startTransaction */
-static
-PHP_METHOD(mysqlx_node_session, startTransaction)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-
-	DBG_ENTER("mysqlx_node_session::startTransaction");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
-	if ((session = object->session)) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_node_session::commit */
-static
-PHP_METHOD(mysqlx_node_session, commit)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-
-	DBG_ENTER("mysqlx_node_session::commit");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	if ((session = object->session)) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_node_session::rollback */
-static
-PHP_METHOD(mysqlx_node_session, rollback)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-
-	DBG_ENTER("mysqlx_node_session::rollback");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
-	if ((session = object->session)) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_node_session::wrapInTransaction */
-static
-PHP_METHOD(mysqlx_node_session, wrapInTransaction)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-
-	DBG_ENTER("mysqlx_node_session::wrapInTransaction");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	if ((session = object->session)) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_node_session::createTransactionContext */
-static
-PHP_METHOD(mysqlx_node_session, createTransactionContext)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-
-	DBG_ENTER("mysqlx_node_session::createTransactionContext");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
-	if ((session = object->session)) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_node_session::pushExecutionContext */
-static
-PHP_METHOD(mysqlx_node_session, pushExecutionContext)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-
-	DBG_ENTER("mysqlx_node_session::pushExecutionContext");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	if ((session = object->session)) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_node_session::popExecutionContext */
-static
-PHP_METHOD(mysqlx_node_session, popExecutionContext)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-
-	DBG_ENTER("mysqlx_node_session::popExecutionContext");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
-	if ((session = object->session)) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_node_session::executeBatch */
-static
-PHP_METHOD(mysqlx_node_session, executeBatch)
-{
-	zval * object_zv;
-	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
-
-	DBG_ENTER("mysqlx_node_session::executeBatch");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
-	if ((session = object->session)) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ mysqlx_node_session::close */
 static
 PHP_METHOD(mysqlx_node_session, close)
@@ -722,33 +495,20 @@ PHP_METHOD(mysqlx_node_session, close)
 
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
-	PHP_ME(mysqlx_node_session, __construct, NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_session, createStatement,		arginfo_mysqlx_node_session__create_statement, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, executeSql,				NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, quoteName,				arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, getServerVersion,		arginfo_mysqlx_node_session__get_server_version, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, getClientId,			arginfo_mysqlx_node_session__get_client_id, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, __construct, 		NULL, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_session, createStatement,	arginfo_mysqlx_node_session__create_statement, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, executeSql,			NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, quoteName,			arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, getServerVersion,	arginfo_mysqlx_node_session__get_server_version, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, getClientId,		arginfo_mysqlx_node_session__get_client_id, ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_node_session, getSchemas,				arginfo_mysqlx_node_session__get_schemas, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, getSchema,				arginfo_mysqlx_node_session__get_schema, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, getSchemas,			arginfo_mysqlx_node_session__get_schemas, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, getSchema,			arginfo_mysqlx_node_session__get_schema, ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_node_session, createSchema,			arginfo_mysqlx_node_session__create_schema, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, dropSchema,				arginfo_mysqlx_node_session__drop_schema, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, createSchema,		arginfo_mysqlx_node_session__create_schema, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, dropSchema,			arginfo_mysqlx_node_session__drop_schema, ZEND_ACC_PUBLIC)
 
-
-	PHP_ME(mysqlx_node_session, startTransaction,		arginfo_mysqlx_node_session__start_transaction, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, commit,					arginfo_mysqlx_node_session__commit, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, rollback,				arginfo_mysqlx_node_session__rollback, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, wrapInTransaction,		arginfo_mysqlx_node_session__wrap_in_transaction, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, createTransactionContext, arginfo_mysqlx_node_session__create_transaction_context, ZEND_ACC_PUBLIC)
-
-	PHP_ME(mysqlx_node_session, pushExecutionContext,	arginfo_mysqlx_node_session__push_execution_context, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, popExecutionContext,	arginfo_mysqlx_node_session__pop_execution_context, ZEND_ACC_PUBLIC)
-
-	PHP_ME(mysqlx_node_session, executeBatch,			arginfo_mysqlx_node_session__execute_batch, ZEND_ACC_PUBLIC)
-
-
-	PHP_ME(mysqlx_node_session, close,					arginfo_mysqlx_node_session__close, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, close,				arginfo_mysqlx_node_session__close, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

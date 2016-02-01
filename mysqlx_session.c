@@ -32,51 +32,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_schema, 0, ZEND_RETURN_VALUE,
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_default_schema, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__create_schema, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__drop_schema, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__start_transaction, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__commit, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__rollback, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__wrap_in_transaction, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, transaction_options, Mysqlx\\TransactionOptions, DONT_ALLOW_NULL)
-	ZEND_ARG_CALLABLE_INFO(NO_PASS_BY_REF, callback, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__create_transaction_context, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, options, Mysqlx\\TransactionContextOptions, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__push_execution_context, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, context, Mysqlx\\ExecutionContext, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__pop_execution_context, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__execute_batch, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_OBJ_INFO(NO_PASS_BY_REF, context, Mysqlx\\BatchContext, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
@@ -91,18 +51,6 @@ static const zend_function_entry mysqlx_session_methods[] = {
 
 	PHP_ABSTRACT_ME(mysqlx_session, createSchema, arginfo_mysqlx_session__create_schema)
 	PHP_ABSTRACT_ME(mysqlx_session, dropSchema, arginfo_mysqlx_session__drop_schema)
-
-
-	PHP_ABSTRACT_ME(mysqlx_session, startTransaction, arginfo_mysqlx_session__start_transaction)
-	PHP_ABSTRACT_ME(mysqlx_session, commit, arginfo_mysqlx_session__commit)
-	PHP_ABSTRACT_ME(mysqlx_session, rollback, arginfo_mysqlx_session__rollback)
-	PHP_ABSTRACT_ME(mysqlx_session, wrapInTransaction, arginfo_mysqlx_session__wrap_in_transaction)
-	PHP_ABSTRACT_ME(mysqlx_session, createTransactionContext, arginfo_mysqlx_session__create_transaction_context)
-
-	PHP_ABSTRACT_ME(mysqlx_session, pushExecutionContext, arginfo_mysqlx_session__push_execution_context)
-	PHP_ABSTRACT_ME(mysqlx_session, popExecutionContext, arginfo_mysqlx_session__pop_execution_context)
-
-	PHP_ABSTRACT_ME(mysqlx_session, executeBatch, arginfo_mysqlx_session__execute_batch)
 
 	PHP_ABSTRACT_ME(mysqlx_session, close, arginfo_mysqlx_session__close)
 
