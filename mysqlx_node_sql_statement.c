@@ -85,6 +85,7 @@ PHP_METHOD(mysqlx_node_sql_statement, __construct)
 }
 /* }}} */
 
+#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
 struct st_xmysqlnd_exec_with_cb_ctx
 {
 	struct {
@@ -413,6 +414,7 @@ mysqlx_fetch_data_with_callback(struct st_mysqlx_node_sql_statement * object, st
 }
 /* }}} */
 
+#endif /* #ifdef XMYSQLND_EXPERIMENTAL_FEATURES */
 
 /* {{{ mysqlx_node_sql_statement_bind_one_param */
 void
@@ -601,6 +603,7 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS)
 		{
 			DBG_VOID_RETURN;
 		}
+#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
 	} else {
 		if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Offff!f!z",
 													&object_zv, mysqlx_node_sql_statement_class_entry,
@@ -614,6 +617,7 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS)
 			DBG_VOID_RETURN;
 		}
 		use_callbacks = TRUE;
+#endif
 	}
 
 	MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(object, object_zv);

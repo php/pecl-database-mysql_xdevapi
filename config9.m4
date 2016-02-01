@@ -14,8 +14,9 @@ dnl g++ -c proto_gen/*.cc -lprotobuf
 PHP_ARG_ENABLE(xmysqlnd, whether to enable xmysqlnd,
   [  --enable-xmysqlnd       Enable xmysqlnd], no, yes)
 
-PHP_ARG_WITH(protobufc, protobuf compiler,
-  [  --with-protobuf-c[=DIR]       xmysqlnd: protobuf installation directory], no, no)
+PHP_ARG_ENABLE(xmysqlnd_experimental_features, whether to disable experimental features in xmysqlnd,
+  [  --disable-xmysqlnd-experimental-features
+                          Disable support for the experimental features in xmysqlnd], yes, no)
 
 dnl If some extension uses xmysqlnd it will get compiled in PHP core
 if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
@@ -33,6 +34,10 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
          AC_MSG_RESULT(Header found in $i/include/google/protobuf-c/)
        fi
      done
+  fi
+
+  if test "$PHP_XMYSQLND_EXPERIMENTAL_FEATURES" != "no"; then
+    AC_DEFINE([XMYSQLND_EXPERIMENTAL_FEATURES], 1, [Enable experimental features])
   fi
 
   xmysqlnd_protobuf_sources="proto_gen/mysqlx_connection.pb.cc \

@@ -49,6 +49,13 @@ PHP_MINFO_FUNCTION(xmysqlnd)
 #else
 								"not supported");
 #endif
+	php_info_print_table_row(2, "experimental features",
+#ifdef XMYSQLND_EXPERIMENTAL_FEATURES
+								"enabled");
+#else
+								"disabled");
+#endif
+
 	snprintf(buf, sizeof(buf), ZEND_LONG_FMT, XMYSQLND_G(net_read_timeout));
 	php_info_print_table_row(2, "Read timeout", buf);
 
