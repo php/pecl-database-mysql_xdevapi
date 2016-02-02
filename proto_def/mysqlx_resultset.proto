@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2016 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -248,7 +248,7 @@ message FetchDone {
 //       .. seealso:: https://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
 //
 //     ``value``
-//       variable length encoded signed 64 integer
+//       variable length encoded unsigned 64 integer
 //
 //   DOUBLE
 //
@@ -386,7 +386,8 @@ message FetchDone {
 //     A list of strings representing a SET of values.
 //
 //     ``value``
-//       A list of 0 or more of protobuf's bytes.
+//       A sequence of 0 or more of protobuf's bytes (length prepended octets) or one of
+//       the special sequences with a predefined meaning listed below.
 //
 //       Example (length of the bytes array shown in brackets):
 //         * ``[0]`` - the NULL value

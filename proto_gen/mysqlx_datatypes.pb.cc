@@ -27,6 +27,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Scalar_String_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Scalar_String_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Scalar_Octets_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Scalar_Octets_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* Scalar_Type_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* Object_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
@@ -56,7 +59,7 @@ void protobuf_AssignDesc_mysqlx_5fdatatypes_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar, v_signed_int_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar, v_unsigned_int_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar, v_opaque_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar, v_octets_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar, v_double_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar, v_float_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar, v_bool_),
@@ -89,6 +92,22 @@ void protobuf_AssignDesc_mysqlx_5fdatatypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Scalar_String));
+  Scalar_Octets_descriptor_ = Scalar_descriptor_->nested_type(1);
+  static const int Scalar_Octets_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar_Octets, value_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar_Octets, content_type_),
+  };
+  Scalar_Octets_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Scalar_Octets_descriptor_,
+      Scalar_Octets::default_instance_,
+      Scalar_Octets_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar_Octets, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Scalar_Octets, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Scalar_Octets));
   Scalar_Type_descriptor_ = Scalar_descriptor_->enum_type(0);
   Object_descriptor_ = file->message_type(1);
   static const int Object_offsets_[1] = {
@@ -172,6 +191,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Scalar_String_descriptor_, &Scalar_String::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Scalar_Octets_descriptor_, &Scalar_Octets::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Object_descriptor_, &Object::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Object_ObjectField_descriptor_, &Object_ObjectField::default_instance());
@@ -188,6 +209,8 @@ void protobuf_ShutdownFile_mysqlx_5fdatatypes_2eproto() {
   delete Scalar_reflection_;
   delete Scalar_String::default_instance_;
   delete Scalar_String_reflection_;
+  delete Scalar_Octets::default_instance_;
+  delete Scalar_Octets_reflection_;
   delete Object::default_instance_;
   delete Object_reflection_;
   delete Object_ObjectField::default_instance_;
@@ -206,13 +229,15 @@ void protobuf_AddDesc_mysqlx_5fdatatypes_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\026mysqlx_datatypes.proto\022\020Mysqlx.Datatyp"
-    "es\"\366\002\n\006Scalar\022+\n\004type\030\001 \002(\0162\035.Mysqlx.Dat"
+    "es\"\306\003\n\006Scalar\022+\n\004type\030\001 \002(\0162\035.Mysqlx.Dat"
     "atypes.Scalar.Type\022\024\n\014v_signed_int\030\002 \001(\022"
-    "\022\026\n\016v_unsigned_int\030\003 \001(\004\022\020\n\010v_opaque\030\005 \001"
-    "(\014\022\020\n\010v_double\030\006 \001(\001\022\017\n\007v_float\030\007 \001(\002\022\016\n"
-    "\006v_bool\030\010 \001(\010\0221\n\010v_string\030\t \001(\0132\037.Mysqlx"
-    ".Datatypes.Scalar.String\032*\n\006String\022\r\n\005va"
-    "lue\030\001 \002(\014\022\021\n\tcollation\030\002 \001(\004\"m\n\004Type\022\n\n\006"
+    "\022\026\n\016v_unsigned_int\030\003 \001(\004\0221\n\010v_octets\030\005 \001"
+    "(\0132\037.Mysqlx.Datatypes.Scalar.Octets\022\020\n\010v"
+    "_double\030\006 \001(\001\022\017\n\007v_float\030\007 \001(\002\022\016\n\006v_bool"
+    "\030\010 \001(\010\0221\n\010v_string\030\t \001(\0132\037.Mysqlx.Dataty"
+    "pes.Scalar.String\032*\n\006String\022\r\n\005value\030\001 \002"
+    "(\014\022\021\n\tcollation\030\002 \001(\004\032-\n\006Octets\022\r\n\005value"
+    "\030\001 \002(\014\022\024\n\014content_type\030\002 \001(\r\"m\n\004Type\022\n\n\006"
     "V_SINT\020\001\022\n\n\006V_UINT\020\002\022\n\n\006V_NULL\020\003\022\014\n\010V_OC"
     "TETS\020\004\022\014\n\010V_DOUBLE\020\005\022\013\n\007V_FLOAT\020\006\022\n\n\006V_B"
     "OOL\020\007\022\014\n\010V_STRING\020\010\"}\n\006Object\0221\n\003fld\030\001 \003"
@@ -225,17 +250,19 @@ void protobuf_AddDesc_mysqlx_5fdatatypes_2eproto() {
     "calar\022%\n\003obj\030\003 \001(\0132\030.Mysqlx.Datatypes.Ob"
     "ject\022&\n\005array\030\004 \001(\0132\027.Mysqlx.Datatypes.A"
     "rray\")\n\004Type\022\n\n\006SCALAR\020\001\022\n\n\006OBJECT\020\002\022\t\n\005"
-    "ARRAY\020\003B\036\n\034com.mysql.cj.mysqlx.protobuf", 839);
+    "ARRAY\020\003B\036\n\034com.mysql.cj.mysqlx.protobuf", 919);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "mysqlx_datatypes.proto", &protobuf_RegisterTypes);
   Scalar::default_instance_ = new Scalar();
   Scalar_String::default_instance_ = new Scalar_String();
+  Scalar_Octets::default_instance_ = new Scalar_Octets();
   Object::default_instance_ = new Object();
   Object_ObjectField::default_instance_ = new Object_ObjectField();
   Array::default_instance_ = new Array();
   Any::default_instance_ = new Any();
   Scalar::default_instance_->InitAsDefaultInstance();
   Scalar_String::default_instance_->InitAsDefaultInstance();
+  Scalar_Octets::default_instance_->InitAsDefaultInstance();
   Object::default_instance_->InitAsDefaultInstance();
   Object_ObjectField::default_instance_->InitAsDefaultInstance();
   Array::default_instance_->InitAsDefaultInstance();
@@ -543,10 +570,267 @@ void Scalar_String::Swap(Scalar_String* other) {
 // -------------------------------------------------------------------
 
 #ifndef _MSC_VER
+const int Scalar_Octets::kValueFieldNumber;
+const int Scalar_Octets::kContentTypeFieldNumber;
+#endif  // !_MSC_VER
+
+Scalar_Octets::Scalar_Octets()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void Scalar_Octets::InitAsDefaultInstance() {
+}
+
+Scalar_Octets::Scalar_Octets(const Scalar_Octets& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void Scalar_Octets::SharedCtor() {
+  _cached_size_ = 0;
+  value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  content_type_ = 0u;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Scalar_Octets::~Scalar_Octets() {
+  SharedDtor();
+}
+
+void Scalar_Octets::SharedDtor() {
+  if (value_ != &::google::protobuf::internal::kEmptyString) {
+    delete value_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void Scalar_Octets::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Scalar_Octets::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Scalar_Octets_descriptor_;
+}
+
+const Scalar_Octets& Scalar_Octets::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_mysqlx_5fdatatypes_2eproto();
+  return *default_instance_;
+}
+
+Scalar_Octets* Scalar_Octets::default_instance_ = NULL;
+
+Scalar_Octets* Scalar_Octets::New() const {
+  return new Scalar_Octets;
+}
+
+void Scalar_Octets::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (has_value()) {
+      if (value_ != &::google::protobuf::internal::kEmptyString) {
+        value_->clear();
+      }
+    }
+    content_type_ = 0u;
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Scalar_Octets::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required bytes value = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_value()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_content_type;
+        break;
+      }
+
+      // optional uint32 content_type = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_content_type:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &content_type_)));
+          set_has_content_type();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void Scalar_Octets::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required bytes value = 1;
+  if (has_value()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytes(
+      1, this->value(), output);
+  }
+
+  // optional uint32 content_type = 2;
+  if (has_content_type()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->content_type(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* Scalar_Octets::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required bytes value = 1;
+  if (has_value()) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        1, this->value(), target);
+  }
+
+  // optional uint32 content_type = 2;
+  if (has_content_type()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->content_type(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int Scalar_Octets::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required bytes value = 1;
+    if (has_value()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::BytesSize(
+          this->value());
+    }
+
+    // optional uint32 content_type = 2;
+    if (has_content_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->content_type());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Scalar_Octets::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Scalar_Octets* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Scalar_Octets*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Scalar_Octets::MergeFrom(const Scalar_Octets& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_value()) {
+      set_value(from.value());
+    }
+    if (from.has_content_type()) {
+      set_content_type(from.content_type());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Scalar_Octets::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Scalar_Octets::CopyFrom(const Scalar_Octets& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Scalar_Octets::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+
+  return true;
+}
+
+void Scalar_Octets::Swap(Scalar_Octets* other) {
+  if (other != this) {
+    std::swap(value_, other->value_);
+    std::swap(content_type_, other->content_type_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Scalar_Octets::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Scalar_Octets_descriptor_;
+  metadata.reflection = Scalar_Octets_reflection_;
+  return metadata;
+}
+
+
+// -------------------------------------------------------------------
+
+#ifndef _MSC_VER
 const int Scalar::kTypeFieldNumber;
 const int Scalar::kVSignedIntFieldNumber;
 const int Scalar::kVUnsignedIntFieldNumber;
-const int Scalar::kVOpaqueFieldNumber;
+const int Scalar::kVOctetsFieldNumber;
 const int Scalar::kVDoubleFieldNumber;
 const int Scalar::kVFloatFieldNumber;
 const int Scalar::kVBoolFieldNumber;
@@ -559,6 +843,7 @@ Scalar::Scalar()
 }
 
 void Scalar::InitAsDefaultInstance() {
+  v_octets_ = const_cast< ::Mysqlx::Datatypes::Scalar_Octets*>(&::Mysqlx::Datatypes::Scalar_Octets::default_instance());
   v_string_ = const_cast< ::Mysqlx::Datatypes::Scalar_String*>(&::Mysqlx::Datatypes::Scalar_String::default_instance());
 }
 
@@ -573,7 +858,7 @@ void Scalar::SharedCtor() {
   type_ = 1;
   v_signed_int_ = GOOGLE_LONGLONG(0);
   v_unsigned_int_ = GOOGLE_ULONGLONG(0);
-  v_opaque_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  v_octets_ = NULL;
   v_double_ = 0;
   v_float_ = 0;
   v_bool_ = false;
@@ -586,10 +871,8 @@ Scalar::~Scalar() {
 }
 
 void Scalar::SharedDtor() {
-  if (v_opaque_ != &::google::protobuf::internal::kEmptyString) {
-    delete v_opaque_;
-  }
   if (this != default_instance_) {
+    delete v_octets_;
     delete v_string_;
   }
 }
@@ -620,10 +903,8 @@ void Scalar::Clear() {
     type_ = 1;
     v_signed_int_ = GOOGLE_LONGLONG(0);
     v_unsigned_int_ = GOOGLE_ULONGLONG(0);
-    if (has_v_opaque()) {
-      if (v_opaque_ != &::google::protobuf::internal::kEmptyString) {
-        v_opaque_->clear();
-      }
+    if (has_v_octets()) {
+      if (v_octets_ != NULL) v_octets_->::Mysqlx::Datatypes::Scalar_Octets::Clear();
     }
     v_double_ = 0;
     v_float_ = 0;
@@ -690,17 +971,17 @@ bool Scalar::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(42)) goto parse_v_opaque;
+        if (input->ExpectTag(42)) goto parse_v_octets;
         break;
       }
 
-      // optional bytes v_opaque = 5;
+      // optional .Mysqlx.Datatypes.Scalar.Octets v_octets = 5;
       case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_v_opaque:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
-                input, this->mutable_v_opaque()));
+         parse_v_octets:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_v_octets()));
         } else {
           goto handle_uninterpreted;
         }
@@ -804,10 +1085,10 @@ void Scalar::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->v_unsigned_int(), output);
   }
 
-  // optional bytes v_opaque = 5;
-  if (has_v_opaque()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytes(
-      5, this->v_opaque(), output);
+  // optional .Mysqlx.Datatypes.Scalar.Octets v_octets = 5;
+  if (has_v_octets()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, this->v_octets(), output);
   }
 
   // optional double v_double = 6;
@@ -855,11 +1136,11 @@ void Scalar::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->v_unsigned_int(), target);
   }
 
-  // optional bytes v_opaque = 5;
-  if (has_v_opaque()) {
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
-        5, this->v_opaque(), target);
+  // optional .Mysqlx.Datatypes.Scalar.Octets v_octets = 5;
+  if (has_v_octets()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        5, this->v_octets(), target);
   }
 
   // optional double v_double = 6;
@@ -915,11 +1196,11 @@ int Scalar::ByteSize() const {
           this->v_unsigned_int());
     }
 
-    // optional bytes v_opaque = 5;
-    if (has_v_opaque()) {
+    // optional .Mysqlx.Datatypes.Scalar.Octets v_octets = 5;
+    if (has_v_octets()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::BytesSize(
-          this->v_opaque());
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->v_octets());
     }
 
     // optional double v_double = 6;
@@ -980,8 +1261,8 @@ void Scalar::MergeFrom(const Scalar& from) {
     if (from.has_v_unsigned_int()) {
       set_v_unsigned_int(from.v_unsigned_int());
     }
-    if (from.has_v_opaque()) {
-      set_v_opaque(from.v_opaque());
+    if (from.has_v_octets()) {
+      mutable_v_octets()->::Mysqlx::Datatypes::Scalar_Octets::MergeFrom(from.v_octets());
     }
     if (from.has_v_double()) {
       set_v_double(from.v_double());
@@ -1014,6 +1295,9 @@ void Scalar::CopyFrom(const Scalar& from) {
 bool Scalar::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
 
+  if (has_v_octets()) {
+    if (!this->v_octets().IsInitialized()) return false;
+  }
   if (has_v_string()) {
     if (!this->v_string().IsInitialized()) return false;
   }
@@ -1025,7 +1309,7 @@ void Scalar::Swap(Scalar* other) {
     std::swap(type_, other->type_);
     std::swap(v_signed_int_, other->v_signed_int_);
     std::swap(v_unsigned_int_, other->v_unsigned_int_);
-    std::swap(v_opaque_, other->v_opaque_);
+    std::swap(v_octets_, other->v_octets_);
     std::swap(v_double_, other->v_double_);
     std::swap(v_float_, other->v_float_);
     std::swap(v_bool_, other->v_bool_);

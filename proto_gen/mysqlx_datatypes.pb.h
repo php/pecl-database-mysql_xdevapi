@@ -37,6 +37,7 @@ void protobuf_ShutdownFile_mysqlx_5fdatatypes_2eproto();
 
 class Scalar;
 class Scalar_String;
+class Scalar_Octets;
 class Object;
 class Object_ObjectField;
 class Array;
@@ -186,6 +187,103 @@ class Scalar_String : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class Scalar_Octets : public ::google::protobuf::Message {
+ public:
+  Scalar_Octets();
+  virtual ~Scalar_Octets();
+
+  Scalar_Octets(const Scalar_Octets& from);
+
+  inline Scalar_Octets& operator=(const Scalar_Octets& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Scalar_Octets& default_instance();
+
+  void Swap(Scalar_Octets* other);
+
+  // implements Message ----------------------------------------------
+
+  Scalar_Octets* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Scalar_Octets& from);
+  void MergeFrom(const Scalar_Octets& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required bytes value = 1;
+  inline bool has_value() const;
+  inline void clear_value();
+  static const int kValueFieldNumber = 1;
+  inline const ::std::string& value() const;
+  inline void set_value(const ::std::string& value);
+  inline void set_value(const char* value);
+  inline void set_value(const void* value, size_t size);
+  inline ::std::string* mutable_value();
+  inline ::std::string* release_value();
+  inline void set_allocated_value(::std::string* value);
+
+  // optional uint32 content_type = 2;
+  inline bool has_content_type() const;
+  inline void clear_content_type();
+  static const int kContentTypeFieldNumber = 2;
+  inline ::google::protobuf::uint32 content_type() const;
+  inline void set_content_type(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:Mysqlx.Datatypes.Scalar.Octets)
+ private:
+  inline void set_has_value();
+  inline void clear_has_value();
+  inline void set_has_content_type();
+  inline void clear_has_content_type();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* value_;
+  ::google::protobuf::uint32 content_type_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+
+  friend void  protobuf_AddDesc_mysqlx_5fdatatypes_2eproto();
+  friend void protobuf_AssignDesc_mysqlx_5fdatatypes_2eproto();
+  friend void protobuf_ShutdownFile_mysqlx_5fdatatypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static Scalar_Octets* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class Scalar : public ::google::protobuf::Message {
  public:
   Scalar();
@@ -239,6 +337,7 @@ class Scalar : public ::google::protobuf::Message {
   // nested types ----------------------------------------------------
 
   typedef Scalar_String String;
+  typedef Scalar_Octets Octets;
 
   typedef Scalar_Type Type;
   static const Type V_SINT = Scalar_Type_V_SINT;
@@ -293,17 +392,14 @@ class Scalar : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 v_unsigned_int() const;
   inline void set_v_unsigned_int(::google::protobuf::uint64 value);
 
-  // optional bytes v_opaque = 5;
-  inline bool has_v_opaque() const;
-  inline void clear_v_opaque();
-  static const int kVOpaqueFieldNumber = 5;
-  inline const ::std::string& v_opaque() const;
-  inline void set_v_opaque(const ::std::string& value);
-  inline void set_v_opaque(const char* value);
-  inline void set_v_opaque(const void* value, size_t size);
-  inline ::std::string* mutable_v_opaque();
-  inline ::std::string* release_v_opaque();
-  inline void set_allocated_v_opaque(::std::string* v_opaque);
+  // optional .Mysqlx.Datatypes.Scalar.Octets v_octets = 5;
+  inline bool has_v_octets() const;
+  inline void clear_v_octets();
+  static const int kVOctetsFieldNumber = 5;
+  inline const ::Mysqlx::Datatypes::Scalar_Octets& v_octets() const;
+  inline ::Mysqlx::Datatypes::Scalar_Octets* mutable_v_octets();
+  inline ::Mysqlx::Datatypes::Scalar_Octets* release_v_octets();
+  inline void set_allocated_v_octets(::Mysqlx::Datatypes::Scalar_Octets* v_octets);
 
   // optional double v_double = 6;
   inline bool has_v_double() const;
@@ -343,8 +439,8 @@ class Scalar : public ::google::protobuf::Message {
   inline void clear_has_v_signed_int();
   inline void set_has_v_unsigned_int();
   inline void clear_has_v_unsigned_int();
-  inline void set_has_v_opaque();
-  inline void clear_has_v_opaque();
+  inline void set_has_v_octets();
+  inline void clear_has_v_octets();
   inline void set_has_v_double();
   inline void clear_has_v_double();
   inline void set_has_v_float();
@@ -360,7 +456,7 @@ class Scalar : public ::google::protobuf::Message {
   ::google::protobuf::uint64 v_unsigned_int_;
   int type_;
   float v_float_;
-  ::std::string* v_opaque_;
+  ::Mysqlx::Datatypes::Scalar_Octets* v_octets_;
   double v_double_;
   ::Mysqlx::Datatypes::Scalar_String* v_string_;
   bool v_bool_;
@@ -890,6 +986,102 @@ inline void Scalar_String::set_collation(::google::protobuf::uint64 value) {
 
 // -------------------------------------------------------------------
 
+// Scalar_Octets
+
+// required bytes value = 1;
+inline bool Scalar_Octets::has_value() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Scalar_Octets::set_has_value() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Scalar_Octets::clear_has_value() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Scalar_Octets::clear_value() {
+  if (value_ != &::google::protobuf::internal::kEmptyString) {
+    value_->clear();
+  }
+  clear_has_value();
+}
+inline const ::std::string& Scalar_Octets::value() const {
+  return *value_;
+}
+inline void Scalar_Octets::set_value(const ::std::string& value) {
+  set_has_value();
+  if (value_ == &::google::protobuf::internal::kEmptyString) {
+    value_ = new ::std::string;
+  }
+  value_->assign(value);
+}
+inline void Scalar_Octets::set_value(const char* value) {
+  set_has_value();
+  if (value_ == &::google::protobuf::internal::kEmptyString) {
+    value_ = new ::std::string;
+  }
+  value_->assign(value);
+}
+inline void Scalar_Octets::set_value(const void* value, size_t size) {
+  set_has_value();
+  if (value_ == &::google::protobuf::internal::kEmptyString) {
+    value_ = new ::std::string;
+  }
+  value_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Scalar_Octets::mutable_value() {
+  set_has_value();
+  if (value_ == &::google::protobuf::internal::kEmptyString) {
+    value_ = new ::std::string;
+  }
+  return value_;
+}
+inline ::std::string* Scalar_Octets::release_value() {
+  clear_has_value();
+  if (value_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = value_;
+    value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Scalar_Octets::set_allocated_value(::std::string* value) {
+  if (value_ != &::google::protobuf::internal::kEmptyString) {
+    delete value_;
+  }
+  if (value) {
+    set_has_value();
+    value_ = value;
+  } else {
+    clear_has_value();
+    value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional uint32 content_type = 2;
+inline bool Scalar_Octets::has_content_type() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Scalar_Octets::set_has_content_type() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Scalar_Octets::clear_has_content_type() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Scalar_Octets::clear_content_type() {
+  content_type_ = 0u;
+  clear_has_content_type();
+}
+inline ::google::protobuf::uint32 Scalar_Octets::content_type() const {
+  return content_type_;
+}
+inline void Scalar_Octets::set_content_type(::google::protobuf::uint32 value) {
+  set_has_content_type();
+  content_type_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // Scalar
 
 // required .Mysqlx.Datatypes.Scalar.Type type = 1;
@@ -959,73 +1151,41 @@ inline void Scalar::set_v_unsigned_int(::google::protobuf::uint64 value) {
   v_unsigned_int_ = value;
 }
 
-// optional bytes v_opaque = 5;
-inline bool Scalar::has_v_opaque() const {
+// optional .Mysqlx.Datatypes.Scalar.Octets v_octets = 5;
+inline bool Scalar::has_v_octets() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void Scalar::set_has_v_opaque() {
+inline void Scalar::set_has_v_octets() {
   _has_bits_[0] |= 0x00000008u;
 }
-inline void Scalar::clear_has_v_opaque() {
+inline void Scalar::clear_has_v_octets() {
   _has_bits_[0] &= ~0x00000008u;
 }
-inline void Scalar::clear_v_opaque() {
-  if (v_opaque_ != &::google::protobuf::internal::kEmptyString) {
-    v_opaque_->clear();
-  }
-  clear_has_v_opaque();
+inline void Scalar::clear_v_octets() {
+  if (v_octets_ != NULL) v_octets_->::Mysqlx::Datatypes::Scalar_Octets::Clear();
+  clear_has_v_octets();
 }
-inline const ::std::string& Scalar::v_opaque() const {
-  return *v_opaque_;
+inline const ::Mysqlx::Datatypes::Scalar_Octets& Scalar::v_octets() const {
+  return v_octets_ != NULL ? *v_octets_ : *default_instance_->v_octets_;
 }
-inline void Scalar::set_v_opaque(const ::std::string& value) {
-  set_has_v_opaque();
-  if (v_opaque_ == &::google::protobuf::internal::kEmptyString) {
-    v_opaque_ = new ::std::string;
-  }
-  v_opaque_->assign(value);
+inline ::Mysqlx::Datatypes::Scalar_Octets* Scalar::mutable_v_octets() {
+  set_has_v_octets();
+  if (v_octets_ == NULL) v_octets_ = new ::Mysqlx::Datatypes::Scalar_Octets;
+  return v_octets_;
 }
-inline void Scalar::set_v_opaque(const char* value) {
-  set_has_v_opaque();
-  if (v_opaque_ == &::google::protobuf::internal::kEmptyString) {
-    v_opaque_ = new ::std::string;
-  }
-  v_opaque_->assign(value);
+inline ::Mysqlx::Datatypes::Scalar_Octets* Scalar::release_v_octets() {
+  clear_has_v_octets();
+  ::Mysqlx::Datatypes::Scalar_Octets* temp = v_octets_;
+  v_octets_ = NULL;
+  return temp;
 }
-inline void Scalar::set_v_opaque(const void* value, size_t size) {
-  set_has_v_opaque();
-  if (v_opaque_ == &::google::protobuf::internal::kEmptyString) {
-    v_opaque_ = new ::std::string;
-  }
-  v_opaque_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* Scalar::mutable_v_opaque() {
-  set_has_v_opaque();
-  if (v_opaque_ == &::google::protobuf::internal::kEmptyString) {
-    v_opaque_ = new ::std::string;
-  }
-  return v_opaque_;
-}
-inline ::std::string* Scalar::release_v_opaque() {
-  clear_has_v_opaque();
-  if (v_opaque_ == &::google::protobuf::internal::kEmptyString) {
-    return NULL;
+inline void Scalar::set_allocated_v_octets(::Mysqlx::Datatypes::Scalar_Octets* v_octets) {
+  delete v_octets_;
+  v_octets_ = v_octets;
+  if (v_octets) {
+    set_has_v_octets();
   } else {
-    ::std::string* temp = v_opaque_;
-    v_opaque_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-    return temp;
-  }
-}
-inline void Scalar::set_allocated_v_opaque(::std::string* v_opaque) {
-  if (v_opaque_ != &::google::protobuf::internal::kEmptyString) {
-    delete v_opaque_;
-  }
-  if (v_opaque) {
-    set_has_v_opaque();
-    v_opaque_ = v_opaque;
-  } else {
-    clear_has_v_opaque();
-    v_opaque_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    clear_has_v_octets();
   }
 }
 

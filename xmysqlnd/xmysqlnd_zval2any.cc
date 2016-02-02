@@ -139,7 +139,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 			ZVAL_NULL(zv);
 			break;
 		case Scalar_Type_V_OCTETS:
-			ZVAL_STRINGL(zv, scalar.v_opaque().c_str(), scalar.v_opaque().size() - 1);
+			ZVAL_STRINGL(zv, scalar.v_octets().value().c_str(), scalar.v_octets().value().size() - 1);
 			break;
 		case Scalar_Type_V_DOUBLE:
 			ZVAL_DOUBLE(zv, scalar.v_double());
@@ -204,7 +204,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 					ZVAL_NULL(zv);
 					break;
 				case Scalar_Type_V_OCTETS:
-					ZVAL_STRINGL(zv, any.scalar().v_opaque().c_str(), any.scalar().v_opaque().size() - 1);
+					ZVAL_STRINGL(zv, any.scalar().v_octets().value().c_str(), any.scalar().v_octets().value().size() - 1);
 					break;
 				case Scalar_Type_V_DOUBLE:
 					ZVAL_DOUBLE(zv, any.scalar().v_double());
@@ -289,7 +289,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = 0;
 			break;
 		case Scalar_Type_V_OCTETS:
-			ret = ZEND_STRTOL(scalar.v_opaque().c_str(), NULL, 10);
+			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), NULL, 10);
 			break;
 		case Scalar_Type_V_DOUBLE:
 			ret = scalar.v_double();
@@ -329,7 +329,7 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = 0;
 			break;
 		case Scalar_Type_V_OCTETS:
-			ret = ZEND_STRTOL(scalar.v_opaque().c_str(), NULL, 10);
+			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), NULL, 10);
 			break;
 		case Scalar_Type_V_DOUBLE:
 			ret = scalar.v_double();
@@ -368,7 +368,7 @@ scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 		case Scalar_Type_V_NULL:
 			break;
 		case Scalar_Type_V_OCTETS: {
-			const MYSQLND_CSTRING from = { scalar.v_opaque().c_str(), scalar.v_opaque().size() };
+			const MYSQLND_CSTRING from = { scalar.v_octets().value().c_str(), scalar.v_octets().value().size() };
 			ret = mnd_dup_cstring(from, FALSE /*persistent*/);
 			break;
 		}
@@ -431,7 +431,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 		case Scalar_Type_V_NULL:
 			break;
 		case Scalar_Type_V_OCTETS:
-			DBG_INF_FMT("value=[%*s]", scalar.v_opaque().size(), scalar.v_opaque().c_str());
+			DBG_INF_FMT("value=[%*s]", scalar.v_octets().value().size(), scalar.v_octets().value().c_str());
 			break;
 		case Scalar_Type_V_DOUBLE:
 			DBG_INF_FMT("value=%f", scalar.v_double());
