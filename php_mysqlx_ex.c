@@ -28,6 +28,7 @@
 #include "mysqlx_node_collection.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_sql_statement_result.h"
+#include "mysqlx_node_table.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_object.h"
 #include "mysqlx_warning.h"
@@ -91,6 +92,8 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
+	mysqlx_register_node_table_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
 #if MYSQLX_MESSAGE_CLASSES
 	mysqlx_register_node_connection_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
@@ -150,6 +153,7 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_node_connection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 #endif
 
+	mysqlx_unregister_node_table_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

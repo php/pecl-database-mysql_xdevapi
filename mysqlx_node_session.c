@@ -102,7 +102,7 @@ struct st_mysqlx_node_session
 
 
 #ifdef MYSQLX_EXPERIMENTAL_FEATURES
-/* {{{ proto mixed mysqlx_node_session::createStatement(object session, string query) */
+/* {{{ proto mixed mysqlx_node_session::createStatement(string query) */
 static
 PHP_METHOD(mysqlx_node_session, createStatement)
 {
@@ -138,7 +138,7 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 #endif
 
 
-/* {{{ proto mixed mysqlx_node_session::executeSql(object session, string query [[, mixed param]]) */
+/* {{{ proto mixed mysqlx_node_session::executeSql(string query [[, mixed param]]) */
 static
 PHP_METHOD(mysqlx_node_session, executeSql)
 {
@@ -198,7 +198,7 @@ end:
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_session::quoteName(object session, string query) */
+/* {{{ proto mixed mysqlx_node_session::quoteName(string query) */
 static
 PHP_METHOD(mysqlx_node_session, quoteName)
 {
@@ -230,7 +230,7 @@ PHP_METHOD(mysqlx_node_session, quoteName)
 
 
 #ifdef MYSQLX_EXPERIMENTAL_FEATURES
-/* {{{ proto mixed mysqlx_node_session::getServerVersion(object session) */
+/* {{{ proto mixed mysqlx_node_session::getServerVersion() */
 static
 PHP_METHOD(mysqlx_node_session, getServerVersion)
 {
@@ -256,7 +256,7 @@ PHP_METHOD(mysqlx_node_session, getServerVersion)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_session::getClientId(object session) */
+/* {{{ proto mixed mysqlx_node_session::getClientId() */
 static
 PHP_METHOD(mysqlx_node_session, getClientId)
 {
@@ -350,7 +350,7 @@ get_schemas_handler_on_error(void * context,
 /* }}} */
 
 
-/* {{{ mysqlx_node_session::getSchemas(object session) */
+/* {{{ mysqlx_node_session::getSchemas() */
 static
 PHP_METHOD(mysqlx_node_session, getSchemas)
 {
@@ -389,7 +389,7 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 /* }}} */
 
 
-/* {{{ mysqlx_node_session::getSchema(object session, string name) */
+/* {{{ mysqlx_node_session::getSchema(string name) */
 static
 PHP_METHOD(mysqlx_node_session, getSchema)
 {
@@ -418,7 +418,7 @@ PHP_METHOD(mysqlx_node_session, getSchema)
 /* }}} */
 
 
-/* {{{ mysqlx_node_session::createSchema(object session, string name) */
+/* {{{ mysqlx_node_session::createSchema(string name) */
 static
 PHP_METHOD(mysqlx_node_session, createSchema)
 {
@@ -449,7 +449,7 @@ PHP_METHOD(mysqlx_node_session, createSchema)
 /* }}} */
 
 
-/* {{{ mysqlx_node_session::dropSchema(object session, string name) */
+/* {{{ mysqlx_node_session::dropSchema(string name) */
 static
 PHP_METHOD(mysqlx_node_session, dropSchema)
 {

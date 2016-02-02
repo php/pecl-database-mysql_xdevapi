@@ -41,7 +41,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
   fi
 
   xmysqlnd_protobuf_sources="proto_gen/mysqlx_connection.pb.cc \
-  							 proto_gen/mysqlx_crud.pb.cc \
+						 proto_gen/mysqlx_crud.pb.cc \
 							 proto_gen/mysqlx_datatypes.pb.cc \
 							 proto_gen/mysqlx_expect.pb.cc \
 							 proto_gen/mysqlx_expr.pb.cc \
@@ -53,23 +53,24 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 					"
 
   xmysqlnd_sources="     php_xmysqlnd.c \
-                         xmysqlnd/xmysqlnd_driver.c \
+						 xmysqlnd/xmysqlnd_driver.c \
 						 xmysqlnd/xmysqlnd_extension_plugin.c \
-                         xmysqlnd/xmysqlnd_node_collection.c \
-                         xmysqlnd/xmysqlnd_node_schema.c \
+						 xmysqlnd/xmysqlnd_node_collection.c \
+						 xmysqlnd/xmysqlnd_node_schema.c \
 						 xmysqlnd/xmysqlnd_node_session.c \
 						 xmysqlnd/xmysqlnd_node_stmt.c \
 						 xmysqlnd/xmysqlnd_node_stmt_result.c \
 						 xmysqlnd/xmysqlnd_node_stmt_result_meta.c \
+						 xmysqlnd/xmysqlnd_node_table.c \
 						 xmysqlnd/xmysqlnd_object_factory.c \
 						 xmysqlnd/xmysqlnd_protocol_frame_codec.c \
- 						 xmysqlnd/xmysqlnd_protocol_dumper.cc \
-                         xmysqlnd/xmysqlnd_rowset.c \
+						 xmysqlnd/xmysqlnd_protocol_dumper.cc \
+						 xmysqlnd/xmysqlnd_rowset.c \
 						 xmysqlnd/xmysqlnd_rowset_buffered.c \
 						 xmysqlnd/xmysqlnd_rowset_fwd.c \
-                         xmysqlnd/xmysqlnd_statistics.c \
-                         xmysqlnd/xmysqlnd_stmt_execution_state.c \
-                         xmysqlnd/xmysqlnd_warning_list.c \
+						 xmysqlnd/xmysqlnd_statistics.c \
+						 xmysqlnd/xmysqlnd_stmt_execution_state.c \
+						 xmysqlnd/xmysqlnd_warning_list.c \
 						 xmysqlnd/xmysqlnd_wireprotocol.cc \
 						 xmysqlnd/xmysqlnd_zval2any.cc \
 					"

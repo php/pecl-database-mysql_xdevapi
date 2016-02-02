@@ -21,8 +21,10 @@
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
+#include <xmysqlnd/xmysqlnd_node_collection.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_node_collection.h"
 #include "mysqlx_node_schema.h"
 
 static zend_class_entry *mysqlx_node_schema_class_entry;
@@ -30,7 +32,8 @@ static zend_class_entry *mysqlx_node_schema_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__some, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_collection, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
@@ -59,24 +62,26 @@ PHP_METHOD(mysqlx_node_schema, __construct)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_schema::some(object statement) */
+/* {{{ proto mixed mysqlx_node_schema::getCollection(string name) */
 static
-PHP_METHOD(mysqlx_node_schema, some)
+PHP_METHOD(mysqlx_node_schema, getCollection)
 {
 	struct st_mysqlx_node_schema * object;
 	zval * object_zv;
+	MYSQLND_CSTRING collection_name = { NULL, 0 };
 
-	DBG_ENTER("mysqlx_node_schema::some");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Olz",
-												&object_zv, mysqlx_node_schema_class_entry))
+	DBG_ENTER("mysqlx_node_schema::getCollection");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+												&object_zv, mysqlx_node_schema_class_entry,
+												&(collection_name.s), &(collection_name.l)))
 	{
 		DBG_VOID_RETURN;
 	}
-
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if (object->schema) {
-
+	if (collection_name.s && collection_name.l && object->schema) {
+		struct st_xmysqlnd_node_collection * const collection = object->schema->data->m.create_collection_object(object->schema, collection_name);
+		mysqlx_new_node_collection(return_value, collection);
 	}
 	DBG_VOID_RETURN;
 }
@@ -85,8 +90,8 @@ PHP_METHOD(mysqlx_node_schema, some)
 
 /* {{{ mysqlx_node_schema_methods[] */
 static const zend_function_entry mysqlx_node_schema_methods[] = {
-	PHP_ME(mysqlx_node_schema, __construct,		NULL,									ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_schema, some,			arginfo_mysqlx_node_schema__some,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, __construct,		NULL,										ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_schema, getCollection,	arginfo_mysqlx_node_schema__get_collection,	ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

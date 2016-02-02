@@ -553,7 +553,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, escape_string)(XMYSQLND_NODE_SESSION
 
 /* {{{ xmysqlnd_node_session_data::create_statement_object */
 static XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, create_statement_object)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
+XMYSQLND_METHOD(xmysqlnd_node_session_data, create_statement_object)(XMYSQLND_NODE_SESSION_DATA * const session, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), create_statement_object);
 	XMYSQLND_NODE_STMT * stmt = NULL;
@@ -613,7 +613,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DA
 
 /* {{{ xmysqlnd_node_session_data::create_schema_object */
 static XMYSQLND_NODE_SCHEMA *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, create_schema_object)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING schema_name)
+XMYSQLND_METHOD(xmysqlnd_node_session_data, create_schema_object)(XMYSQLND_NODE_SESSION_DATA * const session, const MYSQLND_CSTRING schema_name)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), create_schema_object);
 	XMYSQLND_NODE_SCHEMA * schema = NULL;

@@ -21,6 +21,7 @@
 #include "xmysqlnd_driver.h"
 
 struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_node_collection;
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,6 +31,7 @@ typedef struct st_xmysqlnd_node_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
 
 
 typedef enum_func_status		(*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, struct st_xmysqlnd_node_session_data * const session, const MYSQLND_CSTRING schema_name, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef struct st_xmysqlnd_node_collection * (*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 
 typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_node_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);
 typedef enum_func_status		(*func_xmysqlnd_node_schema__free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -39,6 +41,8 @@ typedef void					(*func_xmysqlnd_node_schema__dtor)(XMYSQLND_NODE_SCHEMA * const
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 {
 	func_xmysqlnd_node_schema__init init;
+
+	func_xmysqlnd_node_schema__create_collection_object create_collection_object;
 
 	func_xmysqlnd_node_schema__get_reference get_reference;
 	func_xmysqlnd_node_schema__free_reference free_reference;
@@ -69,7 +73,13 @@ struct st_xmysqlnd_node_schema
 
 
 PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_schema);
-PHPAPI XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(struct st_xmysqlnd_node_session_data * session, const MYSQLND_CSTRING schema_name, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(struct st_xmysqlnd_node_session_data * session,
+														  const MYSQLND_CSTRING schema_name,
+														  const zend_bool persistent,
+														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+														  MYSQLND_STATS * const stats,
+														  MYSQLND_ERROR_INFO * const error_info);
+
 PHPAPI void xmysqlnd_node_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus
 } /* extern "C" */

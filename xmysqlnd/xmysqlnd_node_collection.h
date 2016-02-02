@@ -75,7 +75,13 @@ struct st_xmysqlnd_node_collection
 
 
 PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_collection);
-PHPAPI XMYSQLND_NODE_COLLECTION * xmysqlnd_node_collection_create(struct st_xmysqlnd_node_schema * schema, const MYSQLND_CSTRING schema_name, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHPAPI XMYSQLND_NODE_COLLECTION * xmysqlnd_node_collection_create(struct st_xmysqlnd_node_schema * schema,
+																  const MYSQLND_CSTRING collection_name,
+																  const zend_bool persistent,
+																  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+																  MYSQLND_STATS * const stats,
+																  MYSQLND_ERROR_INFO * const error_info);
+
 PHPAPI void xmysqlnd_node_collection_free(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus
 } /* extern "C" */

@@ -46,6 +46,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, init)(XMYSQLND_NODE_COLLECTION * const
 }
 /* }}} */
 
+
 /* {{{ xmysqlnd_node_collection::get_reference */
 static XMYSQLND_NODE_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_node_collection, get_reference)(XMYSQLND_NODE_COLLECTION * const collection)
@@ -125,8 +126,8 @@ xmysqlnd_node_collection_create(XMYSQLND_NODE_SCHEMA * schema,
 								const MYSQLND_CSTRING collection_name,
 								const zend_bool persistent,
 								const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-								MYSQLND_STATS * stats,
-								MYSQLND_ERROR_INFO * error_info)
+								MYSQLND_STATS * const stats,
+								MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_NODE_COLLECTION * ret = NULL;
 	DBG_ENTER("xmysqlnd_node_collection_create");
