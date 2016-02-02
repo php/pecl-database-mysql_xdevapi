@@ -582,7 +582,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 													zend_bool * const has_more_results,
 													const struct st_xmysqlnd_node_stmt_on_warning_bind handler_on_warning,
 													const struct st_xmysqlnd_node_stmt_on_error_bind handler_on_error,
-													MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+													MYSQLND_STATS * const stats,
+													MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_NODE_STMT_RESULT * result = NULL;
 	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { stmt->data->m.create_meta_field, &stmt->data->read_ctx };
