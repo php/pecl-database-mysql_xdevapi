@@ -122,21 +122,21 @@ extern "C"
 
 struct st_xmysqlnd_on_warning_bind
 {
-	enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_on_error_bind
 {
-	enum_hnd_func_status (*handler)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_on_session_var_change_bind
 {
-	enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING name, const zval * value);
+	const enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING name, const zval * value);
 	void * ctx;
 };
 
@@ -183,7 +183,7 @@ struct st_xmysqlnd_msg__capabilities_set
 
 struct st_xmysqlnd_on_auth_continue_bind
 {
-	enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * output);
+	const enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * output);
 	void * ctx;
 };
 
@@ -256,40 +256,40 @@ typedef enum_func_status (*func_xmysqlnd_wireprotocol__row_field_decoder)(const 
 
 struct st_xmysqlnd_on_row_field_bind
 {
-	enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING buffer, const unsigned int idx, const func_xmysqlnd_wireprotocol__row_field_decoder decoder);
+	const enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING buffer, const unsigned int idx, const func_xmysqlnd_wireprotocol__row_field_decoder decoder);
 	void * ctx;
 };
 
 struct st_xmysqlnd_on_meta_field_bind
 {
-	enum_hnd_func_status (*handler)(void * context, struct st_xmysqlnd_result_field_meta * field);
+	const enum_hnd_func_status (*handler)(void * context, struct st_xmysqlnd_result_field_meta * field);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_on_execution_state_change_bind
 {
-	enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value);
+	const enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_on_trx_state_change_bind
 {
-	enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_transaction_state_type type);
+	const enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_transaction_state_type type);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_on_stmt_execute_ok_bind
 {
-	enum_hnd_func_status (*handler)(void * context);
+	const enum_hnd_func_status (*handler)(void * context);
 	void * ctx;
 };
 
 struct st_xmysqlnd_on_resultset_end_bind
 {
-	enum_hnd_func_status (*handler)(void * context, const zend_bool has_more);
+	const enum_hnd_func_status (*handler)(void * context, const zend_bool has_more);
 	void * ctx;
 };
 

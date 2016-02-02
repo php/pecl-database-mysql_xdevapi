@@ -300,7 +300,7 @@ struct st_mysqlx_get_schemas_ctx
 
 
 /* {{{ get_schemas_handler_on_row */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 get_schemas_handler_on_row(void * context,
 						   XMYSQLND_NODE_SESSION * const session,
 						   XMYSQLND_NODE_STMT * const stmt,
@@ -332,7 +332,7 @@ get_schemas_handler_on_row(void * context,
 
 
 /* {{{ get_schemas_handler_on_error */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 get_schemas_handler_on_error(void * context,
 							 XMYSQLND_NODE_SESSION * const session,
 							 XMYSQLND_NODE_STMT * const stmt,
@@ -368,7 +368,7 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 	if ((session = object->session)) {
 		zval list;
 		struct st_mysqlx_get_schemas_ctx ctx = { session, &list };
-		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, &ctx };
+		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, NULL };
 		const struct st_xmysqlnd_node_session_on_row_bind on_row = { get_schemas_handler_on_row, &ctx };
 		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
 		const struct st_xmysqlnd_node_session_on_error_bind on_error = { get_schemas_handler_on_error, &ctx };
@@ -411,7 +411,6 @@ PHP_METHOD(mysqlx_node_session, getSchema)
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		}
-		
 	}
 
 	DBG_VOID_RETURN;

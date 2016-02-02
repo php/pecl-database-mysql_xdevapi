@@ -155,7 +155,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DA
 
 
 /* {{{ xmysqlnd_node_stmt::handler_on_warning */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	XMYSQLND_NODE_SESSION_DATA * session = (XMYSQLND_NODE_SESSION_DATA *) context;
@@ -185,7 +185,7 @@ static const char hexconvtab[] = "0123456789abcdef";
 
 
 /* {{{ xmysqlnd_node_stmt::handler_on_auth_continue */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * output)
 {
 	const MYSQLND_CSTRING salt = input;
@@ -1259,7 +1259,7 @@ struct st_xmysqlnd_query_cb_ctx
 
 
 /* {{{ query_cb_handler_on_result_start */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 query_cb_handler_on_result_start(void * context, XMYSQLND_NODE_STMT * const stmt)
 {
 	enum_hnd_func_status ret;
@@ -1275,7 +1275,7 @@ query_cb_handler_on_result_start(void * context, XMYSQLND_NODE_STMT * const stmt
 
 
 /* {{{ query_cb_handler_on_row */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 query_cb_handler_on_row(void * context,
 						XMYSQLND_NODE_STMT * const stmt,
 						const struct st_xmysqlnd_node_stmt_result_meta * const meta,
@@ -1296,7 +1296,7 @@ query_cb_handler_on_row(void * context,
 
 
 /* {{{ query_cb_handler_on_warning */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 query_cb_handler_on_warning(void * context,
 							XMYSQLND_NODE_STMT * const stmt,
 							const enum xmysqlnd_stmt_warning_level level,
@@ -1316,7 +1316,7 @@ query_cb_handler_on_warning(void * context,
 
 
 /* {{{ query_cb_handler_on_error */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 query_cb_handler_on_error(void * context,
 						  XMYSQLND_NODE_STMT * const stmt,
 						  const unsigned int code,
@@ -1336,7 +1336,7 @@ query_cb_handler_on_error(void * context,
 
 
 /* {{{ query_cb_handler_on_result_end */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 query_cb_handler_on_result_end(void * context, XMYSQLND_NODE_STMT * const stmt, const zend_bool has_more)
 {
 	enum_hnd_func_status ret;
@@ -1352,7 +1352,7 @@ query_cb_handler_on_result_end(void * context, XMYSQLND_NODE_STMT * const stmt, 
 
 
 /* {{{ query_cb_handler_on_statement_ok */
-static enum_hnd_func_status
+static const enum_hnd_func_status
 query_cb_handler_on_statement_ok(void * context, XMYSQLND_NODE_STMT * const stmt, const struct st_xmysqlnd_stmt_execution_state * const exec_state)
 {
 	enum_hnd_func_status ret;
@@ -1429,11 +1429,11 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 /* }}} */
 
 
-/* {{{ mysqlnx_node_sql_stmt_on_warning */
-static enum_hnd_func_status
+/* {{{ xmysqlnd_node_session_on_warning */
+static const enum_hnd_func_status
 xmysqlnd_node_session_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
-	DBG_ENTER("mysqlnx_node_sql_stmt_on_warning");
+	DBG_ENTER("xmysqlnd_node_session_on_warning");
 	php_error_docref(NULL, E_WARNING, "[%d] %*s", code, message.l, message.s);
 	DBG_RETURN(HND_AGAIN);
 }
