@@ -33,7 +33,7 @@
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 										  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-										  XMYSQLND_NODE_SESSION_DATA * const session,
+										  XMYSQLND_NODE_SESSION * const session,
 										  const MYSQLND_CSTRING query,
 										  MYSQLND_STATS * const stats,
 										  MYSQLND_ERROR_INFO * const error_info)
@@ -82,8 +82,8 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	const MYSQLND_CSTRING namespace_par = {"sql", sizeof("sql") - 1};
-	MYSQLND_VIO * vio = stmt->data->session->io.vio;
-	XMYSQLND_PFC * pfc = stmt->data->session->io.pfc;
+	MYSQLND_VIO * vio = stmt->data->session->data->io.vio;
+	XMYSQLND_PFC * pfc = stmt->data->session->data->io.pfc;
 	const XMYSQLND_L3_IO io = {vio, pfc};
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
 	enum_func_status ret;
@@ -834,7 +834,7 @@ PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_stmt);
 
 /* {{{ xmysqlnd_node_stmt_create */
 PHPAPI XMYSQLND_NODE_STMT *
-xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION_DATA * session,
+xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION * session,
 						  const MYSQLND_CSTRING query,
 						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -862,10 +862,10 @@ xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, 
 	DBG_INF_FMT("stmt=%p  stmt->data=%p  dtor=%p", stmt, stmt? stmt->data:NULL, stmt? stmt->data->m.dtor:NULL);
 	if (stmt) {
 		if (!stats) {
-			stats = stmt->data->session->stats;
+			stats = stmt->data->session->data->stats;
 		}
 		if (!error_info) {
-			error_info = stmt->data->session->error_info;
+			error_info = stmt->data->session->data->error_info;
 		}
 		stmt->data->m.free_reference(stmt, stats, error_info);
 	}

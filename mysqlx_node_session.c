@@ -126,7 +126,7 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_EXPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_EXPLICIT);
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt);
 		}
@@ -165,7 +165,7 @@ PHP_METHOD(mysqlx_node_session, executeSql)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * stmt = session->data->m->create_statement_object(session->data, query, MYSQLND_SEND_QUERY_EXPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_EXPLICIT);
 		if (stmt) {
 			zval stmt_zv;
 			ZVAL_UNDEF(&stmt_zv);
@@ -246,7 +246,7 @@ PHP_METHOD(mysqlx_node_session, getServerVersion)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		RETVAL_LONG(session->data->m->get_server_version(session->data));
+		RETVAL_LONG(session->m->get_server_version(session));
 	} else {
 		RETVAL_FALSE;
 	}
@@ -294,7 +294,6 @@ PHP_METHOD(mysqlx_node_session, __construct)
 
 struct st_mysqlx_get_schemas_ctx
 {
-	XMYSQLND_NODE_SESSION * session;
 	zval * list;
 };
 
@@ -317,7 +316,7 @@ get_schemas_handler_on_row(void * context,
 		}
 		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
 			const MYSQLND_CSTRING schema_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
-			XMYSQLND_NODE_SCHEMA * schema = session->data->m->create_schema_object(session->data, schema_name);
+			XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
 			if (schema) {
 				zval zv;
 				ZVAL_UNDEF(&zv);
@@ -340,10 +339,9 @@ get_schemas_handler_on_error(void * context,
 							 const MYSQLND_CSTRING sql_state,
 							 const MYSQLND_CSTRING message)
 {
-	const struct st_mysqlx_get_schemas_ctx * ctx = (const struct st_mysqlx_get_schemas_ctx *) context;
 	DBG_ENTER("get_schemas_handler_on_error");
-	if (ctx->session) {
-		ctx->session->data->m->handler_on_error(ctx->session->data, code, sql_state, message);
+	if (session) {
+		session->data->m->handler_on_error(session->data, code, sql_state, message);
 	}
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
@@ -366,8 +364,9 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if ((session = object->session)) {
+		const MYSQLND_CSTRING list_query = { "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
 		zval list;
-		struct st_mysqlx_get_schemas_ctx ctx = { session, &list };
+		struct st_mysqlx_get_schemas_ctx ctx = { &list };
 		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, NULL };
 		const struct st_xmysqlnd_node_session_on_row_bind on_row = { get_schemas_handler_on_row, &ctx };
 		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
@@ -377,13 +376,12 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 
 		ZVAL_UNDEF(&list);
 
-		if (PASS == object->session->m->query_cb(object->session, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+		if (PASS == session->m->query_cb(session, list_query, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
 		}
 	}
-
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -407,7 +405,7 @@ PHP_METHOD(mysqlx_node_session, getSchema)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if ((session = object->session)) {
-		XMYSQLND_NODE_SCHEMA * schema = session->data->m->create_schema_object(session->data, schema_name);
+		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		}
@@ -437,7 +435,7 @@ PHP_METHOD(mysqlx_node_session, createSchema)
 	RETVAL_FALSE;
 	if ((session = object->session)) {
 		if (PASS == session->m->create_db(session, schema_name)) {
-			XMYSQLND_NODE_SCHEMA * schema = session->data->m->create_schema_object(session->data, schema_name);
+			XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
 			if (schema) {
 				mysqlx_new_node_schema(return_value, schema);
 			}

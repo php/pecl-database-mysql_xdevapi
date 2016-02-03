@@ -86,7 +86,7 @@ PHP_METHOD(mysqlx_node_table, some)
 /* {{{ mysqlx_node_table_methods[] */
 static const zend_function_entry mysqlx_node_table_methods[] = {
 	PHP_ME(mysqlx_node_table, __construct,		NULL,									ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_table, some,			arginfo_mysqlx_node_table__some,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table, some,				arginfo_mysqlx_node_table__some,		ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

@@ -123,11 +123,11 @@ PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_table);
 /* {{{ xmysqlnd_node_table_create */
 PHPAPI XMYSQLND_NODE_TABLE *
 xmysqlnd_node_table_create(XMYSQLND_NODE_SCHEMA * schema,
-								const MYSQLND_CSTRING table_name,
-								const zend_bool persistent,
-								const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-								MYSQLND_STATS * const stats,
-								MYSQLND_ERROR_INFO * const error_info)
+						   const MYSQLND_CSTRING table_name,
+						   const zend_bool persistent,
+						   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+						   MYSQLND_STATS * const stats,
+						   MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_NODE_TABLE * ret = NULL;
 	DBG_ENTER("xmysqlnd_node_table_create");

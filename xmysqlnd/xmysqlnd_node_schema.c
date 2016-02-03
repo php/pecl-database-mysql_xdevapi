@@ -21,15 +21,16 @@
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_schema.h"
 #include "xmysqlnd_node_collection.h"
+#include "xmysqlnd_node_table.h"
+#include "xmysqlnd_node_schema.h"
 
 
 /* {{{ xmysqlnd_node_schema::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, init)(XMYSQLND_NODE_SCHEMA * const schema,
 											const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-											XMYSQLND_NODE_SESSION_DATA * const session,
+											XMYSQLND_NODE_SESSION * const session,
 											const MYSQLND_CSTRING schema_name,
 											MYSQLND_STATS * const stats,
 											MYSQLND_ERROR_INFO * const error_info)
@@ -50,14 +51,28 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, init)(XMYSQLND_NODE_SCHEMA * const schema,
 
 /* {{{ xmysqlnd_node_schema::create_collection_object */
 static XMYSQLND_NODE_COLLECTION *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name)
+XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name)
 {
 	XMYSQLND_NODE_COLLECTION * collection = NULL;
-	DBG_ENTER("xmysqlnd_node_session_data::create_collection_object");
+	DBG_ENTER("xmysqlnd_node_schema::create_collection_object");
 	DBG_INF_FMT("schema_name=%s", collection_name.s);
 
-	collection = xmysqlnd_node_collection_create(schema, collection_name, schema->persistent, schema->data->object_factory, schema->data->session->stats, schema->data->session->error_info);
+	collection = xmysqlnd_node_collection_create(schema, collection_name, schema->persistent, schema->data->object_factory, schema->data->session->data->stats, schema->data->session->data->error_info);
 	DBG_RETURN(collection);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_schema::create_table_object */
+static XMYSQLND_NODE_TABLE *
+XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name)
+{
+	XMYSQLND_NODE_TABLE * table = NULL;
+	DBG_ENTER("xmysqlnd_node_schema::create_table_object");
+	DBG_INF_FMT("schema_name=%s", table_name.s);
+
+	table = xmysqlnd_node_table_create(schema, table_name, schema->persistent, schema->data->object_factory, schema->data->session->data->stats, schema->data->session->data->error_info);
+	DBG_RETURN(table);
 }
 /* }}} */
 
@@ -124,7 +139,8 @@ static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_schema)
 	XMYSQLND_METHOD(xmysqlnd_node_schema, init),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, create_collection_object),
+	XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object),
+	XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object),
 
 	XMYSQLND_METHOD(xmysqlnd_node_schema, get_reference),
 	XMYSQLND_METHOD(xmysqlnd_node_schema, free_reference),
@@ -136,7 +152,7 @@ PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_schema);
 
 /* {{{ xmysqlnd_node_schema_create */
 PHPAPI XMYSQLND_NODE_SCHEMA *
-xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION_DATA * session,
+xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION * session,
 							const MYSQLND_CSTRING schema_name,
 							const zend_bool persistent,
 							const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -163,11 +179,11 @@ xmysqlnd_node_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * s
 	DBG_ENTER("xmysqlnd_node_schema_free");
 	DBG_INF_FMT("schema=%p  schema->data=%p  dtor=%p", schema, schema? schema->data:NULL, schema? schema->data->m.dtor:NULL);
 	if (schema) {
-		if (!stats) {
-			stats = schema->data->session->stats;
+		if (!stats && schema->data->session->data) {
+			stats = schema->data->session->data->stats;
 		}
-		if (!error_info) {
-			error_info = schema->data->session->error_info;
+		if (!error_info && schema->data->session->data) {
+			error_info = schema->data->session->data->error_info;
 		}
 		schema->data->m.free_reference(schema, stats, error_info);
 	}

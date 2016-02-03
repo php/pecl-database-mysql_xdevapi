@@ -37,7 +37,7 @@ typedef enum_func_status (*func_xmysqlnd_node_table__init)(
 			MYSQLND_STATS * const stats,
 			MYSQLND_ERROR_INFO * const error_info);
 
-typedef XMYSQLND_NODE_TABLE * (*func_xmysqlnd_node_table__get_reference)(XMYSQLND_NODE_TABLE * const table);
+typedef XMYSQLND_NODE_TABLE *	(*func_xmysqlnd_node_table__get_reference)(XMYSQLND_NODE_TABLE * const table);
 typedef enum_func_status		(*func_xmysqlnd_node_table__free_reference)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void					(*func_xmysqlnd_node_table__free_contents)(XMYSQLND_NODE_TABLE * const table);
 typedef void					(*func_xmysqlnd_node_table__dtor)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);

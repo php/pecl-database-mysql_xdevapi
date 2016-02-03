@@ -21,10 +21,13 @@
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
+#include <xmysqlnd/xmysqlnd_node_table.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_collection.h"
+#include "mysqlx_node_table.h"
 #include "mysqlx_node_schema.h"
 
 static zend_class_entry *mysqlx_node_schema_class_entry;
@@ -34,6 +37,19 @@ static zend_class_entry *mysqlx_node_schema_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_collection, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_collections, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_table, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_tables, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
@@ -88,10 +104,277 @@ PHP_METHOD(mysqlx_node_schema, getCollection)
 /* }}} */
 
 
+
+struct st_mysqlx_get_list_from_schema_ctx
+{
+	XMYSQLND_NODE_SCHEMA * schema;
+	zval * list;
+};
+
+
+/* {{{ get_collections_handler_on_row */
+static const enum_hnd_func_status
+get_collections_handler_on_row(void * context,
+							   XMYSQLND_NODE_SESSION * const session,
+							   XMYSQLND_NODE_STMT * const stmt,
+							   const struct st_xmysqlnd_node_stmt_result_meta * const meta,
+							   const zval * const row,
+							   MYSQLND_STATS * const stats,
+							   MYSQLND_ERROR_INFO * const error_info)
+{
+	const struct st_mysqlx_get_list_from_schema_ctx * ctx = (const struct st_mysqlx_get_list_from_schema_ctx *) context;
+	DBG_ENTER("get_collections_handler_on_row");
+	if (ctx && ctx->list && row) {
+		if (Z_TYPE_P(ctx->list) != IS_ARRAY) {
+			array_init(ctx->list);
+		}
+		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
+			const MYSQLND_CSTRING collection_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
+			XMYSQLND_NODE_SCHEMA * const schema = ctx->schema;
+			XMYSQLND_NODE_COLLECTION * collection = schema->data->m.create_collection_object(schema, collection_name);
+			if (collection) {
+				zval zv;
+				ZVAL_UNDEF(&zv);
+				mysqlx_new_node_collection(&zv, collection);
+				zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+			}
+		}
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ get_list_from_schema_handler_on_error */
+static const enum_hnd_func_status
+get_list_from_schema_handler_on_error(void * context,
+									  XMYSQLND_NODE_SESSION * const session,
+									  XMYSQLND_NODE_STMT * const stmt,
+									  const unsigned int code,
+									  const MYSQLND_CSTRING sql_state,
+									  const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("get_list_from_schema_handler_on_error");
+	if (session) {
+		session->data->m->handler_on_error(session->data, code, sql_state, message);
+	}
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
+struct st_mysqlx_get_collections_builder
+{
+	struct st_xmysqlnd_query_builder parent;
+	struct {
+		const char * format;
+		MYSQLND_CSTRING db;
+		XMYSQLND_NODE_SESSION * session;
+	} ext;
+};
+
+
+/* {{{ list_from_schema__create_query */
+static enum_func_status
+list_from_schema__create_query(struct st_xmysqlnd_query_builder * b)
+{
+	struct st_mysqlx_get_collections_builder * ctx = (struct st_mysqlx_get_collections_builder *) b;
+	XMYSQLND_NODE_SESSION_DATA * const session = ctx->ext.session->data; 
+	const MYSQLND_STRING quoted_db = session->m->quote_name(session, ctx->ext.db);
+
+	DBG_ENTER("list_from_schema__create_query");
+
+	b->query.l = spprintf(&b->query.s, 0, ctx->ext.format, quoted_db.l, quoted_db.s);
+
+	DBG_INF_FMT("query=%*s", b->query.l, b->query.s);
+	DBG_RETURN(b->query.s? PASS:FAIL);
+}
+/* }}} */
+
+
+/* {{{ list_from_schema__destroy_query */
+static void
+list_from_schema__destroy_query(struct st_xmysqlnd_query_builder * b)
+{
+	if (b->query.s) {
+		mnd_efree(b->query.s);
+		b->query.s = NULL;
+	}
+	b->query.l = 0;
+}
+/* }}} */
+
+
+/* {{{ mysqlx_node_session::getCollections() */
+static
+PHP_METHOD(mysqlx_node_schema, getCollections)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_schema * object;
+	XMYSQLND_NODE_SCHEMA * schema;
+
+	DBG_ENTER("mysqlx_node_schema::getCollections");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_schema_class_entry) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
+	RETVAL_FALSE;
+	if ((schema = object->schema)) {
+		XMYSQLND_NODE_SESSION * session = schema->data->session;
+		struct st_mysqlx_get_collections_builder query_builder = {
+			{
+				list_from_schema__create_query,
+				list_from_schema__destroy_query,
+				{ NULL, 0 }
+			},
+			{
+				"SHOW TABLES FROM %*s",
+				mnd_str2c(schema->data->schema_name),
+				session
+			}
+		};
+		zval list;
+		struct st_mysqlx_get_list_from_schema_ctx ctx = { schema, &list };
+		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_row_bind on_row = { get_collections_handler_on_row, &ctx };
+		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { get_list_from_schema_handler_on_error, &ctx };
+		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { NULL, NULL };
+
+		ZVAL_UNDEF(&list);
+
+		if (PASS == session->m->query_cb_ex(session, &query_builder.parent, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+			ZVAL_COPY_VALUE(return_value, &list);
+		} else {
+			zval_dtor(&list);
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_schema::getTable(string name) */
+static
+PHP_METHOD(mysqlx_node_schema, getTable)
+{
+	struct st_mysqlx_node_schema * object;
+	zval * object_zv;
+	MYSQLND_CSTRING table_name = { NULL, 0 };
+
+	DBG_ENTER("mysqlx_node_schema::getTable");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+												&object_zv, mysqlx_node_schema_class_entry,
+												&(table_name.s), &(table_name.l)))
+	{
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
+	RETVAL_FALSE;
+	if (table_name.s && table_name.l && object->schema) {
+		struct st_xmysqlnd_node_table * const table = object->schema->data->m.create_table_object(object->schema, table_name);
+		mysqlx_new_node_table(return_value, table);
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ get_tables_handler_on_row */
+static const enum_hnd_func_status
+get_tables_handler_on_row(void * context,
+						  XMYSQLND_NODE_SESSION * const session,
+						  XMYSQLND_NODE_STMT * const stmt,
+						  const struct st_xmysqlnd_node_stmt_result_meta * const meta,
+						  const zval * const row,
+						  MYSQLND_STATS * const stats,
+						  MYSQLND_ERROR_INFO * const error_info)
+{
+	const struct st_mysqlx_get_list_from_schema_ctx * ctx = (const struct st_mysqlx_get_list_from_schema_ctx *) context;
+	DBG_ENTER("get_tables_handler_on_row");
+	if (ctx && ctx->list && row) {
+		if (Z_TYPE_P(ctx->list) != IS_ARRAY) {
+			array_init(ctx->list);
+		}
+		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
+			const MYSQLND_CSTRING table_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
+			XMYSQLND_NODE_SCHEMA * const schema = ctx->schema;
+			XMYSQLND_NODE_TABLE * table = schema->data->m.create_table_object(schema, table_name);
+			if (table) {
+				zval zv;
+				ZVAL_UNDEF(&zv);
+				mysqlx_new_node_table(&zv, table);
+				zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+			}
+		}
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ mysqlx_node_session::getTables() */
+static
+PHP_METHOD(mysqlx_node_schema, getTables)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_schema * object;
+	XMYSQLND_NODE_SCHEMA * schema;
+
+	DBG_ENTER("mysqlx_node_schema::getTables");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_schema_class_entry) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
+	RETVAL_FALSE;
+	if ((schema = object->schema)) {
+		XMYSQLND_NODE_SESSION * session = schema->data->session;
+		struct st_mysqlx_get_collections_builder query_builder = {
+			{
+				list_from_schema__create_query,
+				list_from_schema__destroy_query,
+				{ NULL, 0 }
+			},
+			{
+				"SHOW TABLES FROM %*s",
+				mnd_str2c(schema->data->schema_name),
+				session
+			}
+		};
+		zval list;
+		struct st_mysqlx_get_list_from_schema_ctx ctx = { schema, &list };
+		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_row_bind on_row = { get_tables_handler_on_row, &ctx };
+		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { get_list_from_schema_handler_on_error, &ctx };
+		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { NULL, NULL };
+
+		ZVAL_UNDEF(&list);
+
+		if (PASS == session->m->query_cb_ex(session, &query_builder.parent, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+			ZVAL_COPY_VALUE(return_value, &list);
+		} else {
+			zval_dtor(&list);
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+
+
 /* {{{ mysqlx_node_schema_methods[] */
 static const zend_function_entry mysqlx_node_schema_methods[] = {
-	PHP_ME(mysqlx_node_schema, __construct,		NULL,										ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_schema, getCollection,	arginfo_mysqlx_node_schema__get_collection,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, __construct,		NULL,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_schema, getCollection,	arginfo_mysqlx_node_schema__get_collection,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, getCollections,	arginfo_mysqlx_node_schema__get_collections,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, getTable,		arginfo_mysqlx_node_schema__get_table,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, getTables,		arginfo_mysqlx_node_schema__get_tables,			ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

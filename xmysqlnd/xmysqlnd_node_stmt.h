@@ -21,7 +21,7 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_wireprotocol.h" /* struct st_xmysqlnd_msg__sql_stmt_execute */
 
-struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_warning_list;
@@ -75,7 +75,13 @@ struct st_xmysqlnd_node_stmt_on_statement_ok_bind
 };
 
 
-typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, struct st_xmysqlnd_node_session_data * const session, const MYSQLND_CSTRING query, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt,
+															 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+															 struct st_xmysqlnd_node_session * const session,
+															 const MYSQLND_CSTRING query,
+															 MYSQLND_STATS * const stats,
+															 MYSQLND_ERROR_INFO * const error_info);
+
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, zval * param_zv);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
@@ -175,7 +181,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 
 struct st_xmysqlnd_node_stmt_data
 {
-	struct st_xmysqlnd_node_session_data * session;
+	struct st_xmysqlnd_node_session * session;
 	zval * params;
 	unsigned int params_allocated;
 	MYSQLND_STRING query;
@@ -221,7 +227,7 @@ struct st_xmysqlnd_node_stmt
 
 
 PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt);
-PHPAPI XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(struct st_xmysqlnd_node_session_data * session,
+PHPAPI XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(struct st_xmysqlnd_node_session * session,
 													  const MYSQLND_CSTRING query,
 													  const zend_bool persistent,
 													  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
