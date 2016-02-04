@@ -239,7 +239,10 @@ PHP_METHOD(mysqlx_node_schema, getCollection)
 	RETVAL_FALSE;
 	if (collection_name.s && collection_name.l && object->schema) {
 		struct st_xmysqlnd_node_collection * const collection = object->schema->data->m.create_collection_object(object->schema, collection_name);
-		mysqlx_new_node_collection(return_value, collection);
+		mysqlx_new_node_collection(return_value, collection, FALSE);
+		if (Z_TYPE_P(return_value) != IS_OBJECT) {
+			xmysqlnd_node_collection_free(collection, NULL, NULL);		
+		}
 	}
 	DBG_VOID_RETURN;
 }
@@ -273,12 +276,17 @@ get_collections_handler_on_row(void * context,
 		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
 			const MYSQLND_CSTRING collection_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 			XMYSQLND_NODE_SCHEMA * const schema = ctx->schema;
-			XMYSQLND_NODE_COLLECTION * collection = schema->data->m.create_collection_object(schema, collection_name);
+			XMYSQLND_NODE_COLLECTION * const collection = schema->data->m.create_collection_object(schema, collection_name);
 			if (collection) {
 				zval zv;
 				ZVAL_UNDEF(&zv);
-				mysqlx_new_node_collection(&zv, collection);
-				zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+				mysqlx_new_node_collection(&zv, collection, FALSE);
+				if (Z_TYPE(zv) == IS_OBJECT) {
+					zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+				} else {
+					xmysqlnd_node_collection_free(collection, NULL, NULL);
+					zval_dtor(&zv);
+				}
 			}
 		}
 	}
@@ -363,7 +371,7 @@ PHP_METHOD(mysqlx_node_schema, getCollections)
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if ((schema = object->schema)) {
-		XMYSQLND_NODE_SESSION * session = schema->data->session;
+		XMYSQLND_NODE_SESSION * const session = schema->data->session;
 		struct st_mysqlx_get_collections_builder query_builder = {
 			{
 				list_from_schema__create_query,
@@ -417,7 +425,10 @@ PHP_METHOD(mysqlx_node_schema, getTable)
 	RETVAL_FALSE;
 	if (table_name.s && table_name.l && object->schema) {
 		struct st_xmysqlnd_node_table * const table = object->schema->data->m.create_table_object(object->schema, table_name);
-		mysqlx_new_node_table(return_value, table);
+		mysqlx_new_node_table(return_value, table, FALSE /* no clone */);
+		if (Z_TYPE_P(return_value) != IS_OBJECT) {
+			xmysqlnd_node_table_free(table, NULL, NULL);
+		}
 	}
 	DBG_VOID_RETURN;
 }
@@ -443,12 +454,17 @@ get_tables_handler_on_row(void * context,
 		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
 			const MYSQLND_CSTRING table_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 			XMYSQLND_NODE_SCHEMA * const schema = ctx->schema;
-			XMYSQLND_NODE_TABLE * table = schema->data->m.create_table_object(schema, table_name);
+			XMYSQLND_NODE_TABLE * const table = schema->data->m.create_table_object(schema, table_name);
 			if (table) {
 				zval zv;
 				ZVAL_UNDEF(&zv);
-				mysqlx_new_node_table(&zv, table);
-				zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+				mysqlx_new_node_table(&zv, table, FALSE);
+				if (Z_TYPE(zv) == IS_OBJECT) {
+					zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+				} else {			
+					xmysqlnd_node_table_free(table, NULL, NULL);
+					zval_dtor(&zv);
+				}
 			}
 		}
 	}
@@ -473,7 +489,7 @@ PHP_METHOD(mysqlx_node_schema, getTables)
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if ((schema = object->schema)) {
-		XMYSQLND_NODE_SESSION * session = schema->data->session;
+		XMYSQLND_NODE_SESSION * const session = schema->data->session;
 		struct st_mysqlx_get_collections_builder query_builder = {
 			{
 				list_from_schema__create_query,

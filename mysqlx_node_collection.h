@@ -19,7 +19,7 @@
 #define MYSQLX_NODE_COLLECTION_H
 
 struct st_xmysqlnd_node_collection;
-void mysqlx_new_node_collection(zval * return_value, struct st_xmysqlnd_node_collection * schema);
+void mysqlx_new_node_collection(zval * return_value, struct st_xmysqlnd_node_collection * schema, const zend_bool clone);
 void mysqlx_register_node_collection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS);
 

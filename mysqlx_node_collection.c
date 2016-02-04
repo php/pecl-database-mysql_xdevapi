@@ -356,7 +356,7 @@ mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_collection */
 void
-mysqlx_new_node_collection(zval * return_value, XMYSQLND_NODE_COLLECTION * collection)
+mysqlx_new_node_collection(zval * return_value, XMYSQLND_NODE_COLLECTION * collection, const zend_bool clone)
 {
 	DBG_ENTER("mysqlx_new_node_collection");
 
@@ -364,7 +364,7 @@ mysqlx_new_node_collection(zval * return_value, XMYSQLND_NODE_COLLECTION * colle
 		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
 		struct st_mysqlx_node_collection * const object = (struct st_mysqlx_node_collection *) mysqlx_object->ptr;
 		if (object) {
-			object->collection = collection;
+			object->collection = clone? collection->data->m.get_reference(collection) : collection;
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		}

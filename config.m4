@@ -50,6 +50,10 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
 						 mysqlx_node_session.c \
 						 mysqlx_node_collection.c \
 						 mysqlx_node_table.c \
+						 mysqlx_node_table__delete.c \
+						 mysqlx_node_table__insert.c \
+						 mysqlx_node_table__select.c \
+						 mysqlx_node_table__update.c \
 						 mysqlx_node_sql_statement.c \
 						 mysqlx_node_sql_statement_result.c \
 						 mysqlx_node_sql_statement_result_iterator.c \

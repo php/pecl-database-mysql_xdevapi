@@ -15,15 +15,15 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_TABLE_H
-#define MYSQLX_NODE_TABLE_H
+#ifndef MYSQLX_NODE_TABLE__SELECT_H
+#define MYSQLX_NODE_TABLE__SELECT_H
 
-struct st_xmysqlnd_node_table;
-void mysqlx_new_node_table(zval * return_value, struct st_xmysqlnd_node_table * schema, const zend_bool clone);
-void mysqlx_register_node_table_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_table_class(SHUTDOWN_FUNC_ARGS);
+struct st_xmysqlnd_node_table__select;
+void mysqlx_new_node_table__select(zval * return_value, struct st_xmysqlnd_node_table * schema, const zend_bool clone);
+void mysqlx_register_node_table__select_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_node_table__select_class(SHUTDOWN_FUNC_ARGS);
 
-#endif /* MYSQLX_NODE_TABLE_H */
+#endif /* MYSQLX_NODE_TABLE__SELECT_H */
 
 /*
  * Local variables:

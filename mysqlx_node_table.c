@@ -25,6 +25,10 @@
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_schema_object.h"
+#include "mysqlx_node_table__delete.h"
+#include "mysqlx_node_table__insert.h"
+#include "mysqlx_node_table__select.h"
+#include "mysqlx_node_table__update.h"
 #include "mysqlx_node_table.h"
 
 static zend_class_entry *mysqlx_node_table_class_entry;
@@ -32,8 +36,6 @@ static zend_class_entry *mysqlx_node_table_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__some, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
 
 /************************************** INHERITED START ****************************************/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__get_session, 0, ZEND_RETURN_VALUE, 0)
@@ -56,6 +58,21 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__get_schema, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 /************************************** INHERITED END   ****************************************/
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__insert, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
 
 
 struct st_mysqlx_node_table
@@ -230,6 +247,126 @@ PHP_METHOD(mysqlx_node_table, getSchema)
 /************************************** INHERITED END   ****************************************/
 
 
+/* {{{ proto mixed mysqlx_node_table::insert() */
+static
+PHP_METHOD(mysqlx_node_table, insert)
+{
+	struct st_mysqlx_node_table * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_table::insert");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_table_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->table) {
+		mysqlx_new_node_table__insert(return_value, object->table, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table::select() */
+static
+PHP_METHOD(mysqlx_node_table, select)
+{
+	struct st_mysqlx_node_table * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_table::select");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_table_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->table) {
+		mysqlx_new_node_table__select(return_value, object->table, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table::update() */
+static
+PHP_METHOD(mysqlx_node_table, update)
+{
+	struct st_mysqlx_node_table * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_table::update");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_table_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->table) {
+		mysqlx_new_node_table__update(return_value, object->table, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table::delete() */
+static
+PHP_METHOD(mysqlx_node_table, delete)
+{
+	struct st_mysqlx_node_table * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_table::delete");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_table_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->table) {
+		mysqlx_new_node_table__delete(return_value, object->table, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ mysqlx_node_table_methods[] */
 static const zend_function_entry mysqlx_node_table_methods[] = {
 	PHP_ME(mysqlx_node_table, __construct,		NULL,											ZEND_ACC_PRIVATE)
@@ -241,6 +378,12 @@ static const zend_function_entry mysqlx_node_table_methods[] = {
 
 	PHP_ME(mysqlx_node_table, getSchema,		arginfo_mysqlx_node_table__get_schema,			ZEND_ACC_PUBLIC)
 	/************************************** INHERITED END   ****************************************/
+
+	PHP_ME(mysqlx_node_table, insert, arginfo_mysqlx_node_table__insert, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table, select, arginfo_mysqlx_node_table__select, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table, update, arginfo_mysqlx_node_table__update, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table, delete, arginfo_mysqlx_node_table__delete, ZEND_ACC_PUBLIC)
+
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -359,7 +502,7 @@ mysqlx_unregister_node_table_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_table */
 void
-mysqlx_new_node_table(zval * return_value, XMYSQLND_NODE_TABLE * table)
+mysqlx_new_node_table(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone)
 {
 	DBG_ENTER("mysqlx_new_node_table");
 
@@ -367,7 +510,7 @@ mysqlx_new_node_table(zval * return_value, XMYSQLND_NODE_TABLE * table)
 		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
 		struct st_mysqlx_node_table * const object = (struct st_mysqlx_node_table *) mysqlx_object->ptr;
 		if (object) {
-			object->table = table;
+			object->table = clone? table->data->m.get_reference(table) : table;
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
