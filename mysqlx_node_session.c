@@ -87,7 +87,7 @@ struct st_mysqlx_node_session
 
 #define MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_session *) mysqlx_object->ptr; \
 	if (!(_to) && !(_to)->session) { \
 		if ((_to)->closed) { \
@@ -126,7 +126,7 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_EXPLICIT);
+		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_EXPLICIT);
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt);
 		}
@@ -157,9 +157,9 @@ PHP_METHOD(mysqlx_node_session, executeSql)
 		DBG_VOID_RETURN;
 	}
 
+	RETVAL_FALSE;
 	if (!query.l) {
 		php_error_docref(NULL, E_WARNING, "Empty query");
-		RETVAL_FALSE;
 		DBG_VOID_RETURN;
 	}
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
@@ -222,6 +222,8 @@ PHP_METHOD(mysqlx_node_session, quoteName)
 		if (quoted_name.s) {
 			mnd_efree(quoted_name.s);
 		}
+	} else {
+		RETVAL_FALSE;
 	}
 
 	DBG_VOID_RETURN;
@@ -403,12 +405,13 @@ PHP_METHOD(mysqlx_node_session, getSchema)
 	}
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
 	if ((session = object->session)) {
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		}
+	} else {
+		RETVAL_FALSE;
 	}
 
 	DBG_VOID_RETURN;
@@ -432,7 +435,6 @@ PHP_METHOD(mysqlx_node_session, createSchema)
 	}
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
 	if ((session = object->session)) {
 		if (PASS == session->m->create_db(session, schema_name)) {
 			XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
@@ -440,6 +442,8 @@ PHP_METHOD(mysqlx_node_session, createSchema)
 				mysqlx_new_node_schema(return_value, schema);
 			}
 		}
+	} else {
+		RETVAL_FALSE;
 	}
 
 	DBG_VOID_RETURN;
@@ -483,12 +487,13 @@ PHP_METHOD(mysqlx_node_session, close)
 	}
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
 	if ((session = object->session)) {
 		session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
 		object->session = NULL;
 		object->closed = TRUE;
 		RETVAL_TRUE;
+	} else {
+		RETVAL_FALSE;
 	}
 
 	DBG_VOID_RETURN;
@@ -655,7 +660,6 @@ PHP_FUNCTION(mysqlx__getNodeSession)
 		port = 33060;
 	}
 
-	RETVAL_FALSE;
 	if (PASS == mysqlx_new_node_session(return_value)) {
 		struct st_mysqlx_node_session * object;
 		XMYSQLND_NODE_SESSION * new_session;
@@ -663,7 +667,6 @@ PHP_FUNCTION(mysqlx__getNodeSession)
 
 		new_session = xmysqlnd_node_session_connect(object->session, hostname, username, password,
 													empty /*db*/, empty /*s_or_p*/, port, set_capabilities, client_api_flags);
-
 		if (object->session != new_session) {
 			php_error_docref(NULL, E_WARNING, "Different object returned");
 			if (object->session) {
@@ -671,6 +674,8 @@ PHP_FUNCTION(mysqlx__getNodeSession)
 			}
 			object->session = new_session;
 		}
+	} else {
+		RETVAL_FALSE;
 	}
 	DBG_VOID_RETURN;
 }

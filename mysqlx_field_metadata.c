@@ -40,7 +40,7 @@ struct st_mysqlx_field_metadata
 
 #define MYSQLX_FETCH__FIELD_METADATA_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_field_metadata *) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
@@ -355,11 +355,20 @@ mysqlx_unregister_field_metadata_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_field_metadata(zval * return_value, const XMYSQLND_RESULT_FIELD_META * const field_meta)
 {
-	struct st_mysqlx_field_metadata * obj;
 	DBG_ENTER("mysqlx_new_field_metadata");
 	object_init_ex(return_value, mysqlx_field_metadata_class_entry);
-	MYSQLX_FETCH__FIELD_METADATA_FROM_ZVAL(obj, return_value);
-	obj->field_meta = field_meta->m->clone(field_meta, NULL, NULL);;
+
+	if (SUCCESS == object_init_ex(return_value, mysqlx_field_metadata_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
+		struct st_mysqlx_field_metadata * const object = (struct st_mysqlx_field_metadata *) mysqlx_object->ptr;
+		if (object) {
+			object->field_meta = field_meta->m->clone(field_meta, NULL, NULL);
+		} else {
+			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+			zval_ptr_dtor(return_value);
+			ZVAL_NULL(return_value);
+		}
+	}
 	DBG_VOID_RETURN;
 }
 /* }}} */

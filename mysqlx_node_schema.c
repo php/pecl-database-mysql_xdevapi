@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -26,6 +27,7 @@
 #include <xmysqlnd/xmysqlnd_node_table.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_database_object.h"
 #include "mysqlx_node_collection.h"
 #include "mysqlx_node_table.h"
 #include "mysqlx_node_schema.h"
@@ -34,6 +36,28 @@ static zend_class_entry *mysqlx_node_schema_class_entry;
 
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
+
+/************************************** INHERITED START ****************************************/
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_session, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_name, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__exists_in_database, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__drop, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema_object__get_schema, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+/************************************** INHERITED END   ****************************************/
+
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_collection, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
@@ -62,7 +86,7 @@ struct st_mysqlx_node_schema
 
 #define MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_schema *) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->schema) { \
 		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
@@ -76,6 +100,124 @@ PHP_METHOD(mysqlx_node_schema, __construct)
 {
 }
 /* }}} */
+
+
+/************************************** INHERITED START ****************************************/
+/* {{{ proto mixed mysqlx_node_schema::getSession() */
+static
+PHP_METHOD(mysqlx_node_schema, getSession)
+{
+	struct st_mysqlx_node_schema * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_schema::getSession");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_schema_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->schema) {
+
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_schema::getName() */
+static
+PHP_METHOD(mysqlx_node_schema, getName)
+{
+	struct st_mysqlx_node_schema * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_schema::getName");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_schema_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->schema) {
+		RETVAL_STRINGL(object->schema->data->schema_name.s, object->schema->data->schema_name.l);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_schema::existsInDatabase() */
+static
+PHP_METHOD(mysqlx_node_schema, existsInDatabase)
+{
+	struct st_mysqlx_node_schema * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_schema::existsInDatabase");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+												&object_zv, mysqlx_node_schema_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->schema) {
+
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_schema::drop() */
+static
+PHP_METHOD(mysqlx_node_schema, drop)
+{
+	struct st_mysqlx_node_schema * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_schema::existsInDatabase");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+												&object_zv, mysqlx_node_schema_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->schema) {
+
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+/************************************** INHERITED END   ****************************************/
+
 
 
 /* {{{ proto mixed mysqlx_node_schema::getCollection(string name) */
@@ -366,11 +508,15 @@ PHP_METHOD(mysqlx_node_schema, getTables)
 /* }}} */
 
 
-
-
 /* {{{ mysqlx_node_schema_methods[] */
 static const zend_function_entry mysqlx_node_schema_methods[] = {
 	PHP_ME(mysqlx_node_schema, __construct,		NULL,											ZEND_ACC_PRIVATE)
+	/************************************** INHERITED START ****************************************/
+	PHP_ME(mysqlx_node_schema, getSession,		arginfo_mysqlx_node_schema__get_session,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, getName,			arginfo_mysqlx_node_schema__get_name,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, existsInDatabase,arginfo_mysqlx_node_schema__exists_in_database,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, drop,			arginfo_mysqlx_node_schema__drop,				ZEND_ACC_PUBLIC)
+	/************************************** INHERITED END   ****************************************/
 	PHP_ME(mysqlx_node_schema, getCollection,	arginfo_mysqlx_node_schema__get_collection,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_schema, getCollections,	arginfo_mysqlx_node_schema__get_collections,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_schema, getTable,		arginfo_mysqlx_node_schema__get_table,			ZEND_ACC_PUBLIC)
@@ -468,6 +614,7 @@ mysqlx_register_node_schema_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_
 		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSchema", mysqlx_node_schema_methods);
 		tmp_ce.create_object = php_mysqlx_node_schema_object_allocator;
 		mysqlx_node_schema_class_entry = zend_register_internal_class(&tmp_ce);
+		zend_class_implements(mysqlx_node_schema_class_entry, 1, mysqlx_database_object_interface_entry);
 	}
 
 	zend_hash_init(&mysqlx_node_schema_properties, 0, NULL, mysqlx_free_property_cb, 1);
@@ -494,20 +641,17 @@ mysqlx_unregister_node_schema_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_schema(zval * return_value, XMYSQLND_NODE_SCHEMA * schema)
 {
-	struct st_mysqlx_object * mysqlx_object;
-	struct st_mysqlx_node_schema * object = NULL;
 	DBG_ENTER("mysqlx_new_node_schema");
 
-	object_init_ex(return_value, mysqlx_node_schema_class_entry);
-
-	mysqlx_object = Z_MYSQLX_P(return_value);
-	object = (struct st_mysqlx_node_schema *) mysqlx_object->ptr;
-	if (!object) {
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-		DBG_VOID_RETURN;
+	if (SUCCESS == object_init_ex(return_value, mysqlx_node_schema_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
+		struct st_mysqlx_node_schema * const object = (struct st_mysqlx_node_schema *) mysqlx_object->ptr;
+		if (object) {
+			object->schema = schema;
+		} else {
+			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+		}
 	}
-
-	object->schema = schema;
 
 	DBG_VOID_RETURN;
 }

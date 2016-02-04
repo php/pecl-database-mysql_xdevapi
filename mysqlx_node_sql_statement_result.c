@@ -56,7 +56,7 @@ ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_sql_statement_result *) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
@@ -407,13 +407,19 @@ mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_sql_stmt_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
 {
-	struct st_mysqlx_node_sql_statement_result * object = NULL;
 	DBG_ENTER("mysqlx_new_sql_stmt_result");
 
-	object_init_ex(return_value, mysqlx_node_sql_statement_result_class_entry);
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, return_value);
-
-	object->result = result;
+	if (SUCCESS == object_init_ex(return_value, mysqlx_node_sql_statement_result_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
+		struct st_mysqlx_node_sql_statement_result * const object = (struct st_mysqlx_node_sql_statement_result *) mysqlx_object->ptr;
+		if (object) {
+			object->result = result;
+		} else {
+			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			zval_ptr_dtor(return_value);
+			ZVAL_NULL(return_value);
+		}
+	}
 
 	DBG_VOID_RETURN;
 }

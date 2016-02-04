@@ -42,7 +42,7 @@ struct st_mysqlx_execution_status
 
 #define MYSQLX_FETCH__EXECUTION_STATUS_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_execution_status *) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
@@ -221,15 +221,22 @@ mysqlx_unregister_execution_status_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_execution_status(zval * return_value, const XMYSQLND_STMT_EXECUTION_STATE * const status)
 {
-	struct st_mysqlx_execution_status * obj;
 	DBG_ENTER("mysqlx_new_execution_status");
-	object_init_ex(return_value, mysqlx_execution_status_class_entry);
-	MYSQLX_FETCH__EXECUTION_STATUS_FROM_ZVAL(obj, return_value);
 
-	obj->items_affected = status->m->get_affected_items_count(status);
-	obj->items_matched = status->m->get_matched_items_count(status);
-	obj->items_found = status->m->get_found_items_count(status);
-	obj->last_insert_id = status->m->get_last_insert_id(status);
+	if (SUCCESS == object_init_ex(return_value, mysqlx_execution_status_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
+		struct st_mysqlx_execution_status * const object = (struct st_mysqlx_execution_status *) mysqlx_object->ptr;
+		if (object) {
+			object->items_affected = status->m->get_affected_items_count(status);
+			object->items_matched = status->m->get_matched_items_count(status);
+			object->items_found = status->m->get_found_items_count(status);
+			object->last_insert_id = status->m->get_last_insert_id(status);
+		} else {
+			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			zval_ptr_dtor(return_value);
+			ZVAL_NULL(return_value);
+		}
+	}
 
 	DBG_VOID_RETURN;
 }

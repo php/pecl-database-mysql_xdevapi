@@ -70,7 +70,7 @@ struct st_mysqlx_node_sql_statement
 
 #define MYSQLX_FETCH_NODE_SQL_STATEMENT_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_sql_statement *) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->stmt) { \
 		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
@@ -799,25 +799,24 @@ mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_sql_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt)
 {
-	struct st_mysqlx_object * mysqlx_object;
-	struct st_mysqlx_node_sql_statement * object = NULL;
 	DBG_ENTER("mysqlx_new_sql_stmt");
 
-	object_init_ex(return_value, mysqlx_node_sql_statement_class_entry);
-
-	mysqlx_object = Z_MYSQLX_P(return_value);
-	object = (struct st_mysqlx_node_sql_statement *) mysqlx_object->ptr;
-	if (!object) {
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-		DBG_VOID_RETURN;
+	if (SUCCESS == object_init_ex(return_value, mysqlx_node_sql_statement_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
+		struct st_mysqlx_node_sql_statement * object = (struct st_mysqlx_node_sql_statement *) mysqlx_object->ptr;
+		if (object) {
+			object->stmt = stmt;
+			object->execute_flags = 0;
+			object->send_query_status = FAIL;
+			object->in_execution = FALSE;
+			object->has_more_results = FALSE;
+			object->has_more_rows_in_set = FALSE;
+		} else {
+			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			zval_ptr_dtor(return_value);
+			ZVAL_NULL(return_value);
+		}
 	}
-
-	object->stmt = stmt;
-	object->execute_flags = 0;
-	object->send_query_status = FAIL;
-	object->in_execution = FALSE;
-	object->has_more_results = FALSE;
-	object->has_more_rows_in_set = FALSE;
 
 	DBG_VOID_RETURN;
 }

@@ -39,7 +39,7 @@ struct st_mysqlx_warning
 
 #define MYSQLX_FETCH_WARNING_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_warning *) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
@@ -221,13 +221,20 @@ mysqlx_unregister_warning_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int level, const unsigned int code)
 {
-	struct st_mysqlx_warning * object;
 	DBG_ENTER("mysqlx_new_warning");
-	object_init_ex(return_value, mysqlx_warning_class_entry);
-	MYSQLX_FETCH_WARNING_FROM_ZVAL(object, return_value);
-	object->msg = mnd_dup_cstring(msg, object->persistent);
-	object->level = level;
-	object->code = code;
+	if (SUCCESS == object_init_ex(return_value, mysqlx_warning_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
+		struct st_mysqlx_warning * const object = (struct st_mysqlx_warning *) mysqlx_object->ptr;
+		if (object) {
+			object->msg = mnd_dup_cstring(msg, object->persistent);
+			object->level = level;
+			object->code = code;
+		} else {
+			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			zval_ptr_dtor(return_value);
+			ZVAL_NULL(return_value);
+		}
+	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
