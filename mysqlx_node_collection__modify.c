@@ -24,6 +24,7 @@
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_executable.h"
 #include "mysqlx_node_collection__modify.h"
 
 static zend_class_entry *mysqlx_node_collection__modify_class_entry;
@@ -196,6 +197,7 @@ mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS, zend_object_handle
 		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeCollectionModify", mysqlx_node_collection__modify_methods);
 		tmp_ce.create_object = php_mysqlx_node_collection__modify_object_allocator;
 		mysqlx_node_collection__modify_class_entry = zend_register_internal_class(&tmp_ce);
+		zend_class_implements(mysqlx_node_collection__modify_class_entry, 1, mysqlx_executable_interface_entry);
 	}
 
 	zend_hash_init(&mysqlx_node_collection__modify_properties, 0, NULL, mysqlx_free_property_cb, 1);

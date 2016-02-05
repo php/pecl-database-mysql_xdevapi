@@ -48,6 +48,7 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
 						 mysqlx_class_properties.c \
 						 mysqlx_database_object.c \
 						 mysqlx_driver.c \
+						 mysqlx_executable.c \
 						 mysqlx_exception.c \
 						 mysqlx_execution_status.c \
 						 mysqlx_field_metadata.c \
