@@ -28,6 +28,10 @@
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_collection.h"
+#include "mysqlx_node_collection__add.h"
+#include "mysqlx_node_collection__find.h"
+#include "mysqlx_node_collection__modify.h"
+#include "mysqlx_node_collection__remove.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_table.h"
@@ -42,8 +46,12 @@
 
 #ifdef MYSQLX_MESSAGE_CLASSES
 
-#include "mysqlx_node_connection.h"
-#include "mysqlx_node_pfc.h"
+#include "messages/mysqlx_node_connection.h"
+#include "messages/mysqlx_node_pfc.h"
+
+#include "messages/mysqlx_resultset__column_metadata.h"
+#include "messages/mysqlx_resultset__resultset_metadata.h"
+#include "messages/mysqlx_resultset__data_row.h"
 
 #include "messages/mysqlx_message__ok.h"
 #include "messages/mysqlx_message__error.h"
@@ -56,9 +64,6 @@
 #include "messages/mysqlx_message__capabilities.h"
 #include "messages/mysqlx_message__stmt_execute.h"
 #include "messages/mysqlx_message__stmt_execute_ok.h"
-#include "mysqlx_resultset__column_metadata.h"
-#include "mysqlx_resultset__resultset_metadata.h"
-#include "mysqlx_resultset__data_row.h"
 #include "messages/mysqlx_message__data_fetch_done.h"
 
 #endif
@@ -96,6 +101,10 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_node_schema_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_collection_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 

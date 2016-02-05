@@ -25,12 +25,17 @@
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_schema_object.h"
+#include "mysqlx_node_collection__add.h"
+#include "mysqlx_node_collection__find.h"
+#include "mysqlx_node_collection__modify.h"
+#include "mysqlx_node_collection__remove.h"
 #include "mysqlx_node_collection.h"
 
 static zend_class_entry *mysqlx_node_collection_class_entry;
 
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
+
 
 /************************************** INHERITED START ****************************************/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__get_session, 0, ZEND_RETURN_VALUE, 0)
@@ -54,6 +59,20 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__get_schema, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 /************************************** INHERITED END   ****************************************/
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
 
 
 struct st_mysqlx_node_collection
@@ -71,6 +90,7 @@ struct st_mysqlx_node_collection
 		DBG_VOID_RETURN; \
 	} \
 } \
+
 
 /* {{{ mysqlx_node_collection::__construct */
 static
@@ -227,6 +247,126 @@ PHP_METHOD(mysqlx_node_collection, getSchema)
 /************************************** INHERITED END   ****************************************/
 
 
+/* {{{ proto mixed mysqlx_node_collection::add() */
+static
+PHP_METHOD(mysqlx_node_collection, add)
+{
+	struct st_mysqlx_node_collection * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_collection::add");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_collection_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->collection) {
+		mysqlx_new_node_collection__add(return_value, object->collection, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection::find() */
+static
+PHP_METHOD(mysqlx_node_collection, find)
+{
+	struct st_mysqlx_node_collection * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_collection::find");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_collection_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->collection) {
+		mysqlx_new_node_collection__find(return_value, object->collection, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection::modify() */
+static
+PHP_METHOD(mysqlx_node_collection, modify)
+{
+	struct st_mysqlx_node_collection * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_collection::modify");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_collection_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->collection) {
+		mysqlx_new_node_collection__modify(return_value, object->collection, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection::remove() */
+static
+PHP_METHOD(mysqlx_node_collection, remove)
+{
+	struct st_mysqlx_node_collection * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_collection::remove");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_collection_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+
+	if (object->collection) {
+		mysqlx_new_node_collection__remove(return_value, object->collection, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ mysqlx_node_collection_methods[] */
 static const zend_function_entry mysqlx_node_collection_methods[] = {
 	PHP_ME(mysqlx_node_collection, __construct,		NULL,												ZEND_ACC_PRIVATE)
@@ -238,6 +378,12 @@ static const zend_function_entry mysqlx_node_collection_methods[] = {
 
 	PHP_ME(mysqlx_node_collection, getSchema,		arginfo_mysqlx_node_collection__get_schema,			ZEND_ACC_PUBLIC)
 	/************************************** INHERITED END   ****************************************/
+
+	PHP_ME(mysqlx_node_collection, add, 	arginfo_mysqlx_node_collection__add,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection, find, 	arginfo_mysqlx_node_collection__find,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection, modify,	arginfo_mysqlx_node_collection__modify, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection, remove,	arginfo_mysqlx_node_collection__remove,	ZEND_ACC_PUBLIC)
+
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -367,6 +513,8 @@ mysqlx_new_node_collection(zval * return_value, XMYSQLND_NODE_COLLECTION * colle
 			object->collection = clone? collection->data->m.get_reference(collection) : collection;
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			zval_ptr_dtor(return_value);
+			ZVAL_NULL(return_value);
 		}
 	}
 

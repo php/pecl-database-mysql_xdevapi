@@ -298,8 +298,8 @@ xmysqlnd_server_message_type_is_valid(const zend_uchar type)
 /* }}} */
 
 
-#include "mysqlx_node_connection.h"
-#include "mysqlx_node_pfc.h"
+#include "messages/mysqlx_node_connection.h"
+#include "messages/mysqlx_node_pfc.h"
 
 /* {{{ xmysqlnd_send_protobuf_message */
 static size_t
@@ -1237,7 +1237,7 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 /* }}} */
 
 
-#include "mysqlx_resultset__column_metadata.h"
+#include "messages/mysqlx_resultset__column_metadata.h"
 
 /* {{{ stmt_execute_on_COLUMN_META */
 static enum_hnd_func_status
@@ -1321,7 +1321,7 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 }
 /* }}} */
 
-#include "mysqlx_resultset__data_row.h"
+#include "messages/mysqlx_resultset__data_row.h"
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <ext/mysqlnd/mysql_float_to_double.h>

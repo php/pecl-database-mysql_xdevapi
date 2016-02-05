@@ -15,14 +15,14 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_TABLE__INSERT_H
-#define MYSQLX_NODE_TABLE__INSERT_H
+#ifndef MYSQLX_NODE_COLLECTION__REMOVE_H
+#define MYSQLX_NODE_COLLECTION__REMOVE_H
 
-void mysqlx_new_node_table__insert(zval * return_value, struct st_xmysqlnd_node_table * schema, const zend_bool clone);
-void mysqlx_register_node_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_table__insert_class(SHUTDOWN_FUNC_ARGS);
+void mysqlx_new_node_collection__remove(zval * return_value, struct st_xmysqlnd_node_collection * schema, const zend_bool clone);
+void mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS);
 
-#endif /* MYSQLX_NODE_TABLE__INSERT_H */
+#endif /* MYSQLX_NODE_COLLECTION__REMOVE_H */
 
 /*
  * Local variables:

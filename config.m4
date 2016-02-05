@@ -21,7 +21,14 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
   if test "$PHP_MYSQLX_MESSAGE_CLASSES" != "no" || test "$PHP_MYSQLX_MESSAGE_CLASSES_ENABLED" = "yes"; then
     AC_DEFINE([MYSQLX_MESSAGE_CLASSES], 1, [Enable message classes])
 
-	mysqlx_messages="   messages/mysqlx_message__error.cc \
+	mysqlx_messages="   messages/mysqlx_node_connection.c \
+						messages/mysqlx_node_pfc.c \
+													\
+						messages/mysqlx_resultset__column_metadata.cc \
+						messages/mysqlx_resultset__resultset_metadata.cc \
+						messages/mysqlx_resultset__data_row.cc \
+																\
+						messages/mysqlx_message__error.cc \
 						messages/mysqlx_message__ok.cc \
 						messages/mysqlx_message__auth_start.cc \
 						messages/mysqlx_message__auth_continue.cc \
@@ -44,11 +51,13 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
 						 mysqlx_exception.c \
 						 mysqlx_execution_status.c \
 						 mysqlx_field_metadata.c \
-						 mysqlx_node_connection.c \
-						 mysqlx_node_pfc.c \
 						 mysqlx_node_schema.c \
 						 mysqlx_node_session.c \
 						 mysqlx_node_collection.c \
+						 mysqlx_node_collection__add.c \
+						 mysqlx_node_collection__find.c \
+						 mysqlx_node_collection__modify.c \
+						 mysqlx_node_collection__remove.c \
 						 mysqlx_node_table.c \
 						 mysqlx_node_table__delete.c \
 						 mysqlx_node_table__insert.c \
@@ -61,9 +70,6 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
 						 mysqlx_session.c \
 						 mysqlx_schema_object.c \
 						 mysqlx_warning.c \
-						 mysqlx_resultset__column_metadata.cc \
-						 mysqlx_resultset__resultset_metadata.cc \
-						 mysqlx_resultset__data_row.cc \
 					"
 
 

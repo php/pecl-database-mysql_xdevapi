@@ -150,7 +150,7 @@ PHP_METHOD(mysqlx_node_table, getName)
 	if (object->table) {
 		RETVAL_STRINGL(object->table->data->table_name.s, object->table->data->table_name.l);
 	} else {
-		RETVAL_FALSE;	
+		RETVAL_FALSE;
 	}
 
 	DBG_VOID_RETURN;
