@@ -282,7 +282,10 @@ get_collections_handler_on_row(void * context,
 				ZVAL_UNDEF(&zv);
 				mysqlx_new_node_collection(&zv, collection, FALSE);
 				if (Z_TYPE(zv) == IS_OBJECT) {
+					add_assoc_zval_ex(ctx->list, collection_name.s, collection_name.l, &zv);
+#if 0
 					zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+#endif
 				} else {
 					xmysqlnd_node_collection_free(collection, NULL, NULL);
 					zval_dtor(&zv);
@@ -460,7 +463,10 @@ get_tables_handler_on_row(void * context,
 				ZVAL_UNDEF(&zv);
 				mysqlx_new_node_table(&zv, table, FALSE);
 				if (Z_TYPE(zv) == IS_OBJECT) {
+					add_assoc_zval_ex(ctx->list, table_name.s, table_name.l, &zv);
+#if 0
 					zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+#endif
 				} else {			
 					xmysqlnd_node_table_free(table, NULL, NULL);
 					zval_dtor(&zv);
