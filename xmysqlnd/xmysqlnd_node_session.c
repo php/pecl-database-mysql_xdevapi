@@ -1331,6 +1331,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
 		}
 	}
+	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */

@@ -225,6 +225,7 @@ PHP_METHOD(mysqlx_node_schema, drop)
 }
 /* }}} */
 /************************************** INHERITED END   ****************************************/
+
 /* {{{ mysqlx_node_schema_on_error */
 static const enum_hnd_func_status
 mysqlx_node_schema_on_error(void * context, const XMYSQLND_NODE_SCHEMA * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
@@ -253,15 +254,17 @@ PHP_METHOD(mysqlx_node_schema, createCollection)
 	}
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if (collection_name.s && collection_name.l && object->schema) {
+	 if (collection_name.s && collection_name.l && object->schema) {
 		const struct st_xmysqlnd_node_schema_on_error_bind on_error = { mysqlx_node_schema_on_error, NULL };
 
 		struct st_xmysqlnd_node_collection * const collection = object->schema->data->m.create_collection(object->schema, collection_name, on_error);
+		DBG_INF_FMT("collection=%p", collection);
 		if (collection) {
 			mysqlx_new_node_collection(return_value, collection, FALSE);
+			DBG_INF_FMT("type=%d", Z_TYPE_P(return_value));
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
+				DBG_ERR("Something is wrong");
 				xmysqlnd_node_collection_free(collection, NULL, NULL);
-
 			}
 		}
 	}

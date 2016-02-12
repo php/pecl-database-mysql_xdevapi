@@ -22,8 +22,10 @@
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
+#include <xmysqlnd/xmysqlnd_node_schema.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_schema_object.h"
 #include "mysqlx_node_collection__add.h"
 #include "mysqlx_node_collection__find.h"
@@ -187,6 +189,17 @@ PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 /* }}} */
 
 
+/* {{{ mysqlx_node_schema_on_error */
+static const enum_hnd_func_status
+mysqlx_node_schema_on_error(void * context, const XMYSQLND_NODE_SCHEMA * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("mysqlx_node_schema_on_error");
+	mysqlx_new_exception(code, sql_state, message);
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_collection::drop() */
 static
 PHP_METHOD(mysqlx_node_collection, drop)
@@ -205,10 +218,12 @@ PHP_METHOD(mysqlx_node_collection, drop)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
 	if (object->collection) {
+		XMYSQLND_NODE_SCHEMA * schema = object->collection->data->schema;
+		const MYSQLND_CSTRING collection_name = mnd_str2c(object->collection->data->collection_name);
+		const struct st_xmysqlnd_node_schema_on_error_bind on_error = { mysqlx_node_schema_on_error, NULL };
 
+		RETVAL_BOOL(schema && PASS == schema->data->m.drop_collection(schema, collection_name, on_error));
 	}
 
 	DBG_VOID_RETURN;

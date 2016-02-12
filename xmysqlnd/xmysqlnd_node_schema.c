@@ -71,24 +71,24 @@ struct st_create_collection_handler_ctx
 	const struct st_xmysqlnd_node_schema_on_error_bind on_error;
 };
 
-/* {{{ create_collection_handler_on_error */
+/* {{{ collection_op_handler_on_error */
 static const enum_hnd_func_status
-create_collection_handler_on_error(void * context,
-								   XMYSQLND_NODE_SESSION * const session,
-								   XMYSQLND_NODE_STMT * const stmt,
-								   const unsigned int code,
-								   const MYSQLND_CSTRING sql_state,
-								   const MYSQLND_CSTRING message)
+collection_op_handler_on_error(void * context,
+							   XMYSQLND_NODE_SESSION * const session,
+							   XMYSQLND_NODE_STMT * const stmt,
+							   const unsigned int code,
+							   const MYSQLND_CSTRING sql_state,
+							   const MYSQLND_CSTRING message)
 {
 	struct st_create_collection_handler_ctx * ctx = (struct st_create_collection_handler_ctx *) context;
-	DBG_ENTER("create_collection_handler_on_error");
+	DBG_ENTER("collection_op_handler_on_error");
 	ctx->on_error.handler(ctx->on_error.ctx, ctx->schema, code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
 
 
-struct st_create_collection_var_binder_ctx
+struct st_collection_op_var_binder_ctx
 {
 	const MYSQLND_CSTRING schema_name;
 	const MYSQLND_CSTRING collection_name;
@@ -96,14 +96,14 @@ struct st_create_collection_var_binder_ctx
 };
 
 
-/* {{{ create_collection_var_binder */
+/* {{{ collection_op_var_binder */
 static const enum_hnd_func_status
-create_collection_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_NODE_STMT * const stmt)
+collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_NODE_STMT * const stmt)
 {
 	enum_hnd_func_status ret = HND_FAIL;
-	struct st_create_collection_var_binder_ctx * ctx = (struct st_create_collection_var_binder_ctx *) context;
+	struct st_collection_op_var_binder_ctx * ctx = (struct st_collection_op_var_binder_ctx *) context;
 	const MYSQLND_CSTRING * param = NULL;
-	DBG_ENTER("create_collection_var_binder");
+	DBG_ENTER("collection_op_var_binder");
 	switch (ctx->counter) {
 		case 0:
 			param = &ctx->schema_name;
@@ -138,6 +138,40 @@ bind:
 /* }}} */
 
 
+/* {{{ xmysqlnd_collection_op */
+static const enum_func_status
+xmysqlnd_collection_op(XMYSQLND_NODE_SCHEMA * const schema,
+					   const MYSQLND_CSTRING collection_name,
+					   const MYSQLND_CSTRING query,
+					   const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+{
+	enum_func_status ret;
+	XMYSQLND_NODE_SESSION * session = schema->data->session;
+
+	struct st_collection_op_var_binder_ctx var_binder_ctx = {
+		mnd_str2c(schema->data->schema_name),
+		collection_name,
+		0
+	};
+	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
+
+	struct st_create_collection_handler_ctx handler_ctx = { schema, handler_on_error };
+	const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, NULL };
+	const struct st_xmysqlnd_node_session_on_row_bind on_row = { NULL, NULL };
+	const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
+	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : NULL, &handler_ctx };
+	const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { NULL, NULL };
+	const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { NULL, NULL };
+
+	DBG_ENTER("xmysqlnd_collection_op");
+
+	ret = session->m->query_cb(session, namespace_xplugin, query, var_binder, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok);
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_schema::create_collection */
 static XMYSQLND_NODE_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(XMYSQLND_NODE_SCHEMA * const schema,
@@ -145,27 +179,10 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(XMYSQLND_NODE_SCHEMA * 
 														 const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	static const MYSQLND_CSTRING query = {"create_collection", sizeof("create_collection") - 1 };
-	struct st_create_collection_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->data->schema_name),
-		collection_name,
-		0
-	};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { create_collection_var_binder, &var_binder_ctx };
 	XMYSQLND_NODE_COLLECTION * collection = NULL;
-	XMYSQLND_NODE_SESSION * session = schema->data->session;
-
-	struct st_create_collection_handler_ctx handler_ctx = { schema, handler_on_error };
-	const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, NULL };
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { NULL, NULL };
-	const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
-	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? create_collection_handler_on_error : NULL, &handler_ctx };
-	const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { NULL, NULL };
-	const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { NULL, NULL };
-
 	DBG_ENTER("xmysqlnd_node_schema::create_collection");
 	DBG_INF_FMT("schema_name=%s", collection_name.s);
-
-	if (PASS == session->m->query_cb(session, namespace_xplugin, query, var_binder, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+	if (PASS == xmysqlnd_collection_op(schema, collection_name, query, handler_on_error)) {
 		collection = xmysqlnd_node_collection_create(schema,
 													 collection_name,
 													 schema->persistent,
@@ -174,6 +191,24 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(XMYSQLND_NODE_SCHEMA * 
 													 schema->data->session->data->error_info);
 	}
 	DBG_RETURN(collection);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_schema::drop_collection */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_schema, drop_collection)(XMYSQLND_NODE_SCHEMA * const schema,
+													   const MYSQLND_CSTRING collection_name,
+													   const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+{
+	enum_func_status ret;
+	static const MYSQLND_CSTRING query = {"drop_collection", sizeof("drop_collection") - 1 };
+	DBG_ENTER("xmysqlnd_node_schema::drop_collection");
+	DBG_INF_FMT("schema_name=%s", collection_name.s);
+
+	ret = xmysqlnd_collection_op(schema, collection_name, query, handler_on_error);
+
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -256,6 +291,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_schema)
 
 	XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object),
 	XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection),
+	XMYSQLND_METHOD(xmysqlnd_node_schema, drop_collection),
 	XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object),
 
 	XMYSQLND_METHOD(xmysqlnd_node_schema, get_reference),
@@ -265,6 +301,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_schema)
 MYSQLND_CLASS_METHODS_END;
 
 PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_schema);
+
 
 /* {{{ xmysqlnd_node_schema_create */
 PHPAPI XMYSQLND_NODE_SCHEMA *
