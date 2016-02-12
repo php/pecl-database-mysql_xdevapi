@@ -33,7 +33,17 @@
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_node_session.h"
 
-static const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
+const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
+const MYSQLND_CSTRING namespace_xplugin = { "xplugin", sizeof("xplugin") - 1 };
+
+
+const struct st_xmysqlnd_node_session_on_result_start_bind noop__on_result_start = { NULL, NULL };
+const struct st_xmysqlnd_node_session_on_row_bind noop__on_row = { NULL, NULL };
+const struct st_xmysqlnd_node_session_on_warning_bind noop__on_warning = { NULL, NULL };
+const struct st_xmysqlnd_node_session_on_error_bind noop__on_error = { NULL, NULL };
+const struct st_xmysqlnd_node_session_on_result_end_bind noop__on_result_end = { NULL, NULL };
+const struct st_xmysqlnd_node_session_on_statement_ok_bind noop__on_statement_ok = { NULL, NULL };
+
 
 /* {{{ xmysqlnd_node_session_state::get */
 static enum xmysqlnd_node_session_state

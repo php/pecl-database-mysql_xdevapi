@@ -84,9 +84,6 @@ struct st_mysqlx_node_session
 	zend_bool closed;
 };
 
-static const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
-
-
 #define MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(_to, _from) \
 { \
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \

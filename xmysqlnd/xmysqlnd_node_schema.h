@@ -27,8 +27,19 @@ struct st_xmysqlnd_node_table;
 #ifdef __cplusplus
 extern "C" {
 #endif
+extern const MYSQLND_CSTRING xmysqlnd_object_type_filter__table;
+extern const MYSQLND_CSTRING xmysqlnd_object_type_filter__collection;
+
+
 typedef struct st_xmysqlnd_node_schema		XMYSQLND_NODE_SCHEMA;
 typedef struct st_xmysqlnd_node_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
+
+struct st_xmysqlnd_node_schema_on_database_object_bind
+{
+	void (*handler)(void * context, XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type);
+	void * ctx;
+};
+
 
 struct st_xmysqlnd_node_schema_on_error_bind
 {
@@ -56,6 +67,13 @@ typedef enum_func_status						(*func_xmysqlnd_node_schema__drop_collection)(XMYS
 
 typedef struct st_xmysqlnd_node_table * 		(*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
 
+
+typedef enum_func_status						(*func_xmysqlnd_node_schema__get_db_objects)(XMYSQLND_NODE_SCHEMA * const schema,
+																							 const MYSQLND_CSTRING collection_name,
+																							 const MYSQLND_CSTRING object_type_filter,
+																							 const struct st_xmysqlnd_node_schema_on_database_object_bind on_object,
+																							 const struct st_xmysqlnd_node_schema_on_error_bind on_error);
+
 typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_node_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);
 typedef enum_func_status		(*func_xmysqlnd_node_schema__free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void					(*func_xmysqlnd_node_schema__free_contents)(XMYSQLND_NODE_SCHEMA * const schema);
@@ -69,6 +87,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 	func_xmysqlnd_node_schema__create_collection create_collection;
 	func_xmysqlnd_node_schema__drop_collection drop_collection;
 	func_xmysqlnd_node_schema__create_table_object create_table_object;
+
+	func_xmysqlnd_node_schema__get_db_objects get_db_objects;
 
 	func_xmysqlnd_node_schema__get_reference get_reference;
 	func_xmysqlnd_node_schema__free_reference free_reference;

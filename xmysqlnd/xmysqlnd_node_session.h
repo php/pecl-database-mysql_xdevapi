@@ -395,6 +395,16 @@ PHPAPI XMYSQLND_NODE_SESSION * xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSI
 															 size_t set_capabilities,
 															 size_t client_api_flags);
 
+extern const MYSQLND_CSTRING namespace_sql;
+extern const MYSQLND_CSTRING namespace_xplugin;
+
+extern const struct st_xmysqlnd_node_session_on_result_start_bind	noop__on_result_start;
+extern const struct st_xmysqlnd_node_session_on_row_bind			noop__on_row;
+extern const struct st_xmysqlnd_node_session_on_warning_bind		noop__on_warning;
+extern const struct st_xmysqlnd_node_session_on_error_bind			noop__on_error;
+extern const struct st_xmysqlnd_node_session_on_result_end_bind	noop__on_result_end;
+extern const struct st_xmysqlnd_node_session_on_statement_ok_bind	noop__on_statement_ok;
+
 #endif	/* XMYSQLND_NODE_SESSION_H */
 
 
