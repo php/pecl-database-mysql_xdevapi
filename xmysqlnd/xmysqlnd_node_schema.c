@@ -63,6 +63,20 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object)(XMYSQLND_NODE_SC
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_schema::create_collectiont */
+static XMYSQLND_NODE_COLLECTION *
+XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name)
+{
+	XMYSQLND_NODE_COLLECTION * collection = NULL;
+	DBG_ENTER("xmysqlnd_node_schema::create_collection");
+	DBG_INF_FMT("schema_name=%s", collection_name.s);
+
+	collection = xmysqlnd_node_collection_create(schema, collection_name, schema->persistent, schema->data->object_factory, schema->data->session->data->stats, schema->data->session->data->error_info);
+	DBG_RETURN(collection);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_schema::create_table_object */
 static XMYSQLND_NODE_TABLE *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name)
@@ -140,6 +154,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_schema)
 	XMYSQLND_METHOD(xmysqlnd_node_schema, init),
 
 	XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object),
+	XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection),
 	XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object),
 
 	XMYSQLND_METHOD(xmysqlnd_node_schema, get_reference),

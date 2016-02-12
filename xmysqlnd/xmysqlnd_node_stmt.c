@@ -34,6 +34,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 										  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 										  XMYSQLND_NODE_SESSION * const session,
+										  const MYSQLND_CSTRING namespace_,
 										  const MYSQLND_CSTRING query,
 										  MYSQLND_STATS * const stats,
 										  MYSQLND_ERROR_INFO * const error_info)
@@ -42,7 +43,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 	if (!(stmt->data->session = session->m->get_reference(session))) {
 		return FAIL;
 	}
+	stmt->data->namespace_ = mnd_dup_cstring(namespace_, stmt->data->persistent);
 	stmt->data->query = mnd_dup_cstring(query, stmt->data->persistent);
+	DBG_INF_FMT("namespace=[%d]%*s", stmt->data->namespace_.l, stmt->data->namespace_.l, stmt->data->namespace_.s);
 	DBG_INF_FMT("query=[%d]%*s", stmt->data->query.l, stmt->data->query.l, stmt->data->query.s);
 
 	stmt->data->object_factory = object_factory;
@@ -81,7 +84,6 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param)(XMYSQLND_NODE_STMT * const s
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	const MYSQLND_CSTRING namespace_par = {"sql", sizeof("sql") - 1};
 	MYSQLND_VIO * vio = stmt->data->session->data->io.vio;
 	XMYSQLND_PFC * pfc = stmt->data->session->data->io.pfc;
 	const XMYSQLND_L3_IO io = {vio, pfc};
@@ -92,7 +94,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt,
 	stmt->data->partial_read_started = FALSE;
 	stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 	ret = stmt->data->msg_stmt_exec.send_request(&stmt->data->msg_stmt_exec,
-												 namespace_par,
+												 mnd_str2c(stmt->data->namespace_),
 												 mnd_str2c(stmt->data->query),
 												 FALSE,
 												 stmt->data->params,
@@ -761,6 +763,10 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, free_contents)(XMYSQLND_NODE_STMT * const st
 {
 	const zend_bool pers = stmt->data->persistent;
 	DBG_ENTER("xmysqlnd_node_stmt::free_contents");
+	if (stmt->data->namespace_.s) {
+		mnd_pefree(stmt->data->namespace_.s, pers);
+		stmt->data->namespace_.s = NULL;
+	}
 	if (stmt->data->query.s) {
 		mnd_pefree(stmt->data->query.s, pers);
 		stmt->data->query.s = NULL;
@@ -835,6 +841,7 @@ PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_stmt);
 /* {{{ xmysqlnd_node_stmt_create */
 PHPAPI XMYSQLND_NODE_STMT *
 xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION * session,
+						  const MYSQLND_CSTRING namespace_,
 						  const MYSQLND_CSTRING query,
 						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -844,7 +851,7 @@ xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_NODE_STMT * stmt = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt_create");
 	if (query.s && query.l) {
-		stmt = object_factory->get_node_stmt(object_factory, session, query, persistent, stats, error_info);
+		stmt = object_factory->get_node_stmt(object_factory, session, namespace_, query, persistent, stats, error_info);
 		if (stmt) {
 			stmt = stmt->data->m.get_reference(stmt);
 		}

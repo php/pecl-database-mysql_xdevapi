@@ -84,6 +84,8 @@ struct st_mysqlx_node_session
 	zend_bool closed;
 };
 
+static const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
+
 
 #define MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(_to, _from) \
 { \
@@ -126,7 +128,7 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_EXPLICIT);
+		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, namespace_sql, query, MYSQLND_SEND_QUERY_EXPLICIT);
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt);
 		}
@@ -165,7 +167,7 @@ PHP_METHOD(mysqlx_node_session, executeSql)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, query, MYSQLND_SEND_QUERY_EXPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, namespace_sql, query, MYSQLND_SEND_QUERY_EXPLICIT);
 		if (stmt) {
 			zval stmt_zv;
 			ZVAL_UNDEF(&stmt_zv);
@@ -378,7 +380,7 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 
 		ZVAL_UNDEF(&list);
 
-		if (PASS == session->m->query_cb(session, list_query, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+		if (PASS == session->m->query_cb(session, namespace_sql, list_query, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
@@ -545,6 +547,7 @@ mysqlx_node_session_free_storage(zend_object * object)
 
 		if (session) {
 			session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
+			session->m->free_reference(session);
 		}
 		mnd_efree(inner_obj);
 	}

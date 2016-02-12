@@ -33,6 +33,8 @@
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_node_session.h"
 
+static const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
+
 /* {{{ xmysqlnd_node_session_state::get */
 static enum xmysqlnd_node_session_state
 XMYSQLND_METHOD(xmysqlnd_node_session_state, get)(const XMYSQLND_NODE_SESSION_STATE * const state_struct)
@@ -1078,7 +1080,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 		const MYSQLND_CSTRING select_query = { query, query_len };
 		mnd_efree(quoted_db.s);
 
-		ret = session_handle->m->query(session_handle, select_query);
+		ret = session_handle->m->query(session_handle, namespace_sql, select_query);
 	}
 	DBG_RETURN(ret);
 
@@ -1251,6 +1253,7 @@ query_cb_handler_on_statement_ok(void * context, XMYSQLND_NODE_STMT * const stmt
 /* {{{ xmysqlnd_node_session::query_cb */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session_handle,
+												 const MYSQLND_CSTRING namespace_,
 												 const MYSQLND_CSTRING query,
 												 const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
 												 const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,
@@ -1263,7 +1266,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 	DBG_ENTER("xmysqlnd_node_session::query_cb");
 	if (session_handle) {
 		XMYSQLND_NODE_SESSION_DATA * const session = session_handle->data;
-		XMYSQLND_NODE_STMT * const stmt = session_handle->m->create_statement_object(session_handle, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		XMYSQLND_NODE_STMT * const stmt = session_handle->m->create_statement_object(session_handle, namespace_, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				struct st_xmysqlnd_query_cb_ctx query_cb_ctx = {
@@ -1313,6 +1316,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 /* {{{ xmysqlnd_node_session::query_cb_ex */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query_cb_ex)(XMYSQLND_NODE_SESSION * session_handle,
+													const MYSQLND_CSTRING namespace_,
 													struct st_xmysqlnd_query_builder * query_builder,
 													const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
 													const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,
@@ -1329,6 +1333,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb_ex)(XMYSQLND_NODE_SESSION * sess
 		PASS == (ret = query_builder->create(query_builder)))
 	{
 		ret = session_handle->m->query_cb(session_handle,
+										  namespace_,
 										  mnd_str2c(query_builder->query),
 										  handler_on_result_start,
 										  handler_on_row,
@@ -1356,7 +1361,7 @@ xmysqlnd_node_session_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt
 
 /* {{{ xmysqlnd_node_session::query */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING query)
+XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), query);
 	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
@@ -1364,7 +1369,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_ha
 
 	DBG_ENTER("xmysqlnd_node_session::query");
 	if (PASS == session->m->local_tx_start(session, this_func)) {
-		XMYSQLND_NODE_STMT * stmt = session_handle->m->create_statement_object(session_handle, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session_handle->m->create_statement_object(session_handle, namespace_, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				do {
@@ -1402,7 +1407,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version)(XMYSQLND_NODE_SESSION
 	DBG_ENTER("xmysqlnd_node_session::get_server_version");
 	if (!(p = session_handle->server_version_string)) {
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
-		XMYSQLND_NODE_STMT * stmt = session_handle->m->create_statement_object(session_handle, query, MYSQLND_SEND_QUERY_IMPLICIT);
+		XMYSQLND_NODE_STMT * stmt = session_handle->m->create_statement_object(session_handle, namespace_sql, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
 			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
 				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { NULL, NULL };
@@ -1453,13 +1458,16 @@ XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version_string)(const XMYSQLND
 
 /* {{{ xmysqlnd_node_session::create_statement_object */
 static XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object)(XMYSQLND_NODE_SESSION * const session_handle, const MYSQLND_CSTRING query, enum_mysqlnd_send_query_type type)
+XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object)(XMYSQLND_NODE_SESSION * const session_handle,
+																const MYSQLND_CSTRING namespace_,
+																const MYSQLND_CSTRING query,
+																const enum_mysqlnd_send_query_type type)
 {
 	XMYSQLND_NODE_STMT * stmt = NULL;
 	DBG_ENTER("xmysqlnd_node_session_data::create_statement_object");
 	DBG_INF_FMT("query=%s", query.s);
 
-	stmt = xmysqlnd_node_stmt_create(session_handle, query, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
+	stmt = xmysqlnd_node_stmt_create(session_handle, namespace_, query, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
 	DBG_RETURN(stmt);
 }
 /* }}} */
@@ -1596,6 +1604,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	XMYSQLND_METHOD(xmysqlnd_node_session, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_session, dtor),
 MYSQLND_CLASS_METHODS_END;
+
 
 
 PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session);

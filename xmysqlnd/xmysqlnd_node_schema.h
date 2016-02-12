@@ -33,6 +33,7 @@ typedef struct st_xmysqlnd_node_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
 
 typedef enum_func_status		(*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, struct st_xmysqlnd_node_session * const session, const MYSQLND_CSTRING schema_name, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
+typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 typedef struct st_xmysqlnd_node_table * 		(*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
 
 typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_node_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);
@@ -45,6 +46,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 	func_xmysqlnd_node_schema__init init;
 
 	func_xmysqlnd_node_schema__create_collection_object create_collection_object;
+	func_xmysqlnd_node_schema__create_collection create_collection;
 	func_xmysqlnd_node_schema__create_table_object create_table_object;
 
 	func_xmysqlnd_node_schema__get_reference get_reference;

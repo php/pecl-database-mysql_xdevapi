@@ -83,6 +83,7 @@ struct st_mysqlx_node_schema
 	XMYSQLND_NODE_SCHEMA * schema;
 };
 
+static const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
 
 #define MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(_to, _from) \
 { \
@@ -398,7 +399,7 @@ PHP_METHOD(mysqlx_node_schema, getCollections)
 
 		ZVAL_UNDEF(&list);
 
-		if (PASS == session->m->query_cb_ex(session, &query_builder.parent, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+		if (PASS == session->m->query_cb_ex(session, namespace_sql, &query_builder.parent, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
@@ -519,7 +520,7 @@ PHP_METHOD(mysqlx_node_schema, getTables)
 
 		ZVAL_UNDEF(&list);
 
-		if (PASS == session->m->query_cb_ex(session, &query_builder.parent, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+		if (PASS == session->m->query_cb_ex(session, namespace_sql, &query_builder.parent, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
