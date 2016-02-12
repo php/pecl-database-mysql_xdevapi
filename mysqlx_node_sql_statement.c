@@ -426,8 +426,9 @@ mysqlx_node_sql_statement_bind_one_param(zval * object_zv, zval * param_zv, cons
 	RETVAL_TRUE;
 	if (TRUE == object->in_execution) {
 		php_error_docref(NULL, E_WARNING, "Statement in execution. Please fetch all data first.");
-	} else if (object->stmt) {
-		object->stmt->data->m.bind_one_param(object->stmt, param_no, param_zv);
+		RETVAL_FALSE;
+	} else if (object->stmt && FAIL == object->stmt->data->m.bind_one_param(object->stmt, param_no, param_zv)) {
+		RETVAL_FALSE;
 	}
 	DBG_VOID_RETURN;
 }

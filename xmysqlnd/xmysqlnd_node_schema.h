@@ -30,10 +30,26 @@ extern "C" {
 typedef struct st_xmysqlnd_node_schema		XMYSQLND_NODE_SCHEMA;
 typedef struct st_xmysqlnd_node_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
 
+struct st_xmysqlnd_node_schema_on_error_bind
+{
+	const enum_hnd_func_status (*handler)(void * context, const XMYSQLND_NODE_SCHEMA * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	void * ctx;
+};
 
-typedef enum_func_status		(*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, struct st_xmysqlnd_node_session * const session, const MYSQLND_CSTRING schema_name, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+
+typedef enum_func_status (*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA * const schema,
+															const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+															struct st_xmysqlnd_node_session * const session,
+															const MYSQLND_CSTRING schema_name,
+															MYSQLND_STATS * const stats,
+															MYSQLND_ERROR_INFO * const error_info);
+
 typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
-typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
+
+typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection)(XMYSQLND_NODE_SCHEMA * const schema,
+																								const MYSQLND_CSTRING collection_name,
+																								const struct st_xmysqlnd_node_schema_on_error_bind on_error);
+
 typedef struct st_xmysqlnd_node_table * 		(*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
 
 typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_node_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);

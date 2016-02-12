@@ -1072,6 +1072,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 	DBG_INF_FMT("db=%s", db);
 
 	if (quoted_db.s && quoted_db.l) {
+		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { NULL, NULL };
 		const size_t query_len = operation.l + quoted_db.l;
 		char query[query_len + 1];
 		memcpy(query, operation.s, operation.l);
@@ -1080,7 +1081,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 		const MYSQLND_CSTRING select_query = { query, query_len };
 		mnd_efree(quoted_db.s);
 
-		ret = session_handle->m->query(session_handle, namespace_sql, select_query);
+		ret = session_handle->m->query(session_handle, namespace_sql, select_query, var_binder);
 	}
 	DBG_RETURN(ret);
 
@@ -1255,6 +1256,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session_handle,
 												 const MYSQLND_CSTRING namespace_,
 												 const MYSQLND_CSTRING query,
+												 const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
 												 const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
 												 const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,
 												 const struct st_xmysqlnd_node_session_on_warning_bind handler_on_warning,
@@ -1268,7 +1270,28 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 		XMYSQLND_NODE_SESSION_DATA * const session = session_handle->data;
 		XMYSQLND_NODE_STMT * const stmt = session_handle->m->create_statement_object(session_handle, namespace_, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
-			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
+			ret = PASS;
+			if (var_binder.handler) {
+				zend_bool loop = TRUE;
+				do {
+					const enum_hnd_func_status var_binder_result = var_binder.handler(var_binder.ctx, session_handle, stmt);
+					switch (var_binder_result) {
+						case HND_FAIL:
+						case HND_PASS_RETURN_FAIL:
+							ret = FAIL;
+							/* fallthrough */
+						case HND_PASS:
+							loop = FALSE;
+							break;
+						case HND_AGAIN: /* do nothing */
+						default:
+							break;
+					}
+				} while (loop);
+			}
+			if (PASS == ret &&
+				(PASS == (ret = stmt->data->m.send_query(stmt, session->stats, session->error_info))))
+			{
 				struct st_xmysqlnd_query_cb_ctx query_cb_ctx = {
 					session_handle,
 					handler_on_result_start,
@@ -1318,6 +1341,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query_cb_ex)(XMYSQLND_NODE_SESSION * session_handle,
 													const MYSQLND_CSTRING namespace_,
 													struct st_xmysqlnd_query_builder * query_builder,
+													const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
 													const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
 													const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,
 													const struct st_xmysqlnd_node_session_on_warning_bind handler_on_warning,
@@ -1335,6 +1359,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb_ex)(XMYSQLND_NODE_SESSION * sess
 		ret = session_handle->m->query_cb(session_handle,
 										  namespace_,
 										  mnd_str2c(query_builder->query),
+										  var_binder,
 										  handler_on_result_start,
 										  handler_on_row,
 										  handler_on_warning,
@@ -1361,7 +1386,10 @@ xmysqlnd_node_session_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt
 
 /* {{{ xmysqlnd_node_session::query */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query)
+XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle,
+											  const MYSQLND_CSTRING namespace_,
+											  const MYSQLND_CSTRING query,
+											  const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), query);
 	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
@@ -1371,7 +1399,29 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_ha
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		XMYSQLND_NODE_STMT * stmt = session_handle->m->create_statement_object(session_handle, namespace_, query, MYSQLND_SEND_QUERY_IMPLICIT);
 		if (stmt) {
-			if (PASS == stmt->data->m.send_query(stmt, session->stats, session->error_info)) {
+			ret = PASS;
+			if (var_binder.handler) {
+				zend_bool loop = TRUE;
+				do {
+					const enum_hnd_func_status var_binder_result = var_binder.handler(var_binder.ctx, session_handle, stmt);
+					switch (var_binder_result) {
+						case HND_FAIL:
+						case HND_PASS_RETURN_FAIL:
+							ret = FAIL;
+							/* fallthrough */
+						case HND_PASS:
+							loop = FALSE;
+							break;
+						case HND_AGAIN: /* do nothing */
+						default:
+							break;
+					}
+				} while (loop);
+			}
+
+			if (PASS == ret &&
+				(PASS == (ret = stmt->data->m.send_query(stmt, session->stats, session->error_info))))
+			{
 				do {
 					const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { xmysqlnd_node_session_on_warning, NULL };
 					const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { NULL, NULL };
@@ -1636,8 +1686,7 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 							  const MYSQLND_CSTRING socket_or_pipe,
 							  unsigned int port,
 							  size_t set_capabilities,
-							  size_t client_api_flags
-						)
+							  size_t client_api_flags)
 {
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	enum_func_status ret = FAIL;

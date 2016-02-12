@@ -61,7 +61,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param)(XMYSQLND_NODE_STMT * const s
 {
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_stmt::bind_one_param");
+	DBG_INF_FMT("params=%p", stmt->data->params);
 	if (!stmt->data->params || param_no >= stmt->data->params_allocated) {
+		DBG_INF("Not enough space for params, realloc");
 		stmt->data->params = mnd_perealloc(stmt->data->params, (param_no + 1) * sizeof(zval), stmt->data->persistent);
 		if (!stmt->data->params) {
 			DBG_RETURN(FAIL);
@@ -70,11 +72,22 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param)(XMYSQLND_NODE_STMT * const s
 		memset(&stmt->data->params[stmt->data->params_allocated], 0, (param_no - stmt->data->params_allocated + 1) * sizeof(zval));
 
 		stmt->data->params_allocated = param_no + 1;
+		ret = PASS;
 	}
 	zval_ptr_dtor(&stmt->data->params[param_no]);
 
 	ZVAL_COPY_VALUE(&stmt->data->params[param_no], param_zv);
 	Z_TRY_ADDREF(stmt->data->params[param_no]);
+#ifdef PHP_DEBUG
+	switch (ret) {
+		case PASS:
+			DBG_INF("PASS");
+			break;
+		case FAIL:
+			DBG_INF("FAIL");
+			break;
+	}
+#endif
 	DBG_RETURN(ret);
 }
 /* }}} */

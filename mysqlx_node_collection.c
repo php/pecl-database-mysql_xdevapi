@@ -166,7 +166,7 @@ PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_collection::existsInDatabase");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -194,8 +194,8 @@ PHP_METHOD(mysqlx_node_collection, drop)
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
 
-	DBG_ENTER("mysqlx_node_collection::existsInDatabase");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	DBG_ENTER("mysqlx_node_collection::drop");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_collection_class_entry))
 	{
 		DBG_VOID_RETURN;

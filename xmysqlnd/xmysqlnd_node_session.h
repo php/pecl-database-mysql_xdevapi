@@ -287,6 +287,13 @@ struct st_xmysqlnd_node_session_on_statement_ok_bind
 };
 
 
+struct st_xmysqlnd_node_session_query_bind_variable_bind
+{
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt);
+	void * ctx;
+};
+
+
 
 typedef enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_session__connect)(XMYSQLND_NODE_SESSION * session, MYSQLND_CSTRING hostname, MYSQLND_CSTRING username, MYSQLND_CSTRING password, MYSQLND_CSTRING database, MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
@@ -296,6 +303,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_session__drop_db)(XMYSQLND_NODE_SE
 typedef enum_func_status	(*func_xmysqlnd_node_session__query_cb)(XMYSQLND_NODE_SESSION * session,
 																	const MYSQLND_CSTRING namespace_,
 																	const MYSQLND_CSTRING query,
+																	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
 																	const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start,
 																	const struct st_xmysqlnd_node_session_on_row_bind on_row,
 																	const struct st_xmysqlnd_node_session_on_warning_bind on_warning,
@@ -306,6 +314,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_session__query_cb)(XMYSQLND_NODE_S
 typedef enum_func_status	(*func_xmysqlnd_node_session__query_cb_ex)(XMYSQLND_NODE_SESSION * session,
 																	   const MYSQLND_CSTRING namespace_,
 																	   struct st_xmysqlnd_query_builder * query_builder,
+																	   const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
 																	   const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start,
 																	   const struct st_xmysqlnd_node_session_on_row_bind on_row,
 																	   const struct st_xmysqlnd_node_session_on_warning_bind on_warning,
@@ -315,7 +324,10 @@ typedef enum_func_status	(*func_xmysqlnd_node_session__query_cb_ex)(XMYSQLND_NOD
 
 
 
-typedef enum_func_status	(*func_xmysqlnd_node_session__query)(XMYSQLND_NODE_SESSION * session, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query);
+typedef enum_func_status	(*func_xmysqlnd_node_session__query)(XMYSQLND_NODE_SESSION * session,
+																 const MYSQLND_CSTRING namespace_,
+																 const MYSQLND_CSTRING query,
+																 const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder);
 
 typedef zend_ulong			(*func_xmysqlnd_node_session__get_server_version)(XMYSQLND_NODE_SESSION * const session);
 typedef const char *		(*func_xmysqlnd_node_session__get_server_information)(const XMYSQLND_NODE_SESSION * const session);

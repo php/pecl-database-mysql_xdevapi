@@ -368,6 +368,7 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if ((session = object->session)) {
+		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { NULL, NULL };
 		const MYSQLND_CSTRING list_query = { "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
 		zval list;
 		struct st_mysqlx_get_schemas_ctx ctx = { &list };
@@ -380,7 +381,7 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 
 		ZVAL_UNDEF(&list);
 
-		if (PASS == session->m->query_cb(session, namespace_sql, list_query, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+		if (PASS == session->m->query_cb(session, namespace_sql, list_query, var_binder, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
