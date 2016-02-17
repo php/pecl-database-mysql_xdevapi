@@ -198,7 +198,7 @@ static const char hexconvtab[] = "0123456789abcdef";
 
 /* {{{ xmysqlnd_node_stmt::handler_on_auth_continue */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * output)
+XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * const output)
 {
 	const MYSQLND_CSTRING salt = input;
 	struct st_xmysqlnd_auth_41_ctx * ctx = (struct st_xmysqlnd_auth_41_ctx *) context;

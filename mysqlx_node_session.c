@@ -73,6 +73,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__drop_schema, 0, ZEND_RETURN_
 ZEND_END_ARG_INFO()
 
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__list_clients, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__close, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -331,16 +335,16 @@ get_schemas_handler_on_row(void * context,
 /* }}} */
 
 
-/* {{{ get_schemas_handler_on_error */
+/* {{{ mysqlx_node_session_command_handler_on_error */
 static const enum_hnd_func_status
-get_schemas_handler_on_error(void * context,
-							 XMYSQLND_NODE_SESSION * const session,
-							 XMYSQLND_NODE_STMT * const stmt,
-							 const unsigned int code,
-							 const MYSQLND_CSTRING sql_state,
-							 const MYSQLND_CSTRING message)
+mysqlx_node_session_command_handler_on_error(void * context,
+											 XMYSQLND_NODE_SESSION * const session,
+											 XMYSQLND_NODE_STMT * const stmt,
+											 const unsigned int code,
+											 const MYSQLND_CSTRING sql_state,
+											 const MYSQLND_CSTRING message)
 {
-	DBG_ENTER("get_schemas_handler_on_error");
+	DBG_ENTER("mysqlx_node_session_command_handler_on_error");
 	if (session) {
 		session->data->m->handler_on_error(session->data, code, sql_state, message);
 	}
@@ -372,7 +376,7 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, NULL };
 		const struct st_xmysqlnd_node_session_on_row_bind on_row = { get_schemas_handler_on_row, &ctx };
 		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { get_schemas_handler_on_error, &ctx };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_session_command_handler_on_error, NULL };
 		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { NULL, NULL };
 		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { NULL, NULL };
 
@@ -473,6 +477,90 @@ PHP_METHOD(mysqlx_node_session, dropSchema)
 /* }}} */
 
 
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+struct st_mysqlx_list_clients__ctx
+{
+	zval * list;
+};
+
+/* {{{ list_clients__handler_on_row */
+static const enum_hnd_func_status
+list_clients__handler_on_row(void * context,
+							 XMYSQLND_NODE_SESSION * const session,
+							 XMYSQLND_NODE_STMT * const stmt,
+							 const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+							 const zval * const row,
+							 MYSQLND_STATS * const stats,
+							 MYSQLND_ERROR_INFO * const error_info)
+{
+	const struct st_mysqlx_list_clients__ctx * ctx = (const struct st_mysqlx_list_clients__ctx *) context;
+	DBG_ENTER("list_clients__handler_on_row");
+	if (ctx && ctx->list && row) {
+		if (Z_TYPE_P(ctx->list) != IS_ARRAY) {
+			array_init(ctx->list);
+		}
+		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
+			const unsigned int field_count = meta->m->get_field_count(meta);
+			unsigned int i;
+			zval zv;
+			ZVAL_UNDEF(&zv);
+			array_init_size(&zv, field_count);
+
+			for (i = 0; i < field_count; ++i) {
+				const XMYSQLND_RESULT_FIELD_META * field_meta = meta->m->get_field(meta, i);
+				if (field_meta) {
+					zend_hash_add(Z_ARRVAL(zv), field_meta->zend_hash_key.sname, (zval *)&(row[i]));
+				}
+			}
+			zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
+		}
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ mysqlx_node_session::listClients() */
+static
+PHP_METHOD(mysqlx_node_session, listClients)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	XMYSQLND_NODE_SESSION * session;
+
+	DBG_ENTER("mysqlx_node_session::listClients");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+	RETVAL_FALSE;
+	if ((session = object->session)) {
+		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { NULL, NULL };
+		const MYSQLND_CSTRING list_query = { "list_clients", sizeof("list_clients") - 1 };
+		zval list;
+		struct st_mysqlx_list_clients__ctx ctx = { &list };
+		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_row_bind on_row = { list_clients__handler_on_row, &ctx };
+		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_session_command_handler_on_error, NULL };
+		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { NULL, NULL };
+		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { NULL, NULL };
+
+		ZVAL_UNDEF(&list);
+
+		if (PASS == session->m->query_cb(session, namespace_xplugin, list_query, var_binder, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+			ZVAL_COPY_VALUE(return_value, &list);
+		} else {
+			zval_dtor(&list);
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+#endif /* MYSQLX_EXPERIMENTAL_FEATURES */
+
+
 /* {{{ mysqlx_node_session::close */
 static
 PHP_METHOD(mysqlx_node_session, close)
@@ -519,6 +607,9 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_node_session, createSchema,		arginfo_mysqlx_node_session__create_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, dropSchema,			arginfo_mysqlx_node_session__drop_schema, ZEND_ACC_PUBLIC)
 
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+	PHP_ME(mysqlx_node_session, listClients,		arginfo_mysqlx_node_session__list_clients, ZEND_ACC_PUBLIC)
+#endif
 	PHP_ME(mysqlx_node_session, close,				arginfo_mysqlx_node_session__close, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
