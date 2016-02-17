@@ -32,7 +32,7 @@ void mysqlx_new_sql_stmt(zval * return_value, struct st_xmysqlnd_node_stmt * stm
 void mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS);
 
-void mysqlx_node_sql_statement_bind_one_param(zval * object_zv, zval * param_zv, const zend_long param_no, zval * return_value);
+void mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, const zend_long param_no, zval * return_value);
 void mysqlx_node_sql_statement_execute(zval * object_zv, const zend_long flags, zval * return_value);
 
 #endif /* MYSQLX_NODE_SQL_STATEMENT_H */

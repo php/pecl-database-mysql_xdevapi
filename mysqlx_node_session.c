@@ -73,8 +73,15 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__drop_schema, 0, ZEND_RETURN_
 ZEND_END_ARG_INFO()
 
 
+#ifdef MYSQLX_EXPERIMENTAL_FEATURES
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__list_clients, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__kill_client, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, client_id, IS_LONG, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+#endif
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__close, 0, ZEND_RETURN_VALUE, 0)
@@ -141,13 +148,58 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 #endif
 
 
+/* {{{ mysqlx_execute_node_session_query */
+static void
+mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION * const session,
+								  const MYSQLND_CSTRING namespace_,
+								  const MYSQLND_CSTRING query,
+								  const zend_long flags,
+								  zval * const return_value,
+								  const unsigned int argc,
+								  const zval * args)
+
+{
+	XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, namespace_, query, MYSQLND_SEND_QUERY_EXPLICIT);
+	DBG_ENTER("mysqlx_execute_node_session_query");
+
+	if (stmt) {
+		zval stmt_zv;
+		ZVAL_UNDEF(&stmt_zv);
+		mysqlx_new_sql_stmt(&stmt_zv, stmt);
+		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+			zval zv;
+			unsigned int i = 0;
+			ZVAL_UNDEF(&zv);
+
+			for (; i < argc; ++i) {
+				ZVAL_UNDEF(&zv);
+				mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], i, &zv);
+				if (Z_TYPE(zv) == IS_FALSE) {
+					goto end;
+				}
+				zval_dtor(&zv);
+			}
+			ZVAL_UNDEF(&zv);
+
+			mysqlx_node_sql_statement_execute(&stmt_zv, flags, &zv);
+
+			ZVAL_COPY(return_value, &zv);
+		}
+end:
+		zval_ptr_dtor(&stmt_zv);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_session::executeSql(string query [[, mixed param]]) */
 static
 PHP_METHOD(mysqlx_node_session, executeSql)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_session * object;
-	XMYSQLND_NODE_SESSION * session;
 	MYSQLND_CSTRING query = {NULL, 0};
 	zval * args = NULL;
 	int argc = 0;
@@ -167,33 +219,8 @@ PHP_METHOD(mysqlx_node_session, executeSql)
 	}
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
-	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, namespace_sql, query, MYSQLND_SEND_QUERY_EXPLICIT);
-		if (stmt) {
-			zval stmt_zv;
-			ZVAL_UNDEF(&stmt_zv);
-			mysqlx_new_sql_stmt(&stmt_zv, stmt);
-			if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-				zval zv;
-				unsigned int i = 0;
-				ZVAL_UNDEF(&zv);
-
-				for (; i < argc; ++i) {
-					ZVAL_UNDEF(&zv);
-					mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], i, &zv);
-					if (Z_TYPE(zv) == IS_FALSE) {
-						goto end;
-					}
-					zval_dtor(&zv);
-				}
-				ZVAL_UNDEF(&zv);
-
-				mysqlx_node_sql_statement_execute(&stmt_zv, MYSQLX_EXECUTE_FLAG_BUFFERED, &zv);
-				ZVAL_COPY(return_value, &zv);
-			}
-end:
-			zval_ptr_dtor(&stmt_zv);
-		}
+	if (object->session) {
+		mysqlx_execute_node_session_query(object->session, namespace_sql, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, argc, args);
 	}
 
 	DBG_VOID_RETURN;
@@ -558,6 +585,38 @@ PHP_METHOD(mysqlx_node_session, listClients)
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+
+
+/* {{{ mysqlx_node_session::killClient() */
+static
+PHP_METHOD(mysqlx_node_session, killClient)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	zend_long client_id;
+
+	DBG_ENTER("mysqlx_node_session::killClient");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &object_zv, mysqlx_node_session_class_entry,
+																	   &client_id) == FAILURE)
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+	RETVAL_FALSE;
+
+	if (object->session) {
+		const MYSQLND_CSTRING query = { "kill_client", sizeof("kill_client") - 1 };
+		zval c_id;
+		ZVAL_LONG(&c_id, client_id);
+		mysqlx_execute_node_session_query(object->session, namespace_xplugin, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, 1, &c_id);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 #endif /* MYSQLX_EXPERIMENTAL_FEATURES */
 
 
@@ -609,6 +668,7 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 
 #ifdef MYSQLX_EXPERIMENTAL_FEATURES
 	PHP_ME(mysqlx_node_session, listClients,		arginfo_mysqlx_node_session__list_clients, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, killClient,			arginfo_mysqlx_node_session__kill_client, ZEND_ACC_PUBLIC)
 #endif
 	PHP_ME(mysqlx_node_session, close,				arginfo_mysqlx_node_session__close, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}

@@ -418,7 +418,7 @@ mysqlx_fetch_data_with_callback(struct st_mysqlx_node_sql_statement * object, st
 
 /* {{{ mysqlx_node_sql_statement_bind_one_param */
 void
-mysqlx_node_sql_statement_bind_one_param(zval * object_zv, zval * param_zv, const zend_long param_no, zval * return_value)
+mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, const zend_long param_no, zval * return_value)
 {
 	struct st_mysqlx_node_sql_statement * object;
 	DBG_ENTER("mysqlx_node_sql_statement_bind_one_param");

@@ -83,7 +83,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * c
 															 MYSQLND_STATS * const stats,
 															 MYSQLND_ERROR_INFO * const error_info);
 
-typedef enum_func_status	(*func_xmysqlnd_node_stmt__bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, zval * param_zv);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt__bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, const zval * param_zv);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__read_one_result)(XMYSQLND_NODE_STMT * const stmt,

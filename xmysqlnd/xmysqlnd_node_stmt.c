@@ -57,7 +57,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 
 /* {{{ xmysqlnd_node_stmt::bind_one_param */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, zval * param_zv)
+XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, const zval * param_zv)
 {
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_stmt::bind_one_param");
