@@ -55,6 +55,10 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__get_client_id, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__generate_uuid, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
 #endif
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__get_schemas, 0, ZEND_RETURN_VALUE, 0)
@@ -305,6 +309,35 @@ PHP_METHOD(mysqlx_node_session, getClientId)
 
 	if ((session = object->session)) {
 		RETVAL_LONG(session->data->m->get_client_id(session->data));
+	} else {
+		RETVAL_FALSE;
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_session::generateUUID() */
+static
+PHP_METHOD(mysqlx_node_session, generateUUID)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	XMYSQLND_NODE_SESSION * session;
+
+	DBG_ENTER("mysqlx_node_session::generateUUID");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_session_class_entry) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+
+	if ((session = object->session)) {
+		const MYSQLND_CSTRING unique_id = session->m->get_uuid(session);
+		if (unique_id.s) {
+			RETVAL_STRINGL(unique_id.s, unique_id.l);
+		}
 	} else {
 		RETVAL_FALSE;
 	}
@@ -587,7 +620,6 @@ PHP_METHOD(mysqlx_node_session, listClients)
 /* }}} */
 
 
-
 /* {{{ mysqlx_node_session::killClient() */
 static
 PHP_METHOD(mysqlx_node_session, killClient)
@@ -659,6 +691,7 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 #ifdef MYSQLX_EXPERIMENTAL_FEATURES
 	PHP_ME(mysqlx_node_session, getServerVersion,	arginfo_mysqlx_node_session__get_server_version, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, getClientId,		arginfo_mysqlx_node_session__get_client_id, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, generateUUID,		arginfo_mysqlx_node_session__generate_uuid, ZEND_ACC_PUBLIC)
 #endif
 	PHP_ME(mysqlx_node_session, getSchemas,			arginfo_mysqlx_node_session__get_schemas, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, getSchema,			arginfo_mysqlx_node_session__get_schema, ZEND_ACC_PUBLIC)

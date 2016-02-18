@@ -37,6 +37,7 @@ const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
 const MYSQLND_CSTRING namespace_xplugin = { "xplugin", sizeof("xplugin") - 1 };
 
 
+const struct st_xmysqlnd_node_session_query_bind_variable_bind noop__var_binder = { NULL, NULL };
 const struct st_xmysqlnd_node_session_on_result_start_bind noop__on_result_start = { NULL, NULL };
 const struct st_xmysqlnd_node_session_on_row_bind noop__on_row = { NULL, NULL };
 const struct st_xmysqlnd_node_session_on_warning_bind noop__on_warning = { NULL, NULL };
@@ -363,7 +364,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_
 	DBG_RETURN(ret);
 }
 /* }}} */
-
 
 
 /* {{{ xmysqlnd_node_session_data::connect_handshake */
@@ -998,8 +998,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_error),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue),
+	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_client_id),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_id),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_client_id)
 MYSQLND_CLASS_METHODS_END;
 
 
@@ -1007,7 +1007,7 @@ MYSQLND_CLASS_METHODS_END;
 PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session_data);
 
 /* {{{ xmysqlnd_node_session::init */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_handle,
 											const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 											MYSQLND_STATS * stats,
@@ -1026,15 +1026,15 @@ XMYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_han
 
 
 /* {{{ xmysqlnd_node_session::connect */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_handle,
-						MYSQLND_CSTRING hostname,
-						MYSQLND_CSTRING username,
-						MYSQLND_CSTRING password,
-						MYSQLND_CSTRING database,
-						MYSQLND_CSTRING socket_or_pipe,
-						unsigned int port,
-						size_t set_capabilities)
+												MYSQLND_CSTRING hostname,
+												MYSQLND_CSTRING username,
+												MYSQLND_CSTRING password,
+												MYSQLND_CSTRING database,
+												MYSQLND_CSTRING socket_or_pipe,
+												const unsigned int port,
+												const size_t set_capabilities)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), connect);
 	enum_func_status ret = FAIL;
@@ -1064,9 +1064,140 @@ XMYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_
 		}
 
 		ret = session->m->connect(session, hostname, username, password, database, socket_or_pipe, port, set_capabilities);
-
+#ifdef WANTED_TO_PRECACHE_UUIDS_AT_CONNECT
+		if (PASS == ret) {
+			ret = session_handle->m->precache_uuids(session_handle);
+		}
+#endif
 		session->m->local_tx_end(session, this_func, FAIL);
 	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_session::get_uuid */
+static const MYSQLND_CSTRING
+XMYSQLND_METHOD(xmysqlnd_node_session, get_uuid)(XMYSQLND_NODE_SESSION * const session_handle)
+{
+	struct st_xmysqlnd_node_session_uuid_cache_list * cache = &session_handle->uuid_cache;
+	MYSQLND_CSTRING ret = { NULL, 0 };
+	DBG_ENTER("xmysqlnd_node_session::get_uuid");
+	DBG_INF_FMT("pool=%p  used=%u  allocated=%u", cache->pool, cache->used, cache->allocated);
+	if (!cache->pool) {
+		session_handle->m->precache_uuids(session_handle);
+	}
+	/* !! NO else here !! */
+	if (cache->pool) {
+		ret.l = XMYSQLND_UUID_LENGTH;
+		if (cache->used == cache->allocated && cache->allocated) {
+			session_handle->m->precache_uuids(session_handle);
+		}
+		/* !! NO else here !! */
+		if (cache->used < cache->allocated) {
+			ret.s = cache->pool + cache->used * XMYSQLND_UUID_LENGTH;
+			++cache->used;
+		}
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_session_precache_uuids_on_row */
+static const enum_hnd_func_status
+xmysqlnd_node_session_precache_uuids_on_row(void * context,
+											XMYSQLND_NODE_SESSION * const session,
+											XMYSQLND_NODE_STMT * const stmt,
+											const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+											const zval * const row,
+											MYSQLND_STATS * const stats,
+											MYSQLND_ERROR_INFO * const error_info)
+{
+	struct st_xmysqlnd_node_session_uuid_cache_list * ctx = (struct st_xmysqlnd_node_session_uuid_cache_list *) context;
+	DBG_ENTER("xmysqlnd_node_session_precache_uuids_on_row");
+	if (!ctx->pool) {
+		ctx->persistent = session->persistent;
+		ctx->pool = mnd_pemalloc(Z_STRLEN(row[0]), ctx->persistent);
+	}
+	/* !! NO else here !! */	
+	if (ctx->pool) {
+		memcpy(ctx->pool, Z_STRVAL(row[0]), Z_STRLEN(row[0]));
+		ctx->used = 0;
+		ctx->allocated = Z_STRLEN(row[0]) / XMYSQLND_UUID_LENGTH;
+	}
+
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_session_precache_uuids_on_error */
+static const enum_hnd_func_status
+xmysqlnd_node_session_precache_uuids_on_error(void * context,
+											  XMYSQLND_NODE_SESSION * const session,
+											  XMYSQLND_NODE_STMT * const stmt,
+											  const unsigned int code,
+											  const MYSQLND_CSTRING sql_state,
+											  const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("xmysqlnd_node_session_precache_uuids_on_error");
+	if (session) {
+		session->data->m->handler_on_error(session->data, code, sql_state, message);
+	}
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
+#define PRECACHE_SQL_PREFIX "SELECT CONCAT(UUID()"
+#define PRECACHE_SQL_SUFFIX ", UUID()"
+static const unsigned int precache_size = XMYSQLND_UUID_CACHE_ELEMENTS;
+static const size_t query_prefix_len = sizeof(PRECACHE_SQL_PREFIX) - 1;
+static const size_t query_suffix_len = sizeof(PRECACHE_SQL_SUFFIX) - 1;
+
+
+/* {{{ xmysqlnd_node_session::precache_uuids() */
+static const enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_session, precache_uuids)(XMYSQLND_NODE_SESSION * const session_handle)
+{
+	const struct st_xmysqlnd_node_session_on_row_bind on_row = { xmysqlnd_node_session_precache_uuids_on_row, &session_handle->uuid_cache };
+	const struct st_xmysqlnd_node_session_on_error_bind on_error = { xmysqlnd_node_session_precache_uuids_on_error, NULL };
+	const size_t query_len = query_prefix_len + (precache_size - 1) * query_suffix_len + 1 ; /* 1 for ending ')' */
+	const MYSQLND_STRING list_query = { mnd_emalloc(query_len), query_len };
+	enum_func_status ret;
+	unsigned int i;
+	DBG_ENTER("xmysqlnd_node_session::precache_uuids");
+
+	if (!precache_size || !list_query.s) {
+		if (list_query.s) {
+			mnd_efree(list_query.s);
+		}
+		DBG_RETURN(FAIL);
+	}
+
+	memcpy(list_query.s, PRECACHE_SQL_PREFIX, query_prefix_len);
+
+	for (i = 0; i < (precache_size - 1); ++i) {
+		char * const start_pos = list_query.s + query_prefix_len + query_suffix_len * i;
+		memcpy(start_pos, PRECACHE_SQL_SUFFIX, query_suffix_len);
+	}
+	list_query.s[list_query.l - 1] = ')';
+
+	session_handle->uuid_cache.used = 0;
+	session_handle->uuid_cache.allocated = 0;
+
+	ret = session_handle->m->query_cb(session_handle,
+									  namespace_sql,
+									  mnd_str2c(list_query),
+									  noop__var_binder,
+									  noop__on_result_start,
+									  on_row,
+									  noop__on_warning,
+									  on_error,
+									  noop__on_result_end,
+									  noop__on_statement_ok);
+	mnd_efree(list_query.s);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1082,7 +1213,6 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 	DBG_INF_FMT("db=%s", db);
 
 	if (quoted_db.s && quoted_db.l) {
-		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { NULL, NULL };
 		const size_t query_len = operation.l + quoted_db.l;
 		char query[query_len + 1];
 		memcpy(query, operation.s, operation.l);
@@ -1091,7 +1221,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 		const MYSQLND_CSTRING select_query = { query, query_len };
 		mnd_efree(quoted_db.s);
 
-		ret = session_handle->m->query(session_handle, namespace_sql, select_query, var_binder);
+		ret = session_handle->m->query(session_handle, namespace_sql, select_query, noop__var_binder);
 	}
 	DBG_RETURN(ret);
 
@@ -1100,7 +1230,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 
 
 /* {{{ xmysqlnd_node_session::select_db */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, select_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
@@ -1113,7 +1243,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, select_db)(XMYSQLND_NODE_SESSION * sessio
 
 
 /* {{{ xmysqlnd_node_session::create_db */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, create_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
@@ -1126,7 +1256,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, create_db)(XMYSQLND_NODE_SESSION * sessio
 
 
 /* {{{ xmysqlnd_node_session::drop_db */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, drop_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
@@ -1262,7 +1392,7 @@ query_cb_handler_on_statement_ok(void * context, XMYSQLND_NODE_STMT * const stmt
 
 
 /* {{{ xmysqlnd_node_session::query_cb */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session_handle,
 												 const MYSQLND_CSTRING namespace_,
 												 const MYSQLND_CSTRING query,
@@ -1348,7 +1478,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 
 
 /* {{{ xmysqlnd_node_session::query_cb_ex */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query_cb_ex)(XMYSQLND_NODE_SESSION * session_handle,
 													const MYSQLND_CSTRING namespace_,
 													struct st_xmysqlnd_query_builder * query_builder,
@@ -1396,7 +1526,7 @@ xmysqlnd_node_session_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt
 
 
 /* {{{ xmysqlnd_node_session::query */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle,
 											  const MYSQLND_CSTRING namespace_,
 											  const MYSQLND_CSTRING query,
@@ -1550,7 +1680,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object)(XMYSQLND_NODE_SESSI
 
 
 /* {{{ xmysqlnd_node_session::close */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_handle, const enum_xmysqlnd_node_session_close_type close_type)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), close);
@@ -1595,7 +1725,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, get_reference)(XMYSQLND_NODE_SESSION * co
 
 
 /* {{{ xmysqlnd_node_session::free_reference */
-static enum_func_status
+static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, free_reference)(XMYSQLND_NODE_SESSION * const session)
 {
 	enum_func_status ret = PASS;
@@ -1623,6 +1753,12 @@ XMYSQLND_METHOD(xmysqlnd_node_session, free_contents)(XMYSQLND_NODE_SESSION * se
 		mnd_pefree(session_handle->server_version_string, pers);
 		session_handle->server_version_string = NULL;
 	}
+	if (session_handle->uuid_cache.pool) {
+		session_handle->uuid_cache.used = 0;
+		session_handle->uuid_cache.allocated = 0;
+		mnd_pefree(session_handle->uuid_cache.pool, session_handle->uuid_cache.persistent);
+		session_handle->uuid_cache.pool = NULL;
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -1649,6 +1785,8 @@ static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	XMYSQLND_METHOD(xmysqlnd_node_session, init),
 	XMYSQLND_METHOD(xmysqlnd_node_session, connect),
+	XMYSQLND_METHOD(xmysqlnd_node_session, get_uuid),
+	XMYSQLND_METHOD(xmysqlnd_node_session, precache_uuids),
 	XMYSQLND_METHOD(xmysqlnd_node_session, create_db),
 	XMYSQLND_METHOD(xmysqlnd_node_session, select_db),
 	XMYSQLND_METHOD(xmysqlnd_node_session, drop_db),
