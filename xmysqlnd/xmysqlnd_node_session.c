@@ -1120,7 +1120,7 @@ xmysqlnd_node_session_precache_uuids_on_row(void * context,
 		ctx->persistent = session->persistent;
 		ctx->pool = mnd_pemalloc(Z_STRLEN(row[0]), ctx->persistent);
 	}
-	/* !! NO else here !! */	
+	/* !! NO else here !! */
 	if (ctx->pool) {
 		memcpy(ctx->pool, Z_STRVAL(row[0]), Z_STRLEN(row[0]));
 		ctx->used = 0;
