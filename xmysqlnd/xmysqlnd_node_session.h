@@ -325,22 +325,22 @@ typedef const enum_func_status	(*func_xmysqlnd_node_session__query_cb)(XMYSQLND_
 																		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok);
 
 typedef const enum_func_status	(*func_xmysqlnd_node_session__query_cb_ex)(XMYSQLND_NODE_SESSION * session,
-																	   const MYSQLND_CSTRING namespace_,
-																	   struct st_xmysqlnd_query_builder * query_builder,
-																	   const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
-																	   const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start,
-																	   const struct st_xmysqlnd_node_session_on_row_bind on_row,
-																	   const struct st_xmysqlnd_node_session_on_warning_bind on_warning,
-																	   const struct st_xmysqlnd_node_session_on_error_bind on_error,
-																	   const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end,
-																	   const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok);
+																		   const MYSQLND_CSTRING namespace_,
+																		   struct st_xmysqlnd_query_builder * query_builder,
+																		   const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
+																		   const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start,
+																		   const struct st_xmysqlnd_node_session_on_row_bind on_row,
+																		   const struct st_xmysqlnd_node_session_on_warning_bind on_warning,
+																		   const struct st_xmysqlnd_node_session_on_error_bind on_error,
+																		   const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end,
+																		   const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok);
 
 
 
 typedef const enum_func_status	(*func_xmysqlnd_node_session__query)(XMYSQLND_NODE_SESSION * session,
-																 const MYSQLND_CSTRING namespace_,
-																 const MYSQLND_CSTRING query,
-																 const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder);
+																	 const MYSQLND_CSTRING namespace_,
+																	 const MYSQLND_CSTRING query,
+																	 const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder);
 
 typedef zend_ulong			(*func_xmysqlnd_node_session__get_server_version)(XMYSQLND_NODE_SESSION * const session);
 typedef const char *		(*func_xmysqlnd_node_session__get_server_information)(const XMYSQLND_NODE_SESSION * const session);

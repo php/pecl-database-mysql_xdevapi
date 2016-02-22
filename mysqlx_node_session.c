@@ -26,6 +26,7 @@
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
 #include "php_mysqlx.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_schema.h"
@@ -853,9 +854,18 @@ PHP_FUNCTION(mysqlx__getNodeSession)
 		new_session = xmysqlnd_node_session_connect(object->session, hostname, username, password,
 													empty /*db*/, empty /*s_or_p*/, port, set_capabilities, client_api_flags);
 		if (object->session != new_session) {
-			php_error_docref(NULL, E_WARNING, "Different object returned");
-			if (object->session) {
-				object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
+			XMYSQLND_NODE_SESSION_DATA * old_session_data = object->session->data;
+			const unsigned int error_num = old_session_data->m->get_error_no(old_session_data);
+			if (error_num) {
+				MYSQLND_CSTRING sqlstate = { old_session_data->m->get_sqlstate(old_session_data) , 0 };
+				MYSQLND_CSTRING errmsg = { old_session_data->m->get_error_str(old_session_data) , 0 };
+				sqlstate.l = strlen(sqlstate.s);
+				errmsg.l = strlen(errmsg.s);
+				mysqlx_new_exception(error_num, sqlstate, errmsg);
+			}
+			object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
+			if (new_session) {
+				php_error_docref(NULL, E_WARNING, "Different object returned");
 			}
 			object->session = new_session;
 		}
