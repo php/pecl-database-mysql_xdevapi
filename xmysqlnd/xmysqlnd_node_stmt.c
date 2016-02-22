@@ -100,6 +100,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt,
 	MYSQLND_VIO * vio = stmt->data->session->data->io.vio;
 	XMYSQLND_PFC * pfc = stmt->data->session->data->io.pfc;
 	const XMYSQLND_L3_IO io = {vio, pfc};
+	/* pass stmt->data->session->data->io directly ?*/
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_node_stmt::send_query");
