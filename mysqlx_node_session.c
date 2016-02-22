@@ -116,6 +116,25 @@ struct st_mysqlx_node_session
 } \
 
 
+/* {{{ mysqlx_throw_exception_from_session_if_needed */
+static zend_bool
+mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA * const session)
+{
+	const unsigned int error_num = session->m->get_error_no(session);
+	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");
+	if (error_num) {
+		MYSQLND_CSTRING sqlstate = { session->m->get_sqlstate(session) , 0 };
+		MYSQLND_CSTRING errmsg = { session->m->get_error_str(session) , 0 };
+		sqlstate.l = strlen(sqlstate.s);
+		errmsg.l = strlen(errmsg.s);
+		mysqlx_new_exception(error_num, sqlstate, errmsg);
+		DBG_RETURN(TRUE);
+	}
+	DBG_RETURN(FALSE);
+}
+/* }}} */
+
+
 #ifdef MYSQLX_EXPERIMENTAL_FEATURES
 /* {{{ proto mixed mysqlx_node_session::createStatement(string query) */
 static
@@ -144,6 +163,8 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, namespace_sql, query, MYSQLND_SEND_QUERY_EXPLICIT);
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt);
+		} else {
+			mysqlx_throw_exception_from_session_if_needed(session->data);
 		}
 	}
 
@@ -257,6 +278,7 @@ PHP_METHOD(mysqlx_node_session, quoteName)
 		if (quoted_name.s) {
 			mnd_efree(quoted_name.s);
 		}
+		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
 		RETVAL_FALSE;
 	}
@@ -284,6 +306,7 @@ PHP_METHOD(mysqlx_node_session, getServerVersion)
 
 	if ((session = object->session)) {
 		RETVAL_LONG(session->m->get_server_version(session));
+		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
 		RETVAL_FALSE;
 	}
@@ -310,6 +333,7 @@ PHP_METHOD(mysqlx_node_session, getClientId)
 
 	if ((session = object->session)) {
 		RETVAL_LONG(session->data->m->get_client_id(session->data));
+		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
 		RETVAL_FALSE;
 	}
@@ -334,13 +358,14 @@ PHP_METHOD(mysqlx_node_session, generateUUID)
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
+	RETVAL_FALSE;
+
 	if ((session = object->session)) {
 		const MYSQLND_CSTRING unique_id = session->m->get_uuid(session);
 		if (unique_id.s) {
 			RETVAL_STRINGL(unique_id.s, unique_id.l);
 		}
-	} else {
-		RETVAL_FALSE;
+		mysqlx_throw_exception_from_session_if_needed(session->data);
 	}
 
 	DBG_VOID_RETURN;
@@ -447,6 +472,7 @@ PHP_METHOD(mysqlx_node_session, getSchemas)
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
+			mysqlx_throw_exception_from_session_if_needed(session->data);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -474,6 +500,8 @@ PHP_METHOD(mysqlx_node_session, getSchema)
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
+		} else {
+			mysqlx_throw_exception_from_session_if_needed(session->data);
 		}
 	} else {
 		RETVAL_FALSE;
@@ -505,6 +533,8 @@ PHP_METHOD(mysqlx_node_session, createSchema)
 			XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
 			if (schema) {
 				mysqlx_new_node_schema(return_value, schema);
+			} else {
+				mysqlx_throw_exception_from_session_if_needed(session->data);
 			}
 		}
 	} else {
@@ -532,6 +562,7 @@ PHP_METHOD(mysqlx_node_session, dropSchema)
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_BOOL(object->session && schema_name.s && schema_name.l && PASS == object->session->m->drop_db(object->session, schema_name));
+	mysqlx_throw_exception_from_session_if_needed(object->session->data);
 
 	DBG_VOID_RETURN;
 }
@@ -614,6 +645,7 @@ PHP_METHOD(mysqlx_node_session, listClients)
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
+			mysqlx_throw_exception_from_session_if_needed(session->data);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -854,15 +886,8 @@ PHP_FUNCTION(mysqlx__getNodeSession)
 		new_session = xmysqlnd_node_session_connect(object->session, hostname, username, password,
 													empty /*db*/, empty /*s_or_p*/, port, set_capabilities, client_api_flags);
 		if (object->session != new_session) {
-			XMYSQLND_NODE_SESSION_DATA * old_session_data = object->session->data;
-			const unsigned int error_num = old_session_data->m->get_error_no(old_session_data);
-			if (error_num) {
-				MYSQLND_CSTRING sqlstate = { old_session_data->m->get_sqlstate(old_session_data) , 0 };
-				MYSQLND_CSTRING errmsg = { old_session_data->m->get_error_str(old_session_data) , 0 };
-				sqlstate.l = strlen(sqlstate.s);
-				errmsg.l = strlen(errmsg.s);
-				mysqlx_new_exception(error_num, sqlstate, errmsg);
-			}
+			mysqlx_throw_exception_from_session_if_needed(object->session->data);
+
 			object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
 			if (new_session) {
 				php_error_docref(NULL, E_WARNING, "Different object returned");

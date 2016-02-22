@@ -531,6 +531,10 @@ mysqlx_node_sql_statement_execute(zval * object_zv, const zend_long flags, zval 
 				if (result) {
 					mysqlx_new_sql_stmt_result(return_value, result);
 				} else {
+					static const unsigned int errcode = 10000;
+					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+					static const MYSQLND_CSTRING errmsg = { "Coulnd't fetch data", sizeof("Coulnd't fetch data") - 1 };
+					mysqlx_new_exception(errcode, sqlstate, errmsg);
 					/* Or we should close the connection, rendering it unusable at this point ?*/
 					object->send_query_status = FAIL;
 				}
@@ -643,6 +647,13 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS)
 			DBG_INF_FMT("result=%p  has_more_results=%s", result, object->has_more_results? "TRUE":"FALSE");
 			if (result) {
 				mysqlx_new_sql_stmt_result(return_value, result);
+			} else {
+				static const unsigned int errcode = 10000;
+				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+				static const MYSQLND_CSTRING errmsg = { "Coulnd't fetch data", sizeof("Coulnd't fetch data") - 1 };
+				mysqlx_new_exception(errcode, sqlstate, errmsg);
+				/* Or we should close the connection, rendering it unusable at this point ?*/
+				object->send_query_status = FAIL;
 			}
 		}
 	}

@@ -98,7 +98,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 
 /* {{{ mysqlx_node_collection__add_methods[] */
 static const zend_function_entry mysqlx_node_collection__add_methods[] = {
-	PHP_ME(mysqlx_node_collection__add, 	__construct,	NULL,												ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_collection__add, __construct,	NULL,												ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_node_collection__add,	execute,		arginfo_mysqlx_node_collection__add__execute,	ZEND_ACC_PUBLIC)
 
