@@ -17,12 +17,15 @@
 */
 #include <php.h>
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
+#include <ext/json/php_json.h>
+#include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include "php_mysqlx.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_node_collection__add.h"
@@ -44,6 +47,7 @@ ZEND_END_ARG_INFO()
 struct st_mysqlx_node_collection__add
 {
 	XMYSQLND_NODE_COLLECTION * collection;
+	zval json;
 };
 
 
@@ -85,10 +89,34 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
 	if (object->collection) {
-
+		enum_func_status ret = FAIL;
+		if (Z_TYPE(object->json) == IS_STRING) {
+			const MYSQLND_CSTRING json = { Z_STRVAL(object->json), Z_STRLEN(object->json) };
+			ret = object->collection->data->m.add_document(object->collection, json);
+		} else if (Z_TYPE(object->json) == IS_OBJECT) {
+			smart_str buf = {0};
+			JSON_G(error_code) = PHP_JSON_ERROR_NONE;
+			JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
+			php_json_encode(&buf, &object->json, PHP_JSON_FORCE_OBJECT);
+			DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
+			if (JSON_G(error_code) == PHP_JSON_ERROR_NONE) {
+				const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
+				ret = object->collection->data->m.add_document(object->collection,json);	
+			} else {
+				static const unsigned int errcode = 10001;
+				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+				static const MYSQLND_CSTRING errmsg = { "Error serializing document to JSON", sizeof("Error serializing document to JSON") - 1 };
+				mysqlx_new_exception(errcode, sqlstate, errmsg);
+			}
+			smart_str_free(&buf);
+		}
+		if (FAIL == ret && !EG(exception)) {
+			static const unsigned int errcode = 10002;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Error adding document", sizeof("Error adding document") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -98,7 +126,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 
 /* {{{ mysqlx_node_collection__add_methods[] */
 static const zend_function_entry mysqlx_node_collection__add_methods[] = {
-	PHP_ME(mysqlx_node_collection__add, __construct,	NULL,												ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_collection__add, __construct,	NULL,											ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_node_collection__add,	execute,		arginfo_mysqlx_node_collection__add__execute,	ZEND_ACC_PUBLIC)
 
@@ -153,6 +181,9 @@ mysqlx_node_collection__add_free_storage(zend_object * object)
 			xmysqlnd_node_collection_free(inner_obj->collection, NULL, NULL);
 			inner_obj->collection = NULL;
 		}
+		zval_ptr_dtor(&inner_obj->json);
+		ZVAL_UNDEF(&inner_obj->json);
+
 		mnd_efree(inner_obj);
 	}
 	mysqlx_object_free_storage(object); 
@@ -223,7 +254,7 @@ mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_collection__add */
 void
-mysqlx_new_node_collection__add(zval * return_value, XMYSQLND_NODE_COLLECTION * collection, const zend_bool clone)
+mysqlx_new_node_collection__add(zval * return_value, XMYSQLND_NODE_COLLECTION * collection, const zend_bool clone, zval * json)
 {
 	DBG_ENTER("mysqlx_new_node_collection__add");
 
@@ -232,6 +263,7 @@ mysqlx_new_node_collection__add(zval * return_value, XMYSQLND_NODE_COLLECTION * 
 		struct st_mysqlx_node_collection__add * const object = (struct st_mysqlx_node_collection__add *) mysqlx_object->ptr;
 		if (object) {
 			object->collection = clone? collection->data->m.get_reference(collection) : collection;
+			ZVAL_COPY(&object->json, json);
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

@@ -38,6 +38,7 @@ typedef enum_func_status (*func_xmysqlnd_node_collection__init)(
 			MYSQLND_ERROR_INFO * const error_info);
 
 typedef XMYSQLND_NODE_COLLECTION * (*func_xmysqlnd_node_collection__get_reference)(XMYSQLND_NODE_COLLECTION * const schema);
+typedef enum_func_status		(*func_xmysqlnd_node_collection__add_document)(XMYSQLND_NODE_COLLECTION * const schema, const MYSQLND_CSTRING json);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__free_reference)(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void					(*func_xmysqlnd_node_collection__free_contents)(XMYSQLND_NODE_COLLECTION * const schema);
 typedef void					(*func_xmysqlnd_node_collection__dtor)(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -45,6 +46,8 @@ typedef void					(*func_xmysqlnd_node_collection__dtor)(XMYSQLND_NODE_COLLECTION
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection)
 {
 	func_xmysqlnd_node_collection__init init;
+
+	func_xmysqlnd_node_collection__add_document add_document;
 
 	func_xmysqlnd_node_collection__get_reference get_reference;
 	func_xmysqlnd_node_collection__free_reference free_reference;

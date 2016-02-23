@@ -65,7 +65,8 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find, 0, ZEND_RETURN_VALU
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, json)
 ZEND_END_ARG_INFO()
 
 
@@ -268,12 +269,18 @@ PHP_METHOD(mysqlx_node_collection, add)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
+	zval *json = NULL;
 
 	DBG_ENTER("mysqlx_node_collection::add");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+												&object_zv, mysqlx_node_collection_class_entry,
+												&json))
 	{
+		DBG_VOID_RETURN;
+	}
+	if (Z_TYPE_P(json) != IS_STRING && Z_TYPE_P(json) != IS_OBJECT) {
+		php_error_docref(NULL, E_WARNING, "Only strings and objects can be added. Type is %u", Z_TYPE_P(json));
 		DBG_VOID_RETURN;
 	}
 
@@ -281,10 +288,8 @@ PHP_METHOD(mysqlx_node_collection, add)
 
 	RETVAL_FALSE;
 
-//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
 	if (object->collection) {
-		mysqlx_new_node_collection__add(return_value, object->collection, TRUE /* clone */);
+		mysqlx_new_node_collection__add(return_value, object->collection, TRUE /* clone */, json);
 	}
 
 	DBG_VOID_RETURN;

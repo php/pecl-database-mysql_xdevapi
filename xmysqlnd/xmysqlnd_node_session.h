@@ -384,7 +384,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 	func_xmysqlnd_node_session__dtor dtor;
 };
 
-#define XMYSQLND_UUID_LENGTH 36
+#define XMYSQLND_UUID_LENGTH 32
 #define XMYSQLND_UUID_CACHE_ELEMENTS 8
 
 struct st_xmysqlnd_node_session

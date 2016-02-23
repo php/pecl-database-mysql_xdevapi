@@ -319,9 +319,7 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 
 	enum_func_status (*read_response)(struct st_xmysqlnd_msg__sql_stmt_execute * const msg,
 									  zval * const response);
-#if 0
-	enum_func_status (*continue_read)(struct st_xmysqlnd_msg__sql_stmt_execute * const msg);
-#endif
+
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
@@ -354,6 +352,27 @@ struct st_xmysqlnd_msg__connection_close
 	enum_func_status (*read_response)(struct st_xmysqlnd_msg__connection_close * msg);
 
 	enum_func_status (*init_read)(struct st_xmysqlnd_msg__connection_close * const msg,
+								  const struct st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
+};
+
+
+struct st_xmysqlnd_msg__collection_insert
+{
+	enum_func_status (*send_request)(struct st_xmysqlnd_msg__collection_insert * msg,
+									 const MYSQLND_CSTRING schema,
+									 const MYSQLND_CSTRING collection,
+									 const MYSQLND_CSTRING document);
+
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__collection_insert * msg);
+
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__collection_insert * const msg,
 								  const struct st_xmysqlnd_on_error_bind on_error);
 
 	MYSQLND_VIO * vio;
@@ -451,6 +470,7 @@ struct st_xmysqlnd_message_factory
 #endif
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__sql_stmt_execute)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__collection_insert	(*get__collection_insert)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__crud_insert			(*get__crud_insert)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__crud_find			(*get__crud_find)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__crud_delete			(*get__crud_delete)(const struct st_xmysqlnd_message_factory * const factory);

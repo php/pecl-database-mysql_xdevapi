@@ -1150,10 +1150,12 @@ xmysqlnd_node_session_precache_uuids_on_error(void * context,
 /* }}} */
 
 
-#define PRECACHE_SQL_PREFIX "SELECT CONCAT(UUID()"
-#define PRECACHE_SQL_SUFFIX ", UUID()"
+#define PRECACHE_SQL_PREFIX "SELECT REPLACE(CONCAT(UUID()"
+#define PRECACHE_SQL_REPEAT ", UUID()"
+#define PRECACHE_SQL_SUFFIX "), '-', '')"
 static const unsigned int precache_size = XMYSQLND_UUID_CACHE_ELEMENTS;
 static const size_t query_prefix_len = sizeof(PRECACHE_SQL_PREFIX) - 1;
+static const size_t query_repeat_len = sizeof(PRECACHE_SQL_REPEAT) - 1;
 static const size_t query_suffix_len = sizeof(PRECACHE_SQL_SUFFIX) - 1;
 
 
@@ -1163,10 +1165,11 @@ XMYSQLND_METHOD(xmysqlnd_node_session, precache_uuids)(XMYSQLND_NODE_SESSION * c
 {
 	const struct st_xmysqlnd_node_session_on_row_bind on_row = { xmysqlnd_node_session_precache_uuids_on_row, &session_handle->uuid_cache };
 	const struct st_xmysqlnd_node_session_on_error_bind on_error = { xmysqlnd_node_session_precache_uuids_on_error, NULL };
-	const size_t query_len = query_prefix_len + (precache_size - 1) * query_suffix_len + 1 ; /* 1 for ending ')' */
+	const size_t query_len = query_prefix_len + (precache_size - 1) * query_repeat_len + query_suffix_len;
 	const MYSQLND_STRING list_query = { mnd_emalloc(query_len), query_len };
 	enum_func_status ret;
 	unsigned int i;
+	char * start_pos = NULL;
 	DBG_ENTER("xmysqlnd_node_session::precache_uuids");
 
 	if (!precache_size || !list_query.s) {
@@ -1178,11 +1181,12 @@ XMYSQLND_METHOD(xmysqlnd_node_session, precache_uuids)(XMYSQLND_NODE_SESSION * c
 
 	memcpy(list_query.s, PRECACHE_SQL_PREFIX, query_prefix_len);
 
+	start_pos = list_query.s + query_prefix_len;
 	for (i = 0; i < (precache_size - 1); ++i) {
-		char * const start_pos = list_query.s + query_prefix_len + query_suffix_len * i;
-		memcpy(start_pos, PRECACHE_SQL_SUFFIX, query_suffix_len);
+		memcpy(start_pos, PRECACHE_SQL_REPEAT, query_repeat_len);
+		start_pos += query_repeat_len;
 	}
-	list_query.s[list_query.l - 1] = ')';
+	memcpy(start_pos, PRECACHE_SQL_SUFFIX, query_suffix_len);
 
 	session_handle->uuid_cache.used = 0;
 	session_handle->uuid_cache.allocated = 0;
