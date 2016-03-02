@@ -24,24 +24,31 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 
   SEARCH_PATH="/usr/local /usr"
   SEARCH_FOR="include/google/protobuf-c/protobuf-c.h"
-  if test -r $PHP_MYSQLPP/$SEARCH_FOR; then # path given as parameter
-     PROTOBUFC_DIR=$PHP_PROTOBUFC
-  else # search default path list
-     AC_MSG_CHECKING([for protobuf-c files in default path])
-     for i in $SEARCH_PATH ; do
-       if test -r $i/$SEARCH_FOR; then
-         PROTOBUFC_DIR=$i/lib/google/protobuf-c/
-         AC_MSG_RESULT(Header found in $i/include/google/protobuf-c/)
-       fi
-     done
-  fi
+  AC_MSG_CHECKING([for protobuf-c files in default path])
+  for i in $SEARCH_PATH ; do
+    if test -r $i/$SEARCH_FOR; then
+      PROTOBUFC_DIR=$i/lib/google/protobuf-c/
+      AC_MSG_RESULT(Header found in $i/include/google/protobuf-c/)
+    fi
+  done
+
+  SEARCH_PATH="/usr/local /usr"
+  SEARCH_FOR="include/boost/function.hpp"
+  AC_MSG_CHECKING([for boost::function in default path])
+  for i in $SEARCH_PATH ; do
+    if test -r $i/$SEARCH_FOR; then
+      XMYSQLND_BOOST_FUNCTION=$i/$SEARCH_FOR
+      AC_DEFINE([XMYSQLND_BOOST_FUNCTION], $XMYSQLND_BOOST_FUNCTION, [Enable experimental features])
+      AC_MSG_RESULT(Header found in $XMYSQLND_BOOST_FUNCTION)
+    fi
+  done
 
   if test "$PHP_XMYSQLND_EXPERIMENTAL_FEATURES" != "no"; then
     AC_DEFINE([XMYSQLND_EXPERIMENTAL_FEATURES], 1, [Enable experimental features])
   fi
 
   xmysqlnd_protobuf_sources="proto_gen/mysqlx_connection.pb.cc \
-						 proto_gen/mysqlx_crud.pb.cc \
+							 proto_gen/mysqlx_crud.pb.cc \
 							 proto_gen/mysqlx_datatypes.pb.cc \
 							 proto_gen/mysqlx_expect.pb.cc \
 							 proto_gen/mysqlx_expr.pb.cc \
@@ -51,6 +58,12 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 							 proto_gen/mysqlx_session.pb.cc \
 							 proto_gen/mysqlx_sql.pb.cc \
 					"
+
+  xmysqlnd_expr_parser="     crud_parsers/expression_parser.cc \
+							 crud_parsers/orderby_parser.cc \
+							 crud_parsers/projection_parser.cc \
+					"
+
 
   xmysqlnd_sources="     php_xmysqlnd.c \
 						 xmysqlnd/xmysqlnd_driver.c \
@@ -93,7 +106,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
   PHP_ADD_BUILD_DIR($ext_builddir/messages)
   PHP_ADD_BUILD_DIR($ext_builddir/proto_gen)
 
-  this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_sources"
+  this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $xmysqlnd_sources"
   PHP_NEW_EXTENSION(xmysqlnd, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
   PHP_ADD_BUILD_DIR([ext/xmysqlnd], 1)
   PHP_INSTALL_HEADERS([ext/xmysqlnd/])

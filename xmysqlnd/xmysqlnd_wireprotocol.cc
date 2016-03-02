@@ -41,6 +41,8 @@
 #include "proto_gen/mysqlx_session.pb.h"
 #include "proto_gen/mysqlx_sql.pb.h"
 
+#include "crud_parsers/xmysqlnd_crud_parsers.h"
+
 #define ENABLE_MYSQLX_CTORS 0
 
 struct st_xmysqlnd_inspect_warning_bind
@@ -2152,48 +2154,48 @@ xmysqlnd_collection_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, M
 /* }}} */
 
 
-/**************************************  CRUD_INSERT **************************************************/
-/* {{{ crud_insert_on_OK */
+/**************************************  COLLECTION_FIND **************************************************/
+/* {{{ collection_find_on_OK */
 static enum_hnd_func_status
-crud_insert_on_OK(const Mysqlx::Ok & message, void * context)
+collection_find_on_OK(const Mysqlx::Ok & message, void * context)
 {
-	struct st_xmysqlnd_msg__crud_insert * ctx = static_cast<struct st_xmysqlnd_msg__crud_insert *>(context);
+	struct st_xmysqlnd_msg__collection_find * ctx = static_cast<struct st_xmysqlnd_msg__collection_find *>(context);
 	return HND_PASS;
 }
 /* }}} */
 
 
-/* {{{ crud_insert_on_ERROR */
+/* {{{ collection_find_on_ERROR */
 static enum_hnd_func_status
-crud_insert_on_ERROR(const Mysqlx::Error & error, void * context)
+collection_find_on_ERROR(const Mysqlx::Error & error, void * context)
 {
-	struct st_xmysqlnd_msg__crud_insert * ctx = static_cast<struct st_xmysqlnd_msg__crud_insert *>(context);
+	struct st_xmysqlnd_msg__collection_find * ctx = static_cast<struct st_xmysqlnd_msg__collection_find *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("crud_insert_on_ERROR")
+	DBG_ENTER("collection_find_on_ERROR")
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
 /* }}} */
 
 
-/* {{{ crud_insert_on_NOTICE */
+/* {{{ collection_find_on_NOTICE */
 static enum_hnd_func_status
-crud_insert_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
+collection_find_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	struct st_xmysqlnd_msg__crud_insert * ctx = static_cast<struct st_xmysqlnd_msg__crud_insert *>(context);
+	struct st_xmysqlnd_msg__collection_find * ctx = static_cast<struct st_xmysqlnd_msg__collection_find *>(context);
 	return HND_AGAIN;
 }
 /* }}} */
 
 
-static struct st_xmysqlnd_server_messages_handlers crud_insert_handlers =
+static struct st_xmysqlnd_server_messages_handlers collection_find_handlers =
 {
-	crud_insert_on_OK,		// on_OK
-	crud_insert_on_ERROR,	// on_ERROR
+	collection_find_on_OK,		// on_OK
+	collection_find_on_ERROR,	// on_ERROR
 	NULL,					// on_CAPABILITIES
 	NULL,					// on_AUTHENTICATE_CONTINUE
 	NULL,					// on_AUTHENTICATE_OK
-	crud_insert_on_NOTICE,	// on_NOTICE
+	collection_find_on_NOTICE,	// on_NOTICE
 	NULL,					// on_RSET_COLUMN_META
 	NULL,					// on_RSET_ROW
 	NULL,					// on_RSET_FETCH_DONE
@@ -2205,12 +2207,12 @@ static struct st_xmysqlnd_server_messages_handlers crud_insert_handlers =
 	NULL,					// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_crud_insert__init_read */
+/* {{{ xmysqlnd_collection_find__init_read */
 extern "C" enum_func_status
-xmysqlnd_crud_insert__init_read(struct st_xmysqlnd_msg__crud_insert * const msg,
+xmysqlnd_collection_find__init_read(struct st_xmysqlnd_msg__collection_find * const msg,
 								const struct st_xmysqlnd_on_error_bind on_error)
 {
-	DBG_ENTER("xmysqlnd_crud_insert__init_read");
+	DBG_ENTER("xmysqlnd_collection_find__init_read");
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
@@ -2218,151 +2220,47 @@ xmysqlnd_crud_insert__init_read(struct st_xmysqlnd_msg__crud_insert * const msg,
 
 
 
-/* {{{ xmysqlnd_crud_insert__read_response */
+/* {{{ xmysqlnd_collection_find__read_response */
 extern "C" enum_func_status
-xmysqlnd_crud_insert__read_response(struct st_xmysqlnd_msg__crud_insert * msg)
+xmysqlnd_collection_find__read_response(struct st_xmysqlnd_msg__collection_find * msg)
 {
 	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_crud_insert__read_response");
-	ret = xmysqlnd_receive_message(&crud_insert_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	DBG_ENTER("xmysqlnd_collection_find__read_response");
+	ret = xmysqlnd_receive_message(&collection_find_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_insert__send_request */
+/* {{{ xmysqlnd_collection_find__send_request */
 extern "C" enum_func_status
-xmysqlnd_crud_insert__send_request(struct st_xmysqlnd_msg__crud_insert * msg)
-{
-	size_t bytes_sent;
-	Mysqlx::Crud::Insert message;
-
-	return xmysqlnd_send_message(COM_CRUD_INSERT, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
-}
-/* }}} */
-
-
-
-/* {{{ xmysqlnd_crud_insert__get_message */
-static struct st_xmysqlnd_msg__crud_insert
-xmysqlnd_crud_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
-{
-	struct st_xmysqlnd_msg__crud_insert ctx =
-	{
-		xmysqlnd_crud_insert__send_request,
-		xmysqlnd_crud_insert__read_response,
-		xmysqlnd_crud_insert__init_read,
-		vio,
-		pfc,
-		stats,
-		error_info,
-
-		{ NULL, NULL } /* on_error */
-	};
-	return ctx;
-}
-/* }}} */
-
-/**************************************  CRUD_FIND **************************************************/
-/* {{{ crud_find_on_OK */
-static enum_hnd_func_status
-crud_find_on_OK(const Mysqlx::Ok & message, void * context)
-{
-	struct st_xmysqlnd_msg__crud_find * ctx = static_cast<struct st_xmysqlnd_msg__crud_find *>(context);
-	return HND_PASS;
-}
-/* }}} */
-
-
-/* {{{ crud_find_on_ERROR */
-static enum_hnd_func_status
-crud_find_on_ERROR(const Mysqlx::Error & error, void * context)
-{
-	struct st_xmysqlnd_msg__crud_find * ctx = static_cast<struct st_xmysqlnd_msg__crud_find *>(context);
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("crud_find_on_ERROR")
-	on_ERROR(error, ctx->on_error);
-	return HND_PASS_RETURN_FAIL;
-}
-/* }}} */
-
-
-/* {{{ crud_find_on_NOTICE */
-static enum_hnd_func_status
-crud_find_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
-{
-	struct st_xmysqlnd_msg__crud_find * ctx = static_cast<struct st_xmysqlnd_msg__crud_find *>(context);
-	return HND_AGAIN;
-}
-/* }}} */
-
-
-static struct st_xmysqlnd_server_messages_handlers crud_find_handlers =
-{
-	crud_find_on_OK,		// on_OK
-	crud_find_on_ERROR,	// on_ERROR
-	NULL,					// on_CAPABILITIES
-	NULL,					// on_AUTHENTICATE_CONTINUE
-	NULL,					// on_AUTHENTICATE_OK
-	crud_find_on_NOTICE,	// on_NOTICE
-	NULL,					// on_RSET_COLUMN_META
-	NULL,					// on_RSET_ROW
-	NULL,					// on_RSET_FETCH_DONE
-	NULL,					// on_RESULTSET_FETCH_SUSPENDED
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,					// on_SQL_STMT_EXECUTE_OK
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,					// on_UNEXPECTED
-	NULL,					// on_UNKNOWN
-};
-
-/* {{{ xmysqlnd_crud_find__init_read */
-extern "C" enum_func_status
-xmysqlnd_crud_find__init_read(struct st_xmysqlnd_msg__crud_find * const msg,
-								const struct st_xmysqlnd_on_error_bind on_error)
-{
-	DBG_ENTER("xmysqlnd_crud_find__init_read");
-	msg->on_error = on_error;
-	DBG_RETURN(PASS);
-}
-/* }}} */
-
-
-
-/* {{{ xmysqlnd_crud_find__read_response */
-extern "C" enum_func_status
-xmysqlnd_crud_find__read_response(struct st_xmysqlnd_msg__crud_find * msg)
-{
-	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_crud_find__read_response");
-	ret = xmysqlnd_receive_message(&crud_find_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_crud_find__send_request */
-extern "C" enum_func_status
-xmysqlnd_crud_find__send_request(struct st_xmysqlnd_msg__crud_find * msg)
+xmysqlnd_collection_find__send_request(struct st_xmysqlnd_msg__collection_find * msg,
+								 const MYSQLND_CSTRING schema,
+								 const MYSQLND_CSTRING collection)
 {
 	size_t bytes_sent;
 	Mysqlx::Crud::Find message;
 
+	message.mutable_collection()->set_schema(schema.s, schema.l);
+	message.mutable_collection()->set_name(collection.s, collection.l);
+
+	message.set_data_model(Mysqlx::Crud::DOCUMENT);
+
 	return xmysqlnd_send_message(COM_CRUD_INSERT, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
 /* }}} */
 
 
 
-/* {{{ xmysqlnd_crud_find__get_message */
-static struct st_xmysqlnd_msg__crud_find
-xmysqlnd_crud_find__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_collection_find__get_message */
+static struct st_xmysqlnd_msg__collection_find
+xmysqlnd_collection_find__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	struct st_xmysqlnd_msg__crud_find ctx =
+	struct st_xmysqlnd_msg__collection_find ctx =
 	{
-		xmysqlnd_crud_find__send_request,
-		xmysqlnd_crud_find__read_response,
-		xmysqlnd_crud_find__init_read,
+		xmysqlnd_collection_find__send_request,
+		xmysqlnd_collection_find__read_response,
+		xmysqlnd_collection_find__init_read,
 		vio,
 		pfc,
 		stats,
@@ -2374,48 +2272,48 @@ xmysqlnd_crud_find__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 }
 /* }}} */
 
-/**************************************  CRUD_DELETE **************************************************/
-/* {{{ crud_delete_on_OK */
+/**************************************  COLLECTION_DELETE **************************************************/
+/* {{{ collection_delete_on_OK */
 static enum_hnd_func_status
-crud_delete_on_OK(const Mysqlx::Ok & message, void * context)
+collection_delete_on_OK(const Mysqlx::Ok & message, void * context)
 {
-	struct st_xmysqlnd_msg__crud_delete * ctx = static_cast<struct st_xmysqlnd_msg__crud_delete *>(context);
+	struct st_xmysqlnd_msg__collection_delete * ctx = static_cast<struct st_xmysqlnd_msg__collection_delete *>(context);
 	return HND_PASS;
 }
 /* }}} */
 
 
-/* {{{ crud_delete_on_ERROR */
+/* {{{ collection_delete_on_ERROR */
 static enum_hnd_func_status
-crud_delete_on_ERROR(const Mysqlx::Error & error, void * context)
+collection_delete_on_ERROR(const Mysqlx::Error & error, void * context)
 {
-	struct st_xmysqlnd_msg__crud_delete * ctx = static_cast<struct st_xmysqlnd_msg__crud_delete *>(context);
+	struct st_xmysqlnd_msg__collection_delete * ctx = static_cast<struct st_xmysqlnd_msg__collection_delete *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("crud_delete_on_ERROR")
+	DBG_ENTER("collection_delete_on_ERROR")
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
 /* }}} */
 
 
-/* {{{ crud_delete_on_NOTICE */
+/* {{{ collection_delete_on_NOTICE */
 static enum_hnd_func_status
-crud_delete_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
+collection_delete_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	struct st_xmysqlnd_msg__crud_delete * ctx = static_cast<struct st_xmysqlnd_msg__crud_delete *>(context);
+	struct st_xmysqlnd_msg__collection_delete * ctx = static_cast<struct st_xmysqlnd_msg__collection_delete *>(context);
 	return HND_AGAIN;
 }
 /* }}} */
 
 
-static struct st_xmysqlnd_server_messages_handlers crud_delete_handlers =
+static struct st_xmysqlnd_server_messages_handlers collection_delete_handlers =
 {
-	crud_delete_on_OK,		// on_OK
-	crud_delete_on_ERROR,	// on_ERROR
+	collection_delete_on_OK,		// on_OK
+	collection_delete_on_ERROR,	// on_ERROR
 	NULL,					// on_CAPABILITIES
 	NULL,					// on_AUTHENTICATE_CONTINUE
 	NULL,					// on_AUTHENTICATE_OK
-	crud_delete_on_NOTICE,	// on_NOTICE
+	collection_delete_on_NOTICE,	// on_NOTICE
 	NULL,					// on_RSET_COLUMN_META
 	NULL,					// on_RSET_ROW
 	NULL,					// on_RSET_FETCH_DONE
@@ -2427,12 +2325,12 @@ static struct st_xmysqlnd_server_messages_handlers crud_delete_handlers =
 	NULL,					// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_crud_delete__init_read */
+/* {{{ xmysqlnd_collection_delete__init_read */
 extern "C" enum_func_status
-xmysqlnd_crud_delete__init_read(struct st_xmysqlnd_msg__crud_delete * const msg,
+xmysqlnd_collection_delete__init_read(struct st_xmysqlnd_msg__collection_delete * const msg,
 								const struct st_xmysqlnd_on_error_bind on_error)
 {
-	DBG_ENTER("xmysqlnd_crud_delete__init_read");
+	DBG_ENTER("xmysqlnd_collection_delete__init_read");
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
@@ -2440,40 +2338,58 @@ xmysqlnd_crud_delete__init_read(struct st_xmysqlnd_msg__crud_delete * const msg,
 
 
 
-/* {{{ xmysqlnd_crud_delete__read_response */
+/* {{{ xmysqlnd_collection_delete__read_response */
 extern "C" enum_func_status
-xmysqlnd_crud_delete__read_response(struct st_xmysqlnd_msg__crud_delete * msg)
+xmysqlnd_collection_delete__read_response(struct st_xmysqlnd_msg__collection_delete * msg)
 {
 	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_crud_delete__read_response");
-	ret = xmysqlnd_receive_message(&crud_delete_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	DBG_ENTER("xmysqlnd_collection_delete__read_response");
+	ret = xmysqlnd_receive_message(&collection_delete_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
 /* }}} */
 
+#if 0
+message Delete {
+  required Collection collection = 1;
 
-/* {{{ xmysqlnd_crud_delete__send_request */
+  optional DataModel data_model = 2;
+  optional Mysqlx.Expr.Expr criteria = 3;
+  repeated Mysqlx.Datatypes.Scalar args = 6;
+  optional Limit limit = 4;
+  repeated Order order = 5;
+};
+#endif
+
+/* {{{ xmysqlnd_collection_delete__send_request */
 extern "C" enum_func_status
-xmysqlnd_crud_delete__send_request(struct st_xmysqlnd_msg__crud_delete * msg)
+xmysqlnd_collection_delete__send_request(struct st_xmysqlnd_msg__collection_delete * msg,
+								   const MYSQLND_CSTRING schema,
+								   const MYSQLND_CSTRING collection)
 {
 	size_t bytes_sent;
 	Mysqlx::Crud::Delete message;
 
+	message.mutable_collection()->set_schema(schema.s, schema.l);
+	message.mutable_collection()->set_name(collection.s, collection.l);
+
+	message.set_data_model(Mysqlx::Crud::DOCUMENT);
+
 	return xmysqlnd_send_message(COM_CRUD_INSERT, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
 /* }}} */
 
 
 
-/* {{{ xmysqlnd_crud_delete__get_message */
-static struct st_xmysqlnd_msg__crud_delete
-xmysqlnd_crud_delete__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_collection_delete__get_message */
+static struct st_xmysqlnd_msg__collection_delete
+xmysqlnd_collection_delete__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	struct st_xmysqlnd_msg__crud_delete ctx =
+	struct st_xmysqlnd_msg__collection_delete ctx =
 	{
-		xmysqlnd_crud_delete__send_request,
-		xmysqlnd_crud_delete__read_response,
-		xmysqlnd_crud_delete__init_read,
+		xmysqlnd_collection_delete__send_request,
+		xmysqlnd_collection_delete__read_response,
+		xmysqlnd_collection_delete__init_read,
 		vio,
 		pfc,
 		stats,
@@ -2485,48 +2401,48 @@ xmysqlnd_crud_delete__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND
 }
 /* }}} */
 
-/**************************************  CRUD_UPDATE **************************************************/
-/* {{{ crud_update_on_OK */
+/**************************************  COLLECTION_UPDATE **************************************************/
+/* {{{ collection_update_on_OK */
 static enum_hnd_func_status
-crud_update_on_OK(const Mysqlx::Ok & message, void * context)
+collection_update_on_OK(const Mysqlx::Ok & message, void * context)
 {
-	struct st_xmysqlnd_msg__crud_update * ctx = static_cast<struct st_xmysqlnd_msg__crud_update *>(context);
+	struct st_xmysqlnd_msg__collection_update * ctx = static_cast<struct st_xmysqlnd_msg__collection_update *>(context);
 	return HND_PASS;
 }
 /* }}} */
 
 
-/* {{{ crud_update_on_ERROR */
+/* {{{ collection_update_on_ERROR */
 static enum_hnd_func_status
-crud_update_on_ERROR(const Mysqlx::Error & error, void * context)
+collection_update_on_ERROR(const Mysqlx::Error & error, void * context)
 {
-	struct st_xmysqlnd_msg__crud_update * ctx = static_cast<struct st_xmysqlnd_msg__crud_update *>(context);
+	struct st_xmysqlnd_msg__collection_update * ctx = static_cast<struct st_xmysqlnd_msg__collection_update *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("crud_update_on_ERROR")
+	DBG_ENTER("collection_update_on_ERROR")
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
 /* }}} */
 
 
-/* {{{ crud_update_on_NOTICE */
+/* {{{ collection_update_on_NOTICE */
 static enum_hnd_func_status
-crud_update_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
+collection_update_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	struct st_xmysqlnd_msg__crud_update * ctx = static_cast<struct st_xmysqlnd_msg__crud_update *>(context);
+	struct st_xmysqlnd_msg__collection_update * ctx = static_cast<struct st_xmysqlnd_msg__collection_update *>(context);
 	return HND_AGAIN;
 }
 /* }}} */
 
 
-static struct st_xmysqlnd_server_messages_handlers crud_update_handlers =
+static struct st_xmysqlnd_server_messages_handlers collection_update_handlers =
 {
-	crud_update_on_OK,		// on_OK
-	crud_update_on_ERROR,	// on_ERROR
+	collection_update_on_OK,		// on_OK
+	collection_update_on_ERROR,	// on_ERROR
 	NULL,					// on_CAPABILITIES
 	NULL,					// on_AUTHENTICATE_CONTINUE
 	NULL,					// on_AUTHENTICATE_OK
-	crud_update_on_NOTICE,	// on_NOTICE
+	collection_update_on_NOTICE,	// on_NOTICE
 	NULL,					// on_RSET_COLUMN_META
 	NULL,					// on_RSET_ROW
 	NULL,					// on_RSET_FETCH_DONE
@@ -2538,12 +2454,12 @@ static struct st_xmysqlnd_server_messages_handlers crud_update_handlers =
 	NULL,					// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_crud_update__init_read */
+/* {{{ xmysqlnd_collection_update__init_read */
 extern "C" enum_func_status
-xmysqlnd_crud_update__init_read(struct st_xmysqlnd_msg__crud_update * const msg,
+xmysqlnd_collection_update__init_read(struct st_xmysqlnd_msg__collection_update * const msg,
 								const struct st_xmysqlnd_on_error_bind on_error)
 {
-	DBG_ENTER("xmysqlnd_crud_update__init_read");
+	DBG_ENTER("xmysqlnd_collection_update__init_read");
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
@@ -2551,24 +2467,31 @@ xmysqlnd_crud_update__init_read(struct st_xmysqlnd_msg__crud_update * const msg,
 
 
 
-/* {{{ xmysqlnd_crud_update__read_response */
+/* {{{ xmysqlnd_collection_update__read_response */
 extern "C" enum_func_status
-xmysqlnd_crud_update__read_response(struct st_xmysqlnd_msg__crud_update * msg)
+xmysqlnd_collection_update__read_response(struct st_xmysqlnd_msg__collection_update * msg)
 {
 	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_crud_update__read_response");
-	ret = xmysqlnd_receive_message(&crud_update_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	DBG_ENTER("xmysqlnd_collection_update__read_response");
+	ret = xmysqlnd_receive_message(&collection_update_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_update__send_request */
+/* {{{ xmysqlnd_collection_update__send_request */
 extern "C" enum_func_status
-xmysqlnd_crud_update__send_request(struct st_xmysqlnd_msg__crud_update * msg)
+xmysqlnd_collection_update__send_request(struct st_xmysqlnd_msg__collection_update * msg,
+								   const MYSQLND_CSTRING schema,
+								   const MYSQLND_CSTRING collection)
 {
 	size_t bytes_sent;
 	Mysqlx::Crud::Update message;
+
+	message.mutable_collection()->set_schema(schema.s, schema.l);
+	message.mutable_collection()->set_name(collection.s, collection.l);
+
+	message.set_data_model(Mysqlx::Crud::DOCUMENT);
 
 	return xmysqlnd_send_message(COM_CRUD_INSERT, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
@@ -2576,15 +2499,15 @@ xmysqlnd_crud_update__send_request(struct st_xmysqlnd_msg__crud_update * msg)
 
 
 
-/* {{{ xmysqlnd_crud_update__get_message */
-static struct st_xmysqlnd_msg__crud_update
-xmysqlnd_crud_update__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_collection_update__get_message */
+static struct st_xmysqlnd_msg__collection_update
+xmysqlnd_collection_update__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	struct st_xmysqlnd_msg__crud_update ctx = 
+	struct st_xmysqlnd_msg__collection_update ctx = 
 	{
-		xmysqlnd_crud_update__send_request,
-		xmysqlnd_crud_update__read_response,
-		xmysqlnd_crud_update__init_read,
+		xmysqlnd_collection_update__send_request,
+		xmysqlnd_collection_update__read_response,
+		xmysqlnd_collection_update__init_read,
 		vio,
 		pfc,
 		stats,
@@ -2661,38 +2584,29 @@ xmysqlnd_msg_factory_get__collection_insert(const struct st_xmysqlnd_message_fac
 /* }}} */
 
 
-/* {{{ xmysqlnd_msg_factory_get__crud_insert */
-static struct st_xmysqlnd_msg__crud_insert
-xmysqlnd_msg_factory_get__crud_insert(const struct st_xmysqlnd_message_factory * const factory)
+/* {{{ xmysqlnd_msg_factory_get__collection_find */
+static struct st_xmysqlnd_msg__collection_find
+xmysqlnd_msg_factory_get__collection_find(const struct st_xmysqlnd_message_factory * const factory)
 {
-	return xmysqlnd_crud_insert__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
+	return xmysqlnd_collection_find__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_msg_factory_get__crud_find */
-static struct st_xmysqlnd_msg__crud_find
-xmysqlnd_msg_factory_get__crud_find(const struct st_xmysqlnd_message_factory * const factory)
+/* {{{ xmysqlnd_msg_factory_get__collection_delete */
+static struct st_xmysqlnd_msg__collection_delete
+xmysqlnd_msg_factory_get__collection_delete(const struct st_xmysqlnd_message_factory * const factory)
 {
-	return xmysqlnd_crud_find__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
+	return xmysqlnd_collection_delete__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_msg_factory_get__crud_delete */
-static struct st_xmysqlnd_msg__crud_delete
-xmysqlnd_msg_factory_get__crud_delete(const struct st_xmysqlnd_message_factory * const factory)
+/* {{{ xmysqlnd_msg_factory_get__collection_update */
+static struct st_xmysqlnd_msg__collection_update
+xmysqlnd_msg_factory_get__collection_update(const struct st_xmysqlnd_message_factory * const factory)
 {
-	return xmysqlnd_crud_delete__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_msg_factory_get__crud_update */
-static struct st_xmysqlnd_msg__crud_update
-xmysqlnd_msg_factory_get__crud_update(const struct st_xmysqlnd_message_factory * const factory)
-{
-	return xmysqlnd_crud_update__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
+	return xmysqlnd_collection_update__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
 /* }}} */
 
@@ -2716,10 +2630,9 @@ xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * st
 		xmysqlnd_msg_factory_get__sql_stmt_execute,
 		xmysqlnd_msg_factory_get__con_close,
 		xmysqlnd_msg_factory_get__collection_insert,
-		xmysqlnd_msg_factory_get__crud_insert,
-		xmysqlnd_msg_factory_get__crud_find,
-		xmysqlnd_msg_factory_get__crud_delete,
-		xmysqlnd_msg_factory_get__crud_update
+		xmysqlnd_msg_factory_get__collection_find,
+		xmysqlnd_msg_factory_get__collection_delete,
+		xmysqlnd_msg_factory_get__collection_update
 	};
 	return factory;
 }
