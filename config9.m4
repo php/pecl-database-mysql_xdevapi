@@ -59,9 +59,9 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 							 proto_gen/mysqlx_sql.pb.cc \
 					"
 
-  xmysqlnd_expr_parser="     crud_parsers/expression_parser.cc \
-							 crud_parsers/orderby_parser.cc \
-							 crud_parsers/projection_parser.cc \
+  xmysqlnd_expr_parser="     xmysqlnd/crud_parsers/expression_parser.cc \
+							 xmysqlnd/crud_parsers/orderby_parser.cc \
+							 xmysqlnd/crud_parsers/projection_parser.cc \
 					"
 
 

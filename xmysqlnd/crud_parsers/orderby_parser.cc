@@ -16,7 +16,7 @@
   +----------------------------------------------------------------------+
 */
 
-#include "crud_parsers/orderby_parser.h"
+#include "xmysqlnd/crud_parsers/orderby_parser.h"
 #include "proto_gen/mysqlx_crud.pb.h"
 
 #include <boost/format.hpp>

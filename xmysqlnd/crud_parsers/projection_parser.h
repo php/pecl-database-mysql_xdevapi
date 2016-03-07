@@ -16,42 +16,39 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef ORDERBY_PARSER_H
-#define ORDERBY_PARSER_H
+#ifndef CRUD_PARSERS_PROJECTION_PARSER_H
+#define CRUD_PARSERS_PROJECTION_PARSER_H
 
 #include <boost/format.hpp>
-#include "crud_parsers/compilerutils.h"
-#include "crud_parsers/expression_parser.h"
+#include "xmysqlnd/crud_parsers/compilerutils.h"
+#include "xmysqlnd/crud_parsers/expression_parser.h"
 #include "proto_gen/mysqlx_crud.pb.h"
 
 #include <memory>
 
 namespace xmysqlnd
 {
-  class Orderby_parser : public Expression_parser
-  {
-  public:
-    Orderby_parser(const std::string& expr_str, const bool document_mode = false);
+class Projection_expression_parser : public Expression_parser
+{
+public:
+  Projection_expression_parser(const std::string& expr_str, const bool document_mode = false, const bool allow_alias = true);
 
-    template<typename Container>
-    void parse(Container &result)
-    {
-      Mysqlx::Crud::Order *colid = result.Add();
-      column_identifier(*colid);
-      
-      if (_tokenizer.tokens_available())
+  template<typename Container>
+  void parse(Container &result)
+  {
+    Mysqlx::Crud::Projection *colid = result.Add();
+    source_expression(*colid);
+
+    if (_tokenizer.tokens_available())
       {
         const xmysqlnd::Token& tok = _tokenizer.peek_token();
-        throw Parser_error((boost::format("Orderby parser: Expected EOF, instead stopped at token '%s' at position %d") % tok.get_text()
-          % tok.get_pos()).str());
+        throw Parser_error((boost::format("Projection parser: Expression '%s' has unexpected token '%s' at position %d") % _tokenizer.get_input() % tok.get_text() %
+          tok.get_pos()).str());
       }
-    }
+  }
 
-    //const std::string& id();
-    void column_identifier(Mysqlx::Crud::Order &orderby_expr);    
-
-    std::vector<Token>::const_iterator begin() const { return _tokenizer.begin(); }
-    std::vector<Token>::const_iterator end() const { return _tokenizer.end(); }
-  };
+  const std::string& id();
+  void source_expression(Mysqlx::Crud::Projection &column);
 };
-#endif /* ORDERBY_PARSER_H */
+};
+#endif /* CRUD_PARSERS_PROJECTION_PARSER_H */

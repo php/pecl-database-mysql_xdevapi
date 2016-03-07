@@ -35,7 +35,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/scoped_ptr.hpp>
 
-#include <crud_parsers/memory.h>
+#include <xmysqlnd/crud_parsers/memory.h>
 
 using namespace xmysqlnd;
 
