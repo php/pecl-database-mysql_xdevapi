@@ -29,7 +29,7 @@
 #include "mysqlx_node_pfc.h"
 
 #include <new>
-#include "proto_gen/mysqlx_connection.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 
 #include "mysqlx_message__ok.h"
 #include "mysqlx_message__error.h"

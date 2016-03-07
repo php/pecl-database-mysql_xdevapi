@@ -38,9 +38,9 @@
 #pragma warning (disable : 4018 4996)
 #endif
 
-#include "proto_gen/mysqlx_datatypes.pb.h"
-#include "proto_gen/mysqlx_expr.pb.h"
-#include "proto_gen/mysqlx_crud.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_expr.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
 #pragma GCC diagnostic pop

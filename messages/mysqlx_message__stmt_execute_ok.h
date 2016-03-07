@@ -19,7 +19,7 @@
 #define MYSQLX_MESSAGE__STMT_EXECUTE_OK_H
 
 #ifdef  __cplusplus
-#include "proto_gen/mysqlx_sql.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_sql.pb.h"
 void mysqlx_new_stmt_execute_ok(zval * return_value, const Mysqlx::Sql::StmtExecuteOk & message);
 #else
 void mysqlx_register_message__stmt_execute_ok_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);

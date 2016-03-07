@@ -47,16 +47,16 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
     AC_DEFINE([XMYSQLND_EXPERIMENTAL_FEATURES], 1, [Enable experimental features])
   fi
 
-  xmysqlnd_protobuf_sources="proto_gen/mysqlx_connection.pb.cc \
-							 proto_gen/mysqlx_crud.pb.cc \
-							 proto_gen/mysqlx_datatypes.pb.cc \
-							 proto_gen/mysqlx_expect.pb.cc \
-							 proto_gen/mysqlx_expr.pb.cc \
-							 proto_gen/mysqlx_notice.pb.cc \
-							 proto_gen/mysqlx.pb.cc \
-							 proto_gen/mysqlx_resultset.pb.cc \
-							 proto_gen/mysqlx_session.pb.cc \
-							 proto_gen/mysqlx_sql.pb.cc \
+  xmysqlnd_protobuf_sources="xmysqlnd/proto_gen/mysqlx_connection.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_crud.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_datatypes.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_expect.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_expr.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_notice.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_resultset.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_session.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_sql.pb.cc \
 					"
 
   xmysqlnd_expr_parser="     xmysqlnd/crud_parsers/expression_parser.cc \

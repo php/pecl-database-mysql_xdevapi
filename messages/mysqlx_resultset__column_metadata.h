@@ -19,7 +19,7 @@
 #define MYSQLX_RESULTSET__COLUMN_METADATA_H
 
 #ifdef  __cplusplus
-#include "proto_gen/mysqlx_resultset.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_resultset.pb.h"
 extern zend_class_entry *mysqlx_column_metadata_class_entry;
 
 struct st_mysqlx_column_metadata

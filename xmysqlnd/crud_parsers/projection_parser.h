@@ -22,7 +22,7 @@
 #include <boost/format.hpp>
 #include "xmysqlnd/crud_parsers/compilerutils.h"
 #include "xmysqlnd/crud_parsers/expression_parser.h"
-#include "proto_gen/mysqlx_crud.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
 
 #include <memory>
 

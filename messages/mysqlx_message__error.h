@@ -22,7 +22,7 @@
 extern zend_class_entry *mysqlx_message__error_class_entry;
 
 #ifdef  __cplusplus
-#include "proto_gen/mysqlx.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx.pb.h"
 struct st_mysqlx_message__error
 {
 	Mysqlx::Error message;

@@ -21,8 +21,8 @@
 
 #ifdef __cplusplus
 
-#include "proto_gen/mysqlx.pb.h"
-#include "proto_gen/mysqlx_connection.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 
 extern "C"
 {

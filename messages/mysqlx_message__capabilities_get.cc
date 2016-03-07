@@ -32,8 +32,8 @@
 #include <xmysqlnd/xmysqlnd_wireprotocol.h>
 
 #include <new>
-#include "proto_gen/mysqlx.pb.h"
-#include "proto_gen/mysqlx_connection.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 #include "mysqlx_message__error.h"
 
 
