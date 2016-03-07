@@ -1,13 +1,13 @@
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_connection.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_crud.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_datatypes.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_expect.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_expr.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_notice.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_resultset.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_session.proto
-dnl protoc --cpp_out proto_gen/ --proto_path proto_def/ proto_def/mysqlx_sql.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_connection.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_crud.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_datatypes.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_expect.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_expr.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_notice.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_resultset.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_session.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_sql.proto
 dnl
 dnl g++ -c proto_gen/*.cc -lprotobuf
 
