@@ -21,6 +21,7 @@
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
+#include "xmysqlnd_zval2any.h"
 
 #include <vector>
 #include <string>
@@ -31,6 +32,126 @@
 #include "crud_parsers/orderby_parser.h"
 #include "crud_parsers/projection_parser.h"
 
+struct xmysqlnd_crud_collection__remove
+{
+	std::string schema;
+	std::string name;
+	bool is_collection:1;
+	bool criteria_set:1;
+	Mysqlx::Expr::Expr * criteria;
+	size_t limit;
+	size_t offset;
+	Mysqlx::Expr::Expr * order;
+	std::vector<std::string> placeholders;
+	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
+	
+	xmysqlnd_crud_collection__remove(const std::string & schema_, const std::string &name_) :
+		schema(schema_),
+		name(name_),
+		is_collection(true),
+		criteria_set(false),
+		criteria(NULL),
+		limit(0),
+		offset(0),
+		order(NULL)
+	{}
+
+	~xmysqlnd_crud_collection__remove()
+	{
+		delete criteria;
+	}
+};
+
+/* {{{ xmysqlnd_crud_collection_remove__create */
+extern "C" struct xmysqlnd_crud_collection__remove *
+xmysqlnd_crud_collection_remove__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection)
+{
+	return new struct xmysqlnd_crud_collection__remove(std::string(schema.s, schema.l), std::string(collection.s, collection.l));
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_remove__destroy */
+extern "C" void
+xmysqlnd_crud_collection_remove__destroy(struct xmysqlnd_crud_collection__remove * obj)
+{
+	delete obj;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_remove__set_criteria */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_remove__set_criteria(struct xmysqlnd_crud_collection__remove * obj, const MYSQLND_CSTRING criteria)
+{
+	try {
+		std::string source(criteria.s, criteria.l);
+		xmysqlnd::Expression_parser parser(source, true, false, &obj->placeholders);
+		obj->criteria = parser.expr();
+
+		if (obj->bound_values.size()) {
+			obj->bound_values.clear();
+		}
+		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+
+		obj->criteria_set = true;
+	} catch (xmysqlnd::Parser_error &e) {
+		return FAIL;
+	}
+	return PASS;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_remove__set_limit */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_remove__set_limit(struct xmysqlnd_crud_collection__remove * obj, const size_t limit)
+{
+	obj->limit = limit;
+	return PASS;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_remove__set_offset */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_remove__set_offset(struct xmysqlnd_crud_collection__remove * obj, const size_t offset)
+{
+	obj->offset = offset;
+	return PASS;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_remove__bind_value */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_remove__bind_value(struct xmysqlnd_crud_collection__remove * obj, const MYSQLND_CSTRING name, zval * value)
+{
+	if (!obj->criteria_set) {
+		return FAIL;
+	}
+
+	const std::string var_name(name.s, name.l);
+	const std::vector<std::string>::iterator begin = obj->placeholders.begin();
+	const std::vector<std::string>::iterator end = obj->placeholders.end();
+	const std::vector<std::string>::const_iterator index = std::find(begin, end, var_name);
+	if (index == end) {
+		return FAIL;
+	}
+
+	Mysqlx::Datatypes::Any any;
+	if (FAIL == zval2any(value, any)) {
+		return FAIL;
+
+	}
+	obj->bound_values[index - begin] = any.release_scalar();
+
+	return PASS;
+}
+/* }}} */
+
+
+#ifdef A0
 /* {{{ xmysqlnd_crud_parse_collection_filter */
 PHPAPI XMYSQLND_CRUD_COLLECTION_FILTER
 xmysqlnd_crud_parse_collection_filter(const std::string &source, std::vector<std::string>* placeholders)
@@ -101,7 +222,6 @@ xmysqlnd_crud_parse_table_filter(const std::string &source, std::vector<std::str
 /* }}} */
 
 
-#ifdef A0
 /* {{{ xmysqlnd_crud_parse_collection_sort_column */
 template<typename Container>
 void xmysqlnd_crud_parse_collection_sort_column(Container &container, const std::string &source)

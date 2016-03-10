@@ -18,45 +18,22 @@
 #ifndef XMYSQLND_CRUD_EXPRESSION_PARSERS_H
 #define XMYSQLND_CRUD_EXPRESSION_PARSERS_H
 
-#include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
-#include "xmysqlnd/proto_gen/mysqlx_expr.pb.h"
-#include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
-
-typedef struct st_xmysqlnd_crud_collection_filter
+#ifdef __cplusplus
+extern "C"
 {
-	void * expr;
-	zend_bool valid;
-} XMYSQLND_CRUD_COLLECTION_FILTER;
+#endif
+struct xmysqlnd_crud_collection__remove;
 
+struct xmysqlnd_crud_collection__remove * xmysqlnd_crud_collection_remove__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);
+void xmysqlnd_crud_collection_remove__destroy(struct xmysqlnd_crud_collection__remove * obj);
+enum_func_status xmysqlnd_crud_collection_remove__set_criteria(struct xmysqlnd_crud_collection__remove * obj, const MYSQLND_CSTRING criteria);
+enum_func_status xmysqlnd_crud_collection_remove__set_limit(struct xmysqlnd_crud_collection__remove * obj, const size_t limit);
+enum_func_status xmysqlnd_crud_collection_remove__set_offset(struct xmysqlnd_crud_collection__remove * obj, const size_t offset);
+enum_func_status xmysqlnd_crud_collection_remove__bind_value(struct xmysqlnd_crud_collection__remove * obj, const MYSQLND_CSTRING name, zval * value);
 
-typedef struct st_xmysqlnd_crud_document_path
-{
-	void * expr;
-	zend_bool valid;
-} XMYSQLND_CRUD_DOCUMENT_PATH;
-
-
-typedef struct st_xmysqlnd_crud_column_identifier
-{
-	void * expr;
-	zend_bool valid;
-} XMYSQLND_CRUD_COLUMN_IDENTIFIER;
-
-
-typedef struct st_xmysqlnd_crud_table_filter
-{
-	void * expr;
-	zend_bool valid;
-} XMYSQLND_CRUD_TABLE_FILTER;
-
-
-PHPAPI XMYSQLND_CRUD_COLLECTION_FILTER xmysqlnd_crud_parse_collection_filter(const std::string &source, std::vector<std::string>* placeholders);
-
-PHPAPI XMYSQLND_CRUD_DOCUMENT_PATH xmysqlnd_crud_parse_document_path(const std::string& source, Mysqlx::Expr::ColumnIdentifier& col_identifier);
-
-PHPAPI XMYSQLND_CRUD_COLUMN_IDENTIFIER xmysqlnd_crud_parse_column_identifier(const std::string& source);
-
-PHPAPI XMYSQLND_CRUD_TABLE_FILTER xmysqlnd_crud_parse_table_filter(const std::string &source, std::vector<std::string>* placeholders);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XMYSQLND_CRUD_EXPRESSION_PARSERS_H */
 
