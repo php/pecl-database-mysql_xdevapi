@@ -278,7 +278,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_collection, remove_document)(XMYSQLND_NODE_COLLECTION * const collection,
 														   void * search_condition,
 														   void * sort_condition,
-														   size_t limit)
+														   const size_t limit)
 {
 	enum_func_status ret = PASS;
 	DBG_ENTER("xmysqlnd_node_collection::remove_document");

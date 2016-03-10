@@ -16,7 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "xmysqlnd/crud_parsers/projection_parser.h"
-#include "proto_gen/mysqlx_crud.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
 
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
