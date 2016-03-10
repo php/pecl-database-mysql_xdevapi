@@ -15,50 +15,91 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php.h"
+#include "ext/json/php_json_parser.h"
+#include "ext/mysqlnd/mysqlnd.h"
+#include "ext/mysqlnd/mysqlnd_debug.h"
+#include "xmysqlnd.h"
+#include "xmysqlnd_driver.h"
+
+#include <vector>
+#include <string>
+
+#include "xmysqlnd_crud_expression_parsers.h"
 
 #include "crud_parsers/expression_parser.h"
 #include "crud_parsers/orderby_parser.h"
 #include "crud_parsers/projection_parser.h"
 
-#include <string>
-
 /* {{{ xmysqlnd_crud_parse_collection_filter */
-Mysqlx::Expr::Expr *
-xmysqlnd_crud_parse_collection_filter(const std::string &source, std::vector<std::string>* placeholders = NULL)
+PHPAPI XMYSQLND_CRUD_COLLECTION_FILTER
+xmysqlnd_crud_parse_collection_filter(const std::string &source, std::vector<std::string>* placeholders)
 {
-  xmysqlnd::Expression_parser parser(source, true, false, placeholders);
-  return parser.expr();
+	XMYSQLND_CRUD_COLLECTION_FILTER filter = { NULL, FALSE };
+	
+	try {
+		xmysqlnd::Expression_parser parser(source, true, false, placeholders);
+		filter.expr = parser.expr();
+		filter.valid = TRUE;
+	} catch (xmysqlnd::Parser_error &e) {
+	
+	}
+	return filter;
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_crud_parse_document_path */
-void
-xmysqlnd_crud_parse_document_path(const std::string& source, Mysqlx::Expr::ColumnIdentifier& colid)
+PHPAPI XMYSQLND_CRUD_DOCUMENT_PATH
+xmysqlnd_crud_parse_document_path(const std::string& source, Mysqlx::Expr::ColumnIdentifier& col_identifier)
 {
-  xmysqlnd::Expression_parser parser(source, true);
-  return parser.document_path(colid);
+	XMYSQLND_CRUD_DOCUMENT_PATH doc_path = { NULL, FALSE };
+	
+	try {
+		xmysqlnd::Expression_parser parser(source, true);
+		parser.document_path(col_identifier);
+		doc_path.valid = TRUE;
+	} catch (xmysqlnd::Parser_error &e) {
+	
+	}
+	return doc_path;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_parse_document_path */
-Mysqlx::Expr::Expr *
+/* {{{ xmysqlnd_crud_parse_column_identifier */
+PHPAPI XMYSQLND_CRUD_COLUMN_IDENTIFIER
 xmysqlnd_crud_parse_column_identifier(const std::string& source)
 {
-  xmysqlnd::Expression_parser parser(source, true);
-  return parser.document_field();
+	XMYSQLND_CRUD_COLUMN_IDENTIFIER col_identifier = { NULL, FALSE };
+	try {
+		xmysqlnd::Expression_parser parser(source, true);
+		col_identifier.expr = parser.document_field();
+		col_identifier.valid = TRUE;
+	} catch (xmysqlnd::Parser_error &e) {
+
+	}
+	return col_identifier;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_parse_document_path */
-Mysqlx::Expr::Expr*
-xmysqlnd_crud_parse_table_filter(const std::string &source, std::vector<std::string>* placeholders = NULL)
+/* {{{ xmysqlnd_crud_parse_table_filter */
+PHPAPI XMYSQLND_CRUD_TABLE_FILTER
+xmysqlnd_crud_parse_table_filter(const std::string &source, std::vector<std::string>* placeholders)
 {
-  xmysqlnd::Expression_parser parser(source, false, false, placeholders);
-  return parser.expr();
+	XMYSQLND_CRUD_TABLE_FILTER table_filter = { NULL, FALSE };
+	try {
+		xmysqlnd::Expression_parser parser(source, false, false, placeholders);
+		table_filter.expr = parser.expr();
+		table_filter.valid = TRUE;
+	} catch (xmysqlnd::Parser_error &e) {
+
+	}
+	return table_filter;
 }
+/* }}} */
+
 
 #ifdef A0
 /* {{{ xmysqlnd_crud_parse_collection_sort_column */
@@ -121,3 +162,13 @@ void xmysqlnd_crud_parse_table_column_list_with_alias(Container &container, cons
 /* }}} */
 
 #endif
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

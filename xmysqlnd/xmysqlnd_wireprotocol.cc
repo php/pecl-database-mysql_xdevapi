@@ -610,7 +610,7 @@ capabilities_get_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	struct st_xmysqlnd_msg__capabilities_get * ctx = static_cast<struct st_xmysqlnd_msg__capabilities_get *>(context);
-	DBG_ENTER("capabilities_get_on_ERROR")
+	DBG_ENTER("capabilities_get_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
