@@ -198,6 +198,7 @@ static PHP_RSHUTDOWN_FUNCTION(xmysqlnd)
 static const zend_module_dep xmysqlnd_deps[] = {
 	ZEND_MOD_REQUIRED("standard")
 	ZEND_MOD_REQUIRED("mysqlnd")
+	ZEND_MOD_REQUIRED("json")
 	ZEND_MOD_END
 };
 /* }}} */
