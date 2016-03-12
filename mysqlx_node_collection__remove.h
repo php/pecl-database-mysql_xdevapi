@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_COLLECTION__REMOVE_H
 #define MYSQLX_NODE_COLLECTION__REMOVE_H
 
-void mysqlx_new_node_collection__remove(zval * return_value, struct st_xmysqlnd_node_collection * schema, const zend_bool clone);
+void mysqlx_new_node_collection__remove(zval * return_value, const MYSQLND_CSTRING search_expression, struct st_xmysqlnd_node_collection * schema, const zend_bool clone);
 void mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS);
 

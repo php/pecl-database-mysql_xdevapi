@@ -75,6 +75,7 @@ ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_expression, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
@@ -269,7 +270,7 @@ PHP_METHOD(mysqlx_node_collection, add)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
-	zval *json = NULL;
+	zval * json = NULL;
 
 	DBG_ENTER("mysqlx_node_collection::add");
 
@@ -363,11 +364,13 @@ PHP_METHOD(mysqlx_node_collection, remove)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
+	MYSQLND_CSTRING search_expr = {NULL, 0};
 
 	DBG_ENTER("mysqlx_node_collection::remove");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s",
+												&object_zv, mysqlx_node_collection_class_entry,
+												&(search_expr.s), &(search_expr.l)))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -376,10 +379,8 @@ PHP_METHOD(mysqlx_node_collection, remove)
 
 	RETVAL_FALSE;
 
-//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
 	if (object->collection) {
-		mysqlx_new_node_collection__remove(return_value, object->collection, TRUE /* clone */);
+		mysqlx_new_node_collection__remove(return_value, search_expr, object->collection, TRUE /* clone */);
 	}
 
 	DBG_VOID_RETURN;

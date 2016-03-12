@@ -275,13 +275,21 @@ CollectionRemoveFunction
 */
 /* {{{ xmysqlnd_node_collection::remove_document */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_collection, remove_document)(XMYSQLND_NODE_COLLECTION * const collection,
-														   void * search_condition,
-														   void * sort_condition,
-														   const size_t limit)
+XMYSQLND_METHOD(xmysqlnd_node_collection, remove_document)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_collection::remove_document");
+
+	if (xmysqlnd_crud_collection_remove__is_initialized(op)) {
+		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
+		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+		struct st_xmysqlnd_msg__collection_rud collection_rud = msg_factory.get__collection_rud(&msg_factory);
+		ret = collection_rud.send_delete_request(&collection_rud, xmysqlnd_crud_collection_remove__get_protobuf_message(op));
+		if (PASS == ret) {
+			ret = collection_rud.read_response(&collection_rud);
+		}
+		DBG_INF(ret == PASS? "PASS":"FAIL");
+	}
 
 	DBG_RETURN(ret);
 }

@@ -141,7 +141,7 @@ xmysqlnd_dump_function_call(const Mysqlx::Expr::FunctionCall & fc)
 	
 	}
 
-	DBG_INF_FMT("%d fc::params", fc.param_size());
+	DBG_INF_FMT("%d fc::params", fc.param_size());
 	for (unsigned int i = 0; i < fc.param_size(); ++i) {
 		xmysqlnd_dump_expr(fc.param(i));
 	}	
@@ -414,6 +414,9 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 					/* expression dump */
 					DBG_INF_FMT("expr is %s", order.has_expr()? "SET":"NOT SET");
+					if (order.has_expr()) {
+						xmysqlnd_dump_expr(order.expr());
+					}
 
 					const bool has_direction = order.has_direction();
 					DBG_INF_FMT("direction[%s]=[%s]", has_direction? "SET":"NOT SET",
@@ -511,6 +514,9 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 					/* expression dump */
 					DBG_INF_FMT("expr is %s", order.has_expr()? "SET":"NOT SET");
+					if (order.has_expr()) {
+						xmysqlnd_dump_expr(order.expr());
+					}
 
 					const bool has_direction = order.has_direction();
 					DBG_INF_FMT("direction[%s]=[%s]", has_direction? "SET":"NOT SET",
@@ -570,6 +576,9 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 					/* expression dump */
 					DBG_INF_FMT("expr is %s", order.has_expr()? "SET":"NOT SET");
+					if (order.has_expr()) {
+						xmysqlnd_dump_expr(order.expr());
+					}
 
 					const bool has_direction = order.has_direction();
 					DBG_INF_FMT("direction[%s]=[%s]", has_direction? "SET":"NOT SET",

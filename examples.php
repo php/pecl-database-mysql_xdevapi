@@ -48,7 +48,7 @@ if (0) {
 if (1) {
 	$a = new stdclass();
 	$a->b = new stdclass();
-	$a->__id=1; $a->foo="bar";$a->b->c="d";$a->b->d=[1,2];
+	$a->pid=getmypid(); $a->foo="bar";$a->b->c="d";$a->b->d=[1,2];
 	
 	var_dump($c->generateUUID());
 //	var_dump($clients = $c->listClients());
@@ -56,10 +56,16 @@ if (1) {
 //	var_dump("client_id=",$client_id);
 //	var_dump($c->killClient($client_id));
 
-	$collection =  $c->getSchema("test")->createCollection("newcollection");
-	$collection->add($a)->execute();
+//	$collection =  $c->getSchema("test")->createCollection("newcollection");
+	$collection =  $c->getSchema("test")->getCollection("newcollection");
+	$remover = $collection->remove();
+	var_dump($remover);
+	var_dump($remover->sort(["_id DESC", "pid DESC"]));
+	var_dump($remover->limit(4));
+	var_dump($remover->execute());
+//	$collection->add($a)->execute();
 //	$collection->add(json_encode($a))->execute();
-	var_dump($collection->drop());
+//	var_dump($collection->drop());
 exit;
 	var_dump($c->getSchemas());
 

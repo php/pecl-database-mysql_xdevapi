@@ -15,6 +15,11 @@
   | Authors: Oracle Corp                                                 |
   +----------------------------------------------------------------------+
 */
+#include "php.h"
+#include "ext/mysqlnd/mysqlnd.h"
+#include "ext/mysqlnd/mysqlnd_statistics.h"
+#include "ext/mysqlnd/mysqlnd_debug.h"
+
 
 #include "expression_parser.h"
 
@@ -40,6 +45,95 @@
 using namespace xmysqlnd;
 
 struct Tokenizer::Maps Tokenizer::map;
+
+static const char * token_names [] = 
+    {
+	  "XMYSQLND",
+      "NOT",
+      "AND",
+      "OR",
+      "XOR",
+      "IS",
+      "LPAREN",
+      "RPAREN",
+      "LSQBRACKET",
+      "RSQBRACKET",
+      "BETWEEN0",
+      "TRUE_",
+      "T_NULL",
+      "FALSE_",
+      "IN_",
+      "LIKE",
+      "INTERVAL",
+      "REGEXP",
+      "ESCAPE",
+      "IDENT",
+      "LSTRING0",
+      "LNUM",
+      "DOT",
+      "AT",
+      "COMMA",
+      "EQ",
+      "NE",
+      "GT",
+      "GE",
+      "LT",
+      "LE0",
+      "BITAND",
+      "BITOR",
+      "BITXOR",
+      "LSHIFT",
+      "RSHIFT",
+      "PLUS",
+      "MINUS",
+      "MUL",
+      "DIV",
+      "HEX0",
+      "BIN",
+      "NEG",
+      "BANG",
+      "MICROSECOND",
+      "SECOND",
+      "MINUTE",
+      "HOUR",
+      "DAY",
+      "WEEK",
+      "MONTH0",
+      "QUARTER",
+      "YEAR",
+      "PLACEHOLDER",
+      "DOUBLESTAR",
+      "MOD",
+      "AS",
+      "ASC",
+      "DESC",
+      "CAST",
+      "CHARACTER0",
+      "SET",
+      "CHARSET",
+      "ASCII",
+      "UNICODE",
+      "BYTE",
+      "BINARY",
+      "CHAR",
+      "NCHAR",
+      "DATE",
+      "DATETIME0",
+      "TIME",
+      "DECIMAL",
+      "SIGNED",
+      "UNSIGNED",
+      "INTEGER",  // 'integer' keyword
+      "LINTEGER", // integer number
+      "DOLLAR",
+      "JSON",
+      "COLON",
+      "LCURLY",
+      "RCURLY",
+      "ARROW",
+      "QUOTE"
+    };
+
 
 Tokenizer::Maps::Maps()
 {
@@ -193,16 +287,23 @@ Mysqlx::Expr::Expr* Expr_builder::build_unary_op(const std::string& name, Mysqlx
 
 Token::Token(Token::TokenType type, const std::string& text, int cur_pos) : _type(type), _text(text), _pos(cur_pos)
 {
+	DBG_ENTER("Token::Token");
+	DBG_INF_FMT("type=%2u  cur_pos=%3d  token_name=[%-10s]  text=[%*s]", _type, _pos, token_names[_type], _text.size(), _text.c_str());
+	DBG_VOID_RETURN;
 }
 
 const std::string& Token::get_text() const
 {
-  return _text;
+  DBG_ENTER("Token::get_text");
+  DBG_INF_FMT("text=[%*s]", _text.size(), _text.c_str());
+  DBG_RETURN(_text);
 }
 
 Token::TokenType Token::get_type() const
 {
-  return _type;
+  DBG_ENTER("Token::get_type");
+  DBG_INF_FMT("type=%2u  token_name=%s", _type, token_names[_type]);
+  DBG_RETURN(_type);
 }
 
 struct Tokenizer::Maps map;
@@ -228,12 +329,16 @@ void Tokenizer::assert_cur_token(Token::TokenType type)
 
 bool Tokenizer::cur_token_type_is(Token::TokenType type)
 {
-  return pos_token_type_is(_pos, type);
+  DBG_ENTER("Tokenizer::cur_token_type_is");
+  DBG_INF_FMT("is current a %s=%u", token_names[type], pos_token_type_is(_pos + 1, type));
+  DBG_RETURN(pos_token_type_is(_pos, type));
 }
 
 bool Tokenizer::next_token_type(Token::TokenType type)
 {
-  return pos_token_type_is(_pos + 1, type);
+  DBG_ENTER("Tokenizer::next_token_type");
+  DBG_INF_FMT("is next a %s=%u", token_names[type], pos_token_type_is(_pos + 1, type));
+  DBG_RETURN(pos_token_type_is(_pos + 1, type));
 }
 
 bool Tokenizer::pos_token_type_is(tokens_t::size_type pos, Token::TokenType type)
@@ -243,16 +348,19 @@ bool Tokenizer::pos_token_type_is(tokens_t::size_type pos, Token::TokenType type
 
 const std::string& Tokenizer::consume_token(Token::TokenType type)
 {
+  DBG_ENTER("Tokenizer::consume_token");
   assert_cur_token(type);
   const std::string& v = _tokens[_pos++].get_text();
-  return v;
+  DBG_INF_FMT("value=%*s", v.size(), v.c_str());
+  DBG_RETURN(v);
 }
 
 const Token& Tokenizer::peek_token()
 {
+  DBG_ENTER("Tokenizer::peek_token");
   assert_tok_position();
   Token& t = _tokens[_pos];
-  return t;
+  DBG_RETURN(t);
 }
 
 void Tokenizer::unget_token()
@@ -264,6 +372,7 @@ void Tokenizer::unget_token()
 
 void Tokenizer::get_tokens()
 {
+  DBG_ENTER("Tokenizer::get_tokens");
   bool arrow_last = false;
   bool inside_arrow = false;
   for (size_t i = 0; i < _input.size(); ++i)
@@ -557,6 +666,7 @@ void Tokenizer::get_tokens()
       --i;
     }
   }
+  DBG_VOID_RETURN;
 }
 
 void Tokenizer::inc_pos_token()
@@ -571,10 +681,11 @@ int Tokenizer::get_token_pos()
 
 const Token& Tokenizer::consume_any_token()
 {
+  DBG_ENTER("Tokenizer::consume_any_token");
   assert_tok_position();
   Token& tok = _tokens[_pos];
   ++_pos;
-  return tok;
+  DBG_RETURN(tok);
 }
 
 void Tokenizer::assert_tok_position()
@@ -626,6 +737,7 @@ Expression_parser::Expression_parser(const std::string& expr_str, bool document_
  */
 void Expression_parser::paren_expr_list(::google::protobuf::RepeatedPtrField< ::Mysqlx::Expr::Expr >* expr_list)
 {
+  DBG_ENTER("Expression_parser::paren_expr_list");
   // Parse a paren-bounded expression list for function arguments or IN list and return a list of Expr objects
   _tokenizer.consume_token(Token::LPAREN);
   if (!_tokenizer.cur_token_type_is(Token::RPAREN))
@@ -640,6 +752,7 @@ void Expression_parser::paren_expr_list(::google::protobuf::RepeatedPtrField< ::
     }
   }
   _tokenizer.consume_token(Token::RPAREN);
+  DBG_VOID_RETURN;
 }
 
 /*
@@ -647,6 +760,7 @@ void Expression_parser::paren_expr_list(::google::protobuf::RepeatedPtrField< ::
  */
 Mysqlx::Expr::Identifier* Expression_parser::identifier()
 {
+  DBG_ENTER("Expression_parser::identifier");
   _tokenizer.assert_cur_token(Token::IDENT);
   Memory_new<Mysqlx::Expr::Identifier>::Unique_ptr id(new Mysqlx::Expr::Identifier());
   if (_tokenizer.next_token_type(Token::DOT))
@@ -657,7 +771,7 @@ Mysqlx::Expr::Identifier* Expression_parser::identifier()
   }
   const std::string& name = _tokenizer.consume_token(Token::IDENT);
   id->set_name(name.c_str(), name.size());
-  return id.release();
+  DBG_RETURN(id.release());
 }
 
 /*
@@ -665,6 +779,7 @@ Mysqlx::Expr::Identifier* Expression_parser::identifier()
  */
 Mysqlx::Expr::Expr* Expression_parser::function_call()
 {
+  DBG_ENTER("Expression_parser::function_call");
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr e(new Mysqlx::Expr::Expr());
   e->set_type(Mysqlx::Expr::Expr::FUNC_CALL);
   Mysqlx::Expr::FunctionCall* func = e->mutable_function_call();
@@ -672,7 +787,7 @@ Mysqlx::Expr::Expr* Expression_parser::function_call()
   func->set_allocated_name(id.get());
 
   paren_expr_list(func->mutable_param());
-  return e.release();
+  DBG_RETURN(e.release());
 }
 
 /*
@@ -680,6 +795,7 @@ Mysqlx::Expr::Expr* Expression_parser::function_call()
  */
 void Expression_parser::docpath_member(Mysqlx::Expr::DocumentPathItem& item)
 {
+  DBG_ENTER("Expression_parser::docpath_member");
   _tokenizer.consume_token(Token::DOT);
   item.set_type(Mysqlx::Expr::DocumentPathItem::MEMBER);
   if (_tokenizer.cur_token_type_is(Token::IDENT))
@@ -703,6 +819,7 @@ void Expression_parser::docpath_member(Mysqlx::Expr::DocumentPathItem& item)
     const Token& tok = _tokenizer.peek_token();
     throw Parser_error((boost::format("Expected token type IDENT or LSTRING in JSON path at position %d (%s)") % tok.get_pos() % tok.get_text()).str());
   }
+  DBG_VOID_RETURN;
 }
 
 /*
@@ -710,6 +827,7 @@ void Expression_parser::docpath_member(Mysqlx::Expr::DocumentPathItem& item)
  */
 void Expression_parser::docpath_array_loc(Mysqlx::Expr::DocumentPathItem& item)
 {
+  DBG_ENTER("Expression_parser::docpath_array_loc");
   _tokenizer.consume_token(Token::LSQBRACKET);
   const Token& tok = _tokenizer.peek_token();
   if (_tokenizer.cur_token_type_is(Token::MUL))
@@ -731,6 +849,7 @@ void Expression_parser::docpath_array_loc(Mysqlx::Expr::DocumentPathItem& item)
   {
     throw Parser_error((boost::format("Exception token type MUL or LINTEGER in JSON path array index at token position %d (%s)") % tok.get_pos() % tok.get_text()).str());
   }
+  DBG_VOID_RETURN;
 }
 
 /*
@@ -738,6 +857,7 @@ void Expression_parser::docpath_array_loc(Mysqlx::Expr::DocumentPathItem& item)
  */
 void Expression_parser::document_path(Mysqlx::Expr::ColumnIdentifier& colid)
 {
+  DBG_ENTER("Expression_parser::document_path");
   // Parse a JSON-style document path, like WL#7909, prefixing with $
   while (true)
   {
@@ -766,6 +886,7 @@ void Expression_parser::document_path(Mysqlx::Expr::ColumnIdentifier& colid)
     const Token& tok = _tokenizer.peek_token();
     throw Parser_error((boost::format("JSON path may not end in '**' at position %d (%s)") % tok.get_pos() % tok.get_text()).str());
   }
+  DBG_VOID_RETURN;
 }
 
 /*
@@ -838,6 +959,7 @@ Mysqlx::Expr::Expr* Expression_parser::column_field()
  */
 Mysqlx::Expr::Expr* Expression_parser::document_field()
 {
+  DBG_ENTER("Expression_parser::document_field");
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr e(new Mysqlx::Expr::Expr());
 
   if (_tokenizer.cur_token_type_is(Token::DOLLAR))
@@ -853,7 +975,7 @@ Mysqlx::Expr::Expr* Expression_parser::document_field()
   document_path(*colid);
 
   e->set_type(Mysqlx::Expr::Expr::IDENT);
-  return e.release();
+  DBG_RETURN(e.release());
 }
 
 /*
@@ -1013,6 +1135,7 @@ Mysqlx::Expr::Expr* Expression_parser::atomic_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::array_()
 {
+  DBG_ENTER("Expression_parser::array_");
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr result(new Mysqlx::Expr::Expr());
 
   result->set_type(Mysqlx::Expr::Expr_Type_ARRAY);
@@ -1039,7 +1162,7 @@ Mysqlx::Expr::Expr* Expression_parser::array_()
 
   _tokenizer.consume_token(Token::RSQBRACKET);
 
-  return result.release();
+  DBG_RETURN(result.release());
 }
 
 /**
@@ -1059,6 +1182,7 @@ void Expression_parser::json_key_value(Mysqlx::Expr::Object* obj)
 */
 Mysqlx::Expr::Expr* Expression_parser::json_doc()
 {
+  DBG_ENTER("Expression_parser::placeholder");
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr result(new Mysqlx::Expr::Expr());
   Mysqlx::Expr::Object* obj = result->mutable_object();
   result->set_type(Mysqlx::Expr::Expr_Type_OBJECT);
@@ -1074,7 +1198,7 @@ Mysqlx::Expr::Expr* Expression_parser::json_doc()
     }
   }
   _tokenizer.consume_token(Token::RCURLY);
-  return result.release();
+  DBG_RETURN(result.release());
 }
 
 /**
@@ -1082,6 +1206,7 @@ Mysqlx::Expr::Expr* Expression_parser::json_doc()
  */
 Mysqlx::Expr::Expr* Expression_parser::placeholder()
 {
+  DBG_ENTER("Expression_parser::placeholder");
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr result(new Mysqlx::Expr::Expr());
   result->set_type(Mysqlx::Expr::Expr_Type_PLACEHOLDER);
 
@@ -1113,7 +1238,7 @@ Mysqlx::Expr::Expr* Expression_parser::placeholder()
 
   result->set_position(position);
 
-  return result.release();
+  DBG_RETURN(result.release());
 }
 
 /**
@@ -1121,6 +1246,7 @@ Mysqlx::Expr::Expr* Expression_parser::placeholder()
  */
 Mysqlx::Expr::Expr* Expression_parser::cast()
 {
+  DBG_ENTER("Expression_parser::cast");
   _tokenizer.consume_token(Token::CAST);
   _tokenizer.consume_token(Token::LPAREN);
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr e(my_expr());
@@ -1146,7 +1272,7 @@ Mysqlx::Expr::Expr* Expression_parser::cast()
   params->AddAllocated(type_expr.release());
   _tokenizer.consume_token(Token::RPAREN);
 
-  return result.release();
+  DBG_RETURN(result.release());
 }
 
 /**
@@ -1155,6 +1281,7 @@ Mysqlx::Expr::Expr* Expression_parser::cast()
  */
 std::string Expression_parser::cast_data_type()
 {
+  DBG_ENTER("Expression_parser::cast_data_type");
   std::string result;
   const Token& token = _tokenizer.peek_token();
   Token::TokenType type = token.get_type();
@@ -1219,7 +1346,7 @@ std::string Expression_parser::cast_data_type()
     throw Parser_error((boost::format("Unknown token type = %d when expecting atomic expression at position %d (%s)") % token.get_type() % token.get_pos() % token.get_text()).str());
   }
 
-  return result;
+  DBG_RETURN(result);
 }
 
 /**
@@ -1286,6 +1413,7 @@ std::string Expression_parser::opt_binary()
  */
 std::string Expression_parser::charset_def()
 {
+  DBG_ENTER("Expression_parser::charset_def");
   std::string result;
   const Token& token = _tokenizer.consume_any_token();
   if (token.get_type() == Token::CHARACTER)
@@ -1313,7 +1441,7 @@ std::string Expression_parser::charset_def()
     throw Parser_error((boost::format("Expected either IDENT, LSTRING or BINARY, but got unknown token type = %d when expecting atomic expression at position %d (%s)")
       % token2.get_type() % token2.get_pos() % token2.get_text()).str());
   }
-  return result;
+  DBG_RETURN(result);
 }
 
 /**
@@ -1321,6 +1449,7 @@ std::string Expression_parser::charset_def()
  */
 Mysqlx::Expr::Expr *Expression_parser::binary()
 {
+  DBG_ENTER("Expression_parser::binary");
   // binary
   _tokenizer.consume_token(Token::BINARY);
 
@@ -1334,21 +1463,25 @@ Mysqlx::Expr::Expr *Expression_parser::binary()
   // expr
   Mysqlx::Expr::Expr* arg = my_expr();
   params->AddAllocated(arg);
-  return e.release();
+  DBG_RETURN(e.release());
 }
 
 Mysqlx::Expr::Expr* Expression_parser::parse_left_assoc_binary_op_expr(std::set<Token::TokenType>& types, inner_parser_t inner_parser)
 {
+  DBG_ENTER("Expression_parser::parse_left_assoc_binary_op_expr")
   // Given a `set' of types and an Expr-returning inner parser function, parse a left associate binary operator expression
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr lhs(inner_parser(this));
   while (_tokenizer.tokens_available() && _tokenizer.is_type_within_set(types))
   {
     Memory_new<Mysqlx::Expr::Expr>::Unique_ptr e(new Mysqlx::Expr::Expr());
+	DBG_INF_FMT("Mysqlx::Expr::Expr::OPERATOR");
     e->set_type(Mysqlx::Expr::Expr::OPERATOR);
     const Token &t = _tokenizer.consume_any_token();
     const std::string& op_val = t.get_text();
     Mysqlx::Expr::Operator* op = e->mutable_operator_();
+	DBG_INF_FMT("op_val=[%s]", op_val.c_str());
     std::string& op_normalized = _tokenizer.map.operator_names.at(op_val);
+	DBG_INF_FMT("normalized_name=[%*s]", op_normalized.size(), op_normalized.c_str());
     op->set_name(op_normalized.c_str(), op_normalized.size());
     op->mutable_param()->AddAllocated(lhs.get());
     lhs.release();
@@ -1358,7 +1491,7 @@ Mysqlx::Expr::Expr* Expression_parser::parse_left_assoc_binary_op_expr(std::set<
 
     lhs.reset(e.release());
   }
-  return lhs.release();
+  DBG_RETURN(lhs.release());
 }
 
 /*
@@ -1366,11 +1499,14 @@ Mysqlx::Expr::Expr* Expression_parser::parse_left_assoc_binary_op_expr(std::set<
  */
 Mysqlx::Expr::Expr* Expression_parser::mul_div_expr()
 {
+  Mysqlx::Expr::Expr* ret;
+  DBG_ENTER("Expression_parser::mul_div_expr");
   std::set<Token::TokenType> types;
   types.insert(Token::MUL);
   types.insert(Token::DIV);
   types.insert(Token::MOD);
-  return parse_left_assoc_binary_op_expr(types, &Expression_parser::atomic_expr);
+  ret = parse_left_assoc_binary_op_expr(types, &Expression_parser::atomic_expr);
+  DBG_RETURN(ret);
 }
 
 /*
@@ -1378,10 +1514,13 @@ Mysqlx::Expr::Expr* Expression_parser::mul_div_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::add_sub_expr()
 {
+  Mysqlx::Expr::Expr* ret;
+  DBG_ENTER("Expression_parser::add_sub_expr");
   std::set<Token::TokenType> types;
   types.insert(Token::PLUS);
   types.insert(Token::MINUS);
-  return parse_left_assoc_binary_op_expr(types, &Expression_parser::mul_div_expr);
+  ret = parse_left_assoc_binary_op_expr(types, &Expression_parser::mul_div_expr);
+  DBG_RETURN(ret);
 }
 
 /*
@@ -1389,10 +1528,13 @@ Mysqlx::Expr::Expr* Expression_parser::add_sub_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::shift_expr()
 {
+  Mysqlx::Expr::Expr* ret;
+  DBG_ENTER("Expression_parser::shift_expr");
   std::set<Token::TokenType> types;
   types.insert(Token::LSHIFT);
   types.insert(Token::RSHIFT);
-  return parse_left_assoc_binary_op_expr(types, &Expression_parser::add_sub_expr);
+  ret = parse_left_assoc_binary_op_expr(types, &Expression_parser::add_sub_expr);
+  DBG_RETURN(ret);
 }
 
 /*
@@ -1400,11 +1542,14 @@ Mysqlx::Expr::Expr* Expression_parser::shift_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::bit_expr()
 {
+  Mysqlx::Expr::Expr* ret;
+  DBG_ENTER("Expression_parser::bit_expr");
   std::set<Token::TokenType> types;
   types.insert(Token::BITAND);
   types.insert(Token::BITOR);
   types.insert(Token::BITXOR);
-  return parse_left_assoc_binary_op_expr(types, &Expression_parser::shift_expr);
+  ret = parse_left_assoc_binary_op_expr(types, &Expression_parser::shift_expr);
+  DBG_RETURN(ret);
 }
 
 /*
@@ -1412,6 +1557,8 @@ Mysqlx::Expr::Expr* Expression_parser::bit_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::comp_expr()
 {
+  Mysqlx::Expr::Expr* ret;
+  DBG_ENTER("Expression_parser::comp_expr");
   std::set<Token::TokenType> types;
   types.insert(Token::GE);
   types.insert(Token::GT);
@@ -1419,7 +1566,8 @@ Mysqlx::Expr::Expr* Expression_parser::comp_expr()
   types.insert(Token::LT);
   types.insert(Token::EQ);
   types.insert(Token::NE);
-  return parse_left_assoc_binary_op_expr(types, &Expression_parser::bit_expr);
+  ret = parse_left_assoc_binary_op_expr(types, &Expression_parser::bit_expr);
+  DBG_RETURN(ret);
 }
 
 /*
@@ -1428,6 +1576,7 @@ Mysqlx::Expr::Expr* Expression_parser::comp_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::ilri_expr()
 {
+  DBG_ENTER("Expression_parser::and_expr");
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr e(new Mysqlx::Expr::Expr());
   Memory_new<Mysqlx::Expr::Expr>::Unique_ptr lhs(comp_expr());
   bool is_not = false;
@@ -1541,7 +1690,7 @@ Mysqlx::Expr::Expr* Expression_parser::ilri_expr()
     }
   }
 
-  return lhs.release();
+  DBG_RETURN(lhs.release());
 }
 
 /*
@@ -1549,9 +1698,12 @@ Mysqlx::Expr::Expr* Expression_parser::ilri_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::and_expr()
 {
+  Mysqlx::Expr::Expr* ret;
+  DBG_ENTER("Expression_parser::and_expr");
   std::set<Token::TokenType> types;
   types.insert(Token::AND);
-  return parse_left_assoc_binary_op_expr(types, &Expression_parser::ilri_expr);
+  ret = parse_left_assoc_binary_op_expr(types, &Expression_parser::ilri_expr);
+  DBG_RETURN(ret);
 }
 
 /*
@@ -1559,9 +1711,13 @@ Mysqlx::Expr::Expr* Expression_parser::and_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::or_expr()
 {
+  Mysqlx::Expr::Expr* ret;
+  DBG_ENTER("Expression_parser::or_expr");
   std::set<Token::TokenType> types;
+  DBG_INF_FMT("types.insert(Token::OR)");
   types.insert(Token::OR);
-  return parse_left_assoc_binary_op_expr(types, &Expression_parser::and_expr);
+  ret = parse_left_assoc_binary_op_expr(types, &Expression_parser::and_expr);
+  DBG_RETURN(ret);
 }
 
 /*
@@ -1569,7 +1725,10 @@ Mysqlx::Expr::Expr* Expression_parser::or_expr()
  */
 Mysqlx::Expr::Expr* Expression_parser::my_expr()
 {
-  return or_expr();
+  Mysqlx::Expr::Expr* ret;
+  DBG_ENTER("Expression_parser::my_expr");
+  ret = or_expr();
+  DBG_RETURN(ret);
 }
 
 /*

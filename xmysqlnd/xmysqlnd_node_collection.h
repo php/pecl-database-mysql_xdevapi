@@ -20,6 +20,8 @@
 
 #include "xmysqlnd_driver.h"
 
+#include "xmysqlnd_crud_collection_commands.h"
+
 struct st_xmysqlnd_node_schema;
 
 #ifdef __cplusplus
@@ -39,10 +41,7 @@ typedef enum_func_status (*func_xmysqlnd_node_collection__init)(
 
 typedef XMYSQLND_NODE_COLLECTION * (*func_xmysqlnd_node_collection__get_reference)(XMYSQLND_NODE_COLLECTION * const schema);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__add_document)(XMYSQLND_NODE_COLLECTION * const schema, const MYSQLND_CSTRING json);
-typedef enum_func_status		(*func_xmysqlnd_node_collection__remove_document)(XMYSQLND_NODE_COLLECTION * const schema,
-																				  void * search_condition,
-																				  void * sort_condition,
-																				  const size_t limit);
+typedef enum_func_status		(*func_xmysqlnd_node_collection__remove_document)(XMYSQLND_NODE_COLLECTION * const schema, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__free_reference)(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void					(*func_xmysqlnd_node_collection__free_contents)(XMYSQLND_NODE_COLLECTION * const schema);
 typedef void					(*func_xmysqlnd_node_collection__dtor)(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);

@@ -15,12 +15,18 @@
   | Authors: Oracle Corp                                                 |
   +----------------------------------------------------------------------+
 */
+#include "php.h"
+#include "ext/mysqlnd/mysqlnd.h"
+#include "ext/mysqlnd/mysqlnd_statistics.h"
+#include "ext/mysqlnd/mysqlnd_debug.h"
+
 
 #include "xmysqlnd/crud_parsers/orderby_parser.h"
 #include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
 
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
+
 
 using namespace xmysqlnd;
 
@@ -35,16 +41,20 @@ Orderby_parser::Orderby_parser(const std::string& expr_str, const bool document_
 */
 void Orderby_parser::column_identifier(Mysqlx::Crud::Order &orderby_expr)
 {
+  DBG_ENTER("Orderby_parser::column_identifier");
   orderby_expr.set_allocated_expr(my_expr());
 
   if (_tokenizer.cur_token_type_is(Token::ASC))
   {
+    DBG_INF("ASC");
     orderby_expr.set_direction(Mysqlx::Crud::Order_Direction_ASC);
     _tokenizer.consume_token(Token::ASC);
   }
   else if (_tokenizer.cur_token_type_is(Token::DESC))
   {
+    DBG_INF("DESC");
     orderby_expr.set_direction(Mysqlx::Crud::Order_Direction_DESC);
     _tokenizer.consume_token(Token::DESC);
   }
+  DBG_VOID_RETURN;
 }
