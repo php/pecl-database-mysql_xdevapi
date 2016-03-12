@@ -15,14 +15,45 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLLECTION__REMOVE_H
-#define MYSQLX_NODE_COLLECTION__REMOVE_H
+#include <php.h>
+#include "mysqlx_crud_operation_sortable.h"
 
-void mysqlx_new_node_collection__remove(zval * return_value, const MYSQLND_CSTRING search_expression, struct st_xmysqlnd_node_collection * collection, const zend_bool clone_collection);
-void mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS);
+zend_class_entry * mysqlx_crud_operation_sortable_interface_entry;
 
-#endif /* MYSQLX_NODE_COLLECTION__REMOVE_H */
+#define DONT_ALLOW_NULL 0
+#define NO_PASS_BY_REF 0
+
+
+ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_sortable__sort, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
+ZEND_END_ARG_INFO()
+
+
+/* {{{ mysqlx_crud_operation_sortable_methods[] */
+static const zend_function_entry mysqlx_crud_operation_sortable_methods[] = {
+	PHP_ABSTRACT_ME(mysqlx_crud_operation_sortable, sort, mysqlx_crud_operation_sortable__sort)
+	{NULL, NULL, NULL}
+};
+/* }}} */
+
+
+/* {{{ mysqlx_register_crud_operation_sortable_interface */
+void
+mysqlx_register_crud_operation_sortable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+{
+	zend_class_entry tmp_ce;
+	INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "CrudOperationSortable", mysqlx_crud_operation_sortable_methods);
+	mysqlx_crud_operation_sortable_interface_entry = zend_register_internal_interface(&tmp_ce);
+}
+/* }}} */
+
+
+/* {{{ mysqlx_unregister_crud_operation_sortable_interface */
+void
+mysqlx_unregister_crud_operation_sortable_interface(SHUTDOWN_FUNC_ARGS)
+{
+}
+/* }}} */
 
 /*
  * Local variables:
@@ -32,3 +63,4 @@ void mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS);
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
+

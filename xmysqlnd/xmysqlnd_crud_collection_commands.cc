@@ -32,25 +32,119 @@
 #include "crud_parsers/orderby_parser.h"
 #include "crud_parsers/projection_parser.h"
 
-struct st_xmysqlnd_crud_collection_op__remove
-{
-	Mysqlx::Crud::Delete message;
 
+struct st_xmysqlnd_crud_collection_bindable_op
+{
 	std::vector<std::string> placeholders;
 	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
+
+	st_xmysqlnd_crud_collection_bindable_op() {}
+	virtual ~st_xmysqlnd_crud_collection_bindable_op() {}
+
+	enum_func_status bind_value(const MYSQLND_CSTRING & name, zval * value)
+	{
+		DBG_ENTER("st_xmysqlnd_crud_collection_bindable_op::bind_value");
+		DBG_INF_FMT("name=%*s", name.l, name.s);
+
+		const std::string var_name(name.s, name.l);
+		const std::vector<std::string>::iterator begin = placeholders.begin();
+		const std::vector<std::string>::iterator end = placeholders.end();
+		const std::vector<std::string>::const_iterator index = std::find(begin, end, var_name);
+		if (index == end) {
+			DBG_ERR("No such variable in the expression");
+			DBG_RETURN(FAIL);
+		}
+
+		Mysqlx::Datatypes::Any any;
+		if (FAIL == zval2any(value, any)) {
+			DBG_ERR("Error converting the zval to scalar");
+			DBG_RETURN(FAIL);
+		}
+		any2log(any);
+
+		bound_values[index - begin] = any.release_scalar();
+
+		DBG_INF("PASS");
+		DBG_RETURN(PASS);
+	}
+};
+
+#if 0
+/* {{{ xmysqlnd_crud_collection__bind_value */
+extern "C" enum_func_status
+xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
+									 std::vector<Mysqlx::Datatypes::Scalar*> & bound_values,
+									 const MYSQLND_CSTRING & name,
+									 zval * value)
+{
+	DBG_ENTER("xmysqlnd_crud_collection__bind_value");
+	DBG_INF_FMT("name=%*s", name.l, name.s);
+
+	const std::string var_name(name.s, name.l);
+	const std::vector<std::string>::iterator begin = placeholders.begin();
+	const std::vector<std::string>::iterator end = placeholders.end();
+	const std::vector<std::string>::const_iterator index = std::find(begin, end, var_name);
+	if (index == end) {
+		DBG_ERR("No such variable in the expression");
+		DBG_RETURN(FAIL);
+	}
+
+	Mysqlx::Datatypes::Any any;
+	if (FAIL == zval2any(value, any)) {
+		DBG_ERR("Error converting the zval to scalar");
+		DBG_RETURN(FAIL);
+	}
+	any2log(any);
+
+	bound_values[index - begin] = any.release_scalar();
+
+	DBG_INF("PASS");
+	DBG_RETURN(PASS);
+}
+/* }}} */
+#endif
+
+
+/* {{{ xmysqlnd_crud_collection_remove__add_sort */
+extern "C" enum_func_status
+xmysqlnd_crud_collection__add_sort(google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order > * mutable_order,
+								   const Mysqlx::Crud::DataModel data_model,
+								   const MYSQLND_CSTRING & sort)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_remove__add_sort");
+	DBG_INF_FMT("sort=%*s", sort.l, sort.s);
+	try {
+		std::string source(sort.s, sort.l);
+		xmysqlnd::Orderby_parser parser(source, data_model == Mysqlx::Crud::DOCUMENT);
+		parser.parse(*mutable_order);
+	} catch (xmysqlnd::Parser_error &e) {
+		DBG_INF("Parser error");
+		DBG_RETURN(FAIL);
+	}
+	DBG_INF("PASS");
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/****************************** COLLECTION.REMOVE() *******************************************************/
+struct st_xmysqlnd_crud_collection_op__remove : st_xmysqlnd_crud_collection_bindable_op
+{
+	Mysqlx::Crud::Delete message;
 
 	st_xmysqlnd_crud_collection_op__remove(const MYSQLND_CSTRING & schema,
 										   const MYSQLND_CSTRING & object_name,
 										   const bool document_mode = true)
+		: st_xmysqlnd_crud_collection_bindable_op()
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
 		message.set_data_model(document_mode? Mysqlx::Crud::DOCUMENT : Mysqlx::Crud::TABLE);
 	}
 
-	~st_xmysqlnd_crud_collection_op__remove()
-	{}
+	virtual ~st_xmysqlnd_crud_collection_op__remove() {}
 };
+
 
 /* {{{ xmysqlnd_crud_collection_remove__create */
 extern "C" XMYSQLND_CRUD_COLLECTION_OP__REMOVE *
@@ -105,8 +199,9 @@ xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOV
 extern "C" enum_func_status
 xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t limit)
 {
+	DBG_ENTER("xmysqlnd_crud_collection_remove__set_limit");
 	obj->message.mutable_limit()->set_row_count(limit);
-	return PASS;
+	DBG_RETURN(PASS);
 }
 /* }}} */
 
@@ -127,32 +222,12 @@ extern "C" enum_func_status
 xmysqlnd_crud_collection_remove__bind_value(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const MYSQLND_CSTRING name, zval * value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__bind_value");
-	DBG_INF_FMT("name=%*s", name.l, name.s);
 	if (!obj->message.has_criteria()) {
 		DBG_ERR("No criteria set");
 		DBG_RETURN(FAIL);
 	}
-
-	const std::string var_name(name.s, name.l);
-	const std::vector<std::string>::iterator begin = obj->placeholders.begin();
-	const std::vector<std::string>::iterator end = obj->placeholders.end();
-	const std::vector<std::string>::const_iterator index = std::find(begin, end, var_name);
-	if (index == end) {
-		DBG_ERR("No such variable in the expression");
-		DBG_RETURN(FAIL);
-	}
-
-	Mysqlx::Datatypes::Any any;
-	if (FAIL == zval2any(value, any)) {
-		DBG_ERR("Error converting the zval to scalar");
-		DBG_RETURN(FAIL);
-	}
-	any2log(any);
-
-	obj->bound_values[index - begin] = any.release_scalar();
-
-	DBG_INF("PASS");
-	DBG_RETURN(PASS);
+	enum_func_status ret = obj->bind_value(name, value);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -161,18 +236,10 @@ xmysqlnd_crud_collection_remove__bind_value(XMYSQLND_CRUD_COLLECTION_OP__REMOVE 
 extern "C" enum_func_status
 xmysqlnd_crud_collection_remove__add_sort(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const MYSQLND_CSTRING sort)
 {
+	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_crud_collection_remove__add_sort");
-	DBG_INF_FMT("sort=%*s", sort.l, sort.s);
-	try {
-		std::string source(sort.s, sort.l);
-		xmysqlnd::Orderby_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT);
-		parser.parse(*(obj->message.mutable_order()));
-	} catch (xmysqlnd::Parser_error &e) {
-		DBG_INF("Parser error");
-		DBG_RETURN(FAIL);
-	}
-	DBG_INF("PASS");
-	DBG_RETURN(PASS);
+	ret = xmysqlnd_crud_collection__add_sort(obj->message.mutable_order(), obj->message.data_model(), sort);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -197,6 +264,266 @@ xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_O
 	return ret;
 }
 /* }}} */
+
+
+/****************************** COLLECTION.MODIFY() *******************************************************/
+
+struct st_xmysqlnd_crud_collection_op__modify : st_xmysqlnd_crud_collection_bindable_op
+{
+	Mysqlx::Crud::Update message;
+
+	st_xmysqlnd_crud_collection_op__modify(const MYSQLND_CSTRING & schema,
+										   const MYSQLND_CSTRING & object_name,
+										   const bool document_mode = true)
+		: st_xmysqlnd_crud_collection_bindable_op()
+	{
+		message.mutable_collection()->set_schema(schema.s, schema.l);
+		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.set_data_model(document_mode? Mysqlx::Crud::DOCUMENT : Mysqlx::Crud::TABLE);
+	}
+
+	virtual ~st_xmysqlnd_crud_collection_op__modify() {}
+};
+
+
+/* {{{ xmysqlnd_crud_collection_modify__create */
+extern "C" XMYSQLND_CRUD_COLLECTION_OP__MODIFY *
+xmysqlnd_crud_collection_modify__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
+{
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY * ret = NULL;
+	DBG_ENTER("xmysqlnd_crud_collection_modify__create");
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
+	ret = new struct st_xmysqlnd_crud_collection_op__modify(schema, object_name);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__destroy */
+extern "C" void
+xmysqlnd_crud_collection_modify__destroy(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_modify__destroy");
+	delete obj;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__set_criteria */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING criteria)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_remove__set_criteria");
+	try {
+		std::string source(criteria.s, criteria.l);
+		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
+		Mysqlx::Expr::Expr * criteria = parser.expr();
+		obj->message.set_allocated_criteria(criteria);
+
+		if (obj->bound_values.size()) {
+			obj->bound_values.clear();
+		}
+		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+	} catch (xmysqlnd::Parser_error &e) {
+		DBG_INF("Parser error");
+		DBG_RETURN(FAIL);
+	}
+	DBG_INF("PASS");
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__set_limit */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_modify__set_limit(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t limit)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_modify__set_limit");
+	obj->message.mutable_limit()->set_row_count(limit);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__set_offset */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_modify__set_offset(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t offset)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_modify__set_offset");
+	obj->message.mutable_limit()->set_offset(offset);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__bind_value */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_modify__bind_value(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING name, zval * value)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_modify__bind_value");
+	if (!obj->message.has_criteria()) {
+		DBG_ERR("No criteria set");
+		DBG_RETURN(FAIL);
+	}
+	enum_func_status ret = obj->bind_value(name, value);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__add_sort */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING sort)
+{
+	enum_func_status ret;
+	DBG_ENTER("xmysqlnd_crud_collection_modify__add_sort");
+	ret = xmysqlnd_crud_collection__add_sort(obj->message.mutable_order(), obj->message.data_model(), sort);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__is_initialized */
+extern "C" zend_bool
+xmysqlnd_crud_collection_modify__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj)
+{
+	const zend_bool ret = obj && obj->message.IsInitialized()? TRUE : FALSE;
+	DBG_ENTER("xmysqlnd_crud_collection_modify__is_initialized");
+	DBG_INF_FMT("is_initialized=%u", ret);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+/****************************** COLLECTION.FIND() *******************************************************/
+
+struct st_xmysqlnd_crud_collection_op__find : st_xmysqlnd_crud_collection_bindable_op
+{
+	Mysqlx::Crud::Find message;
+
+	st_xmysqlnd_crud_collection_op__find(const MYSQLND_CSTRING & schema,
+										 const MYSQLND_CSTRING & object_name,
+										 const bool document_mode = true)
+		: st_xmysqlnd_crud_collection_bindable_op()
+	{
+		message.mutable_collection()->set_schema(schema.s, schema.l);
+		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.set_data_model(document_mode? Mysqlx::Crud::DOCUMENT : Mysqlx::Crud::TABLE);
+	}
+
+	virtual ~st_xmysqlnd_crud_collection_op__find() {}
+};
+
+
+/* {{{ xmysqlnd_crud_collection_find__create */
+extern "C" XMYSQLND_CRUD_COLLECTION_OP__FIND *
+xmysqlnd_crud_collection_find__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
+{
+	XMYSQLND_CRUD_COLLECTION_OP__FIND * ret = NULL;
+	DBG_ENTER("xmysqlnd_crud_collection_find__create");
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
+	ret = new struct st_xmysqlnd_crud_collection_op__find(schema, object_name);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__destroy */
+extern "C" void
+xmysqlnd_crud_collection_find__destroy(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_find__destroy");
+	delete obj;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__set_criteria */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING criteria)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_remove__set_criteria");
+	try {
+		std::string source(criteria.s, criteria.l);
+		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
+		Mysqlx::Expr::Expr * criteria = parser.expr();
+		obj->message.set_allocated_criteria(criteria);
+
+		if (obj->bound_values.size()) {
+			obj->bound_values.clear();
+		}
+		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+	} catch (xmysqlnd::Parser_error &e) {
+		DBG_INF("Parser error");
+		DBG_RETURN(FAIL);
+	}
+	DBG_INF("PASS");
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__set_limit */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_find__set_limit(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t limit)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_find__set_limit");
+	obj->message.mutable_limit()->set_row_count(limit);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__set_offset */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_find__set_offset(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t offset)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_find__set_offset");
+	obj->message.mutable_limit()->set_offset(offset);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__bind_value */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_find__bind_value(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING name, zval * value)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_find__bind_value");
+	if (!obj->message.has_criteria()) {
+		DBG_ERR("No criteria set");
+		DBG_RETURN(FAIL);
+	}
+	enum_func_status ret = obj->bind_value(name, value);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__add_sort */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING sort)
+{
+	enum_func_status ret;
+	DBG_ENTER("xmysqlnd_crud_collection_find__add_sort");
+	ret = xmysqlnd_crud_collection__add_sort(obj->message.mutable_order(), obj->message.data_model(), sort);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__is_initialized */
+extern "C" zend_bool
+xmysqlnd_crud_collection_find__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
+{
+	const zend_bool ret = obj && obj->message.IsInitialized()? TRUE : FALSE;
+	DBG_ENTER("xmysqlnd_crud_collection_find__is_initialized");
+	DBG_INF_FMT("is_initialized=%u", ret);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
 
 #ifdef A0
 

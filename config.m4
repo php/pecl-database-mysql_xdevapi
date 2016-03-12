@@ -46,6 +46,9 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
   mysqlx_base_sources="	 php_mysqlx.c \
 						 php_mysqlx_ex.c \
 						 mysqlx_class_properties.c \
+						 mysqlx_crud_operation_bindable.c \
+						 mysqlx_crud_operation_limitable.c \
+						 mysqlx_crud_operation_sortable.c \
 						 mysqlx_database_object.c \
 						 mysqlx_driver.c \
 						 mysqlx_executable.c \

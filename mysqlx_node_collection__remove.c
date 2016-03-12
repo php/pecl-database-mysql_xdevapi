@@ -25,6 +25,9 @@
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
 #include "php_mysqlx.h"
+#include "mysqlx_crud_operation_bindable.h"
+#include "mysqlx_crud_operation_limitable.h"
+#include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
@@ -37,9 +40,6 @@ static zend_class_entry *mysqlx_node_collection__remove_class_entry;
 #define NO_PASS_BY_REF 0
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__values, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__sort, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
 ZEND_END_ARG_INFO()
@@ -48,8 +48,8 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__limit, 0, ZEND_RE
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__bind, 0, ZEND_RETURN_VALUE, 0)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_ARRAY, DONT_ALLOW_NULL)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__bind, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
@@ -256,12 +256,12 @@ PHP_METHOD(mysqlx_node_collection__remove, execute)
 
 /* {{{ mysqlx_node_collection__remove_methods[] */
 static const zend_function_entry mysqlx_node_collection__remove_methods[] = {
-	PHP_ME(mysqlx_node_collection__remove, __construct,	NULL,												ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_collection__remove, __construct,	NULL,											ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_collection__remove, sort,		arginfo_mysqlx_node_collection__remove__sort,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__remove, limit,		arginfo_mysqlx_node_collection__remove__limit,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__remove, bind,		arginfo_mysqlx_node_collection__remove__bind,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__remove, execute,		arginfo_mysqlx_node_collection__remove__execute,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__remove, sort,	arginfo_mysqlx_node_collection__remove__sort,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__remove, limit,	arginfo_mysqlx_node_collection__remove__limit,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__remove, bind,	arginfo_mysqlx_node_collection__remove__bind,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__remove, execute,	arginfo_mysqlx_node_collection__remove__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };
@@ -362,7 +362,11 @@ mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handle
 		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeCollectionRemove", mysqlx_node_collection__remove_methods);
 		tmp_ce.create_object = php_mysqlx_node_collection__remove_object_allocator;
 		mysqlx_node_collection__remove_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_node_collection__remove_class_entry, 1, mysqlx_executable_interface_entry);
+		zend_class_implements(mysqlx_node_collection__remove_class_entry, 4,
+							  mysqlx_executable_interface_entry,
+							  mysqlx_crud_operation_bindable_interface_entry,
+							  mysqlx_crud_operation_limitable_interface_entry,
+							  mysqlx_crud_operation_sortable_interface_entry);
 	}
 
 	zend_hash_init(&mysqlx_node_collection__remove_properties, 0, NULL, mysqlx_free_property_cb, 1);

@@ -61,21 +61,23 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__get_schema, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 /************************************** INHERITED END   ****************************************/
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(NO_PASS_BY_REF, json)
 ZEND_END_ARG_INFO()
 
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_condition, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_condition, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove, 0, ZEND_RETURN_VALUE, 0)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_expression, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_condition, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
@@ -304,11 +306,13 @@ PHP_METHOD(mysqlx_node_collection, find)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
+	MYSQLND_CSTRING search_expr = {NULL, 0};
 
 	DBG_ENTER("mysqlx_node_collection::find");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s",
+												&object_zv, mysqlx_node_collection_class_entry,
+												&(search_expr.s), &(search_expr.l)))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -317,10 +321,8 @@ PHP_METHOD(mysqlx_node_collection, find)
 
 	RETVAL_FALSE;
 
-//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
 	if (object->collection) {
-		mysqlx_new_node_collection__find(return_value, object->collection, TRUE /* clone */);
+		mysqlx_new_node_collection__find(return_value, search_expr, object->collection, TRUE /* clone */);
 	}
 
 	DBG_VOID_RETURN;
@@ -334,11 +336,13 @@ PHP_METHOD(mysqlx_node_collection, modify)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
+	MYSQLND_CSTRING search_expr = {NULL, 0};
 
 	DBG_ENTER("mysqlx_node_collection::modify");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s",
+												&object_zv, mysqlx_node_collection_class_entry,
+												&(search_expr.s), &(search_expr.l)))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -347,10 +351,8 @@ PHP_METHOD(mysqlx_node_collection, modify)
 
 	RETVAL_FALSE;
 
-//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
 	if (object->collection) {
-		mysqlx_new_node_collection__modify(return_value, object->collection, TRUE /* clone */);
+		mysqlx_new_node_collection__modify(return_value, search_expr, object->collection, TRUE /* clone */);
 	}
 
 	DBG_VOID_RETURN;

@@ -18,6 +18,9 @@
 #include "php.h"
 #include "ext/mysqlnd/mysqlnd.h"
 #include "php_mysqlx.h"
+#include "mysqlx_crud_operation_bindable.h"
+#include "mysqlx_crud_operation_limitable.h"
+#include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_database_object.h"
 #include "mysqlx_schema_object.h"
 #include "mysqlx_driver.h"
@@ -90,6 +93,9 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_executable_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_schema_object_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_session_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_crud_operation_bindable_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_crud_operation_limitable_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_crud_operation_sortable_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_warning_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_exception_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -193,6 +199,9 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_warning_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
+	mysqlx_unregister_crud_operation_sortable_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_crud_operation_limitable_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_crud_operation_bindable_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_schema_object_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_session_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_executable_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);

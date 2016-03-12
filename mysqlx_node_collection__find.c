@@ -21,9 +21,15 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
+#include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
 #include "php_mysqlx.h"
+#include "mysqlx_crud_operation_bindable.h"
+#include "mysqlx_crud_operation_limitable.h"
+#include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_node_collection__find.h"
 
@@ -32,10 +38,17 @@ static zend_class_entry *mysqlx_node_collection__find_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__values, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__sort, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__limit, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__bind, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -43,6 +56,7 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_node_collection__find
 {
+	XMYSQLND_CRUD_COLLECTION_OP__FIND * crud_op;
 	XMYSQLND_NODE_COLLECTION * collection;
 };
 
@@ -62,6 +76,141 @@ struct st_mysqlx_node_collection__find
 static
 PHP_METHOD(mysqlx_node_collection__find, __construct)
 {
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__find::sort() */
+static
+PHP_METHOD(mysqlx_node_collection__find, sort)
+{
+	struct st_mysqlx_node_collection__find * object;
+	zval * object_zv;
+	zval * sort_expr = NULL;
+
+	DBG_ENTER("mysqlx_node_collection__find::sort");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+												&object_zv, mysqlx_node_collection__find_class_entry,
+												&sort_expr))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op && sort_expr) {
+		switch (Z_TYPE_P(sort_expr)) {
+			case IS_STRING: {
+				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
+				RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str));
+				break;
+			}
+			case IS_ARRAY: {
+				zval * entry;
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(sort_expr), entry) {
+					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+					if (Z_TYPE_P(entry) != IS_STRING) {
+						static const unsigned int errcode = 10003;
+						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+						static const MYSQLND_CSTRING errmsg = { "Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1 };
+						mysqlx_new_exception(errcode, sqlstate, errmsg);
+						goto end;
+					}
+					if (FAIL == xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str)) {
+						static const unsigned int errcode = 10004;
+						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+						static const MYSQLND_CSTRING errmsg = { "Error while adding a sort expression", sizeof("Error while adding a sort expression") - 1 };
+						mysqlx_new_exception(errcode, sqlstate, errmsg);
+						goto end;
+					}
+				} ZEND_HASH_FOREACH_END();
+				break;
+			}
+			/* fall-through */
+			default: {
+				static const unsigned int errcode = 10005;
+				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+				static const MYSQLND_CSTRING errmsg = { "Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1 };
+				mysqlx_new_exception(errcode, sqlstate, errmsg);
+			}			
+		}
+	}
+end:
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__find::limit() */
+static
+PHP_METHOD(mysqlx_node_collection__find, limit)
+{
+	struct st_mysqlx_node_collection__find * object;
+	zval * object_zv;
+	zend_long rows;
+
+	DBG_ENTER("mysqlx_node_collection__find::limit");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+												&object_zv, mysqlx_node_collection__find_class_entry,
+												&rows))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__set_limit(object->crud_op, rows));
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__find::bind() */
+static
+PHP_METHOD(mysqlx_node_collection__find, bind)
+{
+	struct st_mysqlx_node_collection__find * object;
+	zval * object_zv;
+	HashTable * bind_variables;
+
+	DBG_ENTER("mysqlx_node_collection__find::bind");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+												&object_zv, mysqlx_node_collection__find_class_entry,
+												&bind_variables))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		zend_string * key;
+		zval * val;
+		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
+			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
+			if (FAIL == xmysqlnd_crud_collection_find__bind_value(object->crud_op, variable, val)) {
+				static const unsigned int errcode = 10005;
+				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+				static const MYSQLND_CSTRING errmsg = { "Error while binding a variable", sizeof("Error while binding a variable") - 1 };
+				mysqlx_new_exception(errcode, sqlstate, errmsg);
+				goto end;
+			}
+		} ZEND_HASH_FOREACH_END();
+	}
+end:
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -98,9 +247,12 @@ PHP_METHOD(mysqlx_node_collection__find, execute)
 
 /* {{{ mysqlx_node_collection__find_methods[] */
 static const zend_function_entry mysqlx_node_collection__find_methods[] = {
-	PHP_ME(mysqlx_node_collection__find, 	__construct,	NULL,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_collection__find, 	__construct,	NULL,										ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_collection__find,	execute,		arginfo_mysqlx_node_collection__find__execute,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find,	sort,		arginfo_mysqlx_node_collection__find__sort,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find,	limit,		arginfo_mysqlx_node_collection__find__limit,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find,	bind,		arginfo_mysqlx_node_collection__find__bind,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find,	execute,	arginfo_mysqlx_node_collection__find__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };
@@ -153,6 +305,10 @@ mysqlx_node_collection__find_free_storage(zend_object * object)
 			xmysqlnd_node_collection_free(inner_obj->collection, NULL, NULL);
 			inner_obj->collection = NULL;
 		}
+		if (inner_obj->crud_op) {
+			xmysqlnd_crud_collection_find__destroy(inner_obj->crud_op);
+			inner_obj->crud_op = NULL;
+		}
 		mnd_efree(inner_obj);
 	}
 	mysqlx_object_free_storage(object); 
@@ -197,7 +353,11 @@ mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers
 		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeCollectionFind", mysqlx_node_collection__find_methods);
 		tmp_ce.create_object = php_mysqlx_node_collection__find_object_allocator;
 		mysqlx_node_collection__find_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_node_collection__find_class_entry, 1, mysqlx_executable_interface_entry);
+		zend_class_implements(mysqlx_node_collection__find_class_entry, 4,
+							  mysqlx_executable_interface_entry,
+							  mysqlx_crud_operation_bindable_interface_entry,
+							  mysqlx_crud_operation_limitable_interface_entry,
+							  mysqlx_crud_operation_sortable_interface_entry);
 	}
 
 	zend_hash_init(&mysqlx_node_collection__find_properties, 0, NULL, mysqlx_free_property_cb, 1);
@@ -223,22 +383,41 @@ mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_collection__find */
 void
-mysqlx_new_node_collection__find(zval * return_value, XMYSQLND_NODE_COLLECTION * collection, const zend_bool clone)
+mysqlx_new_node_collection__find(zval * return_value,
+								 const MYSQLND_CSTRING search_expression,
+								 XMYSQLND_NODE_COLLECTION * collection,
+								 const zend_bool clone_collection)
 {
 	DBG_ENTER("mysqlx_new_node_collection__find");
-
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_collection__find_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
 		struct st_mysqlx_node_collection__find * const object = (struct st_mysqlx_node_collection__find *) mysqlx_object->ptr;
-		if (object) {
-			object->collection = clone? collection->data->m.get_reference(collection) : collection;
-		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
+		if (!object) {
+			goto err;
 		}
+		object->collection = clone_collection? collection->data->m.get_reference(collection) : collection;
+		object->crud_op = xmysqlnd_crud_collection_find__create(mnd_str2c(object->collection->data->schema->data->schema_name),
+																mnd_str2c(object->collection->data->collection_name));
+		if (!object->crud_op) {
+			goto err;
+		}
+		if (search_expression.s &&
+			search_expression.l &&
+			FAIL == xmysqlnd_crud_collection_find__set_criteria(object->crud_op, search_expression))
+		{
+			goto err;
+		}
+		goto end;
+err:
+		DBG_ERR("Error");
+		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+		if (object->collection && clone_collection) {
+			object->collection->data->m.free_reference(object->collection, NULL, NULL);
+		}
+		zval_ptr_dtor(return_value);
+		ZVAL_NULL(return_value);
 	}
-
+end:
 	DBG_VOID_RETURN;
 }
 /* }}} */
