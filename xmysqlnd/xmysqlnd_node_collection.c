@@ -203,76 +203,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add_document)(XMYSQLND_NODE_COLLECTION
 }
 /* }}} */
 
-#if 0
-/*
-Remove_Base::Remove_Base(boost::shared_ptr<Collection> coll)
-: Collection_Statement(coll), m_delete(new Mysqlx::Crud::Delete())
-{
-}
 
-Remove_Base::Remove_Base(const Remove_Base &other)
-: Collection_Statement(other), m_delete(other.m_delete)
-{
-}
-
-Remove_Base &Remove_Base::operator = (const Remove_Base &other)
-{
-  m_delete = other.m_delete;
-  return *this;
-}
-
-boost::shared_ptr<Result> Remove_Base::execute()
-{
-  insert_bound_values(m_delete->mutable_args());
-
-  if (!m_delete->IsInitialized())
-    throw std::logic_error("RemoveStatement is not completely initialized: " + m_delete->InitializationErrorString());
-
-  SessionRef session(m_coll->schema()->session());
-
-  boost::shared_ptr<Result> result(session->connection()->execute_delete(*m_delete));
-
-  result->wait();
-
-  return result;
-}
-
-Remove_Base &Remove_Limit::limit(uint64_t limit_)
-{
-  m_delete->mutable_limit()->set_row_count(limit_);
-  return *this;
-}
-
-RemoveStatement::RemoveStatement(boost::shared_ptr<Collection> coll, const std::string &searchCondition)
-: Remove_Limit(coll)
-{
-  m_delete->mutable_collection()->set_schema(coll->schema()->name());
-  m_delete->mutable_collection()->set_name(coll->name());
-  m_delete->set_data_model(Mysqlx::Crud::DOCUMENT);
-
-  if (!searchCondition.empty())
-    m_delete->set_allocated_criteria(parser::parse_collection_filter(searchCondition, &m_placeholders));
-}
-
-Remove_Limit &RemoveStatement::sort(const std::vector<std::string> &sortFields)
-{
-  std::vector<std::string>::const_iterator index, end = sortFields.end();
-
-  for (index = sortFields.begin(); index != end; index++)
-    parser::parse_collection_sort_column(*m_delete->mutable_order(), *index);
-
-  return *this;
-}
-*/
-#endif
-/*
-CollectionRemoveFunction
-    ::= '.remove(' SearchConditionStr? ')'
-        ( '.sort(' SortExprStrList ')' )? ( '.limit(' NumberOfRows ')' )
-        ( '.bind(' PlaceholderValues ')' )*
-        ( '.execute()' )?
-
-*/
 /* {{{ xmysqlnd_node_collection::remove_document */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_collection, remove_document)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
