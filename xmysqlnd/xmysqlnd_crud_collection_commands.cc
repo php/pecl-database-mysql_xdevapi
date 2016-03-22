@@ -32,44 +32,6 @@
 #include "crud_parsers/orderby_parser.h"
 #include "crud_parsers/projection_parser.h"
 
-
-struct st_xmysqlnd_crud_collection_bindable_op
-{
-	std::vector<std::string> placeholders;
-	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
-
-	st_xmysqlnd_crud_collection_bindable_op() {}
-	virtual ~st_xmysqlnd_crud_collection_bindable_op() {}
-
-	enum_func_status bind_value(const MYSQLND_CSTRING & name, zval * value)
-	{
-		DBG_ENTER("st_xmysqlnd_crud_collection_bindable_op::bind_value");
-		DBG_INF_FMT("name=%*s", name.l, name.s);
-
-		const std::string var_name(name.s, name.l);
-		const std::vector<std::string>::iterator begin = placeholders.begin();
-		const std::vector<std::string>::iterator end = placeholders.end();
-		const std::vector<std::string>::const_iterator index = std::find(begin, end, var_name);
-		if (index == end) {
-			DBG_ERR("No such variable in the expression");
-			DBG_RETURN(FAIL);
-		}
-
-		Mysqlx::Datatypes::Any any;
-		if (FAIL == zval2any(value, any)) {
-			DBG_ERR("Error converting the zval to scalar");
-			DBG_RETURN(FAIL);
-		}
-		any2log(any);
-
-		bound_values[index - begin] = any.release_scalar();
-
-		DBG_INF("PASS");
-		DBG_RETURN(PASS);
-	}
-};
-
-#if 0
 /* {{{ xmysqlnd_crud_collection__bind_value */
 extern "C" enum_func_status
 xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
@@ -96,13 +58,18 @@ xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
 	}
 	any2log(any);
 
+	DBG_INF_FMT("offset=%u", index - begin);
+	if (bound_values[index - begin]) {
+		delete bound_values[index - begin];
+	}
 	bound_values[index - begin] = any.release_scalar();
+
+	scalar2log(*bound_values[index - begin]);
 
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
 /* }}} */
-#endif
 
 
 /* {{{ xmysqlnd_crud_collection_remove__add_sort */
@@ -127,15 +94,39 @@ xmysqlnd_crud_collection__add_sort(google::protobuf::RepeatedPtrField< Mysqlx::C
 /* }}} */
 
 
+/* {{{ xmysqlnd_crud_collection__finalize_bind */
+extern "C" enum_func_status
+xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args,
+										std::vector<Mysqlx::Datatypes::Scalar*> & bound_values)
+{
+	DBG_ENTER("xmysqlnd_crud_collection__finalize_bind");
+
+	const Mysqlx::Datatypes::Scalar* null_value = NULL;
+	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin = bound_values.begin();
+	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end = bound_values.end();
+	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index = std::find(begin, end, null_value);
+	if (index == end) {
+		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it = begin;
+		for (; it != end; ++it) {
+			mutable_args->AddAllocated(*it);		
+		}
+	}
+	DBG_RETURN(index == end? PASS : FAIL);
+}
+/* }}} */
+
+
 /****************************** COLLECTION.REMOVE() *******************************************************/
-struct st_xmysqlnd_crud_collection_op__remove : st_xmysqlnd_crud_collection_bindable_op
+struct st_xmysqlnd_crud_collection_op__remove
 {
 	Mysqlx::Crud::Delete message;
+
+	std::vector<std::string> placeholders;
+	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
 
 	st_xmysqlnd_crud_collection_op__remove(const MYSQLND_CSTRING & schema,
 										   const MYSQLND_CSTRING & object_name,
 										   const bool document_mode = true)
-		: st_xmysqlnd_crud_collection_bindable_op()
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
@@ -226,7 +217,7 @@ xmysqlnd_crud_collection_remove__bind_value(XMYSQLND_CRUD_COLLECTION_OP__REMOVE 
 		DBG_ERR("No criteria set");
 		DBG_RETURN(FAIL);
 	}
-	enum_func_status ret = obj->bind_value(name, value);
+	enum_func_status ret = xmysqlnd_crud_collection__bind_value(obj->placeholders, obj->bound_values, name, value);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -256,6 +247,22 @@ xmysqlnd_crud_collection_remove__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__REM
 /* }}} */
 
 
+/* {{{ xmysqlnd_crud_collection_remove__finalize_bind */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_remove__finalize_bind");
+	if (!obj->message.has_criteria()) {
+		DBG_ERR("No criteria set");
+		DBG_RETURN(FAIL);
+	}
+
+	enum_func_status ret = xmysqlnd_crud_collection__finalize_bind(obj->message.mutable_args(), obj->bound_values);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_crud_collection_remove__get_protobuf_message */
 extern "C" struct st_xmysqlnd_pb_message_shell 
 xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj)
@@ -268,14 +275,15 @@ xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_O
 
 /****************************** COLLECTION.MODIFY() *******************************************************/
 
-struct st_xmysqlnd_crud_collection_op__modify : st_xmysqlnd_crud_collection_bindable_op
+struct st_xmysqlnd_crud_collection_op__modify
 {
 	Mysqlx::Crud::Update message;
+	std::vector<std::string> placeholders;
+	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
 
 	st_xmysqlnd_crud_collection_op__modify(const MYSQLND_CSTRING & schema,
 										   const MYSQLND_CSTRING & object_name,
 										   const bool document_mode = true)
-		: st_xmysqlnd_crud_collection_bindable_op()
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
@@ -366,7 +374,7 @@ xmysqlnd_crud_collection_modify__bind_value(XMYSQLND_CRUD_COLLECTION_OP__MODIFY 
 		DBG_ERR("No criteria set");
 		DBG_RETURN(FAIL);
 	}
-	enum_func_status ret = obj->bind_value(name, value);
+	enum_func_status ret = xmysqlnd_crud_collection__bind_value(obj->placeholders, obj->bound_values, name, value);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -395,16 +403,43 @@ xmysqlnd_crud_collection_modify__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__MOD
 }
 /* }}} */
 
+
+/* {{{ xmysqlnd_crud_collection_modify__finalize_bind */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_modify__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_modify__finalize_bind");
+	if (!obj->message.has_criteria()) {
+		DBG_ERR("No criteria set");
+		DBG_RETURN(FAIL);
+	}
+
+	enum_func_status ret = xmysqlnd_crud_collection__finalize_bind(obj->message.mutable_args(), obj->bound_values);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__get_protobuf_message */
+extern "C" struct st_xmysqlnd_pb_message_shell 
+xmysqlnd_crud_collection_modify__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj)
+{
+	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message };
+	return ret;
+}
+/* }}} */
+
 /****************************** COLLECTION.FIND() *******************************************************/
 
-struct st_xmysqlnd_crud_collection_op__find : st_xmysqlnd_crud_collection_bindable_op
+struct st_xmysqlnd_crud_collection_op__find
 {
 	Mysqlx::Crud::Find message;
+	std::vector<std::string> placeholders;
+	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
 
 	st_xmysqlnd_crud_collection_op__find(const MYSQLND_CSTRING & schema,
 										 const MYSQLND_CSTRING & object_name,
 										 const bool document_mode = true)
-		: st_xmysqlnd_crud_collection_bindable_op()
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
@@ -495,7 +530,7 @@ xmysqlnd_crud_collection_find__bind_value(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 		DBG_ERR("No criteria set");
 		DBG_RETURN(FAIL);
 	}
-	enum_func_status ret = obj->bind_value(name, value);
+	enum_func_status ret = xmysqlnd_crud_collection__bind_value(obj->placeholders, obj->bound_values, name, value);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -523,6 +558,33 @@ xmysqlnd_crud_collection_find__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__FIND 
 	DBG_RETURN(ret);
 }
 /* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__finalize_bind */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_find__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_find__finalize_bind");
+	if (!obj->message.has_criteria()) {
+		DBG_ERR("No criteria set");
+		DBG_RETURN(FAIL);
+	}
+
+	enum_func_status ret = xmysqlnd_crud_collection__finalize_bind(obj->message.mutable_args(), obj->bound_values);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__get_protobuf_message */
+extern "C" struct st_xmysqlnd_pb_message_shell 
+xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
+{
+	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message };
+	return ret;
+}
+/* }}} */
+
 
 
 #ifdef A0

@@ -1504,11 +1504,11 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 					break;
 				}
 				do {
-					if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("neg     ="MYSQLND_LLU_SPEC, neg);
-					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours   ="MYSQLND_LLU_SPEC, hours);
-					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins    ="MYSQLND_LLU_SPEC, minutes);
-					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs    ="MYSQLND_LLU_SPEC, seconds);
-					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs   ="MYSQLND_LLU_SPEC, useconds);
+					if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("neg     =" MYSQLND_LLU_SPEC, neg);
+					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours   =" MYSQLND_LLU_SPEC, hours);
+					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins    =" MYSQLND_LLU_SPEC, minutes);
+					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
+					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
 				} while (0);
 				#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
 				ZVAL_NEW_STR(zv, strpprintf(0, TIME_FMT_STR , neg? "-":"",
@@ -1538,13 +1538,13 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 					break;
 				}
 				do {
-					if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("year    ="MYSQLND_LLU_SPEC, year);
-					if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("month   ="MYSQLND_LLU_SPEC, month);
-					if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("day     ="MYSQLND_LLU_SPEC, day);
-					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours   ="MYSQLND_LLU_SPEC, hours);
-					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins    ="MYSQLND_LLU_SPEC, minutes);
-					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs    ="MYSQLND_LLU_SPEC, seconds);
-					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs   ="MYSQLND_LLU_SPEC, useconds);
+					if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("year    =" MYSQLND_LLU_SPEC, year);
+					if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("month   =" MYSQLND_LLU_SPEC, month);
+					if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("day     =" MYSQLND_LLU_SPEC, day);
+					if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours   =" MYSQLND_LLU_SPEC, hours);
+					if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins    =" MYSQLND_LLU_SPEC, minutes);
+					if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
+					if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
 				} while (0);
 				#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
 				ZVAL_NEW_STR(zv, strpprintf(0, DATETIME_FMT_STR ,
@@ -2237,10 +2237,12 @@ xmysqlnd_collection_rud__send_request(struct st_xmysqlnd_msg__collection_rud * m
 									  const enum xmysqlnd_client_message_type pb_message_type,
 									  const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
+	DBG_ENTER("xmysqlnd_collection_rud__send_request");
 	size_t bytes_sent;
 	google::protobuf::Message * message = (google::protobuf::Message *)(pb_message_shell.message);
 
-	return xmysqlnd_send_message(pb_message_type, *message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+	enum_func_status ret = xmysqlnd_send_message(pb_message_type, *message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -2251,7 +2253,9 @@ extern "C" enum_func_status
 xmysqlnd_collection_rud__send_read_request(struct st_xmysqlnd_msg__collection_rud * msg,
 											 const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
-	return xmysqlnd_collection_rud__send_request(msg, COM_CRUD_FIND, pb_message_shell);
+	DBG_ENTER("xmysqlnd_collection_rud__send_read_request");
+	enum_func_status ret = xmysqlnd_collection_rud__send_request(msg, COM_CRUD_FIND, pb_message_shell);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -2261,7 +2265,9 @@ extern "C" enum_func_status
 xmysqlnd_collection_rud__send_update_request(struct st_xmysqlnd_msg__collection_rud * msg,
 											 const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
-	return xmysqlnd_collection_rud__send_request(msg, COM_CRUD_UPDATE, pb_message_shell);
+	DBG_ENTER("xmysqlnd_collection_rud__send_update_request");
+	enum_func_status ret = xmysqlnd_collection_rud__send_request(msg, COM_CRUD_UPDATE, pb_message_shell);
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -2271,7 +2277,9 @@ extern "C" enum_func_status
 xmysqlnd_collection_rud__send_delete_request(struct st_xmysqlnd_msg__collection_rud * msg,
 											 const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
-	return xmysqlnd_collection_rud__send_request(msg, COM_CRUD_DELETE, pb_message_shell);
+	DBG_ENTER("xmysqlnd_collection_rud__send_delete_request");
+	enum_func_status ret = xmysqlnd_collection_rud__send_request(msg, COM_CRUD_DELETE, pb_message_shell);
+	DBG_RETURN(ret);
 }
 /* }}} */
 

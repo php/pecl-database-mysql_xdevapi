@@ -62,6 +62,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
   xmysqlnd_expr_parser="     xmysqlnd/crud_parsers/expression_parser.cc \
 							 xmysqlnd/crud_parsers/orderby_parser.cc \
 							 xmysqlnd/crud_parsers/projection_parser.cc \
+							 xmysqlnd/crud_parsers/tokenizer.cc \
 					"
 
 

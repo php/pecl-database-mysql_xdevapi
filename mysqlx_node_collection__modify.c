@@ -46,6 +46,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__limit, 0, ZEND_RE
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__offset, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__bind, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
@@ -162,12 +166,58 @@ PHP_METHOD(mysqlx_node_collection__modify, limit)
 		DBG_VOID_RETURN;
 	}
 
+	if (rows < 0) {
+		static const unsigned int errcode = 10006;
+		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
+		mysqlx_new_exception(errcode, sqlstate, errmsg);	
+		DBG_VOID_RETURN;
+	}
+
 	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
 	if (object->crud_op) {
 		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_modify__set_limit(object->crud_op, rows));
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__modify::offset() */
+static
+PHP_METHOD(mysqlx_node_collection__modify, offset)
+{
+	struct st_mysqlx_node_collection__modify * object;
+	zval * object_zv;
+	zend_long position;
+
+	DBG_ENTER("mysqlx_node_collection__modify::offset");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+												&object_zv, mysqlx_node_collection__modify_class_entry,
+												&position))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	if (position < 0) {
+		static const unsigned int errcode = 10006;
+		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
+		mysqlx_new_exception(errcode, sqlstate, errmsg);	
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_modify__set_offset(object->crud_op, position));
 	}
 
 	DBG_VOID_RETURN;
@@ -200,13 +250,15 @@ PHP_METHOD(mysqlx_node_collection__modify, bind)
 		zend_string * key;
 		zval * val;
 		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
-			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
-			if (FAIL == xmysqlnd_crud_collection_modify__bind_value(object->crud_op, variable, val)) {
-				static const unsigned int errcode = 10005;
-				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-				static const MYSQLND_CSTRING errmsg = { "Error while binding a variable", sizeof("Error while binding a variable") - 1 };
-				mysqlx_new_exception(errcode, sqlstate, errmsg);
-				goto end;
+			if (key) {
+				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
+				if (FAIL == xmysqlnd_crud_collection_modify__bind_value(object->crud_op, variable, val)) {
+					static const unsigned int errcode = 10005;
+					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+					static const MYSQLND_CSTRING errmsg = { "Error while binding a variable", sizeof("Error while binding a variable") - 1 };
+					mysqlx_new_exception(errcode, sqlstate, errmsg);
+					goto end;
+				}
 			}
 		} ZEND_HASH_FOREACH_END();
 	}
@@ -250,9 +302,10 @@ PHP_METHOD(mysqlx_node_collection__modify, execute)
 static const zend_function_entry mysqlx_node_collection__modify_methods[] = {
 	PHP_ME(mysqlx_node_collection__modify, 	__construct,	NULL,											ZEND_ACC_PRIVATE)
 
+	PHP_ME(mysqlx_node_collection__modify,	bind,		arginfo_mysqlx_node_collection__modify__bind,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	sort,		arginfo_mysqlx_node_collection__modify__sort,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	limit,		arginfo_mysqlx_node_collection__modify__limit,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__modify,	bind,		arginfo_mysqlx_node_collection__modify__bind,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	offset,		arginfo_mysqlx_node_collection__modify__offset,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	execute,	arginfo_mysqlx_node_collection__modify__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}

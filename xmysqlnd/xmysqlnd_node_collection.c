@@ -279,7 +279,9 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, remove_document)(XMYSQLND_NODE_COLLECT
 {
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_collection::remove_document");
-
+	if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
+		DBG_RETURN(ret);
+	}
 	if (xmysqlnd_crud_collection_remove__is_initialized(op)) {
 		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);

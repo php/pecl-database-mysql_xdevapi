@@ -412,7 +412,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 			} else
 #endif
 			{
-				DBG_INF_FMT("value="MYSQLND_LLU_SPEC, scalar.v_signed_int());
+				DBG_INF_FMT("value=" MYSQLND_LLU_SPEC, scalar.v_signed_int());
 			}
 			break;
 		case Scalar_Type_V_UINT:
@@ -425,7 +425,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
 				DBG_INF_FMT("value=%s", tmp);
 			} else {
-				DBG_INF_FMT("value="MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+				DBG_INF_FMT("value=" MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
 			}
 			break;
 		case Scalar_Type_V_NULL:
