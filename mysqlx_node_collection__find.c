@@ -31,12 +31,21 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
+#include "mysqlx_expression.h"
 #include "mysqlx_node_collection__find.h"
 
 static zend_class_entry *mysqlx_node_collection__find_class_entry;
 
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__fields, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, projection)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__group_by, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__sort, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
@@ -83,16 +92,102 @@ PHP_METHOD(mysqlx_node_collection__find, __construct)
 }
 /* }}} */
 
-
-/* {{{ proto mixed mysqlx_node_collection__find::sort() */
+/* {{{ mysqlx_node_collection__find::fields */
 static
-PHP_METHOD(mysqlx_node_collection__find, sort)
+PHP_METHOD(mysqlx_node_collection__find, fields)
+{
+	struct st_mysqlx_node_collection__find * object;
+	zval * object_zv;
+	const zval * fields;
+	zend_bool is_expression = FALSE;
+
+	DBG_ENTER("mysqlx_node_collection__find::fields");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+												&object_zv, mysqlx_node_collection__find_class_entry,
+												(zval *) &fields))
+	{
+		DBG_VOID_RETURN;
+	}
+	switch (Z_TYPE_P(fields)) {
+		case IS_STRING:
+		case IS_ARRAY:
+			break;
+		case IS_OBJECT:
+			if (is_a_mysqlx_expression(fields)) {
+				/* get the string */
+				fields = get_mysqlx_expression(fields);
+				is_expression = TRUE;
+			}
+			/* fall-through */
+		default:{
+			static const unsigned int errcode = 10007;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Invalid value type", sizeof("Invalid value type") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			DBG_VOID_RETURN;
+		}			
+	}
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op && object->collection) {
+		enum_func_status ret = FAIL;
+		if (Z_TYPE_P(fields) == IS_STRING) {
+			const MYSQLND_CSTRING field_str = { Z_STRVAL_P(fields), Z_STRLEN_P(fields) };
+			ret = xmysqlnd_crud_collection_find__set_fields(object->crud_op, field_str, is_expression, FALSE);
+		} else if (Z_TYPE_P(fields) == IS_ARRAY) {
+			const zval * entry;
+			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(fields), entry) {
+				is_expression = FALSE;
+				if (Z_TYPE_P(entry) == IS_OBJECT) {
+					if (is_a_mysqlx_expression(entry)) {
+						/* get the string */
+						entry = get_mysqlx_expression(entry);
+						is_expression = TRUE;
+					}
+				}
+				/* NO else */
+				if (Z_TYPE_P(entry) != IS_STRING) {
+					static const unsigned int errcode = 10003;
+					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+					static const MYSQLND_CSTRING errmsg = { "Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1 };
+					mysqlx_new_exception(errcode, sqlstate, errmsg);
+					break;
+				}
+				{
+					MYSQLND_CSTRING field_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+					ret = xmysqlnd_crud_collection_find__set_fields(object->crud_op, field_str, FALSE, TRUE);
+				}
+			} ZEND_HASH_FOREACH_END();		
+		}
+		if (FAIL == ret) {
+			static const unsigned int errcode = 10004;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Error while adding a sort expression", sizeof("Error while adding a sort expression") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+
+#define ADD_SORT 1
+#define ADD_GROUPING 2
+
+/* {{{ mysqlx_node_collection__find__add_sort_or_grouping */
+static void
+mysqlx_node_collection__find__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
 	struct st_mysqlx_node_collection__find * object;
 	zval * object_zv;
 	zval * sort_expr = NULL;
 
-	DBG_ENTER("mysqlx_node_collection__find::sort");
+	DBG_ENTER("mysqlx_node_collection__find__add_sort_or_grouping");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
 												&object_zv, mysqlx_node_collection__find_class_entry,
@@ -109,12 +204,17 @@ PHP_METHOD(mysqlx_node_collection__find, sort)
 		switch (Z_TYPE_P(sort_expr)) {
 			case IS_STRING: {
 				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
-				RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str));
+				if (ADD_SORT == op_type) {
+					RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str));
+				} else if (ADD_GROUPING == op_type) {
+					RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__add_grouping(object->crud_op, sort_expr_str));
+				}
 				break;
 			}
 			case IS_ARRAY: {
 				zval * entry;
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(sort_expr), entry) {
+					enum_func_status ret = FAIL;
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						static const unsigned int errcode = 10003;
@@ -123,7 +223,12 @@ PHP_METHOD(mysqlx_node_collection__find, sort)
 						mysqlx_new_exception(errcode, sqlstate, errmsg);
 						goto end;
 					}
-					if (FAIL == xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str)) {
+					if (ADD_SORT == op_type) {
+						ret = xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str);
+					} else if (ADD_GROUPING == op_type) {
+						ret = xmysqlnd_crud_collection_find__add_grouping(object->crud_op, sort_expr_str);
+					}
+					if (FAIL == ret) {
 						static const unsigned int errcode = 10004;
 						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 						static const MYSQLND_CSTRING errmsg = { "Error while adding a sort expression", sizeof("Error while adding a sort expression") - 1 };
@@ -143,6 +248,28 @@ PHP_METHOD(mysqlx_node_collection__find, sort)
 		}
 	}
 end:
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__find::sort() */
+static
+PHP_METHOD(mysqlx_node_collection__find, sort)
+{
+	DBG_ENTER("mysqlx_node_collection__find::sort");
+	mysqlx_node_collection__find__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_SORT);
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__find::groupBy() */
+static
+PHP_METHOD(mysqlx_node_collection__find, groupBy)
+{
+	DBG_ENTER("mysqlx_node_collection__find::groupBy");
+	mysqlx_node_collection__find__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_GROUPING);
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -177,7 +304,7 @@ PHP_METHOD(mysqlx_node_collection__find, limit)
 
 	RETVAL_FALSE;
 
-	if (object->crud_op) {
+	if (object->crud_op && object->collection) {
 		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__set_limit(object->crud_op, rows));
 	}
 
@@ -215,7 +342,7 @@ PHP_METHOD(mysqlx_node_collection__find, offset)
 
 	RETVAL_FALSE;
 
-	if (object->crud_op) {
+	if (object->crud_op && object->collection) {
 		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__set_offset(object->crud_op, position));
 	}
 
@@ -245,7 +372,7 @@ PHP_METHOD(mysqlx_node_collection__find, bind)
 
 	RETVAL_FALSE;
 
-	if (object->crud_op) {
+	if (object->crud_op && object->collection) {
 		zend_string * key;
 		zval * val;
 		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
@@ -286,10 +413,15 @@ PHP_METHOD(mysqlx_node_collection__find, execute)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->collection) {
-
+	if (object->crud_op && object->collection) {
+		if (FALSE == xmysqlnd_crud_collection_find__is_initialized(object->crud_op)) {
+			static const unsigned int errcode = 10008;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Find not completely initialized", sizeof("Find not completely initialized") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		} else {
+			RETVAL_BOOL(PASS == object->collection->data->m.find(object->collection, object->crud_op));
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -301,6 +433,8 @@ PHP_METHOD(mysqlx_node_collection__find, execute)
 static const zend_function_entry mysqlx_node_collection__find_methods[] = {
 	PHP_ME(mysqlx_node_collection__find, 	__construct,	NULL,										ZEND_ACC_PRIVATE)
 
+	PHP_ME(mysqlx_node_collection__find,	fields,		arginfo_mysqlx_node_collection__find__fields,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find,	groupBy,	arginfo_mysqlx_node_collection__find__group_by,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	bind,		arginfo_mysqlx_node_collection__find__bind,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	sort,		arginfo_mysqlx_node_collection__find__sort,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	limit,		arginfo_mysqlx_node_collection__find__limit,	ZEND_ACC_PUBLIC)
@@ -311,38 +445,12 @@ static const zend_function_entry mysqlx_node_collection__find_methods[] = {
 };
 /* }}} */
 
-#if 0
-/* {{{ mysqlx_node_collection__find_property__name */
-static zval *
-mysqlx_node_collection__find_property__name(const struct st_mysqlx_object * obj, zval * return_value)
-{
-	const struct st_mysqlx_node_collection__find * object = (const struct st_mysqlx_node_collection__find *) (obj->ptr);
-	DBG_ENTER("mysqlx_node_collection__find_property__name");
-	if (object->collection && object->collection->data->collection_name.s) {
-		ZVAL_STRINGL(return_value, object->collection->data->collection_name.s, object->collection->data->collection_name.l);
-	} else {
-		/*
-		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
-		  and ISSET will say 'true' while for EG(unin) it is false.
-		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
-		*/
-		return_value = NULL;
-	}
-	DBG_RETURN(return_value);
-}
-/* }}} */
-#endif
 
 static zend_object_handlers mysqlx_object_node_collection__find_handlers;
 static HashTable mysqlx_node_collection__find_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_collection__find_property_entries[] =
 {
-#if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_collection__find_property__name,	NULL},
-#endif
 	{{NULL,	0}, NULL, NULL}
 };
 
@@ -417,10 +525,6 @@ mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_collection__find_properties, mysqlx_node_collection__find_property_entries);
-#if 0
-	/* The following is needed for the Reflection API */
-	zend_declare_property_null(mysqlx_node_collection__find_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
-#endif
 }
 /* }}} */
 

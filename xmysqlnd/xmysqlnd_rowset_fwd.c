@@ -50,7 +50,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
 										   MYSQLND_STATS * const stats,
 										   MYSQLND_ERROR_INFO * const error_info)
 {
-	const zend_bool no_more_on_the_line = !result->stmt->data->msg_stmt_exec.has_more_rows_in_set;
+	const zend_bool no_more_on_the_line = !result->stmt->data->msg_stmt_exec.reader_ctx.has_more_rows_in_set;
 	DBG_ENTER("xmysqlnd_rowset_fwd::next");
 	DBG_INF_FMT("row_cursor="MYSQLND_LLU_SPEC"  row_count="MYSQLND_LLU_SPEC, result->row_cursor, result->row_count);
 
@@ -179,7 +179,7 @@ static zend_bool
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, eof)(const XMYSQLND_ROWSET_FWD * const result)
 {
 	const zend_bool no_more_prefetched = result->row_cursor >= result->row_count;
-	const zend_bool no_more_on_the_line = !result->stmt->data->msg_stmt_exec.has_more_rows_in_set;
+	const zend_bool no_more_on_the_line = !result->stmt->data->msg_stmt_exec.reader_ctx.has_more_rows_in_set;
 	DBG_ENTER("xmysqlnd_rowset_fwd::eof");
 	DBG_INF_FMT("no_more_prefetched=%s", no_more_prefetched? "TRUE":"FALSE");
 	DBG_INF_FMT("no_more_on_the_line=%s", no_more_on_the_line? "TRUE":"FALSE");

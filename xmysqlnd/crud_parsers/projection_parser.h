@@ -28,27 +28,27 @@
 
 namespace xmysqlnd
 {
-class Projection_expression_parser : public Expression_parser
-{
-public:
-  Projection_expression_parser(const std::string& expr_str, const bool document_mode = false, const bool allow_alias = true);
-
-  template<typename Container>
-  void parse(Container &result)
+  class Projection_parser : public Expression_parser
   {
-    Mysqlx::Crud::Projection *colid = result.Add();
-    source_expression(*colid);
+  public:
+    Projection_parser(const std::string& expr_str, bool document_mode = false, bool allow_alias = true);
 
-    if (_tokenizer.tokens_available())
+    template<typename Container>
+    void parse(Container &result)
+    {
+      Mysqlx::Crud::Projection *colid = result.Add();
+      source_expression(*colid);
+
+      if (_tokenizer.tokens_available())
       {
         const xmysqlnd::Token& tok = _tokenizer.peek_token();
         throw Parser_error((boost::format("Projection parser: Expression '%s' has unexpected token '%s' at position %d") % _tokenizer.get_input() % tok.get_text() %
           tok.get_pos()).str());
       }
-  }
+    }
 
-  const std::string& id();
-  void source_expression(Mysqlx::Crud::Projection &column);
-};
+    const std::string& id();
+    void source_expression(Mysqlx::Crud::Projection &column);
+  };
 };
 #endif /* CRUD_PARSERS_PROJECTION_PARSER_H */

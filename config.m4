@@ -51,9 +51,10 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
 						 mysqlx_crud_operation_sortable.c \
 						 mysqlx_database_object.c \
 						 mysqlx_driver.c \
-						 mysqlx_executable.c \
 						 mysqlx_exception.c \
+						 mysqlx_executable.c \
 						 mysqlx_execution_status.c \
+						 mysqlx_expression.c \
 						 mysqlx_field_metadata.c \
 						 mysqlx_node_schema.c \
 						 mysqlx_node_session.c \

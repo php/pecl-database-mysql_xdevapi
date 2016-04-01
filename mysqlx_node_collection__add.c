@@ -93,7 +93,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 		enum_func_status ret = FAIL;
 		if (Z_TYPE(object->json) == IS_STRING) {
 			const MYSQLND_CSTRING json = { Z_STRVAL(object->json), Z_STRLEN(object->json) };
-			ret = object->collection->data->m.add_document(object->collection, json);
+			ret = object->collection->data->m.add(object->collection, json);
 		} else if (Z_TYPE(object->json) == IS_OBJECT) {
 			smart_str buf = {0};
 			JSON_G(error_code) = PHP_JSON_ERROR_NONE;
@@ -102,7 +102,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 			DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
 			if (JSON_G(error_code) == PHP_JSON_ERROR_NONE) {
 				const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
-				ret = object->collection->data->m.add_document(object->collection,json);	
+				ret = object->collection->data->m.add(object->collection,json);	
 			} else {
 				static const unsigned int errcode = 10001;
 				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };

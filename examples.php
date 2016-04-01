@@ -56,15 +56,35 @@ if (1) {
 //	var_dump("client_id=",$client_id);
 //	var_dump($c->killClient($client_id));
 
-//	$collection =  $c->getSchema("test")->createCollection("newcollection");
+//	$collection =  $c->createSchema("test")->createCollection("newcollection");
 	$collection =  $c->getSchema("test")->getCollection("newcollection");
-	$remover = $collection->remove();
-	var_dump($remover);
-	var_dump($remover->sort(["_id DESC", "pid DESC"]));
-	var_dump($remover->limit(4));
-	var_dump($remover->execute());
-//	$collection->add($a)->execute();
-//	$collection->add(json_encode($a))->execute();
+	var_dump($collection);
+if (0) {
+	if (1) {
+		$remover = $collection->remove("pid = :foo");
+		var_dump($remover);
+		var_dump("bind:", $remover->bind(["foo" => 15895]));
+//		var_dump($remover->sort(["_id DESC", "pid DESC"]));
+//		var_dump($remover->limit(1));
+		var_dump("execute:", $remover->execute());
+	} else {
+		$collection->add(json_encode($a))->execute();
+	}
+} else if (0) {
+//	$modifier = $collection->modify("pid = :foobar");
+	$modifier = $collection->modify("pid = \"a8fc6daff27c11e5a8d17c7a913074ba\"");
+	var_dump("modifier",$modifier);
+//	var_dump("bind:", $modifier->bind(["foobar" => 15889]));
+//	var_dump("expression", $expr = mysqlx\expression(".pid - 20"));
+//	var_dump("set:", $modifier->set(".foo", $expr));
+//	var_dump("unset:", $modifier->unset([".foo"]));
+	var_dump("arrayInsert:", $modifier->arrayInsert("[*]", 3));
+	var_dump("execute:", $modifier->execute());
+} else {
+	$finder = $collection->find();
+	var_dump("finder:", $finder);
+	var_dump("execute:", $finder->execute());
+}
 //	var_dump($collection->drop());
 exit;
 	var_dump($c->getSchemas());

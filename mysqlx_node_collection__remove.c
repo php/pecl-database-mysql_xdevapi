@@ -295,9 +295,9 @@ PHP_METHOD(mysqlx_node_collection__remove, execute)
 			static const unsigned int errcode = 10002;
 			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 			static const MYSQLND_CSTRING errmsg = { "Remove not completely initialized", sizeof("Remove not completely initialized") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);		
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
-			RETVAL_BOOL(PASS == object->collection->data->m.remove_document(object->collection, object->crud_op));
+			RETVAL_BOOL(PASS == object->collection->data->m.remove(object->collection, object->crud_op));
 		}
 	}
 
@@ -320,38 +320,12 @@ static const zend_function_entry mysqlx_node_collection__remove_methods[] = {
 };
 /* }}} */
 
-#if 0
-/* {{{ mysqlx_node_collection__remove_property__name */
-static zval *
-mysqlx_node_collection__remove_property__name(const struct st_mysqlx_object * obj, zval * return_value)
-{
-	const struct st_mysqlx_node_collection__remove * object = (const struct st_mysqlx_node_collection__remove *) (obj->ptr);
-	DBG_ENTER("mysqlx_node_collection__remove_property__name");
-	if (object->collection && object->collection->data->collection_name.s) {
-		ZVAL_STRINGL(return_value, object->collection->data->collection_name.s, object->collection->data->collection_name.l);
-	} else {
-		/*
-		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
-		  and ISSET will say 'true' while for EG(unin) it is false.
-		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
-		*/
-		return_value = NULL;
-	}
-	DBG_RETURN(return_value);
-}
-/* }}} */
-#endif
 
 static zend_object_handlers mysqlx_object_node_collection__remove_handlers;
 static HashTable mysqlx_node_collection__remove_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_collection__remove_property_entries[] =
 {
-#if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_collection__remove_property__name,	NULL},
-#endif
 	{{NULL,	0}, NULL, NULL}
 };
 
@@ -426,10 +400,6 @@ mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handle
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_collection__remove_properties, mysqlx_node_collection__remove_property_entries);
-#if 0
-	/* The following is needed for the Reflection API */
-	zend_declare_property_null(mysqlx_node_collection__remove_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
-#endif
 }
 /* }}} */
 

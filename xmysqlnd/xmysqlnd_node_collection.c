@@ -115,13 +115,13 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_collection::add_document */
+/* {{{ xmysqlnd_node_collection::add */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_collection, add_document)(XMYSQLND_NODE_COLLECTION * const collection, const MYSQLND_CSTRING json)
+XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const collection, const MYSQLND_CSTRING json)
 {
 	struct st_parse_for_id_status status;
 	enum_func_status ret = PASS;
-	DBG_ENTER("xmysqlnd_node_collection::add_document");
+	DBG_ENTER("xmysqlnd_node_collection::add");
 	DBG_INF_FMT("json=%*s", json.l, json.s);
 	if (!json.l) {
 		DBG_RETURN(FAIL);
@@ -204,12 +204,12 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add_document)(XMYSQLND_NODE_COLLECTION
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_collection::remove_document */
+/* {{{ xmysqlnd_node_collection::remove */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_collection, remove_document)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
+XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
 	enum_func_status ret = FAIL;
-	DBG_ENTER("xmysqlnd_node_collection::remove_document");
+	DBG_ENTER("xmysqlnd_node_collection::remove");
 	if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
 		DBG_RETURN(ret);
 	}
@@ -220,6 +220,56 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, remove_document)(XMYSQLND_NODE_COLLECT
 		ret = collection_rud.send_delete_request(&collection_rud, xmysqlnd_crud_collection_remove__get_protobuf_message(op));
 		if (PASS == ret) {
 			ret = collection_rud.read_response(&collection_rud);
+		}
+		DBG_INF(ret == PASS? "PASS":"FAIL");
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_collection::modify */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
+{
+	enum_func_status ret = FAIL;
+	DBG_ENTER("xmysqlnd_node_collection::modify");
+	if (!op || FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
+		DBG_RETURN(ret);
+	}
+	if (xmysqlnd_crud_collection_modify__is_initialized(op)) {
+		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
+		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+		struct st_xmysqlnd_msg__collection_rud collection_rud = msg_factory.get__collection_rud(&msg_factory);
+		ret = collection_rud.send_update_request(&collection_rud, xmysqlnd_crud_collection_modify__get_protobuf_message(op));
+		if (PASS == ret) {
+			ret = collection_rud.read_response(&collection_rud);
+		}
+		DBG_INF(ret == PASS? "PASS":"FAIL");
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_collection::find */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
+{
+	enum_func_status ret = FAIL;
+	DBG_ENTER("xmysqlnd_node_collection::find");
+	if (!op || FAIL == xmysqlnd_crud_collection_find__finalize_bind(op)) {
+		DBG_RETURN(ret);
+	}
+	if (xmysqlnd_crud_collection_find__is_initialized(op)) {
+		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
+		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+		struct st_xmysqlnd_msg__collection_read collection_read = msg_factory.get__collection_read(&msg_factory);
+		ret = collection_read.send_read_request(&collection_read, xmysqlnd_crud_collection_find__get_protobuf_message(op));
+		if (PASS == ret) {
+			ret = collection_read.read_response_result(&collection_read);
 		}
 		DBG_INF(ret == PASS? "PASS":"FAIL");
 	}
@@ -293,8 +343,10 @@ static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_collection)
 	XMYSQLND_METHOD(xmysqlnd_node_collection, init),
 
-	XMYSQLND_METHOD(xmysqlnd_node_collection, add_document),
-	XMYSQLND_METHOD(xmysqlnd_node_collection, remove_document),
+	XMYSQLND_METHOD(xmysqlnd_node_collection, add),
+	XMYSQLND_METHOD(xmysqlnd_node_collection, remove),
+	XMYSQLND_METHOD(xmysqlnd_node_collection, modify),
+	XMYSQLND_METHOD(xmysqlnd_node_collection, find),
 
 	XMYSQLND_METHOD(xmysqlnd_node_collection, get_reference),
 	XMYSQLND_METHOD(xmysqlnd_node_collection, free_reference),

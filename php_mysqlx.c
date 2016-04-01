@@ -130,7 +130,13 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx__get_node_session, 0, ZEND_RETURN_VALUE, 3
 	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx__expression, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(0, expression, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
 PHP_FUNCTION(mysqlx__getNodeSession);
+PHP_FUNCTION(mysqlx__expression);
 
 /*
   We need a proper macro, that is included in all mysqlx_ files which register classes by using INIT_NS_CLASS_ENTRY.
@@ -141,6 +147,7 @@ PHP_FUNCTION(mysqlx__getNodeSession);
 /* {{{ mysqlx_functions */
 static const zend_function_entry mysqlx_functions[] = {
 	ZEND_NS_NAMED_FE(MYSQLX_NAMESPACE, getNodeSession, ZEND_FN(mysqlx__getNodeSession), arginfo_mysqlx__get_node_session)
+	ZEND_NS_NAMED_FE(MYSQLX_NAMESPACE, expression, ZEND_FN(mysqlx__expression), arginfo_mysqlx__expression)
 	PHP_FE_END
 };
 /* }}} */

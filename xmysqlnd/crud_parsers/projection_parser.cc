@@ -23,7 +23,7 @@
 
 using namespace xmysqlnd;
 
-Projection_expression_parser::Projection_expression_parser(const std::string& expr_str, const bool document_mode, const bool allow_alias)
+Projection_parser::Projection_parser(const std::string& expr_str, const bool document_mode, const bool allow_alias)
   : Expression_parser(expr_str, document_mode, allow_alias)
 {
 }
@@ -31,7 +31,7 @@ Projection_expression_parser::Projection_expression_parser(const std::string& ex
 /*
  * id ::= IDENT | MUL
  */
-const std::string& Projection_expression_parser::id()
+const std::string& Projection_parser::id()
 {
   if (_tokenizer.cur_token_type_is(Token::IDENT))
     return _tokenizer.consume_token(Token::IDENT);
@@ -42,7 +42,7 @@ const std::string& Projection_expression_parser::id()
 /*
  * column_identifier ::= ( expr [ [AS] IDENT ] ) | ( DOLLAR [ IDENT ] document_path )
  */
-void Projection_expression_parser::source_expression(Mysqlx::Crud::Projection &col)
+void Projection_parser::source_expression(Mysqlx::Crud::Projection &col)
 {
   if ( _document_mode && _tokenizer.cur_token_type_is(Token::DOLLAR))
   {

@@ -31,6 +31,7 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
+#include "mysqlx_expression.h"
 #include "mysqlx_node_collection__modify.h"
 
 static zend_class_entry *mysqlx_node_collection__modify_class_entry;
@@ -53,6 +54,26 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__bind, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__set, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, collection_field, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, expression_or_literal)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__unset, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, variables, IS_ARRAY, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__array_insert, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, collection_field, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, expression_or_literal)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__array_append, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, collection_field, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, expression_or_literal)
+ZEND_END_ARG_INFO()
+
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__execute, 0, ZEND_RETURN_VALUE, 0)
@@ -268,6 +289,152 @@ end:
 /* }}} */
 
 
+#define TWO_PARAM_OP__SET 1
+#define TWO_PARAM_OP__ARRAY_INSERT 2
+#define TWO_PARAM_OP__ARRAY_APPEND 3
+
+/* {{{ mysqlx_node_collection__modify__2_param_op */
+static void
+mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
+{
+	struct st_mysqlx_node_collection__modify * object;
+	zval * object_zv;
+	const zval * value;
+	MYSQLND_CSTRING collection_field = {NULL, 0};
+	zend_bool is_expression = FALSE;
+	const zend_bool is_document = FALSE;
+
+	DBG_ENTER("mysqlx_node_collection__modify__2_param_op");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
+												&object_zv, mysqlx_node_collection__modify_class_entry,
+												&(collection_field.s), &(collection_field.l),
+												(zval *) &value))
+	{
+		DBG_VOID_RETURN;
+	}
+	switch (Z_TYPE_P(value)) {
+		case IS_OBJECT:
+			if (op_type == TWO_PARAM_OP__SET) {
+				if (is_a_mysqlx_expression(value)) {
+					/* get the string */
+					value = get_mysqlx_expression(value);
+					is_expression = TRUE;
+				}
+				break;
+			}
+			/* fall-through */
+		case IS_STRING:
+		case IS_DOUBLE:
+		case IS_TRUE:
+		case IS_FALSE:
+		case IS_LONG:
+		case IS_NULL:
+			break;
+		default:{
+			static const unsigned int errcode = 10007;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Invalid value type", sizeof("Invalid value type") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			DBG_VOID_RETURN;
+		}			
+	
+	}
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		enum_func_status ret = FAIL;
+		switch (op_type) {
+			case TWO_PARAM_OP__SET:
+				ret = xmysqlnd_crud_collection_modify__set(object->crud_op, collection_field, value, is_expression, is_document);
+				break;
+			case TWO_PARAM_OP__ARRAY_INSERT:
+				ret = xmysqlnd_crud_collection_modify__array_insert(object->crud_op, collection_field, value);
+				break;
+			case TWO_PARAM_OP__ARRAY_APPEND:
+				ret = xmysqlnd_crud_collection_modify__array_append(object->crud_op, collection_field, value);
+				break;
+		}
+		
+		RETVAL_BOOL(PASS == ret);
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__modify::set() */
+static
+PHP_METHOD(mysqlx_node_collection__modify, set)
+{
+	mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__modify::arrayInsert() */
+static
+PHP_METHOD(mysqlx_node_collection__modify, arrayInsert)
+{
+	mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__ARRAY_INSERT);
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__modify::arrayAppend() */
+static
+PHP_METHOD(mysqlx_node_collection__modify, arrayAppend)
+{
+	mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__ARRAY_APPEND);
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__modify::unset() */
+static
+PHP_METHOD(mysqlx_node_collection__modify, unset)
+{
+	struct st_mysqlx_node_collection__modify * object;
+	zval * object_zv;
+	HashTable * unset_variables;
+
+	DBG_ENTER("mysqlx_node_collection__modify::unset");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+												&object_zv, mysqlx_node_collection__modify_class_entry,
+												&unset_variables))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		zval * val;
+		ZEND_HASH_FOREACH_VAL(unset_variables, val) {
+			convert_to_string(val);
+			{
+				const MYSQLND_CSTRING variable = { Z_STRVAL_P(val), Z_STRLEN_P(val) };
+				if (FAIL == xmysqlnd_crud_collection_modify__unset(object->crud_op, variable)) {
+					static const unsigned int errcode = 10006;
+					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+					static const MYSQLND_CSTRING errmsg = { "Error while unsetting a variable", sizeof("Error while unsetting a variable") - 1 };
+					mysqlx_new_exception(errcode, sqlstate, errmsg);
+					goto end;
+				}
+			}
+		} ZEND_HASH_FOREACH_END();
+	}
+end:
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_collection__modify::execute() */
 static
 PHP_METHOD(mysqlx_node_collection__modify, execute)
@@ -287,10 +454,16 @@ PHP_METHOD(mysqlx_node_collection__modify, execute)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->collection) {
-
+	DBG_INF_FMT("crud_op=%p collection=%p", object->crud_op, object->collection);
+	if (object->crud_op && object->collection) {
+		if (FALSE == xmysqlnd_crud_collection_modify__is_initialized(object->crud_op)) {
+			static const unsigned int errcode = 10002;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Modify not completely initialized", sizeof("Modify not completely initialized") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		} else {
+			RETVAL_BOOL(PASS == object->collection->data->m.modify(object->collection, object->crud_op));
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -300,50 +473,30 @@ PHP_METHOD(mysqlx_node_collection__modify, execute)
 
 /* {{{ mysqlx_node_collection__modify_methods[] */
 static const zend_function_entry mysqlx_node_collection__modify_methods[] = {
-	PHP_ME(mysqlx_node_collection__modify, 	__construct,	NULL,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_collection__modify, 	__construct,	NULL,												ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_collection__modify,	bind,		arginfo_mysqlx_node_collection__modify__bind,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__modify,	sort,		arginfo_mysqlx_node_collection__modify__sort,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__modify,	limit,		arginfo_mysqlx_node_collection__modify__limit,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__modify,	offset,		arginfo_mysqlx_node_collection__modify__offset,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__modify,	execute,	arginfo_mysqlx_node_collection__modify__execute,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	bind,		arginfo_mysqlx_node_collection__modify__bind,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	sort,		arginfo_mysqlx_node_collection__modify__sort,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	limit,		arginfo_mysqlx_node_collection__modify__limit,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	offset,		arginfo_mysqlx_node_collection__modify__offset,			ZEND_ACC_PUBLIC)
+
+	PHP_ME(mysqlx_node_collection__modify,	set,		arginfo_mysqlx_node_collection__modify__set,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	unset,		arginfo_mysqlx_node_collection__modify__unset,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	arrayInsert,arginfo_mysqlx_node_collection__modify__array_insert,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	arrayAppend,arginfo_mysqlx_node_collection__modify__array_append,	ZEND_ACC_PUBLIC)
+
+	PHP_ME(mysqlx_node_collection__modify,	execute,	arginfo_mysqlx_node_collection__modify__execute,		ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };
 /* }}} */
 
-#if 0
-/* {{{ mysqlx_node_collection__modify_property__name */
-static zval *
-mysqlx_node_collection__modify_property__name(const struct st_mysqlx_object * obj, zval * return_value)
-{
-	const struct st_mysqlx_node_collection__modify * object = (const struct st_mysqlx_node_collection__modify *) (obj->ptr);
-	DBG_ENTER("mysqlx_node_collection__modify_property__name");
-	if (object->collection && object->collection->data->collection_name.s) {
-		ZVAL_STRINGL(return_value, object->collection->data->collection_name.s, object->collection->data->collection_name.l);
-	} else {
-		/*
-		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
-		  and ISSET will say 'true' while for EG(unin) it is false.
-		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
-		*/
-		return_value = NULL;
-	}
-	DBG_RETURN(return_value);
-}
-/* }}} */
-#endif
 
 static zend_object_handlers mysqlx_object_node_collection__modify_handlers;
 static HashTable mysqlx_node_collection__modify_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_collection__modify_property_entries[] =
 {
-#if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_collection__modify_property__name,	NULL},
-#endif
 	{{NULL,	0}, NULL, NULL}
 };
 
@@ -418,10 +571,6 @@ mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS, zend_object_handle
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_collection__modify_properties, mysqlx_node_collection__modify_property_entries);
-#if 0
-	/* The following is needed for the Reflection API */
-	zend_declare_property_null(mysqlx_node_collection__modify_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
-#endif
 }
 /* }}} */
 
