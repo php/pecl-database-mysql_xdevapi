@@ -396,17 +396,17 @@ struct st_xmysqlnd_msg__collection_insert
 };
 
 /* user for Remove, Update, Delete */
-struct st_xmysqlnd_msg__collection_rud
+struct st_xmysqlnd_msg__collection_ud
 {
-	enum_func_status (*send_update_request)(struct st_xmysqlnd_msg__collection_rud * msg,
+	enum_func_status (*send_update_request)(struct st_xmysqlnd_msg__collection_ud * msg,
 											const struct st_xmysqlnd_pb_message_shell pb_message_shell);
 
-	enum_func_status (*send_delete_request)(struct st_xmysqlnd_msg__collection_rud * msg,
+	enum_func_status (*send_delete_request)(struct st_xmysqlnd_msg__collection_ud * msg,
 											const struct st_xmysqlnd_pb_message_shell pb_message_shell);
 
-	enum_func_status (*read_response)(struct st_xmysqlnd_msg__collection_rud * msg);
+	enum_func_status (*read_response)(struct st_xmysqlnd_msg__collection_ud * msg);
 
-	enum_func_status (*init_read)(struct st_xmysqlnd_msg__collection_rud * const msg,
+	enum_func_status (*init_read)(struct st_xmysqlnd_msg__collection_ud * const msg,
 								  const struct st_xmysqlnd_on_error_bind on_error);
 
 	MYSQLND_VIO * vio;
@@ -457,7 +457,7 @@ struct st_xmysqlnd_message_factory
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__sql_stmt_execute)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__collection_insert	(*get__collection_insert)(const struct st_xmysqlnd_message_factory * const factory);
-	struct st_xmysqlnd_msg__collection_rud		(*get__collection_rud)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__collection_ud		(*get__collection_ud)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__collection_read		(*get__collection_read)(const struct st_xmysqlnd_message_factory * const factory);
 };
 
