@@ -529,13 +529,14 @@ PHP_METHOD(mysqlx_node_session, createSchema)
 
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 	if ((session = object->session)) {
-		if (PASS == session->m->create_db(session, schema_name)) {
-			XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
-			if (schema) {
-				mysqlx_new_node_schema(return_value, schema);
-			} else {
-				mysqlx_throw_exception_from_session_if_needed(session->data);
-			}
+		XMYSQLND_NODE_SCHEMA * schema = NULL;
+		if (PASS == session->m->create_db(session, schema_name) &&
+			(schema = session->m->create_schema_object(session, schema_name)))
+		{
+			DBG_INF_FMT("schema=%p", schema);
+			mysqlx_new_node_schema(return_value, schema);
+		} else {
+			mysqlx_throw_exception_from_session_if_needed(session->data);
 		}
 	} else {
 		RETVAL_FALSE;
