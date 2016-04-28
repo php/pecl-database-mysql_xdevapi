@@ -73,6 +73,11 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_current)(XMYSQLND_ROWSET_BUFFERE
 }
 /* }}} */
 
+/*!!!
+  For Collection.find() this method should not call array_init_size() but ZVAL_STRINGL(row).
+  Or just a new method is needed, that fetches only the first column. A flag may be needed to
+  flatten to not use an array in case of just one column.
+*/
 
 /* {{{ xmysqlnd_node_stmt_result::fetch_one */
 static enum_func_status
