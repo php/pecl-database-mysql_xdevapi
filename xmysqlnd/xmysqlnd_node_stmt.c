@@ -27,6 +27,8 @@
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
 #include "xmysqlnd_rowset.h"
+#include "xmysqlnd_crud_collection_commands.h"
+#include "xmysqlnd_wireprotocol.h"
 
 
 /* {{{ xmysqlnd_node_stmt::init */
@@ -34,8 +36,6 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 										  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 										  XMYSQLND_NODE_SESSION * const session,
-										  const MYSQLND_CSTRING namespace_,
-										  const MYSQLND_CSTRING query,
 										  MYSQLND_STATS * const stats,
 										  MYSQLND_ERROR_INFO * const error_info)
 {
@@ -43,11 +43,6 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 	if (!(stmt->data->session = session->m->get_reference(session))) {
 		return FAIL;
 	}
-	stmt->data->namespace_ = mnd_dup_cstring(namespace_, stmt->data->persistent);
-	stmt->data->query = mnd_dup_cstring(query, stmt->data->persistent);
-	DBG_INF_FMT("namespace=[%d]%*s", stmt->data->namespace_.l, stmt->data->namespace_.l, stmt->data->namespace_.s);
-	DBG_INF_FMT("query=[%d]%*s", stmt->data->query.l, stmt->data->query.l, stmt->data->query.s);
-
 	stmt->data->object_factory = object_factory;
 
 	DBG_RETURN(PASS);
@@ -55,64 +50,26 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::bind_one_param */
+/* {{{ xmysqlnd_node_stmt::send_raw_message */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param)(XMYSQLND_NODE_STMT * const stmt, const unsigned int param_no, const zval * param_zv)
-{
-	enum_func_status ret = FAIL;
-	DBG_ENTER("xmysqlnd_node_stmt::bind_one_param");
-	DBG_INF_FMT("params=%p", stmt->data->params);
-	if (!stmt->data->params || param_no >= stmt->data->params_allocated) {
-		DBG_INF("Not enough space for params, realloc");
-		stmt->data->params = mnd_perealloc(stmt->data->params, (param_no + 1) * sizeof(zval), stmt->data->persistent);
-		if (!stmt->data->params) {
-			DBG_RETURN(FAIL);
-		}
-		/* Now we have a hole between the last allocated and the new param_no which is not zeroed. Zero it! */
-		memset(&stmt->data->params[stmt->data->params_allocated], 0, (param_no - stmt->data->params_allocated + 1) * sizeof(zval));
-
-		stmt->data->params_allocated = param_no + 1;
-		ret = PASS;
-	}
-	zval_ptr_dtor(&stmt->data->params[param_no]);
-
-	ZVAL_COPY_VALUE(&stmt->data->params[param_no], param_zv);
-	Z_TRY_ADDREF(stmt->data->params[param_no]);
-#ifdef PHP_DEBUG
-	switch (ret) {
-		case PASS:
-			DBG_INF("PASS");
-			break;
-		case FAIL:
-			DBG_INF("FAIL");
-			break;
-	}
-#endif
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_stmt::send_query */
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_node_stmt, send_raw_message)(XMYSQLND_NODE_STMT * const stmt,
+													  const struct st_xmysqlnd_pb_message_shell message_shell,
+													  MYSQLND_STATS * const stats,
+													  MYSQLND_ERROR_INFO * const error_info)
 {
 	MYSQLND_VIO * vio = stmt->data->session->data->io.vio;
 	XMYSQLND_PFC * pfc = stmt->data->session->data->io.pfc;
 	const XMYSQLND_L3_IO io = {vio, pfc};
 	/* pass stmt->data->session->data->io directly ?*/
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
-	enum_func_status ret;
-	DBG_ENTER("xmysqlnd_node_stmt::send_query");
+	enum_func_status ret = FAIL;
+	DBG_ENTER("xmysqlnd_node_stmt::send_raw_message");
 
 	stmt->data->partial_read_started = FALSE;
-	stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
-	ret = stmt->data->msg_stmt_exec.send_request(&stmt->data->msg_stmt_exec,
-												 mnd_str2c(stmt->data->namespace_),
-												 mnd_str2c(stmt->data->query),
-												 FALSE,
-												 stmt->data->params,
-												 stmt->data->params_allocated);
+	stmt->data->msg_stmt_exec = msg_factory.get__collection_read(&msg_factory);
+
+	ret = stmt->data->msg_stmt_exec.send_execute_request(&stmt->data->msg_stmt_exec, message_shell);
+
 	DBG_INF_FMT("send_request returned %s", PASS == ret? "PASS":"FAIL");
 
 	DBG_RETURN(PASS);
@@ -320,7 +277,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_trx_state_change)(void * context,
 #if 0
 	const struct st_xmysqlnd_node_stmt_bind_ctx * const ctx = (const struct st_xmysqlnd_node_stmt_bind_ctx *) context;
 #endif
-	enum_hnd_func_status ret = HND_AGAIN;
+	const enum_hnd_func_status ret = HND_AGAIN;
 
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_trx_state_change");
 	DBG_INF_FMT("type=%s", type == TRX_STATE_COMMITTED? "COMMITTED":(type == TRX_STATE_ROLLEDBACK? "ROLLED BACK":"n/a"));
@@ -775,25 +732,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference)(XMYSQLND_NODE_STMT * const s
 static void
 XMYSQLND_METHOD(xmysqlnd_node_stmt, free_contents)(XMYSQLND_NODE_STMT * const stmt)
 {
-	const zend_bool pers = stmt->data->persistent;
 	DBG_ENTER("xmysqlnd_node_stmt::free_contents");
-	if (stmt->data->namespace_.s) {
-		mnd_pefree(stmt->data->namespace_.s, pers);
-		stmt->data->namespace_.s = NULL;
-	}
-	if (stmt->data->query.s) {
-		mnd_pefree(stmt->data->query.s, pers);
-		stmt->data->query.s = NULL;
-	}
-	if (stmt->data->params) {
-		unsigned int i = 0;
-		for (; i < stmt->data->params_allocated; ++i) {
-			zval_ptr_dtor(&stmt->data->params[i]);
-		}
-		mnd_pefree(stmt->data->params, pers);
-		stmt->data->params = NULL;
-	}
-	stmt->data->params_allocated = 0;
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -819,8 +758,7 @@ static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, init),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, bind_one_param),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, send_query),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, send_raw_message),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results),
 
@@ -855,8 +793,6 @@ PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_stmt);
 /* {{{ xmysqlnd_node_stmt_create */
 PHPAPI XMYSQLND_NODE_STMT *
 xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION * session,
-						  const MYSQLND_CSTRING namespace_,
-						  const MYSQLND_CSTRING query,
 						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 						  MYSQLND_STATS * const stats,
@@ -864,11 +800,9 @@ xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION * session,
 {
 	XMYSQLND_NODE_STMT * stmt = NULL;
 	DBG_ENTER("xmysqlnd_node_stmt_create");
-	if (query.s && query.l) {
-		stmt = object_factory->get_node_stmt(object_factory, session, namespace_, query, persistent, stats, error_info);
-		if (stmt) {
-			stmt = stmt->data->m.get_reference(stmt);
-		}
+	stmt = object_factory->get_node_stmt(object_factory, session, persistent, stats, error_info);
+	if (stmt) {
+		stmt = stmt->data->m.get_reference(stmt);
 	}
 	DBG_RETURN(stmt);
 }
@@ -893,6 +827,7 @@ xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, 
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
 
 /*
  * Local variables:

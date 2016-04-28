@@ -21,8 +21,10 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
+#include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
@@ -32,6 +34,7 @@
 #include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_expression.h"
+#include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__find.h"
 
 static zend_class_entry *mysqlx_node_collection__find_class_entry;
@@ -398,13 +401,15 @@ end:
 static
 PHP_METHOD(mysqlx_node_collection__find, execute)
 {
+	zend_long flags = 0;
 	struct st_mysqlx_node_collection__find * object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_collection__find::execute");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection__find_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+												&object_zv, mysqlx_node_collection__find_class_entry,
+												&flags))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -420,7 +425,25 @@ PHP_METHOD(mysqlx_node_collection__find, execute)
 			static const MYSQLND_CSTRING errmsg = { "Find not completely initialized", sizeof("Find not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
-			RETVAL_BOOL(PASS == object->collection->data->m.find(object->collection, object->crud_op));
+			XMYSQLND_NODE_STMT * stmt = object->collection->data->m.find(object->collection, object->crud_op);
+			{
+				if (stmt) {
+					zval stmt_zv;
+					ZVAL_UNDEF(&stmt_zv);
+					mysqlx_new_node_stmt(&stmt_zv, stmt);
+					if (Z_TYPE(stmt_zv) == IS_NULL) {
+						xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+					}
+					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+						zval zv;
+						ZVAL_UNDEF(&zv);
+						mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, &zv);
+
+						ZVAL_COPY(return_value, &zv);
+					}
+					zval_ptr_dtor(&stmt_zv);
+				}
+			}
 		}
 	}
 

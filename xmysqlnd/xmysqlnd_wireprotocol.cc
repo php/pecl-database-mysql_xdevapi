@@ -1847,39 +1847,22 @@ xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_msg__sql_stmt_execut
 /* }}} */
 
 
-/* {{{ xmysqlnd_sql_stmt_execute__send_request */
+/* {{{ xmysqlnd_sql_stmt_execute__send_execute_request */
 extern "C" enum_func_status
-xmysqlnd_sql_stmt_execute__send_request(struct st_xmysqlnd_msg__sql_stmt_execute * msg,
-										const MYSQLND_CSTRING namespace_,
-										const MYSQLND_CSTRING stmt,
-										const zend_bool compact_meta,
-										const zval * const params,
-										const unsigned int param_count)
+xmysqlnd_sql_stmt_execute__send_execute_request(struct st_xmysqlnd_msg__sql_stmt_execute * msg,
+												const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
+	DBG_ENTER("xmysqlnd_sql_stmt_execute__send_execute_request");
 	size_t bytes_sent;
-	Mysqlx::Sql::StmtExecute message;
-	DBG_ENTER("xmysqlnd_sql_stmt_execute__send_request");
 
-	if (params) {
-		for (unsigned int i = 0; i < param_count; ++i) {
-			Mysqlx::Datatypes::Any * arg = message.add_args();
-			zval2any(&params[i], *arg);
-		}
-	}
-
-	message.set_namespace_(namespace_.s, namespace_.l);
-	message.set_stmt(stmt.s, stmt.l);
-	message.set_compact_metadata(compact_meta? true:false);
-
-	const enum_func_status ret = xmysqlnd_send_message(COM_SQL_STMT_EXECUTE,
-													   message,
+	const enum_func_status ret = xmysqlnd_send_message((enum xmysqlnd_client_message_type) pb_message_shell.command,
+													   *(google::protobuf::Message *)(pb_message_shell.message),
 													   msg->reader_ctx.vio,
 													   msg->reader_ctx.pfc,
 													   msg->reader_ctx.stats,
 													   msg->reader_ctx.error_info,
 													   &bytes_sent);
 
-	DBG_INF_FMT("xmysqlnd_send_message returned %s", PASS == ret? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1891,7 +1874,7 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 {
 	const struct st_xmysqlnd_msg__sql_stmt_execute ctx =
 	{
-		xmysqlnd_sql_stmt_execute__send_request,
+		xmysqlnd_sql_stmt_execute__send_execute_request,
 		xmysqlnd_sql_stmt_execute__init_read,
 		xmysqlnd_sql_stmt_execute__read_response,
 
@@ -2245,14 +2228,19 @@ xmysqlnd_collection_ud__read_response(struct st_xmysqlnd_msg__collection_ud * ms
 /* {{{ xmysqlnd_collection_ud__send_request */
 static enum_func_status
 xmysqlnd_collection_ud__send_request(struct st_xmysqlnd_msg__collection_ud * msg,
-									  const enum xmysqlnd_client_message_type pb_message_type,
-									  const struct st_xmysqlnd_pb_message_shell pb_message_shell)
+									 const enum xmysqlnd_client_message_type pb_message_type,
+									 const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
 	DBG_ENTER("xmysqlnd_collection_ud__send_request");
 	size_t bytes_sent;
-	google::protobuf::Message * message = (google::protobuf::Message *)(pb_message_shell.message);
 
-	const enum_func_status ret = xmysqlnd_send_message(pb_message_type, *message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+	const enum_func_status ret = xmysqlnd_send_message(pb_message_type,
+													   *(google::protobuf::Message *)(pb_message_shell.message),
+													   msg->vio,
+													   msg->pfc,
+													   msg->stats,
+													   msg->error_info,
+													   &bytes_sent);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -2508,10 +2496,10 @@ xmysqlnd_msg_factory_get__collection_ud(const struct st_xmysqlnd_message_factory
 
 
 /* {{{ st_xmysqlnd_msg__collection_read */
-static struct st_xmysqlnd_msg__collection_read
+static struct st_xmysqlnd_msg__sql_stmt_execute
 xmysqlnd_msg_factory_get__collection_read(const struct st_xmysqlnd_message_factory * const factory)
 {
-	return xmysqlnd_collection_read__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
+	return xmysqlnd_msg_factory_get__sql_stmt_execute(factory);
 }
 /* }}} */
 

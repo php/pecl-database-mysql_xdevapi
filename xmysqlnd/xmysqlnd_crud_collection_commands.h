@@ -26,6 +26,7 @@ extern "C"
 struct st_xmysqlnd_pb_message_shell
 {
 	void * message;
+	unsigned int command;
 };
 
 struct st_xmysqlnd_expression_shell
@@ -98,6 +99,17 @@ enum_func_status xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECT
 enum_func_status xmysqlnd_crud_collection_find__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
 struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
 zend_bool xmysqlnd_crud_collection_find__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
+
+
+typedef struct st_xmysqlnd_stmt_op__execute XMYSQLND_STMT_OP__EXECUTE;
+XMYSQLND_STMT_OP__EXECUTE * xmysqlnd_stmt_execute__create(const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt);
+void xmysqlnd_stmt_execute__destroy(XMYSQLND_STMT_OP__EXECUTE * obj);
+zend_bool xmysqlnd_stmt_execute__is_initialized(XMYSQLND_STMT_OP__EXECUTE * obj);
+enum_func_status xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE * obj, const unsigned int param_no, const zval * param_zv);
+enum_func_status xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE * obj, zval * value);
+enum_func_status xmysqlnd_stmt_execute__finalize_bind(XMYSQLND_STMT_OP__EXECUTE * obj);
+
+struct st_xmysqlnd_pb_message_shell xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE * obj);
 
 
 #ifdef __cplusplus

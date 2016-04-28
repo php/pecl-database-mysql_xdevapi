@@ -255,26 +255,23 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * con
 
 
 /* {{{ xmysqlnd_node_collection::find */
-static enum_func_status
+static struct st_xmysqlnd_node_stmt *
 XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 {
-	enum_func_status ret = FAIL;
+	XMYSQLND_NODE_STMT * stmt = NULL;
 	DBG_ENTER("xmysqlnd_node_collection::find");
 	if (!op || FAIL == xmysqlnd_crud_collection_find__finalize_bind(op)) {
-		DBG_RETURN(ret);
+		DBG_RETURN(stmt);
 	}
 	if (xmysqlnd_crud_collection_find__is_initialized(op)) {
 		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
-		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
-		struct st_xmysqlnd_msg__collection_read collection_read = msg_factory.get__collection_read(&msg_factory);
-		ret = collection_read.send_read_request(&collection_read, xmysqlnd_crud_collection_find__get_protobuf_message(op));
-		if (PASS == ret) {
-			ret = collection_read.read_response_result(&collection_read);
+		stmt = session->m->create_statement_object(session);
+		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_collection_find__get_protobuf_message(op), session->data->stats, session->data->error_info)) {
+			xmysqlnd_node_stmt_free(stmt, session->data->stats, session->data->error_info);
+			stmt = NULL;			
 		}
-		DBG_INF(ret == PASS? "PASS":"FAIL");
 	}
-
-	DBG_RETURN(ret);
+	DBG_RETURN(stmt);
 }
 /* }}} */
 

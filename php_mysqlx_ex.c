@@ -116,6 +116,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
+	mysqlx_register_node_statement_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -192,6 +193,7 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_node_table_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_node_statement_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_schema_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

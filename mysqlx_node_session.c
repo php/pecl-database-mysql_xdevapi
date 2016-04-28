@@ -160,11 +160,13 @@ PHP_METHOD(mysqlx_node_session, createStatement)
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session, namespace_sql, query, MYSQLND_SEND_QUERY_EXPLICIT);
+		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session);
 		if (stmt) {
-			mysqlx_new_sql_stmt(return_value, stmt);
-		} else {
-			mysqlx_throw_exception_from_session_if_needed(session->data);
+			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query);
+			if (Z_TYPE_P(return_value) == IS_NULL) {
+				xmysqlnd_node_stmt_free(stmt, NULL, NULL);
+				mysqlx_throw_exception_from_session_if_needed(session->data);
+			}
 		}
 	}
 
@@ -183,15 +185,17 @@ mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION * const session,
 								  zval * const return_value,
 								  const unsigned int argc,
 								  const zval * args)
-
 {
-	XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session, namespace_, query, MYSQLND_SEND_QUERY_EXPLICIT);
+	XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
 	DBG_ENTER("mysqlx_execute_node_session_query");
 
 	if (stmt) {
 		zval stmt_zv;
 		ZVAL_UNDEF(&stmt_zv);
-		mysqlx_new_sql_stmt(&stmt_zv, stmt);
+		mysqlx_new_sql_stmt(&stmt_zv, stmt, namespace_, query);
+		if (Z_TYPE(stmt_zv) == IS_NULL) {
+			xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+		}
 		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 			zval zv;
 			unsigned int i = 0;
@@ -207,7 +211,7 @@ mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION * const session,
 			}
 			ZVAL_UNDEF(&zv);
 
-			mysqlx_node_sql_statement_execute(&stmt_zv, flags, &zv);
+			mysqlx_node_sql_statement_execute(Z_MYSQLX_P(&stmt_zv), flags, &zv);
 
 			ZVAL_COPY(return_value, &zv);
 		}

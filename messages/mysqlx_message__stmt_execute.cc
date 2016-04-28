@@ -23,6 +23,7 @@
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_wireprotocol.h>
+#include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_connection.h"
@@ -78,6 +79,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 	struct st_mysqlx_message__stmt_execute * object;
 	struct st_mysqlx_node_connection * connection;
 	struct st_mysqlx_node_pfc * codec;
+	enum_func_status ret = FAIL;
 
 	DBG_ENTER("mysqlx_message__stmt_execute::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OssbOO",
@@ -102,7 +104,15 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 
 	const MYSQLND_CSTRING namespace_par = {namespace_, namespace_len};
 	const MYSQLND_CSTRING stmt_par = {stmt, stmt_len};
-	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata, NULL, 0);
+//	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata, NULL, 0);
+
+	XMYSQLND_STMT_OP__EXECUTE * op = xmysqlnd_stmt_execute__create(namespace_par, stmt_par);
+	if (op) {
+		ret = object->msg.send_execute_request(&object->msg, xmysqlnd_stmt_execute__get_protobuf_message(op));
+		xmysqlnd_stmt_execute__destroy(op);
+		op = NULL;
+	}
+
 	RETVAL_BOOL(ret == PASS);
 
 	DBG_VOID_RETURN;

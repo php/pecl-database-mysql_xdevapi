@@ -74,8 +74,6 @@ typedef struct st_xmysqlnd_node_table * (*func_xmysqlnd_object_factory__get_node
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_object_factory__get_node_stmt)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			struct st_xmysqlnd_node_session * session,
-			const MYSQLND_CSTRING namespace_,
-			const MYSQLND_CSTRING query,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);

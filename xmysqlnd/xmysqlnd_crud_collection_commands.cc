@@ -22,12 +22,13 @@
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_zval2any.h"
+#include "xmysqlnd_wireprotocol.h"
 
 #include <vector>
 #include <string>
 
 #include "xmysqlnd_crud_collection_commands.h"
-
+#include "proto_gen/mysqlx_sql.pb.h"
 #include "crud_parsers/expression_parser.h"
 #include "crud_parsers/orderby_parser.h"
 #include "crud_parsers/projection_parser.h"
@@ -267,7 +268,7 @@ xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMO
 extern "C" struct st_xmysqlnd_pb_message_shell 
 xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message };
+	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
 	return ret;
 }
 /* }}} */
@@ -599,7 +600,7 @@ xmysqlnd_crud_collection_modify__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__MODI
 extern "C" struct st_xmysqlnd_pb_message_shell 
 xmysqlnd_crud_collection_modify__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message };
+	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_UPDATE };
 	return ret;
 }
 /* }}} */
@@ -860,7 +861,175 @@ xmysqlnd_crud_collection_find__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__FIND *
 extern "C" struct st_xmysqlnd_pb_message_shell 
 xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message };
+	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };
+	return ret;
+}
+/* }}} */
+
+
+/****************************** SQL EXECUTE *******************************************************/
+struct st_xmysqlnd_stmt_op__execute
+{
+	zval * params;
+	unsigned int params_allocated;
+
+	Mysqlx::Sql::StmtExecute message;
+
+	st_xmysqlnd_stmt_op__execute(const MYSQLND_CSTRING & namespace_,
+								 const MYSQLND_CSTRING & stmt,
+								 const bool compact_meta)
+		: params(NULL), params_allocated(0)
+	{
+		message.set_namespace_(namespace_.s, namespace_.l);
+		message.set_stmt(stmt.s, stmt.l);
+		message.set_compact_metadata(compact_meta);
+	}
+
+	enum_func_status bind_one_param(const unsigned int param_no, const zval * param_zv);
+	enum_func_status finalize_bind();
+
+	virtual ~st_xmysqlnd_stmt_op__execute()
+	{
+		if (params) {
+			mnd_efree(params);
+		}
+	}
+};
+
+
+/* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
+enum_func_status
+st_xmysqlnd_stmt_op__execute::bind_one_param(const unsigned int param_no, const zval * param_zv)
+{
+	enum_func_status ret = FAIL;
+	DBG_ENTER("st_xmysqlnd_stmt_op__execute::bind_one_stmt_param");
+	DBG_INF_FMT("params=%p", params);
+	if (!params || param_no >= params_allocated) {
+		DBG_INF("Not enough space for params, realloc");
+		params = (zval*) mnd_erealloc(params, (param_no + 1) * sizeof(zval));
+		if (!params) {
+			DBG_RETURN(FAIL);
+		}
+		/* Now we have a hole between the last allocated and the new param_no which is not zeroed. Zero it! */
+		memset(&params[params_allocated], 0, (param_no - params_allocated + 1) * sizeof(zval));
+
+		params_allocated = param_no + 1;
+		ret = PASS;
+	}
+	zval_ptr_dtor(&params[param_no]);
+
+	ZVAL_COPY_VALUE(&params[param_no], param_zv);
+	Z_TRY_ADDREF(params[param_no]);
+#ifdef PHP_DEBUG
+	switch (ret) {
+		case PASS:
+			DBG_INF("PASS");
+			break;
+		case FAIL:
+			DBG_INF("FAIL");
+			break;
+	}
+#endif
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
+enum_func_status
+st_xmysqlnd_stmt_op__execute::finalize_bind()
+{
+	enum_func_status ret = PASS;
+	unsigned int i = 0;
+	DBG_ENTER("st_xmysqlnd_stmt_op__execute::finalize_bind");
+	for (; i < params_allocated; ++i) {
+		Mysqlx::Datatypes::Any * arg = message.add_args();
+		ret = zval2any(&(params[i]), *arg);
+		if (FAIL == ret) {
+			break;
+		}
+
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__create */
+extern "C" XMYSQLND_STMT_OP__EXECUTE *
+xmysqlnd_stmt_execute__create(const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt)
+{
+	XMYSQLND_STMT_OP__EXECUTE * ret = NULL;
+	DBG_ENTER("xmysqlnd_stmt_execute__create");
+	DBG_INF_FMT("namespace_=%*s stmt=%*s", namespace_.l, namespace_.s, stmt.l, stmt.s);
+	ret = new struct st_xmysqlnd_stmt_op__execute(namespace_, stmt, false);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__destroy */
+extern "C" void
+xmysqlnd_stmt_execute__destroy(XMYSQLND_STMT_OP__EXECUTE * obj)
+{
+	DBG_ENTER("xmysqlnd_stmt_execute__destroy");
+	delete obj;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__bind_one_param */
+extern "C" enum_func_status
+xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE * obj, const unsigned int param_no, const zval * param_zv)
+{
+	DBG_ENTER("xmysqlnd_stmt_execute__bind_one_param");
+	const enum_func_status ret = obj->bind_one_param(param_no, param_zv);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__bind_value */
+extern "C" enum_func_status
+xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE * obj, zval * value)
+{
+	DBG_ENTER("xmysqlnd_stmt_execute__bind_value");
+	Mysqlx::Datatypes::Any * arg = obj->message.add_args();
+	const enum_func_status ret = zval2any(value, *arg);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__finalize_bind */
+extern "C" enum_func_status
+xmysqlnd_stmt_execute__finalize_bind(XMYSQLND_STMT_OP__EXECUTE * obj)
+{
+	DBG_ENTER("xmysqlnd_stmt_execute__finalize_bind");
+	const enum_func_status ret = obj->finalize_bind();
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__is_initialized */
+extern "C" zend_bool
+xmysqlnd_stmt_execute__is_initialized(XMYSQLND_STMT_OP__EXECUTE * obj)
+{
+	const zend_bool ret = obj && obj->message.IsInitialized()? TRUE : FALSE;
+	DBG_ENTER("xmysqlnd_stmt_execute__is_initialized");
+	DBG_INF_FMT("is_initialized=%u", ret);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__get_protobuf_message */
+extern "C" struct st_xmysqlnd_pb_message_shell
+xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE * obj)
+{
+	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_SQL_STMT_EXECUTE };
 	return ret;
 }
 /* }}} */

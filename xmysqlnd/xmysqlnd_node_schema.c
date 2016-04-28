@@ -20,6 +20,7 @@
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
+#include "xmysqlnd_crud_collection_commands.h"
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_collection.h"
 #include "xmysqlnd_node_table.h"
@@ -101,7 +102,7 @@ struct st_collection_op_var_binder_ctx
 
 /* {{{ collection_op_var_binder */
 static const enum_hnd_func_status
-collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_NODE_STMT * const stmt)
+collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_collection_op_var_binder_ctx * ctx = (struct st_collection_op_var_binder_ctx *) context;
@@ -122,8 +123,8 @@ bind:
 				ZVAL_UNDEF(&zv);
 				ZVAL_STRINGL(&zv, param->s, param->l);
 				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
-
-				result = stmt->data->m.bind_one_param(stmt, ctx->counter, &zv);
+				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+//				result = stmt->data->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
 
 				zval_ptr_dtor(&zv);
 				if (FAIL == result) {
@@ -289,7 +290,7 @@ struct st_collection_get_objects_var_binder_ctx
 
 /* {{{ collection_get_objects_var_binder */
 static const enum_hnd_func_status
-collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_NODE_STMT * const stmt)
+collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_collection_get_objects_var_binder_ctx * ctx = (struct st_collection_get_objects_var_binder_ctx *) context;
@@ -307,7 +308,9 @@ collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * sessio
 				ZVAL_STRINGL(&zv, param->s, param->l);
 				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
 
-				result = stmt->data->m.bind_one_param(stmt, ctx->counter, &zv);
+				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+
+//				result = stmt->data->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
 
 				zval_ptr_dtor(&zv);
 				if (FAIL == result) {

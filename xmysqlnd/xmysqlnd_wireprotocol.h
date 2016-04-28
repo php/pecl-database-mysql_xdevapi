@@ -329,13 +329,8 @@ struct st_xmysqlnd_result_set_reader_ctx
 
 struct st_xmysqlnd_msg__sql_stmt_execute
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_msg__sql_stmt_execute * msg,
-									 const MYSQLND_CSTRING namespace_,
-									 const MYSQLND_CSTRING stmt,
-									 const zend_bool compact_meta,
-									 const zval * const params,
-									 const unsigned int param_count);
-
+	enum_func_status (*send_execute_request)(struct st_xmysqlnd_msg__sql_stmt_execute * msg,
+											 const struct st_xmysqlnd_pb_message_shell pb_message_shell);
 
 	enum_func_status (*init_read)(struct st_xmysqlnd_msg__sql_stmt_execute * const msg,
 								  const struct st_xmysqlnd_meta_field_create_bind create_meta_field,
@@ -352,6 +347,7 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 
 	enum_func_status (*read_response)(struct st_xmysqlnd_msg__sql_stmt_execute * const msg,
 									  zval * const response);
+
 	struct st_xmysqlnd_result_set_reader_ctx reader_ctx;
 };
 
@@ -458,7 +454,7 @@ struct st_xmysqlnd_message_factory
 	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__collection_insert	(*get__collection_insert)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__collection_ud		(*get__collection_ud)(const struct st_xmysqlnd_message_factory * const factory);
-	struct st_xmysqlnd_msg__collection_read		(*get__collection_read)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__collection_read)(const struct st_xmysqlnd_message_factory * const factory);
 };
 
 struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_xmysqlnd_level3_io * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);

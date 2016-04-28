@@ -28,6 +28,7 @@
 
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_schema;
+struct st_xmysqlnd_stmt_op__execute;
 
 PHPAPI void xmysqlnd_node_session_module_init();
 
@@ -288,7 +289,7 @@ struct st_xmysqlnd_node_session_on_statement_ok_bind
 
 struct st_xmysqlnd_node_session_query_bind_variable_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_stmt_op__execute * const stmt);
 	void * ctx;
 };
 
@@ -345,10 +346,7 @@ typedef const enum_func_status	(*func_xmysqlnd_node_session__query)(XMYSQLND_NOD
 typedef zend_ulong			(*func_xmysqlnd_node_session__get_server_version)(XMYSQLND_NODE_SESSION * const session);
 typedef const char *		(*func_xmysqlnd_node_session__get_server_information)(const XMYSQLND_NODE_SESSION * const session);
 
-typedef struct st_xmysqlnd_node_stmt *		(*func_xmysqlnd_node_session__create_statement_object)(XMYSQLND_NODE_SESSION * const session,
-																								   const MYSQLND_CSTRING namespace_,
-																								   const MYSQLND_CSTRING query,
-																								   const enum_mysqlnd_send_query_type type);
+typedef struct st_xmysqlnd_node_stmt *		(*func_xmysqlnd_node_session__create_statement_object)(XMYSQLND_NODE_SESSION * const session);
 
 typedef struct st_xmysqlnd_node_schema *	(*func_xmysqlnd_node_session__create_schema_object)(XMYSQLND_NODE_SESSION * const session, const MYSQLND_CSTRING schema_name);
 typedef const enum_func_status				(*func_xmysqlnd_node_session__close)(XMYSQLND_NODE_SESSION * session, const enum_xmysqlnd_node_session_close_type close_type);
