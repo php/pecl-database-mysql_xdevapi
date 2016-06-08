@@ -611,7 +611,7 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, 
 	zval * object_zv;
 	zend_bool use_callbacks = FALSE;
 	struct st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx;
-	memset(&xmysqlnd_exec_with_cb_ctx, sizeof(struct st_xmysqlnd_exec_with_cb_ctx), 0);
+	memset(&xmysqlnd_exec_with_cb_ctx, 0, sizeof(struct st_xmysqlnd_exec_with_cb_ctx));
 
 	DBG_ENTER("mysqlx_node_sql_statement::getResult");
 	if (ZEND_NUM_ARGS() == 0) {
