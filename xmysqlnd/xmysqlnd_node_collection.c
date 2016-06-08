@@ -97,9 +97,10 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	ZVAL_UNDEF(&return_value);
 
 	php_json_parser_init(&parser, &return_value, (char *)json.s, json.l, options, depth);
-	own_methods = *parser.methods;
-	parser.methods = &own_methods;
+	own_methods = parser.methods;
 	own_methods.object_update = xmysqlnd_json_parser_object_update;
+	
+	php_json_parser_init_ex(&parser, &return_value, (char *)json.s, json.l, options, depth, &own_methods);
 	status->found = FALSE;
 	status->empty = TRUE;
 	parser.opaque = (void *) status;
