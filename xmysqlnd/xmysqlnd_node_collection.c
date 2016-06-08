@@ -57,11 +57,17 @@ struct st_parse_for_id_status
 	zend_bool empty:1;
 };
 
+struct my_php_json_parser {
+	php_json_parser parser;
+	struct st_parse_for_id_status * status;
+};
+
+
 /* {{{ xmysqlnd_json_parser_object_update */
 static int
 xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_string *key, zval *zvalue)
 {
-	struct st_parse_for_id_status * status = (struct st_parse_for_id_status *)parser->opaque;
+	struct st_parse_for_id_status * status = ((struct my_php_json_parser *)parser)->status;
 	DBG_ENTER("xmysqlnd_json_parser_object_update");
 	/* if JSON_OBJECT_AS_ARRAY is set */
 	if (parser->depth == 2 && ZSTR_LEN(key) &&
@@ -91,21 +97,21 @@ static enum_func_status
 xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend_long depth, struct st_parse_for_id_status * status) /* {{{ */
 {
 	php_json_parser_methods own_methods;
-	php_json_parser parser;
+	struct my_php_json_parser parser;
 	zval return_value;
 	DBG_ENTER("xmysqlnd_json_string_find_id");
 	ZVAL_UNDEF(&return_value);
 
-	php_json_parser_init(&parser, &return_value, (char *)json.s, json.l, options, depth);
-	own_methods = parser.methods;
+	php_json_parser_init(&parser.parser, &return_value, (char *)json.s, json.l, options, depth);
+	own_methods = parser.parser.methods;
 	own_methods.object_update = xmysqlnd_json_parser_object_update;
 	
-	php_json_parser_init_ex(&parser, &return_value, (char *)json.s, json.l, options, depth, &own_methods);
+	php_json_parser_init_ex(&parser.parser, &return_value, (char *)json.s, json.l, options, depth, &own_methods);
 	status->found = FALSE;
 	status->empty = TRUE;
-	parser.opaque = (void *) status;
+	parser.status = status;
 
-	if (php_json_yyparse(&parser)) {
+	if (php_json_yyparse(&parser.parser)) {
 		if (!status->found) {
 	//		JSON_G(error_code) = php_json_parser_error_code(&parser);
 			DBG_RETURN(FAIL);
