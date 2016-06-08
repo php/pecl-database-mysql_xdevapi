@@ -112,6 +112,14 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
   PHP_NEW_EXTENSION(xmysqlnd, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
   PHP_ADD_BUILD_DIR([ext/xmysqlnd], 1)
   PHP_INSTALL_HEADERS([ext/xmysqlnd/])
+
+  dnl TODO: we should search for a proper protoc matchig the one who's heades we use and which we link above
+  PROTOC=protoc
+  PHP_SUBST(PROTOC)
+  PHP_ADD_MAKEFILE_FRAGMENT()
+
+  dnl TODO: we should ONLY do this for OUR files, and this is NOT portable!
+  CXXFLAGS="$CXXFLAGS -std=c++11"
 fi
 
 if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes" || test "$PHP_MYSQLI" != "no"; then

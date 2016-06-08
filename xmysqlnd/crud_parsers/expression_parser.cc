@@ -854,9 +854,9 @@ Mysqlx::Expr::Expr *Expression_parser::binary()
 
 Mysqlx::Expr::Expr* Expression_parser::parse_left_assoc_binary_op_expr(std::set<Token::TokenType>& types, inner_parser_t inner_parser)
 {
-  DBG_ENTER("Expression_parser::parse_left_assoc_binary_op_expr")
+  DBG_ENTER("Expression_parser::parse_left_assoc_binary_op_expr");
   // Given a `set' of types and an Expr-returning inner parser function, parse a left associate binary operator expression
-  std::unique_ptr<Mysqlx::Expr::Expr> lhs =  std::unique_ptr<Mysqlx::Expr::Expr>(inner_parser(this));
+  std::unique_ptr<Mysqlx::Expr::Expr> lhs(inner_parser(this));
   while (_tokenizer.tokens_available() && _tokenizer.is_type_within_set(types))
   {
     std::unique_ptr<Mysqlx::Expr::Expr> e(new Mysqlx::Expr::Expr());

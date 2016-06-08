@@ -738,7 +738,7 @@ capabilities_set_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_msg__capabilities_set * const ctx = static_cast<struct st_xmysqlnd_msg__capabilities_set *>(context);
 	const enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("capabilities_set_on_ERROR")
+	DBG_ENTER("capabilities_set_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
@@ -846,7 +846,7 @@ auth_start_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_msg__auth_start * const ctx = static_cast<struct st_xmysqlnd_msg__auth_start *>(context);
 	const enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("auth_start_on_ERROR")
+	DBG_ENTER("auth_start_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
@@ -1031,7 +1031,7 @@ auth_continue_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_msg__auth_continue * const ctx = static_cast<struct st_xmysqlnd_msg__auth_continue *>(context);
 	const enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("auth_continue_on_ERROR")
+	DBG_ENTER("auth_continue_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
@@ -1925,7 +1925,7 @@ con_close_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_msg__connection_close * const ctx = static_cast<struct st_xmysqlnd_msg__connection_close *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("con_close_on_ERROR")
+	DBG_ENTER("con_close_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
@@ -2035,7 +2035,7 @@ collection_insert_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_msg__collection_insert * const ctx = static_cast<struct st_xmysqlnd_msg__collection_insert *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("collection_insert_on_ERROR")
+	DBG_ENTER("collection_insert_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
@@ -2162,7 +2162,7 @@ collection_ud_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	struct st_xmysqlnd_msg__collection_ud * const ctx = static_cast<struct st_xmysqlnd_msg__collection_ud *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	DBG_ENTER("collection_ud_on_ERROR")
+	DBG_ENTER("collection_ud_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
