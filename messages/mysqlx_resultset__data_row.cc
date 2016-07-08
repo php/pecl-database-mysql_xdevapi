@@ -177,7 +177,7 @@ PHP_METHOD(mysqlx_data_row, decode)
 #if SIZEOF_ZEND_LONG==8
 						if (gval > 9223372036854775807L) {
 #elif SIZEOF_ZEND_LONG==4
-						if (gval > L64(2147483647) {
+						if (gval > L64(2147483647)) {
 #endif
 							ZVAL_NEW_STR(&zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
 						} else {
