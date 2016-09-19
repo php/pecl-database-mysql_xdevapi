@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -47,7 +48,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__limit, 0, ZEND_RE
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__offset, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__skip, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
@@ -131,7 +132,9 @@ PHP_METHOD(mysqlx_node_collection__modify, sort)
 		switch (Z_TYPE_P(sort_expr)) {
 			case IS_STRING: {
 				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
-				RETVAL_BOOL(PASS == xmysqlnd_crud_collection_modify__add_sort(object->crud_op, sort_expr_str));
+				if (PASS == xmysqlnd_crud_collection_modify__add_sort(object->crud_op, sort_expr_str)) {
+					ZVAL_COPY(return_value, object_zv);
+				}
 				break;
 			}
 			case IS_ARRAY: {
@@ -153,6 +156,7 @@ PHP_METHOD(mysqlx_node_collection__modify, sort)
 						goto end;
 					}
 				} ZEND_HASH_FOREACH_END();
+				ZVAL_COPY(return_value, object_zv);
 				break;
 			}
 			/* fall-through */
@@ -200,7 +204,9 @@ PHP_METHOD(mysqlx_node_collection__modify, limit)
 	RETVAL_FALSE;
 
 	if (object->crud_op) {
-		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_modify__set_limit(object->crud_op, rows));
+		if (PASS == xmysqlnd_crud_collection_modify__set_limit(object->crud_op, rows)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -208,15 +214,15 @@ PHP_METHOD(mysqlx_node_collection__modify, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_collection__modify::offset() */
+/* {{{ proto mixed mysqlx_node_collection__modify::skip() */
 static
-PHP_METHOD(mysqlx_node_collection__modify, offset)
+PHP_METHOD(mysqlx_node_collection__modify, skip)
 {
 	struct st_mysqlx_node_collection__modify * object;
 	zval * object_zv;
 	zend_long position;
 
-	DBG_ENTER("mysqlx_node_collection__modify::offset");
+	DBG_ENTER("mysqlx_node_collection__modify::skip");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
 												&object_zv, mysqlx_node_collection__modify_class_entry,
@@ -238,7 +244,9 @@ PHP_METHOD(mysqlx_node_collection__modify, offset)
 	RETVAL_FALSE;
 
 	if (object->crud_op) {
-		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_modify__set_offset(object->crud_op, position));
+		if (PASS == xmysqlnd_crud_collection_modify__set_skip(object->crud_op, position)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -282,6 +290,7 @@ PHP_METHOD(mysqlx_node_collection__modify, bind)
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
+		ZVAL_COPY(return_value, object_zv);
 	}
 end:
 	DBG_VOID_RETURN;
@@ -305,6 +314,8 @@ mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const u
 	const zend_bool is_document = FALSE;
 
 	DBG_ENTER("mysqlx_node_collection__modify__2_param_op");
+
+	RETVAL_FALSE;
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
 												&object_zv, mysqlx_node_collection__modify_class_entry,
@@ -358,7 +369,9 @@ mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const u
 				break;
 		}
 		
-		RETVAL_BOOL(PASS == ret);
+		if (PASS == ret) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 	DBG_VOID_RETURN;
 }
@@ -369,7 +382,9 @@ mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const u
 static
 PHP_METHOD(mysqlx_node_collection__modify, set)
 {
+	DBG_ENTER("mysqlx_node_collection__modify::set");
 	mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -378,7 +393,9 @@ PHP_METHOD(mysqlx_node_collection__modify, set)
 static
 PHP_METHOD(mysqlx_node_collection__modify, arrayInsert)
 {
+	DBG_ENTER("mysqlx_node_collection__modify::arrayInsert");
 	mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__ARRAY_INSERT);
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -387,7 +404,9 @@ PHP_METHOD(mysqlx_node_collection__modify, arrayInsert)
 static
 PHP_METHOD(mysqlx_node_collection__modify, arrayAppend)
 {
+	DBG_ENTER("mysqlx_node_collection__modify::arrayAppend");
 	mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__ARRAY_APPEND);
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -428,6 +447,7 @@ PHP_METHOD(mysqlx_node_collection__modify, unset)
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
+		ZVAL_COPY(return_value, object_zv);
 	}
 end:
 	DBG_VOID_RETURN;
@@ -462,7 +482,9 @@ PHP_METHOD(mysqlx_node_collection__modify, execute)
 			static const MYSQLND_CSTRING errmsg = { "Modify not completely initialized", sizeof("Modify not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
-			RETVAL_BOOL(PASS == object->collection->data->m.modify(object->collection, object->crud_op));
+			if (PASS == object->collection->data->m.modify(object->collection, object->crud_op)) {
+				ZVAL_COPY(return_value, object_zv);
+			}
 		}
 	}
 
@@ -478,7 +500,7 @@ static const zend_function_entry mysqlx_node_collection__modify_methods[] = {
 	PHP_ME(mysqlx_node_collection__modify,	bind,		arginfo_mysqlx_node_collection__modify__bind,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	sort,		arginfo_mysqlx_node_collection__modify__sort,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	limit,		arginfo_mysqlx_node_collection__modify__limit,			ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__modify,	offset,		arginfo_mysqlx_node_collection__modify__offset,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	skip,		arginfo_mysqlx_node_collection__modify__skip,			ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_node_collection__modify,	set,		arginfo_mysqlx_node_collection__modify__set,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	unset,		arginfo_mysqlx_node_collection__modify__unset,			ZEND_ACC_PUBLIC)
