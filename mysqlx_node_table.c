@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -187,35 +188,6 @@ PHP_METHOD(mysqlx_node_table, existsInDatabase)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table::drop() */
-static
-PHP_METHOD(mysqlx_node_table, drop)
-{
-	struct st_mysqlx_node_table * object;
-	zval * object_zv;
-
-	DBG_ENTER("mysqlx_node_table::drop");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table_class_entry))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
-
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->table) {
-
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ proto mixed mysqlx_node_table::getSchema() */
 static
 PHP_METHOD(mysqlx_node_table, getSchema)
@@ -253,12 +225,20 @@ PHP_METHOD(mysqlx_node_table, insert)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
+	zval * columns = NULL;
 
 	DBG_ENTER("mysqlx_node_table::insert");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|a",
+												&object_zv, mysqlx_node_table_class_entry,
+												&columns))
 	{
+		DBG_VOID_RETURN;
+	}
+
+	if (columns && Z_TYPE_P(columns) != IS_STRING && Z_TYPE_P(columns) != IS_OBJECT && Z_TYPE_P(columns) != IS_ARRAY)
+	{
+		php_error_docref(NULL, E_WARNING, "Only strings and objects can be added. Type is %u", Z_TYPE_P(columns));
 		DBG_VOID_RETURN;
 	}
 
@@ -266,10 +246,8 @@ PHP_METHOD(mysqlx_node_table, insert)
 
 	RETVAL_FALSE;
 
-//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
 	if (object->table) {
-		mysqlx_new_node_table__insert(return_value, object->table, TRUE /* clone */);
+		mysqlx_new_node_table__insert(return_value, object->table, TRUE /* clone */, columns);
 	}
 
 	DBG_VOID_RETURN;
@@ -283,11 +261,14 @@ PHP_METHOD(mysqlx_node_table, select)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
+	zval * columns = NULL;
 
 	DBG_ENTER("mysqlx_node_table::select");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table_class_entry))
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Oz",
+		&object_zv, mysqlx_node_table_class_entry,
+		&columns))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -296,10 +277,8 @@ PHP_METHOD(mysqlx_node_table, select)
 
 	RETVAL_FALSE;
 
-//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->table) {
-		mysqlx_new_node_table__select(return_value, object->table, TRUE /* clone */);
+	if (object->table && columns) {
+		mysqlx_new_node_table__select(return_value, object->table, TRUE /* clone */, columns);
 	}
 
 	DBG_VOID_RETURN;
@@ -356,8 +335,6 @@ PHP_METHOD(mysqlx_node_table, delete)
 
 	RETVAL_FALSE;
 
-//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
 	if (object->table) {
 		mysqlx_new_node_table__delete(return_value, object->table, TRUE /* clone */);
 	}
@@ -374,7 +351,6 @@ static const zend_function_entry mysqlx_node_table_methods[] = {
 	PHP_ME(mysqlx_node_table, getSession,		arginfo_mysqlx_node_table__get_session,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table, getName,			arginfo_mysqlx_node_table__get_name,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table, existsInDatabase,	arginfo_mysqlx_node_table__exists_in_database,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table, drop,				arginfo_mysqlx_node_table__drop,				ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_node_table, getSchema,		arginfo_mysqlx_node_table__get_schema,			ZEND_ACC_PUBLIC)
 	/************************************** INHERITED END   ****************************************/
