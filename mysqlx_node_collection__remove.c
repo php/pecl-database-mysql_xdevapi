@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -48,7 +49,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__limit, 0, ZEND_RE
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__offset, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__skip, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
@@ -112,7 +113,9 @@ PHP_METHOD(mysqlx_node_collection__remove, sort)
 		switch (Z_TYPE_P(sort_expr)) {
 			case IS_STRING: {
 				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
-				RETVAL_BOOL(PASS == xmysqlnd_crud_collection_remove__add_sort(object->crud_op, sort_expr_str));
+				if (PASS == xmysqlnd_crud_collection_remove__add_sort(object->crud_op, sort_expr_str)) {
+					ZVAL_COPY(return_value, object_zv);
+				}
 				break;
 			}
 			case IS_ARRAY: {
@@ -134,6 +137,7 @@ PHP_METHOD(mysqlx_node_collection__remove, sort)
 						goto end;
 					}
 				} ZEND_HASH_FOREACH_END();
+				ZVAL_COPY(return_value, object_zv);
 				break;
 			}
 			/* fall-through */
@@ -181,7 +185,9 @@ PHP_METHOD(mysqlx_node_collection__remove, limit)
 	RETVAL_FALSE;
 
 	if (object->crud_op) {
-		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_remove__set_limit(object->crud_op, rows));
+		if (PASS == xmysqlnd_crud_collection_remove__set_limit(object->crud_op, rows)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -189,15 +195,15 @@ PHP_METHOD(mysqlx_node_collection__remove, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_collection__remove::offset() */
+/* {{{ proto mixed mysqlx_node_collection__remove::skip() */
 static
-PHP_METHOD(mysqlx_node_collection__remove, offset)
+PHP_METHOD(mysqlx_node_collection__remove, skip)
 {
 	struct st_mysqlx_node_collection__remove * object;
 	zval * object_zv;
 	zend_long position;
 
-	DBG_ENTER("mysqlx_node_collection__remove::offset");
+	DBG_ENTER("mysqlx_node_collection__remove::skip");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
 												&object_zv, mysqlx_node_collection__remove_class_entry,
@@ -218,7 +224,9 @@ PHP_METHOD(mysqlx_node_collection__remove, offset)
 	RETVAL_FALSE;
 
 	if (object->crud_op) {
-		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_remove__set_offset(object->crud_op, position));
+		if (PASS == xmysqlnd_crud_collection_remove__set_skip(object->crud_op, position)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -297,7 +305,9 @@ PHP_METHOD(mysqlx_node_collection__remove, execute)
 			static const MYSQLND_CSTRING errmsg = { "Remove not completely initialized", sizeof("Remove not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
-			RETVAL_BOOL(PASS == object->collection->data->m.remove(object->collection, object->crud_op));
+			if (PASS == object->collection->data->m.remove(object->collection, object->crud_op)) {
+				ZVAL_COPY(return_value, object_zv);
+			}
 		}
 	}
 
@@ -313,7 +323,7 @@ static const zend_function_entry mysqlx_node_collection__remove_methods[] = {
 	PHP_ME(mysqlx_node_collection__remove, bind,	arginfo_mysqlx_node_collection__remove__bind,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__remove, sort,	arginfo_mysqlx_node_collection__remove__sort,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__remove, limit,	arginfo_mysqlx_node_collection__remove__limit,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__remove, offset,	arginfo_mysqlx_node_collection__remove__offset,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__remove, skip,	arginfo_mysqlx_node_collection__remove__skip,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__remove, execute,	arginfo_mysqlx_node_collection__remove__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
