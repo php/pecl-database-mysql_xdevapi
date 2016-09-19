@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -50,6 +51,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__group_by, 0, ZEND_R
 	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__having, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__sort, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
 ZEND_END_ARG_INFO()
@@ -58,7 +63,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__limit, 0, ZEND_RETU
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__offset, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__skip, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
@@ -208,9 +213,13 @@ mysqlx_node_collection__find__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS,
 			case IS_STRING: {
 				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
 				if (ADD_SORT == op_type) {
-					RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str));
+					if (PASS == xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str)) {
+						ZVAL_COPY(return_value, object_zv);
+					}
 				} else if (ADD_GROUPING == op_type) {
-					RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__add_grouping(object->crud_op, sort_expr_str));
+					if (PASS == xmysqlnd_crud_collection_find__add_grouping(object->crud_op, sort_expr_str)) {
+						ZVAL_COPY(return_value, object_zv);
+					}
 				}
 				break;
 			}
@@ -239,6 +248,7 @@ mysqlx_node_collection__find__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS,
 						goto end;
 					}
 				} ZEND_HASH_FOREACH_END();
+				ZVAL_COPY(return_value, object_zv);
 				break;
 			}
 			/* fall-through */
@@ -278,6 +288,38 @@ PHP_METHOD(mysqlx_node_collection__find, groupBy)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_collection__find::having() */
+static
+PHP_METHOD(mysqlx_node_collection__find, having)
+{
+	struct st_mysqlx_node_collection__find * object;
+	zval * object_zv;
+	MYSQLND_CSTRING search_condition = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_collection__find::having");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+												&object_zv, mysqlx_node_collection__find_class_entry,
+												&(search_condition.s), &(search_condition.l)))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op && object->collection) {
+		if (PASS == xmysqlnd_crud_collection_find__set_having(object->crud_op, search_condition)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_collection__find::limit() */
 static
 PHP_METHOD(mysqlx_node_collection__find, limit)
@@ -308,7 +350,9 @@ PHP_METHOD(mysqlx_node_collection__find, limit)
 	RETVAL_FALSE;
 
 	if (object->crud_op && object->collection) {
-		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__set_limit(object->crud_op, rows));
+		if (PASS == xmysqlnd_crud_collection_find__set_limit(object->crud_op, rows)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -316,15 +360,15 @@ PHP_METHOD(mysqlx_node_collection__find, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_collection__find::offset() */
+/* {{{ proto mixed mysqlx_node_collection__find::skip() */
 static
-PHP_METHOD(mysqlx_node_collection__find, offset)
+PHP_METHOD(mysqlx_node_collection__find, skip)
 {
 	struct st_mysqlx_node_collection__find * object;
 	zval * object_zv;
 	zend_long position;
 
-	DBG_ENTER("mysqlx_node_collection__find::offset");
+	DBG_ENTER("mysqlx_node_collection__find::skip");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
 												&object_zv, mysqlx_node_collection__find_class_entry,
@@ -346,7 +390,9 @@ PHP_METHOD(mysqlx_node_collection__find, offset)
 	RETVAL_FALSE;
 
 	if (object->crud_op && object->collection) {
-		RETVAL_BOOL(PASS == xmysqlnd_crud_collection_find__set_offset(object->crud_op, position));
+		if (PASS == xmysqlnd_crud_collection_find__set_skip(object->crud_op, position)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -390,6 +436,7 @@ PHP_METHOD(mysqlx_node_collection__find, bind)
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
+		ZVAL_COPY(return_value, object_zv);
 	}
 end:
 	DBG_VOID_RETURN;
@@ -461,7 +508,7 @@ static const zend_function_entry mysqlx_node_collection__find_methods[] = {
 	PHP_ME(mysqlx_node_collection__find,	bind,		arginfo_mysqlx_node_collection__find__bind,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	sort,		arginfo_mysqlx_node_collection__find__sort,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	limit,		arginfo_mysqlx_node_collection__find__limit,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__find,	offset,		arginfo_mysqlx_node_collection__find__offset,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find,	skip,		arginfo_mysqlx_node_collection__find__skip,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	execute,	arginfo_mysqlx_node_collection__find__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
