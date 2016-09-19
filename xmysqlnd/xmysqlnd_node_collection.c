@@ -15,7 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
+#include <php.h>
+#undef ERROR
 #include "ext/json/php_json_parser.h"
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
@@ -192,13 +193,13 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 		DBG_INF_FMT("json=%*s", to_add.l, to_add.s);
 		{
 			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
-			struct st_xmysqlnd_msg__collection_insert collection_insert = msg_factory.get__collection_insert(&msg_factory);
-			ret = collection_insert.send_request(&collection_insert,
+			struct st_xmysqlnd_msg__collection_add collection_add = msg_factory.get__collection_add(&msg_factory);
+			ret = collection_add.send_request(&collection_add,
 												 mnd_str2c(collection->data->schema->data->schema_name),
 												 mnd_str2c(collection->data->collection_name),
 												 mnd_str2c(to_add));
 			if (PASS == ret) {
-				ret = collection_insert.read_response(&collection_insert);
+				ret = collection_add.read_response(&collection_add);
 			}
 			DBG_INF(ret == PASS? "PASS":"FAIL");
 		}

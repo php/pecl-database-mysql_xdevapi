@@ -15,7 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
+#include <php.h>
+#undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "xmysqlnd.h"
@@ -27,6 +28,7 @@
 #include "xmysqlnd_node_schema.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd_structs.h"
 
 const MYSQLND_CSTRING xmysqlnd_object_type_filter__table = { "TABLE", sizeof("TABLE") - 1 };
 const MYSQLND_CSTRING xmysqlnd_object_type_filter__collection = { "COLLECTION", sizeof("COLLECTION") - 1 };
@@ -90,14 +92,6 @@ collection_op_handler_on_error(void * context,
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
-
-
-struct st_collection_op_var_binder_ctx
-{
-	const MYSQLND_CSTRING schema_name;
-	const MYSQLND_CSTRING collection_name;
-	unsigned int counter;
-};
 
 
 /* {{{ collection_op_var_binder */
