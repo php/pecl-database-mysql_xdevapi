@@ -371,17 +371,36 @@ struct st_xmysqlnd_msg__connection_close
 };
 
 /* User for Create */
-struct st_xmysqlnd_msg__collection_insert
+struct st_xmysqlnd_msg__collection_add
 {
-	enum_func_status (*send_request)(struct st_xmysqlnd_msg__collection_insert * msg,
-									 const MYSQLND_CSTRING schema,
-									 const MYSQLND_CSTRING collection,
-									 const MYSQLND_CSTRING document);
+	enum_func_status(*send_request)(struct st_xmysqlnd_msg__collection_add * msg,
+		const MYSQLND_CSTRING schema,
+		const MYSQLND_CSTRING collection,
+		const MYSQLND_CSTRING document);
 
-	enum_func_status (*read_response)(struct st_xmysqlnd_msg__collection_insert * msg);
+	enum_func_status(*read_response)(struct st_xmysqlnd_msg__collection_add * msg);
 
-	enum_func_status (*init_read)(struct st_xmysqlnd_msg__collection_insert * const msg,
-								  const struct st_xmysqlnd_on_error_bind on_error);
+	enum_func_status(*init_read)(struct st_xmysqlnd_msg__collection_add * const msg,
+		const struct st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
+};
+
+/* User for Create */
+struct st_xmysqlnd_msg__table_insert
+{
+	enum_func_status(*send_insert_request)(struct st_xmysqlnd_msg__table_insert * msg,
+											const struct st_xmysqlnd_pb_message_shell pb_message_shell);
+
+	enum_func_status(*read_response)(struct st_xmysqlnd_msg__table_insert * msg);
+
+	enum_func_status(*init_read)(struct st_xmysqlnd_msg__table_insert * const msg,
+		const struct st_xmysqlnd_on_error_bind on_error);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
@@ -452,9 +471,10 @@ struct st_xmysqlnd_message_factory
 #endif
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__sql_stmt_execute)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const struct st_xmysqlnd_message_factory * const factory);
-	struct st_xmysqlnd_msg__collection_insert	(*get__collection_insert)(const struct st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__collection_add	    (*get__collection_add)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__collection_ud		(*get__collection_ud)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__collection_read)(const struct st_xmysqlnd_message_factory * const factory);
+    struct st_xmysqlnd_msg__table_insert		(*get__table_insert)(const struct st_xmysqlnd_message_factory * const factory);
 };
 
 struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_xmysqlnd_level3_io * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
