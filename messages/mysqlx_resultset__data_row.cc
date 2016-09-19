@@ -15,12 +15,16 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C"
+{
 #include <php.h>
+#undef ERROR
 #include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
+}
 #include <ext/mysqlnd/mysql_float_to_double.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
@@ -91,8 +95,12 @@ PHP_METHOD(mysqlx_data_row, decode)
 			php_error_docref(NULL, E_WARNING, "Zero columns");
 			DBG_VOID_RETURN;
 		}
-		const struct st_mysqlx_column_metadata * meta_ar[column_count];
-		unsigned int i = 0;
+		//TODO marines 
+        const size_t max_column_count = 256;
+        assert(column_count < max_column_count);
+        //const struct st_mysqlx_column_metadata * meta_ar[column_count];
+        const struct st_mysqlx_column_metadata * meta_ar[max_column_count];
+        unsigned int i = 0;
 		/* ZEND_HASH_FOREACH_PTR ?? */
 		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {

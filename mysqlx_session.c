@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include "mysqlx_session.h"
 
 zend_class_entry * mysqlx_session_interface_entry;

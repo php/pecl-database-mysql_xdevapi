@@ -18,6 +18,10 @@
 #ifndef XMYSQLND_H
 #define XMYSQLND_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PHP_XMYSQLND_VERSION "mysqlnd 1.0.0-dev"
 #define XMYSQLND_VERSION_ID 10000
 
@@ -69,6 +73,10 @@ PHPAPI ZEND_EXTERN_MODULE_GLOBALS(xmysqlnd)
 
 #if defined(ZTS) && defined(COMPILE_DL_XMYSQLND)
 ZEND_TSRMLS_CACHE_EXTERN();
+#endif
+
+#ifdef __cplusplus
+} // extern "C" {
 #endif
 
 #endif	/* XMYSQLND_H */

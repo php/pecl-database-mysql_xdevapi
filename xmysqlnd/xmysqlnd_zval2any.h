@@ -21,7 +21,7 @@
 #include "proto_gen/mysqlx_datatypes.pb.h"
 
 PHPAPI enum_func_status scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv);
-PHPAPI enum_func_status zval2any(const zval * zv, Mysqlx::Datatypes::Any & any);
+PHPAPI enum_func_status zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any);
 PHPAPI enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
 PHPAPI void any2log(const Mysqlx::Datatypes::Any & any);
 PHPAPI void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);

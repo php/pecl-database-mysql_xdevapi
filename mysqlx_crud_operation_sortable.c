@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include "mysqlx_crud_operation_sortable.h"
 
 zend_class_entry * mysqlx_crud_operation_sortable_interface_entry;

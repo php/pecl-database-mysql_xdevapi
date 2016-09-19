@@ -255,7 +255,8 @@ index 6964ef8..a66a069 100644
 --- a/ext/json/php_json_parser.h
 +++ b/ext/json/php_json_parser.h
 @@ -22,16 +22,44 @@
- #include "php.h"
+ #include <php.h>
+ #undef ERROR
  #include "php_json_scanner.h"
  
 -typedef struct _php_json_parser {

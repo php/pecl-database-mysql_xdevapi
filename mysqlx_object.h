@@ -22,7 +22,8 @@
 extern "C" {
 #endif
 
-#include "php.h"
+#include <php.h>
+#undef ERROR
 
 /*
   We callocate a structure, which includes a zend_object (encloses it),

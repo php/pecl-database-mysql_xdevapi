@@ -15,11 +15,15 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_statistics.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysql_float_to_double.h"
+extern "C"
+{
+#include <php.h>
+#undef ERROR
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysql_float_to_double.h>
+}
 #include "xmysqlnd.h"
 
 
@@ -112,10 +116,10 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 	switch (scalar.type()) {
 		case Scalar_Type_V_SINT:
 #if SIZEOF_ZEND_LONG==4
-			if (UNEXPECTED(any.scalar().v_signed_int() >= ZEND_LONG_MAX)) {
+			if (UNEXPECTED(scalar.v_signed_int() >= ZEND_LONG_MAX)) {
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, any.scalar().v_signed_int());
-				ZVAL_STRING(tmp);
+				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_signed_int());
+				ZVAL_STRING(zv, tmp);
 			} else
 #endif
 			{
@@ -126,7 +130,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 #if SIZEOF_ZEND_LONG==8
 			if (scalar.v_unsigned_int() > 9223372036854775807L) {
 #elif SIZEOF_ZEND_LONG==4
-			if (scalar.v_unsigned_int() > L64(2147483647) {
+			if (scalar.v_unsigned_int() > L64(2147483647)) {
 #endif
 				char tmp[22];
 				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
@@ -180,7 +184,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 					if (UNEXPECTED(any.scalar().v_signed_int() >= ZEND_LONG_MAX)) {
 						char tmp[22];
 						snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, any.scalar().v_signed_int());
-						ZVAL_STRING(tmp);
+						ZVAL_STRING(zv, tmp);
 					} else
 #endif
 					{
@@ -191,7 +195,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 #if SIZEOF_ZEND_LONG==8
 					if (any.scalar().v_unsigned_int() > 9223372036854775807L) {
 #elif SIZEOF_ZEND_LONG==4
-					if (any.scalar().v_unsigned_int() > L64(2147483647) {
+					if (any.scalar().v_unsigned_int() > L64(2147483647)) {
 #endif
 						char tmp[22];
 						snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, any.scalar().v_unsigned_int());
@@ -419,7 +423,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 #if SIZEOF_ZEND_LONG==8
 			if (scalar.v_unsigned_int() > 9223372036854775807L) {
 #elif SIZEOF_ZEND_LONG==4
-			if (scalar.v_unsigned_int() > L64(2147483647) {
+			if (scalar.v_unsigned_int() > L64(2147483647)) {
 #endif
 				char tmp[22];
 				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());

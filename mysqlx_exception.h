@@ -17,11 +17,20 @@
 */
 #ifndef MYSQLX_EXCEPTION_H
 #define MYSQLX_EXCEPTION_H
+
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
 void mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING msg);
-void mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING sql_state, const char *format, ...);
+void mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING sql_state, const char * const format, ...);
 
 void mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
+
+#ifdef  __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* MYSQLX_EXCEPTION_H */
 

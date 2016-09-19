@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/json/php_json.h>
 #include <zend_smart_str.h>

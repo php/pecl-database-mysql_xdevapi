@@ -15,7 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
+#include <php.h>
+#undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "xmysqlnd.h"

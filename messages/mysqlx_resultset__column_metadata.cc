@@ -15,12 +15,16 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C"
+{
 #include <php.h>
+#undef ERROR
 #include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include "php_mysqlx.h"

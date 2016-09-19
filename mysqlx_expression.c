@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>

@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -381,7 +382,6 @@ mysqlx_on_db_object(void * context, XMYSQLND_NODE_SCHEMA * const schema, const M
 static void
 mysqlx_get_database_objects(XMYSQLND_NODE_SCHEMA * schema, const MYSQLND_CSTRING filter, zval * return_value)
 {
-
 	DBG_ENTER("mysqlx_get_database_objects");
 	if (schema){
 		zval list;

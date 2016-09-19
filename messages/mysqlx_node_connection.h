@@ -19,7 +19,11 @@
 #define MYSQLX_NODE_CONNECTION_H
 
 /* This typically should be static, but we have coupling */
-extern zend_class_entry *mysqlx_node_connection_class_entry;
+extern
+#ifdef __cplusplus
+"C" 
+#endif
+zend_class_entry *mysqlx_node_connection_class_entry;
 
 struct st_mysqlx_node_connection
 {

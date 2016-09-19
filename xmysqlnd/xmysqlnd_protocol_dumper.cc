@@ -15,11 +15,15 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
+extern "C"
+{
+#include <php.h>
+#undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_connection.h>
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_protocol_dumper.h"
@@ -38,8 +42,10 @@ static char hexconvtab[] = "0123456789abcdef";
 extern "C" void
 xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len) 
 {
-	char message_dump[len * 3 + 1];
-	DBG_ENTER("dump_string_to_log");
+	//TODO marines 
+    //char message_dump[len * 3 + 1];
+    char* message_dump = static_cast<char*>(malloc((len * 3 + 1) * sizeof(char)));
+    DBG_ENTER("dump_string_to_log");
 	message_dump[len * 3] = '\0';
 	unsigned int i = 0;
 	for (; i < len; ++i) {
@@ -48,6 +54,8 @@ xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t le
 		message_dump[i*3+2] = ' ';
 	}
 	DBG_INF_FMT("%s[%u]=[%*s]", prefix, (uint) len, len, message_dump);
+	//TODO marines 
+    free(message_dump);
 	DBG_VOID_RETURN;
 }
 /* }}} */

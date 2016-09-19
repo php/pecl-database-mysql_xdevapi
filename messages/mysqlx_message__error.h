@@ -18,8 +18,12 @@
 #ifndef MYSQLX_MESSAGE__ERROR_H
 #define MYSQLX_MESSAGE__ERROR_H
 
+extern
+#ifdef __cplusplus
+"C"
+#endif
 /* This typically should be static, but we have coupling */
-extern zend_class_entry *mysqlx_message__error_class_entry;
+zend_class_entry *mysqlx_message__error_class_entry;
 
 #ifdef  __cplusplus
 #include "xmysqlnd/proto_gen/mysqlx.pb.h"

@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include "php_mysqlx.h"
 
 static zend_class_entry *mysqlx_driver_class_entry;

@@ -15,11 +15,14 @@
   | Authors: Oracle Corp                                                 |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_statistics.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-
+extern "C"
+{
+#include <php.h>
+#undef ERROR
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+}
 
 #include "expression_parser.h"
 #include "tokenizer.h"
@@ -254,11 +257,13 @@ void Tokenizer::assert_cur_token(Token::TokenType type)
 bool Tokenizer::cur_token_type_is(Token::TokenType type)
 {
   bool is = pos_token_type_is(_pos, type);
+  return is;
 }
 
 bool Tokenizer::next_token_type(Token::TokenType type)
 {
   bool next = pos_token_type_is(_pos + 1, type);
+  return next;
 }
 
 bool Tokenizer::pos_token_type_is(tokens_t::size_type pos, Token::TokenType type)

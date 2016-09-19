@@ -18,6 +18,10 @@
 #ifndef PHP_MYSQLX_H
 #define PHP_MYSQLX_H
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
 #define MYSQLX_VERSION "v1.0.0"
 
 #define phpext_mysqlx_ptr &mysqlx_module_entry
@@ -39,6 +43,9 @@ PHPAPI ZEND_EXTERN_MODULE_GLOBALS(mysqlx)
 ZEND_TSRMLS_CACHE_EXTERN();
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* PHP_MYSQLX_H */
 
