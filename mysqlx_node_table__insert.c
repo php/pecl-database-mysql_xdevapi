@@ -16,13 +16,18 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
+#include <ext/json/php_json.h>
+#include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
 #include "php_mysqlx.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_node_table__insert.h"
@@ -34,6 +39,7 @@ static zend_class_entry *mysqlx_node_table__insert_class_entry;
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__insert__values, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, row_values, IS_ARRAY, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
@@ -43,6 +49,7 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_node_table__insert
 {
+	XMYSQLND_CRUD_TABLE_OP__INSERT * crud_op;
 	XMYSQLND_NODE_TABLE * table;
 };
 
@@ -73,11 +80,13 @@ PHP_METHOD(mysqlx_node_table__insert, values)
 {
 	struct st_mysqlx_node_table__insert * object;
 	zval * object_zv;
+	zval * values_zv = NULL;
 
 	DBG_ENTER("mysqlx_node_table__insert::values");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table__insert_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oa",
+												&object_zv, mysqlx_node_table__insert_class_entry,
+												&values_zv))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -86,10 +95,12 @@ PHP_METHOD(mysqlx_node_table__insert, values)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
 
-	if (object->table) {
-
+	if (values_zv)
+	{
+		if (PASS == xmysqlnd_crud_table_insert__add_row(object->crud_op, values_zv)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -116,10 +127,16 @@ PHP_METHOD(mysqlx_node_table__insert, execute)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->table) {
-
+	DBG_INF_FMT("crud_op=%p table=%p", object->crud_op, object->table);
+	if (object->crud_op && object->table) {
+		if (FALSE == xmysqlnd_crud_table_insert__is_initialized(object->crud_op)) {
+			static const unsigned int errcode = 10002;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Insert not completely initialized", sizeof("Insert not completely initialized") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		} else {
+			RETVAL_BOOL(PASS == object->table->data->m.insert(object->table, object->crud_op));
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -255,7 +272,7 @@ mysqlx_unregister_node_table__insert_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_table__insert */
 void
-mysqlx_new_node_table__insert(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone)
+mysqlx_new_node_table__insert(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone, zval * columns)
 {
 	DBG_ENTER("mysqlx_new_node_table__insert");
 
@@ -264,6 +281,10 @@ mysqlx_new_node_table__insert(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 		struct st_mysqlx_node_table__insert * const object = (struct st_mysqlx_node_table__insert *) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
+			object->crud_op = xmysqlnd_crud_table_insert__create(
+				mnd_str2c(object->table->data->schema->data->schema_name),
+				mnd_str2c(object->table->data->table_name),
+				columns);
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

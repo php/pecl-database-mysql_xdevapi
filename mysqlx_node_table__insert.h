@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_TABLE__INSERT_H
 #define MYSQLX_NODE_TABLE__INSERT_H
 
-void mysqlx_new_node_table__insert(zval * return_value, struct st_xmysqlnd_node_table * schema, const zend_bool clone);
+void mysqlx_new_node_table__insert(zval * return_value, struct st_xmysqlnd_node_table * schema, const zend_bool clone, zval * json);
 void mysqlx_register_node_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_table__insert_class(SHUTDOWN_FUNC_ARGS);
 
