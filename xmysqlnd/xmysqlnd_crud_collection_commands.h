@@ -18,21 +18,12 @@
 #ifndef XMYSQLND_CRUD_COLLECTION_COMMANDS_H
 #define XMYSQLND_CRUD_COLLECTION_COMMANDS_H
 
+#include "xmysqlnd_crud_commands.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-struct st_xmysqlnd_pb_message_shell
-{
-	void * message;
-	unsigned int command;
-};
-
-struct st_xmysqlnd_expression_shell
-{
-	void * expr;
-};
 
 typedef struct st_xmysqlnd_crud_collection_op__remove XMYSQLND_CRUD_COLLECTION_OP__REMOVE;
 
@@ -40,7 +31,7 @@ XMYSQLND_CRUD_COLLECTION_OP__REMOVE * xmysqlnd_crud_collection_remove__create(co
 void xmysqlnd_crud_collection_remove__destroy(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
 enum_func_status xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const MYSQLND_CSTRING criteria);
 enum_func_status xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t limit);
-enum_func_status xmysqlnd_crud_collection_remove__set_offset(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t offset);
+enum_func_status xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t offset);
 enum_func_status xmysqlnd_crud_collection_remove__bind_value(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const MYSQLND_CSTRING name, zval * value);
 enum_func_status xmysqlnd_crud_collection_remove__add_sort(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const MYSQLND_CSTRING sort);
 enum_func_status xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
@@ -53,7 +44,7 @@ XMYSQLND_CRUD_COLLECTION_OP__MODIFY * xmysqlnd_crud_collection_modify__create(co
 void xmysqlnd_crud_collection_modify__destroy(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
 enum_func_status xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING criteria);
 enum_func_status xmysqlnd_crud_collection_modify__set_limit(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t limit);
-enum_func_status xmysqlnd_crud_collection_modify__set_offset(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t offset);
+enum_func_status xmysqlnd_crud_collection_modify__set_skip(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t offset);
 enum_func_status xmysqlnd_crud_collection_modify__bind_value(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING name, zval * value);
 enum_func_status xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING sort);
 
@@ -87,7 +78,7 @@ XMYSQLND_CRUD_COLLECTION_OP__FIND * xmysqlnd_crud_collection_find__create(const 
 void xmysqlnd_crud_collection_find__destroy(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
 enum_func_status xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING criteria);
 enum_func_status xmysqlnd_crud_collection_find__set_limit(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t limit);
-enum_func_status xmysqlnd_crud_collection_find__set_offset(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t offset);
+enum_func_status xmysqlnd_crud_collection_find__set_skip(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t offset);
 enum_func_status xmysqlnd_crud_collection_find__bind_value(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING name, zval * value);
 enum_func_status xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING sort);
 enum_func_status xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING search_field);

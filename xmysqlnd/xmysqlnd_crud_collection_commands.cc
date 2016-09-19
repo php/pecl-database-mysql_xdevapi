@@ -15,10 +15,14 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
-#include "ext/json/php_json_parser.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
+extern "C"
+{
+#include <php.h>
+#undef ERROR
+#include <ext/json/php_json_parser.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_zval2any.h"
@@ -127,15 +131,14 @@ struct st_xmysqlnd_crud_collection_op__remove
 	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
 
 	st_xmysqlnd_crud_collection_op__remove(const MYSQLND_CSTRING & schema,
-										   const MYSQLND_CSTRING & object_name,
-										   const bool document_mode = true)
+										   const MYSQLND_CSTRING & object_name)
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(document_mode? Mysqlx::Crud::DOCUMENT : Mysqlx::Crud::TABLE);
+		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	virtual ~st_xmysqlnd_crud_collection_op__remove() {}
+	~st_xmysqlnd_crud_collection_op__remove() {}
 };
 
 
@@ -199,11 +202,11 @@ xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE *
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_collection_remove__set_offset */
+/* {{{ xmysqlnd_crud_collection_remove__set_skip */
 extern "C" enum_func_status
-xmysqlnd_crud_collection_remove__set_offset(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t offset)
+xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t offset)
 {
-	DBG_ENTER("xmysqlnd_crud_collection_remove__set_offset");
+	DBG_ENTER("xmysqlnd_crud_collection_remove__set_skip");
 	obj->message.mutable_limit()->set_offset(offset);
 	DBG_RETURN(PASS);
 }
@@ -283,15 +286,14 @@ struct st_xmysqlnd_crud_collection_op__modify
 	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
 
 	st_xmysqlnd_crud_collection_op__modify(const MYSQLND_CSTRING & schema,
-										   const MYSQLND_CSTRING & object_name,
-										   const bool document_mode = true)
+										   const MYSQLND_CSTRING & object_name)
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(document_mode? Mysqlx::Crud::DOCUMENT : Mysqlx::Crud::TABLE);
+		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	virtual ~st_xmysqlnd_crud_collection_op__modify() {}
+	~st_xmysqlnd_crud_collection_op__modify() {}
 };
 
 
@@ -355,11 +357,11 @@ xmysqlnd_crud_collection_modify__set_limit(XMYSQLND_CRUD_COLLECTION_OP__MODIFY *
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_collection_modify__set_offset */
+/* {{{ xmysqlnd_crud_collection_modify__set_skip */
 extern "C" enum_func_status
-xmysqlnd_crud_collection_modify__set_offset(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t offset)
+xmysqlnd_crud_collection_modify__set_skip(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t offset)
 {
-	DBG_ENTER("xmysqlnd_crud_collection_modify__set_offset");
+	DBG_ENTER("xmysqlnd_crud_collection_modify__set_skip");
 	obj->message.mutable_limit()->set_offset(offset);
 	DBG_RETURN(PASS);
 }
@@ -614,15 +616,14 @@ struct st_xmysqlnd_crud_collection_op__find
 	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
 
 	st_xmysqlnd_crud_collection_op__find(const MYSQLND_CSTRING & schema,
-										 const MYSQLND_CSTRING & object_name,
-										 const bool document_mode = true)
+										 const MYSQLND_CSTRING & object_name)
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(document_mode? Mysqlx::Crud::DOCUMENT : Mysqlx::Crud::TABLE);
+		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	virtual ~st_xmysqlnd_crud_collection_op__find() {}
+	~st_xmysqlnd_crud_collection_op__find() {}
 };
 
 
@@ -687,11 +688,11 @@ xmysqlnd_crud_collection_find__set_limit(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_collection_find__set_offset */
+/* {{{ xmysqlnd_crud_collection_find__set_skip */
 extern "C" enum_func_status
-xmysqlnd_crud_collection_find__set_offset(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t offset)
+xmysqlnd_crud_collection_find__set_skip(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t offset)
 {
-	DBG_ENTER("xmysqlnd_crud_collection_find__set_offset");
+	DBG_ENTER("xmysqlnd_crud_collection_find__set_skip");
 	obj->message.mutable_limit()->set_offset(offset);
 	DBG_RETURN(PASS);
 }
@@ -888,7 +889,7 @@ struct st_xmysqlnd_stmt_op__execute
 	enum_func_status bind_one_param(const unsigned int param_no, const zval * param_zv);
 	enum_func_status finalize_bind();
 
-	virtual ~st_xmysqlnd_stmt_op__execute()
+	~st_xmysqlnd_stmt_op__execute()
 	{
 		if (params) {
 			mnd_efree(params);
@@ -935,7 +936,7 @@ st_xmysqlnd_stmt_op__execute::bind_one_param(const unsigned int param_no, const 
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
+/* {{{ st_xmysqlnd_stmt_op__execute::finalize_bind */
 enum_func_status
 st_xmysqlnd_stmt_op__execute::finalize_bind()
 {
