@@ -15,7 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#include "php.h"
+#include <php.h>
+#undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_charset.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
@@ -33,6 +34,7 @@
 #include "xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_node_session.h"
+#include "xmysqlnd_structs.h"
 
 const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
 const MYSQLND_CSTRING namespace_xplugin = { "xplugin", sizeof("xplugin") - 1 };
@@ -197,7 +199,6 @@ struct st_xmysqlnd_auth_41_ctx
 static const char hexconvtab[] = "0123456789abcdef";
 
 
-
 /* {{{ xmysqlnd_node_stmt::handler_on_auth_continue */
 static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * const output)
@@ -222,8 +223,10 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 		}
 
 		{
-			char answer[ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex? SCRAMBLE_LENGTH*2 : 0) + 1];
-			char *p = answer;
+			//TODO marines 
+            //char answer[ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1];
+            char* answer = malloc((ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1) * sizeof(char));
+            char *p = answer;
 			memcpy(p, ctx->database.s, ctx->database.l);
 			p+= ctx->database.l;
 			*p++ = '\0';
@@ -241,6 +244,8 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 			memcpy(output->s, answer, output->l);
 
 			xmysqlnd_dump_string_to_log("output", output->s, output->l);
+			//TODO marines 
+			free(answer);
 		}
 	}
 	DBG_RETURN(HND_AGAIN);
@@ -1059,7 +1064,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_
 			password.l = 0;
 		}
 		if (!database.s) {
-			DBG_INF_FMT("no password given, using empty string");
+			DBG_INF_FMT("no database given, using empty string");
 			database.s = "";
 			database.l = 0;
 		}
@@ -1219,14 +1224,18 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 
 	if (quoted_db.s && quoted_db.l) {
 		const size_t query_len = operation.l + quoted_db.l;
-		char query[query_len + 1];
-		memcpy(query, operation.s, operation.l);
+		//TODO marines 
+        //char query[query_len + 1];
+        char* query = malloc((query_len + 1) * sizeof(char));
+        memcpy(query, operation.s, operation.l);
 		memcpy(query + operation.l, quoted_db.s, quoted_db.l);
 		query[query_len] = '\0';
 		const MYSQLND_CSTRING select_query = { query, query_len };
 		mnd_efree(quoted_db.s);
 
 		ret = session_handle->m->query(session_handle, namespace_sql, select_query, noop__var_binder);
+		//TODO marines 
+        free(query);
 	}
 	DBG_RETURN(ret);
 
@@ -1435,6 +1444,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 					}
 				} while (loop);
 			}
+			ret = xmysqlnd_stmt_execute__finalize_bind(stmt_execute);
 			if (PASS == ret &&
 				(PASS == (ret = stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), session->stats, session->error_info))))
 			{
@@ -1701,6 +1711,150 @@ XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object)(XMYSQLND_NODE_SESSI
 /* }}} */
 
 
+
+struct st_create_collection_handler_ctx
+{
+	XMYSQLND_NODE_SESSION * session;
+	const struct st_xmysqlnd_node_session_on_error_bind on_error;
+};
+
+/* {{{ collection_op_handler_on_error */
+static const enum_hnd_func_status
+collection_op_handler_on_error(void * context,
+							   XMYSQLND_NODE_SESSION * const session,
+							   XMYSQLND_NODE_STMT * const stmt,
+							   const unsigned int code,
+							   const MYSQLND_CSTRING sql_state,
+							   const MYSQLND_CSTRING message)
+{
+	struct st_create_collection_handler_ctx * ctx = (struct st_create_collection_handler_ctx *) context;
+	DBG_ENTER("collection_op_handler_on_error");
+	ctx->on_error.handler(ctx->on_error.ctx, ctx->session, stmt, code, sql_state, message);
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
+/* {{{ collection_op_var_binder */
+static const enum_hnd_func_status
+collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+{
+	enum_hnd_func_status ret = HND_FAIL;
+	struct st_collection_op_var_binder_ctx * ctx = (struct st_collection_op_var_binder_ctx *) context;
+	const MYSQLND_CSTRING * param = NULL;
+	DBG_ENTER("collection_op_var_binder");
+	switch (ctx->counter) {
+		case 0:
+			param = &ctx->schema_name;
+			ret = HND_AGAIN;
+			goto bind;
+		case 1:{
+			param = &ctx->collection_name;
+			ret = HND_PASS;
+bind:
+			{
+				enum_func_status result;
+				zval zv;
+				ZVAL_UNDEF(&zv);
+				ZVAL_STRINGL(&zv, param->s, param->l);
+				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
+				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+//				result = stmt->data->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
+
+				zval_ptr_dtor(&zv);
+				if (FAIL == result) {
+					ret = FAIL;
+				}
+			}
+			break;
+		}
+		default: /* should not happen */
+			break;
+	}
+	++ctx->counter;
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_collection_op */
+static const enum_func_status
+xmysqlnd_collection_op(
+	XMYSQLND_NODE_SESSION * const session, 
+	const MYSQLND_CSTRING schema_name,
+	const MYSQLND_CSTRING collection_name,
+	const MYSQLND_CSTRING query,
+	const struct st_xmysqlnd_node_session_on_error_bind handler_on_error)
+{
+	enum_func_status ret;
+
+	struct st_collection_op_var_binder_ctx var_binder_ctx = {
+		schema_name,
+		collection_name,
+		0
+	};
+	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
+
+	struct st_create_collection_handler_ctx handler_ctx = { session, handler_on_error };
+	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : NULL, &handler_ctx };
+
+	DBG_ENTER("xmysqlnd_collection_op");
+
+	ret = session->m->query_cb(session,
+							   namespace_xplugin,
+							   query,
+							   var_binder,
+							   noop__on_result_start,
+							   noop__on_row,
+							   noop__on_warning,
+							   on_error,
+							   noop__on_result_end,
+							   noop__on_statement_ok);
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_session::drop_collection */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_session, drop_collection)(
+	XMYSQLND_NODE_SESSION * const session, 
+	const MYSQLND_CSTRING schema_name,
+	const MYSQLND_CSTRING collection_name,
+	const struct st_xmysqlnd_node_session_on_error_bind handler_on_error)
+{
+	enum_func_status ret;
+	static const MYSQLND_CSTRING query = {"drop_collection", sizeof("drop_collection") - 1 };
+	DBG_ENTER("xmysqlnd_node_schema::drop_collection");
+	DBG_INF_FMT("schema_name=%s", collection_name.s);
+
+	ret = xmysqlnd_collection_op(session, schema_name, collection_name, query, handler_on_error);
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+/* {{{ xmysqlnd_node_session::drop_table */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_session, drop_table)(
+	XMYSQLND_NODE_SESSION * const session, 
+	const MYSQLND_CSTRING schema_name,
+	const MYSQLND_CSTRING table_name,
+	const struct st_xmysqlnd_node_session_on_error_bind handler_on_error)
+{
+	enum_func_status ret;
+	static const MYSQLND_CSTRING query = {"drop_collection", sizeof("drop_collection") - 1 };
+	DBG_ENTER("xmysqlnd_node_session::drop_table");
+	DBG_INF_FMT("schema_name=%s", table_name.s);
+
+	ret = xmysqlnd_collection_op(session, schema_name, table_name, query, handler_on_error);
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_session::close */
 static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_handle, const enum_xmysqlnd_node_session_close_type close_type)
@@ -1819,6 +1973,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version_string),
 	XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object),
 	XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object),
+	XMYSQLND_METHOD(xmysqlnd_node_session, drop_collection),
+	XMYSQLND_METHOD(xmysqlnd_node_session, drop_table),
 	XMYSQLND_METHOD(xmysqlnd_node_session, close),
 	XMYSQLND_METHOD(xmysqlnd_node_session, get_reference),
 	XMYSQLND_METHOD(xmysqlnd_node_session, free_reference),
@@ -1856,8 +2012,8 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 							  const MYSQLND_CSTRING database,
 							  const MYSQLND_CSTRING socket_or_pipe,
 							  unsigned int port,
-							  size_t set_capabilities,
-							  size_t client_api_flags)
+							  const size_t set_capabilities,
+							  const size_t client_api_flags)
 {
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	enum_func_status ret = FAIL;

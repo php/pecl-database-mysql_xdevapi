@@ -349,8 +349,16 @@ typedef const char *		(*func_xmysqlnd_node_session__get_server_information)(cons
 typedef struct st_xmysqlnd_node_stmt *		(*func_xmysqlnd_node_session__create_statement_object)(XMYSQLND_NODE_SESSION * const session);
 
 typedef struct st_xmysqlnd_node_schema *	(*func_xmysqlnd_node_session__create_schema_object)(XMYSQLND_NODE_SESSION * const session, const MYSQLND_CSTRING schema_name);
-typedef const enum_func_status				(*func_xmysqlnd_node_session__close)(XMYSQLND_NODE_SESSION * session, const enum_xmysqlnd_node_session_close_type close_type);
+typedef enum_func_status					(*func_xmysqlnd_node_session__drop_collection)(XMYSQLND_NODE_SESSION * const session,
+																							const MYSQLND_CSTRING schema_name,
+																							const MYSQLND_CSTRING collection_name,
+																							const struct st_xmysqlnd_node_session_on_error_bind on_error);
+typedef enum_func_status					(*func_xmysqlnd_node_session__drop_table)(XMYSQLND_NODE_SESSION * const session,
+																							const MYSQLND_CSTRING schema_name,
+																							const MYSQLND_CSTRING table_name,
+																							const struct st_xmysqlnd_node_session_on_error_bind on_error);
 
+typedef const enum_func_status				(*func_xmysqlnd_node_session__close)(XMYSQLND_NODE_SESSION * session, const enum_xmysqlnd_node_session_close_type close_type);
 
 typedef XMYSQLND_NODE_SESSION *	(*func_xmysqlnd_node_session__get_reference)(XMYSQLND_NODE_SESSION * const session);
 typedef const enum_func_status	(*func_xmysqlnd_node_session__free_reference)(XMYSQLND_NODE_SESSION * const session);
@@ -375,6 +383,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 	func_xmysqlnd_node_session__get_server_information get_server_information;
 	func_xmysqlnd_node_session__create_statement_object create_statement_object;
 	func_xmysqlnd_node_session__create_schema_object create_schema_object;
+	func_xmysqlnd_node_session__drop_collection drop_collection;
+	func_xmysqlnd_node_session__drop_table drop_table;
 	func_xmysqlnd_node_session__close close;
 	func_xmysqlnd_node_session__get_reference get_reference;
 	func_xmysqlnd_node_session__free_reference free_reference;

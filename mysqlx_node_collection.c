@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -50,11 +51,6 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__exists_in_database, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__drop, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__get_schema, 0, ZEND_RETURN_VALUE, 0)
@@ -200,37 +196,6 @@ mysqlx_node_schema_on_error(void * context, const XMYSQLND_NODE_SCHEMA * const s
 	DBG_ENTER("mysqlx_node_schema_on_error");
 	mysqlx_new_exception(code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
-}
-/* }}} */
-
-
-/* {{{ proto mixed mysqlx_node_collection::drop() */
-static
-PHP_METHOD(mysqlx_node_collection, drop)
-{
-	struct st_mysqlx_node_collection * object;
-	zval * object_zv;
-
-	DBG_ENTER("mysqlx_node_collection::drop");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection_class_entry))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
-
-	if (object->collection) {
-		XMYSQLND_NODE_SCHEMA * schema = object->collection->data->schema;
-		const MYSQLND_CSTRING collection_name = mnd_str2c(object->collection->data->collection_name);
-		const struct st_xmysqlnd_node_schema_on_error_bind on_error = { mysqlx_node_schema_on_error, NULL };
-
-		RETVAL_BOOL(schema && PASS == schema->data->m.drop_collection(schema, collection_name, on_error));
-	}
-
-	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -397,7 +362,6 @@ static const zend_function_entry mysqlx_node_collection_methods[] = {
 	PHP_ME(mysqlx_node_collection, getSession,		arginfo_mysqlx_node_collection__get_session,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection, getName,			arginfo_mysqlx_node_collection__get_name,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection, existsInDatabase,arginfo_mysqlx_node_collection__exists_in_database,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection, drop,			arginfo_mysqlx_node_collection__drop,				ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_node_collection, getSchema,		arginfo_mysqlx_node_collection__get_schema,			ZEND_ACC_PUBLIC)
 	/************************************** INHERITED END   ****************************************/

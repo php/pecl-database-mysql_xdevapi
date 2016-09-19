@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -77,6 +78,15 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__drop_schema, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__drop_collection, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, schema_name, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, collection_name, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__drop_table, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, schema_name, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, table_name, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
 
 #ifdef MYSQLX_EXPERIMENTAL_FEATURES
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__list_clients, 0, ZEND_RETURN_VALUE, 0)
@@ -574,6 +584,80 @@ PHP_METHOD(mysqlx_node_session, dropSchema)
 /* }}} */
 
 
+/* {{{ mysqlx_node_session::dropCollection(string schema_name, string collection_name) */
+static
+PHP_METHOD(mysqlx_node_session, dropCollection)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING schema_name = {NULL, 0};
+	MYSQLND_CSTRING collection_name = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_session::dropCollection");
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Oss",
+		&object_zv, mysqlx_node_session_class_entry,
+		&(schema_name.s), &(schema_name.l),
+		&(collection_name.s), &(collection_name.l)))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	session = object->session;
+	if (session && schema_name.s && schema_name.l && collection_name.s && collection_name.l) {
+
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_session_command_handler_on_error, NULL };
+
+		RETVAL_BOOL(PASS == session->m->drop_collection(session, schema_name, collection_name, on_error));
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ mysqlx_node_session::dropTable(string schema_name, string table_name) */
+static
+PHP_METHOD(mysqlx_node_session, dropTable)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_session * object;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING schema_name = {NULL, 0};
+	MYSQLND_CSTRING table_name = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_session::dropTable");
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Oss",
+		&object_zv, mysqlx_node_session_class_entry,
+		&(schema_name.s), &(schema_name.l),
+		&(table_name.s), &(table_name.l)))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	session = object->session;
+	if (session && schema_name.s && schema_name.l && table_name.s && table_name.l) {
+
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_session_command_handler_on_error, NULL };
+
+		RETVAL_BOOL(PASS == session->m->drop_table(session, schema_name, table_name, on_error));
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 #ifdef MYSQLX_EXPERIMENTAL_FEATURES
 struct st_mysqlx_list_clients__ctx
 {
@@ -736,6 +820,9 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 
 	PHP_ME(mysqlx_node_session, createSchema,		arginfo_mysqlx_node_session__create_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, dropSchema,			arginfo_mysqlx_node_session__drop_schema, ZEND_ACC_PUBLIC)
+
+	PHP_ME(mysqlx_node_session, dropCollection,		arginfo_mysqlx_node_session__drop_collection, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, dropTable,			arginfo_mysqlx_node_session__drop_table, ZEND_ACC_PUBLIC)
 
 #ifdef MYSQLX_EXPERIMENTAL_FEATURES
 	PHP_ME(mysqlx_node_session, listClients,		arginfo_mysqlx_node_session__list_clients, ZEND_ACC_PUBLIC)

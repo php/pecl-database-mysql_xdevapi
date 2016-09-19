@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include "mysqlx_database_object.h"
 
 zend_class_entry * mysqlx_database_object_interface_entry;
@@ -47,8 +48,6 @@ static const zend_function_entry mysqlx_database_object_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_database_object, getName, arginfo_mysqlx_database_object__get_name)
 
 	PHP_ABSTRACT_ME(mysqlx_database_object, existsInDatabase, arginfo_mysqlx_database_object__exists_in_database)
-
-	PHP_ABSTRACT_ME(mysqlx_database_object, drop, arginfo_mysqlx_database_object__drop)
 
 	{NULL, NULL, NULL}
 };
