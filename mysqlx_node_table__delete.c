@@ -16,16 +16,24 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
+#include <xmysqlnd\xmysqlnd_crud_table_commands.h>
 #include "php_mysqlx.h"
+#include "mysqlx_crud_operation_bindable.h"
+#include "mysqlx_crud_operation_limitable.h"
+#include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_node_table__delete.h"
+
 
 static zend_class_entry *mysqlx_node_table__delete_class_entry;
 
@@ -33,9 +41,25 @@ static zend_class_entry *mysqlx_node_table__delete_class_entry;
 #define NO_PASS_BY_REF 0
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete__values, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete__where, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, where_expr)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete__orderby, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, orderby_expr)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete__limit, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete__offset, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete__bind, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -43,6 +67,7 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_node_table__delete
 {
+	XMYSQLND_CRUD_TABLE_OP__DELETE * crud_op;
 	XMYSQLND_NODE_TABLE * table;
 };
 
@@ -67,17 +92,19 @@ PHP_METHOD(mysqlx_node_table__delete, __construct)
 
 
 
-/* {{{ proto mixed mysqlx_node_table__delete::values() */
+/* {{{ proto mixed mysqlx_node_table__delete::where() */
 static
-PHP_METHOD(mysqlx_node_table__delete, values)
+PHP_METHOD(mysqlx_node_table__delete, where)
 {
 	struct st_mysqlx_node_table__delete * object;
 	zval * object_zv;
+	zval * where_expr = NULL;
 
-	DBG_ENTER("mysqlx_node_table__delete::values");
+	DBG_ENTER("mysqlx_node_table__delete::where");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table__delete_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+		&object_zv, mysqlx_node_table__delete_class_entry,
+		&where_expr))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -86,12 +113,255 @@ PHP_METHOD(mysqlx_node_table__delete, values)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+	if (object->crud_op && where_expr)
+	{
+		switch (Z_TYPE_P(where_expr))
+		{
+			case IS_STRING: {
+				const MYSQLND_CSTRING where_expr_str = {Z_STRVAL_P(where_expr), Z_STRLEN_P(where_expr)};
+				if (PASS == xmysqlnd_crud_table_delete__set_criteria(object->crud_op, where_expr_str)) {
+					ZVAL_COPY(return_value, object_zv);
+				}
+				break;
+			}
+			case IS_ARRAY: {
+				zval * entry;
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(where_expr), entry)
+				{
+					const MYSQLND_CSTRING where_expr_str = {Z_STRVAL_P(entry), Z_STRLEN_P(entry)};
+					if (Z_TYPE_P(entry) != IS_STRING)
+					{
+						static const unsigned int errcode = 10003;
+						static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+						static const MYSQLND_CSTRING errmsg = {"Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1};
+						mysqlx_new_exception(errcode, sqlstate, errmsg);
+						goto end;
+					}
+					if (FAIL == xmysqlnd_crud_table_delete__set_criteria(object->crud_op, where_expr_str))
+					{
+						static const unsigned int errcode = 10004;
+						static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+						static const MYSQLND_CSTRING errmsg = {"Error while adding a where expression", sizeof("Error while adding a where expression") - 1};
+						mysqlx_new_exception(errcode, sqlstate, errmsg);
+						goto end;
+					}
+				} ZEND_HASH_FOREACH_END();
+				ZVAL_COPY(return_value, object_zv);
+				break;
+			}
+						   /* fall-through */
+			default: {
+				static const unsigned int errcode = 10005;
+				static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+				static const MYSQLND_CSTRING errmsg = {"Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1};
+				mysqlx_new_exception(errcode, sqlstate, errmsg);
+			}
+		}
+	}
+end:
+	DBG_VOID_RETURN;
+}
+/* }}} */
 
-	if (object->table) {
 
+/* {{{ proto mixed mysqlx_node_table__delete::orderby() */
+static
+PHP_METHOD(mysqlx_node_table__delete, orderby)
+{
+	struct st_mysqlx_node_table__delete * object;
+	zval * object_zv;
+	zval * orderby_expr = NULL;
+
+	DBG_ENTER("mysqlx_node_table__delete::orderby");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+		&object_zv, mysqlx_node_table__delete_class_entry,
+		&orderby_expr))
+	{
+		DBG_VOID_RETURN;
 	}
 
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op && orderby_expr)
+	{
+		switch (Z_TYPE_P(orderby_expr))
+		{
+			case IS_STRING: {
+				const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL_P(orderby_expr), Z_STRLEN_P(orderby_expr)};
+				if (PASS == xmysqlnd_crud_table_delete__add_orderby(object->crud_op, orderby_expr_str)) {
+					ZVAL_COPY(return_value, object_zv);
+				}
+				break;
+			}
+			case IS_ARRAY: {
+				zval * entry;
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(orderby_expr), entry)
+				{
+					const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL_P(entry), Z_STRLEN_P(entry)};
+					if (Z_TYPE_P(entry) != IS_STRING)
+					{
+						static const unsigned int errcode = 10003;
+						static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+						static const MYSQLND_CSTRING errmsg = {"Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1};
+						mysqlx_new_exception(errcode, sqlstate, errmsg);
+						goto end;
+					}
+					if (FAIL == xmysqlnd_crud_table_delete__add_orderby(object->crud_op, orderby_expr_str))
+					{
+						static const unsigned int errcode = 10004;
+						static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+						static const MYSQLND_CSTRING errmsg = {"Error while adding a orderby expression", sizeof("Error while adding a orderby expression") - 1};
+						mysqlx_new_exception(errcode, sqlstate, errmsg);
+						goto end;
+					}
+				} ZEND_HASH_FOREACH_END();
+				ZVAL_COPY(return_value, object_zv);
+				break;
+			}
+						   /* fall-through */
+			default: {
+				static const unsigned int errcode = 10005;
+				static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+				static const MYSQLND_CSTRING errmsg = {"Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1};
+				mysqlx_new_exception(errcode, sqlstate, errmsg);
+			}
+		}
+	}
+end:
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__delete::limit() */
+static
+PHP_METHOD(mysqlx_node_table__delete, limit)
+{
+	struct st_mysqlx_node_table__delete * object;
+	zval * object_zv;
+	zend_long rows;
+
+	DBG_ENTER("mysqlx_node_table__delete::limit");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+		&object_zv, mysqlx_node_table__delete_class_entry,
+		&rows))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	if (rows < 0)
+	{
+		static const unsigned int errcode = 10006;
+		static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+		static const MYSQLND_CSTRING errmsg = {"Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1};
+		mysqlx_new_exception(errcode, sqlstate, errmsg);
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op)
+	{
+		if (PASS == xmysqlnd_crud_table_delete__set_limit(object->crud_op, rows)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__delete::offset() */
+static
+PHP_METHOD(mysqlx_node_table__delete, offset)
+{
+	struct st_mysqlx_node_table__delete * object;
+	zval * object_zv;
+	zend_long position;
+
+	DBG_ENTER("mysqlx_node_table__delete::offset");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+		&object_zv, mysqlx_node_table__delete_class_entry,
+		&position))
+	{
+		DBG_VOID_RETURN;
+	}
+	if (position < 0)
+	{
+		static const unsigned int errcode = 10006;
+		static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+		static const MYSQLND_CSTRING errmsg = {"Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1};
+		mysqlx_new_exception(errcode, sqlstate, errmsg);
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op)
+	{
+		if (PASS == xmysqlnd_crud_table_delete__set_offset(object->crud_op, position)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__delete::bind() */
+static
+PHP_METHOD(mysqlx_node_table__delete, bind)
+{
+	struct st_mysqlx_node_table__delete * object;
+	zval * object_zv;
+	HashTable * bind_variables;
+
+	DBG_ENTER("mysqlx_node_table__delete::bind");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+		&object_zv, mysqlx_node_table__delete_class_entry,
+		&bind_variables))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op)
+	{
+		zend_string * key;
+		zval * val;
+		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val)
+		{
+			if (key)
+			{
+				const MYSQLND_CSTRING variable = {ZSTR_VAL(key), ZSTR_LEN(key)};
+				if (FAIL == xmysqlnd_crud_table_delete__bind_value(object->crud_op, variable, val))
+				{
+					static const unsigned int errcode = 10005;
+					static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
+					static const MYSQLND_CSTRING errmsg = {"Error while binding a variable", sizeof("Error while binding a variable") - 1};
+					mysqlx_new_exception(errcode, sqlstate, errmsg);
+					goto end;
+				}
+				RETVAL_TRUE;
+			}
+		} ZEND_HASH_FOREACH_END();
+	}
+end:
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -116,10 +386,16 @@ PHP_METHOD(mysqlx_node_table__delete, execute)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->table) {
-
+	DBG_INF_FMT("crud_op=%p table=%p", object->crud_op, object->table);
+	if (object->crud_op && object->table) {
+		if (FALSE == xmysqlnd_crud_table_delete__is_initialized(object->crud_op)) {
+			static const unsigned int errcode = 10002;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Delete not completely initialized", sizeof("Delete not completely initialized") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		} else {
+			RETVAL_BOOL(PASS == object->table->data->m.opdelete(object->table, object->crud_op));
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -129,10 +405,14 @@ PHP_METHOD(mysqlx_node_table__delete, execute)
 
 /* {{{ mysqlx_node_table__delete_methods[] */
 static const zend_function_entry mysqlx_node_table__delete_methods[] = {
-	PHP_ME(mysqlx_node_table__delete, __construct,	NULL,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_table__delete, __construct,	NULL,									ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_table__delete, where,	arginfo_mysqlx_node_table__delete__where,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__delete, orderby,	arginfo_mysqlx_node_table__delete__orderby,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__delete, limit,	arginfo_mysqlx_node_table__delete__limit,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__delete, offset,	arginfo_mysqlx_node_table__delete__offset,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__delete, bind,		arginfo_mysqlx_node_table__delete__bind,	ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_node_table__delete, values,		arginfo_mysqlx_node_table__delete__values,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__delete, execute,		arginfo_mysqlx_node_table__delete__execute,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__delete, execute,	arginfo_mysqlx_node_table__delete__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };
@@ -264,6 +544,9 @@ mysqlx_new_node_table__delete(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 		struct st_mysqlx_node_table__delete * const object = (struct st_mysqlx_node_table__delete *) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
+			object->crud_op = xmysqlnd_crud_table_delete__create(
+				mnd_str2c(object->table->data->schema->data->schema_name),
+				mnd_str2c(object->table->data->table_name));
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
