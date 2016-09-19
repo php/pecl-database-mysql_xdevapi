@@ -16,15 +16,23 @@
   +----------------------------------------------------------------------+
 */
 #include <php.h>
+#undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
+#include <xmysqlnd\xmysqlnd_crud_table_commands.h>
 #include "php_mysqlx.h"
+#include "mysqlx_crud_operation_bindable.h"
+#include "mysqlx_crud_operation_limitable.h"
+#include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
+#include "mysqlx_expression.h"
 #include "mysqlx_node_table__update.h"
 
 static zend_class_entry *mysqlx_node_table__update_class_entry;
@@ -32,10 +40,30 @@ static zend_class_entry *mysqlx_node_table__update_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__values, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__set, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, table_field, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, expression_or_literal)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__where, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, where_expr)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__orderby, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, orderby_expr)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__limit, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__offset, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__bind, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -43,6 +71,7 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_node_table__update
 {
+	XMYSQLND_CRUD_TABLE_OP__UPDATE * crud_op;
 	XMYSQLND_NODE_TABLE * table;
 };
 
@@ -66,18 +95,106 @@ PHP_METHOD(mysqlx_node_table__update, __construct)
 /* }}} */
 
 
+#define TWO_PARAM_OP__SET 1
+#define TWO_PARAM_OP__ARRAY_INSERT 2
+#define TWO_PARAM_OP__ARRAY_APPEND 3
 
-/* {{{ proto mixed mysqlx_node_table__update::values() */
-static
-PHP_METHOD(mysqlx_node_table__update, values)
+/* {{{ mysqlx_node_table__update__2_param_op */
+static void
+mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
 	struct st_mysqlx_node_table__update * object;
 	zval * object_zv;
+	const zval * value;
+	MYSQLND_CSTRING table_field = {NULL, 0};
+	zend_bool is_expression = FALSE;
+	const zend_bool is_document = FALSE;
 
-	DBG_ENTER("mysqlx_node_table__update::values");
+	DBG_ENTER("mysqlx_node_table__update__2_param_op");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table__update_class_entry))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
+												&object_zv, mysqlx_node_table__update_class_entry,
+												&(table_field.s), &(table_field.l),
+												(zval *) &value))
+	{
+		DBG_VOID_RETURN;
+	}
+	switch (Z_TYPE_P(value)) {
+		case IS_OBJECT:
+			if (op_type == TWO_PARAM_OP__SET) {
+				if (is_a_mysqlx_expression(value)) {
+					/* get the string */
+					value = get_mysqlx_expression(value);
+					is_expression = TRUE;
+				}
+				break;
+			}
+			/* fall-through */
+		case IS_STRING:
+		case IS_DOUBLE:
+		case IS_TRUE:
+		case IS_FALSE:
+		case IS_LONG:
+		case IS_NULL:
+			break;
+		default:{
+			static const unsigned int errcode = 10007;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Invalid value type", sizeof("Invalid value type") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			DBG_VOID_RETURN;
+		}			
+	
+	}
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		enum_func_status ret = FAIL;
+		switch (op_type) {
+			case TWO_PARAM_OP__SET:
+				ret = xmysqlnd_crud_table_update__set(object->crud_op, table_field, value, is_expression, is_document);
+				break;
+			//case TWO_PARAM_OP__ARRAY_INSERT:
+			//	ret = xmysqlnd_crud_table_update__array_insert(object->crud_op, table_field, value);
+			//	break;
+			//case TWO_PARAM_OP__ARRAY_APPEND:
+			//	ret = xmysqlnd_crud_table_update__array_append(object->crud_op, table_field, value);
+			//	break;
+		}
+		
+		if (PASS == ret) {
+			ZVAL_COPY(return_value, object_zv);
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__update::set() */
+static
+PHP_METHOD(mysqlx_node_table__update, set)
+{
+	mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__update::where() */
+static
+PHP_METHOD(mysqlx_node_table__update, where)
+{
+	struct st_mysqlx_node_table__update * object;
+	zval * object_zv;
+	MYSQLND_CSTRING where_expr = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_table__update::where");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+												&object_zv, mysqlx_node_table__update_class_entry,
+												&(where_expr.s), &(where_expr.l)))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -86,16 +203,207 @@ PHP_METHOD(mysqlx_node_table__update, values)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->table) {
-
+	if (object->crud_op && where_expr.s && where_expr.l) 
+	{
+		if (PASS == xmysqlnd_crud_table_update__set_criteria(object->crud_op, where_expr))
+		{
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
 
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
+
+/* {{{ proto mixed mysqlx_node_table__update::orderby() */
+static
+PHP_METHOD(mysqlx_node_table__update, orderby)
+{
+	struct st_mysqlx_node_table__update * object;
+	zval * object_zv;
+	zval * orderby_expr = NULL;
+
+	DBG_ENTER("mysqlx_node_table__update::orderby");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+												&object_zv, mysqlx_node_table__update_class_entry,
+												&orderby_expr))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op && orderby_expr) {
+		switch (Z_TYPE_P(orderby_expr)) {
+			case IS_STRING: {
+				const MYSQLND_CSTRING orderby_expr_str = { Z_STRVAL_P(orderby_expr), Z_STRLEN_P(orderby_expr) };
+				if (PASS == xmysqlnd_crud_table_update__add_orderby(object->crud_op, orderby_expr_str)) {
+					ZVAL_COPY(return_value, object_zv);
+				}
+				break;
+			}
+			case IS_ARRAY: {
+				zval * entry;
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(orderby_expr), entry) {
+					const MYSQLND_CSTRING orderby_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+					if (Z_TYPE_P(entry) != IS_STRING) {
+						static const unsigned int errcode = 10003;
+						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+						static const MYSQLND_CSTRING errmsg = { "Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1 };
+						mysqlx_new_exception(errcode, sqlstate, errmsg);
+						goto end;
+					}
+					if (FAIL == xmysqlnd_crud_table_update__add_orderby(object->crud_op, orderby_expr_str)) {
+						static const unsigned int errcode = 10004;
+						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+						static const MYSQLND_CSTRING errmsg = { "Error while adding a orderby expression", sizeof("Error while adding a orderby expression") - 1 };
+						mysqlx_new_exception(errcode, sqlstate, errmsg);
+						goto end;
+					}
+				} ZEND_HASH_FOREACH_END();
+				ZVAL_COPY(return_value, object_zv);
+				break;
+			}
+			/* fall-through */
+			default: {
+				static const unsigned int errcode = 10005;
+				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+				static const MYSQLND_CSTRING errmsg = { "Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1 };
+				mysqlx_new_exception(errcode, sqlstate, errmsg);
+			}			
+		}
+	}
+end:
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__update::limit() */
+static
+PHP_METHOD(mysqlx_node_table__update, limit)
+{
+	struct st_mysqlx_node_table__update * object;
+	zval * object_zv;
+	zend_long rows;
+
+	DBG_ENTER("mysqlx_node_table__update::limit");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+												&object_zv, mysqlx_node_table__update_class_entry,
+												&rows))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	if (rows < 0) {
+		static const unsigned int errcode = 10006;
+		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
+		mysqlx_new_exception(errcode, sqlstate, errmsg);	
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		if (PASS == xmysqlnd_crud_table_update__set_limit(object->crud_op, rows)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__update::offset() */
+static
+PHP_METHOD(mysqlx_node_table__update, offset)
+{
+	struct st_mysqlx_node_table__update * object;
+	zval * object_zv;
+	zend_long position;
+
+	DBG_ENTER("mysqlx_node_table__update::offset");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+												&object_zv, mysqlx_node_table__update_class_entry,
+												&position))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	if (position < 0) {
+		static const unsigned int errcode = 10006;
+		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
+		mysqlx_new_exception(errcode, sqlstate, errmsg);	
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		if (PASS == xmysqlnd_crud_table_update__set_offset(object->crud_op, position)) {
+			ZVAL_COPY(return_value, object_zv);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__update::bind() */
+static
+PHP_METHOD(mysqlx_node_table__update, bind)
+{
+	struct st_mysqlx_node_table__update * object;
+	zval * object_zv;
+	HashTable * bind_variables;
+
+	DBG_ENTER("mysqlx_node_table__update::bind");
+
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+												&object_zv, mysqlx_node_table__update_class_entry,
+												&bind_variables))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		zend_string * key;
+		zval * val;
+		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
+			if (key) {
+				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
+				if (FAIL == xmysqlnd_crud_table_update__bind_value(object->crud_op, variable, val)) {
+					static const unsigned int errcode = 10005;
+					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+					static const MYSQLND_CSTRING errmsg = { "Error while binding a variable", sizeof("Error while binding a variable") - 1 };
+					mysqlx_new_exception(errcode, sqlstate, errmsg);
+					goto end;
+				}
+			}
+		} ZEND_HASH_FOREACH_END();
+	}
+end:
+	DBG_VOID_RETURN;
+}
+/* }}} */
 
 /* {{{ proto mixed mysqlx_node_table__update::execute() */
 static
@@ -116,10 +424,16 @@ PHP_METHOD(mysqlx_node_table__update, execute)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->table) {
-
+	DBG_INF_FMT("crud_op=%p table=%p", object->crud_op, object->table);
+	if (object->crud_op && object->table) {
+		if (FALSE == xmysqlnd_crud_table_update__is_initialized(object->crud_op)) {
+			static const unsigned int errcode = 10002;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Update not completely initialized", sizeof("Update not completely initialized") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		} else {
+			RETVAL_BOOL(PASS == object->table->data->m.update(object->table, object->crud_op));
+		}
 	}
 
 	DBG_VOID_RETURN;
@@ -131,8 +445,14 @@ PHP_METHOD(mysqlx_node_table__update, execute)
 static const zend_function_entry mysqlx_node_table__update_methods[] = {
 	PHP_ME(mysqlx_node_table__update, __construct,	NULL,											ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_table__update, values,		arginfo_mysqlx_node_table__update__values,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__update, execute,		arginfo_mysqlx_node_table__update__execute,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__update, set,		arginfo_mysqlx_node_table__update__set,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__update, where,	arginfo_mysqlx_node_table__update__where,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__update, orderby,	arginfo_mysqlx_node_table__update__orderby,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__update, limit,	arginfo_mysqlx_node_table__update__limit,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__update, offset,	arginfo_mysqlx_node_table__update__offset,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__update, bind,		arginfo_mysqlx_node_table__update__bind,	ZEND_ACC_PUBLIC)
+
+	PHP_ME(mysqlx_node_table__update, execute,	arginfo_mysqlx_node_table__update__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };
@@ -264,6 +584,9 @@ mysqlx_new_node_table__update(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 		struct st_mysqlx_node_table__update * const object = (struct st_mysqlx_node_table__update *) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
+			object->crud_op = xmysqlnd_crud_table_update__create(
+				mnd_str2c(object->table->data->schema->data->schema_name),
+				mnd_str2c(object->table->data->table_name));
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
