@@ -1,5 +1,6 @@
 
 ARG_WITH("xmysqlnd", "MySQL Hybrid Native Client Driver", "yes");
+ARG_WITH("mysqlx", "MySQLx support", "yes");
 if (PHP_XMYSQLND != "no") {
 
 	if (CHECK_LIB("ws2_32.lib", "xmysqlnd") 
@@ -21,9 +22,9 @@ if (PHP_XMYSQLND != "no") {
 		STDOUT.WriteLine(execute(PATH_PROG("protoc") + " --proto_path ext/xmysqlnd/xmysqlnd/proto_def --cpp_out ext/xmysqlnd/xmysqlnd/proto_gen " + mysqlx_proto_sources));
 
 
+		xmysqlnd_base_sources="php_xmysqlnd.c ";
 
-		mysqlx_base_sources="php_xmysqlnd.c " +
-			"php_mysqlx.c " +
+		mysqlx_base_sources="php_mysqlx.c " +
 			"php_mysqlx_ex.c " +
 			"mysqlx_class_properties.c " +
 			"mysqlx_crud_operation_bindable.c " +
@@ -113,13 +114,17 @@ if (PHP_XMYSQLND != "no") {
 			"xmysqlnd_wireprotocol.cc " +
 			"xmysqlnd_zval2any.cc ";
 
-		EXTENSION("xmysqlnd", mysqlx_base_sources, false, "-Iext/xmysqlnd -Iext/xmysqlnd/messages " +
+		EXTENSION("xmysqlnd", xmysqlnd_base_sources, false, "-Iext/xmysqlnd -Iext/xmysqlnd/messages " +
 			"-Iext/xmysqlnd/xmysqlnd -Iext/xmysqlnd/xmysqlnd/crud_parsers -Iext/xmysqlnd/xmysqlnd/proto_gen " +
 			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQLX_EXPERIMENTAL_FEATURES /DZEND_WIN32_KEEP_INLINE /EHsc ");
-		ADD_SOURCES(configure_module_dirname + "/messages", mysqlx_messages, "xmysqlnd");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/proto_gen", xmysqlnd_protobuf_sources, "xmysqlnd");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/crud_parsers", xmysqlnd_expr_parser, "xmysqlnd");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd", xmysqlnd_sources, "xmysqlnd");
+
+		EXTENSION("mysqlx", mysqlx_base_sources, false, "-Iext/xmysqlnd -Iext/xmysqlnd/messages " +
+			"-Iext/xmysqlnd/xmysqlnd -Iext/xmysqlnd/xmysqlnd/crud_parsers -Iext/xmysqlnd/xmysqlnd/proto_gen " +
+			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQLX_EXPERIMENTAL_FEATURES /DZEND_WIN32_KEEP_INLINE /EHsc ");
+		ADD_SOURCES(configure_module_dirname + "/messages", mysqlx_messages, "mysqlx");
 
 		AC_DEFINE("MYSQLND_SSL_SUPPORTED", 1, "SSL support");
 		PHP_INSTALL_HEADERS("", "ext/xmysqlnd");
