@@ -247,8 +247,8 @@ PHP_METHOD(mysqlx_node_collection, add)
 	{
 		DBG_VOID_RETURN;
 	}
-	if (Z_TYPE_P(json) != IS_STRING && Z_TYPE_P(json) != IS_OBJECT) {
-		php_error_docref(NULL, E_WARNING, "Only strings and objects can be added. Type is %u", Z_TYPE_P(json));
+	if (Z_TYPE_P(json) != IS_STRING && Z_TYPE_P(json) != IS_OBJECT && Z_TYPE_P(json) != IS_ARRAY) {
+		php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u", Z_TYPE_P(json));
 		DBG_VOID_RETURN;
 	}
 

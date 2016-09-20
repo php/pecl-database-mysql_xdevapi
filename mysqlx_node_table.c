@@ -238,7 +238,7 @@ PHP_METHOD(mysqlx_node_table, insert)
 
 	if (columns && Z_TYPE_P(columns) != IS_STRING && Z_TYPE_P(columns) != IS_OBJECT && Z_TYPE_P(columns) != IS_ARRAY)
 	{
-		php_error_docref(NULL, E_WARNING, "Only strings and objects can be added. Type is %u", Z_TYPE_P(columns));
+		php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u", Z_TYPE_P(columns));
 		DBG_VOID_RETURN;
 	}
 
