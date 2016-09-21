@@ -25,6 +25,7 @@ extern "C"
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
+#include "xmysqlnd_any2expr.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_wireprotocol.h"
 
@@ -131,7 +132,7 @@ struct st_xmysqlnd_crud_table_op__insert
 	Mysqlx::Crud::Insert message;
 
 	std::vector<std::string> column_names;
-	std::vector<zval *> rows_zv;
+	std::vector<zval > rows_zv;
 	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
 
 	st_xmysqlnd_crud_table_op__insert(
@@ -228,8 +229,9 @@ void st_xmysqlnd_crud_table_op__insert::add_column(zval * column_zv)
 /* {{{ st_xmysqlnd_crud_table_op__insert::add_row */
 void st_xmysqlnd_crud_table_op__insert::add_row(zval* row_zv)
 { 
-	Z_ADDREF_P(row_zv);
-	rows_zv.push_back(row_zv);
+	zval new_row_zv;
+	ZVAL_COPY_VALUE(&new_row_zv, row_zv);
+	rows_zv.push_back(new_row_zv);
 }
 /* }}} */
 
@@ -260,8 +262,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_rows()
 	for (auto& values_zv : rows_zv)
 	{
 		::Mysqlx::Crud::Insert_TypedRow* row = message.add_row();
-		bind_row(values_zv, row);
-		zval_ptr_dtor(values_zv);
+		bind_row(&values_zv, row);
 	}
 }
 /* }}} */
@@ -290,7 +291,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_row */
+/* {{{ st_xmysqlnd_crud_table_op__insert::bind_row_field */
 void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx::Crud::Insert_TypedRow* row)
 { 
 	Mysqlx::Datatypes::Any any;
@@ -302,29 +303,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx:
 	any2log(any);
 
 	Mysqlx::Expr::Expr * field = row->add_field();
-	switch (any.type())
-	{
-		case Mysqlx::Datatypes::Any::SCALAR:
-			field->set_type(Mysqlx::Expr::Expr::LITERAL);
-			field->set_allocated_literal(any.release_scalar());
-			break;
-
-		//TODO
-
-		//case Mysqlx::Datatypes::Any::OBJECT:
-		//	field->set_type(Mysqlx::Expr::Expr::OBJECT);
-		//	field->set_allocated_obj(any.release_obj());
-		//	break;
-
-		//case Mysqlx::Datatypes::Any::ARRAY:
-		//	field->set_type(Mysqlx::Expr::Expr::ARRAY);
-		//	field->set_allocated_array(any.release_array());
-		//	break;
-
-		default:
-			//TODO
-			break;
-	}
+	xmysqlnd::any2expr(any, field);
 }
 /* }}} */
 

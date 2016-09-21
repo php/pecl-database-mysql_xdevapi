@@ -91,7 +91,8 @@ if (PHP_XMYSQLND != "no") {
 			"projection_parser.cc " +
 			"tokenizer.cc ";
 
-		xmysqlnd_sources="xmysqlnd_crud_collection_commands.cc " +
+		xmysqlnd_sources="xmysqlnd_any2expr.cc " +
+			"xmysqlnd_crud_collection_commands.cc " +
 			"xmysqlnd_crud_table_commands.cc " +
 			"xmysqlnd_driver.c " +
 			"xmysqlnd_extension_plugin.c " +

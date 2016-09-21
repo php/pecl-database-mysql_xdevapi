@@ -67,6 +67,7 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 
 
   xmysqlnd_sources="     php_xmysqlnd.c \
+						 xmysqlnd/xmysqlnd_any2expr.cc \
 						 xmysqlnd/xmysqlnd_crud_collection_commands.cc \
 						 xmysqlnd/xmysqlnd_crud_table_commands.cc \
 						 xmysqlnd/xmysqlnd_driver.c \
