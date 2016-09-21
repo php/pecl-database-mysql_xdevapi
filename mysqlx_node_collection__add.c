@@ -95,27 +95,12 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 		if (Z_TYPE(object->json) == IS_STRING) {
 			const MYSQLND_CSTRING json = { Z_STRVAL(object->json), Z_STRLEN(object->json) };
 			ret = object->collection->data->m.add(object->collection, json);
-		} else if (Z_TYPE(object->json) == IS_OBJECT) {
+		} else if ((Z_TYPE(object->json) == IS_OBJECT) || (Z_TYPE(object->json) == IS_ARRAY)) {
 			smart_str buf = {0};
 			JSON_G(error_code) = PHP_JSON_ERROR_NONE;
 			JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
+			const int encode_flag = (Z_TYPE(object->json) == IS_OBJECT) ? PHP_JSON_FORCE_OBJECT : 0;
 			php_json_encode(&buf, &object->json, PHP_JSON_FORCE_OBJECT);
-			DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
-			if (JSON_G(error_code) == PHP_JSON_ERROR_NONE) {
-				const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
-				ret = object->collection->data->m.add(object->collection,json);	
-			} else {
-				static const unsigned int errcode = 10001;
-				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-				static const MYSQLND_CSTRING errmsg = { "Error serializing document to JSON", sizeof("Error serializing document to JSON") - 1 };
-				mysqlx_new_exception(errcode, sqlstate, errmsg);
-			}
-			smart_str_free(&buf);
-		} else if (Z_TYPE(object->json) == IS_ARRAY) {
-			smart_str buf = {0};
-			JSON_G(error_code) = PHP_JSON_ERROR_NONE;
-			JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
-			php_json_encode(&buf, &object->json, 0);
 			DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
 			if (JSON_G(error_code) == PHP_JSON_ERROR_NONE) {
 				const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
