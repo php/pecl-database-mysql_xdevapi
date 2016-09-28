@@ -23,6 +23,10 @@
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
+#include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
+#include <xmysqlnd/xmysqlnd_rowset.h>
+#include <xmysqlnd/xmysqlnd_rowset_buffered.h>
+#include <xmysqlnd/xmysqlnd_rowset_fwd.h>
 #include <xmysqlnd/xmysqlnd_warning_list.h>
 #include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
 #include "php_mysqlx.h"
@@ -30,6 +34,8 @@
 #include "mysqlx_warning.h"
 #include "mysqlx_node_sql_statement_result_iterator.h"
 #include "mysqlx_node_sql_statement_result.h"
+#include "mysqlx_node_base_result.h"
+#include "mysqlx_field_metadata.h"
 
 static zend_class_entry *mysqlx_node_sql_statement_result_class_entry;
 
@@ -48,12 +54,23 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_last_insert_id, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_last_document_id, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_column_count, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_column_names, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_columns, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(_to, _from) \
 { \
@@ -226,6 +243,34 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_sql_statement_result::getLastDocumentId(object result) */
+static
+PHP_METHOD(mysqlx_node_sql_statement_result, getLastDocumentId)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_sql_statement_result * object;
+
+	DBG_ENTER("mysqlx_node_sql_statement_result::getLastDocumentId");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_result_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+	if (object->result && object->result->exec_state) {
+		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
+		/* Maybe check here if there was an error and throw an Exception or return a warning */
+		if (exec_state) {
+			MYSQLND_CSTRING value = exec_state->m->get_last_document_id(exec_state);
+			ZVAL_NEW_STR(return_value, value.s);
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getWarningCount(object result) */
 static
@@ -303,6 +348,148 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getWarnings)
 /* }}} */
 
 
+/* {{{ get_stmt_result_meta */
+static struct st_xmysqlnd_node_stmt_result_meta*
+get_stmt_result_meta(struct st_xmysqlnd_node_stmt_result* stmt_result)
+{
+	struct st_xmysqlnd_node_stmt_result_meta* meta = 0;
+	if (stmt_result && stmt_result->rowset)
+	{
+		switch (stmt_result->rowset->type)
+		{
+			case XMYSQLND_TYPE_ROWSET_BUFFERED:
+				meta = stmt_result->rowset->buffered->meta;
+				break;
+
+			case XMYSQLND_TYPE_ROWSET_FWD_ONLY:
+				meta = stmt_result->rowset->fwd->meta;
+				break;
+
+			default:
+				assert(!"unknown rowset type!");
+		}
+	}
+	return meta;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement_result::getColumnCount(object result) */
+static
+PHP_METHOD(mysqlx_node_sql_statement_result, getColumnCount)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_sql_statement_result * object;
+
+	DBG_ENTER("mysqlx_node_sql_statement_result::getColumnCount");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_result_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+	if (object->result) {
+		struct st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+		if (meta)
+		{
+			const size_t value = meta->m->get_field_count(meta);
+			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
+				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
+			} else {
+				ZVAL_LONG(return_value, value);
+				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
+			}
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement_result::getColumns(object result) */
+static
+PHP_METHOD(mysqlx_node_sql_statement_result, getColumns)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_sql_statement_result * object;
+
+	DBG_ENTER("mysqlx_node_sql_statement_result::getColumns");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_result_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+	if (object->result) {
+		struct st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+		/* Maybe check here if there was an error and throw an Exception or return a column */
+		if (meta) {
+			const size_t count = meta->m->get_field_count(meta);
+			unsigned int i = 0;
+			array_init_size(return_value, count);
+			for (; i < count; ++i) {
+				const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
+				zval column_zv;
+
+				ZVAL_UNDEF(&column_zv);
+				mysqlx_new_field_metadata(&column_zv, column);
+
+				if (Z_TYPE(column_zv) != IS_UNDEF) {
+					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_zv);
+				}
+			}
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_sql_statement_result::getColumnNames(object result) */
+static
+PHP_METHOD(mysqlx_node_sql_statement_result, getColumnNames)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_sql_statement_result * object;
+
+	DBG_ENTER("mysqlx_node_sql_statement_result::getColumns");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_result_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+	if (object->result) {
+		struct st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+		/* Maybe check here if there was an error and throw an Exception or return a column */
+		if (meta) {
+			const size_t count = meta->m->get_field_count(meta);
+			unsigned int i = 0;
+			array_init_size(return_value, count);
+			for (; i < count; ++i) {
+				const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
+				zval column_name;
+
+				ZVAL_UNDEF(&column_name);
+				ZVAL_STRINGL(&column_name, column->name.s, column->name.l);
+
+				if (Z_TYPE(column_name) != IS_UNDEF) {
+					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_name);
+				}
+			}
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 
 /* {{{ mysqlx_node_sql_statement_result_methods[] */
 static const zend_function_entry mysqlx_node_sql_statement_result_methods[] = {
@@ -313,8 +500,14 @@ static const zend_function_entry mysqlx_node_sql_statement_result_methods[] = {
 
 	PHP_ME(mysqlx_node_sql_statement_result, getAffectedItemsCount,	arginfo_mysqlx_node_sql_statement_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getLastInsertId, 		arginfo_mysqlx_node_sql_statement_result__get_last_insert_id,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement_result, getLastDocumentId, 	arginfo_mysqlx_node_sql_statement_result__get_last_document_id,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarningCount,		arginfo_mysqlx_node_sql_statement_result__get_warning_count,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarnings,			arginfo_mysqlx_node_sql_statement_result__get_warnings, 			ZEND_ACC_PUBLIC)
+
+	PHP_ME(mysqlx_node_sql_statement_result, getColumnCount,		arginfo_mysqlx_node_sql_statement_result__get_column_count,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement_result, getColumnNames,		arginfo_mysqlx_node_sql_statement_result__get_column_names,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement_result, getColumns,			arginfo_mysqlx_node_sql_statement_result__get_columns,	 			ZEND_ACC_PUBLIC)
+
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -383,6 +576,7 @@ mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_hand
 		tmp_ce.create_object = php_mysqlx_node_sql_statement_result_object_allocator;
 
 		mysqlx_node_sql_statement_result_class_entry = zend_register_internal_class(&tmp_ce);
+		zend_class_implements(mysqlx_node_sql_statement_result_class_entry, 1, mysqlx_node_base_result_interface_entry);
 
 		mysqlx_register_node_sql_statement_result_iterator(mysqlx_node_sql_statement_result_class_entry);
 	}

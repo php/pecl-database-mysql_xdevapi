@@ -2152,7 +2152,7 @@ xmysqlnd_collection_add__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQ
 static const enum_hnd_func_status
 table_insert_on_OK(const Mysqlx::Ok & message, void * context)
 {
-	struct st_xmysqlnd_msg__table_insert * const ctx = static_cast<struct st_xmysqlnd_msg__table_insert *>(context);
+	struct st_xmysqlnd_result_ctx * const ctx = static_cast<struct st_xmysqlnd_result_ctx *>(context);
 	return HND_PASS;
 }
 /* }}} */
@@ -2162,7 +2162,7 @@ table_insert_on_OK(const Mysqlx::Ok & message, void * context)
 static const enum_hnd_func_status
 table_insert_on_ERROR(const Mysqlx::Error & error, void * context)
 {
-	struct st_xmysqlnd_msg__table_insert * const ctx = static_cast<struct st_xmysqlnd_msg__table_insert *>(context);
+	struct st_xmysqlnd_result_ctx * const ctx = static_cast<struct st_xmysqlnd_result_ctx *>(context);
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
 	DBG_ENTER("table_insert_on_ERROR");
 	on_ERROR(error, ctx->on_error);
@@ -2175,8 +2175,19 @@ table_insert_on_ERROR(const Mysqlx::Error & error, void * context)
 static const enum_hnd_func_status
 table_insert_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	struct st_xmysqlnd_msg__table_insert * const ctx = static_cast<struct st_xmysqlnd_msg__table_insert *>(context);
-	return HND_AGAIN;
+	DBG_ENTER("table_insert_on_NOTICE");
+	struct st_xmysqlnd_result_ctx * const ctx = static_cast<struct st_xmysqlnd_result_ctx *>(context);
+
+	const struct st_xmysqlnd_on_client_id_bind on_client_id = { NULL, NULL };
+
+	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
+																   ctx->on_warning,
+																   ctx->on_session_var_change,
+																   ctx->on_execution_state_change,
+																   ctx->on_trx_state_change,
+																   on_client_id);
+
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -2211,10 +2222,10 @@ xmysqlnd_table_insert__send_request(
 
 	const enum_func_status ret = xmysqlnd_send_message(COM_CRUD_INSERT, 
 													   *(google::protobuf::Message *)(pb_message_shell.message),
-													   msg->vio,
-													   msg->pfc,
-													   msg->stats,
-													   msg->error_info,
+													   msg->result_ctx.vio,
+													   msg->result_ctx.pfc,
+													   msg->result_ctx.stats,
+													   msg->result_ctx.error_info,
 													   &bytes_sent);
 	DBG_RETURN(ret);
 }
@@ -2224,10 +2235,19 @@ xmysqlnd_table_insert__send_request(
 /* {{{ xmysqlnd_table_insert__init_read */
 extern "C" enum_func_status
 xmysqlnd_table_insert__init_read(struct st_xmysqlnd_msg__table_insert * const msg,
-									  const struct st_xmysqlnd_on_error_bind on_error)
+	const struct st_xmysqlnd_on_warning_bind on_warning,
+	const struct st_xmysqlnd_on_error_bind on_error,
+	const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
+	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change,
+	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change)
 {
 	DBG_ENTER("xmysqlnd_table_insert__init_read");
-	msg->on_error = on_error;
+	msg->result_ctx.on_warning = on_warning;
+	msg->result_ctx.on_error = on_error;
+	msg->result_ctx.on_execution_state_change = on_execution_state_change;
+	msg->result_ctx.on_session_var_change = on_session_var_change;
+	msg->result_ctx.on_trx_state_change = on_trx_state_change;
+
 	DBG_RETURN(PASS);
 }
 /* }}} */
@@ -2240,7 +2260,7 @@ xmysqlnd_table_insert__read_response(struct st_xmysqlnd_msg__table_insert * msg)
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_table_insert__read_response");
-	ret = xmysqlnd_receive_message(&table_insert_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	ret = xmysqlnd_receive_message(&table_insert_handlers, &msg->result_ctx, msg->result_ctx.vio, msg->result_ctx.pfc, msg->result_ctx.stats, msg->result_ctx.error_info);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -2255,12 +2275,20 @@ xmysqlnd_table_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
         xmysqlnd_table_insert__send_request,
         xmysqlnd_table_insert__read_response,
         xmysqlnd_table_insert__init_read,
-        vio,
-        pfc,
-        stats,
-        error_info,
+		{
+			vio,
+			pfc,
+			stats,
+			error_info,
 
-        {NULL, NULL} /* on_error */
+			{ NULL, NULL}, /* on_warning */
+			{ NULL, NULL}, /* on_error */
+			{ NULL, NULL}, /* on_execution_state_change */
+			{ NULL, NULL}, /* on_session_var_change */
+			{ NULL, NULL}, /* on_trx_state_change */
+
+			NULL,  /* response_zval */
+		}
     };
     return ctx;
 }

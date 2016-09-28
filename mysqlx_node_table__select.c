@@ -434,7 +434,7 @@ PHP_METHOD(mysqlx_node_table__select, execute)
 					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 						zval zv;
 						ZVAL_UNDEF(&zv);
-						mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, &zv);
+						mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_ROW, &zv);
 
 						ZVAL_COPY(return_value, &zv);
 					}

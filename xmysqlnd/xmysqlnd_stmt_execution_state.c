@@ -78,6 +78,16 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_insert_id)(const XMYSQLN
 /* }}} */
 
 
+/* {{{ xmysqlnd_stmt_execution_state::get_last_document_id */
+static MYSQLND_CSTRING 
+XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_document_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
+{
+	DBG_ENTER("xmysqlnd_stmt_execution_state::get_last_document_id");
+	DBG_RETURN(state->last_document_id);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_stmt_execution_state::set_affected_items_count */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
@@ -126,6 +136,18 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT
 /* }}} */
 
 
+/* {{{ xmysqlnd_stmt_execution_state::set_last_document_id */
+static void
+XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_document_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const MYSQLND_CSTRING value)
+{
+	DBG_ENTER("xmysqlnd_stmt_execution_state::set_last_document_id");
+	DBG_INF_FMT("value="MYSQLND_LLU_SPEC, value);
+	state->last_document_id = value;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_stmt_execution_state::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state)
@@ -157,10 +179,12 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt_execution_state)
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_matched_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_found_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_insert_id),
+	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_document_id),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id),
+	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_document_id),
 
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor),

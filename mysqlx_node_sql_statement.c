@@ -30,6 +30,9 @@
 #include "mysqlx_execution_status.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_field_metadata.h"
+#include "mysqlx_node_result.h"
+#include "mysqlx_node_doc_result.h"
+#include "mysqlx_node_row_result.h"
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_session.h"
@@ -490,7 +493,7 @@ mysqlx_node_sql_stmt_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, c
 /* }}} */
 
 
-#define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 3
+#define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 100
 /* {{{ mysqlx_node_sql_statement_read_result */
 void
 mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, zval * return_value)
@@ -839,7 +842,7 @@ mysqlx_new_sql_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt, const MYSQLN
 /*********************************************************************/
 /* {{{ mysqlx_node_statement_execute_read_response */
 void
-mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, zval * return_value)
+mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, const enum mysqlx_result_type result_type, zval * return_value)
 {
 	struct st_mysqlx_node_statement * object = (struct st_mysqlx_node_statement *) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_node_statement_execute");
@@ -888,7 +891,28 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 							object->has_more_rows_in_set? "TRUE":"FALSE");
 
 				if (result) {
-					mysqlx_new_sql_stmt_result(return_value, result);
+					switch(result_type)
+					{
+						case MYSQLX_RESULT:
+							mysqlx_new_result(return_value, result);
+							break;
+
+						case MYSQLX_RESULT_DOC:
+							mysqlx_new_doc_result(return_value, result);
+							break;
+
+						case MYSQLX_RESULT_ROW:
+							mysqlx_new_row_result(return_value, result);
+							break;
+
+						case MYSQLX_RESULT_SQL:
+							mysqlx_new_sql_stmt_result(return_value, result);
+							break;
+
+						default:
+							assert(!"unknown result type!");
+							RETVAL_FALSE;
+					}
 				} else {
 					static const unsigned int errcode = 10000;
 					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };

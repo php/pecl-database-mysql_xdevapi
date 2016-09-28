@@ -370,6 +370,22 @@ struct st_xmysqlnd_msg__connection_close
 	struct st_xmysqlnd_on_error_bind on_error;
 };
 
+struct st_xmysqlnd_result_ctx
+{
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_warning_bind on_warning;
+	struct st_xmysqlnd_on_error_bind on_error;
+	struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
+	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
+	struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
+
+	zval * response_zval;
+};
+
 /* User for Create */
 struct st_xmysqlnd_msg__collection_add
 {
@@ -400,14 +416,13 @@ struct st_xmysqlnd_msg__table_insert
 	enum_func_status(*read_response)(struct st_xmysqlnd_msg__table_insert * msg);
 
 	enum_func_status(*init_read)(struct st_xmysqlnd_msg__table_insert * const msg,
-		const struct st_xmysqlnd_on_error_bind on_error);
+		const struct st_xmysqlnd_on_warning_bind on_warning,
+		const struct st_xmysqlnd_on_error_bind on_error,
+		const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
+		const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change,
+		const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change);
 
-	MYSQLND_VIO * vio;
-	XMYSQLND_PFC * pfc;
-	MYSQLND_STATS * stats;
-	MYSQLND_ERROR_INFO * error_info;
-
-	struct st_xmysqlnd_on_error_bind on_error;
+	struct st_xmysqlnd_result_ctx result_ctx;
 };
 
 /* user for Remove, Update, Delete */

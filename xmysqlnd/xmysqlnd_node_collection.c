@@ -124,18 +124,17 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 
 
 /* {{{ xmysqlnd_node_collection::add */
-static enum_func_status
+static XMYSQLND_NODE_STMT * 
 XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const collection, const MYSQLND_CSTRING json)
 {
 	struct st_parse_for_id_status status;
-	enum_func_status ret = PASS;
+	XMYSQLND_NODE_STMT * ret = NULL;
 	DBG_ENTER("xmysqlnd_node_collection::add");
 	DBG_INF_FMT("json=%*s", json.l, json.s);
 	if (!json.l) {
-		DBG_RETURN(FAIL);
+		DBG_RETURN(NULL);
 	}
-	ret = xmysqlnd_json_string_find_id(json, 0, 0, &status);
-	if (PASS == ret) {
+	if (PASS == xmysqlnd_json_string_find_id(json, 0, 0, &status)) {
 		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
 		MYSQLND_STRING to_add = { (char *) json.s, json.l };
 		if (!status.found) {
@@ -144,7 +143,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 			if (UNEXPECTED(status.empty)) {
 				to_add.s = mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
 				if (!to_add.s) {
-					DBG_RETURN(FAIL);
+					DBG_RETURN(NULL);
 				}
 				{
 					char * p = to_add.s;
@@ -166,11 +165,11 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 					--last;
 				}
 				if (last < json.s) {
-					DBG_RETURN(FAIL);
+					DBG_RETURN(NULL);
 				}
 				to_add.s = mnd_emalloc(json.l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
 				if (!to_add.s) {
-					DBG_RETURN(FAIL);
+					DBG_RETURN(NULL);
 				}
 				{
 					char * p = to_add.s;
@@ -194,14 +193,18 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 		{
 			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 			struct st_xmysqlnd_msg__collection_add collection_add = msg_factory.get__collection_add(&msg_factory);
-			ret = collection_add.send_request(&collection_add,
+			enum_func_status request_ret = collection_add.send_request(&collection_add,
 												 mnd_str2c(collection->data->schema->data->schema_name),
 												 mnd_str2c(collection->data->collection_name),
 												 mnd_str2c(to_add));
-			if (PASS == ret) {
-				ret = collection_add.read_response(&collection_add);
+			if (PASS == request_ret) {
+				//ret = collection_add.read_response(&collection_add);
+				XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
+				XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+				stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
+				ret = stmt;
 			}
-			DBG_INF(ret == PASS? "PASS":"FAIL");
+			DBG_INF(ret != NULL? "PASS":"FAIL");
 		}
 		if (to_add.s != json.s) {
 			efree(to_add.s);
@@ -213,10 +216,10 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 
 
 /* {{{ xmysqlnd_node_collection::remove */
-static enum_func_status
+static XMYSQLND_NODE_STMT * 
 XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
-	enum_func_status ret = FAIL;
+	XMYSQLND_NODE_STMT * ret = NULL;
 	DBG_ENTER("xmysqlnd_node_collection::remove");
 	if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
 		DBG_RETURN(ret);
@@ -225,11 +228,14 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * con
 		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 		struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
-		ret = collection_ud.send_delete_request(&collection_ud, xmysqlnd_crud_collection_remove__get_protobuf_message(op));
-		if (PASS == ret) {
-			ret = collection_ud.read_response(&collection_ud);
+		if (PASS == collection_ud.send_delete_request(&collection_ud, xmysqlnd_crud_collection_remove__get_protobuf_message(op))) {
+			//ret = collection_ud.read_response(&collection_ud);
+			XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
+			ret = stmt;
 		}
-		DBG_INF(ret == PASS? "PASS":"FAIL");
+		DBG_INF(ret != NULL? "PASS":"FAIL");
 	}
 
 	DBG_RETURN(ret);
@@ -238,10 +244,10 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * con
 
 
 /* {{{ xmysqlnd_node_collection::modify */
-static enum_func_status
+static XMYSQLND_NODE_STMT * 
 XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 {
-	enum_func_status ret = FAIL;
+	XMYSQLND_NODE_STMT * ret = NULL;
 	DBG_ENTER("xmysqlnd_node_collection::modify");
 	if (!op || FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
 		DBG_RETURN(ret);
@@ -250,11 +256,14 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * con
 		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 		struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
-		ret = collection_ud.send_update_request(&collection_ud, xmysqlnd_crud_collection_modify__get_protobuf_message(op));
-		if (PASS == ret) {
-			ret = collection_ud.read_response(&collection_ud);
+		if (PASS == collection_ud.send_update_request(&collection_ud, xmysqlnd_crud_collection_modify__get_protobuf_message(op))) {
+			//ret = collection_ud.read_response(&collection_ud);
+			XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
+			ret = stmt;
 		}
-		DBG_INF(ret == PASS? "PASS":"FAIL");
+		DBG_INF(ret != NULL? "PASS":"FAIL");
 	}
 
 	DBG_RETURN(ret);

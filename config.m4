@@ -69,6 +69,14 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
 						 mysqlx_node_table__select.c \
 						 mysqlx_node_table__update.c \
 						 mysqlx_node_sql_statement.c \
+						 mysqlx_node_base_result.c \
+						 mysqlx_node_base_result_iterator.c \
+						 mysqlx_node_doc_result.c \
+						 mysqlx_node_doc_result_iterator.c \
+						 mysqlx_node_result.c \
+						 mysqlx_node_result_iterator.c \
+						 mysqlx_node_row_result.c \
+						 mysqlx_node_row_result_iterator.c \
 						 mysqlx_node_sql_statement_result.c \
 						 mysqlx_node_sql_statement_result_iterator.c \
 						 mysqlx_object.c \

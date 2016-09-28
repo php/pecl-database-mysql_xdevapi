@@ -22,7 +22,9 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
+#include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
 #include <xmysqlnd/xmysqlnd_crud_table_commands.h>
 #include "php_mysqlx.h"
@@ -32,6 +34,7 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
+#include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_table__delete.h"
 
 
@@ -394,7 +397,25 @@ PHP_METHOD(mysqlx_node_table__delete, execute)
 			static const MYSQLND_CSTRING errmsg = { "Delete not completely initialized", sizeof("Delete not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
-			RETVAL_BOOL(PASS == object->table->data->m.opdelete(object->table, object->crud_op));
+			//RETVAL_BOOL(PASS == object->table->data->m.opdelete(object->table, object->crud_op));
+			XMYSQLND_NODE_STMT * stmt = object->table->data->m.opdelete(object->table, object->crud_op);
+			if (stmt) {
+				zval stmt_zv;
+				ZVAL_UNDEF(&stmt_zv);
+				mysqlx_new_node_stmt(&stmt_zv, stmt);
+				if (Z_TYPE(stmt_zv) == IS_NULL) {
+					xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+				}
+				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+					zval zv;
+					ZVAL_UNDEF(&zv);
+					zend_long flags = 0;
+					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+
+					ZVAL_COPY(return_value, &zv);
+				}
+				zval_ptr_dtor(&stmt_zv);
+			}
 		}
 	}
 

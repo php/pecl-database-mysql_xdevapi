@@ -24,11 +24,15 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
+#include <xmysqlnd/xmysqlnd_node_schema.h>
+#include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include "php_mysqlx.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_executable.h"
+#include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__add.h"
 
 static zend_class_entry *mysqlx_node_collection__add_class_entry;
@@ -94,7 +98,26 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 		enum_func_status ret = FAIL;
 		if (Z_TYPE(object->json) == IS_STRING) {
 			const MYSQLND_CSTRING json = { Z_STRVAL(object->json), Z_STRLEN(object->json) };
-			ret = object->collection->data->m.add(object->collection, json);
+			//ret = object->collection->data->m.add(object->collection, json);
+			XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection, json);
+			if (stmt) {
+				zval stmt_zv;
+				ZVAL_UNDEF(&stmt_zv);
+				mysqlx_new_node_stmt(&stmt_zv, stmt);
+				if (Z_TYPE(stmt_zv) == IS_NULL) {
+					xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+				}
+				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+					zval zv;
+					ZVAL_UNDEF(&zv);
+					zend_long flags = 0;
+					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+
+					ZVAL_COPY(return_value, &zv);
+					ret = PASS;
+				}
+				zval_ptr_dtor(&stmt_zv);
+			}
 		} else if ((Z_TYPE(object->json) == IS_OBJECT) || (Z_TYPE(object->json) == IS_ARRAY)) {
 			smart_str buf = {0};
 			JSON_G(error_code) = PHP_JSON_ERROR_NONE;
@@ -104,7 +127,28 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 			DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
 			if (JSON_G(error_code) == PHP_JSON_ERROR_NONE) {
 				const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
-				ret = object->collection->data->m.add(object->collection,json);	
+
+				//ret = object->collection->data->m.add(object->collection,json);	
+				XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection,json);
+				if (stmt) {
+					zval stmt_zv;
+					ZVAL_UNDEF(&stmt_zv);
+					mysqlx_new_node_stmt(&stmt_zv, stmt);
+					if (Z_TYPE(stmt_zv) == IS_NULL) {
+						xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+					}
+					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+						zval zv;
+						ZVAL_UNDEF(&zv);
+						zend_long flags = 0;
+						mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+
+						ZVAL_COPY(return_value, &zv);
+						ret = PASS;
+					}
+					zval_ptr_dtor(&stmt_zv);
+				}
+
 			} else {
 				static const unsigned int errcode = 10001;
 				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };

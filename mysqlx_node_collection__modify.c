@@ -22,7 +22,9 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
+#include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
 #include "php_mysqlx.h"
@@ -33,6 +35,7 @@
 #include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_expression.h"
+#include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__modify.h"
 
 static zend_class_entry *mysqlx_node_collection__modify_class_entry;
@@ -482,8 +485,26 @@ PHP_METHOD(mysqlx_node_collection__modify, execute)
 			static const MYSQLND_CSTRING errmsg = { "Modify not completely initialized", sizeof("Modify not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
-			if (PASS == object->collection->data->m.modify(object->collection, object->crud_op)) {
-				ZVAL_COPY(return_value, object_zv);
+			//if (PASS == object->collection->data->m.modify(object->collection, object->crud_op)) {
+			//	ZVAL_COPY(return_value, object_zv);
+			//}
+			XMYSQLND_NODE_STMT * stmt = object->collection->data->m.modify(object->collection, object->crud_op);
+			if (stmt) {
+				zval stmt_zv;
+				ZVAL_UNDEF(&stmt_zv);
+				mysqlx_new_node_stmt(&stmt_zv, stmt);
+				if (Z_TYPE(stmt_zv) == IS_NULL) {
+					xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+				}
+				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+					zval zv;
+					ZVAL_UNDEF(&zv);
+					zend_long flags = 0;
+					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+
+					ZVAL_COPY(return_value, &zv);
+				}
+				zval_ptr_dtor(&stmt_zv);
 			}
 		}
 	}
