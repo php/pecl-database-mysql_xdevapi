@@ -220,7 +220,7 @@ mysqlx_register_message__auth_start_class(INIT_FUNC_ARGS, zend_object_handlers *
 	{
 		zend_class_entry tmp_ce;
 		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_message__auth_start", mysqlx_message__auth_start_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysqlx", "node_pfc", mysqlx_message__auth_start_methods);
+//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "node_pfc", mysqlx_message__auth_start_methods);
 		tmp_ce.create_object = php_mysqlx_message__auth_start_object_allocator;
 		mysqlx_message__auth_start_class_entry = zend_register_internal_class(&tmp_ce);
 	}

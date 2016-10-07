@@ -49,7 +49,7 @@ void
 mysqlx_register_crud_operation_limitable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "CrudOperationLimitable", mysqlx_crud_operation_limitable_methods);
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "CrudOperationLimitable", mysqlx_crud_operation_limitable_methods);
 	mysqlx_crud_operation_limitable_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
 /* }}} */

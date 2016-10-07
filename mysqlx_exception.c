@@ -130,7 +130,7 @@ mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_st
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "Exception", mysqlx_exception_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Exception", mysqlx_exception_methods);
 #ifdef HAVE_SPL
 		mysqlx_exception_class_entry = zend_register_internal_class_ex(&tmp_ce, spl_ce_RuntimeException);
 #else

@@ -59,7 +59,7 @@ void
 mysqlx_register_database_object_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "DatabaseObject", mysqlx_database_object_methods);
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "DatabaseObject", mysqlx_database_object_methods);
 	mysqlx_database_object_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
 /* }}} */

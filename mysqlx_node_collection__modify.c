@@ -600,7 +600,7 @@ mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS, zend_object_handle
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeCollectionModify", mysqlx_node_collection__modify_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeCollectionModify", mysqlx_node_collection__modify_methods);
 		tmp_ce.create_object = php_mysqlx_node_collection__modify_object_allocator;
 		mysqlx_node_collection__modify_class_entry = zend_register_internal_class(&tmp_ce);
 		zend_class_implements(mysqlx_node_collection__modify_class_entry, 4,

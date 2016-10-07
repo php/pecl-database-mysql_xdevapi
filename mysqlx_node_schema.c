@@ -552,7 +552,7 @@ mysqlx_register_node_schema_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSchema", mysqlx_node_schema_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeSchema", mysqlx_node_schema_methods);
 		tmp_ce.create_object = php_mysqlx_node_schema_object_allocator;
 		mysqlx_node_schema_class_entry = zend_register_internal_class(&tmp_ce);
 		zend_class_implements(mysqlx_node_schema_class_entry, 1, mysqlx_database_object_interface_entry);

@@ -43,7 +43,7 @@ void
 mysqlx_register_schema_object_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "SchemaObject", mysqlx_schema_object_methods);
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "SchemaObject", mysqlx_schema_object_methods);
 	mysqlx_schema_object_interface_entry = zend_register_internal_interface(&tmp_ce);
 	zend_class_implements(mysqlx_schema_object_interface_entry, 1, mysqlx_database_object_interface_entry);
 }

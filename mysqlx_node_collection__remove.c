@@ -417,7 +417,7 @@ mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handle
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeCollectionRemove", mysqlx_node_collection__remove_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeCollectionRemove", mysqlx_node_collection__remove_methods);
 		tmp_ce.create_object = php_mysqlx_node_collection__remove_object_allocator;
 		mysqlx_node_collection__remove_class_entry = zend_register_internal_class(&tmp_ce);
 		zend_class_implements(mysqlx_node_collection__remove_class_entry, 4,

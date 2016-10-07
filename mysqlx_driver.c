@@ -17,6 +17,13 @@
 */
 #include <php.h>
 #undef ERROR
+#include "ext/mysqlnd/mysqlnd.h"
+#include "ext/mysqlnd/mysqlnd_enum_n_def.h"
+#include "ext/mysqlnd/mysqlnd_structs.h"
+#include "ext/mysqlnd/mysqlnd_debug.h"
+#include "ext/mysqlnd/mysqlnd_statistics.h"
+#include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_priv.h"
 #include "php_mysqlx.h"
 
 static zend_class_entry *mysqlx_driver_class_entry;
@@ -42,11 +49,11 @@ void
 mysqlx_register_driver_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "Driver", mysqlx_driver_methods);
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Driver", mysqlx_driver_methods);
 	mysqlx_driver_class_entry = zend_register_internal_class(&tmp_ce);
 	mysqlx_driver_class_entry->ce_flags |= ZEND_ACC_FINAL; /* Forbid extension of the driver */
 
-	zend_declare_class_constant_stringl(mysqlx_driver_class_entry, "version", sizeof("version") - 1, MYSQLX_VERSION, sizeof(MYSQLX_VERSION) - 1);
+	zend_declare_class_constant_stringl(mysqlx_driver_class_entry, "version", sizeof("version") - 1, MYSQL_XDEVAPI_VERSION, sizeof(MYSQL_XDEVAPI_VERSION) - 1);
 }
 /* }}} */
 

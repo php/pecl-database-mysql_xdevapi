@@ -906,7 +906,7 @@ mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "NodeSession", mysqlx_node_session_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeSession", mysqlx_node_session_methods);
 		tmp_ce.create_object = php_mysqlx_node_session_object_allocator;
 		mysqlx_node_session_class_entry = zend_register_internal_class(&tmp_ce);
 		zend_class_implements(mysqlx_node_session_class_entry, 1, mysqlx_session_interface_entry);
@@ -941,7 +941,7 @@ mysqlx_new_node_session(zval * return_value)
 
 /* {{{ proto bool mysqlx\\getNodeSession(string hostname, string username, string password, int port)
    Bind variables to a prepared statement as parameters */
-PHP_FUNCTION(mysqlx__getNodeSession)
+PHP_FUNCTION(mysql_xdevapi__getNodeSession)
 {
 	MYSQLND_CSTRING hostname = {NULL, 0};
 	MYSQLND_CSTRING username = {NULL, 0};
@@ -951,7 +951,7 @@ PHP_FUNCTION(mysqlx__getNodeSession)
 	size_t set_capabilities = 0;
 	size_t client_api_flags = 0;
 
-	DBG_ENTER("mysqlx__getNodeSession");
+	DBG_ENTER("mysql_xdevapi__getNodeSession");
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "sss|l",
 										 &(hostname.s), &(hostname.l), 
 										 &(username.s), &(username.l),

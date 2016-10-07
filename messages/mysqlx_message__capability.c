@@ -164,7 +164,7 @@ mysqlx_register_message__capability_class(INIT_FUNC_ARGS, zend_object_handlers *
 	{
 		zend_class_entry tmp_ce;
 		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_message__capability", mysqlx_message__capability_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysqlx", "message__capability", mysqlx_message__capability_methods);
+//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "message__capability", mysqlx_message__capability_methods);
 		tmp_ce.create_object = php_mysqlx_message__capability_object_allocator;
 		mysqlx_message__capability_class_entry = zend_register_internal_class(&tmp_ce);
 	}

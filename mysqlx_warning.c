@@ -192,7 +192,7 @@ mysqlx_register_warning_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "Warning", mysqlx_warning_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Warning", mysqlx_warning_methods);
 		tmp_ce.create_object = php_mysqlx_warning_object_allocator;
 		mysqlx_warning_class_entry = zend_register_internal_class(&tmp_ce);
 	}

@@ -147,7 +147,7 @@ mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * 
 	{
 		zend_class_entry tmp_ce;
 		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_resultset_metadata", mysqlx_resultset_metadata_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysqlx", "resultset_metadata", mysqlx_resultset_metadata_methods);
+//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "resultset_metadata", mysqlx_resultset_metadata_methods);
 		tmp_ce.create_object = php_mysqlx_resultset_metadata_object_allocator;
 		mysqlx_resultset_metadata_class_entry = zend_register_internal_class(&tmp_ce);
 	}

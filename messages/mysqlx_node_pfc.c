@@ -215,7 +215,7 @@ mysqlx_register_node_pfc_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "ProtocolFrameCodec", mysqlx_node_pfc_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "ProtocolFrameCodec", mysqlx_node_pfc_methods);
 		tmp_ce.create_object = php_mysqlx_node_pfc_object_allocator;
 		mysqlx_node_pfc_class_entry = zend_register_internal_class(&tmp_ce);
 	}

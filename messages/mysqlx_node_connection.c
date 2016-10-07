@@ -294,7 +294,7 @@ mysqlx_register_node_connection_class(INIT_FUNC_ARGS, zend_object_handlers * mys
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "MysqlX", "NodeNativeConnection", mysqlx_node_connection_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeNativeConnection", mysqlx_node_connection_methods);
 		tmp_ce.create_object = php_mysqlx_node_connection_object_allocator;
 		mysqlx_node_connection_class_entry = zend_register_internal_class(&tmp_ce);
 	}

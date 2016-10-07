@@ -152,7 +152,7 @@ mysqlx_register_message__auth_ok_class(INIT_FUNC_ARGS, zend_object_handlers * my
 	{
 		zend_class_entry tmp_ce;
 		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_message__auth_ok", mysqlx_message__auth_ok_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysqlx", "node_pfc", mysqlx_message__auth_ok_methods);
+//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "node_pfc", mysqlx_message__auth_ok_methods);
 		tmp_ce.create_object = php_mysqlx_message__auth_ok_object_allocator;
 		mysqlx_message__auth_ok_class_entry = zend_register_internal_class(&tmp_ce);
 	}

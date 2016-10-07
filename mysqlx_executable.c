@@ -42,7 +42,7 @@ void
 mysqlx_register_executable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "Executable", mysqlx_executable_methods);
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Executable", mysqlx_executable_methods);
 	mysqlx_executable_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
 /* }}} */
