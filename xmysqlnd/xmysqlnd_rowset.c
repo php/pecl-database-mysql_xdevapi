@@ -362,10 +362,10 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset)
 MYSQLND_CLASS_METHODS_END;
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset);
 
 /* {{{ xmysqlnd_rowset_create */
-PHPAPI XMYSQLND_ROWSET *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET *
 xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type,
 					   const size_t prefetch_rows,
 					   XMYSQLND_NODE_STMT * stmt,
@@ -383,7 +383,7 @@ xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type,
 
 
 /* {{{ xmysqlnd_rowset_free */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_rowset_free(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_free");

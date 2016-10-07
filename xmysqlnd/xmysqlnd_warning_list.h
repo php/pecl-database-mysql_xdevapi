@@ -72,9 +72,9 @@ struct st_xmysqlnd_warning_list
 };
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_warning_list);
-PHPAPI XMYSQLND_WARNING_LIST * xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-PHPAPI void xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const list);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_warning_list);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_WARNING_LIST * xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const list);
 
 #ifdef __cplusplus
 } /* extern "C" */

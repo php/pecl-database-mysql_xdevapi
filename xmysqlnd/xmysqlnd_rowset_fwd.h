@@ -95,9 +95,9 @@ struct st_xmysqlnd_rowset_fwd
 };
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_rowset_fwd);
-PHPAPI XMYSQLND_ROWSET_FWD * xmysqlnd_rowset_fwd_create(const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-PHPAPI void xmysqlnd_rowset_fwd_free(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_rowset_fwd);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_FWD * xmysqlnd_rowset_fwd_create(const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_rowset_fwd_free(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 #ifdef __cplusplus
 } /* extern "C" */

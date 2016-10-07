@@ -33,7 +33,7 @@ extern "C"
 using namespace Mysqlx::Datatypes;
 
 /* {{{ zval2any */
-PHPAPI enum_func_status
+PHP_MYSQL_XDEVAPI_API enum_func_status
 zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 {
 	DBG_ENTER("zval2any");
@@ -107,7 +107,7 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 
 
 /* {{{ scalar2zval */
-PHPAPI enum_func_status
+PHP_MYSQL_XDEVAPI_API enum_func_status
 scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 {
 	DBG_ENTER("any2zval");
@@ -168,7 +168,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 
 
 /* {{{ any2zval */
-PHPAPI enum_func_status
+PHP_MYSQL_XDEVAPI_API enum_func_status
 any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 {
 	DBG_ENTER("any2zval");
@@ -276,7 +276,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 
 
 /* {{{ scalar2uint */
-PHPAPI uint64_t
+PHP_MYSQL_XDEVAPI_API uint64_t
 scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	uint64_t ret = 0;
@@ -316,7 +316,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 
 
 /* {{{ scalar2uint */
-PHPAPI int64_t
+PHP_MYSQL_XDEVAPI_API int64_t
 scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	int64_t ret = 0;
@@ -356,7 +356,7 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 
 
 /* {{{ scalar2string */
-PHPAPI MYSQLND_STRING
+PHP_MYSQL_XDEVAPI_API MYSQLND_STRING
 scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	MYSQLND_STRING ret = {NULL, 0};
@@ -401,7 +401,7 @@ scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 
 
 /* {{{ scalar2log */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	DBG_ENTER("scalar2log");
@@ -458,7 +458,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 
 
 /* {{{ any2log */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 any2log(const Mysqlx::Datatypes::Any & any)
 {
 	DBG_ENTER("any2log");

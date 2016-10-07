@@ -18,6 +18,8 @@
 #ifndef XMYSQLND_OBJECT_FACTORY_H
 #define XMYSQLND_OBJECT_FACTORY_H
 
+#include "php_mysql_xdevapi.h"
+
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
 struct st_xmysqlnd_node_schema;
@@ -157,7 +159,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 	func_xmysqlnd_object_factory__get_stmt_execution_state get_stmt_execution_state;
 };
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_object_factory);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_object_factory);
 
 #endif	/* XMYSQLND_OBJECT_FACTORY_H */
 

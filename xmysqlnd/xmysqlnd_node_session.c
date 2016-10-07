@@ -35,6 +35,7 @@
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_structs.h"
+#include "php_mysqlx.h"
 
 const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
 const MYSQLND_CSTRING namespace_xplugin = { "xplugin", sizeof("xplugin") - 1 };
@@ -79,7 +80,7 @@ MYSQLND_CLASS_METHODS_END;
 
 
 /* {{{ xmysqlnd_node_session_state_init */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_node_session_state_init(XMYSQLND_NODE_SESSION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_node_session_state_init");
@@ -1010,7 +1011,7 @@ MYSQLND_CLASS_METHODS_END;
 
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session_data);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session_data);
 
 /* {{{ xmysqlnd_node_session::init */
 static const enum_func_status
@@ -1984,10 +1985,10 @@ MYSQLND_CLASS_METHODS_END;
 
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session);
 
 /* {{{ xmysqlnd_node_session_create */
-PHPAPI XMYSQLND_NODE_SESSION *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION *
 xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	XMYSQLND_NODE_SESSION * session;
@@ -2004,7 +2005,7 @@ xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persiste
 
 
 /* {{{ xmysqlnd_node_session_connect */
-PHPAPI XMYSQLND_NODE_SESSION *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION *
 xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 							  const MYSQLND_CSTRING hostname,
 							  const MYSQLND_CSTRING username,

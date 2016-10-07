@@ -19,6 +19,7 @@
 #define XMYSQLND_EXTENSION_PLUGIN_H
 
 #include "ext/mysqlnd/mysqlnd_structs.h"
+#include "php_mysql_xdevapi.h"
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
@@ -179,7 +180,7 @@ struct st_xmysqlnd_plugin_methods_xetters
 	} stmt_exec_state;
 };
 
-PHPAPI extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters;
+PHP_MYSQL_XDEVAPI_API extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters;
 
 
 #define xmysqlnd_object_factory_get_methods()			xmysqlnd_plugin_methods_xetters.object_factory.get()

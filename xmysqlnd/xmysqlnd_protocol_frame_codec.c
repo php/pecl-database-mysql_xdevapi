@@ -28,6 +28,7 @@
 #include "xmysqlnd_wireprotocol.h"
 #include "xmysqlnd_protocol_dumper.h"
 #include "xmysqlnd_driver.h"
+#include "php_mysqlx.h"
 
 #define XMYSQLND_PACKET_TYPE_SIZE	1
 #define XMYSQLND_PACKET_TYPE_STORE	int1store
@@ -224,10 +225,10 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_protocol_packet_frame_codec)
 MYSQLND_CLASS_METHODS_END;
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_protocol_packet_frame_codec);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_protocol_packet_frame_codec);
 
 /* {{{ xmysqlnd_pfc_create */
-PHPAPI XMYSQLND_PFC *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_PFC *
 xmysqlnd_pfc_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	XMYSQLND_PFC * pfc = NULL;
@@ -239,7 +240,7 @@ xmysqlnd_pfc_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE
 
 
 /* {{{ xmysqlnd_pfc_free */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_pfc_free(XMYSQLND_PFC * const pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_pfc_free");

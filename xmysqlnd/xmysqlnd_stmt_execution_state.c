@@ -191,10 +191,10 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt_execution_state)
 MYSQLND_CLASS_METHODS_END;
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_stmt_execution_state);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_stmt_execution_state);
 
 /* {{{ xmysqlnd_stmt_execution_state_create */
-PHPAPI XMYSQLND_STMT_EXECUTION_STATE *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_EXECUTION_STATE *
 xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 									 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 									 MYSQLND_STATS * stats,
@@ -209,7 +209,7 @@ xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 
 
 /* {{{ xmysqlnd_node_stmt_result_free */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state_free");

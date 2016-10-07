@@ -497,7 +497,7 @@ _xmysqlnd_stmt_execution_state_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmys
 /* }}} */
 
 
-PHPAPI struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
+PHP_MYSQL_XDEVAPI_API struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
 {
 	{
 		_xmysqlnd_object_factory_get_methods,

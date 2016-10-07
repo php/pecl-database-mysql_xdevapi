@@ -30,7 +30,7 @@ struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_stmt_op__execute;
 
-PHPAPI void xmysqlnd_node_session_module_init();
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_module_init();
 
 /* XMYSQLND_NODE_SESSION_DATA::client_capabilities */
 #define XMYSQLND_CLIENT_NO_FLAG	0
@@ -88,7 +88,7 @@ struct st_xmysqlnd_node_session_state
 
 #define GET_SESSION_STATE(state_struct)		(state_struct)->m->get((state_struct))
 #define SET_SESSION_STATE(state_struct, s)	(state_struct)->m->set((state_struct), (s))
-PHPAPI void xmysqlnd_node_session_state_init(XMYSQLND_NODE_SESSION_STATE * const state);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_state_init(XMYSQLND_NODE_SESSION_STATE * const state);
 
 
 
@@ -412,12 +412,12 @@ struct st_xmysqlnd_node_session
 };
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session_data);
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session_data);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session);
 
-PHPAPI XMYSQLND_NODE_SESSION * xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION * xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
-PHPAPI XMYSQLND_NODE_SESSION * xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION * xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 															 const MYSQLND_CSTRING hostname,
 															 const MYSQLND_CSTRING username,
 															 const MYSQLND_CSTRING password,

@@ -118,15 +118,15 @@ struct st_xmysqlnd_node_schema
 };
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_schema);
-PHPAPI XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(struct st_xmysqlnd_node_session * session,
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_schema);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(struct st_xmysqlnd_node_session * session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														  MYSQLND_STATS * const stats,
 														  MYSQLND_ERROR_INFO * const error_info);
 
-PHPAPI void xmysqlnd_node_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

@@ -73,9 +73,9 @@ struct st_xmysqlnd_stmt_execution_state
 	zend_bool persistent;
 };
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_stmt_execution_state);
-PHPAPI XMYSQLND_STMT_EXECUTION_STATE * xmysqlnd_stmt_execution_state_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-PHPAPI void xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_stmt_execution_state);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_EXECUTION_STATE * xmysqlnd_stmt_execution_state_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state);
 
 #ifdef __cplusplus
 } /* extern "C" */

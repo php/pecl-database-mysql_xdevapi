@@ -21,8 +21,9 @@
 #include "ext/mysqlnd/mysqlnd_statistics.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "xmysqlnd_enum_n_def.h"
+#include "php_mysql_xdevapi.h"
 
-PHPAPI MYSQLND_STATS *xmysqlnd_global_stats = NULL;
+PHP_MYSQL_XDEVAPI_API MYSQLND_STATS *xmysqlnd_global_stats = NULL;
 
 
 
@@ -50,7 +51,7 @@ const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 
 
 /* {{{ _xmysqlnd_get_client_stats */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FILE_LINE_DC)
 {
 	MYSQLND_STATS stats;

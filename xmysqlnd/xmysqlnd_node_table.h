@@ -86,15 +86,15 @@ struct st_xmysqlnd_node_table
 };
 
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_table);
-PHPAPI XMYSQLND_NODE_TABLE * xmysqlnd_node_table_create(struct st_xmysqlnd_node_schema * schema,
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_table);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_TABLE * xmysqlnd_node_table_create(struct st_xmysqlnd_node_schema * schema,
 														const MYSQLND_CSTRING table_name,
 														const zend_bool persistent,
 														const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														MYSQLND_STATS * const stats,
 														MYSQLND_ERROR_INFO * const error_info);
 
-PHPAPI void xmysqlnd_node_table_free(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_table_free(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

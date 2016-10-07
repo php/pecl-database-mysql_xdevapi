@@ -20,14 +20,14 @@
 
 #include "proto_gen/mysqlx_datatypes.pb.h"
 
-PHPAPI enum_func_status scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv);
-PHPAPI enum_func_status zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any);
-PHPAPI enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
-PHPAPI void any2log(const Mysqlx::Datatypes::Any & any);
-PHPAPI void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);
-PHPAPI uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
-PHPAPI int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
-PHPAPI MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
+PHP_MYSQL_XDEVAPI_API enum_func_status scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv);
+PHP_MYSQL_XDEVAPI_API enum_func_status zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any);
+PHP_MYSQL_XDEVAPI_API enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
+PHP_MYSQL_XDEVAPI_API void any2log(const Mysqlx::Datatypes::Any & any);
+PHP_MYSQL_XDEVAPI_API void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);
+PHP_MYSQL_XDEVAPI_API uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
+PHP_MYSQL_XDEVAPI_API int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
+PHP_MYSQL_XDEVAPI_API MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
 #endif	/* XMYSQLND_ZVAL2ANY_H */
 
 /*

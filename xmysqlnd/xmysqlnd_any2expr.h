@@ -39,9 +39,9 @@ namespace Expr {
 namespace xmysqlnd
 {
 
-PHPAPI void object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest_obj);
-PHPAPI void array2expr(const Mysqlx::Datatypes::Array& src_array, Mysqlx::Expr::Array* dest_array);
-PHPAPI void any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest);
+PHP_MYSQL_XDEVAPI_API void object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest_obj);
+PHP_MYSQL_XDEVAPI_API void array2expr(const Mysqlx::Datatypes::Array& src_array, Mysqlx::Expr::Array* dest_array);
+PHP_MYSQL_XDEVAPI_API void any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest);
 
 } // namespace xmysqlnd
 
