@@ -112,7 +112,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	status->empty = TRUE;
 	parser.status = status;
 
-	if (php_json_yyparse(&parser.parser)) {
+	if (php_json_parse(&parser.parser)) {
 		if (!status->found) {
 	//		JSON_G(error_code) = php_json_parser_error_code(&parser);
 			DBG_RETURN(FAIL);
@@ -368,11 +368,11 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_collection)
 	XMYSQLND_METHOD(xmysqlnd_node_collection, dtor),
 MYSQLND_CLASS_METHODS_END;
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_collection);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_collection);
 
 
 /* {{{ xmysqlnd_node_collection_create */
-PHPAPI XMYSQLND_NODE_COLLECTION *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_COLLECTION *
 xmysqlnd_node_collection_create(XMYSQLND_NODE_SCHEMA * schema,
 								const MYSQLND_CSTRING collection_name,
 								const zend_bool persistent,
@@ -394,7 +394,7 @@ xmysqlnd_node_collection_create(XMYSQLND_NODE_SCHEMA * schema,
 
 
 /* {{{ xmysqlnd_node_collection_free */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_node_collection_free(XMYSQLND_NODE_COLLECTION * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_collection_free");

@@ -117,7 +117,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	status->empty = TRUE;
 	parser.status = status;
 
-	if (php_json_yyparse(&parser.parser))
+	if (php_json_parse(&parser.parser))
 	{
 		if (!status->found)
 		{
@@ -323,11 +323,11 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_table)
 	XMYSQLND_METHOD(xmysqlnd_node_table, dtor),
 MYSQLND_CLASS_METHODS_END;
 
-PHPAPI MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_table);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_table);
 
 
 /* {{{ xmysqlnd_node_table_create */
-PHPAPI XMYSQLND_NODE_TABLE *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_TABLE *
 xmysqlnd_node_table_create(XMYSQLND_NODE_SCHEMA * schema,
 						   const MYSQLND_CSTRING table_name,
 						   const zend_bool persistent,
@@ -349,7 +349,7 @@ xmysqlnd_node_table_create(XMYSQLND_NODE_SCHEMA * schema,
 
 
 /* {{{ xmysqlnd_node_table_free */
-PHPAPI void
+PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_node_table_free(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_table_free");
