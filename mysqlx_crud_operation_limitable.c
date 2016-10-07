@@ -30,15 +30,15 @@ ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_limitable__limit, 0, ZEND_RETURN_VA
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_limitable__offset, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, offset, IS_LONG, DONT_ALLOW_NULL)
+ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_limitable__skip, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, skip, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
 /* {{{ mysqlx_crud_operation_limitable_methods[] */
 static const zend_function_entry mysqlx_crud_operation_limitable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_limitable, limit, mysqlx_crud_operation_limitable__limit)
-	PHP_ABSTRACT_ME(mysqlx_crud_operation_limitable, offset, mysqlx_crud_operation_limitable__offset)
+	PHP_ABSTRACT_ME(mysqlx_crud_operation_limitable, skip, mysqlx_crud_operation_limitable__skip)
 	{NULL, NULL, NULL}
 };
 /* }}} */
