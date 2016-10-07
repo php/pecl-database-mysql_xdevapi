@@ -97,13 +97,13 @@ static const zend_function_entry mysqlx_expression_methods[] = {
 /* }}} */
 
 
-/* {{{ proto bool mysqlx\\mysqlx__Expression(string expression)
+/* {{{ proto bool mysqlx\\mysql_xdevapi__Expression(string expression)
    Bind variables to a prepared statement as parameters */
-PHP_FUNCTION(mysqlx__expression)
+PHP_FUNCTION(mysql_xdevapi__expression)
 {
 	MYSQLND_CSTRING expression = {NULL, 0};
 
-	DBG_ENTER("mysqlx__Expression");
+	DBG_ENTER("mysql_xdevapi__Expression");
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
 										 &(expression.s), &(expression.l)))
 	{
@@ -175,7 +175,7 @@ mysqlx_register_expression_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "Mysqlx", "Expression", mysqlx_expression_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Expression", mysqlx_expression_methods);
 		tmp_ce.create_object = php_mysqlx_expression_object_allocator;
 		mysqlx_expression_class_entry = zend_register_internal_class(&tmp_ce);
 	}

@@ -15,30 +15,24 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_DRIVER_H
-#define XMYSQLND_DRIVER_H
+#ifndef PHP_PHP_MYSQL_XDEVAPI_H
+#define PHP_PHP_MYSQL_XDEVAPI_H
 
-#include "php_mysql_xdevapi.h"
+#ifdef PHP_WIN32
+#	ifdef PHP_MYSQL_XDEVAPI_EXPORTS
+#		define PHP_MYSQL_XDEVAPI_API __declspec(dllexport)
+#	elif defined(COMPILE_DL_BZ2)
+#		define PHP_MYSQL_XDEVAPI_API __declspec(dllimport)
+#	else
+#		define PHP_MYSQL_XDEVAPI_API PHPAPI
+#	endif
+#elif defined(__GNUC__) && __GNUC__ >= 4
+#	define PHP_MYSQL_XDEVAPI_API __attribute__ ((visibility("default")))
+#else
+#	define PHP_MYSQL_XDEVAPI_API PHPAPI
+#endif
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void);
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void);
-
-PHP_MYSQL_XDEVAPI_API const char * xmysqlnd_get_client_info();
-PHP_MYSQL_XDEVAPI_API unsigned int xmysqlnd_get_client_version();
-
-typedef enum xmysqlnd_handler_func_status
-{
-	HND_PASS = PASS,
-	HND_FAIL = FAIL,
-	HND_PASS_RETURN_FAIL = 3,
-	HND_AGAIN = 4,
-	HND_AGAIN_ASYNC = 5,
-	HND_DEFAULT_ACTION = 6,
-} enum_hnd_func_status;
-
-#include "xmysqlnd_object_factory.h"
-
-#endif	/* XMYSQLND_DRIVER_H */
+#endif /*PHP_PHP_MYSQL_XDEVAPI_H*/
 
 /*
  * Local variables:

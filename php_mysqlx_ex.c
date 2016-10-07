@@ -80,7 +80,7 @@
 
 
 /* {{{ mysqlx_minit_classes */
-PHPAPI int
+PHP_MYSQL_XDEVAPI_API int
 mysqlx_minit_classes(INIT_FUNC_ARGS)
 {
 	zend_object_handlers mysqlx_std_object_handlers = *zend_get_std_object_handlers();
@@ -170,7 +170,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 
 /* {{{ mysqlx_mshutdown_classes */
-PHPAPI int
+PHP_MYSQL_XDEVAPI_API int
 mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 {
 #ifdef MYSQLX_MESSAGE_CLASSES
