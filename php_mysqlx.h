@@ -29,8 +29,8 @@ extern "C" {
 #include "ext/mysqlnd/mysqlnd_statistics.h"
 #include "ext/mysqlnd/mysqlnd_portability.h"
 #include "php_mysql_xdevapi.h"
-#include "xmysqlnd_enum_n_def.h"
-#include "xmysqlnd_structs.h"
+#include "xmysqlnd/xmysqlnd_enum_n_def.h"
+#include "xmysqlnd/xmysqlnd_structs.h"
 
 #define phpext_mysql_xdevapi_ptr &mysql_xdevapi_module_entry
 extern zend_module_entry mysql_xdevapi_module_entry;
