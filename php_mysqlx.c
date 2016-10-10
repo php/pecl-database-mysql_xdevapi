@@ -89,7 +89,7 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 								"disabled");
 #endif
 	php_info_print_table_row(2, "experimental features",
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 								"enabled");
 #else
 								"disabled");

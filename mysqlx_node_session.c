@@ -40,7 +40,7 @@ static zend_class_entry *mysqlx_node_session_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__create_statement, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, query, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
@@ -51,7 +51,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__quote_name, 0, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__get_server_version, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -88,7 +88,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__drop_table, 0, ZEND_RETURN_V
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, table_name, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__list_clients, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -145,7 +145,7 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA *
 /* }}} */
 
 
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 /* {{{ proto mixed mysqlx_node_session::createStatement(string query) */
 static
 PHP_METHOD(mysqlx_node_session, createStatement)
@@ -302,7 +302,7 @@ PHP_METHOD(mysqlx_node_session, quoteName)
 /* }}} */
 
 
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 /* {{{ proto mixed mysqlx_node_session::getServerVersion() */
 static
 PHP_METHOD(mysqlx_node_session, getServerVersion)
@@ -658,7 +658,7 @@ PHP_METHOD(mysqlx_node_session, dropTable)
 /* }}} */
 
 
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 struct st_mysqlx_list_clients__ctx
 {
 	zval * list;
@@ -771,7 +771,7 @@ PHP_METHOD(mysqlx_node_session, killClient)
 }
 /* }}} */
 
-#endif /* MYSQLX_EXPERIMENTAL_FEATURES */
+#endif /* MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES */
 
 
 /* {{{ mysqlx_node_session::close */
@@ -805,12 +805,12 @@ PHP_METHOD(mysqlx_node_session, close)
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_node_session, __construct, 		NULL, ZEND_ACC_PRIVATE)
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 	PHP_ME(mysqlx_node_session, createStatement,	arginfo_mysqlx_node_session__create_statement, ZEND_ACC_PUBLIC)
 #endif
 	PHP_ME(mysqlx_node_session, executeSql,			NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, quoteName,			arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 	PHP_ME(mysqlx_node_session, getServerVersion,	arginfo_mysqlx_node_session__get_server_version, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, getClientId,		arginfo_mysqlx_node_session__get_client_id, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, generateUUID,		arginfo_mysqlx_node_session__generate_uuid, ZEND_ACC_PUBLIC)
@@ -824,7 +824,7 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_node_session, dropCollection,		arginfo_mysqlx_node_session__drop_collection, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, dropTable,			arginfo_mysqlx_node_session__drop_table, ZEND_ACC_PUBLIC)
 
-#ifdef MYSQLX_EXPERIMENTAL_FEATURES
+#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 	PHP_ME(mysqlx_node_session, listClients,		arginfo_mysqlx_node_session__list_clients, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, killClient,			arginfo_mysqlx_node_session__kill_client, ZEND_ACC_PUBLIC)
 #endif
