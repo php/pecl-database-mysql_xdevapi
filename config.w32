@@ -1,30 +1,28 @@
 
-ARG_WITH("xmysqlnd", "MySQL Hybrid Native Client Driver", "yes");
-ARG_WITH("mysqlx", "MySQLx support", "yes");
-if (PHP_XMYSQLND != "no") {
+ARG_ENABLE("mysql-xdevapi", "MySQL XDevAPI support | Hybrid Native Client Driver", "yes");
+if (PHP_MYSQL_XDEVAPI != "no") {
 
-	if (CHECK_LIB("ws2_32.lib", "xmysqlnd") 
-		&& CHECK_LIB("libprotobuf.lib", "xmysqlnd"))
+	if (CHECK_LIB("ws2_32.lib", "mysql_xdevapi") 
+		&& CHECK_LIB("libprotobuf.lib", "mysql_xdevapi"))
 	{
 
-		mysqlx_proto_sources="ext/xmysqlnd/xmysqlnd/proto_def/mysqlx.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_connection.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_crud.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_datatypes.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_expect.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_expr.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_notice.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_resultset.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_session.proto " +
-			"ext/xmysqlnd/xmysqlnd/proto_def/mysqlx_sql.proto";
+		mysqlx_proto_sources="ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_connection.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_crud.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_datatypes.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_expect.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_expr.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_notice.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_resultset.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_session.proto " +
+			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_sql.proto";
 
-		STDOUT.WriteLine("execute " + PATH_PROG("protoc") + " --proto_path ext/xmysqlnd/xmysqlnd/proto_def --cpp_out ext/xmysqlnd/xmysqlnd/proto_gen " + mysqlx_proto_sources);
-		STDOUT.WriteLine(execute(PATH_PROG("protoc") + " --proto_path ext/xmysqlnd/xmysqlnd/proto_def --cpp_out ext/xmysqlnd/xmysqlnd/proto_gen " + mysqlx_proto_sources));
+		STDOUT.WriteLine("execute " + PATH_PROG("protoc") + " --proto_path ext/mysql_xdevapi/xmysqlnd/proto_def --cpp_out ext/mysql_xdevapi/xmysqlnd/proto_gen " + mysqlx_proto_sources);
+		STDOUT.WriteLine(execute(PATH_PROG("protoc") + " --proto_path ext/mysql_xdevapi/xmysqlnd/proto_def --cpp_out ext/mysql_xdevapi/xmysqlnd/proto_gen " + mysqlx_proto_sources));
 
 
-		xmysqlnd_base_sources="php_xmysqlnd.c ";
-
-		mysqlx_base_sources="php_mysqlx.c " +
+		mysqlx_base_sources="php_xmysqlnd.c " +
+			"php_mysqlx.c " +
 			"php_mysqlx_ex.c " +
 			"mysqlx_class_properties.c " +
 			"mysqlx_crud_operation_bindable.c " +
@@ -123,19 +121,19 @@ if (PHP_XMYSQLND != "no") {
 			"xmysqlnd_wireprotocol.cc " +
 			"xmysqlnd_zval2any.cc ";
 
-		EXTENSION("xmysqlnd", xmysqlnd_base_sources, false, "-Iext/xmysqlnd -Iext/xmysqlnd/messages " +
-			"-Iext/xmysqlnd/xmysqlnd -Iext/xmysqlnd/xmysqlnd/crud_parsers -Iext/xmysqlnd/xmysqlnd/proto_gen " +
+		EXTENSION("mysql_xdevapi", mysqlx_base_sources, PHP_MYSQL_XDEVAPI_SHARED, "-Iext/mysql_xdevapi -Iext/mysql_xdevapi/messages " +
+			"-Iext/mysql_xdevapi/xmysqlnd -Iext/mysql_xdevapi/xmysqlnd/crud_parsers -Iext/mysql_xdevapi/xmysqlnd/proto_gen " +
 			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQLX_EXPERIMENTAL_FEATURES /DZEND_WIN32_KEEP_INLINE /EHsc ");
-		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/proto_gen", xmysqlnd_protobuf_sources, "xmysqlnd");
-		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/crud_parsers", xmysqlnd_expr_parser, "xmysqlnd");
-		ADD_SOURCES(configure_module_dirname + "/xmysqlnd", xmysqlnd_sources, "xmysqlnd");
+		ADD_SOURCES(configure_module_dirname + "/messages", mysqlx_messages, "mysql_xdevapi");
+		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/proto_gen", xmysqlnd_protobuf_sources, "mysql_xdevapi");
+		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/crud_parsers", xmysqlnd_expr_parser, "mysql_xdevapi");
+		ADD_SOURCES(configure_module_dirname + "/xmysqlnd", xmysqlnd_sources, "mysql_xdevapi");
 
-		EXTENSION("mysqlx", mysqlx_base_sources, false, "-Iext/xmysqlnd -Iext/xmysqlnd/messages " +
-			"-Iext/xmysqlnd/xmysqlnd -Iext/xmysqlnd/xmysqlnd/crud_parsers -Iext/xmysqlnd/xmysqlnd/proto_gen " +
-			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQLX_EXPERIMENTAL_FEATURES /DZEND_WIN32_KEEP_INLINE /EHsc ");
-		ADD_SOURCES(configure_module_dirname + "/messages", mysqlx_messages, "mysqlx");
+		if (PHP_MYSQL_XDEVAPI_SHARED) {
+			ADD_FLAG("CFLAGS_MYSQL_XDEVAPI", "/D PHP_MYSQL_XDEVAPI_EXPORTS ");
+		} 
 
-		AC_DEFINE("MYSQLND_SSL_SUPPORTED", 1, "SSL support");
-		PHP_INSTALL_HEADERS("", "ext/xmysqlnd");
+		AC_DEFINE("MYSQL_XDEVAPI_SSL_SUPPORTED", 1, "SSL support");
+		PHP_INSTALL_HEADERS("", "ext/mysql_xdevapi");
 	}
 }

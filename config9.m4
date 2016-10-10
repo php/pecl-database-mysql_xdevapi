@@ -112,8 +112,8 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 
   this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $xmysqlnd_sources"
   PHP_NEW_EXTENSION(xmysqlnd, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
-  PHP_ADD_BUILD_DIR([ext/xmysqlnd], 1)
-  PHP_INSTALL_HEADERS([ext/xmysqlnd/])
+  PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
+  PHP_INSTALL_HEADERS([ext/mysql_xdevapi/])
 
   dnl TODO: we should search for a proper protoc matchig the one who's heades we use and which we link above
   PROTOC=protoc
@@ -125,5 +125,5 @@ if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes"; then
 fi
 
 if test "$PHP_XMYSQLND" != "no" || test "$PHP_XMYSQLND_ENABLED" = "yes" || test "$PHP_MYSQLI" != "no"; then
-  PHP_ADD_BUILD_DIR([ext/xmysqlnd], 1)
+  PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
 fi

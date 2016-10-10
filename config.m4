@@ -1,25 +1,104 @@
-PHP_ARG_ENABLE(mysqlx, whether to enable mysqlx,
-  [  --enable-mysqlx       Enable myxsqlx], no, yes)
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_connection.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_crud.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_datatypes.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_expect.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_expr.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_notice.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_resultset.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_session.proto
+dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_sql.proto
+dnl
+dnl g++ -c proto_gen/*.cc -lprotobuf
 
-PHP_ARG_ENABLE(mysqlx_experimental_features, whether to disable experimental features in mysqlx,
-  [  --disable-mysqlx-experimental-features
-                          Disable support for the experimental features in mysqlx], yes, no)
+PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
+  [  --enable-mysql-xdevapi       Enable mysql-xdevapi], no, yes)
 
-PHP_ARG_ENABLE(mysqlx_message_classes, whether to enable the experimental message classes in mysqlx,
-  [  --enable-mysqlx-message-classes
-                          Enable support for the experimental message classes in mysqlx], yes, no)
+PHP_ARG_ENABLE(mysql-xdevapi-experimental-features, whether to disable experimental features in mysql-xdevapi,
+  [  --disable-mysql-xdevapi-experimental-features
+                          Disable support for the experimental features in mysql-xdevapi], yes, no)
 
+PHP_ARG_ENABLE(mysql-xdevapi-message-classes, whether to enable the experimental message classes in mysql-xdevapi,
+  [  --enable-mysql-xdevapi-message-classes
+                          Enable support for the experimental message classes in mysql-xdevapi], yes, no)
 
-if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
+dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
+if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes"; then
   PHP_REQUIRE_CXX
 
-  if test "$PHP_MYSQLX_EXPERIMENTAL_FEATURES" != "no"; then
-    AC_DEFINE([MYSQLX_EXPERIMENTAL_FEATURES], 1, [Enable experimental features])
+  SEARCH_PATH="/usr/local /usr"
+  SEARCH_FOR="include/google/protobuf-c/protobuf-c.h"
+  AC_MSG_CHECKING([for protobuf-c files in default path])
+  for i in $SEARCH_PATH ; do
+    if test -r $i/$SEARCH_FOR; then
+      PROTOBUFC_DIR=$i/lib/google/protobuf-c/
+      AC_MSG_RESULT(Header found in $i/include/google/protobuf-c/)
+    fi
+  done
+
+  SEARCH_PATH="/usr/local /usr"
+  SEARCH_FOR="include/boost/function.hpp"
+  AC_MSG_CHECKING([for boost::function in default path])
+  for i in $SEARCH_PATH ; do
+    if test -r $i/$SEARCH_FOR; then
+      MYSQL_XDEVAPI_BOOST_FUNCTION=$i/$SEARCH_FOR
+      AC_DEFINE([MYSQL_XDEVAPI_BOOST_FUNCTION], $MYSQL_XDEVAPI_BOOST_FUNCTION, [Enable experimental features])
+      AC_MSG_RESULT(Header found in $MYSQL_XDEVAPI_BOOST_FUNCTION)
+    fi
+  done
+
+  if test "$PHP_MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES" != "no"; then
+    AC_DEFINE([MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES], 1, [Enable experimental features])
   fi
 
+  xmysqlnd_protobuf_sources="xmysqlnd/proto_gen/mysqlx_connection.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_crud.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_datatypes.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_expect.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_expr.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_notice.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_resultset.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_session.pb.cc \
+							 xmysqlnd/proto_gen/mysqlx_sql.pb.cc \
+					"
+
+  xmysqlnd_expr_parser="     xmysqlnd/crud_parsers/expression_parser.cc \
+							 xmysqlnd/crud_parsers/orderby_parser.cc \
+							 xmysqlnd/crud_parsers/projection_parser.cc \
+							 xmysqlnd/crud_parsers/tokenizer.cc \
+					"
+
+
+  xmysqlnd_sources="     php_xmysqlnd.c \
+						 xmysqlnd/xmysqlnd_any2expr.cc \
+						 xmysqlnd/xmysqlnd_crud_collection_commands.cc \
+						 xmysqlnd/xmysqlnd_crud_table_commands.cc \
+						 xmysqlnd/xmysqlnd_driver.c \
+						 xmysqlnd/xmysqlnd_extension_plugin.c \
+						 xmysqlnd/xmysqlnd_node_collection.c \
+						 xmysqlnd/xmysqlnd_node_schema.c \
+						 xmysqlnd/xmysqlnd_node_session.c \
+						 xmysqlnd/xmysqlnd_node_stmt.c \
+						 xmysqlnd/xmysqlnd_node_stmt_result.c \
+						 xmysqlnd/xmysqlnd_node_stmt_result_meta.c \
+						 xmysqlnd/xmysqlnd_node_table.c \
+						 xmysqlnd/xmysqlnd_object_factory.c \
+						 xmysqlnd/xmysqlnd_protocol_frame_codec.c \
+						 xmysqlnd/xmysqlnd_protocol_dumper.cc \
+						 xmysqlnd/xmysqlnd_rowset.c \
+						 xmysqlnd/xmysqlnd_rowset_buffered.c \
+						 xmysqlnd/xmysqlnd_rowset_fwd.c \
+						 xmysqlnd/xmysqlnd_statistics.c \
+						 xmysqlnd/xmysqlnd_stmt_execution_state.c \
+						 xmysqlnd/xmysqlnd_warning_list.c \
+						 xmysqlnd/xmysqlnd_wireprotocol.cc \
+						 xmysqlnd/xmysqlnd_zval2any.cc \
+					"
+
   mysqlx_messages=""
-  if test "$PHP_MYSQLX_MESSAGE_CLASSES" != "no" || test "$PHP_MYSQLX_MESSAGE_CLASSES_ENABLED" = "yes"; then
-    AC_DEFINE([MYSQLX_MESSAGE_CLASSES], 1, [Enable message classes])
+  if test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES" != "no" || test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES_ENABLED" = "yes"; then
+    AC_DEFINE([MYSQL_XDEVAPI_MESSAGE_CLASSES], 1, [Enable message classes])
 
 	mysqlx_messages="   messages/mysqlx_node_connection.c \
 						messages/mysqlx_node_pfc.c \
@@ -86,25 +165,34 @@ if test "$PHP_MYSQLX" != "no" || test "$PHP_MYSQLX_ENABLED" = "yes"; then
 					"
 
 
+  AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
+
   test -z "$PHP_OPENSSL" && PHP_OPENSSL=no
 
   if test "$PHP_OPENSSL" != "no" || test "$PHP_OPENSSL_DIR" != "no"; then
     AC_CHECK_LIB(ssl, DSA_get_default_method, AC_DEFINE(HAVE_DSA_DEFAULT_METHOD, 1, [OpenSSL 0.9.7 or later]))
     AC_CHECK_LIB(crypto, X509_free, AC_DEFINE(HAVE_DSA_DEFAULT_METHOD, 1, [OpenSSL 0.9.7 or later]))
 
-    PHP_SETUP_OPENSSL(MYSQLX_SHARED_LIBADD, [AC_DEFINE(MYSQLX_HAVE_SSL,1,[Enable mysqlx code that uses OpenSSL directly])])
+    PHP_SETUP_OPENSSL(MYSQL_XDEVAPI_SHARED_LIBADD, [AC_DEFINE(MYSQL_XDEVAPI_HAVE_SSL,1,[Enable mysql_xdevapi code that uses OpenSSL directly])])
   fi
 
   PHP_ADD_LIBRARY(protobuf)
 
-  PHP_SUBST(MYSQLX_SHARED_LIBADD)
+  PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
 
   PHP_ADD_BUILD_DIR($ext_builddir/messages)
   PHP_ADD_BUILD_DIR($ext_builddir/proto_gen)
 
-  this_ext_sources="$mysqlx_base_sources $mysqlx_messages"
-  PHP_NEW_EXTENSION(mysqlx, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
-  PHP_ADD_BUILD_DIR([ext/xmysqlnd], 1)
+  this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_base_sources $mysqlx_messages"
+  PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
+  PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
+  PHP_INSTALL_HEADERS([ext/mysql_xdevapi/])
 
-  PHP_INSTALL_HEADERS([ext/xmysqlnd/])
+  dnl TODO: we should search for a proper protoc matchig the one who's heades we use and which we link above
+  PROTOC=protoc
+  PHP_SUBST(PROTOC)
+  PHP_ADD_MAKEFILE_FRAGMENT()
+
+  dnl TODO: we should ONLY do this for OUR files, and this is NOT portable!
+  CXXFLAGS="$CXXFLAGS -std=c++11"
 fi
