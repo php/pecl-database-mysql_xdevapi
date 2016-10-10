@@ -18,10 +18,13 @@
 #ifndef PHP_PHP_MYSQL_XDEVAPI_H
 #define PHP_PHP_MYSQL_XDEVAPI_H
 
+#define PHP_MYSQL_XDEVAPI_VERSION "mysql_xdevapi v1.0.0-dev"
+#define MYSQL_XDEVAPI_VERSION_ID 10000
+
 #ifdef PHP_WIN32
 #	ifdef PHP_MYSQL_XDEVAPI_EXPORTS
 #		define PHP_MYSQL_XDEVAPI_API __declspec(dllexport)
-#	elif defined(COMPILE_DL_BZ2)
+#	elif defined(COMPILE_DL_MYSQL_XDEVAPI)
 #		define PHP_MYSQL_XDEVAPI_API __declspec(dllimport)
 #	else
 #		define PHP_MYSQL_XDEVAPI_API PHPAPI

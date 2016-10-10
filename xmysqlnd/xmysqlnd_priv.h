@@ -23,36 +23,36 @@
 #ifndef XMYSQLND_CORE_STATISTICS_DISABLED
 
 #define XMYSQLND_INC_GLOBAL_STATISTIC(statistic) \
-	MYSQLND_INC_STATISTIC(XMYSQLND_G(collect_statistics), xmysqlnd_global_stats, (enum_mysqlnd_collected_stats)(statistic))
+	MYSQLND_INC_STATISTIC(MYSQL_XDEVAPI_G(collect_statistics), xmysqlnd_global_stats, (enum_mysqlnd_collected_stats)(statistic))
 
 #define XMYSQLND_DEC_GLOBAL_STATISTIC(statistic) \
-	MYSQLND_DEC_STATISTIC(XMYSQLND_G(collect_statistics), xmysqlnd_global_stats, (enum_mysqlnd_collected_stats)(statistic))
+	MYSQLND_DEC_STATISTIC(MYSQL_XDEVAPI_G(collect_statistics), xmysqlnd_global_stats, (enum_mysqlnd_collected_stats)(statistic))
 
 #define XMYSQLND_INC_GLOBAL_STATISTIC_W_VALUE2(statistic1, value1, statistic2, value2) \
-	MYSQLND_INC_STATISTIC_W_VALUE2(XMYSQLND_G(collect_statistics), xmysqlnd_global_stats, (statistic1), (value1), (statistic2), (value2))
+	MYSQLND_INC_STATISTIC_W_VALUE2(MYSQL_XDEVAPI_G(collect_statistics), xmysqlnd_global_stats, (statistic1), (value1), (statistic2), (value2))
 
 #define XMYSQLND_INC_SESSION_STATISTIC(session_stats, statistic) \
-	MYSQLND_INC_STATISTIC(XMYSQLND_G(collect_statistics), xmysqlnd_global_stats, (enum_mysqlnd_collected_stats)(statistic)); \
-	MYSQLND_INC_STATISTIC(XMYSQLND_G(collect_statistics), (session_stats), (enum_mysqlnd_collected_stats)(statistic));
+	MYSQLND_INC_STATISTIC(MYSQL_XDEVAPI_G(collect_statistics), xmysqlnd_global_stats, (enum_mysqlnd_collected_stats)(statistic)); \
+	MYSQLND_INC_STATISTIC(MYSQL_XDEVAPI_G(collect_statistics), (session_stats), (enum_mysqlnd_collected_stats)(statistic));
 
 #define XMYSQLND_INC_SESSION_STATISTIC_W_VALUE(session_stats, statistic, value) \
-	MYSQLND_INC_STATISTIC_W_VALUE(XMYSQLND_G(collect_statistics), xmysqlnd_global_stats, (enum_mysqlnd_collected_stats)(statistic), (value)); \
-	MYSQLND_INC_STATISTIC_W_VALUE(XMYSQLND_G(collect_statistics), (session_stats), (enum_mysqlnd_collected_stats)(statistic), (value));
+	MYSQLND_INC_STATISTIC_W_VALUE(MYSQL_XDEVAPI_G(collect_statistics), xmysqlnd_global_stats, (enum_mysqlnd_collected_stats)(statistic), (value)); \
+	MYSQLND_INC_STATISTIC_W_VALUE(MYSQL_XDEVAPI_G(collect_statistics), (session_stats), (enum_mysqlnd_collected_stats)(statistic), (value));
 
 #define XMYSQLND_INC_SESSION_STATISTIC_W_VALUE2(session_stats, statistic1, value1, statistic2, value2) \
-	MYSQLND_INC_STATISTIC_W_VALUE2(XMYSQLND_G(collect_statistics), xmysqlnd_global_stats, \
+	MYSQLND_INC_STATISTIC_W_VALUE2(MYSQL_XDEVAPI_G(collect_statistics), xmysqlnd_global_stats, \
 									(enum_mysqlnd_collected_stats)(statistic1), (value1), \
 									(enum_mysqlnd_collected_stats)(statistic2), (value2)); \
-	MYSQLND_INC_STATISTIC_W_VALUE2(XMYSQLND_G(collect_statistics), (session_stats), \
+	MYSQLND_INC_STATISTIC_W_VALUE2(MYSQL_XDEVAPI_G(collect_statistics), (session_stats), \
 									(enum_mysqlnd_collected_stats)(statistic1), (value1), \
 									(enum_mysqlnd_collected_stats)(statistic2), (value2));
 
 #define XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3(session_stats, statistic1, value1, statistic2, value2, statistic3, value3) \
-	MYSQLND_INC_STATISTIC_W_VALUE3(XMYSQLND_G(collect_statistics), xmysqlnd_global_stats, \
+	MYSQLND_INC_STATISTIC_W_VALUE3(MYSQL_XDEVAPI_G(collect_statistics), xmysqlnd_global_stats, \
 									(enum_mysqlnd_collected_stats)(statistic1), (value1), \
 									(enum_mysqlnd_collected_stats)(statistic2), (value2), \
 									(enum_mysqlnd_collected_stats)(statistic3), (value3)); \
-	MYSQLND_INC_STATISTIC_W_VALUE3(XMYSQLND_G(collect_statistics), (session_stats), \
+	MYSQLND_INC_STATISTIC_W_VALUE3(MYSQL_XDEVAPI_G(collect_statistics), (session_stats), \
 									(enum_mysqlnd_collected_stats)(statistic1), (value1), \
 									(enum_mysqlnd_collected_stats)(statistic2), (value2), \
 									(enum_mysqlnd_collected_stats)(statistic3), (value3));

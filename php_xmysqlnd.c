@@ -28,6 +28,8 @@
 #include "ext/standard/info.h"
 #include "zend_smart_str.h"
 
+#ifdef MARINES_0
+
 /* {{{ PHP_MINFO_FUNCTION
  */
 PHP_MINFO_FUNCTION(xmysqlnd)
@@ -69,7 +71,7 @@ PHP_MINFO_FUNCTION(xmysqlnd)
 /* }}} */
 
 
-PHPAPI ZEND_DECLARE_MODULE_GLOBALS(xmysqlnd)
+PHP_MYSQL_XDEVAPI_API ZEND_DECLARE_MODULE_GLOBALS(xmysqlnd)
 
 
 /* {{{ PHP_GINIT_FUNCTION
@@ -242,6 +244,8 @@ ZEND_TSRMLS_CACHE_DEFINE();
 ZEND_GET_MODULE(xmysqlnd)
 #endif
 /* }}} */
+
+#endif // MARINES_0
 
 /*
  * Local variables:

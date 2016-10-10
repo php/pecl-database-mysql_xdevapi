@@ -22,24 +22,45 @@
 extern "C" {
 #endif
 
-#define MYSQLX_VERSION "v1.0.0"
+#include "ext/mysqlnd/mysqlnd.h"
+#include "ext/mysqlnd/mysqlnd_enum_n_def.h"
+#include "ext/mysqlnd/mysqlnd_structs.h"
+#include "ext/mysqlnd/mysqlnd_debug.h"
+#include "ext/mysqlnd/mysqlnd_statistics.h"
+#include "ext/mysqlnd/mysqlnd_portability.h"
+#include "php_mysql_xdevapi.h"
+#include "xmysqlnd_enum_n_def.h"
+#include "xmysqlnd_structs.h"
 
-#define phpext_mysqlx_ptr &mysqlx_module_entry
-extern zend_module_entry mysqlx_module_entry;
+#define phpext_mysql_xdevapi_ptr &mysql_xdevapi_module_entry
+extern zend_module_entry mysql_xdevapi_module_entry;
 
 #ifdef ZTS
 #include "TSRM.h"
 #endif
 
-ZEND_BEGIN_MODULE_GLOBALS(mysqlx)
-	zend_bool unused;
-ZEND_END_MODULE_GLOBALS(mysqlx)
+ZEND_BEGIN_MODULE_GLOBALS(mysql_xdevapi)
+	zend_bool		collect_statistics;
+	zend_bool		collect_memory_statistics;
+	char *			debug;					/* The actual string */
+	MYSQLND_DEBUG *	dbg;					/* The DBG object for standard tracing */
+	char *			trace_alloc_settings;	/* The actual string */
+	MYSQLND_DEBUG *	trace_alloc;			/* The DBG object for allocation tracing */
+	zend_long		net_read_timeout;
+	zend_long		mempool_default_size;
+	zend_long		debug_emalloc_fail_threshold;
+	zend_long		debug_ecalloc_fail_threshold;
+	zend_long		debug_erealloc_fail_threshold;
+	zend_long		debug_malloc_fail_threshold;
+	zend_long		debug_calloc_fail_threshold;
+	zend_long		debug_realloc_fail_threshold;
+ZEND_END_MODULE_GLOBALS(mysql_xdevapi)
 
 
-PHPAPI ZEND_EXTERN_MODULE_GLOBALS(mysqlx)
-#define MYSQLX_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(mysqlx, v)
+PHP_MYSQL_XDEVAPI_API ZEND_EXTERN_MODULE_GLOBALS(mysql_xdevapi)
+#define MYSQL_XDEVAPI_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(mysql_xdevapi, v)
 
-#if defined(ZTS) && defined(COMPILE_DL_MYSQLX)
+#if defined(ZTS) && defined(COMPILE_DL_MYSQL_XDEVAPI)
 ZEND_TSRMLS_CACHE_EXTERN();
 #endif
 

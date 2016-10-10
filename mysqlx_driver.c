@@ -53,7 +53,7 @@ mysqlx_register_driver_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_o
 	mysqlx_driver_class_entry = zend_register_internal_class(&tmp_ce);
 	mysqlx_driver_class_entry->ce_flags |= ZEND_ACC_FINAL; /* Forbid extension of the driver */
 
-	zend_declare_class_constant_stringl(mysqlx_driver_class_entry, "version", sizeof("version") - 1, MYSQL_XDEVAPI_VERSION, sizeof(MYSQL_XDEVAPI_VERSION) - 1);
+	zend_declare_class_constant_stringl(mysqlx_driver_class_entry, "version", sizeof("version") - 1, PHP_MYSQL_XDEVAPI_VERSION, sizeof(PHP_MYSQL_XDEVAPI_VERSION) - 1);
 }
 /* }}} */
 

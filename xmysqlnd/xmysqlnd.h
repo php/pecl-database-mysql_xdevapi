@@ -35,21 +35,24 @@ extern "C" {
 #include "TSRM.h"
 #endif
 
+#include "php_mysql_xdevapi.h"
 #include "ext/mysqlnd/mysqlnd_portability.h"
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_structs.h"
 
 /* Library related */
-PHPAPI void xmysqlnd_library_init(void);
-PHPAPI void xmysqlnd_library_end(void);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void);
 
 
-PHPAPI const char *	xmysqlnd_get_client_info();
-PHPAPI unsigned int	xmysqlnd_get_client_version();
+PHP_MYSQL_XDEVAPI_API const char *	xmysqlnd_get_client_info();
+PHP_MYSQL_XDEVAPI_API unsigned int	xmysqlnd_get_client_version();
 
 #define XMYSQLND_METHOD(class, method) 			xmysqlnd_##class##_##method##_pub
 
-PHPAPI extern MYSQLND_STATS *xmysqlnd_global_stats;
+PHP_MYSQL_XDEVAPI_API extern MYSQLND_STATS *xmysqlnd_global_stats;
+
+#ifdef MARINES_0
 
 ZEND_BEGIN_MODULE_GLOBALS(xmysqlnd)
 	zend_bool		collect_statistics;
@@ -68,12 +71,14 @@ ZEND_BEGIN_MODULE_GLOBALS(xmysqlnd)
 	zend_long		debug_realloc_fail_threshold;
 ZEND_END_MODULE_GLOBALS(xmysqlnd)
 
-PHPAPI ZEND_EXTERN_MODULE_GLOBALS(xmysqlnd)
+PHP_MYSQL_XDEVAPI_API ZEND_EXTERN_MODULE_GLOBALS(xmysqlnd)
 #define XMYSQLND_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(xmysqlnd, v)
 
 #if defined(ZTS) && defined(COMPILE_DL_XMYSQLND)
 ZEND_TSRMLS_CACHE_EXTERN();
 #endif
+
+#endif // MARINES_0
 
 #ifdef __cplusplus
 } // extern "C" {
