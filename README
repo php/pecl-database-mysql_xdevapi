@@ -1,3 +1,48 @@
-0) google protobuf on Windows for static build
-By default google protobuf is used by mysql_xdevapi as static library with Multi-Threaded DLL runtime. To get such build on your own use following options:
+0) build
+To enable X DevAPI use switch --enable-mysql-xdevapi. It depends on 'ext/json' and 'ext/mysqlnd' extensions.
+
+For Unix builds there is additional step:
+make protofiles
+
+Sample sequence of build commands may look like:
+
+./buildconf --force
+./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --with-mysqlnd --enable-mysql-xdevapi 
+make protofiles (needed for Unix only)
+make
+[...]
+
+By default it is statically built into PHP binary. In case you want to see that extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
+./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --with-mysqlnd --enable-mysql-xdevapi=shared
+
+////////////////////////////////////////////////////////////////////////////////
+
+1) phpize
+While buliding extension with phpize following issue may be met at ./configure stage:
+configure: error: Cannot find OpenSSL's <evp.h>
+See https://bugs.php.net/bug.php?id=72363
+
+
+Following packages in system may be needed:
+pkg-config
+libssl-dev 
+libsslcommon2-dev
+openssl-devel
+
+or following switch for ./configure
+--with-openssl-dir
+
+In case it doesn't help use
+PHP_OPENSSL=yes ./configure
+
+so the whole sequence would look like:
+phpize
+PHP_OPENSSL=yes ./configure
+make 
+sudo make install
+
+////////////////////////////////////////////////////////////////////////////////
+
+2) google protobuf 
+On Windows for static build google protobuf is used by mysql_xdevapi as static library with Multi-Threaded DLL runtime. To get such build on your own use following options:
 -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF 
