@@ -19,7 +19,6 @@ extern "C"
 {
 #include <php.h>
 #undef ERROR
-#include <ext/json/php_json_parser.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 }
