@@ -46,3 +46,12 @@ sudo make install
 2) google protobuf 
 On Windows for static build google protobuf is used by mysql_xdevapi as static library with Multi-Threaded DLL runtime. To get such build on your own use following options:
 -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF 
+
+////////////////////////////////////////////////////////////////////////////////
+
+3) supported features
+- collections API - add, find, modify, remove
+- table API - insert, select, update, delete
+- resultsets
+- getCollection(s) / getTable(s)
+- dropCollection / dropTable
