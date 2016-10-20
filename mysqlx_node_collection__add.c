@@ -126,6 +126,12 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 			php_json_encode(&buf, &object->json, PHP_JSON_FORCE_OBJECT);
 			DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
 			if (JSON_G(error_code) == PHP_JSON_ERROR_NONE) {
+				//TODO marines: there is fockup with lack of terminating zero, which makes troubles in 
+				// xmysqlnd_json_string_find_id, i.e. php_json_yyparse returns result != 0
+				if (buf.s->len <= buf.a)
+				{
+					buf.s->val[buf.s->len] = '\0';
+				}
 				const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
 
 				//ret = object->collection->data->m.add(object->collection,json);	
