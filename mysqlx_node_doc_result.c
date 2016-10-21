@@ -51,7 +51,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_doc_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-#define MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_NODE_DOC_RESULT_FROM_ZVAL(_to, _from) \
 { \
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_doc_result *) mysqlx_object->ptr; \
@@ -85,7 +85,7 @@ PHP_METHOD(mysqlx_node_doc_result, fetchOne)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_NODE_DOC_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -115,7 +115,7 @@ PHP_METHOD(mysqlx_node_doc_result, fetchAll)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_NODE_DOC_RESULT_FROM_ZVAL(object, object_zv);
 	
 	RETVAL_FALSE;
 	if (object && object->result) {
@@ -143,7 +143,7 @@ PHP_METHOD(mysqlx_node_doc_result, getWarningCount)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_NODE_DOC_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -178,7 +178,7 @@ PHP_METHOD(mysqlx_node_doc_result, getWarnings)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_NODE_DOC_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {

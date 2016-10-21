@@ -399,7 +399,7 @@ end:
 static
 PHP_METHOD(mysqlx_node_table__select, execute)
 {
-	zend_long flags = 0;
+	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
 
