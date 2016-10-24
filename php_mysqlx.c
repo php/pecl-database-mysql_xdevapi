@@ -236,6 +236,13 @@ static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 /* }}} */
 #endif
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_x_session, 0, ZEND_RETURN_VALUE, 3)
+	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, username, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, password, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_node_session, 0, ZEND_RETURN_VALUE, 3)
 	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, username, IS_STRING, 0)
@@ -248,6 +255,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__expression, 0, ZEND_RETURN_VALUE, 
 	ZEND_ARG_TYPE_INFO(0, expression, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
+PHP_FUNCTION(mysql_xdevapi__getXSession);
 PHP_FUNCTION(mysql_xdevapi__getNodeSession);
 PHP_FUNCTION(mysql_xdevapi__expression);
 
@@ -259,6 +267,7 @@ PHP_FUNCTION(mysql_xdevapi__expression);
 
 /* {{{ mysqlx_functions */
 static const zend_function_entry mysqlx_functions[] = {
+	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, ZEND_FN(mysql_xdevapi__getXSession), arginfo_mysql_xdevapi__get_x_session)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getNodeSession, ZEND_FN(mysql_xdevapi__getNodeSession), arginfo_mysql_xdevapi__get_node_session)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, expression, ZEND_FN(mysql_xdevapi__expression), arginfo_mysql_xdevapi__expression)
 	PHP_FE_END
