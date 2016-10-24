@@ -686,7 +686,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 	try {
 		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);
 		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT);
-		docpath.reset(parser.document_field());
+		docpath.reset(parser.column_field());
 	} catch (xmysqlnd::Parser_error &e) {
 		DBG_ERR_FMT("%s", e.what());
 		DBG_ERR("Parser error for document field");
@@ -696,7 +696,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 	Mysqlx::Expr::ColumnIdentifier identifier(docpath->identifier());
 
 	// Validates the source is an array item
-	const size_t size = identifier.document_path().size();
+	const size_t size = identifier.document_path_size();
 	if (size) {
 		DBG_INF_FMT("doc_path_size=%u", (uint) size);
 		if (validate_array) {
@@ -707,7 +707,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 				DBG_RETURN(FAIL);
 			}
 		}
-	} else if (op_type != Mysqlx::Crud::UpdateOperation::ITEM_MERGE) {
+	} else if ((op_type != Mysqlx::Crud::UpdateOperation::ITEM_MERGE) && (op_type != Mysqlx::Crud::UpdateOperation::ITEM_SET)) {
 		DBG_ERR("Invalid document path");
 		DBG_RETURN(FAIL);
 	}

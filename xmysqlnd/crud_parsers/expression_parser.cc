@@ -298,7 +298,8 @@ const std::string& Expression_parser::id()
  */
 Mysqlx::Expr::Expr* Expression_parser::column_field()
 {
-  std::unique_ptr<Mysqlx::Expr::Expr> e(new Mysqlx::Expr::Expr());  std::vector<std::string> parts;
+  std::unique_ptr<Mysqlx::Expr::Expr> e(new Mysqlx::Expr::Expr());  
+  std::vector<std::string> parts;
   const std::string& part = id();
 
   if (part == "*")

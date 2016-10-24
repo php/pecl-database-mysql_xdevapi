@@ -271,9 +271,9 @@ PHP_METHOD(mysqlx_node_collection__remove, bind)
 					mysqlx_new_exception(errcode, sqlstate, errmsg);
 					goto end;
 				}
-				RETVAL_TRUE;
 			}
 		} ZEND_HASH_FOREACH_END();
+		ZVAL_COPY(return_value, object_zv);
 	}
 end:
 	DBG_VOID_RETURN;

@@ -49,8 +49,8 @@ xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
 	const std::string var_name(name.s, name.l);
 	const std::vector<std::string>::iterator begin = placeholders.begin();
 	const std::vector<std::string>::iterator end = placeholders.end();
-	const std::vector<std::string>::const_iterator index = std::find(begin, end, var_name);
-	if (index == end) {
+	const std::vector<std::string>::const_iterator it = std::find(begin, end, var_name);
+	if (it == end) {
 		DBG_ERR("No such variable in the expression");
 		DBG_RETURN(FAIL);
 	}
@@ -62,13 +62,15 @@ xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
 	}
 	any2log(any);
 
-	DBG_INF_FMT("offset=%u", index - begin);
-	if (bound_values[index - begin]) {
-		delete bound_values[index - begin];
+	const std::size_t index = static_cast<std::size_t>(it - begin);
+	DBG_INF_FMT("offset=%u", index);
+	auto& bound_value = bound_values[index];
+	if (bound_value) {
+		delete bound_value;
 	}
-	bound_values[index - begin] = any.release_scalar();
+	bound_value = any.release_scalar();
 
-	scalar2log(*bound_values[index - begin]);
+	scalar2log(*bound_value);
 
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);

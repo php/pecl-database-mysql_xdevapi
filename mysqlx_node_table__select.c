@@ -388,6 +388,7 @@ PHP_METHOD(mysqlx_node_table__select, bind)
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
+		ZVAL_COPY(return_value, object_zv);
 	}
 end:
 	DBG_VOID_RETURN;
