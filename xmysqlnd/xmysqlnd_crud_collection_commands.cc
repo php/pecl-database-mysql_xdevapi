@@ -887,6 +887,7 @@ struct st_xmysqlnd_stmt_op__execute
 		message.set_compact_metadata(compact_meta);
 	}
 
+	enum_func_status bind_one_param(const zval * param_zv);
 	enum_func_status bind_one_param(const unsigned int param_no, const zval * param_zv);
 	enum_func_status finalize_bind();
 
@@ -897,6 +898,18 @@ struct st_xmysqlnd_stmt_op__execute
 		}
 	}
 };
+
+
+	enum_func_status bind_one_param(const zval * param_zv);
+/* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
+enum_func_status
+st_xmysqlnd_stmt_op__execute::bind_one_param(const zval * param_zv)
+{
+	DBG_ENTER("st_xmysqlnd_stmt_op__execute::bind_one_stmt_param");
+	const unsigned int param_no = params_allocated;
+	DBG_RETURN(bind_one_param(param_no, param_zv));
+}
+/* }}} */
 
 
 /* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
@@ -977,6 +990,17 @@ xmysqlnd_stmt_execute__destroy(XMYSQLND_STMT_OP__EXECUTE * obj)
 	DBG_ENTER("xmysqlnd_stmt_execute__destroy");
 	delete obj;
 	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__bind_one_param_add */
+extern "C" enum_func_status
+xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE * obj, const zval * param_zv)
+{
+	DBG_ENTER("xmysqlnd_stmt_execute__bind_one_param_add");
+	const enum_func_status ret = obj->bind_one_param(param_zv);
+	DBG_RETURN(ret);
 }
 /* }}} */
 

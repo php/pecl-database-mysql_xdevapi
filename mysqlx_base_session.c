@@ -196,7 +196,7 @@ mysqlx_execute_base_session_query(XMYSQLND_NODE_SESSION * const session,
 
 			for (; i < argc; ++i) {
 				ZVAL_UNDEF(&zv);
-				mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], i, &zv);
+				mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], &zv);
 				if (Z_TYPE(zv) == IS_FALSE) {
 					goto end;
 				}

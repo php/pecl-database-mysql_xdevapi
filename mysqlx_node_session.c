@@ -41,6 +41,10 @@ static zend_class_entry *mysqlx_node_session_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__sql, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, query, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__quote_name, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
@@ -109,7 +113,7 @@ mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION * const session,
 
 			for (; i < argc; ++i) {
 				ZVAL_UNDEF(&zv);
-				mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], i, &zv);
+				mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], &zv);
 				if (Z_TYPE(zv) == IS_FALSE) {
 					goto end;
 				}
@@ -164,6 +168,45 @@ PHP_METHOD(mysqlx_node_session, executeSql)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_session::sql(string query) */
+static
+PHP_METHOD(mysqlx_node_session, sql)
+{
+	zval * object_zv;
+	struct st_mysqlx_session * object;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING query = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_session::sql");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_base_session_class_entry,
+																	   &(query.s), &(query.l)) == FAILURE)
+	{
+		DBG_VOID_RETURN;
+	}
+
+	if (!query.l) {
+		php_error_docref(NULL, E_WARNING, "Empty query");
+		RETVAL_FALSE;
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+
+	if ((session = object->session)) {
+		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session);
+		if (stmt) {
+			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query);
+			if (Z_TYPE_P(return_value) == IS_NULL) {
+				xmysqlnd_node_stmt_free(stmt, NULL, NULL);
+				mysqlx_throw_exception_from_session_if_needed(session->data);
+			}
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_session::quoteName(string query) */
 static
 PHP_METHOD(mysqlx_node_session, quoteName)
@@ -208,9 +251,10 @@ PHP_METHOD(mysqlx_node_session, __construct)
 
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
-	PHP_ME(mysqlx_node_session, __construct, 		NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_session, executeSql,			NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, quoteName,			arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, __construct, 	NULL, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_session, executeSql,		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, sql,			arginfo_mysqlx_node_session__sql, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, quoteName,		arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

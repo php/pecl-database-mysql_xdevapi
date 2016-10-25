@@ -40,13 +40,10 @@
 static zend_class_entry * mysqlx_node_sql_statement_class_entry;
 static zend_class_entry * mysqlx_node_statement_class_entry;
 
-#define MAX_STMT_PARAMS 1000
-
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__bind, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, param_no, IS_LONG, DONT_ALLOW_NULL)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__bind, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(NO_PASS_BY_REF, param)
 ZEND_END_ARG_INFO()
 
@@ -425,7 +422,7 @@ mysqlx_fetch_data_with_callback(struct st_mysqlx_node_statement * object, struct
 
 /* {{{ mysqlx_node_sql_statement_bind_one_param */
 void
-mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, const zend_long param_no, zval * return_value)
+mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zval * return_value)
 {
 	struct st_mysqlx_node_statement * object;
 	DBG_ENTER("mysqlx_node_sql_statement_bind_one_param");
@@ -434,7 +431,7 @@ mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv
 	if (TRUE == object->in_execution) {
 		php_error_docref(NULL, E_WARNING, "Statement in execution. Please fetch all data first.");
 		RETVAL_FALSE;
-	} else if (object->stmt_execute && FAIL == xmysqlnd_stmt_execute__bind_one_param(object->stmt_execute, param_no, param_zv)) {
+	} else if (object->stmt_execute && FAIL == xmysqlnd_stmt_execute__bind_one_param_add(object->stmt_execute, param_zv)) {
 		RETVAL_FALSE;
 	}
 	DBG_VOID_RETURN;
@@ -447,21 +444,20 @@ static
 PHP_METHOD(mysqlx_node_sql_statement, bind)
 {
 	zval * object_zv;
-	zend_long param_no;
 	zval * param_zv;
 
 	DBG_ENTER("mysqlx_node_sql_statement::bind");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Olz",
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
 												&object_zv, mysqlx_node_sql_statement_class_entry,
-												&param_no, &param_zv))
+												&param_zv))
 	{
 		DBG_VOID_RETURN;
 	}
-	if (param_no >= MAX_STMT_PARAMS) {
-		php_error_docref(NULL, E_WARNING, "param_no too big. Allowed are %", MAX_STMT_PARAMS);
-		DBG_VOID_RETURN;
+	mysqlx_node_sql_statement_bind_one_param(object_zv, param_zv, return_value);
+	if (Z_TYPE_P(return_value) == IS_TRUE)
+	{
+		ZVAL_COPY(return_value, object_zv);
 	}
-	mysqlx_node_sql_statement_bind_one_param(object_zv, param_zv, param_no, return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -516,7 +512,7 @@ mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_o
 
 	if (TRUE == object->in_execution) {
 		php_error_docref(NULL, E_WARNING, "Statement in execution. Please fetch all data first.");
-	} else {
+	} else if (PASS == xmysqlnd_stmt_execute__finalize_bind(object->stmt_execute)) {
 		XMYSQLND_NODE_STMT * stmt = object->stmt;
 		object->execute_flags = flags;
 		object->has_more_rows_in_set = FALSE;
@@ -563,7 +559,7 @@ mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_o
 static
 PHP_METHOD(mysqlx_node_sql_statement, execute)
 {
-	zend_long flags = 0;
+	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_sql_statement::execute");
