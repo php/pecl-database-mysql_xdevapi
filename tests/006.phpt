@@ -18,7 +18,6 @@ function database_exist($name){
             return true;
         }
     }catch(Exception $x){
-        print "Shit\n";
     }
     return false;
 }
@@ -46,9 +45,7 @@ function database_exist($name){
             }
         }
 
-        try{
-            $result = $nodeSession->createSchema("");
-        }catch(Exception $x) {
+	if($nodeSession->createSchema("") == NULL){
             $test[3] = "1";
         }
 
@@ -68,10 +65,7 @@ function database_exist($name){
             for($j = 1;$j <= 3;$j++){
                 if("test_schema$j" == $schemas[$i]->getName()){
                     $discovered_schemas++;
-                    try{
-                        #TODO:Sadly raise exceptions because of the failed createSchema
-                        $nodeSession->dropSchema("test_schema$j");
-                    }catch(Exception $x){}
+		    $nodeSession->dropSchema("test_schema$j");
                 }
             }
         }

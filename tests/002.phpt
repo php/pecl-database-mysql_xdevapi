@@ -12,16 +12,11 @@ xmysqlnd getTable with wrong table / insert
         $schema = $nodeSession->getSchema("test");
         $table = $schema->getTable("wrong_table");
 
-        #existsInDatabase will raise an exception if the implementation is missing
-        try{
-            $table_exist = $table->existsInDatabase();
-            if($table_exist == false)
-                $test[0] = "1";
-        }catch(Exception $e){
-            #no nothing
-        }
+	$table_exist = $table->existsInDatabase();
+	if($table_exist == false)
+	    $test[0] = "1";
 
-        try{
+	try{
             $table->insert(["name", "age"])->values(["Jackie", 256])->execute();
         }catch(Exception $e){
             $test[1] = "1";
