@@ -694,24 +694,6 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 	}
 
 	Mysqlx::Expr::ColumnIdentifier identifier(docpath->identifier());
-
-	// Validates the source is an array item
-	const size_t size = identifier.document_path_size();
-	if (size) {
-		DBG_INF_FMT("doc_path_size=%u", (uint) size);
-		if (validate_array) {
-			const Mysqlx::Expr::DocumentPathItem_Type doc_path_type = identifier.document_path().Get(size - 1).type();
-			DBG_INF_FMT("type=%s", Mysqlx::Expr::DocumentPathItem::Type_Name(doc_path_type).c_str());
-			if (doc_path_type != Mysqlx::Expr::DocumentPathItem::ARRAY_INDEX) {
-				DBG_ERR("An array document path must be specified");
-				DBG_RETURN(FAIL);
-			}
-		}
-	} else if ((op_type != Mysqlx::Crud::UpdateOperation::ITEM_MERGE) && (op_type != Mysqlx::Crud::UpdateOperation::ITEM_SET)) {
-		DBG_ERR("Invalid document path");
-		DBG_RETURN(FAIL);
-	}
-
 	operation->mutable_source()->CopyFrom(identifier);
 
 	if (value) {
@@ -763,7 +745,7 @@ xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 									 const zend_bool is_expression,
 									 const zend_bool is_document)
 {
-	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_SET;
+	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::SET;
 	DBG_ENTER("xmysqlnd_crud_table_update__set");
 	const enum_func_status ret = xmysqlnd_crud_table_update__add_operation(obj, op_type, path, value, is_expression, is_document, FALSE);
 	DBG_RETURN(ret);
