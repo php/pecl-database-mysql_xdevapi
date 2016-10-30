@@ -167,6 +167,17 @@ PHP_METHOD(mysqlx_node_schema, getName)
 /* }}} */
 
 
+/* {{{ mysqlx_node_scheme_on_error */
+static const enum_hnd_func_status
+mysqlx_node_scheme_on_error(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("mysqlx_node_scheme_on_error");
+	mysqlx_new_exception(code, sql_state, message);
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_schema::existsInDatabase() */
 static
 PHP_METHOD(mysqlx_node_schema, existsInDatabase)
@@ -185,10 +196,14 @@ PHP_METHOD(mysqlx_node_schema, existsInDatabase)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->schema) {
-
+	XMYSQLND_NODE_SCHEMA * schema = object->schema;
+	if (schema) {
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_scheme_on_error, NULL };
+		zval exists;
+		ZVAL_UNDEF(&exists);
+		if (PASS == schema->data->m.exists_in_database(schema, on_error, &exists)) {
+			ZVAL_COPY_VALUE(return_value, &exists);
+		}
 	}
 
 	DBG_VOID_RETURN;

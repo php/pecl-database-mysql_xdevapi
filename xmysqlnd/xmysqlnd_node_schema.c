@@ -29,6 +29,7 @@
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_structs.h"
+#include "xmysqlnd_utils.h"
 
 const MYSQLND_CSTRING xmysqlnd_object_type_filter__table = { "TABLE", sizeof("TABLE") - 1 };
 const MYSQLND_CSTRING xmysqlnd_object_type_filter__collection = { "COLLECTION", sizeof("COLLECTION") - 1 };
@@ -53,6 +54,133 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, init)(XMYSQLND_NODE_SCHEMA * const schema,
 	schema->data->object_factory = object_factory;
 
 	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+struct st_schema_exists_in_database_var_binder_ctx
+{
+	const MYSQLND_CSTRING schema_name;
+	unsigned int counter;
+};
+
+
+/* {{{ schema_xplugin_op_var_binder */
+static const enum_hnd_func_status
+schema_xplugin_op_var_binder(
+	void * context, 
+	XMYSQLND_NODE_SESSION * session, 
+	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+{
+	enum_hnd_func_status ret = HND_FAIL;
+	struct st_schema_exists_in_database_var_binder_ctx * ctx = (struct st_schema_exists_in_database_var_binder_ctx *) context;
+	const MYSQLND_CSTRING * param = NULL;
+	DBG_ENTER("schema_xplugin_op_var_binder");
+	switch (ctx->counter) {
+		case 0:{
+			param = &ctx->schema_name;
+			ret = HND_PASS;
+			{
+				enum_func_status result;
+				zval zv;
+				ZVAL_UNDEF(&zv);
+				ZVAL_STRINGL(&zv, param->s, param->l);
+				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
+				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+
+				zval_ptr_dtor(&zv);
+				if (FAIL == result) {
+					ret = FAIL;
+				}
+			}
+			break;
+		}
+		default: 
+			assert(!"should not happen");
+			break;
+	}
+	++ctx->counter;
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+struct st_schema_exists_in_database_ctx
+{
+	const MYSQLND_CSTRING expected_schema_name;
+	zval* exists;
+};
+
+
+/* {{{ schema_sql_op_on_row */
+static const enum_hnd_func_status
+schema_sql_op_on_row(
+	void * context,
+	XMYSQLND_NODE_SESSION * const session,
+	XMYSQLND_NODE_STMT * const stmt,
+	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+	const zval * const row,
+	MYSQLND_STATS * const stats,
+	MYSQLND_ERROR_INFO * const error_info)
+{
+	struct st_schema_exists_in_database_ctx * ctx = (struct st_schema_exists_in_database_ctx *) context;
+	DBG_ENTER("schema_sql_op_on_row");
+	if (ctx && row) {
+		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
+
+		if (equal_mysqlnd_cstr(&object_name, &ctx->expected_schema_name)) 
+		{
+			ZVAL_TRUE(ctx->exists);
+		} 
+		else 
+		{
+			ZVAL_FALSE(ctx->exists);
+		}
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_schema::exists_in_database */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
+	XMYSQLND_NODE_SCHEMA * const schema,
+	struct st_xmysqlnd_node_session_on_error_bind on_error, 
+	zval* exists)
+{
+	DBG_ENTER("xmysqlnd_node_schema::exists_in_database");
+	ZVAL_FALSE(exists);
+
+	enum_func_status ret;
+	static const MYSQLND_CSTRING query = {"SHOW SCHEMAS LIKE ?", sizeof("SHOW SCHEMAS LIKE ?") - 1 };
+	XMYSQLND_NODE_SESSION * session = schema->data->session;
+
+	struct st_schema_exists_in_database_var_binder_ctx var_binder_ctx = {
+		mnd_str2c(schema->data->schema_name),
+		0
+	};
+	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { schema_xplugin_op_var_binder, &var_binder_ctx };
+
+	struct st_schema_exists_in_database_ctx on_row_ctx = { 
+		mnd_str2c(schema->data->schema_name),
+		exists
+	};
+
+	const struct st_xmysqlnd_node_session_on_row_bind on_row = { schema_sql_op_on_row, &on_row_ctx };
+
+	ret = session->m->query_cb(session,
+							   namespace_sql,
+							   query,
+							   var_binder,
+							   noop__on_result_start,
+							   on_row,
+							   noop__on_warning,
+							   on_error,
+							   noop__on_result_end,
+							   noop__on_statement_ok);
+
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -423,6 +551,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, dtor)(XMYSQLND_NODE_SCHEMA * const schema,
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_schema)
 	XMYSQLND_METHOD(xmysqlnd_node_schema, init),
+	XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database),
 
 	XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object),
 	XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection),

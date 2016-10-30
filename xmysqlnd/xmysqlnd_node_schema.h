@@ -55,6 +55,8 @@ typedef enum_func_status (*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA
 															MYSQLND_STATS * const stats,
 															MYSQLND_ERROR_INFO * const error_info);
 
+typedef enum_func_status (*func_xmysqlnd_node_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+
 typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 
 typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection)(XMYSQLND_NODE_SCHEMA * const schema,
@@ -82,6 +84,8 @@ typedef void					(*func_xmysqlnd_node_schema__dtor)(XMYSQLND_NODE_SCHEMA * const
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 {
 	func_xmysqlnd_node_schema__init init;
+
+	func_xmysqlnd_node_scheme__exists_in_database exists_in_database;
 
 	func_xmysqlnd_node_schema__create_collection_object create_collection_object;
 	func_xmysqlnd_node_schema__create_collection create_collection;
