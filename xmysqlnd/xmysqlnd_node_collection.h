@@ -23,6 +23,7 @@
 #include "xmysqlnd_crud_collection_commands.h"
 
 struct st_xmysqlnd_node_schema;
+struct st_xmysqlnd_node_session_on_error_bind;
 
 #ifdef __cplusplus
 extern "C" {
