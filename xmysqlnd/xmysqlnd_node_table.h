@@ -40,10 +40,11 @@ typedef enum_func_status (*func_xmysqlnd_node_table__init)(
 			MYSQLND_ERROR_INFO * const error_info);
 
 typedef XMYSQLND_NODE_TABLE *	(*func_xmysqlnd_node_table__get_reference)(XMYSQLND_NODE_TABLE * const table);
-typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__insert)(XMYSQLND_NODE_TABLE * const schema, XMYSQLND_CRUD_TABLE_OP__INSERT * op);
-typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__delete)(XMYSQLND_NODE_TABLE * const schema, XMYSQLND_CRUD_TABLE_OP__DELETE * op);
-typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__update)(XMYSQLND_NODE_TABLE * const schema, XMYSQLND_CRUD_TABLE_OP__UPDATE * op);
-typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__select)(XMYSQLND_NODE_TABLE * const schema, XMYSQLND_CRUD_TABLE_OP__SELECT * op);
+typedef enum_func_status		(*func_xmysqlnd_node_table__exists_in_database)(XMYSQLND_NODE_TABLE * const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__insert)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op);
+typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__delete)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op);
+typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__update)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op);
+typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__select)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__SELECT * op);
 typedef enum_func_status		(*func_xmysqlnd_node_table__free_reference)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void					(*func_xmysqlnd_node_table__free_contents)(XMYSQLND_NODE_TABLE * const table);
 typedef void					(*func_xmysqlnd_node_table__dtor)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -51,6 +52,8 @@ typedef void					(*func_xmysqlnd_node_table__dtor)(XMYSQLND_NODE_TABLE * const t
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_table)
 {
 	func_xmysqlnd_node_table__init init;
+
+	func_xmysqlnd_node_table__exists_in_database exists_in_database;
 
 	func_xmysqlnd_node_table__insert insert;
 

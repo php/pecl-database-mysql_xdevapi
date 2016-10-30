@@ -25,6 +25,9 @@
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_node_schema.h"
 #include "xmysqlnd_node_collection.h"
+#include "xmysqlnd_node_stmt.h"
+#include "xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd_utils.h"
 
 /* {{{ xmysqlnd_node_collection::init */
 static enum_func_status
@@ -47,6 +50,146 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, init)(XMYSQLND_NODE_COLLECTION * const
 	DBG_RETURN(PASS);
 }
 /* }}} */
+
+
+struct st_collection_exists_in_database_var_binder_ctx
+{
+	const MYSQLND_CSTRING schema_name;
+	const MYSQLND_CSTRING collection_name;
+	unsigned int counter;
+};
+
+
+/* {{{ collection_xplugin_op_var_binder */
+static const enum_hnd_func_status
+collection_xplugin_op_var_binder(
+	void * context, 
+	XMYSQLND_NODE_SESSION * session, 
+	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+{
+	enum_hnd_func_status ret = HND_FAIL;
+	struct st_collection_exists_in_database_var_binder_ctx * ctx = (struct st_collection_exists_in_database_var_binder_ctx *) context;
+	const MYSQLND_CSTRING * param = NULL;
+	DBG_ENTER("collection_xplugin_op_var_binder");
+	switch (ctx->counter) {
+		case 0:
+			param = &ctx->schema_name;
+			ret = HND_AGAIN;
+			goto bind;
+		case 1:{
+			param = &ctx->collection_name;
+			ret = HND_PASS;
+bind:
+			{
+				enum_func_status result;
+				zval zv;
+				ZVAL_UNDEF(&zv);
+				ZVAL_STRINGL(&zv, param->s, param->l);
+				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
+				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+
+				zval_ptr_dtor(&zv);
+				if (FAIL == result) {
+					ret = FAIL;
+				}
+			}
+			break;
+		}
+		default: 
+			assert(!"should not happen");
+			break;
+	}
+	++ctx->counter;
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+struct st_collection_exists_in_database_ctx
+{
+	const MYSQLND_CSTRING expected_collection_name;
+	const MYSQLND_CSTRING expected_object_type;
+	zval* exists;
+};
+
+
+/* {{{ collection_xplugin_op_on_row */
+static const enum_hnd_func_status
+collection_xplugin_op_on_row(
+	void * context,
+	XMYSQLND_NODE_SESSION * const session,
+	XMYSQLND_NODE_STMT * const stmt,
+	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+	const zval * const row,
+	MYSQLND_STATS * const stats,
+	MYSQLND_ERROR_INFO * const error_info)
+{
+	struct st_collection_exists_in_database_ctx * ctx = (struct st_collection_exists_in_database_ctx *) context;
+	DBG_ENTER("collection_xplugin_op_on_row");
+	if (ctx && row) {
+		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
+		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
+
+		if (equal_mysqlnd_cstr(&object_name, &ctx->expected_collection_name)
+			&& equal_mysqlnd_cstr(&object_type, &ctx->expected_object_type)) 
+		{
+			ZVAL_TRUE(ctx->exists);
+		} 
+		else 
+		{
+			ZVAL_FALSE(ctx->exists);
+		}
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_collection::exists_in_database */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
+	XMYSQLND_NODE_COLLECTION * const collection,
+	struct st_xmysqlnd_node_session_on_error_bind on_error, 
+	zval* exists)
+{
+	DBG_ENTER("xmysqlnd_node_collection::exists_in_database");
+	ZVAL_FALSE(exists);
+
+	enum_func_status ret;
+	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
+	XMYSQLND_NODE_SCHEMA * schema = collection->data->schema;
+	XMYSQLND_NODE_SESSION * session = schema->data->session;
+
+	struct st_collection_exists_in_database_var_binder_ctx var_binder_ctx = {
+		mnd_str2c(schema->data->schema_name),
+		mnd_str2c(collection->data->collection_name),
+		0
+	};
+	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_xplugin_op_var_binder, &var_binder_ctx };
+
+	struct st_collection_exists_in_database_ctx on_row_ctx = { 
+		mnd_str2c(collection->data->collection_name),
+		xmysqlnd_object_type_filter__collection,
+		exists
+	};
+
+	const struct st_xmysqlnd_node_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
+
+	ret = session->m->query_cb(session,
+							   namespace_xplugin,
+							   query,
+							   var_binder,
+							   noop__on_result_start,
+							   on_row,
+							   noop__on_warning,
+							   on_error,
+							   noop__on_result_end,
+							   noop__on_statement_ok);
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
 
 #define ID_COLUMN_NAME		"_id"
 #define ID_TEMPLATE_PREFIX	"\""ID_COLUMN_NAME"\":\""
@@ -356,6 +499,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, dtor)(XMYSQLND_NODE_COLLECTION * const
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_collection)
 	XMYSQLND_METHOD(xmysqlnd_node_collection, init),
+	XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database),
 
 	XMYSQLND_METHOD(xmysqlnd_node_collection, add),
 	XMYSQLND_METHOD(xmysqlnd_node_collection, remove),

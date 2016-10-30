@@ -22,9 +22,11 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_exception.h"
 #include "mysqlx_schema_object.h"
 #include "mysqlx_node_table__delete.h"
 #include "mysqlx_node_table__insert.h"
@@ -159,6 +161,17 @@ PHP_METHOD(mysqlx_node_table, getName)
 /* }}} */
 
 
+/* {{{ mysqlx_node_table_on_error */
+static const enum_hnd_func_status
+mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("mysqlx_node_table_on_error");
+	mysqlx_new_exception(code, sql_state, message);
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_table::existsInDatabase() */
 static
 PHP_METHOD(mysqlx_node_table, existsInDatabase)
@@ -177,10 +190,14 @@ PHP_METHOD(mysqlx_node_table, existsInDatabase)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->table) {
-
+	XMYSQLND_NODE_TABLE * table = object->table;
+	if (table) {
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, NULL };
+		zval exists;
+		ZVAL_UNDEF(&exists);
+		if (PASS == table->data->m.exists_in_database(table, on_error, &exists)) {
+			ZVAL_COPY_VALUE(return_value, &exists);
+		}
 	}
 
 	DBG_VOID_RETURN;

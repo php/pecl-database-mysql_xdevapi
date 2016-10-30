@@ -91,6 +91,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 						 xmysqlnd/xmysqlnd_rowset_fwd.c \
 						 xmysqlnd/xmysqlnd_statistics.c \
 						 xmysqlnd/xmysqlnd_stmt_execution_state.c \
+						 xmysqlnd/xmysqlnd_utils.c \
 						 xmysqlnd/xmysqlnd_warning_list.c \
 						 xmysqlnd/xmysqlnd_wireprotocol.cc \
 						 xmysqlnd/xmysqlnd_zval2any.cc \

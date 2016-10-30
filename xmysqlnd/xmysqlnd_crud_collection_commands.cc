@@ -900,7 +900,6 @@ struct st_xmysqlnd_stmt_op__execute
 };
 
 
-	enum_func_status bind_one_param(const zval * param_zv);
 /* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
 enum_func_status
 st_xmysqlnd_stmt_op__execute::bind_one_param(const zval * param_zv)

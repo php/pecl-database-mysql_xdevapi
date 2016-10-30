@@ -119,6 +119,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"xmysqlnd_rowset_fwd.c " +
 			"xmysqlnd_statistics.c " +
 			"xmysqlnd_stmt_execution_state.c " +
+			"xmysqlnd_utils.c " +
 			"xmysqlnd_warning_list.c " +
 			"xmysqlnd_wireprotocol.cc " +
 			"xmysqlnd_zval2any.cc ";
