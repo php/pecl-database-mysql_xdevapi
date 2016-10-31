@@ -230,11 +230,18 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 	}
 	zend_string_release(key);
 	zval_dtor(zvalue);
-	zval_dtor(object);
 	DBG_RETURN(status->found? FAILURE : SUCCESS);
 }
 /* }}} */
 
+/* {{{ xmysqlnd_json_parser_object_end */
+static int
+xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
+{
+	DBG_ENTER("xmysqlnd_json_parser_object_end");
+	zval_dtor(object);
+	return SUCCESS;
+}
 
 /* {{{ xmysqlnd_json_string_find_id */
 static enum_func_status
@@ -249,6 +256,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	php_json_parser_init(&parser.parser, &return_value, (char *)json.s, json.l, options, depth);
 	own_methods = parser.parser.methods;
 	own_methods.object_update = xmysqlnd_json_parser_object_update;
+	own_methods.object_end = xmysqlnd_json_parser_object_end;
 	
 	php_json_parser_init_ex(&parser.parser, &return_value, (char *)json.s, json.l, options, depth, &own_methods);
 	status->found = FALSE;
