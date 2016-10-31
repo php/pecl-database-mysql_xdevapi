@@ -42,6 +42,7 @@ typedef enum_func_status (*func_xmysqlnd_node_collection__init)(
 
 typedef XMYSQLND_NODE_COLLECTION * (*func_xmysqlnd_node_collection__get_reference)(XMYSQLND_NODE_COLLECTION * const collection);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__exists_in_database)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status		(*func_xmysqlnd_node_collection__count)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* counter);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_collection__add)(XMYSQLND_NODE_COLLECTION * const collection, const MYSQLND_CSTRING json);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_collection__remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_collection__modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op);
@@ -55,6 +56,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection)
 	func_xmysqlnd_node_collection__init init;
 
 	func_xmysqlnd_node_collection__exists_in_database exists_in_database;
+	func_xmysqlnd_node_collection__count count;
 
 	func_xmysqlnd_node_collection__add add;
 

@@ -60,9 +60,9 @@ struct st_table_exists_in_database_var_binder_ctx
 };
 
 
-/* {{{ table_xplugin_op_var_binder */
+/* {{{ table_op_var_binder */
 static const enum_hnd_func_status
-table_xplugin_op_var_binder(
+table_op_var_binder(
 	void * context, 
 	XMYSQLND_NODE_SESSION * session, 
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
@@ -70,7 +70,7 @@ table_xplugin_op_var_binder(
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_table_exists_in_database_var_binder_ctx * ctx = (struct st_table_exists_in_database_var_binder_ctx *) context;
 	const MYSQLND_CSTRING * param = NULL;
-	DBG_ENTER("table_xplugin_op_var_binder");
+	DBG_ENTER("table_op_var_binder");
 	switch (ctx->counter) {
 		case 0:
 			param = &ctx->schema_name;
@@ -165,7 +165,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 		mnd_str2c(table->data->table_name),
 		0
 	};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_xplugin_op_var_binder, &var_binder_ctx };
+	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
 
 	struct st_table_exists_in_database_ctx on_row_ctx = { 
 		mnd_str2c(table->data->table_name),
@@ -186,6 +186,85 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 							   noop__on_result_end,
 							   noop__on_statement_ok);
 
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+struct st_table_sql_single_result_ctx
+{
+	zval* result;
+};
+
+
+/* {{{ table_xplugin_op_on_row */
+static const enum_hnd_func_status
+table_sql_single_result_op_on_row(
+	void * context,
+	XMYSQLND_NODE_SESSION * const session,
+	XMYSQLND_NODE_STMT * const stmt,
+	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+	const zval * const row,
+	MYSQLND_STATS * const stats,
+	MYSQLND_ERROR_INFO * const error_info)
+{
+	struct st_table_sql_single_result_ctx * ctx = (struct st_table_sql_single_result_ctx *) context;
+	DBG_ENTER("table_xplugin_op_on_row");
+	if (ctx && row) {
+		ZVAL_COPY_VALUE(ctx->result, &row[0]);
+	}
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_node_table::count */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_table, count)(
+	XMYSQLND_NODE_TABLE * const table,
+	struct st_xmysqlnd_node_session_on_error_bind on_error, 
+	zval* counter)
+{
+	DBG_ENTER("xmysqlnd_node_table::count");
+	ZVAL_LONG(counter, 0);
+
+	enum_func_status ret;
+
+	XMYSQLND_NODE_SCHEMA * schema = table->data->schema;
+	XMYSQLND_NODE_SESSION * session = schema->data->session;
+
+	char* query_str;
+	mnd_sprintf(&query_str, 0, "SELECT COUNT(*) FROM %s.%s", schema->data->schema_name.s, table->data->table_name.s);
+	if (!query_str) {
+		DBG_RETURN(FAIL);
+	}
+	const MYSQLND_CSTRING query = {query_str, strlen(query_str)};
+
+	struct st_table_exists_in_database_var_binder_ctx var_binder_ctx = {
+		mnd_str2c(schema->data->schema_name),
+		mnd_str2c(table->data->table_name),
+		0
+	};
+	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
+
+	struct st_table_sql_single_result_ctx on_row_ctx = { 
+		counter
+	};
+
+	const struct st_xmysqlnd_node_session_on_row_bind on_row = { table_sql_single_result_op_on_row, &on_row_ctx };
+
+	ret = session->m->query_cb(session,
+							   namespace_sql,
+							   query,
+							   noop__var_binder, //var_binder,
+							   noop__on_result_start,
+							   on_row,
+							   noop__on_warning,
+							   on_error,
+							   noop__on_result_end,
+							   noop__on_statement_ok);
+
+	mnd_sprintf_free(query_str);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -455,6 +534,7 @@ static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_table)
 	XMYSQLND_METHOD(xmysqlnd_node_table, init),
 	XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database),
+	XMYSQLND_METHOD(xmysqlnd_node_table, count),
 
 	XMYSQLND_METHOD(xmysqlnd_node_table, insert),
 	XMYSQLND_METHOD(xmysqlnd_node_table, opdelete),

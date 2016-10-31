@@ -54,6 +54,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__exists_in_database, 0, ZE
 ZEND_END_ARG_INFO()
 
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__count, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__get_schema, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 /************************************** INHERITED END   ****************************************/
@@ -197,6 +201,39 @@ PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 		ZVAL_UNDEF(&exists);
 		if (PASS == collection->data->m.exists_in_database(collection, on_error, &exists)) {
 			ZVAL_COPY_VALUE(return_value, &exists);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection::count() */
+static
+PHP_METHOD(mysqlx_node_collection, count)
+{
+	struct st_mysqlx_node_collection * object;
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_collection::count");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_collection_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	XMYSQLND_NODE_COLLECTION * collection = object->collection;
+	if (collection) {
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_on_error, NULL };
+		zval counter;
+		ZVAL_UNDEF(&counter);
+		if (PASS == collection->data->m.count(collection, on_error, &counter)) {
+			ZVAL_COPY_VALUE(return_value, &counter);
 		}
 	}
 
@@ -367,6 +404,7 @@ static const zend_function_entry mysqlx_node_collection_methods[] = {
 	PHP_ME(mysqlx_node_collection, getSession,		arginfo_mysqlx_node_collection__get_session,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection, getName,			arginfo_mysqlx_node_collection__get_name,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection, existsInDatabase,arginfo_mysqlx_node_collection__exists_in_database,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection, count,			arginfo_mysqlx_node_collection__count,				ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_node_collection, getSchema,		arginfo_mysqlx_node_collection__get_schema,			ZEND_ACC_PUBLIC)
 	/************************************** INHERITED END   ****************************************/
