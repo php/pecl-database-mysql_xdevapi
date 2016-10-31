@@ -2690,6 +2690,15 @@ xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * st
 /* }}} */
 
 
+/* {{{ xmysqlnd_shutdown_protobuf_library */
+extern "C" void 
+xmysqlnd_shutdown_protobuf_library()
+{
+	google::protobuf::ShutdownProtobufLibrary();
+}
+/* }}} */
+
+
 /*
  * Local variables:{
  * tab-width: 4

@@ -231,6 +231,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void)
 		xmysqlnd_global_stats = NULL;
 		xmysqlnd_library_initted = FALSE;
 	}
+	xmysqlnd_shutdown_protobuf_library();
 }
 /* }}} */
 

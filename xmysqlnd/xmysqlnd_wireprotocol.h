@@ -494,6 +494,7 @@ struct st_xmysqlnd_message_factory
 
 struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_xmysqlnd_level3_io * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
+void xmysqlnd_shutdown_protobuf_library();
 
 #ifdef __cplusplus
 } /* extern "C" */
