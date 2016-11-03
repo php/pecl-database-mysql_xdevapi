@@ -432,8 +432,8 @@ xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, c
 	try {
 		const std::string source(criteria.s, criteria.l);
 		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.set_allocated_criteria(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
@@ -583,12 +583,12 @@ xmysqlnd_crud_table_update__destroy(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 extern "C" enum_func_status
 xmysqlnd_crud_table_update__set_criteria(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING criteria)
 {
-	DBG_ENTER("xmysqlnd_crud_table_delete__set_criteria");
+	DBG_ENTER("xmysqlnd_crud_table_update__set_criteria");
 	try {
 		const std::string source(criteria.s, criteria.l);
 		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.set_allocated_criteria(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
@@ -971,12 +971,12 @@ xmysqlnd_crud_table_select__destroy(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 extern "C" enum_func_status
 xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING criteria)
 {
-	DBG_ENTER("xmysqlnd_crud_table_delete__set_criteria");
+	DBG_ENTER("xmysqlnd_crud_table_select__set_criteria");
 	try {
 		const std::string source(criteria.s, criteria.l);
 		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.set_allocated_criteria(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
@@ -1051,8 +1051,8 @@ xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 		const static bool is_document = false; /*should be false, no comparison with data_model */
 		const std::string source(search_field.s, search_field.l);
 		xmysqlnd::Expression_parser parser(source, is_document, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.mutable_grouping()->AddAllocated(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.mutable_grouping()->AddAllocated(exprCriteria);
 
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
 	} catch (xmysqlnd::Parser_error &e) {
@@ -1131,8 +1131,8 @@ xmysqlnd_crud_table_select__set_having(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 		const static zend_bool is_document = FALSE; /*should be TRUE, no comparison with data_model */
 		const std::string source(criteria.s, criteria.l);
 		xmysqlnd::Expression_parser parser(source, is_document, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.set_allocated_grouping_criteria(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.set_allocated_grouping_criteria(exprCriteria);
 
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
 	} catch (xmysqlnd::Parser_error &e) {

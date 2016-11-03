@@ -174,8 +174,8 @@ xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOV
 	try {
 		const std::string source(criteria.s, criteria.l);
 		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.set_allocated_criteria(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
@@ -329,8 +329,8 @@ xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIF
 	try {
 		const std::string source(criteria.s, criteria.l);
 		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.set_allocated_criteria(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
@@ -660,8 +660,8 @@ xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 	try {
 		const std::string source(criteria.s, criteria.l);
 		xmysqlnd::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.set_allocated_criteria(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
@@ -736,8 +736,8 @@ xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 		const static bool is_document = false; /*should be false, no comparison with data_model */
 		const std::string source(search_field.s, search_field.l);
 		xmysqlnd::Expression_parser parser(source, is_document, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.mutable_grouping()->AddAllocated(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.mutable_grouping()->AddAllocated(exprCriteria);
 
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
 	} catch (xmysqlnd::Parser_error &e) {
@@ -816,8 +816,8 @@ xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 		const static zend_bool is_document = TRUE; /*should be TRUE, no comparison with data_model */
 		const std::string source(criteria.s, criteria.l);
 		xmysqlnd::Expression_parser parser(source, is_document, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
-		obj->message.set_allocated_grouping_criteria(criteria);
+		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		obj->message.set_allocated_grouping_criteria(exprCriteria);
 
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
 	} catch (xmysqlnd::Parser_error &e) {
