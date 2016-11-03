@@ -380,7 +380,7 @@ mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const u
 				break;
 
 			case TWO_PARAM_OP__MERGE:
-				ret = xmysqlnd_crud_collection_modify__merge(object->crud_op, collection_field, value, is_expression, is_document);
+				ret = xmysqlnd_crud_collection_modify__merge(object->crud_op, collection_field, value);
 				break;
 
 			case TWO_PARAM_OP__ARRAY_INSERT:
