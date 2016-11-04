@@ -1,5 +1,5 @@
 --TEST--
-xmysqlnd table delete/limit/orderBy
+xmysqlnd table corner case
 --SKIPIF--
 --FILE--
 <?php
@@ -13,7 +13,7 @@ function dump_all_row($table){
 
         $nodeSession = create_test_db();
 
-        $schema = $nodeSession->getSchema("test");
+	$schema = $nodeSession->getSchema($db);
         $table = $schema->getTable("test_table");
 
         $table->insert(["name", "age"])->values(["Sakila", 128])->values(["Sakila", 512])->execute();
@@ -23,24 +23,24 @@ function dump_all_row($table){
         $table->insert(["name", "age"])->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
 
         try{
-            $table->delete()->where("name = 'Sakila'")->orderby("id DESC")->limit(2)->execute();
+	    $table->delete()->where("name = :name")->orderby("id DESC")->limit(2)->bind(['name' => 'Sakila'])->execute();
         }catch(Exception $e) {
             print "exception!\n";
         }
 
         dump_all_row($table);
 
-        $table->delete()->where("name = 'Sakila'")->orderby("age DESC")->limit(2)->execute();
+	$table->delete()->where("name = :name")->orderby("age DESC")->limit(2)->bind(['name' => 'Sakila'])->execute();
 
         dump_all_row($table);
 
         try{
-            $table->delete()->where("name = 'Oracila'")->orderby("age DESC")->limit(-1)->execute();
+	    $table->delete()->where("name = :name")->orderby("age DESC")->limit(-1)->bind(['name' => 'Oracila'])->execute();
         }catch(Exception $e) {
             print "exception!\n";
         }
 
-        $table->delete()->where("name = 'Oracila'")->orderby("age ASC")->limit(3)->execute();
+	$table->delete()->where("name = :name")->orderby("age ASC")->limit(3)->bind(['name' => 'Oracila'])->execute();
 
         dump_all_row($table);
 

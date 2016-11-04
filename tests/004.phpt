@@ -13,34 +13,15 @@ function dump_all_row($table){
 
         $nodeSession = create_test_db();
 
-        $schema = $nodeSession->getSchema("test");
-        $table = $schema->getTable("test_table");
+	fill_db_table();
 
-        $table->insert(["name", "age"])->values(["Sakila", 128])->values(["Oracila", 512])->execute();
-        $table->insert(["name", "age"])->values(["SuperSakila", 256])->values(["SuperOracila", 1024])->execute();
+	$schema = $nodeSession->getSchema($db);
+	$table = $schema->getTable('test_table');
 
-
-        $table->delete()->where("name = 'Sakila'")->execute();
-
-        dump_all_row($table);
-
-        $table->delete()->where("name = 'bad_name'")->execute();
-
-        dump_all_row($table);
-
-
-        try{
-            $table->delete()->where("name = SuperSakila")->execute();
-        }catch(Exception $e) {
-            print "exception!\n";
-        }
-
-        dump_all_row($table);
-
-        $table->delete()->execute();
-
-        dump_all_row($table);
-
+	$table->delete()->where('name in (\'Romy\',\'Caspian\',\'Olympia\',\'Mamie\') and age > :age_limit')->bind(['age_limit' => 13])->execute();
+	$table->delete()->where('name = \'bad_name\'')->limit(1)->execute();//Shall do nothing
+	$table->delete()->orderby('age desc')->where('age < 20 and age > 12 and name != :name')->bind(['name' => 'Tierney'])->limit(2)->execute();
+	dump_all_row($table);
         print "done!\n";
 ?>
 --CLEAN--
@@ -49,77 +30,57 @@ function dump_all_row($table){
     clean_test_db();
 ?>
 --EXPECTF--0
-array(3) {
+array(7) {
   [0]=>
   array(2) {
     ["age"]=>
-    int(512)
+    int(11)
     ["name"]=>
-    string(7) "Oracila"
+    string(5) "Mamie"
   }
   [1]=>
   array(2) {
     ["age"]=>
-    int(256)
+    int(11)
     ["name"]=>
-    string(11) "SuperSakila"
+    string(7) "Eulalia"
   }
   [2]=>
   array(2) {
     ["age"]=>
-    int(1024)
+    int(12)
     ["name"]=>
-    string(12) "SuperOracila"
+    string(5) "Polly"
+  }
+  [3]=>
+  array(2) {
+    ["age"]=>
+    int(12)
+    ["name"]=>
+    string(5) "Rufus"
+  }
+  [4]=>
+  array(2) {
+    ["age"]=>
+    int(13)
+    ["name"]=>
+    string(7) "Cassidy"
+  }
+  [5]=>
+  array(2) {
+    ["age"]=>
+    int(14)
+    ["name"]=>
+    string(3) "Lev"
+  }
+  [6]=>
+  array(2) {
+    ["age"]=>
+    int(15)
+    ["name"]=>
+    string(7) "Tierney"
   }
 }
-array(3) {
-  [0]=>
-  array(2) {
-    ["age"]=>
-    int(512)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [1]=>
-  array(2) {
-    ["age"]=>
-    int(256)
-    ["name"]=>
-    string(11) "SuperSakila"
-  }
-  [2]=>
-  array(2) {
-    ["age"]=>
-    int(1024)
-    ["name"]=>
-    string(12) "SuperOracila"
-  }
-}
-exception!
-array(3) {
-  [0]=>
-  array(2) {
-    ["age"]=>
-    int(512)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [1]=>
-  array(2) {
-    ["age"]=>
-    int(256)
-    ["name"]=>
-    string(11) "SuperSakila"
-  }
-  [2]=>
-  array(2) {
-    ["age"]=>
-    int(1024)
-    ["name"]=>
-    string(12) "SuperOracila"
-  }
-}
-bool(false)
 done!
 %a
 

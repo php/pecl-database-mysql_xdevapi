@@ -24,9 +24,9 @@ function verify_doc($doc,$name,$job,$age){
 
         $coll->add('{"name": "Sakila", "age": 15, "job": "Programmer"}')->execute();
         $coll->add('{"name": "Sakila", "age": 17, "job": "Singer"}')->execute();
-        $coll->add('{"name": "Sakila", "age": 18, "job": "Student"}')->execute();
-        $coll->add('{"name": "Susanne", "age": 24, "job": "Plumber"}')->execute();
-        $coll->add('{"name": "Mike", "age": 39, "job": "Manager"}')->execute();
+	$coll->add(["name" => "Sakila", "age" => 18, "job" => "Student"])->execute();
+	$coll->add('{"name": "Susanne", "age": 24, "job": "Plumber"}')->execute();
+	$coll->add(["name" => "Mike", "age" => 39, "job" => "Manager"])->execute();
 
         $res = $coll->find('name like "Sakila"')->execute();
         $data = $res->fetchAll();
