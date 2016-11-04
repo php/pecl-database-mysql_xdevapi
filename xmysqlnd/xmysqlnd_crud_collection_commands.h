@@ -68,6 +68,8 @@ enum_func_status xmysqlnd_crud_collection_modify__array_insert(XMYSQLND_CRUD_COL
 enum_func_status xmysqlnd_crud_collection_modify__array_append(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
 															   const MYSQLND_CSTRING path,
 															   const zval * const value);
+enum_func_status xmysqlnd_crud_collection_modify__array_delete(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
+															   const MYSQLND_CSTRING path);
 enum_func_status xmysqlnd_crud_collection_modify__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
 struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_modify__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
 zend_bool xmysqlnd_crud_collection_modify__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);

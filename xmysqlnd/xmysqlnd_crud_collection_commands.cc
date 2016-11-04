@@ -78,13 +78,13 @@ xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_collection_remove__add_sort */
+/* {{{ xmysqlnd_crud_collection__add_sort */
 extern "C" enum_func_status
 xmysqlnd_crud_collection__add_sort(google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order > * mutable_order,
 								   const Mysqlx::Crud::DataModel data_model,
 								   const MYSQLND_CSTRING & sort)
 {
-	DBG_ENTER("xmysqlnd_crud_collection_remove__add_sort");
+	DBG_ENTER("xmysqlnd_crud_collection__add_sort");
 	DBG_INF_FMT("sort=%*s", sort.l, sort.s);
 	try {
 		const std::string source(sort.s, sort.l);
@@ -566,6 +566,18 @@ xmysqlnd_crud_collection_modify__array_append(XMYSQLND_CRUD_COLLECTION_OP__MODIF
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ARRAY_APPEND;
 	DBG_ENTER("xmysqlnd_crud_collection_modify__array_append");
 	const enum_func_status ret = xmysqlnd_crud_collection_modify__add_operation(obj, op_type, path, value, FALSE, FALSE, FALSE);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__array_delete */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_modify__array_delete(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING path)
+{
+	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_REMOVE;
+	DBG_ENTER("xmysqlnd_crud_collection_modify__array_delete");
+	const enum_func_status ret = xmysqlnd_crud_collection_modify__add_operation(obj, op_type, path, NULL, FALSE, FALSE, TRUE);
 	DBG_RETURN(ret);
 }
 /* }}} */
