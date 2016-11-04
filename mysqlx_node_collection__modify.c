@@ -69,11 +69,12 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__unset, 0, ZEND_RE
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__replace, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, variables, IS_ARRAY, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, collection_field, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, expression_or_literal)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__merge, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, variables, IS_ARRAY, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, document, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__array_insert, 0, ZEND_RETURN_VALUE, 2)
@@ -86,6 +87,9 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__array_append, 0, 
 	ZEND_ARG_INFO(NO_PASS_BY_REF, expression_or_literal)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__array_delete, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, collection_field, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__execute, 0, ZEND_RETURN_VALUE, 0)
@@ -309,15 +313,17 @@ end:
 /* }}} */
 
 
-#define TWO_PARAM_OP__SET 1
-#define TWO_PARAM_OP__REPLACE 2
-#define TWO_PARAM_OP__MERGE 3
-#define TWO_PARAM_OP__ARRAY_INSERT 4
-#define TWO_PARAM_OP__ARRAY_APPEND 5
+enum ModifyTwoParamOp
+{
+	TWO_PARAM_OP__SET,
+	TWO_PARAM_OP__REPLACE,
+	TWO_PARAM_OP__ARRAY_INSERT,
+	TWO_PARAM_OP__ARRAY_APPEND
+};
 
 /* {{{ mysqlx_node_collection__modify__2_param_op */
 static void
-mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
+mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const enum ModifyTwoParamOp op_type)
 {
 	struct st_mysqlx_node_collection__modify * object;
 	zval * object_zv;
@@ -379,10 +385,6 @@ mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const u
 				ret = xmysqlnd_crud_collection_modify__replace(object->crud_op, collection_field, value, is_expression, is_document);
 				break;
 
-			case TWO_PARAM_OP__MERGE:
-				ret = xmysqlnd_crud_collection_modify__merge(object->crud_op, collection_field, value);
-				break;
-
 			case TWO_PARAM_OP__ARRAY_INSERT:
 				ret = xmysqlnd_crud_collection_modify__array_insert(object->crud_op, collection_field, value);
 				break;
@@ -427,8 +429,38 @@ PHP_METHOD(mysqlx_node_collection__modify, replace)
 static
 PHP_METHOD(mysqlx_node_collection__modify, merge)
 {
+	struct st_mysqlx_node_collection__modify * object;
+	zval * object_zv;
+	MYSQLND_CSTRING documentContents;
+
 	DBG_ENTER("mysqlx_node_collection__modify::merge");
-	mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__MERGE);
+	
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, mysqlx_node_collection__modify_class_entry,
+		&(documentContents.s), &(documentContents.l)))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		MYSQLND_CSTRING emptyDocPath = { NULL, 0 };
+		zval zvDocumentContents;
+		ZVAL_STRINGL(&zvDocumentContents, documentContents.s, documentContents.l);
+		if (FAIL == xmysqlnd_crud_collection_modify__merge(object->crud_op, emptyDocPath, &zvDocumentContents)) {
+			static const unsigned int errcode = 10006;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Error while merging", sizeof("Error while merging") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			goto end;
+		}
+		ZVAL_COPY(return_value, object_zv);
+	}
+end:
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -451,6 +483,44 @@ PHP_METHOD(mysqlx_node_collection__modify, arrayAppend)
 {
 	DBG_ENTER("mysqlx_node_collection__modify::arrayAppend");
 	mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__ARRAY_APPEND);
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__modify::arrayDelete() */
+static
+PHP_METHOD(mysqlx_node_collection__modify, arrayDelete)
+{
+	struct st_mysqlx_node_collection__modify * object;
+	zval * object_zv;
+	MYSQLND_CSTRING arrayIndexPath;
+
+	DBG_ENTER("mysqlx_node_collection__modify::arrayDelete");
+
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, mysqlx_node_collection__modify_class_entry,
+		&(arrayIndexPath.s), &(arrayIndexPath.l)))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->crud_op) {
+		if (FAIL == xmysqlnd_crud_collection_modify__array_delete(object->crud_op, arrayIndexPath)) {
+			static const unsigned int errcode = 10006;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Error while deleting an array index", sizeof("Error while deleting an array index") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			goto end;
+		}
+		ZVAL_COPY(return_value, object_zv);
+	}
+end:
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -571,6 +641,7 @@ static const zend_function_entry mysqlx_node_collection__modify_methods[] = {
 	PHP_ME(mysqlx_node_collection__modify,	merge,		arginfo_mysqlx_node_collection__modify__merge,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	arrayInsert,arginfo_mysqlx_node_collection__modify__array_insert,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	arrayAppend,arginfo_mysqlx_node_collection__modify__array_append,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	arrayDelete,arginfo_mysqlx_node_collection__modify__array_delete,	ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_node_collection__modify,	execute,	arginfo_mysqlx_node_collection__modify__execute,		ZEND_ACC_PUBLIC)
 
