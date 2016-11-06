@@ -30,7 +30,7 @@ function verify_doc(&$doc,$name,$job,$age){
         $coll->add('{"name": "Susanne", "age": 24, "job": "Plumber"}')->execute();
         $coll->add('{"name": "Mike", "age": 39, "job": "Manager"}')->execute();
 
-	$coll->modify('name like "Sakila"')->set("job","Unemployed")->execute();
+	$coll->modify('name like :param')->set("job","Unemployed")->bind(['param' => 'Sakila'])->execute();
 
 	$res = $coll->find('name like "Sakila"')->execute();
 	$data = $res->fetchAll();
@@ -45,8 +45,8 @@ function verify_doc(&$doc,$name,$job,$age){
 	}
 
 
-	$coll->modify('job like "Plumber"')->unset(["age","name"])->execute();
-	$coll->modify('job like "Plumber"')->set("name","Artur")->set("age",49)->execute();
+	$coll->modify('job like :job_name')->unset(["age","name"])->bind(['job_name' => 'Plumber'])->execute();
+	$coll->modify('job like :job_name')->set("name","Artur")->set("age",49)->bind(['job_name' => 'Plumber'])->execute();
 
 	$res = $coll->find('job like "Plumber"')->execute();
 	$data = $res->fetchAll();
@@ -56,8 +56,8 @@ function verify_doc(&$doc,$name,$job,$age){
 		$test[3] = "1";
 	}
 
-	$coll->modify('job like "nojob"')->set("name","Martin")->execute();
-	$coll->modify('name like "Sakila"')->unset(["crap1","crap2"])->execute();
+	$coll->modify('job like :job_param')->set("name","Martin")->bind(['job_param' => 'nojob'])->execute();
+	$coll->modify('name like :name_param')->unset(["crap1","crap2"])->bind(['name_param' => 'Sakila'])->execute();
 
 	$res = $coll->find()->execute();
 	$data = $res->fetchAll();

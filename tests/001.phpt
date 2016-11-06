@@ -1,5 +1,5 @@
 --TEST--
-xmysqlnd getNodeSession (success/fail)
+xmysqlnd getNodeSession (success/fail).
 --SKIPIF--
 --INI--
 error_reporting=0

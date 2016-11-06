@@ -9,7 +9,7 @@ xmysqlnd getTable with wrong table / insert
 
         $nodeSession = create_test_db();
 
-        $schema = $nodeSession->getSchema("test");
+	$schema = $nodeSession->getSchema($db);
         $table = $schema->getTable("wrong_table");
 
 	$table_exist = $table->existsInDatabase();

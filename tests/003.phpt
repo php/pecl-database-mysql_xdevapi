@@ -8,7 +8,7 @@ xmysqlnd select / fetch
         $test = "100";
         $nodeSession = create_test_db();
 
-        $schema = $nodeSession->getSchema("test");
+	$schema = $nodeSession->getSchema($db);
         $table = $schema->getTable("test_table");
 
         $table->insert(["name", "age"])->values(["Sakila", 128])->values(["Oracila", 512])->execute();
