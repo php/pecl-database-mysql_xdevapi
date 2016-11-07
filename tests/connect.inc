@@ -36,6 +36,16 @@
 			global $user;
 			global $passwd;
 			global $db;
+			/*
+			    Would make sense to clean the database here, before attempting
+			    to create it. BUT, the code raise a warning during executeSql
+			    if the script attempt to remove a DB which is not existing,
+			    (error 1008) which in turns cause the test to fail.
+
+			    For this reason, at least for now is better to expect from
+			    the test script to call clean_test_db *after* the test
+			*/
+			//clean_test_db();
 			$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
 			$nodeSession->executeSql("create database $db");
 			$nodeSession->executeSql("create table $db.test_table(name text, age int)");

@@ -9,16 +9,16 @@ xmysqlnd select / fetch
         $nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
-        $table = $schema->getTable("test_table");
+	$table = $schema->getTable("test_table");
 
         $table->insert(["name", "age"])->values(["Sakila", 128])->values(["Oracila", 512])->execute();
         $table->insert(["name", "age"])->values(["Jackie", 256])->execute();
         $res = $table->select(['age','name'])->execute();
 
-        var_dump($table->getName());
+	var_dump($table->getName());
         var_dump($res->fetchOne());
         var_dump($res->fetchOne());
-        var_dump($res->fetchOne());
+	var_dump($res->fetchOne());
 
         $all_row = $res->fetchAll();
         var_dump($all_row);

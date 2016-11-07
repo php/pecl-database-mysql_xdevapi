@@ -5,12 +5,6 @@ xmysqlnd modify arrayAppend/Insert
 <?php
         require("connect.inc");
 
-function dump_all_row($table){
-    $res = $table->select(['age','name'])->execute();
-    $all_row = $res->fetchAll();
-    var_dump($all_row);
-}
-
 	$nodeSession = create_test_db();
 	$schema = $nodeSession->getSchema($db);
 	$coll = $schema->getCollection("test_collection");
