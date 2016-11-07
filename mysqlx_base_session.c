@@ -81,6 +81,16 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__drop_table, 0, ZEND_RETURN_V
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, table_name, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__start_transaction, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__commit, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__rollback, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__list_clients, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -608,6 +618,90 @@ PHP_METHOD(mysqlx_base_session, dropTable)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_base_session::startTransaction() */
+static
+PHP_METHOD(mysqlx_base_session, startTransaction)
+{
+	zval * object_zv;
+	struct st_mysqlx_session * object;
+	MYSQLND_CSTRING query = {"START TRANSACTION", sizeof("START TRANSACTION") - 1};
+	zval * args = NULL;
+	int argc = 0;
+
+	DBG_ENTER("mysqlx_base_session::startTransaction");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE)
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
+
+	if (object->session) {
+		mysqlx_execute_base_session_query(object->session, namespace_sql, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, argc, args);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_base_session::commit() */
+static
+PHP_METHOD(mysqlx_base_session, commit)
+{
+	zval * object_zv;
+	struct st_mysqlx_session * object;
+	MYSQLND_CSTRING query = {"COMMIT", sizeof("COMMIT") - 1};
+	zval * args = NULL;
+	int argc = 0;
+
+	DBG_ENTER("mysqlx_base_session::commit");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE)
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
+
+	if (object->session) {
+		mysqlx_execute_base_session_query(object->session, namespace_sql, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, argc, args);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_base_session::rollback() */
+static
+PHP_METHOD(mysqlx_base_session, rollback)
+{
+	zval * object_zv;
+	struct st_mysqlx_session * object;
+	MYSQLND_CSTRING query = {"ROLLBACK", sizeof("ROLLBACK") - 1};
+	zval * args = NULL;
+	int argc = 0;
+
+	DBG_ENTER("mysqlx_base_session::rollback");
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE)
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
+
+	if (object->session) {
+		mysqlx_execute_base_session_query(object->session, namespace_sql, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, argc, args);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 struct st_mysqlx_list_clients__ctx
 {
 	zval * list;
@@ -764,6 +858,10 @@ static const zend_function_entry mysqlx_base_session_methods[] = {
 
 	PHP_ME(mysqlx_base_session, dropCollection,		arginfo_mysqlx_base_session__drop_collection, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, dropTable,			arginfo_mysqlx_base_session__drop_table, ZEND_ACC_PUBLIC)
+
+	PHP_ME(mysqlx_base_session, startTransaction,	arginfo_mysqlx_base_session__start_transaction, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, commit,				arginfo_mysqlx_base_session__commit, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, rollback,			arginfo_mysqlx_base_session__rollback, ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_base_session, listClients,		arginfo_mysqlx_base_session__list_clients, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, killClient,			arginfo_mysqlx_base_session__kill_client, ZEND_ACC_PUBLIC)
