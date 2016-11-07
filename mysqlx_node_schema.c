@@ -84,6 +84,9 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_tables, 0, ZEND_RETURN_VA
 ZEND_END_ARG_INFO()
 
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_collection_as_table, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 
 struct st_mysqlx_node_schema
 {
@@ -348,6 +351,35 @@ PHP_METHOD(mysqlx_node_schema, getTable)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_schema::getCollectionAsTable(string name) */
+static
+PHP_METHOD(mysqlx_node_schema, getCollectionAsTable)
+{
+	struct st_mysqlx_node_schema * object;
+	zval * object_zv;
+	MYSQLND_CSTRING collection_name = { NULL, 0 };
+
+	DBG_ENTER("mysqlx_node_schema::getCollectionAsTable");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+												&object_zv, mysqlx_node_schema_class_entry,
+												&(collection_name.s), &(collection_name.l)))
+	{
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
+	RETVAL_FALSE;
+	if (collection_name.s && collection_name.l && object->schema) {
+		struct st_xmysqlnd_node_table * const table = object->schema->data->m.create_table_object(object->schema, collection_name);
+		mysqlx_new_node_table(return_value, table, FALSE /* no clone */);
+		if (Z_TYPE_P(return_value) != IS_OBJECT) {
+			xmysqlnd_node_table_free(table, NULL, NULL);
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 struct st_mysqlx_on_db_object_ctx
 {
 	zval * list;
@@ -477,6 +509,7 @@ static const zend_function_entry mysqlx_node_schema_methods[] = {
 	PHP_ME(mysqlx_node_schema, getCollections,		arginfo_mysqlx_node_schema__get_collections,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_schema, getTable,			arginfo_mysqlx_node_schema__get_table,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_schema, getTables,			arginfo_mysqlx_node_schema__get_tables,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, getCollectionAsTable,arginfo_mysqlx_node_schema__get_collection_as_table,	ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
