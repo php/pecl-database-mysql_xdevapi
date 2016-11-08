@@ -1,9 +1,9 @@
 --TEST--
-xmysqlnd complex query
+mysqlx complex query
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
 	$nodeSession = create_test_db();
 
@@ -12,7 +12,7 @@ xmysqlnd complex query
 	$schema = $nodeSession->getSchema($db);
 	$table = $schema->getTable("test_table");
 
-	$sel = $table->select(['age as age_group','count(name) as cnt'])->groupBy('age_group');
+	$sel = $table->select(['age as age_group', 'count(name) as cnt'])->groupBy('age_group');
 	$sel = $sel->where("age > 11 and 1 < 2 and 40 between 30 and 900");
 	$sel = $sel->having('cnt > 1');
 	$sel = $sel->orderBy('age_group desc');
@@ -20,12 +20,12 @@ xmysqlnd complex query
 	//$sel2 = $sel->groupBy('age_group');
 	$data = $res->fetchAll();
 	var_dump($data);
-        print "done!\n";
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 array(2) {
@@ -44,6 +44,4 @@ array(2) {
     int(2)
   }
 }
-done!
-%a
-
+done!%A

@@ -1,9 +1,9 @@
 --TEST--
-xmysqlnd collection modify arrayDelete
+mysqlx collection modify arrayDelete
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
 	$nodeSession = create_test_db();
 	$schema = $nodeSession->getSchema($db);
@@ -12,17 +12,17 @@ xmysqlnd collection modify arrayDelete
 	fill_db_collection($coll);
 
 
-	$coll->modify('job in (\'Programmatore\',\'Cantante\')')->arrayAppend('job','Volontario')->arrayAppend('job','Tassinaro')->execute();
-	$coll->modify('name in (\'Riccardo\',\'Carlo\')')->arrayDelete('job[0]')->execute();
-	$coll->modify('name in (\'Alfredo\',\'Leonardo\')')->arrayDelete('job[1]')->execute();
+	$coll->modify('job in (\'Programmatore\', \'Cantante\')')->arrayAppend('job', 'Volontario')->arrayAppend('job', 'Tassinaro')->execute();
+	$coll->modify('name in (\'Riccardo\', \'Carlo\')')->arrayDelete('job[0]')->execute();
+	$coll->modify('name in (\'Alfredo\', \'Leonardo\')')->arrayDelete('job[1]')->execute();
 	$coll->modify('name like \'Lonardo\'')->arrayDelete('job[0]')->execute();
 	var_dump($coll->find()->execute()->fetchAll());
-        print "done!\n";
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 array(16) {
@@ -107,6 +107,4 @@ array(16) {
     string(59) "{"_id": 9, "age": 35, "job": "Ballerino", "name": "Monica"}"
   }
 }
-done!
-%a
-
+done!%A

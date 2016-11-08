@@ -1,50 +1,50 @@
 --TEST--
-xmysqlnd table corner case
+mysqlx table delete/limit/orderBy
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
-function dump_all_row($table){
-    $res = $table->select(['age','name'])->execute();
-    $all_row = $res->fetchAll();
-    var_dump($all_row);
-}
+	function dump_all_row($table) {
+		$res = $table->select(['age', 'name'])->execute();
+		$all_row = $res->fetchAll();
+		var_dump($all_row);
+	}
 
-        $nodeSession = create_test_db();
+	$nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
-        $table = $schema->getTable("test_table");
+	$table = $schema->getTable("test_table");
 
-        $table->insert(["name", "age"])->values(["Sakila", 128])->values(["Sakila", 512])->execute();
-        $table->insert(["name", "age"])->values(["Oracila", 1024])->values(["Sakila", 2048])->execute();
-        $table->insert(["name", "age"])->values(["SuperSakila", 4096])->values(["SuperOracila", 8192])->execute();
-        $table->insert(["name", "age"])->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();
-        $table->insert(["name", "age"])->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
+	$table->insert(["name", "age"])->values(["Sakila", 128])->values(["Sakila", 512])->execute();
+	$table->insert(["name", "age"])->values(["Oracila", 1024])->values(["Sakila", 2048])->execute();
+	$table->insert(["name", "age"])->values(["SuperSakila", 4096])->values(["SuperOracila", 8192])->execute();
+	$table->insert(["name", "age"])->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();
+	$table->insert(["name", "age"])->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
 
-        try{
+	try {
 	    $table->delete()->where("name = :name")->orderby("id DESC")->limit(2)->bind(['name' => 'Sakila'])->execute();
-        }catch(Exception $e) {
-            print "exception!\n";
-        }
+	} catch(Exception $e) {
+		print "exception!\n";
+	}
 
-        dump_all_row($table);
+	dump_all_row($table);
 
 	$table->delete()->where("name = :name")->orderby("age DESC")->limit(2)->bind(['name' => 'Sakila'])->execute();
 
-        dump_all_row($table);
+	dump_all_row($table);
 
-        try{
+	try {
 	    $table->delete()->where("name = :name")->orderby("age DESC")->limit(-1)->bind(['name' => 'Oracila'])->execute();
-        }catch(Exception $e) {
-            print "exception!\n";
-        }
+	} catch(Exception $e) {
+		print "exception!\n";
+	}
 
 	$table->delete()->where("name = :name")->orderby("age ASC")->limit(3)->bind(['name' => 'Oracila'])->execute();
 
-        dump_all_row($table);
+	dump_all_row($table);
 
-        print "done!\n";
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
@@ -221,6 +221,4 @@ array(5) {
     string(7) "Oracila"
   }
 }
-done!
-%a
-
+done!%A

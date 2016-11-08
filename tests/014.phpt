@@ -1,9 +1,9 @@
 --TEST--
-xmysqlnd collection modify sort/replace/merge
+mysqlx collection modify sort/replace/merge
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
 	$nodeSession = create_test_db();
 	$schema = $nodeSession->getSchema($db);
@@ -11,24 +11,24 @@ xmysqlnd collection modify sort/replace/merge
 
 	fill_db_collection($coll);
 
-	$obj = $coll->modify('age > :age1 and age < :age2')->bind(['age1' => 25,'age2' => 40]);
-	$data = $obj->sort(['_id desc'])->limit(2)->replace('job','Disoccupato')->execute();
+	$obj = $coll->modify('age > :age1 and age < :age2')->bind(['age1' => 25, 'age2' => 40]);
+	$data = $obj->sort(['_id desc'])->limit(2)->replace('job', 'Disoccupato')->execute();
 
 	var_dump($coll->find('job like \'Disoccupato\'')->execute()->fetchAll());
 
 	$coll->remove('(_id > 1 and _id < 8) or (_id > 11 and _id < 15)')->execute();
 	$coll->modify('_id >= 1 and _id <= 9')->unset(['age'])->execute();
-	$coll->modify()->sort(['name desc','age asc'])->limit(4)->set('Married','NO')->execute();
+	$coll->modify()->sort(['name desc', 'age asc'])->limit(4)->set('Married', 'NO')->execute();
 
-	$coll->modify('Married like \'NO\'')->merge('{\'Divorced\' : \'NO\' , \'Vegan\' : \'YES\'}')->execute();
+	$coll->modify('Married like \'NO\'')->merge('{\'Divorced\' : \'NO\', \'Vegan\' : \'YES\'}')->execute();
 
 	var_dump($coll->find()->execute()->fetchAll());
         print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 array(3) {
@@ -85,6 +85,5 @@ array(7) {
     string(101) "{"_id": 9, "job": "Disoccupato", "name": "Monica", "Vegan": "YES", "Married": "NO", "Divorced": "NO"}"
   }
 }
-done!
-%a
+done!%A
 

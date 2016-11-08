@@ -1,34 +1,34 @@
 --TEST--
-xmysqlnd select / fetch
+mysqlx select / fetch
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
-        $test = "100";
-        $nodeSession = create_test_db();
+	$test = "100";
+	$nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
 	$table = $schema->getTable("test_table");
 
-        $table->insert(["name", "age"])->values(["Sakila", 128])->values(["Oracila", 512])->execute();
-        $table->insert(["name", "age"])->values(["Jackie", 256])->execute();
-        $res = $table->select(['age','name'])->execute();
+	$table->insert(["name", "age"])->values(["Sakila", 128])->values(["Oracila", 512])->execute();
+	$table->insert(["name", "age"])->values(["Jackie", 256])->execute();
+	$res = $table->select(['age', 'name'])->execute();
 
 	var_dump($table->getName());
-        var_dump($res->fetchOne());
-        var_dump($res->fetchOne());
+	var_dump($res->fetchOne());
+	var_dump($res->fetchOne());
 	var_dump($res->fetchOne());
 
-        $all_row = $res->fetchAll();
-        var_dump($all_row);
+	$all_row = $res->fetchAll();
+	var_dump($all_row);
 
-        print "done!\n";
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 string(10) "test_table"
@@ -73,6 +73,4 @@ array(3) {
     string(6) "Jackie"
   }
 }
-done!
-%a
-
+done!%A

@@ -1,28 +1,28 @@
 --TEST--
-xmysqlnd table delete/where
+mysqlx table delete/where
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
-function dump_all_row($table){
-    $res = $table->select(['age','name'])->execute();
-    $all_row = $res->fetchAll();
-    var_dump($all_row);
-}
+	function dump_all_row($table) {
+		$res = $table->select(['age', 'name'])->execute();
+		$all_row = $res->fetchAll();
+		var_dump($all_row);
+	}
 
-        $nodeSession = create_test_db();
+	$nodeSession = create_test_db();
 
 	fill_db_table();
 
 	$schema = $nodeSession->getSchema($db);
 	$table = $schema->getTable('test_table');
 
-	$table->delete()->where('name in (\'Romy\',\'Caspian\',\'Olympia\',\'Mamie\') and age > :age_limit')->bind(['age_limit' => 13])->execute();
-	$table->delete()->where('name = \'bad_name\'')->limit(1)->execute();//Shall do nothing
+	$table->delete()->where('name in (\'Romy\', \'Caspian\', \'Olympia\', \'Mamie\') and age > :age_limit')->bind(['age_limit' => 13])->execute();
+	$table->delete()->where('name = \'bad_name\'')->limit(1)->execute(); //Shall do nothing
 	$table->delete()->orderby('age desc')->where('age < 20 and age > 12 and name != :name')->bind(['name' => 'Tierney'])->limit(2)->execute();
 	dump_all_row($table);
-        print "done!\n";
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
@@ -81,6 +81,4 @@ array(7) {
     string(7) "Tierney"
   }
 }
-done!
-%a
-
+done!%A

@@ -1,40 +1,38 @@
 --TEST--
-xmysqlnd getTable with wrong table / insert
+mysqlx getTable with wrong table / insert
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
-        $test = "000";
+	$test = "000";
 
-        $nodeSession = create_test_db();
+	$nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
-        $table = $schema->getTable("wrong_table");
+	$table = $schema->getTable("wrong_table");
 
 	$table_exist = $table->existsInDatabase();
-	if($table_exist == false)
-	    $test[0] = "1";
+	if ($table_exist == false)
+		$test[0] = "1";
 
-	try{
-            $table->insert(["name", "age"])->values(["Jackie", 256])->execute();
-        }catch(Exception $e){
-            $test[1] = "1";
-        }
-        $table = $schema->getTable("");
-        if(is_bool($table) && $table == false)
-            $test[2] = "1";
+	try {
+		$table->insert(["name", "age"])->values(["Jackie", 256])->execute();
+	} catch(Exception $e) {
+		$test[1] = "1";
+	}
+	$table = $schema->getTable("");
+	if (is_bool($table) && $table == false)
+		$test[2] = "1";
 
-        var_dump($test);
-        print "done!\n";
+	var_dump($test);
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 string(3) "111"
-done!
-%a
-
+done!%A

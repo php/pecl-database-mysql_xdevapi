@@ -1,9 +1,9 @@
 --TEST--
-xmysqlnd modify arrayAppend/Insert
+mysqlx modify arrayAppend/Insert
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
 	$nodeSession = create_test_db();
 	$schema = $nodeSession->getSchema($db);
@@ -11,28 +11,28 @@ xmysqlnd modify arrayAppend/Insert
 
 	fill_db_collection($coll);
 
-	$coll->modify('name in (\'Marco\',\'Alfredo\',\'Carlo\',\'Leonardo\')')->arrayAppend('job','Grafico')->set('name','ENTITY')->execute();
-	$coll->modify('name like :name')->arrayInsert('job[0]','Calciatore')->bind(['name' => 'ENTITY'])->execute();
+	$coll->modify('name in (\'Marco\', \'Alfredo\', \'Carlo\', \'Leonardo\')')->arrayAppend('job', 'Grafico')->set('name', 'ENTITY')->execute();
+	$coll->modify('name like :name')->arrayInsert('job[0]', 'Calciatore')->bind(['name' => 'ENTITY'])->execute();
 	$coll->modify('age > :age')->sort('age desc')->unset(['age'])->bind(['age' => 20])->limit(4)->skip(0)->execute();//TODO: only skip(0) allowed?
 	$coll->modify('name like \'ENTITY\' and age > :age')->bind(['age' => 23])->unset(['age'])->execute();
-	$coll->modify('name in (\'ENTITY\',\'Lucia\')')->sort('_id desc')->limit(2)->set('auto','BMW')->execute();
+	$coll->modify('name in (\'ENTITY\', \'Lucia\')')->sort('_id desc')->limit(2)->set('auto', 'BMW')->execute();
 
-	try{
-	    $coll->modify()->limit(-1)->unset('name')->execute();
-	}catch(Exception $ex)
-	{
-	    print "Exception!\n";
+	try {
+		$coll->modify()->limit(-1)->unset('name')->execute();
+	} catch(Exception $ex) {
+		print "Exception!\n";
 	}
-	$res = $coll->find('name in (\'ENTITY\',\'Lucia\')')->execute();
+	$res = $coll->find('name in (\'ENTITY\', \'Lucia\')')->execute();
 	$data = $res->fetchAll();
 	var_dump($data);
 
-        print "done!\n";
+	print "done!
+";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 Exception!
@@ -68,6 +68,4 @@ array(6) {
     string(94) "{"_id": 7, "job": ["Calciatore", "Programmatore", "Grafico"], "auto": "BMW", "name": "ENTITY"}"
   }
 }
-done!
-%a
-
+done!%A

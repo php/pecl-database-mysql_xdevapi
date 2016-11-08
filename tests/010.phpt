@@ -1,38 +1,38 @@
 --TEST--
-xmysqlnd update
+mysqlx update
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
-function dump_all_row($table){
-    $res = $table->select(['age','name'])->execute();
-    $all_row = $res->fetchAll();
-    var_dump($all_row);
-}
+	function dump_all_row($table){
+		$res = $table->select(['age', 'name'])->execute();
+		$all_row = $res->fetchAll();
+		var_dump($all_row);
+	}
 
-        $nodeSession = create_test_db();
+	$nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
-        $table = $schema->getTable("test_table");
+	$table = $schema->getTable("test_table");
 
-        $table->insert(["name", "age"])->values(["Sakila", 128])->values(["Sakila", 512])->execute();
-        $table->insert(["name", "age"])->values(["Oracila", 1024])->values(["Sakila", 2048])->execute();
-        $table->insert(["name", "age"])->values(["SuperSakila", 4096])->values(["SuperOracila", 8192])->execute();
-        $table->insert(["name", "age"])->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();
-        $table->insert(["name", "age"])->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
+	$table->insert(["name", "age"])->values(["Sakila", 128])->values(["Sakila", 512])->execute();
+	$table->insert(["name", "age"])->values(["Oracila", 1024])->values(["Sakila", 2048])->execute();
+	$table->insert(["name", "age"])->values(["SuperSakila", 4096])->values(["SuperOracila", 8192])->execute();
+	$table->insert(["name", "age"])->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();
+	$table->insert(["name", "age"])->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
 
-	$table->update()->set('name','Alfonso')->where('name = :name and age > 2000')->bind(['name' => 'Oracila'])->execute();
-	$upd = $table->update()->orderBy('age desc')->set('age', 1)->set('name','Toddler');
+	$table->update()->set('name', 'Alfonso')->where('name = :name and age > 2000')->bind(['name' => 'Oracila'])->execute();
+	$upd = $table->update()->orderBy('age desc')->set('age', 1)->set('name', 'Toddler');
 	$upd->where('age > :param1 and age < :param2')->bind(['param1' => 500, 'param2' => 1901])->limit(2)->execute();
 	dump_all_row($table);
 
-        print "done!\n";
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 array(10) {
@@ -107,6 +107,4 @@ array(10) {
     string(7) "Toddler"
   }
 }
-done!
-%a
-
+done!%A
