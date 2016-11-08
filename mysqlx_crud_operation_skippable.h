@@ -15,45 +15,15 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#include <php.h>
-#undef ERROR
-#include "mysqlx_crud_operation_limitable.h"
+#ifndef MYSQLX_CRUD_OPERATION_SKIPPABLE_H
+#define MYSQLX_CRUD_OPERATION_SKIPPABLE_H
 
-zend_class_entry * mysqlx_crud_operation_limitable_interface_entry;
+extern zend_class_entry * mysqlx_crud_operation_skippable_interface_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
+void mysqlx_register_crud_operation_skippable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_crud_operation_skippable_interface(SHUTDOWN_FUNC_ARGS);
 
-
-ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_limitable__limit, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
-/* {{{ mysqlx_crud_operation_limitable_methods[] */
-static const zend_function_entry mysqlx_crud_operation_limitable_methods[] = {
-	PHP_ABSTRACT_ME(mysqlx_crud_operation_limitable, limit, mysqlx_crud_operation_limitable__limit)
-	{NULL, NULL, NULL}
-};
-/* }}} */
-
-
-/* {{{ mysqlx_register_crud_operation_limitable_interface */
-void
-mysqlx_register_crud_operation_limitable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
-{
-	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "CrudOperationLimitable", mysqlx_crud_operation_limitable_methods);
-	mysqlx_crud_operation_limitable_interface_entry = zend_register_internal_interface(&tmp_ce);
-}
-/* }}} */
-
-
-/* {{{ mysqlx_unregister_crud_operation_limitable_interface */
-void
-mysqlx_unregister_crud_operation_limitable_interface(SHUTDOWN_FUNC_ARGS)
-{
-}
-/* }}} */
+#endif /* MYSQLX_CRUD_OPERATION_SKIPPABLE_H */
 
 /*
  * Local variables:
@@ -63,4 +33,3 @@ mysqlx_unregister_crud_operation_limitable_interface(SHUTDOWN_FUNC_ARGS)
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
-

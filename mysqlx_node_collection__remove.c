@@ -198,45 +198,6 @@ PHP_METHOD(mysqlx_node_collection__remove, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_collection__remove::skip() */
-static
-PHP_METHOD(mysqlx_node_collection__remove, skip)
-{
-	struct st_mysqlx_node_collection__remove * object;
-	zval * object_zv;
-	zend_long position;
-
-	DBG_ENTER("mysqlx_node_collection__remove::skip");
-
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
-												&object_zv, mysqlx_node_collection__remove_class_entry,
-												&position))
-	{
-		DBG_VOID_RETURN;
-	}
-	if (position < 0) {
-		static const unsigned int errcode = 10006;
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);	
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
-
-	if (object->crud_op) {
-		if (PASS == xmysqlnd_crud_collection_remove__set_skip(object->crud_op, position)) {
-			ZVAL_COPY(return_value, object_zv);
-		}
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ proto mixed mysqlx_node_collection__remove::bind() */
 static
 PHP_METHOD(mysqlx_node_collection__remove, bind)
@@ -344,7 +305,6 @@ static const zend_function_entry mysqlx_node_collection__remove_methods[] = {
 	PHP_ME(mysqlx_node_collection__remove, bind,	arginfo_mysqlx_node_collection__remove__bind,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__remove, sort,	arginfo_mysqlx_node_collection__remove__sort,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__remove, limit,	arginfo_mysqlx_node_collection__remove__limit,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__remove, skip,	arginfo_mysqlx_node_collection__remove__skip,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__remove, execute,	arginfo_mysqlx_node_collection__remove__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}

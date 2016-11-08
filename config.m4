@@ -129,6 +129,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 						 mysqlx_class_properties.c \
 						 mysqlx_crud_operation_bindable.c \
 						 mysqlx_crud_operation_limitable.c \
+						 mysqlx_crud_operation_skippable.c \
 						 mysqlx_crud_operation_sortable.c \
 						 mysqlx_database_object.c \
 						 mysqlx_driver.c \

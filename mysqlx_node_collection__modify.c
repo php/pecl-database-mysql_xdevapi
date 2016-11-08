@@ -30,6 +30,7 @@
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"
+#include "mysqlx_crud_operation_skippable.h"
 #include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
@@ -718,10 +719,11 @@ mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS, zend_object_handle
 		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeCollectionModify", mysqlx_node_collection__modify_methods);
 		tmp_ce.create_object = php_mysqlx_node_collection__modify_object_allocator;
 		mysqlx_node_collection__modify_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_node_collection__modify_class_entry, 4,
+		zend_class_implements(mysqlx_node_collection__modify_class_entry, 5,
 							  mysqlx_executable_interface_entry,
 							  mysqlx_crud_operation_bindable_interface_entry,
 							  mysqlx_crud_operation_limitable_interface_entry,
+							  mysqlx_crud_operation_skippable_interface_entry,
 							  mysqlx_crud_operation_sortable_interface_entry);
 	}
 

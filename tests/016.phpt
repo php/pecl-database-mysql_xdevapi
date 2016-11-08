@@ -13,11 +13,7 @@ xmysqlnd collection delete
 
 	$coll->remove('age > :age_from and age < :age_to')->bind(['age_from' => 20,'age_to' => 50])->limit(7)->execute();
 
-	/*
-	    TODO: Remove skip from Collection.Remove.
-	    Skip is not supported by Collection.Remove, for coverage reason I'm adding this call though.
-	*/
-	$coll->remove()->sort('age desc')->limit(2)->skip(0)->execute();
+	$coll->remove()->sort('age desc')->limit(2)->execute();
 	$coll->modify('_id in (1,13,5,7)')->unset(['age'])->execute();
 	$coll->remove('job in (\'Barista\',\'Programmatore\',\'Ballerino\',\'Programmatrice\')')->limit(5)->sort(['age desc','name asc'])->execute();
 
