@@ -21,6 +21,7 @@
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"
+#include "mysqlx_crud_operation_skippable.h"
 #include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_database_object.h"
 #include "mysqlx_schema_object.h"

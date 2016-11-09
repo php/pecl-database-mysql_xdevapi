@@ -233,7 +233,7 @@ mysqlx_new_execution_status(zval * return_value, const XMYSQLND_STMT_EXECUTION_S
 			object->items_matched = status->m->get_matched_items_count(status);
 			object->items_found = status->m->get_found_items_count(status);
 			object->last_insert_id = status->m->get_last_insert_id(status);
-			//object->last_document_id = status->m->get_last_document_id(status);
+			object->last_document_id = mnd_str2c(mnd_dup_cstring(status->m->get_last_document_id(status), FALSE));
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

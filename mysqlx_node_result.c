@@ -165,7 +165,7 @@ PHP_METHOD(mysqlx_node_result, getLastDocumentId)
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (exec_state) {
 			MYSQLND_CSTRING value = exec_state->m->get_last_document_id(exec_state);
-			ZVAL_NEW_STR(return_value, value.s);
+			ZVAL_STRINGL(return_value, value.s, value.l);
 		}
 	}
 	DBG_VOID_RETURN;
