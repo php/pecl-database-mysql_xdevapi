@@ -22,6 +22,11 @@ mysqlx table delete/where
 	$table->delete()->where('name = \'bad_name\'')->limit(1)->execute(); //Shall do nothing
 	$table->delete()->orderby('age desc')->where('age < 20 and age > 12 and name != :name')->bind(['name' => 'Tierney'])->limit(2)->execute();
 	dump_all_row($table);
+
+	$nodeSession->dropTable($db,"test_table");
+	if($table->existsInDatabase() == false)
+	    print "OK".PHP_EOL;
+
 	print "done!\n";
 ?>
 --CLEAN--
@@ -81,4 +86,5 @@ array(7) {
     string(7) "Tierney"
   }
 }
+OK
 done!%A
