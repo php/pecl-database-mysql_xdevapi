@@ -41,10 +41,6 @@ zend_class_entry *mysqlx_base_session_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__create_statement, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, query, IS_STRING, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__get_server_version, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -54,6 +50,10 @@ ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__generate_uuid, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__quote_name, 0, ZEND_RETURN_VALUE, 1)
+	   ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__get_schemas, 0, ZEND_RETURN_VALUE, 0)
@@ -139,45 +139,6 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA *
 		DBG_RETURN(TRUE);
 	}
 	DBG_RETURN(FALSE);
-}
-/* }}} */
-
-
-/* {{{ proto mixed mysqlx_base_session::createStatement(string query) */
-static
-PHP_METHOD(mysqlx_base_session, createStatement)
-{
-	zval * object_zv;
-	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING query = {NULL, 0};
-
-	DBG_ENTER("mysqlx_base_session::createStatement");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_base_session_class_entry,
-																	   &(query.s), &(query.l)) == FAILURE)
-	{
-		DBG_VOID_RETURN;
-	}
-
-	if (!query.l) {
-		php_error_docref(NULL, E_WARNING, "Empty query");
-		RETVAL_FALSE;
-		DBG_VOID_RETURN;
-	}
-	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-
-	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session);
-		if (stmt) {
-			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query);
-			if (Z_TYPE_P(return_value) == IS_NULL) {
-				xmysqlnd_node_stmt_free(stmt, NULL, NULL);
-				mysqlx_throw_exception_from_session_if_needed(session->data);
-			}
-		}
-	}
-
-	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -846,10 +807,10 @@ PHP_METHOD(mysqlx_base_session, close)
 /* {{{ mysqlx_base_session_methods[] */
 static const zend_function_entry mysqlx_base_session_methods[] = {
 	PHP_ME(mysqlx_base_session, __construct, 		NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_base_session, createStatement,	arginfo_mysqlx_base_session__create_statement, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, getServerVersion,	arginfo_mysqlx_base_session__get_server_version, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, getClientId,		arginfo_mysqlx_base_session__get_client_id, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, generateUUID,		arginfo_mysqlx_base_session__generate_uuid, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, quoteName,			arginfo_mysqlx_base_session__quote_name, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, getSchemas,			arginfo_mysqlx_base_session__get_schemas, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, getSchema,			arginfo_mysqlx_base_session__get_schema, ZEND_ACC_PUBLIC)
 

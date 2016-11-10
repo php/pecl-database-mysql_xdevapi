@@ -115,4 +115,66 @@
 			$coll->add('{"_id":16, "name": "Leonardo",   "age": 23, "job": "Programmatore"}')->execute();
 		}
 	}
+
+	$number_of_expectations = 0;
+	$test_result_string = "";
+	/*
+		Used to compare expected values with actual values
+	*/
+	if( !function_exists('expect_eq')) {
+		function expect_eq($target, $expectation) {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			if( $target == $expectation ){
+				$test_result_string .= '1';
+			} else {
+				$test_result_string .= '0';
+			}
+		}
+	}
+	/*
+		Call this function to add a failing point
+		to the test
+	*/
+	if( !function_exists('test_step_failed')) {
+		function test_step_failed() {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+			$test_result_string .= 'F';
+		}
+	}
+	/*
+		Call this function to add a success point
+		to the test
+	*/
+	if( !function_exists('test_step_ok')) {
+		function test_step_ok() {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+			$test_result_string .= '1';
+		}
+	}
+	/*
+		Verify if there were missed expectations and
+		print out the test result string
+	*/
+	if( !function_exists('verify_expectations')) {
+		function verify_expectations() {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$expected = str_repeat( '1', $number_of_expectations );
+			if( $expected != $test_result_string) {
+				print 'Some expectation were not meet!'.PHP_EOL;
+				print 'Expected: '.$expected.', result: '.$test_result_string.PHP_EOL;
+			}
+		}
+	}
 ?>
