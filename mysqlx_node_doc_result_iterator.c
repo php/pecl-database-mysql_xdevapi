@@ -22,6 +22,7 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
+#include <xmysqlnd/xmysqlnd_utils.h>
 #include "mysqlx_node_doc_result.h"
 #include "mysqlx_object.h"
 
@@ -92,9 +93,14 @@ XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, fetch_current_data)(zend_object
 		zval_ptr_dtor(&iterator->current_row);
 		ZVAL_UNDEF(&iterator->current_row);
 
-		if (PASS == iterator->result->m.fetch_current(iterator->result, &iterator->current_row, NULL, NULL) &&
-			IS_ARRAY == Z_TYPE(iterator->current_row))
+		zval current_row;
+		ZVAL_UNDEF(&current_row);
+
+		if (PASS == iterator->result->m.fetch_current(iterator->result, &current_row, NULL, NULL) &&
+			IS_ARRAY == Z_TYPE(current_row))
 		{
+			xmysqlnd_utils_decode_doc_row(&current_row, &iterator->current_row);
+			zval_ptr_dtor(&current_row);
 			DBG_RETURN(PASS);
 		} else {
 			DBG_RETURN(FAIL);

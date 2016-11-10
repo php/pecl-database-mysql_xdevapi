@@ -17,6 +17,7 @@
 */
 #include <php.h>
 #undef ERROR
+#include <ext/json/php_json.h>
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_structs.h"
 #include "xmysqlnd_utils.h"
@@ -25,7 +26,9 @@
 extern "C" {
 #endif
 
-int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs)
+/* {{{ equal_mysqlnd_cstr */
+int 
+equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs)
 {
 	int result = 0;
 	if (lhs->l == rhs->l)
@@ -34,6 +37,37 @@ int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs)
 	}
 	return result;
 }
+/* }}} */
+
+
+/* {{{ xmysqlnd_utils_decode_doc_row */
+void
+xmysqlnd_utils_decode_doc_row(zval* src, zval* dest) 
+{ 
+	HashTable * row_ht = Z_ARRVAL_P(src);
+	zval* row_data = zend_hash_str_find(row_ht, "doc", sizeof("doc") - 1);
+	if (row_data && Z_TYPE_P(row_data) == IS_STRING) {
+		php_json_decode(dest, Z_STRVAL_P(row_data), Z_STRLEN_P(row_data), TRUE, PHP_JSON_PARSER_DEFAULT_DEPTH);
+	}
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_utils_decode_doc_rows */
+void
+xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest) 
+{ 
+	array_init(dest);
+	if (Z_TYPE_P(src) == IS_ARRAY) { 
+		zval* raw_row;
+		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(src), raw_row) {
+			zval row;
+			xmysqlnd_utils_decode_doc_row(raw_row, &row);
+			add_next_index_zval(dest, &row);
+		} ZEND_HASH_FOREACH_END();
+	}
+}
+/* }}} */
 
 #ifdef __cplusplus
 } /* extern "C" */

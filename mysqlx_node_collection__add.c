@@ -123,12 +123,12 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 			JSON_G(error_code) = PHP_JSON_ERROR_NONE;
 			JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
 			const int encode_flag = (Z_TYPE(object->json) == IS_OBJECT) ? PHP_JSON_FORCE_OBJECT : 0;
-			php_json_encode(&buf, &object->json, PHP_JSON_FORCE_OBJECT);
+			php_json_encode(&buf, &object->json, encode_flag);
 			DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
 			if (JSON_G(error_code) == PHP_JSON_ERROR_NONE) {
 				//TODO marines: there is fockup with lack of terminating zero, which makes troubles in 
 				// xmysqlnd_json_string_find_id, i.e. php_json_yyparse returns result != 0
-				if (buf.s->len <= buf.a)
+				if (buf.s->len < buf.a)
 				{
 					buf.s->val[buf.s->len] = '\0';
 				}

@@ -29,6 +29,7 @@
 #include <xmysqlnd/xmysqlnd_rowset_fwd.h>
 #include <xmysqlnd/xmysqlnd_warning_list.h>
 #include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
+#include <xmysqlnd/xmysqlnd_utils.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
@@ -93,7 +94,9 @@ PHP_METHOD(mysqlx_node_doc_result, fetchOne)
 		zval row;
 		ZVAL_UNDEF(&row);
 		if (PASS == object->result->m.fetch_current(object->result, &row, NULL, NULL)) {
-			ZVAL_COPY_VALUE(return_value, &row);
+			xmysqlnd_utils_decode_doc_row(&row, return_value);
+			//ZVAL_COPY_VALUE(return_value, &row);
+			zval_ptr_dtor(&row);
 			object->result->m.next(object->result, NULL, NULL);
 		}
 	}
@@ -122,7 +125,9 @@ PHP_METHOD(mysqlx_node_doc_result, fetchAll)
 		zval set;
 		ZVAL_UNDEF(&set);
 		if (PASS == object->result->m.fetch_all(object->result, &set, NULL, NULL)) {
-			ZVAL_COPY_VALUE(return_value, &set);
+			xmysqlnd_utils_decode_doc_rows(&set, return_value);
+			//ZVAL_COPY_VALUE(return_value, &set);
+			zval_ptr_dtor(&set);
 		}
 	}
 	DBG_VOID_RETURN;
