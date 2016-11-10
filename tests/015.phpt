@@ -27,84 +27,210 @@ mysqlx collection modify arrayDelete
 --EXPECTF--
 array(16) {
   [0]=>
-  array(1) {
-    ["doc"]=>
-    string(91) "{"_id": 1, "age": 19, "job": ["Programmatore", "Volontario", "Tassinaro"], "name": "Marco"}"
+  array(4) {
+    ["_id"]=>
+    int(1)
+    ["age"]=>
+    int(19)
+    ["job"]=>
+    array(3) {
+      [0]=>
+      string(13) "Programmatore"
+      [1]=>
+      string(10) "Volontario"
+      [2]=>
+      string(9) "Tassinaro"
+    }
+    ["name"]=>
+    string(5) "Marco"
   }
   [1]=>
-  array(1) {
-    ["doc"]=>
-    string(62) "{"_id": 10, "age": 29, "job": "Disoccupato", "name": "Giulio"}"
+  array(4) {
+    ["_id"]=>
+    int(10)
+    ["age"]=>
+    int(29)
+    ["job"]=>
+    string(11) "Disoccupato"
+    ["name"]=>
+    string(6) "Giulio"
   }
   [2]=>
-  array(1) {
-    ["doc"]=>
-    string(57) "{"_id": 11, "age": 47, "job": "Barista", "name": "Lucia"}"
+  array(4) {
+    ["_id"]=>
+    int(11)
+    ["age"]=>
+    int(47)
+    ["job"]=>
+    string(7) "Barista"
+    ["name"]=>
+    string(5) "Lucia"
   }
   [3]=>
-  array(1) {
-    ["doc"]=>
-    string(60) "{"_id": 12, "age": 31, "job": "Spazzino", "name": "Filippo"}"
+  array(4) {
+    ["_id"]=>
+    int(12)
+    ["age"]=>
+    int(31)
+    ["job"]=>
+    string(8) "Spazzino"
+    ["name"]=>
+    string(7) "Filippo"
   }
   [4]=>
-  array(1) {
-    ["doc"]=>
-    string(62) "{"_id": 13, "age": 15, "job": "Barista", "name": "Alessandra"}"
+  array(4) {
+    ["_id"]=>
+    int(13)
+    ["age"]=>
+    int(15)
+    ["job"]=>
+    string(7) "Barista"
+    ["name"]=>
+    string(10) "Alessandra"
   }
   [5]=>
-  array(1) {
-    ["doc"]=>
-    string(94) "{"_id": 14, "age": 22, "job": ["Programmatore", "Volontario", "Tassinaro"], "name": "Massimo"}"
+  array(4) {
+    ["_id"]=>
+    int(14)
+    ["age"]=>
+    int(22)
+    ["job"]=>
+    array(3) {
+      [0]=>
+      string(13) "Programmatore"
+      [1]=>
+      string(10) "Volontario"
+      [2]=>
+      string(9) "Tassinaro"
+    }
+    ["name"]=>
+    string(7) "Massimo"
   }
   [6]=>
-  array(1) {
-    ["doc"]=>
-    string(39) "{"_id": 15, "age": 37, "name": "Carlo"}"
+  array(3) {
+    ["_id"]=>
+    int(15)
+    ["age"]=>
+    int(37)
+    ["name"]=>
+    string(5) "Carlo"
   }
   [7]=>
-  array(1) {
-    ["doc"]=>
-    string(81) "{"_id": 16, "age": 23, "job": ["Programmatore", "Tassinaro"], "name": "Leonardo"}"
+  array(4) {
+    ["_id"]=>
+    int(16)
+    ["age"]=>
+    int(23)
+    ["job"]=>
+    array(2) {
+      [0]=>
+      string(13) "Programmatore"
+      [1]=>
+      string(9) "Tassinaro"
+    }
+    ["name"]=>
+    string(8) "Leonardo"
   }
   [8]=>
-  array(1) {
-    ["doc"]=>
-    string(40) "{"_id": 2, "age": 59, "name": "Lonardo"}"
+  array(3) {
+    ["_id"]=>
+    int(2)
+    ["age"]=>
+    int(59)
+    ["name"]=>
+    string(7) "Lonardo"
   }
   [9]=>
-  array(1) {
-    ["doc"]=>
-    string(77) "{"_id": 3, "age": 27, "job": ["Volontario", "Tassinaro"], "name": "Riccardo"}"
+  array(4) {
+    ["_id"]=>
+    int(3)
+    ["age"]=>
+    int(27)
+    ["job"]=>
+    array(2) {
+      [0]=>
+      string(10) "Volontario"
+      [1]=>
+      string(9) "Tassinaro"
+    }
+    ["name"]=>
+    string(8) "Riccardo"
   }
   [10]=>
-  array(1) {
-    ["doc"]=>
-    string(66) "{"_id": 4, "age": 23, "job": "Programmatrice", "name": "Carlotta"}"
+  array(4) {
+    ["_id"]=>
+    int(4)
+    ["age"]=>
+    int(23)
+    ["job"]=>
+    string(14) "Programmatrice"
+    ["name"]=>
+    string(8) "Carlotta"
   }
   [11]=>
-  array(1) {
-    ["doc"]=>
-    string(74) "{"_id": 5, "age": 25, "job": ["Volontario", "Tassinaro"], "name": "Carlo"}"
+  array(4) {
+    ["_id"]=>
+    int(5)
+    ["age"]=>
+    int(25)
+    ["job"]=>
+    array(2) {
+      [0]=>
+      string(10) "Volontario"
+      [1]=>
+      string(9) "Tassinaro"
+    }
+    ["name"]=>
+    string(5) "Carlo"
   }
   [12]=>
-  array(1) {
-    ["doc"]=>
-    string(68) "{"_id": 6, "age": 41, "job": "Programmatrice", "name": "Mariangela"}"
+  array(4) {
+    ["_id"]=>
+    int(6)
+    ["age"]=>
+    int(41)
+    ["job"]=>
+    string(14) "Programmatrice"
+    ["name"]=>
+    string(10) "Mariangela"
   }
   [13]=>
-  array(1) {
-    ["doc"]=>
-    string(79) "{"_id": 7, "age": 27, "job": ["Programmatore", "Tassinaro"], "name": "Alfredo"}"
+  array(4) {
+    ["_id"]=>
+    int(7)
+    ["age"]=>
+    int(27)
+    ["job"]=>
+    array(2) {
+      [0]=>
+      string(13) "Programmatore"
+      [1]=>
+      string(9) "Tassinaro"
+    }
+    ["name"]=>
+    string(7) "Alfredo"
   }
   [14]=>
-  array(1) {
-    ["doc"]=>
-    string(61) "{"_id": 8, "age": 42, "job": "Studente", "name": "Antonella"}"
+  array(4) {
+    ["_id"]=>
+    int(8)
+    ["age"]=>
+    int(42)
+    ["job"]=>
+    string(8) "Studente"
+    ["name"]=>
+    string(9) "Antonella"
   }
   [15]=>
-  array(1) {
-    ["doc"]=>
-    string(59) "{"_id": 9, "age": 35, "job": "Ballerino", "name": "Monica"}"
+  array(4) {
+    ["_id"]=>
+    int(9)
+    ["age"]=>
+    int(35)
+    ["job"]=>
+    string(9) "Ballerino"
+    ["name"]=>
+    string(6) "Monica"
   }
 }
 done!%A

@@ -69,55 +69,87 @@ mysqlx collection find
 array(2) {
   [0]=>
   array(1) {
-    ["doc"]=>
-    string(11) "{"age": 27}"
+    ["age"]=>
+    int(27)
   }
   [1]=>
   array(1) {
-    ["doc"]=>
-    string(11) "{"age": 25}"
+    ["age"]=>
+    int(25)
   }
 }
 array(1) {
   [0]=>
-  array(1) {
-    ["doc"]=>
-    string(62) "{"_id": 5, "age": 25, "job": "Programmatore", "name": "Carlo"}"
+  array(4) {
+    ["_id"]=>
+    int(5)
+    ["age"]=>
+    int(25)
+    ["job"]=>
+    string(13) "Programmatore"
+    ["name"]=>
+    string(5) "Carlo"
   }
 }
 Exception!
 array(1) {
   [0]=>
-  array(1) {
-    ["doc"]=>
-    string(30) "{"age": 10, "job": "Studioso"}"
+  array(2) {
+    ["age"]=>
+    int(10)
+    ["job"]=>
+    string(8) "Studioso"
   }
 }
 array(5) {
   [0]=>
-  array(1) {
-    ["doc"]=>
-    string(54) "{"_id": 17, "age": 99, "job": "Cavia", "name": "Luca"}"
+  array(4) {
+    ["_id"]=>
+    int(17)
+    ["age"]=>
+    int(99)
+    ["job"]=>
+    string(5) "Cavia"
+    ["name"]=>
+    string(4) "Luca"
   }
   [1]=>
-  array(1) {
-    ["doc"]=>
-    string(57) "{"_id": 96, "age": 35, "job": "Cavia", "name": "Alfonso"}"
+  array(4) {
+    ["_id"]=>
+    int(96)
+    ["age"]=>
+    int(35)
+    ["job"]=>
+    string(5) "Cavia"
+    ["name"]=>
+    string(7) "Alfonso"
   }
   [2]=>
-  array(1) {
-    ["doc"]=>
-    string(42) "{"_id": 99, "job": "Cavia", "name": "Ugp"}"
+  array(3) {
+    ["_id"]=>
+    int(99)
+    ["job"]=>
+    string(5) "Cavia"
+    ["name"]=>
+    string(3) "Ugp"
   }
   [3]=>
-  array(1) {
-    ["doc"]=>
-    string(45) "{"_id": 98, "job": "Cavia", "name": "Simone"}"
+  array(3) {
+    ["_id"]=>
+    int(98)
+    ["job"]=>
+    string(5) "Cavia"
+    ["name"]=>
+    string(6) "Simone"
   }
   [4]=>
-  array(1) {
-    ["doc"]=>
-    string(45) "{"_id": 97, "job": "Cavia", "name": "Matteo"}"
+  array(3) {
+    ["_id"]=>
+    int(97)
+    ["job"]=>
+    string(5) "Cavia"
+    ["name"]=>
+    string(6) "Matteo"
   }
 }
 done!%A

@@ -3,7 +3,7 @@ mysqlx basic executeSql
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
 	$nodeSession = create_test_db();
 	$schema = $nodeSession->getSchema($db);
@@ -55,15 +55,13 @@ mysqlx basic executeSql
 	}
 
 	verify_expectations();
-        print "done!\n";
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 Exception!
-done!
-%a
-
+done!%A

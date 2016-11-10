@@ -33,57 +33,134 @@ mysqlx collection modify sort/replace/merge
 --EXPECTF--
 array(3) {
   [0]=>
-  array(1) {
-    ["doc"]=>
-    string(62) "{"_id": 10, "age": 29, "job": "Disoccupato", "name": "Giulio"}"
+  array(4) {
+    ["_id"]=>
+    int(10)
+    ["age"]=>
+    int(29)
+    ["job"]=>
+    string(11) "Disoccupato"
+    ["name"]=>
+    string(6) "Giulio"
   }
   [1]=>
-  array(1) {
-    ["doc"]=>
-    string(62) "{"_id": 7, "age": 27, "job": "Disoccupato", "name": "Alfredo"}"
+  array(4) {
+    ["_id"]=>
+    int(7)
+    ["age"]=>
+    int(27)
+    ["job"]=>
+    string(11) "Disoccupato"
+    ["name"]=>
+    string(7) "Alfredo"
   }
   [2]=>
-  array(1) {
-    ["doc"]=>
-    string(61) "{"_id": 9, "age": 35, "job": "Disoccupato", "name": "Monica"}"
+  array(4) {
+    ["_id"]=>
+    int(9)
+    ["age"]=>
+    int(35)
+    ["job"]=>
+    string(11) "Disoccupato"
+    ["name"]=>
+    string(6) "Monica"
   }
 }
 array(7) {
   [0]=>
-  array(1) {
-    ["doc"]=>
-    string(102) "{"_id": 1, "job": "Programmatore", "name": "Marco", "Vegan": "YES", "Married": "NO", "Divorced": "NO"}"
+  array(6) {
+    ["_id"]=>
+    int(1)
+    ["job"]=>
+    string(13) "Programmatore"
+    ["name"]=>
+    string(5) "Marco"
+    ["Vegan"]=>
+    string(3) "YES"
+    ["Married"]=>
+    string(2) "NO"
+    ["Divorced"]=>
+    string(2) "NO"
   }
   [1]=>
-  array(1) {
-    ["doc"]=>
-    string(62) "{"_id": 10, "age": 29, "job": "Disoccupato", "name": "Giulio"}"
+  array(4) {
+    ["_id"]=>
+    int(10)
+    ["age"]=>
+    int(29)
+    ["job"]=>
+    string(11) "Disoccupato"
+    ["name"]=>
+    string(6) "Giulio"
   }
   [2]=>
-  array(1) {
-    ["doc"]=>
-    string(108) "{"_id": 11, "age": 47, "job": "Barista", "name": "Lucia", "Vegan": "YES", "Married": "NO", "Divorced": "NO"}"
+  array(7) {
+    ["_id"]=>
+    int(11)
+    ["age"]=>
+    int(47)
+    ["job"]=>
+    string(7) "Barista"
+    ["name"]=>
+    string(5) "Lucia"
+    ["Vegan"]=>
+    string(3) "YES"
+    ["Married"]=>
+    string(2) "NO"
+    ["Divorced"]=>
+    string(2) "NO"
   }
   [3]=>
-  array(1) {
-    ["doc"]=>
-    string(60) "{"_id": 15, "age": 37, "job": "Calciatore", "name": "Carlo"}"
+  array(4) {
+    ["_id"]=>
+    int(15)
+    ["age"]=>
+    int(37)
+    ["job"]=>
+    string(10) "Calciatore"
+    ["name"]=>
+    string(5) "Carlo"
   }
   [4]=>
-  array(1) {
-    ["doc"]=>
-    string(117) "{"_id": 16, "age": 23, "job": "Programmatore", "name": "Leonardo", "Vegan": "YES", "Married": "NO", "Divorced": "NO"}"
+  array(7) {
+    ["_id"]=>
+    int(16)
+    ["age"]=>
+    int(23)
+    ["job"]=>
+    string(13) "Programmatore"
+    ["name"]=>
+    string(8) "Leonardo"
+    ["Vegan"]=>
+    string(3) "YES"
+    ["Married"]=>
+    string(2) "NO"
+    ["Divorced"]=>
+    string(2) "NO"
   }
   [5]=>
-  array(1) {
-    ["doc"]=>
-    string(50) "{"_id": 8, "job": "Studente", "name": "Antonella"}"
+  array(3) {
+    ["_id"]=>
+    int(8)
+    ["job"]=>
+    string(8) "Studente"
+    ["name"]=>
+    string(9) "Antonella"
   }
   [6]=>
-  array(1) {
-    ["doc"]=>
-    string(101) "{"_id": 9, "job": "Disoccupato", "name": "Monica", "Vegan": "YES", "Married": "NO", "Divorced": "NO"}"
+  array(6) {
+    ["_id"]=>
+    int(9)
+    ["job"]=>
+    string(11) "Disoccupato"
+    ["name"]=>
+    string(6) "Monica"
+    ["Vegan"]=>
+    string(3) "YES"
+    ["Married"]=>
+    string(2) "NO"
+    ["Divorced"]=>
+    string(2) "NO"
   }
 }
 done!%A
-

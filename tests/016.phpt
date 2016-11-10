@@ -28,14 +28,22 @@ mysqlx collection delete
 --EXPECTF--
 array(2) {
   [0]=>
-  array(1) {
-    ["doc"]=>
-    string(51) "{"_id": 1, "job": "Programmatore", "name": "Marco"}"
+  array(3) {
+    ["_id"]=>
+    int(1)
+    ["job"]=>
+    string(13) "Programmatore"
+    ["name"]=>
+    string(5) "Marco"
   }
   [1]=>
-  array(1) {
-    ["doc"]=>
-    string(51) "{"_id": 5, "job": "Programmatore", "name": "Carlo"}"
+  array(3) {
+    ["_id"]=>
+    int(5)
+    ["job"]=>
+    string(13) "Programmatore"
+    ["name"]=>
+    string(5) "Carlo"
   }
 }
 done!%A

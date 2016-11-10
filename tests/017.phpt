@@ -3,7 +3,7 @@ mysqlx session minor TC's
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
 	$test = "000";
 
@@ -12,15 +12,15 @@ mysqlx session minor TC's
 
 	$svr_version = $nodeSession->getServerVersion();
 	if(is_int($svr_version) && $svr_version != 0)
-	    $test[0] = "1";
+		$test[0] = "1";
 
 	$cli_id = $nodeSession->getClientId();
 	if(is_int($cli_id) && $cli_id != 0)
-	    $test[1] = "1";
+		$test[1] = "1";
 
 	$uuid = $nodeSession->generateUUID();
 	if(is_string($uuid) && !empty($uuid) != 0)
-	    $test[2] = "1";
+		$test[2] = "1";
 
 	var_dump($nodeSession->quoteName("test test test"));
 	var_dump($nodeSession->quoteName("x'y'z' test"));
@@ -34,12 +34,12 @@ mysqlx session minor TC's
 
 	var_dump($test);
 
-        print "done!\n";
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 string(16) "`test test test`"
@@ -49,6 +49,4 @@ string(16) "`test test test`"
 string(13) "`x'y'z' test`"
 string(0) ""
 string(3) "111"
-done!
-%a
-
+done!%A

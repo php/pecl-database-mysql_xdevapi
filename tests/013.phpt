@@ -38,34 +38,101 @@ mysqlx modify arrayAppend/Insert
 Exception!
 array(6) {
   [0]=>
-  array(1) {
-    ["doc"]=>
-    string(90) "{"_id": 1, "age": 19, "job": ["Calciatore", "Programmatore", "Grafico"], "name": "ENTITY"}"
+  array(4) {
+    ["_id"]=>
+    int(1)
+    ["age"]=>
+    int(19)
+    ["job"]=>
+    array(3) {
+      [0]=>
+      string(10) "Calciatore"
+      [1]=>
+      string(13) "Programmatore"
+      [2]=>
+      string(7) "Grafico"
+    }
+    ["name"]=>
+    string(6) "ENTITY"
   }
   [1]=>
-  array(1) {
-    ["doc"]=>
-    string(46) "{"_id": 11, "job": "Barista", "name": "Lucia"}"
+  array(3) {
+    ["_id"]=>
+    int(11)
+    ["job"]=>
+    string(7) "Barista"
+    ["name"]=>
+    string(5) "Lucia"
   }
   [2]=>
-  array(1) {
-    ["doc"]=>
-    string(77) "{"_id": 15, "job": ["Calciatore", "Calciatore", "Grafico"], "name": "ENTITY"}"
+  array(3) {
+    ["_id"]=>
+    int(15)
+    ["job"]=>
+    array(3) {
+      [0]=>
+      string(10) "Calciatore"
+      [1]=>
+      string(10) "Calciatore"
+      [2]=>
+      string(7) "Grafico"
+    }
+    ["name"]=>
+    string(6) "ENTITY"
   }
   [3]=>
-  array(1) {
-    ["doc"]=>
-    string(91) "{"_id": 16, "age": 23, "job": ["Calciatore", "Programmatore", "Grafico"], "name": "ENTITY"}"
+  array(4) {
+    ["_id"]=>
+    int(16)
+    ["age"]=>
+    int(23)
+    ["job"]=>
+    array(3) {
+      [0]=>
+      string(10) "Calciatore"
+      [1]=>
+      string(13) "Programmatore"
+      [2]=>
+      string(7) "Grafico"
+    }
+    ["name"]=>
+    string(6) "ENTITY"
   }
   [4]=>
-  array(1) {
-    ["doc"]=>
-    string(94) "{"_id": 5, "job": ["Calciatore", "Programmatore", "Grafico"], "auto": "BMW", "name": "ENTITY"}"
+  array(4) {
+    ["_id"]=>
+    int(5)
+    ["job"]=>
+    array(3) {
+      [0]=>
+      string(10) "Calciatore"
+      [1]=>
+      string(13) "Programmatore"
+      [2]=>
+      string(7) "Grafico"
+    }
+    ["auto"]=>
+    string(3) "BMW"
+    ["name"]=>
+    string(6) "ENTITY"
   }
   [5]=>
-  array(1) {
-    ["doc"]=>
-    string(94) "{"_id": 7, "job": ["Calciatore", "Programmatore", "Grafico"], "auto": "BMW", "name": "ENTITY"}"
+  array(4) {
+    ["_id"]=>
+    int(7)
+    ["job"]=>
+    array(3) {
+      [0]=>
+      string(10) "Calciatore"
+      [1]=>
+      string(13) "Programmatore"
+      [2]=>
+      string(7) "Grafico"
+    }
+    ["auto"]=>
+    string(3) "BMW"
+    ["name"]=>
+    string(6) "ENTITY"
   }
 }
 done!%A
