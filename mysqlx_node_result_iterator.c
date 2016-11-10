@@ -26,7 +26,7 @@
 #include "mysqlx_object.h"
 
 
-struct st_mysqlx_node_sql_result_iterator
+struct st_mysqlx_node__result_iterator
 {
 	zend_object_iterator  intern;
 	XMYSQLND_NODE_STMT_RESULT * result;
@@ -37,12 +37,12 @@ struct st_mysqlx_node_sql_result_iterator
 };
 
 
-/* {{{ mysqlx_node_sql_result_iterator::dtor */
+/* {{{ mysqlx_node__result_iterator::dtor */
 static void
-XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, dtor)(zend_object_iterator * iter)
+XMYSQLND_METHOD(mysqlx_node__result_iterator, dtor)(zend_object_iterator * iter)
 {
-	struct st_mysqlx_node_sql_result_iterator * iterator = (struct st_mysqlx_node_sql_result_iterator *) iter;
-	DBG_ENTER("mysqlx_node_sql_result_iterator::dtor");
+	struct st_mysqlx_node__result_iterator * iterator = (struct st_mysqlx_node__result_iterator *) iter;
+	DBG_ENTER("mysqlx_node__result_iterator::dtor");
 	if (iterator->result) {
 		iterator->result->m.free_reference(iterator->result, NULL, NULL);
 	}
@@ -55,12 +55,12 @@ XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, dtor)(zend_object_iterator * it
 /* }}} */
 
 
-/* {{{ mysqlx_node_sql_result_iterator::valid */
+/* {{{ mysqlx_node__result_iterator::valid */
 static int
-XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, valid)(zend_object_iterator * iter)
+XMYSQLND_METHOD(mysqlx_node__result_iterator, valid)(zend_object_iterator * iter)
 {
-	struct st_mysqlx_node_sql_result_iterator * iterator = (struct st_mysqlx_node_sql_result_iterator *) iter;
-	DBG_ENTER("mysqlx_node_sql_result_iterator::valid");
+	struct st_mysqlx_node__result_iterator * iterator = (struct st_mysqlx_node__result_iterator *) iter;
+	DBG_ENTER("mysqlx_node__result_iterator::valid");
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	DBG_RETURN(iterator->usable? SUCCESS:FAILURE);
 }
@@ -69,24 +69,24 @@ XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, valid)(zend_object_iterator * i
 
 #include "ext/standard/php_var.h"
 
-/* {{{ mysqlx_node_sql_result_iterator::current_data */
+/* {{{ mysqlx_node__result_iterator::current_data */
 static zval *
-XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, current_data)(zend_object_iterator * iter)
+XMYSQLND_METHOD(mysqlx_node__result_iterator, current_data)(zend_object_iterator * iter)
 {
-	struct st_mysqlx_node_sql_result_iterator * iterator = (struct st_mysqlx_node_sql_result_iterator *) iter;
-	DBG_ENTER("mysqlx_node_sql_result_iterator::current_data");
+	struct st_mysqlx_node__result_iterator * iterator = (struct st_mysqlx_node__result_iterator *) iter;
+	DBG_ENTER("mysqlx_node__result_iterator::current_data");
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	DBG_RETURN((iterator->result && iterator->usable)? &iterator->current_row : NULL);
 }
 /* }}} */
 
 
-/* {{{ mysqlx_node_sql_result_iterator::fetch_current_data */
+/* {{{ mysqlx_node__result_iterator::fetch_current_data */
 static enum_func_status
-XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, fetch_current_data)(zend_object_iterator * iter)
+XMYSQLND_METHOD(mysqlx_node__result_iterator, fetch_current_data)(zend_object_iterator * iter)
 {
-	struct st_mysqlx_node_sql_result_iterator * iterator = (struct st_mysqlx_node_sql_result_iterator *) iter;
-	DBG_ENTER("mysqlx_node_sql_result_iterator::fetch_current_data");
+	struct st_mysqlx_node__result_iterator * iterator = (struct st_mysqlx_node__result_iterator *) iter;
+	DBG_ENTER("mysqlx_node__result_iterator::fetch_current_data");
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	if (iterator->result && iterator->usable) {
 		zval_ptr_dtor(&iterator->current_row);
@@ -105,16 +105,16 @@ XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, fetch_current_data)(zend_object
 /* }}} */
 
 
-/* {{{ mysqlx_node_sql_result_iterator::next */
+/* {{{ mysqlx_node__result_iterator::next */
 static void
-XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, next)(zend_object_iterator * iter)
+XMYSQLND_METHOD(mysqlx_node__result_iterator, next)(zend_object_iterator * iter)
 {
-	struct st_mysqlx_node_sql_result_iterator * iterator = (struct st_mysqlx_node_sql_result_iterator *) iter;
-	DBG_ENTER("mysqlx_node_sql_result_iterator::next");
+	struct st_mysqlx_node__result_iterator * iterator = (struct st_mysqlx_node__result_iterator *) iter;
+	DBG_ENTER("mysqlx_node__result_iterator::next");
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	if (iterator->result && iterator->usable) {
 		if (PASS == iterator->result->m.next(iterator->result, NULL, NULL) &&
-			PASS == XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, fetch_current_data)(iter))
+			PASS == XMYSQLND_METHOD(mysqlx_node__result_iterator, fetch_current_data)(iter))
 		{
 			iterator->row_num++;
 		} else {
@@ -126,24 +126,24 @@ XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, next)(zend_object_iterator * it
 /* }}} */
 
 
-/* {{{ mysqlx_node_sql_result_iterator::rewind */
+/* {{{ mysqlx_node__result_iterator::rewind */
 static void
-XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, rewind)(zend_object_iterator * iter)
+XMYSQLND_METHOD(mysqlx_node__result_iterator, rewind)(zend_object_iterator * iter)
 {
-	struct st_mysqlx_node_sql_result_iterator * iterator = (struct st_mysqlx_node_sql_result_iterator *) iter;
-	DBG_ENTER("mysqlx_node_sql_result_iterator::rewind");
+	struct st_mysqlx_node__result_iterator * iterator = (struct st_mysqlx_node__result_iterator *) iter;
+	DBG_ENTER("mysqlx_node__result_iterator::rewind");
 	if (iterator->result && iterator->usable) {
 		iterator->started = FALSE;
 		iterator->row_num = 0;
 		if (PASS == iterator->result->m.rewind(iterator->result) &&
-			PASS == XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, fetch_current_data)(iter))
+			PASS == XMYSQLND_METHOD(mysqlx_node__result_iterator, fetch_current_data)(iter))
 		{
 			iterator->usable = TRUE;
 			iterator->started = TRUE;
 		} else {
 			iterator->usable = FALSE;
 		}
-//			XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, next)(iter);
+//			XMYSQLND_METHOD(mysqlx_node__result_iterator, next)(iter);
 		DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	}
 	DBG_VOID_RETURN;
@@ -151,40 +151,40 @@ XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, rewind)(zend_object_iterator * 
 /* }}} */
 
 
-/* {{{ mysqlx_node_sql_result_iterator_funcs */
-static zend_object_iterator_funcs mysqlx_node_sql_result_iterator_funcs =
+/* {{{ mysqlx_node__result_iterator_funcs */
+static zend_object_iterator_funcs mysqlx_node__result_iterator_funcs =
 {
-	XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, dtor),
-	XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, valid),
-	XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, current_data),
+	XMYSQLND_METHOD(mysqlx_node__result_iterator, dtor),
+	XMYSQLND_METHOD(mysqlx_node__result_iterator, valid),
+	XMYSQLND_METHOD(mysqlx_node__result_iterator, current_data),
 	NULL, /* not provided, thus Zend will provide auto_inc keys */
-	XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, next),
-	XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, rewind),
+	XMYSQLND_METHOD(mysqlx_node__result_iterator, next),
+	XMYSQLND_METHOD(mysqlx_node__result_iterator, rewind),
 };
 /* }}} */
 
 
-/* {{{ mysqlx_node_sql_result_create_iterator */
+/* {{{ mysqlx_node__result_create_iterator */
 static zend_object_iterator *
-mysqlx_node_sql_result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
+mysqlx_node__result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
 {
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P(object);
 	struct st_mysqlx_node_result * mysqlx_result = mysqlx_object->ptr? mysqlx_object->ptr:NULL;
-	struct st_mysqlx_node_sql_result_iterator * iterator = NULL;
+	struct st_mysqlx_node__result_iterator * iterator = NULL;
 
-	DBG_ENTER("mysqlx_node_sql_result_create_iterator");
+	DBG_ENTER("mysqlx_node__result_create_iterator");
 	if (by_ref) {
 		DBG_ERR("An iterator cannot be used with foreach by reference");
 		zend_error(E_ERROR, "An iterator cannot be used with foreach by reference");
 		DBG_RETURN(NULL);
 	}
-	iterator = ecalloc(1, sizeof(struct st_mysqlx_node_sql_result_iterator));
+	iterator = ecalloc(1, sizeof(struct st_mysqlx_node__result_iterator));
 	if (iterator) {
 		zend_iterator_init(&iterator->intern);
 
 		ZVAL_COPY(&iterator->intern.data, object);
 
-		iterator->intern.funcs = &mysqlx_node_sql_result_iterator_funcs;
+		iterator->intern.funcs = &mysqlx_node__result_iterator_funcs;
 		iterator->row_num = 0;
 		iterator->started = FALSE;
 		iterator->usable = TRUE;
@@ -200,8 +200,8 @@ mysqlx_node_sql_result_create_iterator(zend_class_entry * ce, zval * object, int
 void
 mysqlx_register_node_result_iterator(zend_class_entry * ce)
 {
-	ce->get_iterator = mysqlx_node_sql_result_create_iterator;
-	ce->iterator_funcs.funcs = &mysqlx_node_sql_result_iterator_funcs;
+	ce->get_iterator = mysqlx_node__result_create_iterator;
+	ce->iterator_funcs.funcs = &mysqlx_node__result_iterator_funcs;
 
 	zend_class_implements(ce, 1, zend_ce_traversable);
 }
