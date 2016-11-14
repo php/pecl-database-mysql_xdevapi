@@ -118,50 +118,23 @@ PHP_METHOD(mysqlx_node_table__delete, where)
 
 	if (object->crud_op && where_expr)
 	{
-		switch (Z_TYPE_P(where_expr))
+
+		if(Z_TYPE_P(where_expr) != IS_STRING)
 		{
-			case IS_STRING: {
-				const MYSQLND_CSTRING where_expr_str = {Z_STRVAL_P(where_expr), Z_STRLEN_P(where_expr)};
-				if (PASS == xmysqlnd_crud_table_delete__set_criteria(object->crud_op, where_expr_str)) {
-					ZVAL_COPY(return_value, object_zv);
-				}
-				break;
-			}
-			case IS_ARRAY: {
-				zval * entry;
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(where_expr), entry)
-				{
-					const MYSQLND_CSTRING where_expr_str = {Z_STRVAL_P(entry), Z_STRLEN_P(entry)};
-					if (Z_TYPE_P(entry) != IS_STRING)
-					{
-						static const unsigned int errcode = 10003;
-						static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
-						static const MYSQLND_CSTRING errmsg = {"Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1};
-						mysqlx_new_exception(errcode, sqlstate, errmsg);
-						goto end;
-					}
-					if (FAIL == xmysqlnd_crud_table_delete__set_criteria(object->crud_op, where_expr_str))
-					{
-						static const unsigned int errcode = 10004;
-						static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
-						static const MYSQLND_CSTRING errmsg = {"Error while adding a where expression", sizeof("Error while adding a where expression") - 1};
-						mysqlx_new_exception(errcode, sqlstate, errmsg);
-						goto end;
-					}
-				} ZEND_HASH_FOREACH_END();
+			static const unsigned int errcode = 10005;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Parameter must be a string.", sizeof("Parameter must be a string.") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		}
+		else
+		{
+			const MYSQLND_CSTRING where_expr_str = {Z_STRVAL_P(where_expr), Z_STRLEN_P(where_expr)};
+			if (PASS == xmysqlnd_crud_table_delete__set_criteria(object->crud_op, where_expr_str)) {
 				ZVAL_COPY(return_value, object_zv);
-				break;
-			}
-						   /* fall-through */
-			default: {
-				static const unsigned int errcode = 10005;
-				static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
-				static const MYSQLND_CSTRING errmsg = {"Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1};
-				mysqlx_new_exception(errcode, sqlstate, errmsg);
 			}
 		}
 	}
-end:
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

@@ -8,6 +8,9 @@ mysqlx session minor TC's
 	$test = "000";
 
 	$nodeSession = create_test_db();
+
+	$schema = $nodeSession->getSchema("bad");
+
 	$schema = $nodeSession->getSchema($db);
 
 	$svr_version = $nodeSession->getServerVersion();

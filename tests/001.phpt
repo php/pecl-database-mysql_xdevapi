@@ -1,5 +1,5 @@
 --TEST--
-mysqlx getNodeSession (success/fail)
+mysqlx connection (success/fail)
 --SKIPIF--
 --INI--
 error_reporting=0
@@ -13,37 +13,45 @@ error_reporting=0
 	try {
 		$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
 	} catch(Exception $e) {
-		$test[0] = "0";
+		test_step_failed();
 	}
 
 	if (false == $nodeSession)
-		$test[0] = "0";
+		test_step_failed();
 
 	try {
 		$nodeSession = mysql_xdevapi\getNodeSession("bad_host", $user, $passwd);
+		test_step_failed();
 	} catch(Exception $e) {
-		$test[1] = "1";
+		expect_eq($e->getMessage(),
+			'[HY000] php_network_getaddresses: getaddrinfo failed: Name or service not known');
+		expect_eq($e->getCode(), 2002);
+		test_step_ok();
 	}
 
 	try {
 		$nodeSession = mysql_xdevapi\getNodeSession($host, "bad_user", $passwd);
 	} catch(Exception $e) {
-		$test[2] = "1";
+		expect_eq($e->getMessage(),
+			'[HY000] Invalid user or password');
+		expect_eq($e->getCode(), 1045);
+		test_step_ok();
 	}
 
 	try {
 		$nodeSession = mysql_xdevapi\getNodeSession($host, $user, "some_password");
 	} catch(Exception $e) {
-		$test[3] = "1";
+		expect_eq($e->getMessage(),
+			'[HY000] Invalid user or password');
+		expect_eq($e->getCode(), 1045);
+		test_step_ok();
 	}
 
 	$nodeSession = mysql_xdevapi\getNodeSession("", $user, $passwd);
-	if (is_bool($nodeSession) && $nodeSession == false)
-		$test[4] = "1";
+	expect_false($nodeSession);
 
-	var_dump($test);
+	verify_expectations();
 	print "done!\n";
 ?>
 --EXPECTF--
-%s(5) "11111"
 done!%A

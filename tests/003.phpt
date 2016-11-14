@@ -5,24 +5,34 @@ mysqlx select / fetch
 <?php
 	require("connect.inc");
 
-	$test = "100";
 	$nodeSession = create_test_db();
 
+	fill_db_table_use_dup();
+
 	$schema = $nodeSession->getSchema($db);
-	$table = $schema->getTable("test_table");
+	$table = $schema->getTable('test_table');
 
-	$table->insert(["name", "age"])->values(["Sakila", 128])->values(["Oracila", 512])->execute();
-	$table->insert(["name", "age"])->values(["Jackie", 256])->execute();
-	$res = $table->select(['age', 'name'])->execute();
+	$res = $table->select(['name','age'])->where('name like \'P%\' or name like\'C%\'')
+		->execute()->fetchAll();
+	expect_eq(count($res), 6);
+	$res = $table->select(['name','age'])->where('name like :name and age > :age')
+		->bind(['name' => 'Tierney', 'age' => 34])->orderBy('age desc')->execute();
+	$val = $res->fetchOne();
+	expect_eq($val['name'], 'Tierney');
+	expect_eq($val['age'], 46);
+	$val = $res->fetchOne();
+	expect_eq($val['name'], 'Tierney');
+	expect_eq($val['age'], 39);
 
-	var_dump($table->getName());
-	var_dump($res->fetchOne());
-	var_dump($res->fetchOne());
-	var_dump($res->fetchOne());
+	$res = $table->select(['name','age'])->where('name in (\'Cassidy\',\'Polly\')')
+		->orderBy(['age desc','name asc'])->execute()->fetchAll();
+	expect_eq(count($res), 5);
+	expect_eq($res[0]['name'], 'Cassidy');
+	expect_eq($res[0]['age'], 34);
+	expect_eq($res[1]['name'], 'Polly');
+	expect_eq($res[1]['age'], 34);
 
-	$all_row = $res->fetchAll();
-	var_dump($all_row);
-
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
@@ -31,46 +41,4 @@ mysqlx select / fetch
 	clean_test_db();
 ?>
 --EXPECTF--
-string(10) "test_table"
-array(2) {
-  ["age"]=>
-  int(128)
-  ["name"]=>
-  string(6) "Sakila"
-}
-array(2) {
-  ["age"]=>
-  int(512)
-  ["name"]=>
-  string(7) "Oracila"
-}
-array(2) {
-  ["age"]=>
-  int(256)
-  ["name"]=>
-  string(6) "Jackie"
-}
-array(3) {
-  [0]=>
-  array(2) {
-    ["age"]=>
-    int(128)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [1]=>
-  array(2) {
-    ["age"]=>
-    int(512)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [2]=>
-  array(2) {
-    ["age"]=>
-    int(256)
-    ["name"]=>
-    string(6) "Jackie"
-  }
-}
 done!%A

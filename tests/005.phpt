@@ -5,45 +5,67 @@ mysqlx table delete/limit/orderBy
 <?php
 	require("connect.inc");
 
-	function dump_all_row($table) {
-		$res = $table->select(['age', 'name'])->execute();
-		$all_row = $res->fetchAll();
-		var_dump($all_row);
-	}
-
 	$nodeSession = create_test_db();
 
+	fill_db_table_use_dup();
+
 	$schema = $nodeSession->getSchema($db);
-	$table = $schema->getTable("test_table");
-
-	$table->insert(["name", "age"])->values(["Sakila", 128])->values(["Sakila", 512])->execute();
-	$table->insert(["name", "age"])->values(["Oracila", 1024])->values(["Sakila", 2048])->execute();
-	$table->insert(["name", "age"])->values(["SuperSakila", 4096])->values(["SuperOracila", 8192])->execute();
-	$table->insert(["name", "age"])->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();
-	$table->insert(["name", "age"])->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
+	$table = $schema->getTable('test_table');
 
 	try {
-	    $table->delete()->where("name = :name")->orderby("id DESC")->limit(2)->bind(['name' => 'Sakila'])->execute();
+		$table->delete()->where("name = :name")->orderby("id DESC")->limit(2)->bind(['name' => 'Cassidy'])->execute();
+		test_step_failed();
 	} catch(Exception $e) {
-		print "exception!\n";
+		test_step_ok();
 	}
-
-	dump_all_row($table);
-
-	$table->delete()->where("name = :name")->orderby("age DESC")->limit(2)->bind(['name' => 'Sakila'])->execute();
-
-	dump_all_row($table);
 
 	try {
-	    $table->delete()->where("name = :name")->orderby("age DESC")->limit(-1)->bind(['name' => 'Oracila'])->execute();
+		$table->delete()->where("name = :name")->orderby("age DESC")->limit(-1)->bind(['name' => 'Tierney'])->execute();
+		test_step_failed();
 	} catch(Exception $e) {
-		print "exception!\n";
+		test_step_ok();
 	}
 
-	$table->delete()->where("name = :name")->orderby("age ASC")->limit(3)->bind(['name' => 'Oracila'])->execute();
+	try {
+		$table->delete()->where(['age = 17','name = \'Tierney\''])->execute();
+		test_step_failed();
+	} catch(Exception $e) {
+		test_step_ok();
+	}
 
-	dump_all_row($table);
+	$res = $table->select(['age', 'name'])->execute()->fetchAll();
+	expect_eq(count($res), 16);
 
+	$table->delete()->where('name = :name')->orderby('age desc')->limit(2)->bind(['name' => 'Tierney'])->execute();
+	$res = $table->select(['name','age'])->where('name like \'Tierney\'')->orderby('age desc')->execute()->fetchAll();
+
+	expect_eq(count($res), 2);
+	expect_eq($res[0]['name'],'Tierney');
+	expect_eq($res[0]['age'],34);
+	expect_eq($res[1]['name'],'Tierney');
+	expect_eq($res[1]['age'],25);
+
+
+	//TODO: Only zero value offset allowed for this operation
+	$table->delete()->where('age = 17')->orderby('name desc')->limit(3)->offset(0)->execute();
+	$res = $table->select(['name','age'])->where('age = 17')->execute()->fetchAll();
+	expect_eq(count($res), 2);
+	expect_eq($res[0]['name'],'ARomy');
+	expect_eq($res[0]['age'],17);
+	expect_eq($res[1]['name'],'BRomy');
+	expect_eq($res[1]['age'],17);
+
+	$nodeSession->executeSql("insert into $db.test_table values ('Zillon', 29)");
+	$nodeSession->executeSql("insert into $db.test_table values ('Zillon', 21)");
+	$nodeSession->executeSql("insert into $db.test_table values ('Zillon', 34)");
+
+	$table->delete()->orderby(['name desc','age desc'])->limit(2)->execute();
+	$res = $table->select(['name','age'])->where('name = \'Zillon\'')->execute()->fetchAll();
+	expect_eq(count($res), 1);
+	expect_eq($res[0]['name'],'Zillon');
+	expect_eq($res[0]['age'],21);
+
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
@@ -52,173 +74,4 @@ mysqlx table delete/limit/orderBy
     clean_test_db();
 ?>
 --EXPECTF--
-exception!
-array(10) {
-  [0]=>
-  array(2) {
-    ["age"]=>
-    int(128)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [1]=>
-  array(2) {
-    ["age"]=>
-    int(512)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [2]=>
-  array(2) {
-    ["age"]=>
-    int(1024)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [3]=>
-  array(2) {
-    ["age"]=>
-    int(2048)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [4]=>
-  array(2) {
-    ["age"]=>
-    int(4096)
-    ["name"]=>
-    string(11) "SuperSakila"
-  }
-  [5]=>
-  array(2) {
-    ["age"]=>
-    int(8192)
-    ["name"]=>
-    string(12) "SuperOracila"
-  }
-  [6]=>
-  array(2) {
-    ["age"]=>
-    int(2000)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [7]=>
-  array(2) {
-    ["age"]=>
-    int(3000)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [8]=>
-  array(2) {
-    ["age"]=>
-    int(1900)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [9]=>
-  array(2) {
-    ["age"]=>
-    int(1800)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-}
-array(8) {
-  [0]=>
-  array(2) {
-    ["age"]=>
-    int(128)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [1]=>
-  array(2) {
-    ["age"]=>
-    int(1024)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [2]=>
-  array(2) {
-    ["age"]=>
-    int(4096)
-    ["name"]=>
-    string(11) "SuperSakila"
-  }
-  [3]=>
-  array(2) {
-    ["age"]=>
-    int(8192)
-    ["name"]=>
-    string(12) "SuperOracila"
-  }
-  [4]=>
-  array(2) {
-    ["age"]=>
-    int(2000)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [5]=>
-  array(2) {
-    ["age"]=>
-    int(3000)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [6]=>
-  array(2) {
-    ["age"]=>
-    int(1900)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [7]=>
-  array(2) {
-    ["age"]=>
-    int(1800)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-}
-exception!
-array(5) {
-  [0]=>
-  array(2) {
-    ["age"]=>
-    int(128)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [1]=>
-  array(2) {
-    ["age"]=>
-    int(4096)
-    ["name"]=>
-    string(11) "SuperSakila"
-  }
-  [2]=>
-  array(2) {
-    ["age"]=>
-    int(8192)
-    ["name"]=>
-    string(12) "SuperOracila"
-  }
-  [3]=>
-  array(2) {
-    ["age"]=>
-    int(2000)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [4]=>
-  array(2) {
-    ["age"]=>
-    int(3000)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-}
 done!%A

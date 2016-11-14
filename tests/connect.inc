@@ -92,6 +92,35 @@
 			$nodeSession->executeSql("insert into $db.test_table values ('Romy', 17)");
 		}
 	}
+
+	/*
+	    Fill the database with duplicated rows.
+	*/
+	if(!function_exists('fill_db_table_use_dup')){
+		function fill_db_table_use_dup() {
+			global $host;
+			global $user;
+			global $passwd;
+			global $db;
+			$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
+			$nodeSession->executeSql("insert into $db.test_table values ('Mamie', 29)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Mamie', 21)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Polly', 34)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Polly', 27)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Cassidy', 33)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Cassidy', 34)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Cassidy', 20)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 46)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 34)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 25)");
+			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 39)");
+			$nodeSession->executeSql("insert into $db.test_table values ('ARomy', 17)");
+			$nodeSession->executeSql("insert into $db.test_table values ('BRomy', 17)");
+			$nodeSession->executeSql("insert into $db.test_table values ('CRomy', 17)");
+			$nodeSession->executeSql("insert into $db.test_table values ('DRomy', 17)");
+			$nodeSession->executeSql("insert into $db.test_table values ('ERomy', 17)");
+		}
+	}
 	/*
 		Fill the database collection with stuff
 	*/
@@ -129,6 +158,41 @@
 			$number_of_expectations++;
 
 			if( $target == $expectation ){
+				$test_result_string .= '1';
+			} else {
+				print $target.' != '.$expectation.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+	/*
+		Used to compare expected a boolean value being true
+	*/
+	if( !function_exists('expect_true')) {
+		function expect_true($expectation) {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			if( true == $expectation ){
+				$test_result_string .= '1';
+			} else {
+				$test_result_string .= '0';
+			}
+		}
+	}
+	/*
+		Used to compare expected a boolean value being false
+	*/
+	if( !function_exists('expect_false')) {
+		function expect_false($expectation) {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			if( false == $expectation ){
 				$test_result_string .= '1';
 			} else {
 				$test_result_string .= '0';

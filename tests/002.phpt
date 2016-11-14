@@ -1,31 +1,37 @@
 --TEST--
-mysqlx getTable with wrong table / insert
+mysqlx getTable/getTables
 --SKIPIF--
 --FILE--
 <?php
 	require("connect.inc");
-
-	$test = "000";
 
 	$nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
 	$table = $schema->getTable("wrong_table");
 
-	$table_exist = $table->existsInDatabase();
-	if ($table_exist == false)
-		$test[0] = "1";
+	expect_false($table->existsInDatabase());
 
 	try {
 		$table->insert(["name", "age"])->values(["Jackie", 256])->execute();
+		test_step_failed();
 	} catch(Exception $e) {
-		$test[1] = "1";
+		//expected exception
 	}
-	$table = $schema->getTable("");
-	if (is_bool($table) && $table == false)
-		$test[2] = "1";
+	expect_false($schema->getTable(""));
 
-	var_dump($test);
+	$nodeSession->executeSql("create table $db.test_table2(job text, experience int, uuid int)");
+	$nodeSession->executeSql("create table $db.test_table3(name text, surname text)");
+
+	$tables = $schema->getTables();
+	expect_true($tables['test_table']->existsInDatabase());
+	expect_eq($tables['test_table']->getName(), 'test_table');
+	expect_true($tables['test_table2']->existsInDatabase());
+	expect_eq($tables['test_table2']->getName(), 'test_table2');
+	expect_true($tables['test_table3']->existsInDatabase());
+	expect_eq($tables['test_table3']->getName(), 'test_table3');
+
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
@@ -34,5 +40,4 @@ mysqlx getTable with wrong table / insert
 	clean_test_db();
 ?>
 --EXPECTF--
-string(3) "111"
 done!%A
