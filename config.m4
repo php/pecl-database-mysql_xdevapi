@@ -180,6 +180,16 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
     PHP_SETUP_OPENSSL(MYSQL_XDEVAPI_SHARED_LIBADD, [AC_DEFINE(MYSQL_XDEVAPI_HAVE_SSL,1,[Enable mysql_xdevapi code that uses OpenSSL directly])])
   fi
 
+  if test "$PHP_MYSQLND" != "yes" && test "$PHP_MYSQLND_ENABLED" != "yes" && test "$PHP_MYSQLI" != "yes" && test "$PHP_MYSQLI" != "mysqlnd"; then
+    dnl Enable mysqlnd build in case it wasn't passed explicitly in cmd-line
+    PHP_ADD_BUILD_DIR([ext/mysqlnd], 1)
+
+    dnl This needs to be set in any extension which wishes to use mysqlnd
+    PHP_MYSQLND_ENABLED=yes
+
+	AC_MSG_NOTICE(mysql-xdevapi depends on ext/mysqlnd; it has been added to build)
+  fi
+
   PHP_ADD_LIBRARY(protobuf,, MYSQL_XDEVAPI_SHARED_LIBADD)
 
   PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
@@ -190,6 +200,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
   this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_base_sources $mysqlx_messages"
   PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
   PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
+  PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
+  PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
   PHP_INSTALL_HEADERS([ext/mysql_xdevapi/])
 
   dnl TODO: we should search for a proper protoc matchig the one who's heades we use and which we link above

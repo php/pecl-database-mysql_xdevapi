@@ -1,11 +1,17 @@
+// $Id$
+// vim:ft=javascript
 
-ARG_ENABLE("mysql-xdevapi", "MySQL XDevAPI support | Hybrid Native Client Driver", "yes");
+// Note: The extension name is "mysql-xdevapi", you enable it with "--enable-mysql-xdevapi", 
+// or optionally "--enable-mysql-xdevapi=shared" to build separated dll.
+
+ARG_ENABLE("mysql-xdevapi", "MySQL XDevAPI support | Hybrid Native Client Driver", "no");
+
 if (PHP_MYSQL_XDEVAPI != "no") {
 
 	if (CHECK_LIB("ws2_32.lib", "mysql_xdevapi") 
-		&& CHECK_LIB("libprotobuf.lib", "mysql_xdevapi"))
+		&& (CHECK_LIB("libprotobuf.lib", "mysql_xdevapi") || CHECK_LIB("libprotobufd.lib", "mysql_xdevapi"))
+		&& PHP_JSON != "no")
 	{
-
 		mysqlx_proto_sources="ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx.proto " +
 			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_connection.proto " +
 			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_crud.proto " +
@@ -137,7 +143,18 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			ADD_FLAG("CFLAGS_MYSQL_XDEVAPI", "/D PHP_MYSQL_XDEVAPI_EXPORTS ");
 		} 
 
+		if (PHP_MYSQLND = "no") {
+			PHP_MYSQLND = "yes";
+			MESSAGE("mysql-xdevapi depends on mysqlnd; it has been enabled");
+		}
+
 		AC_DEFINE("MYSQL_XDEVAPI_SSL_SUPPORTED", 1, "SSL support");
+		ADD_EXTENSION_DEP('mysql_xdevapi', 'json', false);
+		ADD_EXTENSION_DEP('mysql_xdevapi', 'mysqlnd', false);
 		PHP_INSTALL_HEADERS("", "ext/mysql_xdevapi");
+
+	} else {
+		WARNING("mysql-xdevapi not enabled; necessary libraries not found or dependencies not enabled");
+		PHP_MYSQL_XDEVAPI = "no"
 	}
 }
