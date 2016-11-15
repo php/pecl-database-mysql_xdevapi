@@ -1,19 +1,15 @@
 0) build
 To enable X DevAPI use switch --enable-mysql-xdevapi. It depends on 'ext/json' and 'ext/mysqlnd' extensions.
 
-For Unix builds there is additional step:
-make protofiles
-
 Sample sequence of build commands may look like:
 
 ./buildconf --force
-./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --with-mysqlnd --enable-mysql-xdevapi 
-make protofiles (needed for Unix only)
+./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --enable-mysql-xdevapi 
 make
 [...]
 
 By default it is statically built into PHP binary. In case you want to see that extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
-./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --with-mysqlnd --enable-mysql-xdevapi=shared
+./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --enable-mysql-xdevapi=shared
 
 ////////////////////////////////////////////////////////////////////////////////
 
