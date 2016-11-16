@@ -3,8 +3,11 @@ mysqlx warnings
 --SKIPIF--
 --FILE--
 <?php
+        /*
+	        This functionality is not working.
+		Test not completed.
+	*/
 	require("connect.inc");
-	$test = "00";
 
 	$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
 	$nodeSession->executeSql("create database $db");
@@ -16,13 +19,11 @@ mysqlx warnings
 	$table->insert(['x'])->values([1])->values([2])->values([3])->execute();
 	$res = $table->select(['x/0 as bad_x'])->execute();
 
-	if (3 == $res->getWarningCount())
-		$test[0] = '1';
+        expect_eq($res->getWarningCount(), 3);
 
-	//$warn = $res->getWarnings();
-	//var_dump($warn);
+        $warn = $res->getWarnings();
 
-	var_dump($test);
+        verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
@@ -31,6 +32,4 @@ mysqlx warnings
 	clean_test_db();
 ?>
 --EXPECTF--
-%A
-string(2) "11"
 done!%A

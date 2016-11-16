@@ -60,10 +60,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__limit, 0, ZEND_RETURN_
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__offset, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__bind, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
@@ -325,47 +321,6 @@ PHP_METHOD(mysqlx_node_table__update, limit)
 }
 /* }}} */
 
-
-/* {{{ proto mixed mysqlx_node_table__update::offset() */
-static
-PHP_METHOD(mysqlx_node_table__update, offset)
-{
-	struct st_mysqlx_node_table__update * object;
-	zval * object_zv;
-	zend_long position;
-
-	DBG_ENTER("mysqlx_node_table__update::offset");
-
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
-												&object_zv, mysqlx_node_table__update_class_entry,
-												&position))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	if (position < 0) {
-		static const unsigned int errcode = 10006;
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);	
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
-
-	if (object->crud_op) {
-		if (PASS == xmysqlnd_crud_table_update__set_offset(object->crud_op, position)) {
-			ZVAL_COPY(return_value, object_zv);
-		}
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ proto mixed mysqlx_node_table__update::bind() */
 static
 PHP_METHOD(mysqlx_node_table__update, bind)
@@ -471,7 +426,6 @@ static const zend_function_entry mysqlx_node_table__update_methods[] = {
 	PHP_ME(mysqlx_node_table__update, where,	arginfo_mysqlx_node_table__update__where,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__update, orderby,	arginfo_mysqlx_node_table__update__orderby,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__update, limit,	arginfo_mysqlx_node_table__update__limit,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__update, offset,	arginfo_mysqlx_node_table__update__offset,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__update, bind,		arginfo_mysqlx_node_table__update__bind,	ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_node_table__update, execute,	arginfo_mysqlx_node_table__update__execute,	ZEND_ACC_PUBLIC)

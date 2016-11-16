@@ -22,11 +22,35 @@ mysqlx update
 	$table->insert(["name", "age"])->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();
 	$table->insert(["name", "age"])->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
 
-	$table->update()->set('name', 'Alfonso')->where('name = :name and age > 2000')->bind(['name' => 'Oracila'])->execute();
+        $res = $table->update()->set('name', 'Alfonso')->where('name = :name and age > 2000')->bind(['name' => 'Oracila'])->execute();
+	expect_eq($res->getAffectedItemsCount(), 1);
 	$upd = $table->update()->orderBy('age desc')->set('age', 1)->set('name', 'Toddler');
-	$upd->where('age > :param1 and age < :param2')->bind(['param1' => 500, 'param2' => 1901])->limit(2)->execute();
-	dump_all_row($table);
+	$res = $upd->where('age > :param1 and age < :param2')->bind(['param1' => 500, 'param2' => 1901])->limit(2)->execute();
+	expect_eq($res->getAffectedItemsCount(), 2);
+	$res = $table->select(['age', 'name'])->execute();
+	$all_row = $res->fetchAll();
 
+        expect_eq(count($all_row), 10);
+	//Would be better to check them all...
+	expect_eq($all_row[0]['name'], 'Sakila');
+	expect_eq($all_row[0]['age'], 128);
+	expect_eq($all_row[5]['name'], 'SuperOracila');
+	expect_eq($all_row[5]['age'], 8192);
+	expect_eq($all_row[9]['name'], 'Toddler');
+	expect_eq($all_row[9]['age'], 1);
+
+        fill_db_table_use_dup();
+
+        $res = $table->update()->set('age',69)->where('age > 15 and age < 22')->limit(4)->orderby(['age asc','name desc'])->execute();
+	expect_eq($res->getAffectedItemsCount(), 4);
+	$res = $table->select(['name','age'])->where('age = 69')->execute()->fetchAll();
+	expect_eq(count($res), 4);
+	expect_eq($res[0]['name'], 'BRomy');
+	expect_eq($res[0]['age'], 69);
+	expect_eq($res[3]['name'], 'ERomy');
+	expect_eq($res[3]['age'], 69);
+
+        verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
@@ -35,76 +59,4 @@ mysqlx update
 	clean_test_db();
 ?>
 --EXPECTF--
-array(10) {
-  [0]=>
-  array(2) {
-    ["age"]=>
-    int(128)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [1]=>
-  array(2) {
-    ["age"]=>
-    int(512)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [2]=>
-  array(2) {
-    ["age"]=>
-    int(1024)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [3]=>
-  array(2) {
-    ["age"]=>
-    int(2048)
-    ["name"]=>
-    string(6) "Sakila"
-  }
-  [4]=>
-  array(2) {
-    ["age"]=>
-    int(4096)
-    ["name"]=>
-    string(11) "SuperSakila"
-  }
-  [5]=>
-  array(2) {
-    ["age"]=>
-    int(8192)
-    ["name"]=>
-    string(12) "SuperOracila"
-  }
-  [6]=>
-  array(2) {
-    ["age"]=>
-    int(2000)
-    ["name"]=>
-    string(7) "Oracila"
-  }
-  [7]=>
-  array(2) {
-    ["age"]=>
-    int(3000)
-    ["name"]=>
-    string(7) "Alfonso"
-  }
-  [8]=>
-  array(2) {
-    ["age"]=>
-    int(1)
-    ["name"]=>
-    string(7) "Toddler"
-  }
-  [9]=>
-  array(2) {
-    ["age"]=>
-    int(1)
-    ["name"]=>
-    string(7) "Toddler"
-  }
-}
 done!%A

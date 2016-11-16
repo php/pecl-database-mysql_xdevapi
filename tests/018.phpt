@@ -13,7 +13,10 @@ mysqlx basic executeSql
 	$nodeSession->executeSql("create table if not exists $db.test_table (name text, age int , job text)");
 	try {
 		$nodeSession->executeSql("create table $db.test_table (name text, age int, job text)");
-	} catch(Exception $ex) {
+	} catch(Exception $e) {
+	        expect_eq($e->getMessage(),
+		        '[HY000] Coulnd\'t fetch data');
+		expect_eq($e->getCode(), 10000);
 		print "Exception!".PHP_EOL;
 	}
 
