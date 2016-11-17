@@ -30,8 +30,8 @@ mysqlx basic transactions
 		$nodeSession->commit();
 		test_step_failed(); //commit shall raise an exception!
 	} catch( Exception $e) {
-	        expect_eq($e->getMessage(),
-		        '[HY000] Coulnd\'t fetch data');
+			expect_eq($e->getMessage(),
+				'[HY000] Coulnd\'t fetch data');
 		expect_eq($e->getCode(), 10000);
 		$nodeSession->rollback();
 	}

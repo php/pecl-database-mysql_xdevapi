@@ -3,19 +3,19 @@ mysqlx Field Metadata
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 
-        $nodeSession = create_test_db();
+	$nodeSession = create_test_db();
 
-        $schema = $nodeSession->getSchema($db);
+	$schema = $nodeSession->getSchema($db);
 	$table = $schema->getTable("test_table");
 
-        fill_db_table();
+	fill_db_table();
 
-        $res = $table->select(['name','age'])->execute();
+	$res = $table->select(['name','age'])->execute();
 	$cols = $res->getColumns();
 
-        expect_eq(count($cols), 2);
+	expect_eq(count($cols), 2);
 	$fmd1 = $cols[0];
 	expect_eq($fmd1->type, 7); //BYTES
 	expect_eq($fmd1->type_name, 'BYTES');
@@ -27,11 +27,11 @@ mysqlx Field Metadata
 	expect_eq($fmd1->collation, 8);
 	expect_eq($fmd1->content_type, 0);
 	/*
-	        Not checking the other fields since I'm not
+		Not checking the other fields since I'm not
 		sure whether those are platform dependent.
-	*/
+	 */
 
-        $fmd2 = $cols[1];
+	$fmd2 = $cols[1];
 	expect_eq($fmd2->type, 1); //SINT
 	expect_eq($fmd2->type_name, 'SINT');
 	expect_eq($fmd2->name, 'age');
@@ -42,7 +42,7 @@ mysqlx Field Metadata
 	expect_eq($fmd2->collation, 0);
 	expect_eq($fmd2->content_type, 0);
 
-        verify_expectations();
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
