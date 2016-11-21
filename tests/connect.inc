@@ -121,6 +121,7 @@
 			$nodeSession->executeSql("insert into $db.test_table values ('ERomy', 17)");
 		}
 	}
+
 	/*
 		Fill the database collection with stuff
 	*/
@@ -142,6 +143,19 @@
 			$coll->add('{"_id":14, "name": "Massimo",    "age": 22, "job": "Programmatore"}')->execute();
 			$coll->add('{"_id":15, "name": "Carlo",      "age": 37, "job": "Calciatore"}')->execute();
 			$coll->add('{"_id":16, "name": "Leonardo",   "age": 23, "job": "Programmatore"}')->execute();
+		}
+	}
+
+	/*
+		Fill the test_collection with stuff
+	*/
+	if (!function_exists('fill_test_collection')) {
+		function fill_test_collection() {
+			global $nodeSession;
+			global $db;
+			$schema = $nodeSession->getSchema($db);
+			$coll = $schema->getCollection("test_collection");
+			fill_db_collection($coll);
 		}
 	}
 
