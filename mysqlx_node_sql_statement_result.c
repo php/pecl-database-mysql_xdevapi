@@ -622,6 +622,9 @@ mysqlx_node_sql_statement_result_free_storage(zend_object * object)
 	struct st_mysqlx_node_sql_statement_result * inner_obj = (struct st_mysqlx_node_sql_statement_result *) mysqlx_object->ptr;
 
 	if (inner_obj) {
+		if (inner_obj->stmt) {
+			xmysqlnd_node_stmt_free(inner_obj->stmt, NULL, NULL);
+		}
 		if (inner_obj->result) {
 			xmysqlnd_node_stmt_result_free(inner_obj->result, NULL, NULL);
 		}
