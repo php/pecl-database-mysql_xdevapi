@@ -1,5 +1,5 @@
 --TEST--
-mysqlx collection delete
+mysqlx collection remove
 --SKIPIF--
 --FILE--
 <?php
@@ -17,8 +17,14 @@ mysqlx collection delete
 	$coll->modify('_id in (1,13,5,7)')->unset(['age'])->execute();
 	$coll->remove('job in (\'Barista\', \'Programmatore\', \'Ballerino\', \'Programmatrice\')')->limit(5)->sort(['age desc', 'name asc'])->execute();
 
-	var_dump($coll->find()->execute()->fetchAll());
-	print "done!\n";
+        $res = $coll->find()->execute()->fetchAll();
+        expect_eq($res[0]['job'],'Programmatore');
+        expect_eq($res[0]['name'],'Marco');
+        expect_eq($res[1]['job'],'Programmatore');
+        expect_eq($res[1]['name'],'Carlo');
+
+        verify_expectations();
+        print "done!\n";
 ?>
 --CLEAN--
 <?php
@@ -26,24 +32,4 @@ mysqlx collection delete
 	clean_test_db();
 ?>
 --EXPECTF--
-array(2) {
-  [0]=>
-  array(3) {
-    ["_id"]=>
-    int(1)
-    ["job"]=>
-    string(13) "Programmatore"
-    ["name"]=>
-    string(5) "Marco"
-  }
-  [1]=>
-  array(3) {
-    ["_id"]=>
-    int(5)
-    ["job"]=>
-    string(13) "Programmatore"
-    ["name"]=>
-    string(5) "Carlo"
-  }
-}
 done!%A

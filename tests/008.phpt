@@ -11,13 +11,6 @@ error_reporting=0
 
 	$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
 
-//	function verify_doc(&$doc, $name, $job, $age) {
-//		$result = (strpos($doc,$name) != false);
-//		$result = ($result && (strpos($doc, $job) != false));
-//		$result = ($result && (strpos($doc, $age) != false));
-//		return $result;
-//	}
-
 	function verify_doc($doc, $name, $job, $age) {
 		$result = ($doc[0] = $name);
 		$result = ($result && ($doc[1] = $job));

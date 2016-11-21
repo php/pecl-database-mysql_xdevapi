@@ -31,6 +31,7 @@ error_reporting=0
 
 	try {
 		$nodeSession = mysql_xdevapi\getNodeSession($host, "bad_user", $passwd);
+		test_step_failed();
 	} catch(Exception $e) {
 		expect_eq($e->getMessage(),
 			'[HY000] Invalid user or password');
@@ -40,6 +41,7 @@ error_reporting=0
 
 	try {
 		$nodeSession = mysql_xdevapi\getNodeSession($host, $user, "some_password");
+		test_step_failed();
 	} catch(Exception $e) {
 		expect_eq($e->getMessage(),
 			'[HY000] Invalid user or password');

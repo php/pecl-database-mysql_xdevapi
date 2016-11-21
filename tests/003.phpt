@@ -17,6 +17,7 @@ mysqlx select / fetch
 	expect_eq(count($res), 6);
 	$res = $table->select(['name','age'])->where('name like :name and age > :age')
 		->bind(['name' => 'Tierney', 'age' => 34])->orderBy('age desc')->execute();
+
 	$val = $res->fetchOne();
 	expect_eq($val['name'], 'Tierney');
 	expect_eq($val['age'], 46);
@@ -25,7 +26,15 @@ mysqlx select / fetch
 	expect_eq($val['age'], 39);
 
 	$res = $table->select(['name','age'])->where('name in (\'Cassidy\',\'Polly\')')
-		->orderBy(['age desc','name asc'])->execute()->fetchAll();
+	        ->orderBy(['age desc','name asc'])->execute();
+
+        expect_eq($res->getColumnCount(), 2);
+	$columns = $res->getColumnNames();
+	expect_eq($columns[0], 'name');
+	expect_eq($columns[1], 'age');
+
+        $res = $res->fetchAll();
+
 	expect_eq(count($res), 5);
 	expect_eq($res[0]['name'], 'Cassidy');
 	expect_eq($res[0]['age'], 34);

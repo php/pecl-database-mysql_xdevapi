@@ -14,7 +14,7 @@ mysqlx basic transactions
 	try{
 		fill_db_collection($coll);
 		$nodeSession->commit();
-	} catch( Exception $ex ) {
+	} catch( Exception $e ) {
 		test_step_failed();
 	}
 
@@ -29,7 +29,10 @@ mysqlx basic transactions
 		$coll->add('{"_id":17, "name": "Leonardo",   "age": 53, "job": "Cavia"}')->execute();
 		$nodeSession->commit();
 		test_step_failed(); //commit shall raise an exception!
-	} catch( Exception $ex) {
+	} catch( Exception $e) {
+			expect_eq($e->getMessage(),
+				'[HY000] Coulnd\'t fetch data');
+		expect_eq($e->getCode(), 10000);
 		$nodeSession->rollback();
 	}
 
