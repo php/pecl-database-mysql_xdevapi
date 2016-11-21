@@ -37,6 +37,19 @@ enum mysqlx_result_type
 };
 
 #define MYSQLX_EXECUTE_ALL_FLAGS	(0 | MYSQLX_EXECUTE_FLAG_ASYNC | MYSQLX_EXECUTE_FLAG_BUFFERED)
+#define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 100
+
+struct st_mysqlx_node_statement
+{
+	XMYSQLND_NODE_STMT * stmt;
+	XMYSQLND_STMT_OP__EXECUTE * stmt_execute;
+	struct st_xmysqlnd_pb_message_shell * pb_shell;
+	zend_long execute_flags;
+	enum_func_status send_query_status;
+	zend_bool in_execution;
+	zend_bool has_more_results;
+	zend_bool has_more_rows_in_set;
+};
 
 void mysqlx_register_node_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_statement_class(SHUTDOWN_FUNC_ARGS);

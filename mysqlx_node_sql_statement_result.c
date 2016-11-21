@@ -29,6 +29,7 @@
 #include <xmysqlnd/xmysqlnd_rowset_fwd.h>
 #include <xmysqlnd/xmysqlnd_warning_list.h>
 #include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
+#include "mysqlx_node_sql_statement.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
@@ -36,6 +37,7 @@
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_base_result.h"
 #include "mysqlx_field_metadata.h"
+#include "mysqlx_exception.h"
 
 static zend_class_entry *mysqlx_node_sql_statement_result_class_entry;
 
@@ -72,6 +74,9 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_columns, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__next_result, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 #define MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(_to, _from) \
 { \
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
@@ -82,6 +87,68 @@ ZEND_END_ARG_INFO()
 		DBG_VOID_RETURN; \
 	} \
 } \
+
+
+/* {{{ mysqlx_node_sql_stmt_result_on_warning */
+static const enum_hnd_func_status
+mysqlx_node_sql_stmt_result_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("mysqlx_node_sql_stmt_result_on_warning");
+	php_error_docref(NULL, E_WARNING, "[%d] %*s", code, message.l, message.s);
+	DBG_RETURN(HND_AGAIN);
+}
+/* }}} */
+
+
+/* {{{ mysqlx_node_sql_stmt_result_on_error */
+static const enum_hnd_func_status
+mysqlx_node_sql_stmt_result_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("mysqlx_node_sql_stmt_result_on_error");
+	mysqlx_new_exception(code, sql_state, message);
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
+/* {{{ mysqlx_node_sql_statement_read_next_result */
+static int mysqlx_node_sql_statement_read_next_result(struct st_mysqlx_node_sql_statement_result* object)
+{
+	int nextResult = 0;
+	if (PASS == object->send_query_status) {
+		XMYSQLND_NODE_STMT * stmt = object->stmt;
+
+		const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_result_on_warning, NULL };
+		const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_result_on_error, NULL };
+		XMYSQLND_NODE_STMT_RESULT * result;
+
+		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
+			result = stmt->data->m.get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, NULL, NULL);
+		} else {
+			result = stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, NULL, NULL);
+		}
+
+		if (result) {
+			struct st_xmysqlnd_node_stmt_result* prevResult = object->result;
+			if (prevResult) {
+				xmysqlnd_node_stmt_result_free(prevResult, NULL, NULL);
+			}
+
+			object->result = result;
+			nextResult = object->has_more_results || result->rowset;
+		} else {
+			static const unsigned int errcode = 10000;
+			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Coulnd't fetch data", sizeof("Coulnd't fetch data") - 1 };
+			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			/* Or we should close the connection, rendering it unusable at this point ?*/
+			object->send_query_status = FAIL;
+		}
+	}
+
+	return nextResult;
+}
+/* }}} */
 
 
 /* {{{ mysqlx_node_sql_statement_result::__construct */
@@ -491,6 +558,31 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getColumnNames)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_sql_statement_result::nextResult() */
+static
+PHP_METHOD(mysqlx_node_sql_statement_result, nextResult)
+{
+	zval * object_zv;
+	struct st_mysqlx_node_sql_statement_result * object;
+
+	DBG_ENTER("mysqlx_node_sql_statement_result::nextResult");
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+												&object_zv, mysqlx_node_sql_statement_result_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+	if (object->result && object->has_more_results) {
+		if (mysqlx_node_sql_statement_read_next_result(object)) { 
+			RETVAL_TRUE;
+		}
+	}
+}
+/* }}} */
+
+
 /* {{{ mysqlx_node_sql_statement_result_methods[] */
 static const zend_function_entry mysqlx_node_sql_statement_result_methods[] = {
 	PHP_ME(mysqlx_node_sql_statement_result, __construct,			NULL,																ZEND_ACC_PRIVATE)
@@ -508,6 +600,7 @@ static const zend_function_entry mysqlx_node_sql_statement_result_methods[] = {
 	PHP_ME(mysqlx_node_sql_statement_result, getColumnNames,		arginfo_mysqlx_node_sql_statement_result__get_column_names,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getColumns,			arginfo_mysqlx_node_sql_statement_result__get_columns,	 			ZEND_ACC_PUBLIC)
 
+	PHP_ME(mysqlx_node_sql_statement_result, nextResult,			arginfo_mysqlx_node_sql_statement_result__next_result,			ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -600,7 +693,7 @@ mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_sql_stmt_result */
 void
-mysqlx_new_sql_stmt_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
+mysqlx_new_sql_stmt_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result, struct st_mysqlx_node_statement* stmt)
 {
 	DBG_ENTER("mysqlx_new_sql_stmt_result");
 
@@ -609,6 +702,12 @@ mysqlx_new_sql_stmt_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * resu
 		struct st_mysqlx_node_sql_statement_result * const object = (struct st_mysqlx_node_sql_statement_result *) mysqlx_object->ptr;
 		if (object) {
 			object->result = result;
+			stmt->stmt->data->m.get_reference(stmt->stmt);
+			object->stmt = stmt->stmt;
+			object->execute_flags = stmt->execute_flags;
+			object->send_query_status = stmt->send_query_status;
+			object->has_more_results = stmt->has_more_results;
+			object->has_more_rows_in_set = stmt->has_more_rows_in_set;
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

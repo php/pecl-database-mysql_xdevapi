@@ -60,19 +60,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__get_result, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-struct st_mysqlx_node_statement
-{
-	XMYSQLND_NODE_STMT * stmt;
-	XMYSQLND_STMT_OP__EXECUTE * stmt_execute;
-	struct st_xmysqlnd_pb_message_shell * pb_shell;
-	zend_long execute_flags;
-	enum_func_status send_query_status;
-	zend_bool in_execution;
-	zend_bool has_more_results;
-	zend_bool has_more_rows_in_set;
-};
-
-
 #define MYSQLX_FETCH_NODE_STATEMENT_FROM_ZVAL(_to, _from) \
 { \
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
@@ -486,8 +473,7 @@ mysqlx_node_sql_stmt_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, c
 /* }}} */
 
 
-#define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 100
-/* {{{ mysqlx_node_sql_statement_read_result */
+/* {{{ mysqlx_node_sql_statement_execute */
 void
 mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, zval * return_value)
 {
@@ -538,7 +524,7 @@ mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_o
 							object->has_more_rows_in_set? "TRUE":"FALSE");
 
 				if (result) {
-					mysqlx_new_sql_stmt_result(return_value, result);
+					mysqlx_new_sql_stmt_result(return_value, result, object);
 				} else {
 					static const unsigned int errcode = 10000;
 					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
@@ -610,7 +596,7 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, 
 	struct st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx;
 	memset(&xmysqlnd_exec_with_cb_ctx, 0, sizeof(struct st_xmysqlnd_exec_with_cb_ctx));
 
-	DBG_ENTER("mysqlx_node_sql_statement::getResult");
+	DBG_ENTER("mysqlx_node_sql_statement_read_result");
 	if (ZEND_NUM_ARGS() == 0) {
 		if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 													&object_zv, class_entry))
@@ -653,7 +639,7 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, 
 
 			DBG_INF_FMT("result=%p  has_more_results=%s", result, object->has_more_results? "TRUE":"FALSE");
 			if (result) {
-				mysqlx_new_sql_stmt_result(return_value, result);
+				mysqlx_new_sql_stmt_result(return_value, result, object);
 			} else {
 				static const unsigned int errcode = 10000;
 				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
@@ -897,7 +883,7 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 							break;
 
 						case MYSQLX_RESULT_SQL:
-							mysqlx_new_sql_stmt_result(return_value, result);
+							mysqlx_new_sql_stmt_result(return_value, result, object);
 							break;
 
 						default:
@@ -935,7 +921,7 @@ PHP_METHOD(mysqlx_node_statement, hasMoreResults)
 	struct st_mysqlx_node_statement * object;
 	zval * object_zv;
 
-	DBG_ENTER("mysqlx_node_sql_statement::hasMoreResults");
+	DBG_ENTER("mysqlx_node_statement::hasMoreResults");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_statement_class_entry))
 	{
@@ -952,8 +938,8 @@ PHP_METHOD(mysqlx_node_statement, hasMoreResults)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_sql_statement::readResult(object statement) */
-/*     proto mixed mysqlx_node_sql_statement::readResult(object statement, callable on_row_cb, callable on_error_cb, callable on_rset_end, callable on_stmt_ok[, mixed cb_param]]) */
+/* {{{ proto mixed mysqlx_node_statement::readResult(object statement) */
+/*     proto mixed mysqlx_node_statement::readResult(object statement, callable on_row_cb, callable on_error_cb, callable on_rset_end, callable on_stmt_ok[, mixed cb_param]]) */
 static
 PHP_METHOD(mysqlx_node_statement, getResult)
 {
@@ -962,7 +948,7 @@ PHP_METHOD(mysqlx_node_statement, getResult)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_sql_statement::getNextResult(object statement) */
+/* {{{ proto mixed mysqlx_node_statement::getNextResult(object statement) */
 static
 PHP_METHOD(mysqlx_node_statement, getNextResult)
 {
@@ -971,7 +957,7 @@ PHP_METHOD(mysqlx_node_statement, getNextResult)
 /* }}} */
 
 
-/* {{{ mysqlx_node_sql_statement_methods[] */
+/* {{{ mysqlx_node_statement_methods[] */
 static const zend_function_entry mysqlx_node_statement_methods[] = {
 	PHP_ME(mysqlx_node_statement, __construct,		NULL,													ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_node_statement, hasMoreResults,	arginfo_mysqlx_node_sql_statement__has_more_results,	ZEND_ACC_PUBLIC)
