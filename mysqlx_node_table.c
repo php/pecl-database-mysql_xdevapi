@@ -170,8 +170,13 @@ static const enum_hnd_func_status
 mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_table_on_error");
-	mysqlx_new_exception(code, sql_state, message);
-	DBG_RETURN(HND_PASS_RETURN_FAIL);
+	const unsigned int UnknownDatabaseCode = 1049;
+	if (code == UnknownDatabaseCode) { 
+		DBG_RETURN(HND_PASS);
+	} else {
+		mysqlx_new_exception(code, sql_state, message);
+		DBG_RETURN(HND_PASS_RETURN_FAIL);
+	}
 }
 /* }}} */
 
