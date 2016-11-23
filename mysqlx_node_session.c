@@ -104,7 +104,7 @@ mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION * const session,
 		ZVAL_UNDEF(&stmt_zv);
 		mysqlx_new_sql_stmt(&stmt_zv, stmt, namespace_, query);
 		if (Z_TYPE(stmt_zv) == IS_NULL) {
-			xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+			xmysqlnd_node_stmt_free(stmt, NULL, NULL);
 		}
 		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 			zval zv;
@@ -124,6 +124,7 @@ mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION * const session,
 			mysqlx_node_sql_statement_execute(Z_MYSQLX_P(&stmt_zv), flags, &zv);
 
 			ZVAL_COPY(return_value, &zv);
+			zval_dtor(&zv);
 		}
 end:
 		zval_ptr_dtor(&stmt_zv);

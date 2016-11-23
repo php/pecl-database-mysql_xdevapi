@@ -313,6 +313,7 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 }
 /* }}} */
 
+
 /* {{{ xmysqlnd_json_parser_object_end */
 static int
 xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
@@ -321,6 +322,8 @@ xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
 	zval_dtor(object);
 	return SUCCESS;
 }
+/* }}} */
+
 
 /* {{{ xmysqlnd_json_string_find_id */
 static enum_func_status
