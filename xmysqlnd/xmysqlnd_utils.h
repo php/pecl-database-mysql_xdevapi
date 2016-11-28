@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <dariusz.slusarczyk@oracle.com>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>							 |
   +----------------------------------------------------------------------+
 */
 #ifndef XMYSQLND_UTILS_H
