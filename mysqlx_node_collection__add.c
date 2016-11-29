@@ -75,6 +75,35 @@ PHP_METHOD(mysqlx_node_collection__add, __construct)
 /* }}} */
 
 
+/* {{{ execute_statement */
+static enum_func_status
+execute_statement(XMYSQLND_NODE_STMT * stmt,zval* return_value)
+{
+	enum_func_status ret = FAIL;
+	if (stmt) {
+		zval stmt_zv;
+		ZVAL_UNDEF(&stmt_zv);
+		mysqlx_new_node_stmt(&stmt_zv, stmt);
+		if (Z_TYPE(stmt_zv) == IS_NULL) {
+			xmysqlnd_node_stmt_free(stmt, NULL, NULL);
+		}
+		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+			zval zv;
+			ZVAL_UNDEF(&zv);
+			zend_long flags = 0;
+			mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv),
+								flags, MYSQLX_RESULT, &zv);
+			ZVAL_COPY(return_value, &zv);
+			zval_dtor(&zv);
+			ret = PASS;
+		}
+		zval_ptr_dtor(&stmt_zv);
+	}
+	return ret;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_collection__add::execute() */
 static
 PHP_METHOD(mysqlx_node_collection__add, execute)
@@ -85,7 +114,8 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 	DBG_ENTER("mysqlx_node_collection__add::execute");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection__add_class_entry))
+												&object_zv,
+												mysqlx_node_collection__add_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -94,83 +124,52 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 
 	RETVAL_FALSE;
 
-	if (object->collection) {
-		enum_func_status ret = FAIL;
-		if (Z_TYPE(object->json) == IS_STRING) {
-			const MYSQLND_CSTRING json = { Z_STRVAL(object->json), Z_STRLEN(object->json) };
-			//ret = object->collection->data->m.add(object->collection, json);
-			XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection, json);
-			if (stmt) {
-				zval stmt_zv;
-				ZVAL_UNDEF(&stmt_zv);
-				mysqlx_new_node_stmt(&stmt_zv, stmt);
-				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
-				}
-				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-					zval zv;
-					ZVAL_UNDEF(&zv);
-					zend_long flags = 0;
-					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+	if (! object->collection) {
+		DBG_VOID_RETURN;
+	}
 
-					ZVAL_COPY(return_value, &zv);
-					zval_dtor(&zv);
-					ret = PASS;
-				}
-				zval_ptr_dtor(&stmt_zv);
-			}
-		} else if ((Z_TYPE(object->json) == IS_OBJECT) || (Z_TYPE(object->json) == IS_ARRAY)) {
-			smart_str buf = {0};
-			JSON_G(error_code) = PHP_JSON_ERROR_NONE;
-			JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
-			const int encode_flag = (Z_TYPE(object->json) == IS_OBJECT) ? PHP_JSON_FORCE_OBJECT : 0;
-			php_json_encode(&buf, &object->json, encode_flag);
-			DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
-			if (JSON_G(error_code) == PHP_JSON_ERROR_NONE) {
-				//TODO marines: there is fockup with lack of terminating zero, which makes troubles in 
-				// xmysqlnd_json_string_find_id, i.e. php_json_yyparse returns result != 0
-				if (buf.s->len < buf.a)
-				{
-					buf.s->val[buf.s->len] = '\0';
-				}
-				const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
+	enum_func_status ret = FAIL;
+	MYSQLND_STRING   generated_doc_id;
+	if (Z_TYPE(object->json) == IS_STRING) {
+		const MYSQLND_CSTRING json = { Z_STRVAL(object->json), Z_STRLEN(object->json) };
+		//ret = object->collection->data->m.add(object->collection, json);
+		XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection,
+																	json);
+		ret = execute_statement(stmt,return_value);
+	} else if ((Z_TYPE(object->json) == IS_OBJECT) || (Z_TYPE(object->json) == IS_ARRAY)) {
+		smart_str buf = {0};
+		JSON_G(error_code) = PHP_JSON_ERROR_NONE;
+		JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
+		const int encode_flag = (Z_TYPE(object->json) == IS_OBJECT) ? PHP_JSON_FORCE_OBJECT : 0;
+		php_json_encode(&buf, &object->json, encode_flag);
+		DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
 
-				//ret = object->collection->data->m.add(object->collection,json);	
-				XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection,json);
-				if (stmt) {
-					zval stmt_zv;
-					ZVAL_UNDEF(&stmt_zv);
-					mysqlx_new_node_stmt(&stmt_zv, stmt);
-					if (Z_TYPE(stmt_zv) == IS_NULL) {
-						xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
-					}
-					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-						zval zv;
-						ZVAL_UNDEF(&zv);
-						zend_long flags = 0;
-						mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
-
-						ZVAL_COPY(return_value, &zv);
-						zval_dtor(&zv);
-						ret = PASS;
-					}
-					zval_ptr_dtor(&stmt_zv);
-				}
-
-			} else {
-				static const unsigned int errcode = 10001;
-				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-				static const MYSQLND_CSTRING errmsg = { "Error serializing document to JSON", sizeof("Error serializing document to JSON") - 1 };
-				mysqlx_new_exception(errcode, sqlstate, errmsg);
-			}
+		if (JSON_G(error_code) != PHP_JSON_ERROR_NONE) {
 			smart_str_free(&buf);
-		}
-		if (FAIL == ret && !EG(exception)) {
-			static const unsigned int errcode = 10002;
+			static const unsigned int errcode = 10001;
 			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Error adding document", sizeof("Error adding document") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Error serializing document to JSON", sizeof("Error serializing document to JSON") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			DBG_VOID_RETURN; //This is not really needed, for clarity.
 		}
+
+		//TODO marines: there is fockup with lack of terminating zero, which makes troubles in
+		// xmysqlnd_json_string_find_id, i.e. php_json_yyparse returns result != 0
+		if (buf.s->len < buf.a)
+		{
+			buf.s->val[buf.s->len] = '\0';
+		}
+		const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
+		XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection,
+																	json);
+		ret = execute_statement(stmt,return_value);
+		smart_str_free(&buf);
+	}
+	if (FAIL == ret && !EG(exception)) {
+		static const unsigned int errcode = 10002;
+		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+		static const MYSQLND_CSTRING errmsg = { "Error adding document", sizeof("Error adding document") - 1 };
+		mysqlx_new_exception(errcode, sqlstate, errmsg);
 	}
 
 	DBG_VOID_RETURN;

@@ -25,6 +25,7 @@
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
+#include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
@@ -819,7 +820,10 @@ mysqlx_new_sql_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt, const MYSQLN
 /*********************************************************************/
 /* {{{ mysqlx_node_statement_execute_read_response */
 void
-mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, const enum mysqlx_result_type result_type, zval * return_value)
+mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * const mysqlx_object,
+											const zend_long flags,
+											const enum mysqlx_result_type result_type,
+											zval * return_value)
 {
 	struct st_mysqlx_node_statement * object = (struct st_mysqlx_node_statement *) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_node_statement_execute");
@@ -849,18 +853,24 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 		object->has_more_results = FALSE;
 		object->send_query_status = PASS;
 
-		if (PASS == object->send_query_status) {
-			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
-				DBG_INF("ASYNC");
-				RETVAL_BOOL(PASS == object->send_query_status);
-			} else {
+		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
+			DBG_INF("ASYNC");
+			RETVAL_BOOL(PASS == object->send_query_status);
+		} else {
 				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_on_warning, NULL };
 				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_on_error, NULL };
 				XMYSQLND_NODE_STMT_RESULT * result;
 				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-					result = stmt->data->m.get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, NULL, NULL);
+					result = stmt->data->m.get_buffered_result(stmt,
+								&object->has_more_results,
+								on_warning,
+								on_error, NULL, NULL);
 				} else {
-					result = stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, NULL, NULL);
+					result = stmt->data->m.get_fwd_result(stmt,
+								MYSQLX_EXECUTE_FWD_PREFETCH_COUNT,
+								&object->has_more_rows_in_set,
+								&object->has_more_results,
+								on_warning, on_error, NULL, NULL);
 				}
 
 				DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
@@ -868,6 +878,10 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 							object->has_more_rows_in_set? "TRUE":"FALSE");
 
 				if (result) {
+					if( result->exec_state && stmt->data ) {
+						result->exec_state->last_document_id = stmt->data->assigned_document_id;
+						stmt->data->assigned_document_id.s = NULL;
+					}
 					switch(result_type)
 					{
 						case MYSQLX_RESULT:
@@ -899,7 +913,7 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 					object->send_query_status = FAIL;
 				}
 			}
-		}
+
 	}
 	DBG_VOID_RETURN;
 }

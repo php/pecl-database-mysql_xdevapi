@@ -67,7 +67,7 @@ struct st_xmysqlnd_stmt_execution_state
 	size_t items_matched;
 	size_t items_found;
 	uint64_t last_insert_id;
-	MYSQLND_CSTRING last_document_id; 
+	MYSQLND_CSTRING last_document_id;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * m;
 	zend_bool persistent;
