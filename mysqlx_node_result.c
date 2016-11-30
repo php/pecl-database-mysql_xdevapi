@@ -42,7 +42,7 @@ static zend_class_entry *mysqlx_node_result_class_entry;
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_affected_items_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_last_insert_id, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_auto_increment_value, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_last_document_id, 0, ZEND_RETURN_VALUE, 0)
@@ -109,14 +109,14 @@ PHP_METHOD(mysqlx_node_result, getAffectedItemsCount)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_result::getLastInsertId(object result) */
+/* {{{ proto mixed mysqlx_node_result::getAutoIncrementValue(object result) */
 static
-PHP_METHOD(mysqlx_node_result, getLastInsertId)
+PHP_METHOD(mysqlx_node_result, getAutoIncrementValue)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_result * object;
 
-	DBG_ENTER("mysqlx_node_result::getLastInsertId");
+	DBG_ENTER("mysqlx_node_result::getAutoIncrementValue");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_result_class_entry))
 	{
@@ -254,7 +254,7 @@ static const zend_function_entry mysqlx_node_result_methods[] = {
 	PHP_ME(mysqlx_node_result, __construct,			NULL,																ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_node_result, getAffectedItemsCount,	arginfo_mysqlx_node_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_result, getLastInsertId, 		arginfo_mysqlx_node_result__get_last_insert_id,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_result, getAutoIncrementValue, 	arginfo_mysqlx_node_result__get_auto_increment_value,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_result, getLastDocumentId, 		arginfo_mysqlx_node_result__get_last_document_id,		ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_node_result, getWarningCount,			arginfo_mysqlx_node_result__get_warning_count,			ZEND_ACC_PUBLIC)
