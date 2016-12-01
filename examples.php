@@ -1,217 +1,290 @@
 <?php
-	function on_row($row, $meta) {
-		echo " -------------BEGIN ON_ROW --------------\n";
-		var_dump(func_get_args()[1]);
-		printf(" -------------END ON_ROW %d --------------\n", $GLOBALS['$row_count']++);
-		return 4;//4;
-	}
-	function on_warning($stmt) {
-		echo " -------------BEGIN ON_WARNING--------------\n";
-		var_dump(func_get_args());
-		echo " -------------END ON_WARNING --------------\n";
-	}
-	function on_error($stmt) {
-		echo " -------------BEGIN ON_ERROR --------------\n";
-		var_dump(func_get_args());
-		echo " -------------END ON_ERROR --------------\n";
-	}
-	function on_rset_end($stmt) {
-		echo " -------------BEGIN ON_RSET_END --------------\n";
-		var_dump(func_get_args());
-		echo " -------------END ON_RSET_END --------------\n";
-	}
-	function on_stmt_ok($stmt) {
-		echo " -------------BEGIN ON_STMT_OK --------------\n";
-		var_dump(func_get_args());
-		echo " -------------END ON_STMT_OK --------------\n";
-	}
+   /*
+                With X DevAPI we can connect directly to a specific session by a call to getNodeSession
+		or invoke getSession to connect to one or *more* servers.
 
-	$row_count = 0;
+		Details: https://dev.mysql.com/doc/x-devapi-userguide/en/xsession-vs-node-session.html
 
-	$c=mysqlx\getNodeSession("127.0.0.1", "root","");
+                For using he X DevAPI a MySQL Server with enabled X Plugin is required.
+		The X Plugin is part of MySQL 5.7.12. For instructions about installation and configuration
+		please refer to the MySQL documentation at:
 
-	var_dump($c);
+                http://dev.mysql.com/doc/refman/5.7/en/document-store-setting-up.html
 
-if (0) {
-//	$res = $c->executeSql("INSERT INTO test.t_insert VALUES(?)", NULL, 42);
-//	$res = $c->executeSql("SELECT * FROM test.t_insert LIMIT 2");
-	$res = $c->executeSql("SELECT CAST('a' AS UNSIGNED)");
-	var_dump($res);
-//	while ($res->hasData()) {
-//		var_dump($res->fetchOne());
-//	}
-	exit;
-}
-if (1) {
-	$a = new stdclass();
-	$a->b = new stdclass();
-	$a->pid=getmypid(); $a->foo="bar";$a->b->c="d";$a->b->d=[1,2];
-	
-	var_dump($c->generateUUID());
-//	var_dump($clients = $c->listClients());
-//	$client_id = $clients[0]["client_id"];
-//	var_dump("client_id=",$client_id);
-//	var_dump($c->killClient($client_id));
+		The XDevAPI extension for PHP export the functions used to initiate the connection,
+		the syntax is: mysql_xdevapi\<name of the function>
 
-//	$collection =  $c->createSchema("test")->createCollection("newcollection");
-//	$collection =  $c->getSchema("test")->createCollection("newcollection");
-	$collection =  $c->getSchema("test")->getCollection("newcollection");
-	var_dump($collection);
-	if (0) {
-		if (0) {
-			$remover = $collection->remove("pid = :foo");
-			var_dump($remover);
-			var_dump("bind:", $remover->bind(["foo" => 15895]));
-//			var_dump($remover->sort(["_id DESC", "pid DESC"]));
-//			var_dump($remover->limit(1));
-			var_dump("execute:", $remover->execute());
-		} else {
-			$collection->add(json_encode($a))->execute();
-		}
-		exit;
-	} else if (0) {
-//		$modifier = $collection->modify("pid = :foobar");
-		$modifier = $collection->modify("pid = \"a8fc6daff27c11e5a8d17c7a913074ba\"");
-		var_dump("modifier",$modifier);
-//		var_dump("bind:", $modifier->bind(["foobar" => 15889]));
-//		var_dump("expression", $expr = mysqlx\expression(".pid - 20"));
-//		var_dump("set:", $modifier->set(".foo", $expr));
-//		var_dump("unset:", $modifier->unset([".foo"]));
-		var_dump("arrayInsert:", $modifier->arrayInsert("[*]", 3));
-		var_dump("execute:", $modifier->execute());
-		exit;
-	} else {
-		$finder = $collection->find();
-		var_dump("finder:", $finder);
-		var_dump("execute:", $res = $finder->execute());
-		var_dump($res->fetchAll());
-		exit;
-	}
-	//	var_dump($collection->drop());
-	if (0) {
-		var_dump($c->getSchemas());
+		Where mysql_xdevapi is the 'namespace' where those functions are declared.
 
-		$schema = $c->getSchema("test");
+		If the connection failed the function will raise an exception (invalid user name or password, &c)
+    */
 
-		$mycollection = $schema->createCollection("mycollection");
-		var_dump("created_collection:", $mycollection);
+    $session = mysql_xdevapi\getSession("localhost","root","");
+    var_dump($session);
 
-		$tables = $schema->getTables();
-		var_dump("tables:", $tables);
+    /*
+		Once we have a connection established, we might want to create a new
+		schema for the purpose of storing doc's.
 
-		$collections = $schema->getCollections();
-		var_dump("collections:", $collections);
+		We can do this by calling createSchema from the current session.
 
-		var_dump($mycollection->drop());
-		exit;
-//		var_dump($schema->drop());
-		var_dump($schema);
-		var_dump($schema->getName());
-		$mycollection = $schema->createCollection("mycollection");
-		var_dump("created_collection:", $mycollection);
-		var_dump($mycollection->drop());
+		On server side is possible to verify the existence of the schema by running
+		'show databases;', on my machine this will display:
 
-		$collection = $schema->getCollection("t_insert");
-		var_dump("collection:", $collection);
-		$table = $schema->getTable("t_insert");
-		var_dump("table:", $table);
-		$collections = $schema->getCollections();
-		var_dump("collections:", $collections);
-		$tables = $schema->getTables();
-		var_dump("tables:", $tables);
-		$inserter = $table->insert();
-		var_dump("inserter:", $inserter);
-		$deleter = $table->delete();
-		var_dump("deleter:", $deleter);
-		$updater = $table->update();
-		var_dump("updater:", $updater);
-		$selecter = $table->select();
-		var_dump("selecter:", $selecter);
-		exit;
-	}
-	exit;
-}
-	
-	
-if (1) {
-	var_dump("server_version:", $c->getServerVersion());
-	var_dump("client_id", $c->getClientId());
-//	var_dump("create_schema(test2):",$c->createSchema("test2"));
-//	var_dump("create_schema(test2):",$c->createSchema("test2"));
-//	var_dump("drop_schema(test2):",$c->dropSchema("test2"));
-	$stmt = $c->createStatement("SELECT a,b,c,d,tm,size FROM test.t3 LIMIT 5");
-//	$stmt = $c->createStatement("SELECT * FROM test.t_insert LIMIT 2");
-//	$stmt = $c->createStatement("SELECT CAST('a' AS UNSIGNED)");
-//	$stmt = $c->createStatement("CALL test.p1");
-	echo "-------------------------- executeWithCallback ------------------\n";
-	$stmt->execute(Mysqlx\NodeSqlStatement::EXECUTE_ASYNC);
-	$res = $stmt->getResult("on_row", "on_warning", "on_error", "on_rset_end", "on_stmt_ok", $stmt);
-	var_dump($res);
-	exit;
-}
-if (1) {
-	define("ASYNC_RUN", 1);
-	define("BUFFERED", 0);
-	define("USE_FOREACH", 1);
+		mysql> show databases;
+		+--------------------+
+		| Database           |
+		+--------------------+
+		| information_schema |
+		| mysql              |
+		| performance_schema |
+		| products           |
+		| sys                |
+		+--------------------+
 
-	var_dump("quoteName(abc):", $c->quoteName("abc"));
-	var_dump("quoteName(a`b`c):", $c->quoteName("a`b`c"));
-//	$schema = $c->getSchema("test");
-//	var_dump($schema);
-//	var_dump($c->createStatement("COMMIT")->execute());
-//	$stmt = $c->createStatement("CREATE TABLE IF NOT EXISTS test.t_insert(a int)");
-//	$stmt = $c->createStatement("INSERT INTO test.t_insert VALUES(?)");
-	$stmt = $c->createStatement("SELECT a,b,c,d,tm,size FROM test.t3 LIMIT 5");
-//	var_dump($stmt->bind(0,NULL));
-//	var_dump($stmt->bind(0,"large"));
-//	var_dump($stmt->bind(0,"bar"));
-//	var_dump($stmt->bind(0, 1)->bind(0, 1)->bind(0, 1)->bind(0, 1)->bind(0, 1));
-//	$stmt = $c->createStatement("call test.p1()");
-	var_dump($stmt);
+		The 'products' schema exist.
+    */
 
-	echo BUFFERED? "BUFFERED":"FORWARD ONLY", "\n";
-	echo USE_FOREACH? "FOREACH":"DevAPI iteration", "\n";
-	if (ASYNC_RUN) {
-		echo "ASYNC\n";
-		var_dump($stmt->execute(Mysqlx\NodeSqlStatement::EXECUTE_ASYNC | (BUFFERED? Mysqlx\NodeSqlStatement::BUFFERED : 0)));
-		do {
-			$res = $stmt->getResult();
-			var_dump("get_result:",$res);
-			var_dump("getLastInsertId:",$res->getLastInsertId());
-			var_dump("getAffectedItemsCount:",$res->getAffectedItemsCount());
-			if (USE_FOREACH) {
-				foreach ($res as $row) {
-					var_dump($row);
-				}
-			} else {
-				while ($res->hasData()) {
-					var_dump($res->fetchOne());
-				}
-//				var_dump($res->fetchAll());
-			}
-		} while ($stmt->hasMoreResults() && ($res = $stmt->nextResult()));
-	} else {
-		echo "SYNCHRONOUS\n";
-		$res = $stmt->execute(BUFFERED? Mysqlx\NodeSqlStatement::BUFFERED:0);
-		var_dump($res);
-		do {
-			var_dump("getLastInsertId:",$res->getLastInsertId());
-			var_dump("getAffectedItemsCount:",$res->getAffectedItemsCount());
-			if (USE_FOREACH) {
-				foreach ($res as $row) {
-					unset($res);
-					var_dump($row);
-				}			
-			} else {
-				while ($res->hasData()) {
-					var_dump($res->fetchOne());
-				}
-				if (BUFFERED) {
-//					var_dump($res->fetchAll());
-				}
-			}
-			var_dump("has_more_results=", $stmt->hasMoreResults());
-		} while ($stmt->hasMoreResults() && ($res = $stmt->nextResult()));
-	}
-}
+    $schema = $session->createSchema("products");
+
+    /*
+		Now we need create a new collection in order to store docs,
+		this can be performed by a call to createCollection, the argument
+		provided is the name of the new collection which will be stored in "products"
+    */
+
+    $collection = $schema->createCollection("best_products");
+
+    /*
+		Till now I've created a schema and a collection, but those might have
+		been already in the database, to obtain an already existing schema
+		and colletion the user can make use of getSchema and getCollection:
+    */
+
+    $schema = $session->getSchema("products");
+    $collection = $schema->getCollection("best_products");
+
+
+    /*
+		But a document store make no sense if we don't store... documents.
+
+		For the sake of this sample, I've created a file with some product information
+		which I want to load in the document store. Clearly the data might be coming
+		from any other source.
+    */
+
+    $products = file("product_data.txt",
+		     FILE_IGNORE_NEW_LINES);
+    foreach ($products as $key => &$product) {
+	$arr = explode("\t", $product);
+	$product = array('code' => $arr[0],
+			 'name' => $arr[1],
+			 'desc' => $arr[2],
+			 'price' => floatval($arr[3]),
+			 'aval' => intval($arr[4]));
+
+	/*
+		Is possible to add documents to the store in multiple ways, in this sample
+		I've an array which represent a collection of products which I want add
+		to the collection.
+
+		A simple call to the function 'add' with the array as argument is sufficient,
+		is worth noticing that in order to execute the 'add' operation an explicit call
+		to 'execute' is required, this is true for most of the operations we're going
+		to perform in this sample.
+	*/
+
+	$collection->add($product)->execute();
+    }
+
+    /*
+            Is possible to add documents to the collection by providing JSON strings:
+    */
+
+    $collection->add('{"code": 44, "aval": 3, "desc": "A pen!", "name": "SuperPen", "price": 3.22}')->execute();
+    $collection->add('{"code": 434, "aval": 43, "desc": "A pencil!", "name": "SuperPencil", "price": 2.22}')->execute();
+
+    /*
+		Now that we have some documents in our collection, let's lookup
+		the database for the three most expensive products in our catalogue.
+
+		For this purpose I'm calling the function 'find' without arguments,
+		(we look in all the data available), then I chain a call to 'sort'
+		in order to have the data sorted by the price in ascending order,
+		followed by 'limit' call, which set the amount of data I want to retrieve.
+
+		This call returns a 'NodeDocResult' object, from which I can fetch the
+		retrieved rows:
+			1) fetchAll, will fetch all the rows
+			2) fetchOne, will fetch just one row
+    */
+
+    $expensive = $collection->find()->sort("price desc")->limit(3)->execute();
+    $exp_data = $expensive->fetchAll();
+
+    /*
+	The call to print_r will output the three most expensive items:
+
+Array
+(
+    [0] => Array
+	(
+	    [doc] => {"_id": "df768423a59c11e69f47bcee7b785c27", "aval": 6, "code": "ABABA", "desc": "Available in two colors!", "name": "PHP Expert", "price": 2499.99}
+	)
+
+    [1] => Array
+	(
+	    [doc] => {"_id": "df74ea6fa59c11e69f47bcee7b785c27", "aval": 3, "code": "51A51", "desc": "Your favorite plastic surgeon", "name": "PlasticFace", "price": 1499.99}
+	)
+
+    [2] => Array
+	(
+	    [doc] => {"_id": "df74ea81a59c11e69f47bcee7b785c27", "aval": 2, "code": "56411", "desc": "The best of the best!", "name": "Programmer2", "price": 299.99}
+	)
+
+)
+
+    */
+
+    print_r($exp_data);
+
+    /*
+		I want to change the amount of available units of the product "SuperDent".
+		now I have +10 produts in my stock, to perform this operation I need
+		to modify the document, for this purpose I'll upload the new value with a
+		'set' call from 'modify'.
+    */
+
+    $collection->modify("name like 'SuperDent'")->set("aval", 15)->execute();
+
+    /*
+		Is possible to use the binding feature instead of hardcoding
+		the product name, this code is equivalen (in terms of result)
+		to the previous instruction:
+    */
+    $productName = "SuperDent";
+    $collection->modify("name like :pr_name")->bind(["pr_name" => $productName])->set("aval", 15)->execute();
+
+    /*
+		I might want to add a new attribute in one or more of my documents,
+		for example all the items for which I have less than 10 products available
+		shall now have a new "comment" attribute.
+
+		Adding attributes change only the selected documents in the collection
+		and does not effect the other.
+    */
+    $message = "Stock too low, order more items.";
+    $collection->modify("aval < 10")->set("comment",$message)->execute();
+
+    /*
+		Again, parameter binding is allowed, is possible to provide
+		the value directly to 'bind' instead to pointing to a variable.
+    */
+
+    $collection->modify("aval < :amount")->bind(["amount" => 10])->set("comment", $message)->execute();
+
+    /*
+		Some products are not available anymore and I want to remove
+		the related documents from my products collection,
+
+		I can perform this operation by a call to 'remove'. Let's say I
+		do not have anymore "Programmers" in my catalog.
+		In the DB's I have three type* of programmers and I want to remove them all:
+
+		*Programmer1,Programmer2,Programmer3
+    */
+
+    $collection->remove("name like 'Programmer%'")->execute(); //Note the '%'
+
+    /*
+                To remove the comments for some items before one
+		can make use again of the 'modify' operation, this time
+		unsetting the values.
+
+		The actual implementation of 'unset' expect as argument
+		an array of names, where each name refers to an attribute to remove.
+		(That's why the strange syntax ["comment"]).
+    */
+
+    $collection->modify("comment like '%'")->unset(["comment"])->execute();
+
+    /*
+                The extension allows you to run SQL query from the script
+		with minimum effort, in order to do that a node session object
+		is required.
+
+                Let's use SQL to create two tables for our new products:
+    */
+
+    $nodeSession = mysql_xdevapi\getNodeSession("localhost", "root", "");
+    $nodeSession->executeSql("create table products.new_products_table(name text,price float,description text)");
+    $nodeSession->executeSql("create table products.new_cheap_products_table(name text,price float,description text)");
+
+    /*
+                Is possible to extract an array containing all the tables
+		in the database.
+
+                The output of the following instructions is:
+		-> new_cheap_products_table
+		-> new_products_table
+    */
+
+    $tables = $schema->getTables();
+    print "There are ".count($tables)." tables in the DB:".PHP_EOL;
+    foreach( $tables as $entry ) {
+        print " -> ".$entry->getName().PHP_EOL;
+    }
+
+
+    /*
+                And easily new elements can be inserted into the tables:
+    */
+
+    $new_prod_tbl = $tables["new_products_table"];
+    $new_prod_tbl->insert(["name", "price", "description"])->values(["bPhone","605.15","The best bPhone from Banana Corporation"])->execute();
+    $new_prod_tbl->insert(["name", "price", "description"])->values(["bPhone ultraplus","933.1","Even bigger bPhone from Banana Corporation"])->execute();
+    $new_prod_tbl->insert(["name", "price", "description"])->values(["bPad","345.33","Completely useless gadget from Banana Corporation"])->execute();
+
+
+    /*
+                Then is possible to perform a selection the table in order
+		to retrieve data.
+
+                The output of the following select operation is:
+		-> bPhone ultraplus
+		-> bPhone
+    */
+
+    $result = $new_prod_tbl->select(["name"])->where("price > 500")->orderBy("price desc")->execute();
+    foreach( $result->fetchAll() as $item ) {
+        print " -> ".$item["name"].PHP_EOL;
+    }
+
+    /*
+                Removing elements is straightforward, a call
+		to delete followed by the deleting criteria is
+		all that is needed.
+
+                After the following instruction all that remains
+		in the new_products_table is the bPad product.
+    */
+
+    $new_prod_tbl->delete()->where("price > 500")->execute();
+
+    /*
+		Is possible to drop the schema with a call to dropSchema,
+		providing the name of the schema do drop.
+    */
+
+    $session->dropSchema("products");
+
+    /*
+		All the operations which I've listed here are executed
+		(operation request transmitted to the server) after a call
+		to 'execute', all the chaining we're doing before execute
+		is not effecting the collection.
+
+		All the changes once executes are reflected on server side,
+		and is possible to query the DB's to make a verification
+    */
 ?>
