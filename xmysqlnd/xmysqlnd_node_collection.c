@@ -276,8 +276,9 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, count)(
 
 struct st_parse_for_id_status
 {
-	zend_bool found:1;
-	zend_bool empty:1;
+	zend_bool		found:1;
+	zend_bool		empty:1;
+	zend_bool		is_string:1;
 };
 
 struct my_php_json_parser {
@@ -301,6 +302,7 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 			DBG_INF_FMT("value=%llu", Z_LVAL_P(zvalue));
 		} else if (Z_TYPE_P(zvalue) == IS_STRING) {
 			DBG_INF_FMT("value=%*s", Z_STRLEN_P(zvalue), Z_STRVAL_P(zvalue));
+			status->is_string = TRUE;
 		}
 		status->found = TRUE;
 		status->empty = FALSE;
@@ -313,6 +315,7 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 }
 /* }}} */
 
+
 /* {{{ xmysqlnd_json_parser_object_end */
 static int
 xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
@@ -321,6 +324,8 @@ xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
 	zval_dtor(object);
 	return SUCCESS;
 }
+/* }}} */
+
 
 /* {{{ xmysqlnd_json_string_find_id */
 static enum_func_status
@@ -340,6 +345,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	php_json_parser_init_ex(&parser.parser, &return_value, (char *)json.s, json.l, options, depth, &own_methods);
 	status->found = FALSE;
 	status->empty = TRUE;
+	status->is_string = FALSE;
 	parser.status = status;
 
 	if (php_json_parse(&parser.parser)) {
@@ -353,93 +359,163 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 /* }}} */
 
 
+/* {{{ add_unique_id_to_json */
+static enum_func_status
+add_unique_id_to_json(XMYSQLND_NODE_SESSION *session,
+			const struct st_parse_for_id_status *status,
+			MYSQLND_STRING* to_add,
+			const MYSQLND_CSTRING* json)
+{
+	enum_func_status ret = FAIL;
+	char * p = NULL;
+	const MYSQLND_CSTRING uuid = session->m->get_uuid(session);
+
+	if (UNEXPECTED(status->empty)) {
+		to_add->s = mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
+		if (to_add->s) {
+			p = to_add->s;
+			*p++ = '{';
+			ret = PASS;
+		}
+	} else {
+		const char * last = json->s + json->l - 1;
+		while (last >= json->s && *last != '}') {
+			--last;
+		}
+		if (last >= json->s) {
+			to_add->s = mnd_emalloc(json->l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
+			if (to_add->s) {
+				p = to_add->s;
+				memcpy(p, json->s, last - json->s);
+				p += last - json->s;
+				*p++ = ',';
+				ret = PASS;
+			}
+		}
+	}
+	if(ret == PASS && p!= NULL) {
+		memcpy(p, ID_TEMPLATE_PREFIX, sizeof(ID_TEMPLATE_PREFIX) - 1);
+		p += sizeof(ID_TEMPLATE_PREFIX) - 1;
+		memcpy(p, uuid.s, uuid.l);
+		p += uuid.l;
+		memcpy(p, ID_TEMPLATE_SUFFIX, sizeof(ID_TEMPLATE_SUFFIX) - 1);
+		p += sizeof(ID_TEMPLATE_SUFFIX) - 1;
+		*p = '\0';
+		to_add->l = p - to_add->s;
+	}
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ add_unique_id_to_json */
+static MYSQLND_CSTRING
+extract_document_id(const MYSQLND_STRING json,
+					zend_bool id_is_string)
+{
+	MYSQLND_STRING res = { NULL, 0 };
+	char * beg = NULL,
+		 * end = json.s + json.l - 1;
+	if( ( beg = strstr(json.s, ID_COLUMN_NAME) ) != NULL) {
+		beg += sizeof( ID_COLUMN_NAME ) + 1;
+		if( id_is_string ) {
+			//Move to the first char after \"
+			while( beg < end && *beg != '\"' )
+				++beg;
+			++beg;//Skip \"
+		} else {
+			//Skip the spaces, if any
+			while( beg < end && *beg == ' ' )
+				++beg;
+		}
+		if( beg < end ) {
+			//Now we look for the termination mark
+			char * cur = beg;
+			if( id_is_string ) {
+				while( cur != end ) {
+					if( *cur == '\"' ) break;
+					++cur;
+				}
+			} else {
+				while( cur != end ) {
+					if( *cur == ' ' || *cur == ',' || *cur == '}' ) break;
+					++cur;
+				}
+			}
+			end = cur;
+			if( end >= beg ){
+				res.l = ( end - beg);
+				if( res.l > 0 && res.l <= 32 ) {
+					res.s = mnd_emalloc( res.l );
+					memcpy(res.s, beg, res.l);
+				}
+			}
+		}
+	}
+	if( res.s == NULL ) {
+		static const unsigned int errcode = 10001;
+		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
+		static const MYSQLND_CSTRING errmsg = { "Error serializing document to JSON", sizeof("Error serializing document to JSON") - 1 };
+		mysqlx_new_exception(errcode, sqlstate, errmsg);
+	}
+	MYSQLND_CSTRING ret = {
+		res.s,
+		res.l
+	};
+	return ret;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_collection::add */
 static XMYSQLND_NODE_STMT * 
-XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const collection, const MYSQLND_CSTRING json)
+XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const collection,
+											   const MYSQLND_CSTRING json)
 {
 	struct st_parse_for_id_status status;
+	zend_bool doc_id_string_type = FALSE;
 	XMYSQLND_NODE_STMT * ret = NULL;
 	DBG_ENTER("xmysqlnd_node_collection::add");
 	DBG_INF_FMT("json=%*s", json.l, json.s);
-	if (!json.l) {
+	if (!json.l || PASS != xmysqlnd_json_string_find_id(json, 0, 0, &status)) {
 		DBG_RETURN(NULL);
 	}
-	if (PASS == xmysqlnd_json_string_find_id(json, 0, 0, &status)) {
-		XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
-		MYSQLND_STRING to_add = { (char *) json.s, json.l };
-		if (!status.found) {
-			const MYSQLND_CSTRING uuid = session->m->get_uuid(session);
 
-			if (UNEXPECTED(status.empty)) {
-				to_add.s = mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
-				if (!to_add.s) {
-					DBG_RETURN(NULL);
-				}
-				{
-					char * p = to_add.s;
-					*p++ = '{';
-					/* Here STARTS the common part */
-					memcpy(p, ID_TEMPLATE_PREFIX, sizeof(ID_TEMPLATE_PREFIX) - 1);
-					p += sizeof(ID_TEMPLATE_PREFIX) - 1;
-					memcpy(p, uuid.s, uuid.l);
-					p += uuid.l;
-					memcpy(p, ID_TEMPLATE_SUFFIX, sizeof(ID_TEMPLATE_SUFFIX) - 1);
-					p += sizeof(ID_TEMPLATE_SUFFIX) - 1;
-					*p = '\0';
-					to_add.l = p - to_add.s;
-					/* Here ENDS the common part */
-				}
-			} else {
-				const char * last = json.s + json.l - 1;
-				while (last >= json.s && *last != '}') {
-					--last;
-				}
-				if (last < json.s) {
-					DBG_RETURN(NULL);
-				}
-				to_add.s = mnd_emalloc(json.l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
-				if (!to_add.s) {
-					DBG_RETURN(NULL);
-				}
-				{
-					char * p = to_add.s;
-					memcpy(p, json.s, last - json.s);
-					p += last - json.s;
-					*p++ = ',';
-					/* Here STARTS the common part */
-					memcpy(p, ID_TEMPLATE_PREFIX, sizeof(ID_TEMPLATE_PREFIX) - 1);
-					p += sizeof(ID_TEMPLATE_PREFIX) - 1;
-					memcpy(p, uuid.s, uuid.l);
-					p += uuid.l;
-					memcpy(p, ID_TEMPLATE_SUFFIX, sizeof(ID_TEMPLATE_SUFFIX) - 1);
-					p += sizeof(ID_TEMPLATE_SUFFIX) - 1;
-					*p = '\0';
-					to_add.l = p - to_add.s;
-					/* Here ENDS the common part */
-				}
-			}
-		}
-		DBG_INF_FMT("json=%*s", to_add.l, to_add.s);
-		{
-			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
-			struct st_xmysqlnd_msg__collection_add collection_add = msg_factory.get__collection_add(&msg_factory);
-			enum_func_status request_ret = collection_add.send_request(&collection_add,
-												 mnd_str2c(collection->data->schema->data->schema_name),
-												 mnd_str2c(collection->data->collection_name),
-												 mnd_str2c(to_add));
-			if (PASS == request_ret) {
-				//ret = collection_add.read_response(&collection_add);
-				XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
-				XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
-				stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
-				ret = stmt;
-			}
-			DBG_INF(ret != NULL? "PASS":"FAIL");
-		}
-		if (to_add.s != json.s) {
-			efree(to_add.s);
-		}
+	XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
+	MYSQLND_STRING to_add = { (char *) json.s, json.l };
+
+	if (!status.found) {
+		add_unique_id_to_json(session,&status,&to_add,&json);
+		doc_id_string_type = TRUE;
+	} else {
+		doc_id_string_type = status.is_string;
 	}
+
+	MYSQLND_CSTRING assigned_id = extract_document_id(to_add,
+													  doc_id_string_type);
+
+	DBG_INF_FMT("json=%*s", to_add.l, to_add.s);
+	{
+		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+		struct st_xmysqlnd_msg__collection_add collection_add = msg_factory.get__collection_add(&msg_factory);
+		enum_func_status request_ret = collection_add.send_request(&collection_add,
+																   mnd_str2c(collection->data->schema->data->schema_name),
+																   mnd_str2c(collection->data->collection_name),
+																   mnd_str2c(to_add));
+		if (PASS == request_ret) {
+			//ret = collection_add.read_response(&collection_add);
+			XMYSQLND_NODE_SESSION * session = collection->data->schema->data->session;
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
+			stmt->data->assigned_document_id = assigned_id;
+			ret = stmt;
+		}
+		DBG_INF(ret != NULL? "PASS":"FAIL");
+	}
+	if (to_add.s != json.s) {
+		efree(to_add.s);
+	}
+
 	DBG_RETURN(ret);
 }
 /* }}} */

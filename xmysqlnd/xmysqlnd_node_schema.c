@@ -226,37 +226,35 @@ collection_op_handler_on_error(void * context,
 static const enum_hnd_func_status
 collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
+	DBG_ENTER("collection_op_var_binder");
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_collection_op_var_binder_ctx * ctx = (struct st_collection_op_var_binder_ctx *) context;
 	const MYSQLND_CSTRING * param = NULL;
-	DBG_ENTER("collection_op_var_binder");
+	enum_func_status result;
+	zval zv;
 	switch (ctx->counter) {
 		case 0:
 			param = &ctx->schema_name;
 			ret = HND_AGAIN;
-			goto bind;
+			break;
 		case 1:{
 			param = &ctx->collection_name;
 			ret = HND_PASS;
-bind:
-			{
-				enum_func_status result;
-				zval zv;
-				ZVAL_UNDEF(&zv);
-				ZVAL_STRINGL(&zv, param->s, param->l);
-				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
-				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
-//				result = stmt->data->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
-
-				zval_ptr_dtor(&zv);
-				if (FAIL == result) {
-					ret = FAIL;
-				}
-			}
 			break;
 		}
 		default: /* should not happen */
 			break;
+	}
+	if(ret != HND_FAIL) {
+		ZVAL_UNDEF(&zv);
+		ZVAL_STRINGL(&zv, param->s, param->l);
+		DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
+		result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+		//result = stmt->data->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
+		zval_ptr_dtor(&zv);
+		if (FAIL == result) {
+			ret = FAIL;
+		}
 	}
 	++ctx->counter;
 	DBG_RETURN(ret);

@@ -117,6 +117,18 @@ mysqlx_execution_status_property__last_insert_id(const struct st_mysqlx_object *
 /* }}} */
 
 
+/* {{{ mysqlx_execution_status_property__last_document_id*/
+static zval *
+mysqlx_execution_status_property__last_document_id(const struct st_mysqlx_object * obj, zval * return_value)
+{
+	const struct st_mysqlx_execution_status * object = (struct st_mysqlx_execution_status *)(obj->ptr);
+	DBG_ENTER("mysqlx_execution_status_property__last_document_id");
+	ZVAL_LONG(return_value, object->last_insert_id);
+	DBG_RETURN(return_value);
+}
+/* }}} */
+
+
 /* {{{ mysqlx_execution_status_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_execution_status_property_entries[] =
 {
@@ -124,6 +136,7 @@ static const struct st_mysqlx_property_entry mysqlx_execution_status_property_en
 	{{"matchedItems",		sizeof("matchedItems") - 1},	mysqlx_execution_status_property__matched_items,	NULL},
 	{{"foundItems",			sizeof("foundItems") - 1},		mysqlx_execution_status_property__found_items,		NULL},
 	{{"lastInsertId",		sizeof("lastInsertId") - 1},	mysqlx_execution_status_property__last_insert_id,	NULL},
+	{{"lastDocumentId",		sizeof("lastDocumentId") - 1},	mysqlx_execution_status_property__last_document_id,	NULL},
 	{{NULL, 				0},								NULL, 												NULL}
 };
 /* }}} */
@@ -206,6 +219,7 @@ mysqlx_register_execution_status_class(INIT_FUNC_ARGS, zend_object_handlers * my
 	zend_declare_property_null(mysqlx_execution_status_class_entry, "matchedItems",		sizeof("matchedItems") - 1,		ZEND_ACC_PUBLIC);
 	zend_declare_property_null(mysqlx_execution_status_class_entry, "foundItems",		sizeof("foundItems") - 1,		ZEND_ACC_PUBLIC);
 	zend_declare_property_null(mysqlx_execution_status_class_entry, "lastInsertId",		sizeof("lastInsertId") - 1,		ZEND_ACC_PUBLIC);
+	zend_declare_property_null(mysqlx_execution_status_class_entry, "lastDocumentId",	sizeof("lastDocumentId") - 1,	ZEND_ACC_PUBLIC);
 }
 /* }}} */
 

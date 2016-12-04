@@ -236,7 +236,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error)(void * context, const unsi
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_warning */
+/* {{{ xmysqlnd_node_stmt::handler_on_exec_state_change */
 static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_exec_state_change)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value)
 {

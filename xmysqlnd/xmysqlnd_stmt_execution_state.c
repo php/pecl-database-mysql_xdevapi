@@ -83,6 +83,7 @@ static MYSQLND_CSTRING
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_document_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_last_document_id");
+
 	DBG_RETURN(state->last_document_id);
 }
 /* }}} */
@@ -153,6 +154,11 @@ static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::free_contents");
+	if(state && state->last_document_id.s != NULL) {
+		mnd_efree(state->last_document_id.s);
+		state->last_document_id.s = NULL;
+		state->last_document_id.l = 0;
+	}
 	DBG_VOID_RETURN;
 }
 /* }}} */

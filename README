@@ -1,5 +1,54 @@
-0) build
-To enable X DevAPI use switch --enable-mysql-xdevapi. It depends on 'ext/json' and 'ext/mysqlnd' extensions.
+MySQL X DevAPI for PHP
+======================
+
+This PHP Extension provides MySQL's X DevAPI. The X DevAPI is a new CRUD-style 
+API for accessing MySQL as a Document Store. It is based on the X Protocol 
+introduced with the X Plugin in MySQL 5.7.12 and unifies JSON document and 
+table access, and it includes SQL support. The API features a popular fluent 
+interface style and aims to be particularly easy to use yet powerful. The 
+X DevAPI sees wide cross product support. Developers can use the same syntax 
+and rely on the existence of virtually the same feature set in may products 
+they work with on a day to day basis.
+
+The X DevAPI combines elements of the relational database model with elements 
+of storing JSON documents. Working with schemaless data serialized in JSON has 
+become very popular in recent years. Schema flexibility allows data-first 
+development models. For example, application developers do not need to define 
+the very details of the data to be stored before it can be saved, customers 
+can model applications using an iterative approach, defining the details along 
+the way when they work with the developers. In other areas a mode-first 
+development model may fit the brief better. The X DevAPI supports both working 
+with schemaful relational tables and schemaless collections of JSON documents.
+
+The X DevAPI abstracts the notion of a connection to that of a session. A 
+session encapsulates physical connections. This concept is crucial for 
+any environment where the creation, selection and life span of a physical 
+connection shall not be a concern of the application developer.
+
+To learn more about the details of the X DevAPI refer to the documentation on
+http://dev.mysql.com/doc/x-devapi-userguide/en/
+
+To learn more about MySQL as a Document Store efer to documentation on 
+http://dev.mysql.com/doc/refman/5.7/en/document-store.html
+
+
+Installation
+------------
+
+This extension depends on PHP 7.1. For general installation instructions for
+PHP extensions see http://php.net/install.pecl 
+
+In addition to PHP's dependencies, Google's Protocol Buffer library is
+required. On any Linux-based systems a package called libprotobuf-dev or 
+similar is required.
+
+Further hints for installing this module:
+
+0) in-source build
+To enable X DevAPI statically extract the extension in the ext/ directory of a
+PHP source tree as php-src/ext/mysql_xdevapi. Then use the switch 
+--enable-mysql-xdevapi for configure. This extension depends on 'ext/json' and 
+'ext/mysqlnd' extensions.
 
 Sample sequence of build commands may look like:
 
@@ -11,7 +60,6 @@ make
 By default it is statically built into PHP binary. In case you want to see that extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
 ./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --enable-mysql-xdevapi=shared
 
-////////////////////////////////////////////////////////////////////////////////
 
 1) phpize
 While buliding extension with phpize following issue may be met at ./configure stage:
@@ -37,17 +85,29 @@ PHP_OPENSSL=yes ./configure
 make 
 sudo make install
 
-////////////////////////////////////////////////////////////////////////////////
-
-2) google protobuf 
+2) Google Protocol Buffers on Windows
 On Windows for static build google protobuf is used by mysql_xdevapi as static library with Multi-Threaded DLL runtime. To get such build on your own use following options:
 -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF 
 
-////////////////////////////////////////////////////////////////////////////////
-
-3) supported features
+Supported X DevAPI features
+---------------------------
 - collections API - add, find, modify, remove
 - table API - insert, select, update, delete
 - resultsets
 - getCollection(s) / getTable(s)
 - dropCollection / dropTable
+
+For a simple example see example.php
+
+License
+-------
+Copyright (c) 2006-2016 The PHP Group
+
+This source file is subject to version 3.01 of the PHP license,
+that is bundled with this package in the file LICENSE, and is
+available through the world-wide-web at the following url: 
+http://www.php.net/license/3_01.txt
+If you did not receive a copy of the PHP license and are unable to 
+obtain it through the world-wide-web, please send a note to
+license@php.net so we can mail you a copy immediately.
+

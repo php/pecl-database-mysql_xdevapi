@@ -616,6 +616,7 @@ PHP_METHOD(mysqlx_node_collection__modify, execute)
 					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 					ZVAL_COPY(return_value, &zv);
+					zval_dtor(&zv);
 				}
 				zval_ptr_dtor(&stmt_zv);
 			}

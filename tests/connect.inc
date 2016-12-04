@@ -174,7 +174,7 @@
 			if( $target == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print $target.' != '.$expectation.PHP_EOL;
+			        print '\''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
