@@ -310,14 +310,14 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_sql_statement_result::getLastDocumentId(object result) */
+/* {{{ proto mixed mysqlx_node_sql_statement_result::getDocumentId(object result) */
 static
-PHP_METHOD(mysqlx_node_sql_statement_result, getLastDocumentId)
+PHP_METHOD(mysqlx_node_sql_statement_result, getDocumentId)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
 
-	DBG_ENTER("mysqlx_node_sql_statement_result::getLastDocumentId");
+	DBG_ENTER("mysqlx_node_sql_statement_result::getDocumentId");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_sql_statement_result_class_entry))
 	{
@@ -330,8 +330,8 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getLastDocumentId)
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (exec_state) {
-			MYSQLND_CSTRING value = exec_state->m->get_last_document_id(exec_state);
-			ZVAL_STRINGL(return_value, value.s, value.l);
+			MYSQLND_CSTRING * value = exec_state->m->get_last_document_id(exec_state);
+			ZVAL_STRINGL(return_value, value[0].s, value[0].l);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -592,7 +592,7 @@ static const zend_function_entry mysqlx_node_sql_statement_result_methods[] = {
 
 	PHP_ME(mysqlx_node_sql_statement_result, getAffectedItemsCount,	arginfo_mysqlx_node_sql_statement_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getLastInsertId, 		arginfo_mysqlx_node_sql_statement_result__get_last_insert_id,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_sql_statement_result, getLastDocumentId, 	arginfo_mysqlx_node_sql_statement_result__get_last_document_id,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement_result, getDocumentId, 	arginfo_mysqlx_node_sql_statement_result__get_last_document_id,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarningCount,		arginfo_mysqlx_node_sql_statement_result__get_warning_count,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarnings,			arginfo_mysqlx_node_sql_statement_result__get_warnings, 			ZEND_ACC_PUBLIC)
 

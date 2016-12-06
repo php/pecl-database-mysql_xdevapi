@@ -31,13 +31,12 @@ typedef size_t		(*func_xmysqlnd_stmt_execution_state__get_affected_items_count)(
 typedef size_t		(*func_xmysqlnd_stmt_execution_state__get_matched_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
 typedef size_t		(*func_xmysqlnd_stmt_execution_state__get_found_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
 typedef uint64_t	(*func_xmysqlnd_stmt_execution_state__get_last_insert_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
-typedef MYSQLND_CSTRING (*func_xmysqlnd_stmt_execution_state__get_last_document_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
+typedef MYSQLND_CSTRING * (*func_xmysqlnd_stmt_execution_state__get_last_document_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
 
 typedef void		(*func_xmysqlnd_stmt_execution_state__set_affected_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value);
 typedef void		(*func_xmysqlnd_stmt_execution_state__set_matched_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value);
 typedef void		(*func_xmysqlnd_stmt_execution_state__set_found_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value);
 typedef void		(*func_xmysqlnd_stmt_execution_state__set_last_insert_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value);
-typedef void		(*func_xmysqlnd_stmt_execution_state__set_last_document_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, MYSQLND_CSTRING value);
 
 typedef void		(*func_xmysqlnd_stmt_execution_state__free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state);
 typedef void		(*func_xmysqlnd_stmt_execution_state__dtor)(XMYSQLND_STMT_EXECUTION_STATE * const state);
@@ -55,7 +54,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state)
 	func_xmysqlnd_stmt_execution_state__set_matched_items_count set_matched_items_count;
 	func_xmysqlnd_stmt_execution_state__set_found_items_count set_found_items_count;
 	func_xmysqlnd_stmt_execution_state__set_last_insert_id set_last_insert_id;
-	func_xmysqlnd_stmt_execution_state__set_last_document_id set_last_document_id;
 
 	func_xmysqlnd_stmt_execution_state__free_contents free_contents;
 	func_xmysqlnd_stmt_execution_state__dtor dtor;
@@ -67,7 +65,8 @@ struct st_xmysqlnd_stmt_execution_state
 	size_t items_matched;
 	size_t items_found;
 	uint64_t last_insert_id;
-	MYSQLND_CSTRING last_document_id;
+	MYSQLND_CSTRING * last_document_ids;
+	int				  num_of_doc_ids;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * m;
 	zend_bool persistent;
