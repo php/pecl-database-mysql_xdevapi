@@ -161,6 +161,26 @@
 
 	$number_of_expectations = 0;
 	$test_result_string = "";
+
+	/*
+		Used to match expected pattern with actual value
+	*/
+	if( !function_exists('expect_regex')) {
+		function expect_regex($target, $pattern) {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			if (preg_match($pattern, $target)) {
+				$test_result_string .= '1';
+			} else {
+				print '\''.$target.'\' != \''.$pattern.'\''.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+	
 	/*
 		Used to compare expected values with actual values
 	*/
@@ -174,7 +194,7 @@
 			if( $target == $expectation ){
 				$test_result_string .= '1';
 			} else {
-			        print '\''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
+				print '\''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}

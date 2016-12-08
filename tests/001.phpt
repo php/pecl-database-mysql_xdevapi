@@ -23,8 +23,8 @@ error_reporting=0
 		$nodeSession = mysql_xdevapi\getNodeSession("bad_host", $user, $passwd);
 		test_step_failed();
 	} catch(Exception $e) {
-		expect_eq($e->getMessage(),
-			'[HY000] php_network_getaddresses: getaddrinfo failed: Name or service not known');
+		expect_regex($e->getMessage(),
+			'/\[HY000\] php_network_getaddresses\: getaddrinfo failed\:.*/');
 		expect_eq($e->getCode(), 2002);
 		test_step_ok();
 	}
