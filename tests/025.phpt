@@ -14,7 +14,7 @@ error_reporting=0
 	$schema->createCollection("test_collection");
 	$coll = $schema->getCollection("test_collection");
 
-        $res = $coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore", "_id":  "45" }')->execute();
+	$res = $coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore", "_id":  "45" }')->execute();
 	expect_eq($res->getDocumentId(),"45");
 	$res = $coll->add('{"name": "Lonardo","_id": "  2  "  , "age": 59, "job": "Paninaro"}')->execute();
 	expect_eq($res->getDocumentId(),"  2  ");
@@ -30,7 +30,7 @@ error_reporting=0
 	expect_eq($res->getDocumentId(),"6");
 //	$res = $coll->add('{"_id": "", "name": "Alfredo",    "age": 27, "job": "Programmatore"}')->execute();
 //	expect_eq($res->getDocumentId(),"");
-        $res = $coll->add('{"_id": "tes,t"  , "name": "Alessandra", "age": 15, "job": "Barista"}')->execute();
+	$res = $coll->add('{"_id": "tes,t"  , "name": "Alessandra", "age": 15, "job": "Barista"}')->execute();
 	expect_eq($res->getDocumentId(),"tes,t");
 	$res = $coll->add('{"name": "Massimo",    "age": 22, "job": "Programmatore", "_id":   "  testtt ,"}')->execute();
 	expect_eq($res->getDocumentId(),"  testtt ,");
@@ -47,18 +47,18 @@ error_reporting=0
 	$res = $coll->add(["name" => "Sakila7", "age" => 18, "_id" => "   55    ","job" => "Student"])->execute();
 	expect_eq($res->getDocumentId(),"   55    ");
 	try {
-	        $res = $coll->add(["name" => "Sakila8", "age" => 58, "_id" => "u78e4jcnjkd95uijh343d4ffgfdscdfer","job" => "Student2"])->execute();
+		$res = $coll->add(["name" => "Sakila8", "age" => 58, "_id" => "u78e4jcnjkd95uijh343d4ffgfdscdfer","job" => "Student2"])->execute();
 		test_step_failed();
 	} catch( Exception $ex ) {
-	        test_step_ok();
+		test_step_ok();
 	}
 
-        verify_expectations();
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 	clean_test_db();
 ?>
 --EXPECTF--

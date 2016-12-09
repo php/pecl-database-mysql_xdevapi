@@ -26,9 +26,9 @@ mysqlx select / fetch
 	expect_eq($val['age'], 39);
 
 	$res = $table->select(['name','age'])->where('name in (\'Cassidy\',\'Polly\')')
-	        ->orderBy(['age desc','name asc'])->execute();
+		->orderBy(['age desc','name asc'])->execute();
 
-        expect_eq($res->getColumnCount(), 2);
+	expect_eq($res->getColumnCount(), 2);
 	$columns = $res->getColumnNames();
 	expect_eq($columns[0], 'name');
 	expect_eq($columns[1], 'age');
