@@ -19,6 +19,7 @@
 #undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/json/php_json.h>
+#include "ext/json/php_json_parser.h"
 #include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -28,6 +29,7 @@
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
+#include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
 #include "php_mysqlx.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
@@ -40,11 +42,6 @@ static zend_class_entry *mysqlx_node_collection__add_class_entry;
 #define DONT_ALLOW_NULL 0
 #define NO_PASS_BY_REF 0
 
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add__values, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -52,7 +49,9 @@ ZEND_END_ARG_INFO()
 struct st_mysqlx_node_collection__add
 {
 	XMYSQLND_NODE_COLLECTION * collection;
-	zval json;
+	XMYSQLND_CRUD_COLLECTION_OP__ADD* crud_op;
+	zval * docs;
+	int  num_of_docs;
 };
 
 
@@ -66,6 +65,13 @@ struct st_mysqlx_node_collection__add
 	} \
 } \
 
+/*
+ * Handy macro used to raise exceptions
+ */
+#define RAISE_EXCEPTION(errcode, msg) \
+	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
+	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
+	mysqlx_new_exception(errcode, sqlstate, errmsg); \
 
 /* {{{ mysqlx_node_collection__add::__construct */
 static
@@ -104,10 +110,336 @@ execute_statement(XMYSQLND_NODE_STMT * stmt,zval* return_value)
 /* }}} */
 
 
+#define ID_COLUMN_NAME		"_id"
+#define ID_TEMPLATE_PREFIX	"\""ID_COLUMN_NAME"\":\""
+#define ID_TEMPLATE_SUFFIX	"\"}"
+
+struct st_parse_for_id_status
+{
+	zend_bool		found:1;
+	zend_bool		empty:1;
+	zend_bool		is_string:1;
+};
+
+struct my_php_json_parser {
+	php_json_parser parser;
+	struct st_parse_for_id_status * status;
+};
+
+
+/* {{{ xmysqlnd_json_parser_object_update */
+static int
+xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_string *key, zval *zvalue)
+{
+	struct st_parse_for_id_status * status = ((struct my_php_json_parser *)parser)->status;
+	DBG_ENTER("xmysqlnd_json_parser_object_update");
+	/* if JSON_OBJECT_AS_ARRAY is set */
+	if (parser->depth == 2 && ZSTR_LEN(key) &&
+		!strncmp(ID_COLUMN_NAME, ZSTR_VAL(key), sizeof(ID_COLUMN_NAME) - 1))
+	{
+		DBG_INF_FMT("FOUND %s", ID_COLUMN_NAME);
+		if (Z_TYPE_P(zvalue) == IS_LONG) {
+			DBG_INF_FMT("value=%llu", Z_LVAL_P(zvalue));
+		} else if (Z_TYPE_P(zvalue) == IS_STRING) {
+			DBG_INF_FMT("value=%*s", Z_STRLEN_P(zvalue), Z_STRVAL_P(zvalue));
+			status->is_string = TRUE;
+		}
+		status->found = TRUE;
+		status->empty = FALSE;
+	} else if (status->empty == TRUE) {
+		status->empty = FALSE;
+	}
+	zend_string_release(key);
+	zval_dtor(zvalue);
+	DBG_RETURN(status->found? FAILURE : SUCCESS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_json_parser_object_end */
+static int
+xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
+{
+	DBG_ENTER("xmysqlnd_json_parser_object_end");
+	zval_dtor(object);
+	return SUCCESS;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_json_string_find_id */
+static enum_func_status
+xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend_long depth, struct st_parse_for_id_status * status)
+{
+	php_json_parser_methods own_methods;
+	struct my_php_json_parser parser;
+	zval return_value;
+	DBG_ENTER("xmysqlnd_json_string_find_id");
+	ZVAL_UNDEF(&return_value);
+
+	php_json_parser_init(&parser.parser, &return_value, (char *)json.s, json.l, options, depth);
+	own_methods = parser.parser.methods;
+	own_methods.object_update = xmysqlnd_json_parser_object_update;
+	own_methods.object_end = xmysqlnd_json_parser_object_end;
+
+	php_json_parser_init_ex(&parser.parser, &return_value, (char *)json.s, json.l, options, depth, &own_methods);
+	status->found = FALSE;
+	status->empty = TRUE;
+	status->is_string = FALSE;
+	parser.status = status;
+
+	if (php_json_parse(&parser.parser)) {
+		if (!status->found) {
+	//		JSON_G(error_code) = php_json_parser_error_code(&parser);
+			DBG_RETURN(FAIL);
+		}
+	}
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ add_unique_id_to_json */
+static enum_func_status
+add_unique_id_to_json(XMYSQLND_NODE_SESSION *session,
+			const struct st_parse_for_id_status *status,
+			MYSQLND_STRING* to_add,
+			const MYSQLND_CSTRING* json)
+{
+	enum_func_status ret = FAIL;
+	char * p = NULL;
+	const MYSQLND_CSTRING uuid = session->m->get_uuid(session);
+
+	if (UNEXPECTED(status->empty)) {
+		to_add->s = mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
+		if (to_add->s) {
+			p = to_add->s;
+			*p++ = '{';
+			ret = PASS;
+		}
+	} else {
+		const char * last = json->s + json->l - 1;
+		while (last >= json->s && *last != '}') {
+			--last;
+		}
+		if (last >= json->s) {
+			to_add->s = mnd_emalloc(json->l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
+			if (to_add->s) {
+				p = to_add->s;
+				memcpy(p, json->s, last - json->s);
+				p += last - json->s;
+				*p++ = ',';
+				ret = PASS;
+			}
+		}
+	}
+	if(ret == PASS && p!= NULL) {
+		memcpy(p, ID_TEMPLATE_PREFIX, sizeof(ID_TEMPLATE_PREFIX) - 1);
+		p += sizeof(ID_TEMPLATE_PREFIX) - 1;
+		memcpy(p, uuid.s, uuid.l);
+		p += uuid.l;
+		memcpy(p, ID_TEMPLATE_SUFFIX, sizeof(ID_TEMPLATE_SUFFIX) - 1);
+		p += sizeof(ID_TEMPLATE_SUFFIX) - 1;
+		*p = '\0';
+		to_add->l = p - to_add->s;
+	}
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ add_unique_id_to_json */
+static MYSQLND_CSTRING
+extract_document_id(const MYSQLND_STRING json,
+					zend_bool id_is_string)
+{
+	MYSQLND_STRING res = { NULL, 0 };
+	char * beg = NULL,
+		 * end = json.s + json.l - 1;
+	if( ( beg = strstr(json.s, ID_COLUMN_NAME) ) != NULL) {
+		beg += sizeof( ID_COLUMN_NAME ) + 1;
+		if( id_is_string ) {
+			//Move to the first char after \"
+			while( beg < end && *beg != '\"' )
+				++beg;
+			++beg;//Skip \"
+		} else {
+			//Skip the spaces, if any
+			while( beg < end && *beg == ' ' )
+				++beg;
+		}
+		if( beg < end ) {
+			//Now we look for the termination mark
+			char * cur = beg;
+			if( id_is_string ) {
+				while( cur != end ) {
+					if( *cur == '\"' ) break;
+					++cur;
+				}
+			} else {
+				while( cur != end ) {
+					if( *cur == ' ' || *cur == ',' || *cur == '}' ) break;
+					++cur;
+				}
+			}
+			end = cur;
+			if( end >= beg ){
+				res.l = ( end - beg);
+				if( res.l > 0 && res.l <= 32 ) {
+					res.s = mnd_emalloc( res.l );
+					memcpy(res.s, beg, res.l);
+				}
+			}
+		}
+	}
+	if( res.s == NULL ) {
+		RAISE_EXCEPTION(1001, "Error serializing document to JSON");
+	}
+	MYSQLND_CSTRING ret = {
+		res.s,
+		res.l
+	};
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_json_string_find_id */
+static MYSQLND_CSTRING
+assign_doc_id_to_json(XMYSQLND_NODE_SESSION * session,
+			zval* doc) {
+	enum_func_status ret = FAIL;
+	struct st_parse_for_id_status status;
+	zend_bool doc_id_string_type = FALSE;
+	MYSQLND_STRING to_add = { NULL, 0 };
+	MYSQLND_CSTRING doc_id = { NULL, 0 };
+	//Better be sure, perhaps raise an exception if is not a string
+	if( Z_TYPE_P(doc) == IS_STRING ){
+		MYSQLND_CSTRING json = { Z_STRVAL_P(doc), Z_STRLEN_P(doc) };
+		if( PASS == xmysqlnd_json_string_find_id(json, 0, 0, &status)) {
+			to_add.s = (char *) json.s;
+			to_add.l = json.l ;
+
+			if (!status.found) {
+				add_unique_id_to_json(session,
+									  &status,
+									  &to_add,
+									  &json);
+				doc_id_string_type = TRUE;
+			} else {
+				doc_id_string_type = status.is_string;
+			}
+
+			if( !status.found ) {
+				zval_dtor(doc);
+				ZVAL_STRINGL(doc,to_add.s,to_add.l);
+			}
+
+			doc_id =  extract_document_id(to_add,
+								doc_id_string_type);
+
+			if (to_add.s != json.s) {
+				efree(to_add.s);
+			}
+		}
+	} else {
+		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
+	}
+	return doc_id;
+}
+
+/* }}} */
+
+
+struct doc_add_op_return_status
+{
+	enum_func_status return_status;
+	MYSQLND_CSTRING  doc_id;
+};
+
+/* {{{ node_collection_add_string */
+static struct doc_add_op_return_status
+node_collection_add_string(struct st_mysqlx_node_collection__add * const object,
+				zval* doc,
+				zval* return_value) {
+	struct doc_add_op_return_status ret = {
+		FAIL,
+		assign_doc_id_to_json(
+				object->collection->data->schema->data->session,
+				doc)
+	};
+	ret.return_status =  xmysqlnd_crud_collection_add__add_doc(object->crud_op,doc);
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ node_collection_add_object*/
+static struct doc_add_op_return_status
+node_collection_add_object_impl(struct st_mysqlx_node_collection__add * const object,
+				zval* doc,
+				zval* return_value) {
+	smart_str buf = {0};
+	JSON_G(error_code) = PHP_JSON_ERROR_NONE;
+	JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
+	const int encode_flag = (Z_TYPE_P(doc) == IS_OBJECT) ? PHP_JSON_FORCE_OBJECT : 0;
+	php_json_encode(&buf, doc, encode_flag);
+
+	if (JSON_G(error_code) != PHP_JSON_ERROR_NONE) {
+		smart_str_free(&buf);
+		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
+	}
+
+	//TODO marines: there is fockup with lack of terminating zero, which makes troubles in
+	// xmysqlnd_json_string_find_id, i.e. php_json_yyparse returns result != 0
+	if (buf.s->len < buf.a)
+	{
+		buf.s->val[buf.s->len] = '\0';
+	}
+	zval new_doc;
+	ZVAL_UNDEF(&new_doc);
+	ZVAL_STRINGL(&new_doc, buf.s->val, buf.s->len);
+	struct doc_add_op_return_status ret = {
+		FAIL,
+		assign_doc_id_to_json(
+				object->collection->data->schema->data->session,
+				&new_doc)
+	};
+	ret.return_status = xmysqlnd_crud_collection_add__add_doc(object->crud_op, &new_doc);
+	smart_str_free(&buf);
+	zval_dtor(&new_doc);
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ node_collection_add_object*/
+static struct doc_add_op_return_status
+node_collection_add_object(struct st_mysqlx_node_collection__add * const object,
+				zval* doc,
+				zval* return_value) {
+	return node_collection_add_object_impl(object,
+								doc,return_value);
+}
+/* }}} */
+
+
+/* {{{ node_collection_add_array*/
+static struct doc_add_op_return_status
+node_collection_add_array(struct st_mysqlx_node_collection__add * const object,
+				zval* doc,
+				zval* return_value) {
+	return node_collection_add_object_impl(object,
+								doc,return_value);
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_collection__add::execute() */
 static
 PHP_METHOD(mysqlx_node_collection__add, execute)
 {
+	enum_func_status execute_ret_status = SUCCESS;
 	struct st_mysqlx_node_collection__add * object;
 	zval * object_zv;
 
@@ -124,52 +456,49 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 
 	RETVAL_FALSE;
 
-	if (! object->collection) {
+	if ( !object->collection ) {
 		DBG_VOID_RETURN;
 	}
 
-	enum_func_status ret = FAIL;
-	MYSQLND_STRING   generated_doc_id;
-	if (Z_TYPE(object->json) == IS_STRING) {
-		const MYSQLND_CSTRING json = { Z_STRVAL(object->json), Z_STRLEN(object->json) };
-		//ret = object->collection->data->m.add(object->collection, json);
-		XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection,
-																	json);
-		ret = execute_statement(stmt,return_value);
-	} else if ((Z_TYPE(object->json) == IS_OBJECT) || (Z_TYPE(object->json) == IS_ARRAY)) {
-		smart_str buf = {0};
-		JSON_G(error_code) = PHP_JSON_ERROR_NONE;
-		JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
-		const int encode_flag = (Z_TYPE(object->json) == IS_OBJECT) ? PHP_JSON_FORCE_OBJECT : 0;
-		php_json_encode(&buf, &object->json, encode_flag);
-		DBG_INF_FMT("JSON_G(error_code)=%d", JSON_G(error_code));
-
-		if (JSON_G(error_code) != PHP_JSON_ERROR_NONE) {
-			smart_str_free(&buf);
-			static const unsigned int errcode = 10001;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Error serializing document to JSON", sizeof("Error serializing document to JSON") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
-			DBG_VOID_RETURN; //This is not really needed, for clarity.
+	MYSQLND_CSTRING * doc_ids = mnd_ecalloc( object->num_of_docs, sizeof(MYSQLND_CSTRING) );
+	if( doc_ids == NULL ) {
+		execute_ret_status = FAIL;
+	} else {
+		struct doc_add_op_return_status ret = { SUCCESS , NULL };
+		for( int i = 0 ; i < object->num_of_docs && ret.return_status == SUCCESS; ++i ) {
+			ret.return_status = FAIL;
+			switch(Z_TYPE(object->docs[i])) {
+			case IS_STRING:
+				ret = node_collection_add_string(object,
+								&object->docs[i],return_value);
+				break;
+			case IS_ARRAY:
+				ret = node_collection_add_array(object,
+								&object->docs[i],return_value);
+				break;
+			case IS_OBJECT:
+				ret = node_collection_add_object(object,
+								&object->docs[i],return_value);
+				break;
+			}
+			doc_ids[i] = ret.doc_id;
 		}
-
-		//TODO marines: there is fockup with lack of terminating zero, which makes troubles in
-		// xmysqlnd_json_string_find_id, i.e. php_json_yyparse returns result != 0
-		if (buf.s->len < buf.a)
-		{
-			buf.s->val[buf.s->len] = '\0';
-		}
-		const MYSQLND_CSTRING json = { ZSTR_VAL(buf.s), ZSTR_LEN(buf.s) };
-		XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection,
-																	json);
-		ret = execute_statement(stmt,return_value);
-		smart_str_free(&buf);
 	}
-	if (FAIL == ret && !EG(exception)) {
-		static const unsigned int errcode = 10002;
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-		static const MYSQLND_CSTRING errmsg = { "Error adding document", sizeof("Error adding document") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);
+
+	if( execute_ret_status != FAIL ) {
+		XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection,
+													object->crud_op);
+		stmt->data->assigned_document_ids = doc_ids;
+		stmt->data->num_of_assigned_doc_ids = object->num_of_docs;
+		execute_ret_status =  execute_statement(stmt,return_value);
+	}
+
+	if (FAIL == execute_ret_status && !EG(exception)) {
+		RAISE_EXCEPTION(10002, "Error adding document");
+	}
+
+	if(object->crud_op) {
+		xmysqlnd_crud_collection_add__destroy(object->crud_op);
 	}
 
 	DBG_VOID_RETURN;
@@ -234,9 +563,11 @@ mysqlx_node_collection__add_free_storage(zend_object * object)
 			xmysqlnd_node_collection_free(inner_obj->collection, NULL, NULL);
 			inner_obj->collection = NULL;
 		}
-		zval_ptr_dtor(&inner_obj->json);
-		ZVAL_UNDEF(&inner_obj->json);
-
+		for(int i = 0; i < inner_obj->num_of_docs; ++i ) {
+			zval_ptr_dtor(&inner_obj->docs[i]);
+			ZVAL_UNDEF(&inner_obj->docs[i]);
+		}
+		mnd_efree(inner_obj->docs);
 		mnd_efree(inner_obj);
 	}
 	mysqlx_object_free_storage(object); 
@@ -307,18 +638,41 @@ mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_collection__add */
 void
-mysqlx_new_node_collection__add(zval * return_value, XMYSQLND_NODE_COLLECTION * collection, const zend_bool clone, zval * json)
+mysqlx_new_node_collection__add(zval * return_value,
+						XMYSQLND_NODE_COLLECTION * collection,
+						const zend_bool clone,
+						zval * docs,
+						int num_of_docs)
 {
 	DBG_ENTER("mysqlx_new_node_collection__add");
+	zend_bool op_success = TRUE;
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_collection__add_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
 		struct st_mysqlx_node_collection__add * const object = (struct st_mysqlx_node_collection__add *) mysqlx_object->ptr;
-		if (object) {
-			object->collection = clone? collection->data->m.get_reference(collection) : collection;
-			ZVAL_COPY(&object->json, json);
+		if( !object ) {
+			op_success = FALSE;
 		} else {
+			object->collection = clone? collection->data->m.get_reference(collection) : collection;
+			object->crud_op = xmysqlnd_crud_collection_add__create(mnd_str2c(object->collection->data->schema->data->schema_name),
+													mnd_str2c(object->collection->data->collection_name));
+			if( !object->crud_op ) {
+				op_success = FALSE;
+			} else {
+				object->docs = mnd_ecalloc( num_of_docs , sizeof(zval) );
+				for(int i = 0; i < num_of_docs; ++i) {
+					ZVAL_DUP(&object->docs[i],
+									&docs[i]);
+				}
+				object->num_of_docs = num_of_docs;
+			}
+		}
+
+		if( op_success == FALSE ) {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			if( object && object->collection ) {
+				object->collection->data->m.free_reference(object->collection, NULL, NULL);
+			}
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

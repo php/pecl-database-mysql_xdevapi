@@ -123,6 +123,120 @@ xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::My
 /* }}} */
 
 
+/****************************** COLLECTION.ADD() *******************************************************/
+struct st_xmysqlnd_crud_collection_op__add
+{
+	Mysqlx::Crud::Insert message;
+
+	std::vector<zval> docs_zv;
+
+	st_xmysqlnd_crud_collection_op__add(const MYSQLND_CSTRING & schema,
+						const MYSQLND_CSTRING & object_name)
+	{
+		message.mutable_collection()->set_schema(schema.s, schema.l);
+		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.set_data_model(Mysqlx::Crud::DOCUMENT);
+	}
+
+	void add_document(zval* doc);
+	void bind_docs();
+
+	~st_xmysqlnd_crud_collection_op__add() {
+		for( auto& values_zv : docs_zv ) {
+			zval_dtor(&values_zv);
+		}
+		docs_zv.clear();
+	}
+};
+
+
+/* {{{ xmysqlnd_crud_collection_add__create */
+extern "C" XMYSQLND_CRUD_COLLECTION_OP__ADD *
+xmysqlnd_crud_collection_add__create(const MYSQLND_CSTRING schema,
+						const MYSQLND_CSTRING object_name)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_add__create");
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l,
+				schema.s, object_name.l, object_name.s);
+	XMYSQLND_CRUD_COLLECTION_OP__ADD * ret = new struct st_xmysqlnd_crud_collection_op__add(
+				schema, object_name);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_add__destroy */
+extern "C" void
+xmysqlnd_crud_collection_add__destroy(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_add__destroy");
+	delete obj;
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_add__finalize_bind */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_add__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_add__finalize_bind");
+	const enum_func_status ret = PASS;
+	obj->bind_docs();
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+/* {{{ xmysqlnd_crud_collection_add__get_protobuf_message */
+extern "C" struct st_xmysqlnd_pb_message_shell
+xmysqlnd_crud_collection_add__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj)
+{
+	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_add__add_doc */
+extern "C" enum_func_status
+xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj,
+						zval * values_zv)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_add__add_doc");
+	enum_func_status ret = PASS;
+	obj->add_document(values_zv);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ st_xmysqlnd_crud_collection_op__add::add_document */
+void st_xmysqlnd_crud_collection_op__add::add_document(zval* doc)
+{
+	zval new_doc;
+	ZVAL_DUP(&new_doc, doc);
+	docs_zv.push_back(new_doc);
+}
+/* }}} */
+
+
+/* {{{ st_xmysqlnd_crud_collection_op__add::bind_docs */
+void st_xmysqlnd_crud_collection_op__add::bind_docs()
+{
+	for (auto& values_zv : docs_zv)
+	{
+		::Mysqlx::Crud::Insert_TypedRow* row = message.add_row();
+		Mysqlx::Expr::Expr * field = row->add_field();
+		field->set_type(Mysqlx::Expr::Expr::LITERAL);
+
+		Mysqlx::Datatypes::Scalar * literal = field->mutable_literal();
+		literal->set_type(Mysqlx::Datatypes::Scalar::V_STRING);
+		literal->mutable_v_string()->set_value(Z_STRVAL(values_zv),
+								Z_STRLEN(values_zv));
+	}
+}
+/* }}} */
+
 /****************************** COLLECTION.REMOVE() *******************************************************/
 struct st_xmysqlnd_crud_collection_op__remove
 {

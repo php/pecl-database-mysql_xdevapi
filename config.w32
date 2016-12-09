@@ -9,7 +9,7 @@ ARG_ENABLE("mysql-xdevapi", "MySQL XDevAPI support | Hybrid Native Client Driver
 if (PHP_MYSQL_XDEVAPI != "no") {
 
 	if (CHECK_LIB("ws2_32.lib", "mysql_xdevapi") 
-		&& (CHECK_LIB("libprotobuf.lib", "mysql_xdevapi") || CHECK_LIB("libprotobufd.lib", "mysql_xdevapi"))
+		&& (((PHP_DEBUG == "no") && CHECK_LIB("libprotobuf.lib", "mysql_xdevapi")) || ((PHP_DEBUG == "yes") && CHECK_LIB("libprotobufd.lib", "mysql_xdevapi")))
 		&& PHP_JSON != "no")
 	{
 		mysqlx_proto_sources="ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx.proto " +
@@ -133,11 +133,14 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 
 		EXTENSION("mysql_xdevapi", mysqlx_base_sources, PHP_MYSQL_XDEVAPI_SHARED, "-Iext/mysql_xdevapi -Iext/mysql_xdevapi/messages " +
 			"-Iext/mysql_xdevapi/xmysqlnd -Iext/mysql_xdevapi/xmysqlnd/crud_parsers -Iext/mysql_xdevapi/xmysqlnd/proto_gen " +
-			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQL_XDEVAPI_EXPERIMENTAL_FEATURES /DZEND_WIN32_KEEP_INLINE /EHsc ");
+			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQL_XDEVAPI_EXPERIMENTAL_FEATURES /DZEND_WIN32_KEEP_INLINE /UZEND_WIN32_FORCE_INLINE /EHsc ");
 		ADD_SOURCES(configure_module_dirname + "/messages", mysqlx_messages, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/proto_gen", xmysqlnd_protobuf_sources, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/crud_parsers", xmysqlnd_expr_parser, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd", xmysqlnd_sources, "mysql_xdevapi");
+		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_MESSAGES", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
+		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_XMYSQLND_CRUD_PARSERS", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
+		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_XMYSQLND", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
 
 		if (PHP_MYSQL_XDEVAPI_SHARED) {
 			ADD_FLAG("CFLAGS_MYSQL_XDEVAPI", "/D PHP_MYSQL_XDEVAPI_EXPORTS ");

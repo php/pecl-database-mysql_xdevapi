@@ -2103,26 +2103,18 @@ xmysqlnd_collection_add__read_response(struct st_xmysqlnd_msg__collection_add * 
 /* {{{ xmysqlnd_collection_add__send_request */
 extern "C" enum_func_status
 xmysqlnd_collection_add__send_request(struct st_xmysqlnd_msg__collection_add * msg,
-										 const MYSQLND_CSTRING schema,
-										 const MYSQLND_CSTRING collection,
-										 const MYSQLND_CSTRING document)
+				const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
+	DBG_ENTER("xmysqlnd_collection_add__send_request");
 	size_t bytes_sent;
-	Mysqlx::Crud::Insert message;
-	message.mutable_collection()->set_schema(schema.s, schema.l);
-	message.mutable_collection()->set_name(collection.s, collection.l);
-
-	message.set_data_model(Mysqlx::Crud::DOCUMENT);
-
-	Mysqlx::Crud::Insert_TypedRow * row = message.add_row();
-	Mysqlx::Expr::Expr * field = row->add_field();
-	field->set_type(Mysqlx::Expr::Expr::LITERAL);
-
-	Mysqlx::Datatypes::Scalar * literal = field->mutable_literal();
-	literal->set_type(Mysqlx::Datatypes::Scalar::V_STRING);
-	literal->mutable_v_string()->set_value(document.s, document.l);
-
-	return xmysqlnd_send_message(COM_CRUD_INSERT, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+	const enum_func_status ret = xmysqlnd_send_message(COM_CRUD_INSERT,
+								 *(google::protobuf::Message *)(pb_message_shell.message),
+								 msg->vio,
+								 msg->pfc,
+								 msg->stats,
+								 msg->error_info,
+								 &bytes_sent);
+	DBG_RETURN(ret);
 }
 /* }}} */
 

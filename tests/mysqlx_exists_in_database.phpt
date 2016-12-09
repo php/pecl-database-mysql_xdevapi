@@ -11,26 +11,26 @@ existsInDatabase for schema, collection and table
 	$table = $schema->getTable("test_table");
 	$collection = $schema->getCollection("test_collection");
 
-	var_dump($schema->existsInDatabase());
-	var_dump($table->existsInDatabase());
-	var_dump($collection->existsInDatabase());
+        expect_true($schema->existsInDatabase());
+	expect_true($table->existsInDatabase());
+	expect_true($collection->existsInDatabase());
 
 	$table = $schema->getTable("non_found_table");
 	$collection = $schema->getCollection("non_found_collection");
 
-	var_dump($table->existsInDatabase());
-	var_dump($collection->existsInDatabase());
+        expect_false($table->existsInDatabase());
+	expect_false($collection->existsInDatabase());
 
 	$schema = $nodeSession->getSchema("non_existing_schema");
 	$table = $schema->getTable("non_existing_table");
 	$collection = $schema->getCollection("non_existing_collection");
 
-	var_dump($schema->existsInDatabase());
-	var_dump($table->existsInDatabase());
-	var_dump($collection->existsInDatabase());
+        expect_false($schema->existsInDatabase());
+	expect_false($table->existsInDatabase());
+	expect_false($collection->existsInDatabase());
 
-	print "done!
-";
+        verify_expectations();
+	print "done!".PHP_EOL;
 ?>
 --CLEAN--
 <?php
@@ -38,12 +38,4 @@ existsInDatabase for schema, collection and table
 	clean_test_db();
 ?>
 --EXPECTF--
-bool(true)
-bool(true)
-bool(true)
-bool(false)
-bool(false)
-bool(false)
-bool(false)
-bool(false)
 done!%A

@@ -45,7 +45,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
  </developer>
 
 
- <date>2016-11-15</date>
+ <date>2016-12-08</date>
  <time>12:00:00</time>
 
   <version>
@@ -299,7 +299,8 @@ Initial release
 <file name="mysqlx_schema_object.c" role="src" />
 <file name="mysqlx_node_table__select.c" role="src" />
 <file name="mysqlx_warning.h" role="src" />
-<file name="README" role="src" />
+<file name="README" role="doc" />
+<file name="LICENSE" role="doc" />
 <file name="mysqlx_node_base_result.h" role="src" />
 <file name="product_data.txt" role="src" />
 </dir>

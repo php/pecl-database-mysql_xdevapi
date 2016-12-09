@@ -43,7 +43,7 @@ typedef enum_func_status (*func_xmysqlnd_node_collection__init)(
 typedef XMYSQLND_NODE_COLLECTION * (*func_xmysqlnd_node_collection__get_reference)(XMYSQLND_NODE_COLLECTION * const collection);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__exists_in_database)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__count)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* counter);
-typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_collection__add)(XMYSQLND_NODE_COLLECTION * const collection, const MYSQLND_CSTRING json);
+typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_collection__add)(XMYSQLND_NODE_COLLECTION * const collection,  XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_collection__remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_collection__modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_collection__find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op);
@@ -74,13 +74,13 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection)
 struct st_xmysqlnd_node_collection_data
 {
 	struct st_xmysqlnd_node_schema * schema;
-	MYSQLND_STRING collection_name;
+	MYSQLND_STRING  collection_name;
+	zend_bool       persistent;
+	unsigned int	refcount;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
-
-	unsigned int	refcount;
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection) m;
-	zend_bool		persistent;
+
 };
 
 
