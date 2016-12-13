@@ -442,6 +442,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 	enum_func_status execute_ret_status = SUCCESS;
 	struct st_mysqlx_node_collection__add * object;
 	zval * object_zv;
+	int i;
 
 	DBG_ENTER("mysqlx_node_collection__add::execute");
 
@@ -465,7 +466,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 		execute_ret_status = FAIL;
 	} else {
 		struct doc_add_op_return_status ret = { SUCCESS , NULL };
-		for( int i = 0 ; i < object->num_of_docs && ret.return_status == SUCCESS; ++i ) {
+		for(i = 0 ; i < object->num_of_docs && ret.return_status == SUCCESS; ++i ) {
 			ret.return_status = FAIL;
 			switch(Z_TYPE(object->docs[i])) {
 			case IS_STRING:
@@ -555,6 +556,7 @@ const struct st_mysqlx_property_entry mysqlx_node_collection__add_property_entri
 static void
 mysqlx_node_collection__add_free_storage(zend_object * object)
 {
+	int i;
 	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	struct st_mysqlx_node_collection__add * inner_obj = (struct st_mysqlx_node_collection__add *) mysqlx_object->ptr;
 
@@ -563,7 +565,7 @@ mysqlx_node_collection__add_free_storage(zend_object * object)
 			xmysqlnd_node_collection_free(inner_obj->collection, NULL, NULL);
 			inner_obj->collection = NULL;
 		}
-		for(int i = 0; i < inner_obj->num_of_docs; ++i ) {
+		for(i = 0; i < inner_obj->num_of_docs; ++i ) {
 			zval_ptr_dtor(&inner_obj->docs[i]);
 			ZVAL_UNDEF(&inner_obj->docs[i]);
 		}
@@ -646,6 +648,7 @@ mysqlx_new_node_collection__add(zval * return_value,
 {
 	DBG_ENTER("mysqlx_new_node_collection__add");
 	zend_bool op_success = TRUE;
+	int i;
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_collection__add_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
@@ -660,7 +663,7 @@ mysqlx_new_node_collection__add(zval * return_value,
 				op_success = FALSE;
 			} else {
 				object->docs = mnd_ecalloc( num_of_docs , sizeof(zval) );
-				for(int i = 0; i < num_of_docs; ++i) {
+				for(i = 0; i < num_of_docs; ++i) {
 					ZVAL_DUP(&object->docs[i],
 									&docs[i]);
 				}

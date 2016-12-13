@@ -286,6 +286,7 @@ PHP_METHOD(mysqlx_node_collection, add)
 	zval * object_zv;
 	zval * docs = NULL;
 	int    num_of_docs;
+	int    i;
 
 	DBG_ENTER("mysqlx_node_collection::add");
 
@@ -298,7 +299,7 @@ PHP_METHOD(mysqlx_node_collection, add)
 		DBG_VOID_RETURN;
 	}
 
-	for( int i = 0 ; i < num_of_docs ; ++i ) {
+	for(i = 0 ; i < num_of_docs ; ++i ) {
 		if (Z_TYPE(docs[i]) != IS_STRING &&
 			Z_TYPE(docs[i]) != IS_OBJECT &&
 			Z_TYPE(docs[i]) != IS_ARRAY) {
