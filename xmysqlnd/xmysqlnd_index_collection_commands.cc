@@ -270,7 +270,7 @@ collection_index_bind_field_param(
 	try {
 		const mysql::php::string source(rawPath.length() ? rawPath.c_str() : "$", rawPath.length() ? rawPath.length() : sizeof("$") - 1);
 		xmysqlnd::Expression_parser parser(source.c_str(), true);
-		std::auto_ptr<Mysqlx::Expr::Expr> docField(parser.document_field());
+		std::unique_ptr<Mysqlx::Expr::Expr> docField(parser.document_field());
 		if (docField->has_identifier()) {
 			auto& id = docField->identifier();
 			if (0 < id.document_path_size()) {
