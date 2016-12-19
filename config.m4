@@ -124,6 +124,9 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 			"
 	fi
 
+	mysqlx_php="php/allocator.cc \
+		"
+
 	mysqlx_base_sources="php_mysqlx.c \
 		php_mysqlx_ex.c \
 		mysqlx_base_session.c \
@@ -169,9 +172,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_session.c \
 		mysqlx_schema_object.c \
 		mysqlx_warning.c \
-		"
-
-	mysqlx_php="allocator.cc \
 		"
 
 	AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
