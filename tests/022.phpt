@@ -50,7 +50,7 @@ mysqlx NodeSchema
 --CLEAN--
 <?php
 	require("connect.inc");
-	//clean_test_db();
+	clean_test_db();
 ?>
 --EXPECTF--
 done!%A
