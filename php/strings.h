@@ -12,32 +12,33 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>							 |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_EXECUTABLE_H
-#define MYSQLX_EXECUTABLE_H
+#ifndef MYSQL_XDEVAPI_PHP_STRINGS_H
+#define MYSQL_XDEVAPI_PHP_STRINGS_H
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
+#include <string>
+#include <sstream>
+#include "allocator.h"
 
-extern zend_class_entry * mysqlx_executable_interface_entry;
+namespace mysql
+{
 
-void mysqlx_register_executable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_executable_interface(SHUTDOWN_FUNC_ARGS);
+namespace php
+{
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
+template<typename CharT, typename Traits = std::char_traits<CharT>>
+using basic_string = std::basic_string<CharT, Traits, ZendAllocator<CharT>>;
+using string = basic_string<char>;
+using wstring = basic_string<wchar_t>;
 
-#endif /* MYSQLX_EXECUTABLE_H */
+template<typename CharT, typename Traits = std::char_traits<CharT>>
+using basic_ostringstream = std::basic_ostringstream<CharT, Traits, ZendAllocator<CharT>>;
+using ostringstream = basic_ostringstream<char>;
 
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+} // namespace php
+
+} // namespace mysql
+
+#endif // MYSQL_XDEVAPI_PHP_STRINGS_H

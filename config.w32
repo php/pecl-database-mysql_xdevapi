@@ -47,6 +47,8 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"mysqlx_node_session.c " +
 			"mysqlx_node_collection.c " +
 			"mysqlx_node_collection__add.c " +
+			"mysqlx_node_collection__create_index.cc " +
+			"mysqlx_node_collection__drop_index.cc " +
 			"mysqlx_node_collection__find.c " +
 			"mysqlx_node_collection__modify.c " +
 			"mysqlx_node_collection__remove.c " +
@@ -71,6 +73,8 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"mysqlx_session.c " +
 			"mysqlx_schema_object.c " +
 			"mysqlx_warning.c ";
+
+		mysqlx_php="allocator.cc ";
 
 		mysqlx_messages="mysqlx_node_connection.c " +
 			"mysqlx_node_pfc.c " +
@@ -111,6 +115,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"xmysqlnd_crud_table_commands.cc " +
 			"xmysqlnd_driver.c " +
 			"xmysqlnd_extension_plugin.c " +
+			"xmysqlnd_index_collection_commands.cc " +
 			"xmysqlnd_node_collection.c " +
 			"xmysqlnd_node_schema.c " +
 			"xmysqlnd_node_session.c " +
@@ -134,10 +139,12 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 		EXTENSION("mysql_xdevapi", mysqlx_base_sources, PHP_MYSQL_XDEVAPI_SHARED, "-Iext/mysql_xdevapi -Iext/mysql_xdevapi/messages " +
 			"-Iext/mysql_xdevapi/xmysqlnd -Iext/mysql_xdevapi/xmysqlnd/crud_parsers -Iext/mysql_xdevapi/xmysqlnd/proto_gen " +
 			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQL_XDEVAPI_EXPERIMENTAL_FEATURES /DZEND_WIN32_KEEP_INLINE /UZEND_WIN32_FORCE_INLINE /EHsc ");
+		ADD_SOURCES(configure_module_dirname + "/php", mysqlx_php, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/messages", mysqlx_messages, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/proto_gen", xmysqlnd_protobuf_sources, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/crud_parsers", xmysqlnd_expr_parser, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd", xmysqlnd_sources, "mysql_xdevapi");
+		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_PHP", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
 		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_MESSAGES", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
 		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_XMYSQLND_CRUD_PARSERS", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
 		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_XMYSQLND", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");

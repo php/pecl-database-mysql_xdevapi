@@ -26,6 +26,10 @@
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_node_stmt.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_stmt_op__execute;
@@ -437,6 +441,10 @@ extern const struct st_xmysqlnd_node_session_on_warning_bind		noop__on_warning;
 extern const struct st_xmysqlnd_node_session_on_error_bind			noop__on_error;
 extern const struct st_xmysqlnd_node_session_on_result_end_bind		noop__on_result_end;
 extern const struct st_xmysqlnd_node_session_on_statement_ok_bind	noop__on_statement_ok;
+
+#ifdef __cplusplus
+} // extern "C" {
+#endif
 
 #endif	/* XMYSQLND_NODE_SESSION_H */
 
