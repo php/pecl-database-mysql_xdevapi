@@ -12,26 +12,25 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>							 |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_EXECUTABLE_H
-#define MYSQLX_EXECUTABLE_H
+#ifndef MYSQLX_NODE_COLLECTION__DROP_INDEX_H
+#define MYSQLX_NODE_COLLECTION__DROP_INDEX_H
 
 #ifdef  __cplusplus
 extern "C" {
 #endif
 
-extern zend_class_entry * mysqlx_executable_interface_entry;
-
-void mysqlx_register_executable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_executable_interface(SHUTDOWN_FUNC_ARGS);
+void mysqlx_new_node_collection__drop_index(zval * return_value, const MYSQLND_CSTRING index_name, struct st_xmysqlnd_node_collection * collection, const zend_bool clone_collection);
+void mysqlx_register_node_collection__drop_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_node_collection__drop_index_class(SHUTDOWN_FUNC_ARGS);
 
 #ifdef  __cplusplus
 } /* extern "C" */
 #endif
 
-#endif /* MYSQLX_EXECUTABLE_H */
+#endif /* MYSQLX_NODE_COLLECTION__DROP_INDEX_H */
 
 /*
  * Local variables:

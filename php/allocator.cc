@@ -12,32 +12,54 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>							 |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_EXECUTABLE_H
-#define MYSQLX_EXECUTABLE_H
+extern "C"
+{
+#include <php.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
+#include "allocator.h"
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
+namespace mysql
+{
 
-extern zend_class_entry * mysqlx_executable_interface_entry;
+namespace php
+{
 
-void mysqlx_register_executable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_executable_interface(SHUTDOWN_FUNC_ARGS);
+const zend_emalloc_tag zend_emalloc;
+//const zend_malloc_tag zend_malloc;
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
+template<>
+void* zend_alloc_impl<zend_emalloc_tag>(std::size_t bytes_count)
+{
+	//return malloc(bytes_count);
+	return mnd_emalloc(bytes_count);
+}
 
-#endif /* MYSQLX_EXECUTABLE_H */
+template<>
+void zend_free_impl<zend_emalloc_tag>(void* ptr)
+{
+	//free(ptr);
+	mnd_efree(ptr);
+}
 
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+//template<>
+//void* zend_alloc_impl<zend_malloc_tag>(std::size_t bytes_count)
+//{
+//	return mnd_malloc(bytes_count);
+//}
+//
+//template<>
+//void zend_free_impl<zend_malloc_tag>(void* ptr)
+//{
+//	mnd_free(ptr);
+//}
+
+} // namespace php
+
+} // namespace mysql
