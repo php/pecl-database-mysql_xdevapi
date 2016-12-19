@@ -161,6 +161,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_node_row_result_iterator.c \
 		mysqlx_node_sql_statement_result.c \
 		mysqlx_node_sql_statement_result_iterator.c \
+		mysqlx_node_column_result.c \
 		mysqlx_x_session.c \
 		mysqlx_object.c \
 		mysqlx_session.c \

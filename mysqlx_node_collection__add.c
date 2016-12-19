@@ -293,7 +293,7 @@ extract_document_id(const MYSQLND_STRING json,
 		}
 	}
 	if( res.s == NULL ) {
-		RAISE_EXCEPTION(1001, "Error serializing document to JSON");
+		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
 	}
 	MYSQLND_CSTRING ret = {
 		res.s,

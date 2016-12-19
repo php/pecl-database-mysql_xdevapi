@@ -21,25 +21,25 @@
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
 
-#ifdef __cplusplus
-#include "proto_gen/mysqlx_resultset.pb.h"
-#endif
+/*
+ * After we refactor to C++ this enum shall
+ * be updated automatically by the data from
+ * the protobuf generated files.
+ */
 enum xmysqlnd_field_type
 {
-#ifdef __cplusplus
-	XMYSQLND_TYPE_SIGNED_INT	= Mysqlx::Resultset::ColumnMetaData_FieldType_SINT,
-	XMYSQLND_TYPE_UNSIGNED_INT	= Mysqlx::Resultset::ColumnMetaData_FieldType_UINT,
-	XMYSQLND_TYPE_DOUBLE		= Mysqlx::Resultset::ColumnMetaData_FieldType_DOUBLE,
-	XMYSQLND_TYPE_FLOAT			= Mysqlx::Resultset::ColumnMetaData_FieldType_FLOAT,
-	XMYSQLND_TYPE_BYTES			= Mysqlx::Resultset::ColumnMetaData_FieldType_BYTES,
-	XMYSQLND_TYPE_TIME			= Mysqlx::Resultset::ColumnMetaData_FieldType_TIME,
-	XMYSQLND_TYPE_DATETIME		= Mysqlx::Resultset::ColumnMetaData_FieldType_DATETIME,
-	XMYSQLND_TYPE_SET			= Mysqlx::Resultset::ColumnMetaData_FieldType_SET,
-	XMYSQLND_TYPE_ENUM			= Mysqlx::Resultset::ColumnMetaData_FieldType_ENUM,
-	XMYSQLND_TYPE_BIT			= Mysqlx::Resultset::ColumnMetaData_FieldType_BIT,
-	XMYSQLND_TYPE_DECIMAL		= Mysqlx::Resultset::ColumnMetaData_FieldType_DECIMAL,
-#endif
-	XMYSQLND_TYPE_NONE = 255,
+	XMYSQLND_TYPE_SIGNED_INT	= 1,
+	XMYSQLND_TYPE_UNSIGNED_INT	= 2,
+	XMYSQLND_TYPE_DOUBLE		= 5,
+	XMYSQLND_TYPE_FLOAT         = 6,
+	XMYSQLND_TYPE_BYTES         = 7,
+	XMYSQLND_TYPE_TIME          = 10,
+	XMYSQLND_TYPE_DATETIME		= 12,
+	XMYSQLND_TYPE_SET           = 15,
+	XMYSQLND_TYPE_ENUM          = 16,
+	XMYSQLND_TYPE_BIT           = 17,
+	XMYSQLND_TYPE_DECIMAL		= 18,
+	XMYSQLND_TYPE_NONE          = 255,
 };
 
 #ifdef __cplusplus

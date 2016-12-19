@@ -36,6 +36,7 @@
 #include "mysqlx_node_row_result.h"
 #include "mysqlx_node_base_result.h"
 #include "mysqlx_field_metadata.h"
+#include "mysqlx_node_column_result.h"
 
 static zend_class_entry *mysqlx_node_row_result_class_entry;
 
@@ -70,6 +71,14 @@ ZEND_END_ARG_INFO()
 		DBG_VOID_RETURN; \
 	} \
 } \
+
+/*
+ * Handy macro used to raise exceptions
+ */
+#define RAISE_EXCEPTION(errcode, msg) \
+	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
+	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
+	mysqlx_new_exception(errcode, sqlstate, errmsg); \
 
 
 /* {{{ mysqlx_node_row_result::__construct */
@@ -241,36 +250,56 @@ get_stmt_result_meta(struct st_xmysqlnd_node_stmt_result* stmt_result)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_row_result::getColumnCount(object result) */
-static
-PHP_METHOD(mysqlx_node_row_result, getColumnCount)
+/* {{{ get_node_stmt_result_meta */
+static struct st_xmysqlnd_node_stmt_result_meta*
+get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 {
+	struct st_xmysqlnd_node_stmt_result_meta* meta = NULL;
 	zval * object_zv;
 	struct st_mysqlx_node_row_result * object;
 
-	DBG_ENTER("mysqlx_node_row_result::getColumnCount");
+	DBG_ENTER("get_node_stmt_result_meta");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_row_result_class_entry))
 	{
-		DBG_VOID_RETURN;
+		DBG_RETURN(NULL);
 	}
+
 	MYSQLX_FETCH_NODE_ROW_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
-		struct st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
-		if (meta)
-		{
-			const size_t value = meta->m->get_field_count(meta);
-			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
-				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
-			} else {
-				ZVAL_LONG(return_value, value);
-				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
-			}
+		meta = get_stmt_result_meta(object->result);
+	}
+
+	if(meta == NULL) {
+		RAISE_EXCEPTION(10001,"get_node_stmt_result_meta: Unable to extract metadata");
+	}
+
+	DBG_RETURN(meta);
+	return meta;
+}
+
+
+/* {{{ proto mixed mysqlx_node_row_result::getColumnCount(object result) */
+static
+PHP_METHOD(mysqlx_node_row_result, getColumnCount)
+{
+	struct st_xmysqlnd_node_stmt_result_meta* meta;
+	DBG_ENTER("mysqlx_node_row_result::getColumnCount");
+	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+
+	if (meta) {
+		const size_t value = meta->m->get_field_count(meta);
+		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
+			ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
+		} else {
+			ZVAL_LONG(return_value, value);
+			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 		}
 	}
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -280,38 +309,27 @@ PHP_METHOD(mysqlx_node_row_result, getColumnCount)
 static
 PHP_METHOD(mysqlx_node_row_result, getColumns)
 {
-	zval * object_zv;
-	struct st_mysqlx_node_row_result * object;
-
+	struct st_xmysqlnd_node_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_node_row_result::getColumns");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_row_result_class_entry))
-	{
-		DBG_VOID_RETURN;
-	}
-	MYSQLX_FETCH_NODE_ROW_RESULT_FROM_ZVAL(object, object_zv);
+	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
-	RETVAL_FALSE;
-	if (object->result) {
-		struct st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
-		/* Maybe check here if there was an error and throw an Exception or return a column */
-		if (meta) {
-			const size_t count = meta->m->get_field_count(meta);
-			unsigned int i = 0;
-			array_init_size(return_value, count);
-			for (; i < count; ++i) {
-				const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
-				zval column_zv;
+	if (meta) {
+		const size_t count = meta->m->get_field_count(meta);
+		unsigned int i = 0;
+		array_init_size(return_value, count);
+		for (; i < count; ++i) {
+			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
+			zval column_zv;
 
-				ZVAL_UNDEF(&column_zv);
-				mysqlx_new_field_metadata(&column_zv, column);
+			ZVAL_UNDEF(&column_zv);
+			mysqlx_new_column_result(&column_zv, column);
 
-				if (Z_TYPE(column_zv) != IS_UNDEF) {
-					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_zv);
-				}
+			if (Z_TYPE(column_zv) != IS_UNDEF) {
+				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_zv);
 			}
 		}
 	}
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -321,38 +339,27 @@ PHP_METHOD(mysqlx_node_row_result, getColumns)
 static
 PHP_METHOD(mysqlx_node_row_result, getColumnNames)
 {
-	zval * object_zv;
-	struct st_mysqlx_node_row_result * object;
+	struct st_xmysqlnd_node_stmt_result_meta* meta;
+	DBG_ENTER("mysqlx_node_row_result::getColumnNames");
+	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
-	DBG_ENTER("mysqlx_node_row_result::getColumns");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_row_result_class_entry))
-	{
-		DBG_VOID_RETURN;
-	}
-	MYSQLX_FETCH_NODE_ROW_RESULT_FROM_ZVAL(object, object_zv);
+	if (meta) {
+		const size_t count = meta->m->get_field_count(meta);
+		unsigned int i = 0;
+		array_init_size(return_value, count);
+		for (; i < count; ++i) {
+			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
+			zval column_name;
 
-	RETVAL_FALSE;
-	if (object->result) {
-		struct st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
-		/* Maybe check here if there was an error and throw an Exception or return a column */
-		if (meta) {
-			const size_t count = meta->m->get_field_count(meta);
-			unsigned int i = 0;
-			array_init_size(return_value, count);
-			for (; i < count; ++i) {
-				const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
-				zval column_name;
+			ZVAL_UNDEF(&column_name);
+			ZVAL_STRINGL(&column_name, column->name.s, column->name.l);
 
-				ZVAL_UNDEF(&column_name);
-				ZVAL_STRINGL(&column_name, column->name.s, column->name.l);
-
-				if (Z_TYPE(column_name) != IS_UNDEF) {
-					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_name);
-				}
+			if (Z_TYPE(column_name) != IS_UNDEF) {
+				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_name);
 			}
 		}
 	}
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
