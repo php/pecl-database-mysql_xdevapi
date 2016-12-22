@@ -245,6 +245,25 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_rowset)(XMYSQLND_NODE_STMT_RES
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt_result::attach_meta */
+static enum_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta)(
+					XMYSQLND_NODE_STMT_RESULT * const result,
+					struct st_xmysqlnd_node_stmt_result_meta * const meta,
+					MYSQLND_STATS * const stats,
+					MYSQLND_ERROR_INFO * const error_info)
+{
+	DBG_ENTER("xmysqlnd_node_stmt_result::attach_meta");
+	DBG_INF_FMT("current_meta=%p   meta=%p", result->meta, meta);
+	if (result->meta && result->meta != meta) {
+		xmysqlnd_node_stmt_result_meta_free(result->meta, stats, error_info);
+	}
+	result->meta = meta;
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_stmt_result::attach_execution_state */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_execution_state)(XMYSQLND_NODE_STMT_RESULT * const result, XMYSQLND_STMT_EXECUTION_STATE * const exec_state)
@@ -361,6 +380,12 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RES
 		xmysqlnd_stmt_execution_state_free(result->exec_state);
 		result->exec_state = NULL;
 	}
+	if(result->meta) {
+		xmysqlnd_node_stmt_result_meta_free(result->meta,
+						stats,
+						error_info);
+		result->meta = NULL;
+	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -402,6 +427,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt_result)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_rows),
 
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_rowset),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_execution_state),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_warning_list),
 
