@@ -335,7 +335,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_contents)(XMYSQLND_ROWSET_FWD * const 
 	result->m.free_rows(result, stats, error_info);
 
 	if (result->meta) {
-		xmysqlnd_node_stmt_result_meta_free(result->meta, stats, error_info);
 		result->meta = NULL;
 	}
 	DBG_VOID_RETURN;

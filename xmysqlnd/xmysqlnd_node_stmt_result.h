@@ -50,6 +50,7 @@ typedef void				(*func_xmysqlnd_node_stmt_result__free_rows_contents)(XMYSQLND_N
 typedef void				(*func_xmysqlnd_node_stmt_result__free_rows)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_rowset)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_rowset * const st_xmysqlnd_rowset, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_meta)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_node_stmt_result_meta * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_execution_state)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_stmt_execution_state * const exec_state);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_warning_list)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_warning_list * const warning_list);
 
@@ -81,6 +82,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 	func_xmysqlnd_node_stmt_result__free_rows free_rows;
 
 	func_xmysqlnd_node_stmt_result__attach_rowset attach_rowset;
+	func_xmysqlnd_node_stmt_result__attach_meta attach_meta;
 	func_xmysqlnd_node_stmt_result__attach_execution_state attach_execution_state;
 	func_xmysqlnd_node_stmt_result__attach_warning_list attach_warning_list;
 
@@ -96,6 +98,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 struct st_xmysqlnd_node_stmt_result
 {
 	struct st_xmysqlnd_rowset * rowset;
+	struct st_xmysqlnd_node_stmt_result_meta * meta;
 	struct st_xmysqlnd_stmt_execution_state * exec_state;
 	struct st_xmysqlnd_warning_list * warnings;
 

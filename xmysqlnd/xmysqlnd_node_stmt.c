@@ -401,6 +401,10 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 		xmysqlnd_rowset_free(create_ctx.rowset, stats, error_info);
 		create_ctx.rowset = NULL;
 	}
+	if (create_ctx.meta) {
+		xmysqlnd_node_stmt_result_meta_free(create_ctx.meta, stats, error_info);
+		create_ctx.meta = NULL;
+	}
 	if (create_ctx.exec_state) {
 		xmysqlnd_stmt_execution_state_free(create_ctx.exec_state);
 		create_ctx.exec_state = NULL;
@@ -434,8 +438,15 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const
 		if (on_result_start.handler) {
 			on_result_start.handler(on_result_start.ctx, stmt);
 		}
-		ret = stmt->data->m.read_one_result(stmt, on_row, on_warning, on_error, on_resultset_end, on_statement_ok, &has_more, stats, error_info);
-
+		ret = stmt->data->m.read_one_result(stmt, on_row,
+							on_warning,
+							on_error,
+							on_resultset_end,
+							on_statement_ok,
+							&has_more,
+							stats,
+							error_info);
+	
 	} while (ret == PASS && has_more == TRUE);
 	DBG_RETURN(ret);
 }
@@ -533,12 +544,17 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 	result = xmysqlnd_node_stmt_result_create(stmt->data->persistent, stmt->data->object_factory, stats, error_info);
 	if (result) {
 		result->m.attach_rowset(result, create_ctx.rowset, stats, error_info);
+		result->m.attach_meta(result, create_ctx.meta, stats, error_info);
 		result->m.attach_execution_state(result, create_ctx.exec_state);
 		result->m.attach_warning_list(result, create_ctx.warnings);
 	} else {
 		if (create_ctx.rowset) {
 			xmysqlnd_rowset_free(create_ctx.rowset, stats, error_info);
 			create_ctx.rowset = NULL;
+		}
+		if (create_ctx.meta) {
+			xmysqlnd_node_stmt_result_meta_free(create_ctx.meta, stats, error_info);
+			create_ctx.meta = NULL;
 		}
 		if (create_ctx.exec_state) {
 			xmysqlnd_stmt_execution_state_free(create_ctx.exec_state);
@@ -640,6 +656,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 
 	result = stmt->data->read_ctx.result;
 	result->m.attach_rowset(result, stmt->data->read_ctx.rowset, stats, error_info);
+	result->m.attach_meta(result, stmt->data->read_ctx.meta, stats, error_info);
 
 	DBG_RETURN(result);
 }

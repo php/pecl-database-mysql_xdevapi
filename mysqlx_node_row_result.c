@@ -229,21 +229,9 @@ static struct st_xmysqlnd_node_stmt_result_meta*
 get_stmt_result_meta(struct st_xmysqlnd_node_stmt_result* stmt_result)
 {
 	struct st_xmysqlnd_node_stmt_result_meta* meta = 0;
-	if (stmt_result && stmt_result->rowset)
+	if (stmt_result && stmt_result->meta)
 	{
-		switch (stmt_result->rowset->type)
-		{
-			case XMYSQLND_TYPE_ROWSET_BUFFERED:
-				meta = stmt_result->rowset->buffered->meta;
-				break;
-
-			case XMYSQLND_TYPE_ROWSET_FWD_ONLY:
-				meta = stmt_result->rowset->fwd->meta;
-				break;
-
-			default:
-				assert(!"unknown rowset type!");
-		}
+		meta = stmt_result->meta;
 	}
 	return meta;
 }
@@ -265,13 +253,7 @@ get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 		DBG_RETURN(NULL);
 	}
 
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(object_zv);
-	object = (struct st_mysqlx_node_row_result *) mysqlx_object->ptr;
-	if (!object) {
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-		RETVAL_NULL();
-		DBG_RETURN(NULL);
-	}
+	MYSQLX_FETCH_NODE_ROW_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {

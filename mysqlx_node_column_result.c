@@ -628,6 +628,16 @@ php_mysqlx_column_result_object_allocator(zend_class_entry * class_type)
 static void
 mysqlx_node_column_result_free_storage(zend_object * object)
 {
+	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	struct st_mysqlx_node_column_result * inner_obj = (
+				struct st_mysqlx_node_column_result *) mysqlx_object->ptr;
+
+	if (inner_obj) {
+		//Do not delete meta, that's someone else responsability
+		inner_obj->meta = NULL;
+		mnd_efree(inner_obj);
+	}
+
 	mysqlx_object_free_storage(object);
 }
 /* }}} */

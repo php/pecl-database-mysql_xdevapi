@@ -376,9 +376,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_contents)(XMYSQLND_ROWSET_BUFFERE
 	DBG_ENTER("xmysqlnd_rowset_buffered::free_contents");
 
 	result->m.free_rows(result, stats, error_info);
-
 	if (result->meta) {
-		xmysqlnd_node_stmt_result_meta_free(result->meta, stats, error_info);
 		result->meta = NULL;
 	}
 	DBG_VOID_RETURN;

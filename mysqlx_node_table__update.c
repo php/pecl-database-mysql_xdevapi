@@ -482,6 +482,10 @@ mysqlx_node_table__update_free_storage(zend_object * object)
 			xmysqlnd_node_table_free(inner_obj->table, NULL, NULL);
 			inner_obj->table = NULL;
 		}
+		if(inner_obj->crud_op) {
+			xmysqlnd_crud_table_update__destroy(inner_obj->crud_op);
+			inner_obj->crud_op = NULL;
+		}
 		mnd_efree(inner_obj);
 	}
 	mysqlx_object_free_storage(object);
