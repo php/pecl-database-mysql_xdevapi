@@ -15,29 +15,44 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_UTILS_H
-#define XMYSQLND_UTILS_H
+extern "C"
+{
+#include <php.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
+#include "allocator.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace mysql
+{
 
-int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs);
+namespace php
+{
 
-void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
-void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
+const alloc_tag_t alloc_tag;
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+namespace internal
+{
 
-#endif /* XMYSQLND_UTILS_H */
+void* mem_alloc(std::size_t bytes_count)
+{
+	void* ptr = mnd_emalloc(bytes_count);
+	if (ptr) {
+		return ptr;
+	} else {
+		throw std::bad_alloc();
+	}
+}
 
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+void mem_free(void* ptr)
+{
+	mnd_efree(ptr);
+}
+
+} // namespace internal
+
+} // namespace php
+
+} // namespace mysql

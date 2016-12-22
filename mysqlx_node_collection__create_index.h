@@ -15,23 +15,22 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_UTILS_H
-#define XMYSQLND_UTILS_H
+#ifndef MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
+#define MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
-int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs);
+void mysqlx_new_node_collection__create_index(zval * return_value, const MYSQLND_CSTRING index_name, const zend_bool is_unique, struct st_xmysqlnd_node_collection * collection, const zend_bool clone);
+void mysqlx_register_node_collection__create_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_node_collection__create_index_class(SHUTDOWN_FUNC_ARGS);
 
-void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
-void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
-
-#ifdef __cplusplus
+#ifdef  __cplusplus
 } /* extern "C" */
 #endif
 
-#endif /* XMYSQLND_UTILS_H */
+#endif /* MYSQLX_NODE_COLLECTION__CREATE_INDEX_H */
 
 /*
  * Local variables:

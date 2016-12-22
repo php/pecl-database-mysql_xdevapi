@@ -18,10 +18,18 @@
 #ifndef MYSQLX_EXECUTABLE_H
 #define MYSQLX_EXECUTABLE_H
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
 extern zend_class_entry * mysqlx_executable_interface_entry;
 
 void mysqlx_register_executable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_executable_interface(SHUTDOWN_FUNC_ARGS);
+
+#ifdef  __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* MYSQLX_EXECUTABLE_H */
 

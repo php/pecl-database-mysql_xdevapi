@@ -15,29 +15,30 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_UTILS_H
-#define XMYSQLND_UTILS_H
+#ifndef MYSQL_XDEVAPI_PHP_STRINGS_H
+#define MYSQL_XDEVAPI_PHP_STRINGS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <string>
+#include <sstream>
+#include "allocator.h"
 
-int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs);
+namespace mysql
+{
 
-void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
-void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
+namespace php
+{
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+template<typename CharT, typename Traits = std::char_traits<CharT>>
+using basic_string = std::basic_string<CharT, Traits, allocator<CharT>>;
+using string = basic_string<char>;
+using wstring = basic_string<wchar_t>;
 
-#endif /* XMYSQLND_UTILS_H */
+template<typename CharT, typename Traits = std::char_traits<CharT>>
+using basic_ostringstream = std::basic_ostringstream<CharT, Traits, allocator<CharT>>;
+using ostringstream = basic_ostringstream<char>;
 
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+} // namespace php
+
+} // namespace mysql
+
+#endif // MYSQL_XDEVAPI_PHP_STRINGS_H

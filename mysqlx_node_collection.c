@@ -33,6 +33,8 @@
 #include "mysqlx_node_collection__find.h"
 #include "mysqlx_node_collection__modify.h"
 #include "mysqlx_node_collection__remove.h"
+#include "mysqlx_node_collection__create_index.h"
+#include "mysqlx_node_collection__drop_index.h"
 #include "mysqlx_node_collection.h"
 
 static zend_class_entry *mysqlx_node_collection_class_entry;
@@ -79,6 +81,17 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove, 0, ZEND_RETURN_VALUE, 0)
 	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_condition, IS_STRING, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__create_index, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, index_name, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, is_unique, IS_LONG, DONT_ALLOW_NULL)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__drop_index, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, index_name, IS_STRING, DONT_ALLOW_NULL)
 ZEND_END_ARG_INFO()
 
 
@@ -414,6 +427,70 @@ PHP_METHOD(mysqlx_node_collection, remove)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_collection::createIndex() */
+static
+PHP_METHOD(mysqlx_node_collection, createIndex)
+{
+	struct st_mysqlx_node_collection * object;
+	zval * object_zv;
+	MYSQLND_CSTRING index_name = {NULL, 0};
+	zend_bool is_unique;
+
+	DBG_ENTER("mysqlx_node_collection::createIndex");
+
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Osb",
+		&object_zv, mysqlx_node_collection_class_entry,
+		&(index_name.s), &(index_name.l),
+		&is_unique))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->collection) {
+		mysqlx_new_node_collection__create_index(return_value, index_name, is_unique, object->collection, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection::dropIndex() */
+static
+PHP_METHOD(mysqlx_node_collection, dropIndex)
+{
+	struct st_mysqlx_node_collection * object;
+	zval * object_zv;
+	MYSQLND_CSTRING index_name = {NULL, 0};
+
+	DBG_ENTER("mysqlx_node_collection::dropIndex");
+
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, mysqlx_node_collection_class_entry,
+		&(index_name.s), &(index_name.l)))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+
+	RETVAL_FALSE;
+
+	if (object->collection) {
+		mysqlx_new_node_collection__drop_index(return_value, index_name, object->collection, TRUE /* clone */);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ mysqlx_node_collection_methods[] */
 static const zend_function_entry mysqlx_node_collection_methods[] = {
 	PHP_ME(mysqlx_node_collection, __construct,		NULL,												ZEND_ACC_PRIVATE)
@@ -430,6 +507,9 @@ static const zend_function_entry mysqlx_node_collection_methods[] = {
 	PHP_ME(mysqlx_node_collection, find, 	arginfo_mysqlx_node_collection__find,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection, modify,	arginfo_mysqlx_node_collection__modify, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection, remove,	arginfo_mysqlx_node_collection__remove,	ZEND_ACC_PUBLIC)
+
+	PHP_ME(mysqlx_node_collection, createIndex,	arginfo_mysqlx_node_collection__create_index,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection, dropIndex,	arginfo_mysqlx_node_collection__drop_index,		ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };

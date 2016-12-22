@@ -76,6 +76,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_crud_table_commands.cc \
 		xmysqlnd/xmysqlnd_driver.c \
 		xmysqlnd/xmysqlnd_extension_plugin.c \
+		xmysqlnd/xmysqlnd_index_collection_commands.cc \
 		xmysqlnd/xmysqlnd_node_collection.c \
 		xmysqlnd/xmysqlnd_node_schema.c \
 		xmysqlnd/xmysqlnd_node_session.c \
@@ -123,6 +124,9 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 			"
 	fi
 
+	mysqlx_php="php/allocator.cc \
+		"
+
 	mysqlx_base_sources="php_mysqlx.c \
 		php_mysqlx_ex.c \
 		mysqlx_base_session.c \
@@ -142,6 +146,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_node_session.c \
 		mysqlx_node_collection.c \
 		mysqlx_node_collection__add.c \
+		mysqlx_node_collection__create_index.cc \
+		mysqlx_node_collection__drop_index.cc \
 		mysqlx_node_collection__find.c \
 		mysqlx_node_collection__modify.c \
 		mysqlx_node_collection__remove.c \
@@ -168,7 +174,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_schema_object.c \
 		mysqlx_warning.c \
 		"
-
 
 	AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
 
@@ -198,7 +203,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_BUILD_DIR($ext_builddir/messages)
 	PHP_ADD_BUILD_DIR($ext_builddir/proto_gen)
 
-	this_ext_sources="$xmysqlnd_protobuf_sources $mysqlx_base_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_messages"
+	this_ext_sources="$xmysqlnd_protobuf_sources $mysqlx_base_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_php"
 	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1, true)
 	PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)

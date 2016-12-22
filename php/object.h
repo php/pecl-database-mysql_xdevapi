@@ -15,29 +15,51 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_UTILS_H
-#define XMYSQLND_UTILS_H
+#ifndef MYSQL_XDEVAPI_PHP_OBJECT_H
+#define MYSQL_XDEVAPI_PHP_OBJECT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "allocator.h"
 
-int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs);
+namespace mysql
+{
 
-void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
-void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
+namespace php
+{
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+class custom_allocable
+{
+	public:
+		static void* operator new(std::size_t bytes_count)
+		{
+			return ::operator new(bytes_count, php::alloc_tag);
+		}
 
-#endif /* XMYSQLND_UTILS_H */
+		static void* operator new[](std::size_t bytes_count)
+		{
+			return ::operator new(bytes_count, php::alloc_tag);
+		}
 
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+		static void operator delete(void* ptr, size_t) noexcept
+		{
+			::operator delete(ptr, php::alloc_tag);
+		}
+
+		static void operator delete[](void* ptr, size_t) noexcept
+		{
+			::operator delete(ptr, php::alloc_tag);
+		}
+
+	protected:
+		custom_allocable() = default;
+		~custom_allocable() = default;
+
+		custom_allocable(const custom_allocable& ) = default;
+		custom_allocable& operator=(const custom_allocable& ) = default;
+
+};
+
+} // namespace php
+
+} // namespace mysql
+
+#endif // MYSQL_XDEVAPI_PHP_OBJECT_H

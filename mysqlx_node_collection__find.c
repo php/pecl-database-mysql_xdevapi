@@ -174,7 +174,7 @@ PHP_METHOD(mysqlx_node_collection__find, fields)
 		if (FAIL == ret) {
 			static const unsigned int errcode = 10004;
 			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Error while adding a fields list", sizeof("Error while adding a sort expression") - 1 };
+			static const MYSQLND_CSTRING errmsg = { "Error while adding a fields list", sizeof("Error while adding a fields list") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
 			ZVAL_COPY(return_value, object_zv);
