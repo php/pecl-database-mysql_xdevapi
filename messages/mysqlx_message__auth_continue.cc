@@ -127,7 +127,7 @@ PHP_METHOD(mysqlx_message__auth_continue, send)
 	const MYSQLND_CSTRING user_par = {user, user_len};
 	const MYSQLND_CSTRING password_par = {password, password_len};
 	const MYSQLND_CSTRING salt_par = {object->message.auth_data().c_str(), object->message.auth_data().size()};
-	
+
 	enum_func_status ret = object->msg.send_request(&object->msg, schema_par, user_par, password_par, salt_par);
 	RETVAL_BOOL(ret == PASS);
 	DBG_VOID_RETURN;
@@ -191,7 +191,7 @@ mysqlx_message__auth_continue_free_storage(zend_object * object)
 	struct st_mysqlx_message__auth_continue * message = (struct st_mysqlx_message__auth_continue  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

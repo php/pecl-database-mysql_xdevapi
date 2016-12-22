@@ -136,7 +136,7 @@ mysqlx_expression_free_storage(zend_object * object)
 		zval_ptr_dtor(&inner_obj->expression);
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -150,7 +150,7 @@ php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_expression_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 
@@ -246,7 +246,7 @@ get_mysqlx_expression(const zval * const object_zv)
 		} else {
 			ret = &object->expression;
 		}
-	
+
 	}
 	DBG_RETURN(ret);
 }

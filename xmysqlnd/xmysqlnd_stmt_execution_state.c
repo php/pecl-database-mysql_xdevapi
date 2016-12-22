@@ -198,7 +198,7 @@ xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 {
 	XMYSQLND_STMT_EXECUTION_STATE * result = NULL;
 	DBG_ENTER("xmysqlnd_stmt_execution_state_create");
-	result = object_factory->get_stmt_execution_state(object_factory, persistent, stats, error_info);	
+	result = object_factory->get_stmt_execution_state(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
 /* }}} */

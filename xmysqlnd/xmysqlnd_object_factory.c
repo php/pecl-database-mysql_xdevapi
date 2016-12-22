@@ -60,7 +60,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 
 	if (FAIL == object->m->init(object, factory, stats, error_info)) {
 		object->m->dtor(object);
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 
 	DBG_RETURN(object);

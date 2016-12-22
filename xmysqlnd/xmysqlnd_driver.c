@@ -29,7 +29,7 @@ static zend_bool xmysqlnd_library_initted = FALSE;
 
 /*
 	TODO marines
-	copied from 
+	copied from
 	ext/mysqlnd/mysqlnd_statistics.c
 	needed due to optional shared (so/dll) build
 */

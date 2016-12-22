@@ -161,7 +161,7 @@ mysqlx_execute_base_session_query(XMYSQLND_NODE_SESSION * const session,
 		ZVAL_UNDEF(&stmt_zv);
 		mysqlx_new_sql_stmt(&stmt_zv, stmt, namespace_, query);
 		if (Z_TYPE(stmt_zv) == IS_NULL) {
-			xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+			xmysqlnd_node_stmt_free(stmt, NULL, NULL);
 		}
 		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 			zval zv;
@@ -856,7 +856,7 @@ mysqlx_base_session_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -873,7 +873,7 @@ php_mysqlx_base_session_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_base_session_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

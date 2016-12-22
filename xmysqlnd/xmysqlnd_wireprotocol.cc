@@ -419,7 +419,7 @@ xmysqlnd_receive_message(struct st_xmysqlnd_server_messages_handlers * handlers,
 		if (!xmysqlnd_server_message_type_is_valid(type)) {
 			SET_CLIENT_ERROR(error_info, CR_UNKNOWN_ERROR, UNKNOWN_SQLSTATE, "The server sent invalid packet type");
 			DBG_ERR_FMT("Invalid packet type %u from the server", (uint) type);
-			DBG_RETURN(FAIL);	
+			DBG_RETURN(FAIL);
 		}
 		enum xmysqlnd_server_message_type packet_type = (enum xmysqlnd_server_message_type) type;
 		hnd_ret = HND_PASS;
@@ -910,7 +910,7 @@ auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue 
 			if (FAIL == xmysqlnd_send_message(COM_AUTH_CONTINUE, message, ctx->vio, ctx->pfc, ctx->stats, ctx->error_info, &bytes_sent)) {
 				ret = HND_FAIL;
 			}
-		
+
 			/* send */
 			mnd_efree(handler_output.s);
 		}
@@ -1169,7 +1169,7 @@ xmysqlnd_authentication_continue__send_request(struct st_xmysqlnd_msg__auth_cont
 	std::string response(schema.s, schema.l);
 	response.append(1, '\0');
 	response.append(user.s, user.l);
-	response.append(1, '\0'); 
+	response.append(1, '\0');
 	if (password.s && password.l) {
 		response.append(1, '*');
 		response.append(hexed_hash, SCRAMBLE_LENGTH*2);
@@ -1213,7 +1213,7 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 /* {{{ stmt_execute_on_ERROR */
 static const enum_hnd_func_status
 stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
-{	
+{
 	struct st_xmysqlnd_result_set_reader_ctx * const ctx = static_cast<struct st_xmysqlnd_result_set_reader_ctx *>(context);
 	DBG_ENTER("stmt_execute_on_ERROR");
 	enum_hnd_func_status ret = on_ERROR(error, ctx->on_error);
@@ -1628,7 +1628,7 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 				for (unsigned int pos = 0; pos < digits; ++pos) {
 					const size_t offset = 1 + (pos >> 1);
 					/* if uneven (&0x01) then use the second 4-bits, otherwise shift (>>) the first 4 to the right and then use them */
-					const uint8_t digit = (pos & 0x01 ? buf[offset] : buf[offset] >> 4) & 0x0F; 
+					const uint8_t digit = (pos & 0x01 ? buf[offset] : buf[offset] >> 4) & 0x0F;
 					*(p++) = '0' + digit;
 					if (pos == dot_position) {
 						*(p++) = '.';
@@ -1669,7 +1669,7 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 #endif
 	if (ctx->on_row_field.handler) {
 		for (unsigned int i = 0; i < ctx->field_count; ++i) {
-			const MYSQLND_CSTRING buffer = { message.field(i).c_str(), message.field(i).size() }; 
+			const MYSQLND_CSTRING buffer = { message.field(i).c_str(), message.field(i).size() };
 			ret = ctx->on_row_field.handler(ctx->on_row_field.ctx, buffer, i, xmysqlnd_row_field_to_zval);
 
 			if (ret != HND_PASS && ret != HND_AGAIN) {
@@ -2212,7 +2212,7 @@ xmysqlnd_table_insert__send_request(
 	DBG_ENTER("xmysqlnd_table_insert__send_request");
 	size_t bytes_sent;
 
-	const enum_func_status ret = xmysqlnd_send_message(COM_CRUD_INSERT, 
+	const enum_func_status ret = xmysqlnd_send_message(COM_CRUD_INSERT,
 													   *(google::protobuf::Message *)(pb_message_shell.message),
 													   msg->result_ctx.vio,
 													   msg->result_ctx.pfc,
@@ -2658,7 +2658,7 @@ xmysqlnd_msg_factory_get__table_insert(const struct st_xmysqlnd_message_factory 
 extern "C" struct st_xmysqlnd_message_factory
 xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	const struct st_xmysqlnd_message_factory factory = 
+	const struct st_xmysqlnd_message_factory factory =
 	{
 		io->vio,
 		io->pfc,
@@ -2683,7 +2683,7 @@ xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * st
 
 
 /* {{{ xmysqlnd_shutdown_protobuf_library */
-extern "C" void 
+extern "C" void
 xmysqlnd_shutdown_protobuf_library()
 {
 	google::protobuf::ShutdownProtobufLibrary();

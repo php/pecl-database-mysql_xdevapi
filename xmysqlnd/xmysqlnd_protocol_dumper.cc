@@ -40,9 +40,9 @@ static char hexconvtab[] = "0123456789abcdef";
 
 /* {{{ xmysqlnd_dump_string_to_log */
 extern "C" void
-xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len) 
+xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len)
 {
-	//TODO marines 
+	//TODO marines
     //char message_dump[len * 3 + 1];
     char* message_dump = static_cast<char*>(malloc((len * 3 + 1) * sizeof(char)));
     DBG_ENTER("dump_string_to_log");
@@ -54,7 +54,7 @@ xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t le
 		message_dump[i*3+2] = ' ';
 	}
 	DBG_INF_FMT("%s[%u]=[%*s]", prefix, (uint) len, len, message_dump);
-	//TODO marines 
+	//TODO marines
     free(message_dump);
 	DBG_VOID_RETURN;
 }
@@ -115,14 +115,14 @@ xmysqlnd_dump_column(const Mysqlx::Crud::Column & column)
 	const bool has_name = column.has_name();
 	DBG_INF_FMT("name[%s] is %s", has_name? "SET":"NOT SET",
 								  has_name? column.name().c_str() : "n/a");
-	
+
 	const bool has_alias = column.has_alias();
 	DBG_INF_FMT("alias[%s] is %s", has_alias? "SET":"NOT SET",
 								   has_alias? column.alias().c_str() : "n/a");
 
 	DBG_INF_FMT("%d doc_paths", column.document_path_size());
 	for (unsigned int i = 0; i < column.document_path_size(); ++i) {
-		xmysqlnd_dump_expr_doc_path_item(column.document_path(i));	
+		xmysqlnd_dump_expr_doc_path_item(column.document_path(i));
 	}
 	DBG_VOID_RETURN;
 }
@@ -146,13 +146,13 @@ xmysqlnd_dump_function_call(const Mysqlx::Expr::FunctionCall & fc)
 		const bool has_ident_schema = fc.name().has_schema_name();
 		DBG_INF_FMT("identifier::schema[%s] is %s", has_ident_schema? "SET":"NOT SET",
 													has_ident_schema? fc.name().schema_name().c_str() : "n/a");
-	
+
 	}
 
 	DBG_INF_FMT("%d fc::params", fc.param_size());
 	for (unsigned int i = 0; i < fc.param_size(); ++i) {
 		xmysqlnd_dump_expr(fc.param(i));
-	}	
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -172,7 +172,7 @@ xmysqlnd_dump_operator(const Mysqlx::Expr::Operator & op)
 	DBG_INF_FMT("%d params", op.param_size());
 	for (unsigned int i = 0; i < op.param_size(); ++i) {
 		xmysqlnd_dump_expr(op.param(i));
-	}	
+	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -230,7 +230,7 @@ xmysqlnd_dump_expr(const Mysqlx::Expr::Expr & expr)
 			const bool has_obj_key = field.has_key();
 			DBG_INF_FMT("obj_key [%s] is %s", has_obj_key? "SET":"NOT SET",
 											  has_obj_key? field.key().c_str() : "n/a");
-		
+
 			const bool has_obj_value = field.has_value();
 			DBG_INF_FMT("obj_value is %s", has_obj_value? "SET":"NOT SET");
 			if (has_obj_value) {
@@ -330,7 +330,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			const bool has_mech_name = message.has_mech_name();
 			const bool has_auth_data = message.has_auth_data();
 			const bool has_initial_response = message.has_initial_response();
-			
+
 			DBG_INF_FMT("mech_name[%s]=[%s]", has_mech_name? "SET":"NOT SET",
 											  has_mech_name? message.mech_name().c_str() : "n/a");
 			DBG_INF_FMT("auth_data[%s]=[%*s]", has_auth_data? "SET":"NOT SET",
@@ -348,7 +348,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			message.ParseFromArray(payload, payload_size);
 			DBG_INF_FMT("message[%s]=%*s ",	has_auth_data? "SET":"NOT SET",
 											has_auth_data? message.auth_data().size() : sizeof("n/a") - 1,
-											has_auth_data? message.auth_data().c_str() : "n/a");			
+											has_auth_data? message.auth_data().c_str() : "n/a");
 			break;
 		}
 		case Mysqlx::ClientMessages_Type_SESS_RESET: break; /* Empty */
@@ -377,7 +377,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			break;
 		}
 		case Mysqlx::ClientMessages_Type_CRUD_FIND:{
-			Mysqlx::Crud::Find message;		
+			Mysqlx::Crud::Find message;
 			message.ParseFromArray(payload, payload_size);
 
 			const bool has_collection = message.has_collection();
@@ -387,7 +387,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 				DBG_INF_FMT("[%s].[%s]", collection.has_schema()? collection.schema().c_str() :"n/a",
 										 collection.has_name()? collection.name().c_str() :"n/a");
 			}
-			
+
 			const bool has_data_model = message.has_data_model();
 			DBG_INF_FMT("data_model[%s]=[%s]", has_data_model? "SET":"NOT SET",
 											   has_data_model? Mysqlx::Crud::DataModel_Name(message.data_model()).c_str() : "n/a");
@@ -749,7 +749,7 @@ xmysqlnd_dump_notice_frame(const Mysqlx::Notice::Frame & frame)
 	DBG_INF_FMT("payload is %s", has_payload? "SET":"NOT SET");
 
 	const bool has_type = frame.has_type();
-	
+
 	DBG_INF_FMT("type is %s", has_type? "SET":"NOT SET");
 	if (has_type && has_payload) {
 		switch (frame.type()) {
@@ -813,7 +813,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';
 		}
-		DBG_INF_FMT("payload[%u]=[%s]", (uint) payload_size, message_dump);	
+		DBG_INF_FMT("payload[%u]=[%s]", (uint) payload_size, message_dump);
 		delete [] message_dump;
 	}
 	switch (type) {
@@ -865,14 +865,14 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 			Mysqlx::Session::AuthenticateContinue message;
 			message.ParseFromArray(payload, payload_size);
 			const bool has_auth_data = message.has_auth_data();
-			DBG_INF_FMT("message[%s][len=%d]=%s ", has_auth_data? "SET":"NOT SET", has_auth_data? message.auth_data().size():0, has_auth_data? message.auth_data().c_str() : "n/a");			
+			DBG_INF_FMT("message[%s][len=%d]=%s ", has_auth_data? "SET":"NOT SET", has_auth_data? message.auth_data().size():0, has_auth_data? message.auth_data().c_str() : "n/a");
 			break;
 		}
 		case Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_OK:{
 			Mysqlx::Session::AuthenticateOk message;
 			message.ParseFromArray(payload, payload_size);
 			const bool has_auth_data = message.has_auth_data();
-			DBG_INF_FMT("auth_data[%s][len=%d]=%s ", has_auth_data? "SET":"NOT SET", has_auth_data? message.auth_data().size():0, has_auth_data? message.auth_data().c_str() : "n/a");			
+			DBG_INF_FMT("auth_data[%s][len=%d]=%s ", has_auth_data? "SET":"NOT SET", has_auth_data? message.auth_data().size():0, has_auth_data? message.auth_data().c_str() : "n/a");
 			break;
 		}
 		case Mysqlx::ServerMessages_Type_NOTICE:{

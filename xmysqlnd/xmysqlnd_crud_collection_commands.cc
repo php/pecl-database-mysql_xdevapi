@@ -115,7 +115,7 @@ xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::My
 	if (index == end) {
 		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it = begin;
 		for (; it != end; ++it) {
-			mutable_args->AddAllocated(*it);		
+			mutable_args->AddAllocated(*it);
 		}
 	}
 	DBG_RETURN(index == end? PASS : FAIL);
@@ -383,7 +383,7 @@ xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMO
 
 
 /* {{{ xmysqlnd_crud_collection_remove__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell 
+extern "C" struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
@@ -726,7 +726,7 @@ xmysqlnd_crud_collection_modify__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__MODI
 
 
 /* {{{ xmysqlnd_crud_collection_modify__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell 
+extern "C" struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_collection_modify__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_UPDATE };
@@ -899,7 +899,7 @@ xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 
 		DBG_INF("PASS");
 		DBG_RETURN(PASS);
-	} 
+	}
 
 	try {
 		xmysqlnd::Expression_parser parser(source);
@@ -926,7 +926,7 @@ xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
 	}
-	
+
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
@@ -986,7 +986,7 @@ xmysqlnd_crud_collection_find__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__FIND *
 
 
 /* {{{ xmysqlnd_crud_collection_find__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell 
+extern "C" struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };

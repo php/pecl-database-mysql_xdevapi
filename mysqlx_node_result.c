@@ -343,7 +343,7 @@ mysqlx_node_result_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -357,7 +357,7 @@ php_mysqlx_node_result_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_node_result_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

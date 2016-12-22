@@ -63,8 +63,8 @@ struct st_collection_exists_in_database_var_binder_ctx
 /* {{{ collection_op_var_binder */
 static const enum_hnd_func_status
 collection_op_var_binder(
-	void * context, 
-	XMYSQLND_NODE_SESSION * session, 
+	void * context,
+	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
@@ -95,7 +95,7 @@ bind:
 			}
 			break;
 		}
-		default: 
+		default:
 			assert(!"should not happen");
 			break;
 	}
@@ -131,11 +131,11 @@ collection_xplugin_op_on_row(
 		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
 
 		if (equal_mysqlnd_cstr(&object_name, &ctx->expected_collection_name)
-			&& equal_mysqlnd_cstr(&object_type, &ctx->expected_object_type)) 
+			&& equal_mysqlnd_cstr(&object_type, &ctx->expected_object_type))
 		{
 			ZVAL_TRUE(ctx->exists);
-		} 
-		else 
+		}
+		else
 		{
 			ZVAL_FALSE(ctx->exists);
 		}
@@ -149,7 +149,7 @@ collection_xplugin_op_on_row(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 	XMYSQLND_NODE_COLLECTION * const collection,
-	struct st_xmysqlnd_node_session_on_error_bind on_error, 
+	struct st_xmysqlnd_node_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_node_collection::exists_in_database");
@@ -167,7 +167,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 	};
 	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
 
-	struct st_collection_exists_in_database_ctx on_row_ctx = { 
+	struct st_collection_exists_in_database_ctx on_row_ctx = {
 		mnd_str2c(collection->data->collection_name),
 		xmysqlnd_object_type_filter__collection,
 		exists
@@ -222,7 +222,7 @@ collection_sql_single_result_op_on_row(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_collection, count)(
 	XMYSQLND_NODE_COLLECTION * const collection,
-	struct st_xmysqlnd_node_session_on_error_bind on_error, 
+	struct st_xmysqlnd_node_session_on_error_bind on_error,
 	zval* counter)
 {
 	DBG_ENTER("xmysqlnd_node_collection::count");
@@ -247,7 +247,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, count)(
 	};
 	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
 
-	struct st_collection_sql_single_result_ctx on_row_ctx = { 
+	struct st_collection_sql_single_result_ctx on_row_ctx = {
 		counter
 	};
 
@@ -270,7 +270,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, count)(
 /* }}} */
 
 /* {{{ xmysqlnd_node_collection::add */
-static XMYSQLND_NODE_STMT * 
+static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const collection,
 											   XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 {
@@ -307,7 +307,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 
 
 /* {{{ xmysqlnd_node_collection::remove */
-static XMYSQLND_NODE_STMT * 
+static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
 	XMYSQLND_NODE_STMT * ret = NULL;
@@ -335,7 +335,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * con
 
 
 /* {{{ xmysqlnd_node_collection::modify */
-static XMYSQLND_NODE_STMT * 
+static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 {
 	XMYSQLND_NODE_STMT * ret = NULL;
@@ -376,7 +376,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const
 		stmt = session->m->create_statement_object(session);
 		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_collection_find__get_protobuf_message(op), session->data->stats, session->data->error_info)) {
 			xmysqlnd_node_stmt_free(stmt, session->data->stats, session->data->error_info);
-			stmt = NULL;			
+			stmt = NULL;
 		}
 	}
 	DBG_RETURN(stmt);

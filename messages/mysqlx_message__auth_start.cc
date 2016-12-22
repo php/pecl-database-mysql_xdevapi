@@ -107,7 +107,7 @@ PHP_METHOD(mysqlx_message__auth_start, send)
 	const XMYSQLND_L3_IO io = {connection->vio, codec->pfc};
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, connection->stats, connection->error_info);
 	object->msg = msg_factory.get__auth_start(&msg_factory);
-	
+
 	const MYSQLND_CSTRING mech_name = {auth_mech_name, auth_mech_name_len};
 	const MYSQLND_CSTRING mech_data = {auth_data, auth_data_len};
 	enum_func_status ret = object->msg.send_request(&object->msg, mech_name, mech_data);
@@ -172,7 +172,7 @@ mysqlx_message__auth_start_free_storage(zend_object * object)
 	if (message) {
 		delete message;
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

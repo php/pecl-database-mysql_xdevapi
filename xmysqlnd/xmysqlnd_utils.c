@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /* {{{ equal_mysqlnd_cstr */
-int 
+int
 equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs)
 {
 	int result = 0;
@@ -42,8 +42,8 @@ equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs)
 
 /* {{{ xmysqlnd_utils_decode_doc_row */
 void
-xmysqlnd_utils_decode_doc_row(zval* src, zval* dest) 
-{ 
+xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
+{
 	HashTable * row_ht = Z_ARRVAL_P(src);
 	zval* row_data = zend_hash_str_find(row_ht, "doc", sizeof("doc") - 1);
 	if (row_data && Z_TYPE_P(row_data) == IS_STRING) {
@@ -55,10 +55,10 @@ xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 
 /* {{{ xmysqlnd_utils_decode_doc_rows */
 void
-xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest) 
-{ 
+xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
+{
 	array_init(dest);
-	if (Z_TYPE_P(src) == IS_ARRAY) { 
+	if (Z_TYPE_P(src) == IS_ARRAY) {
 		zval* raw_row;
 		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(src), raw_row) {
 			zval row;

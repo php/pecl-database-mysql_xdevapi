@@ -94,7 +94,7 @@ mysqlx_resultset_metadata_free_storage(zend_object * object)
 		zend_hash_destroy(&message->resultset_metadata_ht);
 		delete message;
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

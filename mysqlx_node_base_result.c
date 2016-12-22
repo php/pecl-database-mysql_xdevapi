@@ -173,7 +173,7 @@ static const zend_function_entry mysqlx_node_base_result_methods[] = {
 //		}
 //		mnd_efree(inner_obj);
 //	}
-//	mysqlx_object_free_storage(object); 
+//	mysqlx_object_free_storage(object);
 //}
 ///* }}} */
 //
@@ -187,7 +187,7 @@ static const zend_function_entry mysqlx_node_base_result_methods[] = {
 //
 //	DBG_ENTER("php_mysqlx_node_base_result_object_allocator");
 //	if (!mysqlx_object || !object) {
-//		DBG_RETURN(NULL);	
+//		DBG_RETURN(NULL);
 //	}
 //	mysqlx_object->ptr = object;
 //

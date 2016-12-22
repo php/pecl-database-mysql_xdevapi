@@ -145,7 +145,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field)(void * context,
 	if (!ctx->rowset && ctx->meta) {
 		ctx->rowset = ctx->create_rowset(ctx);
 		if (ctx->rowset) {
-			ctx->rowset->m.attach_meta(ctx->rowset, ctx->meta, ctx->stats, ctx->error_info);		
+			ctx->rowset->m.attach_meta(ctx->rowset, ctx->meta, ctx->stats, ctx->error_info);
 		}
 	}
 	if (ctx->rowset) {
@@ -435,7 +435,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const
 			on_result_start.handler(on_result_start.ctx, stmt);
 		}
 		ret = stmt->data->m.read_one_result(stmt, on_row, on_warning, on_error, on_resultset_end, on_statement_ok, &has_more, stats, error_info);
-	
+
 	} while (ret == PASS && has_more == TRUE);
 	DBG_RETURN(ret);
 }
@@ -621,7 +621,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 
 	if (rows) {
 		if (FAIL == stmt->data->msg_stmt_exec.read_response(&stmt->data->msg_stmt_exec, NULL)) {
-			DBG_RETURN(NULL);		
+			DBG_RETURN(NULL);
 		}
 		*has_more_rows_in_set = stmt->data->msg_stmt_exec.reader_ctx.has_more_rows_in_set;
 		*has_more_results = stmt->data->msg_stmt_exec.reader_ctx.has_more_results;

@@ -26,7 +26,7 @@ int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs);
 
 void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
 void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
-	 
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

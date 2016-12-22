@@ -91,7 +91,7 @@ mysqlx_message__capabilities_free_storage(zend_object * object)
 		zend_hash_destroy(&message->capabilities_ht);
 		delete message;
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

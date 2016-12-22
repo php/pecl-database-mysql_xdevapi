@@ -390,7 +390,7 @@ mysqlx_column_metadata_free_storage(zend_object * object)
 	struct st_mysqlx_column_metadata * message = (struct st_mysqlx_column_metadata  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
