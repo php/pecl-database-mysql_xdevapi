@@ -1,14 +1,14 @@
 // $Id$
 // vim:ft=javascript
 
-// Note: The extension name is "mysql-xdevapi", you enable it with "--enable-mysql-xdevapi", 
+// Note: The extension name is "mysql-xdevapi", you enable it with "--enable-mysql-xdevapi",
 // or optionally "--enable-mysql-xdevapi=shared" to build separated dll.
 
 ARG_ENABLE("mysql-xdevapi", "MySQL XDevAPI support | Hybrid Native Client Driver", "no");
 
 if (PHP_MYSQL_XDEVAPI != "no") {
 
-	if (CHECK_LIB("ws2_32.lib", "mysql_xdevapi") 
+	if (CHECK_LIB("ws2_32.lib", "mysql_xdevapi")
 		&& (((PHP_DEBUG == "no") && CHECK_LIB("libprotobuf.lib", "mysql_xdevapi")) || ((PHP_DEBUG == "yes") && CHECK_LIB("libprotobufd.lib", "mysql_xdevapi")))
 		&& PHP_JSON != "no")
 	{
@@ -152,7 +152,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 
 		if (PHP_MYSQL_XDEVAPI_SHARED) {
 			ADD_FLAG("CFLAGS_MYSQL_XDEVAPI", "/D PHP_MYSQL_XDEVAPI_EXPORTS ");
-		} 
+		}
 
 		if (PHP_MYSQLND = "no") {
 			PHP_MYSQLND = "yes";

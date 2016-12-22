@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 extern "C" {
@@ -128,7 +128,7 @@ mysqlx_node_collection_create_index_on_error(void * context, XMYSQLND_NODE_SESSI
 {
 	DBG_ENTER("mysqlx_node_collection_create_index_on_error");
 	mysqlx_new_exception(code, sql_state, message);
-	//throw 
+	//throw
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
@@ -176,10 +176,10 @@ PHP_METHOD(mysqlx_node_collection__create_index, execute)
 
 /* {{{ mysqlx_node_collection__create_index_methods[] */
 static const zend_function_entry mysqlx_node_collection__create_index_methods[] = {
-	PHP_ME(mysqlx_node_collection__create_index, 	__construct,	NULL,										ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_collection__create_index, __construct, NULL, ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_collection__create_index,	field,		arginfo_mysqlx_node_collection__create_index__field,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__create_index,	execute,	arginfo_mysqlx_node_collection__create_index__execute,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__create_index, field, arginfo_mysqlx_node_collection__create_index__field, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__create_index, execute, arginfo_mysqlx_node_collection__create_index__execute, ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}
 };
@@ -212,7 +212,7 @@ mysqlx_node_collection__create_index_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -226,7 +226,7 @@ php_mysqlx_node_collection__create_index_object_allocator(zend_class_entry * cla
 
 	DBG_ENTER("php_mysqlx_node_collection__create_index_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

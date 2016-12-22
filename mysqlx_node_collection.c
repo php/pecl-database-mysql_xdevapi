@@ -510,7 +510,6 @@ static const zend_function_entry mysqlx_node_collection_methods[] = {
 
 	PHP_ME(mysqlx_node_collection, createIndex,	arginfo_mysqlx_node_collection__create_index,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection, dropIndex,	arginfo_mysqlx_node_collection__drop_index,		ZEND_ACC_PUBLIC)
-	
 
 	{NULL, NULL, NULL}
 };

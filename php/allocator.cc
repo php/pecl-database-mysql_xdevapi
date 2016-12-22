@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 extern "C"
@@ -31,34 +31,27 @@ namespace mysql
 namespace php
 {
 
-const zend_emalloc_tag zend_emalloc;
-//const zend_malloc_tag zend_malloc;
+const alloc_tag_t alloc_tag;
 
-template<>
-void* zend_alloc_impl<zend_emalloc_tag>(std::size_t bytes_count)
+namespace internal
 {
-	//return malloc(bytes_count);
-	return mnd_emalloc(bytes_count);
+
+void* mem_alloc(std::size_t bytes_count)
+{
+	void* ptr = mnd_emalloc(bytes_count);
+	if (ptr) {
+		return ptr;
+	} else {
+		throw std::bad_alloc();
+	}
 }
 
-template<>
-void zend_free_impl<zend_emalloc_tag>(void* ptr)
+void mem_free(void* ptr)
 {
-	//free(ptr);
 	mnd_efree(ptr);
 }
 
-//template<>
-//void* zend_alloc_impl<zend_malloc_tag>(std::size_t bytes_count)
-//{
-//	return mnd_malloc(bytes_count);
-//}
-//
-//template<>
-//void zend_free_impl<zend_malloc_tag>(void* ptr)
-//{
-//	mnd_free(ptr);
-//}
+} // namespace internal
 
 } // namespace php
 

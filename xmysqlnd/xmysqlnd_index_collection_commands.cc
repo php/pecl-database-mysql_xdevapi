@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 extern "C"
@@ -44,7 +44,7 @@ extern "C"
 #include "../php/strings.h"
 #include "../php/types.h"
 
-namespace 
+namespace
 {
 
 template<typename TString>
@@ -58,7 +58,7 @@ bool is_empty(const TString& mystr)
 
 /****************************** COLLECTION.CREATE_INDEX() *******************************************************/
 
-struct st_index_field 
+struct st_index_field
 {
 	mysql::php::string doc_path;
 	mysql::php::string column_type;
@@ -81,7 +81,7 @@ struct st_index_field
 
 using st_index_fields = mysql::php::vector<st_index_field>;
 
-struct st_xmysqlnd_collection_op__create_index : mysql::php::BaseClass
+struct st_xmysqlnd_collection_op__create_index : mysql::php::custom_allocable
 {
 	mysql::php::string schema_name;
 	mysql::php::string collection_name;
@@ -200,7 +200,7 @@ struct st_collection_create_collection_index_var_binder_ctx
 
 
 /* {{{ collection_index_bind_bool_param */
-static enum_hnd_func_status 
+static enum_hnd_func_status
 collection_index_bind_bool_param(
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
 	const unsigned int param_no,
@@ -228,7 +228,7 @@ collection_index_bind_bool_param(
 
 
 /* {{{ collection_index_bind_string_param */
-static enum_hnd_func_status 
+static enum_hnd_func_status
 collection_index_bind_string_param(
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
 	const unsigned int param_no,
@@ -256,7 +256,7 @@ collection_index_bind_string_param(
 
 
 /* {{{ collection_index_bind_field_param */
-static enum_hnd_func_status 
+static enum_hnd_func_status
 collection_index_bind_field_param(
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
 	const unsigned int param_no,
@@ -340,7 +340,7 @@ collection_index_bind_fields(
 			break;
 		}
 
-		default: 
+		default:
 			assert(!"fieldParamNo too big!");
 			break;
 	}
@@ -353,14 +353,14 @@ collection_index_bind_fields(
 /* {{{ collection_create_index_var_binder */
 static const enum_hnd_func_status
 collection_create_index_var_binder(
-	void * context, 
-	XMYSQLND_NODE_SESSION * session, 
+	void * context,
+	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_collection_create_collection_index_var_binder_ctx * ctx = (struct st_collection_create_collection_index_var_binder_ctx *) context;
 	st_xmysqlnd_collection_op__create_index* index_op = ctx->index_op;
-	
+
 	const mysql::php::string * param = NULL;
 	DBG_ENTER("collection_create_index_var_binder");
 	switch (ctx->counter) {
@@ -390,7 +390,7 @@ collection_create_index_var_binder(
 
 
 /* {{{ xmysqlnd_collection_create_index__execute */
-extern "C" enum_func_status 
+extern "C" enum_func_status
 xmysqlnd_collection_create_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__execute");
@@ -406,7 +406,7 @@ xmysqlnd_collection_create_index__execute(struct st_xmysqlnd_node_session * cons
 							   query,
 							   var_binder,
 							   noop__on_result_start,
-							   noop__on_row, //on_row, 
+							   noop__on_row, //on_row,
 							   noop__on_warning,
 							   on_error,
 							   noop__on_result_end,
@@ -417,7 +417,7 @@ xmysqlnd_collection_create_index__execute(struct st_xmysqlnd_node_session * cons
 /* }}} */
 
 /****************************** COLLECTION.DROP_INDEX() *******************************************************/
-struct st_xmysqlnd_collection_op__drop_index : mysql::php::BaseClass
+struct st_xmysqlnd_collection_op__drop_index : mysql::php::custom_allocable
 {
 	mysql::php::string schema_name;
 	mysql::php::string collection_name;
@@ -498,14 +498,14 @@ struct st_collection_drop_collection_index_var_binder_ctx
 /* {{{ collection_drop_index_var_binder */
 static const enum_hnd_func_status
 collection_drop_index_var_binder(
-	void * context, 
-	XMYSQLND_NODE_SESSION * session, 
+	void * context,
+	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_collection_drop_collection_index_var_binder_ctx * ctx = (struct st_collection_drop_collection_index_var_binder_ctx *) context;
 	st_xmysqlnd_collection_op__drop_index* index_op = ctx->index_op;
-	
+
 	const mysql::php::string * param = NULL;
 	DBG_ENTER("collection_drop_index_var_binder");
 	switch (ctx->counter) {
@@ -534,7 +534,7 @@ collection_drop_index_var_binder(
 
 
 /* {{{ xmysqlnd_collection_drop_index__execute */
-extern "C" enum_func_status 
+extern "C" enum_func_status
 xmysqlnd_collection_drop_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__DROP_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__execute");
@@ -550,7 +550,7 @@ xmysqlnd_collection_drop_index__execute(struct st_xmysqlnd_node_session * const 
 							   query,
 							   var_binder,
 							   noop__on_result_start,
-							   noop__on_row, //on_row, 
+							   noop__on_row, //on_row,
 							   noop__on_warning,
 							   on_error,
 							   noop__on_result_end,

@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQL_XDEVAPI_PHP_TYPES_H
@@ -21,7 +21,7 @@
 #include <deque>
 #include <map>
 #include <set>
-#include <stack>  
+#include <stack>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -34,19 +34,19 @@ namespace php
 {
 
 template<typename T>
-using vector = std::vector<T, ZendAllocator<T>>;
+using vector = std::vector<T, allocator<T>>;
 
 template<typename Key, typename T, typename Compare = std::less<Key>>
-using map = std::map<Key, T, Compare, ZendAllocator<std::pair<const Key, T>>>;
+using map = std::map<Key, T, Compare, allocator<std::pair<const Key, T>>>;
 
 template<typename Key, typename Compare = std::less<Key>>
-using set = std::set<Key, Compare, ZendAllocator<Key>>;
+using set = std::set<Key, Compare, allocator<Key>>;
 
 template<typename Key, typename T, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
-using unordered_map = std::unordered_map<Key, T, Hash, KeyEqual, ZendAllocator<std::pair<const Key, T>>>;
+using unordered_map = std::unordered_map<Key, T, Hash, KeyEqual, allocator<std::pair<const Key, T>>>;
 
 template<typename Key, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
-using unordered_set = std::unordered_set<Key, Hash, KeyEqual, ZendAllocator<Key>>;
+using unordered_set = std::unordered_set<Key, Hash, KeyEqual, allocator<Key>>;
 
 template<typename T>
 using deque = std::deque<T, std::allocator<T>>;

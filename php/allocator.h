@@ -12,13 +12,13 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQL_XDEVAPI_PHP_ALLOCATOR_H
 #define MYSQL_XDEVAPI_PHP_ALLOCATOR_H
 
-#include <memory>  
+#include <memory>
 
 namespace mysql
 {
@@ -26,96 +26,16 @@ namespace mysql
 namespace php
 {
 
-struct zend_emalloc_tag {};
-extern const zend_emalloc_tag zend_emalloc;
+struct alloc_tag_t {};
+extern const alloc_tag_t alloc_tag;
 
-//struct zend_malloc_tag {};
-//extern const zend_malloc_tag zend_malloc;
-
-
-template<typename alloc_tag>
-void* zend_alloc_impl(std::size_t bytes_count);
-
-template<typename alloc_tag>
-void zend_free_impl(void* ptr);
-
-template<typename alloc_tag>
-void* zend_alloc(std::size_t bytes_count)
+namespace internal
 {
-	void* ptr = zend_alloc_impl<alloc_tag>(bytes_count);
-	if (ptr) {
-		return ptr; 
-	} else {
-		throw std::bad_alloc();
-	}
-}
 
-template<typename alloc_tag>
-void zend_free(void* ptr)
-{
-	zend_free_impl<alloc_tag>(ptr);
-}
+void* mem_alloc(std::size_t bytes_count);
+void mem_free(void* ptr);
 
-//------------------------------------------------------------------------------
-
-template <class T, class alloc_tag = zend_emalloc_tag>
-struct ZendAllocator
-{  
-	typedef T value_type;  
-
-	ZendAllocator() noexcept 
-	{
-	}
-  
-	template<typename U> 
-	ZendAllocator(const ZendAllocator<U>&) noexcept 
-	{
-	}  
-
-	template<typename U> 
-	bool operator==(const ZendAllocator<U>&) const noexcept  
-	{  
-		return true;  
-	}  
-
-	template<typename U> 
-	bool operator!=(const ZendAllocator<U>&) const noexcept  
-	{  
-		return false;  
-	} 
-
-	T* allocate(const size_t elem_count) const
-	{  
-		return static_cast<T*>(zend_alloc<alloc_tag>(elem_count * sizeof(T)));
-	}
-
-	void deallocate(T* const ptr, size_t) const noexcept
-	{  
-		zend_free<alloc_tag>(ptr);
-	}  
-};
-
-//------------------------------------------------------------------------------
-
-template<typename alloc_tag = zend_emalloc_tag>
-struct zend_alloc_tag_wrapper
-{
-	static const alloc_tag tag;
-};
-
-//template<typename T, class alloc_tag = zend_emalloc_tag>
-template<typename T>
-struct ZendDeleter
-{
-	void operator()(T* t) 
-	{ 
-		//delete (zend_alloc_tag_wrapper<alloc_tag>::tag, t);
-		delete (T::tag, t);
-	}
-};
-
-template<typename T>
-using unique_ptr = std::unique_ptr<T, ZendDeleter<T>>;
+} // namespace internal
 
 } // namespace php
 
@@ -123,24 +43,94 @@ using unique_ptr = std::unique_ptr<T, ZendDeleter<T>>;
 
 //------------------------------------------------------------------------------
 
-inline void* operator new(std::size_t bytes_count, const mysql::php::zend_emalloc_tag&) 
+inline void* operator new(std::size_t bytes_count, const mysql::php::alloc_tag_t&)
 {
-	return mysql::php::zend_alloc<mysql::php::zend_emalloc_tag>(bytes_count);
+	return mysql::php::internal::mem_alloc(bytes_count);
 }
 
-inline void* operator new[](std::size_t bytes_count, const mysql::php::zend_emalloc_tag&) 
+inline void* operator new[](std::size_t bytes_count, const mysql::php::alloc_tag_t&)
 {
-	return mysql::php::zend_alloc<mysql::php::zend_emalloc_tag>(bytes_count);
+	return mysql::php::internal::mem_alloc(bytes_count);
 }
 
-inline void operator delete(void* ptr, const mysql::php::zend_emalloc_tag&)
+inline void operator delete(void* ptr, const mysql::php::alloc_tag_t&)
 {
-	mysql::php::zend_free<mysql::php::zend_emalloc_tag>(ptr);
+	mysql::php::internal::mem_free(ptr);
 }
 
-inline void operator delete[](void* ptr, const mysql::php::zend_emalloc_tag&)
+inline void operator delete[](void* ptr, const mysql::php::alloc_tag_t&)
 {
-	mysql::php::zend_free<mysql::php::zend_emalloc_tag>(ptr);
+	mysql::php::internal::mem_free(ptr);
 }
 
-#endif
+//------------------------------------------------------------------------------
+
+namespace mysql
+{
+
+namespace php
+{
+
+template<typename T>
+class allocator
+{
+	public:
+		typedef T value_type;
+
+		allocator() = default;
+
+		template<typename U>
+		allocator(const allocator<U>&) noexcept
+		{
+		}
+
+		template<typename U>
+		bool operator==(const allocator<U>&) const noexcept
+		{
+			return true;
+		}
+
+		template<typename U>
+		bool operator!=(const allocator<U>&) const noexcept
+		{
+			return false;
+		}
+
+		T* allocate(const size_t elem_count) const
+		{
+			if ((static_cast<size_t>(-1) / sizeof(T)) < elem_count)
+			{
+				throw std::bad_array_new_length();
+			}
+
+			const size_t bytes_count = elem_count * sizeof(T);
+			void* ptr = ::operator new(bytes_count, php::alloc_tag);
+			return static_cast<T*>(ptr);
+		}
+
+		void deallocate(T* const ptr, size_t) const noexcept
+		{
+			::operator delete(ptr, php::alloc_tag);
+		}
+};
+
+//------------------------------------------------------------------------------
+
+template<typename T>
+struct deleter
+{
+	void operator()(T* t)
+	{
+		t->~T();
+		::operator delete(t, php::alloc_tag);
+	}
+};
+
+template<typename T>
+using unique_ptr = std::unique_ptr<T, deleter<T>>;
+
+} // namespace php
+
+} // namespace mysql
+
+#endif // MYSQL_XDEVAPI_PHP_ALLOCATOR_H

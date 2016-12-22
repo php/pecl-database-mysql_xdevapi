@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQL_XDEVAPI_PHP_STRINGS_H
@@ -29,12 +29,12 @@ namespace php
 {
 
 template<typename CharT, typename Traits = std::char_traits<CharT>>
-using basic_string = std::basic_string<CharT, Traits, ZendAllocator<CharT>>;
+using basic_string = std::basic_string<CharT, Traits, allocator<CharT>>;
 using string = basic_string<char>;
 using wstring = basic_string<wchar_t>;
 
 template<typename CharT, typename Traits = std::char_traits<CharT>>
-using basic_ostringstream = std::basic_ostringstream<CharT, Traits, ZendAllocator<CharT>>;
+using basic_ostringstream = std::basic_ostringstream<CharT, Traits, allocator<CharT>>;
 using ostringstream = basic_ostringstream<char>;
 
 } // namespace php

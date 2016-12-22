@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQL_XDEVAPI_PHP_OBJECT_H
@@ -26,45 +26,40 @@ namespace mysql
 namespace php
 {
 
-template<typename alloc_tag = zend_emalloc_tag>
-class ZendClass
+class custom_allocable
 {
 	public:
 		static void* operator new(std::size_t bytes_count)
 		{
-			return mysql::php::zend_alloc<mysql::php::zend_emalloc_tag>(bytes_count);
+			return ::operator new(bytes_count, php::alloc_tag);
 		}
 
 		static void* operator new[](std::size_t bytes_count)
 		{
-			return mysql::php::zend_alloc<mysql::php::zend_emalloc_tag>(bytes_count);
-	    }
+			return ::operator new(bytes_count, php::alloc_tag);
+		}
 
 		static void operator delete(void* ptr, size_t) noexcept
 		{
-			mysql::php::zend_free<mysql::php::zend_emalloc_tag>(ptr);
+			::operator delete(ptr, php::alloc_tag);
 		}
 
 		static void operator delete[](void* ptr, size_t) noexcept
 		{
-			mysql::php::zend_free<mysql::php::zend_emalloc_tag>(ptr);
+			::operator delete(ptr, php::alloc_tag);
 		}
 
-		static const alloc_tag tag;
-
 	protected:
-		ZendClass() {}
-		~ZendClass() {}
+		custom_allocable() = default;
+		~custom_allocable() = default;
 
-		ZendClass(const ZendClass& ) {}
-		ZendClass& operator=(const ZendClass& ) { return *this; }
+		custom_allocable(const custom_allocable& ) = default;
+		custom_allocable& operator=(const custom_allocable& ) = default;
 
 };
-
-using BaseClass = ZendClass<>;
 
 } // namespace php
 
 } // namespace mysql
 
-#endif // MYSQL_XDEVAPI_PHP_STRINGS_H
+#endif // MYSQL_XDEVAPI_PHP_OBJECT_H

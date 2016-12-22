@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 extern "C" {
@@ -161,7 +161,7 @@ mysqlx_node_collection__drop_index_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -175,7 +175,7 @@ php_mysqlx_node_collection__drop_index_object_allocator(zend_class_entry * class
 
 	DBG_ENTER("php_mysqlx_node_collection__drop_index_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 
@@ -230,7 +230,7 @@ mysqlx_unregister_node_collection__drop_index_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_collection__drop_index(
 	zval * return_value,
-	const MYSQLND_CSTRING index_name, 
+	const MYSQLND_CSTRING index_name,
 	XMYSQLND_NODE_COLLECTION * collection,
 	const zend_bool clone_collection)
 {
