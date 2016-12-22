@@ -25,6 +25,13 @@ extern "C"
 {
 #endif
 
+typedef struct st_xmysqlnd_crud_collection_op__add XMYSQLND_CRUD_COLLECTION_OP__ADD;
+XMYSQLND_CRUD_COLLECTION_OP__ADD * xmysqlnd_crud_collection_add__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);
+void xmysqlnd_crud_collection_add__destroy(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
+enum_func_status xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj, zval * doc);
+enum_func_status xmysqlnd_crud_collection_add__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
+struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_add__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
+
 typedef struct st_xmysqlnd_crud_collection_op__remove XMYSQLND_CRUD_COLLECTION_OP__REMOVE;
 
 XMYSQLND_CRUD_COLLECTION_OP__REMOVE * xmysqlnd_crud_collection_remove__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);

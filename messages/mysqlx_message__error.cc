@@ -141,7 +141,7 @@ mysqlx_message__error_free_storage(zend_object * object)
 	struct st_mysqlx_message__error * message = (struct st_mysqlx_message__error  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

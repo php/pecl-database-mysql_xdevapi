@@ -1,5 +1,5 @@
 --TEST--
-support for multiple resultsets
+mysqlx support for multiple resultsets
 --SKIPIF--
 --FILE--
 <?php

@@ -210,8 +210,9 @@ struct st_xmysqlnd_node_stmt_data
 
 	struct st_xmysqlnd_node_stmt_bind_ctx read_ctx;
 
-	zend_bool       partial_read_started;
-	MYSQLND_CSTRING	assigned_document_id;
+	zend_bool         partial_read_started;
+	MYSQLND_CSTRING	* assigned_document_ids;
+	int               num_of_assigned_doc_ids;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 

@@ -56,7 +56,7 @@ typedef struct st_xmysqlnd_node_schema * (*func_xmysqlnd_object_factory__get_nod
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);
-	
+
 typedef struct st_xmysqlnd_node_collection * (*func_xmysqlnd_object_factory__get_node_collection)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			struct st_xmysqlnd_node_schema * schema,

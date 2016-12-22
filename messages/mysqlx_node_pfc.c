@@ -155,7 +155,7 @@ mysqlx_node_pfc_free_storage(zend_object * object)
 		mysqlnd_stats_end(codec->stats, pers);
 		mnd_pefree(codec, pers);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

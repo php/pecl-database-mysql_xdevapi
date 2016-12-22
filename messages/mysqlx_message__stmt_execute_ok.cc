@@ -71,7 +71,7 @@ mysqlx_message__stmt_execute_ok_free_storage(zend_object * object)
 	struct st_mysqlx_message__stmt_execute_ok * message = (struct st_mysqlx_message__stmt_execute_ok  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

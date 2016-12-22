@@ -321,7 +321,7 @@ PHP_FUNCTION(mysql_xdevapi__getNodeSession)
 
 	DBG_ENTER("mysql_xdevapi__getNodeSession");
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "sss|l",
-										 &(hostname.s), &(hostname.l), 
+										 &(hostname.s), &(hostname.l),
 										 &(username.s), &(username.l),
 										 &(password.s), &(password.l),
 										 &port))

@@ -161,6 +161,38 @@
 
 	$number_of_expectations = 0;
 	$test_result_string = "";
+
+	/*
+		Used to get line number of specified stack frame
+	*/
+	if (!function_exists('get_stack_frame_line_num')) {
+		function get_stack_frame_line_num($depth = 1) {
+			$backtrace = debug_backtrace();
+			assert($depth <= count($backtrace));
+			$line_num = $backtrace[$depth]["line"];
+			return $line_num;
+		}
+	}
+
+	/*
+		Used to match expected pattern with actual value
+	*/
+	if( !function_exists('expect_regex')) {
+		function expect_regex($target, $pattern) {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			if (preg_match($pattern, $target)) {
+				$test_result_string .= '1';
+			} else {
+				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' does not match pattern \''.$pattern.'\''.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+	
 	/*
 		Used to compare expected values with actual values
 	*/
@@ -174,7 +206,7 @@
 			if( $target == $expectation ){
 				$test_result_string .= '1';
 			} else {
-			        print '\''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -192,6 +224,7 @@
 			if( true == $expectation ){
 				$test_result_string .= '1';
 			} else {
+				print 'Line '.get_stack_frame_line_num().': true expected'.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -209,6 +242,7 @@
 			if( false == $expectation ){
 				$test_result_string .= '1';
 			} else {
+				print 'Line '.get_stack_frame_line_num().': false expected'.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -221,6 +255,8 @@
 		function test_step_failed() {
 			global $number_of_expectations;
 			global $test_result_string;
+
+			print 'Line '.get_stack_frame_line_num().': test step failed'.PHP_EOL;
 
 			$number_of_expectations++;
 			$test_result_string .= 'F';

@@ -402,7 +402,7 @@ mysqlx_on_db_object(void * context, XMYSQLND_NODE_SCHEMA * const schema, const M
 			mysqlx_new_node_table(&zv, table, FALSE);
 			if (Z_TYPE(zv) == IS_OBJECT) {
 				add_assoc_zval_ex(ctx->list, object_name.s, object_name.l, &zv);
-			} else {			
+			} else {
 				xmysqlnd_node_table_free(table, NULL, NULL);
 				zval_dtor(&zv);
 			}
@@ -419,7 +419,7 @@ mysqlx_on_db_object(void * context, XMYSQLND_NODE_SCHEMA * const schema, const M
 			}
 		}
 	}
-	
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -561,7 +561,7 @@ mysqlx_node_schema_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -575,7 +575,7 @@ php_mysqlx_node_schema_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_node_schema_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

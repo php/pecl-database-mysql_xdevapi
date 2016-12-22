@@ -47,7 +47,7 @@ using namespace xmysqlnd;
 
 struct Tokenizer::Maps Tokenizer::map;
 
-static const char * token_names [] = 
+static const char * token_names [] =
     {
 	  "XMYSQLND",
       "NOT",

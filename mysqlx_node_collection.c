@@ -171,7 +171,7 @@ mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
 {
 	DBG_ENTER("mysqlx_node_collection_on_error");
 	const unsigned int UnknownDatabaseCode = 1049;
-	if (code == UnknownDatabaseCode) { 
+	if (code == UnknownDatabaseCode) {
 		DBG_RETURN(HND_PASS);
 	} else {
 		mysqlx_new_exception(code, sql_state, message);
@@ -284,19 +284,28 @@ PHP_METHOD(mysqlx_node_collection, add)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
-	zval * json = NULL;
+	zval * docs = NULL;
+	int    num_of_docs;
+	int    i;
 
 	DBG_ENTER("mysqlx_node_collection::add");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
-												&object_zv, mysqlx_node_collection_class_entry,
-												&json))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+												&object_zv,
+												mysqlx_node_collection_class_entry,
+												&docs,
+												&num_of_docs))
 	{
 		DBG_VOID_RETURN;
 	}
-	if (Z_TYPE_P(json) != IS_STRING && Z_TYPE_P(json) != IS_OBJECT && Z_TYPE_P(json) != IS_ARRAY) {
-		php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u", Z_TYPE_P(json));
-		DBG_VOID_RETURN;
+
+	for(i = 0 ; i < num_of_docs ; ++i ) {
+		if (Z_TYPE(docs[i]) != IS_STRING &&
+			Z_TYPE(docs[i]) != IS_OBJECT &&
+			Z_TYPE(docs[i]) != IS_ARRAY) {
+			php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u", Z_TYPE_P(docs));
+			DBG_VOID_RETURN;
+		}
 	}
 
 	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
@@ -304,7 +313,10 @@ PHP_METHOD(mysqlx_node_collection, add)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__add(return_value, object->collection, TRUE /* clone */, json);
+		mysqlx_new_node_collection__add(return_value, object->collection,
+										TRUE /* clone */,
+										docs,
+										num_of_docs);
 	}
 
 	DBG_VOID_RETURN;
@@ -470,7 +482,7 @@ mysqlx_node_collection_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -484,7 +496,7 @@ php_mysqlx_node_collection_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_node_collection_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

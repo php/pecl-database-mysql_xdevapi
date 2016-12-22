@@ -111,7 +111,7 @@ mysqlx_message__capability_free_storage(zend_object * object)
 		}
 		mnd_pefree(message, message->persistent);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

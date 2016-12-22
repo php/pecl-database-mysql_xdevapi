@@ -118,7 +118,7 @@ xmysqlnd_crud_table__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx:
 	if (index == end) {
 		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it = begin;
 		for (; it != end; ++it) {
-			mutable_args->AddAllocated(*it);		
+			mutable_args->AddAllocated(*it);
 		}
 	}
 	DBG_RETURN(index == end? PASS : FAIL);
@@ -228,7 +228,7 @@ void st_xmysqlnd_crud_table_op__insert::add_column(zval * column_zv)
 
 /* {{{ st_xmysqlnd_crud_table_op__insert::add_row */
 void st_xmysqlnd_crud_table_op__insert::add_row(zval* row_zv)
-{ 
+{
 	zval new_row_zv;
 	ZVAL_COPY_VALUE(&new_row_zv, row_zv);
 	rows_zv.push_back(new_row_zv);
@@ -293,7 +293,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud
 
 /* {{{ st_xmysqlnd_crud_table_op__insert::bind_row_field */
 void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx::Crud::Insert_TypedRow* row)
-{ 
+{
 	Mysqlx::Datatypes::Any any;
 	if (FAIL == zval2any(value_zv, any)) {
 		//TODO throw
@@ -335,7 +335,7 @@ xmysqlnd_crud_table_insert__destroy(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 
 
 /* {{{ xmysqlnd_crud_table_insert__destroy */
-extern "C" enum_func_status 
+extern "C" enum_func_status
 xmysqlnd_crud_table_insert__add_row(XMYSQLND_CRUD_TABLE_OP__INSERT * obj, zval * values_zv)
 {
 	DBG_ENTER("xmysqlnd_crud_table_insert__add_row");
@@ -347,7 +347,7 @@ xmysqlnd_crud_table_insert__add_row(XMYSQLND_CRUD_TABLE_OP__INSERT * obj, zval *
 
 
 /* {{{ xmysqlnd_crud_table_insert__finalize_bind */
-extern "C" enum_func_status 
+extern "C" enum_func_status
 xmysqlnd_crud_table_insert__finalize_bind(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_insert__finalize_bind");
@@ -360,7 +360,7 @@ xmysqlnd_crud_table_insert__finalize_bind(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 
 
 /* {{{ xmysqlnd_crud_table_insert__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell 
+extern "C" struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_insert__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
@@ -527,7 +527,7 @@ xmysqlnd_crud_table_delete__finalize_bind(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 
 
 /* {{{ xmysqlnd_crud_table_delete__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell 
+extern "C" struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_delete__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
@@ -840,7 +840,7 @@ xmysqlnd_crud_table_update__finalize_bind(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 
 
 /* {{{ xmysqlnd_crud_table_update__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell 
+extern "C" struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_update__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_UPDATE };
@@ -858,7 +858,7 @@ struct st_xmysqlnd_crud_table_op__select
 
 	st_xmysqlnd_crud_table_op__select(
 		const MYSQLND_CSTRING & schema,
-		const MYSQLND_CSTRING & object_name, 
+		const MYSQLND_CSTRING & object_name,
 		zval * columns)
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
@@ -898,7 +898,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns)
 			static const MYSQLND_CSTRING errmsg = { "Invalid value type", sizeof("Invalid value type") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 			DBG_VOID_RETURN;
-		}			
+		}
 	}
 
 	enum_func_status ret = FAIL;
@@ -929,7 +929,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns)
 				MYSQLND_CSTRING column_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 				ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);
 			}
-		} ZEND_HASH_FOREACH_END();		
+		} ZEND_HASH_FOREACH_END();
 	}
 
 	if (FAIL == ret) {
@@ -1088,7 +1088,7 @@ xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 
 		DBG_INF("PASS");
 		DBG_RETURN(PASS);
-	} 
+	}
 
 	try {
 		xmysqlnd::Expression_parser parser(source);
@@ -1115,7 +1115,7 @@ xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
 	}
-	
+
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
@@ -1175,7 +1175,7 @@ xmysqlnd_crud_table_select__finalize_bind(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 
 
 /* {{{ xmysqlnd_crud_table_select__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell 
+extern "C" struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_select__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };

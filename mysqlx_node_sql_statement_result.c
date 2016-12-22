@@ -226,7 +226,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, fetchAll)
 		DBG_VOID_RETURN;
 	}
 	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
-	
+
 	RETVAL_FALSE;
 	if (object && object->result) {
 		zval set;
@@ -310,14 +310,14 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_sql_statement_result::getLastDocumentId(object result) */
+/* {{{ proto mixed mysqlx_node_sql_statement_result::getDocumentId(object result) */
 static
-PHP_METHOD(mysqlx_node_sql_statement_result, getLastDocumentId)
+PHP_METHOD(mysqlx_node_sql_statement_result, getDocumentId)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
 
-	DBG_ENTER("mysqlx_node_sql_statement_result::getLastDocumentId");
+	DBG_ENTER("mysqlx_node_sql_statement_result::getDocumentId");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_sql_statement_result_class_entry))
 	{
@@ -330,8 +330,8 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getLastDocumentId)
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (exec_state) {
-			MYSQLND_CSTRING value = exec_state->m->get_last_document_id(exec_state);
-			ZVAL_STRINGL(return_value, value.s, value.l);
+			MYSQLND_CSTRING * value = exec_state->m->get_last_document_id(exec_state);
+			ZVAL_STRINGL(return_value, value[0].s, value[0].l);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -575,7 +575,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, nextResult)
 
 	RETVAL_FALSE;
 	if (object->result && object->has_more_results) {
-		if (mysqlx_node_sql_statement_read_next_result(object)) { 
+		if (mysqlx_node_sql_statement_read_next_result(object)) {
 			RETVAL_TRUE;
 		}
 	}
@@ -592,7 +592,7 @@ static const zend_function_entry mysqlx_node_sql_statement_result_methods[] = {
 
 	PHP_ME(mysqlx_node_sql_statement_result, getAffectedItemsCount,	arginfo_mysqlx_node_sql_statement_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getLastInsertId, 		arginfo_mysqlx_node_sql_statement_result__get_last_insert_id,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_sql_statement_result, getLastDocumentId, 	arginfo_mysqlx_node_sql_statement_result__get_last_document_id,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement_result, getDocumentId, 	arginfo_mysqlx_node_sql_statement_result__get_last_document_id,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarningCount,		arginfo_mysqlx_node_sql_statement_result__get_warning_count,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarnings,			arginfo_mysqlx_node_sql_statement_result__get_warnings, 			ZEND_ACC_PUBLIC)
 
@@ -630,7 +630,7 @@ mysqlx_node_sql_statement_result_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -644,7 +644,7 @@ php_mysqlx_node_sql_statement_result_object_allocator(zend_class_entry * class_t
 
 	DBG_ENTER("php_mysqlx_node_sql_statement_result_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

@@ -717,7 +717,7 @@ mysqlx_node_sql_statement_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -731,7 +731,7 @@ php_mysqlx_node_sql_statement_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_node_sql_statement_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 
@@ -879,8 +879,9 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 
 				if (result) {
 					if( result->exec_state && stmt->data ) {
-						result->exec_state->last_document_id = stmt->data->assigned_document_id;
-						stmt->data->assigned_document_id.s = NULL;
+						result->exec_state->last_document_ids = stmt->data->assigned_document_ids;
+						result->exec_state->num_of_doc_ids = stmt->data->num_of_assigned_doc_ids;
+						stmt->data->assigned_document_ids = NULL;
 					}
 					switch(result_type)
 					{

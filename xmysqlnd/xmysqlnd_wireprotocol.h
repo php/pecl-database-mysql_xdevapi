@@ -390,9 +390,7 @@ struct st_xmysqlnd_result_ctx
 struct st_xmysqlnd_msg__collection_add
 {
 	enum_func_status(*send_request)(struct st_xmysqlnd_msg__collection_add * msg,
-		const MYSQLND_CSTRING schema,
-		const MYSQLND_CSTRING collection,
-		const MYSQLND_CSTRING document);
+						const struct st_xmysqlnd_pb_message_shell pb_message_shell);
 
 	enum_func_status(*read_response)(struct st_xmysqlnd_msg__collection_add * msg);
 

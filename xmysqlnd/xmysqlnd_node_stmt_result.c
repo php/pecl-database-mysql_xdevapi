@@ -234,7 +234,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_rowset)(XMYSQLND_NODE_STMT_RES
 	DBG_ENTER("xmysqlnd_node_stmt_result::attach_rowset");
 	DBG_INF_FMT("current_rowset=%p   rowset=%p", result->rowset, rowset);
 	if (result->rowset && result->rowset != rowset) {
-		xmysqlnd_rowset_free(result->rowset, stats, error_info);		
+		xmysqlnd_rowset_free(result->rowset, stats, error_info);
 	}
 	if (rowset) {
 		DBG_INF_FMT("rows=%u", (uint) rowset->m.get_row_count(rowset));

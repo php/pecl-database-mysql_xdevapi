@@ -168,8 +168,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, rewind)(XMYSQLND_ROWSET_FWD * const result)
 	if (result->total_fetched == 0 && result->row_cursor == 0) {
 		DBG_RETURN(PASS);
 	} else {
-		php_error_docref(NULL, E_WARNING, "rewind() not possible with a forward only result set. Use a buffered result instead"); 		
-		DBG_RETURN(FAIL);	
+		php_error_docref(NULL, E_WARNING, "rewind() not possible with a forward only result set. Use a buffered result instead");
+		DBG_RETURN(FAIL);
 	}
 }
 /* }}} */

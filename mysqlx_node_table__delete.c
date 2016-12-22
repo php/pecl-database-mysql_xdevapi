@@ -377,7 +377,7 @@ PHP_METHOD(mysqlx_node_table__delete, execute)
 				ZVAL_UNDEF(&stmt_zv);
 				mysqlx_new_node_stmt(&stmt_zv, stmt);
 				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+					xmysqlnd_node_stmt_free(stmt, NULL, NULL);
 				}
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;
@@ -462,7 +462,7 @@ mysqlx_node_table__delete_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -476,7 +476,7 @@ php_mysqlx_node_table__delete_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_node_table__delete_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

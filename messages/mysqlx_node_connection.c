@@ -88,7 +88,7 @@ PHP_METHOD(mysqlx_node_connection, connect)
 	DBG_ENTER("mysqlx_node_connection::connect");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os|l",
 												&connection_zv, mysqlx_node_connection_class_entry,
-												&(hostname.s), &(hostname.l), 
+												&(hostname.s), &(hostname.l),
 												&port))
 	{
 		DBG_VOID_RETURN;
@@ -235,7 +235,7 @@ mysqlx_node_connection_free_storage(zend_object * object)
 		mysqlnd_stats_end(connection->stats, pers);
 		mnd_pefree(connection, pers);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

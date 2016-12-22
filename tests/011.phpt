@@ -3,8 +3,8 @@ mysqlx warnings
 --SKIPIF--
 --FILE--
 <?php
-        /*
-	        This functionality is not working.
+	/*
+		This functionality is not working.
 		Test not completed.
 	*/
 	require("connect.inc");
@@ -19,11 +19,11 @@ mysqlx warnings
 	$table->insert(['x'])->values([1])->values([2])->values([3])->execute();
 	$res = $table->select(['x/0 as bad_x'])->execute();
 
-        expect_eq($res->getWarningCount(), 3);
+	expect_eq($res->getWarningCount(), 3);
 
-        $warn = $res->getWarnings();
+	$warn = $res->getWarnings();
 
-        verify_expectations();
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--

@@ -79,12 +79,11 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_insert_id)(const XMYSQLN
 
 
 /* {{{ xmysqlnd_stmt_execution_state::get_last_document_id */
-static MYSQLND_CSTRING 
+static MYSQLND_CSTRING *
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_document_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_last_document_id");
-
-	DBG_RETURN(state->last_document_id);
+	DBG_RETURN(state->last_document_ids);
 }
 /* }}} */
 
@@ -137,27 +136,19 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::set_last_document_id */
-static void
-XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_document_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const MYSQLND_CSTRING value)
-{
-	DBG_ENTER("xmysqlnd_stmt_execution_state::set_last_document_id");
-	DBG_INF_FMT("value="MYSQLND_LLU_SPEC, value);
-	state->last_document_id = value;
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_stmt_execution_state::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
+	int i;
 	DBG_ENTER("xmysqlnd_stmt_execution_state::free_contents");
-	if(state && state->last_document_id.s != NULL) {
-		mnd_efree(state->last_document_id.s);
-		state->last_document_id.s = NULL;
-		state->last_document_id.l = 0;
+	if(state && state->last_document_ids != NULL) {
+		for(i = 0 ; i < state->num_of_doc_ids; ++i ) {
+			mnd_efree(state->last_document_ids[i].s);
+			state->last_document_ids[i].s = NULL;
+			state->last_document_ids[i].l = 0;
+		}
+		mnd_efree(state->last_document_ids);
 	}
 	DBG_VOID_RETURN;
 }
@@ -190,7 +181,6 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt_execution_state)
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id),
-	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_document_id),
 
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor),
@@ -208,7 +198,7 @@ xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 {
 	XMYSQLND_STMT_EXECUTION_STATE * result = NULL;
 	DBG_ENTER("xmysqlnd_stmt_execution_state_create");
-	result = object_factory->get_stmt_execution_state(object_factory, persistent, stats, error_info);	
+	result = object_factory->get_stmt_execution_state(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
 /* }}} */

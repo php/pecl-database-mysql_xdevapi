@@ -85,19 +85,32 @@ PHP_OPENSSL=yes ./configure
 make 
 sudo make install
 
-2) Google Protocol Buffers on Windows
+2) Build on Windows
+You may want to prepare environment and build PHP Connector according to
+http://wiki.php.net/internals/windows/stepbystepbuild
+
+3) Boost on Windows
+Only headers are needed, no boost binaries required. Copy directory boost_1_xx_y\boost (e.g. boost_1_62_0\boost) into <SRC_ROOT>\phpdev\<VC_VER>\<PLATFORM>\deps\include (e.g. c:\phpdev\vc14\x86\deps\include).
+See section "Build on Windows" for more details how to prepare dependencies.
+
+4) Google Protocol Buffers on Windows
 On Windows for static build google protobuf is used by mysql_xdevapi as static library with Multi-Threaded DLL runtime. To get such build on your own use following options:
 -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF 
+
+After 'make install' step, copy 'install' directory into <SRC_ROOT>\phpdev\<VC_VER>\<PLATFORM>\deps (e.g. c:\phpdev\vc14\x86\deps).
+See section "Build on Windows" for more details how to prepare dependencies.
+
 
 Supported X DevAPI features
 ---------------------------
 - collections API - add, find, modify, remove
 - table API - insert, select, update, delete
-- resultsets
-- getCollection(s) / getTable(s)
+- collection / table - getName, existsInDatabase, count
+- resultsets / multi-resultsets 
+- getCollection(s) / getTable(s) / getCollectionAsTable
 - dropCollection / dropTable
 
-For a simple example see example.php
+For a simple example see examples.php
 
 License
 -------

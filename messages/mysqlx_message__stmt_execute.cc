@@ -90,7 +90,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 												&object_zv, mysqlx_message__stmt_execute_class_entry,
 												&namespace_, &namespace_len,
 												&stmt, &stmt_len,
-												&compact_metadata, 
+												&compact_metadata,
 												&codec_zv, mysqlx_node_pfc_class_entry,
 												&connection_zv, mysqlx_node_connection_class_entry))
 	{
@@ -169,7 +169,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 	if (FAIL == ret) {
 		mysqlx_new_message__error(return_value, connection->error_info->error, connection->error_info->sqlstate, connection->error_info->error_no);
 	}
-	
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -195,7 +195,7 @@ mysqlx_message__stmt_execute_free_storage(zend_object * object)
 	struct st_mysqlx_message__stmt_execute * message = (struct st_mysqlx_message__stmt_execute  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

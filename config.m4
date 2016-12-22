@@ -161,6 +161,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_node_row_result_iterator.c \
 		mysqlx_node_sql_statement_result.c \
 		mysqlx_node_sql_statement_result_iterator.c \
+		mysqlx_node_column_result.c \
 		mysqlx_x_session.c \
 		mysqlx_object.c \
 		mysqlx_session.c \
@@ -197,8 +198,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_BUILD_DIR($ext_builddir/messages)
 	PHP_ADD_BUILD_DIR($ext_builddir/proto_gen)
 
-	this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_base_sources $mysqlx_messages"
-	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
+	this_ext_sources="$xmysqlnd_protobuf_sources $mysqlx_base_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_messages"
+	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1, true)
 	PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
