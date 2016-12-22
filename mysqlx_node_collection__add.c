@@ -293,7 +293,7 @@ extract_document_id(const MYSQLND_STRING json,
 		}
 	}
 	if( res.s == NULL ) {
-		RAISE_EXCEPTION(1001, "Error serializing document to JSON");
+		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
 	}
 	MYSQLND_CSTRING ret = {
 		res.s,
@@ -350,10 +350,16 @@ assign_doc_id_to_json(XMYSQLND_NODE_SESSION * session,
 
 /* }}} */
 
+enum add_op_status
+{
+	ADD_SUCCESS,
+	ADD_FAIL,
+	ADD_NOOP
+};
 
 struct doc_add_op_return_status
 {
-	enum_func_status return_status;
+	enum add_op_status return_status;
 	MYSQLND_CSTRING  doc_id;
 };
 
@@ -363,12 +369,14 @@ node_collection_add_string(struct st_mysqlx_node_collection__add * const object,
 				zval* doc,
 				zval* return_value) {
 	struct doc_add_op_return_status ret = {
-		FAIL,
+		ADD_FAIL,
 		assign_doc_id_to_json(
 				object->collection->data->schema->data->session,
 				doc)
 	};
-	ret.return_status =  xmysqlnd_crud_collection_add__add_doc(object->crud_op,doc);
+	if( SUCCESS == xmysqlnd_crud_collection_add__add_doc(object->crud_op,doc) ) {
+		ret.return_status = ADD_SUCCESS;
+	}
 	return ret;
 }
 /* }}} */
@@ -400,12 +408,14 @@ node_collection_add_object_impl(struct st_mysqlx_node_collection__add * const ob
 	ZVAL_UNDEF(&new_doc);
 	ZVAL_STRINGL(&new_doc, buf.s->val, buf.s->len);
 	struct doc_add_op_return_status ret = {
-		FAIL,
+		ADD_FAIL,
 		assign_doc_id_to_json(
 				object->collection->data->schema->data->session,
 				&new_doc)
 	};
-	ret.return_status = xmysqlnd_crud_collection_add__add_doc(object->crud_op, &new_doc);
+	if( SUCCESS == xmysqlnd_crud_collection_add__add_doc(object->crud_op, &new_doc) ) {
+		ret.return_status = ADD_SUCCESS;
+	}
 	smart_str_free(&buf);
 	zval_dtor(&new_doc);
 	return ret;
@@ -429,8 +439,14 @@ static struct doc_add_op_return_status
 node_collection_add_array(struct st_mysqlx_node_collection__add * const object,
 				zval* doc,
 				zval* return_value) {
-	return node_collection_add_object_impl(object,
+	struct doc_add_op_return_status ret = { ADD_FAIL, NULL };
+	if( zend_hash_num_elements(Z_ARRVAL_P(doc)) == 0 ) {
+		ret.return_status = ADD_NOOP;
+	} else {
+		ret = node_collection_add_object_impl(object,
 								doc,return_value);
+	}
+	return ret;
 }
 /* }}} */
 
@@ -442,7 +458,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 	enum_func_status execute_ret_status = SUCCESS;
 	struct st_mysqlx_node_collection__add * object;
 	zval * object_zv;
-	int i;
+	int i = 0, noop_cnt = 0,cur_doc_id_idx = 0;
 
 	DBG_ENTER("mysqlx_node_collection__add::execute");
 
@@ -463,11 +479,11 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 
 	MYSQLND_CSTRING * doc_ids = mnd_ecalloc( object->num_of_docs, sizeof(MYSQLND_CSTRING) );
 	if( doc_ids == NULL ) {
-		execute_ret_status = FAIL;
+		execute_ret_status = FAILURE;
 	} else {
-		struct doc_add_op_return_status ret = { SUCCESS , NULL };
-		for(i = 0 ; i < object->num_of_docs && ret.return_status == SUCCESS; ++i ) {
-			ret.return_status = FAIL;
+		struct doc_add_op_return_status ret = { ADD_SUCCESS , NULL };
+		for(i = 0 ; i < object->num_of_docs && ret.return_status != ADD_FAIL ; ++i ) {
+			ret.return_status = ADD_FAIL;
 			switch(Z_TYPE(object->docs[i])) {
 			case IS_STRING:
 				ret = node_collection_add_string(object,
@@ -482,16 +498,22 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 								&object->docs[i],return_value);
 				break;
 			}
-			doc_ids[i] = ret.doc_id;
+			if( ret.return_status == ADD_NOOP ) {
+				++noop_cnt;
+			} else {
+				doc_ids[ cur_doc_id_idx++ ] = ret.doc_id;
+			}
 		}
 	}
 
-	if( execute_ret_status != FAIL ) {
+	if( execute_ret_status != FAIL && object->num_of_docs > noop_cnt ) {
 		XMYSQLND_NODE_STMT * stmt = object->collection->data->m.add(object->collection,
-													object->crud_op);
+											object->crud_op);
 		stmt->data->assigned_document_ids = doc_ids;
-		stmt->data->num_of_assigned_doc_ids = object->num_of_docs;
+		stmt->data->num_of_assigned_doc_ids = cur_doc_id_idx;
 		execute_ret_status =  execute_statement(stmt,return_value);
+	} else {
+		mnd_efree( doc_ids );
 	}
 
 	if (FAIL == execute_ret_status && !EG(exception)) {

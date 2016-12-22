@@ -66,6 +66,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"mysqlx_node_sql_statement.c " +
 			"mysqlx_node_sql_statement_result.c " +
 			"mysqlx_node_sql_statement_result_iterator.c " +
+			"mysqlx_node_column_result.c " +
 			"mysqlx_x_session.c " +
 			"mysqlx_object.c " +
 			"mysqlx_session.c " +
