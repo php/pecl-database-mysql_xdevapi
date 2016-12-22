@@ -284,7 +284,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, free_rows_contents)(XMYSQLND_ROWSET * const res
 	if (result->fwd) {
 		result->fwd->m.free_rows_contents(result->fwd, stats, error_info);
 	} else if (result->buffered) {
-		result->buffered->m.free_rows_contents(result->buffered, stats, error_info);	
+		result->buffered->m.free_rows_contents(result->buffered, stats, error_info);
 	}
 	DBG_VOID_RETURN;
 }

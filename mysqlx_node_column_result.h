@@ -12,32 +12,21 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>							 |
+  | Authors: Filip Janiszewski <fjanisze@php.net>                        |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_UTILS_H
-#define XMYSQLND_UTILS_H
+#ifndef MYSQLX_NODE_COLUMN_RESULT_H
+#define MYSQLX_NODE_COLUMN_RESULT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+struct st_xmysqlnd_result_field_meta;
 
-int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs);
+struct st_mysqlx_node_column_result
+{
+	struct st_xmysqlnd_result_field_meta * meta;
+};
 
-void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
-void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
+void mysqlx_new_column_result(zval * return_value, struct st_xmysqlnd_result_field_meta * meta);
+void mysqlx_register_node_column_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_node_column_result_class(SHUTDOWN_FUNC_ARGS);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
-
-#endif /* XMYSQLND_UTILS_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+#endif /* MYSQLX_NODE_COLUMN_RESULT_H */

@@ -181,7 +181,7 @@ PHP_METHOD(mysqlx_node_collection__modify, sort)
 				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 				static const MYSQLND_CSTRING errmsg = { "Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1 };
 				mysqlx_new_exception(errcode, sqlstate, errmsg);
-			}			
+			}
 		}
 	}
 end:
@@ -211,7 +211,7 @@ PHP_METHOD(mysqlx_node_collection__modify, limit)
 		static const unsigned int errcode = 10006;
 		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);	
+		mysqlx_new_exception(errcode, sqlstate, errmsg);
 		DBG_VOID_RETURN;
 	}
 
@@ -251,7 +251,7 @@ PHP_METHOD(mysqlx_node_collection__modify, skip)
 		static const unsigned int errcode = 10006;
 		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);	
+		mysqlx_new_exception(errcode, sqlstate, errmsg);
 		DBG_VOID_RETURN;
 	}
 
@@ -368,8 +368,8 @@ mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const e
 			static const MYSQLND_CSTRING errmsg = { "Invalid value type", sizeof("Invalid value type") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 			DBG_VOID_RETURN;
-		}			
-	
+		}
+
 	}
 	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
 
@@ -394,7 +394,7 @@ mysqlx_node_collection__modify__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const e
 				ret = xmysqlnd_crud_collection_modify__array_append(object->crud_op, collection_field, value);
 				break;
 		}
-		
+
 		if (PASS == ret) {
 			ZVAL_COPY(return_value, object_zv);
 		}
@@ -435,7 +435,7 @@ PHP_METHOD(mysqlx_node_collection__modify, merge)
 	MYSQLND_CSTRING documentContents;
 
 	DBG_ENTER("mysqlx_node_collection__modify::merge");
-	
+
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, mysqlx_node_collection__modify_class_entry,
@@ -607,7 +607,7 @@ PHP_METHOD(mysqlx_node_collection__modify, execute)
 				ZVAL_UNDEF(&stmt_zv);
 				mysqlx_new_node_stmt(&stmt_zv, stmt);
 				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+					xmysqlnd_node_stmt_free(stmt, NULL, NULL);
 				}
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;
@@ -678,7 +678,7 @@ mysqlx_node_collection__modify_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -692,7 +692,7 @@ php_mysqlx_node_collection__modify_object_allocator(zend_class_entry * class_typ
 
 	DBG_ENTER("php_mysqlx_node_collection__modify_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

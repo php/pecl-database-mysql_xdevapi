@@ -70,7 +70,7 @@ Mysqlx::Datatypes::Scalar* Expr_builder::build_int_scalar(google::protobuf::int6
     sc->set_type(Mysqlx::Datatypes::Scalar::V_SINT);
     sc->set_v_signed_int(i);
   }
-  else 
+  else
   {
     sc->set_type(Mysqlx::Datatypes::Scalar::V_UINT);
     sc->set_v_unsigned_int((google::protobuf::uint64)i);
@@ -298,7 +298,7 @@ const std::string& Expression_parser::id()
  */
 Mysqlx::Expr::Expr* Expression_parser::column_field()
 {
-  std::unique_ptr<Mysqlx::Expr::Expr> e(new Mysqlx::Expr::Expr());  
+  std::unique_ptr<Mysqlx::Expr::Expr> e(new Mysqlx::Expr::Expr());
   std::vector<std::string> parts;
   const std::string& part = id();
 

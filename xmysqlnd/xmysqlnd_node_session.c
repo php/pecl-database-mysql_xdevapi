@@ -224,7 +224,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 		}
 
 		{
-			//TODO marines 
+			//TODO marines
             //char answer[ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1];
             char* answer = malloc((ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1) * sizeof(char));
             char *p = answer;
@@ -245,7 +245,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 			memcpy(output->s, answer, output->l);
 
 			xmysqlnd_dump_string_to_log("output", output->s, output->l);
-			//TODO marines 
+			//TODO marines
 			free(answer);
 		}
 	}
@@ -335,7 +335,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_
 
 	struct st_xmysqlnd_msg__capabilities_get caps_get;
 	DBG_ENTER("xmysqlnd_node_session_data::authenticate");
-	
+
 	caps_get = msg_factory.get__capabilities_get(&msg_factory);
 
 	if (PASS == caps_get.send_request(&caps_get)) {
@@ -864,7 +864,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DA
 			DBG_INF("Connection clean, sending CON_CLOSE");
 			conn_close_msg.send_request(&conn_close_msg);
 			conn_close_msg.read_response(&conn_close_msg);
-			
+
 			if (net_stream) {
 				/* HANDLE COM_QUIT here */
 				vio->data->m.close_stream(vio, session->stats, session->error_info);
@@ -1225,7 +1225,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 
 	if (quoted_db.s && quoted_db.l) {
 		const size_t query_len = operation.l + quoted_db.l;
-		//TODO marines 
+		//TODO marines
         //char query[query_len + 1];
         char* query = malloc((query_len + 1) * sizeof(char));
         memcpy(query, operation.s, operation.l);
@@ -1235,7 +1235,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 		mnd_efree(quoted_db.s);
 
 		ret = session_handle->m->query(session_handle, namespace_sql, select_query, noop__var_binder);
-		//TODO marines 
+		//TODO marines
         free(query);
 	}
 	DBG_RETURN(ret);
@@ -1781,7 +1781,7 @@ bind:
 /* {{{ xmysqlnd_collection_op */
 static const enum_func_status
 xmysqlnd_collection_op(
-	XMYSQLND_NODE_SESSION * const session, 
+	XMYSQLND_NODE_SESSION * const session,
 	const MYSQLND_CSTRING schema_name,
 	const MYSQLND_CSTRING collection_name,
 	const MYSQLND_CSTRING query,
@@ -1820,7 +1820,7 @@ xmysqlnd_collection_op(
 /* {{{ xmysqlnd_node_session::drop_collection */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, drop_collection)(
-	XMYSQLND_NODE_SESSION * const session, 
+	XMYSQLND_NODE_SESSION * const session,
 	const MYSQLND_CSTRING schema_name,
 	const MYSQLND_CSTRING collection_name,
 	const struct st_xmysqlnd_node_session_on_error_bind handler_on_error)
@@ -1839,7 +1839,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, drop_collection)(
 /* {{{ xmysqlnd_node_session::drop_table */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, drop_table)(
-	XMYSQLND_NODE_SESSION * const session, 
+	XMYSQLND_NODE_SESSION * const session,
 	const MYSQLND_CSTRING schema_name,
 	const MYSQLND_CSTRING table_name,
 	const struct st_xmysqlnd_node_session_on_error_bind handler_on_error)

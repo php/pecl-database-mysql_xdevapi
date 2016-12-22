@@ -21,7 +21,7 @@
 /* This typically should be static, but we have coupling */
 extern
 #ifdef __cplusplus
-"C" 
+"C"
 #endif
 zend_class_entry *mysqlx_node_connection_class_entry;
 

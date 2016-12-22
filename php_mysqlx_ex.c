@@ -49,6 +49,7 @@
 #include "mysqlx_node_result.h"
 #include "mysqlx_node_row_result.h"
 #include "mysqlx_node_sql_statement_result.h"
+#include "mysqlx_node_column_result.h"
 #include "mysqlx_node_table.h"
 #include "mysqlx_node_table__delete.h"
 #include "mysqlx_node_table__insert.h"
@@ -140,6 +141,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_node_result_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_row_result_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_node_column_result_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_table_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_table__delete_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -219,6 +221,7 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_node_base_result_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_statement_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_node_column_result_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

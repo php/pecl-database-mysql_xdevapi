@@ -226,7 +226,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, fetchAll)
 		DBG_VOID_RETURN;
 	}
 	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
-	
+
 	RETVAL_FALSE;
 	if (object && object->result) {
 		zval set;
@@ -575,7 +575,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, nextResult)
 
 	RETVAL_FALSE;
 	if (object->result && object->has_more_results) {
-		if (mysqlx_node_sql_statement_read_next_result(object)) { 
+		if (mysqlx_node_sql_statement_read_next_result(object)) {
 			RETVAL_TRUE;
 		}
 	}
@@ -630,7 +630,7 @@ mysqlx_node_sql_statement_result_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -644,7 +644,7 @@ php_mysqlx_node_sql_statement_result_object_allocator(zend_class_entry * class_t
 
 	DBG_ENTER("php_mysqlx_node_sql_statement_result_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

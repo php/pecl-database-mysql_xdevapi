@@ -202,7 +202,7 @@ mysqlx_message__capabilities_set_free_storage(zend_object * object)
 	struct st_mysqlx_message__capabilities_set * message = (struct st_mysqlx_message__capabilities_set  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

@@ -68,8 +68,8 @@ struct st_schema_exists_in_database_var_binder_ctx
 /* {{{ schema_xplugin_op_var_binder */
 static const enum_hnd_func_status
 schema_xplugin_op_var_binder(
-	void * context, 
-	XMYSQLND_NODE_SESSION * session, 
+	void * context,
+	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
@@ -95,7 +95,7 @@ schema_xplugin_op_var_binder(
 			}
 			break;
 		}
-		default: 
+		default:
 			assert(!"should not happen");
 			break;
 	}
@@ -128,11 +128,11 @@ schema_sql_op_on_row(
 	if (ctx && row) {
 		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 
-		if (equal_mysqlnd_cstr(&object_name, &ctx->expected_schema_name)) 
+		if (equal_mysqlnd_cstr(&object_name, &ctx->expected_schema_name))
 		{
 			ZVAL_TRUE(ctx->exists);
-		} 
-		else 
+		}
+		else
 		{
 			ZVAL_FALSE(ctx->exists);
 		}
@@ -146,7 +146,7 @@ schema_sql_op_on_row(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 	XMYSQLND_NODE_SCHEMA * const schema,
-	struct st_xmysqlnd_node_session_on_error_bind on_error, 
+	struct st_xmysqlnd_node_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_node_schema::exists_in_database");
@@ -162,7 +162,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 	};
 	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { schema_xplugin_op_var_binder, &var_binder_ctx };
 
-	struct st_schema_exists_in_database_ctx on_row_ctx = { 
+	struct st_schema_exists_in_database_ctx on_row_ctx = {
 		mnd_str2c(schema->data->schema_name),
 		exists
 	};
@@ -387,7 +387,7 @@ get_db_objects_on_row(void * context,
 		if (ctx->object_filter_type.s && ctx->object_filter_type.l) {
 			/* min */
 			const size_t cmp_len = (ctx->object_filter_type.l > object_type.l) ? object_type.l : ctx->object_filter_type.l;
-			
+
 			if (memcmp(ctx->object_filter_type.s, object_type.s, cmp_len)) {
 				match = FALSE;
 			}

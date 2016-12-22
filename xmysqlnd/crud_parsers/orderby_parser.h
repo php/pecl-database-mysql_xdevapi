@@ -38,7 +38,7 @@ namespace xmysqlnd
     {
       Mysqlx::Crud::Order *colid = result.Add();
       column_identifier(*colid);
-      
+
       if (_tokenizer.tokens_available())
       {
         const xmysqlnd::Token& tok = _tokenizer.peek_token();
@@ -48,7 +48,7 @@ namespace xmysqlnd
     }
 
     //const std::string& id();
-    void column_identifier(Mysqlx::Crud::Order &orderby_expr);    
+    void column_identifier(Mysqlx::Crud::Order &orderby_expr);
 
     std::vector<Token>::const_iterator begin() const { return _tokenizer.begin(); }
     std::vector<Token>::const_iterator end() const { return _tokenizer.end(); }

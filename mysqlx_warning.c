@@ -143,7 +143,7 @@ mysqlx_warning_free_storage(zend_object * object)
 		}
 		mnd_pefree(message, message->persistent);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -173,7 +173,7 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 
 err:
 	if (message) {
-		mnd_pefree(message, persistent);	
+		mnd_pefree(message, persistent);
 	}
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);

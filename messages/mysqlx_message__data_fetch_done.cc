@@ -71,7 +71,7 @@ mysqlx_message__data_fetch_done_free_storage(zend_object * object)
 	struct st_mysqlx_message__data_fetch_done * message = (struct st_mysqlx_message__data_fetch_done  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

@@ -95,7 +95,7 @@ PHP_METHOD(mysqlx_data_row, decode)
 			php_error_docref(NULL, E_WARNING, "Zero columns");
 			DBG_VOID_RETURN;
 		}
-		//TODO marines 
+		//TODO marines
         const size_t max_column_count = 256;
         assert(column_count < max_column_count);
         //const struct st_mysqlx_column_metadata * meta_ar[column_count];
@@ -371,7 +371,7 @@ PHP_METHOD(mysqlx_data_row, decode)
 					for (unsigned int pos = 0; pos < digits; ++pos) {
 						const size_t offset = 1 + (pos >> 1);
 						/* if uneven (&0x01) then use the second 4-bits, otherwise shift (>>) the first 4 to the right and then use them */
-						const uint8_t digit = (pos & 0x01 ? buf[offset] : buf[offset] >> 4) & 0x0F; 
+						const uint8_t digit = (pos & 0x01 ? buf[offset] : buf[offset] >> 4) & 0x0F;
 						*(p++) = '0' + digit;
 						if (pos == dot_position) {
 							*(p++) = '.';
@@ -422,7 +422,7 @@ mysqlx_data_row_free_storage(zend_object * object)
 	struct st_mysqlx_data_row * message = (struct st_mysqlx_data_row  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

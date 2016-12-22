@@ -171,7 +171,7 @@ mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, stru
 {
 	DBG_ENTER("mysqlx_node_table_on_error");
 	const unsigned int UnknownDatabaseCode = 1049;
-	if (code == UnknownDatabaseCode) { 
+	if (code == UnknownDatabaseCode) {
 		DBG_RETURN(HND_PASS);
 	} else {
 		mysqlx_new_exception(code, sql_state, message);
@@ -471,7 +471,7 @@ mysqlx_node_table_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -485,7 +485,7 @@ php_mysqlx_node_table_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_node_table_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 

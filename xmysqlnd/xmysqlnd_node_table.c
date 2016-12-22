@@ -63,8 +63,8 @@ struct st_table_exists_in_database_var_binder_ctx
 /* {{{ table_op_var_binder */
 static const enum_hnd_func_status
 table_op_var_binder(
-	void * context, 
-	XMYSQLND_NODE_SESSION * session, 
+	void * context,
+	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
@@ -95,7 +95,7 @@ bind:
 			}
 			break;
 		}
-		default: 
+		default:
 			assert(!"should not happen");
 			break;
 	}
@@ -131,11 +131,11 @@ table_xplugin_op_on_row(
 		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
 
 		if (equal_mysqlnd_cstr(&object_name, &ctx->expected_table_name)
-			&& equal_mysqlnd_cstr(&object_type, &ctx->expected_object_type)) 
+			&& equal_mysqlnd_cstr(&object_type, &ctx->expected_object_type))
 		{
 			ZVAL_TRUE(ctx->exists);
-		} 
-		else 
+		}
+		else
 		{
 			ZVAL_FALSE(ctx->exists);
 		}
@@ -149,7 +149,7 @@ table_xplugin_op_on_row(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 	XMYSQLND_NODE_TABLE * const table,
-	struct st_xmysqlnd_node_session_on_error_bind on_error, 
+	struct st_xmysqlnd_node_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_node_table::exists_in_database");
@@ -167,7 +167,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 	};
 	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
 
-	struct st_table_exists_in_database_ctx on_row_ctx = { 
+	struct st_table_exists_in_database_ctx on_row_ctx = {
 		mnd_str2c(table->data->table_name),
 		xmysqlnd_object_type_filter__table,
 		exists
@@ -222,7 +222,7 @@ table_sql_single_result_op_on_row(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 	XMYSQLND_NODE_TABLE * const table,
-	struct st_xmysqlnd_node_session_on_error_bind on_error, 
+	struct st_xmysqlnd_node_session_on_error_bind on_error,
 	zval* counter)
 {
 	DBG_ENTER("xmysqlnd_node_table::count");
@@ -247,7 +247,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 	};
 	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
 
-	struct st_table_sql_single_result_ctx on_row_ctx = { 
+	struct st_table_sql_single_result_ctx on_row_ctx = {
 		counter
 	};
 
@@ -353,7 +353,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 
 
 /* {{{ xmysqlnd_node_table::insert */
-static XMYSQLND_NODE_STMT * 
+static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 {
 	XMYSQLND_NODE_STMT * ret = NULL;
@@ -385,7 +385,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, 
 
 
 /* {{{ xmysqlnd_node_table::opdelete */
-static XMYSQLND_NODE_STMT * 
+static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 {
 	XMYSQLND_NODE_STMT * ret = NULL;
@@ -416,7 +416,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table
 
 
 /* {{{ xmysqlnd_node_table::update */
-static XMYSQLND_NODE_STMT * 
+static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 {
 	XMYSQLND_NODE_STMT * ret = NULL;

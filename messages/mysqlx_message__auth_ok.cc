@@ -104,7 +104,7 @@ mysqlx_message__auth_ok_free_storage(zend_object * object)
 	struct st_mysqlx_message__auth_ok * message = (struct st_mysqlx_message__auth_ok  *) mysqlx_object->ptr;
 
 	delete message;
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 

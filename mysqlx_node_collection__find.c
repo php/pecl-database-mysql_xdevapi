@@ -135,7 +135,7 @@ PHP_METHOD(mysqlx_node_collection__find, fields)
 			static const MYSQLND_CSTRING errmsg = { "Invalid value type", sizeof("Invalid value type") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 			DBG_VOID_RETURN;
-		}			
+		}
 	}
 	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
 
@@ -169,7 +169,7 @@ PHP_METHOD(mysqlx_node_collection__find, fields)
 					MYSQLND_CSTRING field_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					ret = xmysqlnd_crud_collection_find__set_fields(object->crud_op, field_str, FALSE, TRUE);
 				}
-			} ZEND_HASH_FOREACH_END();		
+			} ZEND_HASH_FOREACH_END();
 		}
 		if (FAIL == ret) {
 			static const unsigned int errcode = 10004;
@@ -260,7 +260,7 @@ mysqlx_node_collection__find__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS,
 				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 				static const MYSQLND_CSTRING errmsg = { "Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1 };
 				mysqlx_new_exception(errcode, sqlstate, errmsg);
-			}			
+			}
 		}
 	}
 end:
@@ -344,7 +344,7 @@ PHP_METHOD(mysqlx_node_collection__find, limit)
 		static const unsigned int errcode = 10006;
 		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);	
+		mysqlx_new_exception(errcode, sqlstate, errmsg);
 		DBG_VOID_RETURN;
 	}
 
@@ -384,7 +384,7 @@ PHP_METHOD(mysqlx_node_collection__find, skip)
 		static const unsigned int errcode = 10006;
 		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);	
+		mysqlx_new_exception(errcode, sqlstate, errmsg);
 		DBG_VOID_RETURN;
 	}
 
@@ -482,7 +482,7 @@ PHP_METHOD(mysqlx_node_collection__find, execute)
 					ZVAL_UNDEF(&stmt_zv);
 					mysqlx_new_node_stmt(&stmt_zv, stmt);
 					if (Z_TYPE(stmt_zv) == IS_NULL) {
-						xmysqlnd_node_stmt_free(stmt, NULL, NULL);		
+						xmysqlnd_node_stmt_free(stmt, NULL, NULL);
 					}
 					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 						zval zv;
@@ -546,7 +546,7 @@ mysqlx_node_collection__find_free_storage(zend_object * object)
 		}
 		mnd_efree(inner_obj);
 	}
-	mysqlx_object_free_storage(object); 
+	mysqlx_object_free_storage(object);
 }
 /* }}} */
 
@@ -560,7 +560,7 @@ php_mysqlx_node_collection__find_object_allocator(zend_class_entry * class_type)
 
 	DBG_ENTER("php_mysqlx_node_collection__find_object_allocator");
 	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);	
+		DBG_RETURN(NULL);
 	}
 	mysqlx_object->ptr = object;
 
