@@ -17,11 +17,15 @@ mysqlx NodeTable
 	expect_eq($table->count(), 12);
 	expect_true($table->existsInDatabase());
 
-	try {
-		//This is not implemented yet
-		$schema = $table->getSchema();
+        try {
+	        $schema = $table->getSchema($db);
+		expect_eq($schema->getName(),$db);
+		expect_true($schema->existsInDatabase());
+		$table2 = $schema->getTable('test_table');
+		expect_eq($table2->getName(),'test_table');
+		expect_true($table2->existsInDatabase());
 	} catch(Exception $ex) {
-		test_step_failed();
+	        test_step_failed();
 	}
 
 	$table = $schema->getTable("not_existing_table");

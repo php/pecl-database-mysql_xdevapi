@@ -124,12 +124,16 @@ struct st_parse_for_id_status
 struct my_php_json_parser {
 	php_json_parser parser;
 	struct st_parse_for_id_status * status;
+	HashTable array_of_allocated_obj;
 };
 
 
 /* {{{ xmysqlnd_json_parser_object_update */
 static int
-xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_string *key, zval *zvalue)
+xmysqlnd_json_parser_object_update(php_json_parser *parser,
+					zval *object,
+					zend_string *key,
+					zval *zvalue)
 {
 	struct st_parse_for_id_status * status = ((struct my_php_json_parser *)parser)->status;
 	DBG_ENTER("xmysqlnd_json_parser_object_update");
@@ -156,6 +160,25 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 /* }}} */
 
 
+/* {{{ xmysqlnd_json_parser_object_create */
+static int
+xmysqlnd_json_parser_object_create(php_json_parser *parser,
+								zval *object)
+{
+	struct my_php_json_parser * php_json_parser = (struct my_php_json_parser*)parser;
+	int ret = 0;
+	if (parser->scanner.options & PHP_JSON_OBJECT_AS_ARRAY) {
+		ret = array_init(object);
+	} else {
+		ret = object_init(object);
+	}
+	zend_hash_next_index_insert(&php_json_parser->array_of_allocated_obj,
+								object);
+	return ret;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_json_parser_object_end */
 static int
 xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
@@ -177,12 +200,16 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	DBG_ENTER("xmysqlnd_json_string_find_id");
 	ZVAL_UNDEF(&return_value);
 
-	php_json_parser_init(&parser.parser, &return_value, (char *)json.s, json.l, options, depth);
+	zend_hash_init(&parser.array_of_allocated_obj,0,NULL,ZVAL_PTR_DTOR,FALSE);
+	php_json_parser_init(&parser.parser,
+					&return_value, (char *)json.s, json.l, options, depth);
 	own_methods = parser.parser.methods;
+	own_methods.object_create = xmysqlnd_json_parser_object_create;
 	own_methods.object_update = xmysqlnd_json_parser_object_update;
 	own_methods.object_end = xmysqlnd_json_parser_object_end;
 
-	php_json_parser_init_ex(&parser.parser, &return_value, (char *)json.s, json.l, options, depth, &own_methods);
+	php_json_parser_init_ex(&parser.parser,
+					&return_value, (char *)json.s, json.l, options, depth, &own_methods);
 	status->found = FALSE;
 	status->empty = TRUE;
 	status->is_string = FALSE;
@@ -193,6 +220,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	//		JSON_G(error_code) = php_json_parser_error_code(&parser);
 			DBG_RETURN(FAIL);
 		}
+		zend_hash_destroy(&parser.array_of_allocated_obj);
 	}
 	DBG_RETURN(PASS);
 }

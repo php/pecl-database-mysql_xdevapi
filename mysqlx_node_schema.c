@@ -162,7 +162,8 @@ PHP_METHOD(mysqlx_node_schema, getName)
 	RETVAL_FALSE;
 
 	if (object->schema) {
-		RETVAL_STRINGL(object->schema->data->schema_name.s, object->schema->data->schema_name.l);
+		RETVAL_STRINGL(object->schema->data->schema_name.s,
+				object->schema->data->schema_name.l);
 	}
 
 	DBG_VOID_RETURN;

@@ -111,6 +111,10 @@ struct st_mysqlx_node_collection
 	} \
 } \
 
+#define RAISE_EXCEPTION(errcode, msg) \
+	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
+	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
+	mysqlx_new_exception(errcode, sqlstate, errmsg); \
 
 /* {{{ mysqlx_node_collection::__construct */
 static
@@ -265,24 +269,39 @@ static
 PHP_METHOD(mysqlx_node_collection, getSchema)
 {
 	struct st_mysqlx_node_collection * object;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING schema_name = {NULL, 0};
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_collection::getSchema");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection_class_entry))
-	{
+	if (FAILURE == zend_parse_method_parameters(
+				ZEND_NUM_ARGS(),
+				getThis(), "Os",
+				&object_zv,
+				mysqlx_node_collection_class_entry,
+				&(schema_name.s), &(schema_name.l)) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
 	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+	if( object->collection &&
+		object->collection->data &&
+		object->collection->data->schema &&
+		object->collection->data->schema->data ) {
+		session = object->collection->data->schema->data->session;
+	}
 
-	if (object->collection) {
-
+	if(session != NULL) {
+		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
+					session, schema_name);
+		if (schema) {
+			mysqlx_new_node_schema(return_value, schema);
+		} else {
+			RAISE_EXCEPTION(10001,"Invalid object of class schema");
+		}
 	}
 
 	DBG_VOID_RETURN;

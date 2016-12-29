@@ -18,14 +18,14 @@ mysqlx NodeSchema
 	expect_eq($coll_as_table->getName(), 'test_collection');
 	expect_eq($coll_as_table->name, 'test_collection');
 	expect_eq($coll_as_table->count(), 16);
-
+/*
 	try {
 		//This is not implemented yet
 		$session = $schema->getSession();
 	} catch(Exception $e) {
 		test_step_failed();
 	}
-
+*/
 	$res = $coll_as_table->select(['doc','_id'])->execute()->fetchAll();
 	expect_eq(count($res), 16);
 

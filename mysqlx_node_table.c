@@ -23,6 +23,7 @@
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
+#include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
@@ -98,6 +99,10 @@ struct st_mysqlx_node_table
 	} \
 } \
 
+#define RAISE_EXCEPTION(errcode, msg) \
+	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
+	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
+	mysqlx_new_exception(errcode, sqlstate, errmsg); \
 
 /* {{{ mysqlx_node_table::__construct */
 static
@@ -248,6 +253,46 @@ PHP_METHOD(mysqlx_node_table, count)
 
 
 /* {{{ proto mixed mysqlx_node_table::getSchema() */
+PHP_METHOD(mysqlx_node_table, getSchema)
+{
+	struct st_mysqlx_node_table * object;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING schema_name = {NULL, 0};
+	zval * object_zv;
+
+	DBG_ENTER("mysqlx_node_collection::getSchema");
+
+	if (FAILURE == zend_parse_method_parameters(
+				ZEND_NUM_ARGS(),
+				getThis(), "Os",
+				&object_zv,
+				mysqlx_node_table_class_entry,
+				&(schema_name.s), &(schema_name.l)) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	RETVAL_FALSE;
+
+	if( object->table &&
+		object->table->data &&
+		object->table->data->schema &&
+		object->table->data->schema->data ) {
+		session = object->table->data->schema->data->session;
+	}
+
+	if(session != NULL) {
+		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
+					session, schema_name);
+		if (schema) {
+			mysqlx_new_node_schema(return_value, schema);
+		} else {
+			RAISE_EXCEPTION(10001,"Invalid object of class schema");
+		}
+	}
+
+	DBG_VOID_RETURN;
+}/*
 static
 PHP_METHOD(mysqlx_node_table, getSchema)
 {
@@ -273,7 +318,7 @@ PHP_METHOD(mysqlx_node_table, getSchema)
 	}
 
 	DBG_VOID_RETURN;
-}
+}*/
 /* }}} */
 /************************************** INHERITED END   ****************************************/
 
