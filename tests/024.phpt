@@ -61,13 +61,16 @@
 		expect_eq($e->getCode(), 10000);
 	}
 
-	/*
-		Warnings not working, two 1365 warnings are raised
-	 */
 	$sql = $nodeSession->sql("select age, age/0 as x from $db.test_table limit 2")->execute();
 	expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->getWarningCount(), 2);
+	$warn = $sql->getWarnings();
+	for( $i = 0 ; $i < 2; $i++ ) {
+	    expect_eq($warn[0]->message,'');
+	    expect_eq($warn[0]->level,2);
+	    expect_eq($warn[0]->code,1365);
+	}
 	expect_eq($sql->getColumnCount(), 2);
 	verify_expectations();
 	print "done!\n";

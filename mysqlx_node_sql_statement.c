@@ -457,7 +457,7 @@ static const enum_hnd_func_status
 mysqlx_node_sql_stmt_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_sql_stmt_on_warning");
-	php_error_docref(NULL, E_WARNING, "[%d] %*s", code, message.l, message.s);
+	//php_error_docref(NULL, E_WARNING, "[%d] %*s", code, message.l, message.s);
 	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */

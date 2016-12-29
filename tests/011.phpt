@@ -22,6 +22,11 @@ mysqlx warnings
 	expect_eq($res->getWarningCount(), 3);
 
 	$warn = $res->getWarnings();
+	for( $i = 0 ; $i < 3; $i++ ) {
+	    expect_eq($warn[0]->message,'');
+	    expect_eq($warn[0]->level,2);
+	    expect_eq($warn[0]->code,1365);
+	}
 
 	verify_expectations();
 	print "done!\n";
