@@ -15,22 +15,24 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
-#define MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
+#include "object.h"
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
+namespace mysql
+{
 
-void mysqlx_new_node_collection__create_index(zval * return_value, const MYSQLND_CSTRING index_name, const zend_bool is_unique, struct st_xmysqlnd_node_collection * collection);
-void mysqlx_register_node_collection__create_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_collection__create_index_class(SHUTDOWN_FUNC_ARGS);
+namespace php
+{
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
+void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
+{
+	MYSQL_XDEVAPI_TRY { 
+		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	} MYSQL_XDEVAPI_CATCH
+}
 
-#endif /* MYSQLX_NODE_COLLECTION__CREATE_INDEX_H */
+} // namespace php
+
+} // namespace mysql
 
 /*
  * Local variables:

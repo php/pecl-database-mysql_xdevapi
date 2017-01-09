@@ -452,7 +452,7 @@ PHP_METHOD(mysqlx_node_collection, createIndex)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__create_index(return_value, index_name, is_unique, object->collection, TRUE /* clone */);
+		mysqlx_new_node_collection__create_index(return_value, index_name, is_unique, object->collection);
 	}
 
 	DBG_VOID_RETURN;
@@ -483,7 +483,7 @@ PHP_METHOD(mysqlx_node_collection, dropIndex)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__drop_index(return_value, index_name, object->collection, TRUE /* clone */);
+		mysqlx_new_node_collection__drop_index(return_value, index_name, object->collection);
 	}
 
 	DBG_VOID_RETURN;

@@ -43,25 +43,33 @@ void mem_free(void* ptr);
 
 //------------------------------------------------------------------------------
 
+/* {{{ operator new */
 inline void* operator new(std::size_t bytes_count, const mysql::php::alloc_tag_t&)
 {
 	return mysql::php::internal::mem_alloc(bytes_count);
 }
+/* }}} */
 
+/* {{{ operator new[] */
 inline void* operator new[](std::size_t bytes_count, const mysql::php::alloc_tag_t&)
 {
 	return mysql::php::internal::mem_alloc(bytes_count);
 }
+/* }}} */
 
+/* {{{ operator delete */
 inline void operator delete(void* ptr, const mysql::php::alloc_tag_t&)
 {
 	mysql::php::internal::mem_free(ptr);
 }
+/* }}} */
 
+/* {{{ operator delete[] */
 inline void operator delete[](void* ptr, const mysql::php::alloc_tag_t&)
 {
 	mysql::php::internal::mem_free(ptr);
 }
+/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -71,6 +79,7 @@ namespace mysql
 namespace php
 {
 
+/* {{{ mysql::php::internal::allocator */
 template<typename T>
 class allocator
 {
@@ -113,9 +122,47 @@ class allocator
 			::operator delete(ptr, php::alloc_tag);
 		}
 };
+/* }}} */
 
 //------------------------------------------------------------------------------
 
+/* {{{ mysql::php::internal::custom_allocable */
+class custom_allocable
+{
+	public:
+		static void* operator new(std::size_t bytes_count)
+		{
+			return ::operator new(bytes_count, php::alloc_tag);
+		}
+
+		static void* operator new[](std::size_t bytes_count)
+		{
+			return ::operator new(bytes_count, php::alloc_tag);
+		}
+
+		static void operator delete(void* ptr, size_t) noexcept
+		{
+			::operator delete(ptr, php::alloc_tag);
+		}
+
+		static void operator delete[](void* ptr, size_t) noexcept
+		{
+			::operator delete(ptr, php::alloc_tag);
+		}
+
+	protected:
+		custom_allocable() = default;
+		~custom_allocable() = default;
+
+		custom_allocable(const custom_allocable& ) = default;
+		custom_allocable& operator=(const custom_allocable& ) = default;
+
+};
+/* }}} */
+
+//------------------------------------------------------------------------------
+
+/* {{{ mysql::php::internal::deleter */
 template<typename T>
 struct deleter
 {
@@ -125,6 +172,7 @@ struct deleter
 		::operator delete(t, php::alloc_tag);
 	}
 };
+/* }}} */
 
 template<typename T>
 using unique_ptr = std::unique_ptr<T, deleter<T>>;
@@ -134,3 +182,12 @@ using unique_ptr = std::unique_ptr<T, deleter<T>>;
 } // namespace mysql
 
 #endif // MYSQL_XDEVAPI_PHP_ALLOCATOR_H
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

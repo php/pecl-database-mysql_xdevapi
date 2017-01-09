@@ -125,6 +125,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	fi
 
 	mysqlx_php="php/allocator.cc \
+		php/exceptions.cc \
+		php/"object.cc \
 		"
 
 	mysqlx_base_sources="php_mysqlx.c \

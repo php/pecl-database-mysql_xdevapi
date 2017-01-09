@@ -22,6 +22,8 @@
 extern "C" {
 #endif
 
+extern zend_class_entry * mysqlx_exception_class_entry;
+
 void mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING msg);
 void mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING sql_state, const char * const format, ...);
 

@@ -36,6 +36,7 @@ const alloc_tag_t alloc_tag;
 namespace internal
 {
 
+/* {{{ mysql::php::internal::mem_alloc */
 void* mem_alloc(std::size_t bytes_count)
 {
 	void* ptr = mnd_emalloc(bytes_count);
@@ -45,14 +46,26 @@ void* mem_alloc(std::size_t bytes_count)
 		throw std::bad_alloc();
 	}
 }
+/* }}} */
 
+/* {{{ mysql::php::internal::mem_free */
 void mem_free(void* ptr)
 {
 	mnd_efree(ptr);
 }
+/* }}} */
 
 } // namespace internal
 
 } // namespace php
 
 } // namespace mysql
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */
