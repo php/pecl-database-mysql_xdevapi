@@ -253,7 +253,12 @@ get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 		DBG_RETURN(NULL);
 	}
 
-	MYSQLX_FETCH_NODE_ROW_RESULT_FROM_ZVAL(object, object_zv);
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(object_zv);
+	object = (struct st_mysqlx_node_row_result *) mysqlx_object->ptr;
+	if (!object) {
+		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+		DBG_RETURN(NULL);
+	}
 
 	RETVAL_FALSE;
 	if (object->result) {
