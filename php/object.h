@@ -48,7 +48,7 @@ zend_class_entry* register_class(
 	zend_object_handlers* handlers,
 	object_allocator_func_t object_allocator_func,
 	zend_object_free_obj_t free_storage_func,
-	HashTable* properties, 
+	HashTable* properties,
 	const st_mysqlx_property_entry* property_entries,
 	const Interfaces& ... interfaces)
 {
@@ -58,7 +58,7 @@ zend_class_entry* register_class(
 	tmp_ce->create_object = object_allocator_func;
 	zend_class_entry* class_entry = zend_register_internal_class(tmp_ce);
 	zend_class_implements(
-		class_entry, 
+		class_entry,
 		sizeof...(Interfaces),
 		interfaces ...);
 

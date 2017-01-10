@@ -15,7 +15,7 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-extern "C" 
+extern "C"
 {
 #include <php.h>
 #undef ERROR

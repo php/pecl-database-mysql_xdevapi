@@ -126,11 +126,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__create_index, field)
 /* {{{ mysqlx_node_collection_create_index_on_error */
 static const enum_hnd_func_status
 mysqlx_node_collection_create_index_on_error(
-	void * context, 
-	XMYSQLND_NODE_SESSION * session, 
-	st_xmysqlnd_node_stmt * const stmt, 
-	const unsigned int code, 
-	const MYSQLND_CSTRING sql_state, 
+	void * context,
+	XMYSQLND_NODE_SESSION * session,
+	st_xmysqlnd_node_stmt * const stmt,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_collection_create_index_on_error");
@@ -161,7 +161,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__create_index, execute)
 	if (!drv::xmysqlnd_collection_create_index__is_initialized(data_object.index_op)) {
 		const unsigned int ErrCode = 10008;
 		throw mysql::php::xdevapi_exception(ErrCode, "HY000", "CreateIndex not completely initialized");
-	} 
+	}
 
 	const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_create_index_on_error, NULL };
 	if (drv::xmysqlnd_collection_create_index__execute(data_object.collection->data->schema->data->session, data_object.index_op, on_error) == PASS) {
@@ -208,7 +208,7 @@ php_mysqlx_node_collection__create_index_object_allocator(zend_class_entry * cla
 {
 	DBG_ENTER("php_mysqlx_node_collection__create_index_object_allocator");
 	st_mysqlx_object* mysqlx_object = php::alloc_object<collection_create_index_data>(
-		class_type, 
+		class_type,
 		&collection_create_index_handlers,
 		&collection_create_index_properties);
 	DBG_RETURN(&mysqlx_object->zo);
@@ -244,7 +244,7 @@ mysqlx_register_node_collection__create_index_class(INIT_FUNC_ARGS, zend_object_
 		mysqlx_std_object_handlers,
 		&collection_create_index_handlers,
 		php_mysqlx_node_collection__create_index_object_allocator,
-		//ds: optionally use php::free_object<collection_create_index_data> 
+		//ds: optionally use php::free_object<collection_create_index_data>
 		//and get rid of mysqlx_node_collection__create_index_free_storage
 		mysqlx_node_collection__create_index_free_storage,
 		&collection_create_index_properties,

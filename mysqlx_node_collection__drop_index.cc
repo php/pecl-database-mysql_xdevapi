@@ -86,9 +86,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__drop_index, __construct)
 /* {{{ mysqlx_node_collection_drop_index_on_error */
 static const enum_hnd_func_status
 mysqlx_node_collection_drop_index_on_error(
-	void * context, 
-	XMYSQLND_NODE_SESSION * session, 
-	st_xmysqlnd_node_stmt * const stmt, 
+	void * context,
+	XMYSQLND_NODE_SESSION * session,
+	st_xmysqlnd_node_stmt * const stmt,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
@@ -119,7 +119,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__drop_index, execute)
 	if (!drv::xmysqlnd_collection_drop_index__is_initialized(data_object.index_op)) {
 		const unsigned int ErrCode = 10008;
 		throw mysql::php::xdevapi_exception(ErrCode, "HY000", "DropIndex not completely initialized");
-	} 
+	}
 
 	const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_drop_index_on_error, NULL };
 	if (PASS == drv::xmysqlnd_collection_drop_index__execute(data_object.collection->data->schema->data->session, data_object.index_op, on_error)) {
@@ -165,7 +165,7 @@ php_mysqlx_node_collection__drop_index_object_allocator(zend_class_entry * class
 {
 	DBG_ENTER("php_mysqlx_node_collection__drop_index_object_allocator");
 	st_mysqlx_object* mysqlx_object = php::alloc_object<collection_drop_index_data>(
-		class_type, 
+		class_type,
 		&collection_drop_index_handlers,
 		&collection_drop_index_properties);
 	DBG_RETURN(&mysqlx_object->zo);

@@ -25,7 +25,7 @@ namespace php
 
 void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
-	MYSQL_XDEVAPI_TRY { 
+	MYSQL_XDEVAPI_TRY {
 		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 	} MYSQL_XDEVAPI_CATCH
 }
