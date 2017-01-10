@@ -3,10 +3,6 @@ mysqlx warnings
 --SKIPIF--
 --FILE--
 <?php
-	/*
-		This functionality is not working.
-		Test not completed.
-	*/
 	require("connect.inc");
 
 	$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
