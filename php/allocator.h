@@ -85,12 +85,6 @@ class allocator
 		}
 
 		template<typename U>
-		struct rebind 
-		{ 
-			using other = allocator<U>;
-		};
-
-		template<typename U>
 		bool operator==(const allocator<U>&) const noexcept
 		{
 			return true;
@@ -118,6 +112,26 @@ class allocator
 		{
 			::operator delete(ptr, php::alloc_tag);
 		}
+
+
+//------------------------------------------------------------------------------
+
+	// TODO obsolete - remove all that stuff in case of newer gcc on pb
+	public:
+		typedef size_t size_type;
+		typedef ptrdiff_t difference_type;
+		typedef T* pointer;
+		typedef const T* const_pointer;
+		typedef T& reference;
+		typedef const T& const_reference;
+		typedef T value_type;
+
+		template<typename U>
+		struct rebind 
+		{ 
+			using other = allocator<U>;
+		};
+
 };
 
 //------------------------------------------------------------------------------
