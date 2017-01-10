@@ -84,8 +84,11 @@ class allocator
 		{
 		}
 
-		template <typename U>  
-		using rebind = allocator<U>; 
+		template<typename U>
+		struct rebind 
+		{ 
+			using other = allocator<U>;
+		};
 
 		template<typename U>
 		bool operator==(const allocator<U>&) const noexcept
