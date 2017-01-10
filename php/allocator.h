@@ -124,7 +124,6 @@ class allocator
 		typedef const T* const_pointer;
 		typedef T& reference;
 		typedef const T& const_reference;
-		typedef T value_type;
 
 		template<typename U>
 		struct rebind 
