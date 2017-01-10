@@ -37,6 +37,7 @@
 #include "mysqlx_node_base_result.h"
 #include "mysqlx_field_metadata.h"
 #include "mysqlx_node_column_result.h"
+#include "mysqlx_exception.h"
 
 static zend_class_entry *mysqlx_node_row_result_class_entry;
 
@@ -71,15 +72,6 @@ ZEND_END_ARG_INFO()
 		DBG_VOID_RETURN; \
 	} \
 } \
-
-/*
- * Handy macro used to raise exceptions
- */
-#define RAISE_EXCEPTION(errcode, msg) \
-	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
-	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
-	mysqlx_new_exception(errcode, sqlstate, errmsg); \
-
 
 /* {{{ mysqlx_node_row_result::__construct */
 static

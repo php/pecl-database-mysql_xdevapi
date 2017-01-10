@@ -36,6 +36,7 @@
 #include "mysqlx_executable.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__add.h"
+#include "mysqlx_exception.h"
 
 static zend_class_entry *mysqlx_node_collection__add_class_entry;
 
@@ -64,14 +65,6 @@ struct st_mysqlx_node_collection__add
 		DBG_VOID_RETURN; \
 	} \
 } \
-
-/*
- * Handy macro used to raise exceptions
- */
-#define RAISE_EXCEPTION(errcode, msg) \
-	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
-	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
-	mysqlx_new_exception(errcode, sqlstate, errmsg); \
 
 /* {{{ mysqlx_node_collection__add::__construct */
 static
@@ -321,7 +314,7 @@ extract_document_id(const MYSQLND_STRING json,
 		}
 	}
 	if( res.s == NULL ) {
-		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
+		RAISE_EXCEPTION(err_msg_json_fail);
 	}
 	MYSQLND_CSTRING ret = {
 		res.s,
@@ -371,7 +364,7 @@ assign_doc_id_to_json(XMYSQLND_NODE_SESSION * session,
 			}
 		}
 	} else {
-		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
+		RAISE_EXCEPTION(err_msg_json_fail);
 	}
 	return doc_id;
 }
@@ -423,7 +416,7 @@ node_collection_add_object_impl(struct st_mysqlx_node_collection__add * const ob
 
 	if (JSON_G(error_code) != PHP_JSON_ERROR_NONE) {
 		smart_str_free(&buf);
-		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
+		RAISE_EXCEPTION(err_msg_json_fail);
 	}
 
 	//TODO marines: there is fockup with lack of terminating zero, which makes troubles in
@@ -545,7 +538,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 	}
 
 	if (FAIL == execute_ret_status && !EG(exception)) {
-		RAISE_EXCEPTION(10002, "Error adding document");
+		RAISE_EXCEPTION(err_msg_add_doc);
 	}
 
 	if(object->crud_op) {

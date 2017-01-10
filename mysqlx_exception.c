@@ -41,6 +41,13 @@ struct st_mysqlx_exception
 	zend_bool persistent;
 };
 
+void
+RAISE_EXCEPTION(const int errcode, const char * const msg)
+{
+	const MYSQLND_CSTRING sqlstate = { GENERAL_SQL_STATE, sizeof(GENERAL_SQL_STATE) - 1 };
+	const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 };
+	mysqlx_new_exception(errcode, sqlstate, errmsg);
+}
 
 #define MYSQLX_FETCH_EXCEPTION_FROM_ZO(_to, _from) \
 { \

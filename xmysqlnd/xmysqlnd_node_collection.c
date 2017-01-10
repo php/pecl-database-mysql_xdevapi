@@ -28,6 +28,7 @@
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_utils.h"
+#include "mysqlx_exception.h"
 
 /* {{{ xmysqlnd_node_collection::init */
 static enum_func_status
@@ -295,10 +296,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 			ret = stmt;
 		}
 	} else {
-		static const unsigned int errcode = 10002;
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-		static const MYSQLND_CSTRING errmsg = { "Error adding document", sizeof("Error adding document") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);
+		RAISE_EXCEPTION(err_msg_add_doc);
 	}
 
 	DBG_RETURN(ret);

@@ -108,10 +108,7 @@ PHP_METHOD(mysqlx_node_collection__create_index, field)
 	if (object->index_op && object->collection) {
 		enum_func_status ret = xmysqlnd_collection_create_index__add_field(object->index_op, doc_path, column_type, is_required);
 		if (FAIL == ret) {
-			static const unsigned int errcode = 10004;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Error while adding an index field", sizeof("Error while adding an index field") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		        RAISE_EXCEPTION(err_msg_add_index_field_err);
 		} else {
 			ZVAL_COPY(return_value, object_zv);
 		}
@@ -157,10 +154,7 @@ PHP_METHOD(mysqlx_node_collection__create_index, execute)
 
 	if (object->index_op && object->collection) {
 		if (FALSE == xmysqlnd_collection_create_index__is_initialized(object->index_op)) {
-			static const unsigned int errcode = 10008;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "CreateIndex not completely initialized", sizeof("CreateIndex not completely initialized") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		        RAISE_EXCEPTION(err_msg_createindex_fail);
 		} else {
 			const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_create_index_on_error, NULL };
 			if (PASS == xmysqlnd_collection_create_index__execute(object->collection->data->schema->data->session, object->index_op, on_error)) {

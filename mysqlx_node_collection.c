@@ -111,11 +111,6 @@ struct st_mysqlx_node_collection
 	} \
 } \
 
-#define RAISE_EXCEPTION(errcode, msg) \
-	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
-	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
-	mysqlx_new_exception(errcode, sqlstate, errmsg); \
-
 /* {{{ mysqlx_node_collection::__construct */
 static
 PHP_METHOD(mysqlx_node_collection, __construct)
@@ -184,7 +179,11 @@ PHP_METHOD(mysqlx_node_collection, getName)
 
 /* {{{ mysqlx_node_collection_on_error */
 static const enum_hnd_func_status
-mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
+					struct st_xmysqlnd_node_stmt * const stmt,
+					const unsigned int code,
+					const MYSQLND_CSTRING sql_state,
+					const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_collection_on_error");
 	const unsigned int UnknownDatabaseCode = 1049;

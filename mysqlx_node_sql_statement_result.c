@@ -137,10 +137,7 @@ static int mysqlx_node_sql_statement_read_next_result(struct st_mysqlx_node_sql_
 			object->result = result;
 			nextResult = object->has_more_results || result->rowset;
 		} else {
-			static const unsigned int errcode = 10000;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Coulnd't fetch data", sizeof("Coulnd't fetch data") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			RAISE_EXCEPTION_FETCH_FAIL();
 			/* Or we should close the connection, rendering it unusable at this point ?*/
 			object->send_query_status = FAIL;
 		}

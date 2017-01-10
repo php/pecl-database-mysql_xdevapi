@@ -107,10 +107,7 @@ PHP_METHOD(mysqlx_node_collection__drop_index, execute)
 	DBG_INF_FMT("index_op=%p collection=%p", object->index_op, object->collection);
 	if (object->index_op && object->collection) {
 		if (FALSE == xmysqlnd_collection_drop_index__is_initialized(object->index_op)) {
-			static const unsigned int errcode = 10008;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "DropIndex not completely initialized", sizeof("DropIndex not completely initialized") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+		        RAISE_EXCEPTION(err_msg_createindex_fail);
 		} else {
 			const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_drop_index_on_error, NULL };
 			if (PASS == xmysqlnd_collection_drop_index__execute(object->collection->data->schema->data->session, object->index_op, on_error)) {

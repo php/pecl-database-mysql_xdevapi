@@ -99,11 +99,6 @@ struct st_mysqlx_node_table
 	} \
 } \
 
-#define RAISE_EXCEPTION(errcode, msg) \
-	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
-	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
-	mysqlx_new_exception(errcode, sqlstate, errmsg); \
-
 /* {{{ mysqlx_node_table::__construct */
 static
 PHP_METHOD(mysqlx_node_table, __construct)

@@ -39,6 +39,7 @@
 #include "mysqlx_field_metadata.h"
 #include "mysqlx_node_column_result.h"
 #include <ext/mysqlnd/mysqlnd_enum_n_def.h>
+#include "mysqlx_exception.h"
 
 enum column_metadata_content_type {
 	CT_PLAIN =    0x0000,
@@ -124,18 +125,6 @@ ZEND_END_ARG_INFO()
 		DBG_VOID_RETURN; \
 	} \
 } \
-
-/*
- * Handy macro used to raise exceptions
- */
-#define RAISE_EXCEPTION(errcode, msg) \
-	do {\
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
-		static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
-		mysqlx_new_exception(errcode, sqlstate, errmsg); \
-	} while(0)\
-
-
 
 /* {{{ mysqlx_node_column_result::__construct */
 static
@@ -230,7 +219,7 @@ get_column_type(const struct st_xmysqlnd_result_field_meta * const meta)
 		return FIELD_TYPE_BIT;
 	case XMYSQLND_TYPE_NONE:
 	default:
-		RAISE_EXCEPTION(10001,"Unable to parse properly the metadata type");
+		RAISE_EXCEPTION(err_msg_meta_fail);
 		break;
 	}
 }
@@ -348,13 +337,13 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 			}
 			break;
 		default:
-			RAISE_EXCEPTION(10001,"Error while selecting the meta field");
+			RAISE_EXCEPTION(err_msg_meta_fail);
 			break;
 		}
 
 
 	} else {
-		RAISE_EXCEPTION(10001,"Unable to extract metadata");
+		RAISE_EXCEPTION(err_msg_meta_fail);
 	}
 	DBG_VOID_RETURN;
 }
