@@ -237,25 +237,19 @@ static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 #endif
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_x_session, 0, ZEND_RETURN_VALUE, 3)
-	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, username, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, password, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, uri_string, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_node_session, 0, ZEND_RETURN_VALUE, 3)
-	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, username, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, password, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, uri_string, IS_STRING, 0)
 ZEND_END_ARG_INFO()
-
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__expression, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, expression, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 PHP_FUNCTION(mysql_xdevapi__getXSession);
+PHP_FUNCTION(mysql_xdevapi__getXSessionURI);
 PHP_FUNCTION(mysql_xdevapi__getNodeSession);
 PHP_FUNCTION(mysql_xdevapi__expression);
 

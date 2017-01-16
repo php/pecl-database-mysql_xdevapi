@@ -22,6 +22,7 @@
 extern "C" {
 #endif
 
+MYSQLND_CSTRING make_mysqlnd_cstr(const char * str);
 int equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs);
 
 void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);

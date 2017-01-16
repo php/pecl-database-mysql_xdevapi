@@ -5,7 +5,7 @@
 <?php
 	require("connect.inc");
 
-	$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
+	$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 	$nodeSession->executeSql("create database $db");
 	$nodeSession->executeSql("create table $db.test_table(name text, age tinyint)");
 

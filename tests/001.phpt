@@ -1,59 +1,67 @@
 --TEST--
-mysqlx connection (success/fail)
+mysqlx connection test / URI string
 --SKIPIF--
 --INI--
 error_reporting=0
 --FILE--
 <?php
-	require_once("connect.inc");
+        require_once("connect.inc");
 
-	$test = "10000";
-	$nodeSession = false;
+        create_test_db();
+	fill_db_table();
 
-	try {
-		$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
-	} catch(Exception $e) {
-		test_step_failed();
+        //[ URI, Expected code ]
+	$uri_string = [
+	    [ $scheme.'://user:password@localhost'       ,1045 ],
+	    [ $scheme.'://'.$user.':password@localhost'  ,1045 ],
+	    [ $scheme.'://'.$user.':'.$passwd.'@fakehost',2002 ],
+	    [ $scheme.'://:'.$passwd.'@fakehost'         ,2002 ],
+	    [ $connection_uri.':19999'                   ,2002 ],
+	    [ '//user:password@localhost'                ,1045]
+	];
+
+        for( $i = 0 ; $i < count($uri_string) ; $i++ ) {
+	    try {
+	            $nodeSession = mysql_xdevapi\getNodeSession($uri_string[$i][0]);
+		    test_step_failed();
+	    } catch(Exception $e) {
+	            expect_eq($e->getCode(), $uri_string[$i][1]);
+	    }
+	    try {
+	            $nodeSession = mysql_xdevapi\getSession($uri_string[$i][0]);
+		    test_step_failed();
+	    } catch(Exception $e) {
+	            expect_eq($e->getCode(), $uri_string[$i][1]);
+	    }
 	}
 
-	if (false == $nodeSession)
-		test_step_failed();
+        try {
+	        $uri = '//'.$user.':'.$passwd.'@'.$host;
+		$nodeSession = mysql_xdevapi\getNodeSession($uri);
+		$nodeSession = mysql_xdevapi\getSession($uri);
 
-	try {
-		$nodeSession = mysql_xdevapi\getNodeSession("bad_host", $user, $passwd);
-		test_step_failed();
+                $nodeSession = mysql_xdevapi\getNodeSession($scheme.':'.$uri);
+		$nodeSession = mysql_xdevapi\getSession($scheme.':'.$uri);
 	} catch(Exception $e) {
-		expect_regex($e->getMessage(),
-			'/\[HY000\] php_network_getaddresses\: getaddrinfo failed\:.*/');
-		expect_eq($e->getCode(), 2002);
-		test_step_ok();
+	        test_step_failed();
 	}
 
+        //test IPv6
 	try {
-		$nodeSession = mysql_xdevapi\getNodeSession($host, "bad_user", $passwd);
+	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.'[::1]';
+		$nodeSession = mysql_xdevapi\getNodeSession($uri);
+		$nodeSession = mysql_xdevapi\getSession($uri);
 		test_step_failed();
 	} catch(Exception $e) {
-		expect_eq($e->getMessage(),
-			'[HY000] Invalid user or password');
-		expect_eq($e->getCode(), 1045);
-		test_step_ok();
 	}
 
-	try {
-		$nodeSession = mysql_xdevapi\getNodeSession($host, $user, "some_password");
-		test_step_failed();
-	} catch(Exception $e) {
-		expect_eq($e->getMessage(),
-			'[HY000] Invalid user or password');
-		expect_eq($e->getCode(), 1045);
-		test_step_ok();
-	}
-
-	$nodeSession = mysql_xdevapi\getNodeSession("", $user, $passwd);
-	expect_false($nodeSession);
-
-	verify_expectations();
+        verify_expectations();
 	print "done!\n";
+?>
+--CLEAN--
+<?php
+        require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 done!%A

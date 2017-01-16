@@ -107,7 +107,7 @@ PHP_METHOD(mysqlx_node_collection__drop_index, execute)
 	DBG_INF_FMT("index_op=%p collection=%p", object->index_op, object->collection);
 	if (object->index_op && object->collection) {
 		if (FALSE == xmysqlnd_collection_drop_index__is_initialized(object->index_op)) {
-		        RAISE_EXCEPTION(err_msg_createindex_fail);
+				RAISE_EXCEPTION(err_msg_dropindex_fail);
 		} else {
 			const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_drop_index_on_error, NULL };
 			if (PASS == xmysqlnd_collection_drop_index__execute(object->collection->data->schema->data->session, object->index_op, on_error)) {

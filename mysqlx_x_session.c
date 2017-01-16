@@ -21,11 +21,13 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
+#include <ext/standard/url.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
+#include <xmysqlnd/xmysqlnd_utils.h>
 #include "php_mysqlx.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
@@ -136,61 +138,138 @@ mysqlx_new_x_session(zval * return_value)
 }
 /* }}} */
 
-
-/* {{{ proto bool mysqlx\\getNodeSession(string hostname, string username, string password, int port)
-   Bind variables to a prepared statement as parameters */
-PHP_FUNCTION(mysql_xdevapi__getXSession)
+/* {{{ craete_new_session */
+static
+enum_func_status craete_new_session(php_url * url,
+								zval * return_value)
 {
-	MYSQLND_CSTRING hostname = {NULL, 0};
-	MYSQLND_CSTRING username = {NULL, 0};
-	MYSQLND_CSTRING password = {NULL, 0};
-	MYSQLND_CSTRING empty = {NULL, 0};
-	zend_long port = 0;
+	enum_func_status ret = FAILURE;
 	size_t set_capabilities = 0;
 	size_t client_api_flags = 0;
+	MYSQLND_CSTRING empty = {NULL, 0};
 
-	DBG_ENTER("mysql_xdevapi__getXSession");
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "sss|l",
-										 &(hostname.s), &(hostname.l),
-										 &(username.s), &(username.l),
-										 &(password.s), &(password.l),
-										 &port))
+	if (PASS == mysqlx_new_node_session(return_value)) {
+		XMYSQLND_NODE_SESSION * new_session;
+		struct st_mysqlx_session * object = (struct st_mysqlx_session *) Z_MYSQLX_P(return_value)->ptr;
+
+		if (!object && !object->session) {
+			if (object->closed) {
+				php_error_docref(NULL, E_WARNING, "closed session");
+			} else {
+				php_error_docref(NULL, E_WARNING, "invalid object of class %s",
+								 ZSTR_VAL(Z_MYSQLX_P(return_value)->zo.ce->name)); \
+			}
+		} else {
+			const MYSQLND_CSTRING host = make_mysqlnd_cstr(url->host),
+						user = make_mysqlnd_cstr(url->user),
+						pass = make_mysqlnd_cstr(url->pass),
+						path = make_mysqlnd_cstr(url->path);
+
+			new_session = xmysqlnd_node_session_connect(object->session,
+										host,
+										user,
+										pass,
+										path,
+										empty, //s_or_p
+										url->port,
+										set_capabilities,
+										client_api_flags);
+			if (object->session != new_session) {
+				mysqlx_throw_exception_from_session_if_needed(object->session->data);
+
+				object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
+				if (new_session) {
+					php_error_docref(NULL, E_WARNING, "Different object returned");
+				}
+				object->session = new_session;
+			}
+			ret = SUCCESS;
+		}
+	} else {
+		zval_ptr_dtor(return_value);
+		ZVAL_NULL(return_value);
+	}
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ verify_uri_information */
+static
+enum_func_status verify_uri_information(INTERNAL_FUNCTION_PARAMETERS,
+									const php_url * node_url)
+{
+	DBG_ENTER("verify_uri_information");
+	enum_func_status ret = SUCCESS;
+	//host is required
+	if( !node_url->host ) {
+		DBG_ERR_FMT("Missing required host name!");
+		ret = FAILURE;
+	}
+	//Username is required
+	if( !node_url->user ) {
+		DBG_ERR_FMT("Missing required user name!");
+		ret = FAILURE;
+	}
+	DBG_RETURN(ret);
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ proto bool mysqlx\\mysql_xdevapi__getXSession(string uri_string) */
+PHP_FUNCTION(mysql_xdevapi__getXSession)
+{
+	//Setting ret to FAILURE will cause the function to throw and exception
+	enum_func_status ret = SUCCESS;
+	MYSQLND_CSTRING uri_string = {NULL, 0};
+
+	DBG_ENTER("mysql_xdevapi__getXSessionURI");
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+										 &(uri_string.s), &(uri_string.l)))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	if (!hostname.l) {
-		php_error_docref(NULL, E_WARNING, "Empty query");
+	if (!uri_string.l) {
+		php_error_docref(NULL, E_WARNING, "Empty URI string");
 		RETVAL_FALSE;
 		DBG_VOID_RETURN;
 	}
-	if (!port) {
-		port = 33060;
-	}
 
-	if (PASS == mysqlx_new_x_session(return_value)) {
-		struct st_mysqlx_session * object;
-		XMYSQLND_NODE_SESSION * new_session;
-		MYSQLX_FETCH_X_SESSION_FROM_ZVAL(object, return_value);
+	DBG_INF_FMT("URI string: %s\n",
+			uri_string.s);
 
-		new_session = xmysqlnd_node_session_connect(object->session, hostname, username, password,
-													empty /*db*/, empty /*s_or_p*/, port, set_capabilities, client_api_flags);
-		if (object->session != new_session) {
-			mysqlx_throw_exception_from_session_if_needed(object->session->data);
+	php_url * node_url = php_url_parse(uri_string.s);
 
-			object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
-			if (new_session) {
-				php_error_docref(NULL, E_WARNING, "Different object returned");
-			}
-			object->session = new_session;
+	if( node_url && verify_uri_information( INTERNAL_FUNCTION_PARAM_PASSTHRU,
+									node_url ) != FAILURE ) {
+		//Assign default port number if is missing
+		if( !node_url->port ) {
+			node_url->port = 33060;
 		}
+
+		DBG_INF_FMT("host: %s, port: %d,user: %s,pass: %s,path: %s, query: %s\n",
+					 node_url->host, node_url->port,
+					 node_url->user, node_url->pass,
+					 node_url->path, node_url->query);
+
+		ret = craete_new_session(node_url,
+								return_value);
 	} else {
-		RETVAL_FALSE;
+		RAISE_EXCEPTION(err_msg_uri_string_fail);
 	}
+
+	if( node_url ) {
+		php_url_free( node_url );
+	}
+
+	if( ret == FAILURE ) {
+		RAISE_EXCEPTION(err_msg_new_session_fail);
+	}
+
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 /*
  * Local variables:

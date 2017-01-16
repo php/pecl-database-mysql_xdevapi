@@ -8,6 +8,7 @@
 
 	$driver    = new mysqli_driver;
 
+        $scheme    = getenv("MYSQLX_TEST_SCHEME")   ? getenv("MYSQLX_TEST_SCHEME") : "mysqlx";
 	$host      = getenv("MYSQLX_TEST_HOST")     ? getenv("MYSQLX_TEST_HOST") : "localhost";
 	$port      = getenv("MYSQLX_TEST_PORT")     ? getenv("MYSQLX_TEST_PORT") : 33060;
 	$user      = getenv("MYSQLX_TEST_USER")     ? getenv("MYSQLX_TEST_USER") : "root";
@@ -17,6 +18,7 @@
 	$socket    = getenv("MYSQLX_TEST_SOCKET")   ? getenv("MYSQLX_TEST_SOCKET") : null;
 	$skip_on_connect_failure  = getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") ? getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") : true;
 	$connect_flags = getenv("MYSQLX_TEST_CONNECT_FLAGS") ? (int)getenv("MYSQLX_TEST_CONNECT_FLAGS") : 0;
+	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host;
 	if ($socket) {
 		ini_set('mysqli.default_socket', $socket);
 	}
@@ -32,9 +34,7 @@
 	*/
 	if (!function_exists('create_test_db')) {
 		function create_test_db() {
-			global $host;
-			global $user;
-			global $passwd;
+		        global $connection_uri;
 			global $db;
 			/*
 				Would make sense to clean the database here, before attempting
@@ -46,7 +46,7 @@
 				the test script to call clean_test_db *after* the test
 			*/
 			//clean_test_db();
-			$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
+			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 			$nodeSession->executeSql("create database $db");
 			$nodeSession->executeSql("create table $db.test_table(name text, age int)");
 			$nodeSession->getSchema($db)->createCollection("test_collection");
@@ -59,11 +59,9 @@
 	*/
 	if (!function_exists('clean_test_db')) {
 		function clean_test_db() {
-			global $host;
-			global $user;
-			global $passwd;
+		        global $connection_uri;
 			global $db;
-			$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
+			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 			$nodeSession->executeSql("drop database if exists $db");
 		}
 	}
@@ -73,11 +71,9 @@
 	*/
 	if(!function_exists('fill_db_table')){
 		function fill_db_table() {
-			global $host;
-			global $user;
-			global $passwd;
+		        global $connection_uri;
 			global $db;
-			$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
+			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 			$nodeSession->executeSql("insert into $db.test_table values ('Mamie', 11)");
 			$nodeSession->executeSql("insert into $db.test_table values ('Eulalia', 11)");
 			$nodeSession->executeSql("insert into $db.test_table values ('Polly', 12)");
@@ -98,11 +94,9 @@
 	*/
 	if(!function_exists('fill_db_table_use_dup')){
 		function fill_db_table_use_dup() {
-			global $host;
-			global $user;
-			global $passwd;
+		        global $connection_uri;
 			global $db;
-			$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
+			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 			$nodeSession->executeSql("insert into $db.test_table values ('Mamie', 29)");
 			$nodeSession->executeSql("insert into $db.test_table values ('Mamie', 21)");
 			$nodeSession->executeSql("insert into $db.test_table values ('Polly', 34)");
@@ -203,10 +197,10 @@
 
 			$number_of_expectations++;
 
-			if( $target == $expectation ){
-				$test_result_string .= '1';
+                        if( $target == $expectation ){
+			        $test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
+			        print 'Line '.get_stack_frame_line_num().': \''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}

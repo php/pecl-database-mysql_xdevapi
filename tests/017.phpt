@@ -29,7 +29,7 @@ mysqlx session minor TC's
 	var_dump($nodeSession->quoteName("x'y'z' test"));
 	var_dump($nodeSession->quoteName(""));
 
-	$session = mysql_xdevapi\getSession($host, $user, $passwd);
+        $session = mysql_xdevapi\getSession($connection_uri);
 
 	var_dump($session->quoteName("test test test"));
 	var_dump($session->quoteName("x'y'z' test"));

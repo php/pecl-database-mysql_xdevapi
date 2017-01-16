@@ -7,7 +7,7 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-	$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
+        $nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 
 	function database_exist($name) {
 		global $nodeSession;

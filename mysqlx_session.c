@@ -78,6 +78,7 @@ mysqlx_unregister_session_interface(SHUTDOWN_FUNC_ARGS)
 }
 /* }}} */
 
+
 /*
  * Local variables:
  * tab-width: 4

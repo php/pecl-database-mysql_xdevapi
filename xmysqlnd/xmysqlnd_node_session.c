@@ -357,7 +357,12 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(XMYSQLND_NODE_SESSION_
 
 				ret = auth_start_msg.send_request(&auth_start_msg, mech_name, username);
 				if (ret == PASS) {
-					auth_start_msg.init_read(&auth_start_msg, on_auth_continue, on_warning, on_error, on_client_id, on_session_var_change);
+					auth_start_msg.init_read(&auth_start_msg,
+									on_auth_continue,
+									on_warning,
+									on_error,
+									on_client_id,
+									on_session_var_change);
 					ret = auth_start_msg.read_response(&auth_start_msg, NULL);
 					if (PASS == ret) {
 						DBG_INF("AUTHENTICATED. YAY!");
@@ -385,12 +390,19 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SES
 	enum_func_status ret = FAIL;
 	DBG_ENTER("xmysqlnd_node_session_data::connect_handshake");
 
-	if (PASS == session->io.vio->data->m.connect(session->io.vio, scheme, session->persistent, session->stats, session->error_info) &&
-		PASS == session->io.pfc->data->m.reset(session->io.pfc, session->stats, session->error_info))
-	{
-		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
-		ret = session->m->authenticate(session, scheme, username, password, database, set_capabilities);
-	}
+	if (PASS == session->io.vio->data->m.connect(session->io.vio,
+									scheme,
+									session->persistent,
+									session->stats,
+									session->error_info) &&
+		PASS == session->io.pfc->data->m.reset(session->io.pfc,
+									session->stats,
+									session->error_info))
+
+	SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
+	ret = session->m->authenticate(session, scheme, username,
+							password, database, set_capabilities);
+
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -2016,30 +2028,38 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 							  const size_t set_capabilities,
 							  const size_t client_api_flags)
 {
-	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory =
+			MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	enum_func_status ret = FAIL;
-	zend_bool self_alloced = FALSE;
+	zend_bool self_allocated = FALSE;
 	/* may need to pass these from outside */
 	MYSQLND_STATS * stats = NULL;
 	MYSQLND_ERROR_INFO * error_info = NULL;
 
 	DBG_ENTER("xmysqlnd_node_session_connect");
-	DBG_INF_FMT("host=%s user=%s db=%s port=%u flags=%llu", hostname.s, username.s, database.s, port, (unsigned long long) set_capabilities);
+	DBG_INF_FMT("host=%s user=%s db=%s port=%u flags=%llu",
+			hostname.s, username.s, database.s,
+			port, (unsigned long long) set_capabilities);
 
 	if (!session) {
-		self_alloced = TRUE;
-		if (!(session = xmysqlnd_node_session_create(client_api_flags, FALSE, factory, stats, error_info))) {
+		self_allocated = TRUE;
+		if (!(session = xmysqlnd_node_session_create(client_api_flags,
+											FALSE, factory,
+											stats, error_info))) {
 			/* OOM */
 			DBG_RETURN(NULL);
 		}
 	}
 
-	ret = session->m->connect(session, hostname, username, password, database, socket_or_pipe, port, set_capabilities);
+	ret = session->m->connect(session, hostname,
+						username, password,
+						database, socket_or_pipe,
+						port, set_capabilities);
 
 	if (ret == FAIL) {
-		if (self_alloced) {
+		if (self_allocated) {
 			/*
-			  We have alloced, thus there are no references to this
+			  We have allocated, thus there are no references to this
 			  object - we are free to kill it!
 			*/
 			session->m->dtor(session);

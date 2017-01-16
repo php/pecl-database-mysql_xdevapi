@@ -7,7 +7,7 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-	$nodeSession = mysql_xdevapi\getNodeSession($host, $user, $passwd);
+	$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 	$nodeSession->executeSql("create database $db");
 	$nodeSession->executeSql("create table $db.test_table(id int not null auto_increment,name char(30), primary key (id))");
 

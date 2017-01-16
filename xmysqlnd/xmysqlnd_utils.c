@@ -26,7 +26,15 @@
 extern "C" {
 #endif
 
-/* {{{ equal_mysqlnd_cstr */
+
+/* {{{ make_mysqlnd_cstr */
+MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
+	MYSQLND_CSTRING ret =  { str, str != NULL ? strlen(str) : 0 };
+	return ret;
+}
+/* }}} */
+
+/* {{{ compare_mysqlnd_cstr */
 int
 equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs)
 {

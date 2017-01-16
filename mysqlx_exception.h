@@ -56,8 +56,10 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 #define err_msg_delete_fail         10020, "Delete not completely initialized"
 #define err_msg_update_fail         10021, "Update not completely initialized"
 #define err_msg_createindex_fail    10022, "CreateIndex not completely initialized"
-#define err_msg_createindex_fail    10023, "DropIndex not completely initialized"
+#define err_msg_dropindex_fail      10023, "DropIndex not completely initialized"
 #define err_msg_arridx_del_fail     10024, "Error while deleting an array index"
+#define err_msg_uri_string_fail     10025, "Incorrect URI string provided"
+#define err_msg_new_session_fail    10026, "Unable to create a new session"
 
 extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 
