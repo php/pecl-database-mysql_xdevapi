@@ -36,6 +36,7 @@ extern "C"
 #include <string>
 
 #include "xmysqlnd_index_collection_commands.h"
+#include "mysqlx_object.h"
 #include "proto_gen/mysqlx_sql.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
 #include "crud_parsers/expression_parser.h"
