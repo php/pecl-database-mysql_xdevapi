@@ -29,7 +29,7 @@ namespace mysqlx {
 
 namespace phputils {
 
-const alloc_tag_t alloc_tag;
+const alloc_tag_t alloc_tag{};
 
 namespace internal
 {

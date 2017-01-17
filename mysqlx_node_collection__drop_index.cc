@@ -91,7 +91,7 @@ mysqlx_node_collection_drop_index_on_error(
 	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_collection_drop_index_on_error");
-	throw mysqlx::phputils::xdevapi_exception(code, mysqlx::phputils::string(sql_state.s, sql_state.l), mysqlx::phputils::string(message.s, message.l));
+	throw phputils::xdevapi_exception(code, phputils::string(sql_state.s, sql_state.l), phputils::string(message.s, message.l));
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
@@ -114,8 +114,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__drop_index, execute)
 	auto& data_object = phputils::fetch_data_object<collection_drop_index_data>(object_zv);
 
 	if (!drv::xmysqlnd_collection_drop_index__is_initialized(data_object.index_op)) {
-		const unsigned int ErrCode = 10008;
-		throw mysqlx::phputils::xdevapi_exception(ErrCode, "HY000", "DropIndex not completely initialized");
+		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::drop_index_fail);
 	}
 
 	const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_drop_index_on_error, NULL };

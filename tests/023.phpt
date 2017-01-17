@@ -79,7 +79,8 @@ function test_collection() {
 	$cols = $res->getColumns();
 	$expected_data = [
 	    ['_id','a',MYSQLI_TYPE_STRING,128,'utf8mb4_general_ci','utf8mb4'],
-	    ['doc','b',MYSQLI_TYPE_JSON,4294967295,'binary','binary']
+	    ['doc','b',MYSQLI_TYPE_JSON,LONG_MAX,'binary','binary']
+//	    ['doc','b',MYSQLI_TYPE_JSON,4294967295,'binary','binary']
 	];
 
         expect_eq(count($cols),2);
@@ -164,7 +165,8 @@ function test_geometries() {
 
         $expected_data = [
 	    ['name','myname',MYSQLI_TYPE_INT,11,0,1,null,null,0],
-	    ['b','bb',MYSQLI_TYPE_GEOMETRY,4294967295,0,0,null,null,0],
+	    ['b','bb',MYSQLI_TYPE_GEOMETRY,LONG_MAX,0,0,null,null,0],
+	    //['b','bb',MYSQLI_TYPE_GEOMETRY,4294967295,0,0,null,null,0],
 	];
 	$cols = $res->getColumns();
 	expect_eq(count($cols), 2);
@@ -193,6 +195,7 @@ function test_geometries() {
 	test_other_types();
 
         verify_expectations();
+	print LONG_MAX, '\n'
 	print "done!".PHP_EOL;
 ?>
 --CLEAN--

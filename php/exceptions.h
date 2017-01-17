@@ -31,6 +31,36 @@ namespace phputils {
 
 struct xdevapi_exception : public std::exception
 {
+	enum class Code
+	{
+		fetch_fail,
+		meta_fail,
+		add_doc,
+		json_fail,
+		add_index_field_err,
+		add_orderby_fail,
+		add_sort_fail,
+		add_where_fail,
+		bind_fail,
+		merge_fail,
+		unset_fail,
+		find_fail,
+		insert_fail,
+		invalid_type,
+		modify_fail,
+		wrong_param_1,
+		wrong_param_2,
+		wrong_param_3,
+		wrong_param_4,
+		add_field,
+		delete_fail,
+		update_fail,
+		create_index_fail,
+		drop_index_fail,
+		arridx_del_fail
+	};
+
+	xdevapi_exception(Code code);
 	xdevapi_exception(unsigned int code, const string& sql_state, const string& msg);
 
 	unsigned int code;

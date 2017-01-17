@@ -137,10 +137,7 @@ mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsign
 		case IS_NULL:
 			break;
 		default:{
-			static const unsigned int errcode = 10007;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Invalid value type", sizeof("Invalid value type") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			RAISE_EXCEPTION(err_msg_invalid_type);
 			DBG_VOID_RETURN;
 		}
 
@@ -155,12 +152,6 @@ mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsign
 			case TWO_PARAM_OP__SET:
 				ret = xmysqlnd_crud_table_update__set(object->crud_op, table_field, value, is_expression, is_document);
 				break;
-			//case TWO_PARAM_OP__ARRAY_INSERT:
-			//	ret = xmysqlnd_crud_table_update__array_insert(object->crud_op, table_field, value);
-			//	break;
-			//case TWO_PARAM_OP__ARRAY_APPEND:
-			//	ret = xmysqlnd_crud_table_update__array_append(object->crud_op, table_field, value);
-			//	break;
 		}
 
 		if (PASS == ret) {
@@ -238,45 +229,34 @@ PHP_METHOD(mysqlx_node_table__update, orderby)
 
 	if (object->crud_op && orderby_expr) {
 		switch (Z_TYPE_P(orderby_expr)) {
-			case IS_STRING: {
+		case IS_STRING:
+			{
 				const MYSQLND_CSTRING orderby_expr_str = { Z_STRVAL_P(orderby_expr), Z_STRLEN_P(orderby_expr) };
 				if (PASS == xmysqlnd_crud_table_update__add_orderby(object->crud_op, orderby_expr_str)) {
 					ZVAL_COPY(return_value, object_zv);
 				}
-				break;
 			}
-			case IS_ARRAY: {
+			break;
+		case IS_ARRAY:
+			{
 				zval * entry;
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(orderby_expr), entry) {
 					const MYSQLND_CSTRING orderby_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
-						static const unsigned int errcode = 10003;
-						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-						static const MYSQLND_CSTRING errmsg = { "Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1 };
-						mysqlx_new_exception(errcode, sqlstate, errmsg);
-						goto end;
+						RAISE_EXCEPTION(err_msg_wrong_param_1);
 					}
 					if (FAIL == xmysqlnd_crud_table_update__add_orderby(object->crud_op, orderby_expr_str)) {
-						static const unsigned int errcode = 10004;
-						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-						static const MYSQLND_CSTRING errmsg = { "Error while adding a orderby expression", sizeof("Error while adding a orderby expression") - 1 };
-						mysqlx_new_exception(errcode, sqlstate, errmsg);
-						goto end;
+						RAISE_EXCEPTION(err_msg_add_orderby_fail);
 					}
 				} ZEND_HASH_FOREACH_END();
 				ZVAL_COPY(return_value, object_zv);
-				break;
 			}
-			/* fall-through */
-			default: {
-				static const unsigned int errcode = 10005;
-				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-				static const MYSQLND_CSTRING errmsg = { "Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1 };
-				mysqlx_new_exception(errcode, sqlstate, errmsg);
-			}
+			break;
+		default:
+			RAISE_EXCEPTION(err_msg_wrong_param_3);
+			break;
 		}
 	}
-end:
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -300,10 +280,7 @@ PHP_METHOD(mysqlx_node_table__update, limit)
 	}
 
 	if (rows < 0) {
-		static const unsigned int errcode = 10006;
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);
+		RAISE_EXCEPTION(err_msg_wrong_param_2);
 		DBG_VOID_RETURN;
 	}
 
@@ -345,21 +322,21 @@ PHP_METHOD(mysqlx_node_table__update, bind)
 	if (object->crud_op) {
 		zend_string * key;
 		zval * val;
+		zend_bool op_success = TRUE;
 		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 			if (key) {
 				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 				if (FAIL == xmysqlnd_crud_table_update__bind_value(object->crud_op, variable, val)) {
-					static const unsigned int errcode = 10005;
-					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-					static const MYSQLND_CSTRING errmsg = { "Error while binding a variable", sizeof("Error while binding a variable") - 1 };
-					mysqlx_new_exception(errcode, sqlstate, errmsg);
-					goto end;
+					RAISE_EXCEPTION(err_msg_bind_fail);
+					op_success = FALSE;
+					break;
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
-		ZVAL_COPY(return_value, object_zv);
+		if( op_success ) {
+			ZVAL_COPY(return_value, object_zv);
+		}
 	}
-end:
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -386,12 +363,8 @@ PHP_METHOD(mysqlx_node_table__update, execute)
 	DBG_INF_FMT("crud_op=%p table=%p", object->crud_op, object->table);
 	if (object->crud_op && object->table) {
 		if (FALSE == xmysqlnd_crud_table_update__is_initialized(object->crud_op)) {
-			static const unsigned int errcode = 10002;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Update not completely initialized", sizeof("Update not completely initialized") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			RAISE_EXCEPTION(err_msg_update_fail);
 		} else {
-			//RETVAL_BOOL(PASS == object->table->data->m.update(object->table, object->crud_op));
 			XMYSQLND_NODE_STMT * stmt = object->table->data->m.update(object->table, object->crud_op);
 			if (stmt) {
 				zval stmt_zv;

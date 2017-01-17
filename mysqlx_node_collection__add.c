@@ -36,6 +36,7 @@
 #include "mysqlx_executable.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__add.h"
+#include "mysqlx_exception.h"
 
 static zend_class_entry *mysqlx_node_collection__add_class_entry;
 
@@ -64,14 +65,6 @@ struct st_mysqlx_node_collection__add
 		DBG_VOID_RETURN; \
 	} \
 } \
-
-/*
- * Handy macro used to raise exceptions
- */
-#define RAISE_EXCEPTION(errcode, msg) \
-	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
-	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
-	mysqlx_new_exception(errcode, sqlstate, errmsg); \
 
 /* {{{ mysqlx_node_collection__add::__construct */
 static
@@ -124,12 +117,16 @@ struct st_parse_for_id_status
 struct my_php_json_parser {
 	php_json_parser parser;
 	struct st_parse_for_id_status * status;
+	HashTable array_of_allocated_obj;
 };
 
 
 /* {{{ xmysqlnd_json_parser_object_update */
 static int
-xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_string *key, zval *zvalue)
+xmysqlnd_json_parser_object_update(php_json_parser *parser,
+					zval *object,
+					zend_string *key,
+					zval *zvalue)
 {
 	struct st_parse_for_id_status * status = ((struct my_php_json_parser *)parser)->status;
 	DBG_ENTER("xmysqlnd_json_parser_object_update");
@@ -156,6 +153,25 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 /* }}} */
 
 
+/* {{{ xmysqlnd_json_parser_object_create */
+static int
+xmysqlnd_json_parser_object_create(php_json_parser *parser,
+								zval *object)
+{
+	struct my_php_json_parser * php_json_parser = (struct my_php_json_parser*)parser;
+	int ret = 0;
+	if (parser->scanner.options & PHP_JSON_OBJECT_AS_ARRAY) {
+		ret = array_init(object);
+	} else {
+		ret = object_init(object);
+	}
+	zend_hash_next_index_insert(&php_json_parser->array_of_allocated_obj,
+								object);
+	return ret;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_json_parser_object_end */
 static int
 xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
@@ -177,12 +193,16 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	DBG_ENTER("xmysqlnd_json_string_find_id");
 	ZVAL_UNDEF(&return_value);
 
-	php_json_parser_init(&parser.parser, &return_value, (char *)json.s, json.l, options, depth);
+	zend_hash_init(&parser.array_of_allocated_obj,0,NULL,ZVAL_PTR_DTOR,FALSE);
+	php_json_parser_init(&parser.parser,
+					&return_value, (char *)json.s, json.l, options, depth);
 	own_methods = parser.parser.methods;
+	own_methods.object_create = xmysqlnd_json_parser_object_create;
 	own_methods.object_update = xmysqlnd_json_parser_object_update;
 	own_methods.object_end = xmysqlnd_json_parser_object_end;
 
-	php_json_parser_init_ex(&parser.parser, &return_value, (char *)json.s, json.l, options, depth, &own_methods);
+	php_json_parser_init_ex(&parser.parser,
+					&return_value, (char *)json.s, json.l, options, depth, &own_methods);
 	status->found = FALSE;
 	status->empty = TRUE;
 	status->is_string = FALSE;
@@ -193,6 +213,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 	//		JSON_G(error_code) = php_json_parser_error_code(&parser);
 			DBG_RETURN(FAIL);
 		}
+		zend_hash_destroy(&parser.array_of_allocated_obj);
 	}
 	DBG_RETURN(PASS);
 }
@@ -293,7 +314,7 @@ extract_document_id(const MYSQLND_STRING json,
 		}
 	}
 	if( res.s == NULL ) {
-		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
+		RAISE_EXCEPTION(err_msg_json_fail);
 	}
 	MYSQLND_CSTRING ret = {
 		res.s,
@@ -343,7 +364,7 @@ assign_doc_id_to_json(XMYSQLND_NODE_SESSION * session,
 			}
 		}
 	} else {
-		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
+		RAISE_EXCEPTION(err_msg_json_fail);
 	}
 	return doc_id;
 }
@@ -395,7 +416,7 @@ node_collection_add_object_impl(struct st_mysqlx_node_collection__add * const ob
 
 	if (JSON_G(error_code) != PHP_JSON_ERROR_NONE) {
 		smart_str_free(&buf);
-		RAISE_EXCEPTION(10001, "Error serializing document to JSON");
+		RAISE_EXCEPTION(err_msg_json_fail);
 	}
 
 	//TODO marines: there is fockup with lack of terminating zero, which makes troubles in
@@ -517,7 +538,7 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 	}
 
 	if (FAIL == execute_ret_status && !EG(exception)) {
-		RAISE_EXCEPTION(10002, "Error adding document");
+		RAISE_EXCEPTION(err_msg_add_doc);
 	}
 
 	if(object->crud_op) {

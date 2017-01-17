@@ -206,13 +206,12 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning)(void * context, const en
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_warning");
 	if (ctx->on_warning.handler) {
 		ret = ctx->on_warning.handler(ctx->on_warning.ctx, ctx->stmt, level, code, message);
-	} else {
-		if (!ctx->warnings) {
-			ctx->warnings = xmysqlnd_warning_list_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
-		}
-		if (ctx->warnings) {
-			ctx->warnings->m->add_warning(ctx->warnings, level, code, message);
-		}
+	}
+	if (!ctx->warnings) {
+		ctx->warnings = xmysqlnd_warning_list_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
+	}
+	if (ctx->warnings) {
+		ctx->warnings->m->add_warning(ctx->warnings, level, code, message);
 	}
 	DBG_RETURN(ret);
 }

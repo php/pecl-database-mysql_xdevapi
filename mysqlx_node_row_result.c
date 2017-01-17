@@ -37,6 +37,7 @@
 #include "mysqlx_node_base_result.h"
 #include "mysqlx_field_metadata.h"
 #include "mysqlx_node_column_result.h"
+#include "mysqlx_exception.h"
 
 static zend_class_entry *mysqlx_node_row_result_class_entry;
 
@@ -71,15 +72,6 @@ ZEND_END_ARG_INFO()
 		DBG_VOID_RETURN; \
 	} \
 } \
-
-/*
- * Handy macro used to raise exceptions
- */
-#define RAISE_EXCEPTION(errcode, msg) \
-	static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 }; \
-	static const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 }; \
-	mysqlx_new_exception(errcode, sqlstate, errmsg); \
-
 
 /* {{{ mysqlx_node_row_result::__construct */
 static
@@ -253,7 +245,12 @@ get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 		DBG_RETURN(NULL);
 	}
 
-	MYSQLX_FETCH_NODE_ROW_RESULT_FROM_ZVAL(object, object_zv);
+	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(object_zv);
+	object = (struct st_mysqlx_node_row_result *) mysqlx_object->ptr;
+	if (!object) {
+		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+		DBG_RETURN(NULL);
+	}
 
 	RETVAL_FALSE;
 	if (object->result) {

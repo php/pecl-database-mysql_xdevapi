@@ -111,7 +111,6 @@ struct st_mysqlx_node_collection
 	} \
 } \
 
-
 /* {{{ mysqlx_node_collection::__construct */
 static
 PHP_METHOD(mysqlx_node_collection, __construct)
@@ -180,7 +179,11 @@ PHP_METHOD(mysqlx_node_collection, getName)
 
 /* {{{ mysqlx_node_collection_on_error */
 static const enum_hnd_func_status
-mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
+					struct st_xmysqlnd_node_stmt * const stmt,
+					const unsigned int code,
+					const MYSQLND_CSTRING sql_state,
+					const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_collection_on_error");
 	const unsigned int UnknownDatabaseCode = 1049;
@@ -265,24 +268,39 @@ static
 PHP_METHOD(mysqlx_node_collection, getSchema)
 {
 	struct st_mysqlx_node_collection * object;
+	XMYSQLND_NODE_SESSION * session;
+	MYSQLND_CSTRING schema_name = {NULL, 0};
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_collection::getSchema");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_collection_class_entry))
-	{
+	if (FAILURE == zend_parse_method_parameters(
+				ZEND_NUM_ARGS(),
+				getThis(), "Os",
+				&object_zv,
+				mysqlx_node_collection_class_entry,
+				&(schema_name.s), &(schema_name.l)) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
 	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+	if( object->collection &&
+		object->collection->data &&
+		object->collection->data->schema &&
+		object->collection->data->schema->data ) {
+		session = object->collection->data->schema->data->session;
+	}
 
-	if (object->collection) {
-
+	if(session != NULL) {
+		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
+					session, schema_name);
+		if (schema) {
+			mysqlx_new_node_schema(return_value, schema);
+		} else {
+			RAISE_EXCEPTION(10001,"Invalid object of class schema");
+		}
 	}
 
 	DBG_VOID_RETURN;

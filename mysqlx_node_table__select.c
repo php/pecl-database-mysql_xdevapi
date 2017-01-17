@@ -161,8 +161,10 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 	RETVAL_FALSE;
 
 	if (object->crud_op && sort_expr) {
-		switch (Z_TYPE_P(sort_expr)) {
-			case IS_STRING: {
+		switch (Z_TYPE_P(sort_expr))
+		{
+		case IS_STRING:
+			{
 				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
 				if (ADD_SORT == op_type) {
 					if (PASS == xmysqlnd_crud_table_select__add_orderby(object->crud_op, sort_expr_str)) {
@@ -175,17 +177,16 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 				}
 				break;
 			}
-			case IS_ARRAY: {
+		case IS_ARRAY:
+			{
 				zval * entry;
+				enum_func_status ret = FAIL;
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(sort_expr), entry) {
-					enum_func_status ret = FAIL;
+					ret = FAIL;
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
-						static const unsigned int errcode = 10003;
-						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-						static const MYSQLND_CSTRING errmsg = { "Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1 };
-						mysqlx_new_exception(errcode, sqlstate, errmsg);
-						goto end;
+						RAISE_EXCEPTION(err_msg_wrong_param_1);
+						break;
 					}
 					if (ADD_SORT == op_type) {
 						ret = xmysqlnd_crud_table_select__add_orderby(object->crud_op, sort_expr_str);
@@ -193,26 +194,20 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 						ret = xmysqlnd_crud_table_select__add_grouping(object->crud_op, sort_expr_str);
 					}
 					if (FAIL == ret) {
-						static const unsigned int errcode = 10004;
-						static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-						static const MYSQLND_CSTRING errmsg = { "Error while adding a sort expression", sizeof("Error while adding a sort expression") - 1 };
-						mysqlx_new_exception(errcode, sqlstate, errmsg);
-						goto end;
+						RAISE_EXCEPTION(err_msg_add_sort_fail);
+						break;
 					}
 				} ZEND_HASH_FOREACH_END();
-				ZVAL_COPY(return_value, object_zv);
-				break;
+				if( FAIL != ret ) {
+					ZVAL_COPY(return_value, object_zv);
+				}
 			}
-			/* fall-through */
-			default: {
-				static const unsigned int errcode = 10005;
-				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-				static const MYSQLND_CSTRING errmsg = { "Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1 };
-				mysqlx_new_exception(errcode, sqlstate, errmsg);
-			}
+			break;
+		default:
+			RAISE_EXCEPTION(err_msg_wrong_param_3);
+			break;
 		}
 	}
-end:
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -290,10 +285,7 @@ PHP_METHOD(mysqlx_node_table__select, limit)
 	}
 
 	if (rows < 0) {
-		static const unsigned int errcode = 10006;
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);
+		RAISE_EXCEPTION(err_msg_wrong_param_2);
 		DBG_VOID_RETURN;
 	}
 
@@ -330,10 +322,7 @@ PHP_METHOD(mysqlx_node_table__select, offset)
 	}
 
 	if (position < 0) {
-		static const unsigned int errcode = 10006;
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-		static const MYSQLND_CSTRING errmsg = { "Parameter must be a non-negative value", sizeof("Parameter must be a non-negative value") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);
+		RAISE_EXCEPTION(err_msg_wrong_param_2);
 		DBG_VOID_RETURN;
 	}
 
@@ -380,17 +369,12 @@ PHP_METHOD(mysqlx_node_table__select, bind)
 			if (key) {
 				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 				if (FAIL == xmysqlnd_crud_table_select__bind_value(object->crud_op, variable, val)) {
-					static const unsigned int errcode = 10005;
-					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-					static const MYSQLND_CSTRING errmsg = { "Error while binding a variable", sizeof("Error while binding a variable") - 1 };
-					mysqlx_new_exception(errcode, sqlstate, errmsg);
-					goto end;
+					RAISE_EXCEPTION(err_msg_bind_fail);
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
 		ZVAL_COPY(return_value, object_zv);
 	}
-end:
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -418,10 +402,7 @@ PHP_METHOD(mysqlx_node_table__select, execute)
 
 	if (object->crud_op && object->table) {
 		if (FALSE == xmysqlnd_crud_table_select__is_initialized(object->crud_op)) {
-			static const unsigned int errcode = 10008;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Find not completely initialized", sizeof("Find not completely initialized") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			RAISE_EXCEPTION(err_msg_find_fail);
 		} else {
 			XMYSQLND_NODE_STMT * stmt = object->table->data->m.select(object->table, object->crud_op);
 			{

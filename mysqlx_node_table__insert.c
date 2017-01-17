@@ -133,12 +133,8 @@ PHP_METHOD(mysqlx_node_table__insert, execute)
 	DBG_INF_FMT("crud_op=%p table=%p", object->crud_op, object->table);
 	if (object->crud_op && object->table) {
 		if (FALSE == xmysqlnd_crud_table_insert__is_initialized(object->crud_op)) {
-			static const unsigned int errcode = 10002;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Insert not completely initialized", sizeof("Insert not completely initialized") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			RAISE_EXCEPTION(err_msg_insert_fail);
 		} else {
-//			RETVAL_BOOL(PASS == object->table->data->m.insert(object->table, object->crud_op));
 			XMYSQLND_NODE_STMT * stmt = object->table->data->m.insert(object->table, object->crud_op);
 			if (stmt) {
 				zval stmt_zv;

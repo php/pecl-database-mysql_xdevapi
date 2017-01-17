@@ -17,18 +17,22 @@ mysqlx NodeCollection
 	expect_eq($coll->count(), 16);
 
 	try {
-		//This is not implemented yet
-		$schema = $coll->getSchema();
+	        $schema = $coll->getSchema($db);
+		expect_eq($schema->getName(),$db);
+		expect_true($schema->existsInDatabase());
+		$coll2 = $schema->getCollection('test_collection');
+		expect_eq($coll2->getName(),'test_collection');
+		expect_true($coll2->existsInDatabase());
 	} catch(Exception $ex) {
 		test_step_failed();
 	}
-
+/*
 	try {
 		//This is not implemented yet
 		$session = $coll->getSession();
 	} catch(Exception $ex) {
 		test_step_failed();
-	}
+	}*/
 
 	$coll = $schema->getCollection("not_existing_collection");
 	expect_eq($coll->getName(), 'not_existing_collection');

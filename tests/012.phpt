@@ -4,13 +4,6 @@ mysqlx collection find
 --FILE--
 <?php
 	require("connect.inc");
-
-	function dump_all_row($table){
-		$res = $table->select(['age', 'name'])->execute();
-		$all_row = $res->fetchAll();
-		var_dump($all_row);
-	}
-
 	$nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
@@ -18,24 +11,30 @@ mysqlx collection find
 
 	fill_db_collection($coll);
 
-	//TODO, fields do not work for non-array types. Is this ok?
-	$res = $coll->find('job like :job and age > :age')->fields(['age']);
+        $res = $coll->find('job like :job and age > :age')->fields('age');
 	$res = $res->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
-	$data = $res->execute();
+	$data = $res->execute()->fetchAll();
 
-	var_dump($data->fetchAll());
+        expect_eq(count($data),2);
+	expect_eq($data[0]['age'],27);
+	expect_eq($data[1]['age'],25);
 
-	$data = $coll->find('job like \'Programmatore\'')->limit(1)->skip(3)->sort('age asc')->execute();
-	var_dump($data->fetchAll());
+        $res = $coll->find('job like \'Programmatore\'')->limit(1)->skip(3)->sort('age asc')->execute();
+	$data = $res->fetchAll();
+
+        expect_eq(count($data),1);
+	expect_eq($data[0]['_id'],5);
+	expect_eq($data[0]['age'],25);
+	expect_eq($data[0]['job'],'Programmatore');
+	expect_eq($data[0]['name'],'Carlo');
 
 	try { //Expected to fail
 		$data = $coll->find('job like \'Programmatore\'')->limit(1)->skip(-1)->sort('age asc')->execute();
+		test_step_failed();
 	} catch(Exception $ex) {
-		print "Exception!\n";
 	}
 
 	//For the purpose of testing groupBy(...) I need some special elements in the collection
-	//TODO: How does this groupBy Work??
 	$coll->add('{"_id":50, "name": "Ugo", "age": 10, "job": "Studioso"}')->execute();
 	$coll->add('{"_id":51, "name": "Ugo", "age": 10, "job": "Studioso"}')->execute();
 	$coll->add('{"_id":52, "name": "Ugo", "age": 10, "job": "Studioso"}')->execute();
@@ -44,20 +43,62 @@ mysqlx collection find
 
 	$res = $coll->find('job like :job and age = :age')->fields(['age', 'job'])->groupBy(['age', 'job']);
 	$res = $res->bind(['job' => 'Studioso', 'age' => 10])->sort('age desc')->limit(4);
-	$data = $res->execute();
+	$data = $res->execute()->fetchAll();
 
-	var_dump($data->fetchAll());
+        expect_eq(count($data),1);
+	expect_eq($data[0]['age'],10);
+	expect_eq($data[0]['job'],'Studioso');
 
 	//For the purpose of testing sort([...]) I need some special elements in the collection
-	$coll->add('{"_id":99, "name": "Ugp",                 "job": "Cavia"}')->execute();
+	$coll->add('{"_id":99, "name": "Ugo",                 "job": "Cavia"}')->execute();
 	$coll->add('{"_id":98, "name": "Simone",              "job": "Cavia"}')->execute();
 	$coll->add('{"_id":97, "name": "Matteo",              "job": "Cavia"}')->execute();
 	$coll->add('{"_id":96, "name": "Alfonso",  "age": 35, "job": "Cavia"}')->execute();
 	$coll->add('{"_id":17, "name": "Luca",     "age": 99, "job": "Cavia"}')->execute();
 
-	$data = $coll->find('job like \'Cavia\'')->sort(['age desc', '_id desc'])->execute();
-	var_dump($data->fetchAll());
+        $res = $coll->find('job like \'Cavia\'')->sort(['age desc', '_id desc'])->execute();
+	$data = $res->fetchAll();
 
+        $expected = [
+	    [17,99,'Cavia','Luca'],
+	    [96,35,'Cavia','Alfonso'],
+	    [99,null,'Cavia','Ugo'],
+	    [98,null,'Cavia','Simone'],
+	    [97,null,'Cavia','Matteo']
+	];
+
+        expect_eq(count($data),5);
+	if( count($data) == 5 ) {
+	    for($i = 0 ; $i < 5 ; $i++ ) {
+	        expect_eq($data[$i]['_id'],$expected[$i][0]);
+		if( $expected[$i][1] == null ) {
+		    expect_false(array_key_exists('age',$data[$i]));
+		} else {
+		    expect_eq($data[$i]['age'],$expected[$i][1]);
+		}
+		expect_eq($data[$i]['job'],$expected[$i][2]);
+		expect_eq($data[$i]['name'],$expected[$i][3]);
+	   }
+	}
+
+        $res = $coll->find()->fields(['name','age'])->limit(3)->sort('age desc')->having('age > 40')->execute();
+	$data = $res->fetchAll();
+
+        $expected = [
+	    [99,'Luca'],
+	    [59,'Lonardo'],
+	    [47,'Lucia']
+	];
+
+        expect_eq(count($data),3);
+	if( count($data) == 3 ) {
+	    for($i = 0 ; $i < 3 ; $i++ ) {
+	        expect_eq($data[$i]['age'],$expected[$i][0]);
+		expect_eq($data[$i]['name'],$expected[$i][1]);
+	   }
+	}
+
+        verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
@@ -66,90 +107,4 @@ mysqlx collection find
 	clean_test_db();
 ?>
 --EXPECTF--
-array(2) {
-  [0]=>
-  array(1) {
-    ["age"]=>
-    int(27)
-  }
-  [1]=>
-  array(1) {
-    ["age"]=>
-    int(25)
-  }
-}
-array(1) {
-  [0]=>
-  array(4) {
-    ["_id"]=>
-    int(5)
-    ["age"]=>
-    int(25)
-    ["job"]=>
-    string(13) "Programmatore"
-    ["name"]=>
-    string(5) "Carlo"
-  }
-}
-Exception!
-array(1) {
-  [0]=>
-  array(2) {
-    ["age"]=>
-    int(10)
-    ["job"]=>
-    string(8) "Studioso"
-  }
-}
-array(5) {
-  [0]=>
-  array(4) {
-    ["_id"]=>
-    int(17)
-    ["age"]=>
-    int(99)
-    ["job"]=>
-    string(5) "Cavia"
-    ["name"]=>
-    string(4) "Luca"
-  }
-  [1]=>
-  array(4) {
-    ["_id"]=>
-    int(96)
-    ["age"]=>
-    int(35)
-    ["job"]=>
-    string(5) "Cavia"
-    ["name"]=>
-    string(7) "Alfonso"
-  }
-  [2]=>
-  array(3) {
-    ["_id"]=>
-    int(99)
-    ["job"]=>
-    string(5) "Cavia"
-    ["name"]=>
-    string(3) "Ugp"
-  }
-  [3]=>
-  array(3) {
-    ["_id"]=>
-    int(98)
-    ["job"]=>
-    string(5) "Cavia"
-    ["name"]=>
-    string(6) "Simone"
-  }
-  [4]=>
-  array(3) {
-    ["_id"]=>
-    int(97)
-    ["job"]=>
-    string(5) "Cavia"
-    ["name"]=>
-    string(6) "Matteo"
-  }
-}
 done!%A

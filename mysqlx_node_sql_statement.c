@@ -457,7 +457,7 @@ static const enum_hnd_func_status
 mysqlx_node_sql_stmt_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_sql_stmt_on_warning");
-	php_error_docref(NULL, E_WARNING, "[%d] %*s", code, message.l, message.s);
+	//php_error_docref(NULL, E_WARNING, "[%d] %*s", code, message.l, message.s);
 	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
@@ -527,10 +527,7 @@ mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_o
 				if (result) {
 					mysqlx_new_sql_stmt_result(return_value, result, object);
 				} else {
-					static const unsigned int errcode = 10000;
-					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-					static const MYSQLND_CSTRING errmsg = { "Coulnd't fetch data", sizeof("Coulnd't fetch data") - 1 };
-					mysqlx_new_exception(errcode, sqlstate, errmsg);
+					RAISE_EXCEPTION_FETCH_FAIL();
 					/* Or we should close the connection, rendering it unusable at this point ?*/
 					object->send_query_status = FAIL;
 				}
@@ -642,10 +639,7 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, 
 			if (result) {
 				mysqlx_new_sql_stmt_result(return_value, result, object);
 			} else {
-				static const unsigned int errcode = 10000;
-				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-				static const MYSQLND_CSTRING errmsg = { "Coulnd't fetch data", sizeof("Coulnd't fetch data") - 1 };
-				mysqlx_new_exception(errcode, sqlstate, errmsg);
+				RAISE_EXCEPTION_FETCH_FAIL();
 				/* Or we should close the connection, rendering it unusable at this point ?*/
 				object->send_query_status = FAIL;
 			}
@@ -906,10 +900,7 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 							RETVAL_FALSE;
 					}
 				} else {
-					static const unsigned int errcode = 10000;
-					static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-					static const MYSQLND_CSTRING errmsg = { "Coulnd't fetch data", sizeof("Coulnd't fetch data") - 1 };
-					mysqlx_new_exception(errcode, sqlstate, errmsg);
+					RAISE_EXCEPTION_FETCH_FAIL();
 					/* Or we should close the connection, rendering it unusable at this point ?*/
 					object->send_query_status = FAIL;
 				}

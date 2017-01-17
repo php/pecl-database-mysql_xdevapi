@@ -170,47 +170,31 @@ void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv)
 	enum_func_status ret = FAIL;
 	switch (Z_TYPE_P(columns_zv))
 	{
-		case IS_STRING: {
+	case IS_STRING:
+		{
 			add_column(columns_zv);
 			ret = PASS;
-			break;
 		}
-		case IS_ARRAY: {
+		break;
+	case IS_ARRAY:
+		{
 			zval * entry;
+			ret = PASS;
 			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(columns_zv), entry)
 			{
-				if (Z_TYPE_P(entry) == IS_STRING)
-				{
+				if (Z_TYPE_P(entry) == IS_STRING) {
 					add_column(entry);
-					//static const unsigned int errcode = 10003;
-					//static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
-					//static const MYSQLND_CSTRING errmsg = {"Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1};
-					//mysqlx_new_exception(errcode, sqlstate, errmsg);
-					//goto end;
 				}
-				else
-				{
-					//static const unsigned int errcode = 10004;
-					//static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
-					//static const MYSQLND_CSTRING errmsg = {"Error while adding a where expression", sizeof("Error while adding a where expression") - 1};
-					//mysqlx_new_exception(errcode, sqlstate, errmsg);
-					goto end;
+				else {
+					ret = FAIL;
+					break;
 				}
 			} ZEND_HASH_FOREACH_END();
-			ret = PASS;
-			break;
 		}
-						/* fall-through */
-		default: {
-			//static const unsigned int errcode = 10005;
-			//static const MYSQLND_CSTRING sqlstate = {"HY000", sizeof("HY000") - 1};
-			//static const MYSQLND_CSTRING errmsg = {"Parameter must be a string or array of strings", sizeof("Parameter must be a string or array of strings") - 1};
-			//mysqlx_new_exception(errcode, sqlstate, errmsg);
-			ret = FAIL;
-		}
+		break;
+	default:
+		break;
 	}
-
-end:
 	return;
 }
 /* }}} */
@@ -893,10 +877,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns)
 			}
 			/* fall-through */
 		default:{
-			static const unsigned int errcode = 10007;
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Invalid value type", sizeof("Invalid value type") - 1 };
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			RAISE_EXCEPTION(err_msg_invalid_type);
 			DBG_VOID_RETURN;
 		}
 	}
@@ -919,10 +900,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns)
 			}
 			/* NO else */
 			if (Z_TYPE_P(entry) != IS_STRING) {
-				static const unsigned int errcode = 10003;
-				static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-				static const MYSQLND_CSTRING errmsg = { "Parameter must be an array of strings", sizeof("Parameter must be an array of strings") - 1 };
-				mysqlx_new_exception(errcode, sqlstate, errmsg);
+				RAISE_EXCEPTION(err_msg_wrong_param_1);
 				break;
 			}
 			{
@@ -933,10 +911,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns)
 	}
 
 	if (FAIL == ret) {
-		static const unsigned int errcode = 10004;
-		static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-		static const MYSQLND_CSTRING errmsg = { "Error while adding a sort expression", sizeof("Error while adding a sort expression") - 1 };
-		mysqlx_new_exception(errcode, sqlstate, errmsg);
+		RAISE_EXCEPTION(err_msg_add_sort_fail);
 	}
 }
 /* }}} */
