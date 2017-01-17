@@ -85,7 +85,7 @@ string prepare_reason_msg(const string& sql_state, const string& msg)
 
 /* {{{ mysqlx::phputils::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code)
-	: std::exception(prepare_reason_msg(GENERAL_SQL_STATE, code_to_err_msg.at(code).second).c_str())
+	: std::runtime_error(prepare_reason_msg(GENERAL_SQL_STATE, code_to_err_msg.at(code).second).c_str())
 	, code(code_to_err_msg.at(code).first)
 {
 }
@@ -93,7 +93,7 @@ xdevapi_exception::xdevapi_exception(Code code)
 
 /* {{{ mysqlx::phputils::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
-	: std::exception(prepare_reason_msg(sql_state, msg).c_str())
+	: std::runtime_error(prepare_reason_msg(sql_state, msg).c_str())
 	, code(code)
 {
 }
@@ -110,7 +110,7 @@ doc_ref_exception::doc_ref_exception(Severity severity, _zend_class_entry* ce)
 
 /* {{{ mysqlx::phputils::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
-	: std::exception(msg.c_str())
+	: std::runtime_error(msg.c_str())
 	, severity(severity)
 {
 }

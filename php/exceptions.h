@@ -30,7 +30,7 @@ namespace mysqlx {
 namespace phputils {
 
 /* {{{ mysqlx::phputils::xdevapi_exception */
-struct xdevapi_exception : public std::exception
+struct xdevapi_exception : public std::runtime_error
 {
 	enum class Code
 	{
@@ -69,7 +69,7 @@ struct xdevapi_exception : public std::exception
 /* }}} */
 
 /* {{{ mysqlx::phputils::doc_ref_exception */
-struct doc_ref_exception : public std::exception
+struct doc_ref_exception : public std::runtime_error
 {
 	enum class Severity
 	{
