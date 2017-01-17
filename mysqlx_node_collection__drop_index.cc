@@ -37,6 +37,7 @@ extern "C" {
 #include "mysqlx_executable.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__drop_index.h"
+#include "mysqlx_object.h"
 
 #include "php/allocator.h"
 #include "php/exceptions.h"

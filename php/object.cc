@@ -15,6 +15,16 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+extern "C" {
+#include <php.h>
+#undef ERROR
+#undef inline
+#include <zend_exceptions.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
+#include "mysqlx_class_properties.h"
 #include "object.h"
 
 namespace mysqlx {
