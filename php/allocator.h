@@ -80,6 +80,18 @@ class allocator
 {
 	public:
 		typedef T value_type;
+		typedef size_t size_type;
+		typedef ptrdiff_t difference_type;
+		typedef T* pointer;
+		typedef const T* const_pointer;
+		typedef T& reference;
+		typedef const T& const_reference;
+
+		template<typename U>
+		struct rebind 
+		{ 
+			using other = allocator<U>;
+		};
 
 		allocator() = default;
 
@@ -116,25 +128,6 @@ class allocator
 		{
 			::operator delete(ptr, phputils::alloc_tag);
 		}
-
-
-//------------------------------------------------------------------------------
-
-	// TODO obsolete - remove all that stuff in case of newer gcc on pb
-	public:
-		typedef size_t size_type;
-		typedef ptrdiff_t difference_type;
-		typedef T* pointer;
-		typedef const T* const_pointer;
-		typedef T& reference;
-		typedef const T& const_reference;
-
-		template<typename U>
-		struct rebind 
-		{ 
-			using other = allocator<U>;
-		};
-
 };
 /* }}} */
 

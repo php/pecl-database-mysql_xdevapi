@@ -37,6 +37,7 @@ namespace
 
 const string general_sql_state = GENERAL_SQL_STATE;
 
+/* {{{ mysqlx::phputils::code_to_err_msg */
 const std::map<xdevapi_exception::Code, std::pair<unsigned int, string>> code_to_err_msg = {
 	{ xdevapi_exception::Code::fetch_fail, { 10000, "Coulnd't fetch data" }},
 	{ xdevapi_exception::Code::meta_fail, { 10001, "Unable to extract metadata" }},
@@ -64,7 +65,9 @@ const std::map<xdevapi_exception::Code, std::pair<unsigned int, string>> code_to
 	{ xdevapi_exception::Code::drop_index_fail, { 10023, "DropIndex not completely initialized" }},
 	{ xdevapi_exception::Code::arridx_del_fail, { 10024, "Error while deleting an array index" }},
 };
+/* }}} */
 
+/* {{{ mysqlx::phputils::prepare_reason_msg */
 string prepare_reason_msg(const string& sql_state, const string& msg)
 {
 	ostringstream os;
@@ -72,40 +75,56 @@ string prepare_reason_msg(const string& sql_state, const string& msg)
 	const string& reason = os.str();
 	return reason;
 }
+/* }}} */
 
 } // anonymous namespace
 
+//------------------------------------------------------------------------------
+
+/* {{{ mysqlx::phputils::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code)
 	: std::exception(prepare_reason_msg(general_sql_state, code_to_err_msg.at(code).second).c_str())
 	, code(code_to_err_msg.at(code).first)
 {
 }
+/* }}} */
 
+/* {{{ mysqlx::phputils::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
 	: std::exception(prepare_reason_msg(sql_state, msg).c_str())
 	, code(code)
 {
 }
+/* }}} */
 
+//------------------------------------------------------------------------------
+
+/* {{{ mysqlx::phputils::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, _zend_class_entry* ce)
 	: doc_ref_exception(severity, phputils::string("invalid object of class ") + ZSTR_VAL(ce->name))
 {
 }
+/* }}} */
 
+/* {{{ mysqlx::phputils::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
 	: std::exception(msg.c_str())
 	, severity(severity)
 {
 }
+/* }}} */
 
 //------------------------------------------------------------------------------
 
+/* {{{ mysqlx::phputils::raise_xdevapi_exception */
 void raise_xdevapi_exception(const xdevapi_exception& e)
 {
 	const char* what = e.what();
 	zend_throw_exception(mysqlx_exception_class_entry, what, e.code);
 }
+/* }}} */
 
+/* {{{ mysqlx::phputils::raise_doc_ref_exception */
 void raise_doc_ref_exception(const doc_ref_exception& e)
 {
 	static const std::map<doc_ref_exception::Severity, int> severity_mapping = {
@@ -119,20 +138,25 @@ void raise_doc_ref_exception(const doc_ref_exception& e)
 	const char* what = e.what();
 	php_error_docref(nullptr, severity, what);
 }
+/* }}} */
 
+/* {{{ mysqlx::phputils::raise_common_exception */
 void raise_common_exception(const std::exception& e)
 {
 	const char* what = e.what();
 	const int CommonExceptionCode = 0; //TODO
 	zend_throw_exception(mysqlx_exception_class_entry, what, CommonExceptionCode);
 }
+/* }}} */
 
+/* {{{ mysqlx::phputils::raise_unknown_exception */
 void raise_unknown_exception()
 {
 	const char* what = "MySQL XDevAPI - unknown exception";
 	const int UnknownExceptionCode = 0; //TODO
 	zend_throw_exception(mysqlx_exception_class_entry, what, UnknownExceptionCode);
 }
+/* }}} */
 
 } // namespace phputils
 

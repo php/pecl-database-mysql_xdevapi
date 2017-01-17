@@ -51,8 +51,8 @@ namespace drv {
 namespace
 {
 
-template<typename TString>
-bool is_empty(const TString& mystr)
+template<typename String>
+bool is_empty(const String& mystr)
 {
 	return (mystr.s == NULL) || (mystr.l == 0);
 }
