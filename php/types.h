@@ -27,11 +27,9 @@
 #include <vector>
 #include "allocator.h"
 
-namespace mysql
-{
+namespace mysqlx {
 
-namespace php
-{
+namespace phputils {
 
 template<typename T>
 using vector = std::vector<T, allocator<T>>;
@@ -54,9 +52,9 @@ using deque = std::deque<T, std::allocator<T>>;
 template<typename T, typename Container = deque<T>>
 using stack = std::stack<T, Container>;
 
-} // namespace php
+} // namespace phputils
 
-} // namespace mysql
+} // namespace mysqlx
 
 #endif // MYSQL_XDEVAPI_PHP_TYPES_H
 

@@ -17,11 +17,9 @@
 */
 #include "object.h"
 
-namespace mysql
-{
+namespace mysqlx {
 
-namespace php
-{
+namespace phputils {
 
 void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
@@ -30,9 +28,9 @@ void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
 	} MYSQL_XDEVAPI_CATCH
 }
 
-} // namespace php
+} // namespace phputils
 
-} // namespace mysql
+} // namespace mysqlx
 
 /*
  * Local variables:

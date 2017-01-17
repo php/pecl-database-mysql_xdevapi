@@ -23,12 +23,9 @@
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_on_error_bind;
 
-namespace mysql
-//namespace mysqlx
-{
+namespace mysqlx {
 
-namespace drv
-{
+namespace drv {
 
 typedef struct st_xmysqlnd_collection_op__create_index XMYSQLND_COLLECTION_OP__CREATE_INDEX;
 XMYSQLND_COLLECTION_OP__CREATE_INDEX* xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name);

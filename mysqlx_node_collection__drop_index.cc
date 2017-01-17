@@ -42,12 +42,9 @@ extern "C" {
 #include "php/exceptions.h"
 #include "php/object.h"
 
-namespace mysql
-//namespace mysqlx
-{
+namespace mysqlx {
 
-namespace api
-{
+namespace devapi {
 
 namespace
 {
@@ -58,7 +55,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_collection_drop_index__execute, 0, ZEND_RETURN_VA
 ZEND_END_ARG_INFO()
 
 
-struct collection_drop_index_data : php::custom_allocable
+struct collection_drop_index_data : phputils::custom_allocable
 {
 	~collection_drop_index_data()
 	{
@@ -94,7 +91,7 @@ mysqlx_node_collection_drop_index_on_error(
 	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_collection_drop_index_on_error");
-	throw mysql::php::xdevapi_exception(code, mysql::php::string(sql_state.s, sql_state.l), mysql::php::string(message.s, message.l));
+	throw mysqlx::phputils::xdevapi_exception(code, mysqlx::phputils::string(sql_state.s, sql_state.l), mysqlx::phputils::string(message.s, message.l));
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
@@ -114,11 +111,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__drop_index, execute)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = php::fetch_data_object<collection_drop_index_data>(object_zv);
+	auto& data_object = phputils::fetch_data_object<collection_drop_index_data>(object_zv);
 
 	if (!drv::xmysqlnd_collection_drop_index__is_initialized(data_object.index_op)) {
 		const unsigned int ErrCode = 10008;
-		throw mysql::php::xdevapi_exception(ErrCode, "HY000", "DropIndex not completely initialized");
+		throw mysqlx::phputils::xdevapi_exception(ErrCode, "HY000", "DropIndex not completely initialized");
 	}
 
 	const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_drop_index_on_error, NULL };
@@ -154,7 +151,7 @@ const struct st_mysqlx_property_entry collection_drop_index_property_entries[] =
 static void
 mysqlx_node_collection__drop_index_free_storage(zend_object * object)
 {
-	php::free_object<collection_drop_index_data>(object);
+	phputils::free_object<collection_drop_index_data>(object);
 }
 /* }}} */
 
@@ -164,7 +161,7 @@ static zend_object *
 php_mysqlx_node_collection__drop_index_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_collection__drop_index_object_allocator");
-	st_mysqlx_object* mysqlx_object = php::alloc_object<collection_drop_index_data>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<collection_drop_index_data>(
 		class_type,
 		&collection_drop_index_handlers,
 		&collection_drop_index_properties);
@@ -174,17 +171,16 @@ php_mysqlx_node_collection__drop_index_object_allocator(zend_class_entry * class
 
 } // anonymous namespace
 
-} // namespace api
+} // namespace devapi
 
-//} // namespace mysqlx
-} // namespace mysql
+} // namespace mysqlx
 
 extern "C"
 {
 
 //TODO ds: temporarily till we rename most of *.c into *.cc
-using namespace mysql;
-using namespace mysql::api;
+using namespace mysqlx;
+using namespace mysqlx::devapi;
 
 /* {{{ mysqlx_register_node_collection__drop_index_class */
 void
@@ -224,7 +220,7 @@ mysqlx_new_node_collection__drop_index(
 	DBG_ENTER("mysqlx_new_node_collection__drop_index");
 	//TODO temporarily try/catch, port files from *.c to *.cc to apply exceptions/destructors everywhere :-}
 	MYSQL_XDEVAPI_TRY {
-		auto& data_object = php::init_object<collection_drop_index_data>(collection_drop_index_class_entry, return_value);
+		auto& data_object = phputils::init_object<collection_drop_index_data>(collection_drop_index_class_entry, return_value);
 
 		data_object.collection = collection->data->m.get_reference(collection);
 		data_object.index_op = drv::xmysqlnd_collection_drop_index__create(
@@ -247,7 +243,7 @@ err:
 		}
 		zval_ptr_dtor(return_value);
 		ZVAL_NULL(return_value);
-		throw php::docref_exception(php::docref_exception::Kind::Warning, collection_drop_index_class_entry);
+		throw phputils::doc_ref_exception(phputils::doc_ref_exception::Severity::warning, collection_drop_index_class_entry);
 	} MYSQL_XDEVAPI_CATCH
 end:
 	DBG_VOID_RETURN;

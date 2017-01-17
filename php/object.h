@@ -28,14 +28,12 @@ extern "C" {
 struct st_mysqlx_property_entry;
 struct st_mysqlx_object;
 
-namespace mysql
-{
+namespace mysqlx {
 
-namespace php
-{
+namespace phputils {
 
-const int DontAllowNull = 0;
-const int NoPassByRef = 0;
+const int dont_allow_null = 0;
+const int no_pass_by_ref = 0;
 
 //------------------------------------------------------------------------------
 
@@ -81,7 +79,7 @@ st_mysqlx_object* alloc_object(
 	HashTable* properties)
 {
 	const std::size_t bytes_count = sizeof(st_mysqlx_object) + zend_object_properties_size(class_type);
-	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, php::alloc_tag));
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, phputils::alloc_tag));
 	memset(mysqlx_object, 0, bytes_count);
 
 	static_assert(std::is_base_of<custom_allocable, data_object_t>::value, "custom allocation should be applied");
@@ -100,10 +98,10 @@ template<typename data_object_t>
 data_object_t& init_object(zend_class_entry* ce, zval* mysqlx_object)
 {
 	if ((SUCCESS == object_init_ex(mysqlx_object, ce)) && (IS_OBJECT == Z_TYPE_P(mysqlx_object))) {
-		auto& data_object = php::fetch_data_object<data_object_t>(mysqlx_object);
+		auto& data_object = phputils::fetch_data_object<data_object_t>(mysqlx_object);
 		return data_object;
 	} else {
-		throw php::docref_exception(php::docref_exception::Kind::Warning, ce);
+		throw phputils::doc_ref_exception(phputils::doc_ref_exception::Severity::warning, ce);
 	}
 }
 
@@ -123,7 +121,7 @@ data_object_t& fetch_data_object(zval* from)
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(from);
 	data_object_t* data_object = static_cast<data_object_t*>(mysqlx_object->ptr);
 	if (!data_object) {
-		throw php::docref_exception(php::docref_exception::Kind::Warning, mysqlx_object->zo.ce);
+		throw phputils::doc_ref_exception(phputils::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
 	}
 	return *data_object;
 }
@@ -134,9 +132,9 @@ using php_method_t = void(INTERNAL_FUNCTION_PARAMETERS);
 
 void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
 
-} // namespace php
+} // namespace phputils
 
-} // namespace mysql
+} // namespace mysqlx
 
 #define MYSQL_XDEVAPI_REGISTER_CLASS( \
 	class_entry, \
@@ -152,7 +150,7 @@ void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
 { \
 	zend_class_entry tmp_ce; \
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", class_name, methods); \
-	class_entry = mysql::php::register_class( \
+	class_entry = mysqlx::phputils::register_class( \
 		&tmp_ce, \
 		std_handlers, \
 		&handlers, \
@@ -167,7 +165,7 @@ void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
 static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
 static PHP_METHOD(class_name, name) \
 { \
-	mysql::php::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
+	mysqlx::phputils::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
 } \
 static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 

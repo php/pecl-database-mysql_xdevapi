@@ -28,11 +28,9 @@ extern "C"
 #include "mysqlx_exception.h"
 #include "types.h"
 
-namespace mysql
-{
+namespace mysqlx {
 
-namespace php
-{
+namespace phputils {
 
 namespace
 {
@@ -47,62 +45,61 @@ string prepare_reason_msg(const string& sql_state, const string& msg)
 
 } // anonymous namespace
 
-xdevapi_exception::xdevapi_exception(const unsigned int code_, const string& sql_state, const string& msg)
+xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
 	: std::exception(prepare_reason_msg(sql_state, msg).c_str())
-	, code(code_)
+	, code(code)
 {
 }
 
-docref_exception::docref_exception(const Kind kind_, _zend_class_entry* ce)
-	: docref_exception(kind_, php::string("invalid object of class ") + ZSTR_VAL(ce->name))
+doc_ref_exception::doc_ref_exception(Severity severity, _zend_class_entry* ce)
+	: doc_ref_exception(severity, phputils::string("invalid object of class ") + ZSTR_VAL(ce->name))
 {
 }
 
-docref_exception::docref_exception(const Kind kind_, const string& msg)
+doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
 	: std::exception(msg.c_str())
-	, kind(kind_)
+	, severity(severity)
 {
 }
 
 //------------------------------------------------------------------------------
 
-void throw_xdevapi_exception(const xdevapi_exception& e)
+void raise_xdevapi_exception(const xdevapi_exception& e)
 {
 	const char* what = e.what();
 	zend_throw_exception(mysqlx_exception_class_entry, what, e.code);
 }
 
-void throw_doc_ref_exception(const docref_exception& e)
+void raise_doc_ref_exception(const doc_ref_exception& e)
 {
-	static const std::map<docref_exception::Kind, int> kind_mapping = {
-		{ docref_exception::Kind::Strict, E_STRICT },
-		{ docref_exception::Kind::Warning, E_WARNING },
-		{ docref_exception::Kind::Error, E_ERROR }
+	static const std::map<doc_ref_exception::Severity, int> severity_mapping = {
+		{ doc_ref_exception::Severity::warning, E_WARNING },
+		{ doc_ref_exception::Severity::error, E_ERROR }
 	};
-	auto it = kind_mapping.find(e.kind);
-	assert(it != kind_mapping.end());
-	const int kind = it->second;
+	auto it = severity_mapping.find(e.severity);
+	assert(it != severity_mapping.end());
+	const int severity = it->second;
 	const char* what = e.what();
-	php_error_docref(nullptr, kind, what);
+	php_error_docref(nullptr, severity, what);
 }
 
-void throw_common_exception(const std::exception& e)
+void raise_common_exception(const std::exception& e)
 {
 	const char* what = e.what();
 	const int CommonExceptionCode = 0; //TODO
 	zend_throw_exception(mysqlx_exception_class_entry, what, CommonExceptionCode);
 }
 
-void throw_unknown_exception()
+void raise_unknown_exception()
 {
 	const char* what = "MySQL XDevAPI - unknown exception";
 	const int UnknownExceptionCode = 0; //TODO
 	zend_throw_exception(mysqlx_exception_class_entry, what, UnknownExceptionCode);
 }
 
-} // namespace php
+} // namespace phputils
 
-} // namespace mysql
+} // namespace mysqlx
 
 /*
  * Local variables:

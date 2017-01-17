@@ -25,18 +25,16 @@ extern "C"
 }
 #include "allocator.h"
 
-namespace mysql
-{
+namespace mysqlx {
 
-namespace php
-{
+namespace phputils {
 
 const alloc_tag_t alloc_tag;
 
 namespace internal
 {
 
-/* {{{ mysql::php::internal::mem_alloc */
+/* {{{ mysqlx::phputils::internal::mem_alloc */
 void* mem_alloc(std::size_t bytes_count)
 {
 	void* ptr = mnd_emalloc(bytes_count);
@@ -48,7 +46,7 @@ void* mem_alloc(std::size_t bytes_count)
 }
 /* }}} */
 
-/* {{{ mysql::php::internal::mem_free */
+/* {{{ mysqlx::phputils::internal::mem_free */
 void mem_free(void* ptr)
 {
 	mnd_efree(ptr);
@@ -57,9 +55,9 @@ void mem_free(void* ptr)
 
 } // namespace internal
 
-} // namespace php
+} // namespace phputils
 
-} // namespace mysql
+} // namespace mysqlx
 
 /*
  * Local variables:
