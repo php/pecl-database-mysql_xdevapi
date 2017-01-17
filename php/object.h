@@ -98,6 +98,19 @@ st_mysqlx_object* alloc_object(
 }
 /* }}} */
 
+/* {{{ mysqlx::phputils::fetch_data_object */
+template<typename Data_object>
+Data_object& fetch_data_object(zval* from)
+{
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(from);
+	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
+	if (!data_object) {
+		throw phputils::doc_ref_exception(phputils::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
+	}
+	return *data_object;
+}
+/* }}} */
+
 /* {{{ mysqlx::phputils::init_object */
 template<typename Data_object>
 Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
@@ -120,19 +133,6 @@ void free_object(zend_object* object)
 	static_assert(std::is_base_of<custom_allocable, Data_object>::value, "custom allocation should be applied");
 	delete data_object;
 	mysqlx_object_free_storage(object);
-}
-/* }}} */
-
-/* {{{ mysqlx::phputils::fetch_data_object */
-template<typename Data_object>
-Data_object& fetch_data_object(zval* from)
-{
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(from);
-	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
-	if (!data_object) {
-		throw phputils::doc_ref_exception(phputils::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
-	}
-	return *data_object;
 }
 /* }}} */
 
