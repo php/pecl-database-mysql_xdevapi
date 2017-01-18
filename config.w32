@@ -9,7 +9,7 @@ ARG_ENABLE("mysql-xdevapi", "MySQL XDevAPI support | Hybrid Native Client Driver
 if (PHP_MYSQL_XDEVAPI != "no") {
 
 	if (CHECK_LIB("ws2_32.lib", "mysql_xdevapi")
-		&& (((PHP_DEBUG == "no") && CHECK_LIB("libprotobuf.lib", "mysql_xdevapi")) || ((PHP_DEBUG == "yes") && CHECK_LIB("libprotobufd.lib", "mysql_xdevapi")))
+		&& (CHECK_LIB("libprotobuf.lib", "mysql_xdevapi") || ((PHP_DEBUG == "yes") && CHECK_LIB("libprotobufd.lib", "mysql_xdevapi")))
 		&& PHP_JSON != "no")
 	{
 		mysqlx_proto_sources="ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx.proto " +
@@ -75,7 +75,9 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"mysqlx_schema_object.c " +
 			"mysqlx_warning.c ";
 
-		mysqlx_php="allocator.cc ";
+		mysqlx_php="allocator.cc " +
+			"exceptions.cc " +
+			"object.cc ";
 
 		mysqlx_messages="mysqlx_node_connection.c " +
 			"mysqlx_node_pfc.c " +

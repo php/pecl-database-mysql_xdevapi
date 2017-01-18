@@ -445,7 +445,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const
 							&has_more,
 							stats,
 							error_info);
-	
+
 	} while (ret == PASS && has_more == TRUE);
 	DBG_RETURN(ret);
 }

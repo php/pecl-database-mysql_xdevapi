@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-void mysqlx_new_node_collection__drop_index(zval * return_value, const MYSQLND_CSTRING index_name, struct st_xmysqlnd_node_collection * collection, const zend_bool clone_collection);
+void mysqlx_new_node_collection__drop_index(zval * return_value, const MYSQLND_CSTRING index_name, struct st_xmysqlnd_node_collection * collection);
 void mysqlx_register_node_collection__drop_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__drop_index_class(SHUTDOWN_FUNC_ARGS);
 

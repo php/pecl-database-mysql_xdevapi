@@ -36,6 +36,8 @@ extern "C"
 #include <string>
 
 #include "xmysqlnd_index_collection_commands.h"
+#include "mysqlx_object.h"
+#include "mysqlx_class_properties.h"
 #include "proto_gen/mysqlx_sql.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
 #include "crud_parsers/expression_parser.h"
@@ -44,11 +46,15 @@ extern "C"
 #include "../php/strings.h"
 #include "../php/types.h"
 
+namespace mysqlx {
+
+namespace drv {
+
 namespace
 {
 
-template<typename TString>
-bool is_empty(const TString& mystr)
+template<typename String>
+bool is_empty(const String& mystr)
 {
 	return (mystr.s == NULL) || (mystr.l == 0);
 }
@@ -60,8 +66,8 @@ bool is_empty(const TString& mystr)
 
 struct st_index_field
 {
-	mysql::php::string doc_path;
-	mysql::php::string column_type;
+	phputils::string doc_path;
+	phputils::string column_type;
 	zend_bool is_required = FALSE;
 
 	st_index_field()
@@ -79,13 +85,13 @@ struct st_index_field
 	}
 };
 
-using st_index_fields = mysql::php::vector<st_index_field>;
+using st_index_fields = phputils::vector<st_index_field>;
 
-struct st_xmysqlnd_collection_op__create_index : mysql::php::custom_allocable
+struct st_xmysqlnd_collection_op__create_index : phputils::custom_allocable
 {
-	mysql::php::string schema_name;
-	mysql::php::string collection_name;
-	mysql::php::string index_name;
+	phputils::string schema_name;
+	phputils::string collection_name;
+	phputils::string index_name;
 	zend_bool is_unique = FALSE;
 
 	st_index_fields index_fields;
@@ -108,7 +114,7 @@ struct st_xmysqlnd_collection_op__create_index : mysql::php::custom_allocable
 
 
 /* {{{ xmysqlnd_collection_create_index__create */
-extern "C" XMYSQLND_COLLECTION_OP__CREATE_INDEX *
+XMYSQLND_COLLECTION_OP__CREATE_INDEX *
 xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name)
 {
 	XMYSQLND_COLLECTION_OP__CREATE_INDEX * ret = NULL;
@@ -121,7 +127,7 @@ xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, cons
 
 
 /* {{{ xmysqlnd_collection_create_index__destroy */
-extern "C" void
+void
 xmysqlnd_collection_create_index__destroy(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__destroy");
@@ -132,7 +138,7 @@ xmysqlnd_collection_create_index__destroy(XMYSQLND_COLLECTION_OP__CREATE_INDEX *
 
 
 /* {{{ xmysqlnd_collection_create_index__set_index_name */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_create_index__set_index_name(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, const MYSQLND_CSTRING index_name)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__set_index_name");
@@ -144,7 +150,7 @@ xmysqlnd_collection_create_index__set_index_name(XMYSQLND_COLLECTION_OP__CREATE_
 
 
 /* {{{ xmysqlnd_collection_create_index__set_index_name */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_create_index__set_unique(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, const zend_bool is_unique)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__set_unique");
@@ -156,7 +162,7 @@ xmysqlnd_collection_create_index__set_unique(XMYSQLND_COLLECTION_OP__CREATE_INDE
 
 
 /* {{{ xmysqlnd_collection_create_index__add_field */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_create_index__add_field(
 	XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj,
 	MYSQLND_CSTRING doc_path,
@@ -179,7 +185,7 @@ xmysqlnd_collection_create_index__add_field(
 
 
 /* {{{ xmysqlnd_collection_create_index__is_initialized */
-extern "C" zend_bool
+zend_bool
 xmysqlnd_collection_create_index__is_initialized(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj)
 {
 	const zend_bool ret = obj && obj->is_initialized() ? TRUE : FALSE;
@@ -232,7 +238,7 @@ static enum_hnd_func_status
 collection_index_bind_string_param(
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
 	const unsigned int param_no,
-	const mysql::php::string& param)
+	const phputils::string& param)
 {
 	DBG_ENTER("collection_index_bind_string_param");
 	enum_hnd_func_status ret = HND_FAIL;
@@ -260,15 +266,15 @@ static enum_hnd_func_status
 collection_index_bind_field_param(
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
 	const unsigned int param_no,
-	const mysql::php::string& rawPath)
+	const phputils::string& rawPath)
 {
 	DBG_ENTER("collection_index_bind_field_param");
 	enum_hnd_func_status ret = HND_FAIL;
 
-	mysql::php::string fieldPath;
+	phputils::string fieldPath;
 
 	try {
-		const mysql::php::string source(rawPath.length() ? rawPath.c_str() : "$", rawPath.length() ? rawPath.length() : sizeof("$") - 1);
+		const phputils::string source(rawPath.length() ? rawPath.c_str() : "$", rawPath.length() ? rawPath.length() : sizeof("$") - 1);
 		xmysqlnd::Expression_parser parser(source.c_str(), true);
 		std::unique_ptr<Mysqlx::Expr::Expr> docField(parser.document_field());
 		if (docField->has_identifier()) {
@@ -361,7 +367,7 @@ collection_create_index_var_binder(
 	struct st_collection_create_collection_index_var_binder_ctx * ctx = (struct st_collection_create_collection_index_var_binder_ctx *) context;
 	st_xmysqlnd_collection_op__create_index* index_op = ctx->index_op;
 
-	const mysql::php::string * param = NULL;
+	const phputils::string * param = NULL;
 	DBG_ENTER("collection_create_index_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -390,7 +396,7 @@ collection_create_index_var_binder(
 
 
 /* {{{ xmysqlnd_collection_create_index__execute */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_create_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__execute");
@@ -417,11 +423,11 @@ xmysqlnd_collection_create_index__execute(struct st_xmysqlnd_node_session * cons
 /* }}} */
 
 /****************************** COLLECTION.DROP_INDEX() *******************************************************/
-struct st_xmysqlnd_collection_op__drop_index : mysql::php::custom_allocable
+struct st_xmysqlnd_collection_op__drop_index : phputils::custom_allocable
 {
-	mysql::php::string schema_name;
-	mysql::php::string collection_name;
-	mysql::php::string index_name;
+	phputils::string schema_name;
+	phputils::string collection_name;
+	phputils::string index_name;
 
 	st_xmysqlnd_collection_op__drop_index(
 		const MYSQLND_CSTRING & schema_,
@@ -440,7 +446,7 @@ struct st_xmysqlnd_collection_op__drop_index : mysql::php::custom_allocable
 
 
 /* {{{ xmysqlnd_collection_drop_index__create */
-extern "C" XMYSQLND_COLLECTION_OP__DROP_INDEX *
+XMYSQLND_COLLECTION_OP__DROP_INDEX *
 xmysqlnd_collection_drop_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name)
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__create");
@@ -452,7 +458,7 @@ xmysqlnd_collection_drop_index__create(const MYSQLND_CSTRING schema_name, const 
 
 
 /* {{{ xmysqlnd_collection_drop_index__destroy */
-extern "C" void
+void
 xmysqlnd_collection_drop_index__destroy(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj)
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__destroy");
@@ -463,7 +469,7 @@ xmysqlnd_collection_drop_index__destroy(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj
 
 
 /* {{{ xmysqlnd_collection_drop_index__set_index_name */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_drop_index__set_index_name(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj, const MYSQLND_CSTRING index_name)
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__set_index_name");
@@ -475,7 +481,7 @@ xmysqlnd_collection_drop_index__set_index_name(XMYSQLND_COLLECTION_OP__DROP_INDE
 
 
 /* {{{ xmysqlnd_collection_drop_index__is_initialized */
-extern "C" zend_bool
+zend_bool
 xmysqlnd_collection_drop_index__is_initialized(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj)
 {
 	const zend_bool ret = obj && obj->is_initialized() ? TRUE : FALSE;
@@ -506,7 +512,7 @@ collection_drop_index_var_binder(
 	struct st_collection_drop_collection_index_var_binder_ctx * ctx = (struct st_collection_drop_collection_index_var_binder_ctx *) context;
 	st_xmysqlnd_collection_op__drop_index* index_op = ctx->index_op;
 
-	const mysql::php::string * param = NULL;
+	const phputils::string * param = NULL;
 	DBG_ENTER("collection_drop_index_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -534,7 +540,7 @@ collection_drop_index_var_binder(
 
 
 /* {{{ xmysqlnd_collection_drop_index__execute */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_drop_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__DROP_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__execute");
@@ -561,6 +567,10 @@ xmysqlnd_collection_drop_index__execute(struct st_xmysqlnd_node_session * const 
 	return ret;
 }
 /* }}} */
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

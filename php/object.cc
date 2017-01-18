@@ -15,48 +15,34 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHP_TYPES_H
-#define MYSQL_XDEVAPI_PHP_TYPES_H
-
-#include <deque>
-#include <map>
-#include <set>
-#include <stack>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-#include "allocator.h"
+extern "C" {
+#include <php.h>
+#undef ERROR
+#undef inline
+#include <zend_exceptions.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
+#include "mysqlx_class_properties.h"
+#include "object.h"
 
 namespace mysqlx {
 
 namespace phputils {
 
-template<typename T>
-using vector = std::vector<T, allocator<T>>;
-
-template<typename Key, typename T, typename Compare = std::less<Key>>
-using map = std::map<Key, T, Compare, allocator<std::pair<const Key, T>>>;
-
-template<typename Key, typename Compare = std::less<Key>>
-using set = std::set<Key, Compare, allocator<Key>>;
-
-template<typename Key, typename T, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
-using unordered_map = std::unordered_map<Key, T, Hash, KeyEqual, allocator<std::pair<const Key, T>>>;
-
-template<typename Key, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
-using unordered_set = std::unordered_set<Key, Hash, KeyEqual, allocator<Key>>;
-
-template<typename T>
-using deque = std::deque<T, std::allocator<T>>;
-
-template<typename T, typename Container = deque<T>>
-using stack = std::stack<T, Container>;
+/* {{{ mysqlx::phputils::doc_ref_exception */
+void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
+{
+	MYSQL_XDEVAPI_TRY {
+		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	} MYSQL_XDEVAPI_CATCH
+}
+/* }}} */
 
 } // namespace phputils
 
 } // namespace mysqlx
-
-#endif // MYSQL_XDEVAPI_PHP_TYPES_H
 
 /*
  * Local variables:

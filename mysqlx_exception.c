@@ -31,7 +31,7 @@
 
 #include "mysqlx_exception.h"
 
-static zend_class_entry * mysqlx_exception_class_entry;
+zend_class_entry * mysqlx_exception_class_entry;
 
 struct st_mysqlx_exception
 {

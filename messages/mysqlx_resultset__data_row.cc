@@ -62,7 +62,7 @@ ZEND_BEGIN_ARG_INFO_EX(mysqlx_data_row__decode, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, metadata, IS_OBJECT, 0)
 ZEND_END_ARG_INFO()
 
-/* {{{ mysqlx_data_row_free_storage */
+/* {{{ mysqlx_data_row::__construct */
 PHP_METHOD(mysqlx_data_row, __construct)
 {
 }

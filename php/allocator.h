@@ -20,62 +20,78 @@
 
 #include <memory>
 
-namespace mysql
-{
+namespace mysqlx {
 
-namespace php
-{
+namespace phputils {
 
 struct alloc_tag_t {};
 extern const alloc_tag_t alloc_tag;
 
-namespace internal
-{
+namespace internal {
 
 void* mem_alloc(std::size_t bytes_count);
 void mem_free(void* ptr);
 
 } // namespace internal
 
-} // namespace php
+} // namespace phputils
 
-} // namespace mysql
-
-//------------------------------------------------------------------------------
-
-inline void* operator new(std::size_t bytes_count, const mysql::php::alloc_tag_t&)
-{
-	return mysql::php::internal::mem_alloc(bytes_count);
-}
-
-inline void* operator new[](std::size_t bytes_count, const mysql::php::alloc_tag_t&)
-{
-	return mysql::php::internal::mem_alloc(bytes_count);
-}
-
-inline void operator delete(void* ptr, const mysql::php::alloc_tag_t&)
-{
-	mysql::php::internal::mem_free(ptr);
-}
-
-inline void operator delete[](void* ptr, const mysql::php::alloc_tag_t&)
-{
-	mysql::php::internal::mem_free(ptr);
-}
+} // namespace mysqlx
 
 //------------------------------------------------------------------------------
 
-namespace mysql
+/* {{{ operator new */
+inline void* operator new(std::size_t bytes_count, const mysqlx::phputils::alloc_tag_t&)
 {
+	return mysqlx::phputils::internal::mem_alloc(bytes_count);
+}
+/* }}} */
 
-namespace php
+/* {{{ operator new[] */
+inline void* operator new[](std::size_t bytes_count, const mysqlx::phputils::alloc_tag_t&)
 {
+	return mysqlx::phputils::internal::mem_alloc(bytes_count);
+}
+/* }}} */
 
+/* {{{ operator delete */
+inline void operator delete(void* ptr, const mysqlx::phputils::alloc_tag_t&)
+{
+	mysqlx::phputils::internal::mem_free(ptr);
+}
+/* }}} */
+
+/* {{{ operator delete[] */
+inline void operator delete[](void* ptr, const mysqlx::phputils::alloc_tag_t&)
+{
+	mysqlx::phputils::internal::mem_free(ptr);
+}
+/* }}} */
+
+//------------------------------------------------------------------------------
+
+namespace mysqlx {
+
+namespace phputils {
+
+/* {{{ mysqlx::phputils::internal::allocator */
 template<typename T>
 class allocator
 {
 	public:
 		typedef T value_type;
+		typedef size_t size_type;
+		typedef ptrdiff_t difference_type;
+		typedef T* pointer;
+		typedef const T* const_pointer;
+		typedef T& reference;
+		typedef const T& const_reference;
+
+		template<typename U>
+		struct rebind 
+		{ 
+			using other = allocator<U>;
+		};
 
 		allocator() = default;
 
@@ -104,52 +120,81 @@ class allocator
 			}
 
 			const size_t bytes_count = elem_count * sizeof(T);
-			void* ptr = ::operator new(bytes_count, php::alloc_tag);
+			void* ptr = ::operator new(bytes_count, phputils::alloc_tag);
 			return static_cast<T*>(ptr);
 		}
 
 		void deallocate(T* const ptr, size_t) const noexcept
 		{
-			::operator delete(ptr, php::alloc_tag);
+			::operator delete(ptr, phputils::alloc_tag);
+		}
+};
+/* }}} */
+
+//------------------------------------------------------------------------------
+
+/* {{{ mysqlx::phputils::internal::custom_allocable */
+class custom_allocable
+{
+	public:
+		static void* operator new(std::size_t bytes_count)
+		{
+			return ::operator new(bytes_count, phputils::alloc_tag);
 		}
 
+		static void* operator new[](std::size_t bytes_count)
+		{
+			return ::operator new(bytes_count, phputils::alloc_tag);
+		}
 
-//------------------------------------------------------------------------------
+		static void operator delete(void* ptr, size_t) noexcept
+		{
+			::operator delete(ptr, phputils::alloc_tag);
+		}
 
-	// TODO obsolete - remove all that stuff in case of newer gcc on pb
-	public:
-		typedef size_t size_type;
-		typedef ptrdiff_t difference_type;
-		typedef T* pointer;
-		typedef const T* const_pointer;
-		typedef T& reference;
-		typedef const T& const_reference;
+		static void operator delete[](void* ptr, size_t) noexcept
+		{
+			::operator delete(ptr, phputils::alloc_tag);
+		}
 
-		template<typename U>
-		struct rebind 
-		{ 
-			using other = allocator<U>;
-		};
+	protected:
+		custom_allocable() = default;
+		~custom_allocable() = default;
+
+		custom_allocable(const custom_allocable& ) = default;
+		custom_allocable& operator=(const custom_allocable& ) = default;
 
 };
+/* }}} */
 
 //------------------------------------------------------------------------------
 
+/* {{{ mysqlx::phputils::internal::deleter */
 template<typename T>
 struct deleter
 {
 	void operator()(T* t)
 	{
 		t->~T();
-		::operator delete(t, php::alloc_tag);
+		::operator delete(t, phputils::alloc_tag);
 	}
 };
+/* }}} */
 
 template<typename T>
 using unique_ptr = std::unique_ptr<T, deleter<T>>;
 
-} // namespace php
+} // namespace phputils
 
-} // namespace mysql
+} // namespace mysqlx
 
 #endif // MYSQL_XDEVAPI_PHP_ALLOCATOR_H
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

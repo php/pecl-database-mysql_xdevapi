@@ -20,12 +20,12 @@
 
 #include "xmysqlnd_crud_commands.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_on_error_bind;
+
+namespace mysqlx {
+
+namespace drv {
 
 typedef struct st_xmysqlnd_collection_op__create_index XMYSQLND_COLLECTION_OP__CREATE_INDEX;
 XMYSQLND_COLLECTION_OP__CREATE_INDEX* xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name);
@@ -49,9 +49,9 @@ enum_func_status xmysqlnd_collection_drop_index__set_index_name(XMYSQLND_COLLECT
 zend_bool xmysqlnd_collection_drop_index__is_initialized(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj);
 enum_func_status xmysqlnd_collection_drop_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__DROP_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error);
 
-#ifdef __cplusplus
-}
-#endif
+} // namespace drv
+
+} // namespace mysqlx
 
 #endif /* XMYSQLND_INDEX_COLLECTION_COMMANDS_H */
 

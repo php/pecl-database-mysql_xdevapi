@@ -22,11 +22,9 @@
 #include <sstream>
 #include "allocator.h"
 
-namespace mysql
-{
+namespace mysqlx {
 
-namespace php
-{
+namespace phputils {
 
 template<typename CharT, typename Traits = std::char_traits<CharT>>
 using basic_string = std::basic_string<CharT, Traits, allocator<CharT>>;
@@ -37,8 +35,8 @@ template<typename CharT, typename Traits = std::char_traits<CharT>>
 using basic_ostringstream = std::basic_ostringstream<CharT, Traits, allocator<CharT>>;
 using ostringstream = basic_ostringstream<char>;
 
-} // namespace php
+} // namespace phputils
 
-} // namespace mysql
+} // namespace mysqlx
 
 #endif // MYSQL_XDEVAPI_PHP_STRINGS_H
