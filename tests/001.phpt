@@ -51,8 +51,8 @@ error_reporting=0
 	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.'[::1]';
 		$nodeSession = mysql_xdevapi\getNodeSession($uri);
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		test_step_failed();
 	} catch(Exception $e) {
+	        test_step_failed();
 	}
 
         verify_expectations();
