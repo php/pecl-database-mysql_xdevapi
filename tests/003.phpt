@@ -12,10 +12,10 @@ mysqlx select / fetch
 	$schema = $nodeSession->getSchema($db);
 	$table = $schema->getTable('test_table');
 
-	$res = $table->select(['name','age'])->where('name like \'P%\' or name like\'C%\'')
+        $res = $table->select('name','age')->where('name like \'P%\' or name like\'C%\'')
 		->execute()->fetchAll();
 	expect_eq(count($res), 6);
-	$res = $table->select(['name','age'])->where('name like :name and age > :age')
+	$res = $table->select('name','age')->where('name like :name and age > :age')
 		->bind(['name' => 'Tierney', 'age' => 34])->orderBy('age desc')->execute();
 
 	$val = $res->fetchOne();
@@ -40,6 +40,15 @@ mysqlx select / fetch
 	expect_eq($res[0]['age'], 34);
 	expect_eq($res[1]['name'], 'Polly');
 	expect_eq($res[1]['age'], 34);
+
+        //Verify aliases
+	$res = $table->select('name as nm','age as ag')->where('age > 34')->execute();
+	$data = $res->fetchAll();
+	expect_eq(count($data),2);
+	expect_eq($data[0]['nm'],'Tierney');
+	expect_eq($data[0]['ag'],46);
+	expect_eq($data[1]['nm'],'Tierney');
+	expect_eq($data[1]['ag'],39);
 
 	verify_expectations();
 	print "done!\n";

@@ -143,12 +143,16 @@ PHP_METHOD(mysqlx_node_table__delete, orderby)
 	struct st_mysqlx_node_table__delete * object;
 	zval * object_zv;
 	zval * orderby_expr = NULL;
+	int    num_of_expr = 0;
+	int    i = 0;
 
 	DBG_ENTER("mysqlx_node_table__delete::orderby");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
-		&object_zv, mysqlx_node_table__delete_class_entry,
-		&orderby_expr))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+									&object_zv,
+									mysqlx_node_table__delete_class_entry,
+									&orderby_expr,
+									&num_of_expr))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -157,13 +161,17 @@ PHP_METHOD(mysqlx_node_table__delete, orderby)
 
 	RETVAL_FALSE;
 
-	if (object->crud_op && orderby_expr)
-	{
-		switch (Z_TYPE_P(orderby_expr))
+	if (!( object->crud_op && orderby_expr ) ) {
+		DBG_VOID_RETURN;
+	}
+
+	for( i = 0 ; i < num_of_expr ; ++i ) {
+		switch (Z_TYPE(orderby_expr[i]))
 		{
 		case IS_STRING:
 			{
-				const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL_P(orderby_expr), Z_STRLEN_P(orderby_expr)};
+				const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL(orderby_expr[i]),
+													Z_STRLEN(orderby_expr[i])};
 				if (PASS == xmysqlnd_crud_table_delete__add_orderby(object->crud_op, orderby_expr_str)) {
 					ZVAL_COPY(return_value, object_zv);
 				}
@@ -172,7 +180,7 @@ PHP_METHOD(mysqlx_node_table__delete, orderby)
 		case IS_ARRAY:
 			{
 				zval * entry;
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(orderby_expr), entry)
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(orderby_expr[i]), entry)
 				{
 					const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL_P(entry), Z_STRLEN_P(entry)};
 					if (Z_TYPE_P(entry) != IS_STRING) {

@@ -41,7 +41,7 @@ mysqlx collection find
 	$coll->add('{"_id":53, "name": "Ugo", "age": 10, "job": "Studioso"}')->execute();
 	$coll->add('{"_id":54, "name": "Ugo", "age": 10, "job": "Studioso"}')->execute();
 
-	$res = $coll->find('job like :job and age = :age')->fields(['age', 'job'])->groupBy(['age', 'job']);
+        $res = $coll->find('job like :job and age = :age')->fields(['age', 'job'])->groupBy('age', 'job');
 	$res = $res->bind(['job' => 'Studioso', 'age' => 10])->sort('age desc')->limit(4);
 	$data = $res->execute()->fetchAll();
 
@@ -56,7 +56,7 @@ mysqlx collection find
 	$coll->add('{"_id":96, "name": "Alfonso",  "age": 35, "job": "Cavia"}')->execute();
 	$coll->add('{"_id":17, "name": "Luca",     "age": 99, "job": "Cavia"}')->execute();
 
-        $res = $coll->find('job like \'Cavia\'')->sort(['age desc', '_id desc'])->execute();
+        $res = $coll->find('job like \'Cavia\'')->sort('age desc', '_id desc')->execute();
 	$data = $res->fetchAll();
 
         $expected = [

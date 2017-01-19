@@ -287,33 +287,8 @@ PHP_METHOD(mysqlx_node_table, getSchema)
 	}
 
 	DBG_VOID_RETURN;
-}/*
-static
-PHP_METHOD(mysqlx_node_table, getSchema)
-{
-	struct st_mysqlx_node_table * object;
-	zval * object_zv;
+}
 
-	DBG_ENTER("mysqlx_node_table::getSchema");
-
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table_class_entry))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
-
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
-
-	if (object->table) {
-
-	}
-
-	DBG_VOID_RETURN;
-}*/
 /* }}} */
 /************************************** INHERITED END   ****************************************/
 
@@ -325,28 +300,39 @@ PHP_METHOD(mysqlx_node_table, insert)
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
 	zval * columns = NULL;
+	int    num_of_columns = 0, i = 0;
 
 	DBG_ENTER("mysqlx_node_table::insert");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|a",
-												&object_zv, mysqlx_node_table_class_entry,
-												&columns))
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "O+",
+		&object_zv, mysqlx_node_table_class_entry,
+		&columns,
+		&num_of_columns))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	if (columns && Z_TYPE_P(columns) != IS_STRING && Z_TYPE_P(columns) != IS_OBJECT && Z_TYPE_P(columns) != IS_ARRAY)
-	{
-		php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u", Z_TYPE_P(columns));
-		DBG_VOID_RETURN;
+	for(i = 0 ; i < num_of_columns ; ++i ) {
+		if (Z_TYPE(columns[i]) != IS_STRING &&
+			Z_TYPE(columns[i]) != IS_OBJECT &&
+			Z_TYPE(columns[i]) != IS_ARRAY) {
+			php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
+							 Z_TYPE(columns[i]));
+			DBG_VOID_RETURN;
+		}
 	}
 
 	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
-	if (object->table) {
-		mysqlx_new_node_table__insert(return_value, object->table, TRUE /* clone */, columns);
+	if (object->table && num_of_columns > 0) {
+		mysqlx_new_node_table__insert(return_value,
+									  object->table,
+									  TRUE /* clone */,
+									  columns,
+									  num_of_columns);
 	}
 
 	DBG_VOID_RETURN;
@@ -361,13 +347,15 @@ PHP_METHOD(mysqlx_node_table, select)
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
 	zval * columns = NULL;
+	int    num_of_columns = 0;
 
 	DBG_ENTER("mysqlx_node_table::select");
 
 	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Oz",
+		ZEND_NUM_ARGS(), getThis(), "O+",
 		&object_zv, mysqlx_node_table_class_entry,
-		&columns))
+		&columns,
+		&num_of_columns))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -377,7 +365,13 @@ PHP_METHOD(mysqlx_node_table, select)
 	RETVAL_FALSE;
 
 	if (object->table && columns) {
-		mysqlx_new_node_table__select(return_value, object->table, TRUE /* clone */, columns);
+		DBG_INF_FMT("Num of columns: %d",
+					num_of_columns);
+		mysqlx_new_node_table__select(return_value,
+						object->table,
+						TRUE /* clone */,
+						columns,
+						num_of_columns);
 	}
 
 	DBG_VOID_RETURN;

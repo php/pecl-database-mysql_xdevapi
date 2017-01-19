@@ -67,7 +67,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__set, 0, ZEND_RETU
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__unset, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, variables, IS_ARRAY, DONT_ALLOW_NULL)
+	ZEND_ARG_INFO(NO_PASS_BY_REF, variables)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__replace, 0, ZEND_RETURN_VALUE, 1)
@@ -131,26 +131,37 @@ PHP_METHOD(mysqlx_node_collection__modify, sort)
 	struct st_mysqlx_node_collection__modify * object;
 	zval * object_zv;
 	zval * sort_expr = NULL;
+	int    num_of_expr = 0;
+	int    i = 0;
 
 	DBG_ENTER("mysqlx_node_collection__modify::sort");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
-												&object_zv, mysqlx_node_collection__modify_class_entry,
-												&sort_expr))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+									&object_zv,
+									mysqlx_node_collection__modify_class_entry,
+									&sort_expr,
+									&num_of_expr))
 	{
 		DBG_VOID_RETURN;
 	}
+
 
 	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
-	if (object->crud_op && sort_expr) {
-		switch (Z_TYPE_P(sort_expr)) {
+	if (!( object->crud_op && sort_expr ) ) {
+		DBG_VOID_RETURN;
+	}
+
+	for( i = 0 ; i < num_of_expr ; ++i ) {
+		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{
-				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
-				if (PASS == xmysqlnd_crud_collection_modify__add_sort(object->crud_op, sort_expr_str)) {
+				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL(sort_expr[i]),
+												Z_STRLEN(sort_expr[i]) };
+				if (PASS == xmysqlnd_crud_collection_modify__add_sort(object->crud_op,
+															sort_expr_str)) {
 					ZVAL_COPY(return_value, object_zv);
 				}
 			}
@@ -158,12 +169,14 @@ PHP_METHOD(mysqlx_node_collection__modify, sort)
 		case IS_ARRAY:
 			{
 				zval * entry;
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(sort_expr), entry) {
-					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
+					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry),
+													Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
 					}
-					if (FAIL == xmysqlnd_crud_collection_modify__add_sort(object->crud_op, sort_expr_str)) {
+					if (FAIL == xmysqlnd_crud_collection_modify__add_sort(object->crud_op,
+														sort_expr_str)) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
 					}
 				} ZEND_HASH_FOREACH_END();
@@ -499,13 +512,18 @@ PHP_METHOD(mysqlx_node_collection__modify, unset)
 {
 	struct st_mysqlx_node_collection__modify * object;
 	zval * object_zv;
-	HashTable * unset_variables;
+	zval * variables = NULL;
+	zend_bool op_failed = FALSE;
+	int    num_of_variables = 0, i = 0;
 
 	DBG_ENTER("mysqlx_node_collection__modify::unset");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
-												&object_zv, mysqlx_node_collection__modify_class_entry,
-												&unset_variables))
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "O+",
+		&object_zv,
+		mysqlx_node_collection__modify_class_entry,
+		&variables,
+		&num_of_variables))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -514,19 +532,47 @@ PHP_METHOD(mysqlx_node_collection__modify, unset)
 
 	RETVAL_FALSE;
 
-	if (object->crud_op) {
-		zval * val;
-		ZEND_HASH_FOREACH_VAL(unset_variables, val) {
-			convert_to_string(val);
+	if ( !object->crud_op || num_of_variables <= 0) {
+		DBG_VOID_RETURN;
+	}
+
+	for( i = 0 ; i < num_of_variables; ++i ) {
+		switch (Z_TYPE(variables[i]))
+		{
+		case IS_STRING:
 			{
-				const MYSQLND_CSTRING variable = { Z_STRVAL_P(val), Z_STRLEN_P(val) };
-				if (FAIL == xmysqlnd_crud_collection_modify__unset(object->crud_op, variable)) {
-					RAISE_EXCEPTION(err_msg_unset_fail);
+				const MYSQLND_CSTRING variable = { Z_STRVAL(variables[i]),
+										Z_STRLEN(variables[i]) };
+				if (FAIL == xmysqlnd_crud_collection_modify__unset(object->crud_op,
+																variable)) {
+						RAISE_EXCEPTION(err_msg_unset_fail);
 				}
 			}
-		} ZEND_HASH_FOREACH_END();
-		ZVAL_COPY(return_value, object_zv);
+			break;
+		case IS_ARRAY:
+			{
+				zval * entry;
+				enum_func_status ret = FAIL;
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(variables[i]), entry) {
+					if (Z_TYPE_P(entry) != IS_STRING) {
+						RAISE_EXCEPTION(err_msg_wrong_param_1);
+					}
+					const MYSQLND_CSTRING variable = { Z_STRVAL_P(entry),
+											Z_STRLEN_P(entry) };
+					if (FAIL == xmysqlnd_crud_collection_modify__unset(object->crud_op,
+																	variable)) {
+							RAISE_EXCEPTION(err_msg_unset_fail);
+					}
+				} ZEND_HASH_FOREACH_END();
+			}
+			break;
+		default:
+			RAISE_EXCEPTION(err_msg_wrong_param_3);
+			break;
+		}
 	}
+
+	ZVAL_COPY(return_value, object_zv);
 	DBG_VOID_RETURN;
 }
 /* }}} */

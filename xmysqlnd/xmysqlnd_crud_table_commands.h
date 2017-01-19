@@ -27,7 +27,7 @@ extern "C"
 
 typedef struct st_xmysqlnd_crud_table_op__insert XMYSQLND_CRUD_TABLE_OP__INSERT;
 
-XMYSQLND_CRUD_TABLE_OP__INSERT * xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING table, zval * columns);
+XMYSQLND_CRUD_TABLE_OP__INSERT * xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING table, zval * columns, const int num_of_columns);
 void xmysqlnd_crud_table_insert__destroy(XMYSQLND_CRUD_TABLE_OP__INSERT * obj);
 enum_func_status xmysqlnd_crud_table_insert__add_row(XMYSQLND_CRUD_TABLE_OP__INSERT * obj, zval * values_zv);
 enum_func_status xmysqlnd_crud_table_insert__finalize_bind(XMYSQLND_CRUD_TABLE_OP__INSERT * obj);
@@ -84,7 +84,7 @@ zend_bool xmysqlnd_crud_table_update__is_initialized(XMYSQLND_CRUD_TABLE_OP__UPD
 
 
 typedef struct st_xmysqlnd_crud_table_op__select XMYSQLND_CRUD_TABLE_OP__SELECT;
-XMYSQLND_CRUD_TABLE_OP__SELECT * xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING table, zval * columns);
+XMYSQLND_CRUD_TABLE_OP__SELECT * xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING table, zval * columns,const int num_of_columns);
 void xmysqlnd_crud_table_select__destroy(XMYSQLND_CRUD_TABLE_OP__SELECT * obj);
 enum_func_status xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING criteria);
 enum_func_status xmysqlnd_crud_table_select__set_limit(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const size_t limit);

@@ -146,26 +146,45 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
 	zval * sort_expr = NULL;
+	int    num_of_expr = 0;
+	int    i;
 
-	DBG_ENTER("mysqlx_node_table__select__add_sort_or_grouping");
+	DBG_ENTER("mysqlx_node_collection__find__add_sort_or_grouping");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
-												&object_zv, mysqlx_node_table__select_class_entry,
-												&sort_expr))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+												&object_zv,
+												mysqlx_node_table__select_class_entry,
+												&sort_expr,
+												&num_of_expr))
 	{
 		DBG_VOID_RETURN;
 	}
+
+	for(i = 0 ; i < num_of_expr ; ++i ) {
+		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
+			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
+			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
+			php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
+							 Z_TYPE(sort_expr[i]));
+			DBG_VOID_RETURN;
+		}
+	}
+
 
 	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
-	if (object->crud_op && sort_expr) {
-		switch (Z_TYPE_P(sort_expr))
+	if (!( object->crud_op && sort_expr ) ) {
+		DBG_VOID_RETURN;
+	}
+
+	for( i = 0 ; i < num_of_expr ; ++i ) {
+		switch (Z_TYPE(sort_expr[i]))
 		{
 		case IS_STRING:
 			{
-				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
+				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL(sort_expr[i]), Z_STRLEN(sort_expr[i]) };
 				if (ADD_SORT == op_type) {
 					if (PASS == xmysqlnd_crud_table_select__add_orderby(object->crud_op, sort_expr_str)) {
 						ZVAL_COPY(return_value, object_zv);
@@ -181,12 +200,11 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 			{
 				zval * entry;
 				enum_func_status ret = FAIL;
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(sort_expr), entry) {
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					ret = FAIL;
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
-						break;
 					}
 					if (ADD_SORT == op_type) {
 						ret = xmysqlnd_crud_table_select__add_orderby(object->crud_op, sort_expr_str);
@@ -195,7 +213,6 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 					}
 					if (FAIL == ret) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
-						break;
 					}
 				} ZEND_HASH_FOREACH_END();
 				if( FAIL != ret ) {
@@ -570,7 +587,11 @@ mysqlx_unregister_node_table__select_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_table__select */
 void
-mysqlx_new_node_table__select(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone, zval * columns)
+mysqlx_new_node_table__select(zval * return_value,
+				XMYSQLND_NODE_TABLE * table,
+				const zend_bool clone,
+				zval * columns,
+				const int num_of_columns)
 {
 	DBG_ENTER("mysqlx_new_node_table__select");
 
@@ -582,7 +603,8 @@ mysqlx_new_node_table__select(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 			object->crud_op = xmysqlnd_crud_table_select__create(
 				mnd_str2c(object->table->data->schema->data->schema_name),
 				mnd_str2c(object->table->data->table_name),
-				columns);
+				columns,
+				num_of_columns);
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

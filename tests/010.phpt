@@ -16,11 +16,11 @@ mysqlx update
 	$schema = $nodeSession->getSchema($db);
 	$table = $schema->getTable("test_table");
 
-	$table->insert(["name", "age"])->values(["Sakila", 128])->values(["Sakila", 512])->execute();
-	$table->insert(["name", "age"])->values(["Oracila", 1024])->values(["Sakila", 2048])->execute();
-	$table->insert(["name", "age"])->values(["SuperSakila", 4096])->values(["SuperOracila", 8192])->execute();
-	$table->insert(["name", "age"])->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();
-	$table->insert(["name", "age"])->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
+        $table->insert("name", "age")->values(["Sakila", 128],["Sakila", 512])->execute();
+	$table->insert("name", "age")->values(["Oracila", 1024],["Sakila", 2048])->execute();
+	$table->insert("name", "age")->values(["SuperSakila", 4096],["SuperOracila", 8192])->execute();
+	$table->insert("name", "age")->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();
+	$table->insert("name", "age")->values(["Oracila", 1900])->values(["Oracila", 1800])->execute();
 
 	$res = $table->update()->set('name', 'Alfonso')->where('name = :name and age > 2000')->bind(['name' => 'Oracila'])->execute();
 	expect_eq($res->getAffectedItemsCount(), 1);

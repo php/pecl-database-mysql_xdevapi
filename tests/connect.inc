@@ -242,6 +242,24 @@
 		}
 	}
 	/*
+	        Used to compare expected a null value
+	*/
+	if( !function_exists('expect_null')) {
+	        function expect_null($expectation) {
+		        global $number_of_expectations;
+			global $test_result_string;
+
+                        $number_of_expectations++;
+
+                        if( null == $expectation ){
+			        $test_result_string .= '1';
+			} else {
+			        print 'Line '.get_stack_frame_line_num().': false expected'.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+	/*
 		Call this function to add a failing point
 		to the test
 	*/

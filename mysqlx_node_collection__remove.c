@@ -98,12 +98,16 @@ PHP_METHOD(mysqlx_node_collection__remove, sort)
 	struct st_mysqlx_node_collection__remove * object;
 	zval * object_zv;
 	zval * sort_expr = NULL;
+	int    num_of_expr = 0;
+	int    i = 0;
 
 	DBG_ENTER("mysqlx_node_collection__remove::sort");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
-												&object_zv, mysqlx_node_collection__remove_class_entry,
-												&sort_expr))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+									&object_zv,
+									mysqlx_node_collection__remove_class_entry,
+									&sort_expr,
+									&num_of_expr))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -112,12 +116,18 @@ PHP_METHOD(mysqlx_node_collection__remove, sort)
 
 	RETVAL_FALSE;
 
-	if (object->crud_op && sort_expr) {
-		switch (Z_TYPE_P(sort_expr)) {
+	if (!( object->crud_op && sort_expr ) ) {
+		DBG_VOID_RETURN;
+	}
+
+	for( i = 0 ; i < num_of_expr ; ++i ) {
+		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{
-				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
-				if (PASS == xmysqlnd_crud_collection_remove__add_sort(object->crud_op, sort_expr_str)) {
+				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL(sort_expr[i]),
+											Z_STRLEN(sort_expr[i]) };
+				if (PASS == xmysqlnd_crud_collection_remove__add_sort(object->crud_op,
+													sort_expr_str)) {
 					ZVAL_COPY(return_value, object_zv);
 				}
 			}
@@ -125,12 +135,14 @@ PHP_METHOD(mysqlx_node_collection__remove, sort)
 		case IS_ARRAY:
 			{
 				zval * entry;
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(sort_expr), entry) {
-					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
+					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry),
+												Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
 					}
-					if (FAIL == xmysqlnd_crud_collection_remove__add_sort(object->crud_op, sort_expr_str)) {
+					if (FAIL == xmysqlnd_crud_collection_remove__add_sort(object->crud_op,
+															sort_expr_str)) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
 					}
 				} ZEND_HASH_FOREACH_END();

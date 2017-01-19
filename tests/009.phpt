@@ -17,9 +17,25 @@ mysqlx complex query
 	$sel = $sel->having('cnt > 1');
 	$sel = $sel->orderBy('age_group desc');
 	$res = $sel->limit(2)->offset(1)->execute();
-	//$sel2 = $sel->groupBy('age_group');
 	$data = $res->fetchAll();
-	var_dump($data);
+	expect_eq(count($data), 2);
+	expect_eq($data[0]['age_group'],15);
+	expect_eq($data[0]['cnt'],2);
+	expect_eq($data[1]['age_group'],14);
+	expect_eq($data[1]['cnt'],2);
+
+        //Make sure to have duplicated values
+	fill_db_table();
+
+        //groupBy with multiple arguments
+	$sel = $table->select(['age','count(name) as cnt'])->groupBy('age','name')->execute();
+	$data = $sel->fetchAll();
+	expect_eq(count($data), 12);
+	for( $i = 0 ; $i < 12 ; $i++ ) {
+	    expect_eq($data[$i]['cnt'],2);
+	}
+
+        verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
@@ -28,20 +44,4 @@ mysqlx complex query
 	clean_test_db();
 ?>
 --EXPECTF--
-array(2) {
-  [0]=>
-  array(2) {
-    ["age_group"]=>
-    int(15)
-    ["cnt"]=>
-    int(2)
-  }
-  [1]=>
-  array(2) {
-    ["age_group"]=>
-    int(14)
-    ["cnt"]=>
-    int(2)
-  }
-}
 done!%A

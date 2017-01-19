@@ -83,13 +83,18 @@ PHP_METHOD(mysqlx_node_table__insert, values)
 {
 	struct st_mysqlx_node_table__insert * object;
 	zval * object_zv;
-	zval * values_zv = NULL;
+	zval * values = NULL;
+	zend_bool op_failed = FALSE;
+	int    num_of_values = 0, i = 0;
 
 	DBG_ENTER("mysqlx_node_table__insert::values");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oa",
-												&object_zv, mysqlx_node_table__insert_class_entry,
-												&values_zv))
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "O+",
+		&object_zv,
+		mysqlx_node_table__insert_class_entry,
+		&values,
+		&num_of_values))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -98,12 +103,19 @@ PHP_METHOD(mysqlx_node_table__insert, values)
 
 	RETVAL_FALSE;
 
+	DBG_INF_FMT("Num of values: %d",
+				num_of_values);
 
-	if (values_zv)
-	{
-		if (PASS == xmysqlnd_crud_table_insert__add_row(object->crud_op, values_zv)) {
-			ZVAL_COPY(return_value, object_zv);
+	for( i = 0 ; i < num_of_values ; ++i ) {
+		if (FAIL == xmysqlnd_crud_table_insert__add_row(object->crud_op,
+												&values[i])) {
+			op_failed = TRUE;
+			break;
 		}
+	}
+
+	if( op_failed == FALSE ) {
+		ZVAL_COPY(return_value, object_zv);
 	}
 
 	DBG_VOID_RETURN;
@@ -294,7 +306,11 @@ mysqlx_unregister_node_table__insert_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_table__insert */
 void
-mysqlx_new_node_table__insert(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone, zval * columns)
+mysqlx_new_node_table__insert(zval * return_value,
+					XMYSQLND_NODE_TABLE * table,
+					const zend_bool clone,
+					zval * columns,
+					const int num_of_columns)
 {
 	DBG_ENTER("mysqlx_new_node_table__insert");
 
@@ -306,7 +322,8 @@ mysqlx_new_node_table__insert(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 			object->crud_op = xmysqlnd_crud_table_insert__create(
 				mnd_str2c(object->table->data->schema->data->schema_name),
 				mnd_str2c(object->table->data->table_name),
-				columns);
+				columns,
+				num_of_columns);
 		} else {
 			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

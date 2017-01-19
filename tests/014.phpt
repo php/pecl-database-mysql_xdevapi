@@ -18,7 +18,7 @@ mysqlx collection modify sort/replace/merge
 
 	$coll->remove('(_id > 1 and _id < 8) or (_id > 11 and _id < 15)')->execute();
 	$coll->modify('_id >= 1 and _id <= 9')->unset(['age'])->execute();
-	$coll->modify()->sort(['name desc', 'age asc'])->limit(4)->set('Married', 'NO')->execute();
+	$coll->modify()->sort('name desc', 'age asc')->limit(4)->set('Married', 'NO')->execute();
 
 	$coll->modify('Married like \'NO\'')->merge('{\'Divorced\' : \'NO\', \'Vegan\' : \'YES\'}')->execute();
 

@@ -175,8 +175,6 @@ PHP_METHOD(mysqlx_node_collection__find, fields)
 }
 /* }}} */
 
-
-
 #define ADD_SORT 1
 #define ADD_GROUPING 2
 
@@ -187,25 +185,43 @@ mysqlx_node_collection__find__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS,
 	struct st_mysqlx_node_collection__find * object;
 	zval * object_zv;
 	zval * sort_expr = NULL;
+	int    num_of_expr = 0;
+	int    i;
 
 	DBG_ENTER("mysqlx_node_collection__find__add_sort_or_grouping");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
-												&object_zv, mysqlx_node_collection__find_class_entry,
-												&sort_expr))
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+									&object_zv,
+									mysqlx_node_collection__find_class_entry,
+									&sort_expr,
+									&num_of_expr))
 	{
 		DBG_VOID_RETURN;
+	}
+
+	for(i = 0 ; i < num_of_expr ; ++i ) {
+		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
+			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
+			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
+			php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
+							 Z_TYPE(sort_expr[i]));
+			DBG_VOID_RETURN;
+		}
 	}
 
 	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
-	if (object->crud_op && sort_expr) {
-		switch (Z_TYPE_P(sort_expr)) {
+	if (!( object->crud_op && sort_expr ) ) {
+		DBG_VOID_RETURN;
+	}
+
+	for( i = 0 ; i < num_of_expr ; ++i ) {
+		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{
-				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(sort_expr), Z_STRLEN_P(sort_expr) };
+				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL(sort_expr[i]), Z_STRLEN(sort_expr[i]) };
 				if (ADD_SORT == op_type) {
 					if (PASS == xmysqlnd_crud_collection_find__add_sort(object->crud_op, sort_expr_str)) {
 						ZVAL_COPY(return_value, object_zv);
@@ -220,7 +236,7 @@ mysqlx_node_collection__find__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS,
 		case IS_ARRAY:
 			{
 				zval * entry;
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(sort_expr), entry) {
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					enum_func_status ret = FAIL;
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
@@ -587,36 +603,35 @@ mysqlx_new_node_collection__find(zval * return_value,
 								 XMYSQLND_NODE_COLLECTION * collection,
 								 const zend_bool clone_collection)
 {
+	zend_bool op_failed = TRUE;
 	DBG_ENTER("mysqlx_new_node_collection__find");
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_collection__find_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
 		struct st_mysqlx_node_collection__find * const object = (struct st_mysqlx_node_collection__find *) mysqlx_object->ptr;
-		if (!object) {
-			goto err;
+		if (object) {
+			object->collection = clone_collection? collection->data->m.get_reference(collection) : collection;
+			object->crud_op = xmysqlnd_crud_collection_find__create(mnd_str2c(object->collection->data->schema->data->schema_name),
+																	mnd_str2c(object->collection->data->collection_name));
+			if (object->crud_op) {
+				op_failed = FALSE;
+				if (search_expression.s &&
+					search_expression.l &&
+					FAIL == xmysqlnd_crud_collection_find__set_criteria(object->crud_op, search_expression))
+				{
+					op_failed = TRUE;
+				}
+			}
 		}
-		object->collection = clone_collection? collection->data->m.get_reference(collection) : collection;
-		object->crud_op = xmysqlnd_crud_collection_find__create(mnd_str2c(object->collection->data->schema->data->schema_name),
-																mnd_str2c(object->collection->data->collection_name));
-		if (!object->crud_op) {
-			goto err;
+		if( op_failed ) {
+			DBG_ERR("Error");
+			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			if (object->collection && clone_collection) {
+				object->collection->data->m.free_reference(object->collection, NULL, NULL);
+			}
+			zval_ptr_dtor(return_value);
+			ZVAL_NULL(return_value);
 		}
-		if (search_expression.s &&
-			search_expression.l &&
-			FAIL == xmysqlnd_crud_collection_find__set_criteria(object->crud_op, search_expression))
-		{
-			goto err;
-		}
-		goto end;
-err:
-		DBG_ERR("Error");
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-		if (object->collection && clone_collection) {
-			object->collection->data->m.free_reference(object->collection, NULL, NULL);
-		}
-		zval_ptr_dtor(return_value);
-		ZVAL_NULL(return_value);
 	}
-end:
 	DBG_VOID_RETURN;
 }
 /* }}} */

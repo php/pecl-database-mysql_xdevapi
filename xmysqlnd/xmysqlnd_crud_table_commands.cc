@@ -138,18 +138,19 @@ struct st_xmysqlnd_crud_table_op__insert
 	st_xmysqlnd_crud_table_op__insert(
 		const MYSQLND_CSTRING & schema,
 		const MYSQLND_CSTRING & object_name,
-		zval * columns_zv)
+		zval * columns_zv,
+		const int num_of_columns)
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
 		message.set_data_model(Mysqlx::Crud::TABLE);
 
-		add_columns(columns_zv);
+		add_columns(columns_zv,num_of_columns);
 	}
 
 	~st_xmysqlnd_crud_table_op__insert() {}
 
-	void add_columns(zval * columns_zv);
+	void add_columns(zval * columns_zv, const int num_of_columns);
 	void add_column(zval * column_zv);
 
 	void add_row(zval* row_zv);
@@ -164,37 +165,42 @@ struct st_xmysqlnd_crud_table_op__insert
 };
 
 /* {{{ st_xmysqlnd_crud_table_op__insert::add_columns */
-void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv)
+void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
+											const int num_of_columns)
 {
 	DBG_ENTER("st_xmysqlnd_crud_table_op__insert::add_columns");
 	enum_func_status ret = FAIL;
-	switch (Z_TYPE_P(columns_zv))
-	{
-	case IS_STRING:
+	int i = 0;
+
+	do{
+		switch (Z_TYPE(columns_zv[i]))
 		{
-			add_column(columns_zv);
-			ret = PASS;
-		}
-		break;
-	case IS_ARRAY:
-		{
-			zval * entry;
-			ret = PASS;
-			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(columns_zv), entry)
+		case IS_STRING:
 			{
-				if (Z_TYPE_P(entry) == IS_STRING) {
-					add_column(entry);
-				}
-				else {
-					ret = FAIL;
-					break;
-				}
-			} ZEND_HASH_FOREACH_END();
+				add_column(&columns_zv[i]);
+				ret = PASS;
+			}
+			break;
+		case IS_ARRAY:
+			{
+				zval * entry;
+				ret = PASS;
+				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns_zv[i]), entry)
+				{
+					if (Z_TYPE_P(entry) == IS_STRING) {
+						add_column(entry);
+					}
+					else {
+						ret = FAIL;
+						break;
+					}
+				} ZEND_HASH_FOREACH_END();
+			}
+			break;
+		default:
+			break;
 		}
-		break;
-	default:
-		break;
-	}
+	} while( ( ++i < num_of_columns ) && ret != FAIL );
 	return;
 }
 /* }}} */
@@ -297,11 +303,15 @@ void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx:
 
 /* {{{ xmysqlnd_crud_table_insert__create */
 extern "C" XMYSQLND_CRUD_TABLE_OP__INSERT *
-xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING table_name, zval * columns)
+xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema,
+							const MYSQLND_CSTRING table_name,
+							zval * columns,
+							const int num_of_columns)
 {
 	DBG_ENTER("xmysqlnd_crud_table_insert__create");
 	DBG_INF_FMT("schema=%*s table_name=%*s", schema.l, schema.s, table_name.l, table_name.s);
-	XMYSQLND_CRUD_TABLE_OP__INSERT * ret = new struct st_xmysqlnd_crud_table_op__insert(schema, table_name, columns);
+	XMYSQLND_CRUD_TABLE_OP__INSERT * ret = new struct st_xmysqlnd_crud_table_op__insert(schema,
+																table_name, columns,num_of_columns);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -843,74 +853,55 @@ struct st_xmysqlnd_crud_table_op__select
 	st_xmysqlnd_crud_table_op__select(
 		const MYSQLND_CSTRING & schema,
 		const MYSQLND_CSTRING & object_name,
-		zval * columns)
+		zval * columns,
+		const int num_of_columns)
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
 		message.set_data_model(Mysqlx::Crud::TABLE);
 
-		add_columns(columns);
+		add_columns(columns,num_of_columns);
 	}
 
 	~st_xmysqlnd_crud_table_op__select() {}
 
-	void add_columns(const zval * columns);
+	void add_columns(const zval * columns, const int num_of_columns);
 };
 
 
 /* {{{ st_xmysqlnd_crud_table_op__select::add_columns */
-void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns)
+void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
+											const int num_of_columns)
 {
 	zend_bool is_expression = FALSE;
+	enum_func_status ret = PASS;
+	int i = 0;
 
 	DBG_ENTER("mysqlx_node_collection__find::columns");
 
-	switch (Z_TYPE_P(columns)) {
-		case IS_STRING:
-		case IS_ARRAY:
-			break;
-		case IS_OBJECT:
-			if (is_a_mysqlx_expression(columns)) {
-				/* get the string */
-				columns = get_mysqlx_expression(columns);
-				is_expression = TRUE;
-			}
-			/* fall-through */
-		default:{
+	do{
+		if(Z_TYPE(columns[i]) == IS_OBJECT) {
 			RAISE_EXCEPTION(err_msg_invalid_type);
-			DBG_VOID_RETURN;
 		}
-	}
 
-	enum_func_status ret = FAIL;
-
-	if (Z_TYPE_P(columns) == IS_STRING) {
-		const MYSQLND_CSTRING column_str = { Z_STRVAL_P(columns), Z_STRLEN_P(columns) };
-		ret = xmysqlnd_crud_table_select__set_column(this, column_str, is_expression, FALSE);
-	} else if (Z_TYPE_P(columns) == IS_ARRAY) {
-		const zval * entry;
-		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(columns), entry) {
-			is_expression = FALSE;
-			if (Z_TYPE_P(entry) == IS_OBJECT) {
-				if (is_a_mysqlx_expression(entry)) {
-					/* get the string */
-					entry = get_mysqlx_expression(entry);
-					is_expression = TRUE;
+		if (Z_TYPE(columns[i]) == IS_STRING) {
+			const MYSQLND_CSTRING column_str = { Z_STRVAL(columns[i]), Z_STRLEN(columns[i]) };
+			ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);
+		} else if (Z_TYPE_P(columns) == IS_ARRAY) {
+			const zval * entry;
+			ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns[i]), entry) {
+				if (Z_TYPE_P(entry) != IS_STRING) {
+					RAISE_EXCEPTION(err_msg_wrong_param_1);
 				}
-			}
-			/* NO else */
-			if (Z_TYPE_P(entry) != IS_STRING) {
-				RAISE_EXCEPTION(err_msg_wrong_param_1);
-				break;
-			}
-			{
-				MYSQLND_CSTRING column_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+				const MYSQLND_CSTRING column_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 				ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);
-			}
-		} ZEND_HASH_FOREACH_END();
-	}
+			} ZEND_HASH_FOREACH_END();
+		}
+	}while( ( ++i < num_of_columns ) && ret != FAIL );
 
-	if (FAIL == ret) {
+	if ( FAIL == ret ) {
+		DBG_ERR_FMT("Parsing failure for item nbr. %d",
+					i - 1);
 		RAISE_EXCEPTION(err_msg_add_sort_fail);
 	}
 }
@@ -920,12 +911,14 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns)
 
 /* {{{ xmysqlnd_crud_table_select__create */
 extern "C" XMYSQLND_CRUD_TABLE_OP__SELECT *
-xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name, zval * columns)
+xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema,
+				const MYSQLND_CSTRING object_name,
+				zval * columns, const int num_of_columns)
 {
 	XMYSQLND_CRUD_TABLE_OP__SELECT * ret = NULL;
 	DBG_ENTER("xmysqlnd_crud_table_select__create");
 	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
-	ret = new struct st_xmysqlnd_crud_table_op__select(schema, object_name, columns);
+	ret = new struct st_xmysqlnd_crud_table_op__select(schema, object_name, columns, num_of_columns);
 	DBG_RETURN(ret);
 }
 /* }}} */
