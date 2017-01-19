@@ -88,8 +88,8 @@ class allocator
 		typedef const T& const_reference;
 
 		template<typename U>
-		struct rebind 
-		{ 
+		struct rebind
+		{
 			using other = allocator<U>;
 		};
 
