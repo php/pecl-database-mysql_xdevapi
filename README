@@ -1,34 +1,34 @@
 MySQL X DevAPI for PHP
 ======================
 
-This PHP Extension provides MySQL's X DevAPI. The X DevAPI is a new CRUD-style 
-API for accessing MySQL as a Document Store. It is based on the X Protocol 
-introduced with the X Plugin in MySQL 5.7.12 and unifies JSON document and 
-table access, and it includes SQL support. The API features a popular fluent 
-interface style and aims to be particularly easy to use yet powerful. The 
-X DevAPI sees wide cross product support. Developers can use the same syntax 
-and rely on the existence of virtually the same feature set in may products 
+This PHP Extension provides MySQL's X DevAPI. The X DevAPI is a new CRUD-style
+API for accessing MySQL as a Document Store. It is based on the X Protocol
+introduced with the X Plugin in MySQL 5.7.12 and unifies JSON document and
+table access, and it includes SQL support. The API features a popular fluent
+interface style and aims to be particularly easy to use yet powerful. The
+X DevAPI sees wide cross product support. Developers can use the same syntax
+and rely on the existence of virtually the same feature set in may products
 they work with on a day to day basis.
 
-The X DevAPI combines elements of the relational database model with elements 
-of storing JSON documents. Working with schemaless data serialized in JSON has 
-become very popular in recent years. Schema flexibility allows data-first 
-development models. For example, application developers do not need to define 
-the very details of the data to be stored before it can be saved, customers 
-can model applications using an iterative approach, defining the details along 
-the way when they work with the developers. In other areas a mode-first 
-development model may fit the brief better. The X DevAPI supports both working 
+The X DevAPI combines elements of the relational database model with elements
+of storing JSON documents. Working with schemaless data serialized in JSON has
+become very popular in recent years. Schema flexibility allows data-first
+development models. For example, application developers do not need to define
+the very details of the data to be stored before it can be saved, customers
+can model applications using an iterative approach, defining the details along
+the way when they work with the developers. In other areas a mode-first
+development model may fit the brief better. The X DevAPI supports both working
 with schemaful relational tables and schemaless collections of JSON documents.
 
-The X DevAPI abstracts the notion of a connection to that of a session. A 
-session encapsulates physical connections. This concept is crucial for 
-any environment where the creation, selection and life span of a physical 
+The X DevAPI abstracts the notion of a connection to that of a session. A
+session encapsulates physical connections. This concept is crucial for
+any environment where the creation, selection and life span of a physical
 connection shall not be a concern of the application developer.
 
 To learn more about the details of the X DevAPI refer to the documentation on
 http://dev.mysql.com/doc/x-devapi-userguide/en/
 
-To learn more about MySQL as a Document Store efer to documentation on 
+To learn more about MySQL as a Document Store efer to documentation on
 http://dev.mysql.com/doc/refman/5.7/en/document-store.html
 
 
@@ -36,29 +36,32 @@ Installation
 ------------
 
 This extension depends on PHP 7.1. For general installation instructions for
-PHP extensions see http://php.net/install.pecl 
+PHP extensions see http://php.net/install.pecl
 
 In addition to PHP's dependencies, Google's Protocol Buffer library is
-required. On any Linux-based systems a package called libprotobuf-dev or 
+required. On any Linux-based systems a package called libprotobuf-dev or
 similar is required.
 
 Further hints for installing this module:
 
 0) in-source build
 To enable X DevAPI statically extract the extension in the ext/ directory of a
-PHP source tree as php-src/ext/mysql_xdevapi. Then use the switch 
---enable-mysql-xdevapi for configure. This extension depends on 'ext/json' and 
+PHP source tree as php-src/ext/mysql_xdevapi. Then use the switch
+--enable-mysql-xdevapi for configure. This extension depends on 'ext/json' and
 'ext/mysqlnd' extensions.
 
 Sample sequence of build commands may look like:
 
 ./buildconf --force
-./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --enable-mysql-xdevapi 
+./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo
+	--enable-debug --enable-cli --enable-mysql-xdevapi
 make
 [...]
 
-By default it is statically built into PHP binary. In case you want to see that extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
-./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --enable-mysql-xdevapi=shared
+By default it is statically built into PHP binary. In case you want to see that
+extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
+./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo
+	--enable-debug --enable-cli --enable-mysql-xdevapi=shared
 
 
 1) phpize
@@ -69,7 +72,7 @@ See https://bugs.php.net/bug.php?id=72363
 
 Following packages in system may be needed:
 pkg-config
-libssl-dev 
+libssl-dev
 libsslcommon2-dev
 openssl-devel
 
@@ -82,7 +85,7 @@ PHP_OPENSSL=yes ./configure
 so the whole sequence would look like:
 phpize
 PHP_OPENSSL=yes ./configure
-make 
+make
 sudo make install
 
 2) Build on Windows
@@ -90,15 +93,39 @@ You may want to prepare environment and build PHP Connector according to
 http://wiki.php.net/internals/windows/stepbystepbuild
 
 3) Boost on Windows
-Only headers are needed, no boost binaries required. Copy directory boost_1_xx_y\boost (e.g. boost_1_62_0\boost) into <SRC_ROOT>\phpdev\<VC_VER>\<PLATFORM>\deps\include (e.g. c:\phpdev\vc14\x86\deps\include).
-See section "Build on Windows" for more details how to prepare dependencies.
+Only headers are needed, no boost binaries required. Use option --with-extra-includes
+to point out location of boost headers for configure command, e.g.
+configure [..other options..] --with-extra-includes=c:\3rdParty\boost_1_62_0
 
 4) Google Protocol Buffers on Windows
-On Windows for static build google protobuf is used by mysql_xdevapi as static library with Multi-Threaded DLL runtime. To get such build on your own use following options:
--Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF 
+On Windows for static build google protobuf is used by mysql_xdevapi as static library
+with Multi-Threaded DLL runtime. To prepare such build on your own use following options:
+-Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF
 
-After 'make install' step, copy 'install' directory into <SRC_ROOT>\phpdev\<VC_VER>\<PLATFORM>\deps (e.g. c:\phpdev\vc14\x86\deps).
-See section "Build on Windows" for more details how to prepare dependencies.
+After 'make install' step, use for configure command following options --with-extra-includes
+and --with-extra-libs to point out location of protobuf headers and libraries. Thus,
+command-line may look like this:
+configure [..other options..] --with-extra-includes=c:\3rdParty\protobuf\include;c:\3rdParty\boost_1_63_0
+	--with-extra-libs=c:\3rdParty\protobuf\libs
+
+There is no extra option to set additional dir with binaries, so ensure that proper
+protoc.exe is available on PATH while building. But keep in mind that script
+bin\phpsdk_setvars.bat (mentioned on ttps://wiki.php.net/internals/windows/stepbystepbuild)
+modifies PATH. So you may want to introduce additional changes for that environment
+variable after execution of above batch.
+
+5) Bison on Windows
+Ensure that proper version of Bison is on path while building. Best the one
+delivered with php-sdk-binary-tools from http://windows.php.net/downloads/php-sdk,
+else (in case of improper bison.exe version) you may meet such build errors:
+
+c:\php-sdk\phpdev\vc14\x86\connector-php-7.1.0\zend\zend_globals_macros.h(39):
+	error C2375: 'zendparse': redefinition; different linkage
+Zend/zend_language_parser.h(214): note: see declaration of 'zendparse'
+
+Besides, keep in mind that script
+bin\phpsdk_setvars.bat (mentioned on ttps://wiki.php.net/internals/windows/stepbystepbuild)
+also modifies PATH. So you may want to introduce changes for PATH environment variable afterwards.
 
 
 Supported X DevAPI features
@@ -106,7 +133,7 @@ Supported X DevAPI features
 - collections API - add, find, modify, remove
 - table API - insert, select, update, delete
 - collection / table - getName, existsInDatabase, count
-- resultsets / multi-resultsets 
+- resultsets / multi-resultsets
 - getCollection(s) / getTable(s) / getCollectionAsTable
 - dropCollection / dropTable
 
@@ -118,9 +145,9 @@ Copyright (c) 2006-2016 The PHP Group
 
 This source file is subject to version 3.01 of the PHP license,
 that is bundled with this package in the file LICENSE, and is
-available through the world-wide-web at the following url: 
+available through the world-wide-web at the following url:
 http://www.php.net/license/3_01.txt
-If you did not receive a copy of the PHP license and are unable to 
+If you did not receive a copy of the PHP license and are unable to
 obtain it through the world-wide-web, please send a note to
 license@php.net so we can mail you a copy immediately.
 
