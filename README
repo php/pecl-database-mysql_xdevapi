@@ -53,12 +53,15 @@ PHP source tree as php-src/ext/mysql_xdevapi. Then use the switch
 Sample sequence of build commands may look like:
 
 ./buildconf --force
-./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --enable-mysql-xdevapi 
+./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo 
+	--enable-debug --enable-cli --enable-mysql-xdevapi 
 make
 [...]
 
-By default it is statically built into PHP binary. In case you want to see that extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
-./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo --enable-debug --enable-cli --enable-mysql-xdevapi=shared
+By default it is statically built into PHP binary. In case you want to see that 
+extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
+./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo 
+	--enable-debug --enable-cli --enable-mysql-xdevapi=shared
 
 
 1) phpize
@@ -90,15 +93,39 @@ You may want to prepare environment and build PHP Connector according to
 http://wiki.php.net/internals/windows/stepbystepbuild
 
 3) Boost on Windows
-Only headers are needed, no boost binaries required. Copy directory boost_1_xx_y\boost (e.g. boost_1_62_0\boost) into <SRC_ROOT>\phpdev\<VC_VER>\<PLATFORM>\deps\include (e.g. c:\phpdev\vc14\x86\deps\include).
-See section "Build on Windows" for more details how to prepare dependencies.
+Only headers are needed, no boost binaries required. Use option --with-extra-includes 
+to point out location of boost headers for configure command, e.g. 
+configure [..other options..] --with-extra-includes=c:\3rdParty\boost_1_62_0
 
 4) Google Protocol Buffers on Windows
-On Windows for static build google protobuf is used by mysql_xdevapi as static library with Multi-Threaded DLL runtime. To get such build on your own use following options:
+On Windows for static build google protobuf is used by mysql_xdevapi as static library 
+with Multi-Threaded DLL runtime. To prepare such build on your own use following options:
 -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF 
 
-After 'make install' step, copy 'install' directory into <SRC_ROOT>\phpdev\<VC_VER>\<PLATFORM>\deps (e.g. c:\phpdev\vc14\x86\deps).
-See section "Build on Windows" for more details how to prepare dependencies.
+After 'make install' step, use for configure command following options --with-extra-includes 
+and --with-extra-libs to point out location of protobuf headers and libraries. Thus, 
+command-line may look like this: 
+configure [..other options..] --with-extra-includes=c:\3rdParty\protobuf\include;c:\3rdParty\boost_1_63_0 
+	--with-extra-libs=c:\3rdParty\protobuf\libs
+
+There is no extra option to set additional dir with binaries, so ensure that proper 
+protoc.exe is available on PATH while building. But keep in mind that script
+bin\phpsdk_setvars.bat (mentioned on ttps://wiki.php.net/internals/windows/stepbystepbuild)
+modifies PATH. So you may want to introduce additional changes for that environment 
+variable after execution of above batch.
+
+5) Bison on Windows
+Ensure that proper version of Bison is on path while building. Best the one 
+delivered with php-sdk-binary-tools from http://windows.php.net/downloads/php-sdk, 
+else (in case of improper bison.exe version) you may meet such build errors:
+
+c:\php-sdk\phpdev\vc14\x86\connector-php-7.1.0\zend\zend_globals_macros.h(39): 
+	error C2375: 'zendparse': redefinition; different linkage
+Zend/zend_language_parser.h(214): note: see declaration of 'zendparse'
+
+Besides, keep in mind that script
+bin\phpsdk_setvars.bat (mentioned on ttps://wiki.php.net/internals/windows/stepbystepbuild)
+also modifies PATH. So you may want to introduce changes for PATH environment variable afterwards.
 
 
 Supported X DevAPI features
