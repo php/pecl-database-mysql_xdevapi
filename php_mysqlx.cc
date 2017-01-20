@@ -191,7 +191,7 @@ static PHP_RINIT_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- xmysqlnd ---------------- */
 	if (MYSQL_XDEVAPI_G(debug)) {
-		struct st_mysqlnd_plugin_trace_log * trace_log_plugin = mysqlnd_plugin_find("debug_trace");
+		st_mysqlnd_plugin_trace_log * trace_log_plugin = static_cast<st_mysqlnd_plugin_trace_log*>(mysqlnd_plugin_find("debug_trace"));
 		MYSQL_XDEVAPI_G(dbg) = NULL;
 		if (trace_log_plugin) {
 			MYSQLND_DEBUG * dbg = trace_log_plugin->methods.trace_instance_init(mysqlnd_debug_std_no_trace_funcs);
