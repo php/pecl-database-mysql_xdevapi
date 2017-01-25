@@ -48,7 +48,7 @@ error_reporting=0
 
         //test IPv6
 	try {
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.'[::1]';
+	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.'[::1]:'.$port;
 		$nodeSession = mysql_xdevapi\getNodeSession($uri);
 		$nodeSession = mysql_xdevapi\getSession($uri);
 	} catch(Exception $e) {
