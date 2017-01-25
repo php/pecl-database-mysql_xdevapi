@@ -52,6 +52,7 @@ error_reporting=0
 		$nodeSession = mysql_xdevapi\getNodeSession($uri);
 		$nodeSession = mysql_xdevapi\getSession($uri);
 	} catch(Exception $e) {
+	        print $e->getCode()." : ".$e->getMessage().PHP_EOL;
 	        test_step_failed();
 	}
 
