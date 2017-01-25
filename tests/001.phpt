@@ -36,7 +36,7 @@ error_reporting=0
 	}
 
         try {
-	        $uri = '//'.$user.':'.$passwd.'@'.$host;
+	        $uri = '//'.$user.':'.$passwd.'@'.$host.':'.$port;
 		$nodeSession = mysql_xdevapi\getNodeSession($uri);
 		$nodeSession = mysql_xdevapi\getSession($uri);
 
