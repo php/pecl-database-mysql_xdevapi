@@ -16,7 +16,7 @@ error_reporting=0
 	    [ $scheme.'://'.$user.':password@localhost'  ,1045 ],
 	    [ $scheme.'://'.$user.':'.$passwd.'@fakehost',2002 ],
 	    [ $scheme.'://:'.$passwd.'@fakehost'         ,2002 ],
-	    [ $connection_uri.':19999'                   ,2002 ],
+	    [ '//'.$user.':'.$passwd.'@'.$host.':19999'  ,2002 ],
 	    [ '//user:password@localhost'                ,1045]
 	];
 
