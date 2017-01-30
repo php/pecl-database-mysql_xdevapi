@@ -26,6 +26,7 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_object.h"
+#include "mysqlx_class_properties.h"
 #include <phputils/object.h>
 
 

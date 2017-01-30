@@ -28,8 +28,6 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
 #include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
-#include <phputils/allocator.h>
-#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
@@ -41,6 +39,8 @@ extern "C" {
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_session.h"
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 
 static zend_class_entry * mysqlx_node_sql_statement_class_entry;
 static zend_class_entry * mysqlx_node_statement_class_entry;

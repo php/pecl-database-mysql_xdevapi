@@ -27,10 +27,10 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
 #include <xmysqlnd/xmysqlnd_wireprotocol.h>
-#include <phputils/allocator.h>
-#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 
 static zend_class_entry * mysqlx_field_metadata_class_entry;
 

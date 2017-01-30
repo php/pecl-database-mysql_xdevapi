@@ -26,6 +26,7 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include "mysqlx_node_result.h"
 #include "mysqlx_object.h"
+#include "mysqlx_class_properties.h"
 #include <phputils/object.h>
 
 struct st_mysqlx_node__result_iterator : mysqlx::phputils::custom_allocable

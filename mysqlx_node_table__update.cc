@@ -29,8 +29,6 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
 #include <xmysqlnd/xmysqlnd_crud_table_commands.h>
-#include <phputils/allocator.h>
-#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"
@@ -41,6 +39,8 @@ extern "C" {
 #include "mysqlx_expression.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_table__update.h"
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 
 static zend_class_entry *mysqlx_node_table__update_class_entry;
 

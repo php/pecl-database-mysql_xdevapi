@@ -25,11 +25,11 @@ extern "C" {
 }
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
-#include <phputils/allocator.h>
-#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 
 static zend_class_entry * mysqlx_execution_status_class_entry;
 

@@ -27,8 +27,6 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
-#include <phputils/allocator.h>
-#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
@@ -39,6 +37,8 @@ extern "C" {
 #include "mysqlx_node_table__select.h"
 #include "mysqlx_node_table__update.h"
 #include "mysqlx_node_table.h"
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 
 static zend_class_entry *mysqlx_node_table_class_entry;
 

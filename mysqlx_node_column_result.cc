@@ -33,8 +33,6 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_warning_list.h>
 #include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
 #include <ext/mysqlnd/mysqlnd_enum_n_def.h>
-#include <phputils/allocator.h>
-#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
@@ -44,6 +42,8 @@ extern "C" {
 #include "mysqlx_field_metadata.h"
 #include "mysqlx_node_column_result.h"
 #include "mysqlx_exception.h"
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 
 enum column_metadata_content_type {
 	CT_PLAIN =    0x0000,

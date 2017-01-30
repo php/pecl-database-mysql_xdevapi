@@ -31,8 +31,6 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_rowset_fwd.h>
 #include <xmysqlnd/xmysqlnd_warning_list.h>
 #include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
-#include <phputils/allocator.h>
-#include <phputils/object.h>
 
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
@@ -43,6 +41,9 @@ extern "C" {
 #include "mysqlx_field_metadata.h"
 #include "mysqlx_node_column_result.h"
 #include "mysqlx_exception.h"
+
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 
 static zend_class_entry *mysqlx_node_row_result_class_entry;
 

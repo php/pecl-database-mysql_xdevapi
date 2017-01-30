@@ -32,8 +32,6 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
-#include <phputils/allocator.h>
-#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
@@ -41,6 +39,8 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__add.h"
 #include "mysqlx_exception.h"
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 
 static zend_class_entry *mysqlx_node_collection__add_class_entry;
 
