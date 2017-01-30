@@ -15,6 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -22,6 +23,7 @@
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <xmysqlnd/xmysqlnd.h>
 #include <ext/standard/url.h>
+}
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
@@ -35,7 +37,7 @@
 #include "mysqlx_x_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
-
+#include "mysqlx_node_session.h"
 #include "mysqlx_session.h"
 
 static zend_class_entry *mysqlx_x_session_class_entry;
@@ -138,12 +140,12 @@ mysqlx_new_x_session(zval * return_value)
 }
 /* }}} */
 
-/* {{{ craete_new_session */
+/* {{{ create_new_session */
 static
-enum_func_status craete_new_session(php_url * url,
+enum_func_status create_new_session(php_url * url,
 								zval * return_value)
 {
-	enum_func_status ret = FAILURE;
+	enum_func_status ret = FAIL;
 	size_t set_capabilities = 0;
 	size_t client_api_flags = 0;
 	MYSQLND_CSTRING empty = {NULL, 0};
@@ -183,7 +185,7 @@ enum_func_status craete_new_session(php_url * url,
 				}
 				object->session = new_session;
 			}
-			ret = SUCCESS;
+			ret = PASS;
 		}
 	} else {
 		zval_ptr_dtor(return_value);
@@ -200,16 +202,16 @@ enum_func_status verify_uri_information(INTERNAL_FUNCTION_PARAMETERS,
 									const php_url * node_url)
 {
 	DBG_ENTER("verify_uri_information");
-	enum_func_status ret = SUCCESS;
+	enum_func_status ret = PASS;
 	//host is required
 	if( !node_url->host ) {
 		DBG_ERR_FMT("Missing required host name!");
-		ret = FAILURE;
+		ret = FAIL;
 	}
 	//Username is required
 	if( !node_url->user ) {
 		DBG_ERR_FMT("Missing required user name!");
-		ret = FAILURE;
+		ret = FAIL;
 	}
 	DBG_RETURN(ret);
 	return ret;
@@ -220,8 +222,8 @@ enum_func_status verify_uri_information(INTERNAL_FUNCTION_PARAMETERS,
 /* {{{ proto bool mysqlx\\mysql_xdevapi__getXSession(string uri_string) */
 PHP_FUNCTION(mysql_xdevapi__getXSession)
 {
-	//Setting ret to FAILURE will cause the function to throw and exception
-	enum_func_status ret = SUCCESS;
+	//Setting ret to FAIL will cause the function to throw and exception
+	enum_func_status ret = PASS;
 	MYSQLND_CSTRING uri_string = {NULL, 0};
 
 	DBG_ENTER("mysql_xdevapi__getXSessionURI");
@@ -243,7 +245,7 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 	php_url * node_url = php_url_parse(uri_string.s);
 
 	if( node_url && verify_uri_information( INTERNAL_FUNCTION_PARAM_PASSTHRU,
-									node_url ) != FAILURE ) {
+									node_url ) != FAIL ) {
 		//Assign default port number if is missing
 		if( !node_url->port ) {
 			node_url->port = 33060;
@@ -254,7 +256,7 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 					 node_url->user, node_url->pass,
 					 node_url->path, node_url->query);
 
-		ret = craete_new_session(node_url,
+		ret = create_new_session(node_url,
 								return_value);
 	} else {
 		RAISE_EXCEPTION(err_msg_uri_string_fail);
@@ -264,7 +266,7 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 		php_url_free( node_url );
 	}
 
-	if( ret == FAILURE ) {
+	if( ret == FAIL ) {
 		RAISE_EXCEPTION(err_msg_new_session_fail);
 	}
 

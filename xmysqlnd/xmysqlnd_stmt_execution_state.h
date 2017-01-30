@@ -20,9 +20,6 @@
 
 #include "xmysqlnd_driver.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct st_xmysqlnd_stmt_execution_state XMYSQLND_STMT_EXECUTION_STATE;
 
@@ -76,9 +73,6 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_stmt_execu
 PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_EXECUTION_STATE * xmysqlnd_stmt_execution_state_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* XMYSQLND_STMT_EXECUTION_STATE_H */
 

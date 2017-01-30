@@ -15,9 +15,11 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
+}
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"

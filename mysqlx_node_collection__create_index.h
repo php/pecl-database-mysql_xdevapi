@@ -18,17 +18,11 @@
 #ifndef MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
 #define MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
 
 void mysqlx_new_node_collection__create_index(zval * return_value, const MYSQLND_CSTRING index_name, const zend_bool is_unique, struct st_xmysqlnd_node_collection * collection);
 void mysqlx_register_node_collection__create_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__create_index_class(SHUTDOWN_FUNC_ARGS);
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* MYSQLX_NODE_COLLECTION__CREATE_INDEX_H */
 

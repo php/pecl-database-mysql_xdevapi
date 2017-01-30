@@ -19,10 +19,11 @@
 #define MYSQLX_BASE_SESSION_H
 
 #include <xmysqlnd/xmysqlnd_node_session.h>
+#include <phputils/allocator.h>
 
 extern zend_class_entry *mysqlx_base_session_class_entry;
 
-struct st_mysqlx_session
+struct st_mysqlx_session : public mysqlx::phputils::custom_allocable
 {
 	XMYSQLND_NODE_SESSION * session;
 	zend_bool closed;

@@ -18,9 +18,6 @@
 #ifndef MYSQLX_EXCEPTION_H
 #define MYSQLX_EXCEPTION_H
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
 
 extern zend_class_entry * mysqlx_exception_class_entry;
 
@@ -68,9 +65,6 @@ extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 //This is a very common exception
 #define RAISE_EXCEPTION_FETCH_FAIL() RAISE_EXCEPTION(err_msg_fetch_fail)
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* MYSQLX_EXCEPTION_H */
 

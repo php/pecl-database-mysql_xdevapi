@@ -18,10 +18,6 @@
 #ifndef XMYSQLND_CRUD_COMMANDS_H
 #define XMYSQLND_CRUD_COMMANDS_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 struct st_xmysqlnd_pb_message_shell
 {
@@ -34,9 +30,6 @@ struct st_xmysqlnd_expression_shell
 	void * expr;
 };
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* XMYSQLND_CRUD_COMMANDS_H */
 

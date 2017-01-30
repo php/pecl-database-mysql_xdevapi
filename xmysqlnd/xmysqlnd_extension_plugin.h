@@ -18,7 +18,9 @@
 #ifndef XMYSQLND_EXTENSION_PLUGIN_H
 #define XMYSQLND_EXTENSION_PLUGIN_H
 
+extern "C" {
 #include "ext/mysqlnd/mysqlnd_structs.h"
+}
 #include "php_mysql_xdevapi.h"
 
 struct st_xmysqlnd_node_session;

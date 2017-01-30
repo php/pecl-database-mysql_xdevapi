@@ -15,14 +15,14 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <ext/mysqlnd/mysqlnd_auth.h> /* php_mysqlnd_scramble */
 }
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
@@ -39,11 +39,6 @@ extern "C"
 #include "mysqlx_message__error.h"
 #include "mysqlx_message__auth_continue.h"
 #include "mysqlx_message__auth_ok.h"
-
-extern "C"
-{
-#include "ext/mysqlnd/mysqlnd_auth.h" /* php_mysqlnd_scramble */
-}
 
 static zend_class_entry *mysqlx_message__auth_continue_class_entry;
 
@@ -230,7 +225,7 @@ err:
 
 
 /* {{{ mysqlx_register_message__auth_continue_class */
-extern "C" void
+void
 mysqlx_register_message__auth_continue_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_message__auth_continue_handlers = *mysqlx_std_object_handlers;
@@ -250,7 +245,7 @@ mysqlx_register_message__auth_continue_class(INIT_FUNC_ARGS, zend_object_handler
 
 
 /* {{{ mysqlx_unregister_message__auth_continue_class */
-extern "C" void
+void
 mysqlx_unregister_message__auth_continue_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_message__auth_continue_properties);

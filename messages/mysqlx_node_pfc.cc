@@ -15,12 +15,14 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include "php_mysqlx.h"
@@ -166,8 +168,8 @@ php_mysqlx_node_pfc_object_allocator(zend_class_entry * class_type)
 {
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_node_pfc * codec = mnd_pecalloc(1, sizeof(struct st_mysqlx_node_pfc), persistent);
+	st_mysqlx_object * mysqlx_object = static_cast<st_mysqlx_object*>(mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent));
+	st_mysqlx_node_pfc * codec = static_cast<st_mysqlx_node_pfc*>(mnd_pecalloc(1, sizeof(struct st_mysqlx_node_pfc), persistent));
 
 	DBG_ENTER("php_mysqlx_node_pfc_object_allocator");
 	if (!mysqlx_object || !codec) {

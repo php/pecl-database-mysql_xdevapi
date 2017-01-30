@@ -25,9 +25,6 @@ struct st_xmysqlnd_node_collection;
 struct st_xmysqlnd_node_table;
 struct st_xmysqlnd_node_session_on_error_bind;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 extern const MYSQLND_CSTRING xmysqlnd_object_type_filter__table;
 extern const MYSQLND_CSTRING xmysqlnd_object_type_filter__collection;
 
@@ -132,9 +129,6 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(struct 
 														  MYSQLND_ERROR_INFO * const error_info);
 
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* XMYSQLND_NODE_SCHEMA_H */
 

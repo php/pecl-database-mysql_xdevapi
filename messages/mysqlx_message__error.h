@@ -18,14 +18,10 @@
 #ifndef MYSQLX_MESSAGE__ERROR_H
 #define MYSQLX_MESSAGE__ERROR_H
 
-extern
-#ifdef __cplusplus
-"C"
-#endif
-/* This typically should be static, but we have coupling */
-zend_class_entry *mysqlx_message__error_class_entry;
 
-#ifdef  __cplusplus
+/* This typically should be static, but we have coupling */
+extern zend_class_entry *mysqlx_message__error_class_entry;
+
 #include "xmysqlnd/proto_gen/mysqlx.pb.h"
 struct st_mysqlx_message__error
 {
@@ -49,10 +45,8 @@ void dump_mysqlx_error(const Mysqlx::Error & error);
 	} \
 }
 
-#else
 void mysqlx_register_message__error_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_message__error_class(SHUTDOWN_FUNC_ARGS);
-#endif
 
 #endif /* MYSQLX_MESSAGE__ERROR_H */
 

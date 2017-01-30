@@ -18,6 +18,8 @@
 #ifndef MYSQLX_NODE_SQL_STATEMENT_H
 #define MYSQLX_NODE_SQL_STATEMENT_H
 
+#include <phputils/allocator.h>
+
 struct st_mysqlx_object;
 struct st_xmysqlnd_node_stmt;
 
@@ -39,7 +41,7 @@ enum mysqlx_result_type
 #define MYSQLX_EXECUTE_ALL_FLAGS	(0 | MYSQLX_EXECUTE_FLAG_ASYNC | MYSQLX_EXECUTE_FLAG_BUFFERED)
 #define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 100
 
-struct st_mysqlx_node_statement
+struct st_mysqlx_node_statement : public mysqlx::phputils::custom_allocable
 {
 	XMYSQLND_NODE_STMT * stmt;
 	XMYSQLND_STMT_OP__EXECUTE * stmt_execute;

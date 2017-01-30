@@ -15,10 +15,12 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include "php_mysqlx.h"
@@ -98,7 +100,7 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 	DBG_INF_FMT("property=%s", Z_STRVAL_P(member));
 
 	if (mysqlx_obj->properties != NULL) {
-		property = zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member));
+		property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)));
 	}
 
 	if (property) {
@@ -143,7 +145,7 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 	mysqlx_obj = Z_MYSQLX_P(object);
 
 	if (mysqlx_obj->properties != NULL) {
-		property = zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member));
+		property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)));
 	}
 
 	if (property) {
@@ -170,7 +172,7 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 	int ret = 0;
 	DBG_ENTER("mysqlx_object_has_property");
 
-	if ((property = zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member))) != NULL) {
+	if ((property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)))) != NULL) {
 		switch (has_set_exists) {
 			case 0:{
 				zval rv, *value;

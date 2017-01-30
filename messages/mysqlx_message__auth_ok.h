@@ -18,12 +18,10 @@
 #ifndef MYSQLX_MESSAGE__AUTH_OK_H
 #define MYSQLX_MESSAGE__AUTH_OK_H
 
-#ifdef  __cplusplus
 void mysqlx_new_message__auth_ok(zval * return_value, const Mysqlx::Session::AuthenticateOk & message);
-#else
 void mysqlx_register_message__auth_ok_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_message__auth_ok_class(SHUTDOWN_FUNC_ARGS);
-#endif
+
 
 #endif /* MYSQLX_MESSAGE__AUTH_OK_H */
 

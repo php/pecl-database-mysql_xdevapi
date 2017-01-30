@@ -15,8 +15,10 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
+}
 #include "mysqlx_database_object.h"
 #include "mysqlx_schema_object.h"
 

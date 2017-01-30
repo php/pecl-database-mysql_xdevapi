@@ -15,10 +15,12 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_crud_collection_commands.h"
@@ -90,7 +92,7 @@ schema_xplugin_op_var_binder(
 
 				zval_ptr_dtor(&zv);
 				if (FAIL == result) {
-					ret = FAIL;
+					ret = HND_FAIL;
 				}
 			}
 			break;
@@ -253,7 +255,7 @@ collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQL
 		//result = stmt->data->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
 		zval_ptr_dtor(&zv);
 		if (FAIL == result) {
-			ret = FAIL;
+			ret = HND_FAIL;
 		}
 	}
 	++ctx->counter;
@@ -434,7 +436,7 @@ collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * sessio
 
 				zval_ptr_dtor(&zv);
 				if (FAIL == result) {
-					ret = FAIL;
+					ret = HND_FAIL;
 				}
 			}
 			break;

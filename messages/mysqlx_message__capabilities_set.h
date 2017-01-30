@@ -18,19 +18,12 @@
 #ifndef MYSQLX_MESSAGE__CAPABILITIES_SET_H
 #define MYSQLX_MESSAGE__CAPABILITIES_SET_H
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
-
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_message__capabilities_set_class_entry;
 
 void mysqlx_register_message__capabilities_set_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_message__capabilities_set_class(SHUTDOWN_FUNC_ARGS);
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* MYSQLX_MESSAGE__CAPABILITIES_SET_H */
 

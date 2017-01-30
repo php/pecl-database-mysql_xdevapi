@@ -18,11 +18,13 @@
 #ifndef MYSQLX_NODE_BASE_RESULT_H
 #define MYSQLX_NODE_BASE_RESULT_H
 
+#include <phputils/allocator.h>
+
 extern zend_class_entry * mysqlx_node_base_result_interface_entry;
 
 struct st_xmysqlnd_node_stmt_result;
 
-struct st_mysqlx_node_base_result
+struct st_mysqlx_node_base_result : public mysqlx::phputils::custom_allocable
 {
 	struct st_xmysqlnd_node_stmt_result * result;
 };

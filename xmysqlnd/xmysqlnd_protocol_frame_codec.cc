@@ -15,6 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
@@ -22,6 +23,7 @@
 #include "ext/mysqlnd/mysqlnd_priv.h"
 #include "ext/mysqlnd/mysqlnd_wireprotocol.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h" // XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3
 #include "xmysqlnd_protocol_frame_codec.h"

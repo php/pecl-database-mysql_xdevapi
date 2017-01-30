@@ -21,13 +21,11 @@
 #include "xmysqlnd_driver.h"
 
 #include "xmysqlnd_crud_table_commands.h"
+#include <phputils/allocator.h>
 
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_node_session_on_error_bind;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 typedef struct st_xmysqlnd_node_table		XMYSQLND_NODE_TABLE;
 typedef struct st_xmysqlnd_node_table_data	XMYSQLND_NODE_TABLE_DATA;
 
@@ -84,7 +82,7 @@ struct st_xmysqlnd_node_table_data
 };
 
 
-struct st_xmysqlnd_node_table
+struct st_xmysqlnd_node_table : mysqlx::phputils::custom_allocable
 {
 	XMYSQLND_NODE_TABLE_DATA * data;
 
@@ -101,9 +99,6 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_TABLE * xmysqlnd_node_table_create(struct st
 														MYSQLND_ERROR_INFO * const error_info);
 
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_table_free(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* XMYSQLND_NODE_TABLE_H */
 

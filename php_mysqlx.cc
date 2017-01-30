@@ -15,24 +15,24 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <php.h>
 #undef ERROR
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_enum_n_def.h"
-#include "ext/mysqlnd/mysqlnd_structs.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysqlnd_statistics.h"
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_enum_n_def.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <ext/standard/info.h>
+#include <zend_smart_str.h>
+}
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
 #include "php_mysqlx.h"
-
-#include "ext/standard/info.h"
-#include "zend_smart_str.h"
-
 
 
 PHP_MYSQL_XDEVAPI_API int mysqlx_minit_classes(INIT_FUNC_ARGS);
@@ -281,6 +281,7 @@ static const zend_module_dep mysqlx_deps[] = {
 
 
 /* {{{ mysql_xdevapi_module_entry */
+extern "C" 
 zend_module_entry mysql_xdevapi_module_entry = {
 	STANDARD_MODULE_HEADER_EX,
 	NULL,

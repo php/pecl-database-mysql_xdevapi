@@ -28,9 +28,6 @@ struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_warning_list;
 struct st_xmysqlnd_rowset;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 typedef struct st_xmysqlnd_node_stmt		XMYSQLND_NODE_STMT;
 typedef struct st_xmysqlnd_node_stmt_data	XMYSQLND_NODE_STMT_DATA;
 
@@ -240,9 +237,6 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(struct st_x
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* XMYSQLND_NODE_STMT_H */
 

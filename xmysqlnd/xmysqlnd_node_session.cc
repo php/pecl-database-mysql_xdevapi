@@ -15,11 +15,14 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_charset.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+#include "ext/mysqlnd/mysqlnd_auth.h" /* php_mysqlnd_scramble */
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h"
 #include "xmysqlnd_enum_n_def.h"
@@ -195,8 +198,6 @@ struct st_xmysqlnd_auth_41_ctx
 
 };
 
-#include "ext/mysqlnd/mysqlnd_auth.h" /* php_mysqlnd_scramble */
-
 static const char hexconvtab[] = "0123456789abcdef";
 
 
@@ -226,7 +227,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 		{
 			//TODO marines
             //char answer[ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1];
-            char* answer = malloc((ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1) * sizeof(char));
+            char* answer = static_cast<char*>(mnd_emalloc((ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1) * sizeof(char)));
             char *p = answer;
 			memcpy(p, ctx->database.s, ctx->database.l);
 			p+= ctx->database.l;
@@ -241,12 +242,12 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 			}
 			*p++ = '\0';
 			output->l = p - answer;
-			output->s = mnd_emalloc(output->l);
+			output->s = static_cast<char*>(mnd_emalloc(output->l));
 			memcpy(output->s, answer, output->l);
 
 			xmysqlnd_dump_string_to_log("output", output->s, output->l);
 			//TODO marines
-			free(answer);
+			mnd_efree(answer);
 		}
 	}
 	DBG_RETURN(HND_AGAIN);
@@ -598,7 +599,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DA
 			}
 		}
 		ret.l = name.l + occurs + 2 /* quotes */;
-		ret.s = mnd_emalloc(ret.l + 1);
+		ret.s = static_cast<char*>(mnd_emalloc(ret.l + 1));
 		ret.s[0] = '`';
 		if (occurs) {
 			char *p = &ret.s[0];				/* should start at 0 because we pre-increment in the loop */
@@ -705,7 +706,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_option)(XMYSQLND_NODE_SES
 	}
 	switch (option) {
 		case XMYSQLND_OPT_READ_TIMEOUT:
-			ret = session->io.vio->data->m.set_client_option(session->io.vio, option, value);
+			ret = session->io.vio->data->m.set_client_option(session->io.vio, static_cast<enum_mysqlnd_client_option>(option), value);
 			break;
 		default:
 			ret = FAIL;
@@ -1099,7 +1100,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_
 static const MYSQLND_CSTRING
 XMYSQLND_METHOD(xmysqlnd_node_session, get_uuid)(XMYSQLND_NODE_SESSION * const session_handle)
 {
-	struct st_xmysqlnd_node_session_uuid_cache_list * cache = &session_handle->uuid_cache;
+	st_xmysqlnd_node_session::st_xmysqlnd_node_session_uuid_cache_list* cache = &session_handle->uuid_cache;
 	MYSQLND_CSTRING ret = { NULL, 0 };
 	DBG_ENTER("xmysqlnd_node_session::get_uuid");
 	DBG_INF_FMT("pool=%p  used=%u  allocated=%u", cache->pool, cache->used, cache->allocated);
@@ -1133,11 +1134,11 @@ xmysqlnd_node_session_precache_uuids_on_row(void * context,
 											MYSQLND_STATS * const stats,
 											MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_xmysqlnd_node_session_uuid_cache_list * ctx = (struct st_xmysqlnd_node_session_uuid_cache_list *) context;
+	st_xmysqlnd_node_session::st_xmysqlnd_node_session_uuid_cache_list* ctx = static_cast<st_xmysqlnd_node_session::st_xmysqlnd_node_session_uuid_cache_list*>(context);
 	DBG_ENTER("xmysqlnd_node_session_precache_uuids_on_row");
 	if (!ctx->pool) {
 		ctx->persistent = session->persistent;
-		ctx->pool = mnd_pemalloc(Z_STRLEN(row[0]), ctx->persistent);
+		ctx->pool = static_cast<char*>(mnd_pemalloc(Z_STRLEN(row[0]), ctx->persistent));
 	}
 	/* !! NO else here !! */
 	if (ctx->pool) {
@@ -1185,7 +1186,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, precache_uuids)(XMYSQLND_NODE_SESSION * c
 	const struct st_xmysqlnd_node_session_on_row_bind on_row = { xmysqlnd_node_session_precache_uuids_on_row, &session_handle->uuid_cache };
 	const struct st_xmysqlnd_node_session_on_error_bind on_error = { xmysqlnd_node_session_precache_uuids_on_error, NULL };
 	const size_t query_len = query_prefix_len + (precache_size - 1) * query_repeat_len + query_suffix_len;
-	const MYSQLND_STRING list_query = { mnd_emalloc(query_len), query_len };
+	const MYSQLND_STRING list_query = { static_cast<char*>(mnd_emalloc(query_len)), query_len };
 	enum_func_status ret;
 	unsigned int i;
 	char * start_pos = NULL;
@@ -1239,7 +1240,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 		const size_t query_len = operation.l + quoted_db.l;
 		//TODO marines
         //char query[query_len + 1];
-        char* query = malloc((query_len + 1) * sizeof(char));
+        char* query = static_cast<char*>(mnd_emalloc((query_len + 1) * sizeof(char)));
         memcpy(query, operation.s, operation.l);
 		memcpy(query + operation.l, quoted_db.s, quoted_db.l);
 		query[query_len] = '\0';
@@ -1248,7 +1249,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 
 		ret = session_handle->m->query(session_handle, namespace_sql, select_query, noop__var_binder);
 		//TODO marines
-        free(query);
+        mnd_efree(query);
 	}
 	DBG_RETURN(ret);
 
@@ -1776,7 +1777,7 @@ bind:
 
 				zval_ptr_dtor(&zv);
 				if (FAIL == result) {
-					ret = FAIL;
+					ret = HND_FAIL;
 				}
 			}
 			break;
@@ -1880,7 +1881,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_ha
 
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		if (GET_SESSION_STATE(&session->state) >= NODE_SESSION_READY) {
-			static enum_mysqlnd_collected_stats close_type_to_stat_map[XMYSQLND_CLOSE_LAST] = {
+			static enum_xmysqlnd_collected_stats close_type_to_stat_map[XMYSQLND_CLOSE_LAST] = {
 				XMYSQLND_STAT_CLOSE_EXPLICIT,
 				XMYSQLND_STAT_CLOSE_IMPLICIT,
 				XMYSQLND_STAT_CLOSE_DISCONNECT

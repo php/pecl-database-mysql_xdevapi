@@ -15,10 +15,12 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
@@ -132,7 +134,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one_c)(XMYSQLND_ROWSET_BUFFERED 
 		DBG_RETURN(FAIL);
 	}
 	if (field_count &&
-		(*row = mnd_ecalloc(field_count, sizeof(zval))))
+		(*row = static_cast<zval*>(mnd_ecalloc(field_count, sizeof(zval)))))
 	{
 		const zval * const row_cursor_zv = result->rows[row_cursor];
 		unsigned int col = 0;
@@ -188,7 +190,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED 
 	DBG_INF_FMT("dupli=%s", duplicate? "YES":"NO");
 	DBG_INF_FMT("rows =%u  cols=%u", (uint) row_count, (uint) field_count);
 	DBG_INF_FMT("cells=%u", (uint) (row_count * field_count));
-	if ((*set = mnd_ecalloc(row_count * field_count, sizeof(zval)))) {
+	if ((*set = static_cast<zval*>(mnd_ecalloc(row_count * field_count, sizeof(zval))))) {
 		size_t row = 0;
 		for (;row < row_count; ++row) {
 			const zval * const from_row_zv = result->rows[row];
@@ -240,7 +242,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, create_row)(XMYSQLND_ROWSET_BUFFERED *
 													  MYSQLND_ERROR_INFO * const error_info)
 {
 	const unsigned int column_count = meta->m->get_field_count(meta);
-	zval * row = mnd_pecalloc(column_count, sizeof(zval), result->persistent);
+	zval * row = static_cast<zval*>(mnd_pecalloc(column_count, sizeof(zval), result->persistent));
 	DBG_ENTER("xmysqlnd_rowset_buffered::create_row");
 	DBG_RETURN(row);
 }
@@ -272,7 +274,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, add_row)(XMYSQLND_ROWSET_BUFFERED * co
 
 	if (!result->rows || result->rows_allocated == result->row_count) {
 		result->rows_allocated = ((result->rows_allocated + 2) * 5)/ 3;
-		result->rows = mnd_perealloc(result->rows, result->rows_allocated * sizeof(zval*), result->persistent);
+		result->rows = static_cast<zval**>(mnd_perealloc(result->rows, result->rows_allocated * sizeof(zval*), result->persistent));
 	}
 	if (row) {
 		result->rows[result->row_count++] = row;

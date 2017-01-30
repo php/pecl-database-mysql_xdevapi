@@ -15,12 +15,14 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include "php_mysqlx.h"
@@ -121,8 +123,9 @@ static zend_object *
 php_mysqlx_message__capability_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__capability * message = mnd_pecalloc(1, sizeof(struct st_mysqlx_message__capability), persistent);
+	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, mysqlx::phputils::permanent_tag));
+	st_mysqlx_message__capability* message = new st_mysqlx_message__capability();
 
 	DBG_ENTER("php_mysqlx_message__capability_object_allocator");
 	if (!mysqlx_object || !message) {

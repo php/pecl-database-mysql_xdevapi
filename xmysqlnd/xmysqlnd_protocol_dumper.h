@@ -18,19 +18,12 @@
 #ifndef XMYSQLND_PROTOCOL_DUMPER_H
 #define XMYSQLND_PROTOCOL_DUMPER_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 void xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len);
 void xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const size_t payload_size);
 void xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const size_t payload_size);
 
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif	/* XMYSQLND_PROTOCOL_DUMPER_H */
 

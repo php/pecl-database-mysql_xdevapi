@@ -18,9 +18,6 @@
 #ifndef MYSQLX_OBJECT_H
 #define MYSQLX_OBJECT_H
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
 
 #include <php.h>
 #undef ERROR
@@ -53,9 +50,6 @@ struct st_mysqlx_object * mysqlx_fetch_object_from_zo(zend_object *obj);
 void mysqlx_object_free_storage(zend_object * object);
 HashTable * mysqlx_object_get_debug_info(zval *object, int *is_temp);
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
 
 #endif	/* MYSQLX_OBJECT_H */
 

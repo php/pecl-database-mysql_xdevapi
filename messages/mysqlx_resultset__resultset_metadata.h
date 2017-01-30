@@ -19,13 +19,9 @@
 #define MYSQLX_RESULTSET__RESULTSET_METADATA_H
 
 
-#ifdef __cplusplus
-
 #include "xmysqlnd/proto_gen/mysqlx.pb.h"
 #include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 
-extern "C"
-{
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_resultset_metadata_class_entry;
 
@@ -45,11 +41,9 @@ struct st_mysqlx_resultset_metadata
 		DBG_VOID_RETURN; \
 	} \
 }
-} /* extern "C" */
-#else /* cplusplus */
+
 void mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_resultset_metadata_class(SHUTDOWN_FUNC_ARGS);
-#endif
 
 #endif /* MYSQLX_RESULTSET__RESULTSET_METADATA_H */
 

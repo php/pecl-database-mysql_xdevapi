@@ -31,9 +31,6 @@ enum xmysqlnd_rowset_type
 	XMYSQLND_TYPE_ROWSET_FWD_ONLY = 2,
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct st_xmysqlnd_rowset			XMYSQLND_ROWSET;
 
@@ -100,9 +97,6 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_rowset);
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET * xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type, const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_rowset_free(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* XMYSQLND_ROWSET_H */
 

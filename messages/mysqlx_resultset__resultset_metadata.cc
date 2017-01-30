@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -138,7 +137,7 @@ err:
 
 
 /* {{{ mysqlx_register_resultset_metadata_class */
-extern "C" void
+void
 mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_resultset_metadata_handlers = *mysqlx_std_object_handlers;
@@ -158,7 +157,7 @@ mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * 
 
 
 /* {{{ mysqlx_unregister_resultset_metadata_class */
-extern "C" void
+void
 mysqlx_unregister_resultset_metadata_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_resultset_metadata_properties);

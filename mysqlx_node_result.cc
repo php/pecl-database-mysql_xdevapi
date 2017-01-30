@@ -15,11 +15,13 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
@@ -36,6 +38,7 @@
 #include "mysqlx_node_result.h"
 #include "mysqlx_node_base_result.h"
 #include "mysqlx_field_metadata.h"
+#include <phputils/object.h>
 
 static zend_class_entry *mysqlx_node_result_class_entry;
 
@@ -352,22 +355,11 @@ mysqlx_node_result_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_node_result_object_allocator(zend_class_entry * class_type)
 {
-	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	struct st_mysqlx_node_result * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_node_result));
-
 	DBG_ENTER("php_mysqlx_node_result_object_allocator");
-	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);
-	}
-	mysqlx_object->ptr = object;
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_node_result_handlers;
-	mysqlx_object->properties = &mysqlx_node_result_properties;
-
-
+	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_result>(
+		class_type,
+		&mysqlx_object_node_result_handlers,
+		&mysqlx_node_result_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */

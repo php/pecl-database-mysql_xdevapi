@@ -25,9 +25,6 @@
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_node_session_on_error_bind;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 typedef struct st_xmysqlnd_node_collection		XMYSQLND_NODE_COLLECTION;
 typedef struct st_xmysqlnd_node_collection_data	XMYSQLND_NODE_COLLECTION_DATA;
 
@@ -101,9 +98,6 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_COLLECTION * xmysqlnd_node_collection_create
 																  MYSQLND_ERROR_INFO * const error_info);
 
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_collection_free(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* XMYSQLND_NODE_COLLECTION_H */
 

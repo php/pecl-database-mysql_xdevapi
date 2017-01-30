@@ -15,14 +15,12 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
-//#include <ext/mysqlnd/mysql_float_to_double.h>
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_any2expr.h"

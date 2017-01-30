@@ -15,12 +15,14 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include "php_mysqlx.h"
@@ -181,7 +183,7 @@ PHP_METHOD(mysqlx_node_connection, receive)
 
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 	if (connection->vio && TRUE == connection->vio->data->m.has_valid_stream(connection->vio)) {
-		zend_uchar * read_buffer = mnd_emalloc(how_many + 1);
+		zend_uchar * read_buffer = static_cast<zend_uchar*>(mnd_emalloc(how_many + 1));
 		if (!read_buffer) {
 			php_error_docref(NULL, E_WARNING, "Coulnd't allocate %u bytes", how_many);
 			RETVAL_FALSE;
@@ -245,8 +247,9 @@ static zend_object *
 php_mysqlx_node_connection_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_node_connection * connection = mnd_pecalloc(1, sizeof(struct st_mysqlx_node_connection), persistent);
+	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, mysqlx::phputils::permanent_tag));
+	st_mysqlx_node_connection * connection = new st_mysqlx_node_connection();
 
 	DBG_ENTER("php_mysqlx_node_connection_object_allocator");
 	if (!mysqlx_object || !connection) {

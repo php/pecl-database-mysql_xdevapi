@@ -15,8 +15,7 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -41,10 +40,10 @@ extern "C"
 #include "proto_gen/mysqlx_sql.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
 #include "crud_parsers/expression_parser.h"
-#include "../php/allocator.h"
-#include "../php/object.h"
-#include "../php/strings.h"
-#include "../php/types.h"
+#include "phputils/allocator.h"
+#include "phputils/object.h"
+#include "phputils/strings.h"
+#include "phputils/types.h"
 
 namespace mysqlx {
 

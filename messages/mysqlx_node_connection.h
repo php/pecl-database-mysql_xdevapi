@@ -18,14 +18,12 @@
 #ifndef MYSQLX_NODE_CONNECTION_H
 #define MYSQLX_NODE_CONNECTION_H
 
-/* This typically should be static, but we have coupling */
-extern
-#ifdef __cplusplus
-"C"
-#endif
-zend_class_entry *mysqlx_node_connection_class_entry;
+#include <phputils/allocator.h>
 
-struct st_mysqlx_node_connection
+/* This typically should be static, but we have coupling */
+extern zend_class_entry *mysqlx_node_connection_class_entry;
+
+struct st_mysqlx_node_connection : mysqlx::phputils::permanent_allocable
 {
 	MYSQLND_VIO		* vio;
 	MYSQLND_STATS	* stats;

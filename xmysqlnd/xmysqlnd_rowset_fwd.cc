@@ -15,10 +15,12 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
@@ -198,7 +200,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, create_row)(XMYSQLND_ROWSET_FWD * const res
 												 MYSQLND_ERROR_INFO * const error_info)
 {
 	const unsigned int column_count = meta->m->get_field_count(meta);
-	zval * row = mnd_pecalloc(column_count, sizeof(zval), result->persistent);
+	zval * row = static_cast<zval*>(mnd_pecalloc(column_count, sizeof(zval), result->persistent));
 	DBG_ENTER("xmysqlnd_rowset_fwd::create_row");
 	DBG_INF_FMT("row=%p", row);
 	DBG_RETURN(row);
@@ -232,7 +234,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, add_row)(XMYSQLND_ROWSET_FWD * const result
 
 	if (!result->rows || result->rows_allocated == result->row_count) {
 		result->rows_allocated += result->prefetch_rows;
-		result->rows = mnd_perealloc(result->rows, result->rows_allocated * sizeof(zval*), result->persistent);
+		result->rows = static_cast<zval**>(mnd_perealloc(result->rows, result->rows_allocated * sizeof(zval*), result->persistent));
 	}
 
 	if (row) {

@@ -15,17 +15,21 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result_meta.h>
 #include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
@@ -157,7 +161,7 @@ exec_with_cb_handle_on_row(void * context,
 						case HND_FAIL:
 						case HND_PASS_RETURN_FAIL:
 						case HND_AGAIN:
-							ret = Z_LVAL(return_value);
+							ret = static_cast<enum_hnd_func_status>(Z_LVAL(return_value));
 							break;
 						default:
 							break;
@@ -720,22 +724,11 @@ mysqlx_node_sql_statement_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_node_sql_statement_object_allocator(zend_class_entry * class_type)
 {
-	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	struct st_mysqlx_node_statement * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_node_statement));
-
 	DBG_ENTER("php_mysqlx_node_sql_statement_object_allocator");
-	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);
-	}
-	mysqlx_object->ptr = object;
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_node_sql_statement_handlers;
-	mysqlx_object->properties = &mysqlx_node_sql_statement_properties;
-
-
+	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_statement>(
+		class_type,
+		&mysqlx_object_node_sql_statement_handlers,
+		&mysqlx_node_sql_statement_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */

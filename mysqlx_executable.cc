@@ -15,8 +15,10 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
+}
 #include "mysqlx_executable.h"
 
 zend_class_entry * mysqlx_executable_interface_entry;

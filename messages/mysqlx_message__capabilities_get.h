@@ -19,12 +19,10 @@
 #define MYSQLX_MESSAGE__CAPABILITIES_GET_H
 
 
-#ifndef  __cplusplus
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_message__capabilities_get_class_entry;
 void mysqlx_register_message__capabilities_get_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_message__capabilities_get_class(SHUTDOWN_FUNC_ARGS);
-#endif
 
 #endif /* MYSQLX_MESSAGE__CAPABILITIES_GET_H */
 

@@ -15,21 +15,25 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_expression.h"
 
 static zend_class_entry * mysqlx_expression_class_entry;
 
-struct st_mysqlx_expression
+struct st_mysqlx_expression : public mysqlx::phputils::custom_allocable
 {
 	zval expression;
 };
@@ -145,22 +149,11 @@ mysqlx_expression_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 {
-	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	struct st_mysqlx_expression * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_expression));
-
 	DBG_ENTER("php_mysqlx_expression_object_allocator");
-	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);
-	}
-	mysqlx_object->ptr = object;
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_expression_handlers;
-	mysqlx_object->properties = &mysqlx_expression_properties;
-
-
+	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_expression>(
+		class_type,
+		&mysqlx_object_expression_handlers,
+		&mysqlx_expression_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */

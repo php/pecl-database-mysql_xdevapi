@@ -15,18 +15,20 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_interfaces.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_stmt_result.h>
 #include "mysqlx_node_result.h"
 #include "mysqlx_object.h"
+#include <phputils/object.h>
 
-
-struct st_mysqlx_node__result_iterator
+struct st_mysqlx_node__result_iterator : mysqlx::phputils::custom_allocable
 {
 	zend_object_iterator  intern;
 	XMYSQLND_NODE_STMT_RESULT * result;
@@ -168,30 +170,13 @@ static zend_object_iterator_funcs mysqlx_node__result_iterator_funcs =
 static zend_object_iterator *
 mysqlx_node__result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
 {
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P(object);
-	struct st_mysqlx_node_result * mysqlx_result = mysqlx_object->ptr? mysqlx_object->ptr:NULL;
-	struct st_mysqlx_node__result_iterator * iterator = NULL;
-
-	DBG_ENTER("mysqlx_node__result_create_iterator");
-	if (by_ref) {
-		DBG_ERR("An iterator cannot be used with foreach by reference");
-		zend_error(E_ERROR, "An iterator cannot be used with foreach by reference");
-		DBG_RETURN(NULL);
-	}
-	iterator = ecalloc(1, sizeof(struct st_mysqlx_node__result_iterator));
-	if (iterator) {
-		zend_iterator_init(&iterator->intern);
-
-		ZVAL_COPY(&iterator->intern.data, object);
-
-		iterator->intern.funcs = &mysqlx_node__result_iterator_funcs;
-		iterator->row_num = 0;
-		iterator->started = FALSE;
-		iterator->usable = TRUE;
-		iterator->result = mysqlx_result->result->m.get_reference(mysqlx_result->result);
-	}
-
-	DBG_RETURN(&iterator->intern);
+	DBG_ENTER("mysqlx_node_result_create_iterator");
+	auto iterator = mysqlx::phputils::create_result_iterator<st_mysqlx_node_result, st_mysqlx_node__result_iterator>(
+		ce, 
+		&mysqlx_node__result_iterator_funcs, 
+		object, 
+		by_ref);
+	DBG_RETURN(iterator);
 }
 /* }}} */
 

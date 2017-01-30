@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_smart_str.h>
@@ -429,7 +428,7 @@ err:
 
 
 /* {{{ mysqlx_register_column_metadata_class */
-extern "C" void
+void
 mysqlx_register_column_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_column_metadata_handlers = *mysqlx_std_object_handlers;
@@ -466,7 +465,7 @@ mysqlx_register_column_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mys
 
 
 /* {{{ mysqlx_unregister_column_metadata_class */
-extern "C" void
+void
 mysqlx_unregister_column_metadata_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_column_metadata_properties);

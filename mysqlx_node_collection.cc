@@ -15,16 +15,20 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
@@ -36,6 +40,7 @@
 #include "mysqlx_node_collection__create_index.h"
 #include "mysqlx_node_collection__drop_index.h"
 #include "mysqlx_node_collection.h"
+#include "mysqlx_node_schema.h"
 
 static zend_class_entry *mysqlx_node_collection_class_entry;
 
@@ -95,7 +100,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__drop_index, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_collection
+struct st_mysqlx_node_collection : public mysqlx::phputils::custom_allocable
 {
 	XMYSQLND_NODE_COLLECTION * collection;
 };
@@ -279,7 +284,7 @@ PHP_METHOD(mysqlx_node_collection, getSchema)
 				getThis(), "Os",
 				&object_zv,
 				mysqlx_node_collection_class_entry,
-				&(schema_name.s), &(schema_name.l)) == FAILURE) {
+				&(schema_name.s), &(schema_name.l))) {
 		DBG_VOID_RETURN;
 	}
 
@@ -589,22 +594,11 @@ mysqlx_node_collection_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_node_collection_object_allocator(zend_class_entry * class_type)
 {
-	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	struct st_mysqlx_node_collection * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_node_collection));
-
-	DBG_ENTER("php_mysqlx_node_collection_object_allocator");
-	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);
-	}
-	mysqlx_object->ptr = object;
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_node_collection_handlers;
-	mysqlx_object->properties = &mysqlx_node_collection_properties;
-
-
+	DBG_ENTER("php_mysqlx_collection_object_allocator");
+	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_collection>(
+		class_type,
+		&mysqlx_object_node_collection_handlers,
+		&mysqlx_node_collection_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */

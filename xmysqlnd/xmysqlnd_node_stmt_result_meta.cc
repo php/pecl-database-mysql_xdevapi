@@ -15,6 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
@@ -22,6 +23,7 @@
 #include "ext/mysqlnd/mysqlnd_priv.h"
 #include "ext/mysqlnd/mysqlnd_wireprotocol.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h" // XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3
 #include "xmysqlnd_node_stmt.h"
@@ -367,7 +369,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, add_field)(XMYSQLND_NODE_STMT_RE
 	DBG_ENTER("xmysqlnd_node_stmt_result_meta::add_field");
 	if (!meta->fields || meta->field_count == meta->fields_size) {
 		meta->fields_size += 8;
-		meta->fields = mnd_perealloc(meta->fields, meta->fields_size * sizeof(field), meta->persistent);
+		meta->fields = static_cast<XMYSQLND_RESULT_FIELD_META**>(mnd_perealloc(meta->fields, meta->fields_size * sizeof(field), meta->persistent));
 		if (!meta->fields) {
 			SET_OOM_ERROR(error_info);
 			DBG_RETURN(FAIL);

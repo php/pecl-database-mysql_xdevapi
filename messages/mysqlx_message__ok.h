@@ -19,13 +19,8 @@
 #define MYSQLX_MESSAGE__OK_H
 
 /* This typically should be static, but we have coupling */
-extern
-#ifdef __cplusplus
-"C"
-#endif
-zend_class_entry *mysqlx_message__ok_class_entry;
+extern zend_class_entry *mysqlx_message__ok_class_entry;
 
-#ifdef  __cplusplus
 #include "xmysqlnd/proto_gen/mysqlx.pb.h"
 struct st_mysqlx_message__ok
 {
@@ -47,10 +42,8 @@ void dump_mysqlx_ok(const Mysqlx::Ok & ok);
 	} \
 }
 
-#else
 void mysqlx_register_message__ok_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_message__ok_class(SHUTDOWN_FUNC_ARGS);
-#endif
 
 #endif /* MYSQLX_MESSAGE__OK_H */
 

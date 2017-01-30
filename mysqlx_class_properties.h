@@ -20,9 +20,6 @@
 
 #include "mysqlx_object.h"
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
 
 typedef zval * (*func_mysqlx_property_get)(const struct st_mysqlx_object *obj, zval *rv);
 typedef int    (*func_mysqlx_property_set)(struct st_mysqlx_object *obj, zval *newval);
@@ -50,9 +47,6 @@ int mysqlx_object_has_property(zval * object, zval *member, int has_set_exists, 
 
 void mysqlx_free_property_cb(zval *el);
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* MYSQLX_CLASS_PROPERTIES_H */
 

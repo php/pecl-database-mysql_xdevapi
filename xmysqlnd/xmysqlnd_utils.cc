@@ -15,16 +15,15 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/json/php_json.h>
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_structs.h"
+}
 #include "xmysqlnd_utils.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 
 /* {{{ make_mysqlnd_cstr */
@@ -77,9 +76,6 @@ xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 }
 /* }}} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 /*
  * Local variables:

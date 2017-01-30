@@ -15,21 +15,25 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/json/php_json.h>
-#include "ext/json/php_json_parser.h"
+#include <ext/json/php_json_parser.h>
 #include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
@@ -47,7 +51,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add__execute, 0, ZEND_RET
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_collection__add
+struct st_mysqlx_node_collection__add : public mysqlx::phputils::custom_allocable
 {
 	XMYSQLND_NODE_COLLECTION * collection;
 	XMYSQLND_CRUD_COLLECTION_OP__ADD* crud_op;
@@ -232,7 +236,7 @@ add_unique_id_to_json(XMYSQLND_NODE_SESSION *session,
 	const MYSQLND_CSTRING uuid = session->m->get_uuid(session);
 
 	if (UNEXPECTED(status->empty)) {
-		to_add->s = mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
+		to_add->s = static_cast<char*>(mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1)); /* allocate a bit more */
 		if (to_add->s) {
 			p = to_add->s;
 			*p++ = '{';
@@ -244,7 +248,7 @@ add_unique_id_to_json(XMYSQLND_NODE_SESSION *session,
 			--last;
 		}
 		if (last >= json->s) {
-			to_add->s = mnd_emalloc(json->l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1) ; /* allocate a bit more */
+			to_add->s = static_cast<char*>(mnd_emalloc(json->l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1)); /* allocate a bit more */
 			if (to_add->s) {
 				p = to_add->s;
 				memcpy(p, json->s, last - json->s);
@@ -307,7 +311,7 @@ extract_document_id(const MYSQLND_STRING json,
 			if( end >= beg ){
 				res.l = ( end - beg);
 				if( res.l > 0 && res.l <= 32 ) {
-					res.s = mnd_emalloc( res.l );
+					res.s = static_cast<char*>(mnd_emalloc( res.l ));
 					memcpy(res.s, beg, res.l);
 				}
 			}
@@ -476,7 +480,7 @@ node_collection_add_array(struct st_mysqlx_node_collection__add * const object,
 static
 PHP_METHOD(mysqlx_node_collection__add, execute)
 {
-	enum_func_status execute_ret_status = SUCCESS;
+	enum_func_status execute_ret_status = PASS;
 	struct st_mysqlx_node_collection__add * object;
 	zval * object_zv;
 	int i = 0, noop_cnt = 0,cur_doc_id_idx = 0;
@@ -498,9 +502,9 @@ PHP_METHOD(mysqlx_node_collection__add, execute)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLND_CSTRING * doc_ids = mnd_ecalloc( object->num_of_docs, sizeof(MYSQLND_CSTRING) );
+	MYSQLND_CSTRING * doc_ids = static_cast<MYSQLND_CSTRING*>(mnd_ecalloc( object->num_of_docs, sizeof(MYSQLND_CSTRING) ));
 	if( doc_ids == NULL ) {
-		execute_ret_status = FAILURE;
+		execute_ret_status = FAIL;
 	} else {
 		struct doc_add_op_return_status ret = { ADD_SUCCESS , NULL };
 		for(i = 0 ; i < object->num_of_docs && ret.return_status != ADD_FAIL ; ++i ) {
@@ -624,22 +628,11 @@ mysqlx_node_collection__add_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_node_collection__add_object_allocator(zend_class_entry * class_type)
 {
-	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	struct st_mysqlx_node_collection__add * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_node_collection__add));
-
-	DBG_ENTER("php_mysqlx_node_collection__add_object_allocator");
-	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);
-	}
-	mysqlx_object->ptr = object;
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_node_collection__add_handlers;
-	mysqlx_object->properties = &mysqlx_node_collection__add_properties;
-
-
+	DBG_ENTER("php_mysqlx_collection__add_object_allocator");
+	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_collection__add>(
+		class_type,
+		&mysqlx_object_node_collection__add_handlers,
+		&mysqlx_node_collection__add_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */
@@ -705,7 +698,7 @@ mysqlx_new_node_collection__add(zval * return_value,
 			if( !object->crud_op ) {
 				op_success = FALSE;
 			} else {
-				object->docs = mnd_ecalloc( num_of_docs , sizeof(zval) );
+				object->docs = static_cast<zval*>(mnd_ecalloc( num_of_docs , sizeof(zval) ));
 				for(i = 0; i < num_of_docs; ++i) {
 					ZVAL_DUP(&object->docs[i],
 									&docs[i]);

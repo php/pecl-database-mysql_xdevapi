@@ -20,10 +20,6 @@
 
 #include "xmysqlnd_crud_commands.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 typedef struct st_xmysqlnd_crud_table_op__insert XMYSQLND_CRUD_TABLE_OP__INSERT;
 
@@ -113,9 +109,6 @@ enum_func_status xmysqlnd_stmt_execute__finalize_bind(XMYSQLND_STMT_OP__EXECUTE 
 struct st_xmysqlnd_pb_message_shell xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE * obj);
 
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* XMYSQLND_CRUD_TABLE_COMMANDS_H */
 

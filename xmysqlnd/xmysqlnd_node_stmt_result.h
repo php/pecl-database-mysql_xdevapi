@@ -26,9 +26,6 @@ struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_rowset;
 struct st_xmysqlnd_warning_list;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct st_xmysqlnd_node_stmt_result			XMYSQLND_NODE_STMT_RESULT;
 
@@ -112,9 +109,6 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt_
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT_RESULT * xmysqlnd_node_stmt_result_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_stmt_result_free(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* XMYSQLND_NODE_STMT_RESULT_H */
 

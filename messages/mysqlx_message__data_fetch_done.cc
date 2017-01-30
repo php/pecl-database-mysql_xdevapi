@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -110,7 +109,7 @@ err:
 
 
 /* {{{ mysqlx_register_message__data_fetch_done_class */
-extern "C" void
+void
 mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_message__data_fetch_done_handlers = *mysqlx_std_object_handlers;
@@ -130,7 +129,7 @@ mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS, zend_object_handl
 
 
 /* {{{ mysqlx_unregister_message__data_fetch_done_class */
-extern "C" void
+void
 mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_message__data_fetch_done_properties);

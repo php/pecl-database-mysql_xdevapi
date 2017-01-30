@@ -21,9 +21,6 @@
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 typedef struct st_xmysqlnd_protocol_frame_codec			XMYSQLND_PFC;
 typedef struct st_xmysqlnd_protocol_frame_codec_data	XMYSQLND_PFC_DATA;
 
@@ -72,9 +69,6 @@ struct st_xmysqlnd_protocol_frame_codec
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_protocol_packet_frame_codec);
 PHP_MYSQL_XDEVAPI_API XMYSQLND_PFC * xmysqlnd_pfc_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_pfc_free(XMYSQLND_PFC * const net, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif /* XMYSQLND_PROTOCOL_FRAME_CODEC_H */
 

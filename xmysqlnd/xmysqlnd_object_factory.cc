@@ -15,11 +15,13 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_statistics.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_extension_plugin.h"
@@ -51,7 +53,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session");
 	DBG_INF_FMT("persistent=%u", persistent);
-	object = mnd_pecalloc(1, alloc_size, persistent);
+	object = static_cast<XMYSQLND_NODE_SESSION*>(mnd_pecalloc(1, alloc_size, persistent));
 	if (!object) {
 		DBG_RETURN(NULL);
 	}
@@ -80,7 +82,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CL
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session_data");
 	DBG_INF_FMT("persistent=%u", persistent);
-	object = mnd_pecalloc(1, alloc_size, persistent);
+	object = static_cast<XMYSQLND_NODE_SESSION_DATA*>(mnd_pecalloc(1, alloc_size, persistent));
 	if (!object) {
 		DBG_RETURN(NULL);
 	}
@@ -108,8 +110,8 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_schema)(const MYSQLND_CLASS_ME
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_SCHEMA) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_SCHEMA_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_SCHEMA * object = mnd_pecalloc(1, alloc_size, persistent);
-	XMYSQLND_NODE_SCHEMA_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
+	XMYSQLND_NODE_SCHEMA * object = static_cast<XMYSQLND_NODE_SCHEMA*>(mnd_pecalloc(1, alloc_size, persistent));
+	XMYSQLND_NODE_SCHEMA_DATA * object_data = static_cast<XMYSQLND_NODE_SCHEMA_DATA*>(mnd_pecalloc(1, data_alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_schema");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -148,8 +150,8 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_collection)(const MYSQLND_CLAS
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_COLLECTION) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_COLLECTION_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_COLLECTION * object = mnd_pecalloc(1, alloc_size, persistent);
-	XMYSQLND_NODE_COLLECTION_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
+	XMYSQLND_NODE_COLLECTION * object = static_cast<XMYSQLND_NODE_COLLECTION*>(mnd_pecalloc(1, alloc_size, persistent));
+	XMYSQLND_NODE_COLLECTION_DATA * object_data = static_cast<XMYSQLND_NODE_COLLECTION_DATA*>(mnd_pecalloc(1, data_alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_collection");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -188,8 +190,8 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_table)(const MYSQLND_CLASS_MET
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_TABLE) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_TABLE_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_TABLE * object = mnd_pecalloc(1, alloc_size, persistent);
-	XMYSQLND_NODE_TABLE_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
+	XMYSQLND_NODE_TABLE * object = static_cast<XMYSQLND_NODE_TABLE*>(mnd_pecalloc(1, alloc_size, persistent));
+	XMYSQLND_NODE_TABLE_DATA * object_data = static_cast<XMYSQLND_NODE_TABLE_DATA*>(mnd_pecalloc(1, data_alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_table");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -227,8 +229,8 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(const MYSQLND_CLASS_METH
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(XMYSQLND_NODE_STMT_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_STMT * object = mnd_pecalloc(1, alloc_size, persistent);
-	XMYSQLND_NODE_STMT_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
+	XMYSQLND_NODE_STMT * object = static_cast<XMYSQLND_NODE_STMT*>(mnd_pecalloc(1, alloc_size, persistent));
+	XMYSQLND_NODE_STMT_DATA * object_data = static_cast<XMYSQLND_NODE_STMT_DATA*>(mnd_pecalloc(1, data_alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_stmt");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -264,7 +266,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(const MYSQLND_CLA
 															   MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT_RESULT) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_STMT_RESULT * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_NODE_STMT_RESULT * object = static_cast<XMYSQLND_NODE_STMT_RESULT*>(mnd_pecalloc(1, alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_stmt_result");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -290,7 +292,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered)(const MYSQLND_CLAS
 															  MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_ROWSET_BUFFERED) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_ROWSET_BUFFERED * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_ROWSET_BUFFERED * object = static_cast<XMYSQLND_ROWSET_BUFFERED*>(mnd_pecalloc(1, alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_rowset_buffered");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -317,7 +319,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_fwd)(const MYSQLND_CLASS_MET
 														 MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_ROWSET_FWD) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_ROWSET_FWD * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_ROWSET_FWD * object = static_cast<XMYSQLND_ROWSET_FWD*>(mnd_pecalloc(1, alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_rowset_fwd");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -345,14 +347,14 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(const MYSQLND_CLASS_METHODS
 													 MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_ROWSET) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_ROWSET * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_ROWSET * object = static_cast<XMYSQLND_ROWSET*>(mnd_pecalloc(1, alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_rowset");
 	DBG_INF_FMT("persistent=%u", persistent);
 	if (object) {
 		object->m = *xmysqlnd_rowset_get_methods();
 
-		if (PASS != object->m.init(object, factory, type, prefetch_rows, stmt, stats, error_info)) {
+		if (PASS != object->m.init(object, factory, static_cast<xmysqlnd_rowset_type>(type), prefetch_rows, stmt, stats, error_info)) {
 			object->m.dtor(object, stats, error_info);
 			object = NULL;
 		}
@@ -370,7 +372,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(const MYSQLN
 																	MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_NODE_STMT_RESULT_META) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_NODE_STMT_RESULT_META * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_NODE_STMT_RESULT_META * object = static_cast<XMYSQLND_NODE_STMT_RESULT_META*>(mnd_pecalloc(1, alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_stmt_result_meta");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -396,7 +398,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(const MYSQLND_CL
 																MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_RESULT_FIELD_META) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_RESULT_FIELD_META * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_RESULT_FIELD_META * object = static_cast<XMYSQLND_RESULT_FIELD_META*>(mnd_pecalloc(1, alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_result_field_meta");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -423,8 +425,8 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const MYSQLND_CLASS_METHODS_TY
 {
 	const size_t alloc_size = sizeof(XMYSQLND_PFC) + mysqlnd_plugin_count() * sizeof(void *);
 	const size_t data_alloc_size = sizeof(MYSQLND_PFC_DATA) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_PFC * object = mnd_pecalloc(1, alloc_size, persistent);
-	XMYSQLND_PFC_DATA * object_data = mnd_pecalloc(1, data_alloc_size, persistent);
+	XMYSQLND_PFC * object = static_cast<XMYSQLND_PFC*>(mnd_pecalloc(1, alloc_size, persistent));
+	XMYSQLND_PFC_DATA * object_data = static_cast<XMYSQLND_PFC_DATA*>(mnd_pecalloc(1, data_alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_pfc");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -461,7 +463,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list)(const MYSQLND_CLASS_M
 														   MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_WARNING_LIST) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_WARNING_LIST * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_WARNING_LIST * object = static_cast<XMYSQLND_WARNING_LIST*>(mnd_pecalloc(1, alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_warning_list");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -487,7 +489,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state)(const MYSQLND
 																   MYSQLND_ERROR_INFO * error_info)
 {
 	const size_t alloc_size = sizeof(XMYSQLND_STMT_EXECUTION_STATE) + mysqlnd_plugin_count() * sizeof(void *);
-	XMYSQLND_STMT_EXECUTION_STATE * object = mnd_pecalloc(1, alloc_size, persistent);
+	XMYSQLND_STMT_EXECUTION_STATE * object = static_cast<XMYSQLND_STMT_EXECUTION_STATE*>(mnd_pecalloc(1, alloc_size, persistent));
 
 	DBG_ENTER("xmysqlnd_object_factory::get_stmt_execution_state");
 	DBG_INF_FMT("persistent=%u", persistent);

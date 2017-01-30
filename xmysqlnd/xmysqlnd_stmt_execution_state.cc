@@ -15,10 +15,12 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_stmt_execution_state.h"
@@ -144,7 +146,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXEC
 	DBG_ENTER("xmysqlnd_stmt_execution_state::free_contents");
 	if(state && state->last_document_ids != NULL) {
 		for(i = 0 ; i < state->num_of_doc_ids; ++i ) {
-			mnd_efree(state->last_document_ids[i].s);
+			mnd_efree(const_cast<char*>(state->last_document_ids[i].s));
 			state->last_document_ids[i].s = NULL;
 			state->last_document_ids[i].l = 0;
 		}

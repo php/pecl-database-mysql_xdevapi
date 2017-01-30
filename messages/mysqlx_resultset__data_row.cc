@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_smart_str.h>
@@ -461,7 +460,7 @@ err:
 
 
 /* {{{ mysqlx_register_data_row_class */
-extern "C" void
+void
 mysqlx_register_data_row_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_data_row_handlers = *mysqlx_std_object_handlers;
@@ -481,7 +480,7 @@ mysqlx_register_data_row_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std
 
 
 /* {{{ mysqlx_unregister_data_row_class */
-extern "C" void
+void
 mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_data_row_properties);

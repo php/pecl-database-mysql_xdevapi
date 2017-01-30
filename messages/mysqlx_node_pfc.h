@@ -22,9 +22,6 @@
 
 /* This typically should be static, but we have coupling */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 extern zend_class_entry *mysqlx_node_pfc_class_entry;
 
@@ -51,9 +48,6 @@ struct st_mysqlx_node_pfc
 void mysqlx_register_node_pfc_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_pfc_class(SHUTDOWN_FUNC_ARGS);
 
-#ifdef __cplusplus
-} // extern "C" {
-#endif
 
 #endif /* MYSQLX_NODE_PFC_H */
 

@@ -38,10 +38,9 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__create_index.h"
 #include "mysqlx_object.h"
-
-#include "php/allocator.h"
-#include "php/exceptions.h"
-#include "php/object.h"
+#include <phputils/allocator.h>
+#include <phputils/exceptions.h>
+#include <phputils/object.h>
 
 namespace mysqlx {
 
@@ -218,9 +217,6 @@ php_mysqlx_node_collection__create_index_object_allocator(zend_class_entry * cla
 
 } // namespace mysqlx
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
 
 //TODO ds: temporarily till we rename most of *.c into *.cc
 using namespace mysqlx;
@@ -302,9 +298,6 @@ end:
 }
 /* }}} */
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
 
 /*
  * Local variables:

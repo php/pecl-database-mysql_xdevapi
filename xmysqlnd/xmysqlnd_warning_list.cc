@@ -15,10 +15,12 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"
 #include "xmysqlnd_driver.h"
@@ -48,9 +50,9 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * cons
 	DBG_ENTER("xmysqlnd_warning_list::add_warning");
 	if (!warn_list->warnings || warn_list->warnings_allocated == warn_list->warning_count) {
 		warn_list->warnings_allocated = ((warn_list->warnings_allocated + 1) * 5)/ 3;
-		warn_list->warnings = mnd_perealloc(warn_list->warnings,
+		warn_list->warnings = static_cast<st_xmysqlnd_warning*>(mnd_perealloc(warn_list->warnings,
 											warn_list->warnings_allocated * sizeof(struct st_xmysqlnd_warning),
-											warn_list->persistent);
+											warn_list->persistent));
 	}
 
 	{

@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -39,7 +38,7 @@ extern "C"
 static char hexconvtab[] = "0123456789abcdef";
 
 /* {{{ xmysqlnd_dump_string_to_log */
-extern "C" void
+void
 xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len)
 {
 	//TODO marines
@@ -280,7 +279,7 @@ xmysqlnd_dump_update_operation(const Mysqlx::Crud::UpdateOperation & op)
 
 
 /* {{{ xmysqlnd_dump_client_message */
-extern "C" void
+void
 xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const size_t payload_size)
 {
 	DBG_ENTER("xmysqlnd_dump_client_message");
@@ -799,7 +798,7 @@ xmysqlnd_dump_capabilities_to_log(const Mysqlx::Connection::Capabilities & messa
 
 
 /* {{{ xmysqlnd_dump_server_message */
-extern "C" void
+void
 xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const size_t payload_size)
 {
 	DBG_ENTER("xmysqlnd_dump_server_message");

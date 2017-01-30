@@ -19,13 +19,9 @@
 #define MYSQLX_MESSAGE__CAPABILITIES_H
 
 
-#ifdef __cplusplus
-
 #include "xmysqlnd/proto_gen/mysqlx.pb.h"
 #include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 
-extern "C"
-{
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_message__capabilities_class_entry;
 
@@ -48,11 +44,8 @@ struct st_mysqlx_message__capabilities
 
 void dump_capabilities_to_log(const Mysqlx::Connection::Capabilities & message);
 
-} /* extern "C" */
-#else /* cplusplus */
 void mysqlx_register_message__capabilities_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_message__capabilities_class(SHUTDOWN_FUNC_ARGS);
-#endif
 
 #endif /* MYSQLX_MESSAGE__CAPABILITY_H */
 

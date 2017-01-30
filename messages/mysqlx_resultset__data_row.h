@@ -18,13 +18,10 @@
 #ifndef MYSQLX_RESULTSET__DATA_ROW_H
 #define MYSQLX_RESULTSET__DATA_ROW_H
 
-#ifdef  __cplusplus
 #include "xmysqlnd/proto_gen/mysqlx_resultset.pb.h"
 void mysqlx_new_data_row(zval * return_value, const Mysqlx::Resultset::Row & message);
-#else
 void mysqlx_register_data_row_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS);
-#endif
 
 #endif /* MYSQLX_RESULTSET__DATA_ROW_H */
 

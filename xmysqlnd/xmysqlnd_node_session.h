@@ -18,17 +18,16 @@
 #ifndef XMYSQLND_NODE_SESSION_H
 #define XMYSQLND_NODE_SESSION_H
 
+extern "C" {
 #include <ext/mysqlnd/mysqlnd_connection.h>
 #include <ext/mysqlnd/mysqlnd_enum_n_def.h>
 #include <ext/mysqlnd/mysqlnd_structs.h>
 #include <ext/mysqlnd/mysqlnd_vio.h>
+}
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_node_stmt.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_schema;
@@ -442,9 +441,6 @@ extern const struct st_xmysqlnd_node_session_on_error_bind			noop__on_error;
 extern const struct st_xmysqlnd_node_session_on_result_end_bind		noop__on_result_end;
 extern const struct st_xmysqlnd_node_session_on_statement_ok_bind	noop__on_statement_ok;
 
-#ifdef __cplusplus
-} // extern "C" {
-#endif
 
 #endif	/* XMYSQLND_NODE_SESSION_H */
 

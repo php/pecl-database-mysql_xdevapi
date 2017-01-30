@@ -18,11 +18,13 @@
 #ifndef MYSQLX_NODE_SQL_STATEMENT_RESULT_H
 #define MYSQLX_NODE_SQL_STATEMENT_RESULT_H
 
+#include <phputils/allocator.h>
+
 struct st_mysqlx_node_statement;
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_stmt_result;
 
-struct st_mysqlx_node_sql_statement_result
+struct st_mysqlx_node_sql_statement_result : public mysqlx::phputils::custom_allocable
 {
 	struct st_xmysqlnd_node_stmt_result * result;
 	struct st_xmysqlnd_node_stmt * stmt;

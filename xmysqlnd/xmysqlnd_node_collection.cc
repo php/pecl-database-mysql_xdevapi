@@ -15,11 +15,13 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/json/php_json_parser.h"
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
+}
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
@@ -91,7 +93,7 @@ bind:
 
 				zval_ptr_dtor(&zv);
 				if (FAIL == result) {
-					ret = FAIL;
+					ret = HND_FAIL;
 				}
 			}
 			break;

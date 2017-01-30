@@ -15,11 +15,13 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
@@ -32,8 +34,8 @@
 #include "mysqlx_base_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
-
 #include "mysqlx_session.h"
+#include <phputils/object.h>
 
 //static zend_class_entry *mysqlx_base_session_class_entry;
 zend_class_entry *mysqlx_base_session_class_entry;
@@ -865,30 +867,21 @@ mysqlx_base_session_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_base_session_object_allocator(zend_class_entry * class_type)
 {
-	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
-	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	struct st_mysqlx_session * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_session));
+	DBG_ENTER("php_mysqlx_base_session_object_allocator");
+	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_session>(
+		class_type,
+		&mysqlx_object_base_session_handlers,
+		&mysqlx_base_session_properties);
+
 	MYSQLND_STATS * stats = NULL;
 	MYSQLND_ERROR_INFO * error_info = NULL;
-
-	DBG_ENTER("php_mysqlx_base_session_object_allocator");
-	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);
-	}
-	mysqlx_object->ptr = object;
-
-	if (!(object->session = xmysqlnd_node_session_create(0, FALSE, factory, stats, error_info))) {
-		mnd_efree(object);
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
+	st_mysqlx_session* data_object = static_cast<st_mysqlx_session*>(mysqlx_object->ptr);
+	if (!(data_object->session = xmysqlnd_node_session_create(0, FALSE, factory, stats, error_info))) {
+		mnd_efree(data_object);
 		mnd_efree(mysqlx_object);
-		DBG_RETURN(NULL);
+		DBG_RETURN(nullptr);
 	}
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_base_session_handlers;
-	mysqlx_object->properties = &mysqlx_base_session_properties;
-
 
 	DBG_RETURN(&mysqlx_object->zo);
 }

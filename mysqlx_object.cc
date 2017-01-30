@@ -15,10 +15,12 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_alloc.h"
+}
 #include "php_mysqlx.h"
 #include "mysqlx_object.h"
 #include "mysqlx_class_properties.h"
@@ -48,14 +50,15 @@ mysqlx_object_free_storage(zend_object * object)
 HashTable *
 mysqlx_object_get_debug_info(zval *object, int *is_temp)
 {
-	struct st_mysqlx_property * property;
 	struct st_mysqlx_object * mysqlx_obj = Z_MYSQLX_P(object);
 	HashTable *retval;
 
 	ALLOC_HASHTABLE(retval);
 	ZEND_INIT_SYMTABLE_EX(retval, zend_hash_num_elements(mysqlx_obj->properties) + 1, 0);
 
-	ZEND_HASH_FOREACH_PTR(mysqlx_obj->properties, property) {
+	void* raw_property = nullptr;
+	ZEND_HASH_FOREACH_PTR(mysqlx_obj->properties, raw_property) {
+		st_mysqlx_property* property = static_cast<st_mysqlx_property*>(raw_property);
 		zval rv, member;
 		zval *value;
 

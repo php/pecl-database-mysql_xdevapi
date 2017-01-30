@@ -15,18 +15,22 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_table.h>
 #include <xmysqlnd/xmysqlnd_crud_table_commands.h>
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"
@@ -68,7 +72,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__execute, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__update
+struct st_mysqlx_node_table__update : public mysqlx::phputils::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__UPDATE * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -479,22 +483,11 @@ mysqlx_node_table__update_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_node_table__update_object_allocator(zend_class_entry * class_type)
 {
-	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	struct st_mysqlx_node_table__update * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_node_table__update));
-
 	DBG_ENTER("php_mysqlx_node_table__update_object_allocator");
-	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);
-	}
-	mysqlx_object->ptr = object;
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_node_table__update_handlers;
-	mysqlx_object->properties = &mysqlx_node_table__update_properties;
-
-
+	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_table__update>(
+		class_type,
+		&mysqlx_object_node_table__update_handlers,
+		&mysqlx_node_table__update_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */

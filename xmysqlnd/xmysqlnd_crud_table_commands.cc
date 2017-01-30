@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/json/php_json_parser.h>
@@ -42,7 +41,7 @@ extern "C"
 
 
 /* {{{ xmysqlnd_crud_table__bind_value */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 									 std::vector<Mysqlx::Datatypes::Scalar*> & bound_values,
 									 const MYSQLND_CSTRING & name,
@@ -82,7 +81,7 @@ xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 
 
 /* {{{ xmysqlnd_crud_table_delete__add_orderby */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table__add_orderby(google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order > * mutable_order,
 								   const Mysqlx::Crud::DataModel data_model,
 								   const MYSQLND_CSTRING & orderby)
@@ -105,7 +104,7 @@ xmysqlnd_crud_table__add_orderby(google::protobuf::RepeatedPtrField< Mysqlx::Cru
 
 
 /* {{{ xmysqlnd_crud_table__finalize_bind */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args,
 										std::vector<Mysqlx::Datatypes::Scalar*> & bound_values)
 {
@@ -302,7 +301,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx:
 
 
 /* {{{ xmysqlnd_crud_table_insert__create */
-extern "C" XMYSQLND_CRUD_TABLE_OP__INSERT *
+XMYSQLND_CRUD_TABLE_OP__INSERT *
 xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema,
 							const MYSQLND_CSTRING table_name,
 							zval * columns,
@@ -318,7 +317,7 @@ xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema,
 
 
 /* {{{ xmysqlnd_crud_table_insert__destroy */
-extern "C" void
+void
 xmysqlnd_crud_table_insert__destroy(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_insert__destroy");
@@ -329,7 +328,7 @@ xmysqlnd_crud_table_insert__destroy(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 
 
 /* {{{ xmysqlnd_crud_table_insert__destroy */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_insert__add_row(XMYSQLND_CRUD_TABLE_OP__INSERT * obj, zval * values_zv)
 {
 	DBG_ENTER("xmysqlnd_crud_table_insert__add_row");
@@ -341,7 +340,7 @@ xmysqlnd_crud_table_insert__add_row(XMYSQLND_CRUD_TABLE_OP__INSERT * obj, zval *
 
 
 /* {{{ xmysqlnd_crud_table_insert__finalize_bind */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_insert__finalize_bind(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_insert__finalize_bind");
@@ -354,7 +353,7 @@ xmysqlnd_crud_table_insert__finalize_bind(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 
 
 /* {{{ xmysqlnd_crud_table_insert__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell
+struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_insert__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
@@ -364,7 +363,7 @@ xmysqlnd_crud_table_insert__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__INSERT 
 
 
 /* {{{ xmysqlnd_crud_table_insert__is_initialized */
-extern "C" zend_bool
+zend_bool
 xmysqlnd_crud_table_insert__is_initialized(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
 	const zend_bool ret = obj && obj->message.IsInitialized()? TRUE : FALSE;
@@ -396,7 +395,7 @@ struct st_xmysqlnd_crud_table_op__delete
 
 
 /* {{{ xmysqlnd_crud_table_delete__create */
-extern "C" XMYSQLND_CRUD_TABLE_OP__DELETE *
+XMYSQLND_CRUD_TABLE_OP__DELETE *
 xmysqlnd_crud_table_delete__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__create");
@@ -408,7 +407,7 @@ xmysqlnd_crud_table_delete__create(const MYSQLND_CSTRING schema, const MYSQLND_C
 
 
 /* {{{ xmysqlnd_crud_table_delete__destroy */
-extern "C" void
+void
 xmysqlnd_crud_table_delete__destroy(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__destroy");
@@ -419,7 +418,7 @@ xmysqlnd_crud_table_delete__destroy(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 
 
 /* {{{ xmysqlnd_crud_table_delete__set_criteria */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__set_criteria");
@@ -445,7 +444,7 @@ xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, c
 
 
 /* {{{ xmysqlnd_crud_table_delete__set_limit */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_delete__set_limit(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const size_t limit)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__set_limit");
@@ -456,7 +455,7 @@ xmysqlnd_crud_table_delete__set_limit(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, cons
 
 
 /* {{{ xmysqlnd_crud_table_delete__set_offset */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_delete__set_offset(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const size_t offset)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__set_offset");
@@ -467,7 +466,7 @@ xmysqlnd_crud_table_delete__set_offset(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, con
 
 
 /* {{{ xmysqlnd_crud_table_delete__bind_value */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING name, zval * value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__bind_value");
@@ -482,7 +481,7 @@ xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, con
 
 
 /* {{{ xmysqlnd_crud_table_delete__add_orderby */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_delete__add_orderby(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING orderby)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__add_orderby");
@@ -493,7 +492,7 @@ xmysqlnd_crud_table_delete__add_orderby(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, co
 
 
 /* {{{ xmysqlnd_crud_table_delete__is_initialized */
-extern "C" zend_bool
+zend_bool
 xmysqlnd_crud_table_delete__is_initialized(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
 	const zend_bool ret = obj && obj->message.IsInitialized()? TRUE : FALSE;
@@ -505,7 +504,7 @@ xmysqlnd_crud_table_delete__is_initialized(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 
 
 /* {{{ xmysqlnd_crud_table_delete__finalize_bind */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_delete__finalize_bind(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__finalize_bind");
@@ -521,7 +520,7 @@ xmysqlnd_crud_table_delete__finalize_bind(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 
 
 /* {{{ xmysqlnd_crud_table_delete__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell
+struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_delete__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
@@ -551,7 +550,7 @@ struct st_xmysqlnd_crud_table_op__update
 
 
 /* {{{ xmysqlnd_crud_table_update__create */
-extern "C" XMYSQLND_CRUD_TABLE_OP__UPDATE *
+XMYSQLND_CRUD_TABLE_OP__UPDATE *
 xmysqlnd_crud_table_update__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__create");
@@ -563,7 +562,7 @@ xmysqlnd_crud_table_update__create(const MYSQLND_CSTRING schema, const MYSQLND_C
 
 
 /* {{{ xmysqlnd_crud_table_update__destroy */
-extern "C" void
+void
 xmysqlnd_crud_table_update__destroy(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__destroy");
@@ -574,7 +573,7 @@ xmysqlnd_crud_table_update__destroy(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 
 
 /* {{{ xmysqlnd_crud_table_update__set_criteria */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__set_criteria(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__set_criteria");
@@ -600,7 +599,7 @@ xmysqlnd_crud_table_update__set_criteria(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, c
 
 
 /* {{{ xmysqlnd_crud_table_update__set_limit */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__set_limit(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const size_t limit)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__set_limit");
@@ -611,7 +610,7 @@ xmysqlnd_crud_table_update__set_limit(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, cons
 
 
 /* {{{ xmysqlnd_crud_table_update__set_offset */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__set_offset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const size_t offset)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__set_offset");
@@ -622,7 +621,7 @@ xmysqlnd_crud_table_update__set_offset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, con
 
 
 /* {{{ xmysqlnd_crud_table_update__bind_value */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING name, zval * value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__bind_value");
@@ -637,7 +636,7 @@ xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, con
 
 
 /* {{{ xmysqlnd_crud_table_update__add_orderby */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__add_orderby(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING orderby)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__add_orderby");
@@ -720,7 +719,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 
 
 /* {{{ xmysqlnd_crud_table_update__unset */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING path)
 {
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_REMOVE;
@@ -732,7 +731,7 @@ xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MY
 
 
 /* {{{ xmysqlnd_crud_table_update__set */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 									 const MYSQLND_CSTRING path,
 									 const zval * const value,
@@ -748,7 +747,7 @@ xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 
 
 /* {{{ xmysqlnd_crud_table_update__replace */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__replace(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 										 const MYSQLND_CSTRING path,
 										 const zval * const value,
@@ -764,7 +763,7 @@ xmysqlnd_crud_table_update__replace(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 
 
 /* {{{ xmysqlnd_crud_table_update__merge */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__merge(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 									   const MYSQLND_CSTRING path,
 									   const zval * const value)
@@ -778,7 +777,7 @@ xmysqlnd_crud_table_update__merge(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 
 
 /* {{{ xmysqlnd_crud_table_update__array_insert */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__array_insert(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 											  const MYSQLND_CSTRING path,
 											  const zval * const value)
@@ -792,7 +791,7 @@ xmysqlnd_crud_table_update__array_insert(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 
 
 /* {{{ xmysqlnd_crud_table_update__array_append */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__array_append(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 											  const MYSQLND_CSTRING path,
 											  const zval * const value)
@@ -806,7 +805,7 @@ xmysqlnd_crud_table_update__array_append(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 
 
 /* {{{ xmysqlnd_crud_table_update__is_initialized */
-extern "C" zend_bool
+zend_bool
 xmysqlnd_crud_table_update__is_initialized(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
 	const zend_bool ret = obj && obj->message.IsInitialized()? TRUE : FALSE;
@@ -818,7 +817,7 @@ xmysqlnd_crud_table_update__is_initialized(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 
 
 /* {{{ xmysqlnd_crud_table_update__finalize_bind */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_update__finalize_bind(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__finalize_bind");
@@ -834,7 +833,7 @@ xmysqlnd_crud_table_update__finalize_bind(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 
 
 /* {{{ xmysqlnd_crud_table_update__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell
+struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_update__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_UPDATE };
@@ -910,7 +909,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 /****************************** TABLE.SELECT() xmysqlnd_crud_table_select__ **************************/
 
 /* {{{ xmysqlnd_crud_table_select__create */
-extern "C" XMYSQLND_CRUD_TABLE_OP__SELECT *
+XMYSQLND_CRUD_TABLE_OP__SELECT *
 xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema,
 				const MYSQLND_CSTRING object_name,
 				zval * columns, const int num_of_columns)
@@ -925,7 +924,7 @@ xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema,
 
 
 /* {{{ xmysqlnd_crud_table_select__destroy */
-extern "C" void
+void
 xmysqlnd_crud_table_select__destroy(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__destroy");
@@ -936,7 +935,7 @@ xmysqlnd_crud_table_select__destroy(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 
 
 /* {{{ xmysqlnd_crud_table_select__set_criteria */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__set_criteria");
@@ -962,7 +961,7 @@ xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 
 
 /* {{{ xmysqlnd_crud_table_select__set_limit */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__set_limit(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const size_t limit)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__set_limit");
@@ -973,7 +972,7 @@ xmysqlnd_crud_table_select__set_limit(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, cons
 
 
 /* {{{ xmysqlnd_crud_table_select__set_offset */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__set_offset(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const size_t offset)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__set_offset");
@@ -984,7 +983,7 @@ xmysqlnd_crud_table_select__set_offset(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 
 
 /* {{{ xmysqlnd_crud_table_select__bind_value */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING name, zval * value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__bind_value");
@@ -999,7 +998,7 @@ xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 
 
 /* {{{ xmysqlnd_crud_table_select__add_orderby */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__add_orderby(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING orderby)
 {
 	enum_func_status ret;
@@ -1011,7 +1010,7 @@ xmysqlnd_crud_table_select__add_orderby(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, co
 
 
 /* {{{ xmysqlnd_crud_table_select__add_grouping */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING search_field)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__add_grouping");
@@ -1035,7 +1034,7 @@ xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 
 
 /* {{{ xmysqlnd_crud_table_select__set_column */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 										  const MYSQLND_CSTRING column,
 										  const zend_bool is_expression,
@@ -1091,7 +1090,7 @@ xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 
 
 /* {{{ xmysqlnd_crud_table_select__set_having */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__set_having(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__set_having");
@@ -1115,7 +1114,7 @@ xmysqlnd_crud_table_select__set_having(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 
 
 /* {{{ xmysqlnd_crud_table_select__is_initialized */
-extern "C" zend_bool
+zend_bool
 xmysqlnd_crud_table_select__is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
 	const zend_bool ret = obj && obj->message.IsInitialized()? TRUE : FALSE;
@@ -1127,7 +1126,7 @@ xmysqlnd_crud_table_select__is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 
 
 /* {{{ xmysqlnd_crud_table_select__finalize_bind */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_crud_table_select__finalize_bind(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__finalize_bind");
@@ -1143,7 +1142,7 @@ xmysqlnd_crud_table_select__finalize_bind(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 
 
 /* {{{ xmysqlnd_crud_table_select__get_protobuf_message */
-extern "C" struct st_xmysqlnd_pb_message_shell
+struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_select__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };

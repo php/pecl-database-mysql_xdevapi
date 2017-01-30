@@ -18,13 +18,10 @@
 #ifndef MYSQLX_MESSAGE__DATA_FETCH_DONE_H
 #define MYSQLX_MESSAGE__DATA_FETCH_DONE_H
 
-#ifdef  __cplusplus
 #include "xmysqlnd/proto_gen/mysqlx_resultset.pb.h"
 void mysqlx_new_data_fetch_done(zval * return_value, const Mysqlx::Resultset::FetchDone & message);
-#else
 void mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS);
-#endif
 
 #endif /* MYSQLX_MESSAGE__DATA_FETCH_DONE_H */
 

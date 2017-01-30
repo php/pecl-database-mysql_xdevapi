@@ -28,22 +28,18 @@ struct st_xmysqlnd_warning_list;
 struct st_xmysqlnd_level3_io;
 struct st_xmysqlnd_pb_message_shell;
 
+extern "C" {
 #include <ext/mysqlnd/mysqlnd_vio.h>
+}
 #include "xmysqlnd/xmysqlnd_protocol_frame_codec.h"
 
-#ifdef __cplusplus
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_notice.pb.h"
-#endif
 
-#ifdef __cplusplus
-extern "C"
-#endif
 MYSQLND_CSTRING xmysqlnd_field_type_name(const unsigned int type);
 
 enum xmysqlnd_client_message_type
 {
-#ifdef __cplusplus
 	COM_CAPABILITIES_GET	= Mysqlx::ClientMessages_Type_CON_CAPABILITIES_GET,
 	COM_CAPABILITIES_SET	= Mysqlx::ClientMessages_Type_CON_CAPABILITIES_SET,
 	COM_CONN_CLOSE			= Mysqlx::ClientMessages_Type_CON_CLOSE,
@@ -58,13 +54,11 @@ enum xmysqlnd_client_message_type
 	COM_CRUD_DELETE			= Mysqlx::ClientMessages_Type_CRUD_DELETE,
 	COM_EXPECTATIONS_OPEN	= Mysqlx::ClientMessages_Type_EXPECT_OPEN,
 	COM_EXPECTATIONS_CLOSE	= Mysqlx::ClientMessages_Type_EXPECT_CLOSE,
-#endif
 	COM_NONE = 255
 };
 
 enum xmysqlnd_server_message_type
 {
-#ifdef __cplusplus
 	XMSG_OK						= Mysqlx::ServerMessages_Type_OK,
 	XMSG_ERROR					= Mysqlx::ServerMessages_Type_ERROR,
 	XMSG_CAPABILITIES			= Mysqlx::ServerMessages_Type_CONN_CAPABILITIES,
@@ -78,17 +72,14 @@ enum xmysqlnd_server_message_type
 	XMSG_RSET_FETCH_DONE_MORE_RSETS = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_RESULTSETS,
 	XMSG_STMT_EXECUTE_OK		= Mysqlx::ServerMessages_Type_SQL_STMT_EXECUTE_OK,
 	XMSG_RSET_FETCH_DONE_MORE_OUT = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS,
-#endif
 	XMSG_NONE = 255
 };
 
 enum xmysqlnd_stmt_warning_level
 {
-#ifdef __cplusplus
 	XSTMT_WARN_NOTE		= Mysqlx::Notice::Warning_Level_NOTE,
 	XSTMT_WARN_WARNING	= Mysqlx::Notice::Warning_Level_WARNING,
 	XSTMT_WARN_ERROR	= Mysqlx::Notice::Warning_Level_ERROR,
-#endif
 	XSTMT_WARN_NONE = 255,
 };
 
@@ -121,10 +112,6 @@ enum xmysqlnd_data_model
 	XMYSQLND_MODEL_COLLECTION
 };
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 
 struct st_xmysqlnd_on_warning_bind
@@ -494,9 +481,6 @@ struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_
 
 void xmysqlnd_shutdown_protobuf_library();
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
 #endif	/* XMYSQLND_WIREPROTOCOL_H */
 

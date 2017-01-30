@@ -18,9 +18,6 @@
 #ifndef XMYSQLND_H
 #define XMYSQLND_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define PHP_XMYSQLND_VERSION "mysqlnd 1.0.0-dev"
 #define XMYSQLND_VERSION_ID 10000
@@ -31,12 +28,14 @@ extern "C" {
 #define XMYSQLND_DBG_ENABLED 0
 #endif
 
+extern "C" {
 #ifdef ZTS
 #include "TSRM.h"
 #endif
+#include "ext/mysqlnd/mysqlnd_portability.h"
+}
 
 #include "php_mysql_xdevapi.h"
-#include "ext/mysqlnd/mysqlnd_portability.h"
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_structs.h"
 
@@ -80,9 +79,6 @@ ZEND_TSRMLS_CACHE_EXTERN();
 
 #endif // MARINES_0
 
-#ifdef __cplusplus
-} // extern "C" {
-#endif
 
 #endif	/* XMYSQLND_H */
 

@@ -15,6 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_exceptions.h>
@@ -22,12 +23,13 @@
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
-#include <xmysqlnd/xmysqlnd.h>
-#include "php_mysqlx.h"
-#include "mysqlx_class_properties.h"
 #ifdef HAVE_SPL
 #include "ext/spl/spl_exceptions.h" /* spl_ce_RuntimeException */
 #endif
+}
+#include <xmysqlnd/xmysqlnd.h>
+#include "php_mysqlx.h"
+#include "mysqlx_class_properties.h"
 
 #include "mysqlx_exception.h"
 

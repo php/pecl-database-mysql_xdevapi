@@ -15,18 +15,22 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <xmysqlnd/xmysqlnd_node_schema.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
+#include <phputils/allocator.h>
+#include <phputils/object.h>
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"
@@ -77,7 +81,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__execute, 0, ZEND_RE
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_collection__find
+struct st_mysqlx_node_collection__find : public mysqlx::phputils::custom_allocable
 {
 	XMYSQLND_CRUD_COLLECTION_OP__FIND * crud_op;
 	XMYSQLND_NODE_COLLECTION * collection;
@@ -141,7 +145,7 @@ PHP_METHOD(mysqlx_node_collection__find, fields)
 		DBG_VOID_RETURN;
 	}
 
-	enum_func_status ret = SUCCESS;
+	enum_func_status ret = PASS;
 	if (Z_TYPE_P(fields) == IS_STRING) {
 		const MYSQLND_CSTRING field_str = { Z_STRVAL_P(fields), Z_STRLEN_P(fields) };
 		ret = xmysqlnd_crud_collection_find__set_fields(object->crud_op, field_str, is_expression, TRUE);
@@ -538,22 +542,11 @@ mysqlx_node_collection__find_free_storage(zend_object * object)
 static zend_object *
 php_mysqlx_node_collection__find_object_allocator(zend_class_entry * class_type)
 {
-	struct st_mysqlx_object * mysqlx_object = mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	struct st_mysqlx_node_collection__find * object = mnd_ecalloc(1, sizeof(struct st_mysqlx_node_collection__find));
-
-	DBG_ENTER("php_mysqlx_node_collection__find_object_allocator");
-	if (!mysqlx_object || !object) {
-		DBG_RETURN(NULL);
-	}
-	mysqlx_object->ptr = object;
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_node_collection__find_handlers;
-	mysqlx_object->properties = &mysqlx_node_collection__find_properties;
-
-
+	DBG_ENTER("php_mysqlx_collection__find_object_allocator");
+	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_collection__find>(
+		class_type,
+		&mysqlx_object_node_collection__find_handlers,
+		&mysqlx_node_collection__find_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */
