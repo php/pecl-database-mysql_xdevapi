@@ -74,26 +74,26 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_any2expr.cc \
 		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
 		xmysqlnd/xmysqlnd_crud_table_commands.cc \
-		xmysqlnd/xmysqlnd_driver.c \
-		xmysqlnd/xmysqlnd_extension_plugin.c \
+		xmysqlnd/xmysqlnd_driver.cc \
+		xmysqlnd/xmysqlnd_extension_plugin.cc \
 		xmysqlnd/xmysqlnd_index_collection_commands.cc \
-		xmysqlnd/xmysqlnd_node_collection.c \
-		xmysqlnd/xmysqlnd_node_schema.c \
-		xmysqlnd/xmysqlnd_node_session.c \
-		xmysqlnd/xmysqlnd_node_stmt.c \
-		xmysqlnd/xmysqlnd_node_stmt_result.c \
-		xmysqlnd/xmysqlnd_node_stmt_result_meta.c \
-		xmysqlnd/xmysqlnd_node_table.c \
-		xmysqlnd/xmysqlnd_object_factory.c \
-		xmysqlnd/xmysqlnd_protocol_frame_codec.c \
+		xmysqlnd/xmysqlnd_node_collection.cc \
+		xmysqlnd/xmysqlnd_node_schema.cc \
+		xmysqlnd/xmysqlnd_node_session.cc \
+		xmysqlnd/xmysqlnd_node_stmt.cc \
+		xmysqlnd/xmysqlnd_node_stmt_result.cc \
+		xmysqlnd/xmysqlnd_node_stmt_result_meta.cc \
+		xmysqlnd/xmysqlnd_node_table.cc \
+		xmysqlnd/xmysqlnd_object_factory.cc \
+		xmysqlnd/xmysqlnd_protocol_frame_codec.cc \
 		xmysqlnd/xmysqlnd_protocol_dumper.cc \
-		xmysqlnd/xmysqlnd_rowset.c \
-		xmysqlnd/xmysqlnd_rowset_buffered.c \
-		xmysqlnd/xmysqlnd_rowset_fwd.c \
-		xmysqlnd/xmysqlnd_statistics.c \
-		xmysqlnd/xmysqlnd_stmt_execution_state.c \
-		xmysqlnd/xmysqlnd_utils.c \
-		xmysqlnd/xmysqlnd_warning_list.c \
+		xmysqlnd/xmysqlnd_rowset.cc \
+		xmysqlnd/xmysqlnd_rowset_buffered.cc \
+		xmysqlnd/xmysqlnd_rowset_fwd.cc \
+		xmysqlnd/xmysqlnd_statistics.cc \
+		xmysqlnd/xmysqlnd_stmt_execution_state.cc \
+		xmysqlnd/xmysqlnd_utils.cc \
+		xmysqlnd/xmysqlnd_warning_list.cc \
 		xmysqlnd/xmysqlnd_wireprotocol.cc \
 		xmysqlnd/xmysqlnd_zval2any.cc \
 		"
@@ -124,57 +124,57 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 			"
 	fi
 
-	mysqlx_php="php/allocator.cc \
-		php/exceptions.cc \
-		php/object.cc \
+	mysqlx_phputils="phputils/allocator.cc \
+		phputils/exceptions.cc \
+		phputils/object.cc \
 		"
 
-	mysqlx_base_sources="php_mysqlx.c \
-		php_mysqlx_ex.c \
-		mysqlx_base_session.c \
-		mysqlx_class_properties.c \
-		mysqlx_crud_operation_bindable.c \
-		mysqlx_crud_operation_limitable.c \
-		mysqlx_crud_operation_skippable.c \
-		mysqlx_crud_operation_sortable.c \
-		mysqlx_database_object.c \
-		mysqlx_driver.c \
-		mysqlx_exception.c \
-		mysqlx_executable.c \
-		mysqlx_execution_status.c \
-		mysqlx_expression.c \
-		mysqlx_field_metadata.c \
-		mysqlx_node_schema.c \
-		mysqlx_node_session.c \
-		mysqlx_node_collection.c \
-		mysqlx_node_collection__add.c \
+	mysqlx_base_sources="php_mysqlx.cc \
+		php_mysqlx_ex.cc \
+		mysqlx_base_session.cc \
+		mysqlx_class_properties.cc \
+		mysqlx_crud_operation_bindable.cc \
+		mysqlx_crud_operation_limitable.cc \
+		mysqlx_crud_operation_skippable.cc \
+		mysqlx_crud_operation_sortable.cc \
+		mysqlx_database_object.cc \
+		mysqlx_driver.cc \
+		mysqlx_exception.cc \
+		mysqlx_executable.cc \
+		mysqlx_execution_status.cc \
+		mysqlx_expression.cc \
+		mysqlx_field_metadata.cc \
+		mysqlx_node_schema.cc \
+		mysqlx_node_session.cc \
+		mysqlx_node_collection.cc \
+		mysqlx_node_collection__add.cc \
 		mysqlx_node_collection__create_index.cc \
 		mysqlx_node_collection__drop_index.cc \
-		mysqlx_node_collection__find.c \
-		mysqlx_node_collection__modify.c \
-		mysqlx_node_collection__remove.c \
-		mysqlx_node_table.c \
-		mysqlx_node_table__delete.c \
-		mysqlx_node_table__insert.c \
-		mysqlx_node_table__select.c \
-		mysqlx_node_table__update.c \
-		mysqlx_node_sql_statement.c \
-		mysqlx_node_base_result.c \
-		mysqlx_node_base_result_iterator.c \
-		mysqlx_node_doc_result.c \
-		mysqlx_node_doc_result_iterator.c \
-		mysqlx_node_result.c \
-		mysqlx_node_result_iterator.c \
-		mysqlx_node_row_result.c \
-		mysqlx_node_row_result_iterator.c \
-		mysqlx_node_sql_statement_result.c \
-		mysqlx_node_sql_statement_result_iterator.c \
-		mysqlx_node_column_result.c \
-		mysqlx_x_session.c \
-		mysqlx_object.c \
-		mysqlx_session.c \
-		mysqlx_schema_object.c \
-		mysqlx_warning.c \
+		mysqlx_node_collection__find.cc \
+		mysqlx_node_collection__modify.cc \
+		mysqlx_node_collection__remove.cc \
+		mysqlx_node_table.cc \
+		mysqlx_node_table__delete.cc \
+		mysqlx_node_table__insert.cc \
+		mysqlx_node_table__select.cc \
+		mysqlx_node_table__update.cc \
+		mysqlx_node_sql_statement.cc \
+		mysqlx_node_base_result.cc \
+		mysqlx_node_base_result_iterator.cc \
+		mysqlx_node_doc_result.cc \
+		mysqlx_node_doc_result_iterator.cc \
+		mysqlx_node_result.cc \
+		mysqlx_node_result_iterator.cc \
+		mysqlx_node_row_result.cc \
+		mysqlx_node_row_result_iterator.cc \
+		mysqlx_node_sql_statement_result.cc \
+		mysqlx_node_sql_statement_result_iterator.cc \
+		mysqlx_node_column_result.cc \
+		mysqlx_x_session.cc \
+		mysqlx_object.cc \
+		mysqlx_session.cc \
+		mysqlx_schema_object.cc \
+		mysqlx_warning.cc \
 		"
 
 	AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
@@ -205,7 +205,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_BUILD_DIR($ext_builddir/messages)
 	PHP_ADD_BUILD_DIR($ext_builddir/proto_gen)
 
-	this_ext_sources="$xmysqlnd_protobuf_sources $mysqlx_base_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_php"
+	this_ext_sources="$xmysqlnd_protobuf_sources $mysqlx_base_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_phputils"
 	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1, true)
 	PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
