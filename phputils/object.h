@@ -62,7 +62,7 @@ zend_class_entry* register_class(
 		interfaces ...);
 
 	if (properties) {
-		zend_hash_init(properties, 0, NULL, mysqlx_free_property_cb, 1);
+		zend_hash_init(properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 		if (property_entries) {
 			/* Add name + getter + setter to the hash table with the properties for the class */
@@ -75,17 +75,16 @@ zend_class_entry* register_class(
 /* }}} */
 
 /* {{{ mysqlx::phputils::alloc_object */
-template<typename Data_object>
+template<typename Data_object, typename Allocation_tag = phputils::alloc_tag_t>
 st_mysqlx_object* alloc_object(
 	zend_class_entry* class_type,
 	zend_object_handlers* handlers,
 	HashTable* properties)
 {
 	const std::size_t bytes_count = sizeof(st_mysqlx_object) + zend_object_properties_size(class_type);
-	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, phputils::alloc_tag));
-	memset(mysqlx_object, 0, bytes_count);
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, Allocation_tag()));
 
-	static_assert(std::is_base_of<custom_allocable, Data_object>::value, "custom allocation should be applied");
+	static_assert(std::is_base_of<phputils::internal::allocable<Allocation_tag>, Data_object>::value, "custom allocation should be applied");
 	mysqlx_object->ptr = new Data_object;
 
 	zend_object_std_init(&mysqlx_object->zo, class_type);
@@ -95,6 +94,20 @@ st_mysqlx_object* alloc_object(
 	mysqlx_object->properties = properties;
 
 	return mysqlx_object;
+}
+/* }}} */
+
+/* {{{ mysqlx::phputils::alloc_permanent_object */
+template<typename Data_object>
+st_mysqlx_object* alloc_permanent_object(
+	zend_class_entry* class_type,
+	zend_object_handlers* handlers,
+	HashTable* properties)
+{
+	return alloc_object<Data_object, phputils::permanent_tag_t>(
+		class_type,
+		handlers,
+		properties);
 }
 /* }}} */
 
@@ -130,9 +143,44 @@ void free_object(zend_object* object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
-	static_assert(std::is_base_of<custom_allocable, Data_object>::value, "custom allocation should be applied");
+	static_assert(std::is_base_of<custom_allocable, Data_object>::value || std::is_base_of<permanent_allocable, Data_object>::value, 
+		"custom allocation should be applied");
 	delete data_object;
 	mysqlx_object_free_storage(object);
+}
+/* }}} */
+
+
+/* {{{ mysqlx::phputils::free_object */
+template<typename Result, typename Result_iterator>
+zend_object_iterator* create_result_iterator(
+	zend_class_entry* ce, 
+	zend_object_iterator_funcs* result_iterator_funcs,
+	zval* object, 
+	int by_ref)
+{
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P(object);
+	Result* mysqlx_result = mysqlx_object->ptr ? static_cast<Result*>(mysqlx_object->ptr) : nullptr;
+
+	if (by_ref) {
+		zend_error(E_ERROR, "An iterator cannot be used with foreach by reference");
+		return nullptr;
+	}
+
+	Result_iterator* iterator = new Result_iterator();
+	if (iterator) {
+		zend_iterator_init(&iterator->intern);
+
+		ZVAL_COPY(&iterator->intern.data, object);
+
+		iterator->intern.funcs = result_iterator_funcs;
+		iterator->row_num = 0;
+		iterator->started = FALSE;
+		iterator->usable = TRUE;
+		iterator->result = mysqlx_result->result->m.get_reference(mysqlx_result->result);
+	}
+
+	return &iterator->intern;
 }
 /* }}} */
 
