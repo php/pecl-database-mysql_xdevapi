@@ -213,7 +213,7 @@ PHP_METHOD(mysqlx_node_table__update, where)
 /* {{{ proto mixed mysqlx_node_table__update::orderby() */
 static
 PHP_METHOD(mysqlx_node_table__update, orderby)
-{	
+{
 	struct st_mysqlx_node_table__update * object;
 	zval * object_zv;
 	zval * orderby_expr = NULL;

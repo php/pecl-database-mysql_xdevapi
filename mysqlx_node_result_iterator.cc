@@ -172,9 +172,9 @@ mysqlx_node__result_create_iterator(zend_class_entry * ce, zval * object, int by
 {
 	DBG_ENTER("mysqlx_node_result_create_iterator");
 	auto iterator = mysqlx::phputils::create_result_iterator<st_mysqlx_node_result, st_mysqlx_node__result_iterator>(
-		ce, 
-		&mysqlx_node__result_iterator_funcs, 
-		object, 
+		ce,
+		&mysqlx_node__result_iterator_funcs,
+		object,
 		by_ref);
 	DBG_RETURN(iterator);
 }

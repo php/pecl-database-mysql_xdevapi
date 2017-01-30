@@ -143,7 +143,7 @@ void free_object(zend_object* object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
-	static_assert(std::is_base_of<custom_allocable, Data_object>::value || std::is_base_of<permanent_allocable, Data_object>::value, 
+	static_assert(std::is_base_of<custom_allocable, Data_object>::value || std::is_base_of<permanent_allocable, Data_object>::value,
 		"custom allocation should be applied");
 	delete data_object;
 	mysqlx_object_free_storage(object);
@@ -154,9 +154,9 @@ void free_object(zend_object* object)
 /* {{{ mysqlx::phputils::free_object */
 template<typename Result, typename Result_iterator>
 zend_object_iterator* create_result_iterator(
-	zend_class_entry* ce, 
+	zend_class_entry* ce,
 	zend_object_iterator_funcs* result_iterator_funcs,
-	zval* object, 
+	zval* object,
 	int by_ref)
 {
 	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P(object);

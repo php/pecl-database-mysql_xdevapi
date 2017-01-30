@@ -281,7 +281,7 @@ static const zend_module_dep mysqlx_deps[] = {
 
 
 /* {{{ mysql_xdevapi_module_entry */
-extern "C" 
+extern "C"
 zend_module_entry mysql_xdevapi_module_entry = {
 	STANDARD_MODULE_HEADER_EX,
 	NULL,
