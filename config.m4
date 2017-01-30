@@ -70,7 +70,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		"
 
 
-	xmysqlnd_sources="php_xmysqlnd.c \
+	xmysqlnd_sources="php_xmysqlnd.cc \
 		xmysqlnd/xmysqlnd_any2expr.cc \
 		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
 		xmysqlnd/xmysqlnd_crud_table_commands.cc \
@@ -102,8 +102,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	if test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES" != "no" || test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES_ENABLED" = "yes"; then
 		AC_DEFINE([MYSQL_XDEVAPI_MESSAGE_CLASSES], 1, [Enable message classes])
 
-		mysqlx_messages="messages/mysqlx_node_connection.c \
-			messages/mysqlx_node_pfc.c \
+		mysqlx_messages="messages/mysqlx_node_connection.cc \
+			messages/mysqlx_node_pfc.cc \
 										\
 			messages/mysqlx_resultset__column_metadata.cc \
 			messages/mysqlx_resultset__resultset_metadata.cc \
@@ -117,7 +117,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 			messages/mysqlx_message__capabilities_get.cc \
 			messages/mysqlx_message__capabilities_set.cc \
 			messages/mysqlx_message__capabilities.cc \
-			messages/mysqlx_message__capability.c \
+			messages/mysqlx_message__capability.cc \
 			messages/mysqlx_message__stmt_execute.cc \
 			messages/mysqlx_message__stmt_execute_ok.cc \
 			messages/mysqlx_message__data_fetch_done.cc \
