@@ -27,10 +27,16 @@ namespace phputils {
 struct alloc_tag_t {};
 extern const alloc_tag_t alloc_tag;
 
+struct permanent_tag_t {};
+extern const permanent_tag_t permanent_tag;
+
 namespace internal {
 
 void* mem_alloc(std::size_t bytes_count);
 void mem_free(void* ptr);
+
+void* mem_permanent_alloc(std::size_t bytes_count);
+void mem_permanent_free(void* ptr);
 
 } // namespace internal
 
@@ -70,11 +76,41 @@ inline void operator delete[](void* ptr, const mysqlx::phputils::alloc_tag_t&)
 
 //------------------------------------------------------------------------------
 
+/* {{{ operator new */
+inline void* operator new(std::size_t bytes_count, const mysqlx::phputils::permanent_tag_t&)
+{
+	return mysqlx::phputils::internal::mem_permanent_alloc(bytes_count);
+}
+/* }}} */
+
+/* {{{ operator new[] */
+inline void* operator new[](std::size_t bytes_count, const mysqlx::phputils::permanent_tag_t&)
+{
+	return mysqlx::phputils::internal::mem_permanent_alloc(bytes_count);
+}
+/* }}} */
+
+/* {{{ operator delete */
+inline void operator delete(void* ptr, const mysqlx::phputils::permanent_tag_t&)
+{
+	mysqlx::phputils::internal::mem_permanent_free(ptr);
+}
+/* }}} */
+
+/* {{{ operator delete[] */
+inline void operator delete[](void* ptr, const mysqlx::phputils::permanent_tag_t&)
+{
+	mysqlx::phputils::internal::mem_permanent_free(ptr);
+}
+/* }}} */
+
+//------------------------------------------------------------------------------
+
 namespace mysqlx {
 
 namespace phputils {
 
-/* {{{ mysqlx::phputils::internal::allocator */
+/* {{{ mysqlx::phputils::allocator */
 template<typename T>
 class allocator
 {
@@ -133,43 +169,51 @@ class allocator
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::phputils::internal::custom_allocable */
-class custom_allocable
+namespace internal {
+
+/* {{{ mysqlx::phputils::internal::allocable */
+template<typename allocation_tag>
+class allocable
 {
 	public:
 		static void* operator new(std::size_t bytes_count)
 		{
-			return ::operator new(bytes_count, phputils::alloc_tag);
+			return ::operator new(bytes_count, allocation_tag());
 		}
 
 		static void* operator new[](std::size_t bytes_count)
 		{
-			return ::operator new(bytes_count, phputils::alloc_tag);
+			return ::operator new(bytes_count, allocation_tag());
 		}
 
 		static void operator delete(void* ptr, size_t) noexcept
 		{
-			::operator delete(ptr, phputils::alloc_tag);
+			::operator delete(ptr, allocation_tag());
 		}
 
 		static void operator delete[](void* ptr, size_t) noexcept
 		{
-			::operator delete(ptr, phputils::alloc_tag);
+			::operator delete(ptr, allocation_tag());
 		}
 
 	protected:
-		custom_allocable() = default;
-		~custom_allocable() = default;
+		allocable() = default;
+		~allocable() = default;
 
-		custom_allocable(const custom_allocable& ) = default;
-		custom_allocable& operator=(const custom_allocable& ) = default;
+		allocable(const allocable& ) = default;
+		allocable& operator=(const allocable& ) = default;
 
 };
 /* }}} */
 
+} // namespace internal
+
+using custom_allocable = internal::allocable<alloc_tag_t>;
+using permanent_allocable = internal::allocable<permanent_tag_t>;
+
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::phputils::internal::deleter */
+/* {{{ mysqlx::phputils::deleter */
 template<typename T>
 struct deleter
 {
