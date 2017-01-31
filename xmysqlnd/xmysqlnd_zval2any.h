@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,6 +20,10 @@
 
 #include "proto_gen/mysqlx_datatypes.pb.h"
 
+namespace mysqlx {
+
+namespace drv {
+
 PHP_MYSQL_XDEVAPI_API enum_func_status scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv);
 PHP_MYSQL_XDEVAPI_API enum_func_status zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any);
 PHP_MYSQL_XDEVAPI_API enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
@@ -28,8 +32,12 @@ PHP_MYSQL_XDEVAPI_API void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);
 PHP_MYSQL_XDEVAPI_API uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
 PHP_MYSQL_XDEVAPI_API int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
 PHP_MYSQL_XDEVAPI_API MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
-#endif	/* XMYSQLND_ZVAL2ANY_H */
 
+} // namespace drv
+
+} // namespace mysqlx
+
+#endif /* XMYSQLND_ZVAL2ANY_H */
 /*
  * Local variables:
  * tab-width: 4

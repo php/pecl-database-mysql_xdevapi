@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2015 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -31,7 +31,6 @@ extern "C" {
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 
-#include <new>
 #include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 
 #include "mysqlx_message__ok.h"
@@ -39,6 +38,16 @@ extern "C" {
 #include "mysqlx_message__auth_start.h"
 #include "mysqlx_message__auth_continue.h"
 #include "mysqlx_message__auth_ok.h"
+
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_message__auth_start_class_entry;
 
@@ -75,7 +84,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ proto long mysqlx_message__auth_start::send(object messsage, string auth_mechanism, string auth_data, object pfc, object connection) */
-PHP_METHOD(mysqlx_message__auth_start, send)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_start, send)
 {
 	zval * object_zv;
 	zval * codec_zv;
@@ -117,7 +126,7 @@ PHP_METHOD(mysqlx_message__auth_start, send)
 
 
 /* {{{ proto long mysqlx_message__auth_start::read_response(object messsage, object pfc, object connection) */
-PHP_METHOD(mysqlx_message__auth_start, read_response)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_start, read_response)
 {
 	zval * object_zv;
 	zval * codec_zv;
@@ -237,6 +246,11 @@ mysqlx_unregister_message__auth_start_class(SHUTDOWN_FUNC_ARGS)
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

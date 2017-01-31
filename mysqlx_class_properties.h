@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,6 +20,9 @@
 
 #include "mysqlx_object.h"
 
+namespace mysqlx {
+
+namespace devapi {
 
 typedef zval * (*func_mysqlx_property_get)(const struct st_mysqlx_object *obj, zval *rv);
 typedef int    (*func_mysqlx_property_set)(struct st_mysqlx_object *obj, zval *newval);
@@ -47,6 +50,9 @@ int mysqlx_object_has_property(zval * object, zval *member, int has_set_exists, 
 
 void mysqlx_free_property_cb(zval *el);
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_CLASS_PROPERTIES_H */
 

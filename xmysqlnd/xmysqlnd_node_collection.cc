@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -31,6 +31,10 @@ extern "C" {
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_utils.h"
 #include "mysqlx_exception.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 /* {{{ xmysqlnd_node_collection::init */
 static enum_func_status
@@ -298,7 +302,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 			ret = stmt;
 		}
 	} else {
-		RAISE_EXCEPTION(err_msg_add_doc);
+		devapi::RAISE_EXCEPTION(err_msg_add_doc);
 	}
 
 	DBG_RETURN(ret);
@@ -498,6 +502,10 @@ xmysqlnd_node_collection_free(XMYSQLND_NODE_COLLECTION * const collection, MYSQL
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -46,8 +46,28 @@ extern "C" {
 #include "proto_gen/mysqlx_sql.pb.h"
 
 #include "xmysqlnd_crud_collection_commands.h"
+#include "messages/mysqlx_node_connection.h"
+#include "messages/mysqlx_node_pfc.h"
+#include "messages/mysqlx_resultset__column_metadata.h"
+#include "messages/mysqlx_message__ok.h"
+#include "messages/mysqlx_message__stmt_execute_ok.h"
 
 #define ENABLE_MYSQLX_CTORS 0
+
+#if ENABLE_MYSQLX_CTORS
+#include "messages/mysqlx_message__auth_continue.h"
+#include "messages/mysqlx_message__auth_ok.h"
+#endif
+#include "messages/mysqlx_resultset__data_row.h"
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/wire_format_lite.h>
+#include <ext/mysqlnd/mysql_float_to_double.h>
+
+namespace mysqlx {
+
+namespace drv {
+
+using namespace devapi::msg;
 
 struct st_xmysqlnd_inspect_warning_bind
 {
@@ -305,9 +325,6 @@ xmysqlnd_server_message_type_is_valid(const zend_uchar type)
 }
 /* }}} */
 
-
-#include "messages/mysqlx_node_connection.h"
-#include "messages/mysqlx_node_pfc.h"
 
 /* {{{ xmysqlnd_send_protobuf_message */
 static const size_t
@@ -719,8 +736,6 @@ xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 
 /************************************** CAPABILITIES SET **************************************************/
 
-#include "messages/mysqlx_message__ok.h"
-
 /* {{{ capabilities_set_on_OK */
 static const enum_hnd_func_status
 capabilities_set_on_OK(const Mysqlx::Ok & message, void * context)
@@ -878,11 +893,6 @@ auth_start_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 	DBG_RETURN(ret);
 }
 /* }}} */
-
-#if ENABLE_MYSQLX_CTORS
-#include "messages/mysqlx_message__auth_continue.h"
-#include "messages/mysqlx_message__auth_ok.h"
-#endif
 
 /* {{{ auth_start_on_AUTHENTICATE_CONTINUE */
 static const enum_hnd_func_status
@@ -1050,11 +1060,6 @@ auth_continue_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 }
 /* }}} */
 
-#if ENABLE_MYSQLX_CTORS
-#include "messages/mysqlx_message__auth_continue.h"
-#include "messages/mysqlx_message__auth_ok.h"
-#endif
-
 /* {{{ auth_continue_on_AUTHENTICATE_CONTINUE */
 static const enum_hnd_func_status
 auth_continue_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue & message, void * context)
@@ -1202,8 +1207,6 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 #endif /* if AUTH_CONTINUE */
 
 /**************************************  STMT_EXECUTE **************************************************/
-#include "messages/mysqlx_message__ok.h"
-
 
 /* {{{ stmt_execute_on_ERROR */
 static const enum_hnd_func_status
@@ -1236,8 +1239,6 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 }
 /* }}} */
 
-
-#include "messages/mysqlx_resultset__column_metadata.h"
 
 /* {{{ stmt_execute_on_COLUMN_META */
 static const enum_hnd_func_status
@@ -1320,11 +1321,6 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	}
 }
 /* }}} */
-
-#include "messages/mysqlx_resultset__data_row.h"
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/wire_format_lite.h>
-#include <ext/mysqlnd/mysql_float_to_double.h>
 
 static const char * zt2str[] =
 {
@@ -1723,8 +1719,6 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMor
 	DBG_RETURN(HND_PASS);
 }
 /* }}} */
-
-#include "messages/mysqlx_message__stmt_execute_ok.h"
 
 /* {{{ stmt_execute */
 static const enum_hnd_func_status
@@ -2685,6 +2679,9 @@ xmysqlnd_shutdown_protobuf_library()
 }
 /* }}} */
 
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:{

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -30,11 +30,13 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
-//namespace mysqlx {
-//
-//namespace devapi {
+namespace mysqlx {
 
-struct st_mysqlx_node_base_result_iterator : mysqlx::phputils::custom_allocable
+namespace devapi {
+
+using namespace drv;
+
+struct st_mysqlx_node_base_result_iterator : phputils::custom_allocable
 {
 	zend_object_iterator intern;
 	XMYSQLND_NODE_STMT_RESULT * result;
@@ -177,7 +179,7 @@ static zend_object_iterator *
 mysqlx_node_base_result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
 {
 	DBG_ENTER("mysqlx_node_base_result_create_iterator");
-	auto iterator = mysqlx::phputils::create_result_iterator<st_mysqlx_node_base_result, st_mysqlx_node_base_result_iterator>(
+	auto iterator = phputils::create_result_iterator<st_mysqlx_node_base_result, st_mysqlx_node_base_result_iterator>(
 		ce,
 		&mysqlx_node_base_result_iterator_funcs,
 		object,
@@ -198,9 +200,9 @@ mysqlx_register_node_base_result_iterator(zend_class_entry * ce)
 }
 /* }}} */
 
-//} // namespace phputils
-//
-//} // namespace mysqlx
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

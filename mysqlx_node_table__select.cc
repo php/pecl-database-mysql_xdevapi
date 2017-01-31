@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -44,45 +44,47 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry *mysqlx_node_table__select_class_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__where, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, projection)
+	ZEND_ARG_INFO(no_pass_by_ref, projection)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__group_by, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__having, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__orderby, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__limit, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__offset, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, position, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__bind, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__select : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_node_table__select : public phputils::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__SELECT * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -101,16 +103,14 @@ struct st_mysqlx_node_table__select : public mysqlx::phputils::custom_allocable
 
 
 /* {{{ mysqlx_node_table__select::__construct */
-static
-PHP_METHOD(mysqlx_node_table__select, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, __construct)
 {
 }
 /* }}} */
 
 
 /* {{{ mysqlx_node_table__select::where */
-static
-PHP_METHOD(mysqlx_node_table__select, where)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, where)
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
@@ -235,8 +235,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 
 
 /* {{{ proto mixed mysqlx_node_table__select::orderby() */
-static
-PHP_METHOD(mysqlx_node_table__select, orderby)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, orderby)
 {
 	DBG_ENTER("mysqlx_node_table__select::orderby");
 	mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_SORT);
@@ -246,8 +245,7 @@ PHP_METHOD(mysqlx_node_table__select, orderby)
 
 
 /* {{{ proto mixed mysqlx_node_table__select::groupBy() */
-static
-PHP_METHOD(mysqlx_node_table__select, groupBy)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, groupBy)
 {
 	DBG_ENTER("mysqlx_node_table__select::groupBy");
 	mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_GROUPING);
@@ -257,8 +255,7 @@ PHP_METHOD(mysqlx_node_table__select, groupBy)
 
 
 /* {{{ proto mixed mysqlx_node_table__select::having() */
-static
-PHP_METHOD(mysqlx_node_table__select, having)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, having)
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
@@ -289,8 +286,7 @@ PHP_METHOD(mysqlx_node_table__select, having)
 
 
 /* {{{ proto mixed mysqlx_node_table__select::limit() */
-static
-PHP_METHOD(mysqlx_node_table__select, limit)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, limit)
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
@@ -326,8 +322,7 @@ PHP_METHOD(mysqlx_node_table__select, limit)
 
 
 /* {{{ proto mixed mysqlx_node_table__select::offset() */
-static
-PHP_METHOD(mysqlx_node_table__select, offset)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, offset)
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
@@ -363,8 +358,7 @@ PHP_METHOD(mysqlx_node_table__select, offset)
 
 
 /* {{{ proto mixed mysqlx_node_table__select::bind() */
-static
-PHP_METHOD(mysqlx_node_table__select, bind)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, bind)
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
@@ -402,8 +396,7 @@ PHP_METHOD(mysqlx_node_table__select, bind)
 
 
 /* {{{ proto mixed mysqlx_node_table__select::execute() */
-static
-PHP_METHOD(mysqlx_node_table__select, execute)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 {
 	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
 	struct st_mysqlx_node_table__select * object;
@@ -533,7 +526,7 @@ static zend_object *
 php_mysqlx_node_table__select_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_table__select_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_table__select>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_table__select>(
 		class_type,
 		&mysqlx_object_node_table__select_handlers,
 		&mysqlx_node_table__select_properties);
@@ -609,6 +602,9 @@ mysqlx_new_node_table__select(zval * return_value,
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

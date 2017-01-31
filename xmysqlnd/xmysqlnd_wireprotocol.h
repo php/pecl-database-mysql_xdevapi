@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,14 +20,6 @@
 
 #define AUTH_CONTINUE 1
 
-struct st_xmysqlnd_node_session_data;
-struct st_xmysqlnd_node_stmt_result;
-struct st_xmysqlnd_node_stmt_result_meta;
-struct st_xmysqlnd_stmt_execution_state;
-struct st_xmysqlnd_warning_list;
-struct st_xmysqlnd_level3_io;
-struct st_xmysqlnd_pb_message_shell;
-
 extern "C" {
 #include <ext/mysqlnd/mysqlnd_vio.h>
 }
@@ -35,6 +27,18 @@ extern "C" {
 
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_notice.pb.h"
+
+namespace mysqlx {
+
+namespace drv {
+
+struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_node_stmt_result;
+struct st_xmysqlnd_node_stmt_result_meta;
+struct st_xmysqlnd_stmt_execution_state;
+struct st_xmysqlnd_warning_list;
+struct st_xmysqlnd_level3_io;
+struct st_xmysqlnd_pb_message_shell;
 
 MYSQLND_CSTRING xmysqlnd_field_type_name(const unsigned int type);
 
@@ -481,9 +485,11 @@ struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_
 
 void xmysqlnd_shutdown_protobuf_library();
 
+} // namespace drv
 
-#endif	/* XMYSQLND_WIREPROTOCOL_H */
+} // namespace mysqlx
 
+#endif /* XMYSQLND_WIREPROTOCOL_H */
 /*
  * Local variables:
  * tab-width: 4

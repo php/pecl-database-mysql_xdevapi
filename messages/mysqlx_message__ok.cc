@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2015 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -28,8 +28,16 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 
-#include <new>
 #include "mysqlx_message__ok.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 zend_class_entry *mysqlx_message__ok_class_entry;
 
@@ -41,7 +49,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ proto string mysqlx_message__ok::get_message() */
-PHP_METHOD(mysqlx_message__ok, get_message)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__ok, get_message)
 {
 	zval * object_zv;
 	struct st_mysqlx_message__ok * object;
@@ -174,6 +182,12 @@ dump_mysqlx_ok(const Mysqlx::Ok & ok)
 	php_error_docref(NULL, E_WARNING, "[OK] ", ok.has_msg()? ok.msg().c_str(): "");
 }
 /* }}} */
+
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

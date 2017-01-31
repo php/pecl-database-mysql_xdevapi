@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -39,15 +39,18 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_session.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_x_session_class_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
 /* {{{ mysqlx_x_session::__construct */
-static
-PHP_METHOD(mysqlx_x_session, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 {
 }
 /* }}} */
@@ -226,7 +229,7 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 	enum_func_status ret = PASS;
 	MYSQLND_CSTRING uri_string = {NULL, 0};
 
-	DBG_ENTER("mysql_xdevapi__getXSessionURI");
+	DBG_ENTER("mysql_xdevapi__getXSession");
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
 										 &(uri_string.s), &(uri_string.l)))
 	{
@@ -272,6 +275,11 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 
 	DBG_VOID_RETURN;
 }
+/* }}} */
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

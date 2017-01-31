@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,11 +18,17 @@
 #ifndef MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
 #define MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
 
+namespace mysqlx {
 
-void mysqlx_new_node_collection__create_index(zval * return_value, const MYSQLND_CSTRING index_name, const zend_bool is_unique, struct st_xmysqlnd_node_collection * collection);
+namespace devapi {
+
+void mysqlx_new_node_collection__create_index(zval * return_value, const MYSQLND_CSTRING index_name, const zend_bool is_unique, drv::st_xmysqlnd_node_collection* collection);
 void mysqlx_register_node_collection__create_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__create_index_class(SHUTDOWN_FUNC_ARGS);
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_NODE_COLLECTION__CREATE_INDEX_H */
 

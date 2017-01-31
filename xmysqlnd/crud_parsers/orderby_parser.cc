@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -31,7 +31,9 @@ extern "C" {
 #include <boost/lexical_cast.hpp>
 
 
-using namespace xmysqlnd;
+namespace mysqlx {
+
+namespace parser {
 
 Orderby_parser::Orderby_parser(const std::string& expr_str, const bool document_mode)
 : Expression_parser(expr_str, document_mode)
@@ -61,3 +63,7 @@ void Orderby_parser::column_identifier(Mysqlx::Crud::Order &orderby_expr)
   }
   DBG_VOID_RETURN;
 }
+
+} // namespace parser
+
+} // namespace mysqlx

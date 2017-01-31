@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -42,6 +42,12 @@ extern "C" {
 #include "mysqlx_exception.h"
 #include <phputils/allocator.h>
 #include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_node_sql_statement_result_class_entry;
 
@@ -153,16 +159,14 @@ static int mysqlx_node_sql_statement_read_next_result(struct st_mysqlx_node_sql_
 
 
 /* {{{ mysqlx_node_sql_statement_result::__construct */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, __construct)
 {
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::hasData(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, hasData)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, hasData)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -183,8 +187,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, hasData)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::fetchOne(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, fetchOne)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, fetchOne)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -214,8 +217,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, fetchOne)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::fetchAll(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, fetchAll)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, fetchAll)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -242,8 +244,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, fetchAll)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getAffectedItemsCount(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, getAffectedItemsCount)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getAffectedItemsCount)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -277,8 +278,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getAffectedItemsCount)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getLastInsertId(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -312,8 +312,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getDocumentId(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, getDocumentId)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getDocumentId)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -341,8 +340,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getDocumentId)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getWarningCount(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, getWarningCount)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getWarningCount)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -376,8 +374,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getWarningCount)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getWarnings(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, getWarnings)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getWarnings)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -443,8 +440,7 @@ get_stmt_result_meta(struct st_xmysqlnd_node_stmt_result* stmt_result)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getColumnCount(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, getColumnCount)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getColumnCount)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -478,8 +474,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getColumnCount)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getColumns(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, getColumns)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getColumns)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -519,8 +514,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getColumns)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::getColumnNames(object result) */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, getColumnNames)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getColumnNames)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -560,8 +554,7 @@ PHP_METHOD(mysqlx_node_sql_statement_result, getColumnNames)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement_result::nextResult() */
-static
-PHP_METHOD(mysqlx_node_sql_statement_result, nextResult)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, nextResult)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_sql_statement_result * object;
@@ -641,7 +634,7 @@ static zend_object *
 php_mysqlx_node_sql_statement_result_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_sql_statement_result_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_sql_statement_result>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_sql_statement_result>(
 		class_type,
 		&mysqlx_object_node_sql_statement_result_handlers,
 		&mysqlx_node_sql_statement_result_properties);
@@ -712,6 +705,9 @@ mysqlx_new_sql_stmt_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * resu
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

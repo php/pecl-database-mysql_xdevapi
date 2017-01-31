@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -37,20 +37,23 @@ extern "C" {
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
-
 #include "mysqlx_session.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_node_session_class_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__sql, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, query, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, query, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__quote_name, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -140,8 +143,7 @@ end:
 
 
 /* {{{ proto mixed mysqlx_node_session::executeSql(string query [[, mixed param]]) */
-static
-PHP_METHOD(mysqlx_node_session, executeSql)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -174,8 +176,7 @@ PHP_METHOD(mysqlx_node_session, executeSql)
 
 
 /* {{{ proto mixed mysqlx_node_session::sql(string query) */
-static
-PHP_METHOD(mysqlx_node_session, sql)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -213,8 +214,7 @@ PHP_METHOD(mysqlx_node_session, sql)
 
 
 /* {{{ proto mixed mysqlx_node_session::quoteName(string query) */
-static
-PHP_METHOD(mysqlx_node_session, quoteName)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, quoteName)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -247,8 +247,7 @@ PHP_METHOD(mysqlx_node_session, quoteName)
 
 
 /* {{{ mysqlx_node_session::__construct */
-static
-PHP_METHOD(mysqlx_node_session, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, __construct)
 {
 }
 /* }}} */
@@ -444,6 +443,10 @@ PHP_FUNCTION(mysql_xdevapi__getNodeSession)
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

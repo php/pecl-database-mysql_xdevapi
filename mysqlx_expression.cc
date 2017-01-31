@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -31,19 +31,21 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry * mysqlx_expression_class_entry;
 
-struct st_mysqlx_expression : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_expression : public phputils::custom_allocable
 {
 	zval expression;
 };
 
-
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_expression__construct, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, expression, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, expression, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -60,8 +62,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ mysqlx_expression::__construct */
-static
-PHP_METHOD(mysqlx_expression, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
 	zval * object_zv;
 	MYSQLND_CSTRING expression = {NULL, 0};
@@ -150,7 +151,7 @@ static zend_object *
 php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_expression_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_expression>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_expression>(
 		class_type,
 		&mysqlx_object_expression_handlers,
 		&mysqlx_expression_properties);
@@ -244,6 +245,10 @@ get_mysqlx_expression(const zval * const object_zv)
 	DBG_RETURN(ret);
 }
 /* }}} */
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2015 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -29,8 +29,16 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 
-#include <new>
 #include "mysqlx_message__stmt_execute_ok.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_message__stmt_execute_ok_class_entry;
 
@@ -150,6 +158,11 @@ mysqlx_new_stmt_execute_ok(zval * return_value, const Mysqlx::Sql::StmtExecuteOk
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

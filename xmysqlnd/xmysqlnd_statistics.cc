@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -24,6 +24,10 @@ extern "C" {
 }
 #include "xmysqlnd_enum_n_def.h"
 #include "php_mysql_xdevapi.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_STATS *xmysqlnd_global_stats = NULL;
 
@@ -67,6 +71,9 @@ _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FI
 }
 /* }}} */
 
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

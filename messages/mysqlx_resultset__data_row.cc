@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -30,13 +30,22 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 
-#include <new>
 #include "mysqlx_resultset__data_row.h"
 #include "mysqlx_resultset__column_metadata.h"
 #include "mysqlx_resultset__resultset_metadata.h"
 
+#include <phputils/object.h>
+
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/wire_format_lite.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_data_row_class_entry;
 
@@ -62,13 +71,13 @@ ZEND_BEGIN_ARG_INFO_EX(mysqlx_data_row__decode, 0, ZEND_RETURN_VALUE, 1)
 ZEND_END_ARG_INFO()
 
 /* {{{ mysqlx_data_row::__construct */
-PHP_METHOD(mysqlx_data_row, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, __construct)
 {
 }
 /* }}} */
 
 /* {{{ proto long mysqlx_data_row::decode(object messsage, array metadata) */
-PHP_METHOD(mysqlx_data_row, decode)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 {
 	zval * object_zv;
 	zval * metadata_zv;
@@ -501,6 +510,11 @@ mysqlx_new_data_row(zval * return_value, const Mysqlx::Resultset::Row & message)
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -33,11 +33,10 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
 #include "php_mysqlx.h"
-
-
-PHP_MYSQL_XDEVAPI_API int mysqlx_minit_classes(INIT_FUNC_ARGS);
-PHP_MYSQL_XDEVAPI_API int mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS);
-
+#include "php_mysqlx_ex.h"
+#include "mysqlx_expression.h"
+#include "mysqlx_node_session.h"
+#include "mysqlx_x_session.h"
 
 /* {{{ PHP_MINFO_FUNCTION
  */
@@ -48,7 +47,7 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 
 	php_info_print_table_start();
 	php_info_print_table_header(2, "xmysqlnd", "enabled");
-	php_info_print_table_row(2, "Version", xmysqlnd_get_client_info());
+	php_info_print_table_row(2, "Version", mysqlx::drv::xmysqlnd_get_client_info());
 	php_info_print_table_row(2, "core SSL",
 #ifdef MYSQL_XDEVAPI_SSL_SUPPORTED
 								"supported");
@@ -158,10 +157,10 @@ static PHP_MINIT_FUNCTION(mysql_xdevapi)
 	/* ---------------- xmysqlnd ---------------- */
 	REGISTER_INI_ENTRIES();
 
-	xmysqlnd_library_init();
+	mysqlx::drv::xmysqlnd_library_init();
 
 	/* ---------------- mysqlx ---------------- */
-	mysqlx_minit_classes(INIT_FUNC_ARGS_PASSTHRU);
+	mysqlx::devapi::mysqlx_minit_classes(INIT_FUNC_ARGS_PASSTHRU);
 
 	return SUCCESS;
 }
@@ -173,10 +172,10 @@ static PHP_MINIT_FUNCTION(mysql_xdevapi)
 static PHP_MSHUTDOWN_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- mysqlx ---------------- */
-	mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx::devapi::mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	/* ---------------- xmysqlnd ---------------- */
-	xmysqlnd_library_end();
+	mysqlx::drv::xmysqlnd_library_end();
 
 	UNREGISTER_INI_ENTRIES();
 	return SUCCESS;
@@ -248,11 +247,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__expression, 0, ZEND_RETURN_VALUE, 
 	ZEND_ARG_TYPE_INFO(0, expression, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-PHP_FUNCTION(mysql_xdevapi__getXSession);
-PHP_FUNCTION(mysql_xdevapi__getXSessionURI);
-PHP_FUNCTION(mysql_xdevapi__getNodeSession);
-PHP_FUNCTION(mysql_xdevapi__expression);
-
 /*
   We need a proper macro, that is included in all mysqlx_ files which register classes by using INIT_NS_CLASS_ENTRY.
   For now we use in these files const string "Mysqlx".
@@ -261,9 +255,9 @@ PHP_FUNCTION(mysql_xdevapi__expression);
 
 /* {{{ mysqlx_functions */
 static const zend_function_entry mysqlx_functions[] = {
-	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, ZEND_FN(mysql_xdevapi__getXSession), arginfo_mysql_xdevapi__get_x_session)
-	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getNodeSession, ZEND_FN(mysql_xdevapi__getNodeSession), arginfo_mysql_xdevapi__get_node_session)
-	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, expression, ZEND_FN(mysql_xdevapi__expression), arginfo_mysql_xdevapi__expression)
+	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi__getXSession), arginfo_mysql_xdevapi__get_x_session)
+	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getNodeSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi__getNodeSession), arginfo_mysql_xdevapi__get_node_session)
+	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, expression, mysqlx::devapi::ZEND_FN(mysql_xdevapi__expression), arginfo_mysql_xdevapi__expression)
 	PHP_FE_END
 };
 /* }}} */

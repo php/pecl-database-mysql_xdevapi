@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -39,14 +39,16 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry *mysqlx_node_table__insert_class_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__insert__values, 0, ZEND_RETURN_VALUE, 0)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, row_values, IS_ARRAY, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, row_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -54,7 +56,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__insert__execute, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__insert : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_node_table__insert : public phputils::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__INSERT * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -73,8 +75,7 @@ struct st_mysqlx_node_table__insert : public mysqlx::phputils::custom_allocable
 
 
 /* {{{ mysqlx_node_table__insert::__construct */
-static
-PHP_METHOD(mysqlx_node_table__insert, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, __construct)
 {
 }
 /* }}} */
@@ -82,8 +83,7 @@ PHP_METHOD(mysqlx_node_table__insert, __construct)
 
 
 /* {{{ proto mixed mysqlx_node_table__insert::values() */
-static
-PHP_METHOD(mysqlx_node_table__insert, values)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 {
 	struct st_mysqlx_node_table__insert * object;
 	zval * object_zv;
@@ -128,8 +128,7 @@ PHP_METHOD(mysqlx_node_table__insert, values)
 
 
 /* {{{ proto mixed mysqlx_node_table__insert::execute() */
-static
-PHP_METHOD(mysqlx_node_table__insert, execute)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
 {
 	struct st_mysqlx_node_table__insert * object;
 	zval * object_zv;
@@ -252,7 +251,7 @@ static zend_object *
 php_mysqlx_node_table__insert_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_table__insert_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_table__insert>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_table__insert>(
 		class_type,
 		&mysqlx_object_node_table__insert_handlers,
 		&mysqlx_node_table__insert_properties);
@@ -328,6 +327,9 @@ mysqlx_new_node_table__insert(zval * return_value,
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

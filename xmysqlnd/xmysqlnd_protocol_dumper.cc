@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -34,6 +34,10 @@ extern "C" {
 #include "proto_gen/mysqlx_resultset.pb.h"
 #include "proto_gen/mysqlx_session.pb.h"
 #include "proto_gen/mysqlx_sql.pb.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 static char hexconvtab[] = "0123456789abcdef";
 
@@ -902,6 +906,10 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:{

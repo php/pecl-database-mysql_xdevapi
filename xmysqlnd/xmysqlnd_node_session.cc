@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -39,6 +39,10 @@ extern "C" {
 #include "xmysqlnd_node_session.h"
 #include "xmysqlnd_structs.h"
 #include "php_mysqlx.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
 const MYSQLND_CSTRING namespace_xplugin = { "xplugin", sizeof("xplugin") - 1 };
@@ -2071,6 +2075,9 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 }
 /* }}} */
 
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

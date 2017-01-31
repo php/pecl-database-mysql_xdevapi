@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -29,6 +29,15 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_connection.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 zend_class_entry *mysqlx_node_connection_class_entry;
 
@@ -77,8 +86,7 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 
 
 /* {{{ proto bool mysqlx_node_connection::connect(object connection, string hostname, string username, string password) */
-static
-PHP_METHOD(mysqlx_node_connection, connect)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 {
 	zval * connection_zv;
 	struct st_mysqlx_node_connection * connection;
@@ -128,8 +136,7 @@ PHP_METHOD(mysqlx_node_connection, connect)
 
 
 /* {{{ proto long mysqlx_node_connection::send(object session, string payload) */
-static
-PHP_METHOD(mysqlx_node_connection, send)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 {
 	zval * connection_zv;
 	struct st_mysqlx_node_connection * connection;
@@ -161,8 +168,7 @@ PHP_METHOD(mysqlx_node_connection, send)
 
 
 /* {{{ proto long mysqlx_node_connection::receive(object connection, long bytes) */
-static
-PHP_METHOD(mysqlx_node_connection, receive)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 {
 	zval * connection_zv;
 	struct st_mysqlx_node_connection * connection;
@@ -248,7 +254,7 @@ php_mysqlx_node_connection_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
 	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
-	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, mysqlx::phputils::permanent_tag));
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, phputils::permanent_tag));
 	st_mysqlx_node_connection * connection = new st_mysqlx_node_connection();
 
 	DBG_ENTER("php_mysqlx_node_connection_object_allocator");
@@ -315,6 +321,11 @@ mysqlx_unregister_node_connection_class(SHUTDOWN_FUNC_ARGS)
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

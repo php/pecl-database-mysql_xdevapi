@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,15 +20,16 @@ extern "C" {
 #undef ERROR
 }
 #include "mysqlx_crud_operation_bindable.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
 
 zend_class_entry * mysqlx_crud_operation_bindable_interface_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
-
 ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_bindable__bind, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -57,6 +58,10 @@ mysqlx_unregister_crud_operation_bindable_interface(SHUTDOWN_FUNC_ARGS)
 {
 }
 /* }}} */
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

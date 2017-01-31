@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,15 +20,16 @@ extern "C" {
 #undef ERROR
 }
 #include "mysqlx_crud_operation_sortable.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
 
 zend_class_entry * mysqlx_crud_operation_sortable_interface_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
-
 ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_sortable__sort, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 
@@ -57,6 +58,10 @@ mysqlx_unregister_crud_operation_sortable_interface(SHUTDOWN_FUNC_ARGS)
 {
 }
 /* }}} */
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

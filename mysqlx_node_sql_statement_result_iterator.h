@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,7 +18,15 @@
 #ifndef MYSQLX_NODE_SQL_STATEMENT_RESULT_ITERATOR_H
 #define MYSQLX_NODE_SQL_STATEMENT_RESULT_ITERATOR_H
 
+namespace mysqlx {
+
+namespace devapi {
+
 void mysqlx_register_node_sql_statement_result_iterator(zend_class_entry * ce);
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_NODE_SQL_STATEMENT_RESULT_ITERATOR_H */
 

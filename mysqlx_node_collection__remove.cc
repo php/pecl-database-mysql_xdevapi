@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -41,27 +41,28 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_node_collection__remove_class_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__sort, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, sort_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__limit, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__skip, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, position, IS_LONG, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, position, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__bind, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -69,7 +70,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__execute, 0, ZEND_
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_collection__remove : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_node_collection__remove : public phputils::custom_allocable
 {
 	XMYSQLND_CRUD_COLLECTION_OP__REMOVE * crud_op;
 	XMYSQLND_NODE_COLLECTION * collection;
@@ -88,16 +89,14 @@ struct st_mysqlx_node_collection__remove : public mysqlx::phputils::custom_alloc
 
 
 /* {{{ mysqlx_node_collection__remove::__construct */
-static
-PHP_METHOD(mysqlx_node_collection__remove, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, __construct)
 {
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_node_collection__remove::sort() */
-static
-PHP_METHOD(mysqlx_node_collection__remove, sort)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, sort)
 {
 	struct st_mysqlx_node_collection__remove * object;
 	zval * object_zv;
@@ -163,8 +162,7 @@ PHP_METHOD(mysqlx_node_collection__remove, sort)
 
 
 /* {{{ proto mixed mysqlx_node_collection__remove::limit() */
-static
-PHP_METHOD(mysqlx_node_collection__remove, limit)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, limit)
 {
 	struct st_mysqlx_node_collection__remove * object;
 	zval * object_zv;
@@ -200,8 +198,7 @@ PHP_METHOD(mysqlx_node_collection__remove, limit)
 
 
 /* {{{ proto mixed mysqlx_node_collection__remove::bind() */
-static
-PHP_METHOD(mysqlx_node_collection__remove, bind)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, bind)
 {
 	struct st_mysqlx_node_collection__remove * object;
 	zval * object_zv;
@@ -239,8 +236,7 @@ PHP_METHOD(mysqlx_node_collection__remove, bind)
 
 
 /* {{{ proto mixed mysqlx_node_collection__remove::execute() */
-static
-PHP_METHOD(mysqlx_node_collection__remove, execute)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, execute)
 {
 	struct st_mysqlx_node_collection__remove * object;
 	zval * object_zv;
@@ -342,7 +338,7 @@ static zend_object *
 php_mysqlx_node_collection__remove_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_collection__remove_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_collection__remove>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_collection__remove>(
 		class_type,
 		&mysqlx_object_node_collection__remove_handlers,
 		&mysqlx_node_collection__remove_properties);
@@ -428,6 +424,9 @@ end:
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

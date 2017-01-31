@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -21,6 +21,10 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_crud_collection_commands.h"
 #include "xmysqlnd_wireprotocol.h" /* struct st_xmysqlnd_msg__sql_stmt_execute */
+
+namespace mysqlx {
+
+namespace drv {
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_stmt_result;
@@ -236,7 +240,9 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(struct st_x
 
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
+} // namespace drv
 
+} // namespace mysqlx
 
 #endif /* XMYSQLND_NODE_STMT_H */
 

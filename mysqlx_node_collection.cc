@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -42,11 +42,13 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry *mysqlx_node_collection_class_entry;
-
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
 
 /************************************** INHERITED START ****************************************/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__get_session, 0, ZEND_RETURN_VALUE, 0)
@@ -70,37 +72,37 @@ ZEND_END_ARG_INFO()
 /************************************** INHERITED END   ****************************************/
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, json)
+	ZEND_ARG_INFO(no_pass_by_ref, json)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find, 0, ZEND_RETURN_VALUE, 0)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_condition, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, search_condition, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify, 0, ZEND_RETURN_VALUE, 0)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_condition, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, search_condition, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove, 0, ZEND_RETURN_VALUE, 0)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, search_condition, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, search_condition, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__create_index, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, index_name, IS_STRING, DONT_ALLOW_NULL)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, is_unique, IS_LONG, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, index_name, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, is_unique, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__drop_index, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, index_name, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, index_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_collection : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_node_collection : public phputils::custom_allocable
 {
 	XMYSQLND_NODE_COLLECTION * collection;
 };
@@ -117,8 +119,7 @@ struct st_mysqlx_node_collection : public mysqlx::phputils::custom_allocable
 } \
 
 /* {{{ mysqlx_node_collection::__construct */
-static
-PHP_METHOD(mysqlx_node_collection, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, __construct)
 {
 }
 /* }}} */
@@ -126,8 +127,7 @@ PHP_METHOD(mysqlx_node_collection, __construct)
 
 /************************************** INHERITED START ****************************************/
 /* {{{ proto mixed mysqlx_node_collection::getSession() */
-static
-PHP_METHOD(mysqlx_node_collection, getSession)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSession)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -156,8 +156,7 @@ PHP_METHOD(mysqlx_node_collection, getSession)
 
 
 /* {{{ proto mixed mysqlx_node_collection::getName() */
-static
-PHP_METHOD(mysqlx_node_collection, getName)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getName)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -203,8 +202,7 @@ mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
 
 
 /* {{{ proto mixed mysqlx_node_collection::existsInDatabase() */
-static
-PHP_METHOD(mysqlx_node_collection, existsInDatabase)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -236,8 +234,7 @@ PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 
 
 /* {{{ proto mixed mysqlx_node_collection::count() */
-static
-PHP_METHOD(mysqlx_node_collection, count)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, count)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -269,8 +266,7 @@ PHP_METHOD(mysqlx_node_collection, count)
 
 
 /* {{{ proto mixed mysqlx_node_collection::getSchema() */
-static
-PHP_METHOD(mysqlx_node_collection, getSchema)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 {
 	struct st_mysqlx_node_collection * object;
 	XMYSQLND_NODE_SESSION * session;
@@ -315,8 +311,7 @@ PHP_METHOD(mysqlx_node_collection, getSchema)
 
 
 /* {{{ proto mixed mysqlx_node_collection::add() */
-static
-PHP_METHOD(mysqlx_node_collection, add)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, add)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -361,8 +356,7 @@ PHP_METHOD(mysqlx_node_collection, add)
 
 
 /* {{{ proto mixed mysqlx_node_collection::find() */
-static
-PHP_METHOD(mysqlx_node_collection, find)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, find)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -391,8 +385,7 @@ PHP_METHOD(mysqlx_node_collection, find)
 
 
 /* {{{ proto mixed mysqlx_node_collection::modify() */
-static
-PHP_METHOD(mysqlx_node_collection, modify)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, modify)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -421,8 +414,7 @@ PHP_METHOD(mysqlx_node_collection, modify)
 
 
 /* {{{ proto mixed mysqlx_node_collection::remove() */
-static
-PHP_METHOD(mysqlx_node_collection, remove)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, remove)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -451,8 +443,7 @@ PHP_METHOD(mysqlx_node_collection, remove)
 
 
 /* {{{ proto mixed mysqlx_node_collection::createIndex() */
-static
-PHP_METHOD(mysqlx_node_collection, createIndex)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, createIndex)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -484,8 +475,7 @@ PHP_METHOD(mysqlx_node_collection, createIndex)
 
 
 /* {{{ proto mixed mysqlx_node_collection::dropIndex() */
-static
-PHP_METHOD(mysqlx_node_collection, dropIndex)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, dropIndex)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
@@ -595,7 +585,7 @@ static zend_object *
 php_mysqlx_node_collection_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_collection_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_collection>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_collection>(
 		class_type,
 		&mysqlx_object_node_collection_handlers,
 		&mysqlx_node_collection_properties);
@@ -661,6 +651,9 @@ mysqlx_new_node_collection(zval * return_value, XMYSQLND_NODE_COLLECTION * colle
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

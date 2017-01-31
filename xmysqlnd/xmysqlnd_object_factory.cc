@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -40,6 +40,9 @@ extern "C" {
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_object_factory.h"
 
+namespace mysqlx {
+
+namespace drv {
 
 /* {{{ mysqlnd_object_factory::get_node_session */
 static XMYSQLND_NODE_SESSION *
@@ -527,6 +530,10 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_object_factory);
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

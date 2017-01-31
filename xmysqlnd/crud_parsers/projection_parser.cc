@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -21,7 +21,9 @@
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace xmysqlnd;
+namespace mysqlx {
+
+namespace parser {
 
 Projection_parser::Projection_parser(const std::string& expr_str, const bool document_mode, const bool allow_alias)
   : Expression_parser(expr_str, document_mode, allow_alias)
@@ -77,3 +79,7 @@ void Projection_parser::source_expression(Mysqlx::Crud::Projection &col)
       col.set_alias(_tokenizer.get_input());
   }
 }
+
+} // namespace parser
+
+} // namespace mysqlx

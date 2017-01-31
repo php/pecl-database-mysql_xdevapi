@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -31,6 +31,10 @@ extern "C" {
 #include "xmysqlnd_protocol_dumper.h"
 #include "xmysqlnd_driver.h"
 #include "php_mysqlx.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 #define XMYSQLND_PACKET_TYPE_SIZE	1
 #define XMYSQLND_PACKET_TYPE_STORE	int1store
@@ -252,6 +256,10 @@ xmysqlnd_pfc_free(XMYSQLND_PFC * const pfc, MYSQLND_STATS * stats, MYSQLND_ERROR
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

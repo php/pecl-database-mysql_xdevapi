@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2015 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -32,13 +32,22 @@ extern "C" {
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 
-#include <new>
 #include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 
 #include "mysqlx_message__ok.h"
 #include "mysqlx_message__error.h"
 #include "mysqlx_message__auth_continue.h"
 #include "mysqlx_message__auth_ok.h"
+
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_message__auth_continue_class_entry;
 
@@ -77,7 +86,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ proto long mysqlx_message__auth_continue::send(object messsage, string user, string password, string schema, object pfc, object connection) */
-PHP_METHOD(mysqlx_message__auth_continue, send)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 {
 	zval * object_zv;
 	zval * codec_zv;
@@ -131,7 +140,7 @@ PHP_METHOD(mysqlx_message__auth_continue, send)
 
 
 /* {{{ proto long mysqlx_message__auth_continue::read_response(object messsage, object pfc, object connection) */
-PHP_METHOD(mysqlx_message__auth_continue, read_response)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 {
 	zval * object_zv;
 	zval * codec_zv;
@@ -266,6 +275,11 @@ mysqlx_new_message__auth_continue(zval * return_value, const Mysqlx::Session::Au
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

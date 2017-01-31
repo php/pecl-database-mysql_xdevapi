@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -19,6 +19,10 @@
 #define XMYSQLND_ROWSET_H
 
 #include "xmysqlnd_driver.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_rowset_buffered;
@@ -97,6 +101,9 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_rowset);
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET * xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type, const size_t prefetch_rows, struct st_xmysqlnd_node_stmt * stmt, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_rowset_free(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
+} // namespace drv
+
+} // namespace mysqlx
 
 #endif /* XMYSQLND_ROWSET_H */
 

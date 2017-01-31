@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -40,11 +40,13 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry *mysqlx_node_table_class_entry;
-
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
 
 /************************************** INHERITED START ****************************************/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__get_session, 0, ZEND_RETURN_VALUE, 0)
@@ -88,7 +90,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete, 0, ZEND_RETURN_VALUE, 
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_node_table : public phputils::custom_allocable
 {
 	XMYSQLND_NODE_TABLE * table;
 };
@@ -105,8 +107,7 @@ struct st_mysqlx_node_table : public mysqlx::phputils::custom_allocable
 } \
 
 /* {{{ mysqlx_node_table::__construct */
-static
-PHP_METHOD(mysqlx_node_table, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, __construct)
 {
 }
 /* }}} */
@@ -114,8 +115,7 @@ PHP_METHOD(mysqlx_node_table, __construct)
 
 /************************************** INHERITED START ****************************************/
 /* {{{ proto mixed mysqlx_node_table::getSession() */
-static
-PHP_METHOD(mysqlx_node_table, getSession)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSession)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
@@ -144,8 +144,7 @@ PHP_METHOD(mysqlx_node_table, getSession)
 
 
 /* {{{ proto mixed mysqlx_node_table::getName() */
-static
-PHP_METHOD(mysqlx_node_table, getName)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getName)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
@@ -187,8 +186,7 @@ mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, stru
 
 
 /* {{{ proto mixed mysqlx_node_table::existsInDatabase() */
-static
-PHP_METHOD(mysqlx_node_table, existsInDatabase)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, existsInDatabase)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
@@ -220,8 +218,7 @@ PHP_METHOD(mysqlx_node_table, existsInDatabase)
 
 
 /* {{{ proto mixed mysqlx_node_table::count() */
-static
-PHP_METHOD(mysqlx_node_table, count)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
@@ -253,7 +250,7 @@ PHP_METHOD(mysqlx_node_table, count)
 
 
 /* {{{ proto mixed mysqlx_node_table::getSchema() */
-PHP_METHOD(mysqlx_node_table, getSchema)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 {
 	struct st_mysqlx_node_table * object;
 	XMYSQLND_NODE_SESSION * session;
@@ -299,8 +296,7 @@ PHP_METHOD(mysqlx_node_table, getSchema)
 
 
 /* {{{ proto mixed mysqlx_node_table::insert() */
-static
-PHP_METHOD(mysqlx_node_table, insert)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
@@ -346,8 +342,7 @@ PHP_METHOD(mysqlx_node_table, insert)
 
 
 /* {{{ proto mixed mysqlx_node_table::select() */
-static
-PHP_METHOD(mysqlx_node_table, select)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, select)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
@@ -385,8 +380,7 @@ PHP_METHOD(mysqlx_node_table, select)
 
 
 /* {{{ proto mixed mysqlx_node_table::update() */
-static
-PHP_METHOD(mysqlx_node_table, update)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, update)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
@@ -415,8 +409,7 @@ PHP_METHOD(mysqlx_node_table, update)
 
 
 /* {{{ proto mixed mysqlx_node_table::delete() */
-static
-PHP_METHOD(mysqlx_node_table, delete)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, delete)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
@@ -520,7 +513,7 @@ static zend_object *
 php_mysqlx_node_table_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_table_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_xmysqlnd_node_table>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_xmysqlnd_node_table>(
 		class_type,
 		&mysqlx_object_node_table_handlers,
 		&mysqlx_node_table_properties);
@@ -586,6 +579,9 @@ mysqlx_new_node_table(zval * return_value, XMYSQLND_NODE_TABLE * table, const ze
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -42,8 +42,9 @@ extern "C" {
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 
-using namespace xmysqlnd;
+namespace mysqlx {
 
+namespace parser {
 
 struct Expression_parser::operator_list Expression_parser::_ops;
 Mysqlx::Datatypes::Scalar* Expr_builder::build_null_scalar()
@@ -1424,3 +1425,7 @@ std::string Expression_unparser::order_list_to_string(google::protobuf::Repeated
   result += ")";
   return result;
 }
+
+} // namespace parser
+
+} // namespace mysqlx

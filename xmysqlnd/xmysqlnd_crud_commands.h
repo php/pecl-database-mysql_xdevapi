@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,6 +18,9 @@
 #ifndef XMYSQLND_CRUD_COMMANDS_H
 #define XMYSQLND_CRUD_COMMANDS_H
 
+namespace mysqlx {
+
+namespace drv {
 
 struct st_xmysqlnd_pb_message_shell
 {
@@ -30,9 +33,11 @@ struct st_xmysqlnd_expression_shell
 	void * expr;
 };
 
+} // namespace drv
+
+} // namespace mysqlx
 
 #endif /* XMYSQLND_CRUD_COMMANDS_H */
-
 
 /*
  * Local variables:

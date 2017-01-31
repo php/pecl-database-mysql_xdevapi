@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -21,6 +21,10 @@
 #include "xmysqlnd_driver.h"
 
 #include "xmysqlnd_crud_collection_commands.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_node_session_on_error_bind;
@@ -98,6 +102,10 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_COLLECTION * xmysqlnd_node_collection_create
 																  MYSQLND_ERROR_INFO * const error_info);
 
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_collection_free(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+
+} // namespace drv
+
+} // namespace mysqlx
 
 #endif /* XMYSQLND_NODE_COLLECTION_H */
 

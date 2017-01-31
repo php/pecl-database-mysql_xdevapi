@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -21,16 +21,24 @@
 #include <xmysqlnd/xmysqlnd_node_session.h>
 #include <phputils/allocator.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
 extern zend_class_entry *mysqlx_base_session_class_entry;
 
-struct st_mysqlx_session : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_session : public phputils::custom_allocable
 {
-	XMYSQLND_NODE_SESSION * session;
+	drv::XMYSQLND_NODE_SESSION * session;
 	zend_bool closed;
 };
 
 void mysqlx_register_base_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_base_session_class(SHUTDOWN_FUNC_ARGS);
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_BASE_SESSION_H */
 

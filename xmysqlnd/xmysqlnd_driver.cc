@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,6 +26,10 @@ extern "C" {
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_node_session.h"
 #include "php_mysql_xdevapi.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 static zend_bool xmysqlnd_library_initted = FALSE;
 
@@ -271,6 +275,9 @@ PHP_MYSQL_XDEVAPI_API unsigned int xmysqlnd_get_client_version()
 }
 /* }}} */
 
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

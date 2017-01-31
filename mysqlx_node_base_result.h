@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,21 +20,27 @@
 
 #include <phputils/allocator.h>
 
+namespace mysqlx {
+
+namespace drv {
+struct st_xmysqlnd_node_stmt_result;
+}
+
+namespace devapi {
+
 extern zend_class_entry * mysqlx_node_base_result_interface_entry;
 
-struct st_xmysqlnd_node_stmt_result;
-
-struct st_mysqlx_node_base_result : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_node_base_result : public phputils::custom_allocable
 {
-	struct st_xmysqlnd_node_stmt_result * result;
+	drv::st_xmysqlnd_node_stmt_result* result;
 };
-
-void mysqlx_new_base_result(zval * return_value, struct st_xmysqlnd_node_stmt_result * result);
-void mysqlx_register_node_base_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_base_result_class(SHUTDOWN_FUNC_ARGS);
 
 void mysqlx_register_node_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_base_result_interface(SHUTDOWN_FUNC_ARGS);
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_NODE_BASE_RESULT_H */
 

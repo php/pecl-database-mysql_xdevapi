@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -42,16 +42,19 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
-static zend_class_entry *mysqlx_node_collection__add_class_entry;
+namespace mysqlx {
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
+namespace devapi {
+
+using namespace drv;
+
+static zend_class_entry *mysqlx_node_collection__add_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_collection__add : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_node_collection__add : public phputils::custom_allocable
 {
 	XMYSQLND_NODE_COLLECTION * collection;
 	XMYSQLND_CRUD_COLLECTION_OP__ADD* crud_op;
@@ -71,8 +74,7 @@ struct st_mysqlx_node_collection__add : public mysqlx::phputils::custom_allocabl
 } \
 
 /* {{{ mysqlx_node_collection__add::__construct */
-static
-PHP_METHOD(mysqlx_node_collection__add, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, __construct)
 {
 }
 /* }}} */
@@ -477,8 +479,7 @@ node_collection_add_array(struct st_mysqlx_node_collection__add * const object,
 
 
 /* {{{ proto mixed mysqlx_node_collection__add::execute() */
-static
-PHP_METHOD(mysqlx_node_collection__add, execute)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, execute)
 {
 	enum_func_status execute_ret_status = PASS;
 	struct st_mysqlx_node_collection__add * object;
@@ -629,7 +630,7 @@ static zend_object *
 php_mysqlx_node_collection__add_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_collection__add_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_collection__add>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_collection__add>(
 		class_type,
 		&mysqlx_object_node_collection__add_handlers,
 		&mysqlx_node_collection__add_properties);
@@ -721,6 +722,9 @@ mysqlx_new_node_collection__add(zval * return_value,
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -25,6 +25,9 @@ extern "C" {
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_stmt_execution_state.h"
 
+namespace mysqlx {
+
+namespace drv {
 
 /* {{{ xmysqlnd_stmt_execution_state::init */
 static enum_func_status
@@ -218,6 +221,10 @@ xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state)
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

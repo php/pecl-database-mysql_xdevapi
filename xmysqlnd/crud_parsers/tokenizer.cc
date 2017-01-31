@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -42,7 +42,9 @@ extern "C" {
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/scoped_ptr.hpp>
 
-using namespace xmysqlnd;
+namespace mysqlx {
+
+namespace parser {
 
 struct Tokenizer::Maps Tokenizer::map;
 
@@ -644,3 +646,7 @@ bool Tokenizer::Cmp_icase::operator()(const std::string& lhs, const std::string&
 
   return _stricmp(c_lhs, c_rhs) < 0;
 }
+
+} // namespace parser
+
+} // namespace mysqlx

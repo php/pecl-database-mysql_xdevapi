@@ -12,29 +12,24 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@mysql.com>                           |
+  | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_MESSAGE__AUTH_OK_H
-#define MYSQLX_MESSAGE__AUTH_OK_H
+#ifndef PHP_MYSQLX_EX_H
+#define PHP_MYSQLX_EX_H
 
 namespace mysqlx {
 
 namespace devapi {
 
-namespace msg {
-
-void mysqlx_new_message__auth_ok(zval * return_value, const Mysqlx::Session::AuthenticateOk & message);
-void mysqlx_register_message__auth_ok_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_message__auth_ok_class(SHUTDOWN_FUNC_ARGS);
-
-} // namespace msg
+PHP_MYSQL_XDEVAPI_API int mysqlx_minit_classes(INIT_FUNC_ARGS);
+PHP_MYSQL_XDEVAPI_API int mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_MESSAGE__AUTH_OK_H */
+#endif /* PHP_MYSQLX_EX_H */
 
 /*
  * Local variables:

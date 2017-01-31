@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -45,6 +45,12 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry *mysqlx_node_row_result_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_row_result__fetch_one, 0, ZEND_RETURN_VALUE, 0)
@@ -80,16 +86,14 @@ ZEND_END_ARG_INFO()
 } \
 
 /* {{{ mysqlx_node_row_result::__construct */
-static
-PHP_METHOD(mysqlx_node_row_result, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, __construct)
 {
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_node_row_result::fetchOne(object result) */
-static
-PHP_METHOD(mysqlx_node_row_result, fetchOne)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchOne)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_row_result * object;
@@ -119,8 +123,7 @@ PHP_METHOD(mysqlx_node_row_result, fetchOne)
 
 
 /* {{{ proto mixed mysqlx_node_row_result::fetchAll(object result) */
-static
-PHP_METHOD(mysqlx_node_row_result, fetchAll)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchAll)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_row_result * object;
@@ -147,8 +150,7 @@ PHP_METHOD(mysqlx_node_row_result, fetchAll)
 
 
 /* {{{ proto mixed mysqlx_node_row_result::getWarningCount(object result) */
-static
-PHP_METHOD(mysqlx_node_row_result, getWarningCount)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarningCount)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_row_result * object;
@@ -182,8 +184,7 @@ PHP_METHOD(mysqlx_node_row_result, getWarningCount)
 
 
 /* {{{ proto mixed mysqlx_node_row_result::getWarnings(object result) */
-static
-PHP_METHOD(mysqlx_node_row_result, getWarnings)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarnings)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_row_result * object;
@@ -273,8 +274,7 @@ get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 
 
 /* {{{ proto mixed mysqlx_node_row_result::getColumnCount(object result) */
-static
-PHP_METHOD(mysqlx_node_row_result, getColumnCount)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnCount)
 {
 	struct st_xmysqlnd_node_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_node_row_result::getColumnCount");
@@ -297,8 +297,7 @@ PHP_METHOD(mysqlx_node_row_result, getColumnCount)
 
 
 /* {{{ proto mixed mysqlx_node_row_result::getColumns(object result) */
-static
-PHP_METHOD(mysqlx_node_row_result, getColumns)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumns)
 {
 	struct st_xmysqlnd_node_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_node_row_result::getColumns");
@@ -327,8 +326,7 @@ PHP_METHOD(mysqlx_node_row_result, getColumns)
 
 
 /* {{{ proto mixed mysqlx_node_row_result::getColumnNames(object result) */
-static
-PHP_METHOD(mysqlx_node_row_result, getColumnNames)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnNames)
 {
 	struct st_xmysqlnd_node_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_node_row_result::getColumnNames");
@@ -405,7 +403,7 @@ static zend_object *
 php_mysqlx_node_row_result_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_row_result_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_row_result>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_row_result>(
 		class_type,
 		&mysqlx_object_node_row_result_handlers,
 		&mysqlx_node_row_result_properties);
@@ -470,6 +468,9 @@ mysqlx_new_row_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

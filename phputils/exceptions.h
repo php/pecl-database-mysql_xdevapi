@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -98,14 +98,14 @@ void raise_unknown_exception();
 	try
 
 #define MYSQL_XDEVAPI_CATCH \
-	catch (const mysqlx::phputils::xdevapi_exception& e) { \
-		mysqlx::phputils::raise_xdevapi_exception(e); \
-	} catch (const mysqlx::phputils::doc_ref_exception& e) { \
-		mysqlx::phputils::raise_doc_ref_exception(e); \
+	catch (const phputils::xdevapi_exception& e) { \
+		phputils::raise_xdevapi_exception(e); \
+	} catch (const phputils::doc_ref_exception& e) { \
+		phputils::raise_doc_ref_exception(e); \
 	} catch (const std::exception& e) { \
-		mysqlx::phputils::raise_common_exception(e); \
+		phputils::raise_common_exception(e); \
 	} catch (...) { \
-		mysqlx::phputils::raise_unknown_exception(); \
+		phputils::raise_unknown_exception(); \
 	}
 
 #endif // MYSQL_XDEVAPI_EXCEPTIONS_H

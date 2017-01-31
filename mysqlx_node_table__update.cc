@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -42,37 +42,40 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry *mysqlx_node_table__update_class_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__set, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, table_field, IS_STRING, DONT_ALLOW_NULL)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, expression_or_literal)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, table_field, IS_STRING, dont_allow_null)
+	ZEND_ARG_INFO(no_pass_by_ref, expression_or_literal)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__where, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, where_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, where_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__orderby, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, orderby_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, orderby_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__limit, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, rows, IS_LONG, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__bind, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, placeholder_values, IS_ARRAY, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__update : public mysqlx::phputils::custom_allocable
+struct st_mysqlx_node_table__update : public phputils::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__UPDATE * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -91,8 +94,7 @@ struct st_mysqlx_node_table__update : public mysqlx::phputils::custom_allocable
 
 
 /* {{{ mysqlx_node_table__update::__construct */
-static
-PHP_METHOD(mysqlx_node_table__update, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, __construct)
 {
 }
 /* }}} */
@@ -168,8 +170,7 @@ mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsign
 
 
 /* {{{ proto mixed mysqlx_node_table__update::set() */
-static
-PHP_METHOD(mysqlx_node_table__update, set)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, set)
 {
 	mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
 }
@@ -177,8 +178,7 @@ PHP_METHOD(mysqlx_node_table__update, set)
 
 
 /* {{{ proto mixed mysqlx_node_table__update::where() */
-static
-PHP_METHOD(mysqlx_node_table__update, where)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, where)
 {
 	struct st_mysqlx_node_table__update * object;
 	zval * object_zv;
@@ -211,8 +211,7 @@ PHP_METHOD(mysqlx_node_table__update, where)
 
 
 /* {{{ proto mixed mysqlx_node_table__update::orderby() */
-static
-PHP_METHOD(mysqlx_node_table__update, orderby)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 {
 	struct st_mysqlx_node_table__update * object;
 	zval * object_zv;
@@ -276,8 +275,7 @@ PHP_METHOD(mysqlx_node_table__update, orderby)
 
 
 /* {{{ proto mixed mysqlx_node_table__update::limit() */
-static
-PHP_METHOD(mysqlx_node_table__update, limit)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, limit)
 {
 	struct st_mysqlx_node_table__update * object;
 	zval * object_zv;
@@ -312,8 +310,7 @@ PHP_METHOD(mysqlx_node_table__update, limit)
 /* }}} */
 
 /* {{{ proto mixed mysqlx_node_table__update::bind() */
-static
-PHP_METHOD(mysqlx_node_table__update, bind)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, bind)
 {
 	struct st_mysqlx_node_table__update * object;
 	zval * object_zv;
@@ -355,8 +352,7 @@ PHP_METHOD(mysqlx_node_table__update, bind)
 /* }}} */
 
 /* {{{ proto mixed mysqlx_node_table__update::execute() */
-static
-PHP_METHOD(mysqlx_node_table__update, execute)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, execute)
 {
 	struct st_mysqlx_node_table__update * object;
 	zval * object_zv;
@@ -484,7 +480,7 @@ static zend_object *
 php_mysqlx_node_table__update_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_table__update_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_table__update>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_table__update>(
 		class_type,
 		&mysqlx_object_node_table__update_handlers,
 		&mysqlx_node_table__update_properties);
@@ -554,6 +550,9 @@ mysqlx_new_node_table__update(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

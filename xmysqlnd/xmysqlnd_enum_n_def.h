@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -17,6 +17,10 @@
 */
 #ifndef XMYSQLND_ENUM_N_DEF_H
 #define XMYSQLND_ENUM_N_DEF_H
+
+namespace mysqlx {
+
+namespace drv {
 
 //#define XMYSQLND_MAX_PACKET_SIZE		UINT32_MAX
 #define XMYSQLND_MAX_PACKET_SIZE		(1024L * 1024L)  /* TODO: not -1 ? */
@@ -49,9 +53,11 @@ typedef enum xmysqlnd_client_option
 	XMYSQLND_OPT_READ_TIMEOUT,
 } enum_xmysqlnd_client_option;
 
+} // namespace drv
 
-#endif	/* XMYSQLND_ENUM_N_DEF_H */
+} // namespace mysqlx
 
+#endif /* XMYSQLND_ENUM_N_DEF_H */
 /*
  * Local variables:
  * tab-width: 4

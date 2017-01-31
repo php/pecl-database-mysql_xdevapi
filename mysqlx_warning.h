@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,9 +18,17 @@
 #ifndef MYSQLX_WARNING_H
 #define MYSQLX_WARNING_H
 
+namespace mysqlx {
+
+namespace devapi {
+
 void mysqlx_register_warning_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_warning_class(SHUTDOWN_FUNC_ARGS);
 void mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int level, const unsigned int code);
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_WARNING_H */
 

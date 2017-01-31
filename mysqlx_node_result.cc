@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -40,6 +40,12 @@ extern "C" {
 #include "mysqlx_field_metadata.h"
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry *mysqlx_node_result_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_affected_items_count, 0, ZEND_RETURN_VALUE, 0)
@@ -73,16 +79,14 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ mysqlx_node_result::__construct */
-static
-PHP_METHOD(mysqlx_node_result, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, __construct)
 {
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_node_result::getAffectedItemsCount(object result) */
-static
-PHP_METHOD(mysqlx_node_result, getAffectedItemsCount)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAffectedItemsCount)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_result * object;
@@ -116,8 +120,7 @@ PHP_METHOD(mysqlx_node_result, getAffectedItemsCount)
 
 
 /* {{{ proto mixed mysqlx_node_result::getAutoIncrementValue(object result) */
-static
-PHP_METHOD(mysqlx_node_result, getAutoIncrementValue)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAutoIncrementValue)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_result * object;
@@ -210,8 +213,7 @@ get_document_id_common(INTERNAL_FUNCTION_PARAMETERS,
 
 
 /* {{{ proto mixed mysqlx_node_result::getDocumentId(object result) */
-static
-PHP_METHOD(mysqlx_node_result, getDocumentId)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getDocumentId)
 {
 
 	DBG_ENTER("mysqlx_node_result::getDocumentId");
@@ -222,8 +224,7 @@ PHP_METHOD(mysqlx_node_result, getDocumentId)
 
 
 /* {{{ proto mixed mysqlx_node_result::getDocumentIds(object result) */
-static
-PHP_METHOD(mysqlx_node_result, getDocumentIds)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getDocumentIds)
 {
 	DBG_ENTER("mysqlx_node_result::getDocumentIds");
 	get_document_id_common(INTERNAL_FUNCTION_PARAM_PASSTHRU,TRUE);
@@ -233,8 +234,7 @@ PHP_METHOD(mysqlx_node_result, getDocumentIds)
 
 
 /* {{{ proto mixed mysqlx_node_result::getWarningCount(object result) */
-static
-PHP_METHOD(mysqlx_node_result, getWarningCount)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getWarningCount)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_result * object;
@@ -268,8 +268,7 @@ PHP_METHOD(mysqlx_node_result, getWarningCount)
 
 
 /* {{{ proto mixed mysqlx_node_result::getWarnings(object result) */
-static
-PHP_METHOD(mysqlx_node_result, getWarnings)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getWarnings)
 {
 	zval * object_zv;
 	struct st_mysqlx_node_result * object;
@@ -356,7 +355,7 @@ static zend_object *
 php_mysqlx_node_result_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_result_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_result>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_result>(
 		class_type,
 		&mysqlx_object_node_result_handlers,
 		&mysqlx_node_result_properties);
@@ -421,6 +420,9 @@ mysqlx_new_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -30,6 +30,15 @@ extern "C" {
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 zend_class_entry *mysqlx_node_pfc_class_entry;
 
@@ -45,8 +54,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ proto bool mysqlx_node_pfc::send(object pfc, object connection, long packet_type, string payload) */
-static
-PHP_METHOD(mysqlx_node_pfc, send)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, send)
 {
 	zval * codec_zv;
 	zval * connection_zv;
@@ -83,8 +91,7 @@ PHP_METHOD(mysqlx_node_pfc, send)
 
 
 /* {{{ proto mixed mysqlx_node_pfc::receive(object pfc, object connection) */
-static
-PHP_METHOD(mysqlx_node_pfc, receive)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, receive)
 {
 	zval * codec_zv;
 	zval * connection_zv;
@@ -235,6 +242,11 @@ mysqlx_unregister_node_pfc_class(SHUTDOWN_FUNC_ARGS)
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

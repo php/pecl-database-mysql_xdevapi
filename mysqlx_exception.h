@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,6 +18,9 @@
 #ifndef MYSQLX_EXCEPTION_H
 #define MYSQLX_EXCEPTION_H
 
+namespace mysqlx {
+
+namespace devapi {
 
 extern zend_class_entry * mysqlx_exception_class_entry;
 
@@ -65,6 +68,9 @@ extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 //This is a very common exception
 #define RAISE_EXCEPTION_FETCH_FAIL() RAISE_EXCEPTION(err_msg_fetch_fail)
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_EXCEPTION_H */
 

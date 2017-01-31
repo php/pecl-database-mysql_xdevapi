@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -22,6 +22,10 @@
 #include <boost/interprocess/smart_ptr/unique_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/none.hpp>
+
+namespace mysqlx {
+
+namespace parser {
 
 template <typename ArrayType>
 void Memory_delete_array(ArrayType* array_ptr)
@@ -88,5 +92,9 @@ struct Memory_new
 
   typedef boost::interprocess::unique_ptr<Type, Unary_delete > Unique_ptr;
 };
+
+} // namespace parser
+
+} // namespace mysqlx
 
 #endif // _EXPR_PARSER_MEMORY_H_

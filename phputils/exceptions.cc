@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -119,7 +119,7 @@ doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
 void raise_xdevapi_exception(const xdevapi_exception& e)
 {
 	const char* what = e.what();
-	zend_throw_exception(mysqlx_exception_class_entry, what, e.code);
+	zend_throw_exception(devapi::mysqlx_exception_class_entry, what, e.code);
 }
 /* }}} */
 
@@ -141,7 +141,7 @@ void raise_common_exception(const std::exception& e)
 {
 	const char* what = e.what();
 	const int CommonExceptionCode = 0; //TODO
-	zend_throw_exception(mysqlx_exception_class_entry, what, CommonExceptionCode);
+	zend_throw_exception(devapi::mysqlx_exception_class_entry, what, CommonExceptionCode);
 }
 /* }}} */
 
@@ -150,7 +150,7 @@ void raise_unknown_exception()
 {
 	const char* what = "MySQL XDevAPI - unknown exception";
 	const int UnknownExceptionCode = 0; //TODO
-	zend_throw_exception(mysqlx_exception_class_entry, what, UnknownExceptionCode);
+	zend_throw_exception(devapi::mysqlx_exception_class_entry, what, UnknownExceptionCode);
 }
 /* }}} */
 

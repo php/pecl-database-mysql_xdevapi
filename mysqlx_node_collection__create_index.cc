@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -46,15 +46,17 @@ namespace mysqlx {
 
 namespace devapi {
 
+using namespace drv;
+
 namespace
 {
 
 static zend_class_entry* collection_create_index_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_collection_create_index__field, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(phputils::no_pass_by_ref, doc_path, IS_STRING, phputils::dont_allow_null)
-	ZEND_ARG_TYPE_INFO(phputils::no_pass_by_ref, column_type, IS_STRING, phputils::dont_allow_null)
-	ZEND_ARG_TYPE_INFO(phputils::no_pass_by_ref, is_required, IS_LONG, phputils::dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, doc_path, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, column_type, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, is_required, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_collection_create_index__execute, 0, ZEND_RETURN_VALUE, 0)
@@ -213,15 +215,6 @@ php_mysqlx_node_collection__create_index_object_allocator(zend_class_entry * cla
 
 } // anonymous namespace
 
-} // namespace devapi
-
-} // namespace mysqlx
-
-
-//TODO ds: temporarily till we rename most of *.c into *.cc
-using namespace mysqlx;
-using namespace mysqlx::devapi;
-
 /* {{{ mysqlx_register_node_collection__create_index_class */
 void
 mysqlx_register_node_collection__create_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -298,6 +291,9 @@ end:
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

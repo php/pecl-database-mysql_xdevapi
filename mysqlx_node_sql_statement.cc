@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -42,19 +42,23 @@ extern "C" {
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 static zend_class_entry * mysqlx_node_sql_statement_class_entry;
 static zend_class_entry * mysqlx_node_statement_class_entry;
 
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__bind, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(NO_PASS_BY_REF, param)
+	ZEND_ARG_INFO(no_pass_by_ref, param)
 ZEND_END_ARG_INFO()
 
 
 //ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement__execute, 0, ZEND_RETURN_VALUE, 0)
-//	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, flags, IS_LONG, DONT_ALLOW_NULL)
+//	ZEND_ARG_TYPE_INFO(no_pass_by_ref, flags, IS_LONG, dont_allow_null)
 //ZEND_END_ARG_INFO()
 
 
@@ -77,8 +81,7 @@ ZEND_END_ARG_INFO()
 } \
 
 /* {{{ mysqlx_node_sql_statement::__construct */
-static
-PHP_METHOD(mysqlx_node_sql_statement, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, __construct)
 {
 }
 /* }}} */
@@ -432,8 +435,7 @@ mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement::bind(object statement, int param_no, mixed value) */
-static
-PHP_METHOD(mysqlx_node_sql_statement, bind)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, bind)
 {
 	zval * object_zv;
 	zval * param_zv;
@@ -544,8 +546,7 @@ mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_o
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement::execute(object statement, int flags) */
-static
-PHP_METHOD(mysqlx_node_sql_statement, execute)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, execute)
 {
 	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
 	zval * object_zv;
@@ -566,8 +567,7 @@ PHP_METHOD(mysqlx_node_sql_statement, execute)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement::hasMoreResults(object statement) */
-static
-PHP_METHOD(mysqlx_node_sql_statement, hasMoreResults)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, hasMoreResults)
 {
 	struct st_mysqlx_node_statement * object;
 	zval * object_zv;
@@ -657,8 +657,7 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, 
 
 /* {{{ proto mixed mysqlx_node_sql_statement::readResult(object statement) */
 /*     proto mixed mysqlx_node_sql_statement::readResult(object statement, callable on_row_cb, callable on_error_cb, callable on_rset_end, callable on_stmt_ok[, mixed cb_param]]) */
-static
-PHP_METHOD(mysqlx_node_sql_statement, getResult)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, getResult)
 {
 	mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_node_sql_statement_class_entry);
 }
@@ -666,8 +665,7 @@ PHP_METHOD(mysqlx_node_sql_statement, getResult)
 
 
 /* {{{ proto mixed mysqlx_node_sql_statement::getNextResult(object statement) */
-static
-PHP_METHOD(mysqlx_node_sql_statement, getNextResult)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, getNextResult)
 {
 	mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_node_sql_statement_class_entry);
 }
@@ -725,7 +723,7 @@ static zend_object *
 php_mysqlx_node_sql_statement_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_sql_statement_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_node_statement>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_statement>(
 		class_type,
 		&mysqlx_object_node_sql_statement_handlers,
 		&mysqlx_node_sql_statement_properties);
@@ -906,16 +904,14 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 
 
 /* {{{ mysqlx_node_statement::__construct */
-static
-PHP_METHOD(mysqlx_node_statement, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_statement, __construct)
 {
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_node_statement::hasMoreResults(object statement) */
-static
-PHP_METHOD(mysqlx_node_statement, hasMoreResults)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_statement, hasMoreResults)
 {
 	struct st_mysqlx_node_statement * object;
 	zval * object_zv;
@@ -939,8 +935,7 @@ PHP_METHOD(mysqlx_node_statement, hasMoreResults)
 
 /* {{{ proto mixed mysqlx_node_statement::readResult(object statement) */
 /*     proto mixed mysqlx_node_statement::readResult(object statement, callable on_row_cb, callable on_error_cb, callable on_rset_end, callable on_stmt_ok[, mixed cb_param]]) */
-static
-PHP_METHOD(mysqlx_node_statement, getResult)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_statement, getResult)
 {
 	mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_node_statement_class_entry);
 }
@@ -948,8 +943,7 @@ PHP_METHOD(mysqlx_node_statement, getResult)
 
 
 /* {{{ proto mixed mysqlx_node_statement::getNextResult(object statement) */
-static
-PHP_METHOD(mysqlx_node_statement, getNextResult)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_statement, getNextResult)
 {
 	mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_node_statement_class_entry);
 }
@@ -1057,7 +1051,9 @@ mysqlx_new_node_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt)
 }
 /* }}} */
 
+} // namespace devapi
 
+} // namespace mysqlx
 
 /*
  * Local variables:

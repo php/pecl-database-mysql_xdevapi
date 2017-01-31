@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -38,6 +38,9 @@ extern "C" {
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_extension_plugin.h"
 
+namespace mysqlx {
+
+namespace drv {
 
 /* {{{ xmysqlnd_plugin__get_node_session_plugin_area */
 static void **
@@ -566,6 +569,10 @@ PHP_MYSQL_XDEVAPI_API struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_
 		_xmysqlnd_stmt_execution_state_set_methods,
 	},
 };
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

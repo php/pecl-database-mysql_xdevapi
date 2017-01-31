@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2015 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -29,6 +29,15 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_message__capability.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 zend_class_entry *mysqlx_message__capability_class_entry;
 
@@ -38,7 +47,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_capability__construct, 0, ZEND_RETURN
 ZEND_END_ARG_INFO()
 
 /* {{{ proto bool mysqlx_node_connection::__construct(string name, mixed value) */
-PHP_METHOD(mysqlx_message__capability, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 {
 	zval * capability_zv = NULL;
 	struct st_mysqlx_message__capability * capability = NULL;
@@ -65,7 +74,7 @@ PHP_METHOD(mysqlx_message__capability, __construct)
 
 
 /* {{{ proto bool mysqlx_node_connection::echo(string name, mixed value) */
-PHP_METHOD(mysqlx_message__capability, echo)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, echo)
 {
 	zval * capability_zv = NULL;
 	struct st_mysqlx_message__capability * capability = NULL;
@@ -124,7 +133,7 @@ php_mysqlx_message__capability_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
 	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
-	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, mysqlx::phputils::permanent_tag));
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, phputils::permanent_tag));
 	st_mysqlx_message__capability* message = new st_mysqlx_message__capability();
 
 	DBG_ENTER("php_mysqlx_message__capability_object_allocator");
@@ -185,6 +194,11 @@ mysqlx_unregister_message__capability_class(SHUTDOWN_FUNC_ARGS)
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

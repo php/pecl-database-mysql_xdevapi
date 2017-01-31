@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -32,6 +32,10 @@ extern "C" {
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
 #include "xmysqlnd_rowset.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 /* {{{ xmysqlnd_node_stmt_result::init */
 static enum_func_status
@@ -473,6 +477,10 @@ xmysqlnd_node_stmt_result_free(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

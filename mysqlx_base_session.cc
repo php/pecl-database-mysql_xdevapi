@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -37,11 +37,14 @@ extern "C" {
 #include "mysqlx_session.h"
 #include <phputils/object.h>
 
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
+
 //static zend_class_entry *mysqlx_base_session_class_entry;
 zend_class_entry *mysqlx_base_session_class_entry;
-
-#define DONT_ALLOW_NULL 0
-#define NO_PASS_BY_REF 0
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__get_server_version, 0, ZEND_RETURN_VALUE, 0)
@@ -55,7 +58,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__generate_uuid, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__quote_name, 0, ZEND_RETURN_VALUE, 1)
-	   ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, name, IS_STRING, DONT_ALLOW_NULL)
+	   ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__get_schemas, 0, ZEND_RETURN_VALUE, 0)
@@ -74,13 +77,13 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__drop_schema, 0, ZEND_RETURN_
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__drop_collection, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, schema_name, IS_STRING, DONT_ALLOW_NULL)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, collection_name, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, schema_name, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, collection_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__drop_table, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, schema_name, IS_STRING, DONT_ALLOW_NULL)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, table_name, IS_STRING, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, schema_name, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, table_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__start_transaction, 0, ZEND_RETURN_VALUE, 0)
@@ -98,7 +101,7 @@ ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__kill_client, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(NO_PASS_BY_REF, client_id, IS_LONG, DONT_ALLOW_NULL)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, client_id, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -194,8 +197,7 @@ end:
 
 
 /* {{{ proto mixed mysqlx_base_session::quoteName(string query) */
-static
-PHP_METHOD(mysqlx_base_session, quoteName)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, quoteName)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -228,8 +230,7 @@ PHP_METHOD(mysqlx_base_session, quoteName)
 
 
 /* {{{ proto mixed mysqlx_base_session::getServerVersion() */
-static
-PHP_METHOD(mysqlx_base_session, getServerVersion)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getServerVersion)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -255,8 +256,7 @@ PHP_METHOD(mysqlx_base_session, getServerVersion)
 
 
 /* {{{ proto mixed mysqlx_base_session::getClientId() */
-static
-PHP_METHOD(mysqlx_base_session, getClientId)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getClientId)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -282,8 +282,7 @@ PHP_METHOD(mysqlx_base_session, getClientId)
 
 
 /* {{{ proto mixed mysqlx_base_session::generateUUID() */
-static
-PHP_METHOD(mysqlx_base_session, generateUUID)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, generateUUID)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -312,8 +311,7 @@ PHP_METHOD(mysqlx_base_session, generateUUID)
 
 
 /* {{{ mysqlx_base_session::__construct */
-static
-PHP_METHOD(mysqlx_base_session, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, __construct)
 {
 }
 /* }}} */
@@ -377,8 +375,7 @@ mysqlx_base_session_command_handler_on_error(void * context,
 
 
 /* {{{ mysqlx_base_session::getSchemas() */
-static
-PHP_METHOD(mysqlx_base_session, getSchemas)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchemas)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -418,8 +415,7 @@ PHP_METHOD(mysqlx_base_session, getSchemas)
 
 
 /* {{{ mysqlx_base_session::getSchema(string name) */
-static
-PHP_METHOD(mysqlx_base_session, getSchema)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -450,8 +446,7 @@ PHP_METHOD(mysqlx_base_session, getSchema)
 
 
 /* {{{ mysqlx_base_session::createSchema(string name) */
-static
-PHP_METHOD(mysqlx_base_session, createSchema)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -485,8 +480,7 @@ PHP_METHOD(mysqlx_base_session, createSchema)
 
 
 /* {{{ mysqlx_base_session::dropSchema(string name) */
-static
-PHP_METHOD(mysqlx_base_session, dropSchema)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -508,8 +502,7 @@ PHP_METHOD(mysqlx_base_session, dropSchema)
 
 
 /* {{{ mysqlx_base_session::dropCollection(string schema_name, string collection_name) */
-static
-PHP_METHOD(mysqlx_base_session, dropCollection)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropCollection)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -545,8 +538,7 @@ PHP_METHOD(mysqlx_base_session, dropCollection)
 
 
 /* {{{ mysqlx_base_session::dropTable(string schema_name, string table_name) */
-static
-PHP_METHOD(mysqlx_base_session, dropTable)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropTable)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -582,8 +574,7 @@ PHP_METHOD(mysqlx_base_session, dropTable)
 
 
 /* {{{ proto mixed mysqlx_base_session::startTransaction() */
-static
-PHP_METHOD(mysqlx_base_session, startTransaction)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, startTransaction)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -610,8 +601,7 @@ PHP_METHOD(mysqlx_base_session, startTransaction)
 
 
 /* {{{ proto mixed mysqlx_base_session::commit() */
-static
-PHP_METHOD(mysqlx_base_session, commit)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, commit)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -638,8 +628,7 @@ PHP_METHOD(mysqlx_base_session, commit)
 
 
 /* {{{ proto mixed mysqlx_base_session::rollback() */
-static
-PHP_METHOD(mysqlx_base_session, rollback)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -708,8 +697,7 @@ list_clients__handler_on_row(void * context,
 
 
 /* {{{ mysqlx_base_session::listClients() */
-static
-PHP_METHOD(mysqlx_base_session, listClients)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, listClients)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -749,8 +737,7 @@ PHP_METHOD(mysqlx_base_session, listClients)
 
 
 /* {{{ mysqlx_base_session::killClient() */
-static
-PHP_METHOD(mysqlx_base_session, killClient)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, killClient)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -779,8 +766,7 @@ PHP_METHOD(mysqlx_base_session, killClient)
 
 
 /* {{{ mysqlx_base_session::close */
-static
-PHP_METHOD(mysqlx_base_session, close)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, close)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
@@ -868,7 +854,7 @@ static zend_object *
 php_mysqlx_base_session_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_base_session_object_allocator");
-	st_mysqlx_object* mysqlx_object = mysqlx::phputils::alloc_object<st_mysqlx_session>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_session>(
 		class_type,
 		&mysqlx_object_base_session_handlers,
 		&mysqlx_base_session_properties);
@@ -919,6 +905,9 @@ mysqlx_unregister_base_session_class(SHUTDOWN_FUNC_ARGS)
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

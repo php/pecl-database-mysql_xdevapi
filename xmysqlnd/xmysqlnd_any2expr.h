@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -34,19 +34,22 @@ namespace Expr {
 	class Object;
 
 } // namespace Expr
+
 } // namespace Mysqlx
 
-namespace xmysqlnd
-{
+namespace mysqlx {
+
+namespace drv {
 
 PHP_MYSQL_XDEVAPI_API void object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest_obj);
 PHP_MYSQL_XDEVAPI_API void array2expr(const Mysqlx::Datatypes::Array& src_array, Mysqlx::Expr::Array* dest_array);
 PHP_MYSQL_XDEVAPI_API void any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest);
 
-} // namespace xmysqlnd
+} // namespace drv
 
-#endif	/* XMYSQLND_ANY2EXPR_H */
+} // namespace mysqlx
 
+#endif /* XMYSQLND_ANY2EXPR_H */
 /*
  * Local variables:
  * tab-width: 4

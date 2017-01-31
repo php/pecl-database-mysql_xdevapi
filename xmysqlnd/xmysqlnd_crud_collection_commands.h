@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -19,6 +19,10 @@
 #define XMYSQLND_CRUD_COLLECTION_COMMANDS_H
 
 #include "xmysqlnd_crud_commands.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 typedef struct st_xmysqlnd_crud_collection_op__add XMYSQLND_CRUD_COLLECTION_OP__ADD;
 XMYSQLND_CRUD_COLLECTION_OP__ADD * xmysqlnd_crud_collection_add__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);
@@ -107,10 +111,11 @@ enum_func_status xmysqlnd_stmt_execute__finalize_bind(XMYSQLND_STMT_OP__EXECUTE 
 
 struct st_xmysqlnd_pb_message_shell xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE * obj);
 
+} // namespace drv
 
+} // namespace mysqlx
 
 #endif /* XMYSQLND_CRUD_COLLECTION_COMMANDS_H */
-
 
 /*
  * Local variables:

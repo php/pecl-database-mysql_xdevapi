@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -28,6 +28,10 @@ extern "C" {
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_node_stmt.h"
 
+
+namespace mysqlx {
+
+namespace drv {
 
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_schema;
@@ -441,9 +445,11 @@ extern const struct st_xmysqlnd_node_session_on_error_bind			noop__on_error;
 extern const struct st_xmysqlnd_node_session_on_result_end_bind		noop__on_result_end;
 extern const struct st_xmysqlnd_node_session_on_statement_ok_bind	noop__on_statement_ok;
 
+} // namespace drv
 
-#endif	/* XMYSQLND_NODE_SESSION_H */
+} // namespace mysqlx
 
+#endif /* XMYSQLND_NODE_SESSION_H */
 
 /*
  * Local variables:

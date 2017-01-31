@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -25,15 +25,18 @@ extern "C" {
 }
 #include "exceptions.h"
 
-struct st_mysqlx_property_entry;
-struct st_mysqlx_object;
-
 namespace mysqlx {
-
-namespace phputils {
 
 const int dont_allow_null = 0;
 const int no_pass_by_ref = 0;
+
+//TODO: these should be moved to phputils
+namespace devapi {
+struct st_mysqlx_property_entry;
+struct st_mysqlx_object;
+}
+
+namespace phputils {
 
 //------------------------------------------------------------------------------
 
@@ -48,9 +51,11 @@ zend_class_entry* register_class(
 	object_allocator_func_t object_allocator_func,
 	zend_object_free_obj_t free_storage_func,
 	HashTable* properties,
-	const st_mysqlx_property_entry* property_entries,
+	const devapi::st_mysqlx_property_entry* property_entries,
 	const Interfaces& ... interfaces)
 {
+	using namespace devapi;
+
 	*handlers = *std_handlers;
 	handlers->free_obj = free_storage_func;
 
@@ -76,11 +81,13 @@ zend_class_entry* register_class(
 
 /* {{{ mysqlx::phputils::alloc_object */
 template<typename Data_object, typename Allocation_tag = phputils::alloc_tag_t>
-st_mysqlx_object* alloc_object(
+devapi::st_mysqlx_object* alloc_object(
 	zend_class_entry* class_type,
 	zend_object_handlers* handlers,
 	HashTable* properties)
 {
+	using namespace devapi;
+
 	const std::size_t bytes_count = sizeof(st_mysqlx_object) + zend_object_properties_size(class_type);
 	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, Allocation_tag()));
 
@@ -99,7 +106,7 @@ st_mysqlx_object* alloc_object(
 
 /* {{{ mysqlx::phputils::alloc_permanent_object */
 template<typename Data_object>
-st_mysqlx_object* alloc_permanent_object(
+devapi::st_mysqlx_object* alloc_permanent_object(
 	zend_class_entry* class_type,
 	zend_object_handlers* handlers,
 	HashTable* properties)
@@ -115,6 +122,8 @@ st_mysqlx_object* alloc_permanent_object(
 template<typename Data_object>
 Data_object& fetch_data_object(zval* from)
 {
+	using namespace devapi;
+
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(from);
 	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
 	if (!data_object) {
@@ -141,6 +150,8 @@ Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
 template<typename Data_object>
 void free_object(zend_object* object)
 {
+	using namespace devapi;
+
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
 	static_assert(std::is_base_of<custom_allocable, Data_object>::value || std::is_base_of<permanent_allocable, Data_object>::value,
@@ -159,6 +170,8 @@ zend_object_iterator* create_result_iterator(
 	zval* object,
 	int by_ref)
 {
+	using namespace devapi;
+
 	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P(object);
 	Result* mysqlx_result = mysqlx_object->ptr ? static_cast<Result*>(mysqlx_object->ptr) : nullptr;
 
@@ -208,7 +221,7 @@ void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
 { \
 	zend_class_entry tmp_ce; \
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", class_name, methods); \
-	class_entry = mysqlx::phputils::register_class( \
+	class_entry = phputils::register_class( \
 		&tmp_ce, \
 		std_handlers, \
 		&handlers, \
@@ -223,7 +236,7 @@ void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
 static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
 static PHP_METHOD(class_name, name) \
 { \
-	mysqlx::phputils::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
+	phputils::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
 } \
 static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 

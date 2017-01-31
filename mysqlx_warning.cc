@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,8 +26,14 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd.h>
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-
 #include "mysqlx_warning.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+using namespace drv;
 
 static zend_class_entry * mysqlx_warning_class_entry;
 
@@ -53,8 +59,7 @@ struct st_mysqlx_warning
 
 
 /* {{{ mysqlx_warning::__construct */
-static
-PHP_METHOD(mysqlx_warning, __construct)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 {
 }
 /* }}} */
@@ -242,6 +247,9 @@ mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int 
 }
 /* }}} */
 
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:
