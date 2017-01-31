@@ -64,7 +64,5 @@ error_reporting=0
         require("connect.inc");
 	clean_test_db();
 ?>
---XFAIL--
-This test will fail until the ticket 55295 is not resolved.
 --EXPECTF--
 done!%A
