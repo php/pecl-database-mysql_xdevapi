@@ -157,6 +157,8 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_node_table__update_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 #if MYSQL_XDEVAPI_MESSAGE_CLASSES
+	using namespace msg;
+
 	mysqlx_register_node_connection_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_pfc_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -193,6 +195,8 @@ PHP_MYSQL_XDEVAPI_API int
 mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 {
 #ifdef MYSQL_XDEVAPI_MESSAGE_CLASSES
+	using namespace msg;
+
 	mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_resultset_metadata_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

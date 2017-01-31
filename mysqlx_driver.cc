@@ -27,6 +27,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
 #include "php_mysqlx.h"
+#include "mysqlx_class_properties.h"
 #include <phputils/object.h>
 
 namespace mysqlx {
