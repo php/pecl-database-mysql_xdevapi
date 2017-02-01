@@ -277,7 +277,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 
 
 #define ID_COLUMN_NAME		"_id"
-#define ID_TEMPLATE_PREFIX	"\""ID_COLUMN_NAME"\":\""
+#define ID_TEMPLATE_PREFIX	"\"" ID_COLUMN_NAME "\":\""
 #define ID_TEMPLATE_SUFFIX	"\"}"
 
 struct st_parse_for_id_status

@@ -16,19 +16,20 @@
   +----------------------------------------------------------------------+
 */
 extern "C" {
+#include <php.h>
+#undef ERROR
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <php.h>
-#undef ERROR
+#include <zend_smart_str.h>
+#include <ext/standard/info.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_enum_n_def.h>
 #include <ext/mysqlnd/mysqlnd_structs.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
-#include <ext/standard/info.h>
-#include <zend_smart_str.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
