@@ -16,19 +16,21 @@
   +----------------------------------------------------------------------+
 */
 extern "C" {
+#include <php.h>
+#undef ERROR
+#undef inline
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <php.h>
-#undef ERROR
+#include <zend_smart_str.h>
+#include <ext/standard/info.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_enum_n_def.h>
 #include <ext/mysqlnd/mysqlnd_structs.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
-#include <ext/standard/info.h>
-#include <zend_smart_str.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
@@ -37,6 +39,8 @@ extern "C" {
 #include "mysqlx_expression.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_x_session.h"
+
+extern "C" {
 
 /* {{{ PHP_MINFO_FUNCTION
  */
@@ -67,7 +71,8 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 								"disabled");
 #endif
 
-	snprintf(buf, sizeof(buf), ZEND_LONG_FMT, MYSQL_XDEVAPI_G(net_read_timeout));
+// TODO fixit - Linux build fails on pb2
+//	snprintf(buf, sizeof(buf), ZEND_LONG_FMT, MYSQL_XDEVAPI_G(net_read_timeout));
 	php_info_print_table_row(2, "Read timeout", buf);
 
 	php_info_print_table_row(2, "Collecting statistics", MYSQL_XDEVAPI_G(collect_statistics)? "Yes":"No");
@@ -312,6 +317,8 @@ ZEND_TSRMLS_CACHE_DEFINE();
 ZEND_GET_MODULE(mysql_xdevapi)
 #endif
 /* }}} */
+
+} // extern "C"
 
 /*
  * Local variables:

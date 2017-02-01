@@ -18,11 +18,11 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 }
-
 
 #include "expression_parser.h"
 #include "tokenizer.h"

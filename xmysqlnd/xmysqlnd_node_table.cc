@@ -18,6 +18,7 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef inline
 #include "ext/json/php_json_parser.h"
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
@@ -277,7 +278,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 
 
 #define ID_COLUMN_NAME		"_id"
-#define ID_TEMPLATE_PREFIX	"\""ID_COLUMN_NAME"\":\""
+#define ID_TEMPLATE_PREFIX	"\"" ID_COLUMN_NAME "\":\""
 #define ID_TEMPLATE_SUFFIX	"\"}"
 
 struct st_parse_for_id_status

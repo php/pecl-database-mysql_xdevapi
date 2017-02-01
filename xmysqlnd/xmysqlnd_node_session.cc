@@ -18,6 +18,7 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_charset.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
@@ -275,7 +276,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_id)(void * context, const
 	enum_func_status ret = FAIL;
 	XMYSQLND_NODE_SESSION_DATA * session = (XMYSQLND_NODE_SESSION_DATA *) context;
 	DBG_ENTER("xmysqlnd_node_session_data::set_client_id");
-	DBG_INF_FMT("id="MYSQLND_LLU_SPEC, id);
+	DBG_INF_FMT("id=" MYSQLND_LLU_SPEC, id);
 	if (context) {
 		session->client_id = id;
 		ret = PASS;

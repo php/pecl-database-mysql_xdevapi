@@ -18,6 +18,7 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -648,7 +649,7 @@ xmysqlnd_dump_column_meta(const Mysqlx::Resultset::ColumnMetaData & meta)
 									   has_catalog? meta.catalog().c_str() : "n/a");
 
 	const bool has_collation = meta.has_collation();
-	DBG_INF_FMT("collation[%s] is [" MYSQLND_LLU_SPEC"]", has_collation? "SET":"NOT SET",
+	DBG_INF_FMT("collation[%s] is [" MYSQLND_LLU_SPEC "]", has_collation? "SET":"NOT SET",
 														 has_collation? meta.collation() : 0);
 
 	const bool has_frac_digits = meta.has_fractional_digits();

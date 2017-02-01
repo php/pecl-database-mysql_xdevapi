@@ -18,6 +18,7 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 }
 #include "php_mysqlx.h"
