@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -26,9 +25,12 @@ extern "C"
 }
 #include "xmysqlnd.h"
 
-
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_datatypes.pb.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 using namespace Mysqlx::Datatypes;
 
@@ -490,6 +492,10 @@ any2log(const Mysqlx::Datatypes::Any & any)
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:

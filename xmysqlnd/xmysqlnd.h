@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,9 +18,6 @@
 #ifndef XMYSQLND_H
 #define XMYSQLND_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define PHP_XMYSQLND_VERSION "mysqlnd 1.0.0-dev"
 #define XMYSQLND_VERSION_ID 10000
@@ -31,14 +28,20 @@ extern "C" {
 #define XMYSQLND_DBG_ENABLED 0
 #endif
 
+extern "C" {
 #ifdef ZTS
 #include "TSRM.h"
 #endif
+#include "ext/mysqlnd/mysqlnd_portability.h"
+}
 
 #include "php_mysql_xdevapi.h"
-#include "ext/mysqlnd/mysqlnd_portability.h"
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_structs.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 /* Library related */
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void);
@@ -51,6 +54,10 @@ PHP_MYSQL_XDEVAPI_API unsigned int	xmysqlnd_get_client_version();
 #define XMYSQLND_METHOD(class, method) 			xmysqlnd_##class##_##method##_pub
 
 PHP_MYSQL_XDEVAPI_API extern MYSQLND_STATS *xmysqlnd_global_stats;
+
+} // namespace drv
+
+} // namespace mysqlx
 
 #ifdef MARINES_0
 
@@ -80,9 +87,6 @@ ZEND_TSRMLS_CACHE_EXTERN();
 
 #endif // MARINES_0
 
-#ifdef __cplusplus
-} // extern "C" {
-#endif
 
 #endif	/* XMYSQLND_H */
 

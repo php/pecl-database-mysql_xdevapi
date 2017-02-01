@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,8 +18,17 @@
 #ifndef MYSQLX_NODE_SQL_STATEMENT_H
 #define MYSQLX_NODE_SQL_STATEMENT_H
 
-struct st_mysqlx_object;
+#include <phputils/allocator.h>
+
+namespace mysqlx {
+
+namespace drv {
 struct st_xmysqlnd_node_stmt;
+}
+
+namespace devapi {
+
+struct st_mysqlx_object;
 
 enum mysqlx_execute_flags
 {
@@ -39,11 +48,11 @@ enum mysqlx_result_type
 #define MYSQLX_EXECUTE_ALL_FLAGS	(0 | MYSQLX_EXECUTE_FLAG_ASYNC | MYSQLX_EXECUTE_FLAG_BUFFERED)
 #define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 100
 
-struct st_mysqlx_node_statement
+struct st_mysqlx_node_statement : public phputils::custom_allocable
 {
-	XMYSQLND_NODE_STMT * stmt;
-	XMYSQLND_STMT_OP__EXECUTE * stmt_execute;
-	struct st_xmysqlnd_pb_message_shell * pb_shell;
+	drv::XMYSQLND_NODE_STMT * stmt;
+	drv::XMYSQLND_STMT_OP__EXECUTE * stmt_execute;
+	drv::st_xmysqlnd_pb_message_shell* pb_shell;
 	zend_long execute_flags;
 	enum_func_status send_query_status;
 	zend_bool in_execution;
@@ -54,7 +63,7 @@ struct st_mysqlx_node_statement
 void mysqlx_register_node_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_statement_class(SHUTDOWN_FUNC_ARGS);
 
-void mysqlx_new_node_stmt(zval * return_value, struct st_xmysqlnd_node_stmt * stmt);
+void mysqlx_new_node_stmt(zval * return_value, drv::st_xmysqlnd_node_stmt* stmt);
 void mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, const enum mysqlx_result_type result_type, zval * return_value);
 
 /**********/
@@ -62,9 +71,13 @@ void mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object *
 void mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS);
 
-void mysqlx_new_sql_stmt(zval * return_value, struct st_xmysqlnd_node_stmt * stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query);
+void mysqlx_new_sql_stmt(zval * return_value, drv::st_xmysqlnd_node_stmt* stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query);
 void mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zval * return_value);
 void mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, zval * return_value);
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_NODE_SQL_STATEMENT_H */
 

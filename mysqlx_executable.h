@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,18 +18,18 @@
 #ifndef MYSQLX_EXECUTABLE_H
 #define MYSQLX_EXECUTABLE_H
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
+namespace mysqlx {
+
+namespace devapi {
 
 extern zend_class_entry * mysqlx_executable_interface_entry;
 
 void mysqlx_register_executable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_executable_interface(SHUTDOWN_FUNC_ARGS);
 
-#ifdef  __cplusplus
-} /* extern "C" */
-#endif
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_EXECUTABLE_H */
 

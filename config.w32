@@ -27,60 +27,60 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 		STDOUT.WriteLine(execute(PATH_PROG("protoc") + " --proto_path ext/mysql_xdevapi/xmysqlnd/proto_def --cpp_out ext/mysql_xdevapi/xmysqlnd/proto_gen " + mysqlx_proto_sources));
 
 
-		mysqlx_base_sources="php_xmysqlnd.c " +
-			"php_mysqlx.c " +
-			"php_mysqlx_ex.c " +
-			"mysqlx_base_session.c " +
-			"mysqlx_class_properties.c " +
-			"mysqlx_crud_operation_bindable.c " +
-			"mysqlx_crud_operation_limitable.c " +
-			"mysqlx_crud_operation_skippable.c " +
-			"mysqlx_crud_operation_sortable.c " +
-			"mysqlx_database_object.c " +
-			"mysqlx_driver.c " +
-			"mysqlx_exception.c " +
-			"mysqlx_executable.c " +
-			"mysqlx_execution_status.c " +
-			"mysqlx_expression.c " +
-			"mysqlx_field_metadata.c " +
-			"mysqlx_node_schema.c " +
-			"mysqlx_node_session.c " +
-			"mysqlx_node_collection.c " +
-			"mysqlx_node_collection__add.c " +
+		mysqlx_base_sources="php_xmysqlnd.cc " +
+			"php_mysqlx.cc " +
+			"php_mysqlx_ex.cc " +
+			"mysqlx_base_session.cc " +
+			"mysqlx_class_properties.cc " +
+			"mysqlx_crud_operation_bindable.cc " +
+			"mysqlx_crud_operation_limitable.cc " +
+			"mysqlx_crud_operation_skippable.cc " +
+			"mysqlx_crud_operation_sortable.cc " +
+			"mysqlx_database_object.cc " +
+			"mysqlx_driver.cc " +
+			"mysqlx_exception.cc " +
+			"mysqlx_executable.cc " +
+			"mysqlx_execution_status.cc " +
+			"mysqlx_expression.cc " +
+			"mysqlx_field_metadata.cc " +
+			"mysqlx_node_schema.cc " +
+			"mysqlx_node_session.cc " +
+			"mysqlx_node_collection.cc " +
+			"mysqlx_node_collection__add.cc " +
 			"mysqlx_node_collection__create_index.cc " +
 			"mysqlx_node_collection__drop_index.cc " +
-			"mysqlx_node_collection__find.c " +
-			"mysqlx_node_collection__modify.c " +
-			"mysqlx_node_collection__remove.c " +
-			"mysqlx_node_table.c " +
-			"mysqlx_node_table__delete.c " +
-			"mysqlx_node_table__insert.c " +
-			"mysqlx_node_table__select.c " +
-			"mysqlx_node_table__update.c " +
-			"mysqlx_node_base_result.c " +
-			"mysqlx_node_base_result_iterator.c " +
-			"mysqlx_node_doc_result.c " +
-			"mysqlx_node_doc_result_iterator.c " +
-			"mysqlx_node_result.c " +
-			"mysqlx_node_result_iterator.c " +
-			"mysqlx_node_row_result.c " +
-			"mysqlx_node_row_result_iterator.c " +
-			"mysqlx_node_sql_statement.c " +
-			"mysqlx_node_sql_statement_result.c " +
-			"mysqlx_node_sql_statement_result_iterator.c " +
-			"mysqlx_node_column_result.c " +
-			"mysqlx_x_session.c " +
-			"mysqlx_object.c " +
-			"mysqlx_session.c " +
-			"mysqlx_schema_object.c " +
-			"mysqlx_warning.c ";
+			"mysqlx_node_collection__find.cc " +
+			"mysqlx_node_collection__modify.cc " +
+			"mysqlx_node_collection__remove.cc " +
+			"mysqlx_node_table.cc " +
+			"mysqlx_node_table__delete.cc " +
+			"mysqlx_node_table__insert.cc " +
+			"mysqlx_node_table__select.cc " +
+			"mysqlx_node_table__update.cc " +
+			"mysqlx_node_base_result.cc " +
+			"mysqlx_node_base_result_iterator.cc " +
+			"mysqlx_node_doc_result.cc " +
+			"mysqlx_node_doc_result_iterator.cc " +
+			"mysqlx_node_result.cc " +
+			"mysqlx_node_result_iterator.cc " +
+			"mysqlx_node_row_result.cc " +
+			"mysqlx_node_row_result_iterator.cc " +
+			"mysqlx_node_sql_statement.cc " +
+			"mysqlx_node_sql_statement_result.cc " +
+			"mysqlx_node_sql_statement_result_iterator.cc " +
+			"mysqlx_node_column_result.cc " +
+			"mysqlx_x_session.cc " +
+			"mysqlx_object.cc " +
+			"mysqlx_session.cc " +
+			"mysqlx_schema_object.cc " +
+			"mysqlx_warning.cc ";
 
-		mysqlx_php="allocator.cc " +
+		mysqlx_phputils="allocator.cc " +
 			"exceptions.cc " +
 			"object.cc ";
 
-		mysqlx_messages="mysqlx_node_connection.c " +
-			"mysqlx_node_pfc.c " +
+		mysqlx_messages="mysqlx_node_connection.cc " +
+			"mysqlx_node_pfc.cc " +
 			"mysqlx_resultset__column_metadata.cc " +
 			"mysqlx_resultset__resultset_metadata.cc " +
 			"mysqlx_resultset__data_row.cc " +
@@ -92,7 +92,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"mysqlx_message__capabilities_get.cc " +
 			"mysqlx_message__capabilities_set.cc " +
 			"mysqlx_message__capabilities.cc " +
-			"mysqlx_message__capability.c " +
+			"mysqlx_message__capability.cc " +
 			"mysqlx_message__stmt_execute.cc " +
 			"mysqlx_message__stmt_execute_ok.cc " +
 			"mysqlx_message__data_fetch_done.cc ";
@@ -116,33 +116,33 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 		xmysqlnd_sources="xmysqlnd_any2expr.cc " +
 			"xmysqlnd_crud_collection_commands.cc " +
 			"xmysqlnd_crud_table_commands.cc " +
-			"xmysqlnd_driver.c " +
-			"xmysqlnd_extension_plugin.c " +
+			"xmysqlnd_driver.cc " +
+			"xmysqlnd_extension_plugin.cc " +
 			"xmysqlnd_index_collection_commands.cc " +
-			"xmysqlnd_node_collection.c " +
-			"xmysqlnd_node_schema.c " +
-			"xmysqlnd_node_session.c " +
-			"xmysqlnd_node_stmt.c " +
-			"xmysqlnd_node_stmt_result.c " +
-			"xmysqlnd_node_stmt_result_meta.c " +
-			"xmysqlnd_node_table.c " +
-			"xmysqlnd_object_factory.c " +
-			"xmysqlnd_protocol_frame_codec.c " +
+			"xmysqlnd_node_collection.cc " +
+			"xmysqlnd_node_schema.cc " +
+			"xmysqlnd_node_session.cc " +
+			"xmysqlnd_node_stmt.cc " +
+			"xmysqlnd_node_stmt_result.cc " +
+			"xmysqlnd_node_stmt_result_meta.cc " +
+			"xmysqlnd_node_table.cc " +
+			"xmysqlnd_object_factory.cc " +
+			"xmysqlnd_protocol_frame_codec.cc " +
 			"xmysqlnd_protocol_dumper.cc " +
-			"xmysqlnd_rowset.c " +
-			"xmysqlnd_rowset_buffered.c " +
-			"xmysqlnd_rowset_fwd.c " +
-			"xmysqlnd_statistics.c " +
-			"xmysqlnd_stmt_execution_state.c " +
-			"xmysqlnd_utils.c " +
-			"xmysqlnd_warning_list.c " +
+			"xmysqlnd_rowset.cc " +
+			"xmysqlnd_rowset_buffered.cc " +
+			"xmysqlnd_rowset_fwd.cc " +
+			"xmysqlnd_statistics.cc " +
+			"xmysqlnd_stmt_execution_state.cc " +
+			"xmysqlnd_utils.cc " +
+			"xmysqlnd_warning_list.cc " +
 			"xmysqlnd_wireprotocol.cc " +
 			"xmysqlnd_zval2any.cc ";
 
 		EXTENSION("mysql_xdevapi", mysqlx_base_sources, PHP_MYSQL_XDEVAPI_SHARED, "-Iext/mysql_xdevapi -Iext/mysql_xdevapi/messages " +
 			"-Iext/mysql_xdevapi/xmysqlnd -Iext/mysql_xdevapi/xmysqlnd/crud_parsers -Iext/mysql_xdevapi/xmysqlnd/proto_gen " +
-			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQL_XDEVAPI_EXPERIMENTAL_FEATURES /DZEND_WIN32_KEEP_INLINE /UZEND_WIN32_FORCE_INLINE /EHsc ");
-		ADD_SOURCES(configure_module_dirname + "/php", mysqlx_php, "mysql_xdevapi");
+			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQL_XDEVAPI_EXPERIMENTAL_FEATURES /DMYSQL_XDEVAPI_MESSAGE_CLASSES /DZEND_WIN32_KEEP_INLINE /UZEND_WIN32_FORCE_INLINE /EHsc ");
+		ADD_SOURCES(configure_module_dirname + "/phputils", mysqlx_phputils, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/messages", mysqlx_messages, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/proto_gen", xmysqlnd_protobuf_sources, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/crud_parsers", xmysqlnd_expr_parser, "mysql_xdevapi");

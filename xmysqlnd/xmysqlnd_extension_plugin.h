@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,8 +18,14 @@
 #ifndef XMYSQLND_EXTENSION_PLUGIN_H
 #define XMYSQLND_EXTENSION_PLUGIN_H
 
+extern "C" {
 #include "ext/mysqlnd/mysqlnd_structs.h"
+}
 #include "php_mysql_xdevapi.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
@@ -231,8 +237,11 @@ PHP_MYSQL_XDEVAPI_API extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_
 #define xmysqlnd_stmt_execution_state_get_methods()		xmysqlnd_plugin_methods_xetters.stmt_exec_state.get()
 #define xmysqlnd_stmt_execution_state_set_methods(m)	xmysqlnd_plugin_methods_xetters.stmt_exec_state.set((m))
 
-#endif	/* XMYSQLND_EXTENSION_PLUGIN_H */
+} // namespace drv
 
+} // namespace mysqlx
+
+#endif /* XMYSQLND_EXTENSION_PLUGIN_H */
 /*
  * Local variables:
  * tab-width: 4

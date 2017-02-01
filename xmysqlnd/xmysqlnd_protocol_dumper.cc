@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -36,10 +35,14 @@ extern "C"
 #include "proto_gen/mysqlx_session.pb.h"
 #include "proto_gen/mysqlx_sql.pb.h"
 
+namespace mysqlx {
+
+namespace drv {
+
 static char hexconvtab[] = "0123456789abcdef";
 
 /* {{{ xmysqlnd_dump_string_to_log */
-extern "C" void
+void
 xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len)
 {
 	//TODO marines
@@ -280,7 +283,7 @@ xmysqlnd_dump_update_operation(const Mysqlx::Crud::UpdateOperation & op)
 
 
 /* {{{ xmysqlnd_dump_client_message */
-extern "C" void
+void
 xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const size_t payload_size)
 {
 	DBG_ENTER("xmysqlnd_dump_client_message");
@@ -799,7 +802,7 @@ xmysqlnd_dump_capabilities_to_log(const Mysqlx::Connection::Capabilities & messa
 
 
 /* {{{ xmysqlnd_dump_server_message */
-extern "C" void
+void
 xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const size_t payload_size)
 {
 	DBG_ENTER("xmysqlnd_dump_server_message");
@@ -903,6 +906,10 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:{

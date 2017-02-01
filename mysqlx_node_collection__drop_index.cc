@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -30,7 +30,6 @@ extern "C" {
 #include <xmysqlnd/xmysqlnd_node_stmt.h>
 #include <xmysqlnd/xmysqlnd_node_collection.h>
 #include <xmysqlnd/xmysqlnd_index_collection_commands.h>
-#include "php/exceptions.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
@@ -38,14 +37,15 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__drop_index.h"
 #include "mysqlx_object.h"
-
-#include "php/allocator.h"
-#include "php/exceptions.h"
-#include "php/object.h"
+#include <phputils/allocator.h>
+#include <phputils/exceptions.h>
+#include <phputils/object.h>
 
 namespace mysqlx {
 
 namespace devapi {
+
+using namespace drv;
 
 namespace
 {
@@ -171,17 +171,6 @@ php_mysqlx_node_collection__drop_index_object_allocator(zend_class_entry * class
 
 } // anonymous namespace
 
-} // namespace devapi
-
-} // namespace mysqlx
-
-extern "C"
-{
-
-//TODO ds: temporarily till we rename most of *.c into *.cc
-using namespace mysqlx;
-using namespace mysqlx::devapi;
-
 /* {{{ mysqlx_register_node_collection__drop_index_class */
 void
 mysqlx_register_node_collection__drop_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -250,7 +239,9 @@ end:
 }
 /* }}} */
 
-} // extern "C"
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

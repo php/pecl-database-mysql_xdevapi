@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2015 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,14 +15,14 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
+#include <ext/mysqlnd/mysqlnd_auth.h> /* php_mysqlnd_scramble */
 }
 #include <xmysqlnd/xmysqlnd.h>
 #include <xmysqlnd/xmysqlnd_node_session.h>
@@ -32,7 +32,6 @@ extern "C"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 
-#include <new>
 #include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 
 #include "mysqlx_message__ok.h"
@@ -40,10 +39,15 @@ extern "C"
 #include "mysqlx_message__auth_continue.h"
 #include "mysqlx_message__auth_ok.h"
 
-extern "C"
-{
-#include "ext/mysqlnd/mysqlnd_auth.h" /* php_mysqlnd_scramble */
-}
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_message__auth_continue_class_entry;
 
@@ -82,7 +86,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ proto long mysqlx_message__auth_continue::send(object messsage, string user, string password, string schema, object pfc, object connection) */
-PHP_METHOD(mysqlx_message__auth_continue, send)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 {
 	zval * object_zv;
 	zval * codec_zv;
@@ -136,7 +140,7 @@ PHP_METHOD(mysqlx_message__auth_continue, send)
 
 
 /* {{{ proto long mysqlx_message__auth_continue::read_response(object messsage, object pfc, object connection) */
-PHP_METHOD(mysqlx_message__auth_continue, read_response)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 {
 	zval * object_zv;
 	zval * codec_zv;
@@ -230,7 +234,7 @@ err:
 
 
 /* {{{ mysqlx_register_message__auth_continue_class */
-extern "C" void
+void
 mysqlx_register_message__auth_continue_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_message__auth_continue_handlers = *mysqlx_std_object_handlers;
@@ -250,7 +254,7 @@ mysqlx_register_message__auth_continue_class(INIT_FUNC_ARGS, zend_object_handler
 
 
 /* {{{ mysqlx_unregister_message__auth_continue_class */
-extern "C" void
+void
 mysqlx_unregister_message__auth_continue_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_message__auth_continue_properties);
@@ -271,6 +275,11 @@ mysqlx_new_message__auth_continue(zval * return_value, const Mysqlx::Session::Au
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

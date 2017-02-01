@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -19,6 +19,10 @@
 #define XMYSQLND_OBJECT_FACTORY_H
 
 #include "php_mysql_xdevapi.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_data;
@@ -161,8 +165,11 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_object_factory);
 
-#endif	/* XMYSQLND_OBJECT_FACTORY_H */
+} // namespace drv
 
+} // namespace mysqlx
+
+#endif /* XMYSQLND_OBJECT_FACTORY_H */
 /*
  * Local variables:
  * tab-width: 4

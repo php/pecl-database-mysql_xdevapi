@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,10 +26,12 @@
 
 #include <memory>
 
-namespace xmysqlnd
+namespace mysqlx {
+
+namespace parser {
+
+class Projection_parser : public Expression_parser
 {
-  class Projection_parser : public Expression_parser
-  {
   public:
     Projection_parser(const std::string& expr_str, bool document_mode = false, bool allow_alias = true);
 
@@ -41,7 +43,7 @@ namespace xmysqlnd
 
       if (_tokenizer.tokens_available())
       {
-        const xmysqlnd::Token& tok = _tokenizer.peek_token();
+        const Token& tok = _tokenizer.peek_token();
         throw Parser_error((boost::format("Projection parser: Expression '%s' has unexpected token '%s' at position %d") % _tokenizer.get_input() % tok.get_text() %
           tok.get_pos()).str());
       }
@@ -50,5 +52,9 @@ namespace xmysqlnd
     const std::string& id();
     void source_expression(Mysqlx::Crud::Projection &column);
   };
-};
+
+} // namespace parser
+
+} // namespace mysqlx
+
 #endif /* CRUD_PARSERS_PROJECTION_PARSER_H */

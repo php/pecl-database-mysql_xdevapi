@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2015 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -33,7 +32,6 @@ extern "C"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 
-#include <new>
 #include "xmysqlnd/proto_gen/mysqlx_session.pb.h"
 
 #include "mysqlx_message__ok.h"
@@ -43,6 +41,15 @@ extern "C"
 #include "mysqlx_resultset__column_metadata.h"
 #include "mysqlx_resultset__data_row.h"
 #include "mysqlx_message__data_fetch_done.h"
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 static zend_class_entry *mysqlx_message__stmt_execute_class_entry;
 
@@ -70,7 +77,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ proto long mysqlx_message__stmt_execute::send(object messsage, string auth_mechanism, string auth_data, object pfc, object connection) */
-PHP_METHOD(mysqlx_message__stmt_execute, send)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 {
 	zval * object_zv;
 	zval * codec_zv;
@@ -125,7 +132,7 @@ PHP_METHOD(mysqlx_message__stmt_execute, send)
 
 
 /* {{{ proto long mysqlx_message__stmt_execute::read_response(object messsage, object pfc, object connection) */
-PHP_METHOD(mysqlx_message__stmt_execute, read_response)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 {
 	zval * object_zv;
 	zval * codec_zv;
@@ -234,7 +241,7 @@ err:
 
 
 /* {{{ mysqlx_register_message__stmt_execute_class */
-extern "C" void
+void
 mysqlx_register_message__stmt_execute_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_message__stmt_execute_handlers = *mysqlx_std_object_handlers;
@@ -254,13 +261,18 @@ mysqlx_register_message__stmt_execute_class(INIT_FUNC_ARGS, zend_object_handlers
 
 
 /* {{{ mysqlx_unregister_message__stmt_execute_class */
-extern "C" void
+void
 mysqlx_unregister_message__stmt_execute_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_message__stmt_execute_properties);
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

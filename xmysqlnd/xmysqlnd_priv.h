@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,7 +18,13 @@
 #ifndef XMYSQLND_PRIV_H
 #define XMYSQLND_PRIV_H
 
+extern "C" {
 #include "ext/mysqlnd/mysqlnd_statistics.h"
+}
+
+namespace mysqlx {
+
+namespace drv {
 
 #ifndef XMYSQLND_CORE_STATISTICS_DISABLED
 
@@ -69,9 +75,11 @@
 
 #endif /* XMYSQLND_CORE_STATISTICS_DISABLED */
 
+} // namespace drv
 
-#endif	/* XMYSQLND_PRIV_H */
+} // namespace mysqlx
 
+#endif /* XMYSQLND_PRIV_H */
 /*
  * Local variables:
  * tab-width: 4

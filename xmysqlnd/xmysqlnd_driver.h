@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,6 +20,10 @@
 
 #include "php_mysql_xdevapi.h"
 
+namespace mysqlx {
+
+namespace drv {
+
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void);
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void);
 
@@ -36,10 +40,13 @@ typedef enum xmysqlnd_handler_func_status
 	HND_DEFAULT_ACTION = 6,
 } enum_hnd_func_status;
 
+} // namespace drv
+
+} // namespace mysqlx
+
 #include "xmysqlnd_object_factory.h"
 
-#endif	/* XMYSQLND_DRIVER_H */
-
+#endif /* XMYSQLND_DRIVER_H */
 /*
  * Local variables:
  * tab-width: 4

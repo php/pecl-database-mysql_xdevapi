@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,8 +26,10 @@
 
 #include <memory>
 
-namespace xmysqlnd
-{
+namespace mysqlx {
+
+namespace parser {
+
   class Orderby_parser : public Expression_parser
   {
   public:
@@ -41,7 +43,7 @@ namespace xmysqlnd
 
       if (_tokenizer.tokens_available())
       {
-        const xmysqlnd::Token& tok = _tokenizer.peek_token();
+        const Token& tok = _tokenizer.peek_token();
         throw Parser_error((boost::format("Orderby parser: Expected EOF, instead stopped at token '%s' at position %d") % tok.get_text()
           % tok.get_pos()).str());
       }
@@ -53,5 +55,9 @@ namespace xmysqlnd
     std::vector<Token>::const_iterator begin() const { return _tokenizer.begin(); }
     std::vector<Token>::const_iterator end() const { return _tokenizer.end(); }
   };
-};
+
+} // namespace parser
+
+} // namespace mysqlx
+
 #endif /* ORDERBY_PARSER_H */

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,8 +15,7 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -41,10 +40,10 @@ extern "C"
 #include "proto_gen/mysqlx_sql.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
 #include "crud_parsers/expression_parser.h"
-#include "../php/allocator.h"
-#include "../php/object.h"
-#include "../php/strings.h"
-#include "../php/types.h"
+#include "phputils/allocator.h"
+#include "phputils/object.h"
+#include "phputils/strings.h"
+#include "phputils/types.h"
 
 namespace mysqlx {
 
@@ -275,7 +274,7 @@ collection_index_bind_field_param(
 
 	try {
 		const phputils::string source(rawPath.length() ? rawPath.c_str() : "$", rawPath.length() ? rawPath.length() : sizeof("$") - 1);
-		xmysqlnd::Expression_parser parser(source.c_str(), true);
+		parser::Expression_parser parser(source.c_str(), true);
 		std::unique_ptr<Mysqlx::Expr::Expr> docField(parser.document_field());
 		if (docField->has_identifier()) {
 			auto& id = docField->identifier();
@@ -283,7 +282,7 @@ collection_index_bind_field_param(
 				fieldPath = rawPath;
 			}
 		}
-	} catch (xmysqlnd::Parser_error &e) {
+	} catch (parser::Parser_error &e) {
 		DBG_ERR_FMT("%s", e.what());
 		DBG_ERR("Parser error for document field");
 		DBG_RETURN(HND_FAIL);

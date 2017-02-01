@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,8 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
@@ -34,7 +33,15 @@ extern "C"
 #include "mysqlx_resultset__resultset_metadata.h"
 #include "mysqlx_resultset__column_metadata.h"
 
-#include <new>
+#include <phputils/object.h>
+
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+using namespace drv;
 
 zend_class_entry *mysqlx_resultset_metadata_class_entry;
 
@@ -45,7 +52,7 @@ ZEND_END_ARG_INFO()
 
 
 /* {{{ proto bool mysqlx_node_connection::echo(object capability) */
-PHP_METHOD(mysqlx_resultset_metadata, add)
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 {
 	zval * resultset_metadata_zv = NULL;
 	struct st_mysqlx_resultset_metadata * resultset_metadata = NULL;
@@ -138,7 +145,7 @@ err:
 
 
 /* {{{ mysqlx_register_resultset_metadata_class */
-extern "C" void
+void
 mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_resultset_metadata_handlers = *mysqlx_std_object_handlers;
@@ -158,13 +165,18 @@ mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * 
 
 
 /* {{{ mysqlx_unregister_resultset_metadata_class */
-extern "C" void
+void
 mysqlx_unregister_resultset_metadata_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_resultset_metadata_properties);
 }
 /* }}} */
 
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 /*
  * Local variables:

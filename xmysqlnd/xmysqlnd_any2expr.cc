@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,14 +15,12 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
-//#include <ext/mysqlnd/mysql_float_to_double.h>
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_any2expr.h"
@@ -31,9 +29,9 @@ extern "C"
 #include "proto_gen/mysqlx_datatypes.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
 
+namespace mysqlx {
 
-namespace xmysqlnd
-{
+namespace drv {
 
 /* {{{ object2expr */
 PHP_MYSQL_XDEVAPI_API void
@@ -97,8 +95,9 @@ any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest)
 }
 /* }}} */
 
-} // namespace xmysqlnd
+} // namespace drv
 
+} // namespace mysqlx
 
 /*
  * Local variables:

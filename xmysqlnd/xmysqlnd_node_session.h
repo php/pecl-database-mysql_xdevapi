@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,17 +18,20 @@
 #ifndef XMYSQLND_NODE_SESSION_H
 #define XMYSQLND_NODE_SESSION_H
 
+extern "C" {
 #include <ext/mysqlnd/mysqlnd_connection.h>
 #include <ext/mysqlnd/mysqlnd_enum_n_def.h>
 #include <ext/mysqlnd/mysqlnd_structs.h>
 #include <ext/mysqlnd/mysqlnd_vio.h>
+}
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_node_stmt.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
+namespace mysqlx {
+
+namespace drv {
 
 struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_schema;
@@ -442,12 +445,11 @@ extern const struct st_xmysqlnd_node_session_on_error_bind			noop__on_error;
 extern const struct st_xmysqlnd_node_session_on_result_end_bind		noop__on_result_end;
 extern const struct st_xmysqlnd_node_session_on_statement_ok_bind	noop__on_statement_ok;
 
-#ifdef __cplusplus
-} // extern "C" {
-#endif
+} // namespace drv
 
-#endif	/* XMYSQLND_NODE_SESSION_H */
+} // namespace mysqlx
 
+#endif /* XMYSQLND_NODE_SESSION_H */
 
 /*
  * Local variables:

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,7 +18,7 @@
 #ifndef PHP_MYSQLX_H
 #define PHP_MYSQLX_H
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -28,9 +28,8 @@ extern "C" {
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "ext/mysqlnd/mysqlnd_statistics.h"
 #include "ext/mysqlnd/mysqlnd_portability.h"
+
 #include "php_mysql_xdevapi.h"
-#include "xmysqlnd/xmysqlnd_enum_n_def.h"
-#include "xmysqlnd/xmysqlnd_structs.h"
 
 #define phpext_mysql_xdevapi_ptr &mysql_xdevapi_module_entry
 extern zend_module_entry mysql_xdevapi_module_entry;
@@ -65,7 +64,7 @@ ZEND_TSRMLS_CACHE_EXTERN();
 #endif
 
 #ifdef __cplusplus
-}
+} // extern "C"
 #endif
 
 #endif	/* PHP_MYSQLX_H */

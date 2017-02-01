@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,6 +20,10 @@
 
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
+
+namespace mysqlx {
+
+namespace drv {
 
 /*
  * After we refactor to C++ this enum shall
@@ -42,9 +46,6 @@ enum xmysqlnd_field_type
 	XMYSQLND_TYPE_NONE          = 255,
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct st_xmysqlnd_result_field_meta XMYSQLND_RESULT_FIELD_META;
 typedef enum_func_status	(*func_xmysqlnd_result_field_meta__init)(XMYSQLND_RESULT_FIELD_META * const field, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -158,9 +159,10 @@ struct st_xmysqlnd_node_stmt_result_meta
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt_result_meta);
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT_RESULT_META * xmysqlnd_node_stmt_result_meta_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_stmt_result_meta_free(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+
+} // namespace drv
+
+} // namespace mysqlx
 
 #endif /* XMYSQLND_NODE_STMT_RESULT_META_H */
 

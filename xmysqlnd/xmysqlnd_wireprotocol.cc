@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,14 +15,14 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C"
-{
+extern "C" {
 #include <php.h>
 #undef ERROR
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_connection.h>
+#include <ext/mysqlnd/mysqlnd_auth.h> /* php_mysqlnd_scramble */
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"
@@ -46,8 +46,28 @@ extern "C"
 #include "proto_gen/mysqlx_sql.pb.h"
 
 #include "xmysqlnd_crud_collection_commands.h"
+#include "messages/mysqlx_node_connection.h"
+#include "messages/mysqlx_node_pfc.h"
+#include "messages/mysqlx_resultset__column_metadata.h"
+#include "messages/mysqlx_message__ok.h"
+#include "messages/mysqlx_message__stmt_execute_ok.h"
 
 #define ENABLE_MYSQLX_CTORS 0
+
+#if ENABLE_MYSQLX_CTORS
+#include "messages/mysqlx_message__auth_continue.h"
+#include "messages/mysqlx_message__auth_ok.h"
+#endif
+#include "messages/mysqlx_resultset__data_row.h"
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/wire_format_lite.h>
+#include <ext/mysqlnd/mysql_float_to_double.h>
+
+namespace mysqlx {
+
+namespace drv {
+
+using namespace devapi::msg;
 
 struct st_xmysqlnd_inspect_warning_bind
 {
@@ -64,7 +84,7 @@ struct st_xmysqlnd_inspect_changed_variable_bind
 
 
 /* {{{ xmysqlnd_field_type_name */
-extern "C" MYSQLND_CSTRING
+MYSQLND_CSTRING
 xmysqlnd_field_type_name(const unsigned int type)
 {
 	MYSQLND_CSTRING ret = { NULL, 0 };
@@ -305,9 +325,6 @@ xmysqlnd_server_message_type_is_valid(const zend_uchar type)
 }
 /* }}} */
 
-
-#include "messages/mysqlx_node_connection.h"
-#include "messages/mysqlx_node_pfc.h"
 
 /* {{{ xmysqlnd_send_protobuf_message */
 static const size_t
@@ -663,7 +680,7 @@ static struct st_xmysqlnd_server_messages_handlers capabilities_get_handlers =
 
 
 /* {{{ xmysqlnd_capabilities_get__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_capabilities_get__read_response(struct st_xmysqlnd_msg__capabilities_get * msg, zval * capabilities)
 {
 	DBG_ENTER("xmysqlnd_capabilities_get__read_response");
@@ -675,7 +692,7 @@ xmysqlnd_capabilities_get__read_response(struct st_xmysqlnd_msg__capabilities_ge
 
 
 /* {{{ xmysqlnd_capabilities_get__send_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_capabilities_get__send_request(struct st_xmysqlnd_msg__capabilities_get * msg)
 {
 	size_t bytes_sent;
@@ -686,7 +703,7 @@ xmysqlnd_capabilities_get__send_request(struct st_xmysqlnd_msg__capabilities_get
 
 
 /* {{{ xmysqlnd_capabilities_get__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_capabilities_get__init_read(struct st_xmysqlnd_msg__capabilities_get * const msg,
 									 const struct st_xmysqlnd_on_error_bind on_error)
 {
@@ -718,8 +735,6 @@ xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 /* }}} */
 
 /************************************** CAPABILITIES SET **************************************************/
-
-#include "messages/mysqlx_message__ok.h"
 
 /* {{{ capabilities_set_on_OK */
 static const enum_hnd_func_status
@@ -779,7 +794,7 @@ static struct st_xmysqlnd_server_messages_handlers capabilities_set_handlers =
 };
 
 /* {{{ xmysqlnd_capabilities_set__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_capabilities_set__read_response(struct st_xmysqlnd_msg__capabilities_set * msg, zval * return_value)
 {
 	enum_func_status ret;
@@ -791,7 +806,7 @@ xmysqlnd_capabilities_set__read_response(struct st_xmysqlnd_msg__capabilities_se
 /* }}} */
 
 /* {{{ xmysqlnd_send__capabilities_set */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_capabilities_set__send_request(struct st_xmysqlnd_msg__capabilities_set * msg,
 										const size_t cap_count, zval ** capabilities_names, zval ** capabilities_values)
 {
@@ -811,7 +826,7 @@ xmysqlnd_capabilities_set__send_request(struct st_xmysqlnd_msg__capabilities_set
 
 
 /* {{{ xmysqlnd_capabilities_set__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_capabilities_set__init_read(struct st_xmysqlnd_msg__capabilities_set * const msg,
 									 const struct st_xmysqlnd_on_error_bind on_error)
 {
@@ -878,11 +893,6 @@ auth_start_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 	DBG_RETURN(ret);
 }
 /* }}} */
-
-#if ENABLE_MYSQLX_CTORS
-#include "messages/mysqlx_message__auth_continue.h"
-#include "messages/mysqlx_message__auth_ok.h"
-#endif
 
 /* {{{ auth_start_on_AUTHENTICATE_CONTINUE */
 static const enum_hnd_func_status
@@ -959,7 +969,7 @@ static struct st_xmysqlnd_server_messages_handlers auth_start_handlers =
 };
 
 /* {{{ xmysqlnd_authentication_start__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_authentication_start__init_read(struct st_xmysqlnd_msg__auth_start * const msg,
 										 const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue,
 										 const struct st_xmysqlnd_on_warning_bind on_warning,
@@ -979,7 +989,7 @@ xmysqlnd_authentication_start__init_read(struct st_xmysqlnd_msg__auth_start * co
 
 
 /* {{{ xmysqlnd_authentication_start__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_authentication_start__read_response(struct st_xmysqlnd_msg__auth_start * msg, zval * auth_start_response)
 {
 	DBG_ENTER("xmysqlnd_read__authentication_start");
@@ -991,7 +1001,7 @@ xmysqlnd_authentication_start__read_response(struct st_xmysqlnd_msg__auth_start 
 
 
 /* {{{ xmysqlnd_authentication_start__send_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_authentication_start__send_request(struct st_xmysqlnd_msg__auth_start * msg, const MYSQLND_CSTRING auth_mech_name, const MYSQLND_CSTRING auth_data)
 {
 	size_t bytes_sent;
@@ -1049,11 +1059,6 @@ auth_continue_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 	return HND_AGAIN;
 }
 /* }}} */
-
-#if ENABLE_MYSQLX_CTORS
-#include "messages/mysqlx_message__auth_continue.h"
-#include "messages/mysqlx_message__auth_ok.h"
-#endif
 
 /* {{{ auth_continue_on_AUTHENTICATE_CONTINUE */
 static const enum_hnd_func_status
@@ -1114,7 +1119,7 @@ static struct st_xmysqlnd_server_messages_handlers auth_continue_handlers =
 
 
 /* {{{ xmysqlnd_authentication_continue__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_authentication_continue__init_read(struct st_xmysqlnd_msg__auth_continue * const msg,
 											const struct st_xmysqlnd_on_error_bind on_error)
 {
@@ -1126,7 +1131,7 @@ xmysqlnd_authentication_continue__init_read(struct st_xmysqlnd_msg__auth_continu
 
 
 /* {{{ xmysqlnd_authentication_continue__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_authentication_continue__read_response(struct st_xmysqlnd_msg__auth_continue * msg, zval * auth_continue_response)
 {
 	DBG_ENTER("xmysqlnd_authentication_continue__read_response");
@@ -1136,15 +1141,10 @@ xmysqlnd_authentication_continue__read_response(struct st_xmysqlnd_msg__auth_con
 }
 /* }}} */
 
-extern "C"
-{
-#include "ext/mysqlnd/mysqlnd_auth.h" /* php_mysqlnd_scramble */
-}
-
 static const char hexconvtab[] = "0123456789abcdef";
 
 /* {{{ xmysqlnd_send__authentication_continue */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_authentication_continue__send_request(struct st_xmysqlnd_msg__auth_continue * msg,
 											   const MYSQLND_CSTRING schema,
 											   const MYSQLND_CSTRING user,
@@ -1207,8 +1207,6 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 #endif /* if AUTH_CONTINUE */
 
 /**************************************  STMT_EXECUTE **************************************************/
-#include "messages/mysqlx_message__ok.h"
-
 
 /* {{{ stmt_execute_on_ERROR */
 static const enum_hnd_func_status
@@ -1241,8 +1239,6 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 }
 /* }}} */
 
-
-#include "messages/mysqlx_resultset__column_metadata.h"
 
 /* {{{ stmt_execute_on_COLUMN_META */
 static const enum_hnd_func_status
@@ -1325,11 +1321,6 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	}
 }
 /* }}} */
-
-#include "messages/mysqlx_resultset__data_row.h"
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/wire_format_lite.h>
-#include <ext/mysqlnd/mysql_float_to_double.h>
 
 static const char * zt2str[] =
 {
@@ -1729,8 +1720,6 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMor
 }
 /* }}} */
 
-#include "messages/mysqlx_message__stmt_execute_ok.h"
-
 /* {{{ stmt_execute */
 static const enum_hnd_func_status
 stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk & message, void * context)
@@ -1785,7 +1774,7 @@ static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 
 
 /* {{{ xmysqlnd_sql_stmt_execute__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_msg__sql_stmt_execute * const msg,
 									 const struct st_xmysqlnd_meta_field_create_bind create_meta_field,
 									 const struct st_xmysqlnd_on_row_field_bind on_row_field,
@@ -1831,7 +1820,7 @@ xmysqlnd_sql_stmt_execute__init_read(struct st_xmysqlnd_msg__sql_stmt_execute * 
 
 
 /* {{{ xmysqlnd_sql_stmt_execute__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_msg__sql_stmt_execute * const msg,
 										 zval * const response)
 {
@@ -1852,7 +1841,7 @@ xmysqlnd_sql_stmt_execute__read_response(struct st_xmysqlnd_msg__sql_stmt_execut
 
 
 /* {{{ xmysqlnd_sql_stmt_execute__send_execute_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_sql_stmt_execute__send_execute_request(struct st_xmysqlnd_msg__sql_stmt_execute * msg,
 												const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
@@ -1966,7 +1955,7 @@ static struct st_xmysqlnd_server_messages_handlers con_close_handlers =
 };
 
 /* {{{ xmysqlnd_con_close__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_con_close__init_read(struct st_xmysqlnd_msg__connection_close * const msg,
 							  const struct st_xmysqlnd_on_error_bind on_error)
 {
@@ -1978,7 +1967,7 @@ xmysqlnd_con_close__init_read(struct st_xmysqlnd_msg__connection_close * const m
 
 
 /* {{{ xmysqlnd_con_close__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_con_close__read_response(struct st_xmysqlnd_msg__connection_close * msg)
 {
 	DBG_ENTER("xmysqlnd_con_close__read_response");
@@ -1989,7 +1978,7 @@ xmysqlnd_con_close__read_response(struct st_xmysqlnd_msg__connection_close * msg
 
 
 /* {{{ xmysqlnd_con_close__send_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_con_close__send_request(struct st_xmysqlnd_msg__connection_close * msg)
 {
 	size_t bytes_sent;
@@ -2076,7 +2065,7 @@ static struct st_xmysqlnd_server_messages_handlers collection_add_handlers =
 };
 
 /* {{{ xmysqlnd_collection_add__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_add__init_read(struct st_xmysqlnd_msg__collection_add * const msg,
 									  const struct st_xmysqlnd_on_error_bind on_error)
 {
@@ -2089,7 +2078,7 @@ xmysqlnd_collection_add__init_read(struct st_xmysqlnd_msg__collection_add * cons
 
 
 /* {{{ xmysqlnd_collection_add__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_add__read_response(struct st_xmysqlnd_msg__collection_add * msg)
 {
 	enum_func_status ret;
@@ -2101,7 +2090,7 @@ xmysqlnd_collection_add__read_response(struct st_xmysqlnd_msg__collection_add * 
 
 
 /* {{{ xmysqlnd_collection_add__send_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_add__send_request(struct st_xmysqlnd_msg__collection_add * msg,
 				const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
@@ -2204,7 +2193,7 @@ static struct st_xmysqlnd_server_messages_handlers table_insert_handlers =
 };
 
 /* {{{ xmysqlnd_table_insert__send_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_table_insert__send_request(
 	struct st_xmysqlnd_msg__table_insert * msg,
 	const struct st_xmysqlnd_pb_message_shell pb_message_shell)
@@ -2225,7 +2214,7 @@ xmysqlnd_table_insert__send_request(
 
 
 /* {{{ xmysqlnd_table_insert__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_table_insert__init_read(struct st_xmysqlnd_msg__table_insert * const msg,
 	const struct st_xmysqlnd_on_warning_bind on_warning,
 	const struct st_xmysqlnd_on_error_bind on_error,
@@ -2247,7 +2236,7 @@ xmysqlnd_table_insert__init_read(struct st_xmysqlnd_msg__table_insert * const ms
 
 
 /* {{{ xmysqlnd_table_insert__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_table_insert__read_response(struct st_xmysqlnd_msg__table_insert * msg)
 {
 	enum_func_status ret;
@@ -2341,7 +2330,7 @@ static struct st_xmysqlnd_server_messages_handlers collection_ud_handlers =
 
 
 /* {{{ xmysqlnd_collection_ud__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_ud__init_read(struct st_xmysqlnd_msg__collection_ud * const msg,
 								   const struct st_xmysqlnd_on_error_bind on_error)
 {
@@ -2355,7 +2344,7 @@ xmysqlnd_collection_ud__init_read(struct st_xmysqlnd_msg__collection_ud * const 
 
 
 /* {{{ xmysqlnd_collection_ud__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_ud__read_response(struct st_xmysqlnd_msg__collection_ud * msg)
 {
 	enum_func_status ret;
@@ -2388,7 +2377,7 @@ xmysqlnd_collection_ud__send_request(struct st_xmysqlnd_msg__collection_ud * msg
 
 
 /* {{{ xmysqlnd_collection_ud__send_update_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_ud__send_update_request(struct st_xmysqlnd_msg__collection_ud * msg,
 											 const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
@@ -2400,7 +2389,7 @@ xmysqlnd_collection_ud__send_update_request(struct st_xmysqlnd_msg__collection_u
 
 
 /* {{{ xmysqlnd_collection_ud__send_delete_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_ud__send_delete_request(struct st_xmysqlnd_msg__collection_ud * msg,
 											 const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
@@ -2438,7 +2427,7 @@ xmysqlnd_collection_ud__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQL
 
 
 /* {{{ xmysqlnd_collection_read__send_read_request */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_read__send_read_request(struct st_xmysqlnd_msg__collection_read * msg,
 											const struct st_xmysqlnd_pb_message_shell pb_message_shell)
 {
@@ -2458,7 +2447,7 @@ xmysqlnd_collection_read__send_read_request(struct st_xmysqlnd_msg__collection_r
 
 
 /* {{{ xmysqlnd_collection_read__read_response */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_read__read_response(struct st_xmysqlnd_msg__collection_read * msg)
 {
 	DBG_ENTER("xmysqlnd_collection_read__read_response");
@@ -2477,7 +2466,7 @@ xmysqlnd_collection_read__read_response(struct st_xmysqlnd_msg__collection_read 
 
 
 /* {{{ xmysqlnd_collection_read__init_read */
-extern "C" enum_func_status
+enum_func_status
 xmysqlnd_collection_read__init_read(struct st_xmysqlnd_msg__collection_read * const msg,
 									const struct st_xmysqlnd_meta_field_create_bind create_meta_field,
 									const struct st_xmysqlnd_on_row_field_bind on_row_field,
@@ -2655,7 +2644,7 @@ xmysqlnd_msg_factory_get__table_insert(const struct st_xmysqlnd_message_factory 
 
 
 /* {{{ xmysqlnd_get_message_factory */
-extern "C" struct st_xmysqlnd_message_factory
+struct st_xmysqlnd_message_factory
 xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	const struct st_xmysqlnd_message_factory factory =
@@ -2683,13 +2672,16 @@ xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * st
 
 
 /* {{{ xmysqlnd_shutdown_protobuf_library */
-extern "C" void
+void
 xmysqlnd_shutdown_protobuf_library()
 {
 	google::protobuf::ShutdownProtobufLibrary();
 }
 /* }}} */
 
+} // namespace drv
+
+} // namespace mysqlx
 
 /*
  * Local variables:{

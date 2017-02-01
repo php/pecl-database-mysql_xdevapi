@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,14 +18,18 @@
 #ifndef MYSQLX_NODE_CONNECTION_H
 #define MYSQLX_NODE_CONNECTION_H
 
-/* This typically should be static, but we have coupling */
-extern
-#ifdef __cplusplus
-"C"
-#endif
-zend_class_entry *mysqlx_node_connection_class_entry;
+#include <phputils/allocator.h>
 
-struct st_mysqlx_node_connection
+namespace mysqlx {
+
+namespace devapi {
+
+namespace msg {
+
+/* This typically should be static, but we have coupling */
+extern zend_class_entry *mysqlx_node_connection_class_entry;
+
+struct st_mysqlx_node_connection : phputils::permanent_allocable
 {
 	MYSQLND_VIO		* vio;
 	MYSQLND_STATS	* stats;
@@ -47,6 +51,12 @@ struct st_mysqlx_node_connection
 
 void mysqlx_register_node_connection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_connection_class(SHUTDOWN_FUNC_ARGS);
+
+} // namespace msg
+
+} // namespace devapi
+
+} // namespace mysqlx
 
 #endif /* MYSQLX_NODE_CONNECTION_H */
 

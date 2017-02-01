@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2016 The PHP Group                                |
+  | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -50,11 +50,12 @@
 #endif
 
 
-namespace xmysqlnd
-{
+namespace mysqlx {
 
-  class Expr_builder
-  {
+namespace parser {
+
+class Expr_builder
+{
   public:
     static Mysqlx::Datatypes::Scalar* build_null_scalar();
     static Mysqlx::Datatypes::Scalar* build_double_scalar(double d);
@@ -63,10 +64,10 @@ namespace xmysqlnd
     static Mysqlx::Datatypes::Scalar* build_bool_scalar(bool b);
     static Mysqlx::Expr::Expr* build_literal_expr(Mysqlx::Datatypes::Scalar* sc);
     static Mysqlx::Expr::Expr* build_unary_op(const std::string& name, Mysqlx::Expr::Expr* param);
-  };
+};
 
-  class Expression_parser
-  {
+class Expression_parser
+{
   public:
     Expression_parser(const std::string& expr_str, bool document_mode = false, bool allow_alias = false, std::vector<std::string>* place_holders = NULL);
 
@@ -158,10 +159,10 @@ namespace xmysqlnd
     Tokenizer _tokenizer;
     bool _document_mode;
     bool _allow_alias;
-  };
+};
 
-  class Expression_unparser
-  {
+class Expression_unparser
+{
   public:
     static std::string any_to_string(const Mysqlx::Datatypes::Any& a);
     static std::string escape_literal(const std::string& s);
@@ -181,7 +182,10 @@ namespace xmysqlnd
     static std::string order_list_to_string(google::protobuf::RepeatedPtrField< ::Mysqlx::Crud::Order> columns);
 
     static void replace(std::string& target, const std::string& old_val, const std::string& new_val);
-  };
 };
+
+} // namespace parser
+
+} // namespace mysqlx
 
 #endif /* CRUD_PARSERS_EXPRESSION_PARSER_H */
