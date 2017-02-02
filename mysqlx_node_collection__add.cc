@@ -18,6 +18,7 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef inline
 #include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/json/php_json.h>
 #include <ext/json/php_json_parser.h>

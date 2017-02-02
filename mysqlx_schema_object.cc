@@ -18,6 +18,7 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef inline
 }
 #include "mysqlx_database_object.h"
 #include "mysqlx_schema_object.h"

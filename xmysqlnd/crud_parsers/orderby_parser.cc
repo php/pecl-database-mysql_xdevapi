@@ -18,11 +18,11 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 }
-
 
 #include "xmysqlnd/crud_parsers/orderby_parser.h"
 #include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
