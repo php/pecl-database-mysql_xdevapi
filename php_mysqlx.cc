@@ -39,6 +39,7 @@ extern "C" {
 #include "mysqlx_expression.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_x_session.h"
+#include <string>
 
 extern "C" {
 
@@ -47,8 +48,6 @@ extern "C" {
 PHP_MINFO_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- xmysqlnd ---------------- */
-	char buf[32];
-
 	php_info_print_table_start();
 	php_info_print_table_header(2, "xmysqlnd", "enabled");
 	php_info_print_table_row(2, "Version", mysqlx::drv::xmysqlnd_get_client_info());
@@ -71,9 +70,7 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 								"disabled");
 #endif
 
-// TODO fixit - Linux build fails on pb2
-//	snprintf(buf, sizeof(buf), ZEND_LONG_FMT, MYSQL_XDEVAPI_G(net_read_timeout));
-	php_info_print_table_row(2, "Read timeout", buf);
+	php_info_print_table_row(2, "Read timeout", std::to_string(MYSQL_XDEVAPI_G(net_read_timeout)).c_str());
 
 	php_info_print_table_row(2, "Collecting statistics", MYSQL_XDEVAPI_G(collect_statistics)? "Yes":"No");
 	php_info_print_table_row(2, "Collecting memory statistics", MYSQL_XDEVAPI_G(collect_memory_statistics)? "Yes":"No");
