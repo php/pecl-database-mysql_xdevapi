@@ -228,7 +228,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count)(const XMYSQLND_NODE_ST
 	if (result->rowset) {
 		ret = result->rowset->m.get_row_count(result->rowset);
 	}
-	DBG_INF_FMT("rows="MYSQLND_LLU_SPEC, ret);
+	DBG_INF_FMT("rows=" MYSQLND_LLU_SPEC, ret);
 	DBG_RETURN(ret);
 }
 /* }}} */
