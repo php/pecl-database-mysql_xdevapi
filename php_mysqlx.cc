@@ -40,6 +40,8 @@ extern "C" {
 #include "mysqlx_node_session.h"
 #include "mysqlx_x_session.h"
 
+extern "C" {
+
 /* {{{ PHP_MINFO_FUNCTION
  */
 PHP_MINFO_FUNCTION(mysql_xdevapi)
@@ -314,6 +316,8 @@ ZEND_TSRMLS_CACHE_DEFINE();
 ZEND_GET_MODULE(mysql_xdevapi)
 #endif
 /* }}} */
+
+} // extern "C"
 
 /*
  * Local variables:

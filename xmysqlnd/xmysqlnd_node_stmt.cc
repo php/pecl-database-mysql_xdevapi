@@ -167,7 +167,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field)(void * context,
 
 				ctx->rowset->m.destroy_row(ctx->rowset, ctx->current_row, ctx->stats, ctx->error_info);
 			} else {
-				DBG_INF_FMT("fwd_prefetch_count="MYSQLND_LLU_SPEC" prefetch_counter="MYSQLND_LLU_SPEC, ctx->fwd_prefetch_count, ctx->prefetch_counter);
+				DBG_INF_FMT("fwd_prefetch_count=" MYSQLND_LLU_SPEC " prefetch_counter=" MYSQLND_LLU_SPEC, ctx->fwd_prefetch_count, ctx->prefetch_counter);
 				ctx->rowset->m.add_row(ctx->rowset, ctx->current_row, ctx->stats, ctx->error_info);
 				if (ctx->fwd_prefetch_count && !--ctx->prefetch_counter) {
 					ret = HND_PASS; /* Otherwise it is HND_AGAIN */
@@ -598,7 +598,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { NULL, NULL };
 	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { NULL, NULL };
 	DBG_ENTER("xmysqlnd_node_stmt::get_fwd_result");
-	DBG_INF_FMT("rows="MYSQLND_LLU_SPEC, rows);
+	DBG_INF_FMT("rows=" MYSQLND_LLU_SPEC, rows);
 
 	if (FALSE == stmt->data->partial_read_started) {
 		stmt->data->read_ctx.stmt = stmt;

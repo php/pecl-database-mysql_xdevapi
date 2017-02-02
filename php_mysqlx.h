@@ -18,6 +18,8 @@
 #ifndef PHP_MYSQLX_H
 #define PHP_MYSQLX_H
 
+#include "php_mysql_xdevapi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,8 +30,6 @@ extern "C" {
 #include "ext/mysqlnd/mysqlnd_debug.h"
 #include "ext/mysqlnd/mysqlnd_statistics.h"
 #include "ext/mysqlnd/mysqlnd_portability.h"
-
-#include "php_mysql_xdevapi.h"
 
 #define phpext_mysql_xdevapi_ptr &mysql_xdevapi_module_entry
 extern zend_module_entry mysql_xdevapi_module_entry;
