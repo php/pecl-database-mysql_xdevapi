@@ -71,7 +71,8 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 								"disabled");
 #endif
 
-	snprintf(buf, sizeof(buf), ZEND_LONG_FMT, MYSQL_XDEVAPI_G(net_read_timeout));
+	snprintf(buf, sizeof(buf), "%" PRId64, MYSQL_XDEVAPI_G(net_read_timeout));
+	snprintf(buf, sizeof(buf), (ZEND_LONG_FMT), MYSQL_XDEVAPI_G(net_read_timeout));
 	php_info_print_table_row(2, "Read timeout", buf);
 
 	php_info_print_table_row(2, "Collecting statistics", MYSQL_XDEVAPI_G(collect_statistics)? "Yes":"No");

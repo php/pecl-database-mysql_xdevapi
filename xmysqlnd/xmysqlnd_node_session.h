@@ -118,7 +118,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__init)(XMYSQLND_NODE_
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect_handshake)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__authenticate)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING hostname, const MYSQLND_CSTRING username, const MYSQLND_CSTRING password, const MYSQLND_CSTRING database, const MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
-typedef zend_ulong			(*func_xmysqlnd_node_session_data__escape_string)(XMYSQLND_NODE_SESSION_DATA * const session, char *newstr, const char *escapestr, const size_t escapestr_len);
+typedef size_t				(*func_xmysqlnd_node_session_data__escape_string)(XMYSQLND_NODE_SESSION_DATA * const session, char *newstr, const char *escapestr, const size_t escapestr_len);
 typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__quote_name)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING name);
 
 
