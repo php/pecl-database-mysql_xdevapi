@@ -260,6 +260,25 @@ is_type_signed(const struct st_xmysqlnd_result_field_meta * const meta)
 }
 /* }}} */
 
+namespace {
+
+/* {{{ get_column_length */
+void
+get_column_length(zval* return_value, std::uint32_t length)
+{
+#if SIZEOF_ZEND_LONG==4
+	if (std::numeric_limits<zend_long>::max() < length) {
+		ZVAL_DOUBLE(return_value, length);
+	} else
+#endif /* #if SIZEOF_LONG==4 */
+	{
+		ZVAL_LONG(return_value, length);
+	}
+}
+/* }}} */
+
+} // anonymous namespace
+
 /* {{{ get_column_meta_field */
 static void
 get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
@@ -306,7 +325,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 			ZVAL_LONG(return_value,get_column_type(object->meta));
 			break;
 		case length:
-			ZVAL_LONG(return_value,object->meta->length);
+			get_column_length(return_value, object->meta->length);
 			break;
 		case fractional_digit:
 			ZVAL_LONG(return_value,object->meta->fractional_digits);
