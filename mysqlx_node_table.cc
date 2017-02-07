@@ -19,7 +19,6 @@ extern "C" {
 #include <php.h>
 #undef ERROR
 #undef inline
-#include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -133,7 +132,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSession)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+	throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::not_implemented);
 
 	if (object->table) {
 
@@ -397,8 +396,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, update)
 	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
-
-//	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
 
 	if (object->table) {
 		mysqlx_new_node_table__update(return_value, object->table, TRUE /* clone */);

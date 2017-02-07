@@ -19,7 +19,6 @@ extern "C" {
 #include <php.h>
 #undef ERROR
 #undef inline
-#include <zend_exceptions.h>		/* for throwing "not implemented" */
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -145,7 +144,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSession)
 
 	RETVAL_FALSE;
 
-	zend_throw_exception(zend_ce_exception, "Not Implemented", 0);
+	throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::not_implemented);
 
 	if (object->collection) {
 
