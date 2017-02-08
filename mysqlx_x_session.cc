@@ -144,90 +144,10 @@ mysqlx_new_x_session(zval * return_value)
 }
 /* }}} */
 
-/* {{{ create_new_session */
-static
-enum_func_status create_new_session(php_url * url,
-								zval * return_value)
-{
-	enum_func_status ret = FAIL;
-	size_t set_capabilities = 0;
-	size_t client_api_flags = 0;
-	MYSQLND_CSTRING empty = {NULL, 0};
-
-	if (PASS == mysqlx_new_node_session(return_value)) {
-		XMYSQLND_NODE_SESSION * new_session;
-		struct st_mysqlx_session * object = (struct st_mysqlx_session *) Z_MYSQLX_P(return_value)->ptr;
-
-		if (!object && !object->session) {
-			if (object->closed) {
-				php_error_docref(NULL, E_WARNING, "closed session");
-			} else {
-				php_error_docref(NULL, E_WARNING, "invalid object of class %s",
-								 ZSTR_VAL(Z_MYSQLX_P(return_value)->zo.ce->name)); \
-			}
-		} else {
-			const MYSQLND_CSTRING host = make_mysqlnd_cstr(url->host),
-						user = make_mysqlnd_cstr(url->user),
-						pass = make_mysqlnd_cstr(url->pass),
-						path = make_mysqlnd_cstr(url->path);
-
-			new_session = xmysqlnd_node_session_connect(object->session,
-										host,
-										user,
-										pass,
-										path,
-										empty, //s_or_p
-										url->port,
-										set_capabilities,
-										client_api_flags);
-			if (object->session != new_session) {
-				mysqlx_throw_exception_from_session_if_needed(object->session->data);
-
-				object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
-				if (new_session) {
-					php_error_docref(NULL, E_WARNING, "Different object returned");
-				}
-				object->session = new_session;
-			}
-			ret = PASS;
-		}
-	} else {
-		zval_ptr_dtor(return_value);
-		ZVAL_NULL(return_value);
-	}
-	return ret;
-}
-/* }}} */
-
-
-/* {{{ verify_uri_information */
-static
-enum_func_status verify_uri_information(INTERNAL_FUNCTION_PARAMETERS,
-									const php_url * node_url)
-{
-	DBG_ENTER("verify_uri_information");
-	enum_func_status ret = PASS;
-	//host is required
-	if( !node_url->host ) {
-		DBG_ERR_FMT("Missing required host name!");
-		ret = FAIL;
-	}
-	//Username is required
-	if( !node_url->user ) {
-		DBG_ERR_FMT("Missing required user name!");
-		ret = FAIL;
-	}
-	DBG_RETURN(ret);
-	return ret;
-}
-/* }}} */
-
 
 /* {{{ proto bool mysqlx\\mysql_xdevapi__getXSession(string uri_string) */
 PHP_FUNCTION(mysql_xdevapi__getXSession)
 {
-	//Setting ret to FAIL will cause the function to throw and exception
-	enum_func_status ret = PASS;
 	MYSQLND_CSTRING uri_string = {NULL, 0};
 
 	DBG_ENTER("mysql_xdevapi__getXSession");
@@ -243,36 +163,7 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 		DBG_VOID_RETURN;
 	}
 
-	DBG_INF_FMT("URI string: %s\n",
-			uri_string.s);
-
-	php_url * node_url = php_url_parse(uri_string.s);
-
-	if( node_url && verify_uri_information( INTERNAL_FUNCTION_PARAM_PASSTHRU,
-									node_url ) != FAIL ) {
-		//Assign default port number if is missing
-		if( !node_url->port ) {
-			node_url->port = 33060;
-		}
-
-		DBG_INF_FMT("host: %s, port: %d,user: %s,pass: %s,path: %s, query: %s\n",
-					 node_url->host, node_url->port,
-					 node_url->user, node_url->pass,
-					 node_url->path, node_url->query);
-
-		ret = create_new_session(node_url,
-								return_value);
-	} else {
-		RAISE_EXCEPTION(err_msg_uri_string_fail);
-	}
-
-	if( node_url ) {
-		php_url_free( node_url );
-	}
-
-	if( ret == FAIL ) {
-		RAISE_EXCEPTION(err_msg_new_session_fail);
-	}
+	drv::xmysqlnd_node_new_session_connect(uri_string.s,return_value);
 
 	DBG_VOID_RETURN;
 }

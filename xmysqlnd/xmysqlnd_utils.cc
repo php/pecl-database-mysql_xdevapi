@@ -22,19 +22,35 @@ extern "C" {
 #include <ext/json/php_json.h>
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_structs.h"
+#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "xmysqlnd_utils.h"
+#include <algorithm>
 
 namespace mysqlx {
 
 namespace drv {
 
-/* {{{ make_mysqlnd_cstr */
-MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
-	MYSQLND_CSTRING ret =  { str, str != NULL ? strlen(str) : 0 };
-	return ret;
+/* {{{ make_mysqlnd_str */
+MYSQLND_STRING make_mysqlnd_str(const char * str) {
+	if( str == nullptr ) {
+		return { nullptr, 0 };
+	}
+	const unsigned int len = strlen(str);
+	char * newstr = new char[ len + 1 ];
+	std::copy(str,str + len + 1, newstr);
+	return { newstr, len };
 }
 /* }}} */
+
+
+/* {{{ make_mysqlnd_cstr */
+MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
+	MYSQLND_STRING new_str = make_mysqlnd_str(str);
+	return { new_str.s, new_str.l };
+}
+/* }}} */
+
 
 /* {{{ compare_mysqlnd_cstr */
 int
