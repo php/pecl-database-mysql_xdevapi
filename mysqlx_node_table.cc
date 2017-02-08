@@ -57,6 +57,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__get_name, 0, ZEND_RETURN_VALUE
 ZEND_END_ARG_INFO()
 
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__is_view, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__exists_in_database, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -208,6 +212,41 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, existsInDatabase)
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == table->data->m.exists_in_database(table, on_error, &exists)) {
+			ZVAL_COPY_VALUE(return_value, &exists);
+		}
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table::isView() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, isView)
+{
+	zval* object_zv;
+
+	RETVAL_FALSE;
+
+	DBG_ENTER("mysqlx_node_table::isView");
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(),
+		getThis(),
+		"O",
+		&object_zv,
+		mysqlx_node_table_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table>(object_zv);
+
+	XMYSQLND_NODE_TABLE * table = data_object.table;
+	if (table) {
+		const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, NULL };
+		zval exists;
+		ZVAL_UNDEF(&exists);
+		if (PASS == table->data->m.is_view(table, on_error, &exists)) {
 			ZVAL_COPY_VALUE(return_value, &exists);
 		}
 	}
@@ -439,6 +478,7 @@ static const zend_function_entry mysqlx_node_table_methods[] = {
 	/************************************** INHERITED START ****************************************/
 	PHP_ME(mysqlx_node_table, getSession,		arginfo_mysqlx_node_table__get_session,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table, getName,			arginfo_mysqlx_node_table__get_name,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table, isView, arginfo_mysqlx_node_table__is_view, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table, existsInDatabase,	arginfo_mysqlx_node_table__exists_in_database,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table, count,			arginfo_mysqlx_node_table__count,				ZEND_ACC_PUBLIC)
 

@@ -426,7 +426,10 @@ mysqlx_on_db_object(void * context, XMYSQLND_NODE_SCHEMA * const schema, const M
 
 /* {{{ mysqlx_get_database_objects */
 static void
-mysqlx_get_database_objects(XMYSQLND_NODE_SCHEMA * schema, const MYSQLND_CSTRING filter, zval * return_value)
+mysqlx_get_database_objects(
+	XMYSQLND_NODE_SCHEMA* schema,
+	const db_object_type_filter object_type_filter,
+	zval* return_value)
 {
 	DBG_ENTER("mysqlx_get_database_objects");
 	if (schema){
@@ -438,7 +441,7 @@ mysqlx_get_database_objects(XMYSQLND_NODE_SCHEMA * schema, const MYSQLND_CSTRING
 		ZVAL_UNDEF(&list);
 		array_init(&list);
 
-		if (PASS == schema->data->m.get_db_objects(schema, mnd_str2c(schema->data->schema_name), filter, on_object, handler_on_error)) {
+		if (PASS == schema->data->m.get_db_objects(schema, mnd_str2c(schema->data->schema_name), object_type_filter, on_object, handler_on_error)) {
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
@@ -462,7 +465,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTables)
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 
-	mysqlx_get_database_objects(object->schema, xmysqlnd_object_type_filter__table, return_value);
+	mysqlx_get_database_objects(object->schema, drv::db_object_type_filter::table_or_view, return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -483,7 +486,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollections)
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 
-	mysqlx_get_database_objects(object->schema, xmysqlnd_object_type_filter__collection, return_value);
+	mysqlx_get_database_objects(object->schema, drv::db_object_type_filter::collection, return_value);
 
 	DBG_VOID_RETURN;
 }

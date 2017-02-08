@@ -37,15 +37,11 @@ MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
 /* }}} */
 
 /* {{{ compare_mysqlnd_cstr */
-int
-equal_mysqlnd_cstr(const MYSQLND_CSTRING* lhs, const MYSQLND_CSTRING* rhs)
+bool
+equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs)
 {
-	int result = 0;
-	if (lhs->l == rhs->l)
-	{
-		result = !memcmp(lhs->s, rhs->s, lhs->l);
-	}
-	return result;
+	if (lhs.l != rhs.l) return false;
+	return !memcmp(lhs.s, rhs.s, lhs.l);
 }
 /* }}} */
 

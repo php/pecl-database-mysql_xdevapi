@@ -44,7 +44,8 @@ typedef enum_func_status (*func_xmysqlnd_node_table__init)(
 
 typedef XMYSQLND_NODE_TABLE *	(*func_xmysqlnd_node_table__get_reference)(XMYSQLND_NODE_TABLE * const table);
 typedef enum_func_status		(*func_xmysqlnd_node_table__exists_in_database)(XMYSQLND_NODE_TABLE * const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
-typedef enum_func_status		(*func_xmysqlnd_node_table__count)(XMYSQLND_NODE_TABLE * const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* counter);
+typedef enum_func_status		(*func_xmysqlnd_node_table__is_view)(XMYSQLND_NODE_TABLE * const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status		(*func_xmysqlnd_node_table__count)(XMYSQLND_NODE_TABLE* const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* counter);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__insert)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__delete)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op);
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_node_table__update)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op);
@@ -58,6 +59,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_table)
 	func_xmysqlnd_node_table__init init;
 
 	func_xmysqlnd_node_table__exists_in_database exists_in_database;
+	func_xmysqlnd_node_table__is_view is_view;
 	func_xmysqlnd_node_table__count count;
 
 	func_xmysqlnd_node_table__insert insert;

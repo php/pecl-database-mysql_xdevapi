@@ -38,9 +38,38 @@ namespace mysqlx {
 
 namespace drv {
 
-const MYSQLND_CSTRING xmysqlnd_object_type_filter__table = { "TABLE", sizeof("TABLE") - 1 };
-const MYSQLND_CSTRING xmysqlnd_object_type_filter__collection = { "COLLECTION", sizeof("COLLECTION") - 1 };
+namespace {
 
+const MYSQLND_CSTRING db_object_type_filter_table_tag = { "TABLE", sizeof("TABLE") - 1 };
+const MYSQLND_CSTRING db_object_type_filter_collection_tag = { "COLLECTION", sizeof("COLLECTION") - 1 };
+const MYSQLND_CSTRING db_object_type_filter_view_tag = { "VIEW", sizeof("VIEW") - 1 };
+
+} // anonymous namespace
+
+/* {{{ is_table_object_type */
+bool is_table_object_type(const MYSQLND_CSTRING& object_type)
+{
+	return equal_mysqlnd_cstr(object_type, db_object_type_filter_table_tag);
+}
+/* }}} */
+
+
+/* {{{ is_collection_object_type */
+bool is_collection_object_type(const MYSQLND_CSTRING& object_type)
+{
+	return equal_mysqlnd_cstr(object_type, db_object_type_filter_collection_tag);
+}
+/* }}} */
+
+
+/* {{{ is_view_object_type */
+bool is_view_object_type(const MYSQLND_CSTRING& object_type)
+{
+	return equal_mysqlnd_cstr(object_type, db_object_type_filter_view_tag);
+}
+/* }}} */
+
+//------------------------------------------------------------------------------
 
 /* {{{ xmysqlnd_node_schema::init */
 static enum_func_status
@@ -135,7 +164,7 @@ schema_sql_op_on_row(
 	if (ctx && row) {
 		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 
-		if (equal_mysqlnd_cstr(&object_name, &ctx->expected_schema_name))
+		if (equal_mysqlnd_cstr(object_name, ctx->expected_schema_name))
 		{
 			ZVAL_TRUE(ctx->exists);
 		}
@@ -361,14 +390,35 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object)(XMYSQLND_NODE_SCHEMA 
 }
 /* }}} */
 
+namespace {
 
-struct st_xmysqlnd_schema_get_db_objects_ctx
+struct xmysqlnd_schema_get_db_objects_ctx
 {
 	XMYSQLND_NODE_SCHEMA * schema;
-	const MYSQLND_CSTRING object_filter_type;
-	const struct st_xmysqlnd_node_schema_on_database_object_bind on_object;
-	const struct st_xmysqlnd_node_schema_on_error_bind on_error;
+	const db_object_type_filter object_type_filter;
+	const st_xmysqlnd_node_schema_on_database_object_bind on_object;
+	const st_xmysqlnd_node_schema_on_error_bind on_error;
 };
+
+
+/* {{{ get_db_objects_on_row */
+bool match_object_type(
+	const db_object_type_filter object_type_filter,
+	const MYSQLND_CSTRING& object_type)
+{
+	switch (object_type_filter) {
+		case db_object_type_filter::table_or_view:
+			return is_table_object_type(object_type) || is_view_object_type(object_type);
+
+		case db_object_type_filter::collection:
+			return is_collection_object_type(object_type);
+
+		default:
+			assert(!"unexpected object_type_filter!");
+			return false;
+	}
+}
+/* }}} */
 
 
 /* {{{ get_db_objects_on_row */
@@ -381,25 +431,16 @@ get_db_objects_on_row(void * context,
 					  MYSQLND_STATS * const stats,
 					  MYSQLND_ERROR_INFO * const error_info)
 {
-	const struct st_xmysqlnd_schema_get_db_objects_ctx * ctx = (const struct st_xmysqlnd_schema_get_db_objects_ctx *) context;
+	const xmysqlnd_schema_get_db_objects_ctx* ctx = static_cast<const xmysqlnd_schema_get_db_objects_ctx*>(context);
 	DBG_ENTER("get_db_objects_on_row");
 	DBG_INF_FMT("handler=%p", ctx->on_object.handler);
 	if (ctx && ctx->on_object.handler && row) {
-		zend_bool match = TRUE;
 		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
 		DBG_INF_FMT("name=%*s", object_name.l, object_name.s);
 		DBG_INF_FMT("type=%*s", object_type.l, object_type.s);
 
-		if (ctx->object_filter_type.s && ctx->object_filter_type.l) {
-			/* min */
-			const size_t cmp_len = (ctx->object_filter_type.l > object_type.l) ? object_type.l : ctx->object_filter_type.l;
-
-			if (memcmp(ctx->object_filter_type.s, object_type.s, cmp_len)) {
-				match = FALSE;
-			}
-		}
-		if (match) {
+		if (match_object_type(ctx->object_type_filter, object_type)) {
 			ctx->on_object.handler(ctx->on_object.ctx, ctx->schema, object_name, object_type);
 		}
 	}
@@ -453,14 +494,16 @@ collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * sessio
 }
 /* }}} */
 
+} // anonymous namespace
 
 /* {{{ xmysqlnd_node_schema::get_db_objects */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(XMYSQLND_NODE_SCHEMA * const schema,
-													  const MYSQLND_CSTRING collection_name,
-													  const MYSQLND_CSTRING object_type_filter,
-													  const struct st_xmysqlnd_node_schema_on_database_object_bind on_object,
-													  const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
+	XMYSQLND_NODE_SCHEMA * const schema,
+	const MYSQLND_CSTRING& collection_name,
+	const db_object_type_filter object_type_filter,
+	const struct st_xmysqlnd_node_schema_on_database_object_bind on_object,
+	const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
@@ -472,7 +515,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(XMYSQLND_NODE_SCHEMA * con
 	};
 	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_get_objects_var_binder, &var_binder_ctx };
 
-	struct st_xmysqlnd_schema_get_db_objects_ctx handler_ctx = { schema, object_type_filter, on_object, handler_on_error };
+	xmysqlnd_schema_get_db_objects_ctx handler_ctx = { schema, object_type_filter, on_object, handler_on_error };
 
 	const struct st_xmysqlnd_node_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : NULL, &handler_ctx };
 	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : NULL, &handler_ctx };

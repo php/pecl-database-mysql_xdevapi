@@ -113,10 +113,9 @@ bind:
 /* }}} */
 
 
-struct st_collection_exists_in_database_ctx
+struct collection_exists_in_database_ctx
 {
 	const MYSQLND_CSTRING expected_collection_name;
-	const MYSQLND_CSTRING expected_object_type;
 	zval* exists;
 };
 
@@ -132,14 +131,14 @@ collection_xplugin_op_on_row(
 	MYSQLND_STATS * const stats,
 	MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_collection_exists_in_database_ctx * ctx = (struct st_collection_exists_in_database_ctx *) context;
+	collection_exists_in_database_ctx* ctx = static_cast<collection_exists_in_database_ctx*>(context);
 	DBG_ENTER("collection_xplugin_op_on_row");
 	if (ctx && row) {
 		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
 
-		if (equal_mysqlnd_cstr(&object_name, &ctx->expected_collection_name)
-			&& equal_mysqlnd_cstr(&object_type, &ctx->expected_object_type))
+		if (equal_mysqlnd_cstr(object_name, ctx->expected_collection_name)
+			&& is_collection_object_type(object_type))
 		{
 			ZVAL_TRUE(ctx->exists);
 		}
@@ -175,9 +174,8 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 	};
 	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
 
-	struct st_collection_exists_in_database_ctx on_row_ctx = {
+	collection_exists_in_database_ctx on_row_ctx = {
 		mnd_str2c(collection->data->collection_name),
-		xmysqlnd_object_type_filter__collection,
 		exists
 	};
 

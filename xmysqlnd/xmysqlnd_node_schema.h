@@ -29,10 +29,6 @@ struct st_xmysqlnd_node_collection;
 struct st_xmysqlnd_node_table;
 struct st_xmysqlnd_node_session_on_error_bind;
 
-extern const MYSQLND_CSTRING xmysqlnd_object_type_filter__table;
-extern const MYSQLND_CSTRING xmysqlnd_object_type_filter__collection;
-
-
 typedef struct st_xmysqlnd_node_schema		XMYSQLND_NODE_SCHEMA;
 typedef struct st_xmysqlnd_node_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
 
@@ -71,12 +67,22 @@ typedef enum_func_status						(*func_xmysqlnd_node_schema__drop_collection)(XMYS
 
 typedef struct st_xmysqlnd_node_table * 		(*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
 
+bool is_table_object_type(const MYSQLND_CSTRING& object_type);
+bool is_collection_object_type(const MYSQLND_CSTRING& object_type);
+bool is_view_object_type(const MYSQLND_CSTRING& object_type);
 
-typedef enum_func_status						(*func_xmysqlnd_node_schema__get_db_objects)(XMYSQLND_NODE_SCHEMA * const schema,
-																							 const MYSQLND_CSTRING collection_name,
-																							 const MYSQLND_CSTRING object_type_filter,
-																							 const struct st_xmysqlnd_node_schema_on_database_object_bind on_object,
-																							 const struct st_xmysqlnd_node_schema_on_error_bind on_error);
+enum class db_object_type_filter
+{
+	table_or_view,
+	collection
+};
+
+typedef enum_func_status (*func_xmysqlnd_node_schema__get_db_objects)(
+	XMYSQLND_NODE_SCHEMA * const schema,
+	const MYSQLND_CSTRING& collection_name,
+	const db_object_type_filter object_type_filter,
+	const st_xmysqlnd_node_schema_on_database_object_bind on_object,
+	const st_xmysqlnd_node_schema_on_error_bind on_error);
 
 typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_node_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);
 typedef enum_func_status		(*func_xmysqlnd_node_schema__free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
