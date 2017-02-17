@@ -268,31 +268,42 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, init)(XMYSQLND_NODE_SESSION_DATA * o
 /* {{{ xmysqlnd_node_session_data::get_scheme */
 static MYSQLND_STRING
 XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DATA * session,
-														const phputils::string& hostname,
-														MYSQLND_CSTRING * socket_or_pipe,
-														unsigned int port,
-														zend_bool * unix_socket,
-														zend_bool * named_pipe)
+												const phputils::string& hostname,
+												unsigned int port)
 {
 	MYSQLND_STRING transport;
 	DBG_ENTER("xmysqlnd_node_session_data::get_scheme");
+	/* MY-305: Add support for windows pipe */
+	if( session->transport_type == transport_types::network ) {
+		if (!port) {
+			port = 3306;
+		}
+		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.c_str(), port);
+	} else if( session->transport_type == transport_types::unix_domain_socket ){
+		transport.l = mnd_sprintf(&transport.s, 0, "unix://%s",
+								 session->socket_path.c_str());
+	} else if( session->transport_type == transport_types::windows_pipe ) {
 #ifdef PHP_WIN32
+	/* Somewhere here?! (This is old code) */
 	if (hostname.l == sizeof(".") - 1 && hostname.s[0] == '.') {
 		/* named pipe in socket */
 		if (!socket_or_pipe->s) {
 			socket_or_pipe->s = "\\\\.\\pipe\\MySQL";
 			socket_or_pipe->l = strlen(socket_or_pipe->s);
 		}
-		transport.l = mnd_sprintf(&transport.s, 0, "pipe://%s", socket_or_pipe->s);
+		transport.l = mnd_sprintf(&transport.s, 0, "pipe://%s", session->socket_path.c_str());
 		*named_pipe = TRUE;
 	}
 	else
 #endif
-	{
-		if (!port) {
-			port = 3306;
-		}
-		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.c_str(), port);
+		DBG_ERR_FMT("Windows pipe not supported!.");
+		devapi::RAISE_EXCEPTION( err_msg_internal_error );
+	} else {
+		/*
+		 * At this point, there must be a selected transport type!
+		 */
+		DBG_ERR_FMT("Transport type invalid.");
+		devapi::RAISE_EXCEPTION( err_msg_internal_error );
 	}
 	DBG_INF_FMT("transport=%s", transport.s? transport.s:"OOM");
 	DBG_RETURN(transport);
@@ -330,8 +341,8 @@ static const char hexconvtab[] = "0123456789abcdef";
 /* {{{ xmysqlnd_node_stmt::handler_on_auth_continue */
 static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * context,
-										const MYSQLND_CSTRING input,
-										MYSQLND_STRING * const output)
+																const MYSQLND_CSTRING input,
+																MYSQLND_STRING * const output)
 {
 	const MYSQLND_CSTRING salt = input;
 	struct st_xmysqlnd_auth_41_ctx * ctx = (struct st_xmysqlnd_auth_41_ctx *) context;
@@ -709,14 +720,10 @@ char* get_server_host_info(const phputils::string& format,
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA * session,
 						MYSQLND_CSTRING database,
-						MYSQLND_CSTRING socket_or_pipe,
 						unsigned int port,
-						size_t set_capabilities
-					)
+						size_t set_capabilities)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), connect);
-	zend_bool unix_socket = FALSE;
-	zend_bool named_pipe = FALSE;
 	zend_bool reconnect = FALSE;
 	MYSQLND_STRING transport = { NULL, 0 };
 	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
@@ -753,9 +760,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 
 	transport = session->m->get_scheme(session,
 					auth->hostname,
-					&socket_or_pipe,
-					port, &unix_socket,
-					&named_pipe);
+					port);
 
 	if( nullptr == transport.s || transport.l == 0 ) {
 		ret = FAIL;
@@ -766,11 +771,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 
 		mnd_sprintf_free(transport.s);
 		transport.s = NULL;
-
-		if( socket_or_pipe.s ) {
-			session->unix_socket.s = mnd_pestrdup(socket_or_pipe.s, session->persistent);
-			session->unix_socket.l = socket_or_pipe.l;
-		}
 
 		if (!session->scheme.s || !session->current_db.s) {
 			SET_OOM_ERROR(session->error_info);
@@ -789,23 +789,19 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 	/* Setup server host information */
 	if( ret == PASS ) {
 		SET_CONNECTION_STATE(&session->state, NODE_SESSION_READY);
+		transport_types transport = session->transport_type;
 
-		if (!unix_socket && !named_pipe) {
+		if ( transport == transport_types::network ) {
 			session->server_host_info = get_server_host_info("%s via TCP/IP",
 								session->auth->hostname.c_str(),
 								session->persistent);
-		} else if ( session->unix_socket.s ){
-			if (unix_socket) {
-				session->server_host_info = mnd_pestrdup("Localhost via UNIX socket",
-									session->persistent);
-			} else if (named_pipe) {
-				session->server_host_info = get_server_host_info("%s via named pipe",
-									session->unix_socket.s,
-									session->persistent);
-			} else {
-				php_error_docref(NULL, E_WARNING,
-						"Impossible. Should be either socket or a pipe. Report a bug!");
-			}
+		} else if( transport == transport_types::unix_domain_socket ) {
+			session->server_host_info = mnd_pestrdup("Localhost via UNIX socket",
+												session->persistent);
+		} else if( transport == transport_types::unix_domain_socket ) {
+			session->server_host_info = get_server_host_info("%s via named pipe",
+												session->socket_path.c_str(),
+												session->persistent);
 		}
 
 		if ( !session->server_host_info ) {
@@ -1036,10 +1032,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents)(XMYSQLND_NODE_SESSION
 	if (session->current_db.s) {
 		mnd_pefree(session->current_db.s, pers);
 		session->current_db.s = NULL;
-	}
-	if (session->unix_socket.s) {
-		mnd_pefree(session->unix_socket.s, pers);
-		session->unix_socket.s = NULL;
 	}
 	DBG_INF_FMT("scheme=%s", session->scheme.s);
 	if (session->scheme.s) {
@@ -1332,7 +1324,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_han
 static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_handle,
 										MYSQLND_CSTRING database,
-										MYSQLND_CSTRING socket_or_pipe,
 										const unsigned int port,
 										const size_t set_capabilities)
 {
@@ -1345,8 +1336,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_
 
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		ret = session->m->connect(session,
-					database, socket_or_pipe,
-					port, set_capabilities);
+					database,port, set_capabilities);
 #ifdef WANTED_TO_PRECACHE_UUIDS_AT_CONNECT
 		if (PASS == ret) {
 			ret = session_handle->m->precache_uuids(session_handle);
@@ -2283,17 +2273,16 @@ xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persiste
 /* {{{ xmysqlnd_node_session_connect */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION *
 xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
-							  XMYSQLND_SESSION_AUTH_DATA * auth,
-							  const MYSQLND_CSTRING database,
-							  const MYSQLND_CSTRING socket_or_pipe,
-							  unsigned int port,
-							  const size_t set_capabilities,
-							  const size_t client_api_flags)
+								XMYSQLND_SESSION_AUTH_DATA * auth,
+								const MYSQLND_CSTRING database,
+								unsigned int port,
+								const size_t set_capabilities)
 {
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory =
 			MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	enum_func_status ret = FAIL;
 	zend_bool self_allocated = FALSE;
+	const size_t client_api_flags = 0; //This is not used at the moment..
 	/* may need to pass these from outside */
 	MYSQLND_STATS * stats = NULL;
 	MYSQLND_ERROR_INFO * error_info = NULL;
@@ -2306,16 +2295,15 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 	if (!session) {
 		self_allocated = TRUE;
 		if (!(session = xmysqlnd_node_session_create(client_api_flags,
-											FALSE, factory,
-											stats, error_info))) {
+										FALSE, factory,
+										stats, error_info))) {
 			/* OOM */
 			DBG_RETURN(NULL);
 		}
 	}
 	session->data->auth = auth;
 	ret = session->m->connect(session,database,
-							  socket_or_pipe,
-							  port, set_capabilities);
+							port, set_capabilities);
 
 	if (ret == FAIL) {
 		if (self_allocated) {
@@ -2361,62 +2349,193 @@ struct mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zva
 /* {{{ establish_connection */
 static
 enum_func_status establish_connection(struct mysqlx::devapi::st_mysqlx_session * object,
-									  XMYSQLND_SESSION_AUTH_DATA * auth,
-									  const php_url * url)
+								XMYSQLND_SESSION_AUTH_DATA * auth,
+								const php_url * url,
+								transport_types tr_type)
 {
 	DBG_ENTER("establish_connection");
 	enum_func_status ret = PASS;
 	mysqlx::drv::XMYSQLND_NODE_SESSION * new_session;
 	size_t set_capabilities = 0;
-	size_t client_api_flags = 0;
-	MYSQLND_CSTRING empty = {NULL, 0};
-
-	const MYSQLND_CSTRING path = { url->path, strlen(url->path) };
-	new_session = xmysqlnd_node_session_connect(object->session,
-								auth,
-								path,
-								empty, //s_or_p
-								url->port,
-								set_capabilities,
-								client_api_flags);
-	if(new_session == NULL) {
-		ret = FAIL;
+	if( tr_type != transport_types::network ) {
+		DBG_INF_FMT("Connecting with the provided socket/pipe: %s",
+					url->host);
+		if( url->host == nullptr ) {
+			//This should never happen!
+			DBG_ERR_FMT("Expecting socket/pipe location, found NULL!");
+			ret = FAIL;
+		} else {
+			object->session->data->socket_path = url->host;
+		}
 	}
 
-	if (object->session != new_session) {
-		xmysqlnd_throw_exception_from_session_if_needed(object->session->data);
-
-		object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
-		if (new_session) {
-			php_error_docref(NULL, E_WARNING, "Different object returned");
+	if( ret != FAIL ) {
+		const MYSQLND_CSTRING path = { url->path, strlen(url->path) };
+		object->session->data->transport_type = tr_type;
+		new_session = xmysqlnd_node_session_connect(object->session,
+									auth,
+									path,
+									url->port,
+									set_capabilities);
+		if(new_session == NULL) {
+			ret = FAIL;
 		}
-		object->session = new_session;
+
+		if (object->session != new_session) {
+			xmysqlnd_throw_exception_from_session_if_needed(object->session->data);
+
+			object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
+			if (new_session) {
+				php_error_docref(NULL, E_WARNING, "Different object returned");
+			}
+			object->session = new_session;
+		}
 	}
 	DBG_RETURN(ret);
+}
+/* }}} */
+
+/* {{{ extract_transport
+ *
+ * Be aware that extract_transport will modify
+ * the string argument!
+ */
+static std::pair<phputils::string, transport_types>
+extract_transport(phputils::string& uri)
+{
+	phputils::string transport;
+	transport_types tr_type = transport_types::network;
+	std::size_t idx = uri.find_last_of('@'),
+			not_found = phputils::string::npos;
+	if( idx == not_found ) {
+		return { transport, transport_types::none };
+	}
+	char tr = uri[ ++idx ];
+	if( tr == '.' || tr == '/' || tr == '(' || tr == '\\') {
+		/*
+		 * Attempt to use a windows pipe or unix
+		 * domain socket.
+		 *
+		 * the allowed formats are:
+		 * ...@(/path/to/sock)
+		 * ...@(/path/to/sock)/schema
+		 * ...@/path%2Fto%2Fsock
+		 * ...@/path%2Fto%2Fsock/schema
+		 * ...@..%2Fpath%2Fto%2Fsock
+		 *
+		 * ..etc..
+		 *
+		 * Windows pipe's MUST begin with \
+		 */
+		if( tr == '\\' ) {
+			tr_type = transport_types::windows_pipe;
+		} else {
+			tr_type = transport_types::unix_domain_socket;
+		}
+		bool double_dot{ uri[ idx ] == '.' && uri[ idx + 1 ] == '.' };
+		char exp_term = ( tr == '(' ? ')' : '/' );
+		std::size_t end_idx{ uri.size() -1 };
+		for( ; end_idx >= idx ; --end_idx ) {
+			if( uri[ end_idx ] == exp_term ) {
+			break;
+			}
+		}
+		/*
+		 * The second and third condition in the next IF is needed
+		 * to cover the input URI: @../socket or @../socket/schema
+		 * and @./socket or @./socket/schema
+		 */
+		if( end_idx == idx ||
+				( !double_dot && end_idx == idx + 1 ) ||
+				( double_dot && end_idx == idx + 2 ) ) {
+			/*
+			 * No schema provided or using 2%F,
+			 * it might be also a wrong formatted URI,
+			 * if that's the case the connection will
+			 * fail later.
+			 */
+			end_idx = uri.size();
+		} else if( exp_term == ')' ){
+			++end_idx;
+		}
+		transport = uri.substr( idx , end_idx - idx );
+		if( false == transport.empty() ) {
+			//Remove the PCT encoding, if any.
+			phputils::string decoded = decode_pct_path( transport );
+			//Remove ( and )
+			decoded.erase( std::remove_if( decoded.begin(),
+								decoded.end(),
+								[](const char ch) {
+									return ch == '(' || ch == ')';
+								}), decoded.end());
+			transport = decoded;
+		}
+		//This is needed, otherwise php_url_parse would
+		//not be able to parse the URI
+		uri.erase( idx, end_idx - idx);
+		/*
+		 * We're inserting a string of size transport.size
+		 * to force the url_parser to allocate a 'host'
+		 * string with that size, we will copy
+		 * in that memory the value of 'transport', in this
+		 * way we wil move down the flow the socket location
+		 * without additional variables.
+		 */
+		uri.insert( idx, transport.size() + 1 ,'x');
+	}
+
+	return { transport, tr_type };
 }
 /* }}} */
 
 
 /* {{{ extract_uri_information */
 static
-php_url * extract_uri_information(const char * uri_string)
+std::pair<php_url*,transport_types> extract_uri_information(const char * uri_string)
 {
 	DBG_ENTER("extract_uri_information");
 	DBG_INF_FMT("URI string: %s\n",uri_string);
-	php_url * node_url = php_url_parse(uri_string);
+	phputils::string uri = uri_string;
+	/*
+	 * Check whether there's an attempt to connect
+	 * using a unix domain socket or windows pipe.
+	 * php_url_parse do not understand URI's with
+	 * those information
+	 */
+	auto transport = extract_transport(uri);
+	phputils::string tr_path = transport.first;
+	php_url * node_url = php_url_parse(uri.c_str());
+	if( nullptr == node_url ) {
+		DBG_ERR_FMT("URI parsing failed!");
+		return { nullptr, transport_types::none };
+	}
 	enum_func_status ret = PASS;
 	//host is required
 	if( !node_url->host ) {
 		DBG_ERR_FMT("Missing required host name!");
 		ret = FAIL;
+	} else if( !tr_path.empty() ) {
+		//Copy the transport domain socket location
+		std::copy( tr_path.begin(), tr_path.end(), node_url->host );
+		node_url->host[ tr_path.size() ] = '\0';
+		//Make sure the transport type is not 'none' or 'network'
+		if( transport.second == transport_types::none ||
+			transport.second == transport_types::network ) {
+			//Something bad!
+			DBG_ERR_FMT("Identified a local transport path, but no proper type selected!");
+			php_url_free( node_url );
+			return { nullptr, transport_types::none };
+		}
+		//Set port to ZERO, signaling a non network socket
+		node_url->port = 0;
 	}
 	//Username is required
 	if( !node_url->user ) {
 		DBG_ERR_FMT("Missing required user name!");
 		ret = FAIL;
 	}
-	//Port required
-	if( 0 == node_url->port ) {
+	//Port required (If no alternative transport provided)
+	if( 0 == node_url->port && tr_path.empty() ) {
 		DBG_INF_FMT("Missing port number, setting default 33060!");
 		node_url->port = 33060;
 	}
@@ -2438,8 +2557,11 @@ php_url * extract_uri_information(const char * uri_string)
 					 node_url->host, node_url->port,
 					 node_url->user, node_url->pass,
 					 node_url->path, node_url->query);
+		if( !tr_path.empty() ) {
+			DBG_INF_FMT("Selected local socket: ", tr_path.c_str());
+		}
 	}
-	DBG_RETURN(node_url);
+	return { node_url, transport.second };
 }
 /* }}} */
 
@@ -2533,13 +2655,18 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const php_url * node_url)
 		delete auth;
 		auth = nullptr;
 	} else {
-		auth->port = node_url->port;
-		auth->hostname = node_url->host;
+		if( node_url->port != 0 ) {
+			//If is 0, then we're using win pipe
+			//or unix sockets.
+			auth->port = node_url->port;
+			auth->hostname = node_url->host;
+		}
 		auth->username = node_url->user;
 		auth->password = node_url->pass;
 	}
 
 	DBG_RETURN(auth);
+
 }
 /* }}} */
 
@@ -2551,20 +2678,23 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 {
 	DBG_ENTER("xmysqlnd_node_new_session_connect");
 	enum_func_status ret = FAIL;
-	php_url * url = extract_uri_information(uri_string);
-	struct mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
-	if( NULL != session ){
-		XMYSQLND_SESSION_AUTH_DATA * auth = extract_auth_information(url);
-		if( NULL != auth ) {
-			DBG_INF_FMT("Attempting to connect...");
-			ret = establish_connection(session,auth,url);
-		} else {
-			DBG_ERR_FMT("Connection aborted, not able to setup the 'auth' structure.");
+	auto url = extract_uri_information(uri_string);
+	if( nullptr != url.first ) {
+		struct mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
+		if( NULL != session ){
+			XMYSQLND_SESSION_AUTH_DATA * auth = extract_auth_information(url.first);
+			if( NULL != auth ) {
+				DBG_INF_FMT("Attempting to connect...");
+				ret = establish_connection(session,auth,
+								url.first,url.second);
+			} else {
+				DBG_ERR_FMT("Connection aborted, not able to setup the 'auth' structure.");
+			}
 		}
-	}
 
-	if( url ) {
-		php_url_free( url );
+		php_url_free( url.first );
+	} else {
+		devapi::RAISE_EXCEPTION(err_msg_uri_string_fail);
 	}
 	/*
 	 * Do not worry about the allocated auth if

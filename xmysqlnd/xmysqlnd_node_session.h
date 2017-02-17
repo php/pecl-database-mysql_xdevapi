@@ -112,6 +112,17 @@ typedef struct st_xmysqlnd_level3_io
 } XMYSQLND_L3_IO;
 
 /*
+ * Needed during the connection phase to
+ * select the correct socket
+ */
+enum class transport_types {
+	windows_pipe,
+	unix_domain_socket,
+	network, //tcp or others
+	none //To signal an error situation
+};
+
+/*
  * Information used to authenticate
  * the connection with the server
  */
@@ -120,20 +131,20 @@ struct st_xmysqlnd_session_auth_data
 	st_xmysqlnd_session_auth_data();
 
 	phputils::string	hostname;
-	unsigned int	port;
+	unsigned int		port;
 	phputils::string	username;
 	phputils::string	password;
 	//SSL information
-	bool        ssl_enabled;
-	bool        ssl_no_defaults;
-	phputils::string ssl_local_pk;
-	phputils::string ssl_local_cert;
-	phputils::string ssl_cafile;
-	phputils::string ssl_capath;
-	phputils::string ssl_passphrase;
-	phputils::string ssl_ciphers;
-	phputils::string ssl_crl;
-	phputils::string ssl_crlpath;
+	bool				ssl_enabled;
+	bool				ssl_no_defaults;
+	phputils::string	ssl_local_pk;
+	phputils::string	ssl_local_cert;
+	phputils::string	ssl_cafile;
+	phputils::string	ssl_capath;
+	phputils::string	ssl_passphrase;
+	phputils::string	ssl_ciphers;
+	phputils::string	ssl_crl;
+	phputils::string	ssl_crlpath;
 
 	/*
 	 * On demand we need to provide a list of supported ciphers,
@@ -153,7 +164,7 @@ typedef struct st_xmysqlnd_session_auth_data XMYSQLND_SESSION_AUTH_DATA;
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__init)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect_handshake)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__authenticate)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
-typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING database, const MYSQLND_CSTRING socket_or_pipe, unsigned int port, size_t set_capabilities);
+typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING database, unsigned int port, size_t set_capabilities);
 typedef size_t				(*func_xmysqlnd_node_session_data__escape_string)(XMYSQLND_NODE_SESSION_DATA * const session, char *newstr, const char *escapestr, const size_t escapestr_len);
 typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__quote_name)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING name);
 
@@ -186,7 +197,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__local_tx_end)(XMYSQL
 typedef size_t				(*func_xmysqlnd_node_session_data__negotiate_client_api_capabilities)(XMYSQLND_NODE_SESSION_DATA * const session, const size_t flags);
 typedef size_t				(*func_xmysqlnd_node_session_data__get_client_api_capabilities)(const XMYSQLND_NODE_SESSION_DATA * const session);
 
-typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__get_scheme)(XMYSQLND_NODE_SESSION_DATA * session, const phputils::string& hostname, MYSQLND_CSTRING * socket_or_pipe, unsigned int port, zend_bool * unix_socket, zend_bool * named_pipe);
+typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__get_scheme)(XMYSQLND_NODE_SESSION_DATA * session, const phputils::string& hostname, unsigned int port);
 
 typedef const enum_hnd_func_status (*func_xmysqlnd_node_session_data__handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 typedef const enum_hnd_func_status (*func_xmysqlnd_node_session_data__handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * const output);
@@ -249,7 +260,9 @@ struct st_xmysqlnd_node_session_data
 /* Other connection info */
 	MYSQLND_STRING	scheme;
 	MYSQLND_STRING	current_db;
-	MYSQLND_STRING	unix_socket;
+	transport_types transport_type;
+	/* Used only in case of non network transports */
+	phputils::string socket_path;
 	char			*server_host_info;
 	size_t			client_id;
 
@@ -344,7 +357,6 @@ typedef const enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_NODE
 
 typedef const enum_func_status	(*func_xmysqlnd_node_session__connect)(XMYSQLND_NODE_SESSION * session,
 																	   MYSQLND_CSTRING database,
-																	   MYSQLND_CSTRING socket_or_pipe,
 																	   const unsigned int port,
 																	   const size_t set_capabilities);
 
@@ -459,14 +471,6 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION * xmysqlnd_node_session_create(const
 																const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 																MYSQLND_STATS * stats,
 																MYSQLND_ERROR_INFO * error_info);
-
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION * xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
-													XMYSQLND_SESSION_AUTH_DATA * auth,
-															 const MYSQLND_CSTRING database,
-															 const MYSQLND_CSTRING socket_or_pipe,
-															 unsigned int port,
-															 const size_t set_capabilities,
-															 const size_t client_api_flags);
 
 PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string, zval * return_value);
 
