@@ -19,6 +19,7 @@
 #define MYSQL_XDEVAPI_PHP_ALLOCATOR_H
 
 #include <memory>
+#include <new>
 
 namespace mysqlx {
 
