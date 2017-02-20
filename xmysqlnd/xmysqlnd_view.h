@@ -12,29 +12,35 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLLECTION__FIND_H
-#define MYSQLX_NODE_COLLECTION__FIND_H
+#ifndef XMYSQLND_VIEW_H
+#define XMYSQLND_VIEW_H
 
 namespace mysqlx {
 
-namespace devapi {
+namespace drv {
 
-extern zend_class_entry* mysqlx_node_collection__find_class_entry;
+class View
+{
+	public:
+		static st_xmysqlnd_node_stmt* create(
+			st_xmysqlnd_node_session* session,
+			const st_xmysqlnd_pb_message_shell& pb_msg);
+		static st_xmysqlnd_node_stmt* alter(
+			st_xmysqlnd_node_session* session,
+			const st_xmysqlnd_pb_message_shell& pb_msg);
+		static st_xmysqlnd_node_stmt* drop(
+			st_xmysqlnd_node_session* session,
+			const st_xmysqlnd_pb_message_shell& pb_msg);
+};
 
-void mysqlx_new_node_collection__find(zval * return_value, const MYSQLND_CSTRING search_expression, drv::st_xmysqlnd_node_collection* collection, const zend_bool clone_collection);
-void mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS);
-
-Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv);
-
-} // namespace devapi
+} // namespace drv
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_COLLECTION__FIND_H */
+#endif /* XMYSQLND_VIEW_H */
 
 /*
  * Local variables:

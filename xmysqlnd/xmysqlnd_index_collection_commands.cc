@@ -29,11 +29,9 @@ extern "C" {
 #include "xmysqlnd_node_collection.h"
 #include "xmysqlnd_node_stmt.h"
 #include "xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd_utils.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_wireprotocol.h"
-
-#include <vector>
-#include <string>
 
 #include "xmysqlnd_index_collection_commands.h"
 #include "mysqlx_object.h"
@@ -170,7 +168,7 @@ xmysqlnd_collection_create_index__add_field(
 	zend_bool is_required)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__add_field");
-	if (!is_empty(doc_path) && !is_empty(column_type)) {
+	if (!is_empty_str(doc_path) && !is_empty_str(column_type)) {
 		obj->index_fields.emplace_back(
 			st_index_field(
 				doc_path,

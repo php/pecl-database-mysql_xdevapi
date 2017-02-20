@@ -66,6 +66,14 @@ const std::map<xdevapi_exception::Code, std::pair<unsigned int, const char* cons
 	{ xdevapi_exception::Code::create_index_fail, { 10022, "CreateIndex not completely initialized" }},
 	{ xdevapi_exception::Code::drop_index_fail, { 10023, "DropIndex not completely initialized" }},
 	{ xdevapi_exception::Code::arridx_del_fail, { 10024, "Error while deleting an array index" }},
+	{ xdevapi_exception::Code::view_create_fail, { 10025, "Create view not completely initialized" }},
+	{ xdevapi_exception::Code::view_alter_fail, { 10026, "Alter view not completely initialized" }},
+	{ xdevapi_exception::Code::view_drop_fail, { 10027, "Drop view not completely initialized" }},
+	{ xdevapi_exception::Code::invalid_view_algorithm, { 10028, "Invalid view algorithm" }},
+	{ xdevapi_exception::Code::invalid_view_security, { 10029, "Invalid security context" }},
+	{ xdevapi_exception::Code::invalid_view_check_option, { 10030, "Invalid view check option" }},
+	{ xdevapi_exception::Code::invalid_view_columns, { 10031, "Invalid view columns - expected string or array of strings" }},
+	{ xdevapi_exception::Code::invalid_view_defined_as, { 10032, "Invalid view defined as - expected table select or collection find statement" }},
 };
 /* }}} */
 

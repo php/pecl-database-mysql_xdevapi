@@ -50,7 +50,7 @@ namespace devapi {
 
 using namespace drv;
 
-static zend_class_entry *mysqlx_node_table__select_class_entry;
+zend_class_entry* mysqlx_node_table__select_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__where, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, projection)
@@ -153,7 +153,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 	int    num_of_expr = 0;
 	int    i;
 
-	DBG_ENTER("mysqlx_node_collection__find__add_sort_or_grouping");
+	DBG_ENTER("mysqlx_node_table__select__add_sort_or_grouping");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
 												&object_zv,
@@ -599,6 +599,25 @@ mysqlx_new_node_table__select(zval * return_value,
 	}
 
 	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ get_stmt_from_table_select */
+Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)
+{
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	XMYSQLND_CRUD_TABLE_OP__SELECT* select_op = data_object.crud_op;
+	if (!select_op 
+		|| (xmysqlnd_crud_table_select__finalize_bind(select_op) == FAIL)
+		|| !xmysqlnd_crud_table_select__is_initialized(select_op)) 
+	{
+		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::find_fail);
+	}
+
+	st_xmysqlnd_pb_message_shell msg_shell = xmysqlnd_crud_table_select__get_protobuf_message(select_op);
+	Mysqlx::Crud::Find* msg = static_cast<Mysqlx::Crud::Find*>(msg_shell.message);
+	return msg;
 }
 /* }}} */
 

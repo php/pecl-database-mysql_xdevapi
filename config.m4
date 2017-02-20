@@ -74,6 +74,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_any2expr.cc \
 		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
 		xmysqlnd/xmysqlnd_crud_table_commands.cc \
+		xmysqlnd/xmysqlnd_ddl_view_commands.cc \
 		xmysqlnd/xmysqlnd_driver.cc \
 		xmysqlnd/xmysqlnd_extension_plugin.cc \
 		xmysqlnd/xmysqlnd_index_collection_commands.cc \
@@ -93,6 +94,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_statistics.cc \
 		xmysqlnd/xmysqlnd_stmt_execution_state.cc \
 		xmysqlnd/xmysqlnd_utils.cc \
+		xmysqlnd/xmysqlnd_view.cc \
 		xmysqlnd/xmysqlnd_warning_list.cc \
 		xmysqlnd/xmysqlnd_wireprotocol.cc \
 		xmysqlnd/xmysqlnd_zval2any.cc \
@@ -170,11 +172,14 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_node_sql_statement_result.cc \
 		mysqlx_node_sql_statement_result_iterator.cc \
 		mysqlx_node_column_result.cc \
-		mysqlx_x_session.cc \
 		mysqlx_object.cc \
-		mysqlx_session.cc \
 		mysqlx_schema_object.cc \
+		mysqlx_session.cc \
+		mysqlx_view_create.cc \
+		mysqlx_view_alter.cc \
+		mysqlx_view_drop.cc \
 		mysqlx_warning.cc \
+		mysqlx_x_session.cc \
 		"
 
 	AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])

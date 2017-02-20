@@ -434,6 +434,9 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION * xmysqlnd_node_session_connect(XMYS
 															 const size_t set_capabilities,
 															 const size_t client_api_flags);
 
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_free(XMYSQLND_NODE_SESSION* const session);
+
+
 extern const MYSQLND_CSTRING namespace_sql;
 extern const MYSQLND_CSTRING namespace_xplugin;
 

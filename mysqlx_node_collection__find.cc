@@ -50,7 +50,7 @@ namespace devapi {
 
 using namespace drv;
 
-static zend_class_entry *mysqlx_node_collection__find_class_entry;
+zend_class_entry* mysqlx_node_collection__find_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__fields, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, projection)
@@ -620,6 +620,25 @@ mysqlx_new_node_collection__find(zval * return_value,
 		}
 	}
 	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ get_stmt_from_collection_find */
+Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv)
+{
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection__find>(object_zv);
+	XMYSQLND_CRUD_COLLECTION_OP__FIND* find_op = data_object.crud_op;
+	if (!find_op 
+		|| (xmysqlnd_crud_collection_find__finalize_bind(find_op) == FAIL)
+		|| !xmysqlnd_crud_collection_find__is_initialized(find_op)) 
+	{
+		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::find_fail);
+	}
+
+	st_xmysqlnd_pb_message_shell msg_shell = xmysqlnd_crud_collection_find__get_protobuf_message(find_op);
+	Mysqlx::Crud::Find* msg = static_cast<Mysqlx::Crud::Find*>(msg_shell.message);
+	return msg;
 }
 /* }}} */
 

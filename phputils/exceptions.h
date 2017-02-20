@@ -59,7 +59,15 @@ struct xdevapi_exception : public std::runtime_error
 		update_fail,
 		create_index_fail,
 		drop_index_fail,
-		arridx_del_fail
+		arridx_del_fail,
+		view_create_fail,
+		view_alter_fail,
+		view_drop_fail, 
+		invalid_view_algorithm,
+		invalid_view_security,
+		invalid_view_check_option,
+		invalid_view_columns,
+		invalid_view_defined_as
 	};
 
 	xdevapi_exception(Code code);

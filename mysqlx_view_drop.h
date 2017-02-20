@@ -12,29 +12,28 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLLECTION__FIND_H
-#define MYSQLX_NODE_COLLECTION__FIND_H
+#ifndef MYSQLX_VIEW_DROP_H
+#define MYSQLX_VIEW_DROP_H
 
 namespace mysqlx {
 
 namespace devapi {
 
-extern zend_class_entry* mysqlx_node_collection__find_class_entry;
-
-void mysqlx_new_node_collection__find(zval * return_value, const MYSQLND_CSTRING search_expression, drv::st_xmysqlnd_node_collection* collection, const zend_bool clone_collection);
-void mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS);
-
-Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv);
+void mysqlx_new_view_drop(
+	zval* return_value, 
+	drv::st_xmysqlnd_node_schema* schema, 
+	const MYSQLND_CSTRING& view_name);
+void mysqlx_register_view_drop_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
+void mysqlx_unregister_view_drop_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_COLLECTION__FIND_H */
+#endif /* MYSQLX_VIEW_DROP_H */
 
 /*
  * Local variables:

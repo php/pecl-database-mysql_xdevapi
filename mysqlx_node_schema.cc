@@ -35,6 +35,9 @@ extern "C" {
 #include "mysqlx_node_collection.h"
 #include "mysqlx_node_table.h"
 #include "mysqlx_node_schema.h"
+#include "mysqlx_view_create.h"
+#include "mysqlx_view_alter.h"
+#include "mysqlx_view_drop.h"
 #include <phputils/allocator.h>
 #include <phputils/object.h>
 
@@ -62,9 +65,10 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__drop, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema_object__get_schema, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema_object__get_schema, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
+
 /************************************** INHERITED END   ****************************************/
 
 
@@ -92,6 +96,22 @@ ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_collection_as_table, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__create_view, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, view_name, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, replace_existing, IS_LONG, dont_allow_null)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__alter_view, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, view_name, IS_STRING, dont_allow_null)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__drop_view, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, view_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -379,6 +399,86 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollectionAsTable)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_schema::createView(string name, bool replace_existing) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createView)
+{
+	zval* object_zv = nullptr;
+	MYSQLND_CSTRING view_name = { nullptr, 0 };
+	zend_bool replace_existing = false;
+
+	DBG_ENTER("mysqlx_node_schema::createView");
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Osb",
+		&object_zv, 
+		mysqlx_node_schema_class_entry,
+		&view_name.s, &view_name.l,
+		&replace_existing))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_schema>(object_zv);
+	mysqlx_new_view_create(return_value, data_object.schema, view_name, replace_existing ? true : false);
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_schema::alterView(string name) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, alterView)
+{
+	zval* object_zv = nullptr;
+	MYSQLND_CSTRING view_name = { nullptr, 0 };
+
+	DBG_ENTER("mysqlx_node_schema::alterView");
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, 
+		mysqlx_node_schema_class_entry,
+		&view_name.s, &view_name.l))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_schema>(object_zv);
+	mysqlx_new_view_alter(return_value, data_object.schema, view_name);
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_schema::dropView(string name) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropView)
+{
+	zval* object_zv = nullptr;
+	MYSQLND_CSTRING view_name = { nullptr, 0 };
+
+	DBG_ENTER("mysqlx_node_schema::dropView");
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, 
+		mysqlx_node_schema_class_entry,
+		&view_name.s, &view_name.l))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_schema>(object_zv);
+	mysqlx_new_view_drop(return_value, data_object.schema, view_name);
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 struct st_mysqlx_on_db_object_ctx
 {
 	zval * list;
@@ -510,6 +610,9 @@ static const zend_function_entry mysqlx_node_schema_methods[] = {
 	PHP_ME(mysqlx_node_schema, getTable,			arginfo_mysqlx_node_schema__get_table,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_schema, getTables,			arginfo_mysqlx_node_schema__get_tables,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_schema, getCollectionAsTable,arginfo_mysqlx_node_schema__get_collection_as_table,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, createView, arginfo_mysqlx_node_schema__create_view, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, alterView, arginfo_mysqlx_node_schema__alter_view, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_schema, dropView, arginfo_mysqlx_node_schema__drop_view, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

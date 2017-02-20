@@ -2076,6 +2076,24 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 }
 /* }}} */
 
+
+/* {{{ xmysqlnd_node_session_free */
+PHP_MYSQL_XDEVAPI_API void
+xmysqlnd_node_session_free(XMYSQLND_NODE_SESSION* const session)
+{
+	DBG_ENTER("xmysqlnd_node_session_free");
+	DBG_INF_FMT(
+		"session=%p  session->data=%p  dtor=%p", 
+		session, 
+		session ? session->data : nullptr, 
+		session ? session->data->m->dtor : nullptr);
+	if (session) {
+		session->m->free_reference(session);
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 } // namespace drv
 
 } // namespace mysqlx

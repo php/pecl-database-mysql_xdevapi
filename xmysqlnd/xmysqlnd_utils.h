@@ -22,6 +22,12 @@ namespace mysqlx {
 
 namespace drv {
 
+template<typename String>
+bool is_empty_str(const String& mystr)
+{
+	return (mystr.s == nullptr) || (mystr.l == 0);
+}
+
 MYSQLND_CSTRING make_mysqlnd_cstr(const char * str);
 bool equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs);
 

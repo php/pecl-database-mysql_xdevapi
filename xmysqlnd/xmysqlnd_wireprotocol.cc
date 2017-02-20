@@ -2552,6 +2552,233 @@ xmysqlnd_collection_read__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 /* }}} */
 
 
+/**************************************  VIEW_CMD  **************************************************/
+
+/* {{{ view_cmd_on_OK */
+static const enum_hnd_func_status
+view_cmd_on_OK(const Mysqlx::Ok & message, void* context)
+{
+	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx*>(context);
+	return HND_PASS;
+}
+/* }}} */
+
+
+/* {{{ view_cmd_on_ERROR */
+static const enum_hnd_func_status
+view_cmd_on_ERROR(const Mysqlx::Error & error, void* context)
+{
+	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx*>(context);
+	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	DBG_ENTER("view_cmd_on_ERROR");
+	on_ERROR(error, ctx->on_error);
+	return HND_PASS_RETURN_FAIL;
+}
+/* }}} */
+
+
+/* {{{ view_cmd_on_NOTICE */
+static const enum_hnd_func_status
+view_cmd_on_NOTICE(const Mysqlx::Notice::Frame & message, void* context)
+{
+	DBG_ENTER("view_cmd_on_NOTICE");
+	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx*>(context);
+
+	const st_xmysqlnd_on_client_id_bind on_client_id = { nullptr, nullptr };
+
+	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(
+		message,
+		ctx->on_warning,
+		ctx->on_session_var_change,
+		ctx->on_execution_state_change,
+		ctx->on_trx_state_change,
+		on_client_id);
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+static st_xmysqlnd_server_messages_handlers view_cmd_handlers =
+{
+	view_cmd_on_OK,	// on_OK
+	view_cmd_on_ERROR, // on_ERROR
+	nullptr, // on_CAPABILITIES
+	nullptr, // on_AUTHENTICATE_CONTINUE
+	nullptr, // on_AUTHENTICATE_OK
+	view_cmd_on_NOTICE,	// on_NOTICE
+	nullptr, // on_RSET_COLUMN_META
+	nullptr, // on_RSET_ROW
+	nullptr, // on_RSET_FETCH_DONE
+	nullptr, // on_RESULTSET_FETCH_SUSPENDED
+	nullptr, // on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr, // on_SQL_STMT_EXECUTE_OK
+	nullptr, // on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr, // on_UNEXPECTED
+	nullptr, // on_UNKNOWN
+};
+
+/* {{{ xmysqlnd_view_cmd__send_request */
+template<xmysqlnd_client_message_type View_cmd_id>
+enum_func_status 
+xmysqlnd_view_cmd__send_request(
+	st_xmysqlnd_msg__view_cmd* msg,
+	const st_xmysqlnd_pb_message_shell pb_message_shell)
+{
+	DBG_ENTER("xmysqlnd_view_cmd__send_request");
+	size_t bytes_sent;
+
+	const enum_func_status ret = xmysqlnd_send_message(
+		View_cmd_id,
+		*(google::protobuf::Message *)(pb_message_shell.message),
+		msg->result_ctx.vio,
+		msg->result_ctx.pfc,
+		msg->result_ctx.stats,
+		msg->result_ctx.error_info,
+		&bytes_sent);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_view_cmd__init_read */
+enum_func_status
+xmysqlnd_view_cmd__init_read(
+	st_xmysqlnd_msg__view_cmd* const msg,
+	const st_xmysqlnd_on_warning_bind on_warning,
+	const st_xmysqlnd_on_error_bind on_error,
+	const st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
+	const st_xmysqlnd_on_session_var_change_bind on_session_var_change,
+	const st_xmysqlnd_on_trx_state_change_bind on_trx_state_change)
+{
+	DBG_ENTER("xmysqlnd_view_cmd__init_read");
+	msg->result_ctx.on_warning = on_warning;
+	msg->result_ctx.on_error = on_error;
+	msg->result_ctx.on_execution_state_change = on_execution_state_change;
+	msg->result_ctx.on_session_var_change = on_session_var_change;
+	msg->result_ctx.on_trx_state_change = on_trx_state_change;
+
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_view_cmd__read_response */
+enum_func_status
+xmysqlnd_view_cmd__read_response(st_xmysqlnd_msg__view_cmd* msg)
+{
+	enum_func_status ret;
+	DBG_ENTER("xmysqlnd_view_cmd__read_response");
+	ret = xmysqlnd_receive_message(
+		&view_cmd_handlers, 
+		&msg->result_ctx, 
+		msg->result_ctx.vio, 
+		msg->result_ctx.pfc, 
+		msg->result_ctx.stats,
+		msg->result_ctx.error_info);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_view_create__get_message */
+static st_xmysqlnd_msg__view_cmd
+xmysqlnd_view_create__get_message(
+	MYSQLND_VIO* vio, 
+	XMYSQLND_PFC* pfc, 
+	MYSQLND_STATS* stats, 
+	MYSQLND_ERROR_INFO* error_info)
+{
+	const st_xmysqlnd_msg__view_cmd ctx =
+	{
+		xmysqlnd_view_cmd__send_request<COM_CRUD_CREATE_VIEW>,
+		xmysqlnd_view_cmd__read_response,
+		xmysqlnd_view_cmd__init_read,
+		{
+			vio,
+			pfc,
+			stats,
+			error_info,
+
+			{ nullptr, nullptr}, /* on_warning */
+			{ nullptr, nullptr}, /* on_error */
+			{ nullptr, nullptr}, /* on_execution_state_change */
+			{ nullptr, nullptr}, /* on_session_var_change */
+			{ nullptr, nullptr}, /* on_trx_state_change */
+
+			nullptr,  /* response_zval */
+		}
+	};
+	return ctx;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_view_alter__get_message */
+static st_xmysqlnd_msg__view_cmd
+xmysqlnd_view_alter__get_message(
+	MYSQLND_VIO* vio, 
+	XMYSQLND_PFC* pfc, 
+	MYSQLND_STATS* stats, 
+	MYSQLND_ERROR_INFO* error_info)
+{
+	const st_xmysqlnd_msg__view_cmd ctx =
+	{
+		xmysqlnd_view_cmd__send_request<COM_CRUD_MODIFY_VIEW>,
+		xmysqlnd_view_cmd__read_response,
+		xmysqlnd_view_cmd__init_read,
+		{
+			vio,
+			pfc,
+			stats,
+			error_info,
+
+			{ nullptr, nullptr}, /* on_warning */
+			{ nullptr, nullptr}, /* on_error */
+			{ nullptr, nullptr}, /* on_execution_state_change */
+			{ nullptr, nullptr}, /* on_session_var_change */
+			{ nullptr, nullptr}, /* on_trx_state_change */
+
+			nullptr,  /* response_zval */
+		}
+	};
+	return ctx;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_view_drop__get_message */
+static st_xmysqlnd_msg__view_cmd
+xmysqlnd_view_drop__get_message(
+	MYSQLND_VIO* vio, 
+	XMYSQLND_PFC* pfc, 
+	MYSQLND_STATS* stats, 
+	MYSQLND_ERROR_INFO* error_info)
+{
+	const st_xmysqlnd_msg__view_cmd ctx =
+	{
+		xmysqlnd_view_cmd__send_request<COM_CRUD_DROP_VIEW>,
+		xmysqlnd_view_cmd__read_response,
+		xmysqlnd_view_cmd__init_read,
+		{
+			vio,
+			pfc,
+			stats,
+			error_info,
+
+			{ nullptr, nullptr}, /* on_warning */
+			{ nullptr, nullptr}, /* on_error */
+			{ nullptr, nullptr}, /* on_execution_state_change */
+			{ nullptr, nullptr}, /* on_session_var_change */
+			{ nullptr, nullptr}, /* on_trx_state_change */
+
+			nullptr,  /* response_zval */
+		}
+	};
+	return ctx;
+}
+/* }}} */
+
 /**************************************  FACTORY **************************************************/
 
 /* {{{ xmysqlnd_msg_factory_get__capabilities_get */
@@ -2644,6 +2871,33 @@ xmysqlnd_msg_factory_get__table_insert(const struct st_xmysqlnd_message_factory 
 /* }}} */
 
 
+/* {{{ xmysqlnd_msg_factory_get__view_create */
+static st_xmysqlnd_msg__view_cmd
+xmysqlnd_msg_factory_get__view_create(const struct st_xmysqlnd_message_factory * const factory)
+{
+	return xmysqlnd_view_create__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_msg_factory_get__view_alter */
+static st_xmysqlnd_msg__view_cmd
+xmysqlnd_msg_factory_get__view_alter(const struct st_xmysqlnd_message_factory * const factory)
+{
+	return xmysqlnd_view_alter__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_msg_factory_get__view_drop */
+static st_xmysqlnd_msg__view_cmd
+xmysqlnd_msg_factory_get__view_drop(const struct st_xmysqlnd_message_factory * const factory)
+{
+	return xmysqlnd_view_drop__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_get_message_factory */
 struct st_xmysqlnd_message_factory
 xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -2665,7 +2919,10 @@ xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * st
 		xmysqlnd_msg_factory_get__collection_add,
 		xmysqlnd_msg_factory_get__collection_ud,
 		xmysqlnd_msg_factory_get__collection_read,
-		xmysqlnd_msg_factory_get__table_insert
+		xmysqlnd_msg_factory_get__table_insert,
+		xmysqlnd_msg_factory_get__view_create,
+		xmysqlnd_msg_factory_get__view_alter,
+		xmysqlnd_msg_factory_get__view_drop
 	};
 	return factory;
 }

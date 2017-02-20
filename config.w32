@@ -69,11 +69,14 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"mysqlx_node_sql_statement_result.cc " +
 			"mysqlx_node_sql_statement_result_iterator.cc " +
 			"mysqlx_node_column_result.cc " +
-			"mysqlx_x_session.cc " +
 			"mysqlx_object.cc " +
-			"mysqlx_session.cc " +
 			"mysqlx_schema_object.cc " +
-			"mysqlx_warning.cc ";
+			"mysqlx_session.cc " +
+			"mysqlx_view_create.cc " +
+			"mysqlx_view_alter.cc " +
+			"mysqlx_view_drop.cc " +
+			"mysqlx_warning.cc " +
+			"mysqlx_x_session.cc ";
 
 		mysqlx_phputils="allocator.cc " +
 			"exceptions.cc " +
@@ -116,6 +119,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 		xmysqlnd_sources="xmysqlnd_any2expr.cc " +
 			"xmysqlnd_crud_collection_commands.cc " +
 			"xmysqlnd_crud_table_commands.cc " +
+			"xmysqlnd_ddl_view_commands.cc " +
 			"xmysqlnd_driver.cc " +
 			"xmysqlnd_extension_plugin.cc " +
 			"xmysqlnd_index_collection_commands.cc " +
@@ -135,6 +139,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"xmysqlnd_statistics.cc " +
 			"xmysqlnd_stmt_execution_state.cc " +
 			"xmysqlnd_utils.cc " +
+			"xmysqlnd_view.cc " +
 			"xmysqlnd_warning_list.cc " +
 			"xmysqlnd_wireprotocol.cc " +
 			"xmysqlnd_zval2any.cc ";

@@ -904,6 +904,32 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 /* }}} */
 
 
+/* {{{ execute_new_statement_read_response */
+void execute_new_statement_read_response(
+	drv::st_xmysqlnd_node_stmt* stmt,
+	const zend_long flags, 
+	const mysqlx_result_type result_type, 
+	zval* return_value)
+{
+	zval stmt_zv;
+	ZVAL_UNDEF(&stmt_zv);
+	mysqlx_new_node_stmt(&stmt_zv, stmt);
+	if (Z_TYPE(stmt_zv) == IS_NULL) {
+		xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
+	} else if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+		zval zv;
+		ZVAL_UNDEF(&zv);
+		zend_long flags = 0;
+		mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+
+		ZVAL_COPY(return_value, &zv);
+		zval_dtor(&zv);
+	}
+	zval_ptr_dtor(&stmt_zv);
+} 
+/* }}} */
+
+
 /* {{{ mysqlx_node_statement::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_statement, __construct)
 {

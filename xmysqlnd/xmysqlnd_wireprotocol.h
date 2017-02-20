@@ -58,6 +58,9 @@ enum xmysqlnd_client_message_type
 	COM_CRUD_DELETE			= Mysqlx::ClientMessages_Type_CRUD_DELETE,
 	COM_EXPECTATIONS_OPEN	= Mysqlx::ClientMessages_Type_EXPECT_OPEN,
 	COM_EXPECTATIONS_CLOSE	= Mysqlx::ClientMessages_Type_EXPECT_CLOSE,
+	COM_CRUD_CREATE_VIEW = Mysqlx::ClientMessages_Type_CRUD_CREATE_VIEW,
+	COM_CRUD_MODIFY_VIEW = Mysqlx::ClientMessages_Type_CRUD_MODIFY_VIEW,
+	COM_CRUD_DROP_VIEW = Mysqlx::ClientMessages_Type_CRUD_DROP_VIEW,
 	COM_NONE = 255
 };
 
@@ -460,6 +463,25 @@ struct st_xmysqlnd_msg__collection_read
 	struct st_xmysqlnd_result_set_reader_ctx reader_ctx;
 };
 
+/* used for View create, alter, drop */
+struct st_xmysqlnd_msg__view_cmd
+{
+	enum_func_status(*send_cmd_request)(
+		st_xmysqlnd_msg__view_cmd* msg,
+		st_xmysqlnd_pb_message_shell pb_message_shell);
+
+	enum_func_status(*read_response)(st_xmysqlnd_msg__view_cmd* msg);
+
+	enum_func_status(*init_read)(st_xmysqlnd_msg__view_cmd* const msg,
+		const st_xmysqlnd_on_warning_bind on_warning,
+		const st_xmysqlnd_on_error_bind on_error,
+		const st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
+		const st_xmysqlnd_on_session_var_change_bind on_session_var_change,
+		const st_xmysqlnd_on_trx_state_change_bind on_trx_state_change);
+
+	st_xmysqlnd_result_ctx result_ctx;
+};
+
 
 struct st_xmysqlnd_message_factory
 {
@@ -479,6 +501,9 @@ struct st_xmysqlnd_message_factory
 	struct st_xmysqlnd_msg__collection_ud		(*get__collection_ud)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__collection_read)(const struct st_xmysqlnd_message_factory * const factory);
     struct st_xmysqlnd_msg__table_insert		(*get__table_insert)(const struct st_xmysqlnd_message_factory * const factory);
+    st_xmysqlnd_msg__view_cmd (*get__view_create)(const st_xmysqlnd_message_factory * const factory);
+    st_xmysqlnd_msg__view_cmd (*get__view_alter)(const st_xmysqlnd_message_factory * const factory);
+    st_xmysqlnd_msg__view_cmd (*get__view_drop)(const st_xmysqlnd_message_factory * const factory);
 };
 
 struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_xmysqlnd_level3_io * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
