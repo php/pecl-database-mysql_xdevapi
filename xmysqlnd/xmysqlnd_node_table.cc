@@ -234,7 +234,7 @@ check_is_view_op(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 	XMYSQLND_NODE_TABLE* const table,
-	struct st_xmysqlnd_node_session_on_error_bind on_error,
+	st_xmysqlnd_node_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_node_table::is_view");
@@ -245,14 +245,14 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 	XMYSQLND_NODE_SCHEMA * schema = table->data->schema;
 	XMYSQLND_NODE_SESSION * session = schema->data->session;
 
-	struct table_or_view_var_binder_ctx var_binder_ctx = {
+	table_or_view_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->data->schema_name),
 		mnd_str2c(table->data->table_name),
 		0
 	};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
 
-	struct table_or_view_op_ctx on_row_ctx = {
+	table_or_view_op_ctx on_row_ctx = {
 		mnd_str2c(table->data->table_name),
 		exists
 	};

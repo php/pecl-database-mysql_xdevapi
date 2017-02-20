@@ -19,6 +19,7 @@ mysqlx existsInDatabase for schema, collection and table
 	$collection = $schema->getCollection("non_found_collection");
 
 	expect_false($table->existsInDatabase());
+	expect_false($table->isView());
 	expect_false($collection->existsInDatabase());
 
 	$schema = $nodeSession->getSchema("non_existing_schema");
@@ -27,6 +28,7 @@ mysqlx existsInDatabase for schema, collection and table
 
 	expect_false($schema->existsInDatabase());
 	expect_false($table->existsInDatabase());
+	expect_false($table->isView());
 	expect_false($collection->existsInDatabase());
 
 	verify_expectations();

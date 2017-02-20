@@ -10,6 +10,7 @@ mysqlx getCollectionAsTable
 
 	$schema = $nodeSession->getSchema($db);
 	$collection_as_table = $schema->getCollectionAsTable("test_collection");
+	expect_false($collection_as_table->isView());
 	$collection_as_table->delete()->limit(10)->execute();
 	$collection_as_table->insert(["doc"])
 		->values(['{"_id": "128", "name": "T-1000", "age": 512, "job": "Terminator", "year": 1991}'])

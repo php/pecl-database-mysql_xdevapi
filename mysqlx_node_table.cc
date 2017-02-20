@@ -243,7 +243,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, isView)
 
 	XMYSQLND_NODE_TABLE * table = data_object.table;
 	if (table) {
-		const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, NULL };
+		const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == table->data->m.is_view(table, on_error, &exists)) {

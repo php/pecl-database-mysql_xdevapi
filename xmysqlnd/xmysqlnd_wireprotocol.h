@@ -500,10 +500,10 @@ struct st_xmysqlnd_message_factory
 	struct st_xmysqlnd_msg__collection_add	    (*get__collection_add)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__collection_ud		(*get__collection_ud)(const struct st_xmysqlnd_message_factory * const factory);
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__collection_read)(const struct st_xmysqlnd_message_factory * const factory);
-    struct st_xmysqlnd_msg__table_insert		(*get__table_insert)(const struct st_xmysqlnd_message_factory * const factory);
-    st_xmysqlnd_msg__view_cmd (*get__view_create)(const st_xmysqlnd_message_factory * const factory);
-    st_xmysqlnd_msg__view_cmd (*get__view_alter)(const st_xmysqlnd_message_factory * const factory);
-    st_xmysqlnd_msg__view_cmd (*get__view_drop)(const st_xmysqlnd_message_factory * const factory);
+	struct st_xmysqlnd_msg__table_insert		(*get__table_insert)(const struct st_xmysqlnd_message_factory * const factory);
+	st_xmysqlnd_msg__view_cmd (*get__view_create)(const st_xmysqlnd_message_factory * const factory);
+	st_xmysqlnd_msg__view_cmd (*get__view_alter)(const st_xmysqlnd_message_factory * const factory);
+	st_xmysqlnd_msg__view_cmd (*get__view_drop)(const st_xmysqlnd_message_factory * const factory);
 };
 
 struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const struct st_xmysqlnd_level3_io * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
