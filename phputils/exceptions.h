@@ -62,7 +62,7 @@ struct xdevapi_exception : public std::runtime_error
 		arridx_del_fail,
 		view_create_fail,
 		view_alter_fail,
-		view_drop_fail, 
+		view_drop_fail,
 		invalid_view_algorithm,
 		invalid_view_security,
 		invalid_view_check_option,

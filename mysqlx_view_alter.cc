@@ -321,8 +321,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_alter, execute)
 	zend_long flags = 0;
 	execute_new_statement_read_response(
 		stmt,
-		flags, 
-		MYSQLX_RESULT, 
+		flags,
+		MYSQLX_RESULT,
 		return_value);
 
 	DBG_VOID_RETURN;
@@ -412,7 +412,7 @@ mysqlx_unregister_view_alter_class(SHUTDOWN_FUNC_ARGS)
 /* {{{ mysqlx_new_view_alter */
 void
 mysqlx_new_view_alter(
-	zval* return_value, 
+	zval* return_value,
 	drv::st_xmysqlnd_node_schema* schema,
 	const MYSQLND_CSTRING& view_name)
 {

@@ -23,8 +23,8 @@ namespace mysqlx {
 namespace devapi {
 
 void mysqlx_new_view_drop(
-	zval* return_value, 
-	drv::st_xmysqlnd_node_schema* schema, 
+	zval* return_value,
+	drv::st_xmysqlnd_node_schema* schema,
 	const MYSQLND_CSTRING& view_name);
 void mysqlx_register_view_drop_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_view_drop_class(SHUTDOWN_FUNC_ARGS);

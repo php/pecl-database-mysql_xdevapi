@@ -608,9 +608,9 @@ Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)
 {
 	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
 	XMYSQLND_CRUD_TABLE_OP__SELECT* select_op = data_object.crud_op;
-	if (!select_op 
+	if (!select_op
 		|| (xmysqlnd_crud_table_select__finalize_bind(select_op) == FAIL)
-		|| !xmysqlnd_crud_table_select__is_initialized(select_op)) 
+		|| !xmysqlnd_crud_table_select__is_initialized(select_op))
 	{
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::find_fail);
 	}

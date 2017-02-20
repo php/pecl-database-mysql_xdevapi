@@ -629,9 +629,9 @@ Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv)
 {
 	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection__find>(object_zv);
 	XMYSQLND_CRUD_COLLECTION_OP__FIND* find_op = data_object.crud_op;
-	if (!find_op 
+	if (!find_op
 		|| (xmysqlnd_crud_collection_find__finalize_bind(find_op) == FAIL)
-		|| !xmysqlnd_crud_collection_find__is_initialized(find_op)) 
+		|| !xmysqlnd_crud_collection_find__is_initialized(find_op))
 	{
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::find_fail);
 	}

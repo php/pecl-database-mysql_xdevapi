@@ -65,15 +65,15 @@ void mysqlx_unregister_node_statement_class(SHUTDOWN_FUNC_ARGS);
 
 void mysqlx_new_node_stmt(zval * return_value, drv::st_xmysqlnd_node_stmt* stmt);
 void mysqlx_node_statement_execute_read_response(
-	const st_mysqlx_object* const mysqlx_object, 
-	const zend_long flags, 
-	const mysqlx_result_type result_type, 
+	const st_mysqlx_object* const mysqlx_object,
+	const zend_long flags,
+	const mysqlx_result_type result_type,
 	zval* return_value);
 
 void execute_new_statement_read_response(
 	drv::st_xmysqlnd_node_stmt* stmt,
-	const zend_long flags, 
-	const mysqlx_result_type result_type, 
+	const zend_long flags,
+	const mysqlx_result_type result_type,
 	zval* return_value);
 
 /**********/

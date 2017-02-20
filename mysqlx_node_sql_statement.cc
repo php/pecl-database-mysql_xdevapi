@@ -907,8 +907,8 @@ mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * cons
 /* {{{ execute_new_statement_read_response */
 void execute_new_statement_read_response(
 	drv::st_xmysqlnd_node_stmt* stmt,
-	const zend_long flags, 
-	const mysqlx_result_type result_type, 
+	const zend_long flags,
+	const mysqlx_result_type result_type,
 	zval* return_value)
 {
 	zval stmt_zv;
@@ -926,7 +926,7 @@ void execute_new_statement_read_response(
 		zval_dtor(&zv);
 	}
 	zval_ptr_dtor(&stmt_zv);
-} 
+}
 /* }}} */
 
 

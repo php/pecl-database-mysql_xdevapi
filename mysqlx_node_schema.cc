@@ -409,7 +409,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createView)
 	DBG_ENTER("mysqlx_node_schema::createView");
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Osb",
-		&object_zv, 
+		&object_zv,
 		mysqlx_node_schema_class_entry,
 		&view_name.s, &view_name.l,
 		&replace_existing))
@@ -436,7 +436,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, alterView)
 	DBG_ENTER("mysqlx_node_schema::alterView");
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
-		&object_zv, 
+		&object_zv,
 		mysqlx_node_schema_class_entry,
 		&view_name.s, &view_name.l))
 	{
@@ -462,7 +462,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropView)
 	DBG_ENTER("mysqlx_node_schema::dropView");
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
-		&object_zv, 
+		&object_zv,
 		mysqlx_node_schema_class_entry,
 		&view_name.s, &view_name.l))
 	{

@@ -23,8 +23,8 @@ namespace mysqlx {
 namespace devapi {
 
 void mysqlx_new_view_create(
-	zval* return_value, 
-	drv::st_xmysqlnd_node_schema* schema, 
+	zval* return_value,
+	drv::st_xmysqlnd_node_schema* schema,
 	const MYSQLND_CSTRING& view_name,
 	bool replace_existing);
 void mysqlx_register_view_create_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);

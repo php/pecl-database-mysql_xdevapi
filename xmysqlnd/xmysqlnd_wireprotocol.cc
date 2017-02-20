@@ -2620,7 +2620,7 @@ static st_xmysqlnd_server_messages_handlers view_cmd_handlers =
 
 /* {{{ xmysqlnd_view_cmd__send_request */
 template<xmysqlnd_client_message_type View_cmd_id>
-enum_func_status 
+enum_func_status
 xmysqlnd_view_cmd__send_request(
 	st_xmysqlnd_msg__view_cmd* msg,
 	const st_xmysqlnd_pb_message_shell pb_message_shell)
@@ -2670,10 +2670,10 @@ xmysqlnd_view_cmd__read_response(st_xmysqlnd_msg__view_cmd* msg)
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_view_cmd__read_response");
 	ret = xmysqlnd_receive_message(
-		&view_cmd_handlers, 
-		&msg->result_ctx, 
-		msg->result_ctx.vio, 
-		msg->result_ctx.pfc, 
+		&view_cmd_handlers,
+		&msg->result_ctx,
+		msg->result_ctx.vio,
+		msg->result_ctx.pfc,
 		msg->result_ctx.stats,
 		msg->result_ctx.error_info);
 	DBG_RETURN(ret);
@@ -2684,9 +2684,9 @@ xmysqlnd_view_cmd__read_response(st_xmysqlnd_msg__view_cmd* msg)
 /* {{{ xmysqlnd_view_create__get_message */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_view_create__get_message(
-	MYSQLND_VIO* vio, 
-	XMYSQLND_PFC* pfc, 
-	MYSQLND_STATS* stats, 
+	MYSQLND_VIO* vio,
+	XMYSQLND_PFC* pfc,
+	MYSQLND_STATS* stats,
 	MYSQLND_ERROR_INFO* error_info)
 {
 	const st_xmysqlnd_msg__view_cmd ctx =
@@ -2717,9 +2717,9 @@ xmysqlnd_view_create__get_message(
 /* {{{ xmysqlnd_view_alter__get_message */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_view_alter__get_message(
-	MYSQLND_VIO* vio, 
-	XMYSQLND_PFC* pfc, 
-	MYSQLND_STATS* stats, 
+	MYSQLND_VIO* vio,
+	XMYSQLND_PFC* pfc,
+	MYSQLND_STATS* stats,
 	MYSQLND_ERROR_INFO* error_info)
 {
 	const st_xmysqlnd_msg__view_cmd ctx =
@@ -2750,9 +2750,9 @@ xmysqlnd_view_alter__get_message(
 /* {{{ xmysqlnd_view_drop__get_message */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_view_drop__get_message(
-	MYSQLND_VIO* vio, 
-	XMYSQLND_PFC* pfc, 
-	MYSQLND_STATS* stats, 
+	MYSQLND_VIO* vio,
+	XMYSQLND_PFC* pfc,
+	MYSQLND_STATS* stats,
 	MYSQLND_ERROR_INFO* error_info)
 {
 	const st_xmysqlnd_msg__view_cmd ctx =
