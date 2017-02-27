@@ -8,7 +8,7 @@
 
 	$driver    = new mysqli_driver;
 
-        $scheme    = getenv("MYSQLX_TEST_SCHEME")   ? getenv("MYSQLX_TEST_SCHEME") : "mysqlx";
+	$scheme    = getenv("MYSQLX_TEST_SCHEME")   ? getenv("MYSQLX_TEST_SCHEME") : "mysqlx";
 	$host      = getenv("MYSQLX_TEST_HOST")     ? getenv("MYSQLX_TEST_HOST") : "localhost";
 	$port      = getenv("MYSQLX_TEST_PORT")     ? getenv("MYSQLX_TEST_PORT") : 33060;
 	$user      = getenv("MYSQLX_TEST_USER")     ? getenv("MYSQLX_TEST_USER") : "root";
@@ -19,6 +19,11 @@
 	$skip_on_connect_failure  = getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") ? getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") : true;
 	$connect_flags = getenv("MYSQLX_TEST_CONNECT_FLAGS") ? (int)getenv("MYSQLX_TEST_CONNECT_FLAGS") : 0;
 	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
+	
+	$test_table_name = "test_table";
+	$test_collection_name = "test_collection";
+	$test_view_name = "test_view";
+	
 	if ($socket) {
 		ini_set('mysqli.default_socket', $socket);
 	}
@@ -34,8 +39,10 @@
 	*/
 	if (!function_exists('create_test_db')) {
 		function create_test_db() {
-		        global $connection_uri;
+			global $connection_uri;
 			global $db;
+			global $test_table_name;
+			global $test_collection_name;
 			/*
 				Would make sense to clean the database here, before attempting
 				to create it. BUT, the code raise a warning during executeSql
@@ -48,8 +55,8 @@
 			//clean_test_db();
 			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 			$nodeSession->executeSql("create database $db");
-			$nodeSession->executeSql("create table $db.test_table(name text, age int)");
-			$nodeSession->getSchema($db)->createCollection("test_collection");
+			$nodeSession->executeSql("create table $db.$test_table_name(name text, age int)");
+			$nodeSession->getSchema($db)->createCollection($test_collection_name);
 			return $nodeSession;
 		}
 	}
@@ -59,7 +66,7 @@
 	*/
 	if (!function_exists('clean_test_db')) {
 		function clean_test_db() {
-		        global $connection_uri;
+			global $connection_uri;
 			global $db;
 			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 			$nodeSession->executeSql("drop database if exists $db");
@@ -67,52 +74,54 @@
 	}
 
 	/*
-	    Fill the database table with stuff
+		Fill the database table with stuff
 	*/
 	if(!function_exists('fill_db_table')){
 		function fill_db_table() {
-		        global $connection_uri;
+			global $connection_uri;
 			global $db;
+			global $test_table_name;
 			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
-			$nodeSession->executeSql("insert into $db.test_table values ('Mamie', 11)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Eulalia', 11)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Polly', 12)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Rufus', 12)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Cassidy', 13)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Olympia', 14)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Lev', 14)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 15)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Octavia', 15)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Vesper', 16)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Caspian', 17)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Romy', 17)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 11)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Eulalia', 11)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 12)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Rufus', 12)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Cassidy', 13)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Olympia', 14)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Lev', 14)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 15)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Octavia', 15)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Vesper', 16)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Caspian', 17)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Romy', 17)");
 		}
 	}
 
 	/*
-	    Fill the database with duplicated rows.
+		Fill the database with duplicated rows.
 	*/
 	if(!function_exists('fill_db_table_use_dup')){
 		function fill_db_table_use_dup() {
-		        global $connection_uri;
+			global $connection_uri;
 			global $db;
+			global $test_table_name;
 			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
-			$nodeSession->executeSql("insert into $db.test_table values ('Mamie', 29)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Mamie', 21)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Polly', 34)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Polly', 27)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Cassidy', 33)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Cassidy', 34)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Cassidy', 20)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 46)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 34)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 25)");
-			$nodeSession->executeSql("insert into $db.test_table values ('Tierney', 39)");
-			$nodeSession->executeSql("insert into $db.test_table values ('ARomy', 17)");
-			$nodeSession->executeSql("insert into $db.test_table values ('BRomy', 17)");
-			$nodeSession->executeSql("insert into $db.test_table values ('CRomy', 17)");
-			$nodeSession->executeSql("insert into $db.test_table values ('DRomy', 17)");
-			$nodeSession->executeSql("insert into $db.test_table values ('ERomy', 17)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 29)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 21)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 34)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 27)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Cassidy', 33)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Cassidy', 34)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Cassidy', 20)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 46)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 34)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 25)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 39)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('ARomy', 17)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('BRomy', 17)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('CRomy', 17)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('DRomy', 17)");
+			$nodeSession->executeSql("insert into $db.$test_table_name values ('ERomy', 17)");
 		}
 	}
 
@@ -147,14 +156,34 @@
 		function fill_test_collection() {
 			global $nodeSession;
 			global $db;
+			global $test_collection_name;
 			$schema = $nodeSession->getSchema($db);
-			$coll = $schema->getCollection("test_collection");
+			$coll = $schema->getCollection($test_collection_name);
 			fill_db_collection($coll);
 		}
 	}
 
 	$number_of_expectations = 0;
 	$test_result_string = "";
+
+	/*
+		The idea is to have a common function for the purpose of the creating
+		of the view to run the tests. It expects test_table is available.
+	*/
+	if (!function_exists('create_test_view')) {
+		function create_test_view($nodeSession) {
+			global $db;
+			global $test_table_name;
+			global $test_view_name;
+			$schema = $nodeSession->getSchema($db);
+			$table = $schema->getTable($test_table_name);
+			$select = $table->select('name', 'age');
+			$schema->createView($test_view_name, true)
+				->columns(['name', 'age'])->definedAs($select)->execute();
+			$view = $schema->getTable($test_view_name);
+			return $view;
+		}
+	}
 
 	/*
 		Used to get line number of specified stack frame
@@ -197,10 +226,10 @@
 
 			$number_of_expectations++;
 
-                        if( $target == $expectation ){
-			        $test_result_string .= '1';
+			if( $target == $expectation ){
+				$test_result_string .= '1';
 			} else {
-			        print 'Line '.get_stack_frame_line_num().': \''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -242,19 +271,19 @@
 		}
 	}
 	/*
-	        Used to compare expected a null value
+		Used to compare expected a null value
 	*/
 	if( !function_exists('expect_null')) {
-	        function expect_null($expectation) {
-		        global $number_of_expectations;
+		function expect_null($expectation) {
+			global $number_of_expectations;
 			global $test_result_string;
 
-                        $number_of_expectations++;
+			$number_of_expectations++;
 
-                        if( null == $expectation ){
-			        $test_result_string .= '1';
+			if( null == $expectation ){
+				$test_result_string .= '1';
 			} else {
-			        print 'Line '.get_stack_frame_line_num().': false expected'.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num().': false expected'.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}

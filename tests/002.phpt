@@ -5,6 +5,13 @@ mysqlx getTable/getTables
 <?php
 	require("connect.inc");
 
+	function assert_table($name, $is_view = false) {
+		global $tables;
+		expect_true($tables[$name]->existsInDatabase());
+		expect_eq($tables[$name]->getName(), $name);
+		expect_eq($tables[$name]->isView(), $is_view);
+	}
+
 	$nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
@@ -22,14 +29,13 @@ mysqlx getTable/getTables
 
 	$nodeSession->executeSql("create table $db.test_table2(job text, experience int, uuid int)");
 	$nodeSession->executeSql("create table $db.test_table3(name text, surname text)");
+	create_test_view($nodeSession);
 
 	$tables = $schema->getTables();
-	expect_true($tables['test_table']->existsInDatabase());
-	expect_eq($tables['test_table']->getName(), 'test_table');
-	expect_true($tables['test_table2']->existsInDatabase());
-	expect_eq($tables['test_table2']->getName(), 'test_table2');
-	expect_true($tables['test_table3']->existsInDatabase());
-	expect_eq($tables['test_table3']->getName(), 'test_table3');
+	assert_table($test_table_name);
+	assert_table('test_table2');
+	assert_table('test_table3');
+	assert_table($test_view_name, true);
 
 	verify_expectations();
 	print "done!\n";

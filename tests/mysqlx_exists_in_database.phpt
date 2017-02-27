@@ -1,5 +1,5 @@
 --TEST--
-mysqlx existsInDatabase for schema, collection and table
+mysqlx existsInDatabase for schema, collection, table and view
 --SKIPIF--
 --FILE--
 <?php
@@ -8,12 +8,14 @@ mysqlx existsInDatabase for schema, collection and table
 	$nodeSession = create_test_db();
 
 	$schema = $nodeSession->getSchema($db);
-	$table = $schema->getTable("test_table");
-	$collection = $schema->getCollection("test_collection");
+	$table = $schema->getTable($test_table_name);
+	$collection = $schema->getCollection($test_collection_name);
+	$view = create_test_view($nodeSession);
 
 	expect_true($schema->existsInDatabase());
 	expect_true($table->existsInDatabase());
 	expect_true($collection->existsInDatabase());
+	expect_true($view->existsInDatabase());
 
 	$table = $schema->getTable("non_found_table");
 	$collection = $schema->getCollection("non_found_collection");
@@ -21,6 +23,8 @@ mysqlx existsInDatabase for schema, collection and table
 	expect_false($table->existsInDatabase());
 	expect_false($table->isView());
 	expect_false($collection->existsInDatabase());
+
+	$schema->dropView($test_view_name)->execute();
 
 	$schema = $nodeSession->getSchema("non_existing_schema");
 	$table = $schema->getTable("non_existing_table");
@@ -30,6 +34,8 @@ mysqlx existsInDatabase for schema, collection and table
 	expect_false($table->existsInDatabase());
 	expect_false($table->isView());
 	expect_false($collection->existsInDatabase());
+	expect_false($view->existsInDatabase());
+	expect_false($view->isView());
 
 	verify_expectations();
 	print "done!".PHP_EOL;

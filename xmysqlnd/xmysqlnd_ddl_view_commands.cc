@@ -23,6 +23,7 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_debug.h>
 }
 #include <cctype>
+#include <boost/algorithm/string/compare.hpp>
 
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
@@ -59,7 +60,7 @@ struct iless
 		return std::lexicographical_compare(
 			lhs.begin(), lhs.end(),
 			rhs.begin(), rhs.end(),
-			[](char lhs, char rhs) { return std::tolower(lhs) < std::tolower(rhs); }
+			boost::algorithm::is_iless()
 		);
 	}
 };

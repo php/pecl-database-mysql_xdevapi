@@ -37,7 +37,7 @@ namespace mysqlx {
 namespace drv {
 
 /* {{{ xmysqlnd_node_table::init */
-static enum_func_status
+enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, init)(XMYSQLND_NODE_TABLE * const table,
 										   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 										   XMYSQLND_NODE_SCHEMA * const schema,
@@ -71,7 +71,7 @@ struct table_or_view_var_binder_ctx
 
 
 /* {{{ table_op_var_binder */
-static const enum_hnd_func_status
+const enum_hnd_func_status
 table_op_var_binder(
 	void * context,
 	XMYSQLND_NODE_SESSION * session,
@@ -123,7 +123,7 @@ struct table_or_view_op_ctx
 
 
 /* {{{ table_or_view_exists_in_database_op */
-static const enum_hnd_func_status
+const enum_hnd_func_status
 table_or_view_exists_in_database_op(
 	void * context,
 	XMYSQLND_NODE_SESSION * const session,
@@ -140,20 +140,18 @@ table_or_view_exists_in_database_op(
 		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
 
 		if (equal_mysqlnd_cstr(object_name, ctx->expected_name)
-			&& (is_table_object_type(object_type) || is_view_object_type(object_type))) {
+			&& (is_table_object_type(object_type) || is_view_object_type(object_type))) 
+		{
 			ZVAL_TRUE(ctx->exists);
-		} else {
-			ZVAL_FALSE(ctx->exists);
+			DBG_RETURN(HND_PASS);
 		}
 	}
 	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
 
-} // anonymouse namespace
-
 /* {{{ xmysqlnd_node_table::exists_in_database */
-static enum_func_status
+enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 	XMYSQLND_NODE_TABLE * const table,
 	struct st_xmysqlnd_node_session_on_error_bind on_error,
@@ -199,10 +197,8 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 
 //------------------------------------------------------------------------------
 
-namespace {
-
 /* {{{ check_is_view_op */
-static const enum_hnd_func_status
+const enum_hnd_func_status
 check_is_view_op(
 	void * context,
 	XMYSQLND_NODE_SESSION * const session,
@@ -220,18 +216,15 @@ check_is_view_op(
 
 		if (equal_mysqlnd_cstr(object_name, ctx->expected_name) && is_view_object_type(object_type)) {
 			ZVAL_TRUE(ctx->exists);
-		} else {
-			ZVAL_FALSE(ctx->exists);
+			DBG_RETURN(HND_PASS);
 		}
 	}
 	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
 
-} // anonymouse namespace
-
 /* {{{ xmysqlnd_node_table::is_view */
-static enum_func_status
+enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 	XMYSQLND_NODE_TABLE* const table,
 	st_xmysqlnd_node_session_on_error_bind on_error,
@@ -284,7 +277,7 @@ struct st_table_sql_single_result_ctx
 
 
 /* {{{ table_sql_single_result_op_on_row */
-static const enum_hnd_func_status
+const enum_hnd_func_status
 table_sql_single_result_op_on_row(
 	void * context,
 	XMYSQLND_NODE_SESSION * const session,
@@ -298,14 +291,16 @@ table_sql_single_result_op_on_row(
 	DBG_ENTER("table_sql_single_result_op_on_row");
 	if (ctx && row) {
 		ZVAL_COPY_VALUE(ctx->result, &row[0]);
+		DBG_RETURN(HND_PASS);
+	} else {
+		DBG_RETURN(HND_AGAIN);
 	}
-	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_node_table::count */
-static enum_func_status
+enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 	XMYSQLND_NODE_TABLE * const table,
 	struct st_xmysqlnd_node_session_on_error_bind on_error,
@@ -373,7 +368,7 @@ struct my_php_json_parser {
 
 
 /* {{{ xmysqlnd_json_parser_object_update */
-static int
+int
 xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_string *key, zval *zvalue)
 {
 	struct st_parse_for_id_status * status = ((struct my_php_json_parser *)parser)->status;
@@ -407,7 +402,7 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 
 
 /* {{{ xmysqlnd_json_string_find_id */
-static enum_func_status
+enum_func_status
 xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend_long depth, struct st_parse_for_id_status * status)
 {
 	php_json_parser_methods own_methods;
@@ -439,7 +434,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 
 
 /* {{{ xmysqlnd_node_table::insert */
-static XMYSQLND_NODE_STMT *
+XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 {
 	XMYSQLND_NODE_STMT * ret = NULL;
@@ -471,7 +466,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, 
 
 
 /* {{{ xmysqlnd_node_table::opdelete */
-static XMYSQLND_NODE_STMT *
+XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 {
 	XMYSQLND_NODE_STMT * ret = NULL;
@@ -502,7 +497,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table
 
 
 /* {{{ xmysqlnd_node_table::update */
-static XMYSQLND_NODE_STMT *
+XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 {
 	XMYSQLND_NODE_STMT * ret = NULL;
@@ -533,7 +528,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, 
 
 
 /* {{{ xmysqlnd_node_table::select */
-static struct st_xmysqlnd_node_stmt *
+st_xmysqlnd_node_stmt *
 XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 {
 	XMYSQLND_NODE_STMT * stmt = NULL;
@@ -557,7 +552,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, 
 /* }}} */
 
 /* {{{ xmysqlnd_node_table::get_reference */
-static XMYSQLND_NODE_TABLE *
+XMYSQLND_NODE_TABLE *
 XMYSQLND_METHOD(xmysqlnd_node_table, get_reference)(XMYSQLND_NODE_TABLE * const table)
 {
 	DBG_ENTER("xmysqlnd_node_table::get_reference");
@@ -569,7 +564,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, get_reference)(XMYSQLND_NODE_TABLE * const 
 
 
 /* {{{ xmysqlnd_node_table::free_reference */
-static enum_func_status
+enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, free_reference)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	enum_func_status ret = PASS;
@@ -584,7 +579,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, free_reference)(XMYSQLND_NODE_TABLE * const
 
 
 /* {{{ xmysqlnd_node_table::free_contents */
-static void
+void
 XMYSQLND_METHOD(xmysqlnd_node_table, free_contents)(XMYSQLND_NODE_TABLE * const table)
 {
 	const zend_bool pers = table->data->persistent;
@@ -599,7 +594,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, free_contents)(XMYSQLND_NODE_TABLE * const 
 
 
 /* {{{ xmysqlnd_node_table::dtor */
-static void
+void
 XMYSQLND_METHOD(xmysqlnd_node_table, dtor)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_table::dtor");
@@ -616,7 +611,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, dtor)(XMYSQLND_NODE_TABLE * const table, MY
 /* }}} */
 
 
-static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_table)
 	XMYSQLND_METHOD(xmysqlnd_node_table, init),
 	XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database),
@@ -633,6 +627,8 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_table)
 	XMYSQLND_METHOD(xmysqlnd_node_table, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_table, dtor),
 MYSQLND_CLASS_METHODS_END;
+
+} // anonymouse namespace
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_table);
 

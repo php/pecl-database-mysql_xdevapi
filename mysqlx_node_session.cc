@@ -311,9 +311,9 @@ mysqlx_new_node_session(zval * return_value)
 /* }}} */
 
 
-/* {{{ craete_new_session */
+/* {{{ create_new_session */
 static
-enum_func_status craete_new_session(php_url * url,
+enum_func_status create_new_session(php_url * url,
 								zval * return_value)
 {
 	enum_func_status ret = FAIL;
@@ -427,7 +427,7 @@ PHP_FUNCTION(mysql_xdevapi__getNodeSession)
 					 node_url->user, node_url->pass,
 					 node_url->path, node_url->query);
 
-		ret = craete_new_session(node_url,
+		ret = create_new_session(node_url,
 								return_value);
 	} else {
 		RAISE_EXCEPTION(err_msg_uri_string_fail);

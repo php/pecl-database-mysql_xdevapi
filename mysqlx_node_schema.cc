@@ -495,7 +495,7 @@ mysqlx_on_db_object(void * context, XMYSQLND_NODE_SCHEMA * const schema, const M
 
 	ZVAL_UNDEF(&zv);
 
-	if (object_type.s[0] == 'T') {
+	if ((object_type.s[0] == 'T') || (object_type.s[0] == 'V')) {
 		XMYSQLND_NODE_TABLE * const table = schema->data->m.create_table_object(schema, object_name);
 		if (table) {
 			mysqlx_new_node_table(&zv, table, FALSE);

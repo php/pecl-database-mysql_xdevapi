@@ -1346,7 +1346,7 @@ query_cb_handler_on_row(void * context,
 	if (ctx && ctx->session && ctx->handler_on_row.handler && row) {
 		ret = ctx->handler_on_row.handler(ctx->handler_on_row.ctx, ctx->session, stmt, meta, row, stats, error_info);
 	}
-	ret = HND_AGAIN;
+	ret = HND_AGAIN; // for now we don't allow fetching to be suspended and continued later
 	DBG_RETURN(ret);
 }
 /* }}} */
