@@ -62,6 +62,7 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 #define err_msg_arridx_del_fail     10024, "Error while deleting an array index"
 #define err_msg_uri_string_fail     10025, "Incorrect URI string provided"
 #define err_msg_new_session_fail    10026, "Unable to create a new session"
+#define err_msg_internal_error      10027, "Internal error."
 
 extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 

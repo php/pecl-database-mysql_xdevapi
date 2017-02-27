@@ -686,7 +686,12 @@ xmysqlnd_capabilities_get__read_response(struct st_xmysqlnd_msg__capabilities_ge
 {
 	DBG_ENTER("xmysqlnd_capabilities_get__read_response");
 	msg->capabilities_zval = capabilities;
-	const enum_func_status ret = xmysqlnd_receive_message(&capabilities_get_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
+	const enum_func_status ret = xmysqlnd_receive_message(&capabilities_get_handlers,
+										msg,
+										msg->vio,
+										msg->pfc,
+										msg->stats,
+										msg->error_info);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -698,7 +703,10 @@ xmysqlnd_capabilities_get__send_request(struct st_xmysqlnd_msg__capabilities_get
 {
 	size_t bytes_sent;
 	Mysqlx::Connection::CapabilitiesGet message;
-	return xmysqlnd_send_message(COM_CAPABILITIES_GET, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
+	return xmysqlnd_send_message(COM_CAPABILITIES_GET,
+					message, msg->vio,
+					msg->pfc, msg->stats,
+					msg->error_info, &bytes_sent);
 }
 /* }}} */
 
