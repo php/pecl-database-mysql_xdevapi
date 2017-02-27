@@ -140,7 +140,7 @@ table_or_view_exists_in_database_op(
 		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
 
 		if (equal_mysqlnd_cstr(object_name, ctx->expected_name)
-			&& (is_table_object_type(object_type) || is_view_object_type(object_type))) 
+			&& (is_table_object_type(object_type) || is_view_object_type(object_type)))
 		{
 			ZVAL_TRUE(ctx->exists);
 			DBG_RETURN(HND_PASS);
