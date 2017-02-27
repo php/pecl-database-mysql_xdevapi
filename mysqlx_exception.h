@@ -35,7 +35,7 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 //What follows is a list of *general* error message, better to avoid continuos
 //duplications of those messages and put them all here.
 
-#define err_msg_fetch_fail          10000, "Coulnd't fetch data"
+#define err_msg_fetch_fail          10000, "Couldn't fetch data"
 #define err_msg_meta_fail           10001, "Unable to extract metadata"
 #define err_msg_add_doc             10002, "Error adding document"
 #define err_msg_json_fail           10003, "Error serializing document to JSON"
