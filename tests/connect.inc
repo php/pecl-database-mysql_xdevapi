@@ -19,11 +19,11 @@
 	$skip_on_connect_failure  = getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") ? getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") : true;
 	$connect_flags = getenv("MYSQLX_TEST_CONNECT_FLAGS") ? (int)getenv("MYSQLX_TEST_CONNECT_FLAGS") : 0;
 	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
-	
+
 	$test_table_name = "test_table";
 	$test_collection_name = "test_collection";
 	$test_view_name = "test_view";
-	
+
 	if ($socket) {
 		ini_set('mysqli.default_socket', $socket);
 	}
@@ -215,7 +215,7 @@
 			}
 		}
 	}
-	
+
 	/*
 		Used to compare expected values with actual values
 	*/
