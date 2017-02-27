@@ -284,20 +284,16 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DA
 								 session->socket_path.c_str());
 	} else if( session->transport_type == transport_types::windows_pipe ) {
 #ifdef PHP_WIN32
-	/* Somewhere here?! (This is old code) */
-	if (hostname.l == sizeof(".") - 1 && hostname.s[0] == '.') {
-		/* named pipe in socket */
-		if (!socket_or_pipe->s) {
-			socket_or_pipe->s = "\\\\.\\pipe\\MySQL";
-			socket_or_pipe->l = strlen(socket_or_pipe->s);
+		/* Somewhere here?! (This is old code) */
+		if (hostname == ".") {
+			/* named pipe in socket */
+			session->socket_path = "\\\\.\\pipe\\MySQL";
 		}
 		transport.l = mnd_sprintf(&transport.s, 0, "pipe://%s", session->socket_path.c_str());
-		*named_pipe = TRUE;
-	}
-	else
-#endif
+#else
 		DBG_ERR_FMT("Windows pipe not supported!.");
 		devapi::RAISE_EXCEPTION( err_msg_internal_error );
+#endif
 	} else {
 		/*
 		 * At this point, there must be a selected transport type!
@@ -798,7 +794,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 		} else if( transport == transport_types::unix_domain_socket ) {
 			session->server_host_info = mnd_pestrdup("Localhost via UNIX socket",
 												session->persistent);
-		} else if( transport == transport_types::unix_domain_socket ) {
+		} else if( transport == transport_types::windows_pipe) {
 			session->server_host_info = get_server_host_info("%s via named pipe",
 												session->socket_path.c_str(),
 												session->persistent);
