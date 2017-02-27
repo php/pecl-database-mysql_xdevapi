@@ -280,7 +280,7 @@ array(1) {
   }
 }
 ---- 4 ----
-expected createView failure 10000 : [HY000] Coulnd't fetch data
+expected createView failure 10000 : [HY000] Couldn't fetch data
 ---- 5 ----
 array(1) {
   [0]=>
@@ -298,5 +298,5 @@ array(1) {
   }
 }
 ---- 7 ----
-expected dropView failure 10000 : [HY000] Coulnd't fetch data
+expected dropView failure 10000 : [HY000] Couldn't fetch data
 done!%A

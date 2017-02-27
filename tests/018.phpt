@@ -15,7 +15,7 @@ mysqlx basic executeSql
 		$nodeSession->executeSql("create table $db.test_table (name text, age int, job text)");
 	} catch(Exception $e) {
 		expect_eq($e->getMessage(),
-			'[HY000] Coulnd\'t fetch data');
+			'[HY000] Couldn\'t fetch data');
 		expect_eq($e->getCode(), 10000);
 		print "Exception!".PHP_EOL;
 	}
