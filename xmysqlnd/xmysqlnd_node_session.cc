@@ -18,6 +18,7 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef max
 #undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_charset.h"
@@ -50,6 +51,7 @@ extern "C" {
 #include <phputils/object.h>
 #include <utility>
 #include <algorithm>
+#include <cctype>
 
 namespace mysqlx {
 
@@ -2846,7 +2848,7 @@ vec_of_addresses list_of_addresses_parser::parse()
 			});
 		}
 	}
-	DBG_RETURN( list_of_addresses )
+	DBG_RETURN( list_of_addresses );
 }
 
 bool list_of_addresses_parser::parse_round_token(const phputils::string &str)
