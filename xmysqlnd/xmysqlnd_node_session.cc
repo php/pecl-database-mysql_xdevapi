@@ -18,6 +18,7 @@
 extern "C" {
 #include <php.h>
 #undef ERROR
+#undef max
 #undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_charset.h"
@@ -50,6 +51,7 @@ extern "C" {
 #include <phputils/object.h>
 #include <utility>
 #include <algorithm>
+#include <cctype>
 
 namespace mysqlx {
 
