@@ -35,6 +35,10 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 //What follows is a list of *general* error message, better to avoid continuos
 //duplications of those messages and put them all here.
 
+#define err_msg_invalid_prio_assignment 4000, "You must either assign no priority to any of the routers or give a priority for every router"
+#define err_msg_all_routers_failed      4001, "All routers failed."
+#define err_msg_prio_values_not_inrange 4007, "The priorities must be between 0 and 100"
+
 #define err_msg_fetch_fail          10000, "Couldn't fetch data"
 #define err_msg_meta_fail           10001, "Unable to extract metadata"
 #define err_msg_add_doc             10002, "Error adding document"

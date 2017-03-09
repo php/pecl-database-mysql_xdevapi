@@ -26,28 +26,28 @@ mysqlx Unix domain socket
 	try{
 	        $uri = $scheme.'://'.$user.':'.$passwd.'@/tmp%2Fmysqlx.sockk/testx';
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		test_step_failed();
+		expect_null( $nodeSession );
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
 	try{
 	        $uri = $scheme.'://'.$user.':'.$passwd.'@(/tmp/mysqlx.socck)/testx';
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		test_step_failed();
+		expect_null( $nodeSession );
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
 	try{
 	        $uri = $scheme.'://'.$user.':'.$passwd.'@(/tmp2/mysqlx.sock)';
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		test_step_failed();
+		expect_null( $nodeSession );
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
 	try{
 	        $uri = $scheme.'://'.$user.':'.$passwd.'@';
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		test_step_failed();
+		expect_null( $nodeSession );
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}

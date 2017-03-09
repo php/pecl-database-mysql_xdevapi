@@ -29,6 +29,7 @@ extern "C" {
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_node_stmt.h"
 #include "phputils/strings.h"
+#include "phputils/types.h"
 
 namespace mysqlx {
 
@@ -43,6 +44,9 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_module_init();
 /* XMYSQLND_NODE_SESSION_DATA::client_capabilities */
 #define XMYSQLND_CLIENT_NO_FLAG	0
 #define XMYSQLND_FICTIVE_FLAG	1
+
+/* Max possible value for an host priority (Client side failovers) */
+constexpr int MAX_HOST_PRIORITY{ 100 };
 
 enum xmysqlnd_node_session_state
 {

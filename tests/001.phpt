@@ -23,13 +23,13 @@ error_reporting=0
         for( $i = 0 ; $i < count($uri_string) ; $i++ ) {
 	    try {
 	            $nodeSession = mysql_xdevapi\getNodeSession($uri_string[$i][0]);
-		    test_step_failed();
+		    expect_null( $nodeSession );
 	    } catch(Exception $e) {
 	            expect_eq($e->getCode(), $uri_string[$i][1]);
 	    }
 	    try {
 	            $nodeSession = mysql_xdevapi\getSession($uri_string[$i][0]);
-		    test_step_failed();
+		     expect_null( $nodeSession );
 	    } catch(Exception $e) {
 	            expect_eq($e->getCode(), $uri_string[$i][1]);
 	    }

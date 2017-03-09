@@ -689,11 +689,10 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SES
 									session->error_info) &&
 		PASS == session->io.pfc->data->m.reset(session->io.pfc,
 									session->stats,
-									session->error_info))
-
-	SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
-	ret = session->m->authenticate(session, scheme, database, set_capabilities);
-
+									session->error_info)) {
+		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
+		ret = session->m->authenticate(session, scheme, database, set_capabilities);
+	}
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1024,6 +1023,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents)(XMYSQLND_NODE_SESSION
 
 	if(session->auth) {
 		delete session->auth;
+		session->auth = nullptr;
 	}
 	if (session->current_db.s) {
 		mnd_pefree(session->current_db.s, pers);
@@ -2377,10 +2377,7 @@ enum_func_status establish_connection(struct mysqlx::devapi::st_mysqlx_session *
 			ret = FAIL;
 		}
 
-		if (object->session != new_session) {
-			xmysqlnd_throw_exception_from_session_if_needed(object->session->data);
-
-			object->session->m->close(object->session, XMYSQLND_CLOSE_IMPLICIT);
+		if (ret == PASS && object->session != new_session) {
 			if (new_session) {
 				php_error_docref(NULL, E_WARNING, "Different object returned");
 			}
@@ -2407,7 +2404,7 @@ extract_transport(phputils::string& uri)
 		return { transport, transport_types::none };
 	}
 	char tr = uri[ ++idx ];
-	if( tr == '.' || tr == '/' || tr == '(' || tr == '\\') {
+	if( tr == '.' || tr == '/' || tr == '(' || tr == '\\' ) {
 		/*
 		 * Attempt to use a windows pipe or unix
 		 * domain socket.
@@ -2666,6 +2663,305 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const php_url * node_url)
 }
 /* }}} */
 
+namespace
+{
+
+using vec_of_addresses = phputils::vector< std::pair<phputils::string,long> >;
+
+/* {{{ list_of_addresses_parser */
+class list_of_addresses_parser
+{
+	bool parse_round_token( const phputils::string& str );
+	void add_address(vec_of_addresses::value_type addr);
+public:
+	list_of_addresses_parser(phputils::string uri);
+	vec_of_addresses parse();
+private:
+	enum class cur_bracket {
+		none, //Still need to find the first one
+		square_bracket,
+		round_bracket,
+	};
+
+	std::size_t beg{ 0 };
+	std::size_t end{ 0 };
+	phputils::string uri_string,
+					unformatted_uri;
+	vec_of_addresses list_of_addresses;
+};
+
+list_of_addresses_parser::list_of_addresses_parser(phputils::string uri)
+{
+	/*
+	 * Remove spaces and tabs..
+	 */
+	uri.erase( std::remove_if(
+				   uri.begin(),
+				   uri.end(),
+				   [](char ch){ return std::isspace( ch ); }),
+			   uri.end());
+	/*
+	 * Initial parse the input URI
+	 */
+	beg = uri.find_first_of('@');
+	if( beg != phputils::string::npos ) {
+		++beg;
+	} else {
+		/*
+		 * Bad formatted URI
+		 */
+		end = beg;
+		return;
+	}
+	/*
+	 * Enable parsing only if this is a list
+	 * of addresses
+	 */
+	bool valid_list{ false };
+	/*
+	 * Find the first opening [ (start of the list) and
+	 * the relative closing ] (end of the list). Verify
+	 * if that can possibly be a list.
+	 *
+	 * (This code is not safe from ill-formatted URI's.. nobody is)
+	 */
+	int brk_cnt{ uri[ beg ] == '[' };
+	for( end = beg + 1 ; brk_cnt > 0 && end < uri.size() ; ++end ) {
+		switch( uri[ end ] )
+		{
+		case '[':
+			if( ++brk_cnt > 1 ) {
+				//possible only if this is a list
+				valid_list = true;
+			}
+			break;
+		case ']':
+			if( 0 == --brk_cnt ) {
+				//done..
+				--end;
+			}
+			break;
+		case ','://Found a list separator
+			valid_list = true;
+			break;
+		case '(':
+		case ')':
+			valid_list = true;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if( brk_cnt != 0 ) {
+		//Ill-formed URI
+		end = beg;
+		return;
+	}
+
+	if( valid_list ) {
+		uri_string = uri;
+		/*
+		 * The unformatted_uri string is used
+		 * to build the proper addresses for each
+		 * host provided in the list
+		 */
+		unformatted_uri = uri_string;
+		unformatted_uri.erase( beg , end - beg + 1 );
+		/*
+		 * Skip the brackets
+		 */
+		++beg; --end;
+	} else {
+		/*
+		 * Only one address
+		 */
+		list_of_addresses.push_back({
+					uri,
+					MAX_HOST_PRIORITY });
+		end = beg; //Signal to 'parse' to actually not parse.
+	}
+}
+
+
+vec_of_addresses list_of_addresses_parser::parse()
+{
+	DBG_ENTER("list_of_addresses_parser::parse");
+	bool success{ true };
+	std::size_t pos{ beg },
+			last_pos{ beg };
+	for( std::size_t idx{ beg }; success && idx <= end; ++idx ) {
+		if( uri_string[ idx ] == '(' ) {
+			pos = uri_string.find_first_of( ')', idx );
+			if( pos == phputils::string::npos ) {
+				success = false;
+				break;
+			}
+			success = parse_round_token( uri_string.substr(idx, pos - idx + 1) );
+			last_pos = pos + 2;
+			idx = pos;
+		} else if( ( uri_string[ idx ] == ',' || idx == end ) && last_pos < idx) {
+			add_address( { uri_string.substr( last_pos, idx - last_pos + ( idx == end ) ), -1 } );
+			last_pos = ++idx;
+		}
+	}
+	if( false == success ) {
+		//Nothing more to do here.
+		return {};
+	}
+	/*
+	 * Either all -1 (no priority) or every
+	 * host shall have its own priority
+	 */
+	long prio_cnt{ 0 };
+	for( auto&& elem : list_of_addresses ) {
+		if( elem.second >= 0 ) {
+			++prio_cnt;
+		}
+	}
+	if( prio_cnt != 0 &&
+		prio_cnt != list_of_addresses.size() ) {
+		devapi::RAISE_EXCEPTION( err_msg_invalid_prio_assignment );
+		list_of_addresses.clear();
+	} else {
+		/*
+		 * Setup default priorities if they were
+		 * not provided
+		 */
+		if( prio_cnt == 0 ) {
+			int current_prio{ MAX_HOST_PRIORITY };
+			for( auto&& elem : list_of_addresses ) {
+				elem.second = std::max( current_prio--, 0 );
+			}
+		} else {
+			/*
+			 * The priority define the order
+			 * of connections and failovers
+			 */
+			std::sort( list_of_addresses.begin(),
+					   list_of_addresses.end(),
+					   [](const vec_of_addresses::value_type& elem_1,
+					   const vec_of_addresses::value_type& elem_2) {
+				return elem_1.second > elem_2.second;
+			});
+		}
+	}
+	DBG_RETURN( list_of_addresses )
+}
+
+bool list_of_addresses_parser::parse_round_token(const phputils::string &str)
+{
+	/*
+	 * Assuming no ill-formed input, round squares are
+	 * allowed only when addresses and priorities are provided:
+	 *
+	 * addresspriority  ::= "(address=" address ", priority=" prio ")"
+	 */
+	static const std::string address = "address";
+	static const std::string priority = "priority";
+	auto addr_beg = str.find(address.c_str()),
+			prio_beg = str.find(priority.c_str());
+	if( addr_beg == phputils::string::npos ||
+		prio_beg == phputils::string::npos ||
+		prio_beg < addr_beg ) {
+		//Ill-formed input
+		return false;
+	}
+	addr_beg += address.size();
+	prio_beg += priority.size();
+	/*
+	 * Extract address and priority, with very minium error
+	 * checking (ill-formed input string)
+	 */
+	std::size_t idx = addr_beg;
+	std::size_t ss_pos[2] = {0,0};
+	phputils::string output[2];
+	for(int i{ 0 } ; i < 2; ++i ) {
+		ss_pos[0] = 0;
+		ss_pos[1] = 0;
+		for( ; idx < str.size(); ++idx ) {
+			if( str[ idx ] == '=' ) {
+				if( ss_pos[0] != 0 ) {
+					return false;
+				}
+				ss_pos[0] = idx + 1;
+			} else if( str[ idx ] == ',' ||
+					   i == 1 && str[ idx ] == ')' ) {
+				if( ss_pos[1] != 0 ) {
+					return false;
+				}
+				ss_pos[1] = idx;
+				break;
+			}
+		}
+		if( ( i == 0 && idx >= prio_beg ) ||
+			ss_pos[0] > ss_pos[1] ) {
+			return false;
+		}
+		//Trim the tabs and spaces
+		for( auto&& ch : str.substr( ss_pos[0], ss_pos[1] - ss_pos[0]) ) {
+			if( ch != ' ' && ch != '\t' ) {
+				output[i] += ch;
+			}
+		}
+		idx = prio_beg;
+	}
+
+	vec_of_addresses::value_type new_addr = { output[0], std::atoi( output[1].c_str() ) };
+	/*
+	 * Allowed priorities between 0 and 100 inclusive
+	 */
+	if( new_addr.second < 0 || new_addr.second > MAX_HOST_PRIORITY ) {
+		devapi::RAISE_EXCEPTION( err_msg_prio_values_not_inrange );
+		return false;
+	}
+	add_address(new_addr);
+	return true;
+}
+
+
+void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
+{
+	/*
+	 * Prepare the correct format for the address
+	 * before pushing
+	 */
+	auto new_addr = unformatted_uri;
+	new_addr.insert( beg - 1 , addr.first );
+	list_of_addresses.push_back( { new_addr, addr.second } );
+}
+
+}
+/* }}} */
+
+/* {{{ extract_uri_addresses */
+static
+vec_of_addresses extract_uri_addresses(const phputils::string& uri)
+{
+	/*
+	 * The URI string might contain a list of alternative
+	 * address to routers which are provided to
+	 * implement the client side failover feature
+	 *
+	 * The function a vector with the proper URI for
+	 * each provided address, those URI are sorted
+	 * on the base of their priority
+	 */
+
+	std::size_t idx = uri.find_last_of('@'),
+			not_found = phputils::string::npos,
+			len = uri.size();
+	if( idx == not_found || ( len - idx <= 2) ) {
+		//Ill formed URI
+		devapi::RAISE_EXCEPTION(err_msg_uri_string_fail);
+		return {};
+	}
+
+	list_of_addresses_parser parser( uri );
+	return parser.parse();
+}
+/* }}} */
+
 
 /* {{{ xmysqlnd_node_new_session_connect */
 PHP_MYSQL_XDEVAPI_API
@@ -2674,23 +2970,52 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 {
 	DBG_ENTER("xmysqlnd_node_new_session_connect");
 	enum_func_status ret = FAIL;
-	auto url = extract_uri_information(uri_string);
-	if( nullptr != url.first ) {
-		struct mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
-		if( NULL != session ){
+	/*
+	 * Verify whether a list of addresses is provided,
+	 * if that's the case we need to parse those addresses
+	 * and their priority in order to implement the
+	 * Client Side Failover
+	 */
+	auto uris = extract_uri_addresses( uri_string );
+	/*
+	 * For each address attempt to perform a connection
+	 * (The addresses are sorted by priority)
+	 */
+	for( auto&& current_uri : uris ) {
+		DBG_INF_FMT("Attempting to connect with: %s\n",
+					current_uri.first.c_str());
+
+		auto url = extract_uri_information( current_uri.first.c_str() );
+		if( nullptr != url.first ) {
+			mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
+			if( nullptr == session ) {
+				devapi::RAISE_EXCEPTION( err_msg_internal_error );
+				DBG_RETURN(ret);
+			}
 			XMYSQLND_SESSION_AUTH_DATA * auth = extract_auth_information(url.first);
 			if( NULL != auth ) {
 				DBG_INF_FMT("Attempting to connect...");
 				ret = establish_connection(session,auth,
 								url.first,url.second);
+				if( FAIL == ret ) {
+					zval_dtor(return_value);
+					ZVAL_NULL(return_value);
+				}
 			} else {
 				DBG_ERR_FMT("Connection aborted, not able to setup the 'auth' structure.");
 			}
-		}
 
-		php_url_free( url.first );
-	} else {
-		devapi::RAISE_EXCEPTION(err_msg_uri_string_fail);
+			php_url_free( url.first );
+		} else {
+			devapi::RAISE_EXCEPTION( err_msg_uri_string_fail );
+		}
+		if( ret == PASS ) {
+			//Ok, connection accepted with this host.
+			break;
+		}
+	}
+	if( uris.size() > 1 && ret == FAIL ) {
+		devapi::RAISE_EXCEPTION( err_msg_all_routers_failed );
 	}
 	/*
 	 * Do not worry about the allocated auth if
