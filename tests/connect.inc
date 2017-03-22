@@ -15,7 +15,7 @@
 	$passwd    = getenv("MYSQLX_TEST_PASSWD")   ? getenv("MYSQLX_TEST_PASSWD") : "";
 	$db        = getenv("MYSQLX_TEST_DB")       ? getenv("MYSQLX_TEST_DB") : "testx";
 	$engine    = getenv("MYSQLX_TEST_ENGINE")   ? getenv("MYSQLX_TEST_ENGINE") : "MyISAM";
-	$socket    = getenv("MYSQLX_TEST_SOCKET")   ? getenv("MYSQLX_TEST_SOCKET") : null;
+	$socket    = getenv("MYSQLX_TEST_SOCKET")   ? getenv("MYSQLX_TEST_SOCKET") : getenv("MYSQLX_SOCKET");
 	$skip_on_connect_failure  = getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") ? getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") : true;
 	$connect_flags = getenv("MYSQLX_TEST_CONNECT_FLAGS") ? (int)getenv("MYSQLX_TEST_CONNECT_FLAGS") : 0;
 	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;

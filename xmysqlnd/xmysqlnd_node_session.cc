@@ -2440,7 +2440,7 @@ extract_transport(phputils::string& uri)
 		 * to cover the input URI: @../socket or @../socket/schema
 		 * and @./socket or @./socket/schema
 		 */
-		if( end_idx == idx ||
+		if( end_idx <= idx ||
 				( !double_dot && end_idx == idx + 1 ) ||
 				( double_dot && end_idx == idx + 2 ) ) {
 			/*

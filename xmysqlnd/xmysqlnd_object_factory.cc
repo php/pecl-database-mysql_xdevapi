@@ -86,7 +86,9 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CL
 
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session_data");
 	DBG_INF_FMT("persistent=%u", persistent);
-	object = static_cast<XMYSQLND_NODE_SESSION_DATA*>(mnd_pecalloc(1, alloc_size, persistent));
+	void* object_raw = mnd_pecalloc(1, alloc_size, persistent);
+	//Force a call to the constructor
+	object = new(object_raw)XMYSQLND_NODE_SESSION_DATA;
 	if (!object) {
 		DBG_RETURN(NULL);
 	}
