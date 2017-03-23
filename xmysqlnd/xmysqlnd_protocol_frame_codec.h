@@ -20,6 +20,7 @@
 
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
+#include "phputils/allocator.h"
 
 namespace mysqlx {
 
@@ -49,7 +50,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec)
 	func_xmysqlnd_pfc__dtor dtor;
 };
 
-struct st_xmysqlnd_protocol_frame_codec_data
+struct st_xmysqlnd_protocol_frame_codec_data : public phputils::permanent_allocable
 {
 	php_stream		*stream;
 	size_t			max_packet_size;
@@ -60,7 +61,7 @@ struct st_xmysqlnd_protocol_frame_codec_data
 };
 
 
-struct st_xmysqlnd_protocol_frame_codec
+struct st_xmysqlnd_protocol_frame_codec : public phputils::permanent_allocable
 {
 	MYSQLND_CMD_BUFFER	cmd_buffer;
 

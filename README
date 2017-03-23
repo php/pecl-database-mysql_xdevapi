@@ -127,11 +127,24 @@ Besides, keep in mind that script
 bin\phpsdk_setvars.bat (mentioned on ttps://wiki.php.net/internals/windows/stepbystepbuild)
 also modifies PATH. So you may want to introduce changes for PATH environment variable afterwards.
 
+6) OpenSSL on Windows
+In case there appears error similar to:
+
+---------------------------
+php.exe - Ordinal Not Found
+---------------------------
+The ordinal 359 could not be located in the dynamic link library <path>\php7ts_debug.dll.
+---------------------------
+
+Please ensure everything is fine with OpenSSL library. Try to rebuild without "--with-openssl" switch
+to be sure OpenSSL is the reason.
+
 
 Supported X DevAPI features
 ---------------------------
 - collections API - add, find, modify, remove
 - table API - insert, select, update, delete
+- view API - create, alter, drop
 - collection / table - getName, existsInDatabase, count
 - resultsets / multi-resultsets
 - getCollection(s) / getTable(s) / getCollectionAsTable

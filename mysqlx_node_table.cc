@@ -551,7 +551,7 @@ static zend_object *
 php_mysqlx_node_table_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_table_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_xmysqlnd_node_table>(
+	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_table>(
 		class_type,
 		&mysqlx_object_node_table_handlers,
 		&mysqlx_node_table_properties);

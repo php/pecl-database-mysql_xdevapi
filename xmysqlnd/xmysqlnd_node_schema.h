@@ -19,6 +19,7 @@
 #define XMYSQLND_NODE_SCHEMA_H
 
 #include "xmysqlnd_driver.h"
+#include "phputils/allocator.h"
 
 namespace mysqlx {
 
@@ -109,7 +110,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 	func_xmysqlnd_node_schema__dtor dtor;
 };
 
-struct st_xmysqlnd_node_schema_data
+struct st_xmysqlnd_node_schema_data : public phputils::permanent_allocable
 {
 	struct st_xmysqlnd_node_session * session;
 	MYSQLND_STRING schema_name;
@@ -122,7 +123,7 @@ struct st_xmysqlnd_node_schema_data
 };
 
 
-struct st_xmysqlnd_node_schema
+struct st_xmysqlnd_node_schema : public phputils::permanent_allocable
 {
 	XMYSQLND_NODE_SCHEMA_DATA * data;
 

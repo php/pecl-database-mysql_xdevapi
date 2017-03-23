@@ -253,7 +253,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 };
 
 
-struct st_xmysqlnd_node_session_data
+struct st_xmysqlnd_node_session_data : public phputils::permanent_allocable
 {
 /* Operation related */
 	XMYSQLND_L3_IO	io;
@@ -450,7 +450,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 #define XMYSQLND_UUID_LENGTH 32
 #define XMYSQLND_UUID_CACHE_ELEMENTS 8
 
-struct st_xmysqlnd_node_session
+struct st_xmysqlnd_node_session : public phputils::permanent_allocable
 {
 	XMYSQLND_NODE_SESSION_DATA * data;
 	char * server_version_string;

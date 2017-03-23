@@ -19,6 +19,7 @@
 #define XMYSQLND_NODE_STMT_RESULT_H
 
 #include "xmysqlnd_driver.h"
+#include "phputils/allocator.h"
 
 namespace mysqlx {
 
@@ -96,7 +97,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 
 
 
-struct st_xmysqlnd_node_stmt_result
+struct st_xmysqlnd_node_stmt_result : public phputils::permanent_allocable
 {
 	struct st_xmysqlnd_rowset * rowset;
 	struct st_xmysqlnd_node_stmt_result_meta * meta;

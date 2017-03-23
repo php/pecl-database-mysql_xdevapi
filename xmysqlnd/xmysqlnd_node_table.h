@@ -21,7 +21,7 @@
 #include "xmysqlnd_driver.h"
 
 #include "xmysqlnd_crud_table_commands.h"
-#include <phputils/allocator.h>
+#include "phputils/allocator.h"
 
 namespace mysqlx {
 
@@ -75,7 +75,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_table)
 	func_xmysqlnd_node_table__dtor dtor;
 };
 
-struct st_xmysqlnd_node_table_data
+struct st_xmysqlnd_node_table_data : public phputils::permanent_allocable
 {
 	struct st_xmysqlnd_node_schema * schema;
 	MYSQLND_STRING table_name;
@@ -88,7 +88,7 @@ struct st_xmysqlnd_node_table_data
 };
 
 
-struct st_xmysqlnd_node_table : phputils::custom_allocable
+struct st_xmysqlnd_node_table : phputils::permanent_allocable
 {
 	XMYSQLND_NODE_TABLE_DATA * data;
 

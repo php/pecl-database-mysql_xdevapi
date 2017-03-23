@@ -77,7 +77,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd)
 	func_xmysqlnd_rowset_fwd__dtor dtor;
 };
 
-struct st_xmysqlnd_rowset_fwd
+struct st_xmysqlnd_rowset_fwd : public phputils::permanent_allocable
 {
 	struct st_xmysqlnd_node_stmt * stmt;
 	struct st_xmysqlnd_node_stmt_result_meta * meta;
