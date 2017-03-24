@@ -8,7 +8,6 @@
 
 	$driver    = new mysqli_driver;
 
-	$scheme    = getenv("MYSQLX_TEST_SCHEME")   ? getenv("MYSQLX_TEST_SCHEME") : getenv("MYSQLX_SCHEME") ? getenv("MYSQLX_SCHEME") : "mysqlx";
 	$scheme    = getenv("MYSQLX_TEST_SCHEME")   ? getenv("MYSQLX_TEST_SCHEME") : "mysqlx";
 	$host      = getenv("MYSQLX_TEST_HOST")     ? getenv("MYSQLX_TEST_HOST") : "localhost";
 	$port      = getenv("MYSQLX_TEST_PORT")     ? getenv("MYSQLX_TEST_PORT") : 33060;
