@@ -143,18 +143,18 @@ to be sure OpenSSL is the reason.
 Supported X DevAPI features
 ---------------------------
 - collections API - add, find, modify, remove
-- table API - insert, select, update, delete
+- table API - create, insert, select, update, delete
 - view API - create, alter, drop
 - collection / table - getName, existsInDatabase, count
 - resultsets / multi-resultsets
 - getCollection(s) / getTable(s) / getCollectionAsTable
 - dropCollection / dropTable
 
-For a simple example see examples.php
+For a simple example see examples.php or tests/*.phpt
 
 License
 -------
-Copyright (c) 2006-2016 The PHP Group
+Copyright (c) 2006-2017 The PHP Group
 
 This source file is subject to version 3.01 of the PHP license,
 that is bundled with this package in the file LICENSE, and is
