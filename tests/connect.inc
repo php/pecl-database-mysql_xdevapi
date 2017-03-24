@@ -8,6 +8,7 @@
 
 	$driver    = new mysqli_driver;
 
+	$scheme    = getenv("MYSQLX_TEST_SCHEME")   ? getenv("MYSQLX_TEST_SCHEME") : getenv("MYSQLX_SCHEME") ? getenv("MYSQLX_SCHEME") : "mysqlx";
 	$scheme    = getenv("MYSQLX_TEST_SCHEME")   ? getenv("MYSQLX_TEST_SCHEME") : "mysqlx";
 	$host      = getenv("MYSQLX_TEST_HOST")     ? getenv("MYSQLX_TEST_HOST") : "localhost";
 	$port      = getenv("MYSQLX_TEST_PORT")     ? getenv("MYSQLX_TEST_PORT") : 33060;
@@ -201,7 +202,7 @@
 		Used to match expected pattern with actual value
 	*/
 	if( !function_exists('expect_regex')) {
-		function expect_regex($target, $pattern) {
+		function expect_regex($target, $pattern, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -210,7 +211,7 @@
 			if (preg_match($pattern, $target)) {
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' does not match pattern \''.$pattern.'\''.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' does not match pattern \''.$pattern.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -220,7 +221,7 @@
 		Used to compare expected values with actual values
 	*/
 	if( !function_exists('expect_eq')) {
-		function expect_eq($target, $expectation) {
+		function expect_eq($target, $expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -229,7 +230,7 @@
 			if( $target == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' != \''.$expectation.'\''.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -238,7 +239,7 @@
 		Used to compare expected a boolean value being true
 	*/
 	if( !function_exists('expect_true')) {
-		function expect_true($expectation) {
+		function expect_true($expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -247,7 +248,7 @@
 			if( true == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': true expected'.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num().': true expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -256,7 +257,7 @@
 		Used to compare expected a boolean value being false
 	*/
 	if( !function_exists('expect_false')) {
-		function expect_false($expectation) {
+		function expect_false($expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -265,7 +266,7 @@
 			if( false == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': false expected'.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num().': false expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -274,7 +275,7 @@
 		Used to compare expected a null value
 	*/
 	if( !function_exists('expect_null')) {
-		function expect_null($expectation) {
+		function expect_null($expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -283,7 +284,7 @@
 			if( null == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': false expected'.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num().': null expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
