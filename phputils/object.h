@@ -229,7 +229,7 @@ void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
 		free_storage_func, \
 		&properties, \
 		property_entries, \
-		__VA_ARGS__); \
+		##__VA_ARGS__); \
 }
 
 #define	MYSQL_XDEVAPI_PHP_METHOD(class_name, name) \

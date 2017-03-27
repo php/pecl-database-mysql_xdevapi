@@ -65,6 +65,7 @@ extern "C" {
 #include "mysqlx_view_alter.h"
 #include "mysqlx_view_drop.h"
 #include "mysqlx_warning.h"
+#include "mysqlx_node_session_configuration.h"
 
 
 #ifdef MYSQL_XDEVAPI_MESSAGE_CLASSES
@@ -163,6 +164,9 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_node_table__insert_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_table__select_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_table__update_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_node_session_config_manager_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_node_session_config_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
 
 #if MYSQL_XDEVAPI_MESSAGE_CLASSES
 	using namespace msg;
@@ -263,6 +267,8 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_execution_status_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_warning_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_node_session_config_manager_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_node_session_config_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_crud_operation_sortable_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_crud_operation_limitable_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
