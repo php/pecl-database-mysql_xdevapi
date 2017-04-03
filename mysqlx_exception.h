@@ -67,6 +67,11 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 #define err_msg_uri_string_fail     10025, "Incorrect URI string provided"
 #define err_msg_new_session_fail    10026, "Unable to create a new session"
 #define err_msg_internal_error      10027, "Internal error."
+#define err_msg_invalid_identifier  10028, "Invalid identifier name provided!"
+#define err_msg_wrong_param_5       10029, "Parameter must be a valid JSON."
+#define err_msg_not_uniq_conf_name  10030, "The config name is not unique!"
+#define err_msg_sess_file_corrupted 10031, "The session file is corrupted! Unable to parse!"
+#define err_msg_wrong_param_6       10032, "Invalid parameter or no parameter provided!"
 
 extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 

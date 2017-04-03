@@ -2676,6 +2676,7 @@ class list_of_addresses_parser
 	bool parse_round_token( const phputils::string& str );
 	void add_address(vec_of_addresses::value_type addr);
 public:
+	list_of_addresses_parser() = default;
 	list_of_addresses_parser(phputils::string uri);
 	vec_of_addresses parse();
 private:
@@ -2687,8 +2688,8 @@ private:
 
 	std::size_t beg{ 0 };
 	std::size_t end{ 0 };
-	phputils::string uri_string,
-					unformatted_uri;
+	phputils::string uri_string = {};
+	phputils::string unformatted_uri = {};
 	vec_of_addresses list_of_addresses;
 };
 
@@ -2971,7 +2972,12 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 							zval * return_value)
 {
 	DBG_ENTER("xmysqlnd_node_new_session_connect");
+	DBG_INF_FMT("URI: %s",uri_string);
 	enum_func_status ret = FAIL;
+	if( nullptr == uri_string ) {
+		DBG_ERR_FMT("The provided URI string is null!");
+		return ret;
+	}
 	/*
 	 * Verify whether a list of addresses is provided,
 	 * if that's the case we need to parse those addresses

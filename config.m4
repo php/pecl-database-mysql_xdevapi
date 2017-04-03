@@ -92,6 +92,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_rowset.cc \
 		xmysqlnd/xmysqlnd_rowset_buffered.cc \
 		xmysqlnd/xmysqlnd_rowset_fwd.cc \
+		xmysqlnd/xmysqlnd_session_config.cc \
 		xmysqlnd/xmysqlnd_statistics.cc \
 		xmysqlnd/xmysqlnd_stmt_execution_state.cc \
 		xmysqlnd/xmysqlnd_table_create.cc \
@@ -152,6 +153,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_field_metadata.cc \
 		mysqlx_node_schema.cc \
 		mysqlx_node_session.cc \
+		mysqlx_node_session_configuration.cc \
 		mysqlx_node_collection.cc \
 		mysqlx_node_collection__add.cc \
 		mysqlx_node_collection__create_index.cc \

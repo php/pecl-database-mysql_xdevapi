@@ -45,6 +45,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"mysqlx_field_metadata.cc " +
 			"mysqlx_node_schema.cc " +
 			"mysqlx_node_session.cc " +
+			"mysqlx_node_session_configuration.cc " +
 			"mysqlx_node_collection.cc " +
 			"mysqlx_node_collection__add.cc " +
 			"mysqlx_node_collection__create_index.cc " +
@@ -144,6 +145,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"xmysqlnd_rowset.cc " +
 			"xmysqlnd_rowset_buffered.cc " +
 			"xmysqlnd_rowset_fwd.cc " +
+			"xmysqlnd_session_config.cc " +
 			"xmysqlnd_statistics.cc " +
 			"xmysqlnd_stmt_execution_state.cc " +
 			"xmysqlnd_table_create.cc " +
