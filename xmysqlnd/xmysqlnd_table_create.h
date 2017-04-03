@@ -15,34 +15,33 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_VIEW_H
-#define XMYSQLND_VIEW_H
+#ifndef XMYSQLND_TABLE_CREATE_H
+#define XMYSQLND_TABLE_CREATE_H
+
+#include "phputils/strings.h"
 
 namespace mysqlx {
 
 namespace drv {
 
-/* {{{ View */
-class View
-{
-	public:
-		static st_xmysqlnd_node_stmt* create(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* alter(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* drop(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-};
-/* }}} */
+struct st_xmysqlnd_node_session;
+struct Table_def;
+
+namespace create_table {
+
+bool execute(
+	st_xmysqlnd_node_session* session,
+	const Table_def& table_def);
+
+phputils::string get_sql_query(const Table_def& table_def);
+
+} // namespace create_table
 
 } // namespace drv
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_VIEW_H */
+#endif /* XMYSQLND_TABLE_CREATE_H */
 
 /*
  * Local variables:

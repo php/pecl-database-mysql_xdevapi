@@ -65,6 +65,11 @@ extern "C" {
 #include "mysqlx_view_alter.h"
 #include "mysqlx_view_drop.h"
 #include "mysqlx_warning.h"
+#include "mysqlx_table_create.h"
+#include "mysqlx_table_create_column_def.h"
+#include "mysqlx_table_create_column_def_base.h"
+#include "mysqlx_table_create_generated_column_def.h"
+#include "mysqlx_table_create_foreign_key_def.h"
 
 
 #ifdef MYSQL_XDEVAPI_MESSAGE_CLASSES
@@ -143,6 +148,12 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
+	mysqlx_register_table_create_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_column_def_base_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_column_def_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_generated_column_def_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_foreign_key_def_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_view_create_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_view_alter_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -244,6 +255,12 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_view_create_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_view_alter_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_view_drop_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+
+	mysqlx_unregister_table_create_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_column_def_base_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_column_def_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_generated_column_def_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_foreign_key_def_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

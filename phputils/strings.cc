@@ -15,34 +15,57 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_VIEW_H
-#define XMYSQLND_VIEW_H
+extern "C" {
+#include <php.h>
+#undef ERROR
+#undef inline
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
+#include "strings.h"
 
 namespace mysqlx {
 
-namespace drv {
+namespace phputils {
 
-/* {{{ View */
-class View
+/* {{{ operator<< */
+std::ostream& operator<<(std::ostream& os, const string& str)
 {
-	public:
-		static st_xmysqlnd_node_stmt* create(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* alter(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* drop(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-};
+	return os << str.c_str();
+}
 /* }}} */
 
-} // namespace drv
+
+/* {{{ string_ptr::string_ptr */
+string_ptr::string_ptr(zval* zv) 
+	: str(Z_STRVAL_P(zv))
+	, len(Z_STRLEN_P(zv))
+{
+	assert(Z_TYPE_P(zv) == IS_STRING);
+}
+/* }}} */
+
+
+/* {{{ string_ptr::string_ptr */
+string_ptr::string_ptr(const MYSQLND_STRING& s)
+	: string_ptr(s.s, s.l)
+{
+}
+/* }}} */
+
+
+/* {{{ string_ptr::string_ptr */
+string_ptr::string_ptr(const MYSQLND_CSTRING& s)
+	: string_ptr(s.s, s.l)
+{
+}
+/* }}} */
+
+} // namespace phputils
 
 } // namespace mysqlx
-
-#endif /* XMYSQLND_VIEW_H */
 
 /*
  * Local variables:

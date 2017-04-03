@@ -27,11 +27,6 @@ extern "C" {
 
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
-#include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_schema.h"
-#include "xmysqlnd_node_collection.h"
-#include "xmysqlnd_node_stmt.h"
-#include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_wireprotocol.h"
 
@@ -41,9 +36,11 @@ extern "C" {
 #include "proto_gen/mysqlx_sql.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
 #include "crud_parsers/expression_parser.h"
+
 #include "phputils/allocator.h"
 #include "phputils/object.h"
 #include "phputils/strings.h"
+#include "phputils/string_utils.h"
 #include "phputils/types.h"
 
 namespace mysqlx {
@@ -52,26 +49,10 @@ namespace drv {
 
 namespace {
 
-/* {{{ iless */
-struct iless
-{
-	bool operator()(const std::string& lhs, const std::string& rhs) const
-	{
-		return std::lexicographical_compare(
-			lhs.begin(), lhs.end(),
-			rhs.begin(), rhs.end(),
-			boost::algorithm::is_iless()
-		);
-	}
-};
-/* }}} */
-
-//------------------------------------------------------------------------------
-
 /* {{{ to_algorithm */
 ::Mysqlx::Crud::ViewAlgorithm to_algorithm(const MYSQLND_CSTRING& algorithm_str)
 {
-	static const std::map<std::string, ::Mysqlx::Crud::ViewAlgorithm, iless> str_to_algorithm = {
+	static const std::map<std::string, ::Mysqlx::Crud::ViewAlgorithm, phputils::iless> str_to_algorithm = {
 		{ "undefined", ::Mysqlx::Crud::UNDEFINED },
 		{ "merge", ::Mysqlx::Crud::MERGE },
 		{ "temptable", ::Mysqlx::Crud::TEMPTABLE }
@@ -90,7 +71,7 @@ struct iless
 /* {{{ to_security */
 ::Mysqlx::Crud::ViewSqlSecurity to_security(const MYSQLND_CSTRING& security_str)
 {
-	static const std::map<std::string, ::Mysqlx::Crud::ViewSqlSecurity, iless> str_to_security = {
+	static const std::map<std::string, ::Mysqlx::Crud::ViewSqlSecurity, phputils::iless> str_to_security = {
 		{ "invoker", ::Mysqlx::Crud::INVOKER },
 		{ "definer", ::Mysqlx::Crud::DEFINER }
 	};
@@ -108,7 +89,7 @@ struct iless
 /* {{{ to_check_option */
 ::Mysqlx::Crud::ViewCheckOption to_check_option(const MYSQLND_CSTRING& check_option_str)
 {
-	static const std::map<std::string, ::Mysqlx::Crud::ViewCheckOption, iless> str_to_check_option = {
+	static const std::map<std::string, ::Mysqlx::Crud::ViewCheckOption, phputils::iless> str_to_check_option = {
 		{ "local", ::Mysqlx::Crud::LOCAL },
 		{ "cascaded", ::Mysqlx::Crud::CASCADED }
 	};

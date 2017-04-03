@@ -15,34 +15,57 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_VIEW_H
-#define XMYSQLND_VIEW_H
+#include "string_utils.h"
+#include "exceptions.h"
 
 namespace mysqlx {
 
-namespace drv {
+namespace phputils {
 
-/* {{{ View */
-class View
+/* {{{ to_string */
+string to_string(const zval& zv)
 {
-	public:
-		static st_xmysqlnd_node_stmt* create(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* alter(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* drop(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-};
+	switch (Z_TYPE(zv)) {
+		case IS_NULL:
+			return "NULL";
+
+		case IS_FALSE:
+			return "FALSE";
+
+		case IS_TRUE:
+			return "TRUE";
+
+		case IS_LONG:
+			return phputils::to_string(Z_LVAL(zv));
+
+		case IS_DOUBLE:
+			return phputils::to_string(Z_DVAL(zv));
+
+		case IS_STRING:
+			return string(Z_STRVAL(zv), Z_STRLEN(zv));
+
+		default:
+			throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::unsupported_conversion_to_string);
+	}
+}
 /* }}} */
 
-} // namespace drv
+
+/* {{{ to_strings */
+strings to_strings(zval* zvals, int count)
+{
+	strings strings;
+	strings.reserve(count);
+	for (int i = 0; i < count; ++i) {
+		strings.push_back(to_string(zvals[i]));
+	}
+	return strings;
+}
+/* }}} */
+
+} // namespace phputils
 
 } // namespace mysqlx
-
-#endif /* XMYSQLND_VIEW_H */
 
 /*
  * Local variables:

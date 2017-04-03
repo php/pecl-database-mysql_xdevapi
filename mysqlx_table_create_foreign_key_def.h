@@ -15,34 +15,29 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_VIEW_H
-#define XMYSQLND_VIEW_H
+#ifndef MYSQLX_TABLE_CREATE_FOREIGN_KEY_DEF_H
+#define MYSQLX_TABLE_CREATE_FOREIGN_KEY_DEF_H
 
 namespace mysqlx {
 
 namespace drv {
+struct Foreign_key_def;
+}
 
-/* {{{ View */
-class View
-{
-	public:
-		static st_xmysqlnd_node_stmt* create(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* alter(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* drop(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-};
-/* }}} */
+namespace devapi {
 
-} // namespace drv
+extern zend_class_entry* foreign_key_def_class_entry;
+
+void mysqlx_register_foreign_key_def_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
+void mysqlx_unregister_foreign_key_def_class(SHUTDOWN_FUNC_ARGS);
+
+drv::Foreign_key_def get_foreign_key_def_from_object(zval* fk_def_zv);
+
+} // namespace devapi
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_VIEW_H */
+#endif /* MYSQLX_TABLE_CREATE_FOREIGN_KEY_DEF_H */
 
 /*
  * Local variables:
