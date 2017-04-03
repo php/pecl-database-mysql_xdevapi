@@ -192,7 +192,6 @@ struct Table_def
 		{
 			phputils::string name;
 			phputils::strings columns;
-//			bool unique = false;
 			bool unique;
 		};
 

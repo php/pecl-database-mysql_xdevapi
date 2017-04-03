@@ -114,8 +114,7 @@ Foreign_key_def::Change_mode to_fkey_change_mode(const phputils::string_ptr& cha
 /* {{{ escape */
 phputils::string escape(phputils::string value)
 {
-	//https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
-
+	// https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
 	static const std::map<std::string, std::string> char_to_escape_sequence = {
 		{ "\b", "\\b" }, // A backspace character
 		{ "\n", "\\n" }, // A newline (linefeed) character
@@ -136,7 +135,7 @@ phputils::string escape(phputils::string value)
 /* {{{ quote */
 phputils::string quote(phputils::string text, bool always_quote)
 {
-	//https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
+	// https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
 	const bool single_quotation = text.find('\'') != phputils::string::npos;
 	const bool double_quotation = text.find('"') != phputils::string::npos;
 
