@@ -111,7 +111,7 @@ mysqlx create/alter/drop view
 		->select('name', 'age')
 		->where('age =  13')
 		->orderBy('name asc');
-	$schema->createView($test_view_name, false)
+	$schema->createView($test_view_name)
 		->definer('root@localhost')
 		->algorithm('MERGE')
 		->security('DEFINER')

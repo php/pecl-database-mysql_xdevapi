@@ -44,7 +44,6 @@ namespace devapi {
 
 using namespace drv;
 
-//static zend_class_entry *mysqlx_base_session_class_entry;
 zend_class_entry *mysqlx_base_session_class_entry;
 
 

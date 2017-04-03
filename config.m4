@@ -74,6 +74,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_any2expr.cc \
 		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
 		xmysqlnd/xmysqlnd_crud_table_commands.cc \
+		xmysqlnd/xmysqlnd_ddl_table_defs.cc \
 		xmysqlnd/xmysqlnd_ddl_view_commands.cc \
 		xmysqlnd/xmysqlnd_driver.cc \
 		xmysqlnd/xmysqlnd_extension_plugin.cc \
@@ -91,8 +92,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_rowset.cc \
 		xmysqlnd/xmysqlnd_rowset_buffered.cc \
 		xmysqlnd/xmysqlnd_rowset_fwd.cc \
+		xmysqlnd/xmysqlnd_session_config.cc \
 		xmysqlnd/xmysqlnd_statistics.cc \
 		xmysqlnd/xmysqlnd_stmt_execution_state.cc \
+		xmysqlnd/xmysqlnd_table_create.cc \
 		xmysqlnd/xmysqlnd_utils.cc \
 		xmysqlnd/xmysqlnd_view.cc \
 		xmysqlnd/xmysqlnd_warning_list.cc \
@@ -129,6 +132,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	mysqlx_phputils="phputils/allocator.cc \
 		phputils/exceptions.cc \
 		phputils/object.cc \
+		phputils/string_utils.cc \
+		phputils/strings.cc \
 		"
 
 	mysqlx_base_sources="php_mysqlx.cc \
@@ -148,6 +153,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_field_metadata.cc \
 		mysqlx_node_schema.cc \
 		mysqlx_node_session.cc \
+		mysqlx_node_session_configuration.cc \
 		mysqlx_node_collection.cc \
 		mysqlx_node_collection__add.cc \
 		mysqlx_node_collection__create_index.cc \
@@ -175,6 +181,11 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_object.cc \
 		mysqlx_schema_object.cc \
 		mysqlx_session.cc \
+		mysqlx_table_create.cc \
+		mysqlx_table_create_column_def_base.cc \
+		mysqlx_table_create_column_def.cc \
+		mysqlx_table_create_generated_column_def.cc \
+		mysqlx_table_create_foreign_key_def.cc \
 		mysqlx_view_create.cc \
 		mysqlx_view_alter.cc \
 		mysqlx_view_drop.cc \

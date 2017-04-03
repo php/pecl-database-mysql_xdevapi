@@ -12,37 +12,39 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>                          |
+  | Authors: Filip Janiszewski <fjanisze@php.net>                        |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_VIEW_H
-#define XMYSQLND_VIEW_H
+#ifndef MYSQLX_SESSION_CONFIG_H
+#define MYSQLX_SESSION_CONFIG_H
+
+#include <utility>
+#include "phputils/strings.h"
+#include "phputils/types.h"
 
 namespace mysqlx {
 
-namespace drv {
+namespace devapi {
 
-/* {{{ View */
-class View
-{
-	public:
-		static st_xmysqlnd_node_stmt* create(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* alter(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* drop(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-};
-/* }}} */
+void mysqlx_register_node_session_config_manager_class(INIT_FUNC_ARGS,
+					zend_object_handlers * mysqlx_std_object_handlers);
 
-} // namespace drv
+void mysqlx_unregister_node_session_config_manager_class(SHUTDOWN_FUNC_ARGS);
+
+void mysqlx_register_node_session_config_class(INIT_FUNC_ARGS,
+					zend_object_handlers * mysqlx_std_object_handlers);
+
+void mysqlx_unregister_node_session_config_class(SHUTDOWN_FUNC_ARGS);
+
+bool istanceof_session_config(zval* object);
+
+PHP_FUNCTION(mysql_xdevapi__sessions);
+
+} // namespace devapi
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_VIEW_H */
+#endif /* MYSQLX_SESSION_CONFIG_H */
 
 /*
  * Local variables:

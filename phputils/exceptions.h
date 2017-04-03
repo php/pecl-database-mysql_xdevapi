@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_EXCEPTIONS_H
-#define MYSQL_XDEVAPI_EXCEPTIONS_H
+#ifndef MYSQL_XDEVAPI_PHPUTILS_EXCEPTIONS_H
+#define MYSQL_XDEVAPI_PHPUTILS_EXCEPTIONS_H
 
 #include "strings.h"
 #include <exception>
@@ -32,10 +32,10 @@ namespace phputils {
 /* {{{ mysqlx::phputils::xdevapi_exception */
 struct xdevapi_exception : public std::runtime_error
 {
-	enum class Code
+	enum class Code : unsigned int
 	{
-		not_implemented,
-		fetch_fail,
+		not_implemented = 1000,
+		fetch_fail = 10000,
 		meta_fail,
 		add_doc,
 		json_fail,
@@ -67,7 +67,14 @@ struct xdevapi_exception : public std::runtime_error
 		invalid_view_security,
 		invalid_view_check_option,
 		invalid_view_columns,
-		invalid_view_defined_as
+		invalid_view_defined_as,
+		unsupported_conversion_to_string,
+		unsupported_default_value_type,
+		create_table_fail,
+		invalid_table_column,
+		unknown_table_column_type,
+		invalid_foreign_key,
+		unknown_fkey_change_mode,
 	};
 
 	xdevapi_exception(Code code);

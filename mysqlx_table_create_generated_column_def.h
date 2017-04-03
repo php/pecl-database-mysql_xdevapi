@@ -15,34 +15,21 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_VIEW_H
-#define XMYSQLND_VIEW_H
+#ifndef MYSQLX_TABLE_CREATE_GENERATED_COLUMN_DEF_H
+#define MYSQLX_TABLE_CREATE_GENERATED_COLUMN_DEF_H
 
 namespace mysqlx {
 
-namespace drv {
+namespace devapi {
 
-/* {{{ View */
-class View
-{
-	public:
-		static st_xmysqlnd_node_stmt* create(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* alter(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-		static st_xmysqlnd_node_stmt* drop(
-			st_xmysqlnd_node_session* session,
-			const st_xmysqlnd_pb_message_shell& pb_msg);
-};
-/* }}} */
+void mysqlx_register_generated_column_def_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
+void mysqlx_unregister_generated_column_def_class(SHUTDOWN_FUNC_ARGS);
 
-} // namespace drv
+} // namespace devapi
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_VIEW_H */
+#endif /* MYSQLX_TABLE_CREATE_GENERATED_COLUMN_DEF_H */
 
 /*
  * Local variables:

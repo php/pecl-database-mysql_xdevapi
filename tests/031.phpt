@@ -109,6 +109,7 @@ mysqlx Flexible number of arguments
 	expect_eq($data[1]['num'],1);
 	expect_eq($data[1]['name'],'xxx');
 
+        verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--

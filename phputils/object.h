@@ -36,9 +36,9 @@ struct st_mysqlx_property_entry;
 struct st_mysqlx_object;
 }
 
-namespace phputils {
-
 //------------------------------------------------------------------------------
+
+namespace phputils {
 
 using object_allocator_func_t = zend_object*(zend_class_entry*);
 
@@ -61,10 +61,37 @@ zend_class_entry* register_class(
 
 	tmp_ce->create_object = object_allocator_func;
 	zend_class_entry* class_entry = zend_register_internal_class(tmp_ce);
-	zend_class_implements(
-		class_entry,
-		sizeof...(Interfaces),
-		interfaces ...);
+	if (sizeof...(Interfaces)) {
+		zend_class_implements(
+			class_entry,
+			sizeof...(Interfaces),
+			interfaces ...);
+	}
+
+	if (properties) {
+		zend_hash_init(properties, 0, nullptr, mysqlx_free_property_cb, 1);
+
+		if (property_entries) {
+			/* Add name + getter + setter to the hash table with the properties for the class */
+			mysqlx_add_properties(properties, property_entries);
+		}
+	}
+
+	return class_entry;
+}
+/* }}} */
+
+/* {{{ mysqlx::phputils::register_derived_class */
+template<typename ... Interfaces>
+zend_class_entry* register_derived_class(
+	zend_class_entry* tmp_ce,
+	zend_class_entry* base_class_entry,
+	HashTable* properties,
+	const devapi::st_mysqlx_property_entry* property_entries)
+{
+	using namespace devapi;
+
+	zend_class_entry* class_entry = zend_register_internal_class_ex(tmp_ce, base_class_entry);
 
 	if (properties) {
 		zend_hash_init(properties, 0, nullptr, mysqlx_free_property_cb, 1);
@@ -229,7 +256,26 @@ void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
 		free_storage_func, \
 		&properties, \
 		property_entries, \
-		__VA_ARGS__); \
+		##__VA_ARGS__); \
+}
+
+#define MYSQL_XDEVAPI_REGISTER_DERIVED_CLASS( \
+	class_entry, \
+	base_class_entry, \
+	class_name, \
+	methods, \
+	properties, \
+	property_entries, \
+	...) \
+{ \
+	zend_class_entry tmp_ce; \
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", class_name, methods); \
+	class_entry = phputils::register_derived_class( \
+		&tmp_ce, \
+		base_class_entry, \
+		&properties, \
+		property_entries, \
+		##__VA_ARGS__); \
 }
 
 #define	MYSQL_XDEVAPI_PHP_METHOD(class_name, name) \
