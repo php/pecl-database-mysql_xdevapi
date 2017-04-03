@@ -25,6 +25,7 @@ struct st_mysqlnd_const_string;
 }
 #include <string>
 #include <sstream>
+#include <cstring>
 #include "allocator.h"
 #include "types.h"
 

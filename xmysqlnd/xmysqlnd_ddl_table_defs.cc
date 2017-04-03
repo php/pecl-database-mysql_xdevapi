@@ -31,7 +31,7 @@ extern "C" {
 #include "xmysqlnd_ddl_table_defs.h"
 
 #include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "phputils/exceptions.h"
 #include "phputils/string_utils.h"
 #include "phputils/strings.h"
 #include "phputils/types.h"
