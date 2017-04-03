@@ -182,7 +182,7 @@ mysqlx create table
 	$driverCarTable = $schema->createTable('driverCar')
 		->addColumn((new ColumnDef('driver', 'VARCHAR', 40)))
 		->addColumn((new ColumnDef('car_VIN', 'CHAR', 20))->notNull())
-		->addForeignKey('fk_car_VIN', 
+		->addForeignKey('fk_car_VIN',
 			(new ForeignKeyDef())->fields('car_VIN')->refersTo($db.'.'.'car', 'VIN')
 				->onDelete('no action')->onUpdate('Cascade'))
 		->execute();

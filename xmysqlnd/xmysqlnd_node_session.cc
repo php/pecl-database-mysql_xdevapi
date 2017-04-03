@@ -3035,9 +3035,9 @@ xmysqlnd_node_session_free(XMYSQLND_NODE_SESSION* const session)
 {
 	DBG_ENTER("xmysqlnd_node_session_free");
 	DBG_INF_FMT(
-		"session=%p  session->data=%p  dtor=%p", 
-		session, 
-		session ? session->data : nullptr, 
+		"session=%p  session->data=%p  dtor=%p",
+		session,
+		session ? session->data : nullptr,
 		session ? session->data->m->dtor : nullptr);
 	if (session) {
 		session->m->free_reference(session);

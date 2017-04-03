@@ -91,12 +91,12 @@ struct Column_def
 
 	public:
 		void init(
-			const phputils::string_ptr& name, 
-			const phputils::string_ptr& type, 
+			const phputils::string_ptr& name,
+			const phputils::string_ptr& type,
 			long length = Default_length);
 		void init(
-			const phputils::string_ptr& name, 
-			const phputils::string_ptr& type, 
+			const phputils::string_ptr& name,
+			const phputils::string_ptr& type,
 			const phputils::string_ptr& expression);
 
 		void enable_not_null();
@@ -151,8 +151,8 @@ struct Foreign_key_def
 	public:
 		enum class Change_mode {
 			set_default,
-			restricted, 
-			cascade, 
+			restricted,
+			cascade,
 			set_null,
 			no_action
 		};
@@ -234,7 +234,7 @@ struct Table_def
 		};
 
 		Kind get_kind() const;
-		
+
 	public:
 		phputils::string schema_name;
 		phputils::string table_name;

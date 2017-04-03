@@ -246,7 +246,7 @@ void mysqlx_unregister_column_def_base_class(SHUTDOWN_FUNC_ARGS)
 /* {{{ get_column_def_from_object */
 drv::Column_def get_column_def_from_object(zval* column_def_zv)
 {
-	zend_class_entry* column_def_ce 
+	zend_class_entry* column_def_ce
 		= (Z_TYPE_P(column_def_zv) == IS_OBJECT) ? Z_OBJCE_P(column_def_zv) : nullptr;
 	if (column_def_ce->parent != column_def_base_class_entry) {
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::invalid_table_column);

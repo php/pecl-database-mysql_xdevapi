@@ -87,7 +87,7 @@ namespace
 	.values(val, val, ...) // for enum and set types
 
 
-	
+
 	following are implemented in column_base_def:
 	.notNull()
 	.uniqueIndex()
@@ -175,7 +175,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, __construct)
 
 
 /* {{{ to_value_str */
-phputils::string to_value_str(zval* default_value_zv) 
+phputils::string to_value_str(zval* default_value_zv)
 {
 	switch (Z_TYPE_P(default_value_zv)) {
 		case IS_FALSE:
@@ -297,7 +297,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, foreignKey)
 
 	auto& data_object = phputils::fetch_data_object<Column_def_data>(object_zv);
 	data_object.column_def.set_foreign_key(
-		table_name, 
+		table_name,
 		phputils::to_strings(fields, fields_count));
 
 	ZVAL_COPY(return_value, object_zv);

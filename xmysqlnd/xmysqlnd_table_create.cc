@@ -46,7 +46,7 @@ namespace drv {
 
 namespace create_table
 {
-	
+
 namespace {
 
 /* {{{ to_data_type */
@@ -101,8 +101,8 @@ phputils::string to_reference_option(Foreign_key_def::Change_mode fk_change_mode
 {
 	static const std::map<Foreign_key_def::Change_mode, std::string> str_to_reference_option = {
 		{ Foreign_key_def::Change_mode::set_default, "" }, //empty intentionally
-		{ Foreign_key_def::Change_mode::restricted, "RESTRICT" }, 
-		{ Foreign_key_def::Change_mode::cascade, "CASCADE" }, 
+		{ Foreign_key_def::Change_mode::restricted, "RESTRICT" },
+		{ Foreign_key_def::Change_mode::cascade, "CASCADE" },
 		{ Foreign_key_def::Change_mode::set_null, "SET NULL" },
 		{ Foreign_key_def::Change_mode::no_action, "NO ACTION" }
 	};
@@ -128,7 +128,7 @@ const char* comma = ",";
 struct query_stream_manip
 {
 	query_stream_manip() = default;
-	query_stream_manip(phputils::string txt) 
+	query_stream_manip(phputils::string txt)
 		: text(std::move(txt))
 	{
 	}
@@ -172,8 +172,8 @@ query_stream_manip attrib(bool enable, const char* symbol)
 
 /* {{{ attrib */
 query_stream_manip attrib(
-	bool enable, 
-	const char* symbol_if_enabled, 
+	bool enable,
+	const char* symbol_if_enabled,
 	const char* symbol_if_disabled)
 {
 	return token(enable ? symbol_if_enabled : symbol_if_disabled);
@@ -183,7 +183,7 @@ query_stream_manip attrib(
 
 /* {{{ value */
 query_stream_manip value(
-	const phputils::string& text, 
+	const phputils::string& text,
 	const char postfix = chr::whitespace)
 {
 	if (text.empty()) return query_stream_manip::empty();
@@ -194,7 +194,7 @@ query_stream_manip value(
 
 /* {{{ value */
 query_stream_manip value(
-	const char* label, 
+	const char* label,
 	const phputils::string& text)
 {
 	if (text.empty()) return query_stream_manip::empty();
@@ -452,7 +452,7 @@ void Query_builder::stream_column_def(const Column_def& column_def)
 {
 	os << value(column_def.name);
 	stream_data_type(column_def);
-	
+
 	if (column_def.kind == Column_def::Kind::common) {
 		stream_column_def_common(column_def);
 	} else {
@@ -628,7 +628,7 @@ void Query_builder::stream_data_type(const Column_def& column_def)
 	} else {
 		os << chr::whitespace;
 	}
-	
+
 	os << attrib(column_def.is_unsigned, "UNSIGNED")
 		<< attrib(column_def.binary, "BINARY")
 		<< value("CHARACTER SET", column_def.charset)
@@ -664,8 +664,8 @@ const enum_hnd_func_status create_table_on_error(
 {
 	DBG_ENTER("create_table_on_error");
 	throw phputils::xdevapi_exception(
-		code, 
-		phputils::string(sql_state.s, sql_state.l), 
+		code,
+		phputils::string(sql_state.s, sql_state.l),
 		phputils::string(message.s, message.l));
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }

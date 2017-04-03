@@ -39,7 +39,7 @@ std::ostream& operator<<(std::ostream& os, const string& str)
 
 
 /* {{{ string_ptr::string_ptr */
-string_ptr::string_ptr(zval* zv) 
+string_ptr::string_ptr(zval* zv)
 	: str(Z_STRVAL_P(zv))
 	, len(Z_STRLEN_P(zv))
 {

@@ -52,11 +52,11 @@ string to_string(const zval& zv);
 inline string to_string(zval* zv) { return to_string(*zv); }
 
 template<typename T>
-inline string to_string(T val) 
-{	
+inline string to_string(T val)
+{
 	static_assert(std::is_scalar<T>::value, "meant for scalar types only");
 	const std::string& str_val = std::to_string(val);
-	return string(str_val.c_str(), str_val.length()); 
+	return string(str_val.c_str(), str_val.length());
 }
 
 

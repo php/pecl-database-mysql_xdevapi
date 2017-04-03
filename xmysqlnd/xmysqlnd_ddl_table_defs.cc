@@ -95,8 +95,8 @@ Column_def::Type to_column_type(const phputils::string_ptr& column_type_str)
 Foreign_key_def::Change_mode to_fkey_change_mode(const phputils::string_ptr& change_mode_str)
 {
 	static const std::map<std::string, Foreign_key_def::Change_mode, phputils::iless> str_to_change_mode = {
-		{ "Restrict", Foreign_key_def::Change_mode::restricted }, 
-		{ "Cascade", Foreign_key_def::Change_mode::cascade }, 
+		{ "Restrict", Foreign_key_def::Change_mode::restricted },
+		{ "Cascade", Foreign_key_def::Change_mode::cascade },
 		{ "Set Null", Foreign_key_def::Change_mode::set_null },
 		{ "No Action", Foreign_key_def::Change_mode::no_action }
 	};
@@ -142,16 +142,16 @@ phputils::string quote(phputils::string text, bool always_quote)
 
 	if (single_quotation && !double_quotation) {
 		return '"' + text + '"';
-	} 
-	
+	}
+
 	if (!single_quotation && double_quotation) {
 		return '\'' + text + '\'';
-	} 
-	
+	}
+
 	if (single_quotation && double_quotation) {
 		boost::replace_all(text, "'", "''");
 		return '\'' + text + '\'';
-	} 
+	}
 
 	assert(!single_quotation && !double_quotation);
 	if (always_quote) {
@@ -189,8 +189,8 @@ phputils::string quote_text(phputils::string raw_text)
 
 /* {{{ Column_def::init */
 void Column_def::init(
-	const phputils::string_ptr& n, 
-	const phputils::string_ptr& t, 
+	const phputils::string_ptr& n,
+	const phputils::string_ptr& t,
 	long len)
 {
 	kind = Kind::common;
@@ -205,8 +205,8 @@ void Column_def::init(
 
 /* {{{ Column_def::init */
 void Column_def::init(
-	const phputils::string_ptr& n, 
-	const phputils::string_ptr& t, 
+	const phputils::string_ptr& n,
+	const phputils::string_ptr& t,
 	const phputils::string_ptr& expression)
 {
 	kind = Kind::generated;
@@ -341,14 +341,14 @@ void Foreign_key_def::set_fields(phputils::strings f)
 
 /* {{{ Foreign_key_def::set_refers_to */
 void Foreign_key_def::set_refers_to(
-	const phputils::string_ptr& ref_table, 
+	const phputils::string_ptr& ref_table,
 	phputils::strings ref_fields)
 {
 	refers_to.table = ref_table.to_string();
 	refers_to.fields = std::move(ref_fields);
 }
 /* }}} */
-			  
+
 
 /* {{{ Foreign_key_def::set_on_delete_mode */
 void Foreign_key_def::set_on_delete_mode(const phputils::string_ptr& mode)

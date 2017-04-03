@@ -141,7 +141,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, refersTo)
 
 	auto& data_object = phputils::fetch_data_object<Foreign_key_def_data>(object_zv);
 	data_object.fk_def.set_refers_to(
-		refers_to_table, 
+		refers_to_table,
 		phputils::to_strings(refers_to_columns, refers_to_column_count));
 
 	ZVAL_COPY(return_value, object_zv);
