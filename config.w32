@@ -130,6 +130,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"xmysqlnd_ddl_table_defs.cc " +
 			"xmysqlnd_ddl_view_commands.cc " +
 			"xmysqlnd_driver.cc " +
+			"xmysqlnd_environment.cc " +
 			"xmysqlnd_extension_plugin.cc " +
 			"xmysqlnd_index_collection_commands.cc " +
 			"xmysqlnd_node_collection.cc " +

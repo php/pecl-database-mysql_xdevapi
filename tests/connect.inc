@@ -7,17 +7,25 @@
 	*/
 
 	$driver    = new mysqli_driver;
+	
+	if (!function_exists('get_mysqlx_env')) {
+		function get_mysqlx_env($test_envar, $common_envar, $default_value) {
+			if (getenv($test_envar)) return getenv($test_envar);
+			if (getenv($common_envar)) return getenv($common_envar);
+			return $default_value;
+		}
+	}
 
-	$scheme    = getenv("MYSQLX_TEST_SCHEME")   ? getenv("MYSQLX_TEST_SCHEME") : "mysqlx";
-	$host      = getenv("MYSQLX_TEST_HOST")     ? getenv("MYSQLX_TEST_HOST") : "localhost";
-	$port      = getenv("MYSQLX_TEST_PORT")     ? getenv("MYSQLX_TEST_PORT") : 33060;
-	$user      = getenv("MYSQLX_TEST_USER")     ? getenv("MYSQLX_TEST_USER") : "root";
-	$passwd    = getenv("MYSQLX_TEST_PASSWD")   ? getenv("MYSQLX_TEST_PASSWD") : "";
-	$db        = getenv("MYSQLX_TEST_DB")       ? getenv("MYSQLX_TEST_DB") : "testx";
-	$engine    = getenv("MYSQLX_TEST_ENGINE")   ? getenv("MYSQLX_TEST_ENGINE") : "MyISAM";
-	$socket    = getenv("MYSQLX_TEST_SOCKET")   ? getenv("MYSQLX_TEST_SOCKET") : getenv("MYSQLX_SOCKET");
-	$skip_on_connect_failure  = getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") ? getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") : true;
-	$connect_flags = getenv("MYSQLX_TEST_CONNECT_FLAGS") ? (int)getenv("MYSQLX_TEST_CONNECT_FLAGS") : 0;
+	$scheme = get_mysqlx_env("MYSQLX_TEST_SCHEME", "MYSQLX_SCHEME", "mysqlx");
+	$host = get_mysqlx_env("MYSQLX_TEST_HOST", "MYSQLX_HOST", "localhost");
+	$port = get_mysqlx_env("MYSQLX_TEST_PORT", "MYSQLX_PORT", 33060);
+	$user = get_mysqlx_env("MYSQLX_TEST_USER", "MYSQLX_USER", "root");
+	$passwd = get_mysqlx_env("MYSQLX_TEST_PASSWD", "MYSQLX_PASSWD", "");
+	$db = get_mysqlx_env("MYSQLX_TEST_DB", "MYSQLX_DB", "testx");
+	$engine = get_mysqlx_env("MYSQLX_TEST_ENGINE", "MYSQLX_ENGINE", "MyISAM");
+	$socket = get_mysqlx_env("MYSQLX_TEST_SOCKET", "MYSQLX_SOCKET", "");
+	$skip_on_connect_failure = get_mysqlx_env("MYSQLX_TEST_SKIP_CONNECT_FAILURE", "MYSQLX_SKIP_CONNECT_FAILURE", true);
+	$connect_flags = (int)get_mysqlx_env("MYSQLX_TEST_CONNECT_FLAGS", "MYSQLX_CONNECT_FLAGS", 0);
 	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
 
 	$test_table_name = "test_table";

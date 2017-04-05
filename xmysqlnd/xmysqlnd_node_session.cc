@@ -28,6 +28,7 @@ extern "C" {
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h"
 #include "xmysqlnd_enum_n_def.h"
+#include "xmysqlnd_environment.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_crud_collection_commands.h"
@@ -278,7 +279,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DA
 	/* MY-305: Add support for windows pipe */
 	if( session->transport_type == transport_types::network ) {
 		if (!port) {
-			port = 3306;
+			port = drv::Environment::to_int(drv::Environment::Variable::Mysql_port);
 		}
 		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.c_str(), port);
 	} else if( session->transport_type == transport_types::unix_domain_socket ){
@@ -2531,8 +2532,8 @@ std::pair<php_url*,transport_types> extract_uri_information(const char * uri_str
 	}
 	//Port required (If no alternative transport provided)
 	if( 0 == node_url->port && tr_path.empty() ) {
-		DBG_INF_FMT("Missing port number, setting default 33060!");
-		node_url->port = 33060;
+		DBG_INF_FMT("Missing port number, trying to get from env or set default!");
+		node_url->port = drv::Environment::to_int(drv::Environment::Variable::Mysqlx_port);
 	}
 	//Password optional, but print a log
 	if( !node_url->pass ) {

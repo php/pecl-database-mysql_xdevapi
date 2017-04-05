@@ -77,6 +77,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_ddl_table_defs.cc \
 		xmysqlnd/xmysqlnd_ddl_view_commands.cc \
 		xmysqlnd/xmysqlnd_driver.cc \
+		xmysqlnd/xmysqlnd_environment.cc \
 		xmysqlnd/xmysqlnd_extension_plugin.cc \
 		xmysqlnd/xmysqlnd_index_collection_commands.cc \
 		xmysqlnd/xmysqlnd_node_collection.cc \

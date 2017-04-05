@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_UTILS_H
-#define XMYSQLND_UTILS_H
+#ifndef XMYSQLND_ENVIRONMENT_H
+#define XMYSQLND_ENVIRONMENT_H
 
 #include "phputils/strings.h"
 
@@ -24,27 +24,26 @@ namespace mysqlx {
 
 namespace drv {
 
-template<typename String>
-bool is_empty_str(const String& mystr)
+/* {{{ Environment */
+struct Environment
 {
-	return (mystr.s == nullptr) || (mystr.l == 0);
-}
+	enum class Variable
+	{
+		Mysql_port,
+		Mysqlx_port
+	};
 
-MYSQLND_CSTRING make_mysqlnd_cstr(const char * str);
-MYSQLND_STRING make_mysqlnd_str(const char * str);
-bool equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs);
+	static phputils::string to_string(Variable var);
+	static int to_int(Variable var);
 
-void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
-void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
-
-//https://en.wikipedia.org/wiki/Percent-encoding
-phputils::string decode_pct_path(const phputils::string& encoded_path);
+};
+/* }}} */
 
 } // namespace drv
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_UTILS_H */
+#endif /* XMYSQLND_ENVIRONMENT_H */
 
 /*
  * Local variables:

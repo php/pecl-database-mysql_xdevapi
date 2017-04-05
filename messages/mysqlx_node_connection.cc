@@ -24,8 +24,9 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 }
-#include <xmysqlnd/xmysqlnd.h>
-#include <xmysqlnd/xmysqlnd_node_session.h>
+#include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "xmysqlnd/xmysqlnd_environment.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
@@ -76,7 +77,7 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 #endif
 	{
 		if (!port) {
-			port = 3306;
+			port = drv::Environment::to_int(drv::Environment::Variable::Mysql_port);
 		}
 		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.s, port);
 	}
@@ -93,7 +94,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 	struct st_mysqlx_node_connection * connection;
 	MYSQLND_CSTRING hostname = {NULL, 0};
 	MYSQLND_CSTRING socket_or_pipe = {NULL, 0};
-	zend_long port = 33060;
+	zend_long port = drv::Environment::to_int(drv::Environment::Variable::Mysqlx_port);
 	enum_func_status ret = FAIL;
 
 	DBG_ENTER("mysqlx_node_connection::connect");

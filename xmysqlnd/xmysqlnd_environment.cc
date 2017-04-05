@@ -15,36 +15,61 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_UTILS_H
-#define XMYSQLND_UTILS_H
-
+extern "C" {
+#include <php.h>
+#undef ERROR
+#undef inline
+}
+#include "xmysqlnd_environment.h"
 #include "phputils/strings.h"
+#include <cstdlib>
 
 namespace mysqlx {
 
 namespace drv {
 
-template<typename String>
-bool is_empty_str(const String& mystr)
+/* {{{ Environment::to_string */
+phputils::string Environment::to_string(Variable var)
 {
-	return (mystr.s == nullptr) || (mystr.l == 0);
+	struct Variable_info {
+		const char* test_env_var;
+		const char* common_env_var;
+		const char* default_value;
+	};
+
+	static const std::map<Environment::Variable, Variable_info> var_to_info = {
+		{ Variable::Mysql_port, {"MYSQL_TEST_PORT", "MYSQL_PORT", "3306"} },
+		{ Variable::Mysqlx_port, {"MYSQLX_TEST_PORT", "MYSQLX_PORT", "33060"} },
+	};
+
+	const Variable_info& var_info = var_to_info.at(var);
+
+	const char* value = std::getenv(var_info.test_env_var);
+	if (value != nullptr) {
+		return value;
+	}
+
+	value = std::getenv(var_info.common_env_var);
+	if (value != nullptr) {
+		return value;
+	}
+
+	return var_info.default_value;
 }
+/* }}} */
 
-MYSQLND_CSTRING make_mysqlnd_cstr(const char * str);
-MYSQLND_STRING make_mysqlnd_str(const char * str);
-bool equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs);
 
-void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
-void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
-
-//https://en.wikipedia.org/wiki/Percent-encoding
-phputils::string decode_pct_path(const phputils::string& encoded_path);
+/* {{{ Environment::to_int */
+int Environment::to_int(Variable var)
+{
+	const phputils::string& value_str = to_string(var);
+	return std::stoi(value_str.c_str());
+}
+/* }}} */
 
 } // namespace drv
 
 } // namespace mysqlx
-
-#endif /* XMYSQLND_UTILS_H */
 
 /*
  * Local variables:
