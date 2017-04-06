@@ -15,11 +15,6 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
-}
 #include "xmysqlnd_environment.h"
 #include "phputils/strings.h"
 #include <cstdlib>

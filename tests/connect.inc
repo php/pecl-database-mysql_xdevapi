@@ -7,7 +7,7 @@
 	*/
 
 	$driver    = new mysqli_driver;
-	
+
 	if (!function_exists('get_mysqlx_env')) {
 		function get_mysqlx_env($test_envar, $common_envar, $default_value) {
 			if (getenv($test_envar)) return getenv($test_envar);
