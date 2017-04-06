@@ -279,7 +279,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DA
 	/* MY-305: Add support for windows pipe */
 	if( session->transport_type == transport_types::network ) {
 		if (!port) {
-			port = drv::Environment::to_int(drv::Environment::Variable::Mysql_port);
+			port = drv::Environment::get_as_int(drv::Environment::Variable::Mysql_port);
 		}
 		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.c_str(), port);
 	} else if( session->transport_type == transport_types::unix_domain_socket ){
@@ -2533,7 +2533,7 @@ std::pair<php_url*,transport_types> extract_uri_information(const char * uri_str
 	//Port required (If no alternative transport provided)
 	if( 0 == node_url->port && tr_path.empty() ) {
 		DBG_INF_FMT("Missing port number, trying to get from env or set default!");
-		node_url->port = drv::Environment::to_int(drv::Environment::Variable::Mysqlx_port);
+		node_url->port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
 	}
 	//Password optional, but print a log
 	if( !node_url->pass ) {

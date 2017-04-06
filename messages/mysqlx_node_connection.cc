@@ -77,7 +77,7 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 #endif
 	{
 		if (!port) {
-			port = drv::Environment::to_int(drv::Environment::Variable::Mysql_port);
+			port = drv::Environment::get_as_int(drv::Environment::Variable::Mysql_port);
 		}
 		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.s, port);
 	}
@@ -94,7 +94,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 	struct st_mysqlx_node_connection * connection;
 	MYSQLND_CSTRING hostname = {NULL, 0};
 	MYSQLND_CSTRING socket_or_pipe = {NULL, 0};
-	zend_long port = drv::Environment::to_int(drv::Environment::Variable::Mysqlx_port);
+	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
 	enum_func_status ret = FAIL;
 
 	DBG_ENTER("mysqlx_node_connection::connect");

@@ -33,8 +33,8 @@ struct Environment
 		Mysqlx_port
 	};
 
-	static phputils::string to_string(Variable var);
-	static int to_int(Variable var);
+	static phputils::string get_as_string(Variable var);
+	static int get_as_int(Variable var);
 
 };
 /* }}} */
