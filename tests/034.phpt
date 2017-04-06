@@ -22,14 +22,14 @@ function expect_list($amount) {
         $session_uri_name1 = 'sessionUri1';
 	$session_uri_name2 = 'sessionUri2';
 	$session_uri1 = 'mysqlx://mike:@10.55.120.48:33060';
-	$session_uri2 = 'mysqlx://Arnold:@localhost:1001/?ca-path=path/to/ca&ssl-enabled';
+	$session_uri2 = 'mysqlx://Arnold:@localhost:1001/?ca-path=path/to/ca&'.$disable_ssl_opt;
 
         $new_uri_config = $session->save($session_uri_name1,$session_uri1);
 	$new_uri_config2 = $session->save($session_uri_name2,$session_uri2);
 
-        $json = '{ "host": "10.55.120.48", "port": 33060, "user": "mike", "appdata": { "alias":"Master", "test":"valid"} }';
-	$json2 = '{ "host": "superhost", "port": 333, "user": "Charlie", "appdata": { "animal":"Dog", "stuff":"a lot", "alias": "Important"} }';
-	$json3 = '{ "host": "localhost", "port": 1001, "user": "Arnold", "important":"field", "moreImportant":"field", "appdata": { "cool":"Yes", "stuff":"not that much", "alias": "nope"} }';
+        $json = '{ "host": "10.55.120.48", "port": 33060, "user": "mike", "ssl-mode":"disabled", "appdata": { "alias":"Master", "test":"valid"} }';
+	$json2 = '{ "host": "superhost", "port": 333, "user": "Charlie", "ssl-mode":"disabled", "appdata": { "animal":"Dog", "stuff":"a lot", "alias": "Important"} }';
+	$json3 = '{ "host": "localhost", "port": 1001, "user": "Arnold", "ssl-mode":"disabled", "important":"field", "moreImportant":"field", "appdata": { "cool":"Yes", "stuff":"not that much", "alias": "nope"} }';
 
         $new_config;
 	$new_config2;
@@ -64,9 +64,9 @@ function expect_list($amount) {
 	expect_eq( $new_config2->getUri(), $config2->getUri() );
 	expect_eq( $new_config3->getUri(), $config3->getUri() );
 
-        expect_eq( $config1->getUri(), "mysqlx://mike:@10.55.120.48:33060" );
-	expect_eq( $config2->getUri(), "mysqlx://Charlie:@superhost:333" );
-	expect_eq( $config3->getUri(), "mysqlx://Arnold:@localhost:1001/?important=field&moreImportant=field" );
+        expect_eq( $config1->getUri(), "mysqlx://mike:@10.55.120.48:33060/?".$disable_ssl_opt );
+	expect_eq( $config2->getUri(), "mysqlx://Charlie:@superhost:333/?".$disable_ssl_opt );
+	expect_eq( $config3->getUri(), "mysqlx://Arnold:@localhost:1001/?important=field&moreImportant=field&".$disable_ssl_opt );
 
         expect_eq( $new_config->getAppData('alias'), $config1->getAppData('alias') );
 	expect_eq( $new_config->getAppData('test'), $config1->getAppData('test') );
@@ -112,20 +112,20 @@ function expect_list($amount) {
 
         $sessions = expect_list( 5 );
 
-        $new_uri = "mysqlx://Murphy:topsecret@tigerhost:666";
+        $new_uri = "mysqlx://Murphy:topsecret@tigerhost:666/?".$disable_ssl_opt;
 	$config2->setUri($new_uri);
 	$config2_before_update = $session->get('bbb');
 
-        expect_eq( $config1->getUri(), "mysqlx://mike:@10.55.120.48:33060" );
-	expect_eq( $config2_before_update->getUri(), "mysqlx://Charlie:@superhost:333" );
-	expect_eq( $config3->getUri(), "mysqlx://Arnold:@localhost:1001/?important=field&moreImportant=field" );
+        expect_eq( $config1->getUri(), "mysqlx://mike:@10.55.120.48:33060/?".$disable_ssl_opt );
+	expect_eq( $config2_before_update->getUri(), "mysqlx://Charlie:@superhost:333/?".$disable_ssl_opt );
+	expect_eq( $config3->getUri(), "mysqlx://Arnold:@localhost:1001/?important=field&moreImportant=field&".$disable_ssl_opt );
 
         $session->update( $config2 );
 	$config2_after_update = $session->get('bbb');
 
-        expect_eq( $config1->getUri(), "mysqlx://mike:@10.55.120.48:33060" );
+        expect_eq( $config1->getUri(), "mysqlx://mike:@10.55.120.48:33060/?".$disable_ssl_opt );
 	expect_eq( $config2_after_update->getUri(), $new_uri );
-	expect_eq( $config3->getUri(), "mysqlx://Arnold:@localhost:1001/?important=field&moreImportant=field" );
+	expect_eq( $config3->getUri(), "mysqlx://Arnold:@localhost:1001/?important=field&moreImportant=field&".$disable_ssl_opt );
 
         $config2 = $session->get( 'bbb' );
 
@@ -198,7 +198,7 @@ function verification_step() {
         expect_list( 2 );
 
         $session_name = 'coolSession';
-	$session_uri = 'mysqlx://charlie:password@92.11.110.48:22000';
+	$session_uri = 'mysqlx://charlie:password@92.11.110.48:22000/'.$disable_ssl_opt;
 	$app_data_json = '{ "name":"Carlos", "stuff":"tons and tons", "alias": "important"}';
 
         $config = $session->save( $session_name, $session_uri, $app_data_json );

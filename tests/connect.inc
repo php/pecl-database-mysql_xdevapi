@@ -19,7 +19,8 @@
 	$socket    = getenv("MYSQLX_TEST_SOCKET")   ? getenv("MYSQLX_TEST_SOCKET") : getenv("MYSQLX_SOCKET");
 	$skip_on_connect_failure  = getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") ? getenv("MYSQLX_TEST_SKIP_CONNECT_FAILURE") : true;
 	$connect_flags = getenv("MYSQLX_TEST_CONNECT_FLAGS") ? (int)getenv("MYSQLX_TEST_CONNECT_FLAGS") : 0;
-	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
+	$disable_ssl_opt = 'ssl-mode=disabled';
+	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port.'/?'.$disable_ssl_opt;
 
 	$test_table_name = "test_table";
 	$test_collection_name = "test_collection";
