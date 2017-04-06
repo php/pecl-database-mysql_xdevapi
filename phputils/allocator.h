@@ -18,6 +18,7 @@
 #ifndef MYSQL_XDEVAPI_PHP_ALLOCATOR_H
 #define MYSQL_XDEVAPI_PHP_ALLOCATOR_H
 
+#include <cstddef>
 #include <memory>
 #include <new>
 
