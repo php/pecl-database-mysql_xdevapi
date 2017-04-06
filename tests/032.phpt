@@ -11,7 +11,7 @@ mysqlx Unix domain socket
 	     * Attempt to obtain the socket path
 	     * from the server
 	     */
-	    $nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+	    $nodeSession = mysql_xdevapi\getSession($connection_uri);
 	    $res = $nodeSession->executeSql("show variables like 'mysqlx_socket'");
 	    $var = $res->fetchAll();
 	    if( count( $var ) == 1 ) {

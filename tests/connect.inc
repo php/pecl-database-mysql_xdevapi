@@ -55,7 +55,7 @@
 				the test script to call clean_test_db *after* the test
 			*/
 			//clean_test_db();
-			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("create database $db");
 			$nodeSession->executeSql("create table $db.$test_table_name(name text, age int)");
 			$nodeSession->getSchema($db)->createCollection($test_collection_name);
@@ -70,7 +70,7 @@
 		function clean_test_db() {
 			global $connection_uri;
 			global $db;
-			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("drop database if exists $db");
 		}
 	}
@@ -83,7 +83,7 @@
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
-			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 11)");
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Eulalia', 11)");
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 12)");
@@ -107,7 +107,7 @@
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
-			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 29)");
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 21)");
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 34)");

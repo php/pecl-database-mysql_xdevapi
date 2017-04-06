@@ -22,12 +22,6 @@ error_reporting=0
 
         for( $i = 0 ; $i < count($uri_string) ; $i++ ) {
 	    try {
-	            $nodeSession = mysql_xdevapi\getNodeSession($uri_string[$i][0]);
-		    expect_null( $nodeSession );
-	    } catch(Exception $e) {
-	            expect_eq($e->getCode(), $uri_string[$i][1]);
-	    }
-	    try {
 	            $nodeSession = mysql_xdevapi\getSession($uri_string[$i][0]);
 		     expect_null( $nodeSession );
 	    } catch(Exception $e) {
@@ -37,10 +31,8 @@ error_reporting=0
 
         try {
 	        $uri = '//'.$user.':'.$passwd.'@'.$host.':'.$port.'/?'.$disable_ssl_opt;
-		$nodeSession = mysql_xdevapi\getNodeSession($uri);
 		$nodeSession = mysql_xdevapi\getSession($uri);
 
-                $nodeSession = mysql_xdevapi\getNodeSession($scheme.':'.$uri);
 		$nodeSession = mysql_xdevapi\getSession($scheme.':'.$uri);
 	} catch(Exception $e) {
 	        test_step_failed();
@@ -49,7 +41,6 @@ error_reporting=0
         //test IPv6
 	try {
 	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.'[::1]:'.$port.'/?'.$disable_ssl_opt;
-		$nodeSession = mysql_xdevapi\getNodeSession($uri);
 		$nodeSession = mysql_xdevapi\getSession($uri);
 	} catch(Exception $e) {
 	        print $e->getCode()." : ".$e->getMessage().PHP_EOL;

@@ -5,7 +5,7 @@ mysqlx Field Metadata, empty rowset
 <?php
 
         require("connect.inc");
-	$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+	$nodeSession = mysql_xdevapi\getSession($connection_uri);
 	$nodeSession->executeSql("create database $db");
 	$schema = $nodeSession->getSchema($db);
 

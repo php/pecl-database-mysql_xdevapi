@@ -310,31 +310,6 @@ mysqlx_new_node_session(zval * return_value)
 }
 /* }}} */
 
-
-/* {{{ proto bool mysqlx\\getNodeSession(string uri_string) */
-PHP_FUNCTION(mysql_xdevapi__getNodeSession)
-{
-	MYSQLND_CSTRING uri_string = {NULL, 0};
-
-	DBG_ENTER("mysql_xdevapi__getNodeSession");
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
-										 &(uri_string.s), &(uri_string.l)))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	if (!uri_string.l) {
-		php_error_docref(NULL, E_WARNING, "Empty URI string");
-		RETVAL_FALSE;
-		DBG_VOID_RETURN;
-	}
-
-	drv::xmysqlnd_node_new_session_connect(uri_string.s,return_value);
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
 } // namespace devapi
 
 } // namespace mysqlx

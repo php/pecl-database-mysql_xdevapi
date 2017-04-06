@@ -9,7 +9,7 @@ error_reporting=0
 
 	$test = "000000000";
 
-	$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+        $nodeSession = mysql_xdevapi\getSession($connection_uri);
 
 	function verify_doc($doc, $name, $job, $age) {
 		$result = ($doc[0] = $name);

@@ -5,7 +5,7 @@ mysqlx Flexible number of arguments
 <?php
 	require("connect.inc");
 
-        $nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+        $nodeSession = mysql_xdevapi\getSession($connection_uri);
 	$nodeSession->executeSql("create database $db");
 	$nodeSession->executeSql("create table $db.test_table(a text, b int, c text)");
 	$schema = $nodeSession->getSchema($db);
