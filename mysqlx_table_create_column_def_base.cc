@@ -155,7 +155,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def_base, comment)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_ptr comment;
+	phputils::string_input_param comment;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, column_def_base_class_entry,

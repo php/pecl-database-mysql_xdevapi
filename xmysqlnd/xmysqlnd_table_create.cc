@@ -133,11 +133,6 @@ struct query_stream_manip
 	{
 	}
 
-	static query_stream_manip empty()
-	{
-		return query_stream_manip();
-	}
-
 	phputils::string text;
 };
 /* }}} */
@@ -154,7 +149,7 @@ std::ostream& operator<<(std::ostream& os, query_stream_manip qbm)
 /* {{{ token */
 query_stream_manip token(const char* token)
 {
-	return (phputils::to_string(token) + chr::whitespace);
+	return (phputils::string(token) + chr::whitespace);
 }
 /* }}} */
 
@@ -165,7 +160,7 @@ query_stream_manip attrib(bool enable, const char* symbol)
 	if (enable) {
 		return token(symbol);
 	}
-	return query_stream_manip::empty();
+	return query_stream_manip{};
 }
 /* }}} */
 
@@ -186,7 +181,7 @@ query_stream_manip value(
 	const phputils::string& text,
 	const char postfix = chr::whitespace)
 {
-	if (text.empty()) return query_stream_manip::empty();
+	if (text.empty()) return query_stream_manip{};
 	return text + postfix;
 }
 /* }}} */
@@ -197,21 +192,23 @@ query_stream_manip value(
 	const char* label,
 	const phputils::string& text)
 {
-	if (text.empty()) return query_stream_manip::empty();
-	return (phputils::to_string(label) + chr::whitespace + text + chr::whitespace);
+	if (text.empty()) return query_stream_manip{};
+	return (phputils::string(label) + chr::whitespace + text + chr::whitespace);
 }
 /* }}} */
 
 
 /* {{{ value */
-query_stream_manip value(const char* symbol, const optional_long& value)
+query_stream_manip value(const char* symbol, const optional_long& opt_value)
 {
-	if (value.first) {
+	const bool has_value = opt_value.first;
+	if (has_value) {
 		phputils::ostringstream os;
-		os << symbol << chr::whitespace << value.second << chr::whitespace;
+		const long value = opt_value.second;
+		os << symbol << chr::whitespace << value << chr::whitespace;
 		return os.str();
 	}
-	return query_stream_manip::empty();
+	return query_stream_manip{};
 }
 /* }}} */
 
@@ -221,7 +218,7 @@ query_stream_manip values(
 	const char* label,
 	const phputils::strings& values)
 {
-	if (values.empty()) return query_stream_manip::empty();
+	if (values.empty()) return query_stream_manip{};
 
 	phputils::ostringstream os;
 
@@ -247,7 +244,7 @@ query_stream_manip values(
 //------------------------------------------------------------------------------
 
 /*
-	build SQL os basing on following reference:
+	build SQL query basing on following reference:
 	https://dev.mysql.com/doc/refman/5.7/en/create-table.html
 */
 /* {{{ create_table_on_error */
@@ -617,12 +614,18 @@ void Query_builder::stream_generated_column_def(const Column_def& column_def)
 void Query_builder::stream_data_type(const Column_def& column_def)
 {
 	os << to_data_type(column_def.type);
-	if (column_def.length.first) {
-		os << '(' << column_def.length.second;
-		if (column_def.decimals.first) {
-			os << ',' << column_def.decimals.second;
+	const bool has_length = column_def.length.first;
+	const bool has_decimals = column_def.decimals.first;
+	if (has_length) {
+		const long length = column_def.length.second;
+		os << '(' << length;
+		if (has_decimals) {
+			const long decimals = column_def.decimals.second;
+			os << ',' << decimals;
 		}
 		os << token(")");
+	} else if (has_decimals) {
+		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::invalid_table_column_length_decimals);
 	} else if (!column_def.values.empty()) {
 		os << values(column_def.values);
 	} else {

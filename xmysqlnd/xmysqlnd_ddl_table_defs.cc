@@ -43,7 +43,7 @@ namespace drv {
 namespace {
 
 /* {{{ to_column_type */
-Column_def::Type to_column_type(const phputils::string_ptr& column_type_str)
+Column_def::Type to_column_type(const phputils::string_input_param& column_type_str)
 {
 	static const std::map<std::string, Column_def::Type, phputils::iless> str_to_column_type = {
 		{ "Bit", Column_def::Type::bit },
@@ -92,7 +92,7 @@ Column_def::Type to_column_type(const phputils::string_ptr& column_type_str)
 
 
 /* {{{ to_fkey_change_mode */
-Foreign_key_def::Change_mode to_fkey_change_mode(const phputils::string_ptr& change_mode_str)
+Foreign_key_def::Change_mode to_fkey_change_mode(const phputils::string_input_param& change_mode_str)
 {
 	static const std::map<std::string, Foreign_key_def::Change_mode, phputils::iless> str_to_change_mode = {
 		{ "Restrict", Foreign_key_def::Change_mode::restricted },
@@ -168,7 +168,7 @@ phputils::string quote(phputils::string text, bool always_quote)
 namespace create_table {
 
 /* {{{ quote_identifier */
-phputils::string quote_identifier(phputils::string raw_id)
+phputils::string quote_identifier(const phputils::string& raw_id)
 {
 	return quote(raw_id, false);
 }
@@ -176,7 +176,7 @@ phputils::string quote_identifier(phputils::string raw_id)
 
 
 /* {{{ quote_text */
-phputils::string quote_text(phputils::string raw_text)
+phputils::string quote_text(const phputils::string& raw_text)
 {
 	return quote(escape(raw_text), true);
 }
@@ -188,15 +188,15 @@ phputils::string quote_text(phputils::string raw_text)
 
 /* {{{ Column_def::init */
 void Column_def::init(
-	const phputils::string_ptr& n,
-	const phputils::string_ptr& t,
-	long len)
+	const phputils::string_input_param& col_name,
+	const phputils::string_input_param& col_type,
+	long col_length)
 {
 	kind = Kind::common;
-	name = create_table::quote_identifier(n.to_string());
-	type = to_column_type(t);
-	if (len != Default_length) {
-		length = {true, len};
+	name = create_table::quote_identifier(col_name.to_string());
+	type = to_column_type(col_type);
+	if (col_length != Default_length) {
+		length = {true, col_length};
 	}
 }
 /* }}} */
@@ -204,13 +204,13 @@ void Column_def::init(
 
 /* {{{ Column_def::init */
 void Column_def::init(
-	const phputils::string_ptr& n,
-	const phputils::string_ptr& t,
-	const phputils::string_ptr& expression)
+	const phputils::string_input_param& col_name,
+	const phputils::string_input_param& col_type,
+	const phputils::string_input_param& expression)
 {
 	kind = Kind::generated;
-	name = create_table::quote_identifier(n.to_string());
-	type = to_column_type(t);
+	name = create_table::quote_identifier(col_name.to_string());
+	type = to_column_type(col_type);
 	generated_as_expr = expression.to_string();
 }
 /* }}} */
@@ -242,7 +242,7 @@ void Column_def::enable_primary_key()
 
 
 /* {{{ Column_def::set_comment */
-void Column_def::set_comment(const phputils::string_ptr& commt)
+void Column_def::set_comment(const phputils::string_input_param& commt)
 {
 	comment = create_table::quote_text(commt.to_string());
 }
@@ -250,9 +250,9 @@ void Column_def::set_comment(const phputils::string_ptr& commt)
 
 
 /* {{{ Column_def::set_default_value */
-void Column_def::set_default_value(phputils::string default_value_expr)
+void Column_def::set_default_value(const phputils::string& default_value_expr)
 {
-	default_value = std::move(default_value_expr);
+	default_value = default_value_expr;
 }
 /* }}} */
 
@@ -266,9 +266,9 @@ void Column_def::enable_auto_increment()
 
 
 /* {{{ Column_def::set_foreign_key */
-void Column_def::set_foreign_key(const phputils::string_ptr& table, phputils::strings fields)
+void Column_def::set_foreign_key(const phputils::string_input_param& table, const phputils::strings& fields)
 {
-	foreign_key = Foreign_key{table.to_string(), std::move(fields)};
+	foreign_key = Foreign_key{table.to_string(), fields};
 }
 /* }}} */
 
@@ -290,7 +290,7 @@ void Column_def::set_decimals(long dec_size)
 
 
 /* {{{ Column_def::set_charset */
-void Column_def::set_charset(const phputils::string_ptr& chrset)
+void Column_def::set_charset(const phputils::string_input_param& chrset)
 {
 	charset = chrset.to_string();
 }
@@ -298,7 +298,7 @@ void Column_def::set_charset(const phputils::string_ptr& chrset)
 
 
 /* {{{ Column_def::set_collation */
-void Column_def::set_collation(const phputils::string_ptr& coll)
+void Column_def::set_collation(const phputils::string_input_param& coll)
 {
 	collation = coll.to_string();
 }
@@ -314,9 +314,9 @@ void Column_def::enable_binary()
 
 
 /* {{{ Column_def::set_values */
-void Column_def::set_values(phputils::strings v)
+void Column_def::set_values(const phputils::strings& vals)
 {
-	values = std::move(v);
+	values = vals;
 }
 /* }}} */
 
@@ -331,26 +331,26 @@ void Column_def::enable_stored()
 //------------------------------------------------------------------------------
 
 /* {{{ Foreign_key_def::set_fields */
-void Foreign_key_def::set_fields(phputils::strings f)
+void Foreign_key_def::set_fields(const phputils::strings& fk_fields)
 {
-	fields = std::move(f);
+	fields = fk_fields;
 }
 /* }}} */
 
 
 /* {{{ Foreign_key_def::set_refers_to */
 void Foreign_key_def::set_refers_to(
-	const phputils::string_ptr& ref_table,
-	phputils::strings ref_fields)
+	const phputils::string_input_param& ref_table,
+	const phputils::strings& ref_fields)
 {
 	refers_to.table = ref_table.to_string();
-	refers_to.fields = std::move(ref_fields);
+	refers_to.fields = ref_fields;
 }
 /* }}} */
 
 
 /* {{{ Foreign_key_def::set_on_delete_mode */
-void Foreign_key_def::set_on_delete_mode(const phputils::string_ptr& mode)
+void Foreign_key_def::set_on_delete_mode(const phputils::string_input_param& mode)
 {
 	on_delete_mode = to_fkey_change_mode(mode);
 }
@@ -358,7 +358,7 @@ void Foreign_key_def::set_on_delete_mode(const phputils::string_ptr& mode)
 
 
 /* {{{ Foreign_key_def::set_on_update_mode */
-void Foreign_key_def::set_on_update_mode(const phputils::string_ptr& mode)
+void Foreign_key_def::set_on_update_mode(const phputils::string_input_param& mode)
 {
 	on_update_mode = to_fkey_change_mode(mode);
 }
@@ -368,53 +368,57 @@ void Foreign_key_def::set_on_update_mode(const phputils::string_ptr& mode)
 
 /* {{{ Table_def::init */
 void Table_def::init(
-	const phputils::string_ptr& s,
-	const phputils::string_ptr& t,
+	const phputils::string_input_param& schema,
+	const phputils::string_input_param& table,
 	bool replace_if_exists)
 {
-	schema_name = create_table::quote_identifier(s.to_string());
-	table_name = create_table::quote_identifier(t.to_string());
+	schema_name = create_table::quote_identifier(schema.to_string());
+	table_name = create_table::quote_identifier(table.to_string());
 	replace_existing = replace_if_exists;
 }
 /* }}} */
 
 
 /* {{{ Table_def::add_column */
-void Table_def::add_column(Column_def column_def)
+void Table_def::add_column(const Column_def& column_def)
 {
-	columns.push_back(std::move(column_def));
+	columns.push_back(column_def);
 }
 /* }}} */
 
 
 /* {{{ Table_def::set_primary_key */
-void Table_def::set_primary_key(phputils::strings fields)
+void Table_def::set_primary_key(const phputils::strings& fields)
 {
-	primary_key = std::move(fields);
+	primary_key = fields;
 }
 /* }}} */
 
 
 /* {{{ Table_def::add_index */
-void Table_def::add_index(const phputils::string_ptr& name, phputils::strings fields)
+void Table_def::add_index(
+	const phputils::string_input_param& name, 
+	const phputils::strings& fields)
 {
-	indexes.push_back(Index{name.to_string(), std::move(fields), false});
+	indexes.push_back(Index{name.to_string(), fields, false});
 }
 /* }}} */
 
 
 /* {{{ Table_def::add_unique_index */
-void Table_def::add_unique_index(const phputils::string_ptr& name, phputils::strings fields)
+void Table_def::add_unique_index(
+	const phputils::string_input_param& name, 
+	const phputils::strings& fields)
 {
-	indexes.push_back(Index{name.to_string(), std::move(fields), true});
+	indexes.push_back(Index{name.to_string(), fields, true});
 }
 /* }}} */
 
 
 /* {{{ Table_def::add_foreign_key */
-void Table_def::add_foreign_key(const phputils::string_ptr& name, Foreign_key_def foreign_key)
+void Table_def::add_foreign_key(const phputils::string_input_param& name, const Foreign_key_def& foreign_key)
 {
-	foreign_keys.push_back(Foreign_key{name.to_string(), std::move(foreign_key)});
+	foreign_keys.push_back(Foreign_key{name.to_string(), foreign_key});
 }
 /* }}} */
 
@@ -428,7 +432,7 @@ void Table_def::set_initial_auto_increment(long init_auto_increment)
 
 
 /* {{{ Table_def::set_default_charset */
-void Table_def::set_default_charset(const phputils::string_ptr& charset_name)
+void Table_def::set_default_charset(const phputils::string_input_param& charset_name)
 {
 	default_charset = create_table::quote_text(charset_name.to_string());
 }
@@ -436,7 +440,7 @@ void Table_def::set_default_charset(const phputils::string_ptr& charset_name)
 
 
 /* {{{ Table_def::set_default_collation */
-void Table_def::set_default_collation(const phputils::string_ptr& collation_name)
+void Table_def::set_default_collation(const phputils::string_input_param& collation_name)
 {
 	default_collation = create_table::quote_text(collation_name.to_string());
 }
@@ -444,7 +448,7 @@ void Table_def::set_default_collation(const phputils::string_ptr& collation_name
 
 
 /* {{{ Table_def::set_comment */
-void Table_def::set_comment(const phputils::string_ptr& cmnt)
+void Table_def::set_comment(const phputils::string_input_param& cmnt)
 {
 	comment = create_table::quote_text(cmnt.to_string());
 }
@@ -460,7 +464,7 @@ void Table_def::enable_temporary()
 
 
 /* {{{ Table_def::set_defined_as */
-void Table_def::set_defined_as(const phputils::string_ptr& def_as)
+void Table_def::set_defined_as(const phputils::string_input_param& def_as)
 {
 	defined_as = def_as.to_string();
 }
@@ -468,7 +472,7 @@ void Table_def::set_defined_as(const phputils::string_ptr& def_as)
 
 
 /* {{{ Table_def::set_like */
-void Table_def::set_like(const phputils::string_ptr& template_table_name)
+void Table_def::set_like(const phputils::string_input_param& template_table_name)
 {
 	like_template_table_name = template_table_name.to_string();
 }

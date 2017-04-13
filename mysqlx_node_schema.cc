@@ -354,7 +354,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createTable)
 {
 	zval* object_zv = nullptr;
-	phputils::string_ptr table_name;
+	phputils::string_input_param table_name;
 	zend_bool replace_existing = false;
 
 	DBG_ENTER("mysqlx_node_schema::createTable");
