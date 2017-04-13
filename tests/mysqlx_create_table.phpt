@@ -556,8 +556,10 @@ mysqlx create table
 
 	// -------------
 
-	foreach ($schema->getTables() as $key => $value) {
-		echo "{$key}".PHP_EOL;
+	$all_tables = array_keys($schema->getTables());
+	sort($all_tables);
+	foreach ($all_tables as $tableName) {
+		echo "{$tableName}".PHP_EOL;
 	}
 
 	verify_expectations();
