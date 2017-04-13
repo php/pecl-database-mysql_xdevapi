@@ -38,8 +38,8 @@ mysqlx create table
 	}
 
 	function exec_create_table(
-		$createTableCmd, 
-		$tableName, 
+		$createTableCmd,
+		$tableName,
 		$expect_success = true,
 		$is_temporary = false) {
 		try {
@@ -571,153 +571,153 @@ mysqlx create table
 	clean_test_db();
 ?>
 --EXPECTF--
-CREATE TABLE IF NOT EXISTS testx.numeric_types ( num_bit BIT(2) NULL , num_tinyint TINYINT(8) UNSIGNED NULL , num_smallint SMALLINT(16) UNSIGNED NULL , num_mediumint MEDIUMINT(32) UNSIGNED NULL , num_int INTEGER(32) UNSIGNED NULL , num_integer INTEGER(32) UNSIGNED NULL , num_bigint BIGINT(64) UNSIGNED NULL , num_real REAL(64,10) UNSIGNED NULL , num_double DOUBLE(80,16) UNSIGNED NULL , num_float FLOAT(32,8) UNSIGNED NULL , num_decimal DECIMAL(24,20) UNSIGNED NULL , num_numeric NUMERIC(32,30) UNSIGNED NULL ) 
+CREATE TABLE IF NOT EXISTS testx.numeric_types ( num_bit BIT(2) NULL , num_tinyint TINYINT(8) UNSIGNED NULL , num_smallint SMALLINT(16) UNSIGNED NULL , num_mediumint MEDIUMINT(32) UNSIGNED NULL , num_int INTEGER(32) UNSIGNED NULL , num_integer INTEGER(32) UNSIGNED NULL , num_bigint BIGINT(64) UNSIGNED NULL , num_real REAL(64,10) UNSIGNED NULL , num_double DOUBLE(80,16) UNSIGNED NULL , num_float FLOAT(32,8) UNSIGNED NULL , num_decimal DECIMAL(24,20) UNSIGNED NULL , num_numeric NUMERIC(32,30) UNSIGNED NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.time_types ( time_date DATE NULL , time_time TIME NULL , time_timestamp TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP , time_datetime DATETIME NULL , time_year YEAR NULL ) 
+CREATE TABLE IF NOT EXISTS testx.time_types ( time_date DATE NULL , time_time TIME NULL , time_timestamp TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP , time_datetime DATETIME NULL , time_year YEAR NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.text_types ( text_char CHARACTER BINARY CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL , text_varchar VARCHAR(32) BINARY CHARACTER SET latin2 COLLATE latin2_general_ci NULL , text_tinytext TINYTEXT BINARY CHARACTER SET latin5 COLLATE latin5_turkish_ci NULL , text_text TEXT BINARY CHARACTER SET latin7 COLLATE latin7_general_ci NULL , text_mediumtext MEDIUMTEXT BINARY CHARACTER SET latin1 COLLATE latin1_german2_ci NULL , text_longtext LONGTEXT BINARY CHARACTER SET latin1 COLLATE latin1_german1_ci NULL ) 
+CREATE TABLE IF NOT EXISTS testx.text_types ( text_char CHARACTER BINARY CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL , text_varchar VARCHAR(32) BINARY CHARACTER SET latin2 COLLATE latin2_general_ci NULL , text_tinytext TINYTEXT BINARY CHARACTER SET latin5 COLLATE latin5_turkish_ci NULL , text_text TEXT BINARY CHARACTER SET latin7 COLLATE latin7_general_ci NULL , text_mediumtext MEDIUMTEXT BINARY CHARACTER SET latin1 COLLATE latin1_german2_ci NULL , text_longtext LONGTEXT BINARY CHARACTER SET latin1 COLLATE latin1_german1_ci NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.data_types ( data_binary BINARY(16) NULL , data_varbinary VARBINARY(24) NULL , data_tinyblob TINYBLOB NULL , data_blob BLOB NULL , data_mediumblob MEDIUMBLOB NULL , data_longblob LONGBLOB NULL ) 
+CREATE TABLE IF NOT EXISTS testx.data_types ( data_binary BINARY(16) NULL , data_varbinary VARBINARY(24) NULL , data_tinyblob TINYBLOB NULL , data_blob BLOB NULL , data_mediumblob MEDIUMBLOB NULL , data_longblob LONGBLOB NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.other_types ( rating ENUM('G','PG','PG-13','R','NC-17') CHARACTER SET ucs2 COLLATE ucs2_general_ci NULL DEFAULT 'G' , special_features SET('Trailers','Commentaries','Deleted Scenes','Behind the Scenes') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL , json_doc JSON NULL ) 
+CREATE TABLE IF NOT EXISTS testx.other_types ( rating ENUM('G','PG','PG-13','R','NC-17') CHARACTER SET ucs2 COLLATE ucs2_general_ci NULL DEFAULT 'G' , special_features SET('Trailers','Commentaries','Deleted Scenes','Behind the Scenes') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL , json_doc JSON NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_bit BIT(33) CHARACTER SET latin1 NULL ) 
+CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_bit BIT(33) CHARACTER SET latin1 NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_tinyint TINYINT(-1) UNSIGNED NULL ) 
+CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_tinyint TINYINT(-1) UNSIGNED NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_smallint SMALLINT(16) UNSIGNED NULL DEFAULT 'xyz' ) 
+CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_smallint SMALLINT(16) UNSIGNED NULL DEFAULT 'xyz' )
 --------
-CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_integer INTEGER(512) UNSIGNED COLLATE latin2_general_ci NULL ) 
+CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_integer INTEGER(512) UNSIGNED COLLATE latin2_general_ci NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_float FLOAT(256,8) UNSIGNED NULL ) 
+CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_float FLOAT(256,8) UNSIGNED NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_double DOUBLE(80) UNSIGNED BINARY NULL ) 
+CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_double DOUBLE(80) UNSIGNED BINARY NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_numeric NUMERIC(32,30) UNSIGNED CHARACTER SET latin1 NULL ) 
+CREATE TABLE IF NOT EXISTS testx.numeric_types_error ( num_numeric NUMERIC(32,30) UNSIGNED CHARACTER SET latin1 NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_date DATE(5) NULL ) 
+CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_date DATE(5) NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_time TIME UNSIGNED NULL ) 
+CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_time TIME UNSIGNED NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_timestamp TIMESTAMP CHARACTER SET latin5 NULL DEFAULT CURRENT_TIMESTAMP ) 
+CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_timestamp TIMESTAMP CHARACTER SET latin5 NULL DEFAULT CURRENT_TIMESTAMP )
 --------
-CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_datetime DATETIME BINARY COLLATE latin5_turkish_ci NOT NULL ) 
+CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_datetime DATETIME BINARY COLLATE latin5_turkish_ci NOT NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_year YEAR(2,30) NULL ) 
+CREATE TABLE IF NOT EXISTS testx.time_types_error ( time_year YEAR(2,30) NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_char CHARACTER BINARY CHARACTER SET latin1 COLLATE non_existing_coll NULL ) 
+CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_char CHARACTER BINARY CHARACTER SET latin1 COLLATE non_existing_coll NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_varchar VARCHAR(32) BINARY CHARACTER SET non_existing_charset COLLATE latin2_general_ci NULL ) 
+CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_varchar VARCHAR(32) BINARY CHARACTER SET non_existing_charset COLLATE latin2_general_ci NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_tinytext TINYTEXT(3) BINARY CHARACTER SET latin5 COLLATE latin5_turkish_ci NULL ) 
+CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_tinytext TINYTEXT(3) BINARY CHARACTER SET latin5 COLLATE latin5_turkish_ci NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_text TEXT(10,30) NULL ) 
+CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_text TEXT(10,30) NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_mediumtext MEDIUMTEXT UNSIGNED CHARACTER SET latin1 COLLATE latin1_german2_ci NULL ) 
+CREATE TABLE IF NOT EXISTS testx.text_types_error ( text_mediumtext MEDIUMTEXT UNSIGNED CHARACTER SET latin1 COLLATE latin1_german2_ci NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_binary BINARY(16,30) NULL ) 
+CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_binary BINARY(16,30) NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_varbinary VARBINARY COLLATE latin1_german1_ci NULL ) 
+CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_varbinary VARBINARY COLLATE latin1_german1_ci NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_tinyblob TINYBLOB CHARACTER SET latin1 NULL ) 
+CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_tinyblob TINYBLOB CHARACTER SET latin1 NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_blob BLOB UNSIGNED NULL ) 
+CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_blob BLOB UNSIGNED NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_mediumblob MEDIUMBLOB BINARY NULL ) 
+CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_mediumblob MEDIUMBLOB BINARY NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_longblob LONGBLOB NULL DEFAULT 'abc' ) 
+CREATE TABLE IF NOT EXISTS testx.data_types_error ( data_longblob LONGBLOB NULL DEFAULT 'abc' )
 --------
-CREATE TABLE IF NOT EXISTS testx.other_types_error ( rating ENUM('G','PG','PG-13','R','NC-17') NULL DEFAULT 'T' ) 
+CREATE TABLE IF NOT EXISTS testx.other_types_error ( rating ENUM('G','PG','PG-13','R','NC-17') NULL DEFAULT 'T' )
 --------
-CREATE TABLE IF NOT EXISTS testx.other_types_error ( rating ENUM UNSIGNED NULL ) 
+CREATE TABLE IF NOT EXISTS testx.other_types_error ( rating ENUM UNSIGNED NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.other_types_error ( rating ENUM(1,2,3) NULL DEFAULT 1 ) 
+CREATE TABLE IF NOT EXISTS testx.other_types_error ( rating ENUM(1,2,3) NULL DEFAULT 1 )
 --------
-CREATE TABLE IF NOT EXISTS testx.other_types_error ( special_features SET('Trailers','Commentaries','Deleted Scenes','Behind the Scenes') NULL DEFAULT 'XYZ' ) 
+CREATE TABLE IF NOT EXISTS testx.other_types_error ( special_features SET('Trailers','Commentaries','Deleted Scenes','Behind the Scenes') NULL DEFAULT 'XYZ' )
 --------
-CREATE TABLE IF NOT EXISTS testx.other_types_error ( special_features SET(5) NULL ) 
+CREATE TABLE IF NOT EXISTS testx.other_types_error ( special_features SET(5) NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.other_types_error ( doc JSON CHARACTER SET utf8 NULL ) 
+CREATE TABLE IF NOT EXISTS testx.other_types_error ( doc JSON CHARACTER SET utf8 NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.select_as_test_table ( copied_name TEXT NULL , copied_age INTEGER NULL ) AS SELECT name, age FROM testx.test_table 
+CREATE TABLE IF NOT EXISTS testx.select_as_test_table ( copied_name TEXT NULL , copied_age INTEGER NULL ) AS SELECT name, age FROM testx.test_table
 --------
-CREATE TABLE IF NOT EXISTS testx.select_as_test_collection ( copied_id VARCHAR(32) NOT NULL DEFAULT '0' UNIQUE KEY , copied_doc JSON NULL ) AS SELECT _id, doc FROM testx.test_collection 
+CREATE TABLE IF NOT EXISTS testx.select_as_test_collection ( copied_id VARCHAR(32) NOT NULL DEFAULT '0' UNIQUE KEY , copied_doc JSON NULL ) AS SELECT _id, doc FROM testx.test_collection
 --------
-CREATE TABLE IF NOT EXISTS testx.select_as_test_view ( copied_name TEXT NULL ) AS SELECT name FROM testx.test_view 
+CREATE TABLE IF NOT EXISTS testx.select_as_test_view ( copied_name TEXT NULL ) AS SELECT name FROM testx.test_view
 --------
-CREATE TABLE IF NOT EXISTS testx.select_as_test_table_error ( copied_name VARCHAR NULL , copied_age REAL NULL ) AS SELECT name, age FROM testx.test_table 
+CREATE TABLE IF NOT EXISTS testx.select_as_test_table_error ( copied_name VARCHAR NULL , copied_age REAL NULL ) AS SELECT name, age FROM testx.test_table
 --------
-CREATE TABLE IF NOT EXISTS testx.select_as_test_collection_error ( copied_id VARCHAR(32) NOT NULL DEFAULT '0' UNIQUE KEY , copied_doc JSON NULL ) AS SELECT _id, doc, non_existing_column FROM testx.test_collection 
+CREATE TABLE IF NOT EXISTS testx.select_as_test_collection_error ( copied_id VARCHAR(32) NOT NULL DEFAULT '0' UNIQUE KEY , copied_doc JSON NULL ) AS SELECT _id, doc, non_existing_column FROM testx.test_collection
 --------
-CREATE TABLE IF NOT EXISTS testx.select_as_test_view_error ( PostalCode INTEGER NULL ) AS SELECT PostalCode FROM testx.test_view 
+CREATE TABLE IF NOT EXISTS testx.select_as_test_view_error ( PostalCode INTEGER NULL ) AS SELECT PostalCode FROM testx.test_view
 --------
-CREATE TABLE IF NOT EXISTS testx.test_table_clone LIKE testx.test_table 
+CREATE TABLE IF NOT EXISTS testx.test_table_clone LIKE testx.test_table
 --------
-CREATE TABLE IF NOT EXISTS testx.test_collection_clone LIKE testx.test_collection 
+CREATE TABLE IF NOT EXISTS testx.test_collection_clone LIKE testx.test_collection
 --------
-CREATE TABLE IF NOT EXISTS testx.test_view_clone LIKE testx.test_view 
+CREATE TABLE IF NOT EXISTS testx.test_view_clone LIKE testx.test_view
 --------
-CREATE TABLE IF NOT EXISTS testx.test_table_clone_error LIKE non_existing_table 
+CREATE TABLE IF NOT EXISTS testx.test_table_clone_error LIKE non_existing_table
 --------
-CREATE TABLE IF NOT EXISTS testx.test_collection_clone_error LIKE testx.test_collection_non_existing 
+CREATE TABLE IF NOT EXISTS testx.test_collection_clone_error LIKE testx.test_collection_non_existing
 --------
-CREATE TEMPORARY TABLE testx.options_table ( row_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ) AUTO_INCREMENT 2017 DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_general_ci' COMMENT 'this is comment for table options' 
+CREATE TEMPORARY TABLE testx.options_table ( row_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ) AUTO_INCREMENT 2017 DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_general_ci' COMMENT 'this is comment for table options'
 --------
-CREATE TABLE testx.options_table_error ( ) AUTO_INCREMENT -1 
+CREATE TABLE testx.options_table_error ( ) AUTO_INCREMENT -1
 --------
-CREATE TEMPORARY TABLE testx.options_table_error ( row_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ) DEFAULT CHARACTER SET 'unreal-charset' 
+CREATE TEMPORARY TABLE testx.options_table_error ( row_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ) DEFAULT CHARACTER SET 'unreal-charset'
 --------
-CREATE TABLE testx.options_table_error ( row_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ) DEFAULT COLLATE 'invalid_collation' 
+CREATE TABLE testx.options_table_error ( row_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ) DEFAULT COLLATE 'invalid_collation'
 --------
-CREATE TABLE IF NOT EXISTS testx.users_table ( user_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY , username VARCHAR(40) NULL , password VARCHAR(255) NULL , email VARCHAR(255) NULL ) 
+CREATE TABLE IF NOT EXISTS testx.users_table ( user_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY , username VARCHAR(40) NULL , password VARCHAR(255) NULL , email VARCHAR(255) NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.roles_table ( role_id INTEGER NOT NULL AUTO_INCREMENT , role_name VARCHAR(50) NOT NULL , PRIMARY KEY (role_id,role_name) ) 
+CREATE TABLE IF NOT EXISTS testx.roles_table ( role_id INTEGER NOT NULL AUTO_INCREMENT , role_name VARCHAR(50) NOT NULL , PRIMARY KEY (role_id,role_name) )
 --------
-CREATE TABLE IF NOT EXISTS testx.person_table ( id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT , name CHARACTER(60) NOT NULL , PRIMARY KEY (id) ) 
+CREATE TABLE IF NOT EXISTS testx.person_table ( id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT , name CHARACTER(60) NOT NULL , PRIMARY KEY (id) )
 --------
-CREATE TABLE IF NOT EXISTS testx.shirt_table ( id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT , style ENUM('t-shirt','polo','dress') NOT NULL , color ENUM('red','blue','orange','white','black') NOT NULL , owner SMALLINT UNSIGNED NOT NULL REFERENCES testx.person_table (id) , PRIMARY KEY (id) ) 
+CREATE TABLE IF NOT EXISTS testx.shirt_table ( id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT , style ENUM('t-shirt','polo','dress') NOT NULL , color ENUM('red','blue','orange','white','black') NOT NULL , owner SMALLINT UNSIGNED NOT NULL REFERENCES testx.person_table (id) , PRIMARY KEY (id) )
 --------
-CREATE TABLE IF NOT EXISTS testx.employee_table ( name VARCHAR(20) NOT NULL COMMENT "employee's name" , surname VARCHAR(20) NOT NULL COMMENT "employee's surname" , PESEL CHARACTER(11) NOT NULL COMMENT "employee's PESEL" , position TINYTEXT NULL COMMENT "employee's Position" , PRIMARY KEY (name,surname,PESEL) ) 
+CREATE TABLE IF NOT EXISTS testx.employee_table ( name VARCHAR(20) NOT NULL COMMENT "employee's name" , surname VARCHAR(20) NOT NULL COMMENT "employee's surname" , PESEL CHARACTER(11) NOT NULL COMMENT "employee's PESEL" , position TINYTEXT NULL COMMENT "employee's Position" , PRIMARY KEY (name,surname,PESEL) )
 --------
-CREATE TABLE IF NOT EXISTS testx.position_table ( emp_name VARCHAR(20) NULL REFERENCES testx.employee_table (name) , emp_surname VARCHAR(30) NULL REFERENCES testx.employee_table (surname) , emp_PESEL CHARACTER(11) NULL REFERENCES testx.employee_table (PESEL) , description TINYTEXT NULL COMMENT "employee's Position" ) 
+CREATE TABLE IF NOT EXISTS testx.position_table ( emp_name VARCHAR(20) NULL REFERENCES testx.employee_table (name) , emp_surname VARCHAR(30) NULL REFERENCES testx.employee_table (surname) , emp_PESEL CHARACTER(11) NULL REFERENCES testx.employee_table (PESEL) , description TINYTEXT NULL COMMENT "employee's Position" )
 --------
-CREATE TABLE IF NOT EXISTS testx.car_table ( VIN CHARACTER(20) NOT NULL PRIMARY KEY , brand VARCHAR(30) NOT NULL , model VARCHAR(50) NOT NULL , UNIQUE INDEX VIN_index (VIN,brand,model) ) 
+CREATE TABLE IF NOT EXISTS testx.car_table ( VIN CHARACTER(20) NOT NULL PRIMARY KEY , brand VARCHAR(30) NOT NULL , model VARCHAR(50) NOT NULL , UNIQUE INDEX VIN_index (VIN,brand,model) )
 --------
-CREATE TABLE IF NOT EXISTS testx.driver_car_table ( driver VARCHAR(40) NULL , car_VIN CHARACTER(20) NOT NULL , FOREIGN KEY fk_car_VIN (car_VIN) REFERENCES testx.car_table (VIN) ON DELETE NO ACTION ON UPDATE CASCADE ) 
+CREATE TABLE IF NOT EXISTS testx.driver_car_table ( driver VARCHAR(40) NULL , car_VIN CHARACTER(20) NOT NULL , FOREIGN KEY fk_car_VIN (car_VIN) REFERENCES testx.car_table (VIN) ON DELETE NO ACTION ON UPDATE CASCADE )
 --------
-CREATE TABLE IF NOT EXISTS testx.users_table_error ( user_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY , username VARCHAR(40) NOT NULL PRIMARY KEY , password VARCHAR(255) NULL ) 
+CREATE TABLE IF NOT EXISTS testx.users_table_error ( user_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY , username VARCHAR(40) NOT NULL PRIMARY KEY , password VARCHAR(255) NULL )
 --------
-CREATE TABLE IF NOT EXISTS testx.roles_table_error ( role_id INTEGER NOT NULL AUTO_INCREMENT , role_name VARCHAR(50) NULL , PRIMARY KEY (role_id,role_name) ) 
+CREATE TABLE IF NOT EXISTS testx.roles_table_error ( role_id INTEGER NOT NULL AUTO_INCREMENT , role_name VARCHAR(50) NULL , PRIMARY KEY (role_id,role_name) )
 --------
-CREATE TABLE IF NOT EXISTS testx.person_table_error ( id SMALLINT UNSIGNED NULL , name CHARACTER(60) NOT NULL , PRIMARY KEY (id) ) 
+CREATE TABLE IF NOT EXISTS testx.person_table_error ( id SMALLINT UNSIGNED NULL , name CHARACTER(60) NOT NULL , PRIMARY KEY (id) )
 --------
-CREATE TABLE IF NOT EXISTS testx.shirt_table_error ( id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT , style ENUM('t-shirt','polo','dress') NOT NULL , color ENUM('red','blue','orange','white','black') NOT NULL , owner SMALLINT UNSIGNED NOT NULL REFERENCES testx.person_table (name) ) 
+CREATE TABLE IF NOT EXISTS testx.shirt_table_error ( id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT , style ENUM('t-shirt','polo','dress') NOT NULL , color ENUM('red','blue','orange','white','black') NOT NULL , owner SMALLINT UNSIGNED NOT NULL REFERENCES testx.person_table (name) )
 --------
-CREATE TABLE IF NOT EXISTS testx.employee_table_error ( name VARCHAR(20) NOT NULL COMMENT "employee's name" , surname VARCHAR(20) NOT NULL COMMENT "employee's surname" , PESEL CHARACTER(11) NULL COMMENT "employee's PESEL" , position TINYTEXT NULL COMMENT "employee's Position" , PRIMARY KEY (surname,PESEL,position) ) 
+CREATE TABLE IF NOT EXISTS testx.employee_table_error ( name VARCHAR(20) NOT NULL COMMENT "employee's name" , surname VARCHAR(20) NOT NULL COMMENT "employee's surname" , PESEL CHARACTER(11) NULL COMMENT "employee's PESEL" , position TINYTEXT NULL COMMENT "employee's Position" , PRIMARY KEY (surname,PESEL,position) )
 --------
-CREATE TABLE IF NOT EXISTS testx.position_table_error ( emp_name SMALLINT(20) NULL REFERENCES non_existing_table (non_existing_name) , emp_surname INTEGER(30) CHARACTER SET utf8 NULL REFERENCES non_existing_table (surname) , emp_PESEL CHARACTER(11) NULL REFERENCES non_existing_table (PESEL) , description TINYTEXT NULL COMMENT "employee's Position" ) 
+CREATE TABLE IF NOT EXISTS testx.position_table_error ( emp_name SMALLINT(20) NULL REFERENCES non_existing_table (non_existing_name) , emp_surname INTEGER(30) CHARACTER SET utf8 NULL REFERENCES non_existing_table (surname) , emp_PESEL CHARACTER(11) NULL REFERENCES non_existing_table (PESEL) , description TINYTEXT NULL COMMENT "employee's Position" )
 --------
-CREATE TABLE IF NOT EXISTS testx.driver_car_table_error ( driver VARCHAR(40) NULL , car_VIN CHARACTER(20) NOT NULL , FOREIGN KEY fk_car_VIN (car_VIN) REFERENCES testx.car_table (VIN) ON DELETE SET NULL ON UPDATE RESTRICT ) 
+CREATE TABLE IF NOT EXISTS testx.driver_car_table_error ( driver VARCHAR(40) NULL , car_VIN CHARACTER(20) NOT NULL , FOREIGN KEY fk_car_VIN (car_VIN) REFERENCES testx.car_table (VIN) ON DELETE SET NULL ON UPDATE RESTRICT )
 --------
-CREATE TABLE IF NOT EXISTS testx.citizens_table ( PersonID INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY , LastName VARCHAR(40) NULL , FirstName VARCHAR(30) NULL , Address VARCHAR(255) NULL , City VARCHAR(100) NULL , UNIQUE INDEX citizenIndex (PersonID,FirstName,LastName) , INDEX addressIndex (PersonID,Address,City) ) 
+CREATE TABLE IF NOT EXISTS testx.citizens_table ( PersonID INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY , LastName VARCHAR(40) NULL , FirstName VARCHAR(30) NULL , Address VARCHAR(255) NULL , City VARCHAR(100) NULL , UNIQUE INDEX citizenIndex (PersonID,FirstName,LastName) , INDEX addressIndex (PersonID,Address,City) )
 --------
-CREATE TABLE IF NOT EXISTS testx.city_table ( PostalCode VARCHAR(10) NOT NULL UNIQUE KEY , Name VARCHAR(100) NULL , Location_longitude DOUBLE NOT NULL , Location_latitude DOUBLE NOT NULL , INDEX cityIndex (PostalCode,Name) ) 
+CREATE TABLE IF NOT EXISTS testx.city_table ( PostalCode VARCHAR(10) NOT NULL UNIQUE KEY , Name VARCHAR(100) NULL , Location_longitude DOUBLE NOT NULL , Location_latitude DOUBLE NOT NULL , INDEX cityIndex (PostalCode,Name) )
 --------
-CREATE TABLE IF NOT EXISTS testx.citizens_table_error ( LastName BLOB(40) NULL DEFAULT NULL , FirstName VARCHAR(30) NULL DEFAULT 'noname' , UNIQUE INDEX citizenIndex (FirstName,LastName) ) 
+CREATE TABLE IF NOT EXISTS testx.citizens_table_error ( LastName BLOB(40) NULL DEFAULT NULL , FirstName VARCHAR(30) NULL DEFAULT 'noname' , UNIQUE INDEX citizenIndex (FirstName,LastName) )
 --------
-CREATE TABLE IF NOT EXISTS testx.citizens_table_error ( Address VARCHAR(255) NULL , City VARCHAR(100) NULL , UNIQUE INDEX citizenIndex (City,PostalCode) ) 
+CREATE TABLE IF NOT EXISTS testx.citizens_table_error ( Address VARCHAR(255) NULL , City VARCHAR(100) NULL , UNIQUE INDEX citizenIndex (City,PostalCode) )
 --------
-CREATE TABLE IF NOT EXISTS testx.citizens_table_error ( LastName VARCHAR(40) NULL , FirstName VARCHAR(30) NULL , INDEX addressIndex (FirstName,LastName,Address) ) 
+CREATE TABLE IF NOT EXISTS testx.citizens_table_error ( LastName VARCHAR(40) NULL , FirstName VARCHAR(30) NULL , INDEX addressIndex (FirstName,LastName,Address) )
 --------
-CREATE TABLE IF NOT EXISTS testx.citizens_table_error ( LastName VARCHAR(40) NULL , FirstName VARCHAR(30) NULL , INDEX nonExistingFieldIndex (PersonID,FirstName,LastName) ) 
+CREATE TABLE IF NOT EXISTS testx.citizens_table_error ( LastName VARCHAR(40) NULL , FirstName VARCHAR(30) NULL , INDEX nonExistingFieldIndex (PersonID,FirstName,LastName) )
 --------
-CREATE TABLE IF NOT EXISTS testx.city_table_error ( Name TEXT(100) BINARY NULL DEFAULT 5 UNIQUE KEY ) 
+CREATE TABLE IF NOT EXISTS testx.city_table_error ( Name TEXT(100) BINARY NULL DEFAULT 5 UNIQUE KEY )
 --------
-CREATE TABLE IF NOT EXISTS testx.city_table_error ( PostalCode VARCHAR(10) NULL UNIQUE KEY , Name MEDIUMBLOB(100) NULL UNIQUE KEY , Location_longitude DOUBLE NULL UNIQUE KEY , Location_latitude DOUBLE NULL UNIQUE KEY , INDEX cityIndex (PostalCode,Name,Location_longitude) ) 
+CREATE TABLE IF NOT EXISTS testx.city_table_error ( PostalCode VARCHAR(10) NULL UNIQUE KEY , Name MEDIUMBLOB(100) NULL UNIQUE KEY , Location_longitude DOUBLE NULL UNIQUE KEY , Location_latitude DOUBLE NULL UNIQUE KEY , INDEX cityIndex (PostalCode,Name,Location_longitude) )
 --------
-CREATE TABLE IF NOT EXISTS testx.timestamp_table ( id INTEGER NOT NULL AUTO_INCREMENT , data VARCHAR(100) NOT NULL , time TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (id) ) 
+CREATE TABLE IF NOT EXISTS testx.timestamp_table ( id INTEGER NOT NULL AUTO_INCREMENT , data VARCHAR(100) NOT NULL , time TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (id) )
 --------
-CREATE TABLE IF NOT EXISTS testx.timestamp_table_error ( id INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP , data VARCHAR(100) NOT NULL , PRIMARY KEY (id) ) 
+CREATE TABLE IF NOT EXISTS testx.timestamp_table_error ( id INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP , data VARCHAR(100) NOT NULL , PRIMARY KEY (id) )
 --------
 car_table
 citizens_table

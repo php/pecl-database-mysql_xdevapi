@@ -48,9 +48,9 @@ struct iless
 //------------------------------------------------------------------------------
 
 string to_string(const zval& zv);
-inline string to_string(zval* zv) 
-{ 
-	return to_string(*zv); 
+inline string to_string(zval* zv)
+{
+	return to_string(*zv);
 }
 
 inline string to_string(const std::string& str)

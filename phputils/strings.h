@@ -48,9 +48,9 @@ std::ostream& operator<<(std::ostream& os, const string& str);
 
 
 /*
-	it is meant to work with PHP methods as wrapper for string params coming 
+	it is meant to work with PHP methods as wrapper for string params coming
 	from zend_parse_method_parameters
-	in general it keeps pointer/len of string parameter, has some helper routines, and its contents 
+	in general it keeps pointer/len of string parameter, has some helper routines, and its contents
 	INVALIDATES when called from MYSQL_XDEVAPI_PHP_METHOD ends
 
 	common scenario:
@@ -63,7 +63,7 @@ std::ostream& operator<<(std::ostream& os, const string& str);
 		&object_zv, table_create_class_entry,
 		&index_name.str, &index_name.len))
 
-	1) then optionally make some checks (whether is empty or make some 	comparison 
+	1) then optionally make some checks (whether is empty or make some 	comparison
 	like == ), or immediately get proper phputils::string via to_string() member routine
 */
 /* {{{ string_input_param */

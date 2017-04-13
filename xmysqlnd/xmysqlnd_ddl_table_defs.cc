@@ -397,7 +397,7 @@ void Table_def::set_primary_key(const phputils::strings& fields)
 
 /* {{{ Table_def::add_index */
 void Table_def::add_index(
-	const phputils::string_input_param& name, 
+	const phputils::string_input_param& name,
 	const phputils::strings& fields)
 {
 	indexes.push_back(Index{name.to_string(), fields, false});
@@ -407,7 +407,7 @@ void Table_def::add_index(
 
 /* {{{ Table_def::add_unique_index */
 void Table_def::add_unique_index(
-	const phputils::string_input_param& name, 
+	const phputils::string_input_param& name,
 	const phputils::strings& fields)
 {
 	indexes.push_back(Index{name.to_string(), fields, true});
