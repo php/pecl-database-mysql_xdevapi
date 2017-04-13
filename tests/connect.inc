@@ -58,7 +58,7 @@
 			$nodeSession->executeSql("create database $db");
 			$schema = $nodeSession->getSchema($db);
 			$schema->createTable($test_table_name)
-				->addColumn(new mysql_xdevapi\ColumnDef('name', 'varchar', 30))
+				->addColumn(new mysql_xdevapi\ColumnDef('name', 'varchar', 1024))
 				->addColumn(new mysql_xdevapi\ColumnDef('age', 'int'))
 				->execute();
 			$schema->createCollection($test_collection_name);

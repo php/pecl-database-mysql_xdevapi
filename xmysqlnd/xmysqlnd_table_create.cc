@@ -35,6 +35,7 @@ extern "C" {
 #include "phputils/string_utils.h"
 
 #include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <iostream>
 
 #define NIY
@@ -304,7 +305,9 @@ phputils::string Query_builder::execute(const Table_def& tbl_def)
 			assert(!"uknown kind of Table_def!");
 	}
 
-	return os.str();
+	phputils::string query = os.str();
+	boost::algorithm::trim(query);
+	return query;
 }
 /* }}} */
 
