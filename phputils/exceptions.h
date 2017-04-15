@@ -54,6 +54,7 @@ struct xdevapi_exception : public std::runtime_error
 		wrong_param_2,
 		wrong_param_3,
 		wrong_param_4,
+		wrong_param_string_or_strings,
 		add_field,
 		delete_fail,
 		update_fail,
@@ -73,6 +74,8 @@ struct xdevapi_exception : public std::runtime_error
 		create_table_fail,
 		invalid_table_column,
 		unknown_table_column_type,
+		invalid_table_column_length,
+		invalid_table_column_length_decimals,
 		invalid_foreign_key,
 		unknown_fkey_change_mode,
 	};

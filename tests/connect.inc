@@ -63,8 +63,12 @@
 			//clean_test_db();
 			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
 			$nodeSession->executeSql("create database $db");
-			$nodeSession->executeSql("create table $db.$test_table_name(name text, age int)");
-			$nodeSession->getSchema($db)->createCollection($test_collection_name);
+			$schema = $nodeSession->getSchema($db);
+			$schema->createTable($test_table_name)
+				->addColumn(new mysql_xdevapi\ColumnDef('name', 'varchar', 1024))
+				->addColumn(new mysql_xdevapi\ColumnDef('age', 'int'))
+				->execute();
+			$schema->createCollection($test_collection_name);
 			return $nodeSession;
 		}
 	}
@@ -336,7 +340,7 @@
 			$expected = str_repeat( '1', $number_of_expectations );
 			if( $expected != $test_result_string) {
 				print 'Some expectation were not meet!'.PHP_EOL;
-				print 'Expected: '.$expected.', result: '.$test_result_string.PHP_EOL;
+				print 'Expected vs Result: '.PHP_EOL.$expected.PHP_EOL.$test_result_string.PHP_EOL;
 			}
 		}
 	}

@@ -45,20 +45,28 @@ struct iless
 };
 /* }}} */
 
-inline string to_string(const char* str) { return string(str); }
-inline string to_string(const std::string& str) { return string(str.c_str(), str.length()); }
+//------------------------------------------------------------------------------
 
 string to_string(const zval& zv);
-inline string to_string(zval* zv) { return to_string(*zv); }
+inline string to_string(zval* zv)
+{
+	return to_string(*zv);
+}
+
+inline string to_string(const std::string& str)
+{
+	return string(str.c_str(), str.length());
+}
 
 template<typename T>
-inline string to_string(T val)
+string to_string(T val)
 {
 	static_assert(std::is_scalar<T>::value, "meant for scalar types only");
 	const std::string& str_val = std::to_string(val);
 	return string(str_val.c_str(), str_val.length());
 }
 
+//------------------------------------------------------------------------------
 
 strings to_strings(zval* zvals, int count);
 

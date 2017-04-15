@@ -38,8 +38,8 @@ std::ostream& operator<<(std::ostream& os, const string& str)
 /* }}} */
 
 
-/* {{{ string_ptr::string_ptr */
-string_ptr::string_ptr(zval* zv)
+/* {{{ string_input_param::string_input_param */
+string_input_param::string_input_param(zval* zv)
 	: str(Z_STRVAL_P(zv))
 	, len(Z_STRLEN_P(zv))
 {
@@ -48,17 +48,17 @@ string_ptr::string_ptr(zval* zv)
 /* }}} */
 
 
-/* {{{ string_ptr::string_ptr */
-string_ptr::string_ptr(const MYSQLND_STRING& s)
-	: string_ptr(s.s, s.l)
+/* {{{ string_input_param::string_input_param */
+string_input_param::string_input_param(const MYSQLND_STRING& s)
+	: string_input_param(s.s, s.l)
 {
 }
 /* }}} */
 
 
-/* {{{ string_ptr::string_ptr */
-string_ptr::string_ptr(const MYSQLND_CSTRING& s)
-	: string_ptr(s.s, s.l)
+/* {{{ string_input_param::string_input_param */
+string_input_param::string_input_param(const MYSQLND_CSTRING& s)
+	: string_input_param(s.s, s.l)
 {
 }
 /* }}} */

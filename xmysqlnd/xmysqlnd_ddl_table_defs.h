@@ -28,8 +28,8 @@ namespace drv {
 
 namespace create_table {
 
-phputils::string quote_identifier(phputils::string raw_id);
-phputils::string quote_text(phputils::string raw_text);
+phputils::string quote_identifier(const phputils::string& raw_id);
+phputils::string quote_text(const phputils::string& raw_text);
 
 } // namespace create_table
 
@@ -91,28 +91,28 @@ struct Column_def
 
 	public:
 		void init(
-			const phputils::string_ptr& name,
-			const phputils::string_ptr& type,
+			const phputils::string_input_param& name,
+			const phputils::string_input_param& type,
 			long length = Default_length);
 		void init(
-			const phputils::string_ptr& name,
-			const phputils::string_ptr& type,
-			const phputils::string_ptr& expression);
+			const phputils::string_input_param& name,
+			const phputils::string_input_param& type,
+			const phputils::string_input_param& expression);
 
 		void enable_not_null();
 		void enable_unique_index();
 		void enable_primary_key();
-		void set_comment(const phputils::string_ptr& comment);
+		void set_comment(const phputils::string_input_param& comment);
 
-		void set_default_value(phputils::string default_value_expr);
+		void set_default_value(const phputils::string& default_value_expr);
 		void enable_auto_increment();
-		void set_foreign_key(const phputils::string_ptr& table, phputils::strings fields);
+		void set_foreign_key(const phputils::string_input_param& table, const phputils::strings& fields);
 		void enable_unsigned();
 		void set_decimals(long decimals);
-		void set_charset(const phputils::string_ptr& charset);
-		void set_collation(const phputils::string_ptr& collation);
+		void set_charset(const phputils::string_input_param& charset);
+		void set_collation(const phputils::string_input_param& collation);
 		void enable_binary();
-		void set_values(phputils::strings values);
+		void set_values(const phputils::strings& values);
 
 		void enable_stored();
 
@@ -165,10 +165,10 @@ struct Foreign_key_def
 		};
 
 	public:
-		void set_fields(phputils::strings fields);
-		void set_refers_to(const phputils::string_ptr& table, phputils::strings fields);
-		void set_on_delete_mode(const phputils::string_ptr& mode);
-		void set_on_update_mode(const phputils::string_ptr& mode);
+		void set_fields(const phputils::strings& fields);
+		void set_refers_to(const phputils::string_input_param& table, const phputils::strings& fields);
+		void set_on_delete_mode(const phputils::string_input_param& mode);
+		void set_on_update_mode(const phputils::string_input_param& mode);
 
 	public:
 		phputils::strings fields;
@@ -208,22 +208,22 @@ struct Table_def
 
 	public:
 		void init(
-			const phputils::string_ptr& schema_name,
-			const phputils::string_ptr& table_name,
+			const phputils::string_input_param& schema_name,
+			const phputils::string_input_param& table_name,
 			bool replace_if_exists);
 
-		void add_column(Column_def column_def);
-		void set_primary_key(phputils::strings fields);
-		void add_index(const phputils::string_ptr& name, phputils::strings fields);
-		void add_unique_index(const phputils::string_ptr& name, phputils::strings fields);
-		void add_foreign_key(const phputils::string_ptr& name, Foreign_key_def foreign_key);
+		void add_column(const Column_def& column_def);
+		void set_primary_key(const phputils::strings& fields);
+		void add_index(const phputils::string_input_param& name, const phputils::strings& fields);
+		void add_unique_index(const phputils::string_input_param& name, const phputils::strings& fields);
+		void add_foreign_key(const phputils::string_input_param& name, const Foreign_key_def& foreign_key);
 		void set_initial_auto_increment(long init_auto_increment);
-		void set_default_charset(const phputils::string_ptr& charset_name);
-		void set_default_collation(const phputils::string_ptr& collation_name);
-		void set_comment(const phputils::string_ptr& comment);
+		void set_default_charset(const phputils::string_input_param& charset_name);
+		void set_default_collation(const phputils::string_input_param& collation_name);
+		void set_comment(const phputils::string_input_param& comment);
 		void enable_temporary();
-		void set_defined_as(const phputils::string_ptr& defined_as);
-		void set_like(const phputils::string_ptr& template_table_name);
+		void set_defined_as(const phputils::string_input_param& defined_as);
+		void set_like(const phputils::string_input_param& template_table_name);
 
 	public:
 		enum class Kind {
