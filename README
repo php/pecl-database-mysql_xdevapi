@@ -65,7 +65,7 @@ extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
 
 
 1) phpize
-While buliding extension with phpize following issue may be met at ./configure stage:
+While building extension with phpize following issue may be met at ./configure stage:
 configure: error: Cannot find OpenSSL's <evp.h>
 See https://bugs.php.net/bug.php?id=72363
 
