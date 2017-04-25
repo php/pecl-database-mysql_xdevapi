@@ -5,7 +5,7 @@ mysqlx Field Metadata
 <?php
 
         require("connect.inc");
-	$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+	$nodeSession = mysql_xdevapi\getSession($connection_uri);
 	$nodeSession->executeSql("create database $db");
 
 function test_numeric_types() {

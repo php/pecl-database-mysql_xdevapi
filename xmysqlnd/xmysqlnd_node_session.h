@@ -127,6 +127,18 @@ enum class transport_types {
 };
 
 /*
+ * Supported SSL modes
+ */
+enum class SSL_mode
+{
+	not_specified, //Will be turned to 'required' during the connection
+	required,
+	disabled,
+	verify_ca,
+	verify_identity
+};
+
+/*
  * Information used to authenticate
  * the connection with the server
  */
@@ -139,6 +151,7 @@ struct st_xmysqlnd_session_auth_data
 	phputils::string	username;
 	phputils::string	password;
 	//SSL information
+	SSL_mode			ssl_mode;
 	bool				ssl_enabled;
 	bool				ssl_no_defaults;
 	phputils::string	ssl_local_pk;

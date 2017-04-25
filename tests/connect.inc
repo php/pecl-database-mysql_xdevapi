@@ -26,7 +26,8 @@
 	$socket = get_mysqlx_env("MYSQLX_TEST_SOCKET", "MYSQLX_SOCKET", "");
 	$skip_on_connect_failure = get_mysqlx_env("MYSQLX_TEST_SKIP_CONNECT_FAILURE", "MYSQLX_SKIP_CONNECT_FAILURE", true);
 	$connect_flags = (int)get_mysqlx_env("MYSQLX_TEST_CONNECT_FLAGS", "MYSQLX_CONNECT_FLAGS", 0);
-	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
+	$disable_ssl_opt = 'ssl-mode=disabled';
+	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port.'/?'.$disable_ssl_opt;
 
 	$test_table_name = "test_table";
 	$test_collection_name = "test_collection";
@@ -61,7 +62,7 @@
 				the test script to call clean_test_db *after* the test
 			*/
 			//clean_test_db();
-			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("create database $db");
 			$schema = $nodeSession->getSchema($db);
 			$schema->createTable($test_table_name)
@@ -80,7 +81,7 @@
 		function clean_test_db() {
 			global $connection_uri;
 			global $db;
-			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("drop database if exists $db");
 		}
 	}
@@ -93,7 +94,7 @@
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
-			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 11)");
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Eulalia', 11)");
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 12)");
@@ -117,7 +118,7 @@
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
-			$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 29)");
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 21)");
 			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 34)");
