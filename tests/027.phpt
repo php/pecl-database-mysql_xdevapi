@@ -7,7 +7,7 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-	$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+        $nodeSession = mysql_xdevapi\getSession($connection_uri);
 	$nodeSession->createSchema($db);
 	$schema = $nodeSession->getSchema($db);
 

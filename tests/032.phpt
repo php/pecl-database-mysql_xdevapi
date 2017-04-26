@@ -11,7 +11,7 @@ mysqlx Unix domain socket
 	     * Attempt to obtain the socket path
 	     * from the server
 	     */
-	    $nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+	    $nodeSession = mysql_xdevapi\getSession($connection_uri);
 	    $res = $nodeSession->executeSql("show variables like 'mysqlx_socket'");
 	    $var = $res->fetchAll();
 	    if( count( $var ) == 1 ) {
@@ -41,17 +41,17 @@ mysqlx Unix domain socket
 	}
 
         try{
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_1;
+	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_1.'/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_2.')/testx';
+		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_2.')/testx/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$valid_socket.')';
+		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$valid_socket.')/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		$uri = $connection_uri;
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_3.')';
+		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_3.')/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_4;
+		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_4.'/?'.$disable_ssl_opt;;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		test_step_ok();
 	} catch( Exception $e ) {

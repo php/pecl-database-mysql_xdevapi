@@ -5,7 +5,7 @@ mysqlx warnings
 <?php
 	require("connect.inc");
 
-	$nodeSession = mysql_xdevapi\getNodeSession($connection_uri);
+        $nodeSession = mysql_xdevapi\getSession($connection_uri);
 	$nodeSession->executeSql("create database $db");
 	$nodeSession->executeSql("create table $db.test_table(x int)");
 

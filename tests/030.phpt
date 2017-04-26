@@ -19,22 +19,22 @@ mysqlx Collection find, no 'only full group by'
 	$nodeSession->executeSql('SET SESSION sql_mode = \''.$new_sql_modes.'\'');
 
 	try {
-		 //This is going to work now but the representant of each group is indeterminate (probably the first available entry)
+		//This is going to work now but the representant of each group is indeterminate (probably the first available entry)
 		$res = $coll->find()->fields(['name as n','age as a','job as j'])->groupBy('j')->limit(11)->execute();
 		$data = $res->fetchAll();
 		expect_eq(count($data),10);
 		//For the next fetch, the output is unique
-		$res = $coll->find()->fields(['name as n','age as a','job as j'])->having('a > 50')->groupBy('a')->execute();
+		$res = $coll->find()->fields(['COUNT(name) as cn', 'MAX(age) as ma', 'job as j'])->having('MAX(age) > 50')->groupBy('j')->execute();
 		$data = $res->fetchAll();
 		expect_eq(count($data),1);
-		expect_eq($data[0]['a'],59);
+		expect_eq($data[0]['ma'],59);
 		expect_eq($data[0]['j'],'Paninaro');
-		expect_eq($data[0]['n'],'Lonardo');
+		expect_eq($data[0]['cn'],'1');
 	} catch( Exception $ex ) {
 		test_step_failed();
 	}
 
-		$nodeSession->executeSql('SET SESSION sql_mode = \''.$saved_sql_modes.'\'');
+	$nodeSession->executeSql('SET SESSION sql_mode = \''.$saved_sql_modes.'\'');
 	//This shall fail now
 	try {
 		$res = $coll->find()->fields(['name as n','age as a','job as j'])->groupBy('j')->execute();

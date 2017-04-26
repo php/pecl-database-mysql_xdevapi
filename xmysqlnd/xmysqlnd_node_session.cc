@@ -151,6 +151,7 @@ const MYSQLND_CSTRING namespace_xplugin = { "xplugin", sizeof("xplugin") - 1 };
 
 st_xmysqlnd_session_auth_data::st_xmysqlnd_session_auth_data() :
 	port{ 0 },
+	ssl_mode{ SSL_mode::not_specified },
 	ssl_enabled{ false },
 	ssl_no_defaults{ true } {
 }
@@ -633,9 +634,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 
 			phputils::string mech_name;
 
-			if( auth->ssl_enabled ) {
+			if( auth->ssl_mode != SSL_mode::disabled ) {
 				if( tls_set ) {
-					setup_crypto_connection(session,caps_get,msg_factory);
+					ret = setup_crypto_connection(session,caps_get,msg_factory);
 					mech_name = "PLAIN";
 				} else {
 					ret = FAIL;
@@ -645,6 +646,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 			} else if (mysql41_supported) {
 				mech_name = "MYSQL41";
 			}
+
+			DBG_INF_FMT("Authentication mechanism: %s",
+						mech_name.c_str());
 
 			if( ret == PASS ) {
 				//Complete the authentication procedure!
@@ -782,6 +786,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 		ret = session->m->connect_handshake(session,
 						scheme, database,
 						set_capabilities);
+		if( ret != PASS ) {
+			SET_OOM_ERROR(session->error_info);
+		}
 	}
 
 	/* Setup server host information */
@@ -2561,10 +2568,54 @@ std::pair<php_url*,transport_types> extract_uri_information(const char * uri_str
 }
 /* }}} */
 
+enum_func_status set_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
+							   SSL_mode mode )
+{
+	DBG_ENTER("set_ssl_mode");
+	enum_func_status ret = FAIL;
+	if( auth->ssl_mode != SSL_mode::not_specified ) {
+		if( auth->ssl_mode != mode ) {
+			DBG_ERR_FMT("Selected two incompatible ssl modes");
+			devapi::RAISE_EXCEPTION( err_msg_invalid_ssl_mode );
+		}
+	} else {
+		DBG_INF_FMT("Selected mode: %d",
+					static_cast<int>(mode) );
+		auth->ssl_mode = mode;
+		ret = PASS;
+	}
+	DBG_RETURN( ret );
+}
+
+/* {{{ parse_ssl_mode */
+static
+enum_func_status parse_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
+						const phputils::string& mode )
+{
+	DBG_ENTER("parse_ssl_mode");
+	enum_func_status ret = FAIL;
+	using modestr_to_enum = std::map<std::string,SSL_mode>;
+	static modestr_to_enum mode_mapping = {
+		{ "required", SSL_mode::required },
+		{ "disabled", SSL_mode::disabled },
+		{ "verify_ca", SSL_mode::verify_ca },
+		{ "verify_identity", SSL_mode::verify_identity }
+	};
+	auto it = mode_mapping.find( mode.c_str() );
+	if( it != mode_mapping.end() ) {
+		ret = set_ssl_mode( auth, it->second );
+	} else {
+		DBG_ERR_FMT("Unknown SSL mode selector: ",
+					mode.c_str());
+	}
+	DBG_RETURN( ret );
+}
+/* }}} */
+
 /* {{{ extract_ssl_information */
 static
 enum_func_status extract_ssl_information(const std::pair<phputils::string,phputils::string>& query,
-					XMYSQLND_SESSION_AUTH_DATA * auth)
+					XMYSQLND_SESSION_AUTH_DATA* auth)
 {
 	DBG_ENTER("extract_ssl_information");
 	enum_func_status ret = PASS;
@@ -2579,7 +2630,7 @@ enum_func_status extract_ssl_information(const std::pair<phputils::string,phputi
 		{ "ssl-ciphers", &st_xmysqlnd_session_auth_data::ssl_ciphers },
 		{ "ssl-crl", &st_xmysqlnd_session_auth_data::ssl_crl },
 		{ "ssl-crlpath", &st_xmysqlnd_session_auth_data::ssl_crlpath },
-		{ "ssl-enable", nullptr },
+		{ "ssl-mode", nullptr },
 		{ "ssl-no-defaults", nullptr }
 	};
 
@@ -2588,8 +2639,8 @@ enum_func_status extract_ssl_information(const std::pair<phputils::string,phputi
 			//If the member pointer is null then we're dealing
 			//with the boolean options
 			if( param_mapping[ idx ].second == nullptr ) {
-				if( query.first == "ssl-enable" ) {
-					auth->ssl_enabled = true;
+				if( query.first == "ssl-mode" ) {
+					ret = parse_ssl_mode( auth, query.second );
 				} else if( query.first == "ssl-no-defaults" ) {
 					auth->ssl_no_defaults = true;
 				}
@@ -2602,6 +2653,11 @@ enum_func_status extract_ssl_information(const std::pair<phputils::string,phputi
 					ret = FAIL;
 				} else {
 					auth->*param_mapping[ idx ].second = query.second;
+					/*
+					 * some SSL options provided, assuming
+					 * 'required' mode.
+					 */
+					ret = set_ssl_mode( auth, SSL_mode::required );
 				}
 			}
 			break;
@@ -2609,7 +2665,6 @@ enum_func_status extract_ssl_information(const std::pair<phputils::string,phputi
 	}
 	DBG_RETURN(ret);
 }
-
 /* }}} */
 
 /* {{{ extract_auth_information */
@@ -2627,24 +2682,57 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const php_url * node_url)
 	}
 
 	if( NULL != node_url->query ) {
-		zval res, * val;
-		zend_string * key;
-		zend_ulong num_key;
-		array_init(&res);
+		DBG_INF_FMT("Query string: %s",
+					node_url->query);
+		/*
+		 * In case of multiple variables with the same
+		 * name, treat_data will pick the value from the last one.
+		 * This mean that if the user provide ssl_mode=required&ssl_mode=disabled
+		 * the value of SSL mode will be disabled (instead of ERROR)
+		 * We need to parse each variable by hand..
+		 */
+		phputils::string query{ node_url->query };
+		phputils::string variable;
+		phputils::string value;
 
-		char * arg = estrdup(node_url->query);
-		sapi_module.treat_data(PARSE_STRING, arg, &res);
+		std::size_t cur = 0;
+		auto var = query.find_first_of("&");
+		if( var == phputils::string::npos ) {
+			var = query.size();
+		}
 
-		ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL(res),num_key,key,val) {
-			DBG_INF_FMT("URI query option: %s=%s\n",
-					ZSTR_VAL(key),Z_STRVAL_P(val));
-			if( FAIL == extract_ssl_information({ZSTR_VAL(key),Z_STRVAL_P(val)},auth) ) {
+		while( cur < var ) {
+			auto val = query.find_first_of( '=', cur );
+
+			if( val > var ) {
+				variable = query.substr( cur, var );
+				value.clear();
+			} else {
+				variable = query.substr( cur, val - cur );
+				++val;
+				value = query.substr( val, var - val );
+			}
+			DBG_INF_FMT("URI query option: %s=%s",
+					variable.c_str(),
+					value.c_str()
+					);
+			if( FAIL == extract_ssl_information(
+							{variable.c_str(),value.c_str()}, auth) ) {
 				ret = FAIL;
 				break;
 			}
-		} ZEND_HASH_FOREACH_END();
-
-		zval_dtor(&res);
+			cur = var + 1;
+			var = query.find_first_of( "&", cur );
+			var = std::min<size_t>( var, query.size() );
+		}
+	}
+	/*
+	 * If no SSL mode is selected explicitly then
+	 * assume 'required'
+	 */
+	if( auth->ssl_mode == SSL_mode::not_specified ) {
+		DBG_INF_FMT("Setting default SSL mode to REQUIRED");
+		ret = set_ssl_mode( auth, SSL_mode::required );
 	}
 
 	if( ret != PASS ){

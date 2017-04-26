@@ -46,15 +46,36 @@ using ostringstream = basic_ostringstream<char>;
 
 std::ostream& operator<<(std::ostream& os, const string& str);
 
-struct string_ptr
-{
-	string_ptr() = default;
-	string_ptr(const char* s) : string_ptr(str, std::strlen(s)) {}
-	string_ptr(const char* s, const size_t l) : str(s), len(l) {}
-	string_ptr(zval* zv);
 
-	string_ptr(const st_mysqlnd_string& s); // MYSQLND_STRING
-	string_ptr(const st_mysqlnd_const_string& s); // MYSQLND_CSTRING
+/*
+	it is meant to work with PHP methods as wrapper for string params coming
+	from zend_parse_method_parameters
+	in general it keeps pointer/len of string parameter, has some helper routines, and its contents
+	INVALIDATES when called from MYSQL_XDEVAPI_PHP_METHOD ends
+
+	common scenario:
+
+	0)
+	phputils::string_input_param index_name;
+	[...]
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os+",
+		&object_zv, table_create_class_entry,
+		&index_name.str, &index_name.len))
+
+	1) then optionally make some checks (whether is empty or make some 	comparison
+	like == ), or immediately get proper phputils::string via to_string() member routine
+*/
+/* {{{ string_input_param */
+struct string_input_param
+{
+	string_input_param() = default;
+	string_input_param(const char* s) : string_input_param(str, std::strlen(s)) {}
+	string_input_param(const char* s, const size_t l) : str(s), len(l) {}
+	string_input_param(zval* zv);
+
+	string_input_param(const st_mysqlnd_string& s); // MYSQLND_STRING
+	string_input_param(const st_mysqlnd_const_string& s); // MYSQLND_CSTRING
 
 	bool empty() const
 	{
@@ -76,7 +97,7 @@ struct string_ptr
 		return len;
 	}
 
-	bool operator==(const string_ptr& rhs) const
+	bool operator==(const string_input_param& rhs) const
 	{
 		return std::strcmp(str, rhs.str) == 0;
 	}
@@ -99,12 +120,13 @@ struct string_ptr
 	template<typename T>
 	bool operator!=(const T& rhs) const
 	{
-		return !(rhs == str);
+		return !operator==(*this, rhs);
 	}
 
 	const char* str = nullptr;
 	size_t len = 0;
 };
+/* }}} */
 
 } // namespace phputils
 

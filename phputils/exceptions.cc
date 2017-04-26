@@ -60,6 +60,7 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::wrong_param_2, "Parameter must be a non-negative value" },
 	{ xdevapi_exception::Code::wrong_param_3, "Parameter must be a string or array of strings" },
 	{ xdevapi_exception::Code::wrong_param_4, "Parameter must be a string." },
+	{ xdevapi_exception::Code::wrong_param_string_or_strings, "Wrong parameter %s: must be a string or array of strings" },
 	{ xdevapi_exception::Code::unsupported_conversion_to_string, "Unsupported zval conversion to string." },
 	{ xdevapi_exception::Code::unsupported_default_value_type, "Unsupported zval conversion to string." },
 	{ xdevapi_exception::Code::add_field, "Error while adding a fields list" },
@@ -78,6 +79,8 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::invalid_view_defined_as, "Invalid view defined as - expected table select or collection find statement" },
 	{ xdevapi_exception::Code::invalid_table_column, "Expected table column" },
 	{ xdevapi_exception::Code::unknown_table_column_type, "Unknown column type" },
+	{ xdevapi_exception::Code::invalid_table_column_length, "Invalid column length" },
+	{ xdevapi_exception::Code::invalid_table_column_length_decimals, "cannot set decimals when length is not set" },
 	{ xdevapi_exception::Code::invalid_foreign_key, "Invalid foreign key" },
 	{ xdevapi_exception::Code::unknown_fkey_change_mode, "Unknown foreign key change mode" },
 };

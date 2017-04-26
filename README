@@ -150,7 +150,7 @@ Supported X DevAPI features
 - getCollection(s) / getTable(s) / getCollectionAsTable
 - dropCollection / dropTable
 
-For a simple example see examples.php or tests/*.phpt
+For a simple use cases see examples.php or tests/*.phpt
 
 License
 -------
