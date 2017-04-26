@@ -11,18 +11,18 @@ mysqlx collection find
 
 	fill_db_collection($coll);
 
-        $res = $coll->find('job like :job and age > :age')->fields('age');
+	$res = $coll->find('job like :job and age > :age')->fields('age');
 	$res = $res->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
 	$data = $res->execute()->fetchAll();
 
-        expect_eq(count($data),2);
+	expect_eq(count($data),2);
 	expect_eq($data[0]['age'],27);
 	expect_eq($data[1]['age'],25);
 
-        $res = $coll->find('job like \'Programmatore\'')->limit(1)->skip(3)->sort('age asc')->execute();
+	$res = $coll->find('job like \'Programmatore\'')->limit(1)->skip(3)->sort('age asc')->execute();
 	$data = $res->fetchAll();
 
-        expect_eq(count($data),1);
+	expect_eq(count($data),1);
 	expect_eq($data[0]['_id'],5);
 	expect_eq($data[0]['age'],25);
 	expect_eq($data[0]['job'],'Programmatore');
@@ -41,11 +41,11 @@ mysqlx collection find
 	$coll->add('{"_id":53, "name": "Ugo", "age": 10, "job": "Studioso"}')->execute();
 	$coll->add('{"_id":54, "name": "Ugo", "age": 10, "job": "Studioso"}')->execute();
 
-        $res = $coll->find('job like :job and age = :age')->fields(['age', 'job'])->groupBy('age', 'job');
+	$res = $coll->find('job like :job and age = :age')->fields(['age', 'job'])->groupBy('age', 'job');
 	$res = $res->bind(['job' => 'Studioso', 'age' => 10])->sort('age desc')->limit(4);
 	$data = $res->execute()->fetchAll();
 
-        expect_eq(count($data),1);
+	expect_eq(count($data),1);
 	expect_eq($data[0]['age'],10);
 	expect_eq($data[0]['job'],'Studioso');
 
@@ -56,49 +56,49 @@ mysqlx collection find
 	$coll->add('{"_id":96, "name": "Alfonso",  "age": 35, "job": "Cavia"}')->execute();
 	$coll->add('{"_id":17, "name": "Luca",     "age": 99, "job": "Cavia"}')->execute();
 
-        $res = $coll->find('job like \'Cavia\'')->sort('age desc', '_id desc')->execute();
+	$res = $coll->find('job like \'Cavia\'')->sort('age desc', '_id desc')->execute();
 	$data = $res->fetchAll();
 
-        $expected = [
-	    [17,99,'Cavia','Luca'],
-	    [96,35,'Cavia','Alfonso'],
-	    [99,null,'Cavia','Ugo'],
-	    [98,null,'Cavia','Simone'],
-	    [97,null,'Cavia','Matteo']
+	$expected = [
+		[17,99,'Cavia','Luca'],
+		[96,35,'Cavia','Alfonso'],
+		[99,null,'Cavia','Ugo'],
+		[98,null,'Cavia','Simone'],
+		[97,null,'Cavia','Matteo']
 	];
 
-        expect_eq(count($data),5);
+	expect_eq(count($data),5);
 	if( count($data) == 5 ) {
-	    for($i = 0 ; $i < 5 ; $i++ ) {
-	        expect_eq($data[$i]['_id'],$expected[$i][0]);
+		for($i = 0 ; $i < 5 ; $i++ ) {
+			expect_eq($data[$i]['_id'],$expected[$i][0]);
 		if( $expected[$i][1] == null ) {
-		    expect_false(array_key_exists('age',$data[$i]));
+			expect_false(array_key_exists('age',$data[$i]));
 		} else {
-		    expect_eq($data[$i]['age'],$expected[$i][1]);
+			expect_eq($data[$i]['age'],$expected[$i][1]);
 		}
 		expect_eq($data[$i]['job'],$expected[$i][2]);
 		expect_eq($data[$i]['name'],$expected[$i][3]);
 	   }
 	}
 
-        $res = $coll->find()->fields(['name','age'])->limit(3)->sort('age desc')->having('age > 40')->execute();
+	$res = $coll->find()->fields(['name','age'])->limit(3)->sort('age desc')->having('age > 40')->execute();
 	$data = $res->fetchAll();
 
-        $expected = [
-	    [99,'Luca'],
-	    [59,'Lonardo'],
-	    [47,'Lucia']
+	$expected = [
+		[99,'Luca'],
+		[59,'Lonardo'],
+		[47,'Lucia']
 	];
 
-        expect_eq(count($data),3);
+	expect_eq(count($data),3);
 	if( count($data) == 3 ) {
-	    for($i = 0 ; $i < 3 ; $i++ ) {
-	        expect_eq($data[$i]['age'],$expected[$i][0]);
+		for($i = 0 ; $i < 3 ; $i++ ) {
+			expect_eq($data[$i]['age'],$expected[$i][0]);
 		expect_eq($data[$i]['name'],$expected[$i][1]);
-	   }
+		}
 	}
 
-        verify_expectations();
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
