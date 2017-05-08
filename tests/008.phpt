@@ -7,8 +7,6 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-	$test = "0000000000";
-
 	$nodeSession = mysql_xdevapi\getSession($connection_uri);
 
 	function verify_doc($doc, $name, $job, $age) {
@@ -36,12 +34,9 @@ error_reporting=0
 	$data = $res->fetchAll();
 
 	for ($i = 0; $i < count($data); $i++) {
-		if (verify_doc($data[$i]['doc'], 'Sakila', 'Unemployed', '15'))
-			$test[0] ='1';
-		if (verify_doc($data[$i]["doc"], 'Sakila', 'Unemployed', '17'))
-			$test[1] ='1';
-		if (verify_doc($data[$i]['doc'], 'Sakila', 'Unemployed', '18'))
-			$test[2] ='1';
+		expect_true(verify_doc($data[$i]['doc'], 'Sakila', 'Unemployed', '15'));
+		expect_true(verify_doc($data[$i]["doc"], 'Sakila', 'Unemployed', '17'));
+		expect_true(verify_doc($data[$i]['doc'], 'Sakila', 'Unemployed', '18'));
 	}
 
 
@@ -52,8 +47,7 @@ error_reporting=0
 	$data = $res->fetchAll();
 
 	for ($i = 0; $i < count($data); $i++) {
-		if (verify_doc($data[$i]["doc"], "Artur", "Plumber", "49"))
-			$test[3] = "1";
+		expect_true(verify_doc($data[$i]["doc"], "Artur", "Plumber", "49"));
 	}
 
 	$coll->modify('job like :job_param')->set("name", "Martin")->bind(['job_param' => 'nojob'])->execute();
@@ -63,24 +57,26 @@ error_reporting=0
 	$data = $res->fetchAll();
 
 	for ($i = 0; $i < count($data); $i++) {
-		if (verify_doc($data[$i]["doc"], "Sakila", "Unemployed", "15"))
-			$test[4] = "1";
-		if (verify_doc($data[$i]["doc"], "Sakila", "Unemployed", "17"))
-			$test[5] = "1";
-		if (verify_doc($data[$i]["doc"], "Sakila", "Unemployed", "18"))
-			$test[6] = "1";
-		if (verify_doc($data[$i]["doc"], "Artur", "Plumber", "49"))
-			$test[7] = "1";
-		if (verify_doc($data[$i]["doc"], "Mike", "Manager", "39"))
-			$test[8] = "1";
+		expect_true(verify_doc($data[$i]["doc"], "Sakila", "Unemployed", "15"));
+		expect_true(verify_doc($data[$i]["doc"], "Sakila", "Unemployed", "17"));
+		expect_true(verify_doc($data[$i]["doc"], "Sakila", "Unemployed", "18"));
+		expect_true(verify_doc($data[$i]["doc"], "Artur", "Plumber", "49"));
+		expect_true(verify_doc($data[$i]["doc"], "Mike", "Manager", "39"));
 	}
 
-	// fail expected due to empty search-condition
-	$test[9] = ($coll->modify('') == null) ? "1" : "0";
+	// fails expected due to empty or incorrect search-condition
+	function check_incorrect_condition($condition) {
+		global $coll;
+		expect_null($coll->modify($condition));
+	}
+
+	check_incorrect_condition('');
+	check_incorrect_condition(' ');
+	check_incorrect_condition('@ incorrect $ condition &');
 
 	$nodeSession->dropSchema("test_schema");
 
-	var_dump($test);
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
@@ -89,5 +85,4 @@ error_reporting=0
 	clean_test_db("test_schema");
 ?>
 --EXPECTF--
-%s(10) "1111111111"
 done!%A

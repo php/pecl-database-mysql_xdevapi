@@ -1,6 +1,8 @@
 --TEST--
 mysqlx collection remove
 --SKIPIF--
+--INI--
+error_reporting=0
 --FILE--
 <?php
 	require("connect.inc");
@@ -23,9 +25,15 @@ mysqlx collection remove
 	expect_eq($res[1]['job'],'Programmatore');
 	expect_eq($res[1]['name'],'Carlo');
 
-	// fail expected due to empty search-condition
-	if ($coll->remove('') == null) test_step_ok();
-	else test_step_failed();
+	// fails expected due to empty or incorrect search-condition
+	function check_incorrect_condition($condition) {
+		global $coll;
+		expect_null($coll->remove($condition));
+	}
+
+	check_incorrect_condition('');
+	check_incorrect_condition(' ');
+	check_incorrect_condition('@ incorrect $ condition &');
 
 	verify_expectations();
 	print "done!\n";
@@ -36,5 +44,4 @@ mysqlx collection remove
 	clean_test_db();
 ?>
 --EXPECTF--
-Warning: mysql_xdevapi\NodeCollection::remove(): invalid object of class mysql_xdevapi\NodeCollectionRemove in %s
 done!%A

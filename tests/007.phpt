@@ -7,7 +7,7 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-        $nodeSession = mysql_xdevapi\getSession($connection_uri);
+	$nodeSession = mysql_xdevapi\getSession($connection_uri);
 
 	function verify_doc($doc, $name, $job, $age) {
 		$result = ($doc[0] = $name);
@@ -22,9 +22,9 @@ error_reporting=0
 	$schema->createCollection("test_collection");
 	$coll = $schema->getCollection("test_collection");
 
-        $coll->add('{"name": "Sakila", "age": 15, "job": "Programmer"}')->execute();
+	$coll->add('{"name": "Sakila", "age": 15, "job": "Programmer"}')->execute();
 
-        $sakila = ["name" => "Sakila", "age" => 17, "job" => "Singer"];
+	$sakila = ["name" => "Sakila", "age" => 17, "job" => "Singer"];
 	$coll->add($sakila)->execute();
 	$coll->add(["name" => "Sakila", "age" => 18, "job" => "Student"])->execute();
 	$coll->add('{"name": "Susanne", "age": 24, "job": "Plumber"}')->execute();
@@ -52,7 +52,7 @@ error_reporting=0
 	$nodeSession->dropCollection("test_schema", "test_collection");
 	$nodeSession->dropSchema("test_schema");
 
-        var_dump($test);
+	var_dump($test);
 	print "done!\n";
 ?>
 --CLEAN--
