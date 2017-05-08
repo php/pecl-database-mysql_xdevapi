@@ -23,7 +23,7 @@ namespace mysqlx {
 namespace devapi {
 
 void mysqlx_new_node_collection__modify(
-	zval* return_value, 
+	zval* return_value,
 	const phputils::string_input_param& search_expression,
 	drv::st_xmysqlnd_node_collection* collection);
 void mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
