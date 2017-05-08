@@ -137,10 +137,10 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA *
 		MYSQLND_CSTRING errmsg = { session->m->get_error_str(session) , 0 };
 		sqlstate.l = strlen(sqlstate.s);
 		errmsg.l = strlen(errmsg.s);
+		mysqlx_new_exception(error_num, sqlstate, errmsg);
 		if(session->error_info->persistent == FALSE){
 			SET_EMPTY_ERROR(session->error_info);
 		}
-		mysqlx_new_exception(error_num, sqlstate, errmsg);
 		DBG_RETURN(TRUE);
 	}
 	DBG_RETURN(FALSE);

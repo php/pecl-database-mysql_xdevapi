@@ -13,7 +13,7 @@ mysqlx collection remove
 
 	$coll->remove('age > :age_from and age < :age_to')->bind(['age_from' => 20, 'age_to' => 50])->limit(7)->execute();
 
-	$coll->remove()->sort('age desc')->limit(2)->execute();
+	$coll->remove('true')->sort('age desc')->limit(2)->execute();
 	$coll->modify('_id in (1,13,5,7)')->unset(['age'])->execute();
 	$coll->remove('job in (\'Barista\', \'Programmatore\', \'Ballerino\', \'Programmatrice\')')->limit(5)->sort(['age desc', 'name asc'])->execute();
 
@@ -22,6 +22,10 @@ mysqlx collection remove
 	expect_eq($res[0]['name'],'Marco');
 	expect_eq($res[1]['job'],'Programmatore');
 	expect_eq($res[1]['name'],'Carlo');
+
+	// fail expected due to empty search-condition
+	if ($coll->remove('') == null) test_step_ok();
+	else test_step_failed();
 
 	verify_expectations();
 	print "done!\n";
@@ -32,4 +36,5 @@ mysqlx collection remove
 	clean_test_db();
 ?>
 --EXPECTF--
+Warning: mysql_xdevapi\NodeCollection::remove(): invalid object of class mysql_xdevapi\NodeCollectionRemove in %s
 done!%A

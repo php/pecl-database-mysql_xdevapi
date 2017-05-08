@@ -78,11 +78,12 @@
 		Clean up the previously created DB and tables
 	*/
 	if (!function_exists('clean_test_db')) {
-		function clean_test_db() {
+		function clean_test_db($db_name = null) {
 			global $connection_uri;
 			global $db;
+			if ($db_name == null) $db_name = $db;
 			$nodeSession = mysql_xdevapi\getSession($connection_uri);
-			$nodeSession->executeSql("drop database if exists $db");
+			$nodeSession->executeSql("drop database if exists $db_name");
 		}
 	}
 

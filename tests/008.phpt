@@ -7,9 +7,9 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-	$test = "000000000";
+	$test = "0000000000";
 
-        $nodeSession = mysql_xdevapi\getSession($connection_uri);
+	$nodeSession = mysql_xdevapi\getSession($connection_uri);
 
 	function verify_doc($doc, $name, $job, $age) {
 		$result = ($doc[0] = $name);
@@ -75,11 +75,19 @@ error_reporting=0
 			$test[8] = "1";
 	}
 
+	// fail expected due to empty search-condition
+	$test[9] = ($coll->modify('') == null) ? "1" : "0";
+
 	$nodeSession->dropSchema("test_schema");
 
 	var_dump($test);
-		print "done!\n";
+	print "done!\n";
+?>
+--CLEAN--
+<?php
+	require("connect.inc");
+	clean_test_db("test_schema");
 ?>
 --EXPECTF--
-%s(9) "111111111"
+%s(10) "1111111111"
 done!%A

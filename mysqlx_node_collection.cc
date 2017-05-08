@@ -389,13 +389,14 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, modify)
 {
 	struct st_mysqlx_node_collection * object;
 	zval * object_zv;
-	MYSQLND_CSTRING search_expr = {NULL, 0};
+	phputils::string_input_param search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::modify");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s",
-												&object_zv, mysqlx_node_collection_class_entry,
-												&(search_expr.s), &(search_expr.l)))
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, mysqlx_node_collection_class_entry,
+		&(search_expr.str), &(search_expr.len)))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -405,7 +406,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, modify)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__modify(return_value, search_expr, object->collection, TRUE /* clone */);
+		mysqlx_new_node_collection__modify(return_value, search_expr, object->collection);
 	}
 
 	DBG_VOID_RETURN;
@@ -416,15 +417,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, modify)
 /* {{{ proto mixed mysqlx_node_collection::remove() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, remove)
 {
-	struct st_mysqlx_node_collection * object;
-	zval * object_zv;
-	MYSQLND_CSTRING search_expr = {NULL, 0};
+	struct st_mysqlx_node_collection* object = nullptr;
+	zval* object_zv = nullptr;
+	phputils::string_input_param search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::remove");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s",
-												&object_zv, mysqlx_node_collection_class_entry,
-												&(search_expr.s), &(search_expr.l)))
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, mysqlx_node_collection_class_entry,
+		&(search_expr.str), &(search_expr.len)))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -434,7 +436,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, remove)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__remove(return_value, search_expr, object->collection, TRUE /* clone */);
+		mysqlx_new_node_collection__remove(return_value, search_expr, object->collection);
 	}
 
 	DBG_VOID_RETURN;

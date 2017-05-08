@@ -40,8 +40,7 @@ std::ostream& operator<<(std::ostream& os, const string& str)
 
 /* {{{ string_input_param::string_input_param */
 string_input_param::string_input_param(zval* zv)
-	: str(Z_STRVAL_P(zv))
-	, len(Z_STRLEN_P(zv))
+	: string_input_param(Z_STRVAL_P(zv), Z_STRLEN_P(zv))
 {
 	assert(Z_TYPE_P(zv) == IS_STRING);
 }

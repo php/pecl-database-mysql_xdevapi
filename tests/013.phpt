@@ -18,7 +18,7 @@ mysqlx modify arrayAppend/Insert
 	$coll->modify('name in (\'ENTITY\', \'Lucia\')')->sort('_id desc')->limit(2)->set('auto', 'BMW')->execute();
 
 	try {
-		$coll->modify()->limit(-1)->unset('name')->execute();
+		$coll->modify('TRUE')->limit(-1)->unset('name')->execute();
 	} catch(Exception $ex) {
 		print "Exception!\n";
 	}
@@ -26,8 +26,7 @@ mysqlx modify arrayAppend/Insert
 	$data = $res->fetchAll();
 	var_dump($data);
 
-	print "done!
-";
+	print "done!";
 ?>
 --CLEAN--
 <?php

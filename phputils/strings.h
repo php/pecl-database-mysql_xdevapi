@@ -70,7 +70,7 @@ std::ostream& operator<<(std::ostream& os, const string& str);
 struct string_input_param
 {
 	string_input_param() = default;
-	string_input_param(const char* s) : string_input_param(str, std::strlen(s)) {}
+	string_input_param(const char* s) : string_input_param(s, s ? std::strlen(s) : 0) {}
 	string_input_param(const char* s, const size_t l) : str(s), len(l) {}
 	string_input_param(zval* zv);
 
@@ -79,12 +79,17 @@ struct string_input_param
 
 	bool empty() const
 	{
-		return (str == nullptr) && (len == 0);
+		return (str == nullptr) || (*str == '\0');
 	}
 
 	string to_string() const
 	{
 		return string(str, len);
+	}
+
+	std::string to_std_string() const
+	{
+		return std::string(str, len);
 	}
 
 	const char* c_str() const

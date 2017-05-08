@@ -385,10 +385,10 @@ mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_node_collection__remove */
 void
-mysqlx_new_node_collection__remove(zval * return_value,
-								   const MYSQLND_CSTRING search_expression,
-								   XMYSQLND_NODE_COLLECTION * collection,
-								   const zend_bool clone_collection)
+mysqlx_new_node_collection__remove(
+	zval* return_value,
+	const phputils::string_input_param& search_expression,
+	XMYSQLND_NODE_COLLECTION* collection)
 {
 	DBG_ENTER("mysqlx_new_node_collection__remove");
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_collection__remove_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
@@ -397,15 +397,14 @@ mysqlx_new_node_collection__remove(zval * return_value,
 		if (!object) {
 			goto err;
 		}
-		object->collection = clone_collection? collection->data->m.get_reference(collection) : collection;
+		object->collection = collection->data->m.get_reference(collection);
 		object->crud_op = xmysqlnd_crud_collection_remove__create(mnd_str2c(object->collection->data->schema->data->schema_name),
 																  mnd_str2c(object->collection->data->collection_name));
 		if (!object->crud_op) {
 			goto err;
 		}
-		if (search_expression.s &&
-			search_expression.l &&
-			FAIL == xmysqlnd_crud_collection_remove__set_criteria(object->crud_op, search_expression))
+		if (search_expression.empty() ||
+			(FAIL == xmysqlnd_crud_collection_remove__set_criteria(object->crud_op, search_expression.to_std_string())))
 		{
 			goto err;
 		}
@@ -413,9 +412,6 @@ mysqlx_new_node_collection__remove(zval * return_value,
 err:
 		DBG_ERR("Error");
 		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-		if (object->collection && clone_collection) {
-			object->collection->data->m.free_reference(object->collection, NULL, NULL);
-		}
 		zval_ptr_dtor(return_value);
 		ZVAL_NULL(return_value);
 	}

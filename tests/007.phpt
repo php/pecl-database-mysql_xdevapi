@@ -55,6 +55,11 @@ error_reporting=0
         var_dump($test);
 	print "done!\n";
 ?>
+--CLEAN--
+<?php
+	require("connect.inc");
+	clean_test_db("test_schema");
+?>
 --EXPECTF--
 %s(4) "1111"
 done!%A
