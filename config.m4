@@ -227,7 +227,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
-	PHP_INSTALL_HEADERS([ext/mysql_xdevapi/])
 
 	dnl TODO: we should search for a proper protoc matchig the one who's heades we use and which we link above
 	PROTOC=protoc

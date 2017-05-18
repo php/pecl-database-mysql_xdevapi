@@ -181,8 +181,6 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 		AC_DEFINE("MYSQL_XDEVAPI_SSL_SUPPORTED", 1, "SSL support");
 		ADD_EXTENSION_DEP('mysql_xdevapi', 'json', false);
 		ADD_EXTENSION_DEP('mysql_xdevapi', 'mysqlnd', false);
-		PHP_INSTALL_HEADERS("", "ext/mysql_xdevapi");
-
 	} else {
 		WARNING("mysql-xdevapi not enabled; necessary libraries not found or dependencies not enabled");
 		PHP_MYSQL_XDEVAPI = "no"
