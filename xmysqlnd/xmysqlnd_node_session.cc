@@ -49,7 +49,7 @@ extern "C" {
 #include "SAPI.h"
 #include "php_variables.h"
 #include "mysqlx_exception.h"
-#include <phputils/object.h>
+#include "phputils/object.h"
 #include <utility>
 #include <algorithm>
 #include <cctype>

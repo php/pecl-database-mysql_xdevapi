@@ -26,8 +26,8 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 }
 #include <ext/mysqlnd/mysql_float_to_double.h>
-#include <xmysqlnd/xmysqlnd.h>
-#include <xmysqlnd/xmysqlnd_node_session.h>
+#include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_node_session.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 
@@ -35,7 +35,7 @@ extern "C" {
 #include "mysqlx_resultset__column_metadata.h"
 #include "mysqlx_resultset__resultset_metadata.h"
 
-#include <phputils/object.h>
+#include "phputils/object.h"
 
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/wire_format_lite.h>

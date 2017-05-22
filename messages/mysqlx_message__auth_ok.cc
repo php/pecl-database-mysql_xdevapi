@@ -24,8 +24,8 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 }
-#include <xmysqlnd/xmysqlnd.h>
-#include <xmysqlnd/xmysqlnd_node_session.h>
+#include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_node_session.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_connection.h"
@@ -37,7 +37,7 @@ extern "C" {
 #include "mysqlx_message__error.h"
 #include "mysqlx_message__auth_ok.h"
 
-#include <phputils/object.h>
+#include "phputils/object.h"
 
 namespace mysqlx {
 

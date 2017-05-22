@@ -31,7 +31,7 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_connection.h"
-#include <phputils/object.h>
+#include "phputils/object.h"
 
 namespace mysqlx {
 

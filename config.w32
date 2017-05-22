@@ -12,19 +12,19 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 		&& (CHECK_LIB("libprotobuf.lib", "mysql_xdevapi") || ((PHP_DEBUG == "yes") && CHECK_LIB("libprotobufd.lib", "mysql_xdevapi")))
 		&& PHP_JSON != "no")
 	{
-		mysqlx_proto_sources="ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_connection.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_crud.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_datatypes.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_expect.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_expr.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_notice.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_resultset.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_session.proto " +
-			"ext/mysql_xdevapi/xmysqlnd/proto_def/mysqlx_sql.proto";
+		mysqlx_proto_sources="xmysqlnd/proto_def/mysqlx.proto " +
+			"xmysqlnd/proto_def/mysqlx_connection.proto " +
+			"xmysqlnd/proto_def/mysqlx_crud.proto " +
+			"xmysqlnd/proto_def/mysqlx_datatypes.proto " +
+			"xmysqlnd/proto_def/mysqlx_expect.proto " +
+			"xmysqlnd/proto_def/mysqlx_expr.proto " +
+			"xmysqlnd/proto_def/mysqlx_notice.proto " +
+			"xmysqlnd/proto_def/mysqlx_resultset.proto " +
+			"xmysqlnd/proto_def/mysqlx_session.proto " +
+			"xmysqlnd/proto_def/mysqlx_sql.proto";
 
-		STDOUT.WriteLine("execute " + PATH_PROG("protoc") + " --proto_path ext/mysql_xdevapi/xmysqlnd/proto_def --cpp_out ext/mysql_xdevapi/xmysqlnd/proto_gen " + mysqlx_proto_sources);
-		STDOUT.WriteLine(execute(PATH_PROG("protoc") + " --proto_path ext/mysql_xdevapi/xmysqlnd/proto_def --cpp_out ext/mysql_xdevapi/xmysqlnd/proto_gen " + mysqlx_proto_sources));
+		STDOUT.WriteLine("execute " + PATH_PROG("protoc") + " --proto_path xmysqlnd/proto_def --cpp_out xmysqlnd/proto_gen " + mysqlx_proto_sources);
+		STDOUT.WriteLine(execute(PATH_PROG("protoc") + " --proto_path xmysqlnd/proto_def --cpp_out xmysqlnd/proto_gen " + mysqlx_proto_sources));
 
 
 		mysqlx_base_sources="php_xmysqlnd.cc " +
@@ -156,15 +156,15 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"xmysqlnd_wireprotocol.cc " +
 			"xmysqlnd_zval2any.cc ";
 
-		EXTENSION("mysql_xdevapi", mysqlx_base_sources, PHP_MYSQL_XDEVAPI_SHARED, "-Iext/mysql_xdevapi -Iext/mysql_xdevapi/messages " +
-			"-Iext/mysql_xdevapi/xmysqlnd -Iext/mysql_xdevapi/xmysqlnd/crud_parsers -Iext/mysql_xdevapi/xmysqlnd/proto_gen " +
+		EXTENSION("mysql_xdevapi", mysqlx_base_sources, PHP_MYSQL_XDEVAPI_SHARED, 
+			"-I. -Iphputils -Ixmysqlnd -Ixmysqlnd/crud_parsers -Ixmysqlnd/proto_gen -Imessages -I.. -Iext/mysql_xdevapi " +
 			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQL_XDEVAPI_EXPERIMENTAL_FEATURES /DMYSQL_XDEVAPI_MESSAGE_CLASSES /DZEND_WIN32_KEEP_INLINE /UZEND_WIN32_FORCE_INLINE /EHsc ");
 		ADD_SOURCES(configure_module_dirname + "/phputils", mysqlx_phputils, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/messages", mysqlx_messages, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/proto_gen", xmysqlnd_protobuf_sources, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd/crud_parsers", xmysqlnd_expr_parser, "mysql_xdevapi");
 		ADD_SOURCES(configure_module_dirname + "/xmysqlnd", xmysqlnd_sources, "mysql_xdevapi");
-		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_PHP", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
+		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_PHPUTILS", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
 		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_MESSAGES", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
 		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_XMYSQLND_CRUD_PARSERS", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
 		ADD_FLAG("CFLAGS_BD_EXT_MYSQL_XDEVAPI_XMYSQLND", "/D ZEND_WIN32_KEEP_INLINE /U ZEND_WIN32_FORCE_INLINE");
@@ -173,7 +173,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			ADD_FLAG("CFLAGS_MYSQL_XDEVAPI", "/D PHP_MYSQL_XDEVAPI_EXPORTS ");
 		}
 
-		if (PHP_MYSQLND = "no") {
+		if (PHP_MYSQLND == "no") {
 			PHP_MYSQLND = "yes";
 			MESSAGE("mysql-xdevapi depends on mysqlnd; it has been enabled");
 		}

@@ -18,8 +18,8 @@
 #ifndef MYSQLX_BASE_SESSION_H
 #define MYSQLX_BASE_SESSION_H
 
-#include <xmysqlnd/xmysqlnd_node_session.h>
-#include <phputils/allocator.h>
+#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "phputils/allocator.h"
 
 namespace mysqlx {
 

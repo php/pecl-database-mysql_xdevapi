@@ -24,16 +24,16 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 }
-#include <xmysqlnd/xmysqlnd.h>
-#include <xmysqlnd/xmysqlnd_node_session.h>
-#include <xmysqlnd/xmysqlnd_zval2any.h>
+#include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "xmysqlnd/xmysqlnd_zval2any.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_message__capability.h"
 #include "mysqlx_message__capabilities.h"
 
-#include <phputils/object.h>
+#include "phputils/object.h"
 
 namespace mysqlx {
 

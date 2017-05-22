@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_PFC_H
 #define MYSQLX_NODE_PFC_H
 
-#include <xmysqlnd/xmysqlnd_protocol_frame_codec.h>
+#include "xmysqlnd/xmysqlnd_protocol_frame_codec.h"
 
 namespace mysqlx {
 

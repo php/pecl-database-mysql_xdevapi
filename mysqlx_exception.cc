@@ -28,7 +28,7 @@ extern "C" {
 #include "ext/spl/spl_exceptions.h" /* spl_ce_RuntimeException */
 #endif
 }
-#include <xmysqlnd/xmysqlnd.h>
+#include "xmysqlnd/xmysqlnd.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 

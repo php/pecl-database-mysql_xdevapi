@@ -18,7 +18,7 @@
 #ifndef MYSQLX_MESSAGE__CAPABILITY_H
 #define MYSQLX_MESSAGE__CAPABILITY_H
 
-#include <phputils/allocator.h>
+#include "phputils/allocator.h"
 
 namespace mysqlx {
 

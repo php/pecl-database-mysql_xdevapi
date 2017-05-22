@@ -23,12 +23,12 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 }
-#include <xmysqlnd/xmysqlnd.h>
-#include <xmysqlnd/xmysqlnd_node_session.h>
-#include <xmysqlnd/xmysqlnd_node_schema.h>
-#include <xmysqlnd/xmysqlnd_node_collection.h>
-#include <xmysqlnd/xmysqlnd_node_stmt.h>
-#include <xmysqlnd/xmysqlnd_crud_collection_commands.h>
+#include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "xmysqlnd/xmysqlnd_node_schema.h"
+#include "xmysqlnd/xmysqlnd_node_collection.h"
+#include "xmysqlnd/xmysqlnd_node_stmt.h"
+#include "xmysqlnd/xmysqlnd_crud_collection_commands.h"
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"
@@ -41,8 +41,8 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__find.h"
 #include "mysqlx_exception.h"
-#include <phputils/allocator.h>
-#include <phputils/object.h>
+#include "phputils/allocator.h"
+#include "phputils/object.h"
 
 namespace mysqlx {
 

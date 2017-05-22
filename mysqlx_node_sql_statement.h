@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_SQL_STATEMENT_H
 #define MYSQLX_NODE_SQL_STATEMENT_H
 
-#include <phputils/allocator.h>
+#include "phputils/allocator.h"
 
 namespace mysqlx {
 

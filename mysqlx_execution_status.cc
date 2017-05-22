@@ -24,13 +24,13 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 }
-#include <xmysqlnd/xmysqlnd.h>
-#include <xmysqlnd/xmysqlnd_stmt_execution_state.h>
+#include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_stmt_execution_state.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
-#include <phputils/allocator.h>
-#include <phputils/object.h>
+#include "phputils/allocator.h"
+#include "phputils/object.h"
 
 namespace mysqlx {
 

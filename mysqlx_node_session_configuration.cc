@@ -31,9 +31,9 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "mysqlx_session.h"
 #include "mysqlx_node_session_configuration.h"
-#include <phputils/object.h>
+#include "phputils/object.h"
 #include "xmysqlnd/xmysqlnd_session_config.h"
-#include <mysqlx_class_properties.h>
+#include "mysqlx_class_properties.h"
 
 namespace mysqlx {
 

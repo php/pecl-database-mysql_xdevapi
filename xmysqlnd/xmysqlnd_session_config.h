@@ -21,7 +21,7 @@
 #include <utility>
 #include "phputils/strings.h"
 #include "phputils/types.h"
-#include <phputils/allocator.h>
+#include "phputils/allocator.h"
 
 namespace mysqlx {
 

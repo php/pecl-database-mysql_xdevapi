@@ -220,7 +220,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
 
 	PHP_ADD_BUILD_DIR($ext_builddir/messages)
-	PHP_ADD_BUILD_DIR($ext_builddir/proto_gen)
+	PHP_ADD_BUILD_DIR($ext_builddir/phputils)
+	PHP_ADD_BUILD_DIR($ext_builddir/xmysqlnd)
+	PHP_ADD_BUILD_DIR($ext_builddir/xmysqlnd/crud_parsers)
+	PHP_ADD_BUILD_DIR($ext_builddir/xmysqlnd/proto_gen)
 
 	this_ext_sources="$xmysqlnd_protobuf_sources $mysqlx_base_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_phputils"
 	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1, true)
