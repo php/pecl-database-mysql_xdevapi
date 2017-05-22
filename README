@@ -146,6 +146,7 @@ Supported X DevAPI features
 - table API - create, insert, select, update, delete
 - view API - create, alter, drop
 - collection / table - getName, existsInDatabase, count
+- collection index - create, drop
 - resultsets / multi-resultsets
 - getCollection(s) / getTable(s) / getCollectionAsTable
 - dropCollection / dropTable
