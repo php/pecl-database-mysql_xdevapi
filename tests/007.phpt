@@ -16,11 +16,11 @@ error_reporting=0
 		return $result;
 	}
 
-	$nodeSession->createSchema("test_schema");
-	$schema = $nodeSession->getSchema("test_schema");
+	$nodeSession->createSchema($test_schema_name);
+	$schema = $nodeSession->getSchema($test_schema_name);
 
-	$schema->createCollection("test_collection");
-	$coll = $schema->getCollection("test_collection");
+	$schema->createCollection($test_collection_name);
+	$coll = $schema->getCollection($test_collection_name);
 
 	$coll->add('{"name": "Sakila", "age": 15, "job": "Programmer"}')->execute();
 
@@ -49,8 +49,8 @@ error_reporting=0
 	if (is_bool($data) && $data == false)
 		$test[3] = "1";
 
-	$nodeSession->dropCollection("test_schema", "test_collection");
-	$nodeSession->dropSchema("test_schema");
+	$schema->dropCollection($test_collection_name);
+	$nodeSession->dropSchema($test_schema_name);
 
 	var_dump($test);
 	print "done!\n";

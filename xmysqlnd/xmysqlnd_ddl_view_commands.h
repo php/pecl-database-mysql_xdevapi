@@ -20,6 +20,7 @@
 
 #include "xmysqlnd_crud_commands.h"
 #include "proto_gen/mysqlx_crud.pb.h"
+#include "phputils/strings.h"
 
 namespace mysqlx {
 
@@ -84,8 +85,8 @@ class Drop_view_cmd
 {
 	public:
 		void set_view_name(
-			const MYSQLND_CSTRING& schema_name,
-			const MYSQLND_CSTRING& view_name);
+			const phputils::string_input_param& schema_name,
+			const phputils::string_input_param& view_name);
 
 		void set_if_exists(const bool if_exists);
 

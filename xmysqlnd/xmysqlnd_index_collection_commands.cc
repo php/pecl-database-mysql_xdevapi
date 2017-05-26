@@ -54,7 +54,7 @@ namespace
 template<typename String>
 bool is_empty(const String& mystr)
 {
-	return (mystr.s == NULL) || (mystr.l == 0);
+	return (mystr.s == nullptr) || (mystr.l == 0);
 }
 
 } // anonymous namespace
@@ -115,10 +115,10 @@ struct st_xmysqlnd_collection_op__create_index : phputils::custom_allocable
 XMYSQLND_COLLECTION_OP__CREATE_INDEX *
 xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name)
 {
-	XMYSQLND_COLLECTION_OP__CREATE_INDEX * ret = NULL;
+	XMYSQLND_COLLECTION_OP__CREATE_INDEX* ret = nullptr;
 	DBG_ENTER("xmysqlnd_collection_create_index__create");
 	DBG_INF_FMT("schema_name=%*s collection_name=%*s", schema_name.l, schema_name.s, collection_name.l, collection_name.s);
-	ret = new struct st_xmysqlnd_collection_op__create_index(schema_name, collection_name);
+	ret = new st_xmysqlnd_collection_op__create_index(schema_name, collection_name);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -126,7 +126,7 @@ xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, cons
 
 /* {{{ xmysqlnd_collection_create_index__destroy */
 void
-xmysqlnd_collection_create_index__destroy(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj)
+xmysqlnd_collection_create_index__destroy(XMYSQLND_COLLECTION_OP__CREATE_INDEX* obj)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__destroy");
 	delete obj;
@@ -137,7 +137,7 @@ xmysqlnd_collection_create_index__destroy(XMYSQLND_COLLECTION_OP__CREATE_INDEX *
 
 /* {{{ xmysqlnd_collection_create_index__set_index_name */
 enum_func_status
-xmysqlnd_collection_create_index__set_index_name(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, const MYSQLND_CSTRING index_name)
+xmysqlnd_collection_create_index__set_index_name(XMYSQLND_COLLECTION_OP__CREATE_INDEX* obj, const MYSQLND_CSTRING index_name)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__set_index_name");
 	obj->index_name.assign(index_name.s, index_name.l);
@@ -149,7 +149,7 @@ xmysqlnd_collection_create_index__set_index_name(XMYSQLND_COLLECTION_OP__CREATE_
 
 /* {{{ xmysqlnd_collection_create_index__set_index_name */
 enum_func_status
-xmysqlnd_collection_create_index__set_unique(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, const zend_bool is_unique)
+xmysqlnd_collection_create_index__set_unique(XMYSQLND_COLLECTION_OP__CREATE_INDEX* obj, const zend_bool is_unique)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__set_unique");
 	obj->is_unique = is_unique;
@@ -162,7 +162,7 @@ xmysqlnd_collection_create_index__set_unique(XMYSQLND_COLLECTION_OP__CREATE_INDE
 /* {{{ xmysqlnd_collection_create_index__add_field */
 enum_func_status
 xmysqlnd_collection_create_index__add_field(
-	XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj,
+	XMYSQLND_COLLECTION_OP__CREATE_INDEX* obj,
 	MYSQLND_CSTRING doc_path,
 	MYSQLND_CSTRING column_type,
 	zend_bool is_required)
@@ -184,7 +184,7 @@ xmysqlnd_collection_create_index__add_field(
 
 /* {{{ xmysqlnd_collection_create_index__is_initialized */
 zend_bool
-xmysqlnd_collection_create_index__is_initialized(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj)
+xmysqlnd_collection_create_index__is_initialized(XMYSQLND_COLLECTION_OP__CREATE_INDEX* obj)
 {
 	const zend_bool ret = obj && obj->is_initialized() ? TRUE : FALSE;
 	DBG_ENTER("xmysqlnd_collection_create_index__is_initialized");
@@ -206,7 +206,7 @@ struct st_collection_create_collection_index_var_binder_ctx
 /* {{{ collection_index_bind_bool_param */
 static enum_hnd_func_status
 collection_index_bind_bool_param(
-	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute,
 	const unsigned int param_no,
 	const zend_bool param)
 {
@@ -234,7 +234,7 @@ collection_index_bind_bool_param(
 /* {{{ collection_index_bind_string_param */
 static enum_hnd_func_status
 collection_index_bind_string_param(
-	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute,
 	const unsigned int param_no,
 	const phputils::string& param)
 {
@@ -262,7 +262,7 @@ collection_index_bind_string_param(
 /* {{{ collection_index_bind_field_param */
 static enum_hnd_func_status
 collection_index_bind_field_param(
-	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute,
 	const unsigned int param_no,
 	const phputils::string& rawPath)
 {
@@ -311,7 +311,7 @@ collection_index_bind_field_param(
 /* {{{ collection_index_bind_fields */
 static const enum_hnd_func_status
 collection_index_bind_fields(
-	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute,
 	const unsigned int counter,
 	const st_index_fields& index_fields)
 {
@@ -357,15 +357,15 @@ collection_index_bind_fields(
 /* {{{ collection_create_index_var_binder */
 static const enum_hnd_func_status
 collection_create_index_var_binder(
-	void * context,
-	XMYSQLND_NODE_SESSION * session,
-	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+	void* context,
+	XMYSQLND_NODE_SESSION* session,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
-	struct st_collection_create_collection_index_var_binder_ctx * ctx = (struct st_collection_create_collection_index_var_binder_ctx *) context;
+	st_collection_create_collection_index_var_binder_ctx* ctx = static_cast<st_collection_create_collection_index_var_binder_ctx*>(context);
 	st_xmysqlnd_collection_op__create_index* index_op = ctx->index_op;
 
-	const phputils::string * param = NULL;
+	const phputils::string* param = nullptr;
 	DBG_ENTER("collection_create_index_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -395,15 +395,18 @@ collection_create_index_var_binder(
 
 /* {{{ xmysqlnd_collection_create_index__execute */
 enum_func_status
-xmysqlnd_collection_create_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error)
+xmysqlnd_collection_create_index__execute(
+	st_xmysqlnd_node_session* const session, 
+	XMYSQLND_COLLECTION_OP__CREATE_INDEX* obj, 
+	st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__execute");
 
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"create_collection_index", sizeof("create_collection_index") - 1 };
 
-	struct st_collection_create_collection_index_var_binder_ctx var_binder_ctx = { obj, 0};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_create_index_var_binder, &var_binder_ctx };
+	st_collection_create_collection_index_var_binder_ctx var_binder_ctx = { obj, 0};
+	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_create_index_var_binder, &var_binder_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_xplugin,
@@ -421,79 +424,39 @@ xmysqlnd_collection_create_index__execute(struct st_xmysqlnd_node_session * cons
 /* }}} */
 
 /****************************** COLLECTION.DROP_INDEX() *******************************************************/
-struct st_xmysqlnd_collection_op__drop_index : phputils::custom_allocable
+
+namespace
+{
+
+/* {{{ collection_drop_index_data */
+struct collection_drop_index_data : phputils::custom_allocable
 {
 	phputils::string schema_name;
 	phputils::string collection_name;
 	phputils::string index_name;
 
-	st_xmysqlnd_collection_op__drop_index(
-		const MYSQLND_CSTRING & schema_,
-		const MYSQLND_CSTRING & object_name_)
-		: schema_name(schema_.s, schema_.l)
-		, collection_name(object_name_.s, object_name_.l)
+	collection_drop_index_data(
+		const MYSQLND_CSTRING& schema,
+		const MYSQLND_CSTRING& collection,
+		const phputils::string_input_param& index)
+		: schema_name(schema.s, schema.l)
+		, collection_name(collection.s, collection.l)
+		, index_name(index.to_string())
 	{
 	}
 
-	zend_bool is_initialized() const
+	bool is_initialized() const
 	{
-		zend_bool ret = !schema_name.empty() && !collection_name.empty() && !index_name.empty();
-		return ret;
+		return !schema_name.empty() && !collection_name.empty() && !index_name.empty();
 	}
 };
-
-
-/* {{{ xmysqlnd_collection_drop_index__create */
-XMYSQLND_COLLECTION_OP__DROP_INDEX *
-xmysqlnd_collection_drop_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name)
-{
-	DBG_ENTER("xmysqlnd_collection_drop_index__create");
-	DBG_INF_FMT("schema_name=%*s collection_name=%*s", schema_name.l, schema_name.s, collection_name.l, collection_name.s);
-	XMYSQLND_COLLECTION_OP__DROP_INDEX * ret = new st_xmysqlnd_collection_op__drop_index(schema_name, collection_name);
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_collection_drop_index__destroy */
-void
-xmysqlnd_collection_drop_index__destroy(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj)
-{
-	DBG_ENTER("xmysqlnd_collection_drop_index__destroy");
-	delete obj;
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_collection_drop_index__set_index_name */
-enum_func_status
-xmysqlnd_collection_drop_index__set_index_name(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj, const MYSQLND_CSTRING index_name)
-{
-	DBG_ENTER("xmysqlnd_collection_drop_index__set_index_name");
-	obj->index_name.assign(index_name.s, index_name.l);
-	DBG_INF("PASS");
-	DBG_RETURN(PASS);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_collection_drop_index__is_initialized */
-zend_bool
-xmysqlnd_collection_drop_index__is_initialized(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj)
-{
-	const zend_bool ret = obj && obj->is_initialized() ? TRUE : FALSE;
-	DBG_ENTER("xmysqlnd_collection_drop_index__is_initialized");
-	DBG_INF_FMT("is_initialized=%u", ret);
-	DBG_RETURN(ret);
-}
 /* }}} */
 
 
 /* {{{ st_collection_drop_collection_index_var_binder_ctx */
 struct st_collection_drop_collection_index_var_binder_ctx
 {
-	st_xmysqlnd_collection_op__drop_index* index_op;
+	collection_drop_index_data* index_op;
 	unsigned int counter;
 };
 /* }}} */
@@ -502,15 +465,15 @@ struct st_collection_drop_collection_index_var_binder_ctx
 /* {{{ collection_drop_index_var_binder */
 static const enum_hnd_func_status
 collection_drop_index_var_binder(
-	void * context,
-	XMYSQLND_NODE_SESSION * session,
-	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+	void* context,
+	XMYSQLND_NODE_SESSION* session,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
-	struct st_collection_drop_collection_index_var_binder_ctx * ctx = (struct st_collection_drop_collection_index_var_binder_ctx *) context;
-	st_xmysqlnd_collection_op__drop_index* index_op = ctx->index_op;
+	st_collection_drop_collection_index_var_binder_ctx* ctx = static_cast<st_collection_drop_collection_index_var_binder_ctx*>(context);
+	collection_drop_index_data* index_op = ctx->index_op;
 
-	const phputils::string * param = NULL;
+	const phputils::string* param = nullptr;
 	DBG_ENTER("collection_drop_index_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -539,30 +502,57 @@ collection_drop_index_var_binder(
 
 /* {{{ xmysqlnd_collection_drop_index__execute */
 enum_func_status
-xmysqlnd_collection_drop_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__DROP_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error)
+xmysqlnd_collection_drop_index__execute(
+	st_xmysqlnd_node_session* const session,
+	collection_drop_index_data* obj,
+	st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__execute");
 
-	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"drop_collection_index", sizeof("drop_collection_index") - 1 };
 
-	struct st_collection_drop_collection_index_var_binder_ctx var_binder_ctx = { obj, 0};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_drop_index_var_binder, &var_binder_ctx };
+	st_collection_drop_collection_index_var_binder_ctx var_binder_ctx = { obj, 0};
+	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_drop_index_var_binder, &var_binder_ctx };
 
-	ret = session->m->query_cb(session,
-							   namespace_xplugin,
-							   query,
-							   var_binder,
-							   noop__on_result_start,
-							   noop__on_row, //on_row,
-							   noop__on_warning,
-							   on_error,
-							   noop__on_result_end,
-							   noop__on_statement_ok);
+	const enum_func_status ret
+		= session->m->query_cb(
+			session,
+			namespace_xplugin,
+			query,
+			var_binder,
+			noop__on_result_start,
+			noop__on_row,
+			noop__on_warning,
+			on_error,
+			noop__on_result_end,
+			noop__on_statement_ok);
 
 	DBG_RETURN(ret);
 
 	return ret;
+}
+/* }}} */
+
+} // anonymous namespace
+
+
+/* {{{ collection_drop_index */
+bool collection_drop_index(
+	XMYSQLND_NODE_COLLECTION* collection,
+	const phputils::string_input_param& index_name,
+	st_xmysqlnd_node_session_on_error_bind on_error)
+{
+	collection_drop_index_data op_drop_index(
+		mnd_str2c(collection->data->schema->data->schema_name),
+		mnd_str2c(collection->data->collection_name),
+		index_name);
+
+	if (!op_drop_index.is_initialized()) {
+		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::drop_index_fail);
+	}
+
+	st_xmysqlnd_node_session* session = collection->data->schema->data->session;
+	return (PASS == drv::xmysqlnd_collection_drop_index__execute(session, &op_drop_index, on_error));
 }
 /* }}} */
 

@@ -29,6 +29,7 @@
 	$disable_ssl_opt = 'ssl-mode=disabled';
 	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port.'/?'.$disable_ssl_opt;
 
+	$test_schema_name = $db;
 	$test_table_name = "test_table";
 	$test_collection_name = "test_collection";
 	$test_view_name = "test_view";

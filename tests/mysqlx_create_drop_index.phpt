@@ -14,7 +14,7 @@ mysqlx create/drop index
 		expect_true($res->hasData());
 
 		global $coll;
-		$coll->dropIndex($indexName)->execute();
+		expect_true($coll->dropIndex($indexName));
 
 		$res = $nodeSession->executeSql($query);
 		expect_false($res->hasData());
@@ -41,6 +41,7 @@ mysqlx create/drop index
 	$coll->createIndex("name_age_job_index", true)->field("$.name", "TEXT(20)", true)->field("$.age", "INTEGER", true)->field("$.job", "TEXT(30)", false)->execute();
 	assert_index("name_age_job_index");
 
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--

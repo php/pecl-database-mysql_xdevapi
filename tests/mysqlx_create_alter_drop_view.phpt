@@ -30,7 +30,7 @@ mysqlx create/alter/drop view
 		global $schema;
 		global $test_view_name;
 
-		$schema->dropView($test_view_name)->execute();
+		$schema->dropView($test_view_name);
 
 		$view = $schema->getTable($test_view_name);
 		expect_false($view->existsInDatabase());
@@ -174,24 +174,15 @@ mysqlx create/alter/drop view
 	// -------------
 	// drop view
 	// -------------
-	try {
-		$schema->dropView($test_view_name)->execute();
-		test_step_failed();
-	} catch (Exception $e) {
-		print_separator();
-		print "expected dropView failure ".$e->getCode()." : ".$e->getMessage().PHP_EOL;
-	}
+	print_separator();
 
-	try {
-		$schema->dropView($test_view_name)->ifExists()->execute();
-	} catch (Exception $e) {
-		print "unexpected dropView failure ".$e->getCode()." : ".$e->getMessage().PHP_EOL;
-		test_step_failed();
-	}
+	expect_false($schema->dropView($test_view_name));
 
 	$view = $schema->getTable($test_view_name);
 	expect_false($view->existsInDatabase());
 	expect_false($view->isView());
+
+	verify_expectations();
 
 	print "done!\n";
 ?>
@@ -298,5 +289,6 @@ array(1) {
   }
 }
 ---- 7 ----
-expected dropView failure 10000 : [HY000] Couldn't fetch data
+
+Warning: mysql_xdevapi\NodeSchema::dropView(): cannot drop view 'test_view' in %a
 done!%A

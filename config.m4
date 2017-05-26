@@ -158,7 +158,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_node_collection.cc \
 		mysqlx_node_collection__add.cc \
 		mysqlx_node_collection__create_index.cc \
-		mysqlx_node_collection__drop_index.cc \
 		mysqlx_node_collection__find.cc \
 		mysqlx_node_collection__modify.cc \
 		mysqlx_node_collection__remove.cc \

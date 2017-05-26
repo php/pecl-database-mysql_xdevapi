@@ -24,21 +24,21 @@ error_reporting=0
 
 	$test = "000000";
 
-	$nodeSession->createSchema("test_schema");
+	$nodeSession->createSchema($test_schema_name);
 
-	if (database_exist("test_schema")) {
+	if (database_exist($test_schema_name)) {
 		$test[0] = "1";
 
 		try {
 			#This should fail as the DB already exist
-			$nodeSession->createSchema("test_schema");
+			$nodeSession->createSchema($test_schema_name);
 		} catch(Exception $e) {
 			$test[1] = "1";
 		}
 
 		try {
-			$nodeSession->dropSchema("test_schema");
-			if (!database_exist("test_schema")) {
+			$nodeSession->dropSchema($test_schema_name);
+			if (!database_exist($test_schema_name)) {
 				$test[2] = "1";
 			}
 		} catch(Exception $x) {

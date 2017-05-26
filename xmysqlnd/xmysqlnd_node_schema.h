@@ -20,6 +20,7 @@
 
 #include "xmysqlnd_driver.h"
 #include "phputils/allocator.h"
+#include "phputils/strings.h"
 
 namespace mysqlx {
 
@@ -58,15 +59,22 @@ typedef enum_func_status (*func_xmysqlnd_node_scheme__exists_in_database)(XMYSQL
 
 typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 
-typedef struct st_xmysqlnd_node_collection *	(*func_xmysqlnd_node_schema__create_collection)(XMYSQLND_NODE_SCHEMA * const schema,
-																								const MYSQLND_CSTRING collection_name,
-																								const struct st_xmysqlnd_node_schema_on_error_bind on_error);
+typedef st_xmysqlnd_node_collection* (*func_xmysqlnd_node_schema__create_collection)(
+	XMYSQLND_NODE_SCHEMA* const schema,
+	const phputils::string_input_param& collection_name,
+	const st_xmysqlnd_node_schema_on_error_bind on_error);
 
-typedef enum_func_status						(*func_xmysqlnd_node_schema__drop_collection)(XMYSQLND_NODE_SCHEMA * const schema,
-																							  const MYSQLND_CSTRING collection_name,
-																							  const struct st_xmysqlnd_node_schema_on_error_bind on_error);
+typedef enum_func_status (*func_xmysqlnd_node_schema__drop_collection)(
+	XMYSQLND_NODE_SCHEMA* const schema,
+	const phputils::string_input_param& collection_name,
+	const st_xmysqlnd_node_schema_on_error_bind on_error);
 
 typedef struct st_xmysqlnd_node_table * 		(*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
+
+typedef enum_func_status (*func_xmysqlnd_node_schema__drop_table)(
+	XMYSQLND_NODE_SCHEMA* const schema,
+	const phputils::string_input_param& table_name,
+	const st_xmysqlnd_node_schema_on_error_bind on_error);
 
 bool is_table_object_type(const MYSQLND_CSTRING& object_type);
 bool is_collection_object_type(const MYSQLND_CSTRING& object_type);
@@ -100,6 +108,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 	func_xmysqlnd_node_schema__create_collection create_collection;
 	func_xmysqlnd_node_schema__drop_collection drop_collection;
 	func_xmysqlnd_node_schema__create_table_object create_table_object;
+	func_xmysqlnd_node_schema__drop_table drop_table;
 
 	func_xmysqlnd_node_schema__get_db_objects get_db_objects;
 

@@ -174,6 +174,13 @@ void raise_unknown_exception()
 }
 /* }}} */
 
+/* {{{ mysqlx::phputils::dump_warning */
+void dump_warning(const string& msg)
+{
+	php_error_docref(nullptr, E_WARNING, msg.c_str());
+}
+/* }}} */
+
 } // namespace phputils
 
 } // namespace mysqlx

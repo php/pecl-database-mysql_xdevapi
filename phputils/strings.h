@@ -87,10 +87,7 @@ struct string_input_param
 		return string(str, len);
 	}
 
-	std::string to_std_string() const
-	{
-		return std::string(str, len);
-	}
+	st_mysqlnd_const_string to_nd_cstr() const;
 
 	const char* c_str() const
 	{
@@ -98,6 +95,11 @@ struct string_input_param
 	}
 
 	size_t length() const
+	{
+		return len;
+	}
+
+	size_t size() const
 	{
 		return len;
 	}

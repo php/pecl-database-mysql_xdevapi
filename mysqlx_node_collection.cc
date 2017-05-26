@@ -24,6 +24,7 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
+#include "xmysqlnd/xmysqlnd_index_collection_commands.h"
 #include "xmysqlnd/xmysqlnd_node_collection.h"
 #include "xmysqlnd/xmysqlnd_node_schema.h"
 #include "xmysqlnd/xmysqlnd_node_session.h"
@@ -36,7 +37,6 @@ extern "C" {
 #include "mysqlx_node_collection__modify.h"
 #include "mysqlx_node_collection__remove.h"
 #include "mysqlx_node_collection__create_index.h"
-#include "mysqlx_node_collection__drop_index.h"
 #include "mysqlx_node_collection.h"
 #include "mysqlx_node_schema.h"
 #include "phputils/allocator.h"
@@ -476,29 +476,47 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, createIndex)
 /* }}} */
 
 
+/* {{{ collection_drop_index_on_error */
+static const enum_hnd_func_status
+collection_drop_index_on_error(
+	void * context,
+	XMYSQLND_NODE_SESSION * session,
+	st_xmysqlnd_node_stmt * const stmt,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("collection_drop_index_on_error");
+	throw phputils::xdevapi_exception(code, phputils::string(sql_state.s, sql_state.l), phputils::string(message.s, message.l));
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_collection::dropIndex() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, dropIndex)
 {
-	struct st_mysqlx_node_collection * object;
-	zval * object_zv;
-	MYSQLND_CSTRING index_name = {NULL, 0};
+	zval* object_zv = nullptr;
+	phputils::string_input_param index_name;
 
 	DBG_ENTER("mysqlx_node_collection::dropIndex");
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, mysqlx_node_collection_class_entry,
-		&(index_name.s), &(index_name.l)))
+		&(index_name.str), &(index_name.len)))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
 
-	RETVAL_FALSE;
-
-	if (object->collection) {
-		mysqlx_new_node_collection__drop_index(return_value, index_name, object->collection);
+	try {
+		const st_xmysqlnd_node_session_on_error_bind on_error = { collection_drop_index_on_error, nullptr };
+		RETVAL_BOOL(drv::collection_drop_index(data_object.collection, index_name, on_error));
+	} catch (std::exception& e) {
+		phputils::dump_warning(e.what());
+		RETVAL_FALSE;
 	}
 
 	DBG_VOID_RETURN;

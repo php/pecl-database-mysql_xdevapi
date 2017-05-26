@@ -108,6 +108,8 @@ void raise_doc_ref_exception(const doc_ref_exception& e);
 void raise_common_exception(const std::exception& e);
 void raise_unknown_exception();
 
+void dump_warning(const string& msg);
+
 } // namespace phputils
 
 } // namespace mysqlx

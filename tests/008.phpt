@@ -16,8 +16,8 @@ error_reporting=0
 		return $result;
 	}
 
-	$nodeSession->createSchema("test_schema");
-	$schema = $nodeSession->getSchema("test_schema");
+	$nodeSession->createSchema($test_schema_name);
+	$schema = $nodeSession->getSchema($test_schema_name);
 
 	$schema->createCollection("test_collection");
 	$coll = $schema->getCollection("test_collection");
@@ -70,11 +70,7 @@ error_reporting=0
 		expect_null($coll->modify($condition));
 	}
 
-	check_incorrect_condition('');
-	check_incorrect_condition(' ');
-	check_incorrect_condition('@ incorrect $ condition &');
-
-	$nodeSession->dropSchema("test_schema");
+	$nodeSession->dropSchema($test_schema_name);
 
 	verify_expectations();
 	print "done!\n";

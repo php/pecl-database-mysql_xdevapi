@@ -19,6 +19,7 @@
 #define XMYSQLND_INDEX_COLLECTION_COMMANDS_H
 
 #include "xmysqlnd_crud_commands.h"
+#include "phputils/strings.h"
 
 namespace mysqlx {
 
@@ -26,6 +27,7 @@ namespace drv {
 
 struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_on_error_bind;
+struct st_xmysqlnd_node_collection;
 
 typedef struct st_xmysqlnd_collection_op__create_index XMYSQLND_COLLECTION_OP__CREATE_INDEX;
 XMYSQLND_COLLECTION_OP__CREATE_INDEX* xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name);
@@ -39,15 +41,16 @@ enum_func_status xmysqlnd_collection_create_index__add_field(
 	zend_bool is_required);
 
 zend_bool xmysqlnd_collection_create_index__is_initialized(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj);
-enum_func_status xmysqlnd_collection_create_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error);
+enum_func_status xmysqlnd_collection_create_index__execute(
+	st_xmysqlnd_node_session * const session,
+	XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj,
+	st_xmysqlnd_node_session_on_error_bind on_error);
 
 
-typedef struct st_xmysqlnd_collection_op__drop_index XMYSQLND_COLLECTION_OP__DROP_INDEX;
-XMYSQLND_COLLECTION_OP__DROP_INDEX * xmysqlnd_collection_drop_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name);
-void xmysqlnd_collection_drop_index__destroy(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj);
-enum_func_status xmysqlnd_collection_drop_index__set_index_name(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj, const MYSQLND_CSTRING index_name);
-zend_bool xmysqlnd_collection_drop_index__is_initialized(XMYSQLND_COLLECTION_OP__DROP_INDEX * obj);
-enum_func_status xmysqlnd_collection_drop_index__execute(struct st_xmysqlnd_node_session * const session, XMYSQLND_COLLECTION_OP__DROP_INDEX * obj, struct st_xmysqlnd_node_session_on_error_bind on_error);
+bool collection_drop_index(
+	st_xmysqlnd_node_collection* collection,
+	const phputils::string_input_param& index_name,
+	st_xmysqlnd_node_session_on_error_bind on_error);
 
 } // namespace drv
 

@@ -47,6 +47,8 @@ string(15) "test_collection"
 string(9) "test_view"
 string(15) "non_found_table"
 string(20) "non_found_collection"
+
+Warning: mysql_xdevapi\NodeSchema::dropView(): cannot drop view 'test_view' in %A
 string(19) "non_existing_schema"
 string(18) "non_existing_table"
 string(23) "non_existing_collection"

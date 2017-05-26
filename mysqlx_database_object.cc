@@ -40,10 +40,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_database_object__exists_in_database, 0, ZE
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_database_object__drop, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
 /* {{{ mysqlx_database_object_methods[] */
 static const zend_function_entry mysqlx_database_object_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_database_object, getSession, arginfo_mysqlx_database_object__get_session)

@@ -41,8 +41,8 @@ mysqlx NodeSchema
 	expect_true($collections['test_collection_3']->existsInDatabase());
 	expect_eq($collections['test_collection_3']->name, 'test_collection_3');
 
-	expect_true($schema->drop());
-	expect_false($schema->drop());
+	expect_true($nodeSession->dropSchema($test_schema_name));
+	expect_false($nodeSession->dropSchema($test_schema_name));
 
 	verify_expectations();
 	print "done!\n";
@@ -53,4 +53,5 @@ mysqlx NodeSchema
 	clean_test_db();
 ?>
 --EXPECTF--
+Warning: mysql_xdevapi\BaseSession::dropSchema(): cannot drop schema 'testx' in %a
 done!%A

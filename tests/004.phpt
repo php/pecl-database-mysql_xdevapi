@@ -16,23 +16,23 @@ mysqlx table delete/where
 	fill_db_table();
 
 	$schema = $nodeSession->getSchema($db);
-	$table = $schema->getTable('test_table');
+	$table = $schema->getTable($test_table_name);
 
 	$table->delete()->where('name in (\'Romy\', \'Caspian\', \'Olympia\', \'Mamie\') and age > :age_limit')->bind(['age_limit' => 13])->execute();
 	$table->delete()->where('name = \'bad_name\'')->limit(1)->execute(); //Shall do nothing
 	$table->delete()->orderby('age desc')->where('age < 20 and age > 12 and name != :name')->bind(['name' => 'Tierney'])->limit(2)->execute();
 	dump_all_row($table);
 
-	$nodeSession->dropTable($db,"test_table");
+	$schema->dropTable($test_table_name);
 	if($table->existsInDatabase() == false)
-	    print "OK".PHP_EOL;
+		print "OK".PHP_EOL;
 
 	print "done!\n";
 ?>
 --CLEAN--
 <?php
-    require("connect.inc");
-    clean_test_db();
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--0
 array(7) {

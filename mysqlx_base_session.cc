@@ -76,16 +76,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__drop_schema, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__drop_collection, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, schema_name, IS_STRING, dont_allow_null)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, collection_name, IS_STRING, dont_allow_null)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__drop_table, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, schema_name, IS_STRING, dont_allow_null)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, table_name, IS_STRING, dont_allow_null)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__start_transaction, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -482,90 +472,29 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 /* {{{ mysqlx_base_session::dropSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 {
-	zval * object_zv;
-	struct st_mysqlx_session * object;
-	MYSQLND_CSTRING schema_name = {NULL, 0};
+	zval* object_zv = nullptr;;
+	phputils::string_input_param schema_name;
 
 	DBG_ENTER("mysqlx_base_session::dropSchema");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_base_session_class_entry,
-																	   &(schema_name.s), &(schema_name.l)) == FAILURE) {
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-	RETVAL_BOOL(object->session && schema_name.s && schema_name.l && PASS == object->session->m->drop_db(object->session, schema_name));
-	mysqlx_throw_exception_from_session_if_needed(object->session->data);
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_base_session::dropCollection(string schema_name, string collection_name) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropCollection)
-{
-	zval * object_zv;
-	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING schema_name = {NULL, 0};
-	MYSQLND_CSTRING collection_name = {NULL, 0};
-
-	DBG_ENTER("mysqlx_base_session::dropCollection");
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Oss",
+	if (zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, mysqlx_base_session_class_entry,
-		&(schema_name.s), &(schema_name.l),
-		&(collection_name.s), &(collection_name.l)))
-	{
+		&(schema_name.str), &(schema_name.len)) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>(object_zv);
 
 	RETVAL_FALSE;
-
-	session = object->session;
-	if (session && schema_name.s && schema_name.l && collection_name.s && collection_name.l) {
-
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_base_session_command_handler_on_error, NULL };
-
-		RETVAL_BOOL(PASS == session->m->drop_collection(session, schema_name, collection_name, on_error));
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_base_session::dropTable(string schema_name, string table_name) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropTable)
-{
-	zval * object_zv;
-	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING schema_name = {NULL, 0};
-	MYSQLND_CSTRING table_name = {NULL, 0};
-
-	DBG_ENTER("mysqlx_base_session::dropTable");
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Oss",
-		&object_zv, mysqlx_base_session_class_entry,
-		&(schema_name.s), &(schema_name.l),
-		&(table_name.s), &(table_name.l)))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
-
-	session = object->session;
-	if (session && schema_name.s && schema_name.l && table_name.s && table_name.l) {
-
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_base_session_command_handler_on_error, NULL };
-
-		RETVAL_BOOL(PASS == session->m->drop_table(session, schema_name, table_name, on_error));
+	try {
+		if (!schema_name.empty()
+			&& (PASS == data_object.session->m->drop_db(data_object.session, schema_name.to_nd_cstr()))) {
+			RETVAL_TRUE;
+		} else {
+			phputils::dump_warning("cannot drop schema '" + schema_name.to_string() + "'");
+		}
+	} catch(std::exception& e) {
+		phputils::dump_warning(e.what());
 	}
 
 	DBG_VOID_RETURN;
@@ -804,9 +733,6 @@ static const zend_function_entry mysqlx_base_session_methods[] = {
 
 	PHP_ME(mysqlx_base_session, createSchema,		arginfo_mysqlx_base_session__create_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, dropSchema,			arginfo_mysqlx_base_session__drop_schema, ZEND_ACC_PUBLIC)
-
-	PHP_ME(mysqlx_base_session, dropCollection,		arginfo_mysqlx_base_session__drop_collection, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, dropTable,			arginfo_mysqlx_base_session__drop_table, ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_base_session, startTransaction,	arginfo_mysqlx_base_session__start_transaction, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, commit,				arginfo_mysqlx_base_session__commit, ZEND_ACC_PUBLIC)

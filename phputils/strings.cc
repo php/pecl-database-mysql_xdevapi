@@ -62,6 +62,14 @@ string_input_param::string_input_param(const MYSQLND_CSTRING& s)
 }
 /* }}} */
 
+
+/* {{{ string_input_param::to_nd_cstr */
+MYSQLND_CSTRING string_input_param::to_nd_cstr() const
+{
+	return MYSQLND_CSTRING{ str, len };
+}
+/* }}} */
+
 } // namespace phputils
 
 } // namespace mysqlx

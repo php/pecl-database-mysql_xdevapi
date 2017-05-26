@@ -24,7 +24,7 @@ mysqlx existsInDatabase for schema, collection, table and view
 	expect_false($table->isView());
 	expect_false($collection->existsInDatabase());
 
-	$schema->dropView($test_view_name)->execute();
+	$schema->dropView($test_view_name);
 
 	$schema = $nodeSession->getSchema("non_existing_schema");
 	$table = $schema->getTable("non_existing_table");
