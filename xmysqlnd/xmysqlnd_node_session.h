@@ -30,6 +30,7 @@ extern "C" {
 #include "xmysqlnd_node_stmt.h"
 #include "phputils/strings.h"
 #include "phputils/types.h"
+#include <array>
 
 namespace mysqlx {
 
@@ -431,8 +432,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 {
 	func_xmysqlnd_node_session__init init;
 	func_xmysqlnd_node_session__connect connect;
-	func_xmysqlnd_node_session__get_uuid get_uuid;
-	func_xmysqlnd_node_session__precache_uuids precache_uuids;
 	func_xmysqlnd_node_session__create_db create_db;
 	func_xmysqlnd_node_session__select_db select_db;
 	func_xmysqlnd_node_session__drop_db drop_db;
@@ -450,21 +449,74 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 	func_xmysqlnd_node_session__dtor dtor;
 };
 
-#define XMYSQLND_UUID_LENGTH 32
-#define XMYSQLND_UUID_CACHE_ELEMENTS 8
+#define UUID_VERSION      0x1000
+/*
+ *
+ * The formal definition of the UUID string representation is
+ * provided by the following ABNF [7]:
+ *
+ *   UUID                   = time-low "-" time-mid "-"
+ *                            time-high-and-version "-"
+ *                            clock-seq-and-reserved
+ *                            clock-seq-low "-" node
+ *   time-low               = 4hexOctet
+ *   time-mid               = 2hexOctet
+ *   time-high-and-version  = 2hexOctet
+ *   clock-seq-and-reserved = hexOctet
+ *   clock-seq-low          = hexOctet
+ *   node                   = 6hexOctet
+ *
+ *  In the struct the elements are reversed as required
+ *  by the DevAPI specification
+ */
+#define UUID_NODE_ID_SIZE 6
+#define UUID_SIZE 32
+struct Uuid_format
+{
+	using uuid_t = std::array< char, UUID_SIZE >;
+	using node_id_t = std::array< unsigned char, UUID_NODE_ID_SIZE >;
+	node_id_t node_id;
+	uint16_t clock_seq; //clock-seq-and-reserved and clock-seq-low
+	uint16_t time_hi_and_version;
+	uint16_t time_mid;
+	uint32_t time_low;
+
+	Uuid_format();
+	uuid_t get_uuid();
+};
+
+/*
+ * Implementation of the UUID
+ * generation algorithm as specified by
+ * http://www.ietf.org/rfc/rfc4122.txt
+ */
+class Uuid_generator : public phputils::custom_allocable
+{
+public:
+	using pointer = Uuid_generator*;
+	Uuid_generator();
+	Uuid_format::uuid_t generate();
+private:
+	/*
+	 * There is one unique session ID for
+	 * each UUID, this value is created once for
+	 * st_xmysqlnd_node_session which should reflect
+	 * the lifetime of a session
+	 */
+	void generate_session_node_info();
+	void assign_node_id( Uuid_format& uuid );
+	void assign_timestamp( Uuid_format &uuid );
+	uint64_t last_timestamp;
+	uint16_t clock_sequence;
+	Uuid_format::node_id_t session_node_id;
+};
 
 struct st_xmysqlnd_node_session : public phputils::permanent_allocable
 {
 	XMYSQLND_NODE_SESSION_DATA * data;
 	char * server_version_string;
 	unsigned int refcount;
-	struct st_xmysqlnd_node_session_uuid_cache_list
-	{
-		char * pool;
-		unsigned int used:15;
-		unsigned int allocated:15;
-		zend_bool persistent:1;
-	} uuid_cache;
+	Uuid_generator::pointer session_uuid;
 	zend_bool persistent;
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * m;
 };

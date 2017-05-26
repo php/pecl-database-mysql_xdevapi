@@ -53,6 +53,8 @@ extern "C" {
 #include <utility>
 #include <algorithm>
 #include <cctype>
+#include <random>
+#include <chrono>
 
 namespace mysqlx {
 
@@ -1317,6 +1319,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_han
 	XMYSQLND_NODE_SESSION_DATA * session_data;
 	DBG_ENTER("xmysqlnd_node_session::init");
 
+	session_handle->session_uuid = new Uuid_generator();
 	session_data = factory->get_node_session_data(factory, session_handle->persistent, stats, error_info);
 	if (session_data) {
 		session_handle->data = session_data;
@@ -1355,133 +1358,148 @@ XMYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::get_uuid */
-static const MYSQLND_CSTRING
-XMYSQLND_METHOD(xmysqlnd_node_session, get_uuid)(XMYSQLND_NODE_SESSION * const session_handle)
+/* {{{ Uuid_format::Uuid_format */
+Uuid_format::Uuid_format() :
+	clock_seq{ 0 },
+	time_hi_and_version{ 0 },
+	time_mid{ 0 },
+	time_low{ 0 }
 {
-	st_xmysqlnd_node_session::st_xmysqlnd_node_session_uuid_cache_list* cache = &session_handle->uuid_cache;
-	MYSQLND_CSTRING ret = { NULL, 0 };
-	DBG_ENTER("xmysqlnd_node_session::get_uuid");
-	DBG_INF_FMT("pool=%p  used=%u  allocated=%u", cache->pool, cache->used, cache->allocated);
-	if (!cache->pool) {
-		session_handle->m->precache_uuids(session_handle);
-	}
-	/* !! NO else here !! */
-	if (cache->pool) {
-		ret.l = XMYSQLND_UUID_LENGTH;
-		if (cache->used == cache->allocated && cache->allocated) {
-			session_handle->m->precache_uuids(session_handle);
-		}
-		/* !! NO else here !! */
-		if (cache->used < cache->allocated) {
-			ret.s = cache->pool + cache->used * XMYSQLND_UUID_LENGTH;
-			++cache->used;
-		}
-	}
-	DBG_RETURN(ret);
+	node_id.fill( 0 );
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_precache_uuids_on_row */
-static const enum_hnd_func_status
-xmysqlnd_node_session_precache_uuids_on_row(void * context,
-											XMYSQLND_NODE_SESSION * const session,
-											XMYSQLND_NODE_STMT * const stmt,
-											const XMYSQLND_NODE_STMT_RESULT_META * const meta,
-											const zval * const row,
-											MYSQLND_STATS * const stats,
-											MYSQLND_ERROR_INFO * const error_info)
+/* {{{ Uuid_format::get_uuid */
+Uuid_format::uuid_t Uuid_format::get_uuid()
 {
-	st_xmysqlnd_node_session::st_xmysqlnd_node_session_uuid_cache_list* ctx = static_cast<st_xmysqlnd_node_session::st_xmysqlnd_node_session_uuid_cache_list*>(context);
-	DBG_ENTER("xmysqlnd_node_session_precache_uuids_on_row");
-	if (!ctx->pool) {
-		ctx->persistent = session->persistent;
-		ctx->pool = static_cast<char*>(mnd_pemalloc(Z_STRLEN(row[0]), ctx->persistent));
+	using uchar = unsigned char;
+	const std::array< unsigned char, sizeof( Uuid_format ) > raw_uuid
+				{
+					//node id
+					node_id.at( 0 ), node_id.at( 1 ), node_id.at( 2 ),
+					node_id.at( 3 ), node_id.at( 4 ), node_id.at( 5 ),
+					//clock seq
+					(uchar)(( clock_seq >> 8 ) & 0xFF),
+					(uchar)(clock_seq & 0xFF),
+					//time_hi_and_version
+					(uchar)(( time_hi_and_version >> 8 ) & 0xFF),
+					(uchar)(time_hi_and_version & 0xFF),
+					//time_mid
+					(uchar)(( time_mid >> 8 ) & 0xFF),
+					(uchar)(time_mid & 0xFF),
+					//time_low
+					(uchar)(( time_low >> 24 ) & 0xFF),
+					(uchar)(( time_low >> 16 ) & 0xFF),
+					(uchar)(( time_low >> 8 ) & 0xFF),
+					(uchar)(time_low & 0xFF)
+				}
+				;
+	static const char hex[] = "0123456789ABCDEF";
+	Uuid_format::uuid_t uuid;
+	uuid.fill( 0 );
+	for( int i{ 0 }; i < raw_uuid.size() ; ++i ) {
+		uuid[ i * 2 ] = hex[ raw_uuid[ i ] >> 4 ];
+		uuid[ i * 2 + 1 ] = hex[ raw_uuid[ i ] & 0xF ];
 	}
-	/* !! NO else here !! */
-	if (ctx->pool) {
-		memcpy(ctx->pool, Z_STRVAL(row[0]), Z_STRLEN(row[0]));
-		ctx->used = 0;
-		ctx->allocated = Z_STRLEN(row[0]) / XMYSQLND_UUID_LENGTH;
-	}
-
-	DBG_RETURN(HND_AGAIN);
+	return uuid;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_precache_uuids_on_error */
-static const enum_hnd_func_status
-xmysqlnd_node_session_precache_uuids_on_error(void * context,
-											  XMYSQLND_NODE_SESSION * const session,
-											  XMYSQLND_NODE_STMT * const stmt,
-											  const unsigned int code,
-											  const MYSQLND_CSTRING sql_state,
-											  const MYSQLND_CSTRING message)
+/* {{{ Uuid_generator::Uuid_generator */
+Uuid_generator::Uuid_generator() :
+		last_timestamp{ 0 }
 {
-	DBG_ENTER("xmysqlnd_node_session_precache_uuids_on_error");
-	if (session) {
-		session->data->m->handler_on_error(session->data, code, sql_state, message);
-	}
-	DBG_RETURN(HND_PASS_RETURN_FAIL);
+	generate_session_node_info();
 }
 /* }}} */
 
 
-#define PRECACHE_SQL_PREFIX "SELECT REPLACE(CONCAT(UUID()"
-#define PRECACHE_SQL_REPEAT ", UUID()"
-#define PRECACHE_SQL_SUFFIX "), '-', '')"
-static const unsigned int precache_size = XMYSQLND_UUID_CACHE_ELEMENTS;
-static const size_t query_prefix_len = sizeof(PRECACHE_SQL_PREFIX) - 1;
-static const size_t query_repeat_len = sizeof(PRECACHE_SQL_REPEAT) - 1;
-static const size_t query_suffix_len = sizeof(PRECACHE_SQL_SUFFIX) - 1;
-
-
-/* {{{ xmysqlnd_node_session::precache_uuids() */
-static const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, precache_uuids)(XMYSQLND_NODE_SESSION * const session_handle)
+/* {{{ Uuid_generator::generate */
+Uuid_format::uuid_t Uuid_generator::generate()
 {
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { xmysqlnd_node_session_precache_uuids_on_row, &session_handle->uuid_cache };
-	const struct st_xmysqlnd_node_session_on_error_bind on_error = { xmysqlnd_node_session_precache_uuids_on_error, NULL };
-	const size_t query_len = query_prefix_len + (precache_size - 1) * query_repeat_len + query_suffix_len;
-	const MYSQLND_STRING list_query = { static_cast<char*>(mnd_emalloc(query_len)), query_len };
-	enum_func_status ret;
-	unsigned int i;
-	char * start_pos = NULL;
-	DBG_ENTER("xmysqlnd_node_session::precache_uuids");
+	Uuid_format uuid;
+	assign_node_id( uuid );
+	assign_timestamp( uuid );
+	return uuid.get_uuid();
+}
+/* }}} */
 
-	if (!precache_size || !list_query.s) {
-		if (list_query.s) {
-			mnd_efree(list_query.s);
-		}
-		DBG_RETURN(FAIL);
+
+/* {{{ Uuid_generator::generate_session_node_info */
+void Uuid_generator::generate_session_node_info()
+{
+	std::random_device rd;
+	std::seed_seq seed{rd(), rd(),
+				rd(), rd(), rd(),
+				rd(), rd(), rd()};
+	std::mt19937 eng( seed );
+	std::uniform_int_distribution<uint64_t> dist( (uint64_t)1 << 48,
+				std::numeric_limits< uint64_t >::max() );
+
+	uint64_t random_id{ dist( eng ) };
+	for( int i{ 0 } ; i < UUID_NODE_ID_SIZE; ++i ) {
+		session_node_id[ i ] = random_id & 0xFF;
+		random_id >>= 8;
 	}
 
-	memcpy(list_query.s, PRECACHE_SQL_PREFIX, query_prefix_len);
+	clock_sequence = dist( eng ) & 0xFFFF;
+}
+/* }}} */
 
-	start_pos = list_query.s + query_prefix_len;
-	for (i = 0; i < (precache_size - 1); ++i) {
-		memcpy(start_pos, PRECACHE_SQL_REPEAT, query_repeat_len);
-		start_pos += query_repeat_len;
+
+/* {{{ Uuid_generator::assign_node_id */
+void Uuid_generator::assign_node_id( Uuid_format &uuid )
+{
+	uuid.node_id = session_node_id;
+}
+/* }}} */
+
+
+/* {{{ Uuid_generator::assign_timestamp */
+void Uuid_generator::assign_timestamp( Uuid_format& uuid )
+{
+	/*
+	 * from http://www.ietf.org/rfc/rfc4122.txt:
+	 *
+	 * The timestamp is a 60-bit value.  For UUID version 1, this is
+	 * represented by Coordinated Universal Time (UTC) as a count of 100-
+	 * nanosecond intervals since 00:00:00.00, 15 October 1582 (the date of
+	 * Gregorian reform to the Christian calendar).
+	 *
+	 * std::chrono use as epoch date: Wed Dec 31 19:00:00 1969,
+	 * we need to account this while calculating the number of 100-nanosecond
+	 * intervals
+	 */
+	static uint64_t timestamp_epoch_offset = (
+				(uint64_t)141427 * 24 * 60 * 60 * 1000 * 1000 * 10);
+	auto time_point = std::chrono::high_resolution_clock::now();
+	uint64_t nsec = std::chrono::duration_cast< std::chrono::nanoseconds >(
+				time_point.time_since_epoch() ).count() / 100;
+	nsec -= timestamp_epoch_offset;
+
+	if( last_timestamp >= nsec ) {
+		/*
+		 * Possibly the system clock has been changed or
+		 * two consecutive request for the timestamp were issued
+		 * at a very close distance in time.
+		 *
+		 * to avoid duplicated UUID rengenerate the unique
+		 * node session ID
+		 */
+		generate_session_node_info();
 	}
-	memcpy(start_pos, PRECACHE_SQL_SUFFIX, query_suffix_len);
 
-	session_handle->uuid_cache.used = 0;
-	session_handle->uuid_cache.allocated = 0;
+	/*
+	 * Assign the values to Uuid_format
+	 */
+	uuid.time_low = (uint32_t)(nsec & 0xFFFFFFFF);
+	uuid.time_mid = (uint16_t)((nsec >> 32) & 0xFFFF);
+	uuid.time_hi_and_version = (uint16_t)((nsec >> 48) | UUID_VERSION);
+	uuid.clock_seq = clock_sequence;
 
-	ret = session_handle->m->query_cb(session_handle,
-									  namespace_sql,
-									  mnd_str2c(list_query),
-									  noop__var_binder,
-									  noop__on_result_start,
-									  on_row,
-									  noop__on_warning,
-									  on_error,
-									  noop__on_result_end,
-									  noop__on_statement_ok);
-	mnd_efree(list_query.s);
-	DBG_RETURN(ret);
+	last_timestamp = nsec;
 }
 /* }}} */
 
@@ -2058,12 +2076,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session, free_contents)(XMYSQLND_NODE_SESSION * se
 		mnd_pefree(session_handle->server_version_string, pers);
 		session_handle->server_version_string = NULL;
 	}
-	if (session_handle->uuid_cache.pool) {
-		session_handle->uuid_cache.used = 0;
-		session_handle->uuid_cache.allocated = 0;
-		mnd_pefree(session_handle->uuid_cache.pool, session_handle->uuid_cache.persistent);
-		session_handle->uuid_cache.pool = NULL;
-	}
 
 	DBG_VOID_RETURN;
 }
@@ -2080,6 +2092,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session, dtor)(XMYSQLND_NODE_SESSION * session_han
 		session_handle->data->m->free_reference(session_handle->data);
 		session_handle->data = NULL;
 	}
+	if(session_handle->session_uuid) {
+		delete session_handle->session_uuid;
+	}
 	mnd_pefree(session_handle, session_handle->persistent);
 	DBG_VOID_RETURN;
 }
@@ -2090,8 +2105,6 @@ static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	XMYSQLND_METHOD(xmysqlnd_node_session, init),
 	XMYSQLND_METHOD(xmysqlnd_node_session, connect),
-	XMYSQLND_METHOD(xmysqlnd_node_session, get_uuid),
-	XMYSQLND_METHOD(xmysqlnd_node_session, precache_uuids),
 	XMYSQLND_METHOD(xmysqlnd_node_session, create_db),
 	XMYSQLND_METHOD(xmysqlnd_node_session, select_db),
 	XMYSQLND_METHOD(xmysqlnd_node_session, drop_db),

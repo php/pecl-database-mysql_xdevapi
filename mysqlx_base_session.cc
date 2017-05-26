@@ -288,9 +288,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, generateUUID)
 	RETVAL_FALSE;
 
 	if ((session = object->session)) {
-		const MYSQLND_CSTRING unique_id = session->m->get_uuid(session);
-		if (unique_id.s) {
-			RETVAL_STRINGL(unique_id.s, unique_id.l);
+		auto uuid = session->session_uuid->generate();
+		if (uuid.size() > 0) {
+			RETVAL_STRINGL(uuid.data(), uuid.size());
 		}
 		mysqlx_throw_exception_from_session_if_needed(session->data);
 	}

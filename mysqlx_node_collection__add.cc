@@ -235,10 +235,10 @@ add_unique_id_to_json(XMYSQLND_NODE_SESSION *session,
 {
 	enum_func_status ret = FAIL;
 	char * p = NULL;
-	const MYSQLND_CSTRING uuid = session->m->get_uuid(session);
+	const auto uuid = session->session_uuid->generate();
 
 	if (UNEXPECTED(status->empty)) {
-		to_add->s = static_cast<char*>(mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1)); /* allocate a bit more */
+		to_add->s = static_cast<char*>(mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + UUID_SIZE + 1)); /* allocate a bit more */
 		if (to_add->s) {
 			p = to_add->s;
 			*p++ = '{';
@@ -250,7 +250,7 @@ add_unique_id_to_json(XMYSQLND_NODE_SESSION *session,
 			--last;
 		}
 		if (last >= json->s) {
-			to_add->s = static_cast<char*>(mnd_emalloc(json->l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + XMYSQLND_UUID_LENGTH + 1)); /* allocate a bit more */
+			to_add->s = static_cast<char*>(mnd_emalloc(json->l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + UUID_SIZE + 1)); /* allocate a bit more */
 			if (to_add->s) {
 				p = to_add->s;
 				memcpy(p, json->s, last - json->s);
@@ -263,8 +263,8 @@ add_unique_id_to_json(XMYSQLND_NODE_SESSION *session,
 	if(ret == PASS && p!= NULL) {
 		memcpy(p, ID_TEMPLATE_PREFIX, sizeof(ID_TEMPLATE_PREFIX) - 1);
 		p += sizeof(ID_TEMPLATE_PREFIX) - 1;
-		memcpy(p, uuid.s, uuid.l);
-		p += uuid.l;
+		memcpy(p, uuid.data(), uuid.size());
+		p += uuid.size();
 		memcpy(p, ID_TEMPLATE_SUFFIX, sizeof(ID_TEMPLATE_SUFFIX) - 1);
 		p += sizeof(ID_TEMPLATE_SUFFIX) - 1;
 		*p = '\0';
