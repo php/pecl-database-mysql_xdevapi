@@ -347,7 +347,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createCollection)
 /* }}} */
 
 
-/* {{{ mysqlx_node_schema::dropCollection(string schema_name, string collection_name) */
+/* {{{ mysqlx_node_schema::dropCollection(string collection_name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 {
 	zval* object_zv = nullptr;
@@ -357,7 +357,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, mysqlx_node_schema_class_entry,
-		&(collection_name.str), &(collection_name.len)))
+		&collection_name.str, &collection_name.len))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -445,7 +445,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropTable)
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, mysqlx_node_schema_class_entry,
-		&(table_name.str), &(table_name.len)))
+		&table_name.str, &table_name.len))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -618,7 +618,7 @@ struct st_mysqlx_on_db_object_ctx
 static void
 mysqlx_on_db_object(void* context, XMYSQLND_NODE_SCHEMA* const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type)
 {
-	st_mysqlx_on_db_object_ctx* ctx = (struct st_mysqlx_on_db_object_ctx *) context;
+	st_mysqlx_on_db_object_ctx* ctx = static_cast<st_mysqlx_on_db_object_ctx*>(context);
 	zval zv;
 
 	DBG_ENTER("mysqlx_on_db_object");
@@ -756,7 +756,7 @@ static const zend_function_entry mysqlx_node_schema_methods[] = {
 static zval *
 mysqlx_node_schema_property__name(const struct st_mysqlx_object* obj, zval* return_value)
 {
-	const st_mysqlx_node_schema* object = (const struct st_mysqlx_node_schema *) (obj->ptr);
+	const st_mysqlx_node_schema* object = static_cast<const st_mysqlx_node_schema*>(obj->ptr);
 	DBG_ENTER("mysqlx_node_schema_property__name");
 	if (object->schema && object->schema->data->schema_name.s) {
 		ZVAL_STRINGL(return_value, object->schema->data->schema_name.s, object->schema->data->schema_name.l);

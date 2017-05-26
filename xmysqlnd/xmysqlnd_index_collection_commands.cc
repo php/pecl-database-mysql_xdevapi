@@ -396,8 +396,8 @@ collection_create_index_var_binder(
 /* {{{ xmysqlnd_collection_create_index__execute */
 enum_func_status
 xmysqlnd_collection_create_index__execute(
-	st_xmysqlnd_node_session* const session, 
-	XMYSQLND_COLLECTION_OP__CREATE_INDEX* obj, 
+	st_xmysqlnd_node_session* const session,
+	XMYSQLND_COLLECTION_OP__CREATE_INDEX* obj,
 	st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_create_index__execute");

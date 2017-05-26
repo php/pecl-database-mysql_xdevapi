@@ -317,7 +317,8 @@ xmysqlnd_collection_op(
 	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
 
 	st_create_collection_handler_ctx handler_ctx = { schema, handler_on_error };
-	const st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : NULL, &handler_ctx };
+	const st_xmysqlnd_node_session_on_error_bind on_error
+		= { handler_on_error.handler ? collection_op_handler_on_error : nullptr, &handler_ctx };
 
 	DBG_ENTER("xmysqlnd_collection_op");
 
@@ -342,19 +343,20 @@ static XMYSQLND_NODE_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const phputils::string_input_param& collection_name,
-	const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	static const MYSQLND_CSTRING query = {"create_collection", sizeof("create_collection") - 1 };
 	XMYSQLND_NODE_COLLECTION * collection = NULL;
 	DBG_ENTER("xmysqlnd_node_schema::create_collection");
 	DBG_INF_FMT("schema_name=%s collection_name=%s", schema->data->schema_name.s, collection_name.c_str());
 	if (PASS == xmysqlnd_collection_op(schema, collection_name, query, handler_on_error)) {
-		collection = xmysqlnd_node_collection_create(schema,
-													 collection_name.to_nd_cstr(),
-													 schema->persistent,
-													 schema->data->object_factory,
-													 schema->data->session->data->stats,
-													 schema->data->session->data->error_info);
+		collection = xmysqlnd_node_collection_create(
+			schema,
+			collection_name.to_nd_cstr(),
+			schema->persistent,
+			schema->data->object_factory,
+			schema->data->session->data->stats,
+			schema->data->session->data->error_info);
 	}
 	DBG_RETURN(collection);
 }
