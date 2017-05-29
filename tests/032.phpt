@@ -51,7 +51,7 @@ mysqlx Unix domain socket
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_3.')/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_4.'/?'.$disable_ssl_opt;;
+		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_4.'/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		test_step_ok();
 	} catch( Exception $e ) {

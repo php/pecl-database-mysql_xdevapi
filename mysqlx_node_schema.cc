@@ -368,7 +368,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 		const st_xmysqlnd_node_schema_on_error_bind on_error = { on_drop_db_object_error, nullptr };
 		RETVAL_BOOL(PASS == data_object.schema->data->m.drop_collection(data_object.schema, collection_name, on_error));
 	} catch(std::exception& e) {
-		phputils::dump_warning(e.what());
+		phputils::log_warning(e.what());
 		RETVAL_FALSE;
 	}
 
@@ -456,7 +456,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropTable)
 		const st_xmysqlnd_node_schema_on_error_bind on_error = { on_drop_db_object_error, nullptr };
 		RETVAL_BOOL(PASS == data_object.schema->data->m.drop_table(data_object.schema, table_name, on_error));
 	} catch(std::exception& e) {
-		phputils::dump_warning(e.what());
+		phputils::log_warning(e.what());
 		RETVAL_FALSE;
 	}
 
@@ -598,10 +598,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropView)
 		if (view_drop(data_object.schema, view_name)) {
 			RETVAL_TRUE;
 		} else {
-			phputils::dump_warning("cannot drop view '" + view_name.to_string() + "'");
+			phputils::log_warning("cannot drop view '" + view_name.to_string() + "'");
 		}
 	} catch(std::exception& e) {
-		phputils::dump_warning(e.what());
+		phputils::log_warning(e.what());
 	}
 
 	DBG_VOID_RETURN;

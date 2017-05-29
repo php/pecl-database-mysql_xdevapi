@@ -515,7 +515,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, dropIndex)
 		const st_xmysqlnd_node_session_on_error_bind on_error = { collection_drop_index_on_error, nullptr };
 		RETVAL_BOOL(drv::collection_drop_index(data_object.collection, index_name, on_error));
 	} catch (std::exception& e) {
-		phputils::dump_warning(e.what());
+		phputils::log_warning(e.what());
 		RETVAL_FALSE;
 	}
 

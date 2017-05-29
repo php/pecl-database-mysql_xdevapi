@@ -92,12 +92,12 @@ mysqlx Flexible number of arguments
 		0,'z',0,'y',0,'x',0,'w',
 	];
 	for($i = 0 ; $i < 8 ; $i++ ) {
-		$tmp = $coll->modify('name like \''.$expected_vals[$i].'\'');
-		if($new_values[$i * 2]!=0)
-			$tmp->set('num',$new_values[$i * 2]);
-		if($new_values[$i * 2 + 1]!=null)
-			$tmp->set('str',$new_values[$i * 2 + 1]);
-		$tmp->execute();;
+	    $tmp = $coll->modify('name like \''.$expected_vals[$i].'\'');
+	    if($new_values[$i * 2]!=0)
+	        $tmp->set('num',$new_values[$i * 2]);
+	    if($new_values[$i * 2 + 1]!=null)
+	        $tmp->set('str',$new_values[$i * 2 + 1]);
+	    $tmp->execute();
 	}
 
 	$coll->remove('TRUE')->limit(6)->sort('str desc','num desc')->execute();

@@ -472,7 +472,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 /* {{{ mysqlx_base_session::dropSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 {
-	zval* object_zv = nullptr;;
+	zval* object_zv = nullptr;
 	phputils::string_input_param schema_name;
 
 	DBG_ENTER("mysqlx_base_session::dropSchema");
@@ -487,14 +487,14 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 
 	RETVAL_FALSE;
 	try {
-		if (!schema_name.empty()
-			&& (PASS == data_object.session->m->drop_db(data_object.session, schema_name.to_nd_cstr()))) {
+		auto session = data_object.session;
+		if (PASS == session->m->drop_db(session, schema_name.to_nd_cstr())) {
 			RETVAL_TRUE;
 		} else {
-			phputils::dump_warning("cannot drop schema '" + schema_name.to_string() + "'");
+			phputils::log_warning("cannot drop schema '" + schema_name.to_string() + "'");
 		}
 	} catch(std::exception& e) {
-		phputils::dump_warning(e.what());
+		phputils::log_warning(e.what());
 	}
 
 	DBG_VOID_RETURN;
