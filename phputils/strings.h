@@ -130,6 +130,22 @@ struct string_input_param
 		return !operator==(*this, rhs);
 	}
 
+	char operator[](std::size_t index) const 
+	{
+		assert(index < len);
+		return *(str + index);
+	}
+
+	const char* begin() const 
+	{
+		return str;
+	}
+
+	const char* end() const 
+	{
+		return str + len;
+	}
+
 	const char* str = nullptr;
 	size_t len = 0;
 };
