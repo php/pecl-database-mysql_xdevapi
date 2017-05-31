@@ -85,6 +85,15 @@ mysqlx Unix domain socket
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
+	//Unix Domain sockets not supported with TLS
+	try{
+	        //TLS is enabled by default if not explicity disabled.
+		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_1;
+		$nodeSession = mysql_xdevapi\getSession($uri);
+		test_step_failed();
+	} catch( Exception $e ) {
+	        test_step_ok();
+	}
 
         verify_expectations();
         print "done!\n";

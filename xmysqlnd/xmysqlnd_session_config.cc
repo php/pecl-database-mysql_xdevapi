@@ -151,6 +151,12 @@ bool Session_config::delete_app_data(const phputils::string &key)
 	}
 	DBG_RETURN( ret );
 }
+
+void Session_config::clear_app_data()
+{
+	DBG_ENTER("Session_config::clear_app_data");
+	session_app_data.clear();
+}
 /* }}} */
 
 
@@ -346,9 +352,6 @@ Session_config Session_config_manager::save(const Session_config &session)
 	 * The session must be already stored, what we're
 	 * saving is the internally stored session.
 	 *
-	 * If the user modify the Session_config he need to call
-	 * 'update' to make sure that this 'save' include the
-	 * changes.
 	 */
 	auto it = find_session( session.get_name() );
 	if( it == sessions.end() ) {
@@ -364,7 +367,9 @@ Session_config Session_config_manager::save(const Session_config &session)
 	} else {
 		DBG_INF_FMT("Storing an existing session.");
 		//Extract and return the exiting Session_config
-		new_config = *it;
+		//BugID 25860579, 'update' is removed. now save override
+		//the existing configuration
+		*it = new_config;
 	}
 	store_sessions();
 	DBG_RETURN( new_config );
@@ -401,6 +406,9 @@ bool Session_config_manager::process_appdata_array( Session_config& config,
 		DBG_ERR_FMT("Appdata is expected to be an array!");
 		DBG_RETURN(false);
 	}
+	//BugID 25829054, clear existing AppData entirely when
+	//a new dictionary is provided.
+	config.clear_app_data();
 
 	zend_string* key;
 	zval* val;
@@ -568,25 +576,6 @@ void Session_config_manager::store_sessions()
 		persistence_handler->store( session_data );
 	}
 	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ Session_config::update */
-bool Session_config_manager::update(const Session_config& new_config)
-{
-	DBG_ENTER("Session_config_manager::update");
-	bool ret{ true };
-	auto it = find_session( new_config.get_name() );
-	if( it == sessions.end() ) {
-		DBG_ERR_FMT("The session %s is not existing, unable to update!",
-					new_config.get_name().c_str() );
-		ret = false;
-	} else {
-		sessions.erase( it );
-		sessions.emplace_back( std::move(new_config) );
-	}
-	DBG_RETURN( ret );
 }
 /* }}} */
 

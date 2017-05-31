@@ -2958,9 +2958,21 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 			}
 			XMYSQLND_SESSION_AUTH_DATA * auth = extract_auth_information(url.first);
 			if( NULL != auth ) {
-				DBG_INF_FMT("Attempting to connect...");
-				ret = establish_connection(session,auth,
-								url.first,url.second);
+				/*
+				 * If Unix sockets are used then TLS connections
+				 * are not allowed either implicitly nor explicitly
+				 */
+				if( auth->ssl_mode != SSL_mode::disabled &&
+					url.second == transport_types::unix_domain_socket ) {
+					DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
+					devapi::RAISE_EXCEPTION( err_msg_tsl_not_supported_1 );
+				}
+				else
+				{
+					DBG_INF_FMT("Attempting to connect...");
+					ret = establish_connection(session,auth,
+									url.first,url.second);
+				}
 				if( FAIL == ret ) {
 					zval_dtor(return_value);
 					ZVAL_NULL(return_value);

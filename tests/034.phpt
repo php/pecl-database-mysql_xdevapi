@@ -120,11 +120,11 @@ function expect_list($amount) {
 	expect_eq( $config2_before_update->getUri(), "mysqlx://Charlie:@superhost:333/?".$disable_ssl_opt );
 	expect_eq( $config3->getUri(), "mysqlx://Arnold:@localhost:1001/?important=field&moreImportant=field&".$disable_ssl_opt );
 
-        $session->update( $config2 );
-	$config2_after_update = $session->get('bbb');
+        $session->save( $config2 );
+	$config2_after_save = $session->get('bbb');
 
         expect_eq( $config1->getUri(), "mysqlx://mike:@10.55.120.48:33060/?".$disable_ssl_opt );
-	expect_eq( $config2_after_update->getUri(), $new_uri );
+	expect_eq( $config2_after_save->getUri(), $new_uri );
 	expect_eq( $config3->getUri(), "mysqlx://Arnold:@localhost:1001/?important=field&moreImportant=field&".$disable_ssl_opt );
 
         $config2 = $session->get( 'bbb' );
@@ -167,24 +167,16 @@ function verification_step() {
 
         expect_list( 2 );
 
-        /*
-	Modification of a Session_config without a
-	call to 'update' shall not store the modified
-	object but the one in the session config manager.
-	*/
-	$session->save( $new_uri_config );
+        $session->save( $new_uri_config );
 	$session->save( $new_uri_config2 );
+
+        verification_step();
 
         $new_uri_config->setUri('thisIsANewURI');
 	$new_uri_config2->setUri('thisIsANewURI2');
 
         $session->save( $new_uri_config );
 	$session->save( $new_uri_config2 );
-
-        verification_step();
-
-        expect_true( $session->update( $new_uri_config ) );
-	expect_true( $session->update( $new_uri_config2 ) );
 
         $config = $session->get( $session_uri_name1 );
 	$config2 = $session->get( $session_uri_name2 );

@@ -71,6 +71,7 @@ public:
 
 	void set_app_data( const phputils::string& name, const phputils::string& value );
 	bool delete_app_data( const phputils::string& key );
+	void clear_app_data();
 	phputils::string get_app_data( const phputils::string& key ) const;
 
 	phputils::string get_json() const;
@@ -145,7 +146,6 @@ public:
 						 const phputils::string& session_uri,
 						 zval* appdata );
 
-	bool update( const Session_config& new_config );
 	Session_config get( const phputils::string& name );
 	bool remove( const phputils::string& name );
 	phputils::vector<phputils::string> list();

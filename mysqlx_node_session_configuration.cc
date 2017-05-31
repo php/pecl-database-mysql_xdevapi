@@ -368,10 +368,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session_config_manager_delete, 0, ZEND_RET
 		ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session_config_manager_update, 0, ZEND_RETURN_VALUE, 1)
-		ZEND_ARG_TYPE_INFO(no_pass_by_ref, session, IS_OBJECT, dont_allow_null)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session_config_manager__save, 0, ZEND_RETURN_VALUE, 1)
 		ZEND_ARG_INFO(no_pass_by_ref, input)
 ZEND_END_ARG_INFO()
@@ -470,35 +466,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session_config_manager, delete)
 		} else {
 			RETVAL_FALSE;
 		}
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ mysqlx_session_config_manager::update */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session_config_manager, update)
-{
-	zval * object_zv;
-	zval * session_obj;
-
-	DBG_ENTER("mysqlx_session_config_manager::update");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
-									&object_zv,
-									mysqlx_node_session_config_manager_class_entry,
-									&session_obj,
-									mysqlx_node_session_config_class_entry))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	RETVAL_FALSE;
-
-	Session_config& config = phputils::fetch_data_object<Session_config>( session_obj );
-
-	if( true == Session_config_manager::get_instance()->update( config ) ){
-		ZVAL_COPY( return_value, session_obj );
 	}
 
 	DBG_VOID_RETURN;
@@ -669,8 +636,6 @@ const zend_function_entry mysqlx_node_session_config_manager_methods[] = {
 	PHP_ME(mysqlx_session_config_manager, get, 	arginfo_mysqlx_session_config_manager_get, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session_config_manager, list, 	arginfo_mysqlx_session_config_manager_list, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session_config_manager, delete, 	arginfo_mysqlx_session_config_manager_delete, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_session_config_manager, update, 	arginfo_mysqlx_session_config_manager_update, ZEND_ACC_PUBLIC)
-
 
 	{nullptr, nullptr, nullptr}
 };
