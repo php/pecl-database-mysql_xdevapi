@@ -18,6 +18,8 @@
 #ifndef MYSQLX_MESSAGE__AUTH_OK_H
 #define MYSQLX_MESSAGE__AUTH_OK_H
 
+namespace Mysqlx { namespace Session { class AuthenticateOk; } }
+
 namespace mysqlx {
 
 namespace devapi {

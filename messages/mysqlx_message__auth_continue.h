@@ -18,6 +18,8 @@
 #ifndef MYSQLX_MESSAGE__AUTH_CONTINUE_H
 #define MYSQLX_MESSAGE__AUTH_CONTINUE_H
 
+namespace Mysqlx { namespace Session { class AuthenticateContinue; } }
+
 namespace mysqlx {
 
 namespace devapi {

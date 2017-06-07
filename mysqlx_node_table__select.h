@@ -18,6 +18,8 @@
 #ifndef MYSQLX_NODE_TABLE__SELECT_H
 #define MYSQLX_NODE_TABLE__SELECT_H
 
+namespace Mysqlx { namespace Crud { class Find; } }
+
 namespace mysqlx {
 
 namespace devapi {

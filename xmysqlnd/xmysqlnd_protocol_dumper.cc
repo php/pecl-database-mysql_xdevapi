@@ -30,6 +30,8 @@ extern "C" {
 
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_connection.pb.h"
+#include "proto_gen/mysqlx_crud.pb.h"
+#include "proto_gen/mysqlx_expect.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
 #include "proto_gen/mysqlx_notice.pb.h"
 #include "proto_gen/mysqlx_resultset.pb.h"

@@ -34,6 +34,7 @@ extern "C" {
 #include "mysqlx_node_pfc.h"
 
 #include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
+#include "xmysqlnd/proto_gen/mysqlx_session.pb.h"
 
 #include "mysqlx_message__ok.h"
 #include "mysqlx_message__error.h"

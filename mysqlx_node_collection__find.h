@@ -18,6 +18,8 @@
 #ifndef MYSQLX_NODE_COLLECTION__FIND_H
 #define MYSQLX_NODE_COLLECTION__FIND_H
 
+namespace Mysqlx { namespace Crud { class Find; } }
+
 namespace mysqlx {
 
 namespace devapi {
