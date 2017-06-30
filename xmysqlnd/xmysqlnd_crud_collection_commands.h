@@ -97,8 +97,10 @@ enum_func_status xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECT
 														   const zend_bool is_expression,
 														   const zend_bool allow_alias);
 enum_func_status xmysqlnd_crud_collection_find__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
-struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
+st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
 zend_bool xmysqlnd_crud_collection_find__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
+enum_func_status xmysqlnd_crud_collection_find__enable_lock_shared(XMYSQLND_CRUD_COLLECTION_OP__FIND* obj);
+enum_func_status xmysqlnd_crud_collection_find__enable_lock_exclusive(XMYSQLND_CRUD_COLLECTION_OP__FIND* obj);
 
 
 typedef struct st_xmysqlnd_stmt_op__execute XMYSQLND_STMT_OP__EXECUTE;

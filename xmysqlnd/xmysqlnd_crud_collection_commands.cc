@@ -987,6 +987,28 @@ xmysqlnd_crud_collection_find__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__FIND *
 /* }}} */
 
 
+/* {{{ xmysqlnd_crud_collection_find__enable_lock_shared */
+enum_func_status
+xmysqlnd_crud_collection_find__enable_lock_shared(XMYSQLND_CRUD_COLLECTION_OP__FIND* obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_find__enable_lock_shared");
+	obj->message.set_locking(::Mysqlx::Crud::Find_RowLock_SHARED_LOCK);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find__enable_lock_exclusive */
+enum_func_status
+xmysqlnd_crud_collection_find__enable_lock_exclusive(XMYSQLND_CRUD_COLLECTION_OP__FIND* obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_find__enable_lock_exclusive");
+	obj->message.set_locking(::Mysqlx::Crud::Find_RowLock_EXCLUSIVE_LOCK);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_crud_collection_find__get_protobuf_message */
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)

@@ -80,6 +80,12 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__bind, 0, ZEND_RETURN_V
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__lock_shared, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__lock_exclusive, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -395,6 +401,54 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, bind)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_table__select::lockShared() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockShared)
+{
+	DBG_ENTER("mysqlx_node_table__select::lockShared");
+
+	zval* object_zv = nullptr;
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+		&object_zv, mysqlx_node_table__select_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	if (xmysqlnd_crud_table_select__enable_lock_shared(data_object.crud_op) == PASS) {
+		ZVAL_COPY(return_value, object_zv);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_table__select::lockExclusive() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
+{
+	DBG_ENTER("mysqlx_node_table__select::lockExclusive");
+
+	zval* object_zv = nullptr;
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+		&object_zv, mysqlx_node_table__select_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	if (xmysqlnd_crud_table_select__enable_lock_exclusive(data_object.crud_op) == PASS) {
+		ZVAL_COPY(return_value, object_zv);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_table__select::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 {
@@ -457,6 +511,8 @@ static const zend_function_entry mysqlx_node_table__select_methods[] = {
 	PHP_ME(mysqlx_node_table__select, orderby,	arginfo_mysqlx_node_table__select__orderby,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__select, limit,	arginfo_mysqlx_node_table__select__limit,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__select, offset,	arginfo_mysqlx_node_table__select__offset,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, lockShared, arginfo_mysqlx_node_table__select__lock_shared, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, lockExclusive, arginfo_mysqlx_node_table__select__lock_exclusive, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__select, execute,	arginfo_mysqlx_node_table__select__execute,		ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}

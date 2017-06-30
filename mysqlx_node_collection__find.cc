@@ -80,6 +80,12 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__bind, 0, ZEND_RETUR
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__lock_shared, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__lock_exclusive, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -430,6 +436,54 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, bind)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_collection__find::lockShared() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockShared)
+{
+	DBG_ENTER("mysqlx_node_collection__find::lockShared");
+
+	zval* object_zv = nullptr;
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+		&object_zv, mysqlx_node_collection__find_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection__find>(object_zv);
+	if (xmysqlnd_crud_collection_find__enable_lock_shared(data_object.crud_op) == PASS) {
+		ZVAL_COPY(return_value, object_zv);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_node_collection__find::lockExclusive() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockExclusive)
+{
+	DBG_ENTER("mysqlx_node_collection__find::lockExclusive");
+
+	zval* object_zv = nullptr;
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+		&object_zv, mysqlx_node_collection__find_class_entry))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection__find>(object_zv);
+	if (xmysqlnd_crud_collection_find__enable_lock_exclusive(data_object.crud_op) == PASS) {
+		ZVAL_COPY(return_value, object_zv);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_collection__find::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, execute)
 {
@@ -494,6 +548,8 @@ static const zend_function_entry mysqlx_node_collection__find_methods[] = {
 	PHP_ME(mysqlx_node_collection__find,	sort,		arginfo_mysqlx_node_collection__find__sort,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	limit,		arginfo_mysqlx_node_collection__find__limit,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	skip,		arginfo_mysqlx_node_collection__find__skip,	    ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, lockShared, arginfo_mysqlx_node_collection__find__lock_shared, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, lockExclusive, arginfo_mysqlx_node_collection__find__lock_exclusive, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find,	execute,	arginfo_mysqlx_node_collection__find__execute,	ZEND_ACC_PUBLIC)
 
 	{NULL, NULL, NULL}

@@ -880,7 +880,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 	enum_func_status ret = PASS;
 	int i = 0;
 
-	DBG_ENTER("mysqlx_node_collection__find::columns");
+	DBG_ENTER("mysqlx_node_table__select::columns");
 
 	do{
 		if(Z_TYPE(columns[i]) == IS_OBJECT) {
@@ -1141,6 +1141,28 @@ xmysqlnd_crud_table_select__finalize_bind(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 
 	enum_func_status ret = xmysqlnd_crud_table__finalize_bind(obj->message.mutable_args(), obj->bound_values);
 	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_table_select__enable_lock_shared */
+enum_func_status
+xmysqlnd_crud_table_select__enable_lock_shared(XMYSQLND_CRUD_TABLE_OP__SELECT* obj)
+{
+	DBG_ENTER("xmysqlnd_crud_table_select__enable_lock_shared");
+	obj->message.set_locking(::Mysqlx::Crud::Find_RowLock_SHARED_LOCK);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_table_select__enable_lock_exclusive */
+enum_func_status
+xmysqlnd_crud_table_select__enable_lock_exclusive(XMYSQLND_CRUD_TABLE_OP__SELECT* obj)
+{
+	DBG_ENTER("xmysqlnd_crud_table_select__enable_lock_exclusive");
+	obj->message.set_locking(::Mysqlx::Crud::Find_RowLock_EXCLUSIVE_LOCK);
+	DBG_RETURN(PASS);
 }
 /* }}} */
 

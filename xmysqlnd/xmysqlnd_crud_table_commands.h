@@ -97,8 +97,10 @@ enum_func_status xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__
 														   const zend_bool is_expression,
 														   const zend_bool allow_alias);
 enum_func_status xmysqlnd_crud_table_select__finalize_bind(XMYSQLND_CRUD_TABLE_OP__SELECT * obj);
-struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_table_select__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__SELECT * obj);
+st_xmysqlnd_pb_message_shell xmysqlnd_crud_table_select__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__SELECT * obj);
 zend_bool xmysqlnd_crud_table_select__is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT * obj);
+enum_func_status xmysqlnd_crud_table_select__enable_lock_exclusive(XMYSQLND_CRUD_TABLE_OP__SELECT* obj);
+enum_func_status xmysqlnd_crud_table_select__enable_lock_shared(XMYSQLND_CRUD_TABLE_OP__SELECT* obj);
 
 
 typedef struct st_xmysqlnd_stmt_op__execute XMYSQLND_STMT_OP__EXECUTE;
