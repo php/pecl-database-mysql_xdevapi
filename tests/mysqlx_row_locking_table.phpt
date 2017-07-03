@@ -39,7 +39,7 @@ error_reporting=0
 		->execute();
 
 	$tab1 = $schema1->getTable($test_table_name);
-	
+
 	$tab1->insert(["id", "n"])->values(["1", 1])->execute();
 	$tab1->insert(["id", "n"])->values(["2", 2])->execute();
 	$tab1->insert(["id", "n"])->values(["3", 3])->execute();
@@ -76,11 +76,11 @@ error_reporting=0
 	$session2->startTransaction();
 
 	// should return immediately
-	$res2 = $tab2->select('id', 'n')->where("id like '2'")->lockShared()->execute(); 
+	$res2 = $tab2->select('id', 'n')->where("id like '2'")->lockShared()->execute();
 	check_one($res2, '2', 2);
 
 	// $session2 blocks
-	$res2 = $tab2->select('id', 'n')->where("id like '1'")->lockShared()->execute(); 
+	$res2 = $tab2->select('id', 'n')->where("id like '1'")->lockShared()->execute();
 	check_one($res2, '1', 1);
 
 	$session1->rollback(); // $session2 should unblock now
@@ -100,7 +100,7 @@ error_reporting=0
 	check_one($res2, '2', 2);
 
 	// should return immediately
-	$res2 = $tab2->select('id', 'n')->where("id like '3'")->lockShared()->execute();     
+	$res2 = $tab2->select('id', 'n')->where("id like '3'")->lockShared()->execute();
 	check_one($res2, '3', 3);
 
 	// $session2 should block
@@ -141,7 +141,7 @@ error_reporting=0
 	$res1 = $tab1->select('id', 'n')->where("id in ('1', '2')")->lockExclusive()->execute();
 	check_one($res1, '1', 11);
 	check_one($res1, '2', 22);
-	
+
 	$session2->startTransaction();
 
 	// should return immediately

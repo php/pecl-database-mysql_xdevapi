@@ -91,7 +91,7 @@ error_reporting=0
 	// should return immediately
 	$res2 = $col2->find("id like '2'")->lockExclusive()->execute();
 	check_one($res2, '2', 2);
-	
+
 	// should return immediately
 	$res2 = $col2->find("id like '3'")->lockShared()->execute();
 	check_one($res2, '3', 3);
@@ -134,7 +134,7 @@ error_reporting=0
 	$res1 = $col1->find("id in ('1', '2')")->lockExclusive()->execute();
 	check_one($res1, '1', 11);
 	check_one($res1, '2', 22);
-	
+
 	$session2->startTransaction();
 
 	// should return immediately
