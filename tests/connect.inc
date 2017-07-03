@@ -235,7 +235,7 @@
 		Used to compare expected values with actual values
 	*/
 	if( !function_exists('expect_eq')) {
-		function expect_eq($target, $expectation, $hint = '') {
+		function expect_eq($target, $expectation, $hint = '', $stack_frame_depth = 1) {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -244,7 +244,7 @@
 			if( $target == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
+				print 'Line '.get_stack_frame_line_num($stack_frame_depth).': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
