@@ -41,7 +41,7 @@
 	}
 
 	// ------------------------------------------------------------------------
-	
+
 	$worker_pipes = array();
 
 	function run_worker($master_path) {
@@ -128,7 +128,7 @@
 	}
 
 	// -------
-	
+
 	function notify_worker_committed() {
 		global $Msg_worker_committed;
 		echo $Msg_worker_committed, "\n";
@@ -185,7 +185,7 @@
 	}
 
 	// -------
-	
+
 	function find_lock_one($coll, $id, $lock) {
 		$cmd = $coll->find("id like '$id'");
 		$res = exec_lock_cmd($cmd, $lock);
@@ -206,15 +206,15 @@
 	function modify_row($coll, $id, $n) {
 		$coll->modify("id = '$id'")->set('n', $n)->execute();
 	}
-	
+
 	// -------
-	
+
 	function select_lock_one($tab, $id, $lock) {
 		$cmd = $tab->select('id', 'n')->where("id like '$id'");
 		$res = exec_lock_cmd($cmd, $lock);
 		return $res->fetchOne();
 	}
-	
+
 	function check_select_lock_one($tab, $id, $expected_n, $lock) {
 		$cmd = $tab->select('id', 'n')->where("id like '$id'");
 		check_lock_one($cmd, $id, $expected_n, $lock);
@@ -229,5 +229,5 @@
 	function update_row($tab, $id, $n) {
 		$tab->update()->set('n', $n)->where("id = '$id'")->execute();
 	}
-	
+
 ?>

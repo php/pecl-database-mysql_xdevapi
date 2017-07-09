@@ -20,7 +20,7 @@ error_reporting=0
 		check_select_lock_all($tab, ['1', '2', '3'], [1, 2, 3], $Lock_shared);
 
 		send_let_worker_modify();
-	
+
 		$session->commit(); // worker should unblock now
 
 		check_select_lock_all($tab, ['1', '2', '3'], [1, 2, 3], $Lock_shared);

@@ -20,7 +20,7 @@ error_reporting=0
 		check_find_lock_all($coll, ['1', '2', '3'], [1, 2, 3], $Lock_shared);
 
 		send_let_worker_modify();
-	
+
 		$session->commit(); // worker should unblock now
 
 		check_find_lock_all($coll, ['1', '2', '3'], [1, 2, 3], $Lock_shared);
