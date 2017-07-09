@@ -201,14 +201,17 @@
 	}
 
 	/*
-		Used to get line number of specified stack frame
+		Used to get info (filename / line number) of specified stack frame
 	*/
-	if (!function_exists('get_stack_frame_line_num')) {
-		function get_stack_frame_line_num($depth = 1) {
+	if (!function_exists('get_stack_frame_info')) {
+		function get_stack_frame_info($depth = 1) {
 			$backtrace = debug_backtrace();
 			assert($depth <= count($backtrace));
-			$line_num = $backtrace[$depth]["line"];
-			return $line_num;
+			$frame_info = $backtrace[$depth];
+			$full_path = $frame_info["file"];
+			$filename = pathinfo($full_path, PATHINFO_BASENAME);
+			$line_num = $frame_info["line"];
+			return $filename.'('.$line_num.')';
 		}
 	}
 
@@ -225,7 +228,7 @@
 			if (preg_match($pattern, $target)) {
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': \''.$target.'\' does not match pattern \''.$pattern.'\' '.$hint.PHP_EOL;
+				print get_stack_frame_info().': \''.$target.'\' does not match pattern \''.$pattern.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -244,7 +247,7 @@
 			if( $target == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num($stack_frame_depth).': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
+				print get_stack_frame_info($stack_frame_depth).': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -262,7 +265,7 @@
 			if( true == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': true expected '.$hint.PHP_EOL;
+				print get_stack_frame_info().': true expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -280,7 +283,7 @@
 			if( false == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': false expected '.$hint.PHP_EOL;
+				print get_stack_frame_info().': false expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -298,7 +301,7 @@
 			if( null == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print 'Line '.get_stack_frame_line_num().': null expected '.$hint.PHP_EOL;
+				print get_stack_frame_info().': null expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -312,7 +315,7 @@
 			global $number_of_expectations;
 			global $test_result_string;
 
-			print 'Line '.get_stack_frame_line_num().': test step failed'.PHP_EOL;
+			print get_stack_frame_info().': test step failed'.PHP_EOL;
 
 			$number_of_expectations++;
 			$test_result_string .= 'F';

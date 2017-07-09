@@ -539,20 +539,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, execute)
 
 /* {{{ mysqlx_node_collection__find_methods[] */
 static const zend_function_entry mysqlx_node_collection__find_methods[] = {
-	PHP_ME(mysqlx_node_collection__find, 	__construct,	NULL,										ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_collection__find, __construct, nullptr, ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_collection__find,	fields,		arginfo_mysqlx_node_collection__find__fields,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__find,	groupBy,	arginfo_mysqlx_node_collection__find__group_by,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__find,	having,  	arginfo_mysqlx_node_collection__find__having,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__find,	bind,		arginfo_mysqlx_node_collection__find__bind,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__find,	sort,		arginfo_mysqlx_node_collection__find__sort,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__find,	limit,		arginfo_mysqlx_node_collection__find__limit,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__find,	skip,		arginfo_mysqlx_node_collection__find__skip,	    ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, fields, arginfo_mysqlx_node_collection__find__fields, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, groupBy, arginfo_mysqlx_node_collection__find__group_by, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, having, arginfo_mysqlx_node_collection__find__having, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, bind, arginfo_mysqlx_node_collection__find__bind, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, sort, arginfo_mysqlx_node_collection__find__sort, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, limit, arginfo_mysqlx_node_collection__find__limit, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, skip, arginfo_mysqlx_node_collection__find__skip, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find, lockShared, arginfo_mysqlx_node_collection__find__lock_shared, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__find, lockExclusive, arginfo_mysqlx_node_collection__find__lock_exclusive, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_collection__find,	execute,	arginfo_mysqlx_node_collection__find__execute,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__find, execute, arginfo_mysqlx_node_collection__find__execute, ZEND_ACC_PUBLIC)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

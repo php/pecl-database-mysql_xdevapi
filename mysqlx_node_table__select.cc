@@ -502,20 +502,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 
 /* {{{ mysqlx_node_table__select_methods[] */
 static const zend_function_entry mysqlx_node_table__select_methods[] = {
-	PHP_ME(mysqlx_node_table__select, __construct,	NULL,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_table__select, __construct, nullptr, ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_table__select, where,	arginfo_mysqlx_node_table__select__where,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, groupBy,	arginfo_mysqlx_node_table__select__group_by,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, having,	arginfo_mysqlx_node_table__select__having,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, bind,		arginfo_mysqlx_node_table__select__bind,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, orderby,	arginfo_mysqlx_node_table__select__orderby,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, limit,	arginfo_mysqlx_node_table__select__limit,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, offset,	arginfo_mysqlx_node_table__select__offset,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, where, arginfo_mysqlx_node_table__select__where, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, groupBy, arginfo_mysqlx_node_table__select__group_by, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, having, arginfo_mysqlx_node_table__select__having, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, bind, arginfo_mysqlx_node_table__select__bind, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, orderby, arginfo_mysqlx_node_table__select__orderby, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, limit, arginfo_mysqlx_node_table__select__limit, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, offset, arginfo_mysqlx_node_table__select__offset, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__select, lockShared, arginfo_mysqlx_node_table__select__lock_shared, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__select, lockExclusive, arginfo_mysqlx_node_table__select__lock_exclusive, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, execute,	arginfo_mysqlx_node_table__select__execute,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_table__select, execute, arginfo_mysqlx_node_table__select__execute, ZEND_ACC_PUBLIC)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
