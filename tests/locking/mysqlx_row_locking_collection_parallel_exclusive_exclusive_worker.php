@@ -22,4 +22,6 @@
 	recv_let_worker_commit();
 	$session->commit();
 	notify_worker_committed();
+
+	recv_let_worker_end();
 ?>

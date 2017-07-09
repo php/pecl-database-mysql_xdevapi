@@ -34,6 +34,8 @@ error_reporting=0
 
 		check_find_lock_one($coll, '1', 111, $Lock_exclusive);
 		check_find_lock_one($coll, '2', 222, $Lock_exclusive);
+
+		send_let_worker_end();
 	}
 
 	verify_expectations();
@@ -49,4 +51,5 @@ worker started
 let worker modify
 let worker commit
 worker committed
+let worker end
 done!%A

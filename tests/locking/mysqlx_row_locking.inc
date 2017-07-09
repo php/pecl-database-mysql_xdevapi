@@ -65,6 +65,7 @@
 	$Msg_let_worker_modify = "let worker modify";
 	$Msg_let_worker_commit = "let worker commit";
 	$Msg_worker_committed = "worker committed";
+	$Msg_let_worker_end = "let worker end";
 
 	// -------
 
@@ -137,6 +138,19 @@
 	function recv_worker_committed() {
 		global $Msg_worker_committed;
 		recv_msg_from_worker($Msg_worker_committed);
+	}
+
+	// -------
+
+	function send_let_worker_end() {
+		global $Msg_let_worker_end;
+		send_msg_to_worker($Msg_let_worker_end);
+	}
+
+	function recv_let_worker_end() {
+		global $Msg_let_worker_end;
+		$msg = fgets(STDIN);
+		check_msg($msg, $Msg_let_worker_end);
 	}
 
 	// ------------------------------------------------------------------------
