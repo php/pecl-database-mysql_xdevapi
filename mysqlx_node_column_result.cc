@@ -46,6 +46,7 @@ extern "C" {
 #include "mysqlx_exception.h"
 #include "phputils/allocator.h"
 #include "phputils/object.h"
+#include <limits> 
 
 namespace mysqlx {
 
