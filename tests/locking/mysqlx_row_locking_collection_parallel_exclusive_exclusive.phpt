@@ -8,13 +8,15 @@ error_reporting=0
 	require_once(__DIR__."/../connect.inc");
 	require_once(__DIR__."/mysqlx_row_locking.inc");
 
-	$session = mysql_xdevapi\getSession($connection_uri);
-	$coll = createTestCollection($session);
+	assert_mysql_xdevapi_loaded();
 
 	$worker_process = run_worker(__FILE__);
-	if (is_resource($worker_process))
-	{
+	if (is_resource($worker_process)) {
 		recv_worker_started();
+
+		$session = mysql_xdevapi\getSession($connection_uri);
+		$schema = $session->getSchema($test_schema_name);
+		$coll = $schema->getCollection($test_collection_name);
 
 		$session->startTransaction();
 		check_find_lock_all($coll, ['1', '2'], [1, 2], $Lock_exclusive);
@@ -47,6 +49,7 @@ error_reporting=0
 	clean_test_db();
 ?>
 --EXPECTF--
+worker cmd-line:%s
 worker started
 let worker modify
 let worker commit

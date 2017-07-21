@@ -2,6 +2,8 @@
 	require_once(__DIR__."/../connect.inc");
 	require_once(__DIR__."/mysqlx_row_locking.inc");
 
+	assert_mysql_xdevapi_loaded();
+
 	function send_current_state($res1, $res2) {
 		$result_msg = strval($res1['n']) . " " . strval($res2['n']);
 		echo $result_msg, "\n";

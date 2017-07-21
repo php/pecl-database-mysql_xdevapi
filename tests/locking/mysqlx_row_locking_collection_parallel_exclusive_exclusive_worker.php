@@ -2,12 +2,13 @@
 	require_once(__DIR__."/../connect.inc");
 	require_once(__DIR__."/mysqlx_row_locking.inc");
 
-	notify_worker_started();
+	assert_mysql_xdevapi_loaded();
 
 	$session = mysql_xdevapi\getSession($connection_uri);
 
-	$schema = $session->getSchema($test_schema_name);
-	$coll = $schema->getCollection($test_collection_name);
+	$coll = createTestCollection($session);
+
+	notify_worker_started();
 
 	$session->startTransaction();
 

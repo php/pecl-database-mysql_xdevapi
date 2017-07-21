@@ -6,6 +6,8 @@
 	if you want to use another configuration
 	*/
 
+	$Devapi_ext_name = "mysql_xdevapi";
+
 	$driver    = new mysqli_driver;
 
 	if (!function_exists('get_mysqlx_env')) {
@@ -42,6 +44,19 @@
 	$TEST_EXPERIMENTAL = (in_array(getenv("MYSQLX_TEST_EXPERIMENTAL"), array(0, 1))) ?
 				((1 == getenv("MYSQLX_TEST_EXPERIMENTAL")) ? true : false) :
 				false;
+
+	if (!function_exists('is_os_windows')) {
+		function is_os_windows() {
+			return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+		}
+	}
+
+	if (!function_exists('assert_mysql_xdevapi_loaded')) {
+		function assert_mysql_xdevapi_loaded() {
+			global $Devapi_ext_name;
+			assert(extension_loaded($Devapi_ext_name), $Devapi_ext_name." not loaded!");
+		}
+	}
 
 	/*
 		The idea is to have a common function for the purpose of the creationg

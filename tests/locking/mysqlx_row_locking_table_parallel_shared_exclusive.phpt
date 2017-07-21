@@ -8,6 +8,8 @@ error_reporting=0
 	require_once(__DIR__."/../connect.inc");
 	require_once(__DIR__."/mysqlx_row_locking.inc");
 
+	assert_mysql_xdevapi_loaded();
+
 	$session = mysql_xdevapi\getSession($connection_uri);
 	$tab = createTestTable($session);
 
@@ -40,6 +42,7 @@ error_reporting=0
 	clean_test_db();
 ?>
 --EXPECTF--
+worker cmd-line:%s
 worker started
 let worker modify
 let worker commit

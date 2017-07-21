@@ -2,6 +2,7 @@
 	require_once(__DIR__."/../connect.inc");
 	require_once(__DIR__."/mysqlx_row_locking.inc");
 
+	assert_mysql_xdevapi_loaded();
 	notify_worker_started();
 
 	$session = mysql_xdevapi\getSession($connection_uri);
