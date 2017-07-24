@@ -501,7 +501,8 @@ void setup_crypto_options(
 	//Provide the list of supported/unsupported ciphers
 	phputils::string cipher_list;
 	for( auto& cipher : auth->supported_ciphers ) {
-		cipher_list += cipher.c_str() + ':';
+		cipher_list += cipher.c_str();
+		cipher_list += ':';
 	}
 
 	ZVAL_STRING(&string, cipher_list.c_str());
@@ -2613,7 +2614,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const php_url * node_url)
 			auth->hostname = node_url->host;
 		}
 		auth->username = node_url->user;
-		auth->password = node_url->pass;
+		auth->password = node_url->pass ? node_url->pass : "";
 	}
 
 	DBG_RETURN(auth);
@@ -2749,7 +2750,7 @@ vec_of_addresses list_of_addresses_parser::parse()
 	bool success{ true };
 	std::size_t pos{ beg },
 			last_pos{ beg };
-	for( std::size_t idx{ beg }; success && idx <= end; ++idx ) {
+	for( std::size_t idx{ beg }; success && idx < end; ++idx ) {
 		if( uri_string[ idx ] == '(' ) {
 			pos = uri_string.find_first_of( ')', idx );
 			if( pos == phputils::string::npos ) {

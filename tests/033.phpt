@@ -9,7 +9,7 @@ error_reporting=0
 
 	//[ URI, Expected code ]
 	$uri_string = [
-	        [ $scheme.'://'.$user.':'.$passwd.'@[aa:bb:cc:dd]/db/?'.$disable_ssl_opt, 4001 ],
+		[ $scheme.'://'.$user.':'.$passwd.'@[aa:bb:cc:dd]/db/?'.$disable_ssl_opt, 4001 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@[aaa,bbb,ccc]/db/?'.$disable_ssl_opt, 4001 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@[ [aaa:bbb:ccc], [xxx:yyy:zzz]]/db/?'.$disable_ssl_opt, 4001 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@[ [aaa:bbb:ccc], [xxx:yyy:zzz]:10 ,coolhost:69 ]/?'.$disable_ssl_opt, 4001 ],
@@ -24,11 +24,12 @@ error_reporting=0
 
 	for( $i = 0 ; $i < count($uri_string) ; $i++ ) {
 		try {
-			$nodeSession = mysql_xdevapi\getSession($uri_string[$i][0]);
+			$session_uri = $uri_string[$i][0];
+			$nodeSession = mysql_xdevapi\getSession($session_uri);
 			if( $i > 6 ) {
-				expect_true( $nodeSession != null );
+				expect_true( $nodeSession != null, $session_uri );
 			} else {
-				expect_false( $nodeSession );
+				expect_false( $nodeSession, $session_uri );
 			}
 
 		} catch(Exception $e) {
