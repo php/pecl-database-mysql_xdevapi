@@ -52,19 +52,19 @@
 
 	function resolve_extension_dir() {
 		// assumption for end-user machine is as follows:
-		// proper extension_dir is available in php.ini or passed via 
+		// proper extension_dir is available in php.ini or passed via
 		// cmd-line, explicitly or automagically inside run-tests.php
 		$extension_dir = ini_get("extension_dir");
 
-		// may make life easier while testing at development stage for php 
+		// may make life easier while testing at development stage for php
 		// built from sources, but rather not on end-user machines
 		if (!strlen($extension_dir)) {
-			// while building for win modules (like php_mysql_xdevapi.dll) are 
+			// while building for win modules (like php_mysql_xdevapi.dll) are
 			// located in the same dir as php binary
 			$extension_dir = pathinfo(PHP_BINARY, PATHINFO_DIRNAME);
 			if (!is_os_windows()) {
 				// for Linux
-				// php binary located in 
+				// php binary located in
 				//		connector-php/sapi/cli || connector-php/sapi/cgi
 				// while mysql_xdevapi.so in
 				//		connector-php/modules

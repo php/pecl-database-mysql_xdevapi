@@ -82,7 +82,7 @@
 	}
 
 	// ----------------------------------------------------------------------
-	
+
 	/*
 		The idea is to have a common function for the purpose of the creationg
 		of the DB and tables needed to run the tests.
