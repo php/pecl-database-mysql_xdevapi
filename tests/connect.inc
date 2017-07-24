@@ -45,9 +45,23 @@
 				((1 == getenv("MYSQLX_TEST_EXPERIMENTAL")) ? true : false) :
 				false;
 
+	// ----------------------------------------------------------------------
+
+	if (!function_exists('is_os_check')) {
+		function is_os_check($os_mask) {
+			return strtoupper(substr(PHP_OS, 0, 3)) === $os_mask;
+		}
+	}
+
 	if (!function_exists('is_os_windows')) {
 		function is_os_windows() {
-			return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+			return is_os_check('WIN');
+		}
+	}
+
+	if (!function_exists('is_os_solaris')) {
+		function is_os_solaris() {
+			return is_os_check('SunOS');
 		}
 	}
 
@@ -58,6 +72,17 @@
 		}
 	}
 
+	if (!function_exists('is_mysql_xdevapi_builtin')) {
+		function is_mysql_xdevapi_builtin() {
+			$command = PHP_BINARY." -nm";
+			exec($command, $builtin_modules, $retval);
+			global $Devapi_ext_name;
+			return ($retval == 0) && in_array($Devapi_ext_name, $builtin_modules);
+		}
+	}
+
+	// ----------------------------------------------------------------------
+	
 	/*
 		The idea is to have a common function for the purpose of the creationg
 		of the DB and tables needed to run the tests.

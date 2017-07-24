@@ -23,9 +23,9 @@
 #define XMYSQLND_VERSION_ID 10000
 
 #if PHP_DEBUG
-#define XMYSQLND_DBG_ENABLED 1
+#define MYSQLND_DBG_ENABLED 1
 #else
-#define XMYSQLND_DBG_ENABLED 0
+#define MYSQLND_DBG_ENABLED 0
 #endif
 
 extern "C" {

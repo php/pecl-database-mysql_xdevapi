@@ -442,7 +442,7 @@ xmysqlnd_crud_collection_modify__destroy(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * o
 enum_func_status
 xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const std::string& criteria)
 {
-	DBG_ENTER("xmysqlnd_crud_collection_remove__set_criteria");
+	DBG_ENTER("xmysqlnd_crud_collection_modify__set_criteria");
 	try {
 		parser::Expression_parser parser(criteria, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
 		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
@@ -784,7 +784,7 @@ xmysqlnd_crud_collection_find__destroy(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
 enum_func_status
 xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING criteria)
 {
-	DBG_ENTER("xmysqlnd_crud_collection_remove__set_criteria");
+	DBG_ENTER("xmysqlnd_crud_collection_find__set_criteria");
 	try {
 		const std::string source(criteria.s, criteria.l);
 		parser::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
