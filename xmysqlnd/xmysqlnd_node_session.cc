@@ -2630,6 +2630,7 @@ using vec_of_addresses = phputils::vector< std::pair<phputils::string,long> >;
 /* {{{ list_of_addresses_parser */
 class list_of_addresses_parser
 {
+	void invalidate();
 	bool parse_round_token( const phputils::string& str );
 	void add_address(vec_of_addresses::value_type addr);
 public:
@@ -2670,7 +2671,7 @@ list_of_addresses_parser::list_of_addresses_parser(phputils::string uri)
 		/*
 		 * Bad formatted URI
 		 */
-		end = beg;
+		invalidate();
 		return;
 	}
 	/*
@@ -2715,7 +2716,7 @@ list_of_addresses_parser::list_of_addresses_parser(phputils::string uri)
 
 	if( brk_cnt != 0 ) {
 		//Ill-formed URI
-		end = beg;
+		invalidate();
 		return;
 	}
 
@@ -2739,7 +2740,7 @@ list_of_addresses_parser::list_of_addresses_parser(phputils::string uri)
 		list_of_addresses.push_back({
 					uri,
 					MAX_HOST_PRIORITY });
-		end = beg; //Signal to 'parse' to actually not parse.
+		invalidate(); //Signal to 'parse' to actually not parse.
 	}
 }
 
@@ -2750,7 +2751,8 @@ vec_of_addresses list_of_addresses_parser::parse()
 	bool success{ true };
 	std::size_t pos{ beg },
 			last_pos{ beg };
-	for( std::size_t idx{ beg }; success && idx < end; ++idx ) {
+	for( std::size_t idx{ beg }; success && idx <= end; ++idx ) {
+		assert(idx < uri_string.length());
 		if( uri_string[ idx ] == '(' ) {
 			pos = uri_string.find_first_of( ')', idx );
 			if( pos == phputils::string::npos ) {
@@ -2807,6 +2809,13 @@ vec_of_addresses list_of_addresses_parser::parse()
 		}
 	}
 	DBG_RETURN( list_of_addresses );
+}
+
+void list_of_addresses_parser::invalidate()
+{
+	//Signal to 'parse' to actually not parse.
+	beg = 1;
+	end = 0;
 }
 
 bool list_of_addresses_parser::parse_round_token(const phputils::string &str)
