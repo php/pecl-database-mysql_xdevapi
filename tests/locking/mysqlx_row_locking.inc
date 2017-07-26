@@ -77,8 +77,8 @@
 
 	function prepare_extension_filename() {
 		$ext_lib_name_prefix = is_running_on_windows() ? "php_" : "";
-		global $Devapi_ext_name;
-		$extension_fname = $ext_lib_name_prefix.$Devapi_ext_name.'.'.PHP_SHLIB_SUFFIX;
+		//global DEVAPI_EXT_NAME;
+		$extension_fname = $ext_lib_name_prefix.DEVAPI_EXT_NAME.'.'.PHP_SHLIB_SUFFIX;
 		return $extension_fname;
 	}
 

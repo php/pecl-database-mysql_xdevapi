@@ -6,7 +6,7 @@
 	if you want to use another configuration
 	*/
 
-	$Devapi_ext_name = "mysql_xdevapi";
+	const DEVAPI_EXT_NAME = "mysql_xdevapi";
 
 	$driver    = new mysqli_driver;
 
@@ -67,8 +67,7 @@
 
 	if (!function_exists('assert_mysql_xdevapi_loaded')) {
 		function assert_mysql_xdevapi_loaded() {
-			global $Devapi_ext_name;
-			assert(extension_loaded($Devapi_ext_name), $Devapi_ext_name." not loaded!");
+			assert(extension_loaded(DEVAPI_EXT_NAME), DEVAPI_EXT_NAME." not loaded!");
 		}
 	}
 
@@ -76,8 +75,7 @@
 		function is_mysql_xdevapi_builtin() {
 			$command = PHP_BINARY." -nm";
 			exec($command, $builtin_modules, $retval);
-			global $Devapi_ext_name;
-			return ($retval == 0) && in_array($Devapi_ext_name, $builtin_modules);
+			return ($retval == 0) && in_array(DEVAPI_EXT_NAME, $builtin_modules);
 		}
 	}
 
