@@ -47,21 +47,21 @@
 
 	// ----------------------------------------------------------------------
 
-	if (!function_exists('is_os_check')) {
-		function is_os_check($os_mask) {
+	if (!function_exists('verify_os')) {
+		function verify_os($os_mask) {
 			return strtoupper(substr(PHP_OS, 0, 3)) === $os_mask;
 		}
 	}
 
-	if (!function_exists('is_os_windows')) {
-		function is_os_windows() {
-			return is_os_check('WIN');
+	if (!function_exists('is_running_on_windows')) {
+		function is_running_on_windows() {
+			return verify_os('WIN');
 		}
 	}
 
-	if (!function_exists('is_os_solaris')) {
-		function is_os_solaris() {
-			return is_os_check('SunOS');
+	if (!function_exists('is_running_on_solaris')) {
+		function is_running_on_solaris() {
+			return verify_os('SunOS');
 		}
 	}
 

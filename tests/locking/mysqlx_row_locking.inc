@@ -62,10 +62,10 @@
 			// while building for win modules (like php_mysql_xdevapi.dll) are
 			// located in the same dir as php binary
 			$extension_dir = pathinfo(PHP_BINARY, PATHINFO_DIRNAME);
-			if (!is_os_windows()) {
+			if (!is_running_on_windows()) {
 				// for Linux
 				// php binary located in
-				//		connector-php/sapi/cli || connector-php/sapi/cgi
+				//		connector-php/sapi/cli or connector-php/sapi/cgi
 				// while mysql_xdevapi.so in
 				//		connector-php/modules
 				$extension_dir .= "/../../modules";
@@ -76,7 +76,7 @@
 	}
 
 	function prepare_extension_filename() {
-		$ext_lib_name_prefix = is_os_windows() ? "php_" : "";
+		$ext_lib_name_prefix = is_running_on_windows() ? "php_" : "";
 		global $Devapi_ext_name;
 		$extension_fname = $ext_lib_name_prefix.$Devapi_ext_name.'.'.PHP_SHLIB_SUFFIX;
 		return $extension_fname;
