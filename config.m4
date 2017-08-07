@@ -63,12 +63,17 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/proto_gen/mysqlx_sql.pb.cc \
 		"
 
-	xmysqlnd_expr_parser="xmysqlnd/crud_parsers/expression_parser.cc \
-		xmysqlnd/crud_parsers/orderby_parser.cc \
-		xmysqlnd/crud_parsers/projection_parser.cc \
+	xmysqlnd_new_expr_parser=" \
+		xmysqlnd/cdkbase/foundation/string.cc \
+		xmysqlnd/cdkbase/core/codec.cc \
+		xmysqlnd/cdkbase/parser/tokenizer.cc \
+		xmysqlnd/cdkbase/parser/expr_parser.cc \
+		xmysqlnd/cdkbase/parser/json_parser.cc \
+		xmysqlnd/cdkbase/foundation/error.cc \
+		xmysqlnd/crud_parsers/mysqlx_crud_parser.cc \
+		xmysqlnd/crud_parsers/expression_parser.cc \
 		xmysqlnd/crud_parsers/tokenizer.cc \
 		"
-
 
 	xmysqlnd_sources="php_xmysqlnd.cc \
 		xmysqlnd/xmysqlnd_any2expr.cc \
@@ -224,11 +229,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_BUILD_DIR($ext_builddir/xmysqlnd/crud_parsers)
 	PHP_ADD_BUILD_DIR($ext_builddir/xmysqlnd/proto_gen)
 
-	this_ext_sources="$xmysqlnd_protobuf_sources $mysqlx_base_sources $xmysqlnd_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_phputils"
+	this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $mysqlx_base_sources $xmysqlnd_new_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_phputils"
 	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1, true)
 	PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
+	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase/include])
+	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase])
 
 	dnl TODO: we should search for a proper protoc matchig the one who's heades we use and which we link above
 	PROTOC=protoc

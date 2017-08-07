@@ -44,7 +44,7 @@ extern "C" {
 
 namespace mysqlx {
 
-namespace parser {
+namespace old_parser_api {
 
 struct Expression_parser::operator_list Expression_parser::_ops;
 Mysqlx::Datatypes::Scalar* Expr_builder::build_null_scalar()
@@ -1032,7 +1032,7 @@ Mysqlx::Expr::Expr* Expression_parser::ilri_expr()
       if (is_not)
       {
         // wrap if `NOT'-prefixed
-        Mysqlx::Expr::Expr* expr_ = Expr_builder::build_unary_op("NOT", e.get());
+        Mysqlx::Expr::Expr* expr_ = Expr_builder::build_unary_op("not", e.get());
         e.release();
         lhs.release();
         lhs.reset(expr_);

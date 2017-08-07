@@ -70,6 +70,10 @@ error_reporting=0
 		expect_null($coll->modify($condition));
 	}
 
+	expect_null( $coll->modify('') );
+	check_incorrect_condition(' ');
+	check_incorrect_condition('@ incorrect $ condition &');
+
 	$nodeSession->dropSchema($test_schema_name);
 
 	verify_expectations();

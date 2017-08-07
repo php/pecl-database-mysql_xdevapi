@@ -37,7 +37,7 @@ mysqlx getTable/getTables
 	assert_table('test_table3');
 	assert_table($test_view_name, true);
 
-	verify_expectations();
+        verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--

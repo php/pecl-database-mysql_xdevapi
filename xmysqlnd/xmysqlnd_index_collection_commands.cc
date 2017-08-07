@@ -38,11 +38,13 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "proto_gen/mysqlx_sql.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
-#include "crud_parsers/expression_parser.h"
 #include "phputils/allocator.h"
 #include "phputils/object.h"
 #include "phputils/strings.h"
 #include "phputils/types.h"
+
+#include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
+#include "xmysqlnd/crud_parsers/expression_parser.h"
 
 namespace mysqlx {
 
@@ -273,7 +275,7 @@ collection_index_bind_field_param(
 
 	try {
 		const phputils::string source(rawPath.length() ? rawPath.c_str() : "$", rawPath.length() ? rawPath.length() : sizeof("$") - 1);
-		parser::Expression_parser parser(source.c_str(), true);
+		old_parser_api::Expression_parser parser(source.c_str(), true);
 		std::unique_ptr<Mysqlx::Expr::Expr> docField(parser.document_field());
 		if (docField->has_identifier()) {
 			auto& id = docField->identifier();
@@ -281,7 +283,8 @@ collection_index_bind_field_param(
 				fieldPath = rawPath;
 			}
 		}
-	} catch (parser::Parser_error &e) {
+	} catch (old_parser_api::Parser_error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_ERR("Parser error for document field");
 		DBG_RETURN(HND_FAIL);

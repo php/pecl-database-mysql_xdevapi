@@ -52,7 +52,7 @@
 
 namespace mysqlx {
 
-namespace parser {
+namespace old_parser_api {
 
 class Expr_builder
 {

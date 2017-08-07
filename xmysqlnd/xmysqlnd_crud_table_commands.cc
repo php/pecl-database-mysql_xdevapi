@@ -34,11 +34,11 @@ extern "C" {
 
 #include "xmysqlnd_crud_table_commands.h"
 #include "proto_gen/mysqlx_sql.pb.h"
-#include "crud_parsers/expression_parser.h"
-#include "crud_parsers/orderby_parser.h"
-#include "crud_parsers/projection_parser.h"
 #include "mysqlx_expression.h"
 #include "mysqlx_exception.h"
+
+#include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
+#include "xmysqlnd/crud_parsers/expression_parser.h"
 
 namespace mysqlx {
 
@@ -85,18 +85,27 @@ xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 
 
 /* {{{ xmysqlnd_crud_table_delete__add_orderby */
+template< typename MSG >
 enum_func_status
-xmysqlnd_crud_table__add_orderby(google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order > * mutable_order,
-								   const Mysqlx::Crud::DataModel data_model,
+xmysqlnd_crud_table__add_orderby(MSG& message,
 								   const MYSQLND_CSTRING & orderby)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__add_orderby");
 	DBG_INF_FMT("orderby=%*s", orderby.l, orderby.s);
+	google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order >* mutable_order =
+			message.mutable_order();
+	const Mysqlx::Crud::DataModel data_model =
+			message.data_model();
 	try {
 		const std::string source(orderby.s, orderby.l);
-		parser::Orderby_parser parser(source, data_model == Mysqlx::Crud::DOCUMENT);
-		parser.parse(*mutable_order);
-	} catch (parser::Parser_error &e) {
+		if( false == mysqlx::devapi::parser::orderby( source,
+											  data_model == Mysqlx::Crud::DOCUMENT,
+											  &message) ) {
+			DBG_ERR_FMT("Unable to parser the orderby expression");
+			DBG_RETURN(FAIL);
+		}
+	} catch (cdk::Error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -428,15 +437,17 @@ xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, c
 	DBG_ENTER("xmysqlnd_crud_table_delete__set_criteria");
 	try {
 		const std::string source(criteria.s, criteria.l);
-		parser::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
+										 obj->placeholders );
 		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
 		}
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
-	} catch (parser::Parser_error &e) {
+	} catch (cdk::Error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -489,7 +500,7 @@ enum_func_status
 xmysqlnd_crud_table_delete__add_orderby(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING orderby)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__add_orderby");
-	const enum_func_status ret = xmysqlnd_crud_table__add_orderby(obj->message.mutable_order(), obj->message.data_model(), orderby);
+	const enum_func_status ret = xmysqlnd_crud_table__add_orderby(obj->message, orderby);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -583,15 +594,17 @@ xmysqlnd_crud_table_update__set_criteria(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, c
 	DBG_ENTER("xmysqlnd_crud_table_update__set_criteria");
 	try {
 		const std::string source(criteria.s, criteria.l);
-		parser::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
+										 obj->placeholders );
 		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
 		}
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
-	} catch (parser::Parser_error &e) {
+	} catch (cdk::Error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -644,7 +657,7 @@ enum_func_status
 xmysqlnd_crud_table_update__add_orderby(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING orderby)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__add_orderby");
-	const enum_func_status ret = xmysqlnd_crud_table__add_orderby(obj->message.mutable_order(), obj->message.data_model(), orderby);
+	const enum_func_status ret = xmysqlnd_crud_table__add_orderby(obj->message, orderby);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -682,9 +695,10 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 
 	try {
 		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);
-		parser::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT);
+		old_parser_api::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT);
 		docpath.reset(parser.column_field());
-	} catch (parser::Parser_error &e) {
+	} catch (old_parser_api::Parser_error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_ERR("Parser error for document field");
 		DBG_RETURN(FAIL);
@@ -697,9 +711,12 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 		if (Z_TYPE_P(value) == IS_STRING && (is_expression || is_document)) {
 			try {
 				const std::string source(Z_STRVAL_P(value), Z_STRLEN_P(value));
-				parser::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-				operation->set_allocated_value(parser.expr());
-			} catch (parser::Parser_error &e) {
+				Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+												 obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
+												 obj->placeholders );
+				operation->set_allocated_value(exprCriteria);
+			} catch (cdk::Error &e) {
+				php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 				DBG_ERR_FMT("%s", e.what());
 				DBG_ERR("Parser error for document field");
 				DBG_RETURN(FAIL);
@@ -945,15 +962,17 @@ xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 	DBG_ENTER("xmysqlnd_crud_table_select__set_criteria");
 	try {
 		const std::string source(criteria.s, criteria.l);
-		parser::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
+										 obj->placeholders );
 		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
 		}
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
-	} catch (parser::Parser_error &e) {
+	} catch (cdk::Error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -1007,7 +1026,7 @@ xmysqlnd_crud_table_select__add_orderby(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, co
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_crud_table_select__add_orderby");
-	ret = xmysqlnd_crud_table__add_orderby(obj->message.mutable_order(), obj->message.data_model(), orderby);
+	ret = xmysqlnd_crud_table__add_orderby(obj->message, orderby);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1021,12 +1040,14 @@ xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 	try {
 		const static bool is_document = false; /*should be false, no comparison with data_model */
 		const std::string source(search_field.s, search_field.l);
-		parser::Expression_parser parser(source, is_document, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+										 is_document,
+										 obj->placeholders );
 		obj->message.mutable_grouping()->AddAllocated(exprCriteria);
 
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
-	} catch (parser::Parser_error &e) {
+	} catch (cdk::Error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -1049,9 +1070,11 @@ xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 	DBG_ENTER("xmysqlnd_crud_table_select__set_column");
 	if (allow_alias) {
 		try {
-			parser::Projection_parser parser(source, is_document, allow_alias);
-			parser.parse(*obj->message.mutable_projection());
-		} catch (parser::Parser_error &e) {
+			mysqlx::devapi::parser::projection(source,
+													is_document,
+													&obj->message);
+		} catch (cdk::Error &e) {
+			php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 			DBG_ERR_FMT("%s", e.what());
 			DBG_INF("Parser error");
 			DBG_RETURN(FAIL);
@@ -1062,26 +1085,30 @@ xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 	}
 
 	try {
-		parser::Expression_parser parser(source);
-		Mysqlx::Expr::Expr * criteria = parser.expr();
+		Mysqlx::Expr::Expr * criteria = mysqlx::devapi::parser::parse( source,
+										 is_document );
 
 		// Parsing is done just to validate it is a valid JSON expression
 		if (criteria->type() != Mysqlx::Expr::Expr_Type_OBJECT) {
 			delete criteria;
 			DBG_RETURN(FAIL);
 		}
-	} catch (parser::Parser_error &e) {
+	} catch (cdk::Error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
 	}
 
 	try {
-		parser::Expression_parser parser(source, is_document, false, &obj->placeholders);
-		obj->message.mutable_projection()->Add()->set_allocated_source(parser.expr());
+		Mysqlx::Expr::Expr * criteria = mysqlx::devapi::parser::parse( source,
+										 is_document,
+										 obj->placeholders );
+		obj->message.mutable_projection()->Add()->set_allocated_source(criteria);
 
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
-	} catch (parser::Parser_error &e) {
+	} catch (cdk::Error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -1101,12 +1128,14 @@ xmysqlnd_crud_table_select__set_having(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 	try {
 		const static zend_bool is_document = FALSE; /*should be TRUE, no comparison with data_model */
 		const std::string source(criteria.s, criteria.l);
-		parser::Expression_parser parser(source, is_document, false, &obj->placeholders);
-		Mysqlx::Expr::Expr * exprCriteria = parser.expr();
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+										 is_document,
+										 obj->placeholders );
 		obj->message.set_allocated_grouping_criteria(exprCriteria);
 
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
-	} catch (parser::Parser_error &e) {
+	} catch (cdk::Error &e) {
+		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);

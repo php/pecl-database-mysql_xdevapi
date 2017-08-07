@@ -44,6 +44,8 @@ extern "C" {
 #include "phputils/allocator.h"
 #include "phputils/object.h"
 
+#include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
+
 namespace mysqlx {
 
 namespace devapi {

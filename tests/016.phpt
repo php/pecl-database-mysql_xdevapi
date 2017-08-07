@@ -27,11 +27,11 @@ error_reporting=0
 
 	// fails expected due to empty or incorrect search-condition
 	function check_incorrect_condition($condition) {
-		global $coll;
-		expect_null($coll->remove($condition));
+	        global $coll;
+		expect_null($coll->modify($condition));
 	}
 
-	check_incorrect_condition('');
+        expect_null( $coll->modify('') );
 	check_incorrect_condition(' ');
 	check_incorrect_condition('@ incorrect $ condition &');
 

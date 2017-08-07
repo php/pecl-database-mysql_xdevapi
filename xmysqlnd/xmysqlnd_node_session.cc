@@ -499,7 +499,7 @@ void setup_crypto_options(
 	}
 
 	//Provide the list of supported/unsupported ciphers
-	phputils::string cipher_list;
+	phputils::string cipher_list = "";
 	for( auto& cipher : auth->supported_ciphers ) {
 		cipher_list += cipher.c_str();
 		cipher_list += ':';
@@ -1518,8 +1518,8 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 		const size_t query_len = operation.l + quoted_db.l;
 		//TODO marines
         //char query[query_len + 1];
-        char* query = static_cast<char*>(mnd_emalloc((query_len + 1) * sizeof(char)));
-        memcpy(query, operation.s, operation.l);
+		char* query = static_cast<char*>(mnd_emalloc((query_len + 1) * sizeof(char)));
+		memcpy(query, operation.s, operation.l);
 		memcpy(query + operation.l, quoted_db.s, quoted_db.l);
 		query[query_len] = '\0';
 		const MYSQLND_CSTRING select_query = { query, query_len };
@@ -1527,7 +1527,7 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 
 		ret = session_handle->m->query(session_handle, namespace_sql, select_query, noop__var_binder);
 		//TODO marines
-        mnd_efree(query);
+		mnd_efree(query);
 	}
 	DBG_RETURN(ret);
 

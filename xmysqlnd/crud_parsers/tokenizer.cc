@@ -45,7 +45,7 @@ extern "C" {
 
 namespace mysqlx {
 
-namespace parser {
+namespace old_parser_api {
 
 struct Tokenizer::Maps Tokenizer::map;
 

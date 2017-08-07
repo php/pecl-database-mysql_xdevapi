@@ -35,7 +35,6 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "proto_gen/mysqlx_sql.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
-#include "crud_parsers/expression_parser.h"
 
 #include "phputils/allocator.h"
 #include "phputils/object.h"
