@@ -76,8 +76,11 @@ libssl-dev
 libsslcommon2-dev
 openssl-devel
 
-or following switch for ./configure
+or following switch(es) for ./configure
+--with-openssl
 --with-openssl-dir
+e.g.
+--with-openssl --with-openssl-dir=/usr/local/bin
 
 In case it doesn't help use
 PHP_OPENSSL=yes ./configure
