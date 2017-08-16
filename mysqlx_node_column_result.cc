@@ -67,11 +67,11 @@ static_assert(MYSQL_TYPE_BYTES     == MYSQL_TYPE_BIT + 5, "inconsistent enum val
 
 #else
 
-const int MYSQL_TYPE_SMALLINT  = static_cast<int>(MYSQL_TYPE_BIT + 1);
-const int MYSQL_TYPE_MEDIUMINT = static_cast<int>(MYSQL_TYPE_BIT + 2);
-const int MYSQL_TYPE_INT       = static_cast<int>(MYSQL_TYPE_BIT + 3);
-const int MYSQL_TYPE_BIGINT    = static_cast<int>(MYSQL_TYPE_BIT + 4);
-const int MYSQL_TYPE_BYTES     = static_cast<int>(MYSQL_TYPE_BIT + 5);
+const int MYSQL_TYPE_SMALLINT  = MYSQL_TYPE_BIT + 1;
+const int MYSQL_TYPE_MEDIUMINT = MYSQL_TYPE_BIT + 2;
+const int MYSQL_TYPE_INT       = MYSQL_TYPE_BIT + 3;
+const int MYSQL_TYPE_BIGINT    = MYSQL_TYPE_BIT + 4;
+const int MYSQL_TYPE_BYTES     = MYSQL_TYPE_BIT + 5;
 
 #define FIELD_TYPE_SMALLINT		MYSQL_TYPE_SMALLINT
 #define FIELD_TYPE_MEDIUMINT	MYSQL_TYPE_MEDIUMINT
