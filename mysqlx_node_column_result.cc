@@ -52,7 +52,35 @@ namespace mysqlx {
 
 namespace devapi {
 
+namespace {
+
 using namespace drv;
+
+
+#if PHP_VERSION_ID >= 70200
+
+static_assert(MYSQL_TYPE_SMALLINT  == MYSQL_TYPE_BIT + 1, "inconsistent enum value - fix code below for PHP 7.1!");
+static_assert(MYSQL_TYPE_MEDIUMINT == MYSQL_TYPE_BIT + 2, "inconsistent enum value - fix code below for PHP 7.1!");
+static_assert(MYSQL_TYPE_INT       == MYSQL_TYPE_BIT + 3, "inconsistent enum value - fix code below for PHP 7.1!");
+static_assert(MYSQL_TYPE_BIGINT    == MYSQL_TYPE_BIT + 4, "inconsistent enum value - fix code below for PHP 7.1!");
+static_assert(MYSQL_TYPE_BYTES     == MYSQL_TYPE_BIT + 5, "inconsistent enum value - fix code below for PHP 7.1!");
+
+#else
+
+const int MYSQL_TYPE_SMALLINT  = static_cast<int>(MYSQL_TYPE_BIT + 1);
+const int MYSQL_TYPE_MEDIUMINT = static_cast<int>(MYSQL_TYPE_BIT + 2);
+const int MYSQL_TYPE_INT       = static_cast<int>(MYSQL_TYPE_BIT + 3);
+const int MYSQL_TYPE_BIGINT    = static_cast<int>(MYSQL_TYPE_BIT + 4);
+const int MYSQL_TYPE_BYTES     = static_cast<int>(MYSQL_TYPE_BIT + 5);
+
+#define FIELD_TYPE_SMALLINT		MYSQL_TYPE_SMALLINT
+#define FIELD_TYPE_MEDIUMINT	MYSQL_TYPE_MEDIUMINT
+#define FIELD_TYPE_INT			MYSQL_TYPE_INT
+#define FIELD_TYPE_BIGINT		MYSQL_TYPE_BIGINT
+#define FIELD_TYPE_BYTES		MYSQL_TYPE_BYTES
+
+#endif // PHP_VERSION_ID < 70200
+
 
 enum column_metadata_content_type {
 	CT_PLAIN =    0x0000,
@@ -78,7 +106,6 @@ enum column_metadata_flags {
 };
 
 static zend_class_entry *mysqlx_node_column_result_class_entry;
-static void mysqlx_node_column_result_free_storage(zend_object * object);
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_schema_name,
 					   0, ZEND_RETURN_VALUE, 0)
@@ -578,6 +605,8 @@ const struct st_mysqlx_property_entry mysqlx_node_column_result_property_entries
 	{{NULL,	0}, NULL, NULL}
 };
 
+} // anonymous namespace
+
 /* {{{ mysqlx_new_column_result */
 void
 mysqlx_new_column_result(
@@ -675,6 +704,18 @@ mysqlx_unregister_node_column_result_class(SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_node_column_result_properties);
 }
 /* }}} */
+
+void register_column_types(INIT_FUNC_ARGS)
+{
+#if PHP_VERSION_ID < 70200
+	/* column information */
+	REGISTER_LONG_CONSTANT("MYSQLI_TYPE_SMALLINT", FIELD_TYPE_SMALLINT, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("MYSQLI_TYPE_MEDIUMINT", FIELD_TYPE_MEDIUMINT, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("MYSQLI_TYPE_INT", FIELD_TYPE_INT, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("MYSQLI_TYPE_BIGINT", FIELD_TYPE_BIGINT, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("MYSQLI_TYPE_BYTES", FIELD_TYPE_BYTES, CONST_CS | CONST_PERSISTENT);
+#endif
+}
 
 } // namespace devapi
 

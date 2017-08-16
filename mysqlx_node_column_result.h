@@ -35,6 +35,8 @@ void mysqlx_new_column_result(zval * return_value, const drv::st_xmysqlnd_result
 void mysqlx_register_node_column_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_column_result_class(SHUTDOWN_FUNC_ARGS);
 
+void register_column_types(INIT_FUNC_ARGS);
+
 } // namespace devapi
 
 } // namespace mysqlx

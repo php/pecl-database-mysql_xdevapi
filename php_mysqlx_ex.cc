@@ -204,6 +204,8 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	/* xmysqlnd_real_connect flags */
 	REGISTER_LONG_CONSTANT("XMYSQLND_CLIENT_SSL", CLIENT_SSL, CONST_CS | CONST_PERSISTENT);
 
+	register_column_types(INIT_FUNC_ARGS_PASSTHRU);
+
 	return SUCCESS;
 }
 /* }}} */
