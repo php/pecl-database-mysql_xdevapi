@@ -43,7 +43,7 @@ mysqlx Unix domain socket
         try{
 	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_1.'/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_2.')/testx/?'.$disable_ssl_opt;
+		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_2.')/'.$db.'/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$valid_socket.')/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
@@ -58,14 +58,14 @@ mysqlx Unix domain socket
 	        test_step_failed();
 	}
 	try{
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@/tmp%2Fmysqlx.sockk/testx';
+	        $uri = $scheme.'://'.$user.':'.$passwd.'@/tmp%2Fmysqlx.sockk/'.$db;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		expect_null( $nodeSession );
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
 	try{
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@(/tmp/mysqlx.socck)/testx';
+	        $uri = $scheme.'://'.$user.':'.$passwd.'@(/tmp/mysqlx.socck)/'.$db;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		expect_null( $nodeSession );
 	} catch( Exception $e ) {

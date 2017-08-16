@@ -41,7 +41,7 @@ mysqlx getName for schema, collection, table and view
 	clean_test_db();
 ?>
 --EXPECTF--
-string(5) "testx"
+string(5) "%s"
 string(10) "test_table"
 string(15) "test_collection"
 string(9) "test_view"
