@@ -16,8 +16,8 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef CRUD_PARSERS_TOKENIZER_H
-#define CRUD_PARSERS_TOKENIZER_H
+#ifndef CRUD_PARSERS_OLD_TOKENIZER_H
+#define CRUD_PARSERS_OLD_TOKENIZER_H
 
 #include <string>
 #include <vector>
