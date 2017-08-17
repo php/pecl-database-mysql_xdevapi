@@ -20,6 +20,8 @@
 
 extern "C" {
 #include <zend_types.h>
+#undef ERROR
+#undef inline
 struct st_mysqlnd_string;
 struct st_mysqlnd_const_string;
 }
