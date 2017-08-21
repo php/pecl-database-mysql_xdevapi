@@ -78,8 +78,8 @@ function test_collection() {
 	$res = $as_table->select(['_id as a','doc as b'])->execute();
 	$cols = $res->getColumns();
 	$expected_data = [
-	    ['_id','a',MYSQLI_TYPE_STRING,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],['utf8mb4', 'latin1']],
-	    ['doc','b',MYSQLI_TYPE_JSON,4294967295,'binary','binary']
+		['_id','a',MYSQLI_TYPE_BYTES,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],['utf8mb4', 'latin1']],
+		['doc','b',MYSQLI_TYPE_JSON,4294967295,'binary','binary']
 	];
 
         expect_eq(count($cols),2);
@@ -121,7 +121,7 @@ e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))");
 	expect_eq(count($cols), 10);
 	$expected_data = [
 	    ['a','aa',MYSQLI_TYPE_BIT,1,0,0,null,null,0],
-	    ['b','bb',MYSQLI_TYPE_STRING,[20, 80],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],1],
+	    ['b','bb',MYSQLI_TYPE_BYTES,[20, 80],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],1],
 	    ['c','cc',MYSQLI_TYPE_TINY,3,0,0,null,null,0],
 	    ['d','dd',MYSQLI_TYPE_DECIMAL,22,3,1,null,null,0],
 	    ['e','ee',MYSQLI_TYPE_TIME,10,0,0,null,null,0],
