@@ -21,13 +21,13 @@ $(srcdir)/xmysqlnd/proto_gen/mysqlx_session.pb.cc: $(srcdir)/xmysqlnd/proto_def/
 
 $(srcdir)/xmysqlnd/proto_gen/mysqlx_sql.pb.cc: $(srcdir)/xmysqlnd/proto_def/mysqlx_sql.proto $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 
+
 $(srcdir)/xmysqlnd/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 
-$(srcdir)/xmysqlnd/messages/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
+$(srcdir)/messages/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 
-$(srcdir)/xmysqlnd/xmysqlnd/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
+$(srcdir)/xmysqlnd/crud_parsers/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 
-$(srcdir)/xmysqlnd/xmysqlnd/crud_parsers/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 
 BUILT_SOURCES = $(srcdir)/xmysqlnd/proto_gen/mysqlx_connection.pb.cc \
 	 $(srcdir)/xmysqlnd/proto_gen/mysqlx_datatypes.pb.cc \
