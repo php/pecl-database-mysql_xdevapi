@@ -267,6 +267,17 @@
 		}
 	}
 
+	// to_string conversion for diagnostics purposes
+	if( !function_exists('to_string')) {
+		function to_string($value) {
+			if (is_array($value)) {
+				return implode(' or ', $value);
+			} else {
+				return $value;
+			}
+		}
+	}
+
 	/*
 		Used to match expected pattern with actual value
 	*/
@@ -360,6 +371,28 @@
 		}
 	}
 
+	/*
+		check whether value is equal to expected value or in list of possible values
+		$expectation may be scalar or array
+	*/
+	if( !function_exists('expect_eq_or_in')) {
+		function expect_eq_or_in($target, $expectation, $hint = '', $stack_frame_depth = 1) {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			$is_equal = is_array($expectation) ?
+				in_array($target, $expectation) : ($target == $expectation);
+			if ($is_equal) {
+				$test_result_string .= '1';
+			} else {
+				print get_stack_frame_info($stack_frame_depth).': \''.$target.'\' != \''.to_string($expectation).'\' '.$hint.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+	
 	/*
 		Call this function to add a failing point
 		to the test

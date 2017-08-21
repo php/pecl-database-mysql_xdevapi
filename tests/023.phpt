@@ -78,7 +78,7 @@ function test_collection() {
 	$res = $as_table->select(['_id as a','doc as b'])->execute();
 	$cols = $res->getColumns();
 	$expected_data = [
-	    ['_id','a',MYSQLI_TYPE_STRING,128,'utf8mb4_general_ci','utf8mb4'],
+	    ['_id','a',MYSQLI_TYPE_STRING,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],['utf8mb4', 'latin1']],
 	    ['doc','b',MYSQLI_TYPE_JSON,4294967295,'binary','binary']
 	];
 
@@ -94,8 +94,8 @@ function test_collection() {
 		expect_eq($cols[$i]->getLength(),     $expected_data[$i][3]);
 		expect_eq($cols[$i]->isNumberSigned(),false);
 		expect_eq($cols[$i]->getFractionalDigits(),0);
-		expect_eq($cols[$i]->getCollationName(),$expected_data[$i][4]);
-		expect_eq($cols[$i]->getCharacterSetName(),$expected_data[$i][5]);
+		expect_eq_or_in($cols[$i]->getCollationName(),$expected_data[$i][4]);
+		expect_eq_or_in($cols[$i]->getCharacterSetName(),$expected_data[$i][5]);
 		expect_eq($cols[$i]->isPadded(),false);
 	    }
 	}
@@ -121,15 +121,15 @@ e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))");
 	expect_eq(count($cols), 10);
 	$expected_data = [
 	    ['a','aa',MYSQLI_TYPE_BIT,1,0,0,null,null,0],
-	    ['b','bb',MYSQLI_TYPE_STRING,20,0,0,'latin1_swedish_ci','latin1',1],
+	    ['b','bb',MYSQLI_TYPE_STRING,[20, 80],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],1],
 	    ['c','cc',MYSQLI_TYPE_TINY,3,0,0,null,null,0],
 	    ['d','dd',MYSQLI_TYPE_DECIMAL,22,3,1,null,null,0],
 	    ['e','ee',MYSQLI_TYPE_TIME,10,0,0,null,null,0],
 	    ['f','ff',MYSQLI_TYPE_DATETIME,19,0,0,null,null,0],
 	    ['g','gg',MYSQLI_TYPE_TIMESTAMP,19,0,0,null,null,0],
 	    ['h','hh',MYSQLI_TYPE_DATE,10,0,0,null,null,0],
-	    ['i','ii',MYSQLI_TYPE_SET,3,0,0,'latin1_swedish_ci','latin1',0],
-	    ['j','jj',MYSQLI_TYPE_ENUM,1,0,0,'latin1_swedish_ci','latin1',0]
+	    ['i','ii',MYSQLI_TYPE_SET,[3, 12],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0],
+	    ['j','jj',MYSQLI_TYPE_ENUM,[1, 4],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0]
 	];
 	if( count($cols) == 10 ) {
 	    for( $i = 0 ; $i < 10 ; $i++ ) {
@@ -139,11 +139,11 @@ e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))");
 		expect_eq($cols[$i]->getColumnName(), $expected_data[$i][0]);
 		expect_eq($cols[$i]->getColumnLabel(),$expected_data[$i][1]);
 		expect_eq($cols[$i]->getType(),       $expected_data[$i][2]);
-		expect_eq($cols[$i]->getLength(),     $expected_data[$i][3]);
+		expect_eq_or_in($cols[$i]->getLength(),     $expected_data[$i][3]);
 		expect_eq($cols[$i]->getFractionalDigits(),$expected_data[$i][4]);
 		expect_eq($cols[$i]->isNumberSigned(),$expected_data[$i][5]);
-		expect_eq($cols[$i]->getCollationName(),$expected_data[$i][6]);
-		expect_eq($cols[$i]->getCharacterSetName(),$expected_data[$i][7]);
+		expect_eq_or_in($cols[$i]->getCollationName(),$expected_data[$i][6]);
+		expect_eq_or_in($cols[$i]->getCharacterSetName(),$expected_data[$i][7]);
 		expect_eq($cols[$i]->isPadded(),$expected_data[$i][8]);
 	    }
 	}

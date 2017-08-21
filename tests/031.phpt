@@ -32,7 +32,7 @@ mysqlx Flexible number of arguments
 	expect_eq($data[9]['aa'],'aaa');
 	expect_eq($data[9]['bb'],null);
 
-	$res = $table->select('count(b) as bb')->groupBy('b');
+	$res = $table->select('count(b) as bb')->groupBy('b')->orderBy('b asc');
 	$data = $res->execute()->fetchAll();
 	expect_eq(count($data),7);
 	$expected_vals = [0,1,1,1,1,1,1];

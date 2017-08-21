@@ -200,12 +200,11 @@ get_column_type(const struct st_xmysqlnd_result_field_meta * const meta)
 				return FIELD_TYPE_JSON;
 			else if(meta->content_type == CT_GEOMETRY)
 				return FIELD_TYPE_GEOMETRY;
-			const struct st_mysqlnd_charset * set =
+			const st_mysqlnd_charset * set =
 					mysqlnd_find_charset_nr(meta->collation);
-			if(set == NULL) {
+			if (set == nullptr) {
 				RAISE_EXCEPTION(10001,"Unable to extract metadata");
-			}
-			if(set->collation == "binary")
+			} else if (std::strcmp(set->collation, "binary"))
 				return FIELD_TYPE_BYTES;
 			else
 				return FIELD_TYPE_STRING;

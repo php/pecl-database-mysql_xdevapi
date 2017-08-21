@@ -17,7 +17,7 @@ mysqlx Field Metadata, empty rowset
 	$cols = $res->getColumns();
 
         $expected_data = [
-	    ['_id','a',MYSQLI_TYPE_STRING,128,'utf8mb4_general_ci','utf8mb4'],
+	    ['_id','a',MYSQLI_TYPE_STRING,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],'utf8mb4'],
 	    ['doc','b',MYSQLI_TYPE_JSON,4294967295,'binary','binary']
 	];
 
@@ -33,7 +33,7 @@ mysqlx Field Metadata, empty rowset
 		expect_eq($cols[$i]->getLength(),     $expected_data[$i][3]);
 		expect_eq($cols[$i]->isNumberSigned(),false);
 		expect_eq($cols[$i]->getFractionalDigits(),0);
-		expect_eq($cols[$i]->getCollationName(),$expected_data[$i][4]);
+		expect_eq_or_in($cols[$i]->getCollationName(),$expected_data[$i][4]);
 		expect_eq($cols[$i]->getCharacterSetName(),$expected_data[$i][5]);
 		expect_eq($cols[$i]->isPadded(),false);
 	    }
