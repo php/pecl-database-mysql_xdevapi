@@ -46,7 +46,7 @@ const int MYSQL_TYPE_BYTES     = MYSQL_TYPE_BIT + 5;
 
 #endif // PHP_VERSION_ID >= 70200
 
-} // namespace mysqlx {
+} // namespace mysqlx
 
 #endif // MYSQLX_ENUM_N_DEF_H
 
