@@ -166,6 +166,7 @@ class allocator
 		{
 			::operator delete(ptr, phputils::alloc_tag);
 		}
+
 		void destroy(T* const ptr) const noexcept
 		{
 			((T*)ptr)->~T();

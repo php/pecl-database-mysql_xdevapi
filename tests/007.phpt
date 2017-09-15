@@ -58,7 +58,7 @@ error_reporting=0
 --CLEAN--
 <?php
 	require("connect.inc");
-	clean_test_db("test_schema");
+	clean_test_db($test_schema_name);
 ?>
 --EXPECTF--
 %s(4) "1111"

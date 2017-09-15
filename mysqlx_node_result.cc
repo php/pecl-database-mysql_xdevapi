@@ -205,7 +205,11 @@ get_document_id_common(INTERNAL_FUNCTION_PARAMETERS,
 				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &id);
 			}
 		} else {
-			ZVAL_STRINGL(return_value, value[0].s, value[0].l);
+			if (value && value[0].s) {
+				ZVAL_STRINGL(return_value, value[0].s, value[0].l);
+			} else {
+				ZVAL_NULL(return_value);
+			}
 		}
 	}
 	DBG_VOID_RETURN;

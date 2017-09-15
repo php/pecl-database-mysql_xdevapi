@@ -70,6 +70,14 @@ MYSQLND_CSTRING string_input_param::to_nd_cstr() const
 }
 /* }}} */
 
+
+/* {{{ string_input_param::to_zval */
+void string_input_param::to_zval(zval* dest) const
+{
+	ZVAL_STRINGL(dest, str, len);
+}
+/* }}} */
+
 } // namespace phputils
 
 } // namespace mysqlx

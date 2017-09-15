@@ -327,6 +327,37 @@ mysqlx_new_doc_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
 }
 /* }}} */
 
+
+/* {{{ fetch_one_from_doc_result */
+void fetch_one_from_doc_result(zval* return_value) {
+	DBG_ENTER("fetch_one_from_doc_result");
+
+	if (Z_TYPE_P(return_value) != IS_OBJECT) {
+		RETVAL_NULL();
+		DBG_VOID_RETURN;
+	}
+
+	st_mysqlx_node_doc_result& doc_result = phputils::fetch_data_object<st_mysqlx_node_doc_result>(return_value);
+
+	if (TRUE == doc_result.result->m.eof(doc_result.result)) {
+		RETVAL_NULL();
+		DBG_VOID_RETURN;
+	}
+
+	zval row;
+	ZVAL_UNDEF(&row);
+	if (PASS == doc_result.result->m.fetch_current(doc_result.result, &row, nullptr, nullptr)) {
+		xmysqlnd_utils_decode_doc_row(&row, return_value);
+		zval_ptr_dtor(&row);
+		doc_result.result->m.next(doc_result.result, nullptr, nullptr);
+	} else {
+		RETVAL_NULL();
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 } // namespace devapi
 
 } // namespace mysqlx

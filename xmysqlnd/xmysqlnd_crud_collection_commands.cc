@@ -145,8 +145,9 @@ struct st_xmysqlnd_crud_collection_op__add
 
 	std::vector<zval> docs_zv;
 
-	st_xmysqlnd_crud_collection_op__add(const MYSQLND_CSTRING & schema,
-										const MYSQLND_CSTRING & object_name)
+	st_xmysqlnd_crud_collection_op__add(
+		const MYSQLND_CSTRING& schema,
+		const MYSQLND_CSTRING& object_name)
 	{
 		message.mutable_collection()->set_schema(schema.s, schema.l);
 		message.mutable_collection()->set_name(object_name.s, object_name.l);
@@ -167,13 +168,14 @@ struct st_xmysqlnd_crud_collection_op__add
 
 /* {{{ xmysqlnd_crud_collection_add__create */
 XMYSQLND_CRUD_COLLECTION_OP__ADD *
-xmysqlnd_crud_collection_add__create(const MYSQLND_CSTRING schema,
-									 const MYSQLND_CSTRING object_name)
+xmysqlnd_crud_collection_add__create(
+	const MYSQLND_CSTRING schema,
+	const MYSQLND_CSTRING object_name)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_add__create");
 	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l,
 				schema.s, object_name.l, object_name.s);
-	XMYSQLND_CRUD_COLLECTION_OP__ADD * ret = new struct st_xmysqlnd_crud_collection_op__add(
+	XMYSQLND_CRUD_COLLECTION_OP__ADD * ret = new st_xmysqlnd_crud_collection_op__add(
 				schema, object_name);
 	DBG_RETURN(ret);
 }
@@ -187,6 +189,17 @@ xmysqlnd_crud_collection_add__destroy(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj)
 	DBG_ENTER("xmysqlnd_crud_collection_add__destroy");
 	delete obj;
 	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_add__set_upsert */
+enum_func_status
+xmysqlnd_crud_collection_add__set_upsert(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_add__set_upsert");
+	obj->message.set_upsert(true);
+	DBG_RETURN(PASS);
 }
 /* }}} */
 
@@ -558,9 +571,8 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 
 	try {
 		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);
-		old_parser_api::Expression_parser parser(source,
-										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT);
-		docpath.reset(parser.document_field());
+		docpath.reset(mysqlx::devapi::parser::parse(source,
+										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT));
 	} catch (cdk::Error &e) {
 		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());

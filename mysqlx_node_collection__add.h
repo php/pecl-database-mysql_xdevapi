@@ -20,14 +20,52 @@
 
 namespace mysqlx {
 
+namespace drv {
+
+struct st_xmysqlnd_node_collection;
+struct st_xmysqlnd_crud_collection_op__add;
+
+} // namespace drv
+
 namespace devapi {
 
-void mysqlx_new_node_collection__add(zval * return_value,
-						drv::st_xmysqlnd_node_collection* schema,
-						const zend_bool clone,
-						zval * docs,
-						int num_of_docs);
-void mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+/* {{{ Collection_add */
+class Collection_add : public phputils::custom_allocable
+{
+	public:
+		bool init(
+			zval* object_zv,
+			drv::st_xmysqlnd_node_collection* collection,
+			zval* docs,
+			int num_of_docs);
+		bool init(
+			zval* object_zv,
+			drv::st_xmysqlnd_node_collection* collection,
+			const phputils::string_input_param& single_doc_id,
+			zval* doc);
+		~Collection_add();
+
+	public:
+		void execute(zval* return_value);
+
+	private:
+		zval* object_zv = nullptr;
+		drv::st_xmysqlnd_node_collection* collection = nullptr;
+		drv::st_xmysqlnd_crud_collection_op__add* add_op = nullptr;
+		zval* docs = nullptr;
+		int num_of_docs = 0;
+		phputils::string_input_param single_doc_id;
+
+};
+/* }}} */
+
+
+void mysqlx_new_node_collection__add(
+	zval* return_value,
+	drv::st_xmysqlnd_node_collection* schema,
+	zval* docs,
+	int num_of_docs);
+void mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi

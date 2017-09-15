@@ -5,45 +5,42 @@
   | Copyright (c) 2006-2017 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
-  | that is bundled with this package in the file LICENSE, and is        |
+  | rhs is bundled with this package in the file LICENSE, and is        |
   | available through the world-wide-web at the following url:           |
   | http://www.php.net/license/3_01.txt                                  |
   | If you did not receive a copy of the PHP license and are unable to   |
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_DOC_RESULT_H
-#define MYSQLX_NODE_DOC_RESULT_H
-
-#include "phputils/allocator.h"
+#ifndef MYSQL_XDEVAPI_PHPUTILS_JSON_UTILS_H
+#define MYSQL_XDEVAPI_PHPUTILS_JSON_UTILS_H
 
 namespace mysqlx {
 
-namespace drv {
-struct st_xmysqlnd_node_stmt_result;
-}
+namespace phputils {
 
-namespace devapi {
+struct string_input_param;
 
-struct st_mysqlx_node_doc_result : public phputils::custom_allocable
-{
-	drv::st_xmysqlnd_node_stmt_result* result;
-};
+namespace json {
 
-void mysqlx_new_doc_result(zval * return_value, drv::st_xmysqlnd_node_stmt_result* result);
-void mysqlx_register_node_doc_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_doc_result_class(SHUTDOWN_FUNC_ARGS);
+void to_zv_string(zval* src, zval* dest);
 
-void fetch_one_from_doc_result(zval* return_value);
+void ensure_doc_id(
+	zval* raw_doc,
+	const string_input_param& id,
+	zval* doc_with_id);
 
-} // namespace devapi
+} // namespace json
+
+} // namespace phputils
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_DOC_RESULT_H */
+#endif // MYSQL_XDEVAPI_PHPUTILS_JSON_UTILS_H
 
 /*
  * Local variables:

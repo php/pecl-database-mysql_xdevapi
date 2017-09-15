@@ -12,38 +12,64 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_DOC_RESULT_H
-#define MYSQLX_NODE_DOC_RESULT_H
+#ifndef MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
+#define MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
 
-#include "phputils/allocator.h"
+#include <cstddef>
 
 namespace mysqlx {
 
-namespace drv {
-struct st_xmysqlnd_node_stmt_result;
-}
+namespace phputils {
 
-namespace devapi {
+struct string_input_param;
 
-struct st_mysqlx_node_doc_result : public phputils::custom_allocable
+/* {{{ Hash_table */
+class Hash_table
 {
-	drv::st_xmysqlnd_node_stmt_result* result;
+	public:
+		Hash_table(std::size_t hint_size = 0);
+		Hash_table(zval* zv, bool owner);
+		~Hash_table();
+
+		// temporarily disabled
+		Hash_table(const Hash_table&) = delete;
+		Hash_table& operator=(const Hash_table&) = delete;
+
+	public:
+		bool empty() const;
+		std::size_t size() const;
+		void clear();
+
+		HashTable* ptr();
+		zval* zv_ptr();
+
+	public:
+		zval* find(const long key);
+		zval* find(const string_input_param& key);
+
+	public:
+		void insert(const char* key, const string_input_param& value);
+		void insert(const char* key, std::size_t key_len, const string_input_param& value);
+		void insert(const char* key, zval* value);
+
+		void erase(const char* key);
+		void erase(const long key);
+
+	private:
+		bool owner = false;
+		HashTable* ht = nullptr;
+
 };
+/* }}} */
 
-void mysqlx_new_doc_result(zval * return_value, drv::st_xmysqlnd_node_stmt_result* result);
-void mysqlx_register_node_doc_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_doc_result_class(SHUTDOWN_FUNC_ARGS);
-
-void fetch_one_from_doc_result(zval* return_value);
-
-} // namespace devapi
+} // namespace phputils
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_DOC_RESULT_H */
+#endif // MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
 
 /*
  * Local variables:

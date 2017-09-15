@@ -96,9 +96,12 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 
 		mysqlx_phputils="allocator.cc " +
 			"exceptions.cc " +
+			"hash_table.cc " +
+			"json_utils.cc " +
 			"object.cc " +
 			"string_utils.cc " +
-			"strings.cc";
+			"strings.cc " +
+			"value.cc ";
 
 		mysqlx_messages="mysqlx_node_connection.cc " +
 			"mysqlx_node_pfc.cc " +
@@ -177,7 +180,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 		EXTENSION("mysql_xdevapi", mysqlx_base_sources, PHP_MYSQL_XDEVAPI_SHARED,
 			"-I. -Iphputils -Ixmysqlnd -Ixmysqlnd/crud_parsers -Ixmysqlnd/proto_gen -Imessages " +
 			PREPARE_MYSQL_XDEVAPI_INCLUDE("") + PREPARE_MYSQL_XDEVAPI_INCLUDE("xmysqlnd/cdkbase") +
-			PREPARE_MYSQL_XDEVAPI_INCLUDE("xmysqlnd/cdkbase/include") + 
+			PREPARE_MYSQL_XDEVAPI_INCLUDE("xmysqlnd/cdkbase/include") +
 			"/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /DMYSQL_XDEVAPI_EXPERIMENTAL_FEATURES " +
 			"/DMYSQL_XDEVAPI_MESSAGE_CLASSES /DZEND_WIN32_KEEP_INLINE /UZEND_WIN32_FORCE_INLINE /EHsc ");
 

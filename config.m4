@@ -137,9 +137,12 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	mysqlx_phputils="phputils/allocator.cc \
 		phputils/exceptions.cc \
+		phputils/hash_table.cc \
+		phputils/json_utils.cc \
 		phputils/object.cc \
 		phputils/string_utils.cc \
 		phputils/strings.cc \
+		phputils/value.cc \
 		"
 
 	mysqlx_base_sources="php_mysqlx.cc \

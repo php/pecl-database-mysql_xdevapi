@@ -182,7 +182,7 @@
 		Fill the database collection with stuff
 	*/
 	if(!function_exists('fill_db_collection')){
-		function fill_db_collection($coll) {
+		function fill_db_collection($coll, $extended_set = false) {
 			$coll->add('{"_id": 1, "name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
 			$coll->add('{"_id": 2, "name": "Lonardo",    "age": 59, "job": "Paninaro"}')->execute();
 			$coll->add('{"_id": 3, "name": "Riccardo",   "age": 27, "job": "Cantante"}')->execute();
@@ -199,6 +199,19 @@
 			$coll->add('{"_id":14, "name": "Massimo",    "age": 22, "job": "Programmatore"}')->execute();
 			$coll->add('{"_id":15, "name": "Carlo",      "age": 37, "job": "Calciatore"}')->execute();
 			$coll->add('{"_id":16, "name": "Leonardo",   "age": 23, "job": "Programmatore"}')->execute();
+
+			if (!$extended_set) return;
+
+			$coll->add('{"_id":17, "name": "Andrea",     "age": 58, "job": "Cantante"}')->execute();
+			$coll->add('{"_id":18, "name": "Francesco",  "age": 40, "job": "Calciatore"}')->execute();
+			$coll->add('{"_id":19, "name": "Dino",       "age": 75, "job": "Portiere"}')->execute();
+			$coll->add('{"_id":20, "name": "Monica",     "age": 52, "job": "Attrice e modella"}')->execute();
+			$coll->add('{"_id":21, "name": "Fabio",      "age": 59, "job": "Pilota automobilistico"}')->execute();
+			$coll->add('{"_id":22, "name": "Gianluigi",  "age": 39, "job": "Portiere"}')->execute();
+			$coll->add('{"_id":23, "name": "Sophia",     "age": 82, "job": "Attrice"}')->execute();
+			$coll->add('{"_id":24, "name": "Enzo",       "age": 90, "job": "Ferrari"}')->execute();
+			$coll->add('{"_id":25, "name": "Sergio",     "age": 65, "job": "Direzione aziendale"}')->execute();
+
 		}
 	}
 
@@ -206,13 +219,14 @@
 		Fill the test_collection with stuff
 	*/
 	if (!function_exists('fill_test_collection')) {
-		function fill_test_collection() {
+		function fill_test_collection($extended_set = false) {
 			global $nodeSession;
 			global $db;
 			global $test_collection_name;
 			$schema = $nodeSession->getSchema($db);
 			$coll = $schema->getCollection($test_collection_name);
-			fill_db_collection($coll);
+			fill_db_collection($coll, $extended_set);
+			return $coll;
 		}
 	}
 
@@ -294,7 +308,7 @@
 		Used to compare expected a boolean value being true
 	*/
 	if( !function_exists('expect_true')) {
-		function expect_true($expectation, $hint = '') {
+		function expect_true($expectation, $hint = '', $stack_frame_depth = 1) {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -303,7 +317,7 @@
 			if( true == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info().': true expected '.$hint.PHP_EOL;
+				print get_stack_frame_info($stack_frame_depth).': true expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -312,7 +326,7 @@
 		Used to compare expected a boolean value being false
 	*/
 	if( !function_exists('expect_false')) {
-		function expect_false($expectation, $hint = '') {
+		function expect_false($expectation, $hint = '', $stack_frame_depth = 1) {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -321,7 +335,7 @@
 			if( false == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info().': false expected '.$hint.PHP_EOL;
+				print get_stack_frame_info($stack_frame_depth).': false expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -330,7 +344,7 @@
 		Used to compare expected a null value
 	*/
 	if( !function_exists('expect_null')) {
-		function expect_null($expectation, $hint = '') {
+		function expect_null($expectation, $hint = '', $stack_frame_depth = 1) {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -339,21 +353,23 @@
 			if( null == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info().': null expected '.$hint.PHP_EOL;
+				print get_stack_frame_info($stack_frame_depth).
+					': null expected instead of '.$expectation.' ('.$hint.')'.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
 	}
+
 	/*
 		Call this function to add a failing point
 		to the test
 	*/
 	if( !function_exists('test_step_failed')) {
-		function test_step_failed() {
+		function test_step_failed($stack_frame_depth = 1) {
 			global $number_of_expectations;
 			global $test_result_string;
 
-			print get_stack_frame_info().': test step failed'.PHP_EOL;
+			print get_stack_frame_info($stack_frame_depth).': test step failed'.PHP_EOL;
 
 			$number_of_expectations++;
 			$test_result_string .= 'F';

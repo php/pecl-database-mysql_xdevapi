@@ -284,7 +284,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, definedAs)
 	Mysqlx::Crud::Find* stmt = nullptr;
 	if (defined_as_ce == mysqlx_node_table__select_class_entry) {
 		stmt = get_stmt_from_table_select(defined_as_zv);
-	} else if (defined_as_ce == mysqlx_node_collection__find_class_entry) {
+	} else if (defined_as_ce == collection_find_class_entry) {
 		stmt = get_stmt_from_collection_find(defined_as_zv);
 	} else {
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::find_fail);

@@ -22,11 +22,92 @@ namespace Mysqlx { namespace Crud { class Find; } }
 
 namespace mysqlx {
 
+namespace drv {
+
+struct st_xmysqlnd_node_collection;
+struct st_xmysqlnd_crud_collection_op__find;
+
+} // namespace drv
+
 namespace devapi {
 
-extern zend_class_entry* mysqlx_node_collection__find_class_entry;
+/* {{{ Collection_find */
+class Collection_find : public phputils::custom_allocable
+{
+	public:
+		bool init(
+			zval* object_zv,
+			drv::st_xmysqlnd_node_collection* collection,
+			const phputils::string_input_param& search_expression);
+		~Collection_find();
 
-void mysqlx_new_node_collection__find(zval * return_value, const MYSQLND_CSTRING search_expression, drv::st_xmysqlnd_node_collection* collection, const zend_bool clone_collection);
+	public:
+		void fields(
+			const zval* fields,
+			zval* return_value);
+
+		enum class Operation {
+			Sort,
+			Group_by
+		};
+
+		void add_operation(
+			Operation op,
+			zval* sort_expr,
+			int num_of_expr,
+			zval* return_value);
+
+		void group_by(
+			zval* sort_expr,
+			int num_of_expr,
+			zval* return_value);
+
+		void having(
+			const MYSQLND_CSTRING& search_condition,
+			zval* return_value);
+
+		void sort(
+			zval* sort_expr,
+			int num_of_expr,
+			zval* return_value);
+
+		void limit(
+			zend_long rows,
+			zval* return_value);
+
+		void skip(
+			zend_long position,
+			zval* return_value);
+
+		void bind(
+			HashTable* bind_variables,
+			zval* return_value);
+
+		void lock_shared(zval* return_value);
+		void lock_exclusive(zval* return_value);
+
+		void execute(zval* return_value);
+		void execute(
+			zend_long flags,
+			zval* return_value);
+
+		Mysqlx::Crud::Find* get_stmt();
+
+	private:
+		zval* object_zv = nullptr;
+		drv::st_xmysqlnd_node_collection* collection = nullptr;
+		drv::st_xmysqlnd_crud_collection_op__find* find_op = nullptr;
+
+};
+/* }}} */
+
+
+extern zend_class_entry* collection_find_class_entry;
+
+void mysqlx_new_node_collection__find(
+	zval * return_value,
+	const phputils::string_input_param& search_expression,
+	drv::st_xmysqlnd_node_collection* collection);
 void mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS);
 

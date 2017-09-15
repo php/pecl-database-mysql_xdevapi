@@ -89,6 +89,8 @@ struct string_input_param
 
 	st_mysqlnd_const_string to_nd_cstr() const;
 
+	void to_zval(zval* dest) const;
+
 	const char* c_str() const
 	{
 		return str;
@@ -127,7 +129,7 @@ struct string_input_param
 	template<typename T>
 	bool operator!=(const T& rhs) const
 	{
-		return !operator==(*this, rhs);
+		return !operator==(rhs);
 	}
 
 	char operator[](std::size_t index) const
