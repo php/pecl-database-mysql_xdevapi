@@ -298,7 +298,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 {
 	st_mysqlx_node_collection* object = nullptr;
 	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING schema_name = {NULL, 0};
+	MYSQLND_CSTRING schema_name = {nullptr, 0};
 	zval* object_zv = nullptr;
 
 	DBG_ENTER("mysqlx_node_collection::getSchema");
@@ -622,7 +622,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, createIndex)
 {
 	st_mysqlx_node_collection* object = nullptr;
 	zval* object_zv = nullptr;
-	MYSQLND_CSTRING index_name = {NULL, 0};
+	MYSQLND_CSTRING index_name = {nullptr, 0};
 	zend_bool is_unique;
 
 	DBG_ENTER("mysqlx_node_collection::createIndex");

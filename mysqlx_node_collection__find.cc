@@ -178,7 +178,7 @@ void Collection_find::fields(
 				RAISE_EXCEPTION(err_msg_wrong_param_1);
 			}
 			MYSQLND_CSTRING field_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
-			ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, FALSE, TRUE);
+			ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
 			if(ret==FAIL)
 				break;
 		} ZEND_HASH_FOREACH_END();
