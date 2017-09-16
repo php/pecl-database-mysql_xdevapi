@@ -146,6 +146,7 @@ to be sure OpenSSL is the reason.
 Supported X DevAPI features
 ---------------------------
 - collections API - add, find, modify, remove
+- collection single doc API - getOne, replaceOne, addOrReplaceOne, removeOne
 - table API - create, insert, select, update, delete
 - view API - create, alter, drop
 - collection / table - getName, existsInDatabase, count
