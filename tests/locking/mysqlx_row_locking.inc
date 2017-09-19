@@ -9,7 +9,7 @@
 
 	// ------------------------------------------------------------------------
 
-	function createTestCollection($session) {
+	function create_test_collection($session) {
 		global $test_schema_name;
 		global $test_collection_name;
 
@@ -18,14 +18,17 @@
 
 		$coll = $schema->createCollection($test_collection_name);
 
-		$coll->add('{"id": "1", "n": 1}')->execute();
-		$coll->add('{"id": "2", "n": 2}')->execute();
-		$coll->add('{"id": "3", "n": 3}')->execute();
-
+		$coll->add('{"_id": "1", "n": 1}')->execute();
+		$coll->add('{"_id": "2", "n": 2}')->execute();
+		$coll->add('{"_id": "3", "n": 3}')->execute();
+		$coll->add('{"_id": "4", "n": 4}')->execute();
+		$coll->add('{"_id": "5", "n": 5}')->execute();
+		$coll->add('{"_id": "6", "n": 6}')->execute();
+		
 		return $coll;
 	}
 
-	function createTestTable($session) {
+	function create_test_table($session) {
 		global $test_schema_name;
 		global $test_table_name;
 
@@ -33,15 +36,18 @@
 		$schema = $session->getSchema($test_schema_name);
 
 		$schema->createTable($test_table_name)
-			->addColumn(new mysql_xdevapi\ColumnDef('id', 'varchar', 8))
+			->addColumn((new mysql_xdevapi\ColumnDef('_id', 'varchar', 8))->primaryKey())
 			->addColumn(new mysql_xdevapi\ColumnDef('n', 'int'))
 			->execute();
 
 		$tab = $schema->getTable($test_table_name);
 
-		$tab->insert(["id", "n"])->values(["1", 1])->execute();
-		$tab->insert(["id", "n"])->values(["2", 2])->execute();
-		$tab->insert(["id", "n"])->values(["3", 3])->execute();
+		$tab->insert(["_id", "n"])->values(["1", 1])->execute();
+		$tab->insert(["_id", "n"])->values(["2", 2])->execute();
+		$tab->insert(["_id", "n"])->values(["3", 3])->execute();
+		$tab->insert(["_id", "n"])->values(["4", 4])->execute();
+		$tab->insert(["_id", "n"])->values(["5", 5])->execute();
+		$tab->insert(["_id", "n"])->values(["6", 6])->execute();
 
 		return $tab;
 	}
@@ -121,6 +127,7 @@
 	// ------------------------------------------------------------------------
 
 	$Msg_worker_started = "worker started";
+	$Msg_let_worker_block = "let worker block";
 	$Msg_let_worker_modify = "let worker modify";
 	$Msg_let_worker_commit = "let worker commit";
 	$Msg_worker_committed = "worker committed";
@@ -159,6 +166,19 @@
 	function recv_worker_started() {
 		global $Msg_worker_started;
 		recv_msg_from_worker($Msg_worker_started);
+	}
+
+	// -------
+
+	function send_let_worker_block() {
+		global $Msg_let_worker_block;
+		send_msg_to_worker($Msg_let_worker_block);
+	}
+
+	function recv_let_worker_block() {
+		global $Msg_let_worker_block;
+		$msg = fgets(STDIN);
+		check_msg($msg, $Msg_let_worker_block);
 	}
 
 	// -------
@@ -218,7 +238,7 @@
 	$Lock_exclusive = "exclusive";
 
 	function check_value($val, $expected_id, $expected_n, $stack_depth = 4) {
-		expect_eq($val['id'], $expected_id, 'id', $stack_depth);
+		expect_eq($val['_id'], $expected_id, '_id', $stack_depth);
 		expect_eq($val['n'], $expected_n, 'n', $stack_depth);
 	}
 
@@ -260,47 +280,47 @@
 	// -------
 
 	function find_lock_one($coll, $id, $lock) {
-		$cmd = $coll->find("id like '$id'");
+		$cmd = $coll->find("_id = '$id'");
 		$res = exec_lock_cmd($cmd, $lock);
 		return $res->fetchOne();
 	}
 
 	function check_find_lock_one($coll, $id, $expected_n, $lock) {
-		$cmd = $coll->find("id like '$id'");
+		$cmd = $coll->find("_id = '$id'");
 		check_lock_one($cmd, $id, $expected_n, $lock);
 	}
 
 	function check_find_lock_all($coll, $ids, $expected_vals, $lock) {
 		$joined_ids = implode("', '", $ids);
-		$cmd = $coll->find("id in ('".$joined_ids."')");
+		$cmd = $coll->find("_id in ('".$joined_ids."')");
 		check_lock_all($cmd, $ids, $expected_vals, $lock);
 	}
 
 	function modify_row($coll, $id, $n) {
-		$coll->modify("id = '$id'")->set('n', $n)->execute();
+		$coll->modify("_id = '$id'")->set('n', $n)->execute();
 	}
 
 	// -------
 
 	function select_lock_one($tab, $id, $lock) {
-		$cmd = $tab->select('id', 'n')->where("id like '$id'");
+		$cmd = $tab->select('_id', 'n')->where("_id = '$id'");
 		$res = exec_lock_cmd($cmd, $lock);
 		return $res->fetchOne();
 	}
 
 	function check_select_lock_one($tab, $id, $expected_n, $lock) {
-		$cmd = $tab->select('id', 'n')->where("id like '$id'");
+		$cmd = $tab->select('_id', 'n')->where("_id = '$id'");
 		check_lock_one($cmd, $id, $expected_n, $lock);
 	}
 
 	function check_select_lock_all($tab, $ids, $expected_vals, $lock) {
 		$joined_ids = implode("', '", $ids);
-		$cmd = $tab->select('id', 'n')->where("id in ('".$joined_ids."')");
+		$cmd = $tab->select('_id', 'n')->where("_id in ('".$joined_ids."')");
 		check_lock_all($cmd, $ids, $expected_vals, $lock);
 	}
 
 	function update_row($tab, $id, $n) {
-		$tab->update()->set('n', $n)->where("id = '$id'")->execute();
+		$tab->update()->set('n', $n)->where("_id = '$id'")->execute();
 	}
 
 ?>

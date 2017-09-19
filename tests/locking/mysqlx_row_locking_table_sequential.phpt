@@ -11,7 +11,7 @@ error_reporting=1
 	$session1 = mysql_xdevapi\getSession($connection_uri);
 	$session2 = mysql_xdevapi\getSession($connection_uri);
 
-	$tab1 = createTestTable($session1);
+	$tab1 = create_test_table($session1);
 
 	$schema2 = $session2->getSchema($test_schema_name);
 	$tab2 = $schema2->getTable($test_table_name);
@@ -20,11 +20,17 @@ error_reporting=1
 	$session1->startTransaction();
 	$session2->startTransaction();
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where id like '1' lock in share mode");
+	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '1' lock in share mode");
 	check_one($res1, '1', 1);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where id like '2' lock in share mode");
+	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '2' lock in share mode");
 	check_one($res2, '2', 2);
+
+	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '3' lock in share mode");
+	check_one($res1, '3', 3);
+
+	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '4' lock in share mode");
+	check_one($res2, '4', 4);
 
 	$session1->rollback();
 	$session2->rollback();
@@ -34,11 +40,17 @@ error_reporting=1
 	$session1->startTransaction();
 	$session2->startTransaction();
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where id like '1' for update");
+	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '1' for update");
 	check_one($res1, '1', 1);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where id like '3' lock in share mode");
+	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '3' lock in share mode");
 	check_one($res2, '3', 3);
+
+	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '2' for update");
+	check_one($res1, '2', 2);
+
+	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '4' lock in share mode");
+	check_one($res2, '4', 4);
 
 	$session1->rollback();
 	$session2->rollback();
@@ -48,87 +60,94 @@ error_reporting=1
 	$session1->startTransaction();
 	$session2->startTransaction();
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where id like '2' lock in share mode");
+	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '2' lock in share mode");
 	check_one($res1, '2', 2);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where id like '3' for update");
+	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '3' for update");
 	check_one($res2, '3', 3);
+
+	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '5' lock in share mode");
+	check_one($res1, '5', 5);
+
+	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '6' for update");
+	check_one($res2, '6', 6);
 
 	$session1->rollback();
 	$session2->rollback();
 	
-	// test1: Shared Lock
 
+	// test1: Shared Lock
 	$session1->startTransaction();
 	check_select_lock_one($tab1, '1', 1, $Lock_shared);
+	check_select_lock_one($tab1, '3', 3, $Lock_shared);
 
 	$session2->startTransaction();
 
-	// should return immediately
 	check_select_lock_one($tab2, '2', 2, $Lock_shared);
 
+	check_select_lock_one($tab1, '4', 4, $Lock_shared);
+	
 	check_select_lock_one($tab2, '1', 1, $Lock_shared);
+	check_select_lock_one($tab2, '4', 4, $Lock_shared);
 
 	$session1->rollback();
 	$session2->rollback();
 
 
 	// test2: Shared Lock after Exclusive
-
 	$session1->startTransaction();
 	check_select_lock_one($tab1, '1', 1, $Lock_exclusive);
+	check_select_lock_one($tab1, '3', 3, $Lock_exclusive);
 
 	$session2->startTransaction();
 
-	// should return immediately
 	check_select_lock_one($tab2, '2', 2, $Lock_shared);
 
-	// $session2 blocks
-	check_select_lock_one($tab2, '1', 1, $Lock_shared);
+	check_select_lock_one($tab1, '5', 5, $Lock_exclusive);
+	
+	check_select_lock_one($tab2, '4', 4, $Lock_shared);
 
-	$session1->rollback(); // $session2 should unblock now
+	$session1->rollback();
+
+	check_select_lock_one($tab2, '1', 1, $Lock_shared);
+	check_select_lock_one($tab2, '5', 5, $Lock_shared);
+
 	$session2->rollback();
 
 
 	// test3: Exclusive after Shared
-
 	$session1->startTransaction();
 	check_select_lock_all($tab1, ['1', '3'], [1, 3], $Lock_shared);
 
 	$session2->startTransaction();
+	check_select_lock_all($tab2, ['2', '4'], [2, 4], $Lock_exclusive);
+	check_select_lock_all($tab1, ['5', '6'], [5, 6], $Lock_shared);
 
-	// should return immediately
-	check_select_lock_one($tab2, '2', 2, $Lock_exclusive);
+	$session1->rollback();
 
-	// should return immediately
-	check_select_lock_one($tab2, '3', 3, $Lock_shared);
+	check_select_lock_all($tab2, ['1', '3'], [1, 3], $Lock_exclusive);
 
-	// $session2 should block
-	check_select_lock_one($tab2, '1', 1, $Lock_exclusive);
-
-	$session1->rollback(); // $session2 should unblock now
 	$session2->rollback();
 
 
 	// test4: Exclusive after Exclusive
-
 	$session1->startTransaction();
-	check_select_lock_one($tab1, '1', 1, $Lock_exclusive);
+	check_select_lock_all($tab1, ['1', '2'], [1, 2], $Lock_exclusive);
 
 	$session2->startTransaction();
+	check_select_lock_all($tab2, ['3', '4'], [3, 4], $Lock_exclusive);
 
-	// should return immediately
-	check_select_lock_one($tab2, '2', 2, $Lock_exclusive);
+	check_select_lock_one($tab1, '5', 5, $Lock_exclusive);
+	check_select_lock_one($tab2, '6', 6, $Lock_exclusive);
 
-	// $session2 should block
-	check_select_lock_one($tab2, '1', 1, $Lock_exclusive);
+	$session1->rollback();
 
-	$session1->rollback(); // $session2 should unblock now
+	check_select_lock_all($tab2, ['1', '2'], [1, 2], $Lock_exclusive);
+
 	$session2->rollback();
 
 
 	// test5: Shared Lock read after Exclusive write
-
 	$session1->startTransaction();
 
 	check_select_lock_all($tab1, ['1', '2'], [1, 2], $Lock_exclusive);
@@ -138,37 +157,33 @@ error_reporting=1
 
 	$session2->startTransaction();
 
-	// should return immediately
-	check_select_lock_one($tab2, '2', 2, $Lock_shared);
+	check_select_lock_all($tab2, ['3', '4', '5'], [3, 4, 5], $Lock_shared);
+	check_select_lock_one($tab1, '6', 6, $Lock_exclusive);
 
-	// $session2 blocks
-	check_select_lock_one($tab2, '1', 1, $Lock_shared);
+	$session1->commit();
 
-	$session1->commit(); // $session2 should unblock now
+	check_select_lock_all($tab2, ['1', '2', '6'], [11, 22, 6], $Lock_shared);
 	$session2->commit();
 
 
 	// test6: Exclusive write after Shared read
-
 	$session1->startTransaction();
 	check_select_lock_all($tab1, ['1', '3'], [11, 3], $Lock_shared);
 
 	$session2->startTransaction();
 
-	// should return immediately
 	check_select_lock_one($tab2, '2', 22, $Lock_exclusive);
 	update_row($tab2, '2', 222);
 	check_select_lock_one($tab2, '2', 222, $Lock_exclusive);
 
-	// should return immediately
 	check_select_lock_one($tab2, '3', 3, $Lock_shared);
 
-	// $session2 should block
+	$session1->commit();
+	
 	check_select_lock_one($tab2, '1', 11, $Lock_exclusive);
 	update_row($tab2, '1', 111);
 	check_select_lock_one($tab2, '1', 111, $Lock_exclusive);
 
-	$session1->commit(); // $session2 should unblock now
 	$session2->commit();
 
 	verify_expectations();

@@ -26,17 +26,23 @@ error_reporting=0
 
 		send_let_worker_modify();
 
-		$session->commit(); // worker should unblock now
+		check_find_lock_one($coll, '3', 3, $Lock_exclusive);
+		check_find_lock_one($coll, '4', 4, $Lock_exclusive);
 
-		check_find_lock_one($coll, '1', 11, $Lock_exclusive);
-		check_find_lock_one($coll, '2', 22, $Lock_exclusive);
+		send_let_worker_block();
+
+		find_lock_one($coll, '6', $Lock_exclusive);
+		modify_row($coll, '6', 66);
+		
+		$session->commit();
 
 		send_let_worker_commit();
 		recv_worker_committed();
 
-		check_find_lock_one($coll, '1', 111, $Lock_exclusive);
-		check_find_lock_one($coll, '2', 222, $Lock_exclusive);
-
+		check_find_lock_all($coll, ['1', '2'], [111, 222], $Lock_exclusive);
+		check_find_lock_all($coll, ['3', '4'], [333, 444], $Lock_exclusive);
+		check_find_lock_all($coll, ['5', '6'], [55, 66], $Lock_exclusive);
+		
 		send_let_worker_end();
 	}
 
@@ -52,6 +58,7 @@ error_reporting=0
 worker cmd-line:%s
 worker started
 let worker modify
+let worker block
 let worker commit
 worker committed
 let worker end

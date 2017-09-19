@@ -6,13 +6,27 @@
 
 	$session = mysql_xdevapi\getSession($connection_uri);
 
-	$coll = createTestCollection($session);
+	$coll = create_test_collection($session);
 
 	notify_worker_started();
 
 	$session->startTransaction();
 
 	recv_let_worker_modify();
+
+	find_lock_one($coll, '3', $Lock_exclusive);
+	modify_row($coll, '3', 333);
+
+	find_lock_one($coll, '4', $Lock_exclusive);
+	modify_row($coll, '4', 444);
+
+	recv_let_worker_block();
+	
+	check_find_lock_one($coll, '1', 11, $Lock_exclusive);
+	check_find_lock_one($coll, '2', 22, $Lock_exclusive);
+	
+	find_lock_one($coll, '5', $Lock_exclusive);
+	modify_row($coll, '5', 55);
 
 	find_lock_one($coll, '1', $Lock_exclusive);
 	modify_row($coll, '1', 111);

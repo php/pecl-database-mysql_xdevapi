@@ -4,11 +4,6 @@
 
 	assert_mysql_xdevapi_loaded();
 
-	function send_current_state($res1, $res2) {
-		$result_msg = strval($res1['n']) . " " . strval($res2['n']);
-		echo $result_msg, "\n";
-	}
-
 	notify_worker_started();
 
 	$session = mysql_xdevapi\getSession($connection_uri);
@@ -20,15 +15,22 @@
 
 	recv_let_worker_modify();
 
-	// should return immediately
+	check_select_lock_one($tab, '5', 5, $Lock_exclusive);
+	update_row($tab, '5', 55);
+	check_select_lock_one($tab, '5', 55, $Lock_exclusive);
+
+	check_select_lock_one($tab, '6', 6, $Lock_exclusive);
+	update_row($tab, '6', 66);
+	check_select_lock_one($tab, '6', 66, $Lock_exclusive);
+	
+	recv_let_worker_block();
+	
 	check_select_lock_one($tab, '2', 2, $Lock_exclusive);
 	update_row($tab, '2', 22);
 	check_select_lock_one($tab, '2', 22, $Lock_exclusive);
 
-	// should return immediately
 	check_select_lock_one($tab, '3', 3, $Lock_exclusive);
 
-	// $session2 should block
 	check_select_lock_one($tab, '1', 1, $Lock_exclusive);
 	update_row($tab, '1', 11);
 	check_select_lock_one($tab, '1', 11, $Lock_exclusive);
@@ -36,4 +38,7 @@
 	recv_let_worker_commit();
 	$session->commit();
 	notify_worker_committed();
+
+	echo (verify_expectations() ? "ok" : "fail")."\n";
+	recv_let_worker_end();
 ?>

@@ -11,7 +11,7 @@ error_reporting=0
 	assert_mysql_xdevapi_loaded();
 
 	$session = mysql_xdevapi\getSession($connection_uri);
-	$coll = createTestCollection($session);
+	$coll = create_test_collection($session);
 
 	$worker_process = run_worker(__FILE__);
 	if (is_resource($worker_process))
@@ -23,14 +23,18 @@ error_reporting=0
 
 		send_let_worker_modify();
 
-		$session->commit(); // worker should unblock now
+		send_let_worker_block();
 
-		check_find_lock_all($coll, ['1', '2', '3'], [1, 2, 3], $Lock_shared);
+		$session->commit();
 
+		check_find_lock_all($coll, ['4', '5'], [4, 5], $Lock_shared);
 		send_let_worker_commit();
 		recv_worker_committed();
-
 		check_find_lock_all($coll, ['1', '2', '3'], [11, 22, 3], $Lock_shared);
+		check_find_lock_all($coll, ['4', '5'], [44, 55], $Lock_shared);
+
+		recv_msg_from_worker("ok");
+		send_let_worker_end();
 	}
 
 	verify_expectations();
@@ -45,6 +49,9 @@ error_reporting=0
 worker cmd-line:%s
 worker started
 let worker modify
+let worker block
 let worker commit
 worker committed
+ok
+let worker end
 done!%A

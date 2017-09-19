@@ -18,10 +18,16 @@
 
 	$session->startTransaction();
 
-	$res2 = find_lock_one($coll, '2', $Lock_shared);
+	$res2 = find_lock_one($coll, '4', $Lock_shared);
 
-	$res1 = find_lock_one($coll, '1', $Lock_shared);
+	$res1 = find_lock_one($coll, '3', $Lock_shared);
 
+	send_current_state($res1, $res2);
+
+ 	recv_let_worker_block();
+	
+	$res2 = find_lock_one($coll, '5', $Lock_shared);
+	$res1 = find_lock_one($coll, '6', $Lock_shared);
 	send_current_state($res1, $res2);
 
 	recv_let_worker_commit();
@@ -30,6 +36,9 @@
 
 	$res1 = find_lock_one($coll, '1', $Lock_shared);
 	$res2 = find_lock_one($coll, '2', $Lock_shared);
+	send_current_state($res1, $res2);
 
+	$res1 = find_lock_one($coll, '5', $Lock_shared);
+	$res2 = find_lock_one($coll, '6', $Lock_shared);
 	send_current_state($res1, $res2);
 ?>

@@ -4,11 +4,6 @@
 
 	assert_mysql_xdevapi_loaded();
 
-	function send_current_state($res1, $res2) {
-		$result_msg = strval($res1['n']) . " " . strval($res2['n']);
-		echo $result_msg, "\n";
-	}
-
 	notify_worker_started();
 
 	$session = mysql_xdevapi\getSession($connection_uri);
@@ -20,20 +15,28 @@
 
 	recv_let_worker_modify();
 
-	// should return immediately
+	check_find_lock_all($coll, ['4', '5'], [4, 5], $Lock_exclusive);
+	modify_row($coll, '4', 44);
+	modify_row($coll, '5', 55);
+	check_find_lock_all($coll, ['4', '5'], [44, 55], $Lock_exclusive);
+	
+	recv_let_worker_block();
+
+	check_find_lock_one($coll, '3', 3, $Lock_exclusive);
+
 	check_find_lock_one($coll, '2', 2, $Lock_exclusive);
 	modify_row($coll, '2', 22);
 	check_find_lock_one($coll, '2', 22, $Lock_exclusive);
 
-	// should return immediately
-	check_find_lock_one($coll, '3', 3, $Lock_exclusive);
-
-	// $session2 should block
 	check_find_lock_one($coll, '1', 1, $Lock_exclusive);
 	modify_row($coll, '1', 11);
 	check_find_lock_one($coll, '1', 11, $Lock_exclusive);
 
 	recv_let_worker_commit();
 	$session->commit();
+	check_find_lock_all($coll, ['4', '5'], [44, 55], $Lock_shared);
 	notify_worker_committed();
+
+	echo (verify_expectations() ? "ok" : "fail")."\n";
+	recv_let_worker_end();
 ?>

@@ -14,6 +14,14 @@
 
 	recv_let_worker_modify();
 
+	select_lock_one($tab, '3', $Lock_exclusive);
+	update_row($tab, '3', 333);
+
+	select_lock_one($tab, '4', $Lock_exclusive);
+	update_row($tab, '4', 444);
+
+	recv_let_worker_block();
+	
 	select_lock_one($tab, '1', $Lock_exclusive);
 	update_row($tab, '1', 111);
 

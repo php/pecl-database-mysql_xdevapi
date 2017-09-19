@@ -11,7 +11,7 @@ error_reporting=0
 	assert_mysql_xdevapi_loaded();
 
 	$session = mysql_xdevapi\getSession($connection_uri);
-	$tab = createTestTable($session);
+	$tab = create_test_table($session);
 
 	$worker_process = run_worker(__FILE__);
 	if (is_resource($worker_process))
@@ -24,11 +24,21 @@ error_reporting=0
 		update_row($tab, '2', 22);
 		check_select_lock_all($tab, ['1', '2'], [11, 22], $Lock_exclusive);
 
-		$expected_result = "1 2";
+		$expected_result = "4 3";
 		recv_msg_from_worker($expected_result);
 
-		$session->commit(); // worker should unblock now
+		check_select_lock_all($tab, ['5', '6'], [5, 6], $Lock_exclusive);
+		update_row($tab, '5', 55);
+		update_row($tab, '6', 66);
+		check_select_lock_all($tab, ['5', '6'], [55, 66], $Lock_exclusive);
 
+		send_let_worker_block();
+		
+		$session->commit();
+
+		$expected_result = "55 22";
+		recv_msg_from_worker($expected_result);
+		
 		send_let_worker_commit();
 		recv_worker_committed();
 
@@ -37,6 +47,12 @@ error_reporting=0
 
 		check_select_lock_one($tab, '1', 11, $Lock_exclusive);
 		check_select_lock_one($tab, '2', 22, $Lock_exclusive);
+
+		$expected_result = "55 66";
+		recv_msg_from_worker($expected_result);
+
+		check_select_lock_one($tab, '5', 55, $Lock_exclusive);
+		check_select_lock_one($tab, '6', 66, $Lock_exclusive);
 	}
 
 	verify_expectations();
@@ -50,8 +66,11 @@ error_reporting=0
 --EXPECTF--
 worker cmd-line:%s
 worker started
-1 2
+4 3
+let worker block
+55 22
 let worker commit
 worker committed
 11 22
+55 66
 done!%A
