@@ -22,9 +22,9 @@
 	check_select_lock_one($tab, '6', 6, $Lock_exclusive);
 	update_row($tab, '6', 66);
 	check_select_lock_one($tab, '6', 66, $Lock_exclusive);
-	
+
 	recv_let_worker_block();
-	
+
 	check_select_lock_one($tab, '2', 2, $Lock_exclusive);
 	update_row($tab, '2', 22);
 	check_select_lock_one($tab, '2', 22, $Lock_exclusive);
@@ -39,6 +39,6 @@
 	$session->commit();
 	notify_worker_committed();
 
-	echo (verify_expectations() ? "ok" : "fail")."\n";
+	send_verification_status();
 	recv_let_worker_end();
 ?>

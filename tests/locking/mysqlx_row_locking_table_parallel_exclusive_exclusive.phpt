@@ -26,19 +26,19 @@ error_reporting=0
 
 		send_let_worker_modify();
 
-		check_select_lock_all($tab, ['3', '4'], [3, 4], $Lock_exclusive);
-		
+		check_select_lock_all($tab, ['5', '6'], [5, 6], $Lock_exclusive);
+
 		send_let_worker_block();
+
+		check_select_lock_all($tab, ['1', '2'], [11, 22], $Lock_exclusive);
 
 		$session->commit();
 
-		check_select_lock_all($tab, ['1', '2'], [11, 22], $Lock_exclusive);
-		
 		send_let_worker_commit();
 		recv_worker_committed();
 
 		check_select_lock_all($tab, ['3', '4'], [333, 444], $Lock_exclusive);
-		
+
 		check_select_lock_one($tab, '1', 111, $Lock_exclusive);
 		check_select_lock_one($tab, '2', 222, $Lock_exclusive);
 	}

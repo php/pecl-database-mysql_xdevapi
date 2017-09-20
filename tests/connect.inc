@@ -392,7 +392,7 @@
 			}
 		}
 	}
-	
+
 	/*
 		Call this function to add a failing point
 		to the test
@@ -434,7 +434,9 @@
 			if( $expected != $test_result_string) {
 				print 'Some expectation were not meet!'.PHP_EOL;
 				print 'Expected vs Result: '.PHP_EOL.$expected.PHP_EOL.$test_result_string.PHP_EOL;
+				return false;
 			}
+			return true;
 		}
 	}
 ?>

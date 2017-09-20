@@ -143,7 +143,7 @@ error_reporting=0
 	$res2 = $col2->find("_id = '4'")
 		->lockExclusive()->lockShared()->lockShared()->lockExclusive()->execute();
 	check_one($res2, '4', 4);
-	
+
 	$session2->rollback();
 
 

@@ -19,7 +19,7 @@
 	modify_row($coll, '4', 44);
 	modify_row($coll, '5', 55);
 	check_find_lock_all($coll, ['4', '5'], [44, 55], $Lock_exclusive);
-	
+
 	recv_let_worker_block();
 
 	check_find_lock_one($coll, '3', 3, $Lock_exclusive);
@@ -37,6 +37,6 @@
 	check_find_lock_all($coll, ['4', '5'], [44, 55], $Lock_shared);
 	notify_worker_committed();
 
-	echo (verify_expectations() ? "ok" : "fail")."\n";
+	send_verification_status();
 	recv_let_worker_end();
 ?>

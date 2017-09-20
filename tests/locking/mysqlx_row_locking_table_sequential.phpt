@@ -55,7 +55,7 @@ error_reporting=1
 	$session1->rollback();
 	$session2->rollback();
 
-	
+
 	// exclusive after shared
 	$session1->startTransaction();
 	$session2->startTransaction();
@@ -74,7 +74,7 @@ error_reporting=1
 
 	$session1->rollback();
 	$session2->rollback();
-	
+
 
 	// test1: Shared Lock
 	$session1->startTransaction();
@@ -86,7 +86,7 @@ error_reporting=1
 	check_select_lock_one($tab2, '2', 2, $Lock_shared);
 
 	check_select_lock_one($tab1, '4', 4, $Lock_shared);
-	
+
 	check_select_lock_one($tab2, '1', 1, $Lock_shared);
 	check_select_lock_one($tab2, '4', 4, $Lock_shared);
 
@@ -104,7 +104,7 @@ error_reporting=1
 	check_select_lock_one($tab2, '2', 2, $Lock_shared);
 
 	check_select_lock_one($tab1, '5', 5, $Lock_exclusive);
-	
+
 	check_select_lock_one($tab2, '4', 4, $Lock_shared);
 
 	$session1->rollback();
@@ -179,7 +179,7 @@ error_reporting=1
 	check_select_lock_one($tab2, '3', 3, $Lock_shared);
 
 	$session1->commit();
-	
+
 	check_select_lock_one($tab2, '1', 11, $Lock_exclusive);
 	update_row($tab2, '1', 111);
 	check_select_lock_one($tab2, '1', 111, $Lock_exclusive);

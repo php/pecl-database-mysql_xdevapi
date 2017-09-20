@@ -24,19 +24,19 @@ error_reporting=0
 		send_let_worker_modify();
 
 		check_select_lock_one($tab, '4', 4, $Lock_shared);
-		
+
 		send_let_worker_block();
 
 		$session->commit();
 
 		check_select_lock_one($tab, '4', 4, $Lock_shared);
-		
+
 		send_let_worker_commit();
 		recv_worker_committed();
 
-		check_select_lock_all($tab, ['5', '6'], [55, 66], $Lock_shared);
+		check_select_lock_all($tab, ['4', '5', '6'], [4, 55, 66], $Lock_shared);
 		check_select_lock_all($tab, ['1', '2', '3'], [11, 22, 3], $Lock_shared);
-		
+
 		recv_msg_from_worker("ok");
 		send_let_worker_end();
 	}

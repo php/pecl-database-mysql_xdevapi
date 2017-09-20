@@ -78,7 +78,7 @@ error_reporting=0
 	$res2 = $tab2->select('_id', 'n')->where("_id like '1'")
 		->lockExclusive()->lockShared()->lockShared()->execute();
 	check_one($res2, '1', 1);
-	
+
 	$session2->rollback();
 
 
@@ -88,7 +88,7 @@ error_reporting=0
 	$res1 = $tab1->select('_id', 'n')->where("_id like '1'")
 		->lockExclusive()->lockExclusive()->lockShared()->execute();
 	check_one($res1, '1', 1);
-	
+
 	$res1 = $tab1->select('_id', 'n')->where("_id like '3'")
 		->lockExclusive()->lockShared()->lockShared()->execute();
 	check_one($res1, '3', 3);
@@ -112,7 +112,7 @@ error_reporting=0
 	$res2 = $tab2->select('_id', 'n')->where("_id like '1'")
 		->lockExclusive()->lockShared()->lockExclusive()->execute();
 	check_one($res2, '1', 1);
-	
+
 	$session2->rollback();
 
 
@@ -141,7 +141,7 @@ error_reporting=0
 	$res2 = $tab2->select('_id', 'n')->where("_id like '1'")
 		->lockShared()->lockExclusive()->lockShared()->lockExclusive()->execute();
 	check_one($res2, '1', 1);
-	
+
 	$session2->rollback();
 
 

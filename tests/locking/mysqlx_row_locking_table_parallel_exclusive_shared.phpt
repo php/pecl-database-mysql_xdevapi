@@ -33,12 +33,12 @@ error_reporting=0
 		check_select_lock_all($tab, ['5', '6'], [55, 66], $Lock_exclusive);
 
 		send_let_worker_block();
-		
+
 		$session->commit();
 
 		$expected_result = "55 22";
 		recv_msg_from_worker($expected_result);
-		
+
 		send_let_worker_commit();
 		recv_worker_committed();
 

@@ -23,6 +23,8 @@ error_reporting=0
 
 		send_let_worker_modify();
 
+		check_find_lock_one($coll, '6', 6, $Lock_shared);
+
 		send_let_worker_block();
 
 		$session->commit();
@@ -31,7 +33,7 @@ error_reporting=0
 		send_let_worker_commit();
 		recv_worker_committed();
 		check_find_lock_all($coll, ['1', '2', '3'], [11, 22, 3], $Lock_shared);
-		check_find_lock_all($coll, ['4', '5'], [44, 55], $Lock_shared);
+		check_find_lock_all($coll, ['4', '5', '6'], [44, 55, 6], $Lock_shared);
 
 		recv_msg_from_worker("ok");
 		send_let_worker_end();

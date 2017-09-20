@@ -30,7 +30,7 @@ error_reporting=0
 	check_find_lock_one($col1, '6', 6, $Lock_shared);
 
 	check_find_lock_one($col2, '5', 5, $Lock_shared);
-	
+
 	$session1->rollback();
 	$session2->rollback();
 
@@ -45,11 +45,11 @@ error_reporting=0
 	check_find_lock_one($col2, '2', 2, $Lock_shared);
 
 	check_find_lock_one($col1, '5', 5, $Lock_exclusive);
-	
+
 	check_find_lock_one($col2, '4', 4, $Lock_shared);
 
 	check_find_lock_one($col1, '6', 6, $Lock_exclusive);
-	
+
 	$session1->rollback();
 
 	check_find_lock_one($col2, '1', 1, $Lock_shared);
@@ -114,7 +114,7 @@ error_reporting=0
 
 	check_find_lock_one($col2, '2', 22, $Lock_shared);
 	check_find_lock_one($col2, '1', 11, $Lock_shared);
-	
+
 	$session2->commit();
 
 
@@ -131,15 +131,15 @@ error_reporting=0
 	check_find_lock_one($col2, '3', 3, $Lock_shared);
 
 	check_find_lock_all($col1, ['5', '6'], [5, 6], $Lock_shared);
-	
+
 	$session1->commit();
 
 	check_find_lock_all($col2, ['5', '6'], [5, 6], $Lock_exclusive);
-	
+
 	check_find_lock_one($col2, '1', 11, $Lock_exclusive);
 	modify_row($col2, '1', 111);
 	check_find_lock_one($col2, '1', 111, $Lock_exclusive);
-	
+
 	$session2->commit();
 
 	verify_expectations();

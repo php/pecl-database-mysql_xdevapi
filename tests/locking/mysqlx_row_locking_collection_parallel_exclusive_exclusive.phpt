@@ -33,7 +33,7 @@ error_reporting=0
 
 		find_lock_one($coll, '6', $Lock_exclusive);
 		modify_row($coll, '6', 66);
-		
+
 		$session->commit();
 
 		send_let_worker_commit();
@@ -42,7 +42,7 @@ error_reporting=0
 		check_find_lock_all($coll, ['1', '2'], [111, 222], $Lock_exclusive);
 		check_find_lock_all($coll, ['3', '4'], [333, 444], $Lock_exclusive);
 		check_find_lock_all($coll, ['5', '6'], [55, 66], $Lock_exclusive);
-		
+
 		send_let_worker_end();
 	}
 

@@ -27,7 +27,7 @@
 	$res1 = select_lock_one($tab, '5', $Lock_shared);
 	$res2 = select_lock_one($tab, '2', $Lock_shared);
 	send_current_state($res1, $res2);
-	
+
 	recv_let_worker_commit();
 	$session->commit();
 	notify_worker_committed();

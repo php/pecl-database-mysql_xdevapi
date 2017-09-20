@@ -24,7 +24,7 @@
 		$coll->add('{"_id": "4", "n": 4}')->execute();
 		$coll->add('{"_id": "5", "n": 5}')->execute();
 		$coll->add('{"_id": "6", "n": 6}')->execute();
-		
+
 		return $coll;
 	}
 
@@ -230,6 +230,17 @@
 		global $Msg_let_worker_end;
 		$msg = fgets(STDIN);
 		check_msg($msg, $Msg_let_worker_end);
+	}
+
+	// ------------------------------------------------------------------------
+
+	function send_verification_status() {
+		if (verify_expectations()) {
+			$reply = "ok";
+		} else {
+			$reply = 'fail: '.PHP_EOL.$expected.PHP_EOL.$test_result_string.PHP_EOL;
+		}
+		echo $reply.PHP_EOL;
 	}
 
 	// ------------------------------------------------------------------------

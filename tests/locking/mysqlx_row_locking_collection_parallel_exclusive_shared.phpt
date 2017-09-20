@@ -35,14 +35,14 @@ error_reporting=0
 		modify_row($coll, '5', 55);
 		modify_row($coll, '6', 66);
 		check_find_lock_all($coll, ['5', '6'], [55, 66], $Lock_exclusive);
-		
+
 		$session->commit();
 
 		send_let_worker_commit();
 
 		$expected_result = "66 55";
 		recv_msg_from_worker($expected_result);
-		
+
 		recv_worker_committed();
 
 		$expected_result = "11 22";

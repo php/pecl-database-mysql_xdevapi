@@ -21,10 +21,10 @@
 	modify_row($coll, '4', 444);
 
 	recv_let_worker_block();
-	
+
 	check_find_lock_one($coll, '1', 11, $Lock_exclusive);
 	check_find_lock_one($coll, '2', 22, $Lock_exclusive);
-	
+
 	find_lock_one($coll, '5', $Lock_exclusive);
 	modify_row($coll, '5', 55);
 
