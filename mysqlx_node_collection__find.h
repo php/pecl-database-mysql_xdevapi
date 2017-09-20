@@ -34,69 +34,69 @@ namespace devapi {
 /* {{{ Collection_find */
 class Collection_find : public phputils::custom_allocable
 {
-	public:
-		bool init(
-			zval* object_zv,
-			drv::st_xmysqlnd_node_collection* collection,
-			const phputils::string_input_param& search_expression);
-		~Collection_find();
+public:
+	bool init(
+		zval* object_zv,
+		drv::st_xmysqlnd_node_collection* collection,
+		const phputils::string_input_param& search_expression);
+	~Collection_find();
 
-	public:
-		void fields(
-			const zval* fields,
-			zval* return_value);
+public:
+	void fields(
+		const zval* fields,
+		zval* return_value);
 
-		enum class Operation {
-			Sort,
-			Group_by
-		};
+	enum class Operation {
+		Sort,
+		Group_by
+	};
 
-		void add_operation(
-			Operation op,
-			zval* sort_expr,
-			int num_of_expr,
-			zval* return_value);
+	void add_operation(
+		Operation op,
+		zval* sort_expr,
+		int num_of_expr,
+		zval* return_value);
 
-		void group_by(
-			zval* sort_expr,
-			int num_of_expr,
-			zval* return_value);
+	void group_by(
+		zval* sort_expr,
+		int num_of_expr,
+		zval* return_value);
 
-		void having(
-			const MYSQLND_CSTRING& search_condition,
-			zval* return_value);
+	void having(
+		const MYSQLND_CSTRING& search_condition,
+		zval* return_value);
 
-		void sort(
-			zval* sort_expr,
-			int num_of_expr,
-			zval* return_value);
+	void sort(
+		zval* sort_expr,
+		int num_of_expr,
+		zval* return_value);
 
-		void limit(
-			zend_long rows,
-			zval* return_value);
+	void limit(
+		zend_long rows,
+		zval* return_value);
 
-		void skip(
-			zend_long position,
-			zval* return_value);
+	void skip(
+		zend_long position,
+		zval* return_value);
 
-		void bind(
-			HashTable* bind_variables,
-			zval* return_value);
+	void bind(
+		HashTable* bind_variables,
+		zval* return_value);
 
-		void lock_shared(zval* return_value);
-		void lock_exclusive(zval* return_value);
+	void lock_shared(zval* return_value);
+	void lock_exclusive(zval* return_value);
 
-		void execute(zval* return_value);
-		void execute(
-			zend_long flags,
-			zval* return_value);
+	void execute(zval* return_value);
+	void execute(
+		zend_long flags,
+		zval* return_value);
 
-		Mysqlx::Crud::Find* get_stmt();
+	Mysqlx::Crud::Find* get_stmt();
 
-	private:
-		zval* object_zv = nullptr;
-		drv::st_xmysqlnd_node_collection* collection = nullptr;
-		drv::st_xmysqlnd_crud_collection_op__find* find_op = nullptr;
+private:
+	zval* object_zv = nullptr;
+	drv::st_xmysqlnd_node_collection* collection = nullptr;
+	drv::st_xmysqlnd_crud_collection_op__find* find_op = nullptr;
 
 };
 /* }}} */

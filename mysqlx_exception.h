@@ -74,7 +74,7 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 #define err_msg_wrong_param_6       10032, "Invalid parameter or no parameter provided!"
 #define err_msg_invalid_ssl_mode    10033, "Provided two different ssl-modes"
 #define err_msg_tsl_not_supported_1 10034, "TLS not supported with unix domain sockets."
-#define err_msg_incorrect_single_doc_id 10035, "Document contains id different than the expected one for single doc operation."
+#define err_msg_unexpected_doc_id   10035, "Unexpected document ID provided."
 
 extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 

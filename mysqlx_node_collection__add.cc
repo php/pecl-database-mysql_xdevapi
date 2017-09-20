@@ -363,7 +363,7 @@ assign_doc_id_to_json(
 								doc_id_string_type);
 
 			if (!single_doc_id.empty() && (single_doc_id != doc_id)) {
-				RAISE_EXCEPTION(err_msg_incorrect_single_doc_id);
+				RAISE_EXCEPTION(err_msg_unexpected_doc_id);
 			}
 
 			if (to_add.s != json.s) {

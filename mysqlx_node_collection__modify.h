@@ -32,78 +32,78 @@ namespace devapi {
 /* {{{ Collection_modify */
 class Collection_modify : public phputils::custom_allocable
 {
-	public:
-		bool init(
-			zval* object_zv,
-			drv::st_xmysqlnd_node_collection* collection,
-			const phputils::string_input_param& search_expression);
-		~Collection_modify();
+public:
+	bool init(
+		zval* object_zv,
+		drv::st_xmysqlnd_node_collection* collection,
+		const phputils::string_input_param& search_expression);
+	~Collection_modify();
 
-	public:
-		void sort(
-			zval* sort_expr,
-			int num_of_expr,
-			zval* return_value);
-		void limit(
-			zend_long rows,
-			zval* return_value);
-		void skip(
-			zend_long position,
-			zval* return_value);
-		void bind(
-			HashTable* bind_variables,
-			zval* return_value);
+public:
+	void sort(
+		zval* sort_expr,
+		int num_of_expr,
+		zval* return_value);
+	void limit(
+		zend_long rows,
+		zval* return_value);
+	void skip(
+		zend_long position,
+		zval* return_value);
+	void bind(
+		HashTable* bind_variables,
+		zval* return_value);
 
-		enum class Operation
-		{
-			Set,
-			Replace,
-			Array_insert,
-			Array_append
-		};
+	enum class Operation
+	{
+		Set,
+		Replace,
+		Array_insert,
+		Array_append
+	};
 
-		void add_operation(
-			Operation operation,
-			const phputils::string_input_param& path,
-			const bool is_document,
-			zval* value,
-			zval* return_value);
+	void add_operation(
+		Operation operation,
+		const phputils::string_input_param& path,
+		const bool is_document,
+		zval* value,
+		zval* return_value);
 
-		void set(
-			const phputils::string_input_param& path,
-			const bool is_document,
-			zval* value,
-			zval* return_value);
-		void unset(
-			zval* variables,
-			int num_of_variables,
-			zval* return_value);
-		void replace(
-			const phputils::string_input_param& path,
-			zval* value,
-			zval* return_value);
-		void merge(
-			const phputils::string_input_param& document_contents,
-			zval* return_value);
+	void set(
+		const phputils::string_input_param& path,
+		const bool is_document,
+		zval* value,
+		zval* return_value);
+	void unset(
+		zval* variables,
+		int num_of_variables,
+		zval* return_value);
+	void replace(
+		const phputils::string_input_param& path,
+		zval* value,
+		zval* return_value);
+	void merge(
+		const phputils::string_input_param& document_contents,
+		zval* return_value);
 
-		void arrayInsert(
-			const phputils::string_input_param& path,
-			zval* value,
-			zval* return_value);
-		void arrayAppend(
-			const phputils::string_input_param& path,
-			zval* value,
-			zval* return_value);
-		void arrayDelete(
-			const phputils::string_input_param& array_index_path,
-			zval* return_value);
+	void arrayInsert(
+		const phputils::string_input_param& path,
+		zval* value,
+		zval* return_value);
+	void arrayAppend(
+		const phputils::string_input_param& path,
+		zval* value,
+		zval* return_value);
+	void arrayDelete(
+		const phputils::string_input_param& array_index_path,
+		zval* return_value);
 
-		void execute(zval* return_value);
+	void execute(zval* return_value);
 
-	private:
-		zval* object_zv = nullptr;
-		drv::st_xmysqlnd_node_collection* collection = nullptr;
-		drv::st_xmysqlnd_crud_collection_op__modify* modify_op = nullptr;
+private:
+	zval* object_zv = nullptr;
+	drv::st_xmysqlnd_node_collection* collection = nullptr;
+	drv::st_xmysqlnd_crud_collection_op__modify* modify_op = nullptr;
 
 };
 /* }}} */

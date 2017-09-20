@@ -32,29 +32,29 @@ namespace devapi {
 /* {{{ Collection_add */
 class Collection_add : public phputils::custom_allocable
 {
-	public:
-		bool init(
-			zval* object_zv,
-			drv::st_xmysqlnd_node_collection* collection,
-			zval* docs,
-			int num_of_docs);
-		bool init(
-			zval* object_zv,
-			drv::st_xmysqlnd_node_collection* collection,
-			const phputils::string_input_param& single_doc_id,
-			zval* doc);
-		~Collection_add();
+public:
+	bool init(
+		zval* object_zv,
+		drv::st_xmysqlnd_node_collection* collection,
+		zval* docs,
+		int num_of_docs);
+	bool init(
+		zval* object_zv,
+		drv::st_xmysqlnd_node_collection* collection,
+		const phputils::string_input_param& single_doc_id,
+		zval* doc);
+	~Collection_add();
 
-	public:
-		void execute(zval* return_value);
+public:
+	void execute(zval* return_value);
 
-	private:
-		zval* object_zv = nullptr;
-		drv::st_xmysqlnd_node_collection* collection = nullptr;
-		drv::st_xmysqlnd_crud_collection_op__add* add_op = nullptr;
-		zval* docs = nullptr;
-		int num_of_docs = 0;
-		phputils::string_input_param single_doc_id;
+private:
+	zval* object_zv = nullptr;
+	drv::st_xmysqlnd_node_collection* collection = nullptr;
+	drv::st_xmysqlnd_crud_collection_op__add* add_op = nullptr;
+	zval* docs = nullptr;
+	int num_of_docs = 0;
+	phputils::string_input_param single_doc_id;
 
 };
 /* }}} */

@@ -32,30 +32,30 @@ namespace devapi {
 /* {{{ Collection_remove */
 class Collection_remove : public phputils::custom_allocable
 {
-	public:
-		bool init(
-			zval* object_zv,
-			drv::st_xmysqlnd_node_collection* collection,
-			const phputils::string_input_param& search_expression);
-		~Collection_remove();
+public:
+	bool init(
+		zval* object_zv,
+		drv::st_xmysqlnd_node_collection* collection,
+		const phputils::string_input_param& search_expression);
+	~Collection_remove();
 
-	public:
-		void sort(
-			zval* sort_expr,
-			int num_of_expr,
-			zval* return_value);
-		void limit(
-			zend_long rows,
-			zval* return_value);
-		void bind(
-			HashTable* bind_variables,
-			zval* return_value);
-		void execute(zval* return_value);
+public:
+	void sort(
+		zval* sort_expr,
+		int num_of_expr,
+		zval* return_value);
+	void limit(
+		zend_long rows,
+		zval* return_value);
+	void bind(
+		HashTable* bind_variables,
+		zval* return_value);
+	void execute(zval* return_value);
 
-	private:
-		zval* object_zv = nullptr;
-		drv::st_xmysqlnd_node_collection* collection = nullptr;
-		drv::st_xmysqlnd_crud_collection_op__remove* remove_op = nullptr;
+private:
+	zval* object_zv = nullptr;
+	drv::st_xmysqlnd_node_collection* collection = nullptr;
+	drv::st_xmysqlnd_crud_collection_op__remove* remove_op = nullptr;
 
 };
 /* }}} */
