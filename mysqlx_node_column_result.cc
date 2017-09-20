@@ -204,10 +204,11 @@ get_column_type(const struct st_xmysqlnd_result_field_meta * const meta)
 					mysqlnd_find_charset_nr(meta->collation);
 			if (set == nullptr) {
 				RAISE_EXCEPTION(10001,"Unable to extract metadata");
-			} else if (std::strcmp(set->collation, "binary"))
+			} else if (std::strcmp(set->collation, "binary")) {
 				return FIELD_TYPE_BYTES;
-			else
+			} else {
 				return FIELD_TYPE_STRING;
+			}
 		}
 		break;
 	case XMYSQLND_TYPE_TIME:

@@ -26,8 +26,7 @@ error_reporting=0
 
 		send_let_worker_modify();
 
-		check_find_lock_one($coll, '3', 3, $Lock_exclusive);
-		check_find_lock_one($coll, '4', 4, $Lock_exclusive);
+		check_find_lock_one($coll, '5', 5, $Lock_exclusive);
 
 		send_let_worker_block();
 

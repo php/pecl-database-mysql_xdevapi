@@ -27,10 +27,14 @@ error_reporting=0
 
 		send_let_worker_block();
 
+		check_find_lock_one($coll, '2', 2, $Lock_shared);
+
 		$session->commit();
 
-		check_find_lock_all($coll, ['4', '5'], [4, 5], $Lock_shared);
 		send_let_worker_commit();
+
+		check_find_lock_one($coll, '6', 6, $Lock_shared);
+
 		recv_worker_committed();
 		check_find_lock_all($coll, ['1', '2', '3'], [11, 22, 3], $Lock_shared);
 		check_find_lock_all($coll, ['4', '5', '6'], [44, 55, 6], $Lock_shared);
