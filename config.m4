@@ -72,7 +72,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/cdkbase/foundation/error.cc \
 		xmysqlnd/crud_parsers/mysqlx_crud_parser.cc \
 		xmysqlnd/crud_parsers/expression_parser.cc \
-		xmysqlnd/crud_parsers/old_tokenizer.cc \
+		xmysqlnd/crud_parsers/legacy_tokenizer.cc \
 		"
 
 	xmysqlnd_sources="php_xmysqlnd.cc \

@@ -17,8 +17,8 @@ mysqlx Field Metadata, empty rowset
 	$cols = $res->getColumns();
 
         $expected_data = [
-		['_id','a',MYSQLI_TYPE_BYTES,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],'utf8mb4'],
-		['doc','b',MYSQLI_TYPE_JSON,4294967295,'binary','binary']
+		['_id','a',MYSQLX_TYPE_BYTES,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],'utf8mb4'],
+		['doc','b',MYSQLX_TYPE_JSON,4294967295,'binary','binary']
 	];
 
         expect_eq(count($cols),2);

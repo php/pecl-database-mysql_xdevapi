@@ -38,7 +38,7 @@
 #pragma warning (disable : 4018 4996)
 #endif
 
-#include "old_tokenizer.h"
+#include "legacy_tokenizer.h"
 #include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
 #include "xmysqlnd/proto_gen/mysqlx_expr.pb.h"
 #include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"

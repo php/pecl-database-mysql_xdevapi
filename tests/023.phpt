@@ -28,23 +28,23 @@ function test_numeric_types() {
 	'q as qq'])->execute();
 	$cols = $res->getColumns();
 	$expected_data = [
-	    ['a','aa',MYSQLI_TYPE_INT,11,1,0,0],
-	    ['b','bb',MYSQLI_TYPE_TINY,4,1,0,0],
-	    ['c','cc',MYSQLI_TYPE_SMALLINT,6,1,0,0],
-	    ['d','dd',MYSQLI_TYPE_MEDIUMINT,9,1,0,0],
-	    ['e','ee',MYSQLI_TYPE_INT,10,0,0,0],
-	    ['f','ff',MYSQLI_TYPE_TINY,3,0,0,0],
-	    ['g','gg',MYSQLI_TYPE_SMALLINT,5,0,0,0],
-	    ['h','hh',MYSQLI_TYPE_MEDIUMINT,8,0,0,0],
-	    ['i','ii',MYSQLI_TYPE_FLOAT,12,1,31,0],
-	    ['j','jj',MYSQLI_TYPE_DOUBLE,22,1,31,0],
-	    ['k','kk',MYSQLI_TYPE_DECIMAL,11,1,0,0],
-	    ['l','ll',MYSQLI_TYPE_FLOAT,12,0,31,0],
-	    ['m','mm',MYSQLI_TYPE_DOUBLE,22,0,31,0],
-	    ['n','nn',MYSQLI_TYPE_DECIMAL,10,0,0,0],
-	    ['o','oo',MYSQLI_TYPE_BIT,1,0,0,0],
-	    ['p','pp',MYSQLI_TYPE_BIGINT,20,1,0,0],
-	    ['q','qq',MYSQLI_TYPE_BIGINT,20,0,0,0]];
+	    ['a','aa',MYSQLX_TYPE_INT,11,1,0,0],
+	    ['b','bb',MYSQLX_TYPE_TINY,4,1,0,0],
+	    ['c','cc',MYSQLX_TYPE_SMALLINT,6,1,0,0],
+	    ['d','dd',MYSQLX_TYPE_MEDIUMINT,9,1,0,0],
+	    ['e','ee',MYSQLX_TYPE_INT,10,0,0,0],
+	    ['f','ff',MYSQLX_TYPE_TINY,3,0,0,0],
+	    ['g','gg',MYSQLX_TYPE_SMALLINT,5,0,0,0],
+	    ['h','hh',MYSQLX_TYPE_MEDIUMINT,8,0,0,0],
+	    ['i','ii',MYSQLX_TYPE_FLOAT,12,1,31,0],
+	    ['j','jj',MYSQLX_TYPE_DOUBLE,22,1,31,0],
+	    ['k','kk',MYSQLX_TYPE_DECIMAL,11,1,0,0],
+	    ['l','ll',MYSQLX_TYPE_FLOAT,12,0,31,0],
+	    ['m','mm',MYSQLX_TYPE_DOUBLE,22,0,31,0],
+	    ['n','nn',MYSQLX_TYPE_DECIMAL,10,0,0,0],
+	    ['o','oo',MYSQLX_TYPE_BIT,1,0,0,0],
+	    ['p','pp',MYSQLX_TYPE_BIGINT,20,1,0,0],
+	    ['q','qq',MYSQLX_TYPE_BIGINT,20,0,0,0]];
 	expect_eq(count($cols),17);
 	if( count($cols) == 17 ) {
 	    for( $i = 0; $i < 17; $i++ ) {
@@ -78,8 +78,8 @@ function test_collection() {
 	$res = $as_table->select(['_id as a','doc as b'])->execute();
 	$cols = $res->getColumns();
 	$expected_data = [
-		['_id','a',MYSQLI_TYPE_BYTES,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],['utf8mb4', 'latin1']],
-		['doc','b',MYSQLI_TYPE_JSON,4294967295,'binary','binary']
+		['_id','a',MYSQLX_TYPE_BYTES,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],['utf8mb4', 'latin1']],
+		['doc','b',MYSQLX_TYPE_JSON,4294967295,'binary','binary']
 	];
 
         expect_eq(count($cols),2);
@@ -120,16 +120,16 @@ e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))");
 	$cols = $res->getColumns();
 	expect_eq(count($cols), 10);
 	$expected_data = [
-	    ['a','aa',MYSQLI_TYPE_BIT,1,0,0,null,null,0],
-	    ['b','bb',MYSQLI_TYPE_BYTES,[20, 80],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],1],
-	    ['c','cc',MYSQLI_TYPE_TINY,3,0,0,null,null,0],
-	    ['d','dd',MYSQLI_TYPE_DECIMAL,22,3,1,null,null,0],
-	    ['e','ee',MYSQLI_TYPE_TIME,10,0,0,null,null,0],
-	    ['f','ff',MYSQLI_TYPE_DATETIME,19,0,0,null,null,0],
-	    ['g','gg',MYSQLI_TYPE_TIMESTAMP,19,0,0,null,null,0],
-	    ['h','hh',MYSQLI_TYPE_DATE,10,0,0,null,null,0],
-	    ['i','ii',MYSQLI_TYPE_SET,[3, 12],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0],
-	    ['j','jj',MYSQLI_TYPE_ENUM,[1, 4],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0]
+	    ['a','aa',MYSQLX_TYPE_BIT,1,0,0,null,null,0],
+	    ['b','bb',MYSQLX_TYPE_BYTES,[20, 80],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],1],
+	    ['c','cc',MYSQLX_TYPE_TINY,3,0,0,null,null,0],
+	    ['d','dd',MYSQLX_TYPE_DECIMAL,22,3,1,null,null,0],
+	    ['e','ee',MYSQLX_TYPE_TIME,10,0,0,null,null,0],
+	    ['f','ff',MYSQLX_TYPE_DATETIME,19,0,0,null,null,0],
+	    ['g','gg',MYSQLX_TYPE_TIMESTAMP,19,0,0,null,null,0],
+	    ['h','hh',MYSQLX_TYPE_DATE,10,0,0,null,null,0],
+	    ['i','ii',MYSQLX_TYPE_SET,[3, 12],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0],
+	    ['j','jj',MYSQLX_TYPE_ENUM,[1, 4],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0]
 	];
 	if( count($cols) == 10 ) {
 	    for( $i = 0 ; $i < 10 ; $i++ ) {
@@ -163,8 +163,8 @@ function test_geometries() {
 	$res = $table->select(['name as myname','b as bb'])->execute();
 
         $expected_data = [
-	    ['name','myname',MYSQLI_TYPE_INT,11,0,1,null,null,0],
-	    ['b','bb',MYSQLI_TYPE_GEOMETRY,4294967295,0,0,null,null,0],
+	    ['name','myname',MYSQLX_TYPE_INT,11,0,1,null,null,0],
+	    ['b','bb',MYSQLX_TYPE_GEOMETRY,4294967295,0,0,null,null,0],
 	];
 	$cols = $res->getColumns();
 	expect_eq(count($cols), 2);

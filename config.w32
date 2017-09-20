@@ -146,7 +146,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 
 		xmysqlnd_crud_parsers="mysqlx_crud_parser.cc " +
 			"expression_parser.cc " +
-			"old_tokenizer.cc ";
+			"legacy_tokenizer.cc ";
 
 		xmysqlnd_sources="xmysqlnd_any2expr.cc " +
 			"xmysqlnd_crud_collection_commands.cc " +
