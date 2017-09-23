@@ -89,6 +89,11 @@ struct string_input_param
 		return string(str, len);
 	}
 
+	std::string to_std_string() const
+	{
+		return std::string(str, len);
+	}
+
 	st_mysqlnd_const_string to_nd_cstr() const;
 
 	void to_zval(zval* dest) const;
