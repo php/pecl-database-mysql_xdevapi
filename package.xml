@@ -45,11 +45,11 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
  </developer>
 
 
- <date>2016-12-08</date>
+ <date>2017-06-22</date>
  <time>12:00:00</time>
 
   <version>
-   <release>1.0.0</release>
+   <release>8.0.2</release>
    <api>1.0.0</api>
   </version>
   <stability>
@@ -60,250 +60,438 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <notes>
 Initial release
   </notes>
-
  <contents>
   <dir name="/">
-<file name="mysqlx_base_session.c" role="src" />
-<file name="mysqlx_node_table__select.h" role="src" />
-<file name="mysqlx_node_result_iterator.h" role="src" />
-<file name="php_xmysqlnd.h" role="src" />
-<file name="php_mysqlx.c" role="src" />
-<file name="mysqlx_node_collection.h" role="src" />
-<file name="mysqlx_node_table__delete.h" role="src" />
-<file name="mysqlx_field_metadata.h" role="src" />
-<file name="mysqlx_node_sql_statement_result_iterator.c" role="src" />
-<file name="config.m4" role="src" />
-<file name="mysqlx_expression.h" role="src" />
-<file name="mysqlx_base_session.h" role="src" />
-<file name="mysqlx_node_table.c" role="src" />
-<file name="mysqlx_node_table__insert.h" role="src" />
-<file name="mysql_xdevapi.def" role="src" />
-<file name="mysqlx_driver.c" role="src" />
-<file name="mysqlx_object.c" role="src" />
-<file name="mysqlx_node_base_result_iterator.h" role="src" />
-<file name="mysqlx_schema_object.h" role="src" />
-<file name="mysqlx_node_schema.c" role="src" />
-<file name="mysqlx_node_sql_statement_result_iterator.h" role="src" />
-<file name="mysqlx_node_sql_statement_result.h" role="src" />
-<file name="mysqlx_database_object.c" role="src" />
-<file name="mysqlx_node_base_result.c" role="src" />
-<file name="mysqlx_node_row_result_iterator.c" role="src" />
-<file name="mysqlx_session.c" role="src" />
-<file name="mysqlx_node_collection__remove.h" role="src" />
-<file name="mysqlx_database_object.h" role="src" />
-<file name="mysqlx_warning.c" role="src" />
-<file name="config.w32" role="src" />
-<file name="php_xmysqlnd.c" role="src" />
-<file name="mysqlx_node_collection__modify.h" role="src" />
-<file name="examples.php" role="src" />
-<file name="mysqlx_class_properties.c" role="src" />
-<file name="CREDITS" role="src" />
-<file name="php_mysql_xdevapi.h" role="src" />
-<file name="mysqlx_node_row_result.c" role="src" />
-<file name="mysqlx_execution_status.c" role="src" />
-<file name="mysqlx_node_collection__find.h" role="src" />
-<file name="mysqlx_crud_operation_bindable.c" role="src" />
-<file name="mysqlx_node_collection__modify.c" role="src" />
-<file name="php_mysqlx.h" role="src" />
-<file name="mysqlx_node_schema.h" role="src" />
-<file name="mysqlx_crud_operation_skippable.c" role="src" />
-<file name="mysqlx_crud_operation_limitable.h" role="src" />
-<file name="mysqlx_node_collection__remove.c" role="src" />
-<file name="mysqlx_object.h" role="src" />
-<file name="php_mysqlx_ex.c" role="src" />
-<file name="mysqlx_node_table__update.c" role="src" />
-<file name="mysqlx_node_table__delete.c" role="src" />
-<file name="mysqlx_node_session.h" role="src" />
-<file name="package.xml" role="src" />
-<file name="mysqlx_driver.h" role="src" />
-<file name="mysqlx_node_collection__add.c" role="src" />
-<file name="mysqlx_crud_operation_sortable.h" role="src" />
-<file name="mysqlx_crud_operation_limitable.c" role="src" />
-<file name="mysqlx_node_sql_statement.c" role="src" />
-<file name="mysqlx_node_row_result_iterator.h" role="src" />
-<file name="mysqlx_session.h" role="src" />
-<file name="mysqlx_crud_operation_bindable.h" role="src" />
-<file name="mysqlx_node_sql_statement_result.c" role="src" />
-<file name="mysqlx_node_doc_result.h" role="src" />
-<file name="mysqlx_node_doc_result_iterator.h" role="src" />
-<file name="Makefile.frag" role="src" />
-<file name="mysqlx_exception.h" role="src" />
-<file name="mysqlx_node_sql_statement.h" role="src" />
-<file name="mysqlx_expression.c" role="src" />
-<file name="mysqlx_node_collection.c" role="src" />
-<file name="mysqlx_crud_operation_skippable.h" role="src" />
-<file name="mysqlx_exception.c" role="src" />
-<file name="mysqlx_node_collection__add.h" role="src" />
-<file name="mysqlx_x_session.c" role="src" />
-<file name="mysqlx_node_base_result_iterator.c" role="src" />
-<dir name="messages">
-<file name="mysqlx_message__auth_ok.h" role="src" />
-<file name="mysqlx_resultset__column_metadata.cc" role="src" />
-<file name="mysqlx_message__error.h" role="src" />
-<file name="mysqlx_message__stmt_execute_ok.cc" role="src" />
-<file name="mysqlx_node_pfc.h" role="src" />
-<file name="mysqlx_resultset__data_row.cc" role="src" />
-<file name="mysqlx_message__error.cc" role="src" />
-<file name="mysqlx_message__data_fetch_done.h" role="src" />
-<file name="mysqlx_message__capabilities_get.h" role="src" />
-<file name="mysqlx_message__auth_start.cc" role="src" />
-<file name="mysqlx_resultset__resultset_metadata.h" role="src" />
-<file name="mysqlx_message__capabilities.h" role="src" />
-<file name="mysqlx_message__auth_continue.h" role="src" />
-<file name="mysqlx_node_connection.c" role="src" />
-<file name="mysqlx_message__data_fetch_done.cc" role="src" />
-<file name="mysqlx_message__ok.cc" role="src" />
-<file name="mysqlx_message__stmt_execute.h" role="src" />
-<file name="mysqlx_message__auth_ok.cc" role="src" />
-<file name="mysqlx_resultset__column_metadata.h" role="src" />
-<file name="mysqlx_resultset__data_row.h" role="src" />
-<file name="mysqlx_message__capabilities_get.cc" role="src" />
-<file name="mysqlx_message__stmt_execute.cc" role="src" />
-<file name="mysqlx_message__capabilities.cc" role="src" />
-<file name="mysqlx_message__stmt_execute_ok.h" role="src" />
-<file name="mysqlx_message__ok.h" role="src" />
-<file name="mysqlx_message__capability.h" role="src" />
-<file name="mysqlx_message__auth_start.h" role="src" />
-<file name="mysqlx_message__capability.c" role="src" />
-<file name="mysqlx_message__auth_continue.cc" role="src" />
-<file name="mysqlx_node_pfc.c" role="src" />
-<file name="mysqlx_node_connection.h" role="src" />
-<file name="mysqlx_resultset__resultset_metadata.cc" role="src" />
-<file name="mysqlx_message__capabilities_set.h" role="src" />
-<file name="mysqlx_message__capabilities_set.cc" role="src" />
-</dir>
-<dir name="tests">
-<file name="013.phpt" role="test" />
-<file name="009.phpt" role="test" />
-<file name="007.phpt" role="test" />
-<file name="011.phpt" role="test" />
-<file name="012.phpt" role="test" />
-<file name="002.phpt" role="test" />
-<file name="019.phpt" role="test" />
-<file name="004.phpt" role="test" />
-<file name="014.phpt" role="test" />
-<file name="008.phpt" role="test" />
-<file name="006.phpt" role="test" />
-<file name="003.phpt" role="test" />
-<file name="016.phpt" role="test" />
-<file name="010.phpt" role="test" />
-<file name="001.phpt" role="test" />
-<file name="015.phpt" role="test" />
-<file name="018.phpt" role="test" />
-<file name="017.phpt" role="test" />
-<file name="connect.inc" role="test" />
-<file name="005.phpt" role="test" />
-</dir>
-<dir name="xmysqlnd">
-<file name="xmysqlnd_protocol_dumper.cc" role="src" />
-<file name="xmysqlnd_crud_table_commands.cc" role="src" />
-<file name="xmysqlnd_object_factory.c" role="src" />
-<file name="xmysqlnd_any2expr.cc" role="src" />
-<file name="xmysqlnd_utils.h" role="src" />
-<file name="xmysqlnd_rowset_buffered.h" role="src" />
-<file name="xmysqlnd_node_stmt.h" role="src" />
-<file name="xmysqlnd_node_stmt_result_meta.c" role="src" />
-<file name="xmysqlnd_node_collection.h" role="src" />
-<file name="xmysqlnd_structs.h" role="src" />
-<file name="xmysqlnd_node_table.c" role="src" />
-<file name="xmysqlnd_priv.h" role="src" />
-<file name="xmysqlnd_node_session.h" role="src" />
-<file name="xmysqlnd_wireprotocol.cc" role="src" />
-<file name="xmysqlnd_protocol_dumper.h" role="src" />
-<file name="xmysqlnd_wireprotocol.h" role="src" />
-<file name="xmysqlnd_node_stmt_result.h" role="src" />
-<file name="xmysqlnd_crud_table_commands.h" role="src" />
-<file name="xmysqlnd_node_stmt_result.c" role="src" />
-<file name="xmysqlnd_crud_collection_commands.h" role="src" />
-<file name="xmysqlnd_object_factory.h" role="src" />
-<file name="xmysqlnd_rowset_fwd.c" role="src" />
-<file name="xmysqlnd_zval2any.cc" role="src" />
-<file name="xmysqlnd_crud_collection_commands.cc" role="src" />
-<file name="xmysqlnd_driver.h" role="src" />
-<file name="xmysqlnd_protocol_frame_codec.c" role="src" />
-<file name="xmysqlnd_node_collection.c" role="src" />
-<file name="xmysqlnd_rowset.h" role="src" />
-<file name="xmysqlnd_rowset_buffered.c" role="src" />
-<file name="xmysqlnd_node_table.h" role="src" />
-<file name="xmysqlnd_extension_plugin.h" role="src" />
-<file name="xmysqlnd_statistics.c" role="src" />
-<file name="xmysqlnd_driver.c" role="src" />
-<dir name="proto_def">
-<file name="mysqlx_session.proto" role="src" />
-<file name="mysqlx_crud.proto" role="src" />
-<file name="mysqlx_notice.proto" role="src" />
-<file name="mysqlx.proto" role="src" />
-<file name="mysqlx_sql.proto" role="src" />
-<file name="mysqlx_expr.proto" role="src" />
-<file name="mysqlx_expect.proto" role="src" />
-<file name="mysqlx_connection.proto" role="src" />
-<file name="mysqlx_datatypes.proto" role="src" />
-<file name="mysqlx_resultset.proto" role="src" />
-</dir>
-<file name="xmysqlnd_node_session.c" role="src" />
-<file name="xmysqlnd_stmt_execution_state.h" role="src" />
-<file name="json_patch.txt" role="src" />
-<dir name="crud_parsers">
-<file name="orderby_parser.h" role="src" />
-<file name="expression_parser.cc" role="src" />
-<file name="tokenizer.cc" role="src" />
-<file name="expression_parser.h" role="src" />
-<file name="projection_parser.cc" role="src" />
-<file name="orderby_parser.cc" role="src" />
-<file name="compilerutils.h" role="src" />
-<file name="tokenizer.h" role="src" />
-<file name="projection_parser.h" role="src" />
-<file name="xmysqlnd_crud_parsers.h" role="src" />
-<file name="memory_new.h" role="src" />
-</dir>
-<dir name="proto_gen">
-<file name=".keep" role="src" />
-</dir>
-<file name="xmysqlnd_node_schema.h" role="src" />
-<file name="xmysqlnd_rowset.c" role="src" />
-<file name="xmysqlnd_rowset_fwd.h" role="src" />
-<file name="xmysqlnd_any2expr.h" role="src" />
-<file name="xmysqlnd_stmt_execution_state.c" role="src" />
-<file name="xmysqlnd_protocol_frame_codec.h" role="src" />
-<file name="xmysqlnd_node_stmt.c" role="src" />
-<file name="xmysqlnd_utils.c" role="src" />
-<file name="xmysqlnd_extension_plugin.c" role="src" />
-<file name="xmysqlnd_warning_list.c" role="src" />
-<file name="xmysqlnd.h" role="src" />
-<file name="xmysqlnd_node_schema.c" role="src" />
-<file name="xmysqlnd_zval2any.h" role="src" />
-<file name="xmysqlnd_node_stmt_result_meta.h" role="src" />
-<file name="xmysqlnd_enum_n_def.h" role="src" />
-<file name="xmysqlnd_crud_commands.h" role="src" />
-<file name="xmysqlnd_warning_list.h" role="src" />
-</dir>
-<file name="mysqlx_node_collection__find.c" role="src" />
-<file name="mysqlx_node_session.c" role="src" />
-<file name="mysqlx_node_doc_result_iterator.c" role="src" />
-<file name="mysqlx_node_table__insert.c" role="src" />
-<file name="mysqlx_node_table__update.h" role="src" />
-<file name="mysqlx_field_metadata.c" role="src" />
-<file name="mysqlx_node_table.h" role="src" />
-<file name="config-win.h" role="src" />
-<file name="mysqlx_node_result.c" role="src" />
-<file name="mysqlx_node_result_iterator.c" role="src" />
-<file name="mysqlx_node_result.h" role="src" />
-<file name="mysqlx_executable.c" role="src" />
-<file name="mysqlx_execution_status.h" role="src" />
-<file name="mysqlx_class_properties.h" role="src" />
-<file name="mysqlx_crud_operation_sortable.c" role="src" />
-<file name="mysqlx_executable.h" role="src" />
-<file name="mysqlx_node_doc_result.c" role="src" />
-<file name="mysqlx_x_session.h" role="src" />
-<file name="mysqlx_node_row_result.h" role="src" />
-<file name="mysqlx_schema_object.c" role="src" />
-<file name="mysqlx_node_table__select.c" role="src" />
-<file name="mysqlx_warning.h" role="src" />
-<file name="README" role="doc" />
-<file name="LICENSE" role="doc" />
-<file name="mysqlx_node_base_result.h" role="src" />
-<file name="product_data.txt" role="src" />
-</dir>
+   <file name="CREDITS" role="doc" />
+   <file name="LICENSE" role="doc" />
+   <file name="Makefile.frag" role="src" />
+   <file name="README" role="doc" />
+   <file name="config-win.h" role="src" />
+   <file name="config.m4" role="src" />
+   <file name="config.w32" role="src" />
+   <file name="examples.php" role="doc" />
+   <file name="mysql_xdevapi.def" role="src" />
+   <file name="mysqlx_base_session.cc" role="src" />
+   <file name="mysqlx_base_session.h" role="src" />
+   <file name="mysqlx_class_properties.cc" role="src" />
+   <file name="mysqlx_class_properties.h" role="src" />
+   <file name="mysqlx_crud_operation_bindable.cc" role="src" />
+   <file name="mysqlx_crud_operation_bindable.h" role="src" />
+   <file name="mysqlx_crud_operation_limitable.cc" role="src" />
+   <file name="mysqlx_crud_operation_limitable.h" role="src" />
+   <file name="mysqlx_crud_operation_skippable.cc" role="src" />
+   <file name="mysqlx_crud_operation_skippable.h" role="src" />
+   <file name="mysqlx_crud_operation_sortable.cc" role="src" />
+   <file name="mysqlx_crud_operation_sortable.h" role="src" />
+   <file name="mysqlx_database_object.cc" role="src" />
+   <file name="mysqlx_database_object.h" role="src" />
+   <file name="mysqlx_driver.cc" role="src" />
+   <file name="mysqlx_driver.h" role="src" />
+   <file name="mysqlx_enum_n_def.h" role="src" />
+   <file name="mysqlx_exception.cc" role="src" />
+   <file name="mysqlx_exception.h" role="src" />
+   <file name="mysqlx_executable.cc" role="src" />
+   <file name="mysqlx_executable.h" role="src" />
+   <file name="mysqlx_execution_status.cc" role="src" />
+   <file name="mysqlx_execution_status.h" role="src" />
+   <file name="mysqlx_expression.cc" role="src" />
+   <file name="mysqlx_expression.h" role="src" />
+   <file name="mysqlx_field_metadata.cc" role="src" />
+   <file name="mysqlx_field_metadata.h" role="src" />
+   <file name="mysqlx_node_base_result.cc" role="src" />
+   <file name="mysqlx_node_base_result.h" role="src" />
+   <file name="mysqlx_node_base_result_iterator.cc" role="src" />
+   <file name="mysqlx_node_base_result_iterator.h" role="src" />
+   <file name="mysqlx_node_collection.cc" role="src" />
+   <file name="mysqlx_node_collection.h" role="src" />
+   <file name="mysqlx_node_collection__add.cc" role="src" />
+   <file name="mysqlx_node_collection__add.h" role="src" />
+   <file name="mysqlx_node_collection__create_index.cc" role="src" />
+   <file name="mysqlx_node_collection__create_index.h" role="src" />
+   <file name="mysqlx_node_collection__find.cc" role="src" />
+   <file name="mysqlx_node_collection__find.h" role="src" />
+   <file name="mysqlx_node_collection__modify.cc" role="src" />
+   <file name="mysqlx_node_collection__modify.h" role="src" />
+   <file name="mysqlx_node_collection__remove.cc" role="src" />
+   <file name="mysqlx_node_collection__remove.h" role="src" />
+   <file name="mysqlx_node_column_result.cc" role="src" />
+   <file name="mysqlx_node_column_result.h" role="src" />
+   <file name="mysqlx_node_doc_result.cc" role="src" />
+   <file name="mysqlx_node_doc_result.h" role="src" />
+   <file name="mysqlx_node_doc_result_iterator.cc" role="src" />
+   <file name="mysqlx_node_doc_result_iterator.h" role="src" />
+   <file name="mysqlx_node_result.cc" role="src" />
+   <file name="mysqlx_node_result.h" role="src" />
+   <file name="mysqlx_node_result_iterator.cc" role="src" />
+   <file name="mysqlx_node_result_iterator.h" role="src" />
+   <file name="mysqlx_node_row_result.cc" role="src" />
+   <file name="mysqlx_node_row_result.h" role="src" />
+   <file name="mysqlx_node_row_result_iterator.cc" role="src" />
+   <file name="mysqlx_node_row_result_iterator.h" role="src" />
+   <file name="mysqlx_node_schema.cc" role="src" />
+   <file name="mysqlx_node_schema.h" role="src" />
+   <file name="mysqlx_node_session.cc" role="src" />
+   <file name="mysqlx_node_session.h" role="src" />
+   <file name="mysqlx_node_session_configuration.cc" role="src" />
+   <file name="mysqlx_node_session_configuration.h" role="src" />
+   <file name="mysqlx_node_sql_statement.cc" role="src" />
+   <file name="mysqlx_node_sql_statement.h" role="src" />
+   <file name="mysqlx_node_sql_statement_result.cc" role="src" />
+   <file name="mysqlx_node_sql_statement_result.h" role="src" />
+   <file name="mysqlx_node_sql_statement_result_iterator.cc" role="src" />
+   <file name="mysqlx_node_sql_statement_result_iterator.h" role="src" />
+   <file name="mysqlx_node_table.cc" role="src" />
+   <file name="mysqlx_node_table.h" role="src" />
+   <file name="mysqlx_node_table__delete.cc" role="src" />
+   <file name="mysqlx_node_table__delete.h" role="src" />
+   <file name="mysqlx_node_table__insert.cc" role="src" />
+   <file name="mysqlx_node_table__insert.h" role="src" />
+   <file name="mysqlx_node_table__select.cc" role="src" />
+   <file name="mysqlx_node_table__select.h" role="src" />
+   <file name="mysqlx_node_table__update.cc" role="src" />
+   <file name="mysqlx_node_table__update.h" role="src" />
+   <file name="mysqlx_object.cc" role="src" />
+   <file name="mysqlx_object.h" role="src" />
+   <file name="mysqlx_schema_object.cc" role="src" />
+   <file name="mysqlx_schema_object.h" role="src" />
+   <file name="mysqlx_session.cc" role="src" />
+   <file name="mysqlx_session.h" role="src" />
+   <file name="mysqlx_table_create.cc" role="src" />
+   <file name="mysqlx_table_create.h" role="src" />
+   <file name="mysqlx_table_create_column_def.cc" role="src" />
+   <file name="mysqlx_table_create_column_def.h" role="src" />
+   <file name="mysqlx_table_create_column_def_base.cc" role="src" />
+   <file name="mysqlx_table_create_column_def_base.h" role="src" />
+   <file name="mysqlx_table_create_foreign_key_def.cc" role="src" />
+   <file name="mysqlx_table_create_foreign_key_def.h" role="src" />
+   <file name="mysqlx_table_create_generated_column_def.cc" role="src" />
+   <file name="mysqlx_table_create_generated_column_def.h" role="src" />
+   <file name="mysqlx_view_alter.cc" role="src" />
+   <file name="mysqlx_view_alter.h" role="src" />
+   <file name="mysqlx_view_create.cc" role="src" />
+   <file name="mysqlx_view_create.h" role="src" />
+   <file name="mysqlx_view_drop.cc" role="src" />
+   <file name="mysqlx_view_drop.h" role="src" />
+   <file name="mysqlx_warning.cc" role="src" />
+   <file name="mysqlx_warning.h" role="src" />
+   <file name="mysqlx_x_session.cc" role="src" />
+   <file name="mysqlx_x_session.h" role="src" />
+   <file name="package.xml" role="src" />
+   <file name="php_mysql_xdevapi.h" role="src" />
+   <file name="php_mysqlx.cc" role="src" />
+   <file name="php_mysqlx.h" role="src" />
+   <file name="php_mysqlx_ex.cc" role="src" />
+   <file name="php_mysqlx_ex.h" role="src" />
+   <file name="php_xmysqlnd.cc" role="src" />
+   <file name="php_xmysqlnd.h" role="src" />
+   <file name="product_data.txt" role="doc" />
+   <dir name="messages">
+    <file name="mysqlx_message__auth_continue.cc" role="src" />
+    <file name="mysqlx_message__auth_continue.h" role="src" />
+    <file name="mysqlx_message__auth_ok.cc" role="src" />
+    <file name="mysqlx_message__auth_ok.h" role="src" />
+    <file name="mysqlx_message__auth_start.cc" role="src" />
+    <file name="mysqlx_message__auth_start.h" role="src" />
+    <file name="mysqlx_message__capabilities.cc" role="src" />
+    <file name="mysqlx_message__capabilities.h" role="src" />
+    <file name="mysqlx_message__capabilities_get.cc" role="src" />
+    <file name="mysqlx_message__capabilities_get.h" role="src" />
+    <file name="mysqlx_message__capabilities_set.cc" role="src" />
+    <file name="mysqlx_message__capabilities_set.h" role="src" />
+    <file name="mysqlx_message__capability.cc" role="src" />
+    <file name="mysqlx_message__capability.h" role="src" />
+    <file name="mysqlx_message__data_fetch_done.cc" role="src" />
+    <file name="mysqlx_message__data_fetch_done.h" role="src" />
+    <file name="mysqlx_message__error.cc" role="src" />
+    <file name="mysqlx_message__error.h" role="src" />
+    <file name="mysqlx_message__ok.cc" role="src" />
+    <file name="mysqlx_message__ok.h" role="src" />
+    <file name="mysqlx_message__stmt_execute.cc" role="src" />
+    <file name="mysqlx_message__stmt_execute.h" role="src" />
+    <file name="mysqlx_message__stmt_execute_ok.cc" role="src" />
+    <file name="mysqlx_message__stmt_execute_ok.h" role="src" />
+    <file name="mysqlx_node_connection.cc" role="src" />
+    <file name="mysqlx_node_connection.h" role="src" />
+    <file name="mysqlx_node_pfc.cc" role="src" />
+    <file name="mysqlx_node_pfc.h" role="src" />
+    <file name="mysqlx_resultset__column_metadata.cc" role="src" />
+    <file name="mysqlx_resultset__column_metadata.h" role="src" />
+    <file name="mysqlx_resultset__data_row.cc" role="src" />
+    <file name="mysqlx_resultset__data_row.h" role="src" />
+    <file name="mysqlx_resultset__resultset_metadata.cc" role="src" />
+    <file name="mysqlx_resultset__resultset_metadata.h" role="src" />
+   </dir>
+   <dir name="phputils">
+    <file name="allocator.cc" role="src" />
+    <file name="allocator.h" role="src" />
+    <file name="exceptions.cc" role="src" />
+    <file name="exceptions.h" role="src" />
+    <file name="hash_table.cc" role="src" />
+    <file name="hash_table.h" role="src" />
+    <file name="json_utils.cc" role="src" />
+    <file name="json_utils.h" role="src" />
+    <file name="object.cc" role="src" />
+    <file name="object.h" role="src" />
+    <file name="string_utils.cc" role="src" />
+    <file name="string_utils.h" role="src" />
+    <file name="strings.cc" role="src" />
+    <file name="strings.h" role="src" />
+    <file name="types.h" role="src" />
+    <file name="value.cc" role="src" />
+    <file name="value.h" role="src" />
+   </dir>
+   <dir name="tests">
+    <file name="000.phpt" role="test" />
+    <file name="001.phpt" role="test" />
+    <file name="002.phpt" role="test" />
+    <file name="003.phpt" role="test" />
+    <file name="004.phpt" role="test" />
+    <file name="005.phpt" role="test" />
+    <file name="006.phpt" role="test" />
+    <file name="007.phpt" role="test" />
+    <file name="008.phpt" role="test" />
+    <file name="009.phpt" role="test" />
+    <file name="010.phpt" role="test" />
+    <file name="011.phpt" role="test" />
+    <file name="012.phpt" role="test" />
+    <file name="013.phpt" role="test" />
+    <file name="014.phpt" role="test" />
+    <file name="015.phpt" role="test" />
+    <file name="016.phpt" role="test" />
+    <file name="017.phpt" role="test" />
+    <file name="018.phpt" role="test" />
+    <file name="019.phpt" role="test" />
+    <file name="020.phpt" role="test" />
+    <file name="021.phpt" role="test" />
+    <file name="022.phpt" role="test" />
+    <file name="023.phpt" role="test" />
+    <file name="024.phpt" role="test" />
+    <file name="025.phpt" role="test" />
+    <file name="026.phpt" role="test" />
+    <file name="027.phpt" role="test" />
+    <file name="028.phpt" role="test" />
+    <file name="029.phpt" role="test" />
+    <file name="030.phpt" role="test" />
+    <file name="031.phpt" role="test" />
+    <file name="032.phpt" role="test" />
+    <file name="033.phpt" role="test" />
+    <file name="034.phpt" role="test" />
+    <file name="035.phpt" role="test" />
+    <file name="036.phpt" role="test" />
+    <file name="037.phpt" role="test" />
+    <file name="connect.inc" role="test" />
+    <file name="mysqlx_create_alter_drop_view.phpt" role="test" />
+    <file name="mysqlx_create_drop_index.phpt" role="test" />
+    <file name="mysqlx_create_table.phpt" role="test" />
+    <file name="mysqlx_drop_item.phpt" role="test" />
+    <file name="mysqlx_exists_in_database.phpt" role="test" />
+    <file name="mysqlx_get_collection_as_table.phpt" role="test" />
+    <file name="mysqlx_get_name.phpt" role="test" />
+    <file name="mysqlx_multiple_results.phpt" role="test" />
+    <file name="single_doc_ops.phpt" role="test" />
+    <dir name="locking">
+     <file name="mysqlx_row_locking.inc" role="test" />
+     <file name="mysqlx_row_locking_collection_misc.phpt" role="test" />
+     <file name="mysqlx_row_locking_collection_parallel_exclusive_exclusive.phpt" role="test" />
+     <file name="mysqlx_row_locking_collection_parallel_exclusive_exclusive_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_collection_parallel_exclusive_shared.phpt" role="test" />
+     <file name="mysqlx_row_locking_collection_parallel_exclusive_shared_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_collection_parallel_shared_exclusive.phpt" role="test" />
+     <file name="mysqlx_row_locking_collection_parallel_shared_exclusive_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_collection_sequential.phpt" role="test" />
+     <file name="mysqlx_row_locking_table_misc.phpt" role="test" />
+     <file name="mysqlx_row_locking_table_parallel_exclusive_exclusive.phpt" role="test" />
+     <file name="mysqlx_row_locking_table_parallel_exclusive_exclusive_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_table_parallel_exclusive_shared.phpt" role="test" />
+     <file name="mysqlx_row_locking_table_parallel_exclusive_shared_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_table_parallel_shared_exclusive.phpt" role="test" />
+     <file name="mysqlx_row_locking_table_parallel_shared_exclusive_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_table_sequential.phpt" role="test" />
+     <file name="mysqlx_row_locking_table_sequential_native_sql.phpt" role="test" />
+    </dir>
+   </dir>
+   <dir name="xmysqlnd">
+    <file name="json_patch.txt" role="doc" />
+    <file name="xmysqlnd.h" role="src" />
+    <file name="xmysqlnd_any2expr.cc" role="src" />
+    <file name="xmysqlnd_any2expr.h" role="src" />
+    <file name="xmysqlnd_crud_collection_commands.cc" role="src" />
+    <file name="xmysqlnd_crud_collection_commands.h" role="src" />
+    <file name="xmysqlnd_crud_commands.h" role="src" />
+    <file name="xmysqlnd_crud_table_commands.cc" role="src" />
+    <file name="xmysqlnd_crud_table_commands.h" role="src" />
+    <file name="xmysqlnd_ddl_table_defs.cc" role="src" />
+    <file name="xmysqlnd_ddl_table_defs.h" role="src" />
+    <file name="xmysqlnd_ddl_view_commands.cc" role="src" />
+    <file name="xmysqlnd_ddl_view_commands.h" role="src" />
+    <file name="xmysqlnd_driver.cc" role="src" />
+    <file name="xmysqlnd_driver.h" role="src" />
+    <file name="xmysqlnd_enum_n_def.h" role="src" />
+    <file name="xmysqlnd_environment.cc" role="src" />
+    <file name="xmysqlnd_environment.h" role="src" />
+    <file name="xmysqlnd_extension_plugin.cc" role="src" />
+    <file name="xmysqlnd_extension_plugin.h" role="src" />
+    <file name="xmysqlnd_index_collection_commands.cc" role="src" />
+    <file name="xmysqlnd_index_collection_commands.h" role="src" />
+    <file name="xmysqlnd_node_collection.cc" role="src" />
+    <file name="xmysqlnd_node_collection.h" role="src" />
+    <file name="xmysqlnd_node_schema.cc" role="src" />
+    <file name="xmysqlnd_node_schema.h" role="src" />
+    <file name="xmysqlnd_node_session.cc" role="src" />
+    <file name="xmysqlnd_node_session.h" role="src" />
+    <file name="xmysqlnd_node_stmt.cc" role="src" />
+    <file name="xmysqlnd_node_stmt.h" role="src" />
+    <file name="xmysqlnd_node_stmt_result.cc" role="src" />
+    <file name="xmysqlnd_node_stmt_result.h" role="src" />
+    <file name="xmysqlnd_node_stmt_result_meta.cc" role="src" />
+    <file name="xmysqlnd_node_stmt_result_meta.h" role="src" />
+    <file name="xmysqlnd_node_table.cc" role="src" />
+    <file name="xmysqlnd_node_table.h" role="src" />
+    <file name="xmysqlnd_object_factory.cc" role="src" />
+    <file name="xmysqlnd_object_factory.h" role="src" />
+    <file name="xmysqlnd_priv.h" role="src" />
+    <file name="xmysqlnd_protocol_dumper.cc" role="src" />
+    <file name="xmysqlnd_protocol_dumper.h" role="src" />
+    <file name="xmysqlnd_protocol_frame_codec.cc" role="src" />
+    <file name="xmysqlnd_protocol_frame_codec.h" role="src" />
+    <file name="xmysqlnd_rowset.cc" role="src" />
+    <file name="xmysqlnd_rowset.h" role="src" />
+    <file name="xmysqlnd_rowset_buffered.cc" role="src" />
+    <file name="xmysqlnd_rowset_buffered.h" role="src" />
+    <file name="xmysqlnd_rowset_fwd.cc" role="src" />
+    <file name="xmysqlnd_rowset_fwd.h" role="src" />
+    <file name="xmysqlnd_session_config.cc" role="src" />
+    <file name="xmysqlnd_session_config.h" role="src" />
+    <file name="xmysqlnd_statistics.cc" role="src" />
+    <file name="xmysqlnd_stmt_execution_state.cc" role="src" />
+    <file name="xmysqlnd_stmt_execution_state.h" role="src" />
+    <file name="xmysqlnd_structs.h" role="src" />
+    <file name="xmysqlnd_table_create.cc" role="src" />
+    <file name="xmysqlnd_table_create.h" role="src" />
+    <file name="xmysqlnd_utils.cc" role="src" />
+    <file name="xmysqlnd_utils.h" role="src" />
+    <file name="xmysqlnd_view.cc" role="src" />
+    <file name="xmysqlnd_view.h" role="src" />
+    <file name="xmysqlnd_warning_list.cc" role="src" />
+    <file name="xmysqlnd_warning_list.h" role="src" />
+    <file name="xmysqlnd_wireprotocol.cc" role="src" />
+    <file name="xmysqlnd_wireprotocol.h" role="src" />
+    <file name="xmysqlnd_zval2any.cc" role="src" />
+    <file name="xmysqlnd_zval2any.h" role="src" />
+    <dir name="cdkbase">
+     <dir name="core">
+      <file name="codec.cc" role="src" />
+     </dir>
+     <dir name="foundation">
+      <file name="error.cc" role="src" />
+      <file name="string.cc" role="src" />
+     </dir>
+     <dir name="include">
+      <dir name="mysql">
+       <file name="cdk.h" role="src" />
+       <dir name="cdk">
+        <file name="charsets.h" role="src" />
+        <file name="codec.h" role="src" />
+        <file name="common.h" role="src" />
+        <file name="config.h" role="src" />
+        <file name="converters.h" role="src" />
+        <file name="cursor.h" role="src" />
+        <file name="data_source.h" role="src" />
+        <file name="foundation.h" role="src" />
+        <file name="mysqlx.h" role="src" />
+        <file name="reply.h" role="src" />
+        <file name="session.h" role="src" />
+        <dir name="api">
+         <file name="cursor.h" role="src" />
+         <file name="document.h" role="src" />
+         <file name="expression.h" role="src" />
+         <file name="mdata.h" role="src" />
+         <file name="obj_ref.h" role="src" />
+         <file name="processors.h" role="src" />
+         <file name="query.h" role="src" />
+         <file name="reply.h" role="src" />
+         <file name="session.h" role="src" />
+         <file name="transaction.h" role="src" />
+        </dir>
+        <dir name="foundation">
+         <file name="async.h" role="src" />
+         <file name="cdk_time.h" role="src" />
+         <file name="codec.h" role="src" />
+         <file name="common.h" role="src" />
+         <file name="connection_tcpip.h" role="src" />
+         <file name="connection_yassl.h" role="src" />
+         <file name="diagnostics.h" role="src" />
+         <file name="error.h" role="src" />
+         <file name="error_category.h" role="src" />
+         <file name="opaque_impl.h" role="src" />
+         <file name="opaque_impl.i" role="src" />
+         <file name="std_error_conditions.h" role="src" />
+         <file name="stream.h" role="src" />
+         <file name="types.h" role="src" />
+         <file name="variant.h" role="src" />
+        </dir>
+        <dir name="mysqlx">
+         <file name="common.h" role="src" />
+         <file name="result.h" role="src" />
+         <file name="session.h" role="src" />
+        </dir>
+        <dir name="protocol">
+         <file name="mysqlx.h" role="src" />
+         <dir name="mysqlx">
+          <file name="collations.h" role="src" />
+          <file name="expr.h" role="src" />
+          <file name="traits.h" role="src" />
+         </dir>
+        </dir>
+       </dir>
+      </dir>
+     </dir>
+     <dir name="mysqlx">
+      <file name="converters.h" role="src" />
+      <file name="delayed_op.h" role="src" />
+     </dir>
+     <dir name="parser">
+      <file name="expr_parser.cc" role="src" />
+      <file name="expr_parser.h" role="src" />
+      <file name="json_parser.cc" role="src" />
+      <file name="json_parser.h" role="src" />
+      <file name="parser.h" role="src" />
+      <file name="tokenizer.cc" role="src" />
+      <file name="tokenizer.h" role="src" />
+     </dir>
+     <dir name="protocol">
+      <dir name="mysqlx">
+       <file name="builders.h" role="src" />
+      </dir>
+     </dir>
+    </dir>
+    <dir name="crud_parsers">
+     <file name="compilerutils.h" role="src" />
+     <file name="expression_parser.cc" role="src" />
+     <file name="expression_parser.h" role="src" />
+     <file name="legacy_tokenizer.cc" role="src" />
+     <file name="legacy_tokenizer.h" role="src" />
+     <file name="memory_new.h" role="src" />
+     <file name="mysqlx_crud_parser.cc" role="src" />
+     <file name="mysqlx_crud_parser.h" role="src" />
+    </dir>
+    <dir name="proto_def">
+     <file name="mysqlx.proto" role="src" />
+     <file name="mysqlx_connection.proto" role="src" />
+     <file name="mysqlx_crud.proto" role="src" />
+     <file name="mysqlx_datatypes.proto" role="src" />
+     <file name="mysqlx_expect.proto" role="src" />
+     <file name="mysqlx_expr.proto" role="src" />
+     <file name="mysqlx_notice.proto" role="src" />
+     <file name="mysqlx_resultset.proto" role="src" />
+     <file name="mysqlx_session.proto" role="src" />
+     <file name="mysqlx_sql.proto" role="src" />
+    </dir>
+    <dir name="proto_gen">
+     <file name=".keep" role="doc" />
+    </dir>
+   </dir>
+  </dir>
  </contents>
  <dependencies>
   <required>
@@ -319,5 +507,44 @@ Initial release
  <extsrcrelease>
   <configureoption default="autodetect" name="enable-mysql-xdevapi" prompt="Enable MySQL X DevAPI" />
  </extsrcrelease>
-
+ <changelog>
+   <release>
+     <date>2017-03-13</date>
+     <time>23:42:05</time>
+     <version>
+      <release>1.0.1</release>
+      <api>1.0.1</api>
+      </version>
+      <stability>
+       <release>alpha</release>
+       <api>alpha</api>
+       </stability>
+       <license uri="http://www.php.net/license">PHP</license>
+       <notes>
+   - Added support for View DDL
+   - Added support for X DevAPI unified connection string
+   - Added support for Unix Domain Sockets
+   - Added table.isView()
+   - Added Core TLS/SSLL options
+   - Internal refacotoring
+   - Fixed a few bugs
+       </notes>
+      </release>
+   <release>
+     <date>2016-12-08</date>
+     <time>12:00:00</time>
+     <version>
+       <release>1.0.0</release>
+       <api>1.0.0</api>
+     </version>
+     <stability>
+       <release>alpha</release>
+       <api>alpha</api>
+       </stability>
+       <license uri="http://www.php.net/license">PHP</license>
+       <notes>
+Initial release
+       </notes>
+   </release>
+ </changelog>
 </package>
