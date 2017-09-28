@@ -43,13 +43,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>andrey@php.net</email>
   <active>no</active>
  </developer>
-
-
- <date>2017-06-22</date>
- <time>12:00:00</time>
-
+  <date>2017-09-28</date>
+  <time>20:00:00</time>
   <version>
-   <release>8.0.2</release>
+   <release>8.0.3</release>
    <api>1.0.0</api>
   </version>
   <stability>
@@ -58,7 +55,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   </stability>
   <license uri="http://www.php.net/license">PHP</license>
   <notes>
-Initial release
+    WL-10875: DevAPI: Array or Object "contains" operator
+    WL-10640 / 10876: DevAPI: getOne, removeOne, replaceOne, addOrReplaceOne
+    WL-10641/10877 DevAPI: Row locking for Crud.Find / Table.Select
+    server 8.x support, fixes for phpize build
   </notes>
  <contents>
   <dir name="/">
@@ -509,27 +509,49 @@ Initial release
  </extsrcrelease>
  <changelog>
    <release>
+     <date>2017-06-22</date>
+     <time>12:00:00</time>
+     <version>
+      <release>8.0.2</release>
+      <api>1.0.0</api>
+     </version>
+     <stability>
+       <release>alpha</release>
+       <api>alpha</api>
+     </stability>
+     <license uri="http://www.php.net/license">PHP</license>
+     <notes>
+      WL10393/10097 DevAPI: Table.createTable
+      MY-235: Configuration handling interface
+      WL-10402  Ensure all connectors are secure by default
+      WL10627 / 10728 Forbid modify() and remove() with no condition
+      WL-10089/10392 DevAPI: Cleanup Drop APIs
+      WL-10390: DevAPI, Document UUID generation
+      WL-10506: Bugs and Clarifications
+     </notes>
+   </release>
+   <release>
      <date>2017-03-13</date>
      <time>23:42:05</time>
      <version>
       <release>1.0.1</release>
       <api>1.0.1</api>
-      </version>
-      <stability>
+     </version>
+     <stability>
        <release>alpha</release>
        <api>alpha</api>
-       </stability>
-       <license uri="http://www.php.net/license">PHP</license>
-       <notes>
-   - Added support for View DDL
-   - Added support for X DevAPI unified connection string
-   - Added support for Unix Domain Sockets
-   - Added table.isView()
-   - Added Core TLS/SSLL options
-   - Internal refacotoring
-   - Fixed a few bugs
-       </notes>
-      </release>
+     </stability>
+     <license uri="http://www.php.net/license">PHP</license>
+     <notes>
+      - Added support for View DDL
+      - Added support for X DevAPI unified connection string
+      - Added support for Unix Domain Sockets
+      - Added table.isView()
+      - Added Core TLS/SSLL options
+      - Internal refacotoring
+      - Fixed a few bugs
+     </notes>
+   </release>
    <release>
      <date>2016-12-08</date>
      <time>12:00:00</time>
@@ -540,11 +562,11 @@ Initial release
      <stability>
        <release>alpha</release>
        <api>alpha</api>
-       </stability>
-       <license uri="http://www.php.net/license">PHP</license>
-       <notes>
-Initial release
-       </notes>
+     </stability>
+     <license uri="http://www.php.net/license">PHP</license>
+     <notes>
+       Initial release
+     </notes>
    </release>
  </changelog>
 </package>
