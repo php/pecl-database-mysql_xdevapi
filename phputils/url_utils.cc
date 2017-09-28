@@ -29,7 +29,7 @@ namespace mysqlx {
 namespace phputils {
 
 /* {{{ Url::Url */
-Url::Url(php_url* phpurl)
+Url::Url(const php_url* phpurl)
 	: scheme(checked_to_string(phpurl->scheme))
 	, user(checked_to_string(phpurl->user))
 	, pass(checked_to_string(phpurl->pass))

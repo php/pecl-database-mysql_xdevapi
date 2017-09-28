@@ -32,7 +32,7 @@ namespace phputils {
 struct Url
 {
 	Url() = default;
-	Url(php_url* phpurl);
+	Url(const php_url* phpurl);
 
 	bool empty() const;
 

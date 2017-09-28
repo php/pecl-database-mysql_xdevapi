@@ -71,22 +71,17 @@ string to_string(T val)
 	return string(str_val.c_str(), str_val.length());
 }
 
-template<typename T>
-string to_string(T* val)
+template<
+	typename T,
+	typename = typename std::enable_if<std::is_constructible<string, const T*>::value>::type>
+string to_string(const T* val)
 {
-	static_assert(std::is_constructible<string, T*>::value, "meant for raw strings only");
 	return string(val);
 }
 
-inline string to_string(const char* str)
-{
-	return string(str);
-}
-
-
 
 template<typename T>
-string checked_to_string(T* val)
+string checked_to_string(const T* val)
 {
 	return val ? to_string(val) : string();
 }
