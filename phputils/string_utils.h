@@ -47,6 +47,11 @@ struct iless
 
 //------------------------------------------------------------------------------
 
+inline string to_string(const zend_string* zstr)
+{
+	return string(ZSTR_VAL(zstr), ZSTR_LEN(zstr));
+}
+
 string to_string(const zval& zv);
 inline string to_string(zval* zv)
 {
@@ -64,6 +69,26 @@ string to_string(T val)
 	static_assert(std::is_scalar<T>::value, "meant for scalar types only");
 	const std::string& str_val = std::to_string(val);
 	return string(str_val.c_str(), str_val.length());
+}
+
+template<typename T>
+string to_string(T* val)
+{
+	static_assert(std::is_constructible<string, T*>::value, "meant for raw strings only");
+	return string(val);
+}
+
+inline string to_string(const char* str)
+{
+	return string(str);
+}
+
+
+
+template<typename T>
+string checked_to_string(T* val)
+{
+	return val ? to_string(val) : string();
 }
 
 //------------------------------------------------------------------------------

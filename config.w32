@@ -104,6 +104,7 @@ if (PHP_MYSQL_XDEVAPI != "no") {
 			"object.cc " +
 			"string_utils.cc " +
 			"strings.cc " +
+			"url_utils.cc " +
 			"value.cc ";
 
 		mysqlx_messages="mysqlx_node_connection.cc " +

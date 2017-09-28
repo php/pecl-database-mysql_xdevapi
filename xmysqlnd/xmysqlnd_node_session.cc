@@ -50,6 +50,7 @@ extern "C" {
 #include "php_variables.h"
 #include "mysqlx_exception.h"
 #include "phputils/object.h"
+#include "phputils/url_utils.h"
 #include <utility>
 #include <algorithm>
 #include <cctype>
@@ -2224,7 +2225,7 @@ struct mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zva
 static
 enum_func_status establish_connection(struct mysqlx::devapi::st_mysqlx_session * object,
 								XMYSQLND_SESSION_AUTH_DATA * auth,
-								const php_url * url,
+								const phputils::Url& url,
 								transport_types tr_type)
 {
 	DBG_ENTER("establish_connection");
@@ -2233,23 +2234,23 @@ enum_func_status establish_connection(struct mysqlx::devapi::st_mysqlx_session *
 	size_t set_capabilities = 0;
 	if( tr_type != transport_types::network ) {
 		DBG_INF_FMT("Connecting with the provided socket/pipe: %s",
-					url->host);
-		if( url->host == nullptr ) {
+					url.host.c_str());
+		if( url.host.empty() ) {
 			//This should never happen!
 			DBG_ERR_FMT("Expecting socket/pipe location, found NULL!");
 			ret = FAIL;
 		} else {
-			object->session->data->socket_path = url->host;
+			object->session->data->socket_path = url.host;
 		}
 	}
 
 	if( ret != FAIL ) {
-		const MYSQLND_CSTRING path = { url->path, strlen(url->path) };
+		const MYSQLND_CSTRING path = { url.path.c_str(), url.path.length() };
 		object->session->data->transport_type = tr_type;
 		new_session = xmysqlnd_node_session_connect(object->session,
 									auth,
 									path,
-									url->port,
+									url.port,
 									set_capabilities);
 		if(new_session == NULL) {
 			ret = FAIL;
@@ -2362,7 +2363,7 @@ extract_transport(phputils::string& uri)
 
 /* {{{ extract_uri_information */
 static
-std::pair<php_url*,transport_types> extract_uri_information(const char * uri_string)
+std::pair<phputils::Url, transport_types> extract_uri_information(const char * uri_string)
 {
 	DBG_ENTER("extract_uri_information");
 	DBG_INF_FMT("URI string: %s\n",uri_string);
@@ -2375,59 +2376,53 @@ std::pair<php_url*,transport_types> extract_uri_information(const char * uri_str
 	 */
 	auto transport = extract_transport(uri);
 	phputils::string tr_path = transport.first;
-	php_url * node_url = php_url_parse(uri.c_str());
-	if( nullptr == node_url ) {
+	php_url * raw_node_url = php_url_parse(uri.c_str());
+	if( nullptr == raw_node_url ) {
 		DBG_ERR_FMT("URI parsing failed!");
-		return { nullptr, transport_types::none };
+		return { phputils::Url(), transport_types::none };
 	}
+
+	phputils::Url node_url(raw_node_url);
+	php_url_free(raw_node_url);
+	raw_node_url = nullptr;
 	enum_func_status ret = PASS;
 	//host is required
-	if( !node_url->host ) {
+	if( node_url.host.empty() ) {
 		DBG_ERR_FMT("Missing required host name!");
 		ret = FAIL;
 	} else if( !tr_path.empty() ) {
 		//Copy the transport domain socket location
-		std::copy( tr_path.begin(), tr_path.end(), node_url->host );
-		node_url->host[ tr_path.size() ] = '\0';
+		node_url.host = tr_path;
+
 		//Make sure the transport type is not 'none' or 'network'
 		if( transport.second == transport_types::none ||
 			transport.second == transport_types::network ) {
 			//Something bad!
 			DBG_ERR_FMT("Identified a local transport path, but no proper type selected!");
-			php_url_free( node_url );
 			return { nullptr, transport_types::none };
 		}
 		//Set port to ZERO, signaling a non network socket
-		node_url->port = 0;
+		node_url.port = 0;
 	}
 	//Username is required
-	if( !node_url->user ) {
+	if( node_url.user.empty() ) {
 		DBG_ERR_FMT("Missing required user name!");
 		ret = FAIL;
 	}
 	//Port required (If no alternative transport provided)
-	if( 0 == node_url->port && tr_path.empty() ) {
+	if( 0 == node_url.port && tr_path.empty() ) {
 		DBG_INF_FMT("Missing port number, trying to get from env or set default!");
-		node_url->port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
+		node_url.port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
 	}
 	//Password optional, but print a log
-	if( !node_url->pass ) {
+	if( node_url.pass.empty() ) {
 		DBG_INF_FMT("no password given, using empty string");
 	}
-	//If path/database is missing, use empty string
-	if( !node_url->path ) {
-		//This might look weird, but the flow needs
-		//this string to never be null..
-		node_url->path = estrndup("",1);
-	}
-	if( node_url == NULL ) {
-		php_url_free( node_url );
-		node_url = NULL;
-	} else if( ret == PASS ){
+	if( ret == PASS ) {
 		DBG_INF_FMT("URI information: host: %s, port: %d,user: %s,pass: %s,path: %s, query: %s\n",
-					 node_url->host, node_url->port,
-					 node_url->user, node_url->pass,
-					 node_url->path, node_url->query);
+					 node_url.host.c_str(), node_url.port,
+					 node_url.user.c_str(), node_url.pass.c_str(),
+					 node_url.path.c_str(), node_url.query.c_str());
 		if( !tr_path.empty() ) {
 			DBG_INF_FMT("Selected local socket: ", tr_path.c_str());
 		}
@@ -2537,7 +2532,7 @@ enum_func_status extract_ssl_information(const std::pair<phputils::string,phputi
 
 /* {{{ extract_auth_information */
 static
-XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const php_url * node_url)
+XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const phputils::Url& node_url)
 {
 	DBG_ENTER("extract_auth_information");
 	enum_func_status ret = PASS;
@@ -2549,9 +2544,9 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const php_url * node_url)
 		DBG_RETURN(nullptr);
 	}
 
-	if( NULL != node_url->query ) {
+	if( !node_url.query.empty() ) {
 		DBG_INF_FMT("Query string: %s",
-					node_url->query);
+					node_url.query.c_str());
 		/*
 		 * In case of multiple variables with the same
 		 * name, treat_data will pick the value from the last one.
@@ -2559,7 +2554,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const php_url * node_url)
 		 * the value of SSL mode will be disabled (instead of ERROR)
 		 * We need to parse each variable by hand..
 		 */
-		phputils::string query{ node_url->query };
+		phputils::string query{ node_url.query };
 		phputils::string variable;
 		phputils::string value;
 
@@ -2607,14 +2602,14 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const php_url * node_url)
 		delete auth;
 		auth = nullptr;
 	} else {
-		if( node_url->port != 0 ) {
+		if( node_url.port != 0 ) {
 			//If is 0, then we're using win pipe
 			//or unix sockets.
-			auth->port = node_url->port;
-			auth->hostname = node_url->host;
+			auth->port = node_url.port;
+			auth->hostname = node_url.host;
 		}
-		auth->username = node_url->user;
-		auth->password = node_url->pass ? node_url->pass : "";
+		auth->username = node_url.user;
+		auth->password = node_url.pass;
 	}
 
 	DBG_RETURN(auth);
@@ -2960,7 +2955,7 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 					current_uri.first.c_str());
 
 		auto url = extract_uri_information( current_uri.first.c_str() );
-		if( nullptr != url.first ) {
+		if( !url.first.empty() ) {
 			mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
 			if( nullptr == session ) {
 				devapi::RAISE_EXCEPTION( err_msg_internal_error );
@@ -2990,8 +2985,6 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 			} else {
 				DBG_ERR_FMT("Connection aborted, not able to setup the 'auth' structure.");
 			}
-
-			php_url_free( url.first );
 		} else {
 			devapi::RAISE_EXCEPTION( err_msg_uri_string_fail );
 		}

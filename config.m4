@@ -142,6 +142,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		phputils/object.cc \
 		phputils/string_utils.cc \
 		phputils/strings.cc \
+		phputils/url_utils.cc \
 		phputils/value.cc \
 		"
 

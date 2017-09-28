@@ -147,7 +147,9 @@ xmysqlnd_json_parser_object_create(php_json_parser *parser,
 	struct my_php_json_parser* php_json_parser = (struct my_php_json_parser*)parser;
 	int ret = 0;
 	if (parser->scanner.options & PHP_JSON_OBJECT_AS_ARRAY) {
-		ret = array_init(object);
+		ZVAL_UNDEF(object);
+		array_init(object);
+		ret = Z_TYPE_P(object) == IS_ARRAY ? SUCCESS : FAILURE;
 	} else {
 		ret = object_init(object);
 	}
