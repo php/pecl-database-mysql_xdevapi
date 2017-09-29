@@ -50,7 +50,7 @@ bool Url::empty() const
 		&& user.empty()
 		&& pass.empty()
 		&& host.empty()
-		&& port == 0
+		&& (port == 0)
 		&& path.empty()
 		&& query.empty()
 		&& fragment.empty();
