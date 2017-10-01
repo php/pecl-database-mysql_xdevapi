@@ -367,6 +367,7 @@ void Collection_find::bind(
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 			if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, variable, val)) {
 				RAISE_EXCEPTION(err_msg_bind_fail);
+				DBG_VOID_RETURN;
 			}
 		}
 	} ZEND_HASH_FOREACH_END();

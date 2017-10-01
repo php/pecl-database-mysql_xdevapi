@@ -27,7 +27,7 @@ extern "C" {
 /*
 	useful links:
 	https://wiki.php.net/phpng-upgrading#hashtable_api
-	http://jpauli.github.io/2016/04/08/hashtables.html#hashtable-api
+	http://blog.jpauli.tech/2016/04/08/hashtables.html#hashtable-api
 	http://nikic.github.io/2014/12/22/PHPs-new-hashtable-implementation.html
 */
 

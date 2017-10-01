@@ -260,6 +260,7 @@ void Collection_modify::bind(
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 			if (FAIL == xmysqlnd_crud_collection_modify__bind_value(modify_op, variable, val)) {
 				RAISE_EXCEPTION(err_msg_bind_fail);
+				DBG_VOID_RETURN;
 			}
 		}
 	} ZEND_HASH_FOREACH_END();

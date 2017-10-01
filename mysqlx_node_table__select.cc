@@ -391,6 +391,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, bind)
 				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 				if (FAIL == xmysqlnd_crud_table_select__bind_value(object->crud_op, variable, val)) {
 					RAISE_EXCEPTION(err_msg_bind_fail);
+					DBG_VOID_RETURN;
 				}
 			}
 		} ZEND_HASH_FOREACH_END();

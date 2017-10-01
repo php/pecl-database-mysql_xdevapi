@@ -131,7 +131,7 @@ void Ensure_doc_id::process_array()
 		throw xdevapi_exception(xdevapi_exception::Code::json_fail);
 	}
 
-	ZVAL_COPY_VALUE(doc_with_id, raw_doc);
+	ZVAL_DUP(doc_with_id, raw_doc);
 	store_id();
 }
 
@@ -159,6 +159,8 @@ void Ensure_doc_id::decode_json(zval* doc_as_str)
 void Ensure_doc_id::store_id()
 {
 	if (Z_TYPE_P(doc_with_id) != IS_ARRAY) return;
+
+	assert(!Z_IMMUTABLE_P(doc_with_id));
 
 	Hash_table ht(doc_with_id, false);
 	const char* Id_column_name = "_id";
