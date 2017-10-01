@@ -215,7 +215,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	if test "$PHP_MYSQLND" != "yes" && test "$PHP_MYSQLND_ENABLED" != "yes" && test "$PHP_MYSQLI" != "yes" && test "$PHP_MYSQLI" != "mysqlnd"; then
 		dnl Enable mysqlnd build in case it wasn't passed explicitly in cmd-line
-		PHP_ADD_BUILD_DIR([ext/mysqlnd], 1)
+		dnl but only in case it is NOT phpize/pecl way of building
+		ifndef([PHP_PECL_EXTENSION], [
+			PHP_ADD_BUILD_DIR([ext/mysqlnd], 1)
+		])
 
 		dnl This needs to be set in any extension which wishes to use mysqlnd
 		PHP_MYSQLND_ENABLED=yes
@@ -227,19 +230,25 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
 
-	PHP_ADD_BUILD_DIR($ext_builddir/messages)
-	PHP_ADD_BUILD_DIR($ext_builddir/phputils)
-	PHP_ADD_BUILD_DIR($ext_builddir/xmysqlnd)
-	PHP_ADD_BUILD_DIR($ext_builddir/xmysqlnd/crud_parsers)
-	PHP_ADD_BUILD_DIR($ext_builddir/xmysqlnd/proto_gen)
-
 	this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $mysqlx_base_sources $xmysqlnd_new_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_phputils"
+
 	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1, true)
-	PHP_ADD_BUILD_DIR([ext/mysql_xdevapi], 1)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
-	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase/include])
+
+	dnl CAUTION! $ext_builddir should be used only next to PHP_NEW_EXTENSION 
 	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase])
+	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase/include])
+
+	PHP_ADD_BUILD_DIR([$ext_builddir])
+	PHP_ADD_BUILD_DIR([$ext_builddir/messages])
+	PHP_ADD_BUILD_DIR([$ext_builddir/phputils])
+	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd])
+	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/crud_parsers])
+	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/proto_gen])
+	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/cdkbase/core])
+	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/cdkbase/foundation])
+	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/cdkbase/parser])
 
 	dnl TODO: we should search for a proper protoc matchig the one who's heades we use and which we link above
 	PROTOC=protoc
