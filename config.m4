@@ -202,41 +202,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_x_session.cc \
 		"
 
-	AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
-
-	test -z "$PHP_OPENSSL" && PHP_OPENSSL=no
-
-	if test "$PHP_OPENSSL" != "no" || test "$PHP_OPENSSL_DIR" != "no"; then
-		AC_CHECK_LIB(ssl, DSA_get_default_method, AC_DEFINE(HAVE_DSA_DEFAULT_METHOD, 1, [OpenSSL 0.9.7 or later]))
-		AC_CHECK_LIB(crypto, X509_free, AC_DEFINE(HAVE_DSA_DEFAULT_METHOD, 1, [OpenSSL 0.9.7 or later]))
-
-		PHP_SETUP_OPENSSL(MYSQL_XDEVAPI_SHARED_LIBADD, [AC_DEFINE(MYSQL_XDEVAPI_HAVE_SSL,1,[Enable mysql_xdevapi code that uses OpenSSL directly])])
-	fi
-
-	if test "$PHP_MYSQLND" != "yes" && test "$PHP_MYSQLND_ENABLED" != "yes" && test "$PHP_MYSQLI" != "yes" && test "$PHP_MYSQLI" != "mysqlnd"; then
-		dnl Enable mysqlnd build in case it wasn't passed explicitly in cmd-line
-		dnl but only in case it is NOT phpize/pecl way of building
-		ifndef([PHP_PECL_EXTENSION], [
-			PHP_ADD_BUILD_DIR([ext/mysqlnd], 1)
-		])
-
-		dnl This needs to be set in any extension which wishes to use mysqlnd
-		PHP_MYSQLND_ENABLED=yes
-
-		AC_MSG_NOTICE(mysql-xdevapi depends on ext/mysqlnd; it has been added to build)
-	fi
-
-	PHP_ADD_LIBRARY(protobuf,, MYSQL_XDEVAPI_SHARED_LIBADD)
-
-	PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
-
 	this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $mysqlx_base_sources $xmysqlnd_new_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_phputils"
 
+	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_builddir or
+	dnl $PHP_PECL_EXTENSION. Should be called before they are used.
 	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1, true)
-	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
-	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
+	PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
 
-	dnl CAUTION! $ext_builddir should be used only next to PHP_NEW_EXTENSION 
 	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase])
 	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase/include])
 
@@ -254,6 +226,40 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PROTOC=protoc
 	PHP_SUBST(PROTOC)
 	PHP_ADD_MAKEFILE_FRAGMENT()
+
+	dnl dependencies
+	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
+	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
+
+	PHP_ADD_LIBRARY(protobuf,, MYSQL_XDEVAPI_SHARED_LIBADD)
+
+	AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
+
+	test -z "$PHP_OPENSSL" && PHP_OPENSSL=no
+
+	if test "$PHP_OPENSSL" != "no" || test "$PHP_OPENSSL_DIR" != "no"; then
+		AC_CHECK_LIB(ssl, DSA_get_default_method, AC_DEFINE(HAVE_DSA_DEFAULT_METHOD, 1, [OpenSSL 0.9.7 or later]))
+		AC_CHECK_LIB(crypto, X509_free, AC_DEFINE(HAVE_DSA_DEFAULT_METHOD, 1, [OpenSSL 0.9.7 or later]))
+
+		PHP_SETUP_OPENSSL(MYSQL_XDEVAPI_SHARED_LIBADD, [AC_DEFINE(MYSQL_XDEVAPI_HAVE_SSL,1,[Enable mysql_xdevapi code that uses OpenSSL directly])])
+	fi
+
+	dnl 
+	if test "$PHP_MYSQLND" != "yes" && test "$PHP_MYSQLND_ENABLED" != "yes" && test "$PHP_MYSQLI" != "yes" && test "$PHP_MYSQLI" != "mysqlnd"; then
+		dnl Enable mysqlnd build in case it wasn't passed explicitly in cmd-line
+		dnl but only in case it is NOT phpize/pecl building mode 
+		dnl AC_MSG_NOTICE($PHP_PECL_EXTENSION);
+		if test -z "$PHP_PECL_EXTENSION"; then
+			PHP_ADD_BUILD_DIR(ext/mysqlnd, 1)
+		else
+			AC_MSG_NOTICE(phpize/pecl build mode);
+		fi
+
+		dnl This needs to be set in any extension which wishes to use mysqlnd
+		PHP_MYSQLND_ENABLED=yes
+
+		AC_MSG_NOTICE(mysql-xdevapi depends on ext/mysqlnd; it has been added to build)
+	fi
 
 	dnl TODO: we should ONLY do this for OUR files, and this is NOT portable!
 	CXXFLAGS="$CXXFLAGS -std=c++11"
