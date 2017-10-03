@@ -30,14 +30,14 @@ namespace phputils {
 
 /* {{{ Url::Url */
 Url::Url(const php_url* phpurl)
-	: scheme(checked_to_string(phpurl->scheme))
-	, user(checked_to_string(phpurl->user))
-	, pass(checked_to_string(phpurl->pass))
-	, host(checked_to_string(phpurl->host))
+	: scheme(to_string(phpurl->scheme))
+	, user(to_string(phpurl->user))
+	, pass(to_string(phpurl->pass))
+	, host(to_string(phpurl->host))
 	, port(phpurl->port)
-	, path(checked_to_string(phpurl->path))
-	, query(checked_to_string(phpurl->query))
-	, fragment(checked_to_string(phpurl->fragment))
+	, path(to_string(phpurl->path))
+	, query(to_string(phpurl->query))
+	, fragment(to_string(phpurl->fragment))
 {
 }
 /* }}} */

@@ -49,7 +49,7 @@ struct iless
 
 inline string to_string(const zend_string* zstr)
 {
-	return string(ZSTR_VAL(zstr), ZSTR_LEN(zstr));
+	return zstr ? string(ZSTR_VAL(zstr), ZSTR_LEN(zstr)) : string();
 }
 
 string to_string(const zval& zv);
@@ -63,27 +63,21 @@ inline string to_string(const std::string& str)
 	return string(str.c_str(), str.length());
 }
 
-template<typename T>
-string to_string(T val)
+template<
+	typename T,
+	typename = typename std::enable_if< std::is_arithmetic<T>::value >::type>
+string to_string(const T val)
 {
-	static_assert(std::is_scalar<T>::value, "meant for scalar types only");
 	const std::string& str_val = std::to_string(val);
 	return string(str_val.c_str(), str_val.length());
 }
 
 template<
 	typename T,
-	typename = typename std::enable_if<std::is_constructible<string, const T*>::value>::type>
+	typename = typename std::enable_if< std::is_constructible<string, const T*>::value >::type>
 string to_string(const T* val)
 {
-	return string(val);
-}
-
-
-template<typename T>
-string checked_to_string(const T* val)
-{
-	return val ? to_string(val) : string();
+	return val ? string(val) : string();
 }
 
 //------------------------------------------------------------------------------
