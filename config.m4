@@ -244,10 +244,9 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		PHP_SETUP_OPENSSL(MYSQL_XDEVAPI_SHARED_LIBADD, [AC_DEFINE(MYSQL_XDEVAPI_HAVE_SSL,1,[Enable mysql_xdevapi code that uses OpenSSL directly])])
 	fi
 
-	dnl 
 	if test "$PHP_MYSQLND" != "yes" && test "$PHP_MYSQLND_ENABLED" != "yes" && test "$PHP_MYSQLI" != "yes" && test "$PHP_MYSQLI" != "mysqlnd"; then
 		dnl Enable mysqlnd build in case it wasn't passed explicitly in cmd-line
-		dnl but only in case it is NOT phpize/pecl building mode 
+		dnl but only in case it is NOT phpize/pecl building mode
 		dnl AC_MSG_NOTICE($PHP_PECL_EXTENSION);
 		if test -z "$PHP_PECL_EXTENSION"; then
 			PHP_ADD_BUILD_DIR(ext/mysqlnd, 1)
