@@ -143,7 +143,7 @@ xmysqlnd_dump_function_call(const Mysqlx::Expr::FunctionCall & fc)
 	DBG_ENTER("xmysqlnd_dump_function_call");
 
 	const bool has_name = fc.has_name();
-	DBG_INF_FMT("fc::name[%s] is %s", has_name? "SET":"NOT SET");
+	DBG_INF_FMT("fc has name %s", has_name? "SET":"NOT SET");
 	if (has_name) {
 		const bool has_ident_name = fc.name().has_name();
 		DBG_INF_FMT("identifier::name[%s] is %s", has_ident_name? "SET":"NOT SET",
