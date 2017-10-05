@@ -540,6 +540,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 	coll_modify.set(Doc_root_path, true, &doc_with_id, return_value);
 
 	coll_modify.execute(return_value);
+	zval_ptr_dtor(&doc_with_id);
 
 	DBG_VOID_RETURN;
 }
