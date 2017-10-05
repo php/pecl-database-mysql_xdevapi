@@ -66,7 +66,7 @@ inline string to_string(const std::string& str)
 template<
 	typename T,
 	typename = typename std::enable_if< std::is_arithmetic<T>::value >::type>
-string to_string(const T val)
+string to_string(T val)
 {
 	const std::string& str_val = std::to_string(val);
 	return string(str_val.c_str(), str_val.length());
@@ -74,8 +74,8 @@ string to_string(const T val)
 
 template<
 	typename T,
-	typename = typename std::enable_if< std::is_constructible<string, const T*>::value >::type>
-string to_string(const T* val)
+	typename = typename std::enable_if< std::is_constructible<string, T*>::value >::type>
+string to_string(T* val)
 {
 	return val ? string(val) : string();
 }
