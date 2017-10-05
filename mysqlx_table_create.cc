@@ -307,7 +307,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, setInitialAutoIncrement)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	long initial_auto_increment = 0;
+	zend_long initial_auto_increment = 0;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Ol",
 		&object_zv, table_create_class_entry,

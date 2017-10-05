@@ -152,7 +152,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, __construct)
 	zval* object_zv = nullptr;
 	phputils::string_input_param name;
 	phputils::string_input_param type;
-	long length = Column_def::Default_length;
+	zend_long length = Column_def::Default_length;
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Oss|l",
@@ -340,7 +340,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, decimals)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	long decimals_size = 0;
+	zend_long decimals_size = 0;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Ol",
 		&object_zv, column_def_class_entry,
