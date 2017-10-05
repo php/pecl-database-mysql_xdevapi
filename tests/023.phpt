@@ -128,8 +128,8 @@ e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))");
 	    ['f','ff',MYSQLX_TYPE_DATETIME,19,0,0,null,null,0],
 	    ['g','gg',MYSQLX_TYPE_TIMESTAMP,19,0,0,null,null,0],
 	    ['h','hh',MYSQLX_TYPE_DATE,10,0,0,null,null,0],
-	    ['i','ii',MYSQLX_TYPE_SET,[3, 12],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0],
-	    ['j','jj',MYSQLX_TYPE_ENUM,[1, 4],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0]
+	    ['i','ii',MYSQLX_TYPE_SET,[0, 3, 12],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0],
+	    ['j','jj',MYSQLX_TYPE_ENUM,[0, 1, 4],0,0,['utf8mb4_0900_ai_ci', 'latin1_swedish_ci'],['utf8mb4', 'latin1'],0]
 	];
 	if( count($cols) == 10 ) {
 	    for( $i = 0 ; $i < 10 ; $i++ ) {
@@ -164,7 +164,7 @@ function test_geometries() {
 
         $expected_data = [
 	    ['name','myname',MYSQLX_TYPE_INT,11,0,1,null,null,0],
-	    ['b','bb',MYSQLX_TYPE_GEOMETRY,4294967295,0,0,null,null,0],
+	    ['b','bb',MYSQLX_TYPE_GEOMETRY,[0, 4294967295],0,0,null,null,0],
 	];
 	$cols = $res->getColumns();
 	expect_eq(count($cols), 2);
@@ -175,7 +175,7 @@ function test_geometries() {
 	    expect_eq($cols[$i]->getColumnName(), $expected_data[$i][0]);
 	    expect_eq($cols[$i]->getColumnLabel(),$expected_data[$i][1]);
 	    expect_eq($cols[$i]->getType(),       $expected_data[$i][2]);
-	    expect_eq($cols[$i]->getLength(),     $expected_data[$i][3]);
+	    expect_eq_or_in($cols[$i]->getLength(),     $expected_data[$i][3]);
 	    expect_eq($cols[$i]->getFractionalDigits(),$expected_data[$i][4]);
 	    expect_eq($cols[$i]->isNumberSigned(),$expected_data[$i][5]);
 	    expect_eq($cols[$i]->getCollationName(),$expected_data[$i][6]);

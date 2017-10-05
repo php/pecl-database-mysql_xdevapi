@@ -666,7 +666,7 @@ xmysqlnd_dump_column_meta(const Mysqlx::Resultset::ColumnMetaData & meta)
 	DBG_INF_FMT("flags[%s] is [%u]", has_flags? "SET":"NOT SET",
 									 has_flags? meta.flags() : 0);
 
-	const bool has_content_type = meta.has_flags();
+	const bool has_content_type = meta.has_content_type();
 	DBG_INF_FMT("content_type[%s] is [%u]", has_content_type? "SET":"NOT SET",
 											has_content_type? meta.content_type() : 0);
 
