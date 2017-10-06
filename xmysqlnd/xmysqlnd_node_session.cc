@@ -2971,6 +2971,7 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 					url.second == transport_types::unix_domain_socket ) {
 					DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
 					devapi::RAISE_EXCEPTION( err_msg_tsl_not_supported_1 );
+					DBG_RETURN(FAIL);
 				}
 				else
 				{
@@ -2987,6 +2988,7 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 			}
 		} else {
 			devapi::RAISE_EXCEPTION( err_msg_uri_string_fail );
+			DBG_RETURN(FAIL);
 		}
 		if( ret == PASS ) {
 			//Ok, connection accepted with this host.

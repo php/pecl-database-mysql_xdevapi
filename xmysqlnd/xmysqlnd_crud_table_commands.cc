@@ -902,6 +902,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 	do{
 		if(Z_TYPE(columns[i]) == IS_OBJECT) {
 			devapi::RAISE_EXCEPTION(err_msg_invalid_type);
+			DBG_VOID_RETURN;
 		}
 
 		if (Z_TYPE(columns[i]) == IS_STRING) {
@@ -912,6 +913,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 			ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns[i]), entry) {
 				if (Z_TYPE_P(entry) != IS_STRING) {
 					devapi::RAISE_EXCEPTION(err_msg_wrong_param_1);
+					DBG_VOID_RETURN;
 				}
 				const MYSQLND_CSTRING column_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 				ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);

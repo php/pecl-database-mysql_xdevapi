@@ -205,6 +205,7 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 		} else {
 			DBG_ERR_FMT("The argument should be an URI or a valid Session_config object");
 			RAISE_EXCEPTION( err_msg_wrong_param_6 );
+			DBG_VOID_RETURN;
 		}
 
 		if( false == uri.empty() ) {

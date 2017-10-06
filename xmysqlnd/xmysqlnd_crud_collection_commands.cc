@@ -470,9 +470,11 @@ xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIF
 {
 	DBG_ENTER("xmysqlnd_crud_collection_modify__set_criteria");
 	try {
+		DBG_INF("before mysqlx::devapi::parser::parse");
 		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( criteria,
 																				obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
 																				obj->placeholders );
+		DBG_INF("after mysqlx::devapi::parser::parse");
 		obj->message.set_allocated_criteria(exprCriteria);
 
 		if (obj->bound_values.size()) {
@@ -480,6 +482,7 @@ xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIF
 		}
 		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
 	} catch (cdk::Error &e) {
+		DBG_INF("catch cdk::Error &e");
 		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");

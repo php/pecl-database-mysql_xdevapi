@@ -140,10 +140,12 @@ void Collection_remove::sort(
 												Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
+						DBG_VOID_RETURN;
 					}
 					if (FAIL == xmysqlnd_crud_collection_remove__add_sort(remove_op,
 															sort_expr_str)) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
+						DBG_VOID_RETURN;
 					}
 				} ZEND_HASH_FOREACH_END();
 				ZVAL_COPY(return_value, object_zv);

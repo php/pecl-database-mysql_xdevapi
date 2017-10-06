@@ -497,6 +497,7 @@ void handle_one_arg_save(INTERNAL_FUNCTION_PARAMETERS,
 		Session_config& session_conf = phputils::fetch_data_object<Session_config>( &input_parameters[0] );
 		if( session_conf.get_name().empty() ) {
 			RAISE_EXCEPTION( err_msg_wrong_param_6 );
+			DBG_VOID_RETURN;
 		}
 		Session_config session = Session_config_manager::get_instance()->save(
 					session_conf );
@@ -520,6 +521,7 @@ void handle_two_arg_save(INTERNAL_FUNCTION_PARAMETERS,
 	if( Z_TYPE( input_parameters[0] ) != IS_STRING ||
 		Z_TYPE( input_parameters[1] ) != IS_STRING ) {
 		RAISE_EXCEPTION( err_msg_wrong_param_6 );
+		DBG_VOID_RETURN;
 	}
 	/*
 	 * Attempt to decode the JSON, if it fails then
@@ -619,6 +621,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session_config_manager, save)
 	if( num_of_parameters > max_num_of_arguments ||
 		num_of_parameters <= 0 ) {
 		RAISE_EXCEPTION( err_msg_wrong_param_6 );
+		DBG_VOID_RETURN;
 	}
 
 	save_handlers[ num_of_parameters - 1 ]( INTERNAL_FUNCTION_PARAM_PASSTHRU, input_parameters);

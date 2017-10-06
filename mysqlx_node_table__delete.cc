@@ -187,10 +187,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 					const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL_P(entry), Z_STRLEN_P(entry)};
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
+						DBG_VOID_RETURN;
 					}
 					if (FAIL == xmysqlnd_crud_table_delete__add_orderby(object->crud_op, orderby_expr_str))
 					{
 						RAISE_EXCEPTION(err_msg_add_orderby_fail);
+						DBG_VOID_RETURN;
 					}
 				} ZEND_HASH_FOREACH_END();
 				ZVAL_COPY(return_value, object_zv);

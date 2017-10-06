@@ -154,6 +154,7 @@ void Collection_find::fields(
 			/* fall-through */
 		default:
 			RAISE_EXCEPTION(err_msg_invalid_type);
+			DBG_VOID_RETURN;
 	}
 
 	RETVAL_FALSE;
@@ -176,6 +177,7 @@ void Collection_find::fields(
 			/* NO else */
 			if (Z_TYPE_P(entry) != IS_STRING) {
 				RAISE_EXCEPTION(err_msg_wrong_param_1);
+				DBG_VOID_RETURN;
 			}
 			MYSQLND_CSTRING field_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 			ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
@@ -238,6 +240,7 @@ void Collection_find::add_operation(
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
+						DBG_VOID_RETURN;
 					}
 					if (Collection_find::Operation::Sort == operation) {
 						ret = xmysqlnd_crud_collection_find__add_sort(find_op, sort_expr_str);
@@ -246,6 +249,7 @@ void Collection_find::add_operation(
 					}
 					if (FAIL == ret) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
+						DBG_VOID_RETURN;
 					}
 				} ZEND_HASH_FOREACH_END();
 				ZVAL_COPY(return_value, object_zv);

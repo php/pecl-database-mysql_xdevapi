@@ -215,6 +215,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
+						DBG_VOID_RETURN;
 					}
 					if (ADD_SORT == op_type) {
 						ret = xmysqlnd_crud_table_select__add_orderby(object->crud_op, sort_expr_str);
@@ -223,6 +224,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 					}
 					if (FAIL == ret) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
+						DBG_VOID_RETURN;
 					}
 				} ZEND_HASH_FOREACH_END();
 				if( FAIL != ret ) {
