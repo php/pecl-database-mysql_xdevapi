@@ -115,7 +115,7 @@
 		$descriptorspec = array(
 			0 => array("pipe", "r"), // stdin
 			1 => array("pipe", "w"), // stdout
-			2 => array("file", $worker_path.".stderr", "w") // stderr
+			2 => array("file", $worker_path.".stderr.out", "w") // stderr
 		);
 
 		echo "worker cmd-line: ", $worker_cmd, "\n";
