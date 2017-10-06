@@ -22,16 +22,6 @@
 
 namespace mysqlx {
 
-#if PHP_VERSION_ID >= 70200
-
-static_assert(MYSQL_TYPE_SMALLINT  == MYSQL_TYPE_BIT + 1, "inconsistent enum value - fix code below for PHP 7.1!");
-static_assert(MYSQL_TYPE_MEDIUMINT == MYSQL_TYPE_BIT + 2, "inconsistent enum value - fix code below for PHP 7.1!");
-static_assert(MYSQL_TYPE_INT       == MYSQL_TYPE_BIT + 3, "inconsistent enum value - fix code below for PHP 7.1!");
-static_assert(MYSQL_TYPE_BIGINT    == MYSQL_TYPE_BIT + 4, "inconsistent enum value - fix code below for PHP 7.1!");
-static_assert(MYSQL_TYPE_BYTES     == MYSQL_TYPE_BIT + 5, "inconsistent enum value - fix code below for PHP 7.1!");
-
-#else
-
 const int MYSQL_TYPE_SMALLINT  = MYSQL_TYPE_BIT + 1;
 const int MYSQL_TYPE_MEDIUMINT = MYSQL_TYPE_BIT + 2;
 const int MYSQL_TYPE_INT       = MYSQL_TYPE_BIT + 3;
@@ -43,8 +33,6 @@ const int MYSQL_TYPE_BYTES     = MYSQL_TYPE_BIT + 5;
 #define FIELD_TYPE_INT			MYSQL_TYPE_INT
 #define FIELD_TYPE_BIGINT		MYSQL_TYPE_BIGINT
 #define FIELD_TYPE_BYTES		MYSQL_TYPE_BYTES
-
-#endif // PHP_VERSION_ID >= 70200
 
 } // namespace mysqlx
 
