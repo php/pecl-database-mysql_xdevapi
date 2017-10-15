@@ -1,16 +1,3 @@
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_connection.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_crud.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_datatypes.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_expect.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_expr.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_notice.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_resultset.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_session.proto
-dnl protoc --cpp_out xmysqlnd/proto_gen/ --proto_path xmysqlnd/proto_def/ xmysqlnd/proto_def/mysqlx_sql.proto
-dnl
-dnl g++ -c proto_gen/*.cc -lprotobuf
-
 PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
 	[  --enable-mysql-xdevapi       Enable mysql-xdevapi], no, yes)
 
@@ -51,103 +38,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		AC_DEFINE([MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES], 1, [Enable experimental features])
 	fi
 
-	xmysqlnd_protobuf_sources="xmysqlnd/proto_gen/mysqlx_connection.pb.cc \
-		xmysqlnd/proto_gen/mysqlx_crud.pb.cc \
-		xmysqlnd/proto_gen/mysqlx_datatypes.pb.cc \
-		xmysqlnd/proto_gen/mysqlx_expect.pb.cc \
-		xmysqlnd/proto_gen/mysqlx_expr.pb.cc \
-		xmysqlnd/proto_gen/mysqlx_notice.pb.cc \
-		xmysqlnd/proto_gen/mysqlx.pb.cc \
-		xmysqlnd/proto_gen/mysqlx_resultset.pb.cc \
-		xmysqlnd/proto_gen/mysqlx_session.pb.cc \
-		xmysqlnd/proto_gen/mysqlx_sql.pb.cc \
-		"
-
-	xmysqlnd_new_expr_parser=" \
-		xmysqlnd/cdkbase/foundation/string.cc \
-		xmysqlnd/cdkbase/core/codec.cc \
-		xmysqlnd/cdkbase/parser/tokenizer.cc \
-		xmysqlnd/cdkbase/parser/expr_parser.cc \
-		xmysqlnd/cdkbase/parser/json_parser.cc \
-		xmysqlnd/cdkbase/foundation/error.cc \
-		xmysqlnd/crud_parsers/mysqlx_crud_parser.cc \
-		xmysqlnd/crud_parsers/expression_parser.cc \
-		xmysqlnd/crud_parsers/legacy_tokenizer.cc \
-		"
-
-	xmysqlnd_sources="php_xmysqlnd.cc \
-		xmysqlnd/xmysqlnd_any2expr.cc \
-		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
-		xmysqlnd/xmysqlnd_crud_table_commands.cc \
-		xmysqlnd/xmysqlnd_ddl_table_defs.cc \
-		xmysqlnd/xmysqlnd_ddl_view_commands.cc \
-		xmysqlnd/xmysqlnd_driver.cc \
-		xmysqlnd/xmysqlnd_environment.cc \
-		xmysqlnd/xmysqlnd_extension_plugin.cc \
-		xmysqlnd/xmysqlnd_index_collection_commands.cc \
-		xmysqlnd/xmysqlnd_node_collection.cc \
-		xmysqlnd/xmysqlnd_node_schema.cc \
-		xmysqlnd/xmysqlnd_node_session.cc \
-		xmysqlnd/xmysqlnd_node_stmt.cc \
-		xmysqlnd/xmysqlnd_node_stmt_result.cc \
-		xmysqlnd/xmysqlnd_node_stmt_result_meta.cc \
-		xmysqlnd/xmysqlnd_node_table.cc \
-		xmysqlnd/xmysqlnd_object_factory.cc \
-		xmysqlnd/xmysqlnd_protocol_frame_codec.cc \
-		xmysqlnd/xmysqlnd_protocol_dumper.cc \
-		xmysqlnd/xmysqlnd_rowset.cc \
-		xmysqlnd/xmysqlnd_rowset_buffered.cc \
-		xmysqlnd/xmysqlnd_rowset_fwd.cc \
-		xmysqlnd/xmysqlnd_session_config.cc \
-		xmysqlnd/xmysqlnd_statistics.cc \
-		xmysqlnd/xmysqlnd_stmt_execution_state.cc \
-		xmysqlnd/xmysqlnd_table_create.cc \
-		xmysqlnd/xmysqlnd_utils.cc \
-		xmysqlnd/xmysqlnd_view.cc \
-		xmysqlnd/xmysqlnd_warning_list.cc \
-		xmysqlnd/xmysqlnd_wireprotocol.cc \
-		xmysqlnd/xmysqlnd_zval2any.cc \
-		"
-
-	mysqlx_messages=""
-	if test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES" != "no" || test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES_ENABLED" = "yes"; then
-		AC_DEFINE([MYSQL_XDEVAPI_MESSAGE_CLASSES], 1, [Enable message classes])
-
-		mysqlx_messages="messages/mysqlx_node_connection.cc \
-			messages/mysqlx_node_pfc.cc \
-										\
-			messages/mysqlx_resultset__column_metadata.cc \
-			messages/mysqlx_resultset__resultset_metadata.cc \
-			messages/mysqlx_resultset__data_row.cc \
-													\
-			messages/mysqlx_message__error.cc \
-			messages/mysqlx_message__ok.cc \
-			messages/mysqlx_message__auth_start.cc \
-			messages/mysqlx_message__auth_continue.cc \
-			messages/mysqlx_message__auth_ok.cc \
-			messages/mysqlx_message__capabilities_get.cc \
-			messages/mysqlx_message__capabilities_set.cc \
-			messages/mysqlx_message__capabilities.cc \
-			messages/mysqlx_message__capability.cc \
-			messages/mysqlx_message__stmt_execute.cc \
-			messages/mysqlx_message__stmt_execute_ok.cc \
-			messages/mysqlx_message__data_fetch_done.cc \
-			"
-	fi
-
-	mysqlx_phputils="phputils/allocator.cc \
-		phputils/exceptions.cc \
-		phputils/hash_table.cc \
-		phputils/json_utils.cc \
-		phputils/object.cc \
-		phputils/string_utils.cc \
-		phputils/strings.cc \
-		phputils/url_utils.cc \
-		phputils/value.cc \
-		"
-
-	mysqlx_base_sources="php_mysqlx.cc \
+	mysqlx_devapi_sources=" \
+		php_mysqlx.cc \
 		php_mysqlx_ex.cc \
+		php_xmysqlnd.cc \
 		mysqlx_base_session.cc \
 		mysqlx_class_properties.cc \
 		mysqlx_crud_operation_bindable.cc \
@@ -202,11 +96,122 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_x_session.cc \
 		"
 
-	this_ext_sources="$xmysqlnd_protobuf_sources $xmysqlnd_expr_parser $mysqlx_base_sources $xmysqlnd_new_expr_parser $xmysqlnd_sources $mysqlx_messages $mysqlx_phputils"
+	mysqlx_messages=""
+	if test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES" != "no" || test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES_ENABLED" = "yes"; then
+		AC_DEFINE([MYSQL_XDEVAPI_MESSAGE_CLASSES], 1, [Enable message classes])
+
+		mysqlx_messages=" \
+			messages/mysqlx_node_connection.cc \
+			messages/mysqlx_node_pfc.cc \
+			\
+			messages/mysqlx_resultset__column_metadata.cc \
+			messages/mysqlx_resultset__resultset_metadata.cc \
+			messages/mysqlx_resultset__data_row.cc \
+			\
+			messages/mysqlx_message__error.cc \
+			messages/mysqlx_message__ok.cc \
+			messages/mysqlx_message__auth_start.cc \
+			messages/mysqlx_message__auth_continue.cc \
+			messages/mysqlx_message__auth_ok.cc \
+			messages/mysqlx_message__capabilities_get.cc \
+			messages/mysqlx_message__capabilities_set.cc \
+			messages/mysqlx_message__capabilities.cc \
+			messages/mysqlx_message__capability.cc \
+			messages/mysqlx_message__stmt_execute.cc \
+			messages/mysqlx_message__stmt_execute_ok.cc \
+			messages/mysqlx_message__data_fetch_done.cc \
+			"
+	fi
+
+	mysqlx_phputils=" \
+		phputils/allocator.cc \
+		phputils/exceptions.cc \
+		phputils/hash_table.cc \
+		phputils/json_utils.cc \
+		phputils/object.cc \
+		phputils/string_utils.cc \
+		phputils/strings.cc \
+		phputils/url_utils.cc \
+		phputils/value.cc \
+		"
+
+	xmysqlnd_sources=" \
+		xmysqlnd/xmysqlnd_any2expr.cc \
+		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
+		xmysqlnd/xmysqlnd_crud_table_commands.cc \
+		xmysqlnd/xmysqlnd_ddl_table_defs.cc \
+		xmysqlnd/xmysqlnd_ddl_view_commands.cc \
+		xmysqlnd/xmysqlnd_driver.cc \
+		xmysqlnd/xmysqlnd_environment.cc \
+		xmysqlnd/xmysqlnd_extension_plugin.cc \
+		xmysqlnd/xmysqlnd_index_collection_commands.cc \
+		xmysqlnd/xmysqlnd_node_collection.cc \
+		xmysqlnd/xmysqlnd_node_schema.cc \
+		xmysqlnd/xmysqlnd_node_session.cc \
+		xmysqlnd/xmysqlnd_node_stmt.cc \
+		xmysqlnd/xmysqlnd_node_stmt_result.cc \
+		xmysqlnd/xmysqlnd_node_stmt_result_meta.cc \
+		xmysqlnd/xmysqlnd_node_table.cc \
+		xmysqlnd/xmysqlnd_object_factory.cc \
+		xmysqlnd/xmysqlnd_protocol_frame_codec.cc \
+		xmysqlnd/xmysqlnd_protocol_dumper.cc \
+		xmysqlnd/xmysqlnd_rowset.cc \
+		xmysqlnd/xmysqlnd_rowset_buffered.cc \
+		xmysqlnd/xmysqlnd_rowset_fwd.cc \
+		xmysqlnd/xmysqlnd_session_config.cc \
+		xmysqlnd/xmysqlnd_statistics.cc \
+		xmysqlnd/xmysqlnd_stmt_execution_state.cc \
+		xmysqlnd/xmysqlnd_table_create.cc \
+		xmysqlnd/xmysqlnd_utils.cc \
+		xmysqlnd/xmysqlnd_view.cc \
+		xmysqlnd/xmysqlnd_warning_list.cc \
+		xmysqlnd/xmysqlnd_wireprotocol.cc \
+		xmysqlnd/xmysqlnd_zval2any.cc \
+		"
+
+	xmysqlnd_cdkbase_parser=" \
+		xmysqlnd/cdkbase/core/codec.cc \
+		xmysqlnd/cdkbase/foundation/error.cc \
+		xmysqlnd/cdkbase/foundation/string.cc \
+		xmysqlnd/cdkbase/parser/expr_parser.cc \
+		xmysqlnd/cdkbase/parser/json_parser.cc \
+		xmysqlnd/cdkbase/parser/tokenizer.cc \
+		"
+
+	xmysqlnd_crud_parsers=" \
+		xmysqlnd/crud_parsers/expression_parser.cc \
+		xmysqlnd/crud_parsers/legacy_tokenizer.cc \
+		xmysqlnd/crud_parsers/mysqlx_crud_parser.cc \
+		"
+
+	xmysqlnd_protobuf_sources=" \
+		xmysqlnd/proto_gen/mysqlx_connection.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_crud.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_datatypes.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_expect.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_expr.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_notice.pb.cc \
+		xmysqlnd/proto_gen/mysqlx.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_resultset.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_session.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_sql.pb.cc \
+		"
+
+	MYSQL_XDEVAPI_SOURCES=" \
+		$xmysqlnd_protobuf_sources \
+		$mysqlx_devapi_sources \
+		$mysqlx_messages \
+		$mysqlx_phputils \
+		$xmysqlnd_sources \
+		$xmysqlnd_cdkbase_parser \
+		$xmysqlnd_crud_parsers \
+		"
+
+	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14"
 
 	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_builddir or
 	dnl $PHP_PECL_EXTENSION. Should be called before they are used.
-	PHP_NEW_EXTENSION(mysql_xdevapi, $this_ext_sources, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1, true)
+	PHP_NEW_EXTENSION(mysql_xdevapi, $MYSQL_XDEVAPI_SOURCES, $ext_shared,, $MYSQL_XDEVAPI_CXXFLAGS, true)
 	PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
 
 	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase])
@@ -226,6 +231,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PROTOC=protoc
 	PHP_SUBST(PROTOC)
 	PHP_ADD_MAKEFILE_FRAGMENT()
+
 
 	dnl dependencies
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
@@ -249,16 +255,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		if test -z "$PHP_PECL_EXTENSION"; then
 			dnl only in case it is NOT phpize/pecl building mode
 			PHP_ADD_BUILD_DIR(ext/mysqlnd, 1)
-		else
-			AC_MSG_NOTICE(phpize/pecl build mode);
 		fi
 
 		dnl This needs to be set in any extension which wishes to use mysqlnd
 		PHP_MYSQLND_ENABLED=yes
 
-		AC_MSG_NOTICE(mysql-xdevapi depends on ext/mysqlnd; it has been added to build)
+		AC_MSG_NOTICE(mysql-xdevapi depends on ext/mysqlnd - it has been added to build)
 	fi
 
-	dnl TODO: we should ONLY do this for OUR files, and this is NOT portable!
-	CXXFLAGS="$CXXFLAGS -std=c++11"
+	AC_DEFINE(HAVE_MYSQL_XDEVAPI, 1, [mysql-xdevapi support enabled])
 fi
