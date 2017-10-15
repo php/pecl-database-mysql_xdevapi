@@ -233,6 +233,29 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_MAKEFILE_FRAGMENT()
 
 
+	dnl phpize/pecl build
+	if test "$PHP_PECL_EXTENSION"; then
+		AC_MSG_NOTICE(phpize/pecl build mode)
+
+		case $host_os in
+			*solaris*)
+				dnl On Solaris there is problem with C++ exceptions while
+				dnl building with gcc/g++ due to conflict between Solaris libc
+				dnl vs GNU libgcc_s. They both contain _Unwind_RaiseException
+				dnl function, so we have to ensure libgcc_s comes in front of
+				dnl libc at link stage, else crashes may occur
+				dnl It may be problematic as autoconf may eat duplicates, e.g.
+				dnl -lgcc_s -lc -lgcc_s  becomes =>  -lc -lgcc_s
+				dnl see also libtool --preserve-dup-deps
+				if test -n "$GCC"; then
+					AC_MSG_NOTICE(patch applied for libc vs libgcc_s _Unwind_RaiseException conflict)
+					LDFLAGS="$LDFLAGS -lgcc_s"
+				fi
+				;;
+		esac
+	fi
+
+
 	dnl dependencies
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
