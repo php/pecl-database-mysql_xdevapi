@@ -1,4 +1,4 @@
-# TODO: We're writing into srcdir, not builddir!
+# INFO: We're writing into srcdir, not builddir!
 
 $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc: $(srcdir)/xmysqlnd/proto_def/mysqlx.proto
 	$(PROTOC) --cpp_out $(srcdir)/xmysqlnd/proto_gen/ --proto_path $(srcdir)/xmysqlnd/proto_def/ $(srcdir)/xmysqlnd/proto_def/mysql*.proto
@@ -22,6 +22,10 @@ $(srcdir)/xmysqlnd/proto_gen/mysqlx_session.pb.cc: $(srcdir)/xmysqlnd/proto_def/
 $(srcdir)/xmysqlnd/proto_gen/mysqlx_sql.pb.cc: $(srcdir)/xmysqlnd/proto_def/mysqlx_sql.proto $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 
 
+# set dependencies on protobuf generated sources, to avoid build 
+# errors due to lack of *.pb.h headers (caused by parallel compilation race)
+$(srcdir)/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
+
 $(srcdir)/xmysqlnd/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 
 $(srcdir)/messages/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
@@ -39,5 +43,3 @@ BUILT_SOURCES = $(srcdir)/xmysqlnd/proto_gen/mysqlx_connection.pb.cc \
 	 $(srcdir)/xmysqlnd/proto_gen/mysqlx_notice.pb.cc \
 	 $(srcdir)/xmysqlnd/proto_gen/mysqlx_resultset.pb.cc \
 	 $(srcdir)/xmysqlnd/proto_gen/mysqlx_sql.pb.cc
-
-protofiles: $(srcdir)/xmysqlnd/proto_gen/mysqlx_connection.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx_datatypes.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx_expr.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx_session.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx_crud.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx_expect.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx_notice.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx_resultset.pb.cc $(srcdir)/xmysqlnd/proto_gen/mysqlx_sql.pb.cc

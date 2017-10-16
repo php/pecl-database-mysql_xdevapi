@@ -268,6 +268,7 @@ Session_config_manager::Session_config_manager()
 	persistence_handler = std::make_shared<Default_persistence_handler>();
 	if( nullptr == persistence_handler ) {
 		RAISE_EXCEPTION( err_msg_internal_error );
+		DBG_VOID_RETURN;
 	}
 	//Attempt to load the sessions
 	raw_loaded_sessions loaded_session = persistence_handler->load();
@@ -277,6 +278,7 @@ Session_config_manager::Session_config_manager()
 														&session.second );
 		if( false == add_session( new_config ) ) {
 			RAISE_EXCEPTION( err_msg_not_uniq_conf_name );
+			DBG_VOID_RETURN;
 		}
 		zval_dtor( &session.second );
 	}
@@ -363,6 +365,7 @@ Session_config Session_config_manager::save(const Session_config &session)
 		 */
 		if( false == add_session( new_config ) ) {
 			RAISE_EXCEPTION( err_msg_internal_error );
+			DBG_RETURN(Session_config{});
 		}
 	} else {
 		DBG_INF_FMT("Storing an existing session.");
@@ -498,6 +501,7 @@ Session_config Session_config_manager::create_session_from_json(const phputils::
 		}
 		if( false == ret ) {
 			RAISE_EXCEPTION( err_msg_wrong_param_5 );
+			DBG_RETURN(Session_config{});
 		}
 
 	} ZEND_HASH_FOREACH_END();
