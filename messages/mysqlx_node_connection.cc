@@ -260,31 +260,32 @@ php_mysqlx_node_connection_object_allocator(zend_class_entry * class_type)
 	st_mysqlx_node_connection * connection = new st_mysqlx_node_connection();
 
 	DBG_ENTER("php_mysqlx_node_connection_object_allocator");
-	if (!mysqlx_object || !connection) {
-		goto err;
+
+	if (mysqlx_object && connection) {
+
+		mysqlx_object->ptr = connection;
+		if (PASS == mysqlnd_error_info_init(&connection->error_info_impl,
+											persistent)) {
+
+			connection->error_info = &connection->error_info_impl;
+			mysqlnd_stats_init(&connection->stats, STAT_LAST, persistent);
+
+			if (NULL != (connection->vio = mysqlnd_vio_init(persistent,
+															NULL /*factory*/,
+															connection->stats,
+															connection->error_info))) {
+				connection->persistent = persistent;
+				zend_object_std_init(&mysqlx_object->zo, class_type);
+				object_properties_init(&mysqlx_object->zo, class_type);
+
+				mysqlx_object->zo.handlers = &mysqlx_object_node_connection_handlers;
+				mysqlx_object->properties = &mysqlx_node_connection_properties;
+
+				DBG_RETURN(&mysqlx_object->zo);
+			}
+		}
 	}
-	mysqlx_object->ptr = connection;
 
-	if (FAIL == mysqlnd_error_info_init(&connection->error_info_impl, persistent)) {
-		goto err;
-	}
-	connection->error_info = &connection->error_info_impl;
-
-	mysqlnd_stats_init(&connection->stats, STAT_LAST, persistent);
-	if (!(connection->vio = mysqlnd_vio_init(persistent, NULL /*factory*/, connection->stats, connection->error_info))) {
-		goto err;
-	}
-
-	connection->persistent = persistent;
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_node_connection_handlers;
-	mysqlx_object->properties = &mysqlx_node_connection_properties;
-
-	DBG_RETURN(&mysqlx_object->zo);
-
-err:
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);
 	}

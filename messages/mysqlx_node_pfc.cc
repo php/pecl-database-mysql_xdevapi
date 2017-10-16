@@ -180,31 +180,32 @@ php_mysqlx_node_pfc_object_allocator(zend_class_entry * class_type)
 	st_mysqlx_node_pfc * codec = static_cast<st_mysqlx_node_pfc*>(mnd_pecalloc(1, sizeof(struct st_mysqlx_node_pfc), persistent));
 
 	DBG_ENTER("php_mysqlx_node_pfc_object_allocator");
-	if (!mysqlx_object || !codec) {
-		goto err;
+	if ( mysqlx_object && codec ) {
+		mysqlx_object->ptr = codec;
+
+		if (PASS == mysqlnd_error_info_init(&codec->error_info_impl,
+
+											persistent)) {
+			codec->error_info = &codec->error_info_impl;
+			mysqlnd_stats_init(&codec->stats, STAT_LAST, persistent);
+			codec->pfc = xmysqlnd_pfc_create(persistent,
+											 factory,
+											 codec->stats,
+											 codec->error_info);
+
+			if ( NULL != codec->pfc ) {
+				codec->persistent = persistent;
+				zend_object_std_init(&mysqlx_object->zo, class_type);
+				object_properties_init(&mysqlx_object->zo, class_type);
+
+				mysqlx_object->zo.handlers = &mysqlx_object_node_pfc_handlers;
+				mysqlx_object->properties = &mysqlx_node_pfc_properties;
+
+				DBG_RETURN(&mysqlx_object->zo);
+			}
+		}
+
 	}
-	mysqlx_object->ptr = codec;
-
-	if (FAIL == mysqlnd_error_info_init(&codec->error_info_impl, persistent)) {
-		goto err;
-	}
-	codec->error_info = &codec->error_info_impl;
-	mysqlnd_stats_init(&codec->stats, STAT_LAST, persistent);
-
-	if (!(codec->pfc = xmysqlnd_pfc_create(persistent, factory, codec->stats, codec->error_info))){
-		goto err;
-	}
-
-	codec->persistent = persistent;
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_node_pfc_handlers;
-	mysqlx_object->properties = &mysqlx_node_pfc_properties;
-
-	DBG_RETURN(&mysqlx_object->zo);
-
-err:
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);
 	}

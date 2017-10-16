@@ -165,21 +165,19 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 	struct st_mysqlx_warning * message = (struct st_mysqlx_warning *)  mnd_pecalloc(1, sizeof(struct st_mysqlx_warning), persistent);
 
 	DBG_ENTER("php_mysqlx_warning_object_allocator");
-	if (!mysqlx_object || !message) {
-		goto err;
+	if ( mysqlx_object && message) {
+		mysqlx_object->ptr = message;
+
+		message->persistent = persistent;
+		zend_object_std_init(&mysqlx_object->zo, class_type);
+		object_properties_init(&mysqlx_object->zo, class_type);
+
+		mysqlx_object->zo.handlers = &mysqlx_object_warning_handlers;
+		mysqlx_object->properties = &mysqlx_warning_properties;
+
+		DBG_RETURN(&mysqlx_object->zo);
+
 	}
-	mysqlx_object->ptr = message;
-
-	message->persistent = persistent;
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_warning_handlers;
-	mysqlx_object->properties = &mysqlx_warning_properties;
-
-	DBG_RETURN(&mysqlx_object->zo);
-
-err:
 	if (message) {
 		mnd_pefree(message, persistent);
 	}

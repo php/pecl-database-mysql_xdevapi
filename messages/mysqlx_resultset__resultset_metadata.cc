@@ -116,23 +116,21 @@ php_mysqlx_resultset_metadata_object_allocator(zend_class_entry * class_type)
 	struct st_mysqlx_resultset_metadata * message = new struct st_mysqlx_resultset_metadata;
 
 	DBG_ENTER("php_mysqlx_resultset_metadata_object_allocator");
-	if (!mysqlx_object || !message) {
-		goto err;
+	if ( mysqlx_object && message) {
+		mysqlx_object->ptr = message;
+
+		message->persistent = persistent;
+		zend_hash_init(&message->resultset_metadata_ht, 0, NULL /*hashfunc*/, ZVAL_PTR_DTOR, persistent);
+
+		zend_object_std_init(&mysqlx_object->zo, class_type);
+		object_properties_init(&mysqlx_object->zo, class_type);
+
+		mysqlx_object->zo.handlers = &mysqlx_object_resultset_metadata_handlers;
+		mysqlx_object->properties = &mysqlx_resultset_metadata_properties;
+
+		DBG_RETURN(&mysqlx_object->zo);
+
 	}
-	mysqlx_object->ptr = message;
-
-	message->persistent = persistent;
-	zend_hash_init(&message->resultset_metadata_ht, 0, NULL /*hashfunc*/, ZVAL_PTR_DTOR, persistent);
-
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_resultset_metadata_handlers;
-	mysqlx_object->properties = &mysqlx_resultset_metadata_properties;
-
-	DBG_RETURN(&mysqlx_object->zo);
-
-err:
 	if (message) {
 		zend_hash_destroy(&message->resultset_metadata_ht);
 		delete message;

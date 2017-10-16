@@ -163,19 +163,23 @@ mysqlx_execute_base_session_query(XMYSQLND_NODE_SESSION * const session,
 			unsigned int i = 0;
 			ZVAL_UNDEF(&zv);
 
+			bool found{ false };
 			for (; i < argc; ++i) {
 				ZVAL_UNDEF(&zv);
 				mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], &zv);
 				if (Z_TYPE(zv) == IS_FALSE) {
-					goto end;
+					found = true;
+					break;
 				}
 				zval_dtor(&zv);
 			}
-			ZVAL_UNDEF(&zv);
+			if( false == found ) {
+				ZVAL_UNDEF(&zv);
 
-			mysqlx_node_sql_statement_execute(Z_MYSQLX_P(&stmt_zv), flags, &zv);
+				mysqlx_node_sql_statement_execute(Z_MYSQLX_P(&stmt_zv), flags, &zv);
 
-			ZVAL_COPY(return_value, &zv);
+				ZVAL_COPY(return_value, &zv);
+			}
 		}
 end:
 		zval_ptr_dtor(&stmt_zv);

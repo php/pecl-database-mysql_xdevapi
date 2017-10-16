@@ -85,7 +85,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 	struct st_mysqlx_data_row * object;
 	struct st_mysqlx_resultset_metadata * metadata;
 
-	DBG_ENTER("mysqlx_message__stmt_execute::read_response");
+	DBG_ENTER("mysqlx_data_row::decode");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
 												&object_zv, mysqlx_data_row_class_entry,
 												&metadata_zv, mysqlx_resultset_metadata_class_entry))
@@ -161,10 +161,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 			  double-free and a crash.
 			*/
 			ZVAL_NULL(&zv);
-			if (buf_size == 0) {
-				goto skip_switch;
-			}
-			switch (meta.type()) {
+			if (buf_size != 0) {
+				switch (meta.type()) {
 				case Mysqlx::Resultset::ColumnMetaData_FieldType_SINT:{
 					::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 					::google::protobuf::uint64 gval;
@@ -391,8 +389,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					delete [] d_val;
 					break;
 				}
+				}
 			}
-skip_switch:
 			zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &zv);
 		}
 	}
@@ -445,21 +443,19 @@ php_mysqlx_data_row_object_allocator(zend_class_entry * class_type)
 	struct st_mysqlx_data_row * message = new (std::nothrow) struct st_mysqlx_data_row();
 
 	DBG_ENTER("php_mysqlx_data_row_object_allocator");
-	if (!mysqlx_object || !message) {
-		goto err;
+	if ( mysqlx_object && message) {
+		mysqlx_object->ptr = message;
+
+		message->persistent = persistent;
+		zend_object_std_init(&mysqlx_object->zo, class_type);
+		object_properties_init(&mysqlx_object->zo, class_type);
+
+		mysqlx_object->zo.handlers = &mysqlx_object_data_row_handlers;
+		mysqlx_object->properties = &mysqlx_data_row_properties;
+
+		DBG_RETURN(&mysqlx_object->zo);
+
 	}
-	mysqlx_object->ptr = message;
-
-	message->persistent = persistent;
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_data_row_handlers;
-	mysqlx_object->properties = &mysqlx_data_row_properties;
-
-	DBG_RETURN(&mysqlx_object->zo);
-
-err:
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);
 	}

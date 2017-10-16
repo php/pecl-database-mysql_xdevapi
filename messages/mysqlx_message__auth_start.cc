@@ -195,21 +195,18 @@ php_mysqlx_message__auth_start_object_allocator(zend_class_entry * class_type)
 	struct st_mysqlx_message__auth_start * message = new (std::nothrow) struct st_mysqlx_message__auth_start();
 
 	DBG_ENTER("php_mysqlx_message__auth_start_object_allocator");
-	if (!mysqlx_object || !message) {
-		goto err;
+	if (mysqlx_object && message) {
+		mysqlx_object->ptr = message;
+
+		message->persistent = persistent;
+		zend_object_std_init(&mysqlx_object->zo, class_type);
+		object_properties_init(&mysqlx_object->zo, class_type);
+
+		mysqlx_object->zo.handlers = &mysqlx_object_message__auth_start_handlers;
+		mysqlx_object->properties = &mysqlx_message__auth_start_properties;
+
+		DBG_RETURN(&mysqlx_object->zo);
 	}
-	mysqlx_object->ptr = message;
-
-	message->persistent = persistent;
-	zend_object_std_init(&mysqlx_object->zo, class_type);
-	object_properties_init(&mysqlx_object->zo, class_type);
-
-	mysqlx_object->zo.handlers = &mysqlx_object_message__auth_start_handlers;
-	mysqlx_object->properties = &mysqlx_message__auth_start_properties;
-
-	DBG_RETURN(&mysqlx_object->zo);
-
-err:
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);
 	}

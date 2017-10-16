@@ -254,39 +254,43 @@ mysqlx_new_node_collection__create_index(zval * return_value,
 	const zend_bool is_unique,
 	XMYSQLND_NODE_COLLECTION * collection)
 {
+	bool operation_failed{ true };
 	DBG_ENTER("mysqlx_new_node_collection__create_index");
-	//TODO temporarily try/catch, port files from *.c to *.cc to apply exceptions/destructors everywhere :-}
-	MYSQL_XDEVAPI_TRY {
-		auto& data_object = phputils::init_object<collection_create_index_data>(collection_create_index_class_entry, return_value);
+	if( !index_name.s ||
+		!index_name.l ) {
+		DBG_ERR("Index name should contain a valid name!");
+	} else {
+		//TODO temporarily try/catch, port files from *.c to *.cc to apply exceptions/destructors everywhere :-}
+		MYSQL_XDEVAPI_TRY {
+			auto& data_object = phputils::init_object<collection_create_index_data>(collection_create_index_class_entry, return_value);
 
-		data_object.collection = collection->data->m.get_reference(collection);
-		data_object.index_op = drv::xmysqlnd_collection_create_index__create(
-			mnd_str2c(data_object.collection->data->schema->data->schema_name),
-			mnd_str2c(data_object.collection->data->collection_name));
-		if (!data_object.index_op) {
-			goto err;
-		}
-		if (!index_name.s ||
-			!index_name.l ||
-			(FAIL == drv::xmysqlnd_collection_create_index__set_index_name(data_object.index_op, index_name)))
-		{
-			goto err;
-		}
-		if (FAIL == drv::xmysqlnd_collection_create_index__set_unique(data_object.index_op, is_unique))
-		{
-			goto err;
-		}
-		goto end;
-err:
-		DBG_ERR("Error");
-		if (data_object.collection) {
-			data_object.collection->data->m.free_reference(data_object.collection, NULL, NULL);
-		}
+			data_object.collection = collection->data->m.get_reference(collection);
+			data_object.index_op = drv::xmysqlnd_collection_create_index__create(
+				mnd_str2c(data_object.collection->data->schema->data->schema_name),
+				mnd_str2c(data_object.collection->data->collection_name));
+
+			if (!data_object.index_op) {
+				DBG_ERR("Unable to create the index operation!");
+			} else {
+				if ( (FAIL == drv::xmysqlnd_collection_create_index__set_index_name(data_object.index_op, index_name)) ||
+					 (FAIL == drv::xmysqlnd_collection_create_index__set_unique(data_object.index_op, is_unique)) ) {
+					DBG_ERR("Unable to setup index attributes!");
+				} else {
+					operation_failed = false;
+				}
+			}
+			if( true == operation_failed ) {
+				if (data_object.collection) {
+					data_object.collection->data->m.free_reference(data_object.collection, NULL, NULL);
+				}
+			}
+		} MYSQL_XDEVAPI_CATCH
+	}
+	if( true == operation_failed ) {
 		zval_ptr_dtor(return_value);
 		ZVAL_NULL(return_value);
 		throw phputils::doc_ref_exception(phputils::doc_ref_exception::Severity::warning, collection_create_index_class_entry);
-	} MYSQL_XDEVAPI_CATCH
-end:
+	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
