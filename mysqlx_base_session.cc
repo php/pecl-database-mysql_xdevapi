@@ -633,7 +633,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 	}
 	query += name;
 
-	fprintf(stderr,"%s\n", query.c_str());
 	if (data_object.session) {
 		zval * args = NULL;
 		int argc = 0;
@@ -669,7 +668,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
 	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>(object_zv);
 	RETVAL_FALSE;
 
-	fprintf(stderr,"ROLLBACK TO: %s\n", savepoint_name.c_str());
+	const phputils::string query{ "ROLLBACK TO " + savepoint_name.to_string() };
+
+	if (data_object.session) {
+		zval * args = NULL;
+		int argc = 0;
+		mysqlx_execute_base_session_query(
+					data_object.session,
+					namespace_sql,
+					{query.c_str(), query.size()} ,
+					MYSQLX_EXECUTE_FLAG_BUFFERED,
+					return_value, argc, args);
+	}
 
 	DBG_VOID_RETURN;
 }
