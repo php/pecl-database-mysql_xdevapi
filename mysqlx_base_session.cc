@@ -86,6 +86,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__rollback, 0, ZEND_RETURN_VAL
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__set_savepoint, 0, ZEND_RETURN_VALUE, 0)
+		ZEND_ARG_INFO(no_pass_by_ref, name)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__rollback_to, 0, ZEND_RETURN_VALUE, 0)
@@ -597,20 +598,54 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 /* }}} */
 
 
+static phputils::string
+generate_savepoint_name( const unsigned int name_seed )
+{
+	std::stringstream output;
+	output << SAVEPOINT_NAME_PREFIX << name_seed;
+	return output.str().c_str();
+}
+
 /* {{{ proto mixed mysqlx_base_session::setSavepoint() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 {
 	zval * object_zv;
 	DBG_ENTER("mysqlx_base_session::setSavepoint");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE)
-	{
+	phputils::string_input_param savepoint_name;
+
+	if (zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "O|s",
+		&object_zv, mysqlx_base_session_class_entry,
+		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
 	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>(object_zv);
 	RETVAL_FALSE;
 
-	fprintf(stderr,"SET SAVEPOINT\n");
+	phputils::string query{ "SAVEPOINT " };
+	phputils::string name;
+	if( savepoint_name.empty() ) {
+		//Generate a valid savepoint name
+		name += generate_savepoint_name( data_object.session->data->savepoint_name_seed++ );
+	} else {
+		name += savepoint_name.to_string();
+	}
+	query += name;
+
+	fprintf(stderr,"%s\n", query.c_str());
+	if (data_object.session) {
+		zval * args = NULL;
+		int argc = 0;
+		mysqlx_execute_base_session_query(
+					data_object.session,
+					namespace_sql,
+					{query.c_str(), query.size()} ,
+					MYSQLX_EXECUTE_FLAG_BUFFERED,
+					return_value, argc, args);
+	}
+
+	RETVAL_STRINGL( name.c_str(), name.size() );
 
 	DBG_VOID_RETURN;
 }

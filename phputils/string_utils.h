@@ -97,6 +97,13 @@ strings to_strings(zval* zvals, int count, Pred pred)
 }
 /* }}} */
 
+/*
+ * Small utility which make sure that a given
+ * name is compliant with the SPEC details
+ */
+bool is_valid_identifier( const phputils::string& str );
+
+
 } // namespace phputils
 
 } // namespace mysqlx
