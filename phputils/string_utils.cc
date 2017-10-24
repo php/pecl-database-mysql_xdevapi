@@ -71,12 +71,19 @@ bool is_valid_identifier( const phputils::string& str )
 	if( str.size() > max_identifier_name_length ) {
 		return false;
 	}
+	int num_of_letter{ 0 };
+	int num_of_digit{ 0 };
 	for( auto& ch : str ) {
 		if( false == std::isalnum( ch ) ) {
 			return false;
 		}
+		if( 0 < std::isalpha( ch ) ) {
+			++num_of_letter;
+		} else {
+			++num_of_digit;
+		}
 	}
-	return true;
+	return num_of_letter > 0;
 }
 /* }}} */
 
