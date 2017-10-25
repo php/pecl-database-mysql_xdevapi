@@ -12,7 +12,8 @@ error_reporting=0
 	expect_true( null != $coll );
 
 function fetch_and_verify( $num_of_docs ) {
-        global $coll;
+        print 'verify!!'.PHP_EOL;
+	global $coll;
 	$data = $coll->find()->execute()->fetchAll();
 	if( 0 < $num_of_docs ) {
 	    expect_eq( count( $data ) , $num_of_docs );
