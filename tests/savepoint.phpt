@@ -8,7 +8,7 @@ error_reporting=0
         require_once("connect.inc");
 
 	$nodeSession = create_test_db();
-	$coll = $nodeSession->getSchema('testx')->getCollection('test_collection');
+	$coll = $nodeSession->getSchema('testx')->getCollection( $test_collection_name );
 	expect_true( null != $coll );
 
 function fetch_and_verify( $num_of_docs ) {

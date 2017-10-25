@@ -598,7 +598,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 }
 /* }}} */
 
+const phputils::string SAVEPOINT_NAME_PREFIX{ "SAVEPOINT" };
 
+
+/* {{{ generate_savepoint_name*/
 static phputils::string
 generate_savepoint_name( const unsigned int name_seed )
 {
@@ -606,6 +609,8 @@ generate_savepoint_name( const unsigned int name_seed )
 	output << SAVEPOINT_NAME_PREFIX << name_seed;
 	return output.str().c_str();
 }
+/* }}} */
+
 
 /* {{{ proto mixed mysqlx_base_session::setSavepoint() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
@@ -639,7 +644,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 		query += name;
 
 		if (data_object.session) {
-			zval * args = NULL;
+			zval * args{ nullptr };
 			int argc = 0;
 			mysqlx_execute_base_session_query(
 						data_object.session,
@@ -680,7 +685,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
 		const phputils::string query{ "ROLLBACK TO " + savepoint_name.to_string() };
 
 		if (data_object.session) {
-			zval * args = NULL;
+			zval * args{ nullptr };
 			int argc = 0;
 			mysqlx_execute_base_session_query(
 						data_object.session,
@@ -719,7 +724,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, releaseSavepoint)
 		const phputils::string query{ "RELEASE SAVEPOINT " + savepoint_name.to_string() };
 
 		if (data_object.session) {
-			zval * args = NULL;
+			zval * args{ nullptr };
 			int argc = 0;
 			mysqlx_execute_base_session_query(
 						data_object.session,

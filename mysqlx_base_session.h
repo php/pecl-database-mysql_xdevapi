@@ -36,8 +36,6 @@ struct st_mysqlx_session : public phputils::custom_allocable
 void mysqlx_register_base_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_base_session_class(SHUTDOWN_FUNC_ARGS);
 
-#define SAVEPOINT_NAME_PREFIX "SAVEPOINT"
-
 } // namespace devapi
 
 } // namespace mysqlx
