@@ -598,13 +598,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 }
 /* }}} */
 
-const phputils::string SAVEPOINT_NAME_PREFIX{ "SAVEPOINT" };
-
 
 /* {{{ generate_savepoint_name*/
 static phputils::string
 generate_savepoint_name( const unsigned int name_seed )
 {
+	static const std::string SAVEPOINT_NAME_PREFIX{ "SAVEPOINT" };
 	std::stringstream output;
 	output << SAVEPOINT_NAME_PREFIX << name_seed;
 	return output.str().c_str();
