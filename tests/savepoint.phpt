@@ -26,6 +26,7 @@ function fetch_and_verify( $num_of_docs ) {
 }
 
         /* 1th scenario */
+	print 'scenario 1'.PHP_EOL;
 	$nodeSession->startTransaction();
 	$sp1 = $nodeSession->setSavepoint();
 	expect_true( 0 < strlen( $sp1 ) );
@@ -35,6 +36,7 @@ function fetch_and_verify( $num_of_docs ) {
 
         /* 2th Scenario */
 	$nodeSession->startTransaction();
+	print 'scenario 2'.PHP_EOL;
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $nodeSession->setSavepoint();
 	expect_true( 0 < strlen( $sp1 ) );
@@ -46,6 +48,7 @@ function fetch_and_verify( $num_of_docs ) {
 
         /* 3th Scenario */
 	$nodeSession->startTransaction();
+	print 'scenario 3'.PHP_EOL;
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $nodeSession->setSavepoint();
 	expect_true( 0 < strlen( $sp1 ) );
@@ -57,6 +60,7 @@ function fetch_and_verify( $num_of_docs ) {
 
         /* 4th Scenario */
 	$nodeSession->startTransaction();
+	print 'scenario 4'.PHP_EOL;
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $nodeSession->setSavepoint( 'mysavepoint1' );
 	expect_eq( $sp1, 'mysavepoint1' );
@@ -68,6 +72,7 @@ function fetch_and_verify( $num_of_docs ) {
 
         /* 5th Scenario */
 	$nodeSession->startTransaction();
+	print 'scenario 5'.PHP_EOL;
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $nodeSession->setSavepoint( 'mysavepoint1' );
 	expect_eq( $sp1, 'mysavepoint1' );
@@ -79,6 +84,7 @@ function fetch_and_verify( $num_of_docs ) {
 
         /* 6th */
 	$nodeSession->startTransaction();
+	print 'scenario 6'.PHP_EOL;
 	try{
 	        $nodeSession->setSavepoint( ' ' );
 		test_step_failed();
@@ -131,6 +137,7 @@ function fetch_and_verify( $num_of_docs ) {
 	fetch_and_verify( 0 );
 
         /* 7th */
+	print 'scenario 7'.PHP_EOL;
 	$nodeSession->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$spOrigin = $nodeSession->setSavepoint();
@@ -154,6 +161,7 @@ function fetch_and_verify( $num_of_docs ) {
 	fetch_and_verify( 0 );
 
         /* 8th */
+	print 'scenario 8'.PHP_EOL;
 	$nodeSession->startTransaction();
 	$sp1 = $nodeSession->setSavepoint();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
@@ -176,6 +184,7 @@ function fetch_and_verify( $num_of_docs ) {
 
         /* 9th */
 	$nodeSession->startTransaction();
+	print 'scenario 9'.PHP_EOL;
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $nodeSession->setSavepoint( );
 	$coll->add( '{"test3":3, "test4":4}' )->execute();
