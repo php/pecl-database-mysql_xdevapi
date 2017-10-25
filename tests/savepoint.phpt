@@ -8,13 +8,15 @@ error_reporting=0
         require_once("connect.inc");
 
 	$nodeSession = create_test_db();
-	$coll = $nodeSession->getSchema('testx')->getCollection( $test_collection_name );
+	$coll = $nodeSession->getSchema($db)->getCollection( $test_collection_name );
 	expect_true( null != $coll );
+	var_dump($coll);
 
 function fetch_and_verify( $num_of_docs ) {
         print 'Enter verify'.PHP_EOL;
 	global $coll;
 	$data = $coll->find()->execute()->fetchAll();
+	var_dump($data);
 	if( 0 < $num_of_docs ) {
 	    expect_eq( count( $data ) , $num_of_docs );
 	    if( count( $data ) == $num_of_docs ) {
