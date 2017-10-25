@@ -12,12 +12,14 @@ error_reporting=0
 	expect_true( null != $coll );
 
 function fetch_and_verify( $num_of_docs ) {
-        global $coll;
+        print 'Enter verify'.PHP_EOL;
+	global $coll;
 	$data = $coll->find()->execute()->fetchAll();
 	if( 0 < $num_of_docs ) {
 	    expect_eq( count( $data ) , $num_of_docs );
 	    if( count( $data ) == $num_of_docs ) {
 	        for( $i = 1 ; $i <= count( $data ) ; $i++ ) {
+		    print 'LOOP: '.$i.','.count($data).PHP_EOL;
 		    expect_eq( $data[$i-1]["test".( $i*2 - 1) ], $i*2 - 1 );
 		    expect_eq( $data[$i-1]["test".( $i*2) ], $i*2 );
 		}
@@ -25,6 +27,7 @@ function fetch_and_verify( $num_of_docs ) {
 	} else {
 	    expect_false( $data );
 	}
+	print 'Exit verify'.PHP_EOL;
 }
 
         /* 1th scenario */
