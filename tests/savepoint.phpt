@@ -7,7 +7,6 @@ error_reporting=0
 <?php
         require_once("connect.inc");
 
-        clean_test_db();
 	$nodeSession = create_test_db();
 	$coll = $nodeSession->getSchema('testx')->getCollection('test_collection');
 	expect_true( null != $coll );
@@ -196,7 +195,7 @@ function fetch_and_verify( $num_of_docs ) {
 --CLEAN--
 <?php
         require("connect.inc");
-	//clean_test_db();
+	clean_test_db();
 ?>
 --EXPECTF--
 done!%A
