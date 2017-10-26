@@ -383,23 +383,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 {
 	st_mysqlx_node_schema* object = nullptr;
 	zval* object_zv = nullptr;
-	phputils::string_input_param raw_coll_name;
+	phputils::string_input_param collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::getCollection");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
 												&object_zv, mysqlx_node_schema_class_entry,
-												&(raw_coll_name.str), &(raw_coll_name.len)))
+												&(collection_name.str), &(collection_name.len)))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	auto escaped_name = escape_identifier( raw_coll_name.to_string() );
-	const MYSQLND_CSTRING collection_name{ escaped_name.c_str(), escaped_name.size() };
-
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if (collection_name.s && collection_name.l && object->schema) {
-		st_xmysqlnd_node_collection* const collection = object->schema->data->m.create_collection_object(object->schema, collection_name);
+	if ( !collection_name.empty() && object->schema) {
+		st_xmysqlnd_node_collection* const collection = object->schema->data->m.create_collection_object(object->schema, collection_name.to_nd_cstr());
 		if (collection) {
 			mysqlx_new_node_collection(return_value, collection, FALSE);
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
@@ -475,23 +472,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTable)
 {
 	st_mysqlx_node_schema* object = nullptr;
 	zval* object_zv = nullptr;
-	phputils::string_input_param raw_table_name;
+	phputils::string_input_param table_name;
 
 	DBG_ENTER("mysqlx_node_schema::getTable");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
 												&object_zv, mysqlx_node_schema_class_entry,
-												&(raw_table_name.str), &(raw_table_name.len)))
+												&(table_name.str), &(table_name.len)))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	auto escaped_name = escape_identifier( raw_table_name.to_string() );
-	const MYSQLND_CSTRING table_name{ escaped_name.c_str(), escaped_name.size() };
-
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if (table_name.s && table_name.l && object->schema) {
-		st_xmysqlnd_node_table* const table = object->schema->data->m.create_table_object(object->schema, table_name);
+	if ( !table_name.empty() && object->schema) {
+		st_xmysqlnd_node_table* const table = object->schema->data->m.create_table_object(object->schema, table_name.to_nd_cstr());
 		mysqlx_new_node_table(return_value, table, FALSE /* no clone */);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
 			xmysqlnd_node_table_free(table, nullptr, nullptr);
