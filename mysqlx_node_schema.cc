@@ -41,6 +41,7 @@ extern "C" {
 #include "mysqlx_view_drop.h"
 #include "phputils/allocator.h"
 #include "phputils/object.h"
+#include "phputils/string_utils.h"
 
 namespace mysqlx {
 
@@ -382,15 +383,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 {
 	st_mysqlx_node_schema* object = nullptr;
 	zval* object_zv = nullptr;
-	MYSQLND_CSTRING collection_name = { nullptr, 0 };
+	phputils::string_input_param raw_coll_name;
 
 	DBG_ENTER("mysqlx_node_schema::getCollection");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
 												&object_zv, mysqlx_node_schema_class_entry,
-												&(collection_name.s), &(collection_name.l)))
+												&(raw_coll_name.str), &(raw_coll_name.len)))
 	{
 		DBG_VOID_RETURN;
 	}
+
+	auto escaped_name = escape_identifier( raw_coll_name.to_string() );
+	const MYSQLND_CSTRING collection_name{ escaped_name.c_str(), escaped_name.size() };
+
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if (collection_name.s && collection_name.l && object->schema) {
@@ -470,15 +475,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTable)
 {
 	st_mysqlx_node_schema* object = nullptr;
 	zval* object_zv = nullptr;
-	MYSQLND_CSTRING table_name = { nullptr, 0 };
+	phputils::string_input_param raw_table_name;
 
 	DBG_ENTER("mysqlx_node_schema::getTable");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
 												&object_zv, mysqlx_node_schema_class_entry,
-												&(table_name.s), &(table_name.l)))
+												&(raw_table_name.str), &(raw_table_name.len)))
 	{
 		DBG_VOID_RETURN;
 	}
+
+	auto escaped_name = escape_identifier( raw_table_name.to_string() );
+	const MYSQLND_CSTRING table_name{ escaped_name.c_str(), escaped_name.size() };
+
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if (table_name.s && table_name.l && object->schema) {

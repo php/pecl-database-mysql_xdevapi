@@ -38,6 +38,7 @@ extern "C" {
 #include "mysqlx_session.h"
 #include "phputils/object.h"
 #include "phputils/string_utils.h"
+#include <algorithm>
 
 namespace mysqlx {
 
@@ -426,13 +427,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 	zval * object_zv;
 	struct st_mysqlx_session * object;
 	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING schema_name = {NULL, 0};
+	phputils::string_input_param raw_schema_name;
+
 
 	DBG_ENTER("mysqlx_base_session::getSchema");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_base_session_class_entry,
-																	   &(schema_name.s), &(schema_name.l)) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(),
+									 getThis(),
+									 "Os", &object_zv,
+									 mysqlx_base_session_class_entry,
+									&(raw_schema_name.str), &(raw_schema_name.len)) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
+
+	auto escaped_name = escape_identifier( raw_schema_name.to_string() );
+	const MYSQLND_CSTRING schema_name{ escaped_name.c_str(), escaped_name.size() };
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	if ((session = object->session)) {
@@ -639,22 +647,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 
 	if( false == is_valid_identifier( name ) ) {
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::invalid_identifier);
-	} else {
+	}
 		query += name;
 
-		if (data_object.session) {
-			zval * args{ nullptr };
-			int argc = 0;
-			mysqlx_execute_base_session_query(
-						data_object.session,
-						namespace_sql,
-						{query.c_str(), query.size()} ,
-						MYSQLX_EXECUTE_FLAG_BUFFERED,
-						return_value, argc, args);
-		}
-
-		RETVAL_STRINGL( name.c_str(), name.size() );
+	if (data_object.session) {
+		zval * args{ nullptr };
+		int argc = 0;
+		mysqlx_execute_base_session_query(
+					data_object.session,
+					namespace_sql,
+					{query.c_str(), query.size()} ,
+					MYSQLX_EXECUTE_FLAG_BUFFERED,
+					return_value, argc, args);
 	}
+	RETVAL_STRINGL( name.c_str(), name.size() );
 
 	DBG_VOID_RETURN;
 }
@@ -677,22 +683,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
 
 	if( false == is_valid_identifier( savepoint_name.to_string() ) ) {
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::invalid_identifier);
-	} else {
-		auto& data_object = phputils::fetch_data_object<st_mysqlx_session>( object_zv);
-		RETVAL_FALSE;
+	}
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>( object_zv);
+	RETVAL_FALSE;
+	const phputils::string query{ "ROLLBACK TO " + savepoint_name.to_string() };
 
-		const phputils::string query{ "ROLLBACK TO " + savepoint_name.to_string() };
-
-		if (data_object.session) {
-			zval * args{ nullptr };
-			int argc = 0;
-			mysqlx_execute_base_session_query(
-						data_object.session,
-						namespace_sql,
-						{query.c_str(), query.size()} ,
-						MYSQLX_EXECUTE_FLAG_BUFFERED,
-						return_value, argc, args);
-		}
+	if (data_object.session) {
+		zval * args{ nullptr };
+		int argc = 0;
+		mysqlx_execute_base_session_query(
+					data_object.session,
+					namespace_sql,
+					{query.c_str(), query.size()} ,
+					MYSQLX_EXECUTE_FLAG_BUFFERED,
+					return_value, argc, args);
 	}
 
 	DBG_VOID_RETURN;
@@ -716,23 +720,23 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, releaseSavepoint)
 
 	if( false == is_valid_identifier( savepoint_name.to_string() ) ) {
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::invalid_identifier);
-	} else {
-		auto& data_object = phputils::fetch_data_object<st_mysqlx_session>( object_zv);
-		RETVAL_FALSE;
-
-		const phputils::string query{ "RELEASE SAVEPOINT " + savepoint_name.to_string() };
-
-		if (data_object.session) {
-			zval * args{ nullptr };
-			int argc = 0;
-			mysqlx_execute_base_session_query(
-						data_object.session,
-						namespace_sql,
-						{query.c_str(), query.size()} ,
-						MYSQLX_EXECUTE_FLAG_BUFFERED,
-						return_value, argc, args);
-		}
 	}
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>( object_zv);
+	RETVAL_FALSE;
+
+	const phputils::string query{ "RELEASE SAVEPOINT " + savepoint_name.to_string() };
+
+	if (data_object.session) {
+		zval * args{ nullptr };
+		int argc = 0;
+		mysqlx_execute_base_session_query(
+					data_object.session,
+					namespace_sql,
+					{query.c_str(), query.size()} ,
+					MYSQLX_EXECUTE_FLAG_BUFFERED,
+					return_value, argc, args);
+	}
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

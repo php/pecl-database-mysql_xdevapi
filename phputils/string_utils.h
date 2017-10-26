@@ -103,6 +103,10 @@ strings to_strings(zval* zvals, int count, Pred pred)
  */
 bool is_valid_identifier( const phputils::string& str );
 
+/*
+ * Escape an identifier name adding '`' everywhere needed
+ */
+phputils::string escape_identifier( const phputils::string& identifier );
 
 } // namespace phputils
 
