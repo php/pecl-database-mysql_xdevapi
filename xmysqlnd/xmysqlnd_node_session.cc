@@ -516,6 +516,8 @@ void setup_crypto_options(
 	ZVAL_TRUE(&verify_peer_zval);
 	php_stream_context_set_option(stream_context,"ssl","allow_self_signed",&verify_peer_zval);
 
+	ZVAL_FALSE(&verify_peer_zval);
+	php_stream_context_set_option(stream_context,"ssl","verify_peer_name",&verify_peer_zval);
 	DBG_VOID_RETURN;
 }
 
@@ -575,6 +577,8 @@ enum_func_status setup_crypto_connection(
 				DBG_ERR_FMT("Cannot connect to MySQL by using SSL");
 				php_error_docref(NULL, E_WARNING, "Cannot connect to MySQL by using SSL");
 				ret = FAIL;
+			} else {
+                php_stream_context_set( net_stream, nullptr );
 			}
 		} else {
 			DBG_ERR_FMT("Negative response from the server, not able to setup TLS.");
@@ -639,7 +643,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 			phputils::string mech_name;
 
 			if( auth->ssl_mode != SSL_mode::disabled ) {
-				if( tls_set ) {
+				if( TRUE == tls_set ) {
 					ret = setup_crypto_connection(session,caps_get,msg_factory);
 					mech_name = "PLAIN";
 				} else {
@@ -657,9 +661,10 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 			if( ret == PASS ) {
 				//Complete the authentication procedure!
 				const MYSQLND_CSTRING method = { mech_name.c_str(),mech_name.size() };
+				const phputils::string authdata = '\0' + auth->username + '\0' + auth->password;
 				struct st_xmysqlnd_msg__auth_start auth_start_msg = msg_factory.get__auth_start(&msg_factory);
 				ret = auth_start_msg.send_request(&auth_start_msg,
-									method, {auth->username.c_str(), auth->username.size()});
+									method, {authdata.c_str(), authdata.size()});
 
 				if (ret == PASS) {
 					auth_start_msg.init_read(&auth_start_msg,
@@ -2435,17 +2440,17 @@ enum_func_status set_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
 							   SSL_mode mode )
 {
 	DBG_ENTER("set_ssl_mode");
-	enum_func_status ret = FAIL;
+	enum_func_status ret = PASS;
 	if( auth->ssl_mode != SSL_mode::not_specified ) {
 		if( auth->ssl_mode != mode ) {
 			DBG_ERR_FMT("Selected two incompatible ssl modes");
 			devapi::RAISE_EXCEPTION( err_msg_invalid_ssl_mode );
+			ret = FAIL;
 		}
 	} else {
 		DBG_INF_FMT("Selected mode: %d",
 					static_cast<int>(mode) );
 		auth->ssl_mode = mode;
-		ret = PASS;
 	}
 	DBG_RETURN( ret );
 }
