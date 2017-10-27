@@ -252,6 +252,24 @@
 		}
 	}
 
+
+	if (!function_exists('get_mysql_variable')) {
+		function get_mysql_variable($nodeSession, $varname) {
+			$res = $nodeSession->executeSql("SHOW VARIABLES LIKE '$varname'");
+			$vardata = $res->fetchOne();
+			return $vardata["Value"];
+		}
+	}
+
+	if (!function_exists('get_mysql_variables')) {
+		function get_mysql_variables($nodeSession, $pattern) {
+			$res = $nodeSession->executeSql("SHOW VARIABLES LIKE '$pattern'");
+			return $res->fetchAll();
+		}
+	}
+
+	// ----------------------------------------------------------------------
+
 	/*
 		Used to get info (filename / line number) of specified stack frame
 	*/
@@ -437,6 +455,21 @@
 				return false;
 			}
 			return true;
+		}
+	}
+	/*
+	        Return true if no expectation are broken
+	*/
+	if( !function_exists('any_expectation_broken')) {
+	        function any_expectation_broken() {
+		        global $number_of_expectations;
+			global $test_result_string;
+
+                        $expected = str_repeat( '1', $number_of_expectations );
+			if( $expected != $test_result_string) {
+			        return true;
+			}
+			return false;
 		}
 	}
 ?>
