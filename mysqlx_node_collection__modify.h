@@ -36,7 +36,7 @@ public:
 	bool init(
 		zval* object_zv,
 		drv::st_xmysqlnd_node_collection* collection,
-		const phputils::string_input_param& search_expression);
+		const phputils::string_view& search_expression);
 	~Collection_modify();
 
 public:
@@ -64,13 +64,13 @@ public:
 
 	void add_operation(
 		Operation operation,
-		const phputils::string_input_param& path,
+		const phputils::string_view& path,
 		const bool is_document,
 		zval* value,
 		zval* return_value);
 
 	void set(
-		const phputils::string_input_param& path,
+		const phputils::string_view& path,
 		const bool is_document,
 		zval* value,
 		zval* return_value);
@@ -79,23 +79,23 @@ public:
 		int num_of_variables,
 		zval* return_value);
 	void replace(
-		const phputils::string_input_param& path,
+		const phputils::string_view& path,
 		zval* value,
 		zval* return_value);
 	void merge(
-		const phputils::string_input_param& document_contents,
+		const phputils::string_view& document_contents,
 		zval* return_value);
 
 	void arrayInsert(
-		const phputils::string_input_param& path,
+		const phputils::string_view& path,
 		zval* value,
 		zval* return_value);
 	void arrayAppend(
-		const phputils::string_input_param& path,
+		const phputils::string_view& path,
 		zval* value,
 		zval* return_value);
 	void arrayDelete(
-		const phputils::string_input_param& array_index_path,
+		const phputils::string_view& array_index_path,
 		zval* return_value);
 
 	void execute(zval* return_value);
@@ -111,7 +111,7 @@ private:
 
 void mysqlx_new_node_collection__modify(
 	zval* return_value,
-	const phputils::string_input_param& search_expression,
+	const phputils::string_view& search_expression,
 	drv::st_xmysqlnd_node_collection* collection);
 void mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__modify_class(SHUTDOWN_FUNC_ARGS);

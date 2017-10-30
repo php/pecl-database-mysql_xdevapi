@@ -24,7 +24,7 @@ namespace mysqlx {
 
 namespace phputils {
 
-struct string_input_param;
+struct string_view;
 
 /* {{{ Hash_table */
 class Hash_table
@@ -48,11 +48,11 @@ class Hash_table
 
 	public:
 		zval* find(const long key);
-		zval* find(const string_input_param& key);
+		zval* find(const string_view& key);
 
 	public:
-		void insert(const char* key, const string_input_param& value);
-		void insert(const char* key, std::size_t key_len, const string_input_param& value);
+		void insert(const char* key, const string_view& value);
+		void insert(const char* key, std::size_t key_len, const string_view& value);
 		void insert(const char* key, zval* value);
 
 		void erase(const char* key);

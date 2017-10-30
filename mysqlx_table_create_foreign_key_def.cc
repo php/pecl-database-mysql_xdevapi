@@ -124,7 +124,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, refersTo)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param refers_to_table;
+	phputils::string_view refers_to_table;
 	zval* refers_to_columns = nullptr;
 	int refers_to_column_count = 0;
 
@@ -157,7 +157,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, onDelete)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param on_delete_mode;
+	phputils::string_view on_delete_mode;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, foreign_key_def_class_entry,
@@ -184,7 +184,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, onUpdate)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param on_update_mode;
+	phputils::string_view on_update_mode;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, foreign_key_def_class_entry,

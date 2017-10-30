@@ -209,7 +209,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 /* {{{ prepare_doc_id */
 phputils::string prepare_doc_id(
 	XMYSQLND_NODE_SESSION *session,
-	const phputils::string_input_param& single_doc_id)
+	const phputils::string_view& single_doc_id)
 {
 	if (single_doc_id.empty()) {
 		const auto uuid = session->session_uuid->generate();
@@ -224,7 +224,7 @@ phputils::string prepare_doc_id(
 enum_func_status
 add_unique_id_to_json(
 	XMYSQLND_NODE_SESSION *session,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	const st_parse_for_id_status *status,
 	MYSQLND_STRING* to_add,
 	const MYSQLND_CSTRING* json)
@@ -332,7 +332,7 @@ extract_document_id(const MYSQLND_STRING json,
 MYSQLND_CSTRING
 assign_doc_id_to_json(
 	XMYSQLND_NODE_SESSION* session,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc)
 {
 	enum_func_status ret = FAIL;
@@ -396,7 +396,7 @@ doc_add_op_return_status
 node_collection_add_string(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -420,7 +420,7 @@ doc_add_op_return_status
 node_collection_add_object_impl(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -448,7 +448,7 @@ doc_add_op_return_status
 node_collection_add_object(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -463,7 +463,7 @@ doc_add_op_return_status
 node_collection_add_array(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -524,7 +524,7 @@ bool Collection_add::init(
 bool Collection_add::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_input_param& doc_id,
+	const phputils::string_view& doc_id,
 	zval* doc)
 {
 	const int num_of_documents = 1;

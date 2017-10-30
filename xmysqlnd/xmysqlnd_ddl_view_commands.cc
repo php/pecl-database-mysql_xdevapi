@@ -260,8 +260,8 @@ st_xmysqlnd_pb_message_shell Alter_view_cmd::get_message()
 
 /* {{{ Drop_view_cmd::set_view_name */
 void Drop_view_cmd::set_view_name(
-	const phputils::string_input_param& schema_name,
-	const phputils::string_input_param& view_name)
+	const phputils::string_view& schema_name,
+	const phputils::string_view& view_name)
 {
 	msg.mutable_collection()->set_schema(schema_name.c_str(), schema_name.length());
 	msg.mutable_collection()->set_name(view_name.c_str(), view_name.length());

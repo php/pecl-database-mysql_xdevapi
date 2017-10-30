@@ -85,8 +85,8 @@ class Drop_view_cmd
 {
 	public:
 		void set_view_name(
-			const phputils::string_input_param& schema_name,
-			const phputils::string_input_param& view_name);
+			const phputils::string_view& schema_name,
+			const phputils::string_view& view_name);
 
 		void set_if_exists(const bool if_exists);
 

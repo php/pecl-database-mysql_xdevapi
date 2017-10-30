@@ -475,7 +475,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param schema_name;
+	phputils::string_view schema_name;
 
 	DBG_ENTER("mysqlx_base_session::dropSchema");
 	if (zend_parse_method_parameters(

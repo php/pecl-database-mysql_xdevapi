@@ -314,7 +314,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createCollection)
 {
 	st_mysqlx_node_schema* object = nullptr;
 	zval* object_zv = nullptr;
-	phputils::string_input_param collection_name;
+	phputils::string_view collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::createCollection");
 	if (FAILURE == zend_parse_method_parameters(
@@ -349,7 +349,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createCollection)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param collection_name;
+	phputils::string_view collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::dropCollection");
 	if (FAILURE == zend_parse_method_parameters(
@@ -409,7 +409,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createTable)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param table_name;
+	phputils::string_view table_name;
 	zend_bool replace_existing = false;
 
 	DBG_ENTER("mysqlx_node_schema::createTable");
@@ -437,7 +437,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createTable)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropTable)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param table_name;
+	phputils::string_view table_name;
 
 	DBG_ENTER("mysqlx_node_schema::dropTable");
 	if (FAILURE == zend_parse_method_parameters(
@@ -577,7 +577,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, alterView)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropView)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param view_name;
+	phputils::string_view view_name;
 
 	DBG_ENTER("mysqlx_node_schema::dropView");
 	if (FAILURE == zend_parse_method_parameters(

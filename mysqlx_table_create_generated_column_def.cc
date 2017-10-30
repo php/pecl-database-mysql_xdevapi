@@ -73,9 +73,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_generated_column_def, __construct)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param name;
-	phputils::string_input_param type;
-	phputils::string_input_param expression;
+	phputils::string_view name;
+	phputils::string_view type;
+	phputils::string_view expression;
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Osss",

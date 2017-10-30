@@ -78,7 +78,7 @@ zvalue::zvalue(const string& value)
 {
 }
 
-zvalue::zvalue(const string_input_param& value)
+zvalue::zvalue(const string_view& value)
 	: zvalue(value.c_str(), value.length())
 {
 }
@@ -177,7 +177,7 @@ zvalue& zvalue::operator=(const string& value)
 	return *this;
 }
 
-zvalue& zvalue::operator=(const string_input_param& value)
+zvalue& zvalue::operator=(const string_view& value)
 {
 	assign(value.c_str(), value.length());
 	return *this;

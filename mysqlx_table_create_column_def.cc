@@ -148,8 +148,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, __construct)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param name;
-	phputils::string_input_param type;
+	phputils::string_view name;
+	phputils::string_view type;
 	zend_long length = Column_def::Default_length;
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -280,7 +280,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, foreignKey)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param table_name;
+	phputils::string_view table_name;
 	zval* fields = nullptr;
 	int fields_count = 0;
 
@@ -365,7 +365,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, charset)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param charset;
+	phputils::string_view charset;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, column_def_class_entry,
@@ -392,7 +392,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, collation)
 	RETVAL_FALSE;
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param collation;
+	phputils::string_view collation;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, column_def_class_entry,

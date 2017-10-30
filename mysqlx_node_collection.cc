@@ -375,7 +375,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, find)
 {
 	st_mysqlx_node_collection* object = nullptr;
 	zval* object_zv = nullptr;
-	phputils::string_input_param search_expr;
+	phputils::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::find");
 
@@ -404,7 +404,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, modify)
 {
 	st_mysqlx_node_collection* object = nullptr;
 	zval* object_zv = nullptr;
-	phputils::string_input_param search_expr;
+	phputils::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::modify");
 
@@ -434,7 +434,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, remove)
 {
 	st_mysqlx_node_collection* object = nullptr;
 	zval* object_zv = nullptr;
-	phputils::string_input_param search_expr;
+	phputils::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::remove");
 
@@ -465,7 +465,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getOne)
 	DBG_ENTER("mysqlx_node_collection::getOne");
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param id;
+	phputils::string_view id;
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -505,7 +505,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 	DBG_ENTER("mysqlx_node_collection::replaceOne");
 
 	zval* object_zv = nullptr;
-	phputils::string_input_param id;
+	phputils::string_view id;
 	zval* doc = nullptr;
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -532,7 +532,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 		DBG_VOID_RETURN;
 	}
 
-	const phputils::string_input_param Doc_root_path("$");
+	const phputils::string_view Doc_root_path("$");
 	zval doc_with_id;
 	phputils::json::ensure_doc_id(doc, id, &doc_with_id);
 	coll_modify.set(Doc_root_path, true, &doc_with_id, return_value);
@@ -549,7 +549,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, addOrReplaceOne)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param id;
+	phputils::string_view id;
 	zval* doc = nullptr;
 
 	DBG_ENTER("mysqlx_node_collection::addOrReplaceOne");
@@ -583,7 +583,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, addOrReplaceOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, removeOne)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param id;
+	phputils::string_view id;
 
 	DBG_ENTER("mysqlx_node_collection::removeOne");
 
@@ -669,7 +669,7 @@ collection_drop_index_on_error(
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, dropIndex)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param index_name;
+	phputils::string_view index_name;
 
 	DBG_ENTER("mysqlx_node_collection::dropIndex");
 

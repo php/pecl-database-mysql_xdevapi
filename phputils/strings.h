@@ -56,7 +56,7 @@ std::ostream& operator<<(std::ostream& os, const string& str);
 	common scenario:
 
 	0)
-	phputils::string_input_param index_name;
+	phputils::string_view index_name;
 	[...]
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os+",
@@ -66,16 +66,16 @@ std::ostream& operator<<(std::ostream& os, const string& str);
 	1) then optionally make some checks (whether is empty or make some 	comparison
 	like == ), or immediately get proper phputils::string via to_string() member routine
 */
-/* {{{ string_input_param */
-struct string_input_param
+/* {{{ string_view */
+struct string_view
 {
-	string_input_param() = default;
-	string_input_param(const char* s) : string_input_param(s, s ? std::strlen(s) : 0) {}
-	string_input_param(const char* s, const size_t l) : str(s), len(l) {}
-	string_input_param(zval* zv);
+	string_view() = default;
+	string_view(const char* s) : string_view(s, s ? std::strlen(s) : 0) {}
+	string_view(const char* s, const size_t l) : str(s), len(l) {}
+	string_view(zval* zv);
 
-	string_input_param(const st_mysqlnd_string& s); // MYSQLND_STRING
-	string_input_param(const st_mysqlnd_const_string& s); // MYSQLND_CSTRING
+	string_view(const st_mysqlnd_string& s); // MYSQLND_STRING
+	string_view(const st_mysqlnd_const_string& s); // MYSQLND_CSTRING
 
 	bool empty() const
 	{
@@ -111,7 +111,7 @@ struct string_input_param
 		return len;
 	}
 
-	bool operator==(const string_input_param& rhs) const
+	bool operator==(const string_view& rhs) const
 	{
 		return std::strcmp(str, rhs.str) == 0;
 	}

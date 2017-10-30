@@ -54,11 +54,11 @@ using namespace drv;
 /* {{{ view_drop */
 bool view_drop(
 	drv::st_xmysqlnd_node_schema* schema,
-	const phputils::string_input_param& view_name)
+	const phputils::string_view& view_name)
 {
 	DBG_ENTER("mysqlx::devapi::view_drop");
 
-	const phputils::string_input_param schema_name(schema->data->schema_name);
+	const phputils::string_view schema_name(schema->data->schema_name);
 	if (schema_name.empty() || view_name.empty()) {
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::view_drop_fail);
 	}

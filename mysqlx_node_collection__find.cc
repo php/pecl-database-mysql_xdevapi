@@ -97,7 +97,7 @@ ZEND_END_ARG_INFO()
 bool Collection_find::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_input_param& search_expression)
+	const phputils::string_view& search_expression)
 {
 	if (!obj_zv || !coll) return false;
 
@@ -806,7 +806,7 @@ mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_collection__find(
 	zval * return_value,
-	const phputils::string_input_param& search_expression,
+	const phputils::string_view& search_expression,
 	drv::st_xmysqlnd_node_collection* collection)
 {
 	zend_bool op_failed = TRUE;

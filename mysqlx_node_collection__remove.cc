@@ -75,7 +75,7 @@ ZEND_END_ARG_INFO()
 bool Collection_remove::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_input_param& search_expression)
+	const phputils::string_view& search_expression)
 {
 	if (!obj_zv || !coll || search_expression.empty()) return false;
 	object_zv = obj_zv;
@@ -437,7 +437,7 @@ mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_collection__remove(
 	zval* return_value,
-	const phputils::string_input_param& search_expression,
+	const phputils::string_view& search_expression,
 	XMYSQLND_NODE_COLLECTION* collection)
 {
 	DBG_ENTER("mysqlx_new_node_collection__remove");

@@ -439,7 +439,7 @@ struct collection_drop_index_data : phputils::custom_allocable
 	collection_drop_index_data(
 		const MYSQLND_CSTRING& schema,
 		const MYSQLND_CSTRING& collection,
-		const phputils::string_input_param& index)
+		const phputils::string_view& index)
 		: schema_name(schema.s, schema.l)
 		, collection_name(collection.s, collection.l)
 		, index_name(index.to_string())
@@ -540,7 +540,7 @@ xmysqlnd_collection_drop_index__execute(
 /* {{{ collection_drop_index */
 bool collection_drop_index(
 	XMYSQLND_NODE_COLLECTION* collection,
-	const phputils::string_input_param& index_name,
+	const phputils::string_view& index_name,
 	st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	collection_drop_index_data op_drop_index(

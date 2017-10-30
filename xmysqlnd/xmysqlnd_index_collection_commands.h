@@ -49,7 +49,7 @@ enum_func_status xmysqlnd_collection_create_index__execute(
 
 bool collection_drop_index(
 	st_xmysqlnd_node_collection* collection,
-	const phputils::string_input_param& index_name,
+	const phputils::string_view& index_name,
 	st_xmysqlnd_node_session_on_error_bind on_error);
 
 } // namespace drv

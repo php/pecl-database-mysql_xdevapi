@@ -41,7 +41,7 @@ namespace drv {
 namespace {
 
 /* {{{ to_column_type */
-Column_def::Type to_column_type(const phputils::string_input_param& column_type_str)
+Column_def::Type to_column_type(const phputils::string_view& column_type_str)
 {
 	static const std::map<std::string, Column_def::Type, phputils::iless> str_to_column_type = {
 		{ "Bit", Column_def::Type::bit },
@@ -90,7 +90,7 @@ Column_def::Type to_column_type(const phputils::string_input_param& column_type_
 
 
 /* {{{ to_fkey_change_mode */
-Foreign_key_def::Change_mode to_fkey_change_mode(const phputils::string_input_param& change_mode_str)
+Foreign_key_def::Change_mode to_fkey_change_mode(const phputils::string_view& change_mode_str)
 {
 	static const std::map<std::string, Foreign_key_def::Change_mode, phputils::iless> str_to_change_mode = {
 		{ "Restrict", Foreign_key_def::Change_mode::restricted },
@@ -186,8 +186,8 @@ phputils::string quote_text(const phputils::string& raw_text)
 
 /* {{{ Column_def::init */
 void Column_def::init(
-	const phputils::string_input_param& col_name,
-	const phputils::string_input_param& col_type,
+	const phputils::string_view& col_name,
+	const phputils::string_view& col_type,
 	long col_length)
 {
 	kind = Kind::common;
@@ -202,9 +202,9 @@ void Column_def::init(
 
 /* {{{ Column_def::init */
 void Column_def::init(
-	const phputils::string_input_param& col_name,
-	const phputils::string_input_param& col_type,
-	const phputils::string_input_param& expression)
+	const phputils::string_view& col_name,
+	const phputils::string_view& col_type,
+	const phputils::string_view& expression)
 {
 	kind = Kind::generated;
 	name = create_table::quote_identifier(col_name.to_string());
@@ -240,7 +240,7 @@ void Column_def::enable_primary_key()
 
 
 /* {{{ Column_def::set_comment */
-void Column_def::set_comment(const phputils::string_input_param& commt)
+void Column_def::set_comment(const phputils::string_view& commt)
 {
 	comment = create_table::quote_text(commt.to_string());
 }
@@ -264,7 +264,7 @@ void Column_def::enable_auto_increment()
 
 
 /* {{{ Column_def::set_foreign_key */
-void Column_def::set_foreign_key(const phputils::string_input_param& table, const phputils::strings& fields)
+void Column_def::set_foreign_key(const phputils::string_view& table, const phputils::strings& fields)
 {
 	foreign_key = Foreign_key{table.to_string(), fields};
 }
@@ -288,7 +288,7 @@ void Column_def::set_decimals(long dec_size)
 
 
 /* {{{ Column_def::set_charset */
-void Column_def::set_charset(const phputils::string_input_param& chrset)
+void Column_def::set_charset(const phputils::string_view& chrset)
 {
 	charset = chrset.to_string();
 }
@@ -296,7 +296,7 @@ void Column_def::set_charset(const phputils::string_input_param& chrset)
 
 
 /* {{{ Column_def::set_collation */
-void Column_def::set_collation(const phputils::string_input_param& coll)
+void Column_def::set_collation(const phputils::string_view& coll)
 {
 	collation = coll.to_string();
 }
@@ -338,7 +338,7 @@ void Foreign_key_def::set_fields(const phputils::strings& fk_fields)
 
 /* {{{ Foreign_key_def::set_refers_to */
 void Foreign_key_def::set_refers_to(
-	const phputils::string_input_param& ref_table,
+	const phputils::string_view& ref_table,
 	const phputils::strings& ref_fields)
 {
 	refers_to.table = ref_table.to_string();
@@ -348,7 +348,7 @@ void Foreign_key_def::set_refers_to(
 
 
 /* {{{ Foreign_key_def::set_on_delete_mode */
-void Foreign_key_def::set_on_delete_mode(const phputils::string_input_param& mode)
+void Foreign_key_def::set_on_delete_mode(const phputils::string_view& mode)
 {
 	on_delete_mode = to_fkey_change_mode(mode);
 }
@@ -356,7 +356,7 @@ void Foreign_key_def::set_on_delete_mode(const phputils::string_input_param& mod
 
 
 /* {{{ Foreign_key_def::set_on_update_mode */
-void Foreign_key_def::set_on_update_mode(const phputils::string_input_param& mode)
+void Foreign_key_def::set_on_update_mode(const phputils::string_view& mode)
 {
 	on_update_mode = to_fkey_change_mode(mode);
 }
@@ -366,8 +366,8 @@ void Foreign_key_def::set_on_update_mode(const phputils::string_input_param& mod
 
 /* {{{ Table_def::init */
 void Table_def::init(
-	const phputils::string_input_param& schema,
-	const phputils::string_input_param& table,
+	const phputils::string_view& schema,
+	const phputils::string_view& table,
 	bool replace_if_exists)
 {
 	schema_name = create_table::quote_identifier(schema.to_string());
@@ -395,7 +395,7 @@ void Table_def::set_primary_key(const phputils::strings& fields)
 
 /* {{{ Table_def::add_index */
 void Table_def::add_index(
-	const phputils::string_input_param& name,
+	const phputils::string_view& name,
 	const phputils::strings& fields)
 {
 	indexes.push_back(Index{name.to_string(), fields, false});
@@ -405,7 +405,7 @@ void Table_def::add_index(
 
 /* {{{ Table_def::add_unique_index */
 void Table_def::add_unique_index(
-	const phputils::string_input_param& name,
+	const phputils::string_view& name,
 	const phputils::strings& fields)
 {
 	indexes.push_back(Index{name.to_string(), fields, true});
@@ -414,7 +414,7 @@ void Table_def::add_unique_index(
 
 
 /* {{{ Table_def::add_foreign_key */
-void Table_def::add_foreign_key(const phputils::string_input_param& name, const Foreign_key_def& foreign_key)
+void Table_def::add_foreign_key(const phputils::string_view& name, const Foreign_key_def& foreign_key)
 {
 	foreign_keys.push_back(Foreign_key{name.to_string(), foreign_key});
 }
@@ -430,7 +430,7 @@ void Table_def::set_initial_auto_increment(long init_auto_increment)
 
 
 /* {{{ Table_def::set_default_charset */
-void Table_def::set_default_charset(const phputils::string_input_param& charset_name)
+void Table_def::set_default_charset(const phputils::string_view& charset_name)
 {
 	default_charset = create_table::quote_text(charset_name.to_string());
 }
@@ -438,7 +438,7 @@ void Table_def::set_default_charset(const phputils::string_input_param& charset_
 
 
 /* {{{ Table_def::set_default_collation */
-void Table_def::set_default_collation(const phputils::string_input_param& collation_name)
+void Table_def::set_default_collation(const phputils::string_view& collation_name)
 {
 	default_collation = create_table::quote_text(collation_name.to_string());
 }
@@ -446,7 +446,7 @@ void Table_def::set_default_collation(const phputils::string_input_param& collat
 
 
 /* {{{ Table_def::set_comment */
-void Table_def::set_comment(const phputils::string_input_param& cmnt)
+void Table_def::set_comment(const phputils::string_view& cmnt)
 {
 	comment = create_table::quote_text(cmnt.to_string());
 }
@@ -462,7 +462,7 @@ void Table_def::enable_temporary()
 
 
 /* {{{ Table_def::set_defined_as */
-void Table_def::set_defined_as(const phputils::string_input_param& def_as)
+void Table_def::set_defined_as(const phputils::string_view& def_as)
 {
 	defined_as = def_as.to_string();
 }
@@ -470,7 +470,7 @@ void Table_def::set_defined_as(const phputils::string_input_param& def_as)
 
 
 /* {{{ Table_def::set_like */
-void Table_def::set_like(const phputils::string_input_param& template_table_name)
+void Table_def::set_like(const phputils::string_view& template_table_name)
 {
 	like_template_table_name = template_table_name.to_string();
 }

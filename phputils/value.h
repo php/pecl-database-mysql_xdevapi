@@ -41,7 +41,7 @@ class zvalue
 
 		zvalue(char value);
 		zvalue(const string& value);
-		zvalue(const string_input_param& value);
+		zvalue(const string_view& value);
 		zvalue(const std::string& value);
 		zvalue(const char* value, std::size_t length = 0);
 
@@ -60,7 +60,7 @@ class zvalue
 
 		zvalue& operator=(char value);
 		zvalue& operator=(const string& value);
-		zvalue& operator=(const string_input_param& value);
+		zvalue& operator=(const string_view& value);
 		zvalue& operator=(const std::string& value);
 		zvalue& operator=(const char* value);
 		void assign(const char* value, std::size_t length = 0);
