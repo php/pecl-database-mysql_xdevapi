@@ -3,6 +3,7 @@ mysqlx Client side failover
 --SKIPIF--
 --INI--
 error_reporting=0
+default_socket_timeout=5
 --FILE--
 <?php
 	require_once("connect.inc");
