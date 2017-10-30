@@ -323,7 +323,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     </dir>
    </dir>
    <dir name="xmysqlnd">
-    <file name="json_patch.txt" role="doc" />
     <file name="xmysqlnd.h" role="src" />
     <file name="xmysqlnd_any2expr.cc" role="src" />
     <file name="xmysqlnd_any2expr.h" role="src" />
