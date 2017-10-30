@@ -113,10 +113,10 @@ static PHP_GINIT_FUNCTION(mysql_xdevapi)
 
 	mysql_xdevapi_globals->collect_statistics = TRUE;
 	mysql_xdevapi_globals->collect_memory_statistics = FALSE;
-	mysql_xdevapi_globals->debug = NULL;	/* The actual string */
-	mysql_xdevapi_globals->dbg = NULL;	/* The DBG object*/
-	mysql_xdevapi_globals->trace_alloc_settings = NULL;
-	mysql_xdevapi_globals->trace_alloc = NULL;
+	mysql_xdevapi_globals->debug = nullptr;	/* The actual string */
+	mysql_xdevapi_globals->dbg = nullptr;	/* The DBG object*/
+	mysql_xdevapi_globals->trace_alloc_settings = nullptr;
+	mysql_xdevapi_globals->trace_alloc = nullptr;
 	mysql_xdevapi_globals->net_read_timeout = 31536000;
 	mysql_xdevapi_globals->mempool_default_size = 16000;
 	mysql_xdevapi_globals->debug_emalloc_fail_threshold = -1;
@@ -134,8 +134,8 @@ static PHP_GINIT_FUNCTION(mysql_xdevapi)
 PHP_INI_BEGIN()
 	STD_PHP_INI_BOOLEAN("xmysqlnd.collect_statistics",	"1", 	PHP_INI_ALL,	OnUpdateBool,	collect_statistics, 		zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
 	STD_PHP_INI_BOOLEAN("xmysqlnd.collect_memory_statistics","0",PHP_INI_SYSTEM,OnUpdateBool,	collect_memory_statistics,	zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
-	STD_PHP_INI_ENTRY("xmysqlnd.debug",					NULL, 	PHP_INI_SYSTEM, OnUpdateString,	debug,						zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
-	STD_PHP_INI_ENTRY("xmysqlnd.trace_alloc",			NULL, 	PHP_INI_SYSTEM, OnUpdateString,	trace_alloc_settings,		zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
+	STD_PHP_INI_ENTRY("xmysqlnd.debug",					nullptr, 	PHP_INI_SYSTEM, OnUpdateString,	debug,						zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
+	STD_PHP_INI_ENTRY("xmysqlnd.trace_alloc",			nullptr, 	PHP_INI_SYSTEM, OnUpdateString,	trace_alloc_settings,		zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
 	STD_PHP_INI_ENTRY("xmysqlnd.net_read_timeout",	"31536000",	PHP_INI_SYSTEM, OnUpdateLong,	net_read_timeout,			zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
 	STD_PHP_INI_ENTRY("xmysqlnd.mempool_default_size","16000",   PHP_INI_ALL,	OnUpdateLong,	mempool_default_size,		zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
 #if PHP_DEBUG
@@ -192,10 +192,10 @@ static PHP_RINIT_FUNCTION(mysql_xdevapi)
 	/* ---------------- xmysqlnd ---------------- */
 	if (MYSQL_XDEVAPI_G(debug)) {
 		st_mysqlnd_plugin_trace_log * trace_log_plugin = static_cast<st_mysqlnd_plugin_trace_log*>(mysqlnd_plugin_find("debug_trace"));
-		MYSQL_XDEVAPI_G(dbg) = NULL;
+		MYSQL_XDEVAPI_G(dbg) = nullptr;
 		if (trace_log_plugin) {
 			MYSQLND_DEBUG * dbg = trace_log_plugin->methods.trace_instance_init(mysqlnd_debug_std_no_trace_funcs);
-			MYSQLND_DEBUG * trace_alloc = trace_log_plugin->methods.trace_instance_init(NULL);
+			MYSQLND_DEBUG * trace_alloc = trace_log_plugin->methods.trace_instance_init(nullptr);
 			if (!dbg || !trace_alloc) {
 				return FAILURE;
 			}
@@ -224,12 +224,12 @@ static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 	if (dbg) {
 		dbg->m->close(dbg);
 		dbg->m->free_handle(dbg);
-		MYSQL_XDEVAPI_G(dbg) = NULL;
+		MYSQL_XDEVAPI_G(dbg) = nullptr;
 	}
 	if (trace_alloc) {
 		trace_alloc->m->close(trace_alloc);
 		trace_alloc->m->free_handle(trace_alloc);
-		MYSQL_XDEVAPI_G(trace_alloc) = NULL;
+		MYSQL_XDEVAPI_G(trace_alloc) = nullptr;
 	}
 	return SUCCESS;
 }
@@ -277,28 +277,28 @@ static const zend_module_dep mysqlx_deps[] = {
 extern "C"
 zend_module_entry mysql_xdevapi_module_entry = {
 	STANDARD_MODULE_HEADER_EX,
-	NULL,
+	nullptr,
 	mysqlx_deps,
 	"mysql_xdevapi",
-	mysqlx_functions, /* mysqlx_functions */ /* when mysqlx and mysqlx get split this will be NULL */
+	mysqlx_functions, /* mysqlx_functions */ /* when mysqlx and mysqlx get split this will be nullptr */
 	PHP_MINIT(mysql_xdevapi),
 	PHP_MSHUTDOWN(mysql_xdevapi),
 #if PHP_DEBUG
 	PHP_RINIT(mysql_xdevapi),
 #else
-	NULL,
+	nullptr,
 #endif
 #if PHP_DEBUG
 	PHP_RSHUTDOWN(mysql_xdevapi),
 #else
-	NULL,
+	nullptr,
 #endif
 	PHP_MINFO(mysql_xdevapi),
 	PHP_MYSQL_XDEVAPI_VERSION,
 	PHP_MODULE_GLOBALS(mysql_xdevapi),
 	PHP_GINIT(mysql_xdevapi),
-	NULL,
-	NULL,
+	nullptr,
+	nullptr,
 	STANDARD_MODULE_PROPERTIES_EX
 };
 /* }}} */

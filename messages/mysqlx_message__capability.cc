@@ -48,11 +48,11 @@ ZEND_END_ARG_INFO()
 /* {{{ proto bool mysqlx_node_connection::__construct(string name, mixed value) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 {
-	zval * capability_zv = NULL;
-	struct st_mysqlx_message__capability * capability = NULL;
-	char * capability_name = NULL;
+	zval * capability_zv = nullptr;
+	struct st_mysqlx_message__capability * capability = nullptr;
+	char * capability_name = nullptr;
 	size_t capability_name_len;
-	zval * capability_value = NULL;
+	zval * capability_value = nullptr;
 
 	DBG_ENTER("mysqlx_node_connection::connect");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
@@ -75,8 +75,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 /* {{{ proto bool mysqlx_node_connection::echo(string name, mixed value) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, echo)
 {
-	zval * capability_zv = NULL;
-	struct st_mysqlx_message__capability * capability = NULL;
+	zval * capability_zv = nullptr;
+	struct st_mysqlx_message__capability * capability = nullptr;
 
 	DBG_ENTER("mysqlx_node_connection::echo");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -95,8 +95,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, echo)
 /* {{{ mysqlx_message__capability_methods[] */
 static const zend_function_entry mysqlx_message__capability_methods[] = {
 	PHP_ME(mysqlx_message__capability, __construct,		arginfo_mysqlx_node_capability__construct,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_message__capability, echo,			NULL,										ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_message__capability, echo,			nullptr,										ZEND_ACC_PUBLIC)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -158,7 +158,7 @@ php_mysqlx_message__capability_object_allocator(zend_class_entry * class_type)
 	if (message) {
 		mnd_pefree(message, persistent);
 	}
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -178,7 +178,7 @@ mysqlx_register_message__capability_class(INIT_FUNC_ARGS, zend_object_handlers *
 		mysqlx_message__capability_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__capability_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__capability_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

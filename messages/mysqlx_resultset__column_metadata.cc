@@ -50,8 +50,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_metadata, __construct)
 
 /* {{{ mysqlx_column_metadata_methods[] */
 static const zend_function_entry mysqlx_column_metadata_methods[] = {
-	PHP_ME(mysqlx_column_metadata, __construct,				NULL,			ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_column_metadata, __construct,				nullptr,			ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -69,10 +69,10 @@ mysqlx_column_meta_property__type(const struct st_mysqlx_object * obj, zval * re
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -93,10 +93,10 @@ mysqlx_column_meta_property__type_name(const struct st_mysqlx_object * obj, zval
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -117,10 +117,10 @@ mysqlx_column_meta_property__name(const struct st_mysqlx_object * obj, zval * re
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -141,10 +141,10 @@ mysqlx_column_meta_property__original_name(const struct st_mysqlx_object * obj, 
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -165,10 +165,10 @@ mysqlx_column_meta_property__table(const struct st_mysqlx_object * obj, zval * r
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -189,10 +189,10 @@ mysqlx_column_meta_property__original_table(const struct st_mysqlx_object * obj,
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -213,10 +213,10 @@ mysqlx_column_meta_property__schema(const struct st_mysqlx_object * obj, zval * 
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -237,10 +237,10 @@ mysqlx_column_meta_property__catalog(const struct st_mysqlx_object * obj, zval *
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -260,10 +260,10 @@ mysqlx_column_meta_property__collation(const struct st_mysqlx_object * obj, zval
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -283,10 +283,10 @@ mysqlx_column_meta_property__fractional_digits(const struct st_mysqlx_object * o
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -306,10 +306,10 @@ mysqlx_column_meta_property__length(const struct st_mysqlx_object * obj, zval * 
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -330,10 +330,10 @@ mysqlx_column_meta_property__flags(const struct st_mysqlx_object * obj, zval * r
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -353,10 +353,10 @@ mysqlx_column_meta_property__content_type(const struct st_mysqlx_object * obj, z
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -366,20 +366,20 @@ mysqlx_column_meta_property__content_type(const struct st_mysqlx_object * obj, z
 /* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_column_meta_property_entries[] =
 {
-	{{"type",				sizeof("type") - 1},				mysqlx_column_meta_property__type,			NULL},
-	{{"type_name",			sizeof("type_name") - 1},			mysqlx_column_meta_property__type_name, 	NULL},
-	{{"name",				sizeof("name") - 1},				mysqlx_column_meta_property__name,			NULL},
-	{{"original_name",		sizeof("original_name") - 1},		mysqlx_column_meta_property__original_name,	NULL},
-	{{"table",				sizeof("table") - 1},				mysqlx_column_meta_property__table,			NULL},
-	{{"original_table",		sizeof("original_table") - 1},		mysqlx_column_meta_property__original_table,NULL},
-	{{"schema",				sizeof("schema") - 1},				mysqlx_column_meta_property__schema,		NULL},
-	{{"catalog",			sizeof("catalog") - 1},				mysqlx_column_meta_property__catalog,		NULL},
-	{{"collation",			sizeof("collation") - 1},			mysqlx_column_meta_property__collation,		NULL},
-	{{"fractional_digits",	sizeof("fractional_digits") - 1},	mysqlx_column_meta_property__fractional_digits,NULL},
-	{{"length",				sizeof("length") - 1},				mysqlx_column_meta_property__length,		NULL},
-	{{"flags",				sizeof("flags") - 1},				mysqlx_column_meta_property__flags,			NULL},
-	{{"content_type",		sizeof("content_type") - 1},		mysqlx_column_meta_property__content_type,	NULL},
-	{{NULL, 				0},									NULL, 										NULL}
+	{{"type",				sizeof("type") - 1},				mysqlx_column_meta_property__type,			nullptr},
+	{{"type_name",			sizeof("type_name") - 1},			mysqlx_column_meta_property__type_name, 	nullptr},
+	{{"name",				sizeof("name") - 1},				mysqlx_column_meta_property__name,			nullptr},
+	{{"original_name",		sizeof("original_name") - 1},		mysqlx_column_meta_property__original_name,	nullptr},
+	{{"table",				sizeof("table") - 1},				mysqlx_column_meta_property__table,			nullptr},
+	{{"original_table",		sizeof("original_table") - 1},		mysqlx_column_meta_property__original_table,nullptr},
+	{{"schema",				sizeof("schema") - 1},				mysqlx_column_meta_property__schema,		nullptr},
+	{{"catalog",			sizeof("catalog") - 1},				mysqlx_column_meta_property__catalog,		nullptr},
+	{{"collation",			sizeof("collation") - 1},			mysqlx_column_meta_property__collation,		nullptr},
+	{{"fractional_digits",	sizeof("fractional_digits") - 1},	mysqlx_column_meta_property__fractional_digits,nullptr},
+	{{"length",				sizeof("length") - 1},				mysqlx_column_meta_property__length,		nullptr},
+	{{"flags",				sizeof("flags") - 1},				mysqlx_column_meta_property__flags,			nullptr},
+	{{"content_type",		sizeof("content_type") - 1},		mysqlx_column_meta_property__content_type,	nullptr},
+	{{nullptr, 				0},									nullptr, 										nullptr}
 };
 /* }}} */
 
@@ -426,7 +426,7 @@ php_mysqlx_column_metadata_object_allocator(zend_class_entry * class_type)
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -446,7 +446,7 @@ mysqlx_register_column_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mys
 		mysqlx_column_metadata_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_column_metadata_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_column_metadata_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	mysqlx_add_properties(&mysqlx_column_metadata_properties, mysqlx_column_meta_property_entries);
 

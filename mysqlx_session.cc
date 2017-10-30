@@ -54,7 +54,7 @@ static const zend_function_entry mysqlx_session_methods[] = {
 
 	PHP_ABSTRACT_ME(mysqlx_session, close, arginfo_mysqlx_session__close)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

@@ -86,7 +86,7 @@ struct st_xmysqlnd_inspect_changed_variable_bind
 MYSQLND_CSTRING
 xmysqlnd_field_type_name(const unsigned int type)
 {
-	MYSQLND_CSTRING ret = { NULL, 0 };
+	MYSQLND_CSTRING ret = { nullptr, 0 };
 	const std::string & field = Mysqlx::Resultset::ColumnMetaData::FieldType_Name((Mysqlx::Resultset::ColumnMetaData::FieldType) type);
 	ret.s = field.c_str();
 	ret.l = field.size();
@@ -335,9 +335,9 @@ xmysqlnd_send_protobuf_message(struct st_mysqlx_node_connection * connection, st
 
 	const size_t payload_size = message.ByteSize();
 	size_t bytes_sent;
-	void * payload = payload_size? mnd_emalloc(payload_size) : NULL;
+	void * payload = payload_size? mnd_emalloc(payload_size) : nullptr;
 	if (payload_size && !payload) {
-		php_error_docref(NULL, E_WARNING, "Memory allocation problem");
+		php_error_docref(nullptr, E_WARNING, "Memory allocation problem");
 		DBG_RETURN(0);
 	}
 	message.SerializeToArray(payload, payload_size);
@@ -374,9 +374,9 @@ xmysqlnd_send_message(enum xmysqlnd_client_message_type packet_type, ::google::p
 
 	const size_t payload_size = message.ByteSize();
 	if (payload_size > sizeof(stack_buffer)) {
-		payload = payload_size? mnd_emalloc(payload_size) : NULL;
+		payload = payload_size? mnd_emalloc(payload_size) : nullptr;
 		if (payload_size && !payload) {
-			php_error_docref(NULL, E_WARNING, "Memory allocation problem");
+			php_error_docref(nullptr, E_WARNING, "Memory allocation problem");
 			SET_OOM_ERROR(error_info);
 			DBG_RETURN(FAIL);
 		}
@@ -660,21 +660,21 @@ capabilities_get_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context
 
 static struct st_xmysqlnd_server_messages_handlers capabilities_get_handlers =
 {
-	NULL,							// on_OK
+	nullptr,							// on_OK
 	capabilities_get_on_ERROR,		// on_ERROR
 	capabilities_get_on_CAPABILITIES,// on_CAPABILITIES
-	NULL,							// on_AUTHENTICATE_CONTINUE
-	NULL,							// on_AUTHENTICATE_OK
+	nullptr,							// on_AUTHENTICATE_CONTINUE
+	nullptr,							// on_AUTHENTICATE_OK
 	capabilities_get_on_NOTICE,		// on_NOTICE
-	NULL,							// on_RSET_COLUMN_META
-	NULL,							// on_RSET_ROW
-	NULL,							// on_RSET_FETCH_DONE
-	NULL,							// on_RESULTSET_FETCH_SUSPENDED
-	NULL,							// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,							// on_SQL_STMT_EXECUTE_OK
-	NULL,							// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,							// on_UNEXPECTED
-	NULL,							// on_UNKNOWN
+	nullptr,							// on_RSET_COLUMN_META
+	nullptr,							// on_RSET_ROW
+	nullptr,							// on_RSET_FETCH_DONE
+	nullptr,							// on_RESULTSET_FETCH_SUSPENDED
+	nullptr,							// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr,							// on_SQL_STMT_EXECUTE_OK
+	nullptr,							// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr,							// on_UNEXPECTED
+	nullptr,							// on_UNKNOWN
 };
 
 
@@ -734,8 +734,8 @@ xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		pfc,
 		stats,
 		error_info,
-		{ NULL, NULL }, /* on_error */
-		NULL, /* zval */
+		{ nullptr, nullptr }, /* on_error */
+		nullptr, /* zval */
 	};
 	return ctx;
 }
@@ -785,19 +785,19 @@ static struct st_xmysqlnd_server_messages_handlers capabilities_set_handlers =
 {
 	capabilities_set_on_OK,			// on_OK
 	capabilities_set_on_ERROR,		// on_ERROR
-	NULL,							// on_CAPABILITIES
-	NULL,							// on_AUTHENTICATE_CONTINUE
-	NULL,							// on_AUTHENTICATE_OK
+	nullptr,							// on_CAPABILITIES
+	nullptr,							// on_AUTHENTICATE_CONTINUE
+	nullptr,							// on_AUTHENTICATE_OK
 	capabilities_set_on_NOTICE,		// on_NOTICE
-	NULL,							// on_RSET_COLUMN_META
-	NULL,							// on_RSET_ROW
-	NULL,							// on_RSET_FETCH_DONE
-	NULL,							// on_RESULTSET_FETCH_SUSPENDED
-	NULL,							// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,							// on_SQL_STMT_EXECUTE_OK
-	NULL,							// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,							// on_UNEXPECTED
-	NULL,							// on_UNKNOWN
+	nullptr,							// on_RSET_COLUMN_META
+	nullptr,							// on_RSET_ROW
+	nullptr,							// on_RSET_FETCH_DONE
+	nullptr,							// on_RESULTSET_FETCH_SUSPENDED
+	nullptr,							// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr,							// on_SQL_STMT_EXECUTE_OK
+	nullptr,							// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr,							// on_UNEXPECTED
+	nullptr,							// on_UNKNOWN
 };
 
 /* {{{ xmysqlnd_capabilities_set__read_response */
@@ -857,8 +857,8 @@ xmysqlnd_get_capabilities_set_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 		pfc,
 		stats,
 		error_info,
-		{ NULL, NULL },	/* on_error */
-		NULL,			/* zval */
+		{ nullptr, nullptr },	/* on_error */
+		nullptr,			/* zval */
 	};
 	return ctx;
 }
@@ -884,10 +884,10 @@ static const enum_hnd_func_status
 auth_start_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	const struct st_xmysqlnd_msg__auth_start * const ctx = static_cast<const struct st_xmysqlnd_msg__auth_start *>(context);
-	const struct st_xmysqlnd_on_warning_bind on_warning = { NULL, NULL };
-	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { NULL, NULL };
-	const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change = { NULL, NULL };
-	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { NULL, NULL };
+	const struct st_xmysqlnd_on_warning_bind on_warning = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
 
 	DBG_ENTER("auth_start_on_NOTICE");
 
@@ -915,7 +915,7 @@ auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue 
 #endif
 	if (ctx->on_auth_continue.handler) {
 		const MYSQLND_CSTRING handler_input = { message.auth_data().c_str(), message.auth_data().size() };
-		MYSQLND_STRING handler_output = { NULL, 0 };
+		MYSQLND_STRING handler_output = { nullptr, 0 };
 
 		ret = ctx->on_auth_continue.handler(ctx->on_auth_continue.ctx, handler_input, &handler_output);
 		DBG_INF_FMT("handler_output[%d]=[%s]", handler_output.l, handler_output.s);
@@ -958,21 +958,21 @@ auth_start_on_AUTHENTICATE_OK(const Mysqlx::Session::AuthenticateOk & message, v
 
 static struct st_xmysqlnd_server_messages_handlers auth_start_handlers =
 {
-	NULL,							// on_OK
+	nullptr,							// on_OK
 	auth_start_on_ERROR,			// on_ERROR
-	NULL,							// on_CAPABILITIES
+	nullptr,							// on_CAPABILITIES
 	auth_start_on_AUTHENTICATE_CONTINUE,// on_AUTHENTICATE_CONTINUE
 	auth_start_on_AUTHENTICATE_OK,	// on_AUTHENTICATE_OK
 	auth_start_on_NOTICE,			// on_NOTICE
-	NULL,							// on_RSET_COLUMN_META
-	NULL,							// on_RSET_ROW
-	NULL,							// on_RSET_FETCH_DONE
-	NULL,							// on_RESULTSET_FETCH_SUSPENDED
-	NULL,							// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,							// on_SQL_STMT_EXECUTE_OK
-	NULL,							// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,							// on_UNEXPECTED
-	NULL,							// on_UNKNOWN
+	nullptr,							// on_RSET_COLUMN_META
+	nullptr,							// on_RSET_ROW
+	nullptr,							// on_RSET_FETCH_DONE
+	nullptr,							// on_RESULTSET_FETCH_SUSPENDED
+	nullptr,							// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr,							// on_SQL_STMT_EXECUTE_OK
+	nullptr,							// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr,							// on_UNEXPECTED
+	nullptr,							// on_UNKNOWN
 };
 
 /* {{{ xmysqlnd_authentication_start__init_read */
@@ -1033,12 +1033,12 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		pfc,
 		stats,
 		error_info,
-		{ NULL, NULL }, 	/* on_auth_continue */
-		{ NULL, NULL }, 	/* on_warning */
-		{ NULL, NULL },		/* on_error */
-		{ NULL, NULL }, 	/* on_client_id */
-		{ NULL, NULL }, 	/* on_session_var_change */
-		NULL,				/* zval */
+		{ nullptr, nullptr }, 	/* on_auth_continue */
+		{ nullptr, nullptr }, 	/* on_warning */
+		{ nullptr, nullptr },		/* on_error */
+		{ nullptr, nullptr }, 	/* on_client_id */
+		{ nullptr, nullptr }, 	/* on_session_var_change */
+		nullptr,				/* zval */
 	};
 	return ctx;
 }
@@ -1107,21 +1107,21 @@ auth_continue_on_AUTHENTICATE_OK(const Mysqlx::Session::AuthenticateOk & message
 
 static struct st_xmysqlnd_server_messages_handlers auth_continue_handlers =
 {
-	NULL,							// on_OK
+	nullptr,							// on_OK
 	auth_continue_on_ERROR,			// on_ERROR
-	NULL,							// on_CAPABILITIES
+	nullptr,							// on_CAPABILITIES
 	auth_continue_on_AUTHENTICATE_CONTINUE,	// on_AUTHENTICATE_CONTINUE
 	auth_continue_on_AUTHENTICATE_OK,		// on_AUTHENTICATE_OK
 	auth_continue_on_NOTICE,		// on_NOTICE
-	NULL,							// on_RSET_COLUMN_META
-	NULL,							// on_RSET_ROW
-	NULL,							// on_RSET_FETCH_DONE
-	NULL,							// on_RESULTSET_FETCH_SUSPENDED
-	NULL,							// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,							// on_SQL_STMT_EXECUTE_OK
-	NULL,							// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,							// on_UNEXPECTED
-	NULL,							// on_UNKNOWN
+	nullptr,							// on_RSET_COLUMN_META
+	nullptr,							// on_RSET_ROW
+	nullptr,							// on_RSET_FETCH_DONE
+	nullptr,							// on_RESULTSET_FETCH_SUSPENDED
+	nullptr,							// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr,							// on_SQL_STMT_EXECUTE_OK
+	nullptr,							// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr,							// on_UNEXPECTED
+	nullptr,							// on_UNKNOWN
 };
 
 
@@ -1204,8 +1204,8 @@ xmysqlnd_get_auth_continue_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 		pfc,
 		stats,
 		error_info,
-		{ NULL, NULL },		/* on_error */
-		NULL,				/* zval */
+		{ nullptr, nullptr },		/* on_error */
+		nullptr,				/* zval */
 	};
 	return ctx;
 }
@@ -1232,7 +1232,7 @@ static const enum_hnd_func_status
 stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
 	const struct st_xmysqlnd_result_set_reader_ctx * const ctx = static_cast<const struct st_xmysqlnd_result_set_reader_ctx *>(context);
-	const struct st_xmysqlnd_on_client_id_bind on_client_id = { NULL, NULL };
+	const struct st_xmysqlnd_on_client_id_bind on_client_id = { nullptr, nullptr };
 	DBG_ENTER("stmt_execute_on_NOTICE");
 
 	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
@@ -1263,7 +1263,7 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	++ctx->field_count;
 	DBG_INF_FMT("field_count=%u", ctx->field_count);
 
-	XMYSQLND_RESULT_FIELD_META * field = NULL;
+	XMYSQLND_RESULT_FIELD_META * field = nullptr;
 #if ENABLE_MYSQLX_CTORS
 	if (ctx->response_zval) {
 		mysqlx_new_column_metadata(ctx->response_zval, message);
@@ -1379,7 +1379,7 @@ enum_func_status xmysqlnd_row_sint_field_to_zval( zval* zv,
 		}
 	} else {
 		DBG_ERR("Error decoding SINT");
-		php_error_docref(NULL, E_WARNING, "Error decoding SINT");
+		php_error_docref(nullptr, E_WARNING, "Error decoding SINT");
 		ret = FAIL;
 	}
 	DBG_RETURN( ret );
@@ -1411,7 +1411,7 @@ enum_func_status xmysqlnd_row_uint_field_to_zval( zval* zv,
 		}
 	} else {
 		DBG_ERR("Error decoding UINT");
-		php_error_docref(NULL, E_WARNING, "Error decoding UINT");
+		php_error_docref(nullptr, E_WARNING, "Error decoding UINT");
 		ret = FAIL;
 	}
 	DBG_RETURN( ret );
@@ -1434,7 +1434,7 @@ enum_func_status xmysqlnd_row_double_field_to_zval( zval* zv,
 		DBG_INF_FMT("value   =%10.15f", Z_DVAL_P(zv));
 	} else {
 		DBG_ERR("Error decoding DOUBLE");
-		php_error_docref(NULL, E_WARNING, "Error decoding DOUBLE");
+		php_error_docref(nullptr, E_WARNING, "Error decoding DOUBLE");
 		ZVAL_NULL(zv);
 		ret = FAIL;
 	}
@@ -1466,7 +1466,7 @@ enum_func_status xmysqlnd_row_float_field_to_zval( zval* zv,
 		DBG_INF_FMT("value   =%f", Z_DVAL_P(zv));
 	} else {
 		DBG_ERR("Error decoding FLOAT");
-		php_error_docref(NULL, E_WARNING, "Error decoding FLOAT");
+		php_error_docref(nullptr, E_WARNING, "Error decoding FLOAT");
 		ret = FAIL;
 	}
 	DBG_RETURN( ret );
@@ -1493,7 +1493,7 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 #undef TIME_NULL_VALUE
 			} else {
 				ZVAL_NULL(zv);
-				php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
 				ret = FAIL;
 			}
 		} else {
@@ -1535,7 +1535,7 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 				ZVAL_NEW_STR(zv, zend_string_init(DATETIME_NULL_VALUE, sizeof(DATETIME_NULL_VALUE)-1, 0));
 #undef DATETIME_NULL_VALUE
 			} else {
-				php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
 				ret = FAIL;
 			}
 		} else {
@@ -1583,14 +1583,14 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 	}
 	while (length_read_ok) {
 		if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
-			char * set_value = NULL;
+			char * set_value = nullptr;
 			int rest_buffer_size = 0;
 			if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 				zval set_entry;
 				DBG_INF_FMT("[%u]value length=%3u  rest_buffer_size=%3d", j, (uint) gval, rest_buffer_size);
 				if (gval > rest_buffer_size) {
 					DBG_ERR("Length pointing outside of the buffer");
-					php_error_docref(NULL, E_WARNING, "Length pointing outside of the buffer");
+					php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
 					ret = FAIL;
 					break;
 				}
@@ -1623,7 +1623,7 @@ enum_func_status xmysqlnd_row_decimal_field_to_zval( zval* zv,
 	}
 	if (buf_size == 1) {
 		DBG_ERR_FMT("Unexpected value for first byte of TIME");
-		php_error_docref(NULL, E_WARNING, "Unexpected value for first byte of TIME");
+		php_error_docref(nullptr, E_WARNING, "Unexpected value for first byte of TIME");
 	}
 	const uint8_t scale = buf[0];
 	const uint8_t last_byte = buf[buf_size - 1]; /* last byte is the sign and the last 4 bits, if any */
@@ -1634,7 +1634,7 @@ enum_func_status xmysqlnd_row_decimal_field_to_zval( zval* zv,
 	DBG_INF_FMT("digits  =%u", (uint) digits);
 	if (!digits) {
 		DBG_ERR_FMT("Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
-		php_error_docref(NULL, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
+		php_error_docref(nullptr, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
 		ret = FAIL;
 	} else {
 		const size_t d_val_len = digits + (sign == 0xD? 1:0) + (digits > scale? 1:0); /* one for the dot, one for the sign*/
@@ -1886,11 +1886,11 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDo
 
 static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 {
-	NULL,								// on_OK
+	nullptr,								// on_OK
 	stmt_execute_on_ERROR,				// on_ERROR
-	NULL,								// on_CAPABILITIES
-	NULL,								// on_AUTHENTICATE_CONTINUE
-	NULL,								// on_AUTHENTICATE_OK
+	nullptr,								// on_CAPABILITIES
+	nullptr,								// on_AUTHENTICATE_CONTINUE
+	nullptr,								// on_AUTHENTICATE_OK
 	stmt_execute_on_NOTICE,				// on_NOTICE
 	stmt_execute_on_COLUMN_META,		// on_RSET_COLUMN_META
 	stmt_execute_on_RSET_ROW,			// on_RSET_ROW
@@ -1899,8 +1899,8 @@ static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 	stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS,		// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
 	stmt_execute_on_STMT_EXECUTE_OK,				// on_SQL_STMT_EXECUTE_OK
 	stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS,// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,								// on_UNEXPECTED
-	NULL,								// on_UNKNOWN
+	nullptr,								// on_UNEXPECTED
+	nullptr,								// on_UNKNOWN
 };
 
 
@@ -2008,23 +2008,23 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 			stats,
 			error_info,
 
-			{ NULL, NULL}, /* create meta field */
+			{ nullptr, nullptr}, /* create meta field */
 
-			{ NULL, NULL}, /* on_row_field */
-			{ NULL, NULL}, /* on_meta_field */
-			{ NULL, NULL}, /* on_warning */
-			{ NULL, NULL}, /* on_error */
-			{ NULL, NULL}, /* on_execution_state_change */
-			{ NULL, NULL}, /* on_session_var_change */
-			{ NULL, NULL}, /* on_trx_state_change */
-			{ NULL, NULL}, /* on_stmt_execute_ok */
-			{ NULL, NULL}, /* on_resultset_end */
+			{ nullptr, nullptr}, /* on_row_field */
+			{ nullptr, nullptr}, /* on_meta_field */
+			{ nullptr, nullptr}, /* on_warning */
+			{ nullptr, nullptr}, /* on_error */
+			{ nullptr, nullptr}, /* on_execution_state_change */
+			{ nullptr, nullptr}, /* on_session_var_change */
+			{ nullptr, nullptr}, /* on_trx_state_change */
+			{ nullptr, nullptr}, /* on_stmt_execute_ok */
+			{ nullptr, nullptr}, /* on_resultset_end */
 
 			0,     /* field_count*/
 			FALSE, /* has_more_results */
 			FALSE, /* has_more_rows_in_set */
 			FALSE, /* read_started */
-			NULL,  /* response_zval */
+			nullptr,  /* response_zval */
 		}
 	};
 	return ctx;
@@ -2070,19 +2070,19 @@ static struct st_xmysqlnd_server_messages_handlers con_close_handlers =
 {
 	con_close_on_OK,		// on_OK
 	con_close_on_ERROR,		// on_ERROR
-	NULL,					// on_CAPABILITIES
-	NULL,					// on_AUTHENTICATE_CONTINUE
-	NULL,					// on_AUTHENTICATE_OK
+	nullptr,					// on_CAPABILITIES
+	nullptr,					// on_AUTHENTICATE_CONTINUE
+	nullptr,					// on_AUTHENTICATE_OK
 	con_close_on_NOTICE,	// on_NOTICE
-	NULL,					// on_RSET_COLUMN_META
-	NULL,					// on_RSET_ROW
-	NULL,					// on_RSET_FETCH_DONE
-	NULL,					// on_RESULTSET_FETCH_SUSPENDED
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,					// on_SQL_STMT_EXECUTE_OK
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,					// on_UNEXPECTED
-	NULL,					// on_UNKNOWN
+	nullptr,					// on_RSET_COLUMN_META
+	nullptr,					// on_RSET_ROW
+	nullptr,					// on_RSET_FETCH_DONE
+	nullptr,					// on_RESULTSET_FETCH_SUSPENDED
+	nullptr,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr,					// on_SQL_STMT_EXECUTE_OK
+	nullptr,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr,					// on_UNEXPECTED
+	nullptr,					// on_UNKNOWN
 };
 
 /* {{{ xmysqlnd_con_close__init_read */
@@ -2135,7 +2135,7 @@ xmysqlnd_con_close__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 		stats,
 		error_info,
 
-		{ NULL, NULL } /* on_error */
+		{ nullptr, nullptr } /* on_error */
 	};
 	return ctx;
 }
@@ -2180,19 +2180,19 @@ static struct st_xmysqlnd_server_messages_handlers collection_add_handlers =
 {
 	collection_add_on_OK,	// on_OK
 	collection_add_on_ERROR,	// on_ERROR
-	NULL,					// on_CAPABILITIES
-	NULL,					// on_AUTHENTICATE_CONTINUE
-	NULL,					// on_AUTHENTICATE_OK
+	nullptr,					// on_CAPABILITIES
+	nullptr,					// on_AUTHENTICATE_CONTINUE
+	nullptr,					// on_AUTHENTICATE_OK
 	collection_add_on_NOTICE,	// on_NOTICE
-	NULL,					// on_RSET_COLUMN_META
-	NULL,					// on_RSET_ROW
-	NULL,					// on_RSET_FETCH_DONE
-	NULL,					// on_RESULTSET_FETCH_SUSPENDED
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,					// on_SQL_STMT_EXECUTE_OK
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,					// on_UNEXPECTED
-	NULL,					// on_UNKNOWN
+	nullptr,					// on_RSET_COLUMN_META
+	nullptr,					// on_RSET_ROW
+	nullptr,					// on_RSET_FETCH_DONE
+	nullptr,					// on_RESULTSET_FETCH_SUSPENDED
+	nullptr,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr,					// on_SQL_STMT_EXECUTE_OK
+	nullptr,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr,					// on_UNEXPECTED
+	nullptr,					// on_UNKNOWN
 };
 
 /* {{{ xmysqlnd_collection_add__init_read */
@@ -2252,7 +2252,7 @@ xmysqlnd_collection_add__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQ
 		stats,
 		error_info,
 
-		{ NULL, NULL } /* on_error */
+		{ nullptr, nullptr } /* on_error */
 	};
 	return ctx;
 }
@@ -2290,7 +2290,7 @@ table_insert_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 	DBG_ENTER("table_insert_on_NOTICE");
 	struct st_xmysqlnd_result_ctx * const ctx = static_cast<struct st_xmysqlnd_result_ctx *>(context);
 
-	const struct st_xmysqlnd_on_client_id_bind on_client_id = { NULL, NULL };
+	const struct st_xmysqlnd_on_client_id_bind on_client_id = { nullptr, nullptr };
 
 	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
 																   ctx->on_warning,
@@ -2308,19 +2308,19 @@ static struct st_xmysqlnd_server_messages_handlers table_insert_handlers =
 {
 	table_insert_on_OK,	// on_OK
 	table_insert_on_ERROR,	// on_ERROR
-	NULL,					// on_CAPABILITIES
-	NULL,					// on_AUTHENTICATE_CONTINUE
-	NULL,					// on_AUTHENTICATE_OK
+	nullptr,					// on_CAPABILITIES
+	nullptr,					// on_AUTHENTICATE_CONTINUE
+	nullptr,					// on_AUTHENTICATE_OK
 	table_insert_on_NOTICE,	// on_NOTICE
-	NULL,					// on_RSET_COLUMN_META
-	NULL,					// on_RSET_ROW
-	NULL,					// on_RSET_FETCH_DONE
-	NULL,					// on_RESULTSET_FETCH_SUSPENDED
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,					// on_SQL_STMT_EXECUTE_OK
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,					// on_UNEXPECTED
-	NULL,					// on_UNKNOWN
+	nullptr,					// on_RSET_COLUMN_META
+	nullptr,					// on_RSET_ROW
+	nullptr,					// on_RSET_FETCH_DONE
+	nullptr,					// on_RESULTSET_FETCH_SUSPENDED
+	nullptr,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr,					// on_SQL_STMT_EXECUTE_OK
+	nullptr,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr,					// on_UNEXPECTED
+	nullptr,					// on_UNKNOWN
 };
 
 /* {{{ xmysqlnd_table_insert__send_request */
@@ -2393,13 +2393,13 @@ xmysqlnd_table_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 			stats,
 			error_info,
 
-			{ NULL, NULL}, /* on_warning */
-			{ NULL, NULL}, /* on_error */
-			{ NULL, NULL}, /* on_execution_state_change */
-			{ NULL, NULL}, /* on_session_var_change */
-			{ NULL, NULL}, /* on_trx_state_change */
+			{ nullptr, nullptr}, /* on_warning */
+			{ nullptr, nullptr}, /* on_error */
+			{ nullptr, nullptr}, /* on_execution_state_change */
+			{ nullptr, nullptr}, /* on_session_var_change */
+			{ nullptr, nullptr}, /* on_trx_state_change */
 
-			NULL,  /* response_zval */
+			nullptr,  /* response_zval */
 		}
     };
     return ctx;
@@ -2444,19 +2444,19 @@ static struct st_xmysqlnd_server_messages_handlers collection_ud_handlers =
 {
 	collection_ud_on_OK,		// on_OK
 	collection_ud_on_ERROR,	// on_ERROR
-	NULL,					// on_CAPABILITIES
-	NULL,					// on_AUTHENTICATE_CONTINUE
-	NULL,					// on_AUTHENTICATE_OK
+	nullptr,					// on_CAPABILITIES
+	nullptr,					// on_AUTHENTICATE_CONTINUE
+	nullptr,					// on_AUTHENTICATE_OK
 	collection_ud_on_NOTICE,	// on_NOTICE
-	NULL,					// on_RSET_COLUMN_META
-	NULL,					// on_RSET_ROW
-	NULL,					// on_RSET_FETCH_DONE
-	NULL,					// on_RESULTSET_FETCH_SUSPENDED
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
-	NULL,					// on_SQL_STMT_EXECUTE_OK
-	NULL,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	NULL,					// on_UNEXPECTED
-	NULL,					// on_UNKNOWN
+	nullptr,					// on_RSET_COLUMN_META
+	nullptr,					// on_RSET_ROW
+	nullptr,					// on_RSET_FETCH_DONE
+	nullptr,					// on_RESULTSET_FETCH_SUSPENDED
+	nullptr,					// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
+	nullptr,					// on_SQL_STMT_EXECUTE_OK
+	nullptr,					// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	nullptr,					// on_UNEXPECTED
+	nullptr,					// on_UNKNOWN
 };
 
 
@@ -2547,7 +2547,7 @@ xmysqlnd_collection_ud__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQL
 		stats,
 		error_info,
 
-		{ NULL, NULL } /* on_error */
+		{ nullptr, nullptr } /* on_error */
 	};
 	return ctx;
 }
@@ -2658,23 +2658,23 @@ xmysqlnd_collection_read__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 			stats,
 			error_info,
 
-			{ NULL, NULL}, /* create meta field */
+			{ nullptr, nullptr}, /* create meta field */
 
-			{ NULL, NULL}, /* on_row_field */
-			{ NULL, NULL}, /* on_meta_field */
-			{ NULL, NULL}, /* on_warning */
-			{ NULL, NULL}, /* on_error */
-			{ NULL, NULL}, /* on_execution_state_change */
-			{ NULL, NULL}, /* on_session_var_change */
-			{ NULL, NULL}, /* on_trx_state_change */
-			{ NULL, NULL}, /* on_stmt_execute_ok */
-			{ NULL, NULL}, /* on_resultset_end */
+			{ nullptr, nullptr}, /* on_row_field */
+			{ nullptr, nullptr}, /* on_meta_field */
+			{ nullptr, nullptr}, /* on_warning */
+			{ nullptr, nullptr}, /* on_error */
+			{ nullptr, nullptr}, /* on_execution_state_change */
+			{ nullptr, nullptr}, /* on_session_var_change */
+			{ nullptr, nullptr}, /* on_trx_state_change */
+			{ nullptr, nullptr}, /* on_stmt_execute_ok */
+			{ nullptr, nullptr}, /* on_resultset_end */
 
 			0,     /* field_count*/
 			FALSE, /* has_more_results */
 			FALSE, /* has_more_rows_in_set */
 			FALSE, /* read_started */
-			NULL,  /* response_zval */
+			nullptr,  /* response_zval */
 		}
 	};
 	return ctx;

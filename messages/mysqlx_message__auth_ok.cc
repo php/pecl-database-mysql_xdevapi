@@ -59,7 +59,7 @@ struct st_mysqlx_message__auth_ok
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_message__auth_ok *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -96,7 +96,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_ok, response)
 /* {{{ mysqlx_message__auth_ok_methods[] */
 static const zend_function_entry mysqlx_message__auth_ok_methods[] = {
 	PHP_ME(mysqlx_message__auth_ok, response,	mysqlx_message__auth_ok__response,			ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -143,7 +143,7 @@ php_mysqlx_message__auth_ok_object_allocator(zend_class_entry * class_type)
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -163,7 +163,7 @@ mysqlx_register_message__auth_ok_class(INIT_FUNC_ARGS, zend_object_handlers * my
 		mysqlx_message__auth_ok_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__auth_ok_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__auth_ok_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

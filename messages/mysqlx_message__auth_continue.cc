@@ -63,7 +63,7 @@ struct st_mysqlx_message__auth_continue
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_message__auth_continue *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -94,11 +94,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 	struct st_mysqlx_message__auth_continue * object;
 	struct st_mysqlx_node_connection * connection;
 	struct st_mysqlx_node_pfc * codec;
-	char * user = NULL;
+	char * user = nullptr;
 	size_t user_len = 0;
-	char * password = NULL;
+	char * password = nullptr;
 	size_t password_len = 0;
-	char * schema = NULL;
+	char * schema = nullptr;
 	size_t schema_len = 0;
 
 	DBG_ENTER("mysqlx_message__auth_continue::send");
@@ -118,7 +118,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	if (!object->message.has_auth_data()) {
-		php_error_docref(NULL, E_WARNING, "No authentication data from the server");
+		php_error_docref(nullptr, E_WARNING, "No authentication data from the server");
 		DBG_VOID_RETURN;
 	}
 
@@ -179,7 +179,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 static const zend_function_entry mysqlx_message__auth_continue_methods[] = {
 	PHP_ME(mysqlx_message__auth_continue, send,				mysqlx_message__auth_continue__send,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_message__auth_continue, read_response,	mysqlx_message__auth_continue__read_response,	ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -227,7 +227,7 @@ php_mysqlx_message__auth_continue_object_allocator(zend_class_entry * class_type
 	}
 
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -247,7 +247,7 @@ mysqlx_register_message__auth_continue_class(INIT_FUNC_ARGS, zend_object_handler
 		mysqlx_message__auth_continue_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__auth_continue_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__auth_continue_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

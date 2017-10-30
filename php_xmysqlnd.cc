@@ -84,10 +84,10 @@ static PHP_GINIT_FUNCTION(xmysqlnd)
 #endif
 	xmysqlnd_globals->collect_statistics = TRUE;
 	xmysqlnd_globals->collect_memory_statistics = FALSE;
-	xmysqlnd_globals->debug = NULL;	/* The actual string */
-	xmysqlnd_globals->dbg = NULL;	/* The DBG object*/
-	xmysqlnd_globals->trace_alloc_settings = NULL;
-	xmysqlnd_globals->trace_alloc = NULL;
+	xmysqlnd_globals->debug = nullptr;	/* The actual string */
+	xmysqlnd_globals->dbg = nullptr;	/* The DBG object*/
+	xmysqlnd_globals->trace_alloc_settings = nullptr;
+	xmysqlnd_globals->trace_alloc = nullptr;
 	xmysqlnd_globals->net_read_timeout = 31536000;
 	xmysqlnd_globals->mempool_default_size = 16000;
 	xmysqlnd_globals->debug_emalloc_fail_threshold = -1;
@@ -105,8 +105,8 @@ static PHP_GINIT_FUNCTION(xmysqlnd)
 PHP_INI_BEGIN()
 	STD_PHP_INI_BOOLEAN("xmysqlnd.collect_statistics",	"1", 	PHP_INI_ALL,	OnUpdateBool,	collect_statistics, 		zend_xmysqlnd_globals, xmysqlnd_globals)
 	STD_PHP_INI_BOOLEAN("xmysqlnd.collect_memory_statistics","0",PHP_INI_SYSTEM,OnUpdateBool,	collect_memory_statistics,	zend_xmysqlnd_globals, xmysqlnd_globals)
-	STD_PHP_INI_ENTRY("xmysqlnd.debug",					NULL, 	PHP_INI_SYSTEM, OnUpdateString,	debug,						zend_xmysqlnd_globals, xmysqlnd_globals)
-	STD_PHP_INI_ENTRY("xmysqlnd.trace_alloc",			NULL, 	PHP_INI_SYSTEM, OnUpdateString,	trace_alloc_settings,		zend_xmysqlnd_globals, xmysqlnd_globals)
+	STD_PHP_INI_ENTRY("xmysqlnd.debug",					nullptr, 	PHP_INI_SYSTEM, OnUpdateString,	debug,						zend_xmysqlnd_globals, xmysqlnd_globals)
+	STD_PHP_INI_ENTRY("xmysqlnd.trace_alloc",			nullptr, 	PHP_INI_SYSTEM, OnUpdateString,	trace_alloc_settings,		zend_xmysqlnd_globals, xmysqlnd_globals)
 	STD_PHP_INI_ENTRY("xmysqlnd.net_read_timeout",	"31536000",	PHP_INI_SYSTEM, OnUpdateLong,	net_read_timeout,			zend_xmysqlnd_globals, xmysqlnd_globals)
 	STD_PHP_INI_ENTRY("xmysqlnd.mempool_default_size","16000",   PHP_INI_ALL,	OnUpdateLong,	mempool_default_size,		zend_xmysqlnd_globals, xmysqlnd_globals)
 #if PHP_DEBUG
@@ -154,10 +154,10 @@ static PHP_RINIT_FUNCTION(xmysqlnd)
 {
 	if (XMYSQLND_G(debug)) {
 		struct st_mysqlnd_plugin_trace_log * trace_log_plugin = mysqlnd_plugin_find("debug_trace");
-		XMYSQLND_G(dbg) = NULL;
+		XMYSQLND_G(dbg) = nullptr;
 		if (trace_log_plugin) {
 			MYSQLND_DEBUG * dbg = trace_log_plugin->methods.trace_instance_init(mysqlnd_debug_std_no_trace_funcs);
-			MYSQLND_DEBUG * trace_alloc = trace_log_plugin->methods.trace_instance_init(NULL);
+			MYSQLND_DEBUG * trace_alloc = trace_log_plugin->methods.trace_instance_init(nullptr);
 			if (!dbg || !trace_alloc) {
 				return FAILURE;
 			}
@@ -185,12 +185,12 @@ static PHP_RSHUTDOWN_FUNCTION(xmysqlnd)
 	if (dbg) {
 		dbg->m->close(dbg);
 		dbg->m->free_handle(dbg);
-		XMYSQLND_G(dbg) = NULL;
+		XMYSQLND_G(dbg) = nullptr;
 	}
 	if (trace_alloc) {
 		trace_alloc->m->close(trace_alloc);
 		trace_alloc->m->free_handle(trace_alloc);
-		XMYSQLND_G(trace_alloc) = NULL;
+		XMYSQLND_G(trace_alloc) = nullptr;
 	}
 	return SUCCESS;
 }
@@ -211,28 +211,28 @@ static const zend_module_dep xmysqlnd_deps[] = {
 /* {{{ xmysqlnd_module_entry */
 zend_module_entry xmysqlnd_module_entry = {
 	STANDARD_MODULE_HEADER_EX,
-	NULL,
+	nullptr,
 	xmysqlnd_deps,
 	"xmysqlnd",
-	NULL, /* xmysqlnd_functions */
+	nullptr, /* xmysqlnd_functions */
 	PHP_MINIT(xmysqlnd),
 	PHP_MSHUTDOWN(xmysqlnd),
 #if PHP_DEBUG
 	PHP_RINIT(xmysqlnd),
 #else
-	NULL,
+	nullptr,
 #endif
 #if PHP_DEBUG
 	PHP_RSHUTDOWN(xmysqlnd),
 #else
-	NULL,
+	nullptr,
 #endif
 	PHP_MINFO(xmysqlnd),
 	PHP_XMYSQLND_VERSION,
 	PHP_MODULE_GLOBALS(xmysqlnd),
 	PHP_GINIT(xmysqlnd),
-	NULL,
-	NULL,
+	nullptr,
+	nullptr,
 	STANDARD_MODULE_PROPERTIES_EX
 };
 /* }}} */

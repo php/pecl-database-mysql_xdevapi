@@ -53,7 +53,7 @@ struct st_mysqlx_field_metadata : public phputils::permanent_allocable
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_field_metadata *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -69,8 +69,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_field_metadata, __construct)
 
 /* {{{ mysqlx_field_metadata_methods[] */
 static const zend_function_entry mysqlx_field_metadata_methods[] = {
-	PHP_ME(mysqlx_field_metadata, __construct,				NULL,			ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_field_metadata, __construct,				nullptr,			ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -237,22 +237,22 @@ mysqlx_field_meta_property__content_type(const struct st_mysqlx_object * obj, zv
 /* {{{ mysqlx_field_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_field_meta_property_entries[] =
 {
-	{{"type",				sizeof("type") - 1},				mysqlx_field_meta_property__type,			NULL},
+	{{"type",				sizeof("type") - 1},				mysqlx_field_meta_property__type,			nullptr},
 #if TYPE_NAME_ENABLED
-	{{"type_name",			sizeof("type_name") - 1},			mysqlx_field_meta_property__type_name, 		NULL},
+	{{"type_name",			sizeof("type_name") - 1},			mysqlx_field_meta_property__type_name, 		nullptr},
 #endif
-	{{"name",				sizeof("name") - 1},				mysqlx_field_meta_property__name,			NULL},
-	{{"original_name",		sizeof("original_name") - 1},		mysqlx_field_meta_property__original_name,	NULL},
-	{{"table",				sizeof("table") - 1},				mysqlx_field_meta_property__table,			NULL},
-	{{"original_table",		sizeof("original_table") - 1},		mysqlx_field_meta_property__original_table,NULL},
-	{{"schema",				sizeof("schema") - 1},				mysqlx_field_meta_property__schema,			NULL},
-	{{"catalog",			sizeof("catalog") - 1},				mysqlx_field_meta_property__catalog,		NULL},
-	{{"collation",			sizeof("collation") - 1},			mysqlx_field_meta_property__collation,		NULL},
-	{{"fractional_digits",	sizeof("fractional_digits") - 1},	mysqlx_field_meta_property__fractional_digits,NULL},
-	{{"length",				sizeof("length") - 1},				mysqlx_field_meta_property__length,			NULL},
-	{{"flags",				sizeof("flags") - 1},				mysqlx_field_meta_property__flags,			NULL},
-	{{"content_type",		sizeof("content_type") - 1},		mysqlx_field_meta_property__content_type,	NULL},
-	{{NULL, 				0},									NULL, 										NULL}
+	{{"name",				sizeof("name") - 1},				mysqlx_field_meta_property__name,			nullptr},
+	{{"original_name",		sizeof("original_name") - 1},		mysqlx_field_meta_property__original_name,	nullptr},
+	{{"table",				sizeof("table") - 1},				mysqlx_field_meta_property__table,			nullptr},
+	{{"original_table",		sizeof("original_table") - 1},		mysqlx_field_meta_property__original_table,nullptr},
+	{{"schema",				sizeof("schema") - 1},				mysqlx_field_meta_property__schema,			nullptr},
+	{{"catalog",			sizeof("catalog") - 1},				mysqlx_field_meta_property__catalog,		nullptr},
+	{{"collation",			sizeof("collation") - 1},			mysqlx_field_meta_property__collation,		nullptr},
+	{{"fractional_digits",	sizeof("fractional_digits") - 1},	mysqlx_field_meta_property__fractional_digits,nullptr},
+	{{"length",				sizeof("length") - 1},				mysqlx_field_meta_property__length,			nullptr},
+	{{"flags",				sizeof("flags") - 1},				mysqlx_field_meta_property__flags,			nullptr},
+	{{"content_type",		sizeof("content_type") - 1},		mysqlx_field_meta_property__content_type,	nullptr},
+	{{nullptr, 				0},									nullptr, 										nullptr}
 };
 /* }}} */
 
@@ -270,7 +270,7 @@ mysqlx_field_metadata_free_storage(zend_object * object)
 
 	if (message) {
 		if (message->field_meta) {
-			xmysqlnd_result_field_meta_free(message->field_meta, NULL, NULL);
+			xmysqlnd_result_field_meta_free(message->field_meta, nullptr, nullptr);
 		}
 		mnd_pefree(message, message->persistent);
 	}
@@ -307,7 +307,7 @@ mysqlx_register_field_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mysq
 		mysqlx_field_metadata_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_field_metadata_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_field_metadata_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	mysqlx_add_properties(&mysqlx_field_metadata_properties, mysqlx_field_meta_property_entries);
 
@@ -351,9 +351,9 @@ mysqlx_new_field_metadata(zval * return_value, const XMYSQLND_RESULT_FIELD_META 
 		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
 		struct st_mysqlx_field_metadata * const object = (struct st_mysqlx_field_metadata *) mysqlx_object->ptr;
 		if (object) {
-			object->field_meta = field_meta->m->clone(field_meta, NULL, NULL);
+			object->field_meta = field_meta->m->clone(field_meta, nullptr, nullptr);
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

@@ -67,7 +67,7 @@ struct st_mysqlx_message__capabilities_set
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_message__capabilities_set *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -118,7 +118,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 	{
 		const size_t cap_count = zend_hash_num_elements(&capabilities->capabilities_ht);
 		if (!cap_count) {
-			php_error_docref(NULL, E_WARNING, "Zero Capabilities");
+			php_error_docref(nullptr, E_WARNING, "Zero Capabilities");
 			DBG_VOID_RETURN;
 		}
 		zval ** capability_names = (zval **) mnd_ecalloc(cap_count, sizeof(zval*));
@@ -127,7 +127,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 		zval * entry;
 		ZEND_HASH_FOREACH_VAL(&capabilities->capabilities_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_message__capability_class_entry) {
-				struct st_mysqlx_message__capability * capability_entry = NULL;
+				struct st_mysqlx_message__capability * capability_entry = nullptr;
 				MYSQLX_FETCH_MESSAGE__CAPABILITY_FROM_ZVAL(capability_entry, entry);
 
 				capability_names[i] = &capability_entry->capability_name;
@@ -191,7 +191,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, read_response)
 static const zend_function_entry mysqlx_message__capabilities_set_methods[] = {
 	PHP_ME(mysqlx_message__capabilities_set, send,				mysqlx_message__capabilities_set__send,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_message__capabilities_set, read_response,		mysqlx_message__capabilities_set__read_response,	ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -237,7 +237,7 @@ php_mysqlx_message__capabilities_set_object_allocator(zend_class_entry * class_t
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -257,7 +257,7 @@ mysqlx_register_message__capabilities_set_class(INIT_FUNC_ARGS, zend_object_hand
 		mysqlx_message__capabilities_set_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__capabilities_set_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__capabilities_set_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

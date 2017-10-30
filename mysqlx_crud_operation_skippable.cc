@@ -35,7 +35,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_crud_operation_skippable_methods[] */
 static const zend_function_entry mysqlx_crud_operation_skippable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_skippable, skip, mysqlx_crud_operation_skippable__skip)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

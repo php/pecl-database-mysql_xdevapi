@@ -35,7 +35,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_crud_operation_bindable_methods[] */
 static const zend_function_entry mysqlx_crud_operation_bindable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_bindable, bind, mysqlx_crud_operation_bindable__bind)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

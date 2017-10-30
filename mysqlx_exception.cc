@@ -59,14 +59,14 @@ RAISE_EXCEPTION(const int errcode, const char * const msg)
 	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo((_from)); \
 	(_to) = (struct st_mysqlx_exception *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
 	} \
 }
 
 /* {{{ mysqlx_exception_methods[] */
 static const zend_function_entry mysqlx_exception_methods[] = {
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -84,10 +84,10 @@ mysqlx_exception_property__message(const struct st_mysqlx_object * obj, zval * r
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -122,10 +122,10 @@ mysqlx_exception_property__code(const struct st_mysqlx_object * obj, zval * retu
 /* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_exception_property_entries[] =
 {
-	{{"message",			sizeof("message") - 1},		mysqlx_exception_property__message,	NULL},
-	{{"level",				sizeof("level") - 1},		mysqlx_exception_property__level,		NULL},
-	{{"code",				sizeof("code") - 1},		mysqlx_exception_property__code,		NULL},
-	{{NULL, 				0},							NULL, 								NULL}
+	{{"message",			sizeof("message") - 1},		mysqlx_exception_property__message,	nullptr},
+	{{"level",				sizeof("level") - 1},		mysqlx_exception_property__level,		nullptr},
+	{{"code",				sizeof("code") - 1},		mysqlx_exception_property__code,		nullptr},
+	{{nullptr, 				0},							nullptr, 								nullptr}
 };
 /* }}} */
 
@@ -150,7 +150,7 @@ mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_st
 #endif
 	}
 
-	zend_hash_init(&mysqlx_exception_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_exception_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	mysqlx_add_properties(&mysqlx_exception_properties, mysqlx_exception_property_entries);
 }
@@ -170,7 +170,7 @@ mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
-	char * msg = NULL;
+	char * msg = nullptr;
 	DBG_ENTER("mysqlx_new_exception");
 	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.l, sql_state.s, message.l, message.s);
 	if (msg) {

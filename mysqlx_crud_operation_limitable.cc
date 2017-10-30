@@ -34,7 +34,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_crud_operation_limitable_methods[] */
 static const zend_function_entry mysqlx_crud_operation_limitable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_limitable, limit, mysqlx_crud_operation_limitable__limit)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

@@ -32,7 +32,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_schema_object_methods[] */
 static const zend_function_entry mysqlx_schema_object_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_schema_object, getSchema, arginfo_mysqlx_schema_object__get_schema)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

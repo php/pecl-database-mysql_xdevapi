@@ -337,7 +337,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows_contents)(XMYSQLND_ROWSET_BU
 				zval_ptr_dtor(&(result->rows[row][col]));
 			}
 			result->m.destroy_row(result, result->rows[row], stats, error_info);
-			result->rows[row] = NULL;
+			result->rows[row] = nullptr;
 		}
 		result->row_count = 0;
 		result->row_cursor = 0;
@@ -362,7 +362,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows)(XMYSQLND_ROWSET_BUFFERED * 
 		result->m.free_rows_contents(result, stats, error_info);
 
 		mnd_pefree(result->rows, pers);
-		result->rows = NULL;
+		result->rows = nullptr;
 
 		result->rows_allocated = 0;
 	}
@@ -381,7 +381,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_contents)(XMYSQLND_ROWSET_BUFFERE
 
 	result->m.free_rows(result, stats, error_info);
 	if (result->meta) {
-		result->meta = NULL;
+		result->meta = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -444,7 +444,7 @@ xmysqlnd_rowset_buffered_create(XMYSQLND_NODE_STMT * stmt,
 								MYSQLND_STATS * stats,
 								MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_ROWSET_BUFFERED * result = NULL;
+	XMYSQLND_ROWSET_BUFFERED * result = nullptr;
 	DBG_ENTER("xmysqlnd_rowset_buffered_create");
 	result = object_factory->get_rowset_buffered(object_factory, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);

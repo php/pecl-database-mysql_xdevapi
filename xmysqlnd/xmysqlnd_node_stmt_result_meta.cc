@@ -212,7 +212,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_content_type)(XMYSQLND_RESULT_FI
 static XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, clone)(const XMYSQLND_RESULT_FIELD_META * const origin, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_RESULT_FIELD_META * cloned = NULL;
+	XMYSQLND_RESULT_FIELD_META * cloned = nullptr;
 	DBG_ENTER("xmysqlnd_result_field_meta::clone");
 	cloned = xmysqlnd_result_field_meta_create(origin->persistent, origin->object_factory, stats, error_info);
 	if (cloned) {
@@ -242,37 +242,37 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD
 	DBG_ENTER("xmysqlnd_result_field_meta::free_contents");
 
 	/* Don't free field->name.s as it is a pointer to field->zend_hash_key.sname */
-	field->name.s = NULL;
+	field->name.s = nullptr;
 	field->name.l = 0;
 
 	if (field->original_name.s && field->original_name.s != mysqlnd_empty_string) {
 		mnd_pefree(field->original_name.s, persistent);
-		field->original_name.s = NULL;
+		field->original_name.s = nullptr;
 		field->original_name.l = 0;
 	}
 	if (field->table.s && field->table.s != mysqlnd_empty_string) {
 		mnd_pefree(field->table.s, persistent);
-		field->table.s = NULL;
+		field->table.s = nullptr;
 		field->table.l = 0;
 	}
 	if (field->original_table.s && field->original_table.s != mysqlnd_empty_string) {
 		mnd_pefree(field->original_table.s, persistent);
-		field->original_table.s = NULL;
+		field->original_table.s = nullptr;
 		field->original_table.l = 0;
 	}
 	if (field->schema.s && field->schema.s != mysqlnd_empty_string) {
 		mnd_pefree(field->schema.s, persistent);
-		field->schema.s = NULL;
+		field->schema.s = nullptr;
 		field->schema.l = 0;
 	}
 	if (field->catalog.s && field->catalog.s != mysqlnd_empty_string) {
 		mnd_pefree(field->catalog.s, persistent);
-		field->catalog.s = NULL;
+		field->catalog.s = nullptr;
 		field->catalog.l = 0;
 	}
 	if (field->zend_hash_key.sname) {
 		zend_string_release(field->zend_hash_key.sname);
-		field->zend_hash_key.sname = NULL;
+		field->zend_hash_key.sname = nullptr;
 	}
 	field->zend_hash_key.is_numeric = FALSE;
 	field->zend_hash_key.key = 0;
@@ -331,7 +331,7 @@ xmysqlnd_result_field_meta_create(const zend_bool persistent,
 								  MYSQLND_STATS * stats,
 								  MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_RESULT_FIELD_META * object = NULL;
+	XMYSQLND_RESULT_FIELD_META * object = nullptr;
 	DBG_ENTER("xmysqlnd_result_field_meta_create");
 	object = object_factory->get_result_field_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);
@@ -397,7 +397,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, count)(const XMYSQLND_NODE_STMT_
 static const XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, get_field)(const XMYSQLND_NODE_STMT_RESULT_META * const meta, unsigned int field)
 {
-	return((meta->field_count > 0 && field < meta->field_count)? meta->fields[field] : NULL);
+	return((meta->field_count > 0 && field < meta->field_count)? meta->fields[field] : nullptr);
 }
 /* }}} */
 
@@ -413,7 +413,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, free_contents)(XMYSQLND_NODE_STM
 			meta->fields[i]->m->dtor(meta->fields[i], stats, error_info);
 		}
 		mnd_pefree(meta->fields, meta->persistent);
-		meta->fields = NULL;
+		meta->fields = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -454,7 +454,7 @@ xmysqlnd_node_stmt_result_meta_create(const zend_bool persistent,
 									  MYSQLND_STATS * stats,
 									  MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT_META * object = NULL;
+	XMYSQLND_NODE_STMT_RESULT_META * object = nullptr;
 	DBG_ENTER("xmysqlnd_node_stmt_result_meta_create");
 	object = object_factory->get_node_stmt_result_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);

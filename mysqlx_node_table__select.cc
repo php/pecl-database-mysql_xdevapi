@@ -100,7 +100,7 @@ struct st_mysqlx_node_table__select : public phputils::custom_allocable
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_table__select *) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
 	} \
 } \
@@ -118,7 +118,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, where)
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
-	MYSQLND_CSTRING where_expr = {NULL, 0};
+	MYSQLND_CSTRING where_expr = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_table__select::where");
 
@@ -153,7 +153,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
-	zval * sort_expr = NULL;
+	zval * sort_expr = nullptr;
 	int    num_of_expr = 0;
 	int    i;
 
@@ -172,7 +172,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
 			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
 			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
-			php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
+			php_error_docref(nullptr, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
 							 Z_TYPE(sort_expr[i]));
 			DBG_VOID_RETURN;
 		}
@@ -265,7 +265,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, having)
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
-	MYSQLND_CSTRING search_condition = {NULL, 0};
+	MYSQLND_CSTRING search_condition = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_table__select::having");
 
@@ -480,7 +480,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 					ZVAL_UNDEF(&stmt_zv);
 					mysqlx_new_node_stmt(&stmt_zv, stmt);
 					if (Z_TYPE(stmt_zv) == IS_NULL) {
-						xmysqlnd_node_stmt_free(stmt, NULL, NULL);
+						xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
 					}
 					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 						zval zv;
@@ -534,10 +534,10 @@ mysqlx_node_table__select_property__name(const struct st_mysqlx_object * obj, zv
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -550,9 +550,9 @@ static HashTable mysqlx_node_table__select_properties;
 const struct st_mysqlx_property_entry mysqlx_node_table__select_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_table__select_property__name,	NULL},
+	{{"name",	sizeof("name") - 1}, mysqlx_node_table__select_property__name,	nullptr},
 #endif
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 /* {{{ mysqlx_node_table__select_free_storage */
@@ -564,12 +564,12 @@ mysqlx_node_table__select_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->table) {
-			xmysqlnd_node_table_free(inner_obj->table, NULL, NULL);
-			inner_obj->table = NULL;
+			xmysqlnd_node_table_free(inner_obj->table, nullptr, nullptr);
+			inner_obj->table = nullptr;
 		}
 		if(inner_obj->crud_op) {
 			xmysqlnd_crud_table_select__destroy(inner_obj->crud_op);
-			inner_obj->crud_op = NULL;
+			inner_obj->crud_op = nullptr;
 		}
 		mnd_efree(inner_obj);
 	}
@@ -607,7 +607,7 @@ mysqlx_register_node_table__select_class(INIT_FUNC_ARGS, zend_object_handlers * 
 		zend_class_implements(mysqlx_node_table__select_class_entry, 1, mysqlx_executable_interface_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_table__select_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_node_table__select_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_table__select_properties, mysqlx_node_table__select_property_entries);
@@ -649,7 +649,7 @@ mysqlx_new_node_table__select(zval * return_value,
 				columns,
 				num_of_columns);
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

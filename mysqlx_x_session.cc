@@ -63,9 +63,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 	(_to) = (struct st_mysqlx_session *) mysqlx_object->ptr; \
 	if (!(_to) && !(_to)->session) { \
 		if ((_to)->closed) { \
-			php_error_docref(NULL, E_WARNING, "closed session"); \
+			php_error_docref(nullptr, E_WARNING, "closed session"); \
 		} else { \
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		} \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
@@ -94,8 +94,8 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA *
 
 /* {{{ mysqlx_x_session_methods[] */
 static const zend_function_entry mysqlx_x_session_methods[] = {
-	PHP_ME(mysqlx_x_session, __construct, 		NULL, ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_x_session, __construct, 		nullptr, ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -104,7 +104,7 @@ static HashTable mysqlx_x_session_properties;
 
 const struct st_mysqlx_property_entry mysqlx_x_session_property_entries[] =
 {
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 /* {{{ mysqlx_register_x_session_class */
@@ -118,7 +118,7 @@ mysqlx_register_x_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_st
 			&tmp_ce, mysqlx_base_session_class_entry);
 	}
 
-	zend_hash_init(&mysqlx_x_session_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_x_session_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_x_session_properties, mysqlx_x_session_property_entries);
@@ -195,7 +195,7 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 			const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(&input_parameters[0]);
 			Session_config* session_conf = static_cast< Session_config*>( mysqlx_object->ptr );
 			if ( nullptr == session_conf ) {
-				php_error_docref(NULL, E_WARNING, "invalid object of class %s",
+				php_error_docref(nullptr, E_WARNING, "invalid object of class %s",
 								 ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 			} else {
 				uri = session_conf->get_uri();

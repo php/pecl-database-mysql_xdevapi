@@ -236,7 +236,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_protocol_pa
 PHP_MYSQL_XDEVAPI_API XMYSQLND_PFC *
 xmysqlnd_pfc_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_PFC * pfc = NULL;
+	XMYSQLND_PFC * pfc = nullptr;
 	DBG_ENTER("xmysqlnd_pfc_create");
 	pfc = object_factory->get_protocol_frame_codec(object_factory, persistent, stats, error_info);
 	DBG_RETURN(pfc);

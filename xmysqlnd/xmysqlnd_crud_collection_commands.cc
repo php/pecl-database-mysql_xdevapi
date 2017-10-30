@@ -103,7 +103,7 @@ xmysqlnd_crud_collection__add_sort(MSG& message,
 			DBG_RETURN(FAIL);
 		}
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -121,7 +121,7 @@ xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::My
 {
 	DBG_ENTER("xmysqlnd_crud_collection__finalize_bind");
 
-	const Mysqlx::Datatypes::Scalar* null_value = NULL;
+	const Mysqlx::Datatypes::Scalar* null_value = nullptr;
 	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin = bound_values.begin();
 	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end = bound_values.end();
 	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index = std::find(begin, end, null_value);
@@ -320,9 +320,9 @@ xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOV
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
 		}
-		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -476,9 +476,9 @@ xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIF
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
 		}
-		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -565,14 +565,14 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 	Mysqlx::Crud::UpdateOperation * operation = obj->message.mutable_operation()->Add();
 	operation->set_operation(op_type);
 
-	std::auto_ptr<Mysqlx::Expr::Expr> docpath(NULL);
+	std::auto_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
 
 	try {
 		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);
 		docpath.reset(mysqlx::devapi::parser::parse(source,
 										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT));
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_ERR("Parser error for document field");
 		DBG_RETURN(FAIL);
@@ -608,7 +608,7 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 																						obj->placeholders );
 				operation->set_allocated_value( exprCriteria );
 			} catch (cdk::Error &e) {
-				php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+				php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 				DBG_ERR_FMT("%s", e.what());
 				DBG_ERR("Parser error for document field");
 				DBG_RETURN(FAIL);
@@ -637,7 +637,7 @@ xmysqlnd_crud_collection_modify__unset(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj
 {
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_REMOVE;
 	DBG_ENTER("xmysqlnd_crud_collection_modify__unset");
-	const enum_func_status ret = xmysqlnd_crud_collection_modify__add_operation(obj, op_type, path, NULL, FALSE, FALSE, FALSE);
+	const enum_func_status ret = xmysqlnd_crud_collection_modify__add_operation(obj, op_type, path, nullptr, FALSE, FALSE, FALSE);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -723,7 +723,7 @@ xmysqlnd_crud_collection_modify__array_delete(XMYSQLND_CRUD_COLLECTION_OP__MODIF
 {
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_REMOVE;
 	DBG_ENTER("xmysqlnd_crud_collection_modify__array_delete");
-	const enum_func_status ret = xmysqlnd_crud_collection_modify__add_operation(obj, op_type, path, NULL, FALSE, FALSE, TRUE);
+	const enum_func_status ret = xmysqlnd_crud_collection_modify__add_operation(obj, op_type, path, nullptr, FALSE, FALSE, TRUE);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -790,7 +790,7 @@ struct st_xmysqlnd_crud_collection_op__find
 XMYSQLND_CRUD_COLLECTION_OP__FIND *
 xmysqlnd_crud_collection_find__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
 {
-	XMYSQLND_CRUD_COLLECTION_OP__FIND * ret = NULL;
+	XMYSQLND_CRUD_COLLECTION_OP__FIND * ret = nullptr;
 	DBG_ENTER("xmysqlnd_crud_collection_find__create");
 	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
 	ret = new struct st_xmysqlnd_crud_collection_op__find(schema, object_name);
@@ -826,9 +826,9 @@ xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 		if (obj->bound_values.size()) {
 			obj->bound_values.clear();
 		}
-		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -901,9 +901,9 @@ xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 																				obj->placeholders );
 		obj->message.mutable_grouping()->AddAllocated(exprCriteria);
 
-		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -930,7 +930,7 @@ xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 													 is_document,
 													 &obj->message);
 		} catch (cdk::Error &e) {
-			php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+			php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 			DBG_ERR_FMT("%s", e.what());
 			DBG_INF("Parser error");
 			DBG_RETURN(FAIL);
@@ -950,7 +950,7 @@ xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 			DBG_RETURN(FAIL);
 		}
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -963,9 +963,9 @@ xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 
 		obj->message.mutable_projection()->Add()->set_allocated_source( criteria );
 
-		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -990,9 +990,9 @@ xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 																				obj->placeholders );
 		obj->message.set_allocated_grouping_criteria(exprCriteria);
 
-		obj->bound_values.resize(obj->placeholders.size(), NULL); /* fill with NULLs */
+		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
 	} catch (cdk::Error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_INF("Parser error");
 		DBG_RETURN(FAIL);
@@ -1074,7 +1074,7 @@ struct st_xmysqlnd_stmt_op__execute
 	st_xmysqlnd_stmt_op__execute(const MYSQLND_CSTRING & namespace_,
 								 const MYSQLND_CSTRING & stmt,
 								 const bool compact_meta)
-		: params(NULL), params_allocated(0)
+		: params(nullptr), params_allocated(0)
 	{
 		message.set_namespace_(namespace_.s, namespace_.l);
 		message.set_stmt(stmt.s, stmt.l);
@@ -1170,7 +1170,7 @@ st_xmysqlnd_stmt_op__execute::finalize_bind()
 XMYSQLND_STMT_OP__EXECUTE *
 xmysqlnd_stmt_execute__create(const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt)
 {
-	XMYSQLND_STMT_OP__EXECUTE * ret = NULL;
+	XMYSQLND_STMT_OP__EXECUTE * ret = nullptr;
 	DBG_ENTER("xmysqlnd_stmt_execute__create");
 	DBG_INF_FMT("namespace_=%*s stmt=%*s", namespace_.l, namespace_.s, stmt.l, stmt.s);
 	ret = new struct st_xmysqlnd_stmt_op__execute(namespace_, stmt, false);

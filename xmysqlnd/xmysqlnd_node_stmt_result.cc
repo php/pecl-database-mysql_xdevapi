@@ -176,7 +176,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, create_row)(XMYSQLND_NODE_STMT_RESULT
 													   MYSQLND_STATS * const stats,
 													   MYSQLND_ERROR_INFO * const error_info)
 {
-	zval * ret = NULL;
+	zval * ret = nullptr;
 	DBG_ENTER("xmysqlnd_node_stmt_result::create_row");
 	if (result->rowset) {
 		ret = result->rowset->m.create_row(result->rowset, meta, stats, error_info);
@@ -279,7 +279,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_execution_state)(XMYSQLND_NODE
 	if (exec_state) {
 		if (result->exec_state && result->exec_state != exec_state) {
 			xmysqlnd_stmt_execution_state_free(result->exec_state);
-			result->exec_state = NULL;
+			result->exec_state = nullptr;
 		}
 		result->exec_state = exec_state;
 	}
@@ -299,7 +299,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_warning_list)(XMYSQLND_NODE_ST
 	if (warning_list) {
 		if (result->warnings && result->warnings != warning_list) {
 			xmysqlnd_warning_list_free(result->warnings);
-			result->warnings = NULL;
+			result->warnings = nullptr;
 		}
 		result->warnings = warning_list;
 	}
@@ -370,7 +370,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RES
 	DBG_ENTER("xmysqlnd_node_stmt_result::free_contents");
 	if (result->rowset) {
 		xmysqlnd_rowset_free(result->rowset, stats, error_info);
-		result->rowset = NULL;
+		result->rowset = nullptr;
 	}
 	/*
 	   This might not be the proper place because after this the object cannot be reused only can be dtored.
@@ -378,18 +378,18 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_contents)(XMYSQLND_NODE_STMT_RES
 	*/
 	if (result->warnings) {
 		xmysqlnd_warning_list_free(result->warnings);
-		result->warnings = NULL;
+		result->warnings = nullptr;
 	}
 	/* Valid for the state too */
 	if (result->exec_state) {
 		xmysqlnd_stmt_execution_state_free(result->exec_state);
-		result->exec_state = NULL;
+		result->exec_state = nullptr;
 	}
 	if(result->meta) {
 		xmysqlnd_node_stmt_result_meta_free(result->meta,
 						stats,
 						error_info);
-		result->meta = NULL;
+		result->meta = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -453,7 +453,7 @@ xmysqlnd_node_stmt_result_create(const zend_bool persistent,
 								 MYSQLND_STATS * stats,
 								 MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT * result = NULL;
+	XMYSQLND_NODE_STMT_RESULT * result = nullptr;
 	DBG_ENTER("xmysqlnd_node_stmt_result_create");
 	result = object_factory->get_node_stmt_result(object_factory, persistent, stats, error_info);
 	if (result) {

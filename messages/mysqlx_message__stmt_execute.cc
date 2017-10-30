@@ -63,7 +63,7 @@ struct st_mysqlx_message__stmt_execute
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_message__stmt_execute *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -81,9 +81,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	char * namespace_ = NULL;
+	char * namespace_ = nullptr;
 	size_t namespace_len = 0;
-	char * stmt = NULL;
+	char * stmt = nullptr;
 	size_t stmt_len = 0;
 	zend_bool compact_metadata;
 	struct st_mysqlx_message__stmt_execute * object;
@@ -114,13 +114,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 
 	const MYSQLND_CSTRING namespace_par = {namespace_, namespace_len};
 	const MYSQLND_CSTRING stmt_par = {stmt, stmt_len};
-//	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata, NULL, 0);
+//	enum_func_status ret = object->msg.send_request(&object->msg, namespace_par, stmt_par, compact_metadata, nullptr, 0);
 
 	XMYSQLND_STMT_OP__EXECUTE * op = xmysqlnd_stmt_execute__create(namespace_par, stmt_par);
 	if (op) {
 		ret = object->msg.send_execute_request(&object->msg, xmysqlnd_stmt_execute__get_protobuf_message(op));
 		xmysqlnd_stmt_execute__destroy(op);
-		op = NULL;
+		op = nullptr;
 	}
 
 	RETVAL_BOOL(ret == PASS);
@@ -155,16 +155,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 
 	RETVAL_FALSE;
 
-	const struct st_xmysqlnd_meta_field_create_bind create_meta_field =  { NULL, NULL };
-	const struct st_xmysqlnd_on_row_field_bind on_row_field = { NULL, NULL };
-	const struct st_xmysqlnd_on_meta_field_bind on_meta_field = { NULL, NULL };
-	const struct st_xmysqlnd_on_warning_bind on_warning = { NULL, NULL };
-	const struct st_xmysqlnd_on_error_bind on_error = { NULL, NULL };
-	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { NULL, NULL };
-	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { NULL, NULL };
-	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { NULL, NULL };
-	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { NULL, NULL };
-	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { NULL, NULL };
+	const struct st_xmysqlnd_meta_field_create_bind create_meta_field =  { nullptr, nullptr };
+	const struct st_xmysqlnd_on_row_field_bind on_row_field = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_meta_field_bind on_meta_field = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_warning_bind on_warning = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_error_bind on_error = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
 	enum_func_status ret = object->msg.init_read(&object->msg, create_meta_field, on_row_field, on_meta_field, on_warning,
 												 on_error, on_exec_state_change, on_session_var_change, on_trx_state_change,
 												 on_stmt_execute_ok, on_resultset_end);
@@ -183,9 +183,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 
 /* {{{ mysqlx_message__stmt_execute_methods[] */
 static const zend_function_entry mysqlx_message__stmt_execute_methods[] = {
-	PHP_ME(mysqlx_message__stmt_execute, send,				NULL,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_message__stmt_execute, send,				nullptr,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_message__stmt_execute, read_response,		mysqlx_message__stmt_execute__read_response,	ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -232,7 +232,7 @@ php_mysqlx_message__stmt_execute_object_allocator(zend_class_entry * class_type)
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -252,7 +252,7 @@ mysqlx_register_message__stmt_execute_class(INIT_FUNC_ARGS, zend_object_handlers
 		mysqlx_message__stmt_execute_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__stmt_execute_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__stmt_execute_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

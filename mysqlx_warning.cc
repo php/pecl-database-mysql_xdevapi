@@ -50,7 +50,7 @@ struct st_mysqlx_warning
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_warning *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -65,8 +65,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 
 /* {{{ mysqlx_warning_methods[] */
 static const zend_function_entry mysqlx_warning_methods[] = {
-	PHP_ME(mysqlx_warning, __construct,	NULL,	ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_warning, __construct,	nullptr,	ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -84,10 +84,10 @@ mysqlx_warning_property__message(const struct st_mysqlx_object * obj, zval * ret
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -122,10 +122,10 @@ mysqlx_warning_property__code(const struct st_mysqlx_object * obj, zval * return
 /* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_warning_property_entries[] =
 {
-	{{"message",			sizeof("message") - 1},		mysqlx_warning_property__message,	NULL},
-	{{"level",				sizeof("level") - 1},		mysqlx_warning_property__level,		NULL},
-	{{"code",				sizeof("code") - 1},		mysqlx_warning_property__code,		NULL},
-	{{NULL, 				0},							NULL, 								NULL}
+	{{"message",			sizeof("message") - 1},		mysqlx_warning_property__message,	nullptr},
+	{{"level",				sizeof("level") - 1},		mysqlx_warning_property__level,		nullptr},
+	{{"code",				sizeof("code") - 1},		mysqlx_warning_property__code,		nullptr},
+	{{nullptr, 				0},							nullptr, 								nullptr}
 };
 /* }}} */
 
@@ -145,7 +145,7 @@ mysqlx_warning_free_storage(zend_object * object)
 		const zend_bool pers = message->persistent;
 		if (message->msg.s) {
 			mnd_pefree(message->msg.s, pers);
-			message->msg.s = NULL;
+			message->msg.s = nullptr;
 		}
 		mnd_pefree(message, message->persistent);
 	}
@@ -182,7 +182,7 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);
 	}
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -201,7 +201,7 @@ mysqlx_register_warning_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_
 		mysqlx_warning_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_warning_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_warning_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	mysqlx_add_properties(&mysqlx_warning_properties, mysqlx_warning_property_entries);
 
@@ -235,7 +235,7 @@ mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int 
 			object->level = level;
 			object->code = code;
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

@@ -70,7 +70,7 @@ ZEND_END_ARG_INFO()
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_result *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -156,7 +156,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAutoIncrementValue)
  * get_document_id_common
  */
 #define RAISE_WARNING(message) \
-	php_error_docref(NULL, E_WARNING, message); \
+	php_error_docref(nullptr, E_WARNING, message); \
 	zval_ptr_dtor(return_value); \
 	ZVAL_NULL(return_value);
 
@@ -179,7 +179,7 @@ get_document_id_common(INTERNAL_FUNCTION_PARAMETERS,
 	RETVAL_FALSE;
 	if (object->result && object->result->exec_state) {
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
-		if ( exec_state == NULL ) {
+		if ( exec_state == nullptr ) {
 			RAISE_WARNING("Unable to get the correct exec_state");
 			DBG_VOID_RETURN;
 
@@ -312,7 +312,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getWarnings)
 
 /* {{{ mysqlx_node_result_methods[] */
 static const zend_function_entry mysqlx_node_result_methods[] = {
-	PHP_ME(mysqlx_node_result, __construct,			NULL,														ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_result, __construct,			nullptr,														ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_node_result, getAffectedItemsCount,	arginfo_mysqlx_node_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_result, getAutoIncrementValue, 	arginfo_mysqlx_node_result__get_auto_increment_value,	ZEND_ACC_PUBLIC)
@@ -322,7 +322,7 @@ static const zend_function_entry mysqlx_node_result_methods[] = {
 	PHP_ME(mysqlx_node_result, getWarningCount,			arginfo_mysqlx_node_result__get_warning_count,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_result, getWarnings,				arginfo_mysqlx_node_result__get_warnings, 				ZEND_ACC_PUBLIC)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -332,7 +332,7 @@ static HashTable mysqlx_node_result_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_result_property_entries[] =
 {
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 /* {{{ mysqlx_node_result_free_storage */
@@ -344,7 +344,7 @@ mysqlx_node_result_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->result) {
-			xmysqlnd_node_stmt_result_free(inner_obj->result, NULL, NULL);
+			xmysqlnd_node_stmt_result_free(inner_obj->result, nullptr, nullptr);
 		}
 		mnd_efree(inner_obj);
 	}
@@ -384,7 +384,7 @@ mysqlx_register_node_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_
 		mysqlx_register_node_result_iterator(mysqlx_node_result_class_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_result_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_node_result_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_result_properties, mysqlx_node_result_property_entries);
@@ -413,7 +413,7 @@ mysqlx_new_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
 		if (object) {
 			object->result = result;
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

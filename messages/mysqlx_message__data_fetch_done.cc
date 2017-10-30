@@ -51,7 +51,7 @@ struct st_mysqlx_message__data_fetch_done
 	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_message__data_fetch_done *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -60,7 +60,7 @@ struct st_mysqlx_message__data_fetch_done
 
 /* {{{ mysqlx_message__data_fetch_done_methods[] */
 static const zend_function_entry mysqlx_message__data_fetch_done_methods[] = {
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -107,7 +107,7 @@ php_mysqlx_message__data_fetch_done_object_allocator(zend_class_entry * class_ty
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -127,7 +127,7 @@ mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS, zend_object_handl
 		mysqlx_message__data_fetch_done_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__data_fetch_done_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__data_fetch_done_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

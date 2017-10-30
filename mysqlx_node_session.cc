@@ -62,9 +62,9 @@ ZEND_END_ARG_INFO()
 	(_to) = (struct st_mysqlx_session *) mysqlx_object->ptr; \
 	if (!(_to) && !(_to)->session) { \
 		if ((_to)->closed) { \
-			php_error_docref(NULL, E_WARNING, "closed session"); \
+			php_error_docref(nullptr, E_WARNING, "closed session"); \
 		} else { \
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		} \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
@@ -110,7 +110,7 @@ mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION * const session,
 		ZVAL_UNDEF(&stmt_zv);
 		mysqlx_new_sql_stmt(&stmt_zv, stmt, namespace_, query);
 		if (Z_TYPE(stmt_zv) == IS_NULL) {
-			xmysqlnd_node_stmt_free(stmt, NULL, NULL);
+			xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
 		}
 		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 			zval zv;
@@ -149,8 +149,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	MYSQLND_CSTRING query = {NULL, 0};
-	zval * args = NULL;
+	MYSQLND_CSTRING query = {nullptr, 0};
+	zval * args = nullptr;
 	int argc = 0;
 
 	DBG_ENTER("mysqlx_node_session::executeSql");
@@ -163,7 +163,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 
 	RETVAL_FALSE;
 	if (!query.l) {
-		php_error_docref(NULL, E_WARNING, "Empty query");
+		php_error_docref(nullptr, E_WARNING, "Empty query");
 		DBG_VOID_RETURN;
 	}
 	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
@@ -183,7 +183,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 	zval * object_zv;
 	struct st_mysqlx_session * object;
 	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING query = {NULL, 0};
+	MYSQLND_CSTRING query = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_session::sql");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_base_session_class_entry,
@@ -193,7 +193,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 	}
 
 	if (!query.l) {
-		php_error_docref(NULL, E_WARNING, "Empty query");
+		php_error_docref(nullptr, E_WARNING, "Empty query");
 		RETVAL_FALSE;
 		DBG_VOID_RETURN;
 	}
@@ -204,7 +204,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query);
 			if (Z_TYPE_P(return_value) == IS_NULL) {
-				xmysqlnd_node_stmt_free(stmt, NULL, NULL);
+				xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
 				mysqlx_throw_exception_from_session_if_needed(session->data);
 			}
 		}
@@ -221,7 +221,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, quoteName)
 	zval * object_zv;
 	struct st_mysqlx_session * object;
 	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING name = {NULL, 0};
+	MYSQLND_CSTRING name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_session::quoteName");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry,
@@ -257,11 +257,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, __construct)
 
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
-	PHP_ME(mysqlx_node_session, __construct, 	NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_session, executeSql,		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_session, executeSql,		nullptr, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, sql,			arginfo_mysqlx_node_session__sql, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_session, quoteName,		arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -270,7 +270,7 @@ static HashTable mysqlx_node_session_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_session_property_entries[] =
 {
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 
@@ -285,7 +285,7 @@ mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx
 			&tmp_ce, mysqlx_base_session_class_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_session_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_node_session_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_session_properties, mysqlx_node_session_property_entries);

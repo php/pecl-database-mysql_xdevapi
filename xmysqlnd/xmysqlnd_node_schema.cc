@@ -108,7 +108,7 @@ schema_xplugin_op_var_binder(
 {
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_schema_exists_in_database_var_binder_ctx * ctx = (struct st_schema_exists_in_database_var_binder_ctx *) context;
-	const MYSQLND_CSTRING * param = NULL;
+	const MYSQLND_CSTRING * param = nullptr;
 	DBG_ENTER("schema_xplugin_op_var_binder");
 	switch (ctx->counter) {
 		case 0:{
@@ -223,7 +223,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 static XMYSQLND_NODE_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name)
 {
-	XMYSQLND_NODE_COLLECTION * collection = NULL;
+	XMYSQLND_NODE_COLLECTION * collection = nullptr;
 	DBG_ENTER("xmysqlnd_node_schema::create_collection_object");
 	DBG_INF_FMT("schema_name=%s", collection_name.s);
 
@@ -263,7 +263,7 @@ collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQL
 	DBG_ENTER("collection_op_var_binder");
 	enum_hnd_func_status ret = HND_FAIL;
 	st_collection_op_var_binder_ctx* ctx = static_cast<st_collection_op_var_binder_ctx*>(context);
-	const MYSQLND_CSTRING * param = NULL;
+	const MYSQLND_CSTRING * param = nullptr;
 	enum_func_status result;
 	zval zv;
 	switch (ctx->counter) {
@@ -344,7 +344,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(
 	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	static const MYSQLND_CSTRING query = {"create_collection", sizeof("create_collection") - 1 };
-	XMYSQLND_NODE_COLLECTION * collection = NULL;
+	XMYSQLND_NODE_COLLECTION * collection = nullptr;
 	DBG_ENTER("xmysqlnd_node_schema::create_collection");
 	DBG_INF_FMT("schema_name=%s collection_name=%s", schema->data->schema_name.s, collection_name.c_str());
 	if (PASS == xmysqlnd_collection_op(schema, collection_name, query, handler_on_error)) {
@@ -384,7 +384,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, drop_collection)(
 static XMYSQLND_NODE_TABLE *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name)
 {
-	XMYSQLND_NODE_TABLE * table = NULL;
+	XMYSQLND_NODE_TABLE * table = nullptr;
 	DBG_ENTER("xmysqlnd_node_schema::create_table_object");
 	DBG_INF_FMT("schema_name=%s", table_name.s);
 
@@ -485,7 +485,7 @@ collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * sessio
 {
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_collection_get_objects_var_binder_ctx * ctx = (struct st_collection_get_objects_var_binder_ctx *) context;
-	const MYSQLND_CSTRING * param = NULL;
+	const MYSQLND_CSTRING * param = nullptr;
 	DBG_ENTER("collection_get_objects_var_binder");
 	DBG_INF_FMT("counter=%d", ctx->counter);
 	switch (ctx->counter) {
@@ -540,8 +540,8 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 
 	xmysqlnd_schema_get_db_objects_ctx handler_ctx = { schema, object_type_filter, on_object, handler_on_error };
 
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : NULL, &handler_ctx };
-	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : NULL, &handler_ctx };
+	const struct st_xmysqlnd_node_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
+	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : nullptr, &handler_ctx };
 
 	DBG_ENTER("xmysqlnd_node_schema::get_db_objects");
 
@@ -596,7 +596,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, free_contents)(XMYSQLND_NODE_SCHEMA * cons
 	DBG_ENTER("xmysqlnd_node_schema::free_contents");
 	if (schema->data->schema_name.s) {
 		mnd_pefree(schema->data->schema_name.s, pers);
-		schema->data->schema_name.s = NULL;
+		schema->data->schema_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -650,7 +650,7 @@ xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION * session,
 							MYSQLND_STATS * const stats,
 							MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_NODE_SCHEMA * ret = NULL;
+	XMYSQLND_NODE_SCHEMA * ret = nullptr;
 	DBG_ENTER("xmysqlnd_node_schema_create");
 	if (schema_name.s && schema_name.l) {
 		ret = object_factory->get_node_schema(object_factory, session, schema_name, persistent, stats, error_info);
@@ -668,7 +668,7 @@ PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_node_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_schema_free");
-	DBG_INF_FMT("schema=%p  schema->data=%p  dtor=%p", schema, schema? schema->data:NULL, schema? schema->data->m.dtor:NULL);
+	DBG_INF_FMT("schema=%p  schema->data=%p  dtor=%p", schema, schema? schema->data:nullptr, schema? schema->data->m.dtor:nullptr);
 	if (schema) {
 		if (!stats && schema->data->session->data) {
 			stats = schema->data->session->data->stats;

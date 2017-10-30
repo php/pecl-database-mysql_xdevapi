@@ -131,7 +131,7 @@ ZEND_END_ARG_INFO()
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_column_result *) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -338,7 +338,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 			{
 				const struct st_mysqlnd_charset * set =
 						mysqlnd_find_charset_nr(object->meta->collation);
-				if( set != NULL && set->collation != NULL ) {
+				if( set != nullptr && set->collation != nullptr ) {
 					if( selected_meta_field == collation_name ) {
 						ZVAL_STRINGL(return_value,
 									 set->collation,
@@ -514,7 +514,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, isPadded)
 static const zend_function_entry mysqlx_node_column_result_methods[] = {
 	PHP_ME(mysqlx_node_column_result,
 		__construct,
-		NULL,	ZEND_ACC_PRIVATE)
+		nullptr,	ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_node_column_result,
 		getSchemaName,
 		arginfo_mysqlx_node_column_result_get_schema_name,
@@ -563,7 +563,7 @@ static const zend_function_entry mysqlx_node_column_result_methods[] = {
 		isPadded,
 		arginfo_mysqlx_node_column_result_is_padded,
 		ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -573,7 +573,7 @@ static HashTable mysqlx_node_column_result_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_column_result_property_entries[] =
 {
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 } // anonymous namespace
@@ -594,7 +594,7 @@ mysqlx_new_column_result(
 		if (object) {
 			object->meta = meta;
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s",
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s",
 							 ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
@@ -630,7 +630,7 @@ mysqlx_node_column_result_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		//Do not delete meta, that's someone else responsability
-		inner_obj->meta = NULL;
+		inner_obj->meta = nullptr;
 		mnd_efree(inner_obj);
 	}
 
@@ -659,7 +659,7 @@ mysqlx_register_node_column_result_class(INIT_FUNC_ARGS,
 	}
 
 	zend_hash_init(&mysqlx_node_column_result_properties,
-				   0, NULL, mysqlx_free_property_cb, 1);
+				   0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_column_result_properties,

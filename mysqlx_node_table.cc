@@ -103,7 +103,7 @@ struct st_mysqlx_node_table : public phputils::custom_allocable
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_table *) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
 	} \
 } \
@@ -206,7 +206,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, existsInDatabase)
 
 	XMYSQLND_NODE_TABLE * table = object->table;
 	if (table) {
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, NULL };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == table->data->m.exists_in_database(table, on_error, &exists)) {
@@ -273,7 +273,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 
 	XMYSQLND_NODE_TABLE * table = object->table;
 	if (table) {
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, NULL };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
 		if (PASS == table->data->m.count(table, on_error, &counter)) {
@@ -291,7 +291,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 {
 	struct st_mysqlx_node_table * object;
 	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING schema_name = {NULL, 0};
+	MYSQLND_CSTRING schema_name = {nullptr, 0};
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_collection::getSchema");
@@ -315,7 +315,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 		session = object->table->data->schema->data->session;
 	}
 
-	if(session != NULL) {
+	if(session != nullptr) {
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
 					session, schema_name);
 		if (schema) {
@@ -337,7 +337,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
-	zval * columns = NULL;
+	zval * columns = nullptr;
 	int    num_of_columns = 0, i = 0;
 
 	DBG_ENTER("mysqlx_node_table::insert");
@@ -355,7 +355,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 		if (Z_TYPE(columns[i]) != IS_STRING &&
 			Z_TYPE(columns[i]) != IS_OBJECT &&
 			Z_TYPE(columns[i]) != IS_ARRAY) {
-			php_error_docref(NULL, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
+			php_error_docref(nullptr, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
 							 Z_TYPE(columns[i]));
 			DBG_VOID_RETURN;
 		}
@@ -383,7 +383,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, select)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
-	zval * columns = NULL;
+	zval * columns = nullptr;
 	int    num_of_columns = 0;
 
 	DBG_ENTER("mysqlx_node_table::select");
@@ -472,7 +472,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, delete)
 
 /* {{{ mysqlx_node_table_methods[] */
 static const zend_function_entry mysqlx_node_table_methods[] = {
-	PHP_ME(mysqlx_node_table, __construct,		NULL,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_table, __construct,		nullptr,											ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/
 	PHP_ME(mysqlx_node_table, getSession,		arginfo_mysqlx_node_table__get_session,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table, getName,			arginfo_mysqlx_node_table__get_name,			ZEND_ACC_PUBLIC)
@@ -488,7 +488,7 @@ static const zend_function_entry mysqlx_node_table_methods[] = {
 	PHP_ME(mysqlx_node_table, update, arginfo_mysqlx_node_table__update, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table, delete, arginfo_mysqlx_node_table__delete, ZEND_ACC_PUBLIC)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -506,10 +506,10 @@ mysqlx_node_table_property__name(const struct st_mysqlx_object * obj, zval * ret
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -521,8 +521,8 @@ static HashTable mysqlx_node_table_properties;
 
 const struct st_mysqlx_property_entry mysqlx_node_table_property_entries[] =
 {
-	{{"name",	sizeof("name") - 1}, mysqlx_node_table_property__name,	NULL},
-	{{NULL,	0}, NULL, NULL}
+	{{"name",	sizeof("name") - 1}, mysqlx_node_table_property__name,	nullptr},
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 /* {{{ mysqlx_node_table_free_storage */
@@ -534,8 +534,8 @@ mysqlx_node_table_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->table) {
-			xmysqlnd_node_table_free(inner_obj->table, NULL, NULL);
-			inner_obj->table = NULL;
+			xmysqlnd_node_table_free(inner_obj->table, nullptr, nullptr);
+			inner_obj->table = nullptr;
 		}
 		mnd_efree(inner_obj);
 	}
@@ -573,7 +573,7 @@ mysqlx_register_node_table_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 		zend_class_implements(mysqlx_node_table_class_entry, 1, mysqlx_schema_object_interface_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_table_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_node_table_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_table_properties, mysqlx_node_table_property_entries);
@@ -605,7 +605,7 @@ mysqlx_new_node_table(zval * return_value, XMYSQLND_NODE_TABLE * table, const ze
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

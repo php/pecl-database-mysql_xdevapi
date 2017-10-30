@@ -46,8 +46,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_driver, __construct)
 
 /* {{{ mysqlx_driver_methods[] */
 static const zend_function_entry mysqlx_driver_methods[] = {
-	PHP_ME(mysqlx_driver, __construct, NULL, ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_driver, __construct, nullptr, ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

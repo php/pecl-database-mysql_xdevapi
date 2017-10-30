@@ -93,8 +93,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__create_index, field)
 	RETVAL_FALSE;
 
 	zval * object_zv;
-	MYSQLND_CSTRING doc_path = {NULL, 0};
-	MYSQLND_CSTRING column_type = {NULL, 0};
+	MYSQLND_CSTRING doc_path = {nullptr, 0};
+	MYSQLND_CSTRING column_type = {nullptr, 0};
 	zend_bool is_required = FALSE;
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -159,7 +159,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__create_index, execute)
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::create_index_fail);
 	}
 
-	const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_create_index_on_error, NULL };
+	const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_create_index_on_error, nullptr };
 	if (drv::xmysqlnd_collection_create_index__execute(data_object.collection->data->schema->data->session, data_object.index_op, on_error) == PASS) {
 		RETVAL_TRUE;
 	}
@@ -171,12 +171,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__create_index, execute)
 
 /* {{{ mysqlx_node_collection__create_index_methods[] */
 static const zend_function_entry mysqlx_node_collection__create_index_methods[] = {
-	PHP_ME(mysqlx_node_collection__create_index, __construct, NULL, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_collection__create_index, __construct, nullptr, ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_node_collection__create_index, field, arginfo_collection_create_index__field, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__create_index, execute, arginfo_collection_create_index__execute, ZEND_ACC_PUBLIC)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -186,7 +186,7 @@ static HashTable collection_create_index_properties;
 
 const struct st_mysqlx_property_entry collection_create_index_property_entries[] =
 {
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 /* {{{ mysqlx_node_collection__create_index_free_storage */
@@ -279,7 +279,7 @@ mysqlx_new_node_collection__create_index(zval * return_value,
 			}
 			if( true == operation_failed ) {
 				if (data_object.collection) {
-					data_object.collection->data->m.free_reference(data_object.collection, NULL, NULL);
+					data_object.collection->data->m.free_reference(data_object.collection, nullptr, nullptr);
 				}
 			}
 		} MYSQL_XDEVAPI_CATCH

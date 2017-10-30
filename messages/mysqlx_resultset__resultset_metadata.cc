@@ -53,10 +53,10 @@ ZEND_END_ARG_INFO()
 /* {{{ proto bool mysqlx_node_connection::echo(object capability) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 {
-	zval * resultset_metadata_zv = NULL;
-	struct st_mysqlx_resultset_metadata * resultset_metadata = NULL;
-	zval * column_metadata_zv = NULL;
-	struct st_mysqlx_column_metadata * column_metadata = NULL;
+	zval * resultset_metadata_zv = nullptr;
+	struct st_mysqlx_resultset_metadata * resultset_metadata = nullptr;
+	zval * column_metadata_zv = nullptr;
+	struct st_mysqlx_column_metadata * column_metadata = nullptr;
 
 	DBG_ENTER("mysqlx_node_connection::add");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
@@ -80,7 +80,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 /* {{{ mysqlx_resultset_metadata_methods[] */
 static const zend_function_entry mysqlx_resultset_metadata_methods[] = {
 	PHP_ME(mysqlx_resultset_metadata, add,			arginfo_mysqlx_node_resultset_metadata__add,			ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -118,7 +118,7 @@ php_mysqlx_resultset_metadata_object_allocator(zend_class_entry * class_type)
 		mysqlx_object->ptr = message;
 
 		message->persistent = persistent;
-		zend_hash_init(&message->resultset_metadata_ht, 0, NULL /*hashfunc*/, ZVAL_PTR_DTOR, persistent);
+		zend_hash_init(&message->resultset_metadata_ht, 0, nullptr /*hashfunc*/, ZVAL_PTR_DTOR, persistent);
 
 		zend_object_std_init(&mysqlx_object->zo, class_type);
 		object_properties_init(&mysqlx_object->zo, class_type);
@@ -136,7 +136,7 @@ php_mysqlx_resultset_metadata_object_allocator(zend_class_entry * class_type)
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);
 	}
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -156,7 +156,7 @@ mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * 
 		mysqlx_resultset_metadata_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_resultset_metadata_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_resultset_metadata_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

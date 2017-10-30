@@ -159,7 +159,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 			ZVAL_STRINGL(zv, scalar.v_string().value().c_str(), scalar.v_string().value().size());
 			break;
 		default:
-			php_error_docref(NULL, E_WARNING, "Unknown new type %s (%d)", Mysqlx::Datatypes::Scalar::Type_Name(scalar.type()).c_str(), scalar.type());
+			php_error_docref(nullptr, E_WARNING, "Unknown new type %s (%d)", Mysqlx::Datatypes::Scalar::Type_Name(scalar.type()).c_str(), scalar.type());
 			DBG_RETURN(FAIL);
 			;// assert
 	}
@@ -264,7 +264,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 			break;
 #ifndef PHP_DEBUG
 		default:
-			php_error_docref(NULL, E_WARNING, "Unknown type %s . Please report to the developers.", Any::Type_Name(any.type()).c_str());
+			php_error_docref(nullptr, E_WARNING, "Unknown type %s . Please report to the developers.", Any::Type_Name(any.type()).c_str());
 			DBG_RETURN(FAIL);
 #else
 			DBG_INF_FMT("UNHANDLED TYPE");
@@ -294,7 +294,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = 0;
 			break;
 		case Scalar_Type_V_OCTETS:
-			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), NULL, 10);
+			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), nullptr, 10);
 			break;
 		case Scalar_Type_V_DOUBLE:
 			ret = scalar.v_double();
@@ -306,7 +306,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = scalar.v_bool();
 			break;
 		case Scalar_Type_V_STRING:
-			ret = ZEND_STRTOL(scalar.v_string().value().c_str(), NULL, 10);
+			ret = ZEND_STRTOL(scalar.v_string().value().c_str(), nullptr, 10);
 			break;
 		default:
 			;// assert
@@ -334,7 +334,7 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = 0;
 			break;
 		case Scalar_Type_V_OCTETS:
-			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), NULL, 10);
+			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), nullptr, 10);
 			break;
 		case Scalar_Type_V_DOUBLE:
 			ret = scalar.v_double();
@@ -346,7 +346,7 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = scalar.v_bool();
 			break;
 		case Scalar_Type_V_STRING:
-			ret = ZEND_STRTOL(scalar.v_string().value().c_str(), NULL, 10);
+			ret = ZEND_STRTOL(scalar.v_string().value().c_str(), nullptr, 10);
 			break;
 		default:
 			;// assert
@@ -360,7 +360,7 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 PHP_MYSQL_XDEVAPI_API MYSQLND_STRING
 scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 {
-	MYSQLND_STRING ret = {NULL, 0};
+	MYSQLND_STRING ret = {nullptr, 0};
 	DBG_ENTER("scalar2string");
 	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
 	switch (scalar.type()) {

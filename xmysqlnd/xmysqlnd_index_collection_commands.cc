@@ -282,7 +282,7 @@ collection_index_bind_field_param(
 			}
 		}
 	} catch (old_parser_api::Parser_error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_ERR("Parser error for document field");
 		DBG_RETURN(HND_FAIL);

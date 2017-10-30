@@ -218,11 +218,11 @@ static struct st_mysqlnd_plugin_core xmysqlnd_plugin_core =
 		"PHP License 3.01",
 		"Andrey Hristov <andrey@mysql.com>",
 		{
-			NULL, /* will be filled later */
+			nullptr, /* will be filled later */
 			xmysqlnd_stats_values_names,
 		},
 		{
-			NULL /* plugin shutdown */
+			nullptr /* plugin shutdown */
 		}
 	}
 };
@@ -233,7 +233,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void)
 {
 	if (xmysqlnd_library_initted == TRUE) {
 		mysqlnd_stats_end(xmysqlnd_global_stats, 1);
-		xmysqlnd_global_stats = NULL;
+		xmysqlnd_global_stats = nullptr;
 		xmysqlnd_library_initted = FALSE;
 	}
 	xmysqlnd_shutdown_protobuf_library();

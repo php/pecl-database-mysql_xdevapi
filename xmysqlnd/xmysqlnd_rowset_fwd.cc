@@ -67,7 +67,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
 		}
 		result->stmt->data->read_ctx.prefetch_counter = result->stmt->data->read_ctx.fwd_prefetch_count;
 		/* read rows */
-		if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, NULL)) {
+		if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, nullptr)) {
 			DBG_RETURN(FAIL);
 		}
 	} else {
@@ -139,7 +139,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const resu
 	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_all");
 
 	/* read the rest. If this was the first, then we will prefetch everything, otherwise we will read whatever is left */
-	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, NULL)) {
+	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, nullptr)) {
 		DBG_RETURN(FAIL);
 	}
 
@@ -172,7 +172,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, rewind)(XMYSQLND_ROWSET_FWD * const result)
 	if (result->total_fetched == 0 && result->row_cursor == 0) {
 		DBG_RETURN(PASS);
 	} else {
-		php_error_docref(NULL, E_WARNING, "rewind() not possible with a forward only result set. Use a buffered result instead");
+		php_error_docref(nullptr, E_WARNING, "rewind() not possible with a forward only result set. Use a buffered result instead");
 		DBG_RETURN(FAIL);
 	}
 }
@@ -298,7 +298,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows_contents)(XMYSQLND_ROWSET_FWD * c
 				zval_ptr_dtor(&(result->rows[row][col]));
 			}
 			result->m.destroy_row(result, result->rows[row], stats, error_info);
-			result->rows[row] = NULL;
+			result->rows[row] = nullptr;
 		}
 		result->row_count = 0;
 		result->row_cursor = 0;
@@ -321,7 +321,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows)(XMYSQLND_ROWSET_FWD * const resu
 		result->m.free_rows_contents(result, stats, error_info);
 
 		mnd_pefree(result->rows, pers);
-		result->rows = NULL;
+		result->rows = nullptr;
 
 		result->rows_allocated = 0;
 	}
@@ -339,7 +339,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_contents)(XMYSQLND_ROWSET_FWD * const 
 	result->m.free_rows(result, stats, error_info);
 
 	if (result->meta) {
-		result->meta = NULL;
+		result->meta = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -399,7 +399,7 @@ xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
 						   MYSQLND_STATS * stats,
 						   MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_ROWSET_FWD * result = NULL;
+	XMYSQLND_ROWSET_FWD * result = nullptr;
 	DBG_ENTER("xmysqlnd_rowset_fwd_create");
 	result = object_factory->get_rowset_fwd(object_factory, prefetch_rows, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);

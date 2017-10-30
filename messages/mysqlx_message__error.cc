@@ -48,8 +48,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__error, __construct)
 
 /* {{{ mysqlx_message__error_methods[] */
 static const zend_function_entry mysqlx_message__error_methods[] = {
-	PHP_ME(mysqlx_message__error, __construct,	NULL,	ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_message__error, __construct,	nullptr,	ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -67,10 +67,10 @@ mysqlx_message__error_property__message(const struct st_mysqlx_object * obj, zva
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -90,10 +90,10 @@ mysqlx_message__error_property__sql_state(const struct st_mysqlx_object * obj, z
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -114,10 +114,10 @@ mysqlx_message__error_property__error_code(const struct st_mysqlx_object * obj, 
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -127,10 +127,10 @@ mysqlx_message__error_property__error_code(const struct st_mysqlx_object * obj, 
 /* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_message__error_property_entries[] =
 {
-	{{"message",			sizeof("message") - 1},		mysqlx_message__error_property__message,	NULL},
-	{{"sql_state",			sizeof("sql_state") - 1},	mysqlx_message__error_property__sql_state,	NULL},
-	{{"code",				sizeof("code") - 1},		mysqlx_message__error_property__error_code,	NULL},
-	{{NULL, 				0},							NULL, 										NULL}
+	{{"message",			sizeof("message") - 1},		mysqlx_message__error_property__message,	nullptr},
+	{{"sql_state",			sizeof("sql_state") - 1},	mysqlx_message__error_property__sql_state,	nullptr},
+	{{"code",				sizeof("code") - 1},		mysqlx_message__error_property__error_code,	nullptr},
+	{{nullptr, 				0},							nullptr, 										nullptr}
 };
 /* }}} */
 
@@ -178,7 +178,7 @@ php_mysqlx_message__error_object_allocator(zend_class_entry * class_type)
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -198,7 +198,7 @@ mysqlx_register_message__error_class(INIT_FUNC_ARGS, zend_object_handlers * mysq
 		mysqlx_message__error_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__error_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__error_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	mysqlx_add_properties(&mysqlx_message__error_properties, mysqlx_message__error_property_entries);
 
@@ -273,7 +273,7 @@ dump_mysqlx_error(const Mysqlx::Error & error)
 	if (error.has_msg()) {
 		message = error.msg().c_str();
 	}
-	php_error_docref(NULL, E_WARNING, "[%s][%u][%s] %s", error_severity, code, sql_state, message);
+	php_error_docref(nullptr, E_WARNING, "[%s][%u][%s] %s", error_severity, code, sql_state, message);
 }
 /* }}} */
 

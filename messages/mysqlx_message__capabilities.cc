@@ -52,9 +52,9 @@ ZEND_END_ARG_INFO()
 /* {{{ proto bool mysqlx_node_connection::echo(object capability) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities, add)
 {
-	zval * capabilities_zv = NULL;
-	struct st_mysqlx_message__capabilities * capabilities = NULL;
-	zval * capability_zv = NULL;
+	zval * capabilities_zv = nullptr;
+	struct st_mysqlx_message__capabilities * capabilities = nullptr;
+	zval * capability_zv = nullptr;
 
 	DBG_ENTER("mysqlx_node_connection::add");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
@@ -77,7 +77,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities, add)
 /* {{{ mysqlx_message__capabilities_methods[] */
 static const zend_function_entry mysqlx_message__capabilities_methods[] = {
 	PHP_ME(mysqlx_message__capabilities, add,			arginfo_mysqlx_node_capabilities__add,			ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -115,7 +115,7 @@ php_mysqlx_message__capabilities_object_allocator(zend_class_entry * class_type)
 		mysqlx_object->ptr = message;
 
 		message->persistent = persistent;
-		zend_hash_init(&message->capabilities_ht, 0, NULL /*hashfunc*/, ZVAL_PTR_DTOR, persistent);
+		zend_hash_init(&message->capabilities_ht, 0, nullptr /*hashfunc*/, ZVAL_PTR_DTOR, persistent);
 
 		zend_object_std_init(&mysqlx_object->zo, class_type);
 		object_properties_init(&mysqlx_object->zo, class_type);
@@ -132,7 +132,7 @@ php_mysqlx_message__capabilities_object_allocator(zend_class_entry * class_type)
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);
 	}
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -152,7 +152,7 @@ mysqlx_register_message__capabilities_class(INIT_FUNC_ARGS, zend_object_handlers
 		mysqlx_message__capabilities_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__capabilities_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__capabilities_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

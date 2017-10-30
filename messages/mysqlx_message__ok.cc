@@ -76,7 +76,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__ok, get_message)
 /* {{{ mysqlx_message__ok_methods[] */
 static const zend_function_entry mysqlx_message__ok_methods[] = {
 	PHP_ME(mysqlx_message__ok, get_message,			mysqlx_message__ok__get_message,	ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -124,7 +124,7 @@ php_mysqlx_message__ok_object_allocator(zend_class_entry * class_type)
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -144,7 +144,7 @@ mysqlx_register_message__ok_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_
 		mysqlx_message__ok_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__ok_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__ok_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 
@@ -176,7 +176,7 @@ mysqlx_new_message__ok(zval * return_value, const Mysqlx::Ok & message)
 void
 dump_mysqlx_ok(const Mysqlx::Ok & ok)
 {
-	php_error_docref(NULL, E_WARNING, "[OK] ", ok.has_msg()? ok.msg().c_str(): "");
+	php_error_docref(nullptr, E_WARNING, "[OK] ", ok.has_msg()? ok.msg().c_str(): "");
 }
 /* }}} */
 

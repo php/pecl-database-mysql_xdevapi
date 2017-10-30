@@ -83,7 +83,7 @@ struct st_mysqlx_node_table__delete : public phputils::custom_allocable
 	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (struct st_mysqlx_node_table__delete *) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
 	} \
 } \
@@ -102,7 +102,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, where)
 {
 	struct st_mysqlx_node_table__delete * object;
 	zval * object_zv;
-	zval * where_expr = NULL;
+	zval * where_expr = nullptr;
 
 	DBG_ENTER("mysqlx_node_table__delete::where");
 
@@ -142,7 +142,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 {
 	struct st_mysqlx_node_table__delete * object;
 	zval * object_zv;
-	zval * orderby_expr = NULL;
+	zval * orderby_expr = nullptr;
 	int    num_of_expr = 0;
 	int    i = 0;
 
@@ -353,7 +353,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, execute)
 				ZVAL_UNDEF(&stmt_zv);
 				mysqlx_new_node_stmt(&stmt_zv, stmt);
 				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_node_stmt_free(stmt, NULL, NULL);
+					xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
 				}
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;
@@ -376,7 +376,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, execute)
 
 /* {{{ mysqlx_node_table__delete_methods[] */
 static const zend_function_entry mysqlx_node_table__delete_methods[] = {
-	PHP_ME(mysqlx_node_table__delete, __construct,	NULL,									ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_table__delete, __construct,	nullptr,									ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_node_table__delete, where,	arginfo_mysqlx_node_table__delete__where,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__delete, orderby,	arginfo_mysqlx_node_table__delete__orderby,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__delete, limit,	arginfo_mysqlx_node_table__delete__limit,	ZEND_ACC_PUBLIC)
@@ -385,7 +385,7 @@ static const zend_function_entry mysqlx_node_table__delete_methods[] = {
 
 	PHP_ME(mysqlx_node_table__delete, execute,	arginfo_mysqlx_node_table__delete__execute,	ZEND_ACC_PUBLIC)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -403,10 +403,10 @@ mysqlx_node_table__delete_property__name(const struct st_mysqlx_object * obj, zv
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -419,9 +419,9 @@ static HashTable mysqlx_node_table__delete_properties;
 const struct st_mysqlx_property_entry mysqlx_node_table__delete_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_table__delete_property__name,	NULL},
+	{{"name",	sizeof("name") - 1}, mysqlx_node_table__delete_property__name,	nullptr},
 #endif
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 /* {{{ mysqlx_node_table__delete_free_storage */
@@ -433,12 +433,12 @@ mysqlx_node_table__delete_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->table) {
-			xmysqlnd_node_table_free(inner_obj->table, NULL, NULL);
-			inner_obj->table = NULL;
+			xmysqlnd_node_table_free(inner_obj->table, nullptr, nullptr);
+			inner_obj->table = nullptr;
 		}
 		if(inner_obj->crud_op) {
 			xmysqlnd_crud_table_delete__destroy(inner_obj->crud_op);
-			inner_obj->crud_op = NULL;
+			inner_obj->crud_op = nullptr;
 		}
 		mnd_efree(inner_obj);
 	}
@@ -476,7 +476,7 @@ mysqlx_register_node_table__delete_class(INIT_FUNC_ARGS, zend_object_handlers * 
 		zend_class_implements(mysqlx_node_table__delete_class_entry, 1, mysqlx_executable_interface_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_table__delete_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_node_table__delete_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_table__delete_properties, mysqlx_node_table__delete_property_entries);
@@ -512,7 +512,7 @@ mysqlx_new_node_table__delete(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 				mnd_str2c(object->table->data->schema->data->schema_name),
 				mnd_str2c(object->table->data->table_name));
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

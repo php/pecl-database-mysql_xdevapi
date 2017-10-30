@@ -35,8 +35,8 @@ using namespace drv;
 static zval *
 mysqlx_property_get_forbidden(const struct st_mysqlx_object * not_used1, zval * not_used2)
 {
-	php_error_docref(NULL, E_ERROR, "Write-only property");
-	return NULL;
+	php_error_docref(nullptr, E_ERROR, "Write-only property");
+	return nullptr;
 }
 /* }}} */
 
@@ -45,7 +45,7 @@ mysqlx_property_get_forbidden(const struct st_mysqlx_object * not_used1, zval * 
 static int
 mysqlx_property_set_forbidden(struct st_mysqlx_object * not_used1, zval * not_used2)
 {
-	php_error_docref(NULL, E_ERROR, "Read-only property");
+	php_error_docref(nullptr, E_ERROR, "Read-only property");
 	return FAILURE;
 }
 /* }}} */
@@ -76,7 +76,7 @@ void
 mysqlx_add_properties(HashTable * ht, const struct st_mysqlx_property_entry * entries)
 {
 	unsigned int i;
-	for (i = 0; entries[i].property_name.s != NULL; ++i) {
+	for (i = 0; entries[i].property_name.s != nullptr; ++i) {
 		mysqlx_add_property(ht, entries[i].property_name, entries[i].get_value, entries[i].set_value);
 	}
 }
@@ -90,7 +90,7 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 	zval tmp_member;
 	zval *retval;
 	const struct st_mysqlx_object * mysqlx_obj;
-	const struct st_mysqlx_property * property = NULL;
+	const struct st_mysqlx_property * property = nullptr;
 	DBG_ENTER("mysqlx_property_get_value");
 
 	mysqlx_obj = Z_MYSQLX_P(object);
@@ -103,14 +103,14 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 
 	DBG_INF_FMT("property=%s", Z_STRVAL_P(member));
 
-	if (mysqlx_obj->properties != NULL) {
+	if (mysqlx_obj->properties != nullptr) {
 		property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)));
 	}
 
 	if (property) {
 		DBG_INF("internal property");
 		retval = property->get_value(mysqlx_obj, rv);
-		if (retval == NULL) {
+		if (retval == nullptr) {
 			DBG_INF("uninitialized_zval");
 			retval = &EG(uninitialized_zval);
 		}
@@ -135,7 +135,7 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 {
 	zval tmp_member;
 	struct st_mysqlx_object * mysqlx_obj;
-	const struct st_mysqlx_property * property = NULL;
+	const struct st_mysqlx_property * property = nullptr;
 	DBG_ENTER("mysqlx_property_set_value");
 
 	if (Z_TYPE_P(member) != IS_STRING) {
@@ -148,7 +148,7 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 
 	mysqlx_obj = Z_MYSQLX_P(object);
 
-	if (mysqlx_obj->properties != NULL) {
+	if (mysqlx_obj->properties != nullptr) {
 		property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)));
 	}
 
@@ -176,7 +176,7 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 	int ret = 0;
 	DBG_ENTER("mysqlx_object_has_property");
 
-	if ((property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)))) != NULL) {
+	if ((property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)))) != nullptr) {
 		switch (has_set_exists) {
 			case 0:{
 				zval rv, *value;
@@ -204,7 +204,7 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 				ret = 1;
 				break;
 			default:
-				php_error_docref(NULL, E_WARNING, "Invalid value for has_set_exists");
+				php_error_docref(nullptr, E_WARNING, "Invalid value for has_set_exists");
 		}
 	} else {
 		const zend_object_handlers * standard_handlers = zend_get_std_object_handlers();
