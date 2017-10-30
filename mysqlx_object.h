@@ -18,11 +18,7 @@
 #ifndef MYSQLX_OBJECT_H
 #define MYSQLX_OBJECT_H
 
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
-}
+#include "php_api.h"
 
 namespace mysqlx {
 

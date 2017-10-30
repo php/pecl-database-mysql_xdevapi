@@ -18,12 +18,7 @@
 #ifndef MYSQL_XDEVAPI_PHPUTILS_STRING_UTILS_H
 #define MYSQL_XDEVAPI_PHPUTILS_STRING_UTILS_H
 
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef max
-#undef inline
-}
+#include "php_api.h"
 #include <boost/algorithm/string/compare.hpp>
 #include "strings.h"
 

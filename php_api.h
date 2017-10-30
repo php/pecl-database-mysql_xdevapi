@@ -15,70 +15,18 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#include "php_api.h"
+#ifndef MYSQL_XDEVAPI_PHP_API_H
+#define MYSQL_XDEVAPI_PHP_API_H
+
 extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
+#include <php.h>
+#undef ERROR
+#undef add_method
+#undef inline
+#undef max
 }
-#include "allocator.h"
 
-namespace mysqlx {
-
-namespace phputils {
-
-const alloc_tag_t alloc_tag{};
-const permanent_tag_t permanent_tag{};
-
-namespace internal
-{
-
-/* {{{ mysqlx::phputils::internal::mem_alloc */
-void* mem_alloc(std::size_t bytes_count)
-{
-	void* ptr = mnd_ecalloc(1, bytes_count);
-	if (ptr) {
-		return ptr;
-	} else {
-		throw std::bad_alloc();
-	}
-}
-/* }}} */
-
-/* {{{ mysqlx::phputils::internal::mem_free */
-void mem_free(void* ptr)
-{
-	mnd_efree(ptr);
-}
-/* }}} */
-
-//------------------------------------------------------------------------------
-
-/* {{{ mysqlx::phputils::internal::mem_permanent_alloc */
-void* mem_permanent_alloc(std::size_t bytes_count)
-{
-	void* ptr = mnd_pecalloc(1, bytes_count, false);
-	if (ptr) {
-		return ptr;
-	} else {
-		throw std::bad_alloc();
-	}
-}
-/* }}} */
-
-/* {{{ mysqlx::phputils::internal::mem_permanent_free */
-void mem_permanent_free(void* ptr)
-{
-	mnd_pefree(ptr, false);
-}
-/* }}} */
-
-} // namespace internal
-
-} // namespace phputils
-
-} // namespace mysqlx
+#endif // MYSQL_XDEVAPI_PHP_API_H
 
 /*
  * Local variables:

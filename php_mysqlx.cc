@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

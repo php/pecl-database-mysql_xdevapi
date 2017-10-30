@@ -18,10 +18,8 @@
 #ifndef MYSQL_XDEVAPI_PHPUTILS_STRINGS_H
 #define MYSQL_XDEVAPI_PHPUTILS_STRINGS_H
 
+#include "php_api.h"
 extern "C" {
-#include <zend_types.h>
-#undef ERROR
-#undef inline
 struct st_mysqlnd_string;
 struct st_mysqlnd_const_string;
 }

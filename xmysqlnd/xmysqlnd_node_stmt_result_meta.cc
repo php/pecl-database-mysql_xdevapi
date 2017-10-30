@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_connection.h"
 #include "ext/mysqlnd/mysqlnd_priv.h"

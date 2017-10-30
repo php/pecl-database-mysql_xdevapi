@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/json/php_json.h>
 #include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>

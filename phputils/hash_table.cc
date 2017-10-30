@@ -15,11 +15,7 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
-}
+#include "php_api.h"
 #include "hash_table.h"
 #include "strings.h"
 #include "value.h"
