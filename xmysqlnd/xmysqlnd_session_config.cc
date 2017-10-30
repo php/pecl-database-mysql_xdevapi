@@ -36,16 +36,38 @@ extern "C" {
 #include <mysqlx_class_properties.h>
 #include <cctype>
 #include <algorithm>
-#include <phputils/string_utils.h>
 
 namespace mysqlx {
 
 namespace devapi {
 
+namespace
+{
+
+/*
+ * Small utility which make sure that a given
+ * name is compliant with the SPEC details
+ */
+bool is_valid_identifier( const phputils::string& str )
+{
+	const int max_identifier_name_length{ 31 };
+	if( str.size() > max_identifier_name_length ) {
+		return false;
+	}
+	for( auto& ch : str ) {
+		if( false == std::isalnum( ch ) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+}
+
 /* {{{ Session_config::Session_config */
 Session_config::Session_config(const phputils::string &name)
 {
-	if( phputils::is_valid_identifier( name ) ) {
+	if( is_valid_identifier( name ) ) {
 		session_name = name;
 	} else {
 		RAISE_EXCEPTION( err_msg_invalid_identifier );
@@ -58,7 +80,7 @@ Session_config::Session_config(const phputils::string &name)
 Session_config::Session_config(const mysqlx::phputils::string &name,
 							const mysqlx::phputils::string &uri)
 {
-	if( phputils::is_valid_identifier( name ) &&
+	if( is_valid_identifier( name ) &&
 		false == uri.empty() ) {
 		session_name = name;
 		session_uri = uri;

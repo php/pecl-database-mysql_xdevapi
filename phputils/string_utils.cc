@@ -63,49 +63,6 @@ strings to_strings(zval* zvals, int count)
 }
 /* }}} */
 
-
-/* {{{ is_valid_identifier */
-bool is_valid_identifier( const phputils::string& str )
-{
-	const int max_identifier_name_length{ 31 };
-	if( str.size() > max_identifier_name_length ) {
-		return false;
-	}
-	int num_of_letter{ 0 };
-	int num_of_digit{ 0 };
-	for( auto& ch : str ) {
-		if( false == std::isalnum( ch ) ) {
-			return false;
-		}
-		if( 0 < std::isalpha( ch ) ) {
-			++num_of_letter;
-		} else {
-			++num_of_digit;
-		}
-	}
-	return num_of_letter > 0;
-}
-/* }}} */
-
-
-/* {{{ escape_identifier( string id ) */
-phputils::string
-escape_identifier( const phputils::string& identifier ) {
-	std::stringstream result;
-	result << '`';
-	for( const auto& ch : identifier ) {
-		if( ch == '`' ) {
-			result << "``";
-		} else {
-			result << ch;
-		}
-	}
-	result << '`';
-	return result.str().c_str();
-}
-/* }}} */
-
-
 } // namespace phputils
 
 } // namespace mysqlx

@@ -78,7 +78,6 @@ struct xdevapi_exception : public std::runtime_error
 		invalid_table_column_length_decimals,
 		invalid_foreign_key,
 		unknown_fkey_change_mode,
-		invalid_identifier
 	};
 
 	xdevapi_exception(Code code);

@@ -269,13 +269,13 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 
 struct st_xmysqlnd_node_session_data : public phputils::permanent_allocable
 {
-	/* Operation related */
+/* Operation related */
 	XMYSQLND_L3_IO	io;
 
-	/* Authentication info */
+/* Authentication info */
 	const XMYSQLND_SESSION_AUTH_DATA * auth;
 
-	/* Other connection info */
+/* Other connection info */
 	MYSQLND_STRING	scheme;
 	MYSQLND_STRING	current_db;
 	transport_types transport_type;
@@ -290,7 +290,7 @@ struct st_xmysqlnd_node_session_data : public phputils::permanent_allocable
 	MYSQLND_ERROR_INFO	* error_info;
 	MYSQLND_ERROR_INFO	error_info_impl;
 
-	/* Operation related */
+/* Operation related */
 	XMYSQLND_NODE_SESSION_STATE state;
 
 	/*
@@ -316,9 +316,6 @@ struct st_xmysqlnd_node_session_data : public phputils::permanent_allocable
 
 	/* persistent connection */
 	zend_bool		persistent;
-
-	/* Seed for the next transaction savepoint identifier */
-	unsigned int savepoint_name_seed;
 };
 
 

@@ -41,7 +41,6 @@ extern "C" {
 #include "mysqlx_view_drop.h"
 #include "phputils/allocator.h"
 #include "phputils/object.h"
-#include "phputils/string_utils.h"
 
 namespace mysqlx {
 
@@ -383,20 +382,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 {
 	st_mysqlx_node_schema* object = nullptr;
 	zval* object_zv = nullptr;
-	phputils::string_input_param collection_name;
+	MYSQLND_CSTRING collection_name = { nullptr, 0 };
 
 	DBG_ENTER("mysqlx_node_schema::getCollection");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
 												&object_zv, mysqlx_node_schema_class_entry,
-												&(collection_name.str), &(collection_name.len)))
+												&(collection_name.s), &(collection_name.l)))
 	{
 		DBG_VOID_RETURN;
 	}
-
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if ( !collection_name.empty() && object->schema) {
-		st_xmysqlnd_node_collection* const collection = object->schema->data->m.create_collection_object(object->schema, collection_name.to_nd_cstr());
+	if (collection_name.s && collection_name.l && object->schema) {
+		st_xmysqlnd_node_collection* const collection = object->schema->data->m.create_collection_object(object->schema, collection_name);
 		if (collection) {
 			mysqlx_new_node_collection(return_value, collection, FALSE);
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
@@ -472,20 +470,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTable)
 {
 	st_mysqlx_node_schema* object = nullptr;
 	zval* object_zv = nullptr;
-	phputils::string_input_param table_name;
+	MYSQLND_CSTRING table_name = { nullptr, 0 };
 
 	DBG_ENTER("mysqlx_node_schema::getTable");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
 												&object_zv, mysqlx_node_schema_class_entry,
-												&(table_name.str), &(table_name.len)))
+												&(table_name.s), &(table_name.l)))
 	{
 		DBG_VOID_RETURN;
 	}
-
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if ( !table_name.empty() && object->schema) {
-		st_xmysqlnd_node_table* const table = object->schema->data->m.create_table_object(object->schema, table_name.to_nd_cstr());
+	if (table_name.s && table_name.l && object->schema) {
+		st_xmysqlnd_node_table* const table = object->schema->data->m.create_table_object(object->schema, table_name);
 		mysqlx_new_node_table(return_value, table, FALSE /* no clone */);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
 			xmysqlnd_node_table_free(table, nullptr, nullptr);
