@@ -237,6 +237,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="strings.cc" role="src" />
     <file name="strings.h" role="src" />
     <file name="types.h" role="src" />
+    <file name="url_utils.cc" role="src" />
+    <file name="url_utils.h" role="src" />
     <file name="value.cc" role="src" />
     <file name="value.h" role="src" />
    </dir>
@@ -288,6 +290,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="mysqlx_get_collection_as_table.phpt" role="test" />
     <file name="mysqlx_get_name.phpt" role="test" />
     <file name="mysqlx_multiple_results.phpt" role="test" />
+    <file name="simple_ssl.phpt" role="test" />
     <file name="single_doc_ops.phpt" role="test" />
     <dir name="locking">
      <file name="mysqlx_row_locking.inc" role="test" />
@@ -308,6 +311,15 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="mysqlx_row_locking_table_parallel_shared_exclusive_worker.php" role="doc" />
      <file name="mysqlx_row_locking_table_sequential.phpt" role="test" />
      <file name="mysqlx_row_locking_table_sequential_native_sql.phpt" role="test" />
+    </dir>
+    <dir name="ssl">
+     <file name="ca.pem" role="test" />
+     <file name="client-cert.pem" role="test" />
+     <file name="client-key.pem" role="test" />
+     <file name="client-req.pem" role="test" />
+     <file name="server-cert.pem" role="test" />
+     <file name="server-key.pem" role="test" />
+     <file name="server-req.pem" role="test" />
     </dir>
    </dir>
    <dir name="xmysqlnd">
