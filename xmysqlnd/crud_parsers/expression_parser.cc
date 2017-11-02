@@ -372,7 +372,7 @@ Mysqlx::Expr::Expr* Expression_parser::document_field()
 /*
  * atomic_expr ::=
  *   PLACEHOLDER | ( AT IDENT ) | ( LPAREN expr RPAREN ) | ( [ PLUS | MINUS ] LNUM ) |
- *   (( PLUS | MINUS | NOT | NEG ) atomic_expr ) | LSTRING | nullptr | LNUM | LINTEGER | TRUE | FALSE |
+ *   (( PLUS | MINUS | NOT | NEG ) atomic_expr ) | LSTRING | NULL | LNUM | LINTEGER | TRUE | FALSE |
  *   ( INTERVAL expr ( MICROSECOND | SECOND | MINUTE | HOUR | DAY | WEEK | MONTH | QUARTER | YEAR )) |
  *   function_call | column_identifier | cast | binary | placeholder | json_doc | MUL | array
  */
