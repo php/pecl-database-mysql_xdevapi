@@ -1,8 +1,8 @@
 // $Id$
 // vim:ft=javascript
 
-// Note: The extension name is "mysql-xdevapi", you enable it with 
-// "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode 
+// Note: The extension name is "mysql-xdevapi", you enable it with
+// "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
 // is officially supported
 //
 // required 3rdParty libs may be also configured with below environment variables:
@@ -11,15 +11,15 @@
 // but check configure options too: --with-extra-includes --with-extra-libs
 
 
-ARG_ENABLE("mysql-xdevapi", 
-	"MySQL XDevAPI support | Hybrid Native Client Driver", 
+ARG_ENABLE("mysql-xdevapi",
+	"MySQL XDevAPI support | Hybrid Native Client Driver",
 	"no");
 
-ARG_ENABLE("mysql-xdevapi-experimental-features", 
+ARG_ENABLE("mysql-xdevapi-experimental-features",
 	"Disable support for the experimental features in mysql-xdevapi",
 	"yes");
 
-ARG_ENABLE("mysql-xdevapi-message-classes", 
+ARG_ENABLE("mysql-xdevapi-message-classes",
 	"Enable support for the experimental message classes in mysql-xdevapi",
 	"yes");
 
@@ -426,7 +426,7 @@ function resolve_protobuf_paths() {
 		hint_3rd_party_lib_env('MYSQL_XDEVAPI_PROTOBUF_ROOT');
 	}
 }
-	
+
 // ------
 
 function init_prerequisites() {
@@ -503,7 +503,7 @@ function get_protodef_paths() {
 		"mysqlx_session.proto",
 		"mysqlx_sql.proto"
 	];
-	
+
 	return concatenate(mysqlx_proto_sources, protodef_full_path);
 }
 
@@ -571,10 +571,10 @@ function get_compiler_options() {
 }
 
 function prepare_cxx_flags() {
-	return [ 
-		get_includes(), 
-		get_preprocessor_definitions(), 
-		get_compiler_options() 
+	return [
+		get_includes(),
+		get_preprocessor_definitions(),
+		get_compiler_options()
 	].join(' ');
 }
 
@@ -583,7 +583,7 @@ function prepare_cxx_flags() {
 
 function init_extension(base_sources) {
 	EXTENSION(
-		Ext_name, 
+		Ext_name,
 		base_sources.join(' '),
 		PHP_MYSQL_XDEVAPI_SHARED,
 		prepare_cxx_flags());
@@ -598,7 +598,7 @@ function add_dependency(dep_extension_name) {
 }
 
 // ----------------------------------------------------------------------------
-// setup 
+// setup
 
 init_prerequisites();
 
@@ -607,7 +607,7 @@ if (!verify_requirements()) {
 	PHP_MYSQL_XDEVAPI = "no";
 	return;
 }
-	
+
 generate_protobufs();
 
 init_extension(mysqlx_devapi_sources);

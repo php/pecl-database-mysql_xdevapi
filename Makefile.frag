@@ -26,7 +26,7 @@ $(srcdir)/xmysqlnd/proto_gen/mysqlx_session.pb.cc: $(srcdir)/xmysqlnd/proto_def/
 $(srcdir)/xmysqlnd/proto_gen/mysqlx_sql.pb.cc: $(srcdir)/xmysqlnd/proto_def/mysqlx_sql.proto $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 
 
-# set dependencies on protobuf generated sources, to avoid build 
+# set dependencies on protobuf generated sources, to avoid build
 # errors due to lack of *.pb.h headers (caused by parallel compilation race)
 $(srcdir)/%.cc: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
 

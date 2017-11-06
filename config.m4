@@ -1,5 +1,5 @@
-// Note: The extension name is "mysql-xdevapi", you enable it with 
-// "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode 
+// Note: The extension name is "mysql-xdevapi", you enable it with
+// "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
 // is officially supported
 //
 // required 3rdParty libs may be also configured with below environment variables:
@@ -261,7 +261,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		AC_MSG_RESULT([not found, defaults applied (consider setting MYSQL_XDEVAPI_BOOST_ROOT)])
 	fi
 
-	
+
 	dnl protobuf
 	AC_MSG_CHECKING([for protobuf])
 	SEARCH_PATH="$MYSQL_XDEVAPI_PROTOBUF_ROOT $PROTOBUF_ROOT $PROTOBUF_PATH /usr/local /usr"
@@ -292,7 +292,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 		AC_MSG_RESULT([not found, defaults applied (consider setting MYSQL_XDEVAPI_PROTOBUF_ROOT)])
 	fi
-		
+
 	PHP_ADD_MAKEFILE_FRAGMENT()
 
 
