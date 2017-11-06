@@ -453,7 +453,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	if ((session = object->session)) {
-		XMYSQLND_NODE_SCHEMA * schema = nullptr;
+		XMYSQLND_NODE_SCHEMA* schema{nullptr};
 		if (PASS == session->m->create_db(session, schema_name) &&
 			(schema = session->m->create_schema_object(session, schema_name)))
 		{
@@ -474,7 +474,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 /* {{{ mysqlx_base_session::dropSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view schema_name;
 
 	DBG_ENTER("mysqlx_base_session::dropSchema");
@@ -510,7 +510,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, startTransaction)
 	zval * object_zv;
 	struct st_mysqlx_session * object;
 	MYSQLND_CSTRING query = {"START TRANSACTION", sizeof("START TRANSACTION") - 1};
-	zval * args = nullptr;
+	zval* args{nullptr};
 	int argc = 0;
 
 	DBG_ENTER("mysqlx_base_session::startTransaction");
@@ -537,7 +537,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, commit)
 	zval * object_zv;
 	struct st_mysqlx_session * object;
 	MYSQLND_CSTRING query = {"COMMIT", sizeof("COMMIT") - 1};
-	zval * args = nullptr;
+	zval* args{nullptr};
 	int argc = 0;
 
 	DBG_ENTER("mysqlx_base_session::commit");
@@ -564,7 +564,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 	zval * object_zv;
 	struct st_mysqlx_session * object;
 	MYSQLND_CSTRING query = {"ROLLBACK", sizeof("ROLLBACK") - 1};
-	zval * args = nullptr;
+	zval* args{nullptr};
 	int argc = 0;
 
 	DBG_ENTER("mysqlx_base_session::rollback");
@@ -787,8 +787,8 @@ php_mysqlx_base_session_object_allocator(zend_class_entry * class_type)
 		&mysqlx_object_base_session_handlers,
 		&mysqlx_base_session_properties);
 
-	MYSQLND_STATS * stats = nullptr;
-	MYSQLND_ERROR_INFO * error_info = nullptr;
+	MYSQLND_STATS* stats{nullptr};
+	MYSQLND_ERROR_INFO* error_info{nullptr};
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	st_mysqlx_session* data_object = static_cast<st_mysqlx_session*>(mysqlx_object->ptr);
 	if (!(data_object->session = xmysqlnd_node_session_create(0, FALSE, factory, stats, error_info))) {

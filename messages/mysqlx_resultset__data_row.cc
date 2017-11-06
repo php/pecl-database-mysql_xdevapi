@@ -111,7 +111,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 		/* ZEND_HASH_FOREACH_PTR ?? */
 		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {
-				struct st_mysqlx_column_metadata * column_entry = nullptr;
+				struct st_mysqlx_column_metadata* column_entry{nullptr};
 				MYSQLX_FETCH_MESSAGE__COLUMN_METADATA_FROM_ZVAL(column_entry, entry);
 
 				const Mysqlx::Resultset::ColumnMetaData & meta = column_entry->message;
@@ -326,7 +326,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					}
 					while (length_read_ok) {
 						if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
-							char * set_value = nullptr;
+							char* set_value{nullptr};
 							int rest_buffer_size = 0;
 							if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 								zval set_entry;

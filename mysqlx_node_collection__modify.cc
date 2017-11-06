@@ -560,8 +560,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, __construct)
 /* {{{ proto mixed mysqlx_node_collection__modify::sort() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, sort)
 {
-	zval* object_zv = nullptr;
-	zval* sort_expr = nullptr;
+	zval* object_zv{nullptr};
+	zval* sort_expr{nullptr};
 	int num_of_expr = 0;
 
 	DBG_ENTER("mysqlx_node_collection__modify::sort");
@@ -586,7 +586,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, sort)
 /* {{{ proto mixed mysqlx_node_collection__modify::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, limit)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	zend_long rows = 0;
 
 	DBG_ENTER("mysqlx_node_collection__modify::limit");
@@ -609,7 +609,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, limit)
 /* {{{ proto mixed mysqlx_node_collection__modify::skip() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, skip)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	zend_long position = 0;
 
 	DBG_ENTER("mysqlx_node_collection__modify::skip");
@@ -637,8 +637,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, skip)
 /* {{{ proto mixed mysqlx_node_collection__modify::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, bind)
 {
-	zval* object_zv = nullptr;
-	HashTable* bind_variables = nullptr;
+	zval* object_zv{nullptr};
+	HashTable* bind_variables{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__modify::bind");
 
@@ -664,8 +664,8 @@ mysqlx_node_collection__modify__2_param_op(
 	const Collection_modify::Operation operation,
 	const bool is_document = false)
 {
-	zval* object_zv = nullptr;
-	zval* value = nullptr;
+	zval* object_zv{nullptr};
+	zval* value{nullptr};
 	phputils::string_view path;
 
 	DBG_ENTER("mysqlx_node_collection__modify__2_param_op");
@@ -713,7 +713,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, replace)
 /* {{{ proto mixed mysqlx_node_collection__modify::merge() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, merge)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view document_contents;
 
 	DBG_ENTER("mysqlx_node_collection__modify::merge");
@@ -759,7 +759,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayAppend)
 /* {{{ proto mixed mysqlx_node_collection__modify::arrayDelete() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayDelete)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view array_index_path;
 
 	DBG_ENTER("mysqlx_node_collection__modify::arrayDelete");
@@ -783,8 +783,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayDelete)
 /* {{{ proto mixed mysqlx_node_collection__modify::unset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, unset)
 {
-	zval* object_zv = nullptr;
-	zval* variables = nullptr;
+	zval* object_zv{nullptr};
+	zval* variables{nullptr};
 	int num_of_variables = 0;
 
 	DBG_ENTER("mysqlx_node_collection__modify::unset");
@@ -810,7 +810,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, unset)
 /* {{{ proto mixed mysqlx_node_collection__modify::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, execute)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__modify::execute");
 

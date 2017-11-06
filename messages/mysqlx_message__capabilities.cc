@@ -52,9 +52,9 @@ ZEND_END_ARG_INFO()
 /* {{{ proto bool mysqlx_node_connection::echo(object capability) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities, add)
 {
-	zval * capabilities_zv = nullptr;
-	struct st_mysqlx_message__capabilities * capabilities = nullptr;
-	zval * capability_zv = nullptr;
+	zval* capabilities_zv{nullptr};
+	struct st_mysqlx_message__capabilities* capabilities{nullptr};
+	zval* capability_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_connection::add");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",

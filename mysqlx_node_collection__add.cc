@@ -230,7 +230,7 @@ add_unique_id_to_json(
 	const MYSQLND_CSTRING* json)
 {
 	enum_func_status ret = FAIL;
-	char* p = nullptr;
+	char* p{nullptr};
 	const auto doc_id = prepare_doc_id(session, single_doc_id);
 
 	if (UNEXPECTED(status->empty)) {
@@ -627,7 +627,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, __construct)
 /* {{{ proto mixed mysqlx_node_collection__add::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, execute)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__add::execute");
 

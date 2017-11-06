@@ -48,11 +48,11 @@ ZEND_END_ARG_INFO()
 /* {{{ proto bool mysqlx_node_connection::__construct(string name, mixed value) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 {
-	zval * capability_zv = nullptr;
-	struct st_mysqlx_message__capability * capability = nullptr;
-	char * capability_name = nullptr;
+	zval* capability_zv{nullptr};
+	struct st_mysqlx_message__capability* capability{nullptr};
+	char* capability_name{nullptr};
 	size_t capability_name_len;
-	zval * capability_value = nullptr;
+	zval* capability_value{nullptr};
 
 	DBG_ENTER("mysqlx_node_connection::connect");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
@@ -75,8 +75,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 /* {{{ proto bool mysqlx_node_connection::echo(string name, mixed value) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, echo)
 {
-	zval * capability_zv = nullptr;
-	struct st_mysqlx_message__capability * capability = nullptr;
+	zval* capability_zv{nullptr};
+	struct st_mysqlx_message__capability* capability{nullptr};
 
 	DBG_ENTER("mysqlx_node_connection::echo");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",

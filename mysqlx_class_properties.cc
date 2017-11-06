@@ -90,7 +90,7 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 	zval tmp_member;
 	zval *retval;
 	const struct st_mysqlx_object * mysqlx_obj;
-	const struct st_mysqlx_property * property = nullptr;
+	const struct st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_get_value");
 
 	mysqlx_obj = Z_MYSQLX_P(object);
@@ -135,7 +135,7 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 {
 	zval tmp_member;
 	struct st_mysqlx_object * mysqlx_obj;
-	const struct st_mysqlx_property * property = nullptr;
+	const struct st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_set_value");
 
 	if (Z_TYPE_P(member) != IS_STRING) {

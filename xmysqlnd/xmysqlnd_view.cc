@@ -37,7 +37,7 @@ st_xmysqlnd_node_stmt* View::create(
 	st_xmysqlnd_node_session* session,
 	const st_xmysqlnd_pb_message_shell& pb_msg)
 {
-	XMYSQLND_NODE_STMT* ret = nullptr;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("View::create");
 	const st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 	st_xmysqlnd_msg__view_cmd view_create = msg_factory.get__view_create(&msg_factory);
@@ -58,7 +58,7 @@ st_xmysqlnd_node_stmt* View::alter(
 	st_xmysqlnd_node_session* session,
 	const st_xmysqlnd_pb_message_shell& pb_msg)
 {
-	XMYSQLND_NODE_STMT* ret = nullptr;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("View::alter");
 	const st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 	st_xmysqlnd_msg__view_cmd view_alter = msg_factory.get__view_alter(&msg_factory);
@@ -79,7 +79,7 @@ st_xmysqlnd_node_stmt* View::drop(
 	st_xmysqlnd_node_session* session,
 	const st_xmysqlnd_pb_message_shell& pb_msg)
 {
-	XMYSQLND_NODE_STMT* ret = nullptr;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("View::create");
 	const st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 	st_xmysqlnd_msg__view_cmd view_drop = msg_factory.get__view_drop(&msg_factory);

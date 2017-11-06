@@ -75,7 +75,7 @@ collection_op_var_binder(
 {
 	enum_hnd_func_status ret = HND_FAIL;
 	struct st_collection_exists_in_database_var_binder_ctx * ctx = (struct st_collection_exists_in_database_var_binder_ctx *) context;
-	const MYSQLND_CSTRING * param = nullptr;
+	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_op_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -279,7 +279,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 											   XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 {
 	DBG_ENTER("xmysqlnd_node_collection::add");
-	XMYSQLND_NODE_STMT * ret = nullptr;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	XMYSQLND_NODE_SESSION * session;
 	struct st_xmysqlnd_message_factory msg_factory;
 	struct st_xmysqlnd_msg__collection_add collection_add;
@@ -311,7 +311,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
-	XMYSQLND_NODE_STMT * ret = nullptr;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection::remove");
 	if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
 		DBG_RETURN(ret);
@@ -339,7 +339,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * con
 static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 {
-	XMYSQLND_NODE_STMT * ret = nullptr;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection::modify");
 	if (!op || FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
 		DBG_RETURN(ret);
@@ -367,7 +367,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * con
 static struct st_xmysqlnd_node_stmt *
 XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 {
-	XMYSQLND_NODE_STMT * stmt = nullptr;
+	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection::find");
 	if (!op || FAIL == xmysqlnd_crud_collection_find__finalize_bind(op)) {
 		DBG_RETURN(stmt);
@@ -474,7 +474,7 @@ xmysqlnd_node_collection_create(XMYSQLND_NODE_SCHEMA * schema,
 								MYSQLND_STATS * const stats,
 								MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_NODE_COLLECTION * ret = nullptr;
+	XMYSQLND_NODE_COLLECTION* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection_create");
 	if (collection_name.s && collection_name.l) {
 		ret = object_factory->get_node_collection(object_factory, schema, collection_name, persistent, stats, error_info);

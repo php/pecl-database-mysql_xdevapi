@@ -115,7 +115,7 @@ struct st_xmysqlnd_collection_op__create_index : phputils::custom_allocable
 XMYSQLND_COLLECTION_OP__CREATE_INDEX *
 xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name)
 {
-	XMYSQLND_COLLECTION_OP__CREATE_INDEX* ret = nullptr;
+	XMYSQLND_COLLECTION_OP__CREATE_INDEX* ret{nullptr};
 	DBG_ENTER("xmysqlnd_collection_create_index__create");
 	DBG_INF_FMT("schema_name=%*s collection_name=%*s", schema_name.l, schema_name.s, collection_name.l, collection_name.s);
 	ret = new st_xmysqlnd_collection_op__create_index(schema_name, collection_name);
@@ -366,7 +366,7 @@ collection_create_index_var_binder(
 	st_collection_create_collection_index_var_binder_ctx* ctx = static_cast<st_collection_create_collection_index_var_binder_ctx*>(context);
 	st_xmysqlnd_collection_op__create_index* index_op = ctx->index_op;
 
-	const phputils::string* param = nullptr;
+	const phputils::string* param{nullptr};
 	DBG_ENTER("collection_create_index_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -474,7 +474,7 @@ collection_drop_index_var_binder(
 	st_collection_drop_collection_index_var_binder_ctx* ctx = static_cast<st_collection_drop_collection_index_var_binder_ctx*>(context);
 	collection_drop_index_data* index_op = ctx->index_op;
 
-	const phputils::string* param = nullptr;
+	const phputils::string* param{nullptr};
 	DBG_ENTER("collection_drop_index_var_binder");
 	switch (ctx->counter) {
 		case 0:

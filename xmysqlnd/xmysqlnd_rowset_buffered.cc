@@ -444,7 +444,7 @@ xmysqlnd_rowset_buffered_create(XMYSQLND_NODE_STMT * stmt,
 								MYSQLND_STATS * stats,
 								MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_ROWSET_BUFFERED * result = nullptr;
+	XMYSQLND_ROWSET_BUFFERED* result{nullptr};
 	DBG_ENTER("xmysqlnd_rowset_buffered_create");
 	result = object_factory->get_rowset_buffered(object_factory, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);

@@ -150,7 +150,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 	zval * object_zv;
 	struct st_mysqlx_session * object;
 	MYSQLND_CSTRING query = {nullptr, 0};
-	zval * args = nullptr;
+	zval* args{nullptr};
 	int argc = 0;
 
 	DBG_ENTER("mysqlx_node_session::executeSql");

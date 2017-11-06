@@ -53,7 +53,7 @@ using namespace drv;
 namespace
 {
 
-zend_class_entry* generated_column_def_class_entry = nullptr;
+zend_class_entry* generated_column_def_class_entry{nullptr};
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_column_def_construct, 0, ZEND_RETURN_VALUE, 3)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
@@ -72,7 +72,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_generated_column_def, __construct)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view name;
 	phputils::string_view type;
 	phputils::string_view expression;
@@ -104,7 +104,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_generated_column_def, stored)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, generated_column_def_class_entry))

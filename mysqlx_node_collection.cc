@@ -155,8 +155,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, __construct)
 /* {{{ proto mixed mysqlx_node_collection::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSession)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection::getSession");
 
@@ -184,8 +184,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSession)
 /* {{{ proto mixed mysqlx_node_collection::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getName)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection::getName");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -230,8 +230,8 @@ mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
 /* {{{ proto mixed mysqlx_node_collection::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection::existsInDatabase");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -262,8 +262,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 /* {{{ proto mixed mysqlx_node_collection::count() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, count)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection::count");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -294,10 +294,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, count)
 /* {{{ proto mixed mysqlx_node_collection::getSchema() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 {
-	st_mysqlx_node_collection* object = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
 	XMYSQLND_NODE_SESSION * session;
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection::getSchema");
 
@@ -339,9 +339,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 /* {{{ proto mixed mysqlx_node_collection::add() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, add)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
-	zval* docs = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
+	zval* docs{nullptr};
 	int num_of_docs = 0;
 
 	DBG_ENTER("mysqlx_node_collection::add");
@@ -373,8 +373,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, add)
 /* {{{ proto mixed mysqlx_node_collection::find() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, find)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
 	phputils::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::find");
@@ -402,8 +402,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, find)
 /* {{{ proto mixed mysqlx_node_collection::modify() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, modify)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
 	phputils::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::modify");
@@ -432,8 +432,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, modify)
 /* {{{ proto mixed mysqlx_node_collection::remove() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, remove)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
 	phputils::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::remove");
@@ -464,7 +464,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getOne)
 {
 	DBG_ENTER("mysqlx_node_collection::getOne");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view id;
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -504,9 +504,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 {
 	DBG_ENTER("mysqlx_node_collection::replaceOne");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view id;
-	zval* doc = nullptr;
+	zval* doc{nullptr};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Osz",
@@ -548,9 +548,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 /* {{{ proto mixed mysqlx_node_collection::addOrReplaceOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, addOrReplaceOne)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view id;
-	zval* doc = nullptr;
+	zval* doc{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection::addOrReplaceOne");
 
@@ -582,7 +582,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, addOrReplaceOne)
 /* {{{ proto mixed mysqlx_node_collection::removeOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, removeOne)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view id;
 
 	DBG_ENTER("mysqlx_node_collection::removeOne");
@@ -619,8 +619,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, removeOne)
 /* {{{ proto mixed mysqlx_node_collection::createIndex() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, createIndex)
 {
-	st_mysqlx_node_collection* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_collection* object{nullptr};
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING index_name = {nullptr, 0};
 	zend_bool is_unique;
 
@@ -668,7 +668,7 @@ collection_drop_index_on_error(
 /* {{{ proto mixed mysqlx_node_collection::dropIndex() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, dropIndex)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view index_name;
 
 	DBG_ENTER("mysqlx_node_collection::dropIndex");

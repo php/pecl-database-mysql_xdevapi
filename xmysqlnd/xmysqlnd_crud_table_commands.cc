@@ -121,7 +121,7 @@ xmysqlnd_crud_table__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx:
 {
 	DBG_ENTER("xmysqlnd_crud_table__finalize_bind");
 
-	const Mysqlx::Datatypes::Scalar* null_value = nullptr;
+	const Mysqlx::Datatypes::Scalar* null_value{nullptr};
 	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin = bound_values.begin();
 	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end = bound_values.end();
 	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index = std::find(begin, end, null_value);
@@ -935,7 +935,7 @@ xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema,
 				const MYSQLND_CSTRING object_name,
 				zval * columns, const int num_of_columns)
 {
-	XMYSQLND_CRUD_TABLE_OP__SELECT * ret = nullptr;
+	XMYSQLND_CRUD_TABLE_OP__SELECT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_crud_table_select__create");
 	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
 	ret = new struct st_xmysqlnd_crud_table_op__select(schema, object_name, columns, num_of_columns);

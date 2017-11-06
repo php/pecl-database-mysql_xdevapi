@@ -60,7 +60,7 @@ class Hash_table
 
 	private:
 		bool owner = false;
-		HashTable* ht = nullptr;
+		HashTable* ht{nullptr};
 
 };
 /* }}} */

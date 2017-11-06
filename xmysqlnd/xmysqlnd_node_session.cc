@@ -1931,7 +1931,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version)(XMYSQLND_NODE_SESSION
 				zend_bool has_more = FALSE;
 				XMYSQLND_NODE_STMT_RESULT * res = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, session->stats, session->error_info);
 				if (res) {
-					zval * set = nullptr;
+					zval* set{nullptr};
 					if (PASS == res->m.fetch_all_c(res, &set, FALSE /* don't duplicate, reference it */, session->stats, session->error_info) &&
 						Z_TYPE(set[0 * 0]) == IS_STRING)
 					{
@@ -1982,7 +1982,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version_string)(const XMYSQLND
 static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object)(XMYSQLND_NODE_SESSION * const session_handle)
 {
-	XMYSQLND_NODE_STMT * stmt = nullptr;
+	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_node_session_data::create_statement_object");
 
 	stmt = xmysqlnd_node_stmt_create(session_handle, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
@@ -1995,7 +1995,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object)(XMYSQLND_NODE_SE
 static XMYSQLND_NODE_SCHEMA *
 XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object)(XMYSQLND_NODE_SESSION * const session_handle, const MYSQLND_CSTRING schema_name)
 {
-	XMYSQLND_NODE_SCHEMA * schema = nullptr;
+	XMYSQLND_NODE_SCHEMA* schema{nullptr};
 	DBG_ENTER("xmysqlnd_node_session::create_schema_object");
 	DBG_INF_FMT("schema_name=%s", schema_name.s);
 
@@ -2161,8 +2161,8 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 	zend_bool self_allocated = FALSE;
 	const size_t client_api_flags = 0; //This is not used at the moment..
 	/* may need to pass these from outside */
-	MYSQLND_STATS * stats = nullptr;
-	MYSQLND_ERROR_INFO * error_info = nullptr;
+	MYSQLND_STATS* stats{nullptr};
+	MYSQLND_ERROR_INFO* error_info{nullptr};
 
 	DBG_ENTER("xmysqlnd_node_session_connect");
 	DBG_INF_FMT("host=%s user=%s db=%s port=%u flags=%llu",
@@ -2202,7 +2202,7 @@ static
 struct mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zval)
 {
 	DBG_ENTER("create_new_session");
-	struct mysqlx::devapi::st_mysqlx_session * object = nullptr;
+	struct mysqlx::devapi::st_mysqlx_session* object{nullptr};
 	if (PASS == mysqlx::devapi::mysqlx_new_node_session(session_zval)) {
 		object = (struct mysqlx::devapi::st_mysqlx_session *) Z_MYSQLX_P(session_zval)->ptr;
 

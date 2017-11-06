@@ -200,7 +200,7 @@ xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 									 MYSQLND_STATS * stats,
 									 MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_STMT_EXECUTION_STATE * result = nullptr;
+	XMYSQLND_STMT_EXECUTION_STATE* result{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_execution_state_create");
 	result = object_factory->get_stmt_execution_state(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);

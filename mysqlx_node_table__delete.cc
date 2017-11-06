@@ -102,7 +102,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, where)
 {
 	struct st_mysqlx_node_table__delete * object;
 	zval * object_zv;
-	zval * where_expr = nullptr;
+	zval* where_expr{nullptr};
 
 	DBG_ENTER("mysqlx_node_table__delete::where");
 
@@ -142,7 +142,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 {
 	struct st_mysqlx_node_table__delete * object;
 	zval * object_zv;
-	zval * orderby_expr = nullptr;
+	zval* orderby_expr{nullptr};
 	int    num_of_expr = 0;
 	int    i = 0;
 

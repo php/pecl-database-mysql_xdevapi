@@ -170,7 +170,7 @@ mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
-	char * msg = nullptr;
+	char* msg{nullptr};
 	DBG_ENTER("mysqlx_new_exception");
 	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.l, sql_state.s, message.l, message.s);
 	if (msg) {

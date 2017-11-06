@@ -28,7 +28,7 @@ namespace mysqlx {
 
 namespace drv {
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_STATS *xmysqlnd_global_stats = nullptr;
+PHP_MYSQL_XDEVAPI_API MYSQLND_STATS* xmysqlnd_global_stats{nullptr};
 
 
 

@@ -476,7 +476,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 														 MYSQLND_STATS * const stats,
 														 MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT * result = nullptr;
+	XMYSQLND_NODE_STMT_RESULT* result{nullptr};
 	struct st_xmysqlnd_node_stmt_bind_ctx create_ctx =
 	{
 		stmt,
@@ -584,7 +584,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 													MYSQLND_STATS * const stats,
 													MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT * result = nullptr;
+	XMYSQLND_NODE_STMT_RESULT* result{nullptr};
 	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { stmt->data->m.create_meta_field, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_row_field_bind on_row_field = { stmt->data->m.handler_on_row_field, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_meta_field_bind on_meta_field = { stmt->data->m.handler_on_meta_field, &stmt->data->read_ctx };
@@ -826,7 +826,7 @@ xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION * session,
 						  MYSQLND_STATS * const stats,
 						  MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_NODE_STMT * stmt = nullptr;
+	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_node_stmt_create");
 	stmt = object_factory->get_node_stmt(object_factory, session, persistent, stats, error_info);
 	if (stmt) {

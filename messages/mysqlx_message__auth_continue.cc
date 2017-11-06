@@ -94,11 +94,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 	struct st_mysqlx_message__auth_continue * object;
 	struct st_mysqlx_node_connection * connection;
 	struct st_mysqlx_node_pfc * codec;
-	char * user = nullptr;
+	char* user{nullptr};
 	size_t user_len = 0;
-	char * password = nullptr;
+	char* password{nullptr};
 	size_t password_len = 0;
-	char * schema = nullptr;
+	char* schema{nullptr};
 	size_t schema_len = 0;
 
 	DBG_ENTER("mysqlx_message__auth_continue::send");

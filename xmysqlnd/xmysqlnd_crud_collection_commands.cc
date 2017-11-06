@@ -121,7 +121,7 @@ xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::My
 {
 	DBG_ENTER("xmysqlnd_crud_collection__finalize_bind");
 
-	const Mysqlx::Datatypes::Scalar* null_value = nullptr;
+	const Mysqlx::Datatypes::Scalar* null_value{nullptr};
 	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin = bound_values.begin();
 	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end = bound_values.end();
 	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index = std::find(begin, end, null_value);
@@ -790,7 +790,7 @@ struct st_xmysqlnd_crud_collection_op__find
 XMYSQLND_CRUD_COLLECTION_OP__FIND *
 xmysqlnd_crud_collection_find__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
 {
-	XMYSQLND_CRUD_COLLECTION_OP__FIND * ret = nullptr;
+	XMYSQLND_CRUD_COLLECTION_OP__FIND* ret{nullptr};
 	DBG_ENTER("xmysqlnd_crud_collection_find__create");
 	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
 	ret = new struct st_xmysqlnd_crud_collection_op__find(schema, object_name);
@@ -1170,7 +1170,7 @@ st_xmysqlnd_stmt_op__execute::finalize_bind()
 XMYSQLND_STMT_OP__EXECUTE *
 xmysqlnd_stmt_execute__create(const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt)
 {
-	XMYSQLND_STMT_OP__EXECUTE * ret = nullptr;
+	XMYSQLND_STMT_OP__EXECUTE* ret{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_execute__create");
 	DBG_INF_FMT("namespace_=%*s stmt=%*s", namespace_.l, namespace_.s, stmt.l, stmt.s);
 	ret = new struct st_xmysqlnd_stmt_op__execute(namespace_, stmt, false);

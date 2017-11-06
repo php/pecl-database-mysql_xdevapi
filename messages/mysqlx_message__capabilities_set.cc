@@ -127,7 +127,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 		zval * entry;
 		ZEND_HASH_FOREACH_VAL(&capabilities->capabilities_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_message__capability_class_entry) {
-				struct st_mysqlx_message__capability * capability_entry = nullptr;
+				struct st_mysqlx_message__capability* capability_entry{nullptr};
 				MYSQLX_FETCH_MESSAGE__CAPABILITY_FROM_ZVAL(capability_entry, entry);
 
 				capability_names[i] = &capability_entry->capability_name;

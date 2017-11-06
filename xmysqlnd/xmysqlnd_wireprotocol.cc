@@ -1263,7 +1263,7 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	++ctx->field_count;
 	DBG_INF_FMT("field_count=%u", ctx->field_count);
 
-	XMYSQLND_RESULT_FIELD_META * field = nullptr;
+	XMYSQLND_RESULT_FIELD_META* field{nullptr};
 #if ENABLE_MYSQLX_CTORS
 	if (ctx->response_zval) {
 		mysqlx_new_column_metadata(ctx->response_zval, message);
@@ -1583,7 +1583,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 	}
 	while (length_read_ok) {
 		if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
-			char * set_value = nullptr;
+			char* set_value{nullptr};
 			int rest_buffer_size = 0;
 			if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 				zval set_entry;

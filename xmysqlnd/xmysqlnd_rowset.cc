@@ -378,7 +378,7 @@ xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type,
 					   MYSQLND_STATS * stats,
 					   MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_ROWSET * result = nullptr;
+	XMYSQLND_ROWSET* result{nullptr};
 	DBG_ENTER("xmysqlnd_rowset_create");
 	result = object_factory->get_rowset(object_factory, type, prefetch_rows, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);

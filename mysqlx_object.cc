@@ -58,7 +58,7 @@ mysqlx_object_get_debug_info(zval *object, int *is_temp)
 	ALLOC_HASHTABLE(retval);
 	ZEND_INIT_SYMTABLE_EX(retval, zend_hash_num_elements(mysqlx_obj->properties) + 1, 0);
 
-	void* raw_property = nullptr;
+	void* raw_property{nullptr};
 	ZEND_HASH_FOREACH_PTR(mysqlx_obj->properties, raw_property) {
 		st_mysqlx_property* property = static_cast<st_mysqlx_property*>(raw_property);
 		zval rv, member;

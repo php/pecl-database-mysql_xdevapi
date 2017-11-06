@@ -71,7 +71,7 @@ namespace
 			'.like(' StringLiteral ')'
 			'.execute()'
 */
-zend_class_entry* table_create_class_entry = nullptr;
+zend_class_entry* table_create_class_entry{nullptr};
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_table_create_add_column, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, column, IS_OBJECT, dont_allow_null)
@@ -138,7 +138,7 @@ struct Table_create_data : public phputils::custom_allocable
 		xmysqlnd_node_session_free(session);
 	}
 
-	st_xmysqlnd_node_session* session = nullptr;
+	st_xmysqlnd_node_session* session{nullptr};
 	drv::Table_def table_def;
 };
 /* }}} */
@@ -158,7 +158,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, addColumn)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	zval* column_def_zv;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Oz",
@@ -185,8 +185,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, addPrimaryKey)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	zval* fields_zv = nullptr;
+	zval* object_zv{nullptr};
+	zval* fields_zv{nullptr};
 	int fields_count = 0;
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -214,9 +214,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, addIndex)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view index_name;
-	zval* fields_zv = nullptr;
+	zval* fields_zv{nullptr};
 	int fields_count = 0;
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -244,9 +244,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, addUniqueIndex)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view index_name;
-	zval* fields_zv = nullptr;
+	zval* fields_zv{nullptr};
 	int fields_count = 0;
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -275,7 +275,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, addForeignKey)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view fkey_name;
 	zval* fk_def_zv;
 	if (FAILURE == zend_parse_method_parameters(
@@ -304,7 +304,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, setInitialAutoIncrement)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	zend_long initial_auto_increment = 0;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Ol",
@@ -331,7 +331,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, setDefaultCharset)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view default_charset;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -358,7 +358,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, setDefaultCollation)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view default_collation;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -385,7 +385,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, setComment)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view comment;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -412,7 +412,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, temporary)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, table_create_class_entry))
@@ -437,7 +437,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, as)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view defined_as;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -464,7 +464,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, like)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	phputils::string_view template_table_name;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -491,7 +491,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, execute)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, table_create_class_entry))
@@ -516,7 +516,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table_create, getSqlQuery)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, table_create_class_entry))

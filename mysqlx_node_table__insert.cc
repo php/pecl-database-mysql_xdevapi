@@ -85,7 +85,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 {
 	struct st_mysqlx_node_table__insert * object;
 	zval * object_zv;
-	zval * values = nullptr;
+	zval* values{nullptr};
 	zend_bool op_failed = FALSE;
 	int    num_of_values = 0, i = 0;
 

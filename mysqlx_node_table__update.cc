@@ -213,7 +213,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 {
 	struct st_mysqlx_node_table__update * object;
 	zval * object_zv;
-	zval * orderby_expr = nullptr;
+	zval* orderby_expr{nullptr};
 	int    num_of_expr = 0;
 	int    i = 0;
 

@@ -81,9 +81,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	char * namespace_ = nullptr;
+	char* namespace_{nullptr};
 	size_t namespace_len = 0;
-	char * stmt = nullptr;
+	char* stmt{nullptr};
 	size_t stmt_len = 0;
 	zend_bool compact_metadata;
 	struct st_mysqlx_message__stmt_execute * object;

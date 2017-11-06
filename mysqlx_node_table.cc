@@ -337,7 +337,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
-	zval * columns = nullptr;
+	zval* columns{nullptr};
 	int    num_of_columns = 0, i = 0;
 
 	DBG_ENTER("mysqlx_node_table::insert");
@@ -383,7 +383,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, select)
 {
 	struct st_mysqlx_node_table * object;
 	zval * object_zv;
-	zval * columns = nullptr;
+	zval* columns{nullptr};
 	int    num_of_columns = 0;
 
 	DBG_ENTER("mysqlx_node_table::select");

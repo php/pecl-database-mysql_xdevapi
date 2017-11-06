@@ -268,8 +268,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, sort)
 {
 	DBG_ENTER("mysqlx_node_collection__remove::sort");
 
-	zval* object_zv = nullptr;
-	zval* sort_expr = nullptr;
+	zval* object_zv{nullptr};
+	zval* sort_expr{nullptr};
 	int num_of_expr = 0;
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
 									&object_zv,
@@ -293,7 +293,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, limit)
 {
 	DBG_ENTER("mysqlx_node_collection__remove::limit");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	zend_long rows = 0;
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
 												&object_zv, collection_remove_class_entry,
@@ -320,8 +320,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, bind)
 {
 	DBG_ENTER("mysqlx_node_collection__remove::bind");
 
-	zval* object_zv = nullptr;
-	HashTable* bind_variables = nullptr;
+	zval* object_zv{nullptr};
+	HashTable* bind_variables{nullptr};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
 												&object_zv, collection_remove_class_entry,
 												&bind_variables))
@@ -342,7 +342,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, execute)
 {
 	DBG_ENTER("mysqlx_node_collection__remove::execute");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, collection_remove_class_entry))
 	{

@@ -101,9 +101,9 @@ public:
 	void execute(zval* return_value);
 
 private:
-	zval* object_zv = nullptr;
-	drv::st_xmysqlnd_node_collection* collection = nullptr;
-	drv::st_xmysqlnd_crud_collection_op__modify* modify_op = nullptr;
+	zval* object_zv{nullptr};
+	drv::st_xmysqlnd_node_collection* collection{nullptr};
+	drv::st_xmysqlnd_crud_collection_op__modify* modify_op{nullptr};
 
 };
 /* }}} */

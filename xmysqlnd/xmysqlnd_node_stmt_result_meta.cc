@@ -212,7 +212,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_content_type)(XMYSQLND_RESULT_FI
 static XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, clone)(const XMYSQLND_RESULT_FIELD_META * const origin, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_RESULT_FIELD_META * cloned = nullptr;
+	XMYSQLND_RESULT_FIELD_META* cloned{nullptr};
 	DBG_ENTER("xmysqlnd_result_field_meta::clone");
 	cloned = xmysqlnd_result_field_meta_create(origin->persistent, origin->object_factory, stats, error_info);
 	if (cloned) {
@@ -331,7 +331,7 @@ xmysqlnd_result_field_meta_create(const zend_bool persistent,
 								  MYSQLND_STATS * stats,
 								  MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_RESULT_FIELD_META * object = nullptr;
+	XMYSQLND_RESULT_FIELD_META* object{nullptr};
 	DBG_ENTER("xmysqlnd_result_field_meta_create");
 	object = object_factory->get_result_field_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);
@@ -454,7 +454,7 @@ xmysqlnd_node_stmt_result_meta_create(const zend_bool persistent,
 									  MYSQLND_STATS * stats,
 									  MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT_META * object = nullptr;
+	XMYSQLND_NODE_STMT_RESULT_META* object{nullptr};
 	DBG_ENTER("xmysqlnd_node_stmt_result_meta_create");
 	object = object_factory->get_node_stmt_result_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);

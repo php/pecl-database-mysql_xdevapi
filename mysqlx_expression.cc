@@ -228,7 +228,7 @@ is_a_mysqlx_expression(const zval * const value)
 const zval *
 get_mysqlx_expression(const zval * const object_zv)
 {
-	zval * ret = nullptr;
+	zval* ret{nullptr};
 	DBG_ENTER("get_mysqlx_expression");
 	if (instanceof_function(Z_OBJCE_P(object_zv), mysqlx_expression_class_entry)) {
 		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(object_zv);

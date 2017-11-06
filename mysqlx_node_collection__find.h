@@ -94,9 +94,9 @@ public:
 	Mysqlx::Crud::Find* get_stmt();
 
 private:
-	zval* object_zv = nullptr;
-	drv::st_xmysqlnd_node_collection* collection = nullptr;
-	drv::st_xmysqlnd_crud_collection_op__find* find_op = nullptr;
+	zval* object_zv{nullptr};
+	drv::st_xmysqlnd_node_collection* collection{nullptr};
+	drv::st_xmysqlnd_crud_collection_op__find* find_op{nullptr};
 
 };
 /* }}} */

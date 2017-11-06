@@ -110,7 +110,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, receive)
 	{
 		size_t count;
 		zend_uchar packet_type;
-		zend_uchar * read_buffer = nullptr;
+		zend_uchar* read_buffer{nullptr};
 		if (PASS == codec->pfc->data->m.receive(codec->pfc, connection->vio,
 												nullptr, 0, /* prealloc buffer */
 												&packet_type,

@@ -176,7 +176,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, create_row)(XMYSQLND_NODE_STMT_RESULT
 													   MYSQLND_STATS * const stats,
 													   MYSQLND_ERROR_INFO * const error_info)
 {
-	zval * ret = nullptr;
+	zval* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_stmt_result::create_row");
 	if (result->rowset) {
 		ret = result->rowset->m.create_row(result->rowset, meta, stats, error_info);
@@ -453,7 +453,7 @@ xmysqlnd_node_stmt_result_create(const zend_bool persistent,
 								 MYSQLND_STATS * stats,
 								 MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT * result = nullptr;
+	XMYSQLND_NODE_STMT_RESULT* result{nullptr};
 	DBG_ENTER("xmysqlnd_node_stmt_result_create");
 	result = object_factory->get_node_stmt_result(object_factory, persistent, stats, error_info);
 	if (result) {

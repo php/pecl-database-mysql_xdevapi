@@ -49,10 +49,10 @@ public:
 	void execute(zval* return_value);
 
 private:
-	zval* object_zv = nullptr;
-	drv::st_xmysqlnd_node_collection* collection = nullptr;
-	drv::st_xmysqlnd_crud_collection_op__add* add_op = nullptr;
-	zval* docs = nullptr;
+	zval* object_zv{nullptr};
+	drv::st_xmysqlnd_node_collection* collection{nullptr};
+	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
+	zval* docs{nullptr};
 	int num_of_docs = 0;
 	phputils::string_view single_doc_id;
 

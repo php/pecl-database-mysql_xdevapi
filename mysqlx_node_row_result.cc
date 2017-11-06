@@ -240,7 +240,7 @@ get_stmt_result_meta(struct st_xmysqlnd_node_stmt_result* stmt_result)
 static struct st_xmysqlnd_node_stmt_result_meta*
 get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 {
-	struct st_xmysqlnd_node_stmt_result_meta* meta = nullptr;
+	struct st_xmysqlnd_node_stmt_result_meta* meta{nullptr};
 	zval * object_zv;
 	struct st_mysqlx_node_row_result * object;
 

@@ -399,7 +399,7 @@ xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
 						   MYSQLND_STATS * stats,
 						   MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_ROWSET_FWD * result = nullptr;
+	XMYSQLND_ROWSET_FWD* result{nullptr};
 	DBG_ENTER("xmysqlnd_rowset_fwd_create");
 	result = object_factory->get_rowset_fwd(object_factory, prefetch_rows, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);

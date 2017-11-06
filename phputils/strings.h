@@ -153,7 +153,7 @@ struct string_view
 		return str + len;
 	}
 
-	const char* str = nullptr;
+	const char* str{nullptr};
 	size_t len = 0;
 };
 /* }}} */

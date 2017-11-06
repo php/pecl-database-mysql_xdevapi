@@ -487,8 +487,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, __construct)
 /* {{{ mysqlx_node_collection__find::fields */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, fields)
 {
-	zval* object_zv = nullptr;
-	const zval* fields = nullptr;
+	zval* object_zv{nullptr};
+	const zval* fields{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__find::fields");
 
@@ -515,8 +515,8 @@ mysqlx_node_collection__find__add_sort_or_grouping(
 {
 	DBG_ENTER("mysqlx_node_collection__find__add_sort_or_grouping");
 
-	zval* object_zv = nullptr;
-	zval* sort_expr = nullptr;
+	zval* object_zv{nullptr};
+	zval* sort_expr{nullptr};
 	int num_of_expr = 0;
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
@@ -563,7 +563,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, groupBy)
 /* {{{ proto mixed mysqlx_node_collection__find::having() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, having)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING search_condition = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_collection__find::having");
@@ -586,7 +586,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, having)
 /* {{{ proto mixed mysqlx_node_collection__find::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, limit)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	zend_long rows = 0;
 
 	DBG_ENTER("mysqlx_node_collection__find::limit");
@@ -609,7 +609,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, limit)
 /* {{{ proto mixed mysqlx_node_collection__find::skip() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, skip)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	zend_long position = 0;
 
 	DBG_ENTER("mysqlx_node_collection__find::skip");
@@ -637,8 +637,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, skip)
 /* {{{ proto mixed mysqlx_node_collection__find::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, bind)
 {
-	zval* object_zv = nullptr;
-	HashTable* bind_variables = nullptr;
+	zval* object_zv{nullptr};
+	HashTable* bind_variables{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__find::bind");
 
@@ -662,7 +662,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockShared)
 {
 	DBG_ENTER("mysqlx_node_collection__find::lockShared");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, collection_find_class_entry))
 	{
@@ -682,7 +682,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockExclusive)
 {
 	DBG_ENTER("mysqlx_node_collection__find::lockExclusive");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, collection_find_class_entry))
 	{
@@ -700,7 +700,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockExclusive)
 /* {{{ proto mixed mysqlx_node_collection__find::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, execute)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
 
 	DBG_ENTER("mysqlx_node_collection__find::execute");

@@ -74,8 +74,8 @@ struct collection_create_index_data : public phputils::custom_allocable
 		}
 	}
 
-	drv::XMYSQLND_COLLECTION_OP__CREATE_INDEX* index_op = nullptr;
-	XMYSQLND_NODE_COLLECTION * collection = nullptr;
+	drv::XMYSQLND_COLLECTION_OP__CREATE_INDEX* index_op{nullptr};
+	XMYSQLND_NODE_COLLECTION* collection{nullptr};
 };
 
 /* {{{ mysqlx_node_collection__create_index::__construct */

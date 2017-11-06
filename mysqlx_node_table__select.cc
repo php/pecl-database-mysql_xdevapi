@@ -153,7 +153,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 {
 	struct st_mysqlx_node_table__select * object;
 	zval * object_zv;
-	zval * sort_expr = nullptr;
+	zval* sort_expr{nullptr};
 	int    num_of_expr = 0;
 	int    i;
 
@@ -407,7 +407,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockShared)
 {
 	DBG_ENTER("mysqlx_node_table__select::lockShared");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, mysqlx_node_table__select_class_entry))
 	{
@@ -431,7 +431,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 {
 	DBG_ENTER("mysqlx_node_table__select::lockExclusive");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, mysqlx_node_table__select_class_entry))
 	{
