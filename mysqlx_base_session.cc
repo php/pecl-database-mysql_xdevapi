@@ -193,7 +193,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, quoteName)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 	MYSQLND_CSTRING name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_base_session::quoteName");
@@ -205,7 +204,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, quoteName)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		MYSQLND_STRING quoted_name = session->data->m->quote_name(session->data, name);
 		RETVAL_STRINGL(quoted_name.s, quoted_name.l);
 		if (quoted_name.s) {
@@ -226,7 +225,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getServerVersion)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 
 	DBG_ENTER("mysqlx_base_session::getServerVersion");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -235,7 +233,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getServerVersion)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		RETVAL_LONG(session->m->get_server_version(session));
 		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
@@ -252,7 +250,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getClientId)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 
 	DBG_ENTER("mysqlx_base_session::getClientId");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -261,7 +258,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getClientId)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		RETVAL_LONG(session->data->m->get_client_id(session->data));
 		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
@@ -278,7 +275,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, generateUUID)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 
 	DBG_ENTER("mysqlx_base_session::generateUUID");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -289,7 +285,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, generateUUID)
 
 	RETVAL_FALSE;
 
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		auto uuid = session->session_uuid->generate();
 		if (uuid.size() > 0) {
 			RETVAL_STRINGL(uuid.data(), uuid.size());
@@ -371,7 +367,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchemas)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 
 	DBG_ENTER("mysqlx_base_session::getSchemas");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -380,7 +375,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchemas)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { nullptr, nullptr };
 		const MYSQLND_CSTRING list_query = { "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
 		zval list;
@@ -411,7 +406,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_base_session::getSchema");
@@ -421,7 +415,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 	}
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
@@ -442,7 +436,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_base_session::createSchema");
@@ -452,7 +445,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 	}
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		XMYSQLND_NODE_SCHEMA* schema{nullptr};
 		if (PASS == session->m->create_db(session, schema_name) &&
 			(schema = session->m->create_schema_object(session, schema_name)))
@@ -632,7 +625,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, listClients)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 
 	DBG_ENTER("mysqlx_base_session::listClients");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -641,7 +633,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, listClients)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { nullptr, nullptr };
 		const MYSQLND_CSTRING list_query = { "list_clients", sizeof("list_clients") - 1 };
 		zval list;
@@ -701,7 +693,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, close)
 {
 	zval * object_zv;
 	struct st_mysqlx_session * object;
-	XMYSQLND_NODE_SESSION * session;
 
 	DBG_ENTER("mysqlx_base_session::close");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -709,7 +700,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, close)
 	}
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-	if ((session = object->session)) {
+	if (XMYSQLND_NODE_SESSION* session = object->session) {
 		session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
 		object->session = nullptr;
 		object->closed = TRUE;
