@@ -37,6 +37,7 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_session.h"
 #include "phputils/object.h"
+#include "phputils/string_utils.h"
 
 namespace mysqlx {
 
@@ -85,6 +86,17 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__rollback, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__set_savepoint, 0, ZEND_RETURN_VALUE, 0)
+		ZEND_ARG_INFO(no_pass_by_ref, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__rollback_to, 0, ZEND_RETURN_VALUE, 0)
+		ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__release_savepoint, 0, ZEND_RETURN_VALUE, 0)
+		ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_session__list_clients, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -414,17 +426,21 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 	zval * object_zv;
 	struct st_mysqlx_session * object;
 	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING schema_name = {NULL, 0};
+	phputils::string_input_param schema_name;
+
 
 	DBG_ENTER("mysqlx_base_session::getSchema");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_base_session_class_entry,
-																	   &(schema_name.s), &(schema_name.l)) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(),
+									 getThis(),
+									 "Os", &object_zv,
+									 mysqlx_base_session_class_entry,
+									&(schema_name.str), &(schema_name.len)) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	if ((session = object->session)) {
-		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
+		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name.to_nd_cstr());
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		} else {
@@ -587,6 +603,135 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 /* }}} */
 
 
+/* {{{ generate_savepoint_name*/
+static phputils::string
+generate_savepoint_name( const unsigned int name_seed )
+{
+	static const std::string SAVEPOINT_NAME_PREFIX{ "SAVEPOINT" };
+	std::stringstream output;
+	output << SAVEPOINT_NAME_PREFIX << name_seed;
+	return output.str().c_str();
+}
+/* }}} */
+
+
+/* {{{ proto mixed mysqlx_base_session::setSavepoint() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
+{
+	zval * object_zv;
+	DBG_ENTER("mysqlx_base_session::setSavepoint");
+	phputils::string_input_param savepoint_name;
+
+	if (zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "O|s",
+		&object_zv, mysqlx_base_session_class_entry,
+		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>(object_zv);
+	RETVAL_FALSE;
+
+	phputils::string query{ "SAVEPOINT " };
+	phputils::string name;
+	if( savepoint_name.empty() ) {
+		//Generate a valid savepoint name
+		name = generate_savepoint_name( data_object.session->data->savepoint_name_seed++ );
+	} else {
+		name = savepoint_name.to_string();
+	}
+
+	query += escape_identifier( name );
+
+	if (data_object.session) {
+		zval * args{ nullptr };
+		int argc = 0;
+		mysqlx_execute_base_session_query(
+					data_object.session,
+					namespace_sql,
+					{query.c_str(), query.size()} ,
+					MYSQLX_EXECUTE_FLAG_BUFFERED,
+					return_value, argc, args);
+	}
+	RETVAL_STRINGL( name.c_str(), name.size() );
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ mysqlx_base_session::rollbackTo(string name) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
+{
+	zval* object_zv = nullptr;
+	phputils::string_input_param savepoint_name;
+
+	DBG_ENTER("mysqlx_base_session::rollbackTo");
+	if (zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, mysqlx_base_session_class_entry,
+		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+
+	phputils::string name = escape_identifier( savepoint_name.to_string() );
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>( object_zv);
+	RETVAL_FALSE;
+	const phputils::string query{ "ROLLBACK TO " + name };
+
+	if (data_object.session) {
+		zval * args{ nullptr };
+		int argc = 0;
+		mysqlx_execute_base_session_query(
+					data_object.session,
+					namespace_sql,
+					{query.c_str(), query.size()} ,
+					MYSQLX_EXECUTE_FLAG_BUFFERED,
+					return_value, argc, args);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ mysqlx_base_session::releaseSavepoint(string name) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, releaseSavepoint)
+{
+	zval* object_zv = nullptr;
+	phputils::string_input_param savepoint_name;
+
+	DBG_ENTER("mysqlx_base_session::releaseSavepoint");
+	if (zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, mysqlx_base_session_class_entry,
+		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+
+	phputils::string name = escape_identifier( savepoint_name.to_string() );
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>( object_zv);
+	RETVAL_FALSE;
+
+	const phputils::string query{ "RELEASE SAVEPOINT " + name };
+
+	if (data_object.session) {
+		zval * args{ nullptr };
+		int argc = 0;
+		mysqlx_execute_base_session_query(
+					data_object.session,
+					namespace_sql,
+					{query.c_str(), query.size()} ,
+					MYSQLX_EXECUTE_FLAG_BUFFERED,
+					return_value, argc, args);
+	}
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 struct st_mysqlx_list_clients__ctx
 {
 	zval * list;
@@ -741,6 +886,10 @@ static const zend_function_entry mysqlx_base_session_methods[] = {
 	PHP_ME(mysqlx_base_session, startTransaction,	arginfo_mysqlx_base_session__start_transaction, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, commit,				arginfo_mysqlx_base_session__commit, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, rollback,			arginfo_mysqlx_base_session__rollback, ZEND_ACC_PUBLIC)
+
+	PHP_ME(mysqlx_base_session, setSavepoint,		arginfo_mysqlx_base_session__set_savepoint, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, rollbackTo,			arginfo_mysqlx_base_session__rollback_to, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, releaseSavepoint,	arginfo_mysqlx_base_session__release_savepoint, ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_base_session, listClients,		arginfo_mysqlx_base_session__list_clients, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_base_session, killClient,			arginfo_mysqlx_base_session__kill_client, ZEND_ACC_PUBLIC)

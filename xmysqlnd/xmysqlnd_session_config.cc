@@ -41,28 +41,29 @@ namespace mysqlx {
 
 namespace devapi {
 
-namespace
-{
-
-/*
- * Small utility which make sure that a given
- * name is compliant with the SPEC details
- */
-bool is_valid_identifier( const phputils::string& str )
+/* {{{ is_valid_identifier */
+static bool
+is_valid_identifier( const phputils::string& str )
 {
 	const int max_identifier_name_length{ 31 };
 	if( str.size() > max_identifier_name_length ) {
 		return false;
 	}
+	int num_of_letter{ 0 };
+	int num_of_digit{ 0 };
 	for( auto& ch : str ) {
-		if( false == std::isalnum( ch ) ) {
+        if( false == std::isalnum( ch ) ) {
 			return false;
 		}
+        if( 0 < std::isalpha( ch ) ) {
+			++num_of_letter;
+		} else {
+			++num_of_digit;
+		}
 	}
-	return true;
+	return num_of_letter > 0;
 }
-
-}
+/* }}} */
 
 /* {{{ Session_config::Session_config */
 Session_config::Session_config(const phputils::string &name)

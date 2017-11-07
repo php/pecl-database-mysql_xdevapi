@@ -63,6 +63,25 @@ strings to_strings(zval* zvals, int count)
 }
 /* }}} */
 
+
+/* {{{ escape_identifier( string id ) */
+phputils::string
+escape_identifier( const phputils::string& identifier ) {
+	std::stringstream result;
+	result << '`';
+	for( const auto& ch : identifier ) {
+		if( ch == '`' ) {
+			result << "``";
+		} else {
+			result << ch;
+		}
+	}
+	result << '`';
+	return result.str().c_str();
+}
+/* }}} */
+
+
 } // namespace phputils
 
 } // namespace mysqlx
