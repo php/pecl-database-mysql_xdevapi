@@ -82,14 +82,14 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 	zval * codec_zv;
 	zval * connection_zv;
 	char* namespace_{nullptr};
-	size_t namespace_len = 0;
+	size_t namespace_len{0};
 	char* stmt{nullptr};
-	size_t stmt_len = 0;
+	size_t stmt_len{0};
 	zend_bool compact_metadata;
 	st_mysqlx_message__stmt_execute* object;
 	st_mysqlx_node_connection* connection;
 	st_mysqlx_node_pfc* codec;
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__stmt_execute::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OssbOO",

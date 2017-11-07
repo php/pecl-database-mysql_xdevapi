@@ -98,7 +98,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 	st_mysqlx_message__capabilities* capabilities;
 	st_mysqlx_node_connection* connection;
 	st_mysqlx_node_pfc* codec;
-	size_t ret = 0;
+	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__capabilities_set::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOOO",
@@ -123,7 +123,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 		}
 		zval ** capability_names = (zval **) mnd_ecalloc(cap_count, sizeof(zval*));
 		zval ** capability_values = (zval **) mnd_ecalloc(cap_count, sizeof(zval*));
-		unsigned i = 0;
+		unsigned i{0};
 		zval * entry;
 		ZEND_HASH_FOREACH_VAL(&capabilities->capabilities_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_message__capability_class_entry) {

@@ -283,7 +283,7 @@ void Collection_modify::add_operation(
 
 	RETVAL_FALSE;
 
-	zend_bool is_expression = FALSE;
+	zend_bool is_expression{FALSE};
 
 	zval converted_value;
 	ZVAL_UNDEF(&converted_value);
@@ -323,7 +323,7 @@ void Collection_modify::add_operation(
 
 	RETVAL_FALSE;
 
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	const MYSQLND_CSTRING& path_nd = path.to_nd_cstr();
 	switch (operation) {
 		case Operation::Set:
@@ -401,7 +401,7 @@ void Collection_modify::unset(
 		case IS_ARRAY:
 			{
 				zval* entry;
-				enum_func_status ret = FAIL;
+				enum_func_status ret{FAIL};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(variables[i]), entry) {
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
@@ -532,7 +532,7 @@ void Collection_modify::execute(
 			if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 				zval zv;
 				ZVAL_UNDEF(&zv);
-				zend_long flags = 0;
+				zend_long flags{0};
 				mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 				ZVAL_COPY(return_value, &zv);
@@ -562,7 +562,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, sort)
 {
 	zval* object_zv{nullptr};
 	zval* sort_expr{nullptr};
-	int num_of_expr = 0;
+	int num_of_expr{0};
 
 	DBG_ENTER("mysqlx_node_collection__modify::sort");
 
@@ -587,7 +587,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, sort)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, limit)
 {
 	zval* object_zv{nullptr};
-	zend_long rows = 0;
+	zend_long rows{0};
 
 	DBG_ENTER("mysqlx_node_collection__modify::limit");
 
@@ -610,7 +610,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, limit)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, skip)
 {
 	zval* object_zv{nullptr};
-	zend_long position = 0;
+	zend_long position{0};
 
 	DBG_ENTER("mysqlx_node_collection__modify::skip");
 
@@ -785,7 +785,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, unset)
 {
 	zval* object_zv{nullptr};
 	zval* variables{nullptr};
-	int num_of_variables = 0;
+	int num_of_variables{0};
 
 	DBG_ENTER("mysqlx_node_collection__modify::unset");
 

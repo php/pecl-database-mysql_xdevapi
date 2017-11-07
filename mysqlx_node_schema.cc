@@ -410,7 +410,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createTable)
 {
 	zval* object_zv{nullptr};
 	phputils::string_view table_name;
-	zend_bool replace_existing = false;
+	zend_bool replace_existing{false};
 
 	DBG_ENTER("mysqlx_node_schema::createTable");
 	if (FAILURE == zend_parse_method_parameters(
@@ -524,7 +524,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createView)
 {
 	zval* object_zv{nullptr};
 	MYSQLND_CSTRING view_name = { nullptr, 0 };
-	zend_bool replace_existing = false;
+	zend_bool replace_existing{false};
 
 	DBG_ENTER("mysqlx_node_schema::createView");
 	if (FAILURE == zend_parse_method_parameters(

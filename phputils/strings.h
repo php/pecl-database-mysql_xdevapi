@@ -154,7 +154,7 @@ struct string_view
 	}
 
 	const char* str{nullptr};
-	size_t len = 0;
+	size_t len{0};
 };
 /* }}} */
 

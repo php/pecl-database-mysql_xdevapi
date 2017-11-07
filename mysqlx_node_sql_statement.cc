@@ -120,7 +120,7 @@ exec_with_cb_handle_on_row(void * context,
 						   MYSQLND_STATS * const stats,
 						   MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_row");
 	if (ctx && row) {
@@ -206,7 +206,7 @@ exec_with_cb_handle_on_row(void * context,
 static const enum_hnd_func_status
 exec_with_cb_handle_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_warning");
 	if (ctx) {
@@ -246,7 +246,7 @@ exec_with_cb_handle_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, 
 static const enum_hnd_func_status
 exec_with_cb_handle_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_error");
 	if (ctx) {
@@ -289,7 +289,7 @@ exec_with_cb_handle_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, co
 static const enum_hnd_func_status
 exec_with_cb_handle_on_resultset_end(void * context, XMYSQLND_NODE_STMT * const stmt, const zend_bool has_more)
 {
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_resultset_end");
 	if (ctx) {
@@ -327,7 +327,7 @@ exec_with_cb_handle_on_statement_ok(void * context,
 									XMYSQLND_NODE_STMT * const stmt,
 									const st_xmysqlnd_stmt_execution_state* const exec_state)
 {
-	enum_hnd_func_status ret = HND_PASS;
+	enum_hnd_func_status ret{HND_PASS};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_statement_ok");
 	if (ctx) {
@@ -383,7 +383,7 @@ static enum_func_status
 mysqlx_fetch_data_with_callback(st_mysqlx_node_statement* object, st_xmysqlnd_exec_with_cb_ctx* xmysqlnd_exec_with_cb_ctx)
 {
 	enum_func_status ret;
-	zend_bool has_more_results = FALSE;
+	zend_bool has_more_results{FALSE};
 	XMYSQLND_NODE_STMT * stmt = object->stmt;
 	const zend_bool on_rset_end_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_rset_end.fci);
 	const zend_bool on_stmt_ok_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_stmt_ok.fci);
@@ -547,7 +547,7 @@ mysqlx_node_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, c
 /* {{{ proto mixed mysqlx_node_sql_statement::execute(object statement, int flags) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, execute)
 {
-	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
+	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_sql_statement::execute");
@@ -593,7 +593,7 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, 
 {
 	st_mysqlx_node_statement* object;
 	zval * object_zv;
-	zend_bool use_callbacks = FALSE;
+	zend_bool use_callbacks{FALSE};
 	struct st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx;
 	memset(&xmysqlnd_exec_with_cb_ctx, 0, sizeof(struct st_xmysqlnd_exec_with_cb_ctx));
 
@@ -917,7 +917,7 @@ void execute_new_statement_read_response(
 	} else if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 		zval zv;
 		ZVAL_UNDEF(&zv);
-		zend_long flags = 0;
+		zend_long flags{0};
 		mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 		ZVAL_COPY(return_value, &zv);

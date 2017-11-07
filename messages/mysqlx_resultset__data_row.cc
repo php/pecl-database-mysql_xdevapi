@@ -319,7 +319,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					DBG_INF("SET");
 					::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 					::google::protobuf::uint64 gval;
-					bool length_read_ok = true;
+					bool length_read_ok{true};
 					array_init(&zv);
 					if (buf_size == 1 && buf[0] == 0x1) { /* Empty set */
 						break;
@@ -327,7 +327,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					while (length_read_ok) {
 						if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
 							char* set_value{nullptr};
-							int rest_buffer_size = 0;
+							int rest_buffer_size{0};
 							if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 								zval set_entry;
 								DBG_INF_FMT("value length=%3u  rest_buffer_size=%3d", (uint) gval, rest_buffer_size);

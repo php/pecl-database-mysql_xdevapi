@@ -62,7 +62,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, send)
 	MYSQLND_CSTRING payload = {nullptr, 0};
 	zend_ulong packet_type;
 	size_t bytes_sent;
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_node_pfc::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOls",

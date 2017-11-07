@@ -93,7 +93,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 	MYSQLND_CSTRING hostname = {nullptr, 0};
 	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_node_connection::connect");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os|l",
@@ -172,7 +172,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 {
 	zval * connection_zv;
 	st_mysqlx_node_connection* connection;
-	zend_ulong how_many = 0;
+	zend_ulong how_many{0};
 	enum_func_status ret;
 
 	DBG_ENTER("mysqlx_node_connection::receive");

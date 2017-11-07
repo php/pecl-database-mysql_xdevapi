@@ -62,7 +62,7 @@ ZEND_END_ARG_INFO()
 enum_func_status
 execute_statement(XMYSQLND_NODE_STMT* stmt,zval* return_value)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	if (stmt) {
 		zval stmt_zv;
 		ZVAL_UNDEF(&stmt_zv);
@@ -73,7 +73,7 @@ execute_statement(XMYSQLND_NODE_STMT* stmt,zval* return_value)
 		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 			zval zv;
 			ZVAL_UNDEF(&zv);
-			zend_long flags = 0;
+			zend_long flags{0};
 			mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv),
 								flags, MYSQLX_RESULT, &zv);
 			ZVAL_COPY(return_value, &zv);
@@ -143,7 +143,7 @@ xmysqlnd_json_parser_object_create(php_json_parser *parser,
 								zval *object)
 {
 	struct my_php_json_parser* php_json_parser = (struct my_php_json_parser*)parser;
-	int ret = 0;
+	int ret{0};
 	if (parser->scanner.options & PHP_JSON_OBJECT_AS_ARRAY) {
 		ZVAL_UNDEF(object);
 		array_init(object);
@@ -229,7 +229,7 @@ add_unique_id_to_json(
 	MYSQLND_STRING* to_add,
 	const MYSQLND_CSTRING* json)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	char* p{nullptr};
 	const auto doc_id = prepare_doc_id(session, single_doc_id);
 
@@ -335,9 +335,9 @@ assign_doc_id_to_json(
 	const phputils::string_view& single_doc_id,
 	zval* doc)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	st_parse_for_id_status status;
-	zend_bool doc_id_string_type = FALSE;
+	zend_bool doc_id_string_type{FALSE};
 	MYSQLND_STRING to_add = { nullptr, 0 };
 	MYSQLND_CSTRING doc_id = { nullptr, 0 };
 	//Better be sure, perhaps raise an exception if is not a string
@@ -558,9 +558,9 @@ Collection_add::~Collection_add()
 /* {{{ Collection_add::execute() */
 void Collection_add::execute(zval* return_value)
 {
-	enum_func_status execute_ret_status = PASS;
-	int noop_cnt = 0;
-	int cur_doc_id_idx = 0;
+	enum_func_status execute_ret_status{PASS};
+	int noop_cnt{0};
+	int cur_doc_id_idx{0};
 
 	DBG_ENTER("Collection_add::execute");
 

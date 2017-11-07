@@ -229,7 +229,7 @@ xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj,
 									  zval * values_zv)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_add__add_doc");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	obj->add_document(values_zv);
 	DBG_RETURN(ret);
 }
@@ -1112,7 +1112,7 @@ st_xmysqlnd_stmt_op__execute::bind_one_param(const zval * param_zv)
 enum_func_status
 st_xmysqlnd_stmt_op__execute::bind_one_param(const unsigned int param_no, const zval * param_zv)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::bind_one_stmt_param");
 	DBG_INF_FMT("params=%p", params);
 	if (!params || param_no >= params_allocated) {
@@ -1150,7 +1150,7 @@ st_xmysqlnd_stmt_op__execute::bind_one_param(const unsigned int param_no, const 
 enum_func_status
 st_xmysqlnd_stmt_op__execute::finalize_bind()
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	unsigned int i = 0;
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::finalize_bind");
 	for (; i < params_allocated; ++i) {

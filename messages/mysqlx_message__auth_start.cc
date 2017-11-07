@@ -89,9 +89,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_start, send)
 	zval * codec_zv;
 	zval * connection_zv;
 	char* auth_mech_name{nullptr};
-	size_t auth_mech_name_len = 0;
+	size_t auth_mech_name_len{0};
 	char* auth_data{nullptr};
-	size_t auth_data_len = 0;
+	size_t auth_data_len{0};
 	st_mysqlx_message__auth_start* object;
 	st_mysqlx_node_connection* connection;
 	st_mysqlx_node_pfc* codec;

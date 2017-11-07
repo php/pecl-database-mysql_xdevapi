@@ -95,11 +95,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 	st_mysqlx_node_connection* connection;
 	st_mysqlx_node_pfc* codec;
 	char* user{nullptr};
-	size_t user_len = 0;
+	size_t user_len{0};
 	char* password{nullptr};
-	size_t password_len = 0;
+	size_t password_len{0};
 	char* schema{nullptr};
-	size_t schema_len = 0;
+	size_t schema_len{0};
 
 	DBG_ENTER("mysqlx_message__auth_continue::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OsssOO",
@@ -148,7 +148,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 	st_mysqlx_message__auth_continue* object;
 	st_mysqlx_node_connection* connection;
 	st_mysqlx_node_pfc* codec;
-	size_t ret = 0;
+	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__auth_continue::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",

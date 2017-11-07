@@ -173,7 +173,7 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 {
 	const st_mysqlx_object* mysqlx_obj = Z_MYSQLX_P(object);
 	const st_mysqlx_property* property;
-	int ret = 0;
+	int ret{0};
 	DBG_ENTER("mysqlx_object_has_property");
 
 	if ((property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)))) != nullptr) {

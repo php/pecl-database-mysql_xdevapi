@@ -99,7 +99,7 @@ xmysqlnd_field_type_name(const unsigned int type)
 static enum_hnd_func_status
 xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change, const Mysqlx::Notice::SessionVariableChanged & message)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	DBG_ENTER("xmysqlnd_inspect_changed_variable");
 
 	const bool has_param = message.has_param();
@@ -126,7 +126,7 @@ xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_var_change
 static enum_hnd_func_status
 xmysqlnd_inspect_warning(const struct st_xmysqlnd_on_warning_bind on_warning, const Mysqlx::Notice::Warning & warning)
 {
-	enum_hnd_func_status ret = HND_PASS;
+	enum_hnd_func_status ret{HND_PASS};
 	DBG_ENTER("xmysqlnd_inspect_warning");
 	DBG_INF_FMT("on_warning=%p", on_warning.handler);
 	if (on_warning.handler) {
@@ -155,7 +155,7 @@ xmysqlnd_inspect_warning(const struct st_xmysqlnd_on_warning_bind on_warning, co
 static enum_hnd_func_status
 xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change, const Mysqlx::Notice::SessionStateChanged & message)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	enum xmysqlnd_execution_state_type state_type = EXEC_STATE_NONE;
 	DBG_ENTER("xmysqlnd_inspect_changed_exec_state");
 	DBG_INF_FMT("on_execution_state_handler=%p", on_execution_state_change.handler);
@@ -191,7 +191,7 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 							   const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change,
 							   const struct st_xmysqlnd_on_client_id_bind on_client_id)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	const bool has_param = message.has_param();
 	const bool has_value = message.has_value();
 	DBG_ENTER("xmysqlnd_inspect_changed_state");
@@ -251,7 +251,7 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 							  const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change,
 							  const struct st_xmysqlnd_on_client_id_bind on_client_id)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	DBG_ENTER("xmysqlnd_inspect_notice_frame");
 
 	const bool has_scope = frame.has_scope();
@@ -419,7 +419,7 @@ xmysqlnd_receive_message(st_xmysqlnd_server_messages_handlers* handlers, void * 
 						 MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	zend_uchar stack_buffer[SIZE_OF_STACK_BUFFER];
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	enum_hnd_func_status hnd_ret;
 	size_t payload_size;
 	zend_uchar * payload;
@@ -439,7 +439,7 @@ xmysqlnd_receive_message(st_xmysqlnd_server_messages_handlers* handlers, void * 
 		}
 		enum xmysqlnd_server_message_type packet_type = (enum xmysqlnd_server_message_type) type;
 		hnd_ret = HND_PASS;
-		bool handled = false;
+		bool handled{false};
 		switch (packet_type) {
 			case XMSG_OK:
 				if (handlers->on_OK) {
@@ -577,7 +577,7 @@ xmysqlnd_receive_message(st_xmysqlnd_server_messages_handlers* handlers, void * 
 static enum_hnd_func_status
 on_ERROR(const Mysqlx::Error & error, const struct st_xmysqlnd_on_error_bind on_error)
 {
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("on_ERROR");
 	DBG_INF_FMT("on_error.handler=%p", on_error.handler);
 
@@ -905,7 +905,7 @@ auth_start_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 static const enum_hnd_func_status
 auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue & message, void * context)
 {
-	enum_hnd_func_status ret = HND_PASS;
+	enum_hnd_func_status ret{HND_PASS};
 	st_xmysqlnd_msg__auth_start* const ctx = static_cast<st_xmysqlnd_msg__auth_start* >(context);
 	DBG_ENTER("auth_start_on_AUTHENTICATE_CONTINUE");
 #if ENABLE_MYSQLX_CTORS
@@ -1251,7 +1251,7 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 static const enum_hnd_func_status
 stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, void * context)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	st_xmysqlnd_result_set_reader_ctx* const ctx = static_cast<st_xmysqlnd_result_set_reader_ctx* >(context);
 
 	DBG_ENTER("stmt_execute_on_COLUMN_META");
@@ -1362,7 +1362,7 @@ enum_func_status xmysqlnd_row_sint_field_to_zval( zval* zv,
 									  const size_t buf_size )
 {
 	DBG_ENTER("xmysqlnd_row_sint_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 	::google::protobuf::uint64 gval;
 	if (input_stream.ReadVarint64(&gval)) {
@@ -1394,7 +1394,7 @@ enum_func_status xmysqlnd_row_uint_field_to_zval( zval* zv,
 									  const size_t buf_size )
 {
 	DBG_ENTER("xmysqlnd_row_uint_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 	::google::protobuf::uint64 gval;
 	if (input_stream.ReadVarint64(&gval)) {
@@ -1426,7 +1426,7 @@ enum_func_status xmysqlnd_row_double_field_to_zval( zval* zv,
 									  const size_t buf_size )
 {
 	DBG_ENTER("xmysqlnd_row_double_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 	::google::protobuf::uint64 gval;
 	if (input_stream.ReadLittleEndian64(&gval)) {
@@ -1451,7 +1451,7 @@ enum_func_status xmysqlnd_row_float_field_to_zval( zval* zv,
 										const XMYSQLND_RESULT_FIELD_META * const field_meta )
 {
 	DBG_ENTER("xmysqlnd_row_float_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 	::google::protobuf::uint32 gval;
 	if (input_stream.ReadLittleEndian32(&gval)) {
@@ -1481,7 +1481,7 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 									  const size_t buf_size )
 {
 	DBG_ENTER("xmysqlnd_row_time_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 	::google::protobuf::uint64 neg = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
 	if ( buf_size != 0 )
@@ -1525,7 +1525,7 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 									  const size_t buf_size )
 {
 	DBG_ENTER("xmysqlnd_row_datetime_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 	::google::protobuf::uint64 year = 0, month = 0, day = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
 	if ( buf_size != 0 ) {
@@ -1572,11 +1572,11 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 									  const size_t buf_size )
 {
 	DBG_ENTER("xmysqlnd_row_set_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	unsigned int j = 0;
 	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 	::google::protobuf::uint64 gval;
-	bool length_read_ok = true;
+	bool length_read_ok{true};
 	array_init(zv);
 	if (buf_size == 1 && buf[0] == 0x1) { /* Empty set */
 		DBG_RETURN( ret );
@@ -1584,7 +1584,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 	while (length_read_ok) {
 		if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
 			char* set_value{nullptr};
-			int rest_buffer_size = 0;
+			int rest_buffer_size{0};
 			if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 				zval set_entry;
 				DBG_INF_FMT("[%u]value length=%3u  rest_buffer_size=%3d", j, (uint) gval, rest_buffer_size);
@@ -1617,7 +1617,7 @@ enum_func_status xmysqlnd_row_decimal_field_to_zval( zval* zv,
 									  const size_t buf_size )
 {
 	DBG_ENTER("xmysqlnd_row_decimal_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	if (!buf_size) {
 		DBG_RETURN( ret );
 	}
@@ -1670,7 +1670,7 @@ enum_func_status xmysqlnd_row_string_field_to_zval( zval* zv,
 									  const size_t buf_size )
 {
 	DBG_ENTER("xmysqlnd_row_string_field_to_zval");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	if (buf_size) {
 		DBG_INF("type    =STRING");
 		ZVAL_STRINGL(zv, reinterpret_cast<const char *>(buf), buf_size - 1); /* skip the ending \0 */
@@ -1693,7 +1693,7 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 						   const unsigned int i,
 						   zval * zv)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	const uint8_t * buf = reinterpret_cast<const uint8_t*>(buffer.s);
 	const size_t buf_size = buffer.l;
 	DBG_ENTER("xmysqlnd_row_field_to_zval");
@@ -1776,7 +1776,7 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 static const enum_hnd_func_status
 stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	st_xmysqlnd_result_set_reader_ctx* const ctx = static_cast<st_xmysqlnd_result_set_reader_ctx* >(context);
 	DBG_ENTER("stmt_execute_on_RSET_ROW");
 	DBG_INF_FMT("on_row_field.handler=%p  field_count=%u", ctx->on_row_field.handler, ctx->field_count);
@@ -2048,7 +2048,7 @@ static const enum_hnd_func_status
 con_close_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	st_xmysqlnd_msg__connection_close* const ctx = static_cast<st_xmysqlnd_msg__connection_close* >(context);
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("con_close_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
@@ -2158,7 +2158,7 @@ static const enum_hnd_func_status
 collection_add_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	st_xmysqlnd_msg__collection_add* const ctx = static_cast<st_xmysqlnd_msg__collection_add* >(context);
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("collection_add_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
@@ -2275,7 +2275,7 @@ static const enum_hnd_func_status
 table_insert_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx* >(context);
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("table_insert_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
@@ -2422,7 +2422,7 @@ static const enum_hnd_func_status
 collection_ud_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	st_xmysqlnd_msg__collection_ud* const ctx = static_cast<st_xmysqlnd_msg__collection_ud* >(context);
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("collection_ud_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
@@ -2699,7 +2699,7 @@ static const enum_hnd_func_status
 view_cmd_on_ERROR(const Mysqlx::Error & error, void* context)
 {
 	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx*>(context);
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("view_cmd_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;

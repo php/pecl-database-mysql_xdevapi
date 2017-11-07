@@ -280,7 +280,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 PHP_MYSQL_XDEVAPI_API uint64_t
 scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 {
-	uint64_t ret = 0;
+	uint64_t ret{0};
 	DBG_ENTER("scalar2uint");
 	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
 	switch (scalar.type()) {
@@ -320,7 +320,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 PHP_MYSQL_XDEVAPI_API int64_t
 scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 {
-	int64_t ret = 0;
+	int64_t ret{0};
 	DBG_ENTER("scalar2uint");
 	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
 	switch (scalar.type()) {

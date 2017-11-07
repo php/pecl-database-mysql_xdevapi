@@ -276,7 +276,7 @@ class Query_builder
 	private:
 		phputils::ostringstream os;
 
-		bool first_create_definition = true;
+		bool first_create_definition{true};
 
 };
 /* }}} */

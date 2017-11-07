@@ -87,7 +87,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, send)
 	st_mysqlx_message__capabilities_get* object;
 	st_mysqlx_node_connection* connection;
 	st_mysqlx_node_pfc* codec;
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -123,7 +123,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 	st_mysqlx_message__capabilities_get* object;
 	st_mysqlx_node_connection* connection;
 	st_mysqlx_node_pfc* codec;
-	size_t ret = 0;
+	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",

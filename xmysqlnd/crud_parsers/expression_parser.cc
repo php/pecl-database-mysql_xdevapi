@@ -321,7 +321,7 @@ Mysqlx::Expr::Expr* Expression_parser::column_field()
   }
   Mysqlx::Expr::ColumnIdentifier* colid = e->mutable_identifier();
   std::vector<std::string>::reverse_iterator myend = parts.rend();
-  int i = 0;
+  int i{0};
   for (std::vector<std::string>::reverse_iterator it = parts.rbegin(); it != myend; ++it, ++i)
   {
     std::string& s = *it;
@@ -929,7 +929,7 @@ Mysqlx::Expr::Expr* Expression_parser::ilri_expr()
   DBG_ENTER("Expression_parser::ilri_expr");
   std::unique_ptr<Mysqlx::Expr::Expr> e(new Mysqlx::Expr::Expr());
   std::unique_ptr<Mysqlx::Expr::Expr> lhs(comp_expr());
-  bool is_not = false;
+  bool is_not{false};
   if (_tokenizer.cur_token_type_is(Token::NOT))
   {
     is_not = true;
@@ -940,7 +940,7 @@ Mysqlx::Expr::Expr* Expression_parser::ilri_expr()
     ::google::protobuf::RepeatedPtrField< ::Mysqlx::Expr::Expr >* params = e->mutable_operator_()->mutable_param();
     const Token& op_name_tok = _tokenizer.peek_token();
     const std::string& op_name = op_name_tok.get_text();
-    bool has_op_name = true;
+    bool has_op_name{true};
     //boost::to_upper(op_name);
 
     if (_tokenizer.cur_token_type_is(Token::IS))
@@ -1348,7 +1348,7 @@ std::string Expression_unparser::array_to_string(const Mysqlx::Expr::Expr& e)
   std::string result = "[ ";
 
   const Mysqlx::Expr::Array& a = e.array();
-  bool first = true;
+  bool first{true};
   for (int i = 0; i < a.value_size(); i++)
   {
     if (first) first = false;
@@ -1363,7 +1363,7 @@ std::string Expression_unparser::array_to_string(const Mysqlx::Expr::Expr& e)
 
 std::string Expression_unparser::object_to_string(const Mysqlx::Expr::Object& o)
 {
-  bool first = true;
+  bool first{true};
   std::string result = "{ ";
   for (int i = 0; i < o.fld_size(); ++i)
   {

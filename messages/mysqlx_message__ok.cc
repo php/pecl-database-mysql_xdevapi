@@ -52,7 +52,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__ok, get_message)
 {
 	zval * object_zv;
 	st_mysqlx_message__ok* object;
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__ok::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",

@@ -124,22 +124,22 @@ struct Column_def
 		optional_long length;
 		phputils::string generated_as_expr;
 
-		bool not_null = false;
-		bool unique_index = false;
-		bool primary_key = false;
+		bool not_null{false};
+		bool unique_index{false};
+		bool primary_key{false};
 		phputils::string comment;
 
 		phputils::string default_value;
-		bool auto_increment = false;
+		bool auto_increment{false};
 		Foreign_key foreign_key;
-		bool is_unsigned = false;
+		bool is_unsigned{false};
 		optional_long decimals;
 		phputils::string charset;
 		phputils::string collation;
-		bool binary = false;
+		bool binary{false};
 		phputils::strings values;
 
-		bool stored = false;
+		bool stored{false};
 };
 /* }}} */
 
@@ -237,7 +237,7 @@ struct Table_def
 	public:
 		phputils::string schema_name;
 		phputils::string table_name;
-		bool replace_existing = false;
+		bool replace_existing{false};
 		Column_defs columns;
 		phputils::strings primary_key;
 		Indexes indexes;
@@ -246,7 +246,7 @@ struct Table_def
 		phputils::string default_charset;
 		phputils::string default_collation;
 		phputils::string comment;
-		bool temporary = false;
+		bool temporary{false};
 		phputils::string defined_as;
 		phputils::string like_template_table_name;
 

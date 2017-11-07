@@ -67,7 +67,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_raw_message)(XMYSQLND_NODE_STMT * const
 	const XMYSQLND_L3_IO io = {vio, pfc};
 	/* pass stmt->data->session->data->io directly ?*/
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt::send_raw_message");
 
 	stmt->data->partial_read_started = FALSE;
@@ -142,7 +142,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field)(void * context,
 														  const func_xmysqlnd_wireprotocol__row_field_decoder decoder)
 {
 	st_xmysqlnd_node_stmt_bind_ctx* const ctx = (st_xmysqlnd_node_stmt_bind_ctx*) context;
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_row_field");
 	DBG_INF_FMT("rowset=%p  meta=%p  on_row.handler=%p", ctx->rowset, ctx->meta, ctx->on_row.handler);
@@ -184,7 +184,7 @@ static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_meta_field)(void * context, st_xmysqlnd_result_field_meta* field)
 {
 	st_xmysqlnd_node_stmt_bind_ctx* const ctx = (st_xmysqlnd_node_stmt_bind_ctx*) context;
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_meta_field");
 	DBG_INF_FMT("rowset=%p  meta=%p", ctx->rowset, ctx->meta);
@@ -205,7 +205,7 @@ static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	st_xmysqlnd_node_stmt_bind_ctx* const ctx = (st_xmysqlnd_node_stmt_bind_ctx*) context;
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_warning");
 	if (ctx->on_warning.handler) {
@@ -227,7 +227,7 @@ static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	const st_xmysqlnd_node_stmt_bind_ctx* const ctx = (const st_xmysqlnd_node_stmt_bind_ctx* ) context;
-	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
+	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_error");
 	if (ctx->on_error.handler) {
 		ret = ctx->on_error.handler(ctx->on_error.ctx, ctx->stmt, code, sql_state, message);
@@ -244,7 +244,7 @@ static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_exec_state_change)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value)
 {
 	st_xmysqlnd_node_stmt_bind_ctx* const ctx = (st_xmysqlnd_node_stmt_bind_ctx*) context;
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_exec_state_change");
 	if (!ctx->exec_state) {
@@ -294,7 +294,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_trx_state_change)(void * context,
 static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_resultset_end)(void * context, const zend_bool has_more)
 {
-	enum_hnd_func_status ret = HND_AGAIN;
+	enum_hnd_func_status ret{HND_AGAIN};
 	const st_xmysqlnd_node_stmt_bind_ctx* const ctx = (const st_xmysqlnd_node_stmt_bind_ctx* ) context;
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_resultset_end");
 	DBG_INF_FMT("on_resultset_end.handler=%p", ctx->on_resultset_end.handler);
@@ -310,7 +310,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_resultset_end)(void * context, co
 static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_statement_ok)(void * context)
 {
-	enum_hnd_func_status ret = HND_PASS;
+	enum_hnd_func_status ret{HND_PASS};
 	const st_xmysqlnd_node_stmt_bind_ctx* const ctx = (const st_xmysqlnd_node_stmt_bind_ctx* ) context;
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_statement_ok");
 	DBG_INF_FMT("on_statement_ok.handler=%p", ctx->on_statement_ok.handler);
@@ -433,7 +433,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	zend_bool has_more;
 	DBG_ENTER("xmysqlnd_node_stmt::read_all_results");
 	do {
@@ -745,7 +745,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_reference)(XMYSQLND_NODE_STMT * const st
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_stmt::free_reference");
 	DBG_INF_FMT("stmt=%p old_refcount=%u", stmt, stmt->data->refcount);
 	if (!(--stmt->data->refcount)) {

@@ -106,7 +106,7 @@ schema_xplugin_op_var_binder(
 	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	st_schema_exists_in_database_var_binder_ctx* ctx = (st_schema_exists_in_database_var_binder_ctx*) context;
 	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("schema_xplugin_op_var_binder");
@@ -261,7 +261,7 @@ static const enum_hnd_func_status
 collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	DBG_ENTER("collection_op_var_binder");
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_op_var_binder_ctx* ctx = static_cast<st_collection_op_var_binder_ctx*>(context);
 	const MYSQLND_CSTRING* param{nullptr};
 	enum_func_status result;
@@ -483,7 +483,7 @@ struct st_collection_get_objects_var_binder_ctx
 static const enum_hnd_func_status
 collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_get_objects_var_binder_ctx* ctx = (st_collection_get_objects_var_binder_ctx*) context;
 	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_get_objects_var_binder");
@@ -577,7 +577,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_reference)(XMYSQLND_NODE_SCHEMA * cons
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_schema::free_reference");
 	DBG_INF_FMT("schema=%p old_refcount=%u", schema, schema->data->refcount);
 	if (!(--schema->data->refcount)) {

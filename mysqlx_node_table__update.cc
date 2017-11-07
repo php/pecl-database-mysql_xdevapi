@@ -110,7 +110,7 @@ mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsign
 	zval * object_zv;
 	const zval * value;
 	MYSQLND_CSTRING table_field = {nullptr, 0};
-	zend_bool is_expression = FALSE;
+	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
 
 	DBG_ENTER("mysqlx_node_table__update__2_param_op");
@@ -151,7 +151,7 @@ mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsign
 	RETVAL_FALSE;
 
 	if (object->crud_op) {
-		enum_func_status ret = FAIL;
+		enum_func_status ret{FAIL};
 		switch (op_type) {
 			case TWO_PARAM_OP__SET:
 				ret = xmysqlnd_crud_table_update__set(object->crud_op, table_field, value, is_expression, is_document);
@@ -214,8 +214,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 	st_mysqlx_node_table__update* object;
 	zval * object_zv;
 	zval* orderby_expr{nullptr};
-	int    num_of_expr = 0;
-	int    i = 0;
+	int num_of_expr{0};
+	int i{0};
 
 	DBG_ENTER("mysqlx_node_table__update::orderby");
 
@@ -332,7 +332,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, bind)
 	if (object->crud_op) {
 		zend_string * key;
 		zval * val;
-		zend_bool op_success = TRUE;
+		zend_bool op_success{TRUE};
 		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 			if (key) {
 				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
@@ -385,7 +385,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, execute)
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;
 					ZVAL_UNDEF(&zv);
-					zend_long flags = 0;
+					zend_long flags{0};
 					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 					ZVAL_COPY(return_value, &zv);

@@ -207,7 +207,7 @@ phputils::string Session_config::get_json() const
 bool Session_config::add_attributes(const std::pair<phputils::string, phputils::string> &attrib)
 {
 	DBG_ENTER("Session_config::add_attributes");
-	bool ret = true;
+	bool ret{true};
 	auto it = attributes.find( attrib.first );
 	if( it != attributes.end() ) {
 		//Twice the same attribute? Must be an error
@@ -347,7 +347,7 @@ Session_config Session_config_manager::save(const phputils::string &session_name
 Session_config Session_config_manager::save(const Session_config &session)
 {
 	DBG_ENTER("Session_config_manager::save(session)");
-	Session_config new_config = session;
+	Session_config new_config{session};
 	/*
 	 * The session must be already stored, what we're
 	 * saving is the internally stored session.

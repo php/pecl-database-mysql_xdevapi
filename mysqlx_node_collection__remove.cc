@@ -237,7 +237,7 @@ void Collection_remove::execute(zval* return_value)
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;
 					ZVAL_UNDEF(&zv);
-					zend_long flags = 0;
+					zend_long flags{0};
 					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 					ZVAL_COPY(return_value, &zv);
@@ -270,7 +270,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, sort)
 
 	zval* object_zv{nullptr};
 	zval* sort_expr{nullptr};
-	int num_of_expr = 0;
+	int num_of_expr{0};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
 									&object_zv,
 									collection_remove_class_entry,
@@ -294,7 +294,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, limit)
 	DBG_ENTER("mysqlx_node_collection__remove::limit");
 
 	zval* object_zv{nullptr};
-	zend_long rows = 0;
+	zend_long rows{0};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
 												&object_zv, collection_remove_class_entry,
 												&rows))

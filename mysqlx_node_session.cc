@@ -151,7 +151,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 	st_mysqlx_session* object;
 	MYSQLND_CSTRING query = {nullptr, 0};
 	zval* args{nullptr};
-	int argc = 0;
+	int argc{0};
 
 	DBG_ENTER("mysqlx_node_session::executeSql");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os*", &object_zv, mysqlx_node_session_class_entry,

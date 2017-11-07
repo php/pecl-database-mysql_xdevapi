@@ -59,7 +59,7 @@ class Hash_table
 		void erase(const long key);
 
 	private:
-		bool owner = false;
+		bool owner{false};
 		HashTable* ht{nullptr};
 
 };

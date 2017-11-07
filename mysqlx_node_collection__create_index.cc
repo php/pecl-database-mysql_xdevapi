@@ -95,7 +95,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__create_index, field)
 	zval * object_zv;
 	MYSQLND_CSTRING doc_path = {nullptr, 0};
 	MYSQLND_CSTRING column_type = {nullptr, 0};
-	zend_bool is_required = FALSE;
+	zend_bool is_required{FALSE};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Ossb",
@@ -143,7 +143,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__create_index, execute)
 
 	RETVAL_FALSE;
 
-	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
+	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
 	zval * object_zv;
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",

@@ -384,7 +384,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, select)
 	st_mysqlx_node_table* object;
 	zval * object_zv;
 	zval* columns{nullptr};
-	int    num_of_columns = 0;
+	int num_of_columns{0};
 
 	DBG_ENTER("mysqlx_node_table::select");
 

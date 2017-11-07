@@ -154,7 +154,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 	zval* sort_expr{nullptr};
-	int    num_of_expr = 0;
+	int num_of_expr{0};
 	int    i;
 
 	DBG_ENTER("mysqlx_node_table__select__add_sort_or_grouping");
@@ -207,7 +207,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 		case IS_ARRAY:
 			{
 				zval * entry;
-				enum_func_status ret = FAIL;
+				enum_func_status ret{FAIL};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					ret = FAIL;
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
@@ -453,7 +453,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 /* {{{ proto mixed mysqlx_node_table__select::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 {
-	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
+	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
 	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 

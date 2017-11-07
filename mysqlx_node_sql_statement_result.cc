@@ -123,7 +123,7 @@ mysqlx_node_sql_stmt_result_on_error(void * context, XMYSQLND_NODE_STMT * const 
 /* {{{ mysqlx_node_sql_statement_read_next_result */
 static int mysqlx_node_sql_statement_read_next_result(st_mysqlx_node_sql_statement_result* object)
 {
-	int nextResult = 0;
+	int nextResult{0};
 	if (PASS == object->send_query_status) {
 		XMYSQLND_NODE_STMT * stmt = object->stmt;
 

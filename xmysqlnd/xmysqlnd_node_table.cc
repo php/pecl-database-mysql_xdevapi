@@ -75,7 +75,7 @@ table_op_var_binder(
 	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	table_or_view_var_binder_ctx* ctx = static_cast<table_or_view_var_binder_ctx*>(context);
 	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("table_op_var_binder");
@@ -565,7 +565,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, get_reference)(XMYSQLND_NODE_TABLE * const 
 enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, free_reference)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_table::free_reference");
 	DBG_INF_FMT("table=%p old_refcount=%u", table, table->data->refcount);
 	if (!(--table->data->refcount)) {

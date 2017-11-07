@@ -66,7 +66,7 @@ struct st_index_field
 {
 	phputils::string doc_path;
 	phputils::string column_type;
-	zend_bool is_required = FALSE;
+	zend_bool is_required{FALSE};
 
 	st_index_field()
 	{
@@ -90,7 +90,7 @@ struct st_xmysqlnd_collection_op__create_index : phputils::custom_allocable
 	phputils::string schema_name;
 	phputils::string collection_name;
 	phputils::string index_name;
-	zend_bool is_unique = FALSE;
+	zend_bool is_unique{FALSE};
 
 	st_index_fields index_fields;
 
@@ -211,7 +211,7 @@ collection_index_bind_bool_param(
 	const zend_bool param)
 {
 	DBG_ENTER("collection_index_bind_bool_param");
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 
 	zval zv;
 	ZVAL_UNDEF(&zv);
@@ -239,7 +239,7 @@ collection_index_bind_string_param(
 	const phputils::string& param)
 {
 	DBG_ENTER("collection_index_bind_string_param");
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 
 	zval zv;
 	ZVAL_UNDEF(&zv);
@@ -267,7 +267,7 @@ collection_index_bind_field_param(
 	const phputils::string& rawPath)
 {
 	DBG_ENTER("collection_index_bind_field_param");
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 
 	phputils::string fieldPath;
 
@@ -316,7 +316,7 @@ collection_index_bind_fields(
 	const unsigned int counter,
 	const st_index_fields& index_fields)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	DBG_ENTER("collection_index_bind_fields");
 
 	const unsigned int GlobalParamsCount = 4;
@@ -362,7 +362,7 @@ collection_create_index_var_binder(
 	XMYSQLND_NODE_SESSION* session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_create_collection_index_var_binder_ctx* ctx = static_cast<st_collection_create_collection_index_var_binder_ctx*>(context);
 	st_xmysqlnd_collection_op__create_index* index_op = ctx->index_op;
 
@@ -470,7 +470,7 @@ collection_drop_index_var_binder(
 	XMYSQLND_NODE_SESSION* session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_drop_collection_index_var_binder_ctx* ctx = static_cast<st_collection_drop_collection_index_var_binder_ctx*>(context);
 	collection_drop_index_data* index_op = ctx->index_op;
 

@@ -254,7 +254,7 @@ void
 dump_mysqlx_error(const Mysqlx::Error & error)
 {
 	const char * error_severity = "Uknown Severity";
-	uint32_t code = 0;
+	uint32_t code{0};
 	const char * sql_state = "00000";
 	const char * message = "";
 	if (error.has_severity()) {

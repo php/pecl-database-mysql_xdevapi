@@ -834,7 +834,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 			message.ParseFromArray(payload, payload_size);
 
 			const char * error_severity = "Uknown Severity";
-			uint32_t code = 0;
+			uint32_t code{0};
 			const char * sql_state = "00000";
 			const char * error_message = "";
 			if (message.has_severity()) {

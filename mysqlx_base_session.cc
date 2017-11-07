@@ -504,7 +504,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, startTransaction)
 	st_mysqlx_session* object;
 	MYSQLND_CSTRING query = {"START TRANSACTION", sizeof("START TRANSACTION") - 1};
 	zval* args{nullptr};
-	int argc = 0;
+	int argc{0};
 
 	DBG_ENTER("mysqlx_base_session::startTransaction");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE)
@@ -531,7 +531,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, commit)
 	st_mysqlx_session* object;
 	MYSQLND_CSTRING query = {"COMMIT", sizeof("COMMIT") - 1};
 	zval* args{nullptr};
-	int argc = 0;
+	int argc{0};
 
 	DBG_ENTER("mysqlx_base_session::commit");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE)
@@ -558,7 +558,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 	st_mysqlx_session* object;
 	MYSQLND_CSTRING query = {"ROLLBACK", sizeof("ROLLBACK") - 1};
 	zval* args{nullptr};
-	int argc = 0;
+	int argc{0};
 
 	DBG_ENTER("mysqlx_base_session::rollback");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE)

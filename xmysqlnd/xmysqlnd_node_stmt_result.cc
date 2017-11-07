@@ -53,7 +53,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, init)(XMYSQLND_NODE_STMT_RESULT * con
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, next)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt_result::next");
 	if (result->rowset) {
 		ret = result->rowset->m.next(result->rowset, stats, error_info);
@@ -68,7 +68,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, next)(XMYSQLND_NODE_STMT_RESULT * con
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_current)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_current");
 	if (result->rowset) {
 		ret = result->rowset->m.fetch_current(result->rowset, row, stats, error_info);
@@ -83,7 +83,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_current)(XMYSQLND_NODE_STMT_RES
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one)(XMYSQLND_NODE_STMT_RESULT * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_one");
 	if (result->rowset) {
 		ret = result->rowset->m.fetch_one(result->rowset, row_cursor, row, stats, error_info);
@@ -98,7 +98,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one)(XMYSQLND_NODE_STMT_RESULT 
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one_c)(XMYSQLND_NODE_STMT_RESULT * const result, const size_t row_cursor, zval ** row, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_one_c");
 	if (result->rowset) {
 		ret = result->rowset->m.fetch_one_c(result->rowset, row_cursor, row, duplicate, stats, error_info);
@@ -113,7 +113,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_one_c)(XMYSQLND_NODE_STMT_RESUL
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all)(XMYSQLND_NODE_STMT_RESULT * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_all");
 	if (result->rowset) {
 		ret = result->rowset->m.fetch_all(result->rowset, set, stats, error_info);
@@ -128,7 +128,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all)(XMYSQLND_NODE_STMT_RESULT 
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all_c)(XMYSQLND_NODE_STMT_RESULT * const result, zval ** set, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt_result::fetch_all_c");
 	if (result->rowset) {
 		ret = result->rowset->m.fetch_all_c(result->rowset, set, duplicate, stats, error_info);
@@ -143,7 +143,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, fetch_all_c)(XMYSQLND_NODE_STMT_RESUL
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, rewind)(XMYSQLND_NODE_STMT_RESULT * const result)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt_result::rewind");
 	if (result->rowset) {
 		ret = result->rowset->m.rewind(result->rowset);
@@ -158,7 +158,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, rewind)(XMYSQLND_NODE_STMT_RESULT * c
 static zend_bool
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, eof)(const XMYSQLND_NODE_STMT_RESULT * const result)
 {
-	zend_bool ret = TRUE;
+	zend_bool ret{TRUE};
 	DBG_ENTER("xmysqlnd_node_stmt_result::eof");
 	if (result->rowset) {
 		ret = result->rowset->m.eof(result->rowset);
@@ -206,7 +206,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, destroy_row)(XMYSQLND_NODE_STMT_RESUL
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_node_stmt_result::add_row");
 	if (result->rowset) {
 		ret = result->rowset->m.add_row(result->rowset, row, stats, error_info);
@@ -221,7 +221,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, add_row)(XMYSQLND_NODE_STMT_RESULT * 
 static size_t
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_row_count)(const XMYSQLND_NODE_STMT_RESULT * const result)
 {
-	size_t ret = 0;
+	size_t ret{0};
 	DBG_ENTER("xmysqlnd_node_stmt_result::get_row_count");
 	if (result->rowset) {
 		ret = result->rowset->m.get_row_count(result->rowset);
@@ -273,7 +273,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta)(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_execution_state)(XMYSQLND_NODE_STMT_RESULT * const result, XMYSQLND_STMT_EXECUTION_STATE * const exec_state)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_stmt_result::attach_execution_state");
 	DBG_INF_FMT("current_exec_state=%p   exec_state=%p", result->exec_state, exec_state);
 	if (exec_state) {
@@ -293,7 +293,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_execution_state)(XMYSQLND_NODE
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_warning_list)(XMYSQLND_NODE_STMT_RESULT * const result, XMYSQLND_WARNING_LIST * const warning_list)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_stmt_result::attach_warning_list");
 	DBG_INF_FMT("current_warnings=%p   warnings=%p", result->warnings, warning_list);
 	if (warning_list) {
@@ -325,7 +325,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, get_reference)(XMYSQLND_NODE_STMT_RES
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, free_reference)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_stmt_result::free_reference");
 	DBG_INF_FMT("result=%p old_refcount=%u", result, result->refcount);
 	if (!(--result->refcount)) {

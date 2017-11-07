@@ -316,7 +316,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_alter, execute)
 	auto& data_object = phputils::fetch_data_object<view_alter_data>(object_zv);
 	const st_xmysqlnd_pb_message_shell pb_msg = data_object.command.get_message();
 	st_xmysqlnd_node_stmt* stmt = drv::View::alter(data_object.session, pb_msg);
-	zend_long flags = 0;
+	zend_long flags{0};
 	execute_new_statement_read_response(
 		stmt,
 		flags,

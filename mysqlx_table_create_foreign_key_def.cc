@@ -96,7 +96,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, fields)
 
 	zval* object_zv{nullptr};
 	zval* fields_zv{nullptr};
-	int fields_count = 0;
+	int fields_count{0};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O+",
@@ -126,7 +126,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, refersTo)
 	zval* object_zv{nullptr};
 	phputils::string_view refers_to_table;
 	zval* refers_to_columns{nullptr};
-	int refers_to_column_count = 0;
+	int refers_to_column_count{0};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os+",

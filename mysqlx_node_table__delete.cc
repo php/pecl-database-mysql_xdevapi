@@ -143,8 +143,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 	st_mysqlx_node_table__delete* object;
 	zval * object_zv;
 	zval* orderby_expr{nullptr};
-	int    num_of_expr = 0;
-	int    i = 0;
+	int num_of_expr{0};
+	int i{0};
 
 	DBG_ENTER("mysqlx_node_table__delete::orderby");
 
@@ -358,7 +358,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, execute)
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;
 					ZVAL_UNDEF(&zv);
-					zend_long flags = 0;
+					zend_long flags{0};
 					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 					ZVAL_COPY(return_value, &zv);

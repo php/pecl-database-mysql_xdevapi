@@ -70,7 +70,7 @@ bool view_drop(
 	auto session = schema->data->session;
 	const st_xmysqlnd_pb_message_shell pb_msg = command.get_message();
 	st_xmysqlnd_node_stmt* stmt = drv::View::drop(session, pb_msg);
-	zend_long flags = 0;
+	zend_long flags{0};
 	zval drop_result;
 	ZVAL_UNDEF(&drop_result);
 	execute_new_statement_read_response(

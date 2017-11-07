@@ -239,7 +239,7 @@ get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 static zend_bool
 is_type_signed(const st_xmysqlnd_result_field_meta* const meta)
 {
-	zend_bool is_signed = FALSE;
+	zend_bool is_signed{FALSE};
 	switch(meta->type) {
 	case XMYSQLND_TYPE_SIGNED_INT:
 		is_signed = TRUE;
@@ -357,7 +357,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 			break;
 		case is_padded:
 			{
-				zend_bool is_padded = FALSE;
+				zend_bool is_padded{FALSE};
 				if( object->meta->type == XMYSQLND_TYPE_BYTES &&
 					(object->meta->flags_set && object->meta->flags & BYTES_RIGHTPAD)) {
 					is_padded = TRUE;

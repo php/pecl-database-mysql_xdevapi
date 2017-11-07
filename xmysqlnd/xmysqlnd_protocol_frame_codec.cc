@@ -65,7 +65,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 									MYSQLND_ERROR_INFO * const error_info)
 {
 	zend_uchar header[XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE];
-	size_t packets_sent = 1;
+	size_t packets_sent{1};
 	size_t left = buffer? count: 0;
 	const zend_uchar * p = (zend_uchar *) buffer;
 	size_t to_be_sent;
@@ -129,7 +129,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 									   MYSQLND_ERROR_INFO * const error_info)
 {
 	zend_uchar header[XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE];
-	size_t packets_received = 1;
+	size_t packets_received{1};
 
 	DBG_ENTER("xmysqlnd_pfc::receive");
 	if (!vio || FALSE == vio->data->m.has_valid_stream(vio)) {

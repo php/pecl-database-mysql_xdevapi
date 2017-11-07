@@ -86,7 +86,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 	st_mysqlx_node_table__insert* object;
 	zval * object_zv;
 	zval* values{nullptr};
-	zend_bool op_failed = FALSE;
+	zend_bool op_failed{FALSE};
 	int    num_of_values = 0, i = 0;
 
 	DBG_ENTER("mysqlx_node_table__insert::values");
@@ -159,7 +159,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;
 					ZVAL_UNDEF(&zv);
-					zend_long flags = 0;
+					zend_long flags{0};
 					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 					ZVAL_COPY(return_value, &zv);

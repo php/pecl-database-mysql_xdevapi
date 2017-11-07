@@ -116,7 +116,7 @@ class zvalue
 		std::size_t get_str_length() const;
 
 	private:
-		bool owner = true;
+		bool owner{true};
 		zval zv;
 
 };

@@ -342,7 +342,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, add)
 	st_mysqlx_node_collection* object{nullptr};
 	zval* object_zv{nullptr};
 	zval* docs{nullptr};
-	int num_of_docs = 0;
+	int num_of_docs{0};
 
 	DBG_ENTER("mysqlx_node_collection::add");
 

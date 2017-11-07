@@ -179,8 +179,8 @@ void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 											const int num_of_columns)
 {
 	DBG_ENTER("st_xmysqlnd_crud_table_op__insert::add_columns");
-	enum_func_status ret = FAIL;
-	int i = 0;
+	enum_func_status ret{FAIL};
+	int i{0};
 
 	do{
 		switch (Z_TYPE(columns_zv[i]))
@@ -343,7 +343,7 @@ enum_func_status
 xmysqlnd_crud_table_insert__add_row(XMYSQLND_CRUD_TABLE_OP__INSERT * obj, zval * values_zv)
 {
 	DBG_ENTER("xmysqlnd_crud_table_insert__add_row");
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	obj->add_row(values_zv);
 	DBG_RETURN(ret);
 }
@@ -891,9 +891,9 @@ struct st_xmysqlnd_crud_table_op__select
 void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 											const int num_of_columns)
 {
-	zend_bool is_expression = FALSE;
-	enum_func_status ret = PASS;
-	int i = 0;
+	zend_bool is_expression{FALSE};
+	enum_func_status ret{PASS};
+	int i{0};
 
 	DBG_ENTER("mysqlx_node_table__select::columns");
 

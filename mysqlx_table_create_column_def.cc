@@ -282,7 +282,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, foreignKey)
 	zval* object_zv{nullptr};
 	phputils::string_view table_name;
 	zval* fields{nullptr};
-	int fields_count = 0;
+	int fields_count{0};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os+",
@@ -338,7 +338,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, decimals)
 	RETVAL_FALSE;
 
 	zval* object_zv{nullptr};
-	zend_long decimals_size = 0;
+	zend_long decimals_size{0};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Ol",
 		&object_zv, column_def_class_entry,
@@ -445,7 +445,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, values)
 
 	zval* object_zv{nullptr};
 	zval* values_zv{nullptr};
-	int values_count = 0;
+	int values_count{0};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O+",
