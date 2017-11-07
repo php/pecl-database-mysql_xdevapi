@@ -252,7 +252,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void)
 		{
 			xmysqlnd_plugin_core.plugin_header.plugin_stats.values = xmysqlnd_global_stats;
 #ifdef MARINES_0
-			mysqlnd_plugin_register_ex((struct st_mysqlnd_plugin_header *) &xmysqlnd_plugin_core);
+			mysqlnd_plugin_register_ex((st_mysqlnd_plugin_header*) &xmysqlnd_plugin_core);
 #endif
 		}
 	}

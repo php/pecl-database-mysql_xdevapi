@@ -51,7 +51,7 @@ ZEND_END_ARG_INFO()
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__ok, get_message)
 {
 	zval * object_zv;
-	struct st_mysqlx_message__ok * object;
+	st_mysqlx_message__ok* object;
 	enum_func_status ret = FAIL;
 
 	DBG_ENTER("mysqlx_message__ok::send");
@@ -89,8 +89,8 @@ static HashTable mysqlx_message__ok_properties;
 static void
 mysqlx_message__ok_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__ok * message = (struct st_mysqlx_message__ok  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__ok* message = (st_mysqlx_message__ok*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -103,8 +103,8 @@ static zend_object *
 php_mysqlx_message__ok_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__ok * message = new (std::nothrow) struct st_mysqlx_message__ok;
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__ok* message = new (std::nothrow) struct st_mysqlx_message__ok;
 
 	DBG_ENTER("php_mysqlx_message__ok_object_allocator");
 	if ( mysqlx_object && message ) {
@@ -162,7 +162,7 @@ mysqlx_unregister_message__ok_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_message__ok(zval * return_value, const Mysqlx::Ok & message)
 {
-	struct st_mysqlx_message__ok * ok;
+	st_mysqlx_message__ok* ok;
 	DBG_ENTER("mysqlx_new_message__ok");
 	object_init_ex(return_value, mysqlx_message__ok_class_entry);
 	MYSQLX_FETCH_MESSAGE__OK__FROM_ZVAL(ok, return_value);

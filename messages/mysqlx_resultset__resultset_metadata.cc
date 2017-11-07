@@ -54,9 +54,9 @@ ZEND_END_ARG_INFO()
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 {
 	zval* resultset_metadata_zv{nullptr};
-	struct st_mysqlx_resultset_metadata* resultset_metadata{nullptr};
+	st_mysqlx_resultset_metadata* resultset_metadata{nullptr};
 	zval* column_metadata_zv{nullptr};
-	struct st_mysqlx_column_metadata* column_metadata{nullptr};
+	st_mysqlx_column_metadata* column_metadata{nullptr};
 
 	DBG_ENTER("mysqlx_node_connection::add");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
@@ -93,8 +93,8 @@ static HashTable mysqlx_resultset_metadata_properties;
 static void
 mysqlx_resultset_metadata_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_resultset_metadata * message = (struct st_mysqlx_resultset_metadata  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_resultset_metadata* message = (st_mysqlx_resultset_metadata*) mysqlx_object->ptr;
 
 	if (message) {
 		zend_hash_destroy(&message->resultset_metadata_ht);
@@ -110,8 +110,8 @@ static zend_object *
 php_mysqlx_resultset_metadata_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_resultset_metadata * message = new struct st_mysqlx_resultset_metadata;
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_resultset_metadata* message = new struct st_mysqlx_resultset_metadata;
 
 	DBG_ENTER("php_mysqlx_resultset_metadata_object_allocator");
 	if ( mysqlx_object && message) {

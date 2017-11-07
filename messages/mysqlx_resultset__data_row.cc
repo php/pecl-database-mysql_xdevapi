@@ -56,8 +56,8 @@ struct st_mysqlx_data_row
 
 #define MYSQLX_FETCH_MESSAGE__DATA_ROW_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_data_row *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_data_row*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -80,8 +80,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 {
 	zval * object_zv;
 	zval * metadata_zv;
-	struct st_mysqlx_data_row * object;
-	struct st_mysqlx_resultset_metadata * metadata;
+	st_mysqlx_data_row* object;
+	st_mysqlx_resultset_metadata* metadata;
 
 	DBG_ENTER("mysqlx_data_row::decode");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
@@ -105,13 +105,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 		//TODO marines
         const size_t max_column_count = 256;
         assert(column_count < max_column_count);
-        //const struct st_mysqlx_column_metadata * meta_ar[column_count];
-        const struct st_mysqlx_column_metadata * meta_ar[max_column_count];
+        //const st_mysqlx_column_metadata* meta_ar[column_count];
+        const st_mysqlx_column_metadata* meta_ar[max_column_count];
         unsigned int i = 0;
 		/* ZEND_HASH_FOREACH_PTR ?? */
 		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {
-				struct st_mysqlx_column_metadata* column_entry{nullptr};
+				st_mysqlx_column_metadata* column_entry{nullptr};
 				MYSQLX_FETCH_MESSAGE__COLUMN_METADATA_FROM_ZVAL(column_entry, entry);
 
 				const Mysqlx::Resultset::ColumnMetaData & meta = column_entry->message;
@@ -423,8 +423,8 @@ static HashTable mysqlx_data_row_properties;
 static void
 mysqlx_data_row_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_data_row * message = (struct st_mysqlx_data_row  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_data_row* message = (st_mysqlx_data_row*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -437,8 +437,8 @@ static zend_object *
 php_mysqlx_data_row_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_data_row * message = new (std::nothrow) struct st_mysqlx_data_row();
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_data_row* message = new (std::nothrow) struct st_mysqlx_data_row();
 
 	DBG_ENTER("php_mysqlx_data_row_object_allocator");
 	if ( mysqlx_object && message) {
@@ -496,7 +496,7 @@ mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_data_row(zval * return_value, const Mysqlx::Resultset::Row & message)
 {
-	struct st_mysqlx_data_row * obj;
+	st_mysqlx_data_row* obj;
 	DBG_ENTER("mysqlx_new_data_row");
 	object_init_ex(return_value, mysqlx_data_row_class_entry);
 	MYSQLX_FETCH_MESSAGE__DATA_ROW_FROM_ZVAL(obj, return_value);

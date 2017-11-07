@@ -89,7 +89,7 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 {
 	zval * connection_zv;
-	struct st_mysqlx_node_connection * connection;
+	st_mysqlx_node_connection* connection;
 	MYSQLND_CSTRING hostname = {nullptr, 0};
 	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
@@ -139,7 +139,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 {
 	zval * connection_zv;
-	struct st_mysqlx_node_connection * connection;
+	st_mysqlx_node_connection* connection;
 	MYSQLND_CSTRING payload = {nullptr, 0};
 	size_t ret;
 
@@ -171,7 +171,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 {
 	zval * connection_zv;
-	struct st_mysqlx_node_connection * connection;
+	st_mysqlx_node_connection* connection;
 	zend_ulong how_many = 0;
 	enum_func_status ret;
 
@@ -230,8 +230,8 @@ static HashTable mysqlx_node_connection_properties;
 static void
 mysqlx_node_connection_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_connection * connection = (struct st_mysqlx_node_connection  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_connection* connection = (st_mysqlx_node_connection*) mysqlx_object->ptr;
 	if (connection) {
 		const zend_bool pers = connection->persistent;
 		if (connection->error_info->error_list) {

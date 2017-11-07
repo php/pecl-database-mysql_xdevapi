@@ -59,8 +59,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 
 #define MYSQLX_FETCH_X_SESSION_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_session *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_session*) mysqlx_object->ptr; \
 	if (!(_to) && !(_to)->session) { \
 		if ((_to)->closed) { \
 			php_error_docref(nullptr, E_WARNING, "closed session"); \
@@ -192,7 +192,7 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 			uri = Z_STRVAL( input_parameters[0] );
 		} else if( Z_TYPE( input_parameters[0] ) == IS_OBJECT &&
 				   istanceof_session_config( &input_parameters[0] )){
-			const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(&input_parameters[0]);
+			const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(&input_parameters[0]);
 			Session_config* session_conf = static_cast< Session_config*>( mysqlx_object->ptr );
 			if ( nullptr == session_conf ) {
 				php_error_docref(nullptr, E_WARNING, "invalid object of class %s",

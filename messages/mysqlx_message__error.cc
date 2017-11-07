@@ -56,9 +56,9 @@ static const zend_function_entry mysqlx_message__error_methods[] = {
 
 /* {{{ mysqlx_message__error_property__message */
 static zval *
-mysqlx_message__error_property__message(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_message__error_property__message(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_message__error * object = static_cast<struct st_mysqlx_message__error *>(obj->ptr);
+	const st_mysqlx_message__error* object = static_cast<st_mysqlx_message__error* >(obj->ptr);
 	DBG_ENTER("mysqlx_message__error_property__message");
 	if (object->message.has_msg()) {
 		ZVAL_STRINGL(return_value, object->message.msg().c_str(), object->message.msg().size());
@@ -79,9 +79,9 @@ mysqlx_message__error_property__message(const struct st_mysqlx_object * obj, zva
 
 /* {{{ mysqlx_message__error_property__sql_state */
 static zval *
-mysqlx_message__error_property__sql_state(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_message__error_property__sql_state(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_message__error * object = static_cast<struct st_mysqlx_message__error *>(obj->ptr);
+	const st_mysqlx_message__error* object = static_cast<st_mysqlx_message__error* >(obj->ptr);
 	DBG_ENTER("mysqlx_message__error_property__sql_state");
 	if (object->message.has_sql_state()) {
 		ZVAL_STRINGL(return_value, object->message.sql_state().c_str(), object->message.sql_state().size());
@@ -102,9 +102,9 @@ mysqlx_message__error_property__sql_state(const struct st_mysqlx_object * obj, z
 
 /* {{{ mysqlx_message__error_property__error_code */
 static zval *
-mysqlx_message__error_property__error_code(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_message__error_property__error_code(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_message__error * object = static_cast<struct st_mysqlx_message__error *>(obj->ptr);
+	const st_mysqlx_message__error* object = static_cast<st_mysqlx_message__error* >(obj->ptr);
 	DBG_ENTER("mysqlx_message__error_property__error_code");
 	if (object->message.has_code()) {
 		/* code is 32 bit unsigned and on 32bit system won't fit into 32 bit signed zend_long, but this won't happen in practice*/
@@ -143,8 +143,8 @@ static HashTable mysqlx_message__error_properties;
 static void
 mysqlx_message__error_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__error * message = (struct st_mysqlx_message__error  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__error* message = (st_mysqlx_message__error*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -157,8 +157,8 @@ static zend_object *
 php_mysqlx_message__error_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__error * message = new (std::nothrow) struct st_mysqlx_message__error;
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__error* message = new (std::nothrow) struct st_mysqlx_message__error;
 
 	DBG_ENTER("php_mysqlx_message__error_object_allocator");
 	if ( mysqlx_object && message ) {
@@ -223,7 +223,7 @@ mysqlx_unregister_message__error_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_message__error(zval * return_value, const Mysqlx::Error & message)
 {
-	struct st_mysqlx_message__error * error;
+	st_mysqlx_message__error* error;
 	DBG_ENTER("mysqlx_new_message__error");
 	object_init_ex(return_value, mysqlx_message__error_class_entry);
 	MYSQLX_FETCH_MESSAGE__ERROR__FROM_ZVAL(error, return_value);
@@ -237,7 +237,7 @@ mysqlx_new_message__error(zval * return_value, const Mysqlx::Error & message)
 void
 mysqlx_new_message__error(zval * return_value, const char * msg, const char * sql_state, const unsigned int code)
 {
-	struct st_mysqlx_message__error * error;
+	st_mysqlx_message__error* error;
 	DBG_ENTER("mysqlx_new_message__error");
 	object_init_ex(return_value, mysqlx_message__error_class_entry);
 	MYSQLX_FETCH_MESSAGE__ERROR__FROM_ZVAL(error, return_value);

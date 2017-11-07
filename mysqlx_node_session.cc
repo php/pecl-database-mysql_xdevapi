@@ -58,8 +58,8 @@ ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_session *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_session*) mysqlx_object->ptr; \
 	if (!(_to) && !(_to)->session) { \
 		if ((_to)->closed) { \
 			php_error_docref(nullptr, E_WARNING, "closed session"); \
@@ -148,7 +148,7 @@ mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION * const session,
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 {
 	zval * object_zv;
-	struct st_mysqlx_session * object;
+	st_mysqlx_session* object;
 	MYSQLND_CSTRING query = {nullptr, 0};
 	zval* args{nullptr};
 	int argc = 0;
@@ -181,7 +181,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 {
 	zval * object_zv;
-	struct st_mysqlx_session * object;
+	st_mysqlx_session* object;
 	XMYSQLND_NODE_SESSION * session;
 	MYSQLND_CSTRING query = {nullptr, 0};
 
@@ -219,7 +219,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, quoteName)
 {
 	zval * object_zv;
-	struct st_mysqlx_session * object;
+	st_mysqlx_session* object;
 	XMYSQLND_NODE_SESSION * session;
 	MYSQLND_CSTRING name = {nullptr, 0};
 

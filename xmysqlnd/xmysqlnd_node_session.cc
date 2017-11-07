@@ -345,7 +345,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 																MYSQLND_STRING * const output)
 {
 	const MYSQLND_CSTRING salt = input;
-	struct st_xmysqlnd_auth_41_ctx * ctx = (struct st_xmysqlnd_auth_41_ctx *) context;
+	st_xmysqlnd_auth_41_ctx* ctx = (st_xmysqlnd_auth_41_ctx*) context;
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_auth_continue");
 	DBG_INF_FMT("salt[%d]=%s", salt.l, salt.s);
 	if (salt.s) {
@@ -1596,7 +1596,7 @@ static const enum_hnd_func_status
 query_cb_handler_on_result_start(void * context, XMYSQLND_NODE_STMT * const stmt)
 {
 	enum_hnd_func_status ret;
-	const struct st_xmysqlnd_query_cb_ctx * ctx = (const struct st_xmysqlnd_query_cb_ctx *) context;
+	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
 	DBG_ENTER("query_cb_handler_on_result_start");
 	if (ctx && ctx->session && ctx->handler_on_result_start.handler) {
 		ret = ctx->handler_on_result_start.handler(ctx->handler_on_result_start.ctx, ctx->session, stmt);
@@ -1611,13 +1611,13 @@ query_cb_handler_on_result_start(void * context, XMYSQLND_NODE_STMT * const stmt
 static const enum_hnd_func_status
 query_cb_handler_on_row(void * context,
 						XMYSQLND_NODE_STMT * const stmt,
-						const struct st_xmysqlnd_node_stmt_result_meta * const meta,
+						const st_xmysqlnd_node_stmt_result_meta* const meta,
 						const zval * const row,
 						MYSQLND_STATS * const stats,
 						MYSQLND_ERROR_INFO * const error_info)
 {
 	enum_hnd_func_status ret;
-	const struct st_xmysqlnd_query_cb_ctx * ctx = (const struct st_xmysqlnd_query_cb_ctx *) context;
+	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
 	DBG_ENTER("query_cb_handler_on_row");
 	if (ctx && ctx->session && ctx->handler_on_row.handler && row) {
 		ret = ctx->handler_on_row.handler(ctx->handler_on_row.ctx, ctx->session, stmt, meta, row, stats, error_info);
@@ -1637,7 +1637,7 @@ query_cb_handler_on_warning(void * context,
 							const MYSQLND_CSTRING message)
 {
 	enum_hnd_func_status ret;
-	const struct st_xmysqlnd_query_cb_ctx * ctx = (const struct st_xmysqlnd_query_cb_ctx *) context;
+	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
 	DBG_ENTER("query_cb_handler_on_warning");
 	if (ctx && ctx->session && ctx->handler_on_warning.handler) {
 		ret = ctx->handler_on_warning.handler(ctx->handler_on_warning.ctx, ctx->session, stmt, level, code, message);
@@ -1657,7 +1657,7 @@ query_cb_handler_on_error(void * context,
 						  const MYSQLND_CSTRING message)
 {
 	enum_hnd_func_status ret;
-	const struct st_xmysqlnd_query_cb_ctx * ctx = (const struct st_xmysqlnd_query_cb_ctx *) context;
+	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
 	DBG_ENTER("query_cb_handler_on_error");
 	if (ctx && ctx->session && ctx->handler_on_error.handler) {
 		ret = ctx->handler_on_error.handler(ctx->handler_on_error.ctx, ctx->session, stmt, code, sql_state, message);
@@ -1673,7 +1673,7 @@ static const enum_hnd_func_status
 query_cb_handler_on_result_end(void * context, XMYSQLND_NODE_STMT * const stmt, const zend_bool has_more)
 {
 	enum_hnd_func_status ret;
-	const struct st_xmysqlnd_query_cb_ctx * ctx = (const struct st_xmysqlnd_query_cb_ctx *) context;
+	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
 	DBG_ENTER("query_cb_handler_on_result_end");
 	if (ctx && ctx->session && ctx->handler_on_result_end.handler) {
 		ret = ctx->handler_on_result_end.handler(ctx->handler_on_result_end.ctx, ctx->session, stmt, has_more);
@@ -1686,10 +1686,10 @@ query_cb_handler_on_result_end(void * context, XMYSQLND_NODE_STMT * const stmt, 
 
 /* {{{ query_cb_handler_on_statement_ok */
 static const enum_hnd_func_status
-query_cb_handler_on_statement_ok(void * context, XMYSQLND_NODE_STMT * const stmt, const struct st_xmysqlnd_stmt_execution_state * const exec_state)
+query_cb_handler_on_statement_ok(void * context, XMYSQLND_NODE_STMT * const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state)
 {
 	enum_hnd_func_status ret;
-	const struct st_xmysqlnd_query_cb_ctx * ctx = (const struct st_xmysqlnd_query_cb_ctx *) context;
+	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
 	DBG_ENTER("query_cb_handler_on_result_end");
 	if (ctx && ctx->session && ctx->handler_on_statement_ok.handler) {
 		ret = ctx->handler_on_statement_ok.handler(ctx->handler_on_statement_ok.ctx, ctx->session, stmt, exec_state);
@@ -1798,7 +1798,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 static const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_session, query_cb_ex)(XMYSQLND_NODE_SESSION * session_handle,
 													const MYSQLND_CSTRING namespace_,
-													struct st_xmysqlnd_query_builder * query_builder,
+													st_xmysqlnd_query_builder* query_builder,
 													const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
 													const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
 													const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,

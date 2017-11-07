@@ -49,7 +49,7 @@ ZEND_END_ARG_INFO()
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 {
 	zval* capability_zv{nullptr};
-	struct st_mysqlx_message__capability* capability{nullptr};
+	st_mysqlx_message__capability* capability{nullptr};
 	char* capability_name{nullptr};
 	size_t capability_name_len;
 	zval* capability_value{nullptr};
@@ -76,7 +76,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, echo)
 {
 	zval* capability_zv{nullptr};
-	struct st_mysqlx_message__capability* capability{nullptr};
+	st_mysqlx_message__capability* capability{nullptr};
 
 	DBG_ENTER("mysqlx_node_connection::echo");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -109,8 +109,8 @@ static HashTable mysqlx_message__capability_properties;
 static void
 mysqlx_message__capability_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__capability * message = (struct st_mysqlx_message__capability  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__capability* message = (st_mysqlx_message__capability*) mysqlx_object->ptr;
 
 	if (message) {
 		if (!Z_ISUNDEF(message->capability_name)) {

@@ -63,7 +63,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list)
 struct st_xmysqlnd_warning_list : public phputils::permanent_allocable
 {
 	unsigned int warning_count;
-	struct st_xmysqlnd_warning * warnings;
+	st_xmysqlnd_warning* warnings;
 	unsigned int warnings_allocated;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * m;

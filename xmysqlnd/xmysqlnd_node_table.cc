@@ -285,7 +285,7 @@ table_sql_single_result_op_on_row(
 	MYSQLND_STATS * const stats,
 	MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_table_sql_single_result_ctx * ctx = (struct st_table_sql_single_result_ctx *) context;
+	st_table_sql_single_result_ctx* ctx = (st_table_sql_single_result_ctx*) context;
 	DBG_ENTER("table_sql_single_result_op_on_row");
 	if (ctx && row) {
 		ZVAL_COPY_VALUE(ctx->result, &row[0]);
@@ -361,7 +361,7 @@ struct st_parse_for_id_status
 
 struct my_php_json_parser {
 	php_json_parser parser;
-	struct st_parse_for_id_status * status;
+	st_parse_for_id_status* status;
 };
 
 
@@ -369,7 +369,7 @@ struct my_php_json_parser {
 int
 xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_string *key, zval *zvalue)
 {
-	struct st_parse_for_id_status * status = ((struct my_php_json_parser *)parser)->status;
+	st_parse_for_id_status* status = ((struct my_php_json_parser *)parser)->status;
 	DBG_ENTER("xmysqlnd_json_parser_object_update");
 	/* if JSON_OBJECT_AS_ARRAY is set */
 	if (parser->depth == 2 && ZSTR_LEN(key) &&
@@ -401,7 +401,7 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 
 /* {{{ xmysqlnd_json_string_find_id */
 enum_func_status
-xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend_long depth, struct st_parse_for_id_status * status)
+xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend_long depth, st_parse_for_id_status* status)
 {
 	php_json_parser_methods own_methods;
 	struct my_php_json_parser parser;

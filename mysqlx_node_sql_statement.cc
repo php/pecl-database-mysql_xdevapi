@@ -70,8 +70,8 @@ ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_NODE_STATEMENT_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_statement *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_statement*) mysqlx_object->ptr; \
 	if (!(_to) || (!(_to)->stmt && !(_to)->stmt_execute)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_ERR_FMT("invalid object of class %s on %s::%d", ZSTR_VAL(mysqlx_object->zo.ce->name), __FILE__, __LINE__); \
@@ -115,13 +115,13 @@ struct st_xmysqlnd_exec_with_cb_ctx
 static const enum_hnd_func_status
 exec_with_cb_handle_on_row(void * context,
 						   XMYSQLND_NODE_STMT * const stmt,
-						   const struct st_xmysqlnd_node_stmt_result_meta * const meta,
+						   const st_xmysqlnd_node_stmt_result_meta* const meta,
 						   const zval * const row,
 						   MYSQLND_STATS * const stats,
 						   MYSQLND_ERROR_INFO * const error_info)
 {
 	enum_hnd_func_status ret = HND_AGAIN;
-	struct st_xmysqlnd_exec_with_cb_ctx * ctx = (struct st_xmysqlnd_exec_with_cb_ctx *) context;
+	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_row");
 	if (ctx && row) {
 		zval params[3];
@@ -207,7 +207,7 @@ static const enum_hnd_func_status
 exec_with_cb_handle_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	enum_hnd_func_status ret = HND_AGAIN;
-	struct st_xmysqlnd_exec_with_cb_ctx * ctx = (struct st_xmysqlnd_exec_with_cb_ctx *) context;
+	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_warning");
 	if (ctx) {
 		zval params[3];
@@ -247,7 +247,7 @@ static const enum_hnd_func_status
 exec_with_cb_handle_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	struct st_xmysqlnd_exec_with_cb_ctx * ctx = (struct st_xmysqlnd_exec_with_cb_ctx *) context;
+	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_error");
 	if (ctx) {
 		zval params[4];
@@ -290,7 +290,7 @@ static const enum_hnd_func_status
 exec_with_cb_handle_on_resultset_end(void * context, XMYSQLND_NODE_STMT * const stmt, const zend_bool has_more)
 {
 	enum_hnd_func_status ret = HND_PASS_RETURN_FAIL;
-	struct st_xmysqlnd_exec_with_cb_ctx * ctx = (struct st_xmysqlnd_exec_with_cb_ctx *) context;
+	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_resultset_end");
 	if (ctx) {
 		zval params[2];
@@ -325,10 +325,10 @@ exec_with_cb_handle_on_resultset_end(void * context, XMYSQLND_NODE_STMT * const 
 static const enum_hnd_func_status
 exec_with_cb_handle_on_statement_ok(void * context,
 									XMYSQLND_NODE_STMT * const stmt,
-									const struct st_xmysqlnd_stmt_execution_state * const exec_state)
+									const st_xmysqlnd_stmt_execution_state* const exec_state)
 {
 	enum_hnd_func_status ret = HND_PASS;
-	struct st_xmysqlnd_exec_with_cb_ctx * ctx = (struct st_xmysqlnd_exec_with_cb_ctx *) context;
+	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
 	DBG_ENTER("exec_with_cb_handle_on_statement_ok");
 	if (ctx) {
 		zval params[2];
@@ -380,7 +380,7 @@ exec_with_cb_handle_on_statement_ok(void * context,
 
 /* {{{ mysqlx_fetch_data_with_callback */
 static enum_func_status
-mysqlx_fetch_data_with_callback(struct st_mysqlx_node_statement * object, struct st_xmysqlnd_exec_with_cb_ctx * xmysqlnd_exec_with_cb_ctx)
+mysqlx_fetch_data_with_callback(st_mysqlx_node_statement* object, st_xmysqlnd_exec_with_cb_ctx* xmysqlnd_exec_with_cb_ctx)
 {
 	enum_func_status ret;
 	zend_bool has_more_results = FALSE;
@@ -418,7 +418,7 @@ mysqlx_fetch_data_with_callback(struct st_mysqlx_node_statement * object, struct
 void
 mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zval * return_value)
 {
-	struct st_mysqlx_node_statement * object;
+	st_mysqlx_node_statement* object;
 	DBG_ENTER("mysqlx_node_sql_statement_bind_one_param");
 	MYSQLX_FETCH_NODE_STATEMENT_FROM_ZVAL(object, object_zv);
 	RETVAL_TRUE;
@@ -481,9 +481,9 @@ mysqlx_node_sql_stmt_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, c
 
 /* {{{ mysqlx_node_sql_statement_execute */
 void
-mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, zval * return_value)
+mysqlx_node_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const zend_long flags, zval * return_value)
 {
-	struct st_mysqlx_node_statement * object = (struct st_mysqlx_node_statement *) mysqlx_object->ptr;
+	st_mysqlx_node_statement* object = (st_mysqlx_node_statement*) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_node_sql_statement_execute");
 
 	if (!object || !object->stmt_execute) {
@@ -568,7 +568,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, execute)
 /* {{{ proto mixed mysqlx_node_sql_statement::hasMoreResults(object statement) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, hasMoreResults)
 {
-	struct st_mysqlx_node_statement * object;
+	st_mysqlx_node_statement* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_sql_statement::hasMoreResults");
@@ -591,7 +591,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement, hasMoreResults)
 /* {{{ mysqlx_node_sql_statement_read_result */
 static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_class_entry * const class_entry)
 {
-	struct st_mysqlx_node_statement * object;
+	st_mysqlx_node_statement* object;
 	zval * object_zv;
 	zend_bool use_callbacks = FALSE;
 	struct st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx;
@@ -698,8 +698,8 @@ const struct st_mysqlx_property_entry mysqlx_node_sql_statement_property_entries
 static void
 mysqlx_node_sql_statement_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_statement * inner_obj = (struct st_mysqlx_node_statement *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_statement* inner_obj = (st_mysqlx_node_statement*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->stmt) {
@@ -775,8 +775,8 @@ mysqlx_new_sql_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt, const MYSQLN
 	DBG_ENTER("mysqlx_new_sql_stmt");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_sql_statement_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_statement * object = (struct st_mysqlx_node_statement *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_statement* object = (st_mysqlx_node_statement*) mysqlx_object->ptr;
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
 
 		if (object && stmt && stmt_execute) {
@@ -804,12 +804,12 @@ mysqlx_new_sql_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt, const MYSQLN
 /*********************************************************************/
 /* {{{ mysqlx_node_statement_execute_read_response */
 void
-mysqlx_node_statement_execute_read_response(const struct st_mysqlx_object * const mysqlx_object,
+mysqlx_node_statement_execute_read_response(const st_mysqlx_object* const mysqlx_object,
 											const zend_long flags,
 											const enum mysqlx_result_type result_type,
 											zval * return_value)
 {
-	struct st_mysqlx_node_statement * object = (struct st_mysqlx_node_statement *) mysqlx_object->ptr;
+	st_mysqlx_node_statement* object = (st_mysqlx_node_statement*) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_node_statement_execute");
 
 	if (!object) {
@@ -938,7 +938,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_statement, __construct)
 /* {{{ proto mixed mysqlx_node_statement::hasMoreResults(object statement) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_statement, hasMoreResults)
 {
-	struct st_mysqlx_node_statement * object;
+	st_mysqlx_node_statement* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_statement::hasMoreResults");
@@ -1056,8 +1056,8 @@ mysqlx_new_node_stmt(zval * return_value, XMYSQLND_NODE_STMT * stmt)
 	DBG_ENTER("mysqlx_new_node_stmt");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_statement_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_statement * object = (struct st_mysqlx_node_statement *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_statement* object = (st_mysqlx_node_statement*) mysqlx_object->ptr;
 		if (object) {
 			object->stmt = stmt;
 			object->stmt_execute = nullptr;

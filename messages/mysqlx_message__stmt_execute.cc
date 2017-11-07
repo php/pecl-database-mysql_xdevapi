@@ -60,8 +60,8 @@ struct st_mysqlx_message__stmt_execute
 
 #define MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_message__stmt_execute *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_message__stmt_execute*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -86,9 +86,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 	char* stmt{nullptr};
 	size_t stmt_len = 0;
 	zend_bool compact_metadata;
-	struct st_mysqlx_message__stmt_execute * object;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
+	st_mysqlx_message__stmt_execute* object;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
 	enum_func_status ret = FAIL;
 
 	DBG_ENTER("mysqlx_message__stmt_execute::send");
@@ -136,9 +136,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_message__stmt_execute * object;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
+	st_mysqlx_message__stmt_execute* object;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
 
 	DBG_ENTER("mysqlx_message__stmt_execute::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -197,8 +197,8 @@ static HashTable mysqlx_message__stmt_execute_properties;
 static void
 mysqlx_message__stmt_execute_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__stmt_execute * message = (struct st_mysqlx_message__stmt_execute  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__stmt_execute* message = (st_mysqlx_message__stmt_execute*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -211,8 +211,8 @@ static zend_object *
 php_mysqlx_message__stmt_execute_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__stmt_execute * message = new (std::nothrow) struct st_mysqlx_message__stmt_execute();
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__stmt_execute* message = new (std::nothrow) struct st_mysqlx_message__stmt_execute();
 
 	DBG_ENTER("php_mysqlx_message__stmt_execute_object_allocator");
 	if ( mysqlx_object && message ) {

@@ -153,7 +153,7 @@ static PHP_MSHUTDOWN_FUNCTION(xmysqlnd)
 static PHP_RINIT_FUNCTION(xmysqlnd)
 {
 	if (XMYSQLND_G(debug)) {
-		struct st_mysqlnd_plugin_trace_log * trace_log_plugin = mysqlnd_plugin_find("debug_trace");
+		st_mysqlnd_plugin_trace_log* trace_log_plugin = mysqlnd_plugin_find("debug_trace");
 		XMYSQLND_G(dbg) = nullptr;
 		if (trace_log_plugin) {
 			MYSQLND_DEBUG * dbg = trace_log_plugin->methods.trace_instance_init(mysqlnd_debug_std_no_trace_funcs);

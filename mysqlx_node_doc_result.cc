@@ -63,8 +63,8 @@ ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_NODE_DOC_RESULT_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_doc_result *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_doc_result*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -84,7 +84,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_doc_result, __construct)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_doc_result, fetchOne)
 {
 	zval * object_zv;
-	struct st_mysqlx_node_doc_result * object;
+	st_mysqlx_node_doc_result* object;
 
 	DBG_ENTER("mysqlx_node_doc_result::fetchOne");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -116,7 +116,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_doc_result, fetchOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_doc_result, fetchAll)
 {
 	zval * object_zv;
-	struct st_mysqlx_node_doc_result * object;
+	st_mysqlx_node_doc_result* object;
 
 	DBG_ENTER("mysqlx_node_doc_result::fetchAll");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -145,7 +145,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_doc_result, fetchAll)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_doc_result, getWarningCount)
 {
 	zval * object_zv;
-	struct st_mysqlx_node_doc_result * object;
+	st_mysqlx_node_doc_result* object;
 
 	DBG_ENTER("mysqlx_node_doc_result::getWarningCount");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -179,7 +179,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_doc_result, getWarningCount)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_doc_result, getWarnings)
 {
 	zval * object_zv;
-	struct st_mysqlx_node_doc_result * object;
+	st_mysqlx_node_doc_result* object;
 
 	DBG_ENTER("mysqlx_node_doc_result::getWarnings");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -241,8 +241,8 @@ const struct st_mysqlx_property_entry mysqlx_node_doc_result_property_entries[] 
 static void
 mysqlx_node_doc_result_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_doc_result * inner_obj = (struct st_mysqlx_node_doc_result *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_doc_result* inner_obj = (st_mysqlx_node_doc_result*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->result) {
@@ -310,8 +310,8 @@ mysqlx_new_doc_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
 	DBG_ENTER("mysqlx_new_doc_result");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_doc_result_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_doc_result * const object = (struct st_mysqlx_node_doc_result *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_doc_result* const object = (st_mysqlx_node_doc_result*) mysqlx_object->ptr;
 		if (object) {
 			object->result = result;
 		} else {

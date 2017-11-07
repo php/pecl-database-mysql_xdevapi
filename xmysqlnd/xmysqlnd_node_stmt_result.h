@@ -44,17 +44,17 @@ typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__fetch_all_c)(XMYSQLND
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__rewind)(XMYSQLND_NODE_STMT_RESULT * const result);
 typedef zend_bool			(*func_xmysqlnd_node_stmt_result__eof)(const XMYSQLND_NODE_STMT_RESULT * const result);
 
-typedef zval *				(*func_xmysqlnd_node_stmt_result__create_row)(XMYSQLND_NODE_STMT_RESULT * const result, const struct st_xmysqlnd_node_stmt_result_meta * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef zval *				(*func_xmysqlnd_node_stmt_result__create_row)(XMYSQLND_NODE_STMT_RESULT * const result, const st_xmysqlnd_node_stmt_result_meta* const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef void				(*func_xmysqlnd_node_stmt_result__destroy_row)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__add_row)(XMYSQLND_NODE_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef size_t				(*func_xmysqlnd_node_stmt_result__get_row_count)(const XMYSQLND_NODE_STMT_RESULT * const result);
 typedef void				(*func_xmysqlnd_node_stmt_result__free_rows_contents)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef void				(*func_xmysqlnd_node_stmt_result__free_rows)(XMYSQLND_NODE_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_rowset)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_rowset * const st_xmysqlnd_rowset, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_meta)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_node_stmt_result_meta * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_execution_state)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_stmt_execution_state * const exec_state);
-typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_warning_list)(XMYSQLND_NODE_STMT_RESULT * const result, struct st_xmysqlnd_warning_list * const warning_list);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_rowset)(XMYSQLND_NODE_STMT_RESULT * const result, st_xmysqlnd_rowset* const st_xmysqlnd_rowset, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_meta)(XMYSQLND_NODE_STMT_RESULT * const result, st_xmysqlnd_node_stmt_result_meta* const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_execution_state)(XMYSQLND_NODE_STMT_RESULT * const result, st_xmysqlnd_stmt_execution_state* const exec_state);
+typedef enum_func_status	(*func_xmysqlnd_node_stmt_result__attach_warning_list)(XMYSQLND_NODE_STMT_RESULT * const result, st_xmysqlnd_warning_list* const warning_list);
 
 
 typedef XMYSQLND_NODE_STMT_RESULT *	(*func_xmysqlnd_node_stmt_result__get_reference)(XMYSQLND_NODE_STMT_RESULT * const result);
@@ -99,10 +99,10 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result)
 
 struct st_xmysqlnd_node_stmt_result : public phputils::permanent_allocable
 {
-	struct st_xmysqlnd_rowset * rowset;
-	struct st_xmysqlnd_node_stmt_result_meta * meta;
-	struct st_xmysqlnd_stmt_execution_state * exec_state;
-	struct st_xmysqlnd_warning_list * warnings;
+	st_xmysqlnd_rowset* rowset;
+	st_xmysqlnd_node_stmt_result_meta* meta;
+	st_xmysqlnd_stmt_execution_state* exec_state;
+	st_xmysqlnd_warning_list* warnings;
 
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result) m;
 	size_t		refcount;

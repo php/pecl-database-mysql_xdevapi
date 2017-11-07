@@ -50,8 +50,8 @@ struct st_mysqlx_field_metadata : public phputils::permanent_allocable
 
 #define MYSQLX_FETCH__FIELD_METADATA_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_field_metadata *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_field_metadata*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -77,9 +77,9 @@ static const zend_function_entry mysqlx_field_metadata_methods[] = {
 
 /* {{{ mysqlx_field_meta_property__type */
 static zval *
-mysqlx_field_meta_property__type(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__type(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__type");
 	ZVAL_LONG(return_value, object->field_meta->type);
 	DBG_RETURN(return_value);
@@ -90,9 +90,9 @@ mysqlx_field_meta_property__type(const struct st_mysqlx_object * obj, zval * ret
 #if TYPE_NAME_ENABLED
 /* {{{ mysqlx_field_meta_property__type_name */
 static zval *
-mysqlx_field_meta_property__type_name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__type_name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	const MYSQLND_CSTRING type_name = xmysqlnd_field_type_name(object->field_meta->type);
 	DBG_ENTER("mysqlx_field_meta_property__type_name");
 	ZVAL_STRINGL(return_value, type_name.s, type_name.l);
@@ -104,9 +104,9 @@ mysqlx_field_meta_property__type_name(const struct st_mysqlx_object * obj, zval 
 
 /* {{{ mysqlx_field_meta_property__name */
 static zval *
-mysqlx_field_meta_property__name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__name");
 	ZVAL_STRINGL(return_value, object->field_meta->name.s, object->field_meta->name.l);
 	DBG_RETURN(return_value);
@@ -116,9 +116,9 @@ mysqlx_field_meta_property__name(const struct st_mysqlx_object * obj, zval * ret
 
 /* {{{ mysqlx_field_meta_property__original_name */
 static zval *
-mysqlx_field_meta_property__original_name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__original_name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__original_name");
 	ZVAL_STRINGL(return_value, object->field_meta->original_name.s, object->field_meta->original_name.l);
 	DBG_RETURN(return_value);
@@ -128,9 +128,9 @@ mysqlx_field_meta_property__original_name(const struct st_mysqlx_object * obj, z
 
 /* {{{ mysqlx_field_meta_property__table */
 static zval *
-mysqlx_field_meta_property__table(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__table(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__table");
 	ZVAL_STRINGL(return_value, object->field_meta->table.s, object->field_meta->table.l);
 	DBG_RETURN(return_value);
@@ -140,9 +140,9 @@ mysqlx_field_meta_property__table(const struct st_mysqlx_object * obj, zval * re
 
 /* {{{ mysqlx_field_meta_property__original_table */
 static zval *
-mysqlx_field_meta_property__original_table(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__original_table(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__original_table");
 	ZVAL_STRINGL(return_value, object->field_meta->original_table.s, object->field_meta->original_table.l);
 	DBG_RETURN(return_value);
@@ -152,9 +152,9 @@ mysqlx_field_meta_property__original_table(const struct st_mysqlx_object * obj, 
 
 /* {{{ mysqlx_field_meta_property__schema */
 static zval *
-mysqlx_field_meta_property__schema(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__schema(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__schema");
 	ZVAL_STRINGL(return_value, object->field_meta->schema.s, object->field_meta->schema.l);
 	DBG_RETURN(return_value);
@@ -164,9 +164,9 @@ mysqlx_field_meta_property__schema(const struct st_mysqlx_object * obj, zval * r
 
 /* {{{ mysqlx_field_meta_property__catalog */
 static zval *
-mysqlx_field_meta_property__catalog(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__catalog(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__catalog");
 	ZVAL_STRINGL(return_value, object->field_meta->catalog.s, object->field_meta->catalog.l);
 	DBG_RETURN(return_value);
@@ -176,9 +176,9 @@ mysqlx_field_meta_property__catalog(const struct st_mysqlx_object * obj, zval * 
 
 /* {{{ mysqlx_field_meta_property__collation */
 static zval *
-mysqlx_field_meta_property__collation(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__collation(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__collation");
 	ZVAL_LONG(return_value, object->field_meta->collation);
 	DBG_RETURN(return_value);
@@ -188,9 +188,9 @@ mysqlx_field_meta_property__collation(const struct st_mysqlx_object * obj, zval 
 
 /* {{{ mysqlx_field_meta_property__fractional_digits */
 static zval *
-mysqlx_field_meta_property__fractional_digits(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__fractional_digits(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__fractional_digits");
 	ZVAL_LONG(return_value, object->field_meta->fractional_digits);
 	DBG_RETURN(return_value);
@@ -200,9 +200,9 @@ mysqlx_field_meta_property__fractional_digits(const struct st_mysqlx_object * ob
 
 /* {{{ mysqlx_field_meta_property__length */
 static zval *
-mysqlx_field_meta_property__length(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__length(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__length");
 	ZVAL_LONG(return_value, object->field_meta->length);
 	DBG_RETURN(return_value);
@@ -212,9 +212,9 @@ mysqlx_field_meta_property__length(const struct st_mysqlx_object * obj, zval * r
 
 /* {{{ mysqlx_field_meta_property__flags */
 static zval *
-mysqlx_field_meta_property__flags(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__flags(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__flags");
 	ZVAL_LONG(return_value, object->field_meta->flags);
 	DBG_RETURN(return_value);
@@ -224,9 +224,9 @@ mysqlx_field_meta_property__flags(const struct st_mysqlx_object * obj, zval * re
 
 /* {{{ mysqlx_field_meta_property__content_type */
 static zval *
-mysqlx_field_meta_property__content_type(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_field_meta_property__content_type(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_field_metadata * object = (struct st_mysqlx_field_metadata *)(obj->ptr);
+	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__content_type");
 	ZVAL_LONG(return_value, object->field_meta->content_type);
 	DBG_RETURN(return_value);
@@ -265,8 +265,8 @@ static HashTable mysqlx_field_metadata_properties;
 static void
 mysqlx_field_metadata_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_field_metadata * message = (struct st_mysqlx_field_metadata  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_field_metadata* message = (st_mysqlx_field_metadata*) mysqlx_object->ptr;
 
 	if (message) {
 		if (message->field_meta) {
@@ -348,8 +348,8 @@ mysqlx_new_field_metadata(zval * return_value, const XMYSQLND_RESULT_FIELD_META 
 	object_init_ex(return_value, mysqlx_field_metadata_class_entry);
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_field_metadata_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_field_metadata * const object = (struct st_mysqlx_field_metadata *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_field_metadata* const object = (st_mysqlx_field_metadata*) mysqlx_object->ptr;
 		if (object) {
 			object->field_meta = field_meta->m->clone(field_meta, nullptr, nullptr);
 		} else {

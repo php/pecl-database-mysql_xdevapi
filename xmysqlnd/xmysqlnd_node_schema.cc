@@ -107,7 +107,7 @@ schema_xplugin_op_var_binder(
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
-	struct st_schema_exists_in_database_var_binder_ctx * ctx = (struct st_schema_exists_in_database_var_binder_ctx *) context;
+	st_schema_exists_in_database_var_binder_ctx* ctx = (st_schema_exists_in_database_var_binder_ctx*) context;
 	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("schema_xplugin_op_var_binder");
 	switch (ctx->counter) {
@@ -157,7 +157,7 @@ schema_sql_op_on_row(
 	MYSQLND_STATS * const stats,
 	MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_schema_exists_in_database_ctx * ctx = (struct st_schema_exists_in_database_ctx *) context;
+	st_schema_exists_in_database_ctx* ctx = (st_schema_exists_in_database_ctx*) context;
 	DBG_ENTER("schema_sql_op_on_row");
 	if (ctx && row) {
 		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
@@ -248,7 +248,7 @@ collection_op_handler_on_error(void * context,
 							   const MYSQLND_CSTRING sql_state,
 							   const MYSQLND_CSTRING message)
 {
-	struct st_create_collection_handler_ctx * ctx = (struct st_create_collection_handler_ctx *) context;
+	st_create_collection_handler_ctx* ctx = (st_create_collection_handler_ctx*) context;
 	DBG_ENTER("collection_op_handler_on_error");
 	ctx->on_error.handler(ctx->on_error.ctx, ctx->schema, code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
@@ -484,7 +484,7 @@ static const enum_hnd_func_status
 collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
-	struct st_collection_get_objects_var_binder_ctx * ctx = (struct st_collection_get_objects_var_binder_ctx *) context;
+	st_collection_get_objects_var_binder_ctx* ctx = (st_collection_get_objects_var_binder_ctx*) context;
 	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_get_objects_var_binder");
 	DBG_INF_FMT("counter=%d", ctx->counter);

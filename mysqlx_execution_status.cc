@@ -53,8 +53,8 @@ struct st_mysqlx_execution_status : public phputils::permanent_allocable
 
 #define MYSQLX_FETCH__EXECUTION_STATUS_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_execution_status *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_execution_status*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -80,9 +80,9 @@ static const zend_function_entry mysqlx_execution_status_methods[] = {
 
 /* {{{ mysqlx_execution_status_property__affected_items */
 static zval *
-mysqlx_execution_status_property__affected_items(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_execution_status_property__affected_items(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_execution_status * object = (struct st_mysqlx_execution_status *)(obj->ptr);
+	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property__affected_items");
 	ZVAL_LONG(return_value, object->items_affected);
 	DBG_RETURN(return_value);
@@ -92,9 +92,9 @@ mysqlx_execution_status_property__affected_items(const struct st_mysqlx_object *
 
 /* {{{ mysqlx_execution_status_property__matched_items */
 static zval *
-mysqlx_execution_status_property__matched_items(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_execution_status_property__matched_items(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_execution_status * object = (struct st_mysqlx_execution_status *)(obj->ptr);
+	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property__matched_items");
 	ZVAL_LONG(return_value, object->items_matched);
 	DBG_RETURN(return_value);
@@ -104,9 +104,9 @@ mysqlx_execution_status_property__matched_items(const struct st_mysqlx_object * 
 
 /* {{{ mysqlx_execution_status_property__found_items */
 static zval *
-mysqlx_execution_status_property__found_items(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_execution_status_property__found_items(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_execution_status * object = (struct st_mysqlx_execution_status *)(obj->ptr);
+	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property__found_items");
 	ZVAL_LONG(return_value, object->items_found);
 	DBG_RETURN(return_value);
@@ -116,9 +116,9 @@ mysqlx_execution_status_property__found_items(const struct st_mysqlx_object * ob
 
 /* {{{ mysqlx_execution_status_property__last_insert_id */
 static zval *
-mysqlx_execution_status_property__last_insert_id(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_execution_status_property__last_insert_id(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_execution_status * object = (struct st_mysqlx_execution_status *)(obj->ptr);
+	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property__last_insert_id");
 	ZVAL_LONG(return_value, object->last_insert_id);
 	DBG_RETURN(return_value);
@@ -128,9 +128,9 @@ mysqlx_execution_status_property__last_insert_id(const struct st_mysqlx_object *
 
 /* {{{ mysqlx_execution_status_property__last_document_id*/
 static zval *
-mysqlx_execution_status_property__last_document_id(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_execution_status * object = (struct st_mysqlx_execution_status *)(obj->ptr);
+	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property__last_document_id");
 	ZVAL_LONG(return_value, object->last_insert_id);
 	DBG_RETURN(return_value);
@@ -159,8 +159,8 @@ static HashTable mysqlx_execution_status_properties;
 static void
 mysqlx_execution_status_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_execution_status * message = (struct st_mysqlx_execution_status  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_execution_status* message = (st_mysqlx_execution_status*) mysqlx_object->ptr;
 
 	if (message) {
 		mnd_pefree(message, message->persistent);
@@ -228,8 +228,8 @@ mysqlx_new_execution_status(zval * return_value, const XMYSQLND_STMT_EXECUTION_S
 	DBG_ENTER("mysqlx_new_execution_status");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_execution_status_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_execution_status * const object = (struct st_mysqlx_execution_status *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_execution_status* const object = (st_mysqlx_execution_status*) mysqlx_object->ptr;
 		if (object) {
 			object->items_affected = status->m->get_affected_items_count(status);
 			object->items_matched = status->m->get_matched_items_count(status);

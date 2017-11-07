@@ -49,8 +49,8 @@ ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_EXPRESSION_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_expression *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_expression*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->expr) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -75,8 +75,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 	}
 
 	{
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(object_zv);
-		struct st_mysqlx_expression * object = (struct st_mysqlx_expression *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(object_zv);
+		st_mysqlx_expression* object = (st_mysqlx_expression*) mysqlx_object->ptr;
 		if (!object) {
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			DBG_VOID_RETURN;
@@ -132,8 +132,8 @@ const struct st_mysqlx_property_entry mysqlx_expression_property_entries[] =
 static void
 mysqlx_expression_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_expression * inner_obj = (struct st_mysqlx_expression *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_expression* inner_obj = (st_mysqlx_expression*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		zval_ptr_dtor(&inner_obj->expression);
@@ -199,8 +199,8 @@ mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression)
 	DBG_ENTER("mysqlx_new_expression");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_expression_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_expression * const object = (struct st_mysqlx_expression *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_expression* const object = (st_mysqlx_expression*) mysqlx_object->ptr;
 		if (object) {
 			DBG_INF_FMT("expression=[%*s]", expression.l, expression.s);
 			ZVAL_STRINGL(&object->expression, expression.s, expression.l);
@@ -231,8 +231,8 @@ get_mysqlx_expression(const zval * const object_zv)
 	zval* ret{nullptr};
 	DBG_ENTER("get_mysqlx_expression");
 	if (instanceof_function(Z_OBJCE_P(object_zv), mysqlx_expression_class_entry)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(object_zv);
-		struct st_mysqlx_expression * object = (struct st_mysqlx_expression *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(object_zv);
+		st_mysqlx_expression* object = (st_mysqlx_expression*) mysqlx_object->ptr;
 		if (!object) {
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		} else {

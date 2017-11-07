@@ -58,8 +58,8 @@ struct st_mysqlx_message__auth_start
 
 #define MYSQLX_FETCH_MESSAGE__AUTH_START_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_message__auth_start *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_message__auth_start*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -92,9 +92,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_start, send)
 	size_t auth_mech_name_len = 0;
 	char* auth_data{nullptr};
 	size_t auth_data_len = 0;
-	struct st_mysqlx_message__auth_start * object;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
+	st_mysqlx_message__auth_start* object;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
 
 	DBG_ENTER("mysqlx_message__auth_start::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OssOO",
@@ -130,9 +130,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_start, read_response)
 	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_message__auth_start * object;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
+	st_mysqlx_message__auth_start* object;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
 
 	DBG_ENTER("mysqlx_message__auth_start::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -173,8 +173,8 @@ static HashTable mysqlx_message__auth_start_properties;
 static void
 mysqlx_message__auth_start_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__auth_start * message = (struct st_mysqlx_message__auth_start  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__auth_start* message = (st_mysqlx_message__auth_start*) mysqlx_object->ptr;
 
 	if (message) {
 		delete message;
@@ -189,8 +189,8 @@ static zend_object *
 php_mysqlx_message__auth_start_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__auth_start * message = new (std::nothrow) struct st_mysqlx_message__auth_start();
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__auth_start* message = new (std::nothrow) struct st_mysqlx_message__auth_start();
 
 	DBG_ENTER("php_mysqlx_message__auth_start_object_allocator");
 	if (mysqlx_object && message) {

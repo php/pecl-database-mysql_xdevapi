@@ -136,8 +136,8 @@ struct st_mysqlx_node_collection : public phputils::custom_allocable
 
 #define MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_collection *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_collection*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->collection) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -210,7 +210,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getName)
 /* {{{ mysqlx_node_collection_on_error */
 static const enum_hnd_func_status
 mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
-					struct st_xmysqlnd_node_stmt * const stmt,
+					st_xmysqlnd_node_stmt* const stmt,
 					const unsigned int code,
 					const MYSQLND_CSTRING sql_state,
 					const MYSQLND_CSTRING message)
@@ -728,9 +728,9 @@ static const zend_function_entry mysqlx_node_collection_methods[] = {
 
 /* {{{ mysqlx_node_collection_property__name */
 static zval *
-mysqlx_node_collection_property__name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_node_collection_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_node_collection * object = (const struct st_mysqlx_node_collection *) (obj->ptr);
+	const st_mysqlx_node_collection* object = (const st_mysqlx_node_collection* ) (obj->ptr);
 	DBG_ENTER("mysqlx_node_collection_property__name");
 	if (object->collection && object->collection->data->collection_name.s) {
 		ZVAL_STRINGL(return_value, object->collection->data->collection_name.s, object->collection->data->collection_name.l);
@@ -762,8 +762,8 @@ const struct st_mysqlx_property_entry mysqlx_node_collection_property_entries[] 
 static void
 mysqlx_node_collection_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_collection * inner_obj = (struct st_mysqlx_node_collection *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_collection* inner_obj = (st_mysqlx_node_collection*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->collection) {
@@ -833,8 +833,8 @@ mysqlx_new_node_collection(zval * return_value, XMYSQLND_NODE_COLLECTION * colle
 	DBG_ENTER("mysqlx_new_node_collection");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_collection_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_collection * const object = (struct st_mysqlx_node_collection *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_collection* const object = (st_mysqlx_node_collection*) mysqlx_object->ptr;
 		if (object) {
 			object->collection = clone? collection->data->m.get_reference(collection) : collection;
 		} else {

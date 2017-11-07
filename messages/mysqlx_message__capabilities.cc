@@ -53,7 +53,7 @@ ZEND_END_ARG_INFO()
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities, add)
 {
 	zval* capabilities_zv{nullptr};
-	struct st_mysqlx_message__capabilities* capabilities{nullptr};
+	st_mysqlx_message__capabilities* capabilities{nullptr};
 	zval* capability_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_connection::add");
@@ -90,8 +90,8 @@ static HashTable mysqlx_message__capabilities_properties;
 static void
 mysqlx_message__capabilities_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__capabilities * message = (struct st_mysqlx_message__capabilities  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__capabilities* message = (st_mysqlx_message__capabilities*) mysqlx_object->ptr;
 
 	if (message) {
 		zend_hash_destroy(&message->capabilities_ht);
@@ -107,8 +107,8 @@ static zend_object *
 php_mysqlx_message__capabilities_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__capabilities * message = new struct st_mysqlx_message__capabilities;
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__capabilities* message = new struct st_mysqlx_message__capabilities;
 
 	DBG_ENTER("php_mysqlx_message__capabilities_object_allocator");
 	if (mysqlx_object && message) {

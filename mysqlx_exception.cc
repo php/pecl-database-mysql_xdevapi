@@ -56,8 +56,8 @@ RAISE_EXCEPTION(const int errcode, const char * const msg)
 
 #define MYSQLX_FETCH_EXCEPTION_FROM_ZO(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo((_from)); \
-	(_to) = (struct st_mysqlx_exception *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo((_from)); \
+	(_to) = (st_mysqlx_exception*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -73,9 +73,9 @@ static const zend_function_entry mysqlx_exception_methods[] = {
 
 /* {{{ mysqlx_exception_property__message */
 static zval *
-mysqlx_exception_property__message(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_exception_property__message(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_exception * object = (const struct st_mysqlx_exception *) (obj->ptr);
+	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
 	DBG_ENTER("mysqlx_exception_property__message");
 	if (object->msg.s) {
 		ZVAL_STRINGL(return_value, object->msg.s, object->msg.l);
@@ -96,9 +96,9 @@ mysqlx_exception_property__message(const struct st_mysqlx_object * obj, zval * r
 
 /* {{{ mysqlx_exception_property__level */
 static zval *
-mysqlx_exception_property__level(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_exception_property__level(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_exception * object = (const struct st_mysqlx_exception *) (obj->ptr);
+	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
 	DBG_ENTER("mysqlx_exception_property__level");
 	ZVAL_LONG(return_value, object->level);
 	DBG_RETURN(return_value);
@@ -108,9 +108,9 @@ mysqlx_exception_property__level(const struct st_mysqlx_object * obj, zval * ret
 
 /* {{{ mysqlx_exception_property__code */
 static zval *
-mysqlx_exception_property__code(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_exception_property__code(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_exception * object = (const struct st_mysqlx_exception *) (obj->ptr);
+	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
 	DBG_ENTER("mysqlx_exception_property__code");
 	/* code is 32 bit unsigned and on 32bit system won't fit into 32 bit signed zend_long, but this won't happen in practice*/
 	ZVAL_LONG(return_value, object->code);

@@ -74,7 +74,7 @@ collection_op_var_binder(
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret = HND_FAIL;
-	struct st_collection_exists_in_database_var_binder_ctx * ctx = (struct st_collection_exists_in_database_var_binder_ctx *) context;
+	st_collection_exists_in_database_var_binder_ctx* ctx = (st_collection_exists_in_database_var_binder_ctx*) context;
 	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_op_var_binder");
 	switch (ctx->counter) {
@@ -212,7 +212,7 @@ collection_sql_single_result_op_on_row(
 	MYSQLND_STATS * const stats,
 	MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_collection_sql_single_result_ctx * ctx = (struct st_collection_sql_single_result_ctx *) context;
+	st_collection_sql_single_result_ctx* ctx = (st_collection_sql_single_result_ctx*) context;
 	DBG_ENTER("collection_xplugin_op_on_row");
 	if (ctx && row) {
 		ZVAL_COPY_VALUE(ctx->result, &row[0]);
@@ -364,8 +364,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * con
 
 
 /* {{{ xmysqlnd_node_collection::find */
-static struct st_xmysqlnd_node_stmt *
-XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
+static st_xmysqlnd_node_stmt* XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 {
 	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection::find");

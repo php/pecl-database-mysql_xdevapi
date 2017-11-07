@@ -128,8 +128,8 @@ ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_NODE_COLUMN_RESULT_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_column_result *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_column_result*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -174,7 +174,7 @@ static uint64_t int_type_mappings[] = {
 
 /* {{{ get_column_meta_field */
 static uint64_t
-get_column_type(const struct st_xmysqlnd_result_field_meta * const meta)
+get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 {
 	switch(meta->type) {
 	case XMYSQLND_TYPE_SIGNED_INT:
@@ -237,7 +237,7 @@ get_column_type(const struct st_xmysqlnd_result_field_meta * const meta)
 
 /* {{{ get_column_meta_field */
 static zend_bool
-is_type_signed(const struct st_xmysqlnd_result_field_meta * const meta)
+is_type_signed(const st_xmysqlnd_result_field_meta* const meta)
 {
 	zend_bool is_signed = FALSE;
 	switch(meta->type) {
@@ -285,7 +285,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					meta_fields selected_meta_field)
 {
 	zval * object_zv;
-	struct st_mysqlx_node_column_result * object;
+	st_mysqlx_node_column_result* object;
 	DBG_ENTER("get_column_meta_field");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -336,7 +336,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 		case collation_name:
 		case characterset_name:
 			{
-				const struct st_mysqlnd_charset * set =
+				const st_mysqlnd_charset* set =
 						mysqlnd_find_charset_nr(object->meta->collation);
 				if( set != nullptr && set->collation != nullptr ) {
 					if( selected_meta_field == collation_name ) {
@@ -588,9 +588,9 @@ mysqlx_new_column_result(
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_column_result_class_entry) &&
 			IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_column_result * const object =
-				(struct st_mysqlx_node_column_result *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_column_result* const object =
+				(st_mysqlx_node_column_result*) mysqlx_object->ptr;
 		if (object) {
 			object->meta = meta;
 		} else {
@@ -624,9 +624,9 @@ php_mysqlx_column_result_object_allocator(zend_class_entry * class_type)
 static void
 mysqlx_node_column_result_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_column_result * inner_obj = (
-				struct st_mysqlx_node_column_result *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_column_result* inner_obj = (
+				st_mysqlx_node_column_result* ) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		//Do not delete meta, that's someone else responsability

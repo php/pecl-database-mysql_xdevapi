@@ -100,8 +100,8 @@ struct st_mysqlx_node_table : public phputils::custom_allocable
 
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_table *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_table*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -119,7 +119,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, __construct)
 /* {{{ proto mixed mysqlx_node_table::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSession)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table::getSession");
@@ -148,7 +148,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSession)
 /* {{{ proto mixed mysqlx_node_table::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getName)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table::getName");
@@ -173,7 +173,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getName)
 
 /* {{{ mysqlx_node_table_on_error */
 static const enum_hnd_func_status
-mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, struct st_xmysqlnd_node_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_table_on_error");
 	const unsigned int UnknownDatabaseCode = 1049;
@@ -190,7 +190,7 @@ mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, stru
 /* {{{ proto mixed mysqlx_node_table::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, existsInDatabase)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table::existsInDatabase");
@@ -257,7 +257,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, isView)
 /* {{{ proto mixed mysqlx_node_table::count() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table::count");
@@ -289,7 +289,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 /* {{{ proto mixed mysqlx_node_table::getSchema() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	XMYSQLND_NODE_SESSION * session;
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
 	zval * object_zv;
@@ -335,7 +335,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 /* {{{ proto mixed mysqlx_node_table::insert() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	zval * object_zv;
 	zval* columns{nullptr};
 	int    num_of_columns = 0, i = 0;
@@ -381,7 +381,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 /* {{{ proto mixed mysqlx_node_table::select() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, select)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	zval * object_zv;
 	zval* columns{nullptr};
 	int    num_of_columns = 0;
@@ -419,7 +419,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, select)
 /* {{{ proto mixed mysqlx_node_table::update() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, update)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table::update");
@@ -446,7 +446,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, update)
 /* {{{ proto mixed mysqlx_node_table::delete() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, delete)
 {
-	struct st_mysqlx_node_table * object;
+	st_mysqlx_node_table* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table::delete");
@@ -495,9 +495,9 @@ static const zend_function_entry mysqlx_node_table_methods[] = {
 
 /* {{{ mysqlx_node_table_property__name */
 static zval *
-mysqlx_node_table_property__name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_node_table_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_node_table * object = (const struct st_mysqlx_node_table *) (obj->ptr);
+	const st_mysqlx_node_table* object = (const st_mysqlx_node_table* ) (obj->ptr);
 	DBG_ENTER("mysqlx_node_table_property__name");
 	if (object->table && object->table->data->table_name.s) {
 		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
@@ -529,8 +529,8 @@ const struct st_mysqlx_property_entry mysqlx_node_table_property_entries[] =
 static void
 mysqlx_node_table_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_table * inner_obj = (struct st_mysqlx_node_table *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_table* inner_obj = (st_mysqlx_node_table*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->table) {
@@ -600,8 +600,8 @@ mysqlx_new_node_table(zval * return_value, XMYSQLND_NODE_TABLE * table, const ze
 	DBG_ENTER("mysqlx_new_node_table");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_table_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_table * const object = (struct st_mysqlx_node_table *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_table* const object = (st_mysqlx_node_table*) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
 		} else {

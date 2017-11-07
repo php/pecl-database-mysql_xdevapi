@@ -58,9 +58,9 @@ static const zend_function_entry mysqlx_column_metadata_methods[] = {
 
 /* {{{ mysqlx_column_meta_property__type */
 static zval *
-mysqlx_column_meta_property__type(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__type(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__type");
 	if (object->message.has_type()) {
 		ZVAL_LONG(return_value, object->message.type());
@@ -81,9 +81,9 @@ mysqlx_column_meta_property__type(const struct st_mysqlx_object * obj, zval * re
 
 /* {{{ mysqlx_column_meta_property__type_name */
 static zval *
-mysqlx_column_meta_property__type_name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__type_name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__type_name");
 	if (object->message.has_type()) {
 		const std::string & field = Mysqlx::Resultset::ColumnMetaData::FieldType_Name(object->message.type());
@@ -105,9 +105,9 @@ mysqlx_column_meta_property__type_name(const struct st_mysqlx_object * obj, zval
 
 /* {{{ mysqlx_column_meta_property__name */
 static zval *
-mysqlx_column_meta_property__name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__name");
 	if (object->message.has_name()) {
 		const std::string & field = object->message.name();
@@ -129,9 +129,9 @@ mysqlx_column_meta_property__name(const struct st_mysqlx_object * obj, zval * re
 
 /* {{{ mysqlx_column_meta_property__original_name */
 static zval *
-mysqlx_column_meta_property__original_name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__original_name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__original_name");
 	if (object->message.has_original_name()) {
 		const std::string & field = object->message.original_name();
@@ -153,9 +153,9 @@ mysqlx_column_meta_property__original_name(const struct st_mysqlx_object * obj, 
 
 /* {{{ mysqlx_column_meta_property__table */
 static zval *
-mysqlx_column_meta_property__table(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__table(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__table");
 	if (object->message.has_table()) {
 		const std::string & field = object->message.table();
@@ -177,9 +177,9 @@ mysqlx_column_meta_property__table(const struct st_mysqlx_object * obj, zval * r
 
 /* {{{ mysqlx_column_meta_property__original_table */
 static zval *
-mysqlx_column_meta_property__original_table(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__original_table(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__original_table");
 	if (object->message.has_original_table()) {
 		const std::string & field = object->message.original_table();
@@ -201,9 +201,9 @@ mysqlx_column_meta_property__original_table(const struct st_mysqlx_object * obj,
 
 /* {{{ mysqlx_column_meta_property__schema */
 static zval *
-mysqlx_column_meta_property__schema(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__schema(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__schema");
 	if (object->message.has_schema()) {
 		const std::string & field = object->message.schema();
@@ -225,9 +225,9 @@ mysqlx_column_meta_property__schema(const struct st_mysqlx_object * obj, zval * 
 
 /* {{{ mysqlx_column_meta_property__catalog */
 static zval *
-mysqlx_column_meta_property__catalog(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__catalog(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__catalog");
 	if (object->message.has_catalog()) {
 		const std::string & field = object->message.catalog();
@@ -249,9 +249,9 @@ mysqlx_column_meta_property__catalog(const struct st_mysqlx_object * obj, zval *
 
 /* {{{ mysqlx_column_meta_property__collation */
 static zval *
-mysqlx_column_meta_property__collation(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__collation(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__collation");
 	if (object->message.has_collation()) {
 		ZVAL_LONG(return_value, object->message.collation());
@@ -272,9 +272,9 @@ mysqlx_column_meta_property__collation(const struct st_mysqlx_object * obj, zval
 
 /* {{{ mysqlx_column_meta_property__fractional_digits */
 static zval *
-mysqlx_column_meta_property__fractional_digits(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__fractional_digits(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__fractional_digits");
 	if (object->message.has_fractional_digits()) {
 		ZVAL_LONG(return_value, object->message.fractional_digits());
@@ -295,9 +295,9 @@ mysqlx_column_meta_property__fractional_digits(const struct st_mysqlx_object * o
 
 /* {{{ mysqlx_column_meta_property__length */
 static zval *
-mysqlx_column_meta_property__length(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__length(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__length");
 	if (object->message.has_length()) {
 		ZVAL_LONG(return_value, object->message.length());
@@ -318,9 +318,9 @@ mysqlx_column_meta_property__length(const struct st_mysqlx_object * obj, zval * 
 
 /* {{{ mysqlx_column_meta_property__flags */
 static zval *
-mysqlx_column_meta_property__flags(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__flags(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__flags");
 
 	if (object->message.has_flags()) {
@@ -342,9 +342,9 @@ mysqlx_column_meta_property__flags(const struct st_mysqlx_object * obj, zval * r
 
 /* {{{ mysqlx_column_meta_property__content_type */
 static zval *
-mysqlx_column_meta_property__content_type(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_column_meta_property__content_type(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_column_metadata * object = static_cast<struct st_mysqlx_column_metadata *>(obj->ptr);
+	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__content_type");
 	if (object->message.has_content_type()) {
 		ZVAL_LONG(return_value, object->message.content_type());
@@ -392,8 +392,8 @@ static HashTable mysqlx_column_metadata_properties;
 static void
 mysqlx_column_metadata_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_column_metadata * message = (struct st_mysqlx_column_metadata  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_column_metadata* message = (st_mysqlx_column_metadata*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -406,8 +406,8 @@ static zend_object *
 php_mysqlx_column_metadata_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_column_metadata * message = new (std::nothrow) struct st_mysqlx_column_metadata();
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_column_metadata* message = new (std::nothrow) struct st_mysqlx_column_metadata();
 
 	DBG_ENTER("php_mysqlx_column_metadata_object_allocator");
 	if ( mysqlx_object && message) {
@@ -481,7 +481,7 @@ mysqlx_unregister_column_metadata_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_column_metadata(zval * return_value, const Mysqlx::Resultset::ColumnMetaData & message)
 {
-	struct st_mysqlx_column_metadata * obj;
+	st_mysqlx_column_metadata* obj;
 	DBG_ENTER("mysqlx_new_column_metadata");
 	object_init_ex(return_value, mysqlx_column_metadata_class_entry);
 	MYSQLX_FETCH_MESSAGE__COLUMN_METADATA_FROM_ZVAL(obj, return_value);

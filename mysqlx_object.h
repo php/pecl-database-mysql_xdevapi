@@ -46,7 +46,7 @@ typedef struct
   Does pointer arithmetic to find the address of the st_mysqlx_object from a
   zend_object which is inside the structure.
 */
-struct st_mysqlx_object * mysqlx_fetch_object_from_zo(zend_object *obj);
+st_mysqlx_object* mysqlx_fetch_object_from_zo(zend_object *obj);
 #define Z_MYSQLX_P(zv) mysqlx::devapi::mysqlx_fetch_object_from_zo(Z_OBJ_P((zv)))
 
 void mysqlx_object_free_storage(zend_object * object);

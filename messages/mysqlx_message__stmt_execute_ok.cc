@@ -49,8 +49,8 @@ struct st_mysqlx_message__stmt_execute_ok
 
 #define MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_OK_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_message__stmt_execute_ok *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_message__stmt_execute_ok*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -73,8 +73,8 @@ static HashTable mysqlx_message__stmt_execute_ok_properties;
 static void
 mysqlx_message__stmt_execute_ok_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__stmt_execute_ok * message = (struct st_mysqlx_message__stmt_execute_ok  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__stmt_execute_ok* message = (st_mysqlx_message__stmt_execute_ok*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -87,8 +87,8 @@ static zend_object *
 php_mysqlx_message__stmt_execute_ok_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__stmt_execute_ok * message = new (std::nothrow) struct st_mysqlx_message__stmt_execute_ok();
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__stmt_execute_ok* message = new (std::nothrow) struct st_mysqlx_message__stmt_execute_ok();
 
 	DBG_ENTER("php_mysqlx_message__stmt_execute_ok_object_allocator");
 	if ( mysqlx_object && message ) {
@@ -145,7 +145,7 @@ mysqlx_unregister_message__stmt_execute_ok_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_stmt_execute_ok(zval * return_value, const Mysqlx::Sql::StmtExecuteOk & message)
 {
-	struct st_mysqlx_message__stmt_execute_ok * obj;
+	st_mysqlx_message__stmt_execute_ok* obj;
 	DBG_ENTER("mysqlx_new_stmt_execute_ok");
 	object_init_ex(return_value, mysqlx_message__stmt_execute_ok_class_entry);
 	MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_OK_FROM_ZVAL(obj, return_value);

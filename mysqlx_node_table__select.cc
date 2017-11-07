@@ -97,8 +97,8 @@ struct st_mysqlx_node_table__select : public phputils::custom_allocable
 
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_table__select *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_table__select*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -116,7 +116,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, __construct)
 /* {{{ mysqlx_node_table__select::where */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, where)
 {
-	struct st_mysqlx_node_table__select * object;
+	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 	MYSQLND_CSTRING where_expr = {nullptr, 0};
 
@@ -151,7 +151,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, where)
 static void
 mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
-	struct st_mysqlx_node_table__select * object;
+	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 	zval* sort_expr{nullptr};
 	int    num_of_expr = 0;
@@ -263,7 +263,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, groupBy)
 /* {{{ proto mixed mysqlx_node_table__select::having() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, having)
 {
-	struct st_mysqlx_node_table__select * object;
+	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 	MYSQLND_CSTRING search_condition = {nullptr, 0};
 
@@ -294,7 +294,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, having)
 /* {{{ proto mixed mysqlx_node_table__select::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, limit)
 {
-	struct st_mysqlx_node_table__select * object;
+	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 	zend_long rows;
 
@@ -330,7 +330,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, limit)
 /* {{{ proto mixed mysqlx_node_table__select::offset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, offset)
 {
-	struct st_mysqlx_node_table__select * object;
+	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 	zend_long position;
 
@@ -366,7 +366,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, offset)
 /* {{{ proto mixed mysqlx_node_table__select::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, bind)
 {
-	struct st_mysqlx_node_table__select * object;
+	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 	HashTable * bind_variables;
 
@@ -454,7 +454,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 {
 	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
-	struct st_mysqlx_node_table__select * object;
+	st_mysqlx_node_table__select* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table__select::execute");
@@ -523,9 +523,9 @@ static const zend_function_entry mysqlx_node_table__select_methods[] = {
 #if 0
 /* {{{ mysqlx_node_table__select_property__name */
 static zval *
-mysqlx_node_table__select_property__name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_node_table__select_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_node_table__select * object = (const struct st_mysqlx_node_table__select *) (obj->ptr);
+	const st_mysqlx_node_table__select* object = (const st_mysqlx_node_table__select* ) (obj->ptr);
 	DBG_ENTER("mysqlx_node_table__select_property__name");
 	if (object->table && object->table->data->table_name.s) {
 		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
@@ -559,8 +559,8 @@ const struct st_mysqlx_property_entry mysqlx_node_table__select_property_entries
 static void
 mysqlx_node_table__select_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_table__select * inner_obj = (struct st_mysqlx_node_table__select *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_table__select* inner_obj = (st_mysqlx_node_table__select*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->table) {
@@ -639,8 +639,8 @@ mysqlx_new_node_table__select(zval * return_value,
 	DBG_ENTER("mysqlx_new_node_table__select");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_table__select_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_table__select * const object = (struct st_mysqlx_node_table__select *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_table__select* const object = (st_mysqlx_node_table__select*) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
 			object->crud_op = xmysqlnd_crud_table_select__create(

@@ -80,8 +80,8 @@ struct st_mysqlx_node_table__delete : public phputils::custom_allocable
 
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_table__delete *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_table__delete*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -100,7 +100,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, __construct)
 /* {{{ proto mixed mysqlx_node_table__delete::where() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, where)
 {
-	struct st_mysqlx_node_table__delete * object;
+	st_mysqlx_node_table__delete* object;
 	zval * object_zv;
 	zval* where_expr{nullptr};
 
@@ -140,7 +140,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, where)
 /* {{{ proto mixed mysqlx_node_table__delete::orderby() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 {
-	struct st_mysqlx_node_table__delete * object;
+	st_mysqlx_node_table__delete* object;
 	zval * object_zv;
 	zval* orderby_expr{nullptr};
 	int    num_of_expr = 0;
@@ -209,7 +209,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 /* {{{ proto mixed mysqlx_node_table__delete::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, limit)
 {
-	struct st_mysqlx_node_table__delete * object;
+	st_mysqlx_node_table__delete* object;
 	zval * object_zv;
 	zend_long rows;
 
@@ -247,7 +247,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, limit)
 /* {{{ proto mixed mysqlx_node_table__delete::offset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, offset)
 {
-	struct st_mysqlx_node_table__delete * object;
+	st_mysqlx_node_table__delete* object;
 	zval * object_zv;
 	zend_long position;
 
@@ -284,7 +284,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, offset)
 /* {{{ proto mixed mysqlx_node_table__delete::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, bind)
 {
-	struct st_mysqlx_node_table__delete * object;
+	st_mysqlx_node_table__delete* object;
 	zval * object_zv;
 	HashTable * bind_variables;
 
@@ -327,7 +327,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, bind)
 /* {{{ proto mixed mysqlx_node_table__delete::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, execute)
 {
-	struct st_mysqlx_node_table__delete * object;
+	st_mysqlx_node_table__delete* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table__delete::execute");
@@ -392,9 +392,9 @@ static const zend_function_entry mysqlx_node_table__delete_methods[] = {
 #if 0
 /* {{{ mysqlx_node_table__delete_property__name */
 static zval *
-mysqlx_node_table__delete_property__name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_node_table__delete_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_node_table__delete * object = (const struct st_mysqlx_node_table__delete *) (obj->ptr);
+	const st_mysqlx_node_table__delete* object = (const st_mysqlx_node_table__delete* ) (obj->ptr);
 	DBG_ENTER("mysqlx_node_table__delete_property__name");
 	if (object->table && object->table->data->table_name.s) {
 		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
@@ -428,8 +428,8 @@ const struct st_mysqlx_property_entry mysqlx_node_table__delete_property_entries
 static void
 mysqlx_node_table__delete_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_table__delete * inner_obj = (struct st_mysqlx_node_table__delete *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_table__delete* inner_obj = (st_mysqlx_node_table__delete*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->table) {
@@ -504,8 +504,8 @@ mysqlx_new_node_table__delete(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 	DBG_ENTER("mysqlx_new_node_table__delete");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_table__delete_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_table__delete * const object = (struct st_mysqlx_node_table__delete *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_table__delete* const object = (st_mysqlx_node_table__delete*) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
 			object->crud_op = xmysqlnd_crud_table_delete__create(

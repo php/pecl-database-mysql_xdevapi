@@ -33,7 +33,7 @@ using namespace drv;
 
 /* {{{ mysqlx_property_get_forbidden */
 static zval *
-mysqlx_property_get_forbidden(const struct st_mysqlx_object * not_used1, zval * not_used2)
+mysqlx_property_get_forbidden(const st_mysqlx_object* not_used1, zval * not_used2)
 {
 	php_error_docref(nullptr, E_ERROR, "Write-only property");
 	return nullptr;
@@ -43,7 +43,7 @@ mysqlx_property_get_forbidden(const struct st_mysqlx_object * not_used1, zval * 
 
 /* {{{ mysqlx_property_set_forbidden */
 static int
-mysqlx_property_set_forbidden(struct st_mysqlx_object * not_used1, zval * not_used2)
+mysqlx_property_set_forbidden(st_mysqlx_object* not_used1, zval * not_used2)
 {
 	php_error_docref(nullptr, E_ERROR, "Read-only property");
 	return FAILURE;
@@ -73,7 +73,7 @@ mysqlx_add_property(HashTable * properties, const MYSQLND_CSTRING property_name,
 
 /* {{{ mysqlx_add_properties */
 void
-mysqlx_add_properties(HashTable * ht, const struct st_mysqlx_property_entry * entries)
+mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries)
 {
 	unsigned int i;
 	for (i = 0; entries[i].property_name.s != nullptr; ++i) {
@@ -89,8 +89,8 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 {
 	zval tmp_member;
 	zval *retval;
-	const struct st_mysqlx_object * mysqlx_obj;
-	const struct st_mysqlx_property* property{nullptr};
+	const st_mysqlx_object* mysqlx_obj;
+	const st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_get_value");
 
 	mysqlx_obj = Z_MYSQLX_P(object);
@@ -134,8 +134,8 @@ void
 mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cache_slot)
 {
 	zval tmp_member;
-	struct st_mysqlx_object * mysqlx_obj;
-	const struct st_mysqlx_property* property{nullptr};
+	st_mysqlx_object* mysqlx_obj;
+	const st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_set_value");
 
 	if (Z_TYPE_P(member) != IS_STRING) {
@@ -171,8 +171,8 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 int
 mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, void **cache_slot)
 {
-	const struct st_mysqlx_object * mysqlx_obj = Z_MYSQLX_P(object);
-	const struct st_mysqlx_property * property;
+	const st_mysqlx_object* mysqlx_obj = Z_MYSQLX_P(object);
+	const st_mysqlx_property* property;
 	int ret = 0;
 	DBG_ENTER("mysqlx_object_has_property");
 

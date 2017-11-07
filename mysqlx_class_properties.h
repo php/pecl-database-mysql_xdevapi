@@ -24,8 +24,8 @@ namespace mysqlx {
 
 namespace devapi {
 
-typedef zval * (*func_mysqlx_property_get)(const struct st_mysqlx_object *obj, zval *rv);
-typedef int    (*func_mysqlx_property_set)(struct st_mysqlx_object *obj, zval *newval);
+typedef zval * (*func_mysqlx_property_get)(const st_mysqlx_object* obj, zval *rv);
+typedef int    (*func_mysqlx_property_set)(st_mysqlx_object* obj, zval *newval);
 
 struct st_mysqlx_property_entry
 {
@@ -42,7 +42,7 @@ struct st_mysqlx_property
 };
 
 
-void mysqlx_add_properties(HashTable * ht, const struct st_mysqlx_property_entry * entries);
+void mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries);
 
 zval * mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_slot, zval * rv);
 void mysqlx_property_set_value(zval * object, zval * member, zval * value, void ** cache_slot);

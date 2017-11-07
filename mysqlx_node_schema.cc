@@ -140,7 +140,7 @@ struct st_mysqlx_node_schema : public phputils::custom_allocable
 #define MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_schema *) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_node_schema*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->schema) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -213,7 +213,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getName)
 
 /* {{{ mysqlx_node_scheme_on_error */
 static const enum_hnd_func_status
-mysqlx_node_scheme_on_error(void* context, XMYSQLND_NODE_SESSION* session, struct st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_scheme_on_error(void* context, XMYSQLND_NODE_SESSION* session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_scheme_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -752,7 +752,7 @@ static const zend_function_entry mysqlx_node_schema_methods[] = {
 
 /* {{{ mysqlx_node_schema_property__name */
 static zval *
-mysqlx_node_schema_property__name(const struct st_mysqlx_object* obj, zval* return_value)
+mysqlx_node_schema_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_node_schema* object = static_cast<const st_mysqlx_node_schema*>(obj->ptr);
 	DBG_ENTER("mysqlx_node_schema_property__name");

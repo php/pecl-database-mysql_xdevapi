@@ -41,8 +41,8 @@ struct st_mysqlx_node_pfc
 
 #define MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_pfc *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_pfc*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \

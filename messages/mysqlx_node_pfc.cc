@@ -57,8 +57,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, send)
 {
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
 	MYSQLND_CSTRING payload = {nullptr, 0};
 	zend_ulong packet_type;
 	size_t bytes_sent;
@@ -94,8 +94,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, receive)
 {
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
 
 	DBG_ENTER("mysqlx_node_pfc::receive");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
@@ -149,8 +149,8 @@ static HashTable mysqlx_node_pfc_properties;
 static void
 mysqlx_node_pfc_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_pfc * codec = (struct st_mysqlx_node_pfc  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_pfc* codec = (st_mysqlx_node_pfc*) mysqlx_object->ptr;
 
 	if (codec) {
 		const zend_bool pers = codec->persistent;
