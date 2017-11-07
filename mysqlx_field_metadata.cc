@@ -237,22 +237,22 @@ mysqlx_field_meta_property__content_type(const st_mysqlx_object* obj, zval * ret
 /* {{{ mysqlx_field_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_field_meta_property_entries[] =
 {
-	{{"type",				sizeof("type") - 1},				mysqlx_field_meta_property__type,			nullptr},
+	{{"type", sizeof("type") - 1}, mysqlx_field_meta_property__type, nullptr},
 #if TYPE_NAME_ENABLED
-	{{"type_name",			sizeof("type_name") - 1},			mysqlx_field_meta_property__type_name, 		nullptr},
+	{{"type_name", sizeof("type_name") - 1}, mysqlx_field_meta_property__type_name, nullptr},
 #endif
-	{{"name",				sizeof("name") - 1},				mysqlx_field_meta_property__name,			nullptr},
-	{{"original_name",		sizeof("original_name") - 1},		mysqlx_field_meta_property__original_name,	nullptr},
-	{{"table",				sizeof("table") - 1},				mysqlx_field_meta_property__table,			nullptr},
-	{{"original_table",		sizeof("original_table") - 1},		mysqlx_field_meta_property__original_table,nullptr},
-	{{"schema",				sizeof("schema") - 1},				mysqlx_field_meta_property__schema,			nullptr},
-	{{"catalog",			sizeof("catalog") - 1},				mysqlx_field_meta_property__catalog,		nullptr},
-	{{"collation",			sizeof("collation") - 1},			mysqlx_field_meta_property__collation,		nullptr},
-	{{"fractional_digits",	sizeof("fractional_digits") - 1},	mysqlx_field_meta_property__fractional_digits,nullptr},
-	{{"length",				sizeof("length") - 1},				mysqlx_field_meta_property__length,			nullptr},
-	{{"flags",				sizeof("flags") - 1},				mysqlx_field_meta_property__flags,			nullptr},
-	{{"content_type",		sizeof("content_type") - 1},		mysqlx_field_meta_property__content_type,	nullptr},
-	{{nullptr, 				0},									nullptr, 										nullptr}
+	{{"name", sizeof("name") - 1}, mysqlx_field_meta_property__name, nullptr},
+	{{"original_name", sizeof("original_name") - 1}, mysqlx_field_meta_property__original_name, nullptr},
+	{{"table", sizeof("table") - 1}, mysqlx_field_meta_property__table, nullptr},
+	{{"original_table", sizeof("original_table") - 1}, mysqlx_field_meta_property__original_table,nullptr},
+	{{"schema", sizeof("schema") - 1}, mysqlx_field_meta_property__schema, nullptr},
+	{{"catalog", sizeof("catalog") - 1}, mysqlx_field_meta_property__catalog, nullptr},
+	{{"collation", sizeof("collation") - 1}, mysqlx_field_meta_property__collation, nullptr},
+	{{"fractional_digits", sizeof("fractional_digits") - 1}, mysqlx_field_meta_property__fractional_digits,nullptr},
+	{{"length", sizeof("length") - 1}, mysqlx_field_meta_property__length, nullptr},
+	{{"flags", sizeof("flags") - 1}, mysqlx_field_meta_property__flags, nullptr},
+	{{"content_type", sizeof("content_type") - 1}, mysqlx_field_meta_property__content_type, nullptr},
+	{{nullptr, 0}, nullptr, nullptr}
 };
 /* }}} */
 

@@ -716,24 +716,24 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, close)
 
 /* {{{ mysqlx_base_session_methods[] */
 static const zend_function_entry mysqlx_base_session_methods[] = {
-	PHP_ME(mysqlx_base_session, __construct, 		nullptr, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_base_session, getServerVersion,	arginfo_mysqlx_base_session__get_server_version, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, getClientId,		arginfo_mysqlx_base_session__get_client_id, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, generateUUID,		arginfo_mysqlx_base_session__generate_uuid, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, quoteName,			arginfo_mysqlx_base_session__quote_name, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, getSchemas,			arginfo_mysqlx_base_session__get_schemas, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, getSchema,			arginfo_mysqlx_base_session__get_schema, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, __construct, nullptr, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_base_session, getServerVersion, arginfo_mysqlx_base_session__get_server_version, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, getClientId, arginfo_mysqlx_base_session__get_client_id, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, generateUUID, arginfo_mysqlx_base_session__generate_uuid, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, quoteName, arginfo_mysqlx_base_session__quote_name, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, getSchemas, arginfo_mysqlx_base_session__get_schemas, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, getSchema, arginfo_mysqlx_base_session__get_schema, ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_base_session, createSchema,		arginfo_mysqlx_base_session__create_schema, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, dropSchema,			arginfo_mysqlx_base_session__drop_schema, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, createSchema, arginfo_mysqlx_base_session__create_schema, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, dropSchema, arginfo_mysqlx_base_session__drop_schema, ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_base_session, startTransaction,	arginfo_mysqlx_base_session__start_transaction, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, commit,				arginfo_mysqlx_base_session__commit, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, rollback,			arginfo_mysqlx_base_session__rollback, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, startTransaction, arginfo_mysqlx_base_session__start_transaction, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, commit, arginfo_mysqlx_base_session__commit, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, rollback, arginfo_mysqlx_base_session__rollback, ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_base_session, listClients,		arginfo_mysqlx_base_session__list_clients, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, killClient,			arginfo_mysqlx_base_session__kill_client, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_base_session, close,				arginfo_mysqlx_base_session__close, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, listClients, arginfo_mysqlx_base_session__list_clients, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, killClient, arginfo_mysqlx_base_session__kill_client, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_base_session, close, arginfo_mysqlx_base_session__close, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */

@@ -141,12 +141,12 @@ mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, 
 /* {{{ mysqlx_execution_status_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_execution_status_property_entries[] =
 {
-	{{"affectedItems",		sizeof("affectedItems") - 1},	mysqlx_execution_status_property__affected_items,	nullptr},
-	{{"matchedItems",		sizeof("matchedItems") - 1},	mysqlx_execution_status_property__matched_items,	nullptr},
-	{{"foundItems",			sizeof("foundItems") - 1},		mysqlx_execution_status_property__found_items,		nullptr},
-	{{"lastInsertId",		sizeof("lastInsertId") - 1},	mysqlx_execution_status_property__last_insert_id,	nullptr},
-	{{"lastDocumentId",		sizeof("lastDocumentId") - 1},	mysqlx_execution_status_property__last_document_id,	nullptr},
-	{{nullptr, 				0},								nullptr, 												nullptr}
+	{{"affectedItems", sizeof("affectedItems") - 1}, mysqlx_execution_status_property__affected_items, nullptr},
+	{{"matchedItems", sizeof("matchedItems") - 1}, mysqlx_execution_status_property__matched_items, nullptr},
+	{{"foundItems", sizeof("foundItems") - 1}, mysqlx_execution_status_property__found_items, nullptr},
+	{{"lastInsertId", sizeof("lastInsertId") - 1}, mysqlx_execution_status_property__last_insert_id, nullptr},
+	{{"lastDocumentId", sizeof("lastDocumentId") - 1}, mysqlx_execution_status_property__last_document_id, nullptr},
+	{{nullptr, 0}, nullptr, nullptr}
 };
 /* }}} */
 
