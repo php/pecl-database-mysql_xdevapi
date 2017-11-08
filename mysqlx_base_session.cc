@@ -610,7 +610,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 {
 	zval * object_zv;
 	DBG_ENTER("mysqlx_base_session::setSavepoint");
-	phputils::string_input_param savepoint_name;
+	phputils::string_view savepoint_name;
 
 	if (zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O|s",
@@ -654,7 +654,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param savepoint_name;
+	phputils::string_view savepoint_name;
 
 	DBG_ENTER("mysqlx_base_session::rollbackTo");
 	if (zend_parse_method_parameters(
@@ -690,7 +690,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, releaseSavepoint)
 {
 	zval* object_zv = nullptr;
-	phputils::string_input_param savepoint_name;
+	phputils::string_view savepoint_name;
 
 	DBG_ENTER("mysqlx_base_session::releaseSavepoint");
 	if (zend_parse_method_parameters(

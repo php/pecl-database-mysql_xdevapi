@@ -470,7 +470,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTable)
 {
 	st_mysqlx_node_schema* object{nullptr};
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING table_name = { nullptr, 0 };
 	phputils::string_view table_name;
 
 	DBG_ENTER("mysqlx_node_schema::getTable");
