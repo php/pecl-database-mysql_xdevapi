@@ -1,3 +1,12 @@
+// Note: The extension name is "mysql-xdevapi", you enable it with
+// "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
+// is officially supported
+//
+// required 3rdParty libs may be also configured with below environment variables:
+// - MYSQL_XDEVAPI_PROTOBUF_ROOT to point out google protobuf root
+// - MYSQL_XDEVAPI_BOOST_ROOT to point out boost libraries
+
+
 PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
 	[  --enable-mysql-xdevapi       Enable mysql-xdevapi], no, yes)
 
@@ -12,27 +21,6 @@ PHP_ARG_ENABLE(mysql-xdevapi-message-classes, whether to enable the experimental
 dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
 if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes"; then
 	PHP_REQUIRE_CXX
-
-	SEARCH_PATH="/usr/local /usr"
-	SEARCH_FOR="include/google/protobuf-c/protobuf-c.h"
-	AC_MSG_CHECKING([for protobuf-c files in default path])
-	for i in $SEARCH_PATH ; do
-		if test -r $i/$SEARCH_FOR; then
-			PROTOBUFC_DIR=$i/lib/google/protobuf-c/
-			AC_MSG_RESULT(Header found in $i/include/google/protobuf-c/)
-		fi
-	done
-
-	SEARCH_PATH="/usr/local /usr"
-	SEARCH_FOR="include/boost/function.hpp"
-	AC_MSG_CHECKING([for boost::function in default path])
-	for i in $SEARCH_PATH ; do
-		if test -r $i/$SEARCH_FOR; then
-			MYSQL_XDEVAPI_BOOST_FUNCTION=$i/$SEARCH_FOR
-			AC_DEFINE([MYSQL_XDEVAPI_BOOST_FUNCTION], $MYSQL_XDEVAPI_BOOST_FUNCTION, [Enable experimental features])
-			AC_MSG_RESULT(Header found in $MYSQL_XDEVAPI_BOOST_FUNCTION)
-		fi
-	done
 
 	if test "$PHP_MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES" != "no"; then
 		AC_DEFINE([MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES], 1, [Enable experimental features])
@@ -227,12 +215,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/cdkbase/foundation])
 	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/cdkbase/parser])
 
-	dnl TODO: we should search for a proper protoc matchig the one who's heades we use and which we link above
-	PROTOC=protoc
-	PHP_SUBST(PROTOC)
-	PHP_ADD_MAKEFILE_FRAGMENT()
-
-
 	dnl phpize/pecl build
 	if test "$PHP_PECL_EXTENSION"; then
 		AC_MSG_NOTICE(phpize/pecl build mode)
@@ -260,8 +242,61 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
 
-	PHP_ADD_LIBRARY(protobuf,, MYSQL_XDEVAPI_SHARED_LIBADD)
 
+	dnl boost
+	AC_MSG_CHECKING([for boost])
+	SEARCH_PATH="$MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH /usr/local/include /usr/include"
+	SEARCH_FOR="boost/version.hpp"
+	for i in $SEARCH_PATH ; do
+		if test -r $i/$SEARCH_FOR; then
+			BOOST_ROOT_FOUND=$i
+			break
+		fi
+	done
+
+	if test $BOOST_ROOT_FOUND; then
+		PHP_ADD_INCLUDE([$BOOST_ROOT_FOUND])
+		AC_MSG_RESULT(found in $BOOST_ROOT_FOUND)
+	else
+		AC_MSG_RESULT([not found, defaults applied (consider setting MYSQL_XDEVAPI_BOOST_ROOT)])
+	fi
+
+
+	dnl protobuf
+	AC_MSG_CHECKING([for protobuf])
+	SEARCH_PATH="$MYSQL_XDEVAPI_PROTOBUF_ROOT $PROTOBUF_ROOT $PROTOBUF_PATH /usr/local /usr"
+	SEARCH_FOR="bin/protoc"
+	for i in $SEARCH_PATH ; do
+		if test -r $i/$SEARCH_FOR; then
+			PROTOBUF_ROOT_FOUND=$i
+			break
+		fi
+	done
+
+	if test $PROTOBUF_ROOT_FOUND; then
+		MYSQL_XDEVAPI_PROTOC=$PROTOBUF_ROOT_FOUND/bin/protoc
+		PHP_SUBST(MYSQL_XDEVAPI_PROTOC)
+
+		MYSQL_XDEVAPI_PROTOBUF_INCLUDES=$PROTOBUF_ROOT_FOUND/include
+		PHP_SUBST(MYSQL_XDEVAPI_PROTOBUF_INCLUDES)
+
+		PHP_ADD_INCLUDE([$MYSQL_XDEVAPI_PROTOBUF_INCLUDES])
+		PHP_ADD_LIBRARY_WITH_PATH(protobuf, [$PROTOBUF_ROOT_FOUND/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
+
+		AC_MSG_RESULT([found in $PROTOBUF_ROOT_FOUND])
+	else
+		MYSQL_XDEVAPI_PROTOC=protoc
+		PHP_SUBST(MYSQL_XDEVAPI_PROTOC)
+
+		PHP_ADD_LIBRARY(protobuf,, MYSQL_XDEVAPI_SHARED_LIBADD)
+
+		AC_MSG_RESULT([not found, defaults applied (consider setting MYSQL_XDEVAPI_PROTOBUF_ROOT)])
+	fi
+
+	PHP_ADD_MAKEFILE_FRAGMENT()
+
+
+	dnl open-ssl
 	AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
 
 	test -z "$PHP_OPENSSL" && PHP_OPENSSL=no
@@ -274,16 +309,16 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	fi
 
 	dnl Enable mysqlnd build in case it wasn't passed explicitly in cmd-line
-	if test "$PHP_MYSQLND" != "yes" && test "$PHP_MYSQLND_ENABLED" != "yes" && test "$PHP_MYSQLI" != "yes" && test "$PHP_MYSQLI" != "mysqlnd"; then
-		if test -z "$PHP_PECL_EXTENSION"; then
-			dnl only in case it is NOT phpize/pecl building mode
+	if test -z "$PHP_PECL_EXTENSION"; then
+		dnl only in case it is NOT phpize/pecl building mode
+		if test "$PHP_MYSQLND" != "yes" && test "$PHP_MYSQLND_ENABLED" != "yes" && test "$PHP_MYSQLI" != "yes" && test "$PHP_MYSQLI" != "mysqlnd"; then
 			PHP_ADD_BUILD_DIR(ext/mysqlnd, 1)
+
+			dnl This needs to be set in any extension which wishes to use mysqlnd
+			PHP_MYSQLND_ENABLED=yes
+
+			AC_MSG_NOTICE([mysql-xdevapi depends on ext/mysqlnd, it has been added to build])
 		fi
-
-		dnl This needs to be set in any extension which wishes to use mysqlnd
-		PHP_MYSQLND_ENABLED=yes
-
-		AC_MSG_NOTICE(mysql-xdevapi depends on ext/mysqlnd - it has been added to build)
 	fi
 
 	AC_DEFINE(HAVE_MYSQL_XDEVAPI, 1, [mysql-xdevapi support enabled])

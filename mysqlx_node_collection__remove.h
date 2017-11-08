@@ -36,7 +36,7 @@ public:
 	bool init(
 		zval* object_zv,
 		drv::st_xmysqlnd_node_collection* collection,
-		const phputils::string_input_param& search_expression);
+		const phputils::string_view& search_expression);
 	~Collection_remove();
 
 public:
@@ -53,9 +53,9 @@ public:
 	void execute(zval* return_value);
 
 private:
-	zval* object_zv = nullptr;
-	drv::st_xmysqlnd_node_collection* collection = nullptr;
-	drv::st_xmysqlnd_crud_collection_op__remove* remove_op = nullptr;
+	zval* object_zv{nullptr};
+	drv::st_xmysqlnd_node_collection* collection{nullptr};
+	drv::st_xmysqlnd_crud_collection_op__remove* remove_op{nullptr};
 
 };
 /* }}} */
@@ -63,7 +63,7 @@ private:
 
 void mysqlx_new_node_collection__remove(
 	zval* return_value,
-	const phputils::string_input_param& search_expression,
+	const phputils::string_view& search_expression,
 	drv::st_xmysqlnd_node_collection* collection);
 void mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS);

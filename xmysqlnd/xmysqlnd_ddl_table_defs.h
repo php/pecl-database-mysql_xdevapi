@@ -91,26 +91,26 @@ struct Column_def
 
 	public:
 		void init(
-			const phputils::string_input_param& name,
-			const phputils::string_input_param& type,
+			const phputils::string_view& name,
+			const phputils::string_view& type,
 			long length = Default_length);
 		void init(
-			const phputils::string_input_param& name,
-			const phputils::string_input_param& type,
-			const phputils::string_input_param& expression);
+			const phputils::string_view& name,
+			const phputils::string_view& type,
+			const phputils::string_view& expression);
 
 		void enable_not_null();
 		void enable_unique_index();
 		void enable_primary_key();
-		void set_comment(const phputils::string_input_param& comment);
+		void set_comment(const phputils::string_view& comment);
 
 		void set_default_value(const phputils::string& default_value_expr);
 		void enable_auto_increment();
-		void set_foreign_key(const phputils::string_input_param& table, const phputils::strings& fields);
+		void set_foreign_key(const phputils::string_view& table, const phputils::strings& fields);
 		void enable_unsigned();
 		void set_decimals(long decimals);
-		void set_charset(const phputils::string_input_param& charset);
-		void set_collation(const phputils::string_input_param& collation);
+		void set_charset(const phputils::string_view& charset);
+		void set_collation(const phputils::string_view& collation);
 		void enable_binary();
 		void set_values(const phputils::strings& values);
 
@@ -124,22 +124,22 @@ struct Column_def
 		optional_long length;
 		phputils::string generated_as_expr;
 
-		bool not_null = false;
-		bool unique_index = false;
-		bool primary_key = false;
+		bool not_null{false};
+		bool unique_index{false};
+		bool primary_key{false};
 		phputils::string comment;
 
 		phputils::string default_value;
-		bool auto_increment = false;
+		bool auto_increment{false};
 		Foreign_key foreign_key;
-		bool is_unsigned = false;
+		bool is_unsigned{false};
 		optional_long decimals;
 		phputils::string charset;
 		phputils::string collation;
-		bool binary = false;
+		bool binary{false};
 		phputils::strings values;
 
-		bool stored = false;
+		bool stored{false};
 };
 /* }}} */
 
@@ -166,9 +166,9 @@ struct Foreign_key_def
 
 	public:
 		void set_fields(const phputils::strings& fields);
-		void set_refers_to(const phputils::string_input_param& table, const phputils::strings& fields);
-		void set_on_delete_mode(const phputils::string_input_param& mode);
-		void set_on_update_mode(const phputils::string_input_param& mode);
+		void set_refers_to(const phputils::string_view& table, const phputils::strings& fields);
+		void set_on_delete_mode(const phputils::string_view& mode);
+		void set_on_update_mode(const phputils::string_view& mode);
 
 	public:
 		phputils::strings fields;
@@ -208,22 +208,22 @@ struct Table_def
 
 	public:
 		void init(
-			const phputils::string_input_param& schema_name,
-			const phputils::string_input_param& table_name,
+			const phputils::string_view& schema_name,
+			const phputils::string_view& table_name,
 			bool replace_if_exists);
 
 		void add_column(const Column_def& column_def);
 		void set_primary_key(const phputils::strings& fields);
-		void add_index(const phputils::string_input_param& name, const phputils::strings& fields);
-		void add_unique_index(const phputils::string_input_param& name, const phputils::strings& fields);
-		void add_foreign_key(const phputils::string_input_param& name, const Foreign_key_def& foreign_key);
+		void add_index(const phputils::string_view& name, const phputils::strings& fields);
+		void add_unique_index(const phputils::string_view& name, const phputils::strings& fields);
+		void add_foreign_key(const phputils::string_view& name, const Foreign_key_def& foreign_key);
 		void set_initial_auto_increment(long init_auto_increment);
-		void set_default_charset(const phputils::string_input_param& charset_name);
-		void set_default_collation(const phputils::string_input_param& collation_name);
-		void set_comment(const phputils::string_input_param& comment);
+		void set_default_charset(const phputils::string_view& charset_name);
+		void set_default_collation(const phputils::string_view& collation_name);
+		void set_comment(const phputils::string_view& comment);
 		void enable_temporary();
-		void set_defined_as(const phputils::string_input_param& defined_as);
-		void set_like(const phputils::string_input_param& template_table_name);
+		void set_defined_as(const phputils::string_view& defined_as);
+		void set_like(const phputils::string_view& template_table_name);
 
 	public:
 		enum class Kind {
@@ -237,7 +237,7 @@ struct Table_def
 	public:
 		phputils::string schema_name;
 		phputils::string table_name;
-		bool replace_existing = false;
+		bool replace_existing{false};
 		Column_defs columns;
 		phputils::strings primary_key;
 		Indexes indexes;
@@ -246,7 +246,7 @@ struct Table_def
 		phputils::string default_charset;
 		phputils::string default_collation;
 		phputils::string comment;
-		bool temporary = false;
+		bool temporary{false};
 		phputils::string defined_as;
 		phputils::string like_template_table_name;
 

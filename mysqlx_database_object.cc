@@ -15,11 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
-}
+#include "php_api.h"
 #include "mysqlx_database_object.h"
 
 namespace mysqlx {
@@ -48,7 +44,7 @@ static const zend_function_entry mysqlx_database_object_methods[] = {
 
 	PHP_ABSTRACT_ME(mysqlx_database_object, existsInDatabase, arginfo_mysqlx_database_object__exists_in_database)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

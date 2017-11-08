@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -58,10 +56,10 @@ struct st_mysqlx_data_row
 
 #define MYSQLX_FETCH_MESSAGE__DATA_ROW_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_data_row *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_data_row*) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -82,8 +80,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 {
 	zval * object_zv;
 	zval * metadata_zv;
-	struct st_mysqlx_data_row * object;
-	struct st_mysqlx_resultset_metadata * metadata;
+	st_mysqlx_data_row* object;
+	st_mysqlx_resultset_metadata* metadata;
 
 	DBG_ENTER("mysqlx_data_row::decode");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
@@ -101,24 +99,24 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 		zval * entry;
 		const size_t column_count = zend_hash_num_elements(&metadata->resultset_metadata_ht);
 		if (!column_count) {
-			php_error_docref(NULL, E_WARNING, "Zero columns");
+			php_error_docref(nullptr, E_WARNING, "Zero columns");
 			DBG_VOID_RETURN;
 		}
 		//TODO marines
         const size_t max_column_count = 256;
         assert(column_count < max_column_count);
-        //const struct st_mysqlx_column_metadata * meta_ar[column_count];
-        const struct st_mysqlx_column_metadata * meta_ar[max_column_count];
+        //const st_mysqlx_column_metadata* meta_ar[column_count];
+        const st_mysqlx_column_metadata* meta_ar[max_column_count];
         unsigned int i = 0;
 		/* ZEND_HASH_FOREACH_PTR ?? */
 		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {
-				struct st_mysqlx_column_metadata * column_entry = NULL;
+				st_mysqlx_column_metadata* column_entry{nullptr};
 				MYSQLX_FETCH_MESSAGE__COLUMN_METADATA_FROM_ZVAL(column_entry, entry);
 
 				const Mysqlx::Resultset::ColumnMetaData & meta = column_entry->message;
 				if (!meta.has_type()) {
-					php_error_docref(NULL, E_WARNING, "Type is not set for position %u", i);
+					php_error_docref(nullptr, E_WARNING, "Type is not set for position %u", i);
 					DBG_VOID_RETURN;
 				}
 				switch (meta.type()) {
@@ -135,7 +133,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					case Mysqlx::Resultset::ColumnMetaData_FieldType_DECIMAL:
 						break;
 					default:
-						php_error_docref(NULL, E_WARNING, "Unknown type %s(%u) for position %u",
+						php_error_docref(nullptr, E_WARNING, "Unknown type %s(%u) for position %u",
 										 Mysqlx::Resultset::ColumnMetaData::FieldType_Name(meta.type()).c_str(),
 										 meta.type(),
 										 i);
@@ -152,7 +150,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 			const size_t buf_size = object->message.field(i).size();
 			zval zv;
 			DBG_INF_FMT("buf_size=%u", (uint) buf_size);
-			for (unsigned j = 0; j < buf_size; j++) {
+			for (unsigned j{0}; j < buf_size; j++) {
 				DBG_INF_FMT("[%02u]=x%02X", j, buf[j]);
 			}
 			/*
@@ -178,7 +176,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							ZVAL_LONG(&zv, ival);
 						}
 					} else {
-						php_error_docref(NULL, E_WARNING, "Error decoding SINT");
+						php_error_docref(nullptr, E_WARNING, "Error decoding SINT");
 					}
 					break;
 				}
@@ -199,7 +197,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							ZVAL_LONG(&zv, gval);
 						}
 					} else {
-						php_error_docref(NULL, E_WARNING, "Error decoding UINT");
+						php_error_docref(nullptr, E_WARNING, "Error decoding UINT");
 					}
 					break;
 				}
@@ -210,7 +208,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					if (input_stream.ReadLittleEndian64(&gval)) {
 						ZVAL_DOUBLE(&zv, ::google::protobuf::internal::WireFormatLite::DecodeDouble(gval));
 					} else {
-						php_error_docref(NULL, E_WARNING, "Error decoding DOUBLE");
+						php_error_docref(nullptr, E_WARNING, "Error decoding DOUBLE");
 						ZVAL_NULL(&zv);
 					}
 					break;
@@ -229,7 +227,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 
 						ZVAL_DOUBLE(&zv, dval);
 					} else {
-						php_error_docref(NULL, E_WARNING, "Error decoding FLOAT");
+						php_error_docref(nullptr, E_WARNING, "Error decoding FLOAT");
 					}
 					break;
 				}
@@ -259,7 +257,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							#undef TIME_NULL_VALUE
 						} else {
 							ZVAL_NULL(&zv);
-							php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+							php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
 						}
 						break;
 					}
@@ -292,7 +290,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							ZVAL_NEW_STR(return_value, zend_string_init(DATETIME_NULL_VALUE, sizeof(DATETIME_NULL_VALUE)-1, 0));
 							#undef DATETIME_NULL_VALUE
 						} else {
-							php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+							php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
 						}
 						break;
 					}
@@ -321,20 +319,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					DBG_INF("SET");
 					::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 					::google::protobuf::uint64 gval;
-					bool length_read_ok = true;
+					bool length_read_ok{true};
 					array_init(&zv);
 					if (buf_size == 1 && buf[0] == 0x1) { /* Empty set */
 						break;
 					}
 					while (length_read_ok) {
 						if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
-							char * set_value = NULL;
-							int rest_buffer_size = 0;
+							char* set_value{nullptr};
+							int rest_buffer_size{0};
 							if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 								zval set_entry;
 								DBG_INF_FMT("value length=%3u  rest_buffer_size=%3d", (uint) gval, rest_buffer_size);
 								if (gval > rest_buffer_size) {
-									php_error_docref(NULL, E_WARNING, "Length pointing outside of the buffer");
+									php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
 									break;
 								}
 								ZVAL_STRINGL(&set_entry, set_value, gval);
@@ -354,7 +352,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					if (buf_size == 1) {
-						php_error_docref(NULL, E_WARNING, "Unexpected value %d for first byte of TIME");
+						php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME");
 					}
 					const uint8_t scale = buf[0];
 					const uint8_t last_byte = buf[buf_size - 1]; /* last byte is the sign and the last 4 bits, if any */
@@ -364,7 +362,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					DBG_INF_FMT("sign      =%u", (uint) sign);
 					DBG_INF_FMT("digits    =%u", (uint) digits);
 					if (!digits) {
-						php_error_docref(NULL, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
+						php_error_docref(nullptr, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
 						break;
 					}
 					const size_t d_val_len = digits + (sign == 0xD? 1:0) + (digits > scale? 1:0); /* one for the dot, one for the sign*/
@@ -402,9 +400,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 
 /* {{{ mysqlx_data_row_methods[] */
 static const zend_function_entry mysqlx_data_row_methods[] = {
-	PHP_ME(mysqlx_data_row, __construct,	NULL,						ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_data_row, __construct,	nullptr,						ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_data_row, decode,			mysqlx_data_row__decode,	ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -412,7 +410,7 @@ static const zend_function_entry mysqlx_data_row_methods[] = {
 /* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_column_meta_property_entries[] =
 {
-	{{NULL, 0}, NULL, NULL}
+	{{nullptr, 0}, nullptr, nullptr}
 };
 /* }}} */
 
@@ -425,8 +423,8 @@ static HashTable mysqlx_data_row_properties;
 static void
 mysqlx_data_row_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_data_row * message = (struct st_mysqlx_data_row  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_data_row* message = (st_mysqlx_data_row*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -439,8 +437,8 @@ static zend_object *
 php_mysqlx_data_row_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_data_row * message = new (std::nothrow) struct st_mysqlx_data_row();
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_data_row* message = new (std::nothrow) struct st_mysqlx_data_row();
 
 	DBG_ENTER("php_mysqlx_data_row_object_allocator");
 	if ( mysqlx_object && message) {
@@ -460,7 +458,7 @@ php_mysqlx_data_row_object_allocator(zend_class_entry * class_type)
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -480,7 +478,7 @@ mysqlx_register_data_row_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std
 		mysqlx_data_row_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_data_row_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_data_row_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 
@@ -498,7 +496,7 @@ mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_data_row(zval * return_value, const Mysqlx::Resultset::Row & message)
 {
-	struct st_mysqlx_data_row * obj;
+	st_mysqlx_data_row* obj;
 	DBG_ENTER("mysqlx_new_data_row");
 	object_init_ex(return_value, mysqlx_data_row_class_entry);
 	MYSQLX_FETCH_MESSAGE__DATA_ROW_FROM_ZVAL(obj, return_value);

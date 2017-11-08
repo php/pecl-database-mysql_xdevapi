@@ -10,7 +10,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <description>The X DevAPI is he new common API for MySQL Connectors built on the X Protocol introduced in MySQL 5.7.12.
 
 The X DevAPI wraps powerful concepts in a simple API.
-* A new high-level session concept enables you to write code that can transparently scale from single MySQL Server to a multiple server environment. 
+* A new high-level session concept enables you to write code that can transparently scale from single MySQL Server to a multiple server environment.
 * Read operations are simple and easy to understand.
 
 The X DevAPI introduces a new, modern and easy-to-learn way to work with your data.
@@ -329,7 +329,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     </dir>
    </dir>
    <dir name="xmysqlnd">
-    <file name="json_patch.txt" role="doc" />
     <file name="xmysqlnd.h" role="src" />
     <file name="xmysqlnd_any2expr.cc" role="src" />
     <file name="xmysqlnd_any2expr.h" role="src" />

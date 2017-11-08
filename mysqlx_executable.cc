@@ -15,11 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
-}
+#include "php_api.h"
 #include "mysqlx_executable.h"
 
 namespace mysqlx {
@@ -35,7 +31,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_executable_methods[] */
 static const zend_function_entry mysqlx_executable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_executable, execute, arginfo_mysqlx_executable__execute)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

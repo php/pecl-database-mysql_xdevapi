@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -49,10 +47,10 @@ struct st_mysqlx_warning
 
 #define MYSQLX_FETCH_WARNING_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_warning *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_warning*) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -67,17 +65,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 
 /* {{{ mysqlx_warning_methods[] */
 static const zend_function_entry mysqlx_warning_methods[] = {
-	PHP_ME(mysqlx_warning, __construct,	NULL,	ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_warning, __construct,	nullptr,	ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 
 /* {{{ mysqlx_warning_property__message */
 static zval *
-mysqlx_warning_property__message(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_warning * object = (const struct st_mysqlx_warning *) (obj->ptr);
+	const st_mysqlx_warning* object = (const st_mysqlx_warning* ) (obj->ptr);
 	DBG_ENTER("mysqlx_warning_property__message");
 	if (object->msg.s) {
 		ZVAL_STRINGL(return_value, object->msg.s, object->msg.l);
@@ -86,10 +84,10 @@ mysqlx_warning_property__message(const struct st_mysqlx_object * obj, zval * ret
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -98,9 +96,9 @@ mysqlx_warning_property__message(const struct st_mysqlx_object * obj, zval * ret
 
 /* {{{ mysqlx_warning_property__level */
 static zval *
-mysqlx_warning_property__level(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_warning_property__level(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_warning * object = (const struct st_mysqlx_warning *) (obj->ptr);
+	const st_mysqlx_warning* object = (const st_mysqlx_warning* ) (obj->ptr);
 	DBG_ENTER("mysqlx_warning_property__level");
 	ZVAL_LONG(return_value, object->level);
 	DBG_RETURN(return_value);
@@ -110,9 +108,9 @@ mysqlx_warning_property__level(const struct st_mysqlx_object * obj, zval * retur
 
 /* {{{ mysqlx_warning_property__code */
 static zval *
-mysqlx_warning_property__code(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_warning_property__code(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_warning * object = (const struct st_mysqlx_warning *) (obj->ptr);
+	const st_mysqlx_warning* object = (const st_mysqlx_warning* ) (obj->ptr);
 	DBG_ENTER("mysqlx_warning_property__code");
 	/* code is 32 bit unsigned and on 32bit system won't fit into 32 bit signed zend_long, but this won't happen in practice*/
 	ZVAL_LONG(return_value, object->code);
@@ -124,10 +122,10 @@ mysqlx_warning_property__code(const struct st_mysqlx_object * obj, zval * return
 /* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_warning_property_entries[] =
 {
-	{{"message",			sizeof("message") - 1},		mysqlx_warning_property__message,	NULL},
-	{{"level",				sizeof("level") - 1},		mysqlx_warning_property__level,		NULL},
-	{{"code",				sizeof("code") - 1},		mysqlx_warning_property__code,		NULL},
-	{{NULL, 				0},							NULL, 								NULL}
+	{{"message",			sizeof("message") - 1},		mysqlx_warning_property__message,	nullptr},
+	{{"level",				sizeof("level") - 1},		mysqlx_warning_property__level,		nullptr},
+	{{"code",				sizeof("code") - 1},		mysqlx_warning_property__code,		nullptr},
+	{{nullptr, 				0},							nullptr, 								nullptr}
 };
 /* }}} */
 
@@ -140,14 +138,14 @@ static HashTable mysqlx_warning_properties;
 static void
 mysqlx_warning_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_warning * message = (struct st_mysqlx_warning  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_warning* message = (st_mysqlx_warning*) mysqlx_object->ptr;
 
 	if (message) {
 		const zend_bool pers = message->persistent;
 		if (message->msg.s) {
 			mnd_pefree(message->msg.s, pers);
-			message->msg.s = NULL;
+			message->msg.s = nullptr;
 		}
 		mnd_pefree(message, message->persistent);
 	}
@@ -161,8 +159,8 @@ static zend_object *
 php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_warning * message = (struct st_mysqlx_warning *)  mnd_pecalloc(1, sizeof(struct st_mysqlx_warning), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_warning* message = (st_mysqlx_warning*)  mnd_pecalloc(1, sizeof(struct st_mysqlx_warning), persistent);
 
 	DBG_ENTER("php_mysqlx_warning_object_allocator");
 	if ( mysqlx_object && message) {
@@ -184,7 +182,7 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 	if (mysqlx_object) {
 		mnd_pefree(mysqlx_object, persistent);
 	}
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -203,7 +201,7 @@ mysqlx_register_warning_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_
 		mysqlx_warning_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_warning_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_warning_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	mysqlx_add_properties(&mysqlx_warning_properties, mysqlx_warning_property_entries);
 
@@ -230,14 +228,14 @@ mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int 
 {
 	DBG_ENTER("mysqlx_new_warning");
 	if (SUCCESS == object_init_ex(return_value, mysqlx_warning_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_warning * const object = (struct st_mysqlx_warning *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_warning* const object = (st_mysqlx_warning*) mysqlx_object->ptr;
 		if (object) {
 			object->msg = mnd_dup_cstring(msg, object->persistent);
 			object->level = level;
 			object->code = code;
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

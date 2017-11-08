@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/json/php_json_parser.h"
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
@@ -75,9 +73,9 @@ collection_op_var_binder(
 	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
-	struct st_collection_exists_in_database_var_binder_ctx * ctx = (struct st_collection_exists_in_database_var_binder_ctx *) context;
-	const MYSQLND_CSTRING * param = NULL;
+	enum_hnd_func_status ret{HND_FAIL};
+	st_collection_exists_in_database_var_binder_ctx* ctx = (st_collection_exists_in_database_var_binder_ctx*) context;
+	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_op_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -214,7 +212,7 @@ collection_sql_single_result_op_on_row(
 	MYSQLND_STATS * const stats,
 	MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_collection_sql_single_result_ctx * ctx = (struct st_collection_sql_single_result_ctx *) context;
+	st_collection_sql_single_result_ctx* ctx = (st_collection_sql_single_result_ctx*) context;
 	DBG_ENTER("collection_xplugin_op_on_row");
 	if (ctx && row) {
 		ZVAL_COPY_VALUE(ctx->result, &row[0]);
@@ -281,7 +279,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 											   XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 {
 	DBG_ENTER("xmysqlnd_node_collection::add");
-	XMYSQLND_NODE_STMT * ret = NULL;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	XMYSQLND_NODE_SESSION * session;
 	struct st_xmysqlnd_message_factory msg_factory;
 	struct st_xmysqlnd_msg__collection_add collection_add;
@@ -313,7 +311,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
-	XMYSQLND_NODE_STMT * ret = NULL;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection::remove");
 	if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
 		DBG_RETURN(ret);
@@ -329,7 +327,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * con
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
-		DBG_INF(ret != NULL? "PASS":"FAIL");
+		DBG_INF(ret != nullptr? "PASS":"FAIL");
 	}
 
 	DBG_RETURN(ret);
@@ -341,7 +339,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, remove)(XMYSQLND_NODE_COLLECTION * con
 static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 {
-	XMYSQLND_NODE_STMT * ret = NULL;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection::modify");
 	if (!op || FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
 		DBG_RETURN(ret);
@@ -357,7 +355,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * con
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
-		DBG_INF(ret != NULL? "PASS":"FAIL");
+		DBG_INF(ret != nullptr? "PASS":"FAIL");
 	}
 
 	DBG_RETURN(ret);
@@ -366,10 +364,9 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * con
 
 
 /* {{{ xmysqlnd_node_collection::find */
-static struct st_xmysqlnd_node_stmt *
-XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
+static st_xmysqlnd_node_stmt* XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 {
-	XMYSQLND_NODE_STMT * stmt = NULL;
+	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection::find");
 	if (!op || FAIL == xmysqlnd_crud_collection_find__finalize_bind(op)) {
 		DBG_RETURN(stmt);
@@ -379,7 +376,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const
 		stmt = session->m->create_statement_object(session);
 		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_collection_find__get_protobuf_message(op), session->data->stats, session->data->error_info)) {
 			xmysqlnd_node_stmt_free(stmt, session->data->stats, session->data->error_info);
-			stmt = NULL;
+			stmt = nullptr;
 		}
 	}
 	DBG_RETURN(stmt);
@@ -403,7 +400,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, get_reference)(XMYSQLND_NODE_COLLECTIO
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_collection, free_reference)(XMYSQLND_NODE_COLLECTION * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_collection::free_reference");
 	DBG_INF_FMT("collection=%p old_refcount=%u", collection, collection->data->refcount);
 	if (!(--collection->data->refcount)) {
@@ -422,7 +419,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, free_contents)(XMYSQLND_NODE_COLLECTIO
 	DBG_ENTER("xmysqlnd_node_collection::free_contents");
 	if (collection->data->collection_name.s) {
 		mnd_pefree(collection->data->collection_name.s, pers);
-		collection->data->collection_name.s = NULL;
+		collection->data->collection_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -476,7 +473,7 @@ xmysqlnd_node_collection_create(XMYSQLND_NODE_SCHEMA * schema,
 								MYSQLND_STATS * const stats,
 								MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_NODE_COLLECTION * ret = NULL;
+	XMYSQLND_NODE_COLLECTION* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection_create");
 	if (collection_name.s && collection_name.l) {
 		ret = object_factory->get_node_collection(object_factory, schema, collection_name, persistent, stats, error_info);
@@ -494,7 +491,7 @@ PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_node_collection_free(XMYSQLND_NODE_COLLECTION * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_collection_free");
-	DBG_INF_FMT("collection=%p  collection->data=%p  dtor=%p", collection, collection? collection->data:NULL, collection? collection->data->m.dtor:NULL);
+	DBG_INF_FMT("collection=%p  collection->data=%p  dtor=%p", collection, collection? collection->data:nullptr, collection? collection->data->m.dtor:nullptr);
 	if (collection) {
 		collection->data->m.free_reference(collection, stats, error_info);
 	}

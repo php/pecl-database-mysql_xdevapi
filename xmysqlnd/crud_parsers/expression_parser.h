@@ -69,7 +69,7 @@ class Expr_builder
 class Expression_parser
 {
   public:
-    Expression_parser(const std::string& expr_str, bool document_mode = false, bool allow_alias = false, std::vector<std::string>* place_holders = NULL);
+    Expression_parser(const std::string& expr_str, bool document_mode = false, bool allow_alias = false, std::vector<std::string>* place_holders = nullptr);
 
     typedef boost::function<Mysqlx::Expr::Expr*(Expression_parser*)> inner_parser_t;
 

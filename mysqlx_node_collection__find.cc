@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -99,7 +97,7 @@ ZEND_END_ARG_INFO()
 bool Collection_find::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_input_param& search_expression)
+	const phputils::string_view& search_expression)
 {
 	if (!obj_zv || !coll) return false;
 
@@ -140,7 +138,7 @@ void Collection_find::fields(
 {
 	DBG_ENTER("Collection_find::fields");
 
-	bool is_expression = false;
+	bool is_expression{false};
 	switch (Z_TYPE_P(fields)) {
 		case IS_STRING:
 		case IS_ARRAY:
@@ -159,7 +157,7 @@ void Collection_find::fields(
 
 	RETVAL_FALSE;
 
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	if (Z_TYPE_P(fields) == IS_STRING) {
 		const MYSQLND_CSTRING field_str = { Z_STRVAL_P(fields), Z_STRLEN_P(fields) };
 		ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
@@ -204,7 +202,7 @@ void Collection_find::add_operation(
 {
 	DBG_ENTER("Collection_find::add_operation");
 
-	for( int i = 0 ; i < num_of_expr ; ++i ) {
+	for( int i{0}; i < num_of_expr ; ++i ) {
 		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
 			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
 			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
@@ -216,7 +214,7 @@ void Collection_find::add_operation(
 
 	RETVAL_FALSE;
 
-	for( int i = 0 ; i < num_of_expr ; ++i ) {
+	for( int i{0}; i < num_of_expr ; ++i ) {
 		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{
@@ -236,7 +234,7 @@ void Collection_find::add_operation(
 			{
 				zval* entry;
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
-					enum_func_status ret = FAIL;
+					enum_func_status ret{FAIL};
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
@@ -489,8 +487,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, __construct)
 /* {{{ mysqlx_node_collection__find::fields */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, fields)
 {
-	zval* object_zv = nullptr;
-	const zval* fields = nullptr;
+	zval* object_zv{nullptr};
+	const zval* fields{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__find::fields");
 
@@ -517,9 +515,9 @@ mysqlx_node_collection__find__add_sort_or_grouping(
 {
 	DBG_ENTER("mysqlx_node_collection__find__add_sort_or_grouping");
 
-	zval* object_zv = nullptr;
-	zval* sort_expr = nullptr;
-	int num_of_expr = 0;
+	zval* object_zv{nullptr};
+	zval* sort_expr{nullptr};
+	int num_of_expr{0};
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
 									&object_zv,
@@ -565,7 +563,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, groupBy)
 /* {{{ proto mixed mysqlx_node_collection__find::having() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, having)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING search_condition = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_collection__find::having");
@@ -588,8 +586,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, having)
 /* {{{ proto mixed mysqlx_node_collection__find::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, limit)
 {
-	zval* object_zv = nullptr;
-	zend_long rows = 0;
+	zval* object_zv{nullptr};
+	zend_long rows{0};
 
 	DBG_ENTER("mysqlx_node_collection__find::limit");
 
@@ -611,8 +609,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, limit)
 /* {{{ proto mixed mysqlx_node_collection__find::skip() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, skip)
 {
-	zval* object_zv = nullptr;
-	zend_long position = 0;
+	zval* object_zv{nullptr};
+	zend_long position{0};
 
 	DBG_ENTER("mysqlx_node_collection__find::skip");
 
@@ -639,8 +637,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, skip)
 /* {{{ proto mixed mysqlx_node_collection__find::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, bind)
 {
-	zval* object_zv = nullptr;
-	HashTable* bind_variables = nullptr;
+	zval* object_zv{nullptr};
+	HashTable* bind_variables{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__find::bind");
 
@@ -664,7 +662,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockShared)
 {
 	DBG_ENTER("mysqlx_node_collection__find::lockShared");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, collection_find_class_entry))
 	{
@@ -684,7 +682,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockExclusive)
 {
 	DBG_ENTER("mysqlx_node_collection__find::lockExclusive");
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, collection_find_class_entry))
 	{
@@ -702,8 +700,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockExclusive)
 /* {{{ proto mixed mysqlx_node_collection__find::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, execute)
 {
-	zval* object_zv = nullptr;
-	zend_long flags = MYSQLX_EXECUTE_FLAG_BUFFERED;
+	zval* object_zv{nullptr};
+	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
 
 	DBG_ENTER("mysqlx_node_collection__find::execute");
 
@@ -808,10 +806,10 @@ mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_collection__find(
 	zval * return_value,
-	const phputils::string_input_param& search_expression,
+	const phputils::string_view& search_expression,
 	drv::st_xmysqlnd_node_collection* collection)
 {
-	zend_bool op_failed = TRUE;
+	zend_bool op_failed{TRUE};
 	DBG_ENTER("mysqlx_new_node_collection__find");
 	if (SUCCESS == object_init_ex(return_value, collection_find_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);

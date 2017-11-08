@@ -15,10 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <zend_exceptions.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -95,7 +93,7 @@ namespace
 	.comment(string)
 
 */
-zend_class_entry* column_def_class_entry = nullptr;
+zend_class_entry* column_def_class_entry{nullptr};
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_column_def_construct, 0, ZEND_RETURN_VALUE, 2)
@@ -149,9 +147,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, __construct)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	phputils::string_input_param name;
-	phputils::string_input_param type;
+	zval* object_zv{nullptr};
+	phputils::string_view name;
+	phputils::string_view type;
 	zend_long length = Column_def::Default_length;
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -203,8 +201,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, setDefault)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	zval* default_value_zv = nullptr;
+	zval* object_zv{nullptr};
+	zval* default_value_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Oz",
 		&object_zv, column_def_class_entry,
@@ -230,7 +228,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, defaultCurrentTimestamp)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, column_def_class_entry))
@@ -256,7 +254,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, autoIncrement)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, column_def_class_entry))
@@ -281,10 +279,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, foreignKey)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	phputils::string_input_param table_name;
-	zval* fields = nullptr;
-	int fields_count = 0;
+	zval* object_zv{nullptr};
+	phputils::string_view table_name;
+	zval* fields{nullptr};
+	int fields_count{0};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os+",
@@ -314,7 +312,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, unsigned)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, column_def_class_entry))
@@ -339,8 +337,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, decimals)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	zend_long decimals_size = 0;
+	zval* object_zv{nullptr};
+	zend_long decimals_size{0};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Ol",
 		&object_zv, column_def_class_entry,
@@ -366,8 +364,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, charset)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	phputils::string_input_param charset;
+	zval* object_zv{nullptr};
+	phputils::string_view charset;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, column_def_class_entry,
@@ -393,8 +391,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, collation)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	phputils::string_input_param collation;
+	zval* object_zv{nullptr};
+	phputils::string_view collation;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, column_def_class_entry,
@@ -420,7 +418,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, binary)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, column_def_class_entry))
@@ -445,9 +443,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def, values)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	zval* values_zv = nullptr;
-	int values_count = 0;
+	zval* object_zv{nullptr};
+	zval* values_zv{nullptr};
+	int values_count{0};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O+",

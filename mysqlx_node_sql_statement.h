@@ -83,7 +83,7 @@ void mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS);
 
 void mysqlx_new_sql_stmt(zval * return_value, drv::st_xmysqlnd_node_stmt* stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query);
 void mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zval * return_value);
-void mysqlx_node_sql_statement_execute(const struct st_mysqlx_object * const mysqlx_object, const zend_long flags, zval * return_value);
+void mysqlx_node_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const zend_long flags, zval * return_value);
 
 } // namespace devapi
 

@@ -15,10 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <zend_exceptions.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -51,7 +49,7 @@ using namespace drv;
 			( '.onDelete(' ('Restrict' | 'Cascade' | 'SetNull') ')' )?
 			( '.onUpdate(' ('Restrict' | 'Cascade' | 'SetNull') ')' )?
 */
-zend_class_entry* foreign_key_def_class_entry = nullptr;
+zend_class_entry* foreign_key_def_class_entry{nullptr};
 
 namespace
 {
@@ -96,9 +94,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, fields)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	zval* fields_zv = nullptr;
-	int fields_count = 0;
+	zval* object_zv{nullptr};
+	zval* fields_zv{nullptr};
+	int fields_count{0};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O+",
@@ -125,10 +123,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, refersTo)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	phputils::string_input_param refers_to_table;
-	zval* refers_to_columns = nullptr;
-	int refers_to_column_count = 0;
+	zval* object_zv{nullptr};
+	phputils::string_view refers_to_table;
+	zval* refers_to_columns{nullptr};
+	int refers_to_column_count{0};
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os+",
@@ -158,8 +156,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, onDelete)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	phputils::string_input_param on_delete_mode;
+	zval* object_zv{nullptr};
+	phputils::string_view on_delete_mode;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, foreign_key_def_class_entry,
@@ -185,8 +183,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_foreign_key_def, onUpdate)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	phputils::string_input_param on_update_mode;
+	zval* object_zv{nullptr};
+	phputils::string_view on_update_mode;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, foreign_key_def_class_entry,

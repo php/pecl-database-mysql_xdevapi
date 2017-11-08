@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -55,11 +53,11 @@ ZEND_END_ARG_INFO()
 
 /* {{{ mysqlx_node_base_result_methods[] */
 static const zend_function_entry mysqlx_node_base_result_methods[] = {
-	//PHP_ME(mysqlx_node_base_result, __construct,			NULL,																ZEND_ACC_PRIVATE)
+	//PHP_ME(mysqlx_node_base_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
 	PHP_ABSTRACT_ME(mysqlx_node_base_result, getWarningCount,		arginfo_mysqlx_node_base_result__get_warning_count)
 	PHP_ABSTRACT_ME(mysqlx_node_base_result, getWarnings,			arginfo_mysqlx_node_base_result__get_warnings)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -113,7 +111,7 @@ ZEND_END_ARG_INFO()
 bool Collection_modify::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_input_param& search_expression)
+	const phputils::string_view& search_expression)
 {
 	if (!obj_zv || !coll || search_expression.empty()) return false;
 
@@ -159,7 +157,7 @@ void Collection_modify::sort(
 
 	RETVAL_FALSE;
 
-	for( int i = 0 ; i < num_of_expr ; ++i ) {
+	for( int i{0}; i < num_of_expr ; ++i ) {
 		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{
@@ -276,7 +274,7 @@ void Collection_modify::bind(
 /* {{{ Collection_modify::add_operation */
 void Collection_modify::add_operation(
 	Operation operation,
-	const phputils::string_input_param& path,
+	const phputils::string_view& path,
 	const bool is_document,
 	zval* raw_value,
 	zval* return_value)
@@ -285,7 +283,7 @@ void Collection_modify::add_operation(
 
 	RETVAL_FALSE;
 
-	zend_bool is_expression = FALSE;
+	zend_bool is_expression{FALSE};
 
 	zval converted_value;
 	ZVAL_UNDEF(&converted_value);
@@ -325,7 +323,7 @@ void Collection_modify::add_operation(
 
 	RETVAL_FALSE;
 
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	const MYSQLND_CSTRING& path_nd = path.to_nd_cstr();
 	switch (operation) {
 		case Operation::Set:
@@ -361,7 +359,7 @@ void Collection_modify::add_operation(
 
 /* {{{ Collection_modify::set() */
 void Collection_modify::set(
-	const phputils::string_input_param& path,
+	const phputils::string_view& path,
 	const bool is_document,
 	zval* value,
 	zval* return_value)
@@ -387,7 +385,7 @@ void Collection_modify::unset(
 		DBG_VOID_RETURN;
 	}
 
-	for (int i = 0 ; i < num_of_variables; ++i) {
+	for (int i{0}; i < num_of_variables; ++i) {
 		switch (Z_TYPE(variables[i]))
 		{
 		case IS_STRING:
@@ -403,7 +401,7 @@ void Collection_modify::unset(
 		case IS_ARRAY:
 			{
 				zval* entry;
-				enum_func_status ret = FAIL;
+				enum_func_status ret{FAIL};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(variables[i]), entry) {
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
@@ -433,7 +431,7 @@ void Collection_modify::unset(
 
 /* {{{ Collection_modify::replace() */
 void Collection_modify::replace(
-	const phputils::string_input_param& path,
+	const phputils::string_view& path,
 	zval* value,
 	zval* return_value)
 {
@@ -446,7 +444,7 @@ void Collection_modify::replace(
 
 /* {{{ Collection_modify::merge() */
 void Collection_modify::merge(
-	const phputils::string_input_param& document_contents,
+	const phputils::string_view& document_contents,
 	zval* return_value)
 {
 	DBG_ENTER("Collection_modify::merge");
@@ -468,7 +466,7 @@ void Collection_modify::merge(
 
 /* {{{ Collection_modify::arrayInsert() */
 void Collection_modify::arrayInsert(
-	const phputils::string_input_param& path,
+	const phputils::string_view& path,
 	zval* value,
 	zval* return_value)
 {
@@ -481,7 +479,7 @@ void Collection_modify::arrayInsert(
 
 /* {{{ Collection_modify::arrayAppend() */
 void Collection_modify::arrayAppend(
-	const phputils::string_input_param& path,
+	const phputils::string_view& path,
 	zval* value,
 	zval* return_value)
 {
@@ -494,7 +492,7 @@ void Collection_modify::arrayAppend(
 
 /* {{{ Collection_modify::arrayDelete() */
 void Collection_modify::arrayDelete(
-	const phputils::string_input_param& array_index_path,
+	const phputils::string_view& array_index_path,
 	zval* return_value)
 {
 	DBG_ENTER("Collection_modify::arrayDelete");
@@ -534,7 +532,7 @@ void Collection_modify::execute(
 			if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 				zval zv;
 				ZVAL_UNDEF(&zv);
-				zend_long flags = 0;
+				zend_long flags{0};
 				mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 				ZVAL_COPY(return_value, &zv);
@@ -562,9 +560,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, __construct)
 /* {{{ proto mixed mysqlx_node_collection__modify::sort() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, sort)
 {
-	zval* object_zv = nullptr;
-	zval* sort_expr = nullptr;
-	int num_of_expr = 0;
+	zval* object_zv{nullptr};
+	zval* sort_expr{nullptr};
+	int num_of_expr{0};
 
 	DBG_ENTER("mysqlx_node_collection__modify::sort");
 
@@ -588,8 +586,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, sort)
 /* {{{ proto mixed mysqlx_node_collection__modify::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, limit)
 {
-	zval* object_zv = nullptr;
-	zend_long rows = 0;
+	zval* object_zv{nullptr};
+	zend_long rows{0};
 
 	DBG_ENTER("mysqlx_node_collection__modify::limit");
 
@@ -611,8 +609,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, limit)
 /* {{{ proto mixed mysqlx_node_collection__modify::skip() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, skip)
 {
-	zval* object_zv = nullptr;
-	zend_long position = 0;
+	zval* object_zv{nullptr};
+	zend_long position{0};
 
 	DBG_ENTER("mysqlx_node_collection__modify::skip");
 
@@ -639,8 +637,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, skip)
 /* {{{ proto mixed mysqlx_node_collection__modify::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, bind)
 {
-	zval* object_zv = nullptr;
-	HashTable* bind_variables = nullptr;
+	zval* object_zv{nullptr};
+	HashTable* bind_variables{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__modify::bind");
 
@@ -666,9 +664,9 @@ mysqlx_node_collection__modify__2_param_op(
 	const Collection_modify::Operation operation,
 	const bool is_document = false)
 {
-	zval* object_zv = nullptr;
-	zval* value = nullptr;
-	phputils::string_input_param path;
+	zval* object_zv{nullptr};
+	zval* value{nullptr};
+	phputils::string_view path;
 
 	DBG_ENTER("mysqlx_node_collection__modify__2_param_op");
 
@@ -715,8 +713,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, replace)
 /* {{{ proto mixed mysqlx_node_collection__modify::merge() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, merge)
 {
-	zval* object_zv = nullptr;
-	phputils::string_input_param document_contents;
+	zval* object_zv{nullptr};
+	phputils::string_view document_contents;
 
 	DBG_ENTER("mysqlx_node_collection__modify::merge");
 
@@ -761,8 +759,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayAppend)
 /* {{{ proto mixed mysqlx_node_collection__modify::arrayDelete() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayDelete)
 {
-	zval* object_zv = nullptr;
-	phputils::string_input_param array_index_path;
+	zval* object_zv{nullptr};
+	phputils::string_view array_index_path;
 
 	DBG_ENTER("mysqlx_node_collection__modify::arrayDelete");
 
@@ -785,9 +783,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayDelete)
 /* {{{ proto mixed mysqlx_node_collection__modify::unset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, unset)
 {
-	zval* object_zv = nullptr;
-	zval* variables = nullptr;
-	int num_of_variables = 0;
+	zval* object_zv{nullptr};
+	zval* variables{nullptr};
+	int num_of_variables{0};
 
 	DBG_ENTER("mysqlx_node_collection__modify::unset");
 
@@ -812,7 +810,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, unset)
 /* {{{ proto mixed mysqlx_node_collection__modify::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, execute)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__modify::execute");
 
@@ -921,7 +919,7 @@ mysqlx_unregister_node_collection__modify_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_collection__modify(
 	zval* return_value,
-	const phputils::string_input_param& search_expression,
+	const phputils::string_view& search_expression,
 	XMYSQLND_NODE_COLLECTION* collection)
 {
 	DBG_ENTER("mysqlx_new_node_collection__modify");

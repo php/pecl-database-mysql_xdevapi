@@ -18,11 +18,7 @@
 #ifndef MYSQL_XDEVAPI_PHP_OBJECT_H
 #define MYSQL_XDEVAPI_PHP_OBJECT_H
 
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
-}
+#include "php_api.h"
 #include "exceptions.h"
 
 namespace mysqlx {

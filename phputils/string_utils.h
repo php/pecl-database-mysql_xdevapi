@@ -18,12 +18,7 @@
 #ifndef MYSQL_XDEVAPI_PHPUTILS_STRING_UTILS_H
 #define MYSQL_XDEVAPI_PHPUTILS_STRING_UTILS_H
 
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef max
-#undef inline
-}
+#include "php_api.h"
 #include <boost/algorithm/string/compare.hpp>
 #include "strings.h"
 
@@ -99,12 +94,17 @@ strings to_strings(zval* zvals, int count, Pred pred)
 {
 	strings strings;
 	strings.reserve(count);
-	for (int i = 0; i < count; ++i) {
+	for (int i{0}; i < count; ++i) {
 		strings.push_back(pred(&zvals[i]));
 	}
 	return strings;
 }
 /* }}} */
+
+/*
+ * Escape an identifier name adding '`' everywhere needed
+ */
+phputils::string escape_identifier( const phputils::string& identifier );
 
 } // namespace phputils
 

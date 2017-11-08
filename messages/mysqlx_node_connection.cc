@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -91,11 +89,11 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 {
 	zval * connection_zv;
-	struct st_mysqlx_node_connection * connection;
-	MYSQLND_CSTRING hostname = {NULL, 0};
-	MYSQLND_CSTRING socket_or_pipe = {NULL, 0};
+	st_mysqlx_node_connection* connection;
+	MYSQLND_CSTRING hostname = {nullptr, 0};
+	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_node_connection::connect");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os|l",
@@ -128,7 +126,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 											   connection->error_info);
 		if (transport.s) {
 			mnd_sprintf_free(transport.s);
-			transport.s = NULL;
+			transport.s = nullptr;
 		}
 	}
 	RETVAL_BOOL(ret == PASS);
@@ -141,8 +139,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 {
 	zval * connection_zv;
-	struct st_mysqlx_node_connection * connection;
-	MYSQLND_CSTRING payload = {NULL, 0};
+	st_mysqlx_node_connection* connection;
+	MYSQLND_CSTRING payload = {nullptr, 0};
 	size_t ret;
 
 	DBG_ENTER("mysqlx_node_connection::send");
@@ -173,8 +171,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 {
 	zval * connection_zv;
-	struct st_mysqlx_node_connection * connection;
-	zend_ulong how_many = 0;
+	st_mysqlx_node_connection* connection;
+	zend_ulong how_many{0};
 	enum_func_status ret;
 
 	DBG_ENTER("mysqlx_node_connection::receive");
@@ -193,7 +191,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 	if (connection->vio && TRUE == connection->vio->data->m.has_valid_stream(connection->vio)) {
 		zend_uchar * read_buffer = static_cast<zend_uchar*>(mnd_emalloc(how_many + 1));
 		if (!read_buffer) {
-			php_error_docref(NULL, E_WARNING, "Coulnd't allocate %u bytes", how_many);
+			php_error_docref(nullptr, E_WARNING, "Coulnd't allocate %u bytes", how_many);
 			RETVAL_FALSE;
 		}
 		ret = connection->vio->data->m.network_read(connection->vio,
@@ -204,7 +202,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 			read_buffer[how_many] = '\0';
 			RETVAL_STRINGL((char*) read_buffer, how_many);
 		} else {
-			php_error_docref(NULL, E_WARNING, "Error reading %u bytes", how_many);
+			php_error_docref(nullptr, E_WARNING, "Error reading %u bytes", how_many);
 			RETVAL_FALSE;
 		}
 		mnd_efree(read_buffer);
@@ -219,7 +217,7 @@ static const zend_function_entry mysqlx_node_connection_methods[] = {
 	PHP_ME(mysqlx_node_connection, connect,		arginfo_mysqlx_node_connection__connect,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_connection, send,		arginfo_mysqlx_node_connection__send,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_connection, receive,		arginfo_mysqlx_node_connection__receive,	ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -232,14 +230,14 @@ static HashTable mysqlx_node_connection_properties;
 static void
 mysqlx_node_connection_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_connection * connection = (struct st_mysqlx_node_connection  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_connection* connection = (st_mysqlx_node_connection*) mysqlx_object->ptr;
 	if (connection) {
 		const zend_bool pers = connection->persistent;
 		if (connection->error_info->error_list) {
 			zend_llist_clean(connection->error_info->error_list);
 			mnd_pefree(connection->error_info->error_list, pers);
-			connection->error_info->error_list = NULL;
+			connection->error_info->error_list = nullptr;
 		}
 		mysqlnd_vio_free(connection->vio, connection->stats, connection->error_info);
 		mysqlnd_stats_end(connection->stats, pers);
@@ -270,8 +268,8 @@ php_mysqlx_node_connection_object_allocator(zend_class_entry * class_type)
 			connection->error_info = &connection->error_info_impl;
 			mysqlnd_stats_init(&connection->stats, STAT_LAST, persistent);
 
-			if (NULL != (connection->vio = mysqlnd_vio_init(persistent,
-															NULL /*factory*/,
+			if (nullptr != (connection->vio = mysqlnd_vio_init(persistent,
+															nullptr /*factory*/,
 															connection->stats,
 															connection->error_info))) {
 				connection->persistent = persistent;
@@ -292,7 +290,7 @@ php_mysqlx_node_connection_object_allocator(zend_class_entry * class_type)
 	if (connection) {
 		mnd_pefree(connection, persistent);
 	}
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -311,7 +309,7 @@ mysqlx_register_node_connection_class(INIT_FUNC_ARGS, zend_object_handlers * mys
 		mysqlx_node_connection_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_node_connection_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_node_connection_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

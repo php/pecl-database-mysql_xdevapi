@@ -15,10 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <zend_exceptions.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -56,11 +54,11 @@ using namespace drv;
 /* {{{ view_drop */
 bool view_drop(
 	drv::st_xmysqlnd_node_schema* schema,
-	const phputils::string_input_param& view_name)
+	const phputils::string_view& view_name)
 {
 	DBG_ENTER("mysqlx::devapi::view_drop");
 
-	const phputils::string_input_param schema_name(schema->data->schema_name);
+	const phputils::string_view schema_name(schema->data->schema_name);
 	if (schema_name.empty() || view_name.empty()) {
 		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::view_drop_fail);
 	}
@@ -72,7 +70,7 @@ bool view_drop(
 	auto session = schema->data->session;
 	const st_xmysqlnd_pb_message_shell pb_msg = command.get_message();
 	st_xmysqlnd_node_stmt* stmt = drv::View::drop(session, pb_msg);
-	zend_long flags = 0;
+	zend_long flags{0};
 	zval drop_result;
 	ZVAL_UNDEF(&drop_result);
 	execute_new_statement_read_response(

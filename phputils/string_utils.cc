@@ -56,12 +56,31 @@ strings to_strings(zval* zvals, int count)
 {
 	strings strings;
 	strings.reserve(count);
-	for (int i = 0; i < count; ++i) {
+	for (int i{0}; i < count; ++i) {
 		strings.push_back(to_string(zvals[i]));
 	}
 	return strings;
 }
 /* }}} */
+
+
+/* {{{ escape_identifier( string id ) */
+phputils::string
+escape_identifier( const phputils::string& identifier ) {
+	std::stringstream result;
+	result << '`';
+	for( const auto& ch : identifier ) {
+		if( ch == '`' ) {
+			result << "``";
+		} else {
+			result << ch;
+		}
+	}
+	result << '`';
+	return result.str().c_str();
+}
+/* }}} */
+
 
 } // namespace phputils
 

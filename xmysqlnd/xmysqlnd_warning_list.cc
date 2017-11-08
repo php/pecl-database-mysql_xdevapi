@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 }
@@ -82,7 +80,7 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, count)(const XMYSQLND_WARNING_LIST * cons
 static const XMYSQLND_WARNING
 XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST * const warn_list, unsigned int offset)
 {
-	XMYSQLND_WARNING ret = { {NULL, 0}, 0, XSTMT_WARN_NONE };
+	XMYSQLND_WARNING ret = { {nullptr, 0}, 0, XSTMT_WARN_NONE };
 	DBG_ENTER("xmysqlnd_warning_list::get_warning");
 	if (offset < warn_list->warning_count) {
 		ret.message = mnd_str2c(warn_list->warnings[offset].message);
@@ -110,7 +108,7 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * co
 			}
 		}
 		mnd_pefree(warn_list->warnings, pers);
-		warn_list->warnings = NULL;
+		warn_list->warnings = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -148,7 +146,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_warning_lis
 PHP_MYSQL_XDEVAPI_API XMYSQLND_WARNING_LIST *
 xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_WARNING_LIST * result = NULL;
+	XMYSQLND_WARNING_LIST* result{nullptr};
 	DBG_ENTER("xmysqlnd_warning_list_create");
 	result = object_factory->get_warning_list(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);

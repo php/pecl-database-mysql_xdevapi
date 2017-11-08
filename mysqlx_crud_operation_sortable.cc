@@ -15,11 +15,7 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
-}
+#include "php_api.h"
 #include "mysqlx_crud_operation_sortable.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
@@ -39,7 +35,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_crud_operation_sortable_methods[] */
 static const zend_function_entry mysqlx_crud_operation_sortable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_sortable, sort, mysqlx_crud_operation_sortable__sort)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

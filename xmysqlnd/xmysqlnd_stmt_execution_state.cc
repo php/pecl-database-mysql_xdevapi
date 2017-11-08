@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 }
@@ -146,12 +144,11 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
-	int i;
 	DBG_ENTER("xmysqlnd_stmt_execution_state::free_contents");
-	if(state && state->last_document_ids != NULL) {
-		for(i = 0 ; i < state->num_of_doc_ids; ++i ) {
+	if(state && state->last_document_ids != nullptr) {
+		for(int i{0}; i < state->num_of_doc_ids; ++i ) {
 			mnd_efree(const_cast<char*>(state->last_document_ids[i].s));
-			state->last_document_ids[i].s = NULL;
+			state->last_document_ids[i].s = nullptr;
 			state->last_document_ids[i].l = 0;
 		}
 		mnd_efree(state->last_document_ids);
@@ -202,7 +199,7 @@ xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 									 MYSQLND_STATS * stats,
 									 MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_STMT_EXECUTION_STATE * result = NULL;
+	XMYSQLND_STMT_EXECUTION_STATE* result{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_execution_state_create");
 	result = object_factory->get_stmt_execution_state(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);

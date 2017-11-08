@@ -38,7 +38,7 @@ public:
 	bool init(
 		zval* object_zv,
 		drv::st_xmysqlnd_node_collection* collection,
-		const phputils::string_input_param& search_expression);
+		const phputils::string_view& search_expression);
 	~Collection_find();
 
 public:
@@ -94,9 +94,9 @@ public:
 	Mysqlx::Crud::Find* get_stmt();
 
 private:
-	zval* object_zv = nullptr;
-	drv::st_xmysqlnd_node_collection* collection = nullptr;
-	drv::st_xmysqlnd_crud_collection_op__find* find_op = nullptr;
+	zval* object_zv{nullptr};
+	drv::st_xmysqlnd_node_collection* collection{nullptr};
+	drv::st_xmysqlnd_crud_collection_op__find* find_op{nullptr};
 
 };
 /* }}} */
@@ -106,7 +106,7 @@ extern zend_class_entry* collection_find_class_entry;
 
 void mysqlx_new_node_collection__find(
 	zval * return_value,
-	const phputils::string_input_param& search_expression,
+	const phputils::string_view& search_expression,
 	drv::st_xmysqlnd_node_collection* collection);
 void mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS);

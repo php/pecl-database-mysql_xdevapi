@@ -65,7 +65,7 @@ struct st_xmysqlnd_protocol_frame_codec : public phputils::permanent_allocable
 {
 	MYSQLND_CMD_BUFFER	cmd_buffer;
 
-	struct st_xmysqlnd_protocol_frame_codec_data * data;
+	st_xmysqlnd_protocol_frame_codec_data* data;
 
 	zend_bool 		persistent;
 };

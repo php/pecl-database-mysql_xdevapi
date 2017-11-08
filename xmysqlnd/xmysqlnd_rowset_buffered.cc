@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 }
@@ -72,7 +70,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_current)(XMYSQLND_ROWSET_BUFFERE
 														 MYSQLND_STATS * const stats,
 														 MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_rowset_buffered::fetch_current");
 	ret = result->m.fetch_one(result, result->row_cursor, row, stats, error_info);
 	DBG_INF_FMT("%s", PASS == ret? "PASS":"FAIL");
@@ -165,7 +163,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all)(XMYSQLND_ROWSET_BUFFERED * 
 													 MYSQLND_ERROR_INFO * const error_info)
 {
 	const size_t row_count = result->row_count;
-	size_t row_cursor = 0;
+	size_t row_cursor{0};
 	DBG_ENTER("xmysqlnd_rowset_buffered::fetch_all");
 	array_init_size(set, row_count);
 	for (;row_cursor < row_count; ++row_cursor) {
@@ -195,7 +193,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED 
 	DBG_INF_FMT("rows =%u  cols=%u", (uint) row_count, (uint) field_count);
 	DBG_INF_FMT("cells=%u", (uint) (row_count * field_count));
 	if ((*set = static_cast<zval*>(mnd_ecalloc(row_count * field_count, sizeof(zval))))) {
-		size_t row = 0;
+		size_t row{0};
 		for (;row < row_count; ++row) {
 			const zval * const from_row_zv = result->rows[row];
 			const size_t offset = row * field_count;
@@ -329,17 +327,15 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows_contents)(XMYSQLND_ROWSET_BU
 
 	if (result->rows && result->meta) {
 		const unsigned int col_count = result->meta->m->get_field_count(result->meta);
-		unsigned int row;
-		unsigned int col;
 
 		DBG_INF_FMT("Freeing %u rows with %u columns each", result->row_count, col_count);
 
-		for (row = 0; row < result->row_count; ++row) {
-			for (col = 0; col < col_count; ++col) {
+		for (unsigned int row{0}; row < result->row_count; ++row) {
+			for (unsigned int col{0}; col < col_count; ++col) {
 				zval_ptr_dtor(&(result->rows[row][col]));
 			}
 			result->m.destroy_row(result, result->rows[row], stats, error_info);
-			result->rows[row] = NULL;
+			result->rows[row] = nullptr;
 		}
 		result->row_count = 0;
 		result->row_cursor = 0;
@@ -364,7 +360,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows)(XMYSQLND_ROWSET_BUFFERED * 
 		result->m.free_rows_contents(result, stats, error_info);
 
 		mnd_pefree(result->rows, pers);
-		result->rows = NULL;
+		result->rows = nullptr;
 
 		result->rows_allocated = 0;
 	}
@@ -383,7 +379,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_contents)(XMYSQLND_ROWSET_BUFFERE
 
 	result->m.free_rows(result, stats, error_info);
 	if (result->meta) {
-		result->meta = NULL;
+		result->meta = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -446,7 +442,7 @@ xmysqlnd_rowset_buffered_create(XMYSQLND_NODE_STMT * stmt,
 								MYSQLND_STATS * stats,
 								MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_ROWSET_BUFFERED * result = NULL;
+	XMYSQLND_ROWSET_BUFFERED* result{nullptr};
 	DBG_ENTER("xmysqlnd_rowset_buffered_create");
 	result = object_factory->get_rowset_buffered(object_factory, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);

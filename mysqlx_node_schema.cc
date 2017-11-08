@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -41,6 +39,7 @@ extern "C" {
 #include "mysqlx_view_drop.h"
 #include "phputils/allocator.h"
 #include "phputils/object.h"
+#include "phputils/string_utils.h"
 
 namespace mysqlx {
 
@@ -142,7 +141,7 @@ struct st_mysqlx_node_schema : public phputils::custom_allocable
 #define MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_schema *) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_node_schema*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->schema) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -160,8 +159,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, __construct)
 /* {{{ proto mixed mysqlx_node_schema::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getSession)
 {
-	st_mysqlx_node_schema* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_schema* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_schema::getSession");
 
@@ -189,8 +188,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getSession)
 /* {{{ proto mixed mysqlx_node_schema::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getName)
 {
-	st_mysqlx_node_schema* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_schema* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_schema::getName");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -215,7 +214,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getName)
 
 /* {{{ mysqlx_node_scheme_on_error */
 static const enum_hnd_func_status
-mysqlx_node_scheme_on_error(void* context, XMYSQLND_NODE_SESSION* session, struct st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_scheme_on_error(void* context, XMYSQLND_NODE_SESSION* session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_scheme_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -227,8 +226,8 @@ mysqlx_node_scheme_on_error(void* context, XMYSQLND_NODE_SESSION* session, struc
 /* {{{ proto mixed mysqlx_node_schema::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, existsInDatabase)
 {
-	st_mysqlx_node_schema* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_schema* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_schema::existsInDatabase");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -259,8 +258,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, existsInDatabase)
 /* {{{ proto mixed mysqlx_node_schema::drop() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, drop)
 {
-	st_mysqlx_node_schema* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_schema* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_schema::drop");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -314,9 +313,9 @@ const enum_hnd_func_status on_drop_db_object_error(
 /* {{{ proto mixed mysqlx_node_schema::createCollection(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createCollection)
 {
-	st_mysqlx_node_schema* object = nullptr;
-	zval* object_zv = nullptr;
-	phputils::string_input_param collection_name;
+	st_mysqlx_node_schema* object{nullptr};
+	zval* object_zv{nullptr};
+	phputils::string_view collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::createCollection");
 	if (FAILURE == zend_parse_method_parameters(
@@ -350,8 +349,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createCollection)
 /* {{{ mysqlx_node_schema::dropCollection(string collection_name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 {
-	zval* object_zv = nullptr;
-	phputils::string_input_param collection_name;
+	zval* object_zv{nullptr};
+	phputils::string_view collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::dropCollection");
 	if (FAILURE == zend_parse_method_parameters(
@@ -380,21 +379,22 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 /* {{{ proto mixed mysqlx_node_schema::getCollection(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 {
-	st_mysqlx_node_schema* object = nullptr;
-	zval* object_zv = nullptr;
-	MYSQLND_CSTRING collection_name = { nullptr, 0 };
+	st_mysqlx_node_schema* object{nullptr};
+	zval* object_zv{nullptr};
+	phputils::string_view collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::getCollection");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
 												&object_zv, mysqlx_node_schema_class_entry,
-												&(collection_name.s), &(collection_name.l)))
+												&(collection_name.str), &(collection_name.len)))
 	{
 		DBG_VOID_RETURN;
 	}
+
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if (collection_name.s && collection_name.l && object->schema) {
-		st_xmysqlnd_node_collection* const collection = object->schema->data->m.create_collection_object(object->schema, collection_name);
+	if ( !collection_name.empty() && object->schema) {
+		st_xmysqlnd_node_collection* const collection = object->schema->data->m.create_collection_object(object->schema, collection_name.to_nd_cstr());
 		if (collection) {
 			mysqlx_new_node_collection(return_value, collection, FALSE);
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
@@ -410,9 +410,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 /* {{{ proto mixed mysqlx_node_schema::createTable(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createTable)
 {
-	zval* object_zv = nullptr;
-	phputils::string_input_param table_name;
-	zend_bool replace_existing = false;
+	zval* object_zv{nullptr};
+	phputils::string_view table_name;
+	zend_bool replace_existing{false};
 
 	DBG_ENTER("mysqlx_node_schema::createTable");
 	if (FAILURE == zend_parse_method_parameters(
@@ -438,8 +438,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createTable)
 /* {{{ mysqlx_node_schema::dropTable(string table_name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropTable)
 {
-	zval* object_zv = nullptr;
-	phputils::string_input_param table_name;
+	zval* object_zv{nullptr};
+	phputils::string_view table_name;
 
 	DBG_ENTER("mysqlx_node_schema::dropTable");
 	if (FAILURE == zend_parse_method_parameters(
@@ -468,21 +468,22 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropTable)
 /* {{{ proto mixed mysqlx_node_schema::getTable(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTable)
 {
-	st_mysqlx_node_schema* object = nullptr;
-	zval* object_zv = nullptr;
-	MYSQLND_CSTRING table_name = { nullptr, 0 };
+	st_mysqlx_node_schema* object{nullptr};
+	zval* object_zv{nullptr};
+	phputils::string_view table_name;
 
 	DBG_ENTER("mysqlx_node_schema::getTable");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
 												&object_zv, mysqlx_node_schema_class_entry,
-												&(table_name.s), &(table_name.l)))
+												&(table_name.str), &(table_name.len)))
 	{
 		DBG_VOID_RETURN;
 	}
+
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if (table_name.s && table_name.l && object->schema) {
-		st_xmysqlnd_node_table* const table = object->schema->data->m.create_table_object(object->schema, table_name);
+	if ( !table_name.empty() && object->schema) {
+		st_xmysqlnd_node_table* const table = object->schema->data->m.create_table_object(object->schema, table_name.to_nd_cstr());
 		mysqlx_new_node_table(return_value, table, FALSE /* no clone */);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
 			xmysqlnd_node_table_free(table, nullptr, nullptr);
@@ -496,8 +497,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTable)
 /* {{{ proto mixed mysqlx_node_schema::getCollectionAsTable(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollectionAsTable)
 {
-	st_mysqlx_node_schema* object = nullptr;
-	zval* object_zv = nullptr;
+	st_mysqlx_node_schema* object{nullptr};
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING collection_name = { nullptr, 0 };
 
 	DBG_ENTER("mysqlx_node_schema::getCollectionAsTable");
@@ -524,9 +525,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollectionAsTable)
 /* {{{ proto mixed mysqlx_node_schema::createView(string name, bool replace_existing) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createView)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING view_name = { nullptr, 0 };
-	zend_bool replace_existing = false;
+	zend_bool replace_existing{false};
 
 	DBG_ENTER("mysqlx_node_schema::createView");
 	if (FAILURE == zend_parse_method_parameters(
@@ -552,7 +553,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createView)
 /* {{{ proto mixed mysqlx_node_schema::alterView(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, alterView)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING view_name = { nullptr, 0 };
 
 	DBG_ENTER("mysqlx_node_schema::alterView");
@@ -578,8 +579,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, alterView)
 /* {{{ proto mixed mysqlx_node_schema::dropView(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropView)
 {
-	zval* object_zv = nullptr;
-	phputils::string_input_param view_name;
+	zval* object_zv{nullptr};
+	phputils::string_view view_name;
 
 	DBG_ENTER("mysqlx_node_schema::dropView");
 	if (FAILURE == zend_parse_method_parameters(
@@ -684,8 +685,8 @@ mysqlx_get_database_objects(
 /* {{{ mysqlx_node_session::getTables() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTables)
 {
-	zval* object_zv = nullptr;
-	st_mysqlx_node_schema* object = nullptr;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_schema* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_schema::getTables");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_schema_class_entry) == FAILURE) {
@@ -705,8 +706,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTables)
 /* {{{ mysqlx_node_session::getCollections() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollections)
 {
-	zval* object_zv = nullptr;
-	st_mysqlx_node_schema* object = nullptr;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_schema* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_schema::getCollections");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_node_schema_class_entry) == FAILURE) {
@@ -754,7 +755,7 @@ static const zend_function_entry mysqlx_node_schema_methods[] = {
 
 /* {{{ mysqlx_node_schema_property__name */
 static zval *
-mysqlx_node_schema_property__name(const struct st_mysqlx_object* obj, zval* return_value)
+mysqlx_node_schema_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_node_schema* object = static_cast<const st_mysqlx_node_schema*>(obj->ptr);
 	DBG_ENTER("mysqlx_node_schema_property__name");
@@ -765,8 +766,8 @@ mysqlx_node_schema_property__name(const struct st_mysqlx_object* obj, zval* retu
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
 		return_value = nullptr;
 	}

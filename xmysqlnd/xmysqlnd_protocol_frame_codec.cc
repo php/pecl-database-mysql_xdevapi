@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_connection.h"
 #include "ext/mysqlnd/mysqlnd_priv.h"
@@ -67,7 +65,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 									MYSQLND_ERROR_INFO * const error_info)
 {
 	zend_uchar header[XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE];
-	size_t packets_sent = 1;
+	size_t packets_sent{1};
 	size_t left = buffer? count: 0;
 	const zend_uchar * p = (zend_uchar *) buffer;
 	size_t to_be_sent;
@@ -131,7 +129,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 									   MYSQLND_ERROR_INFO * const error_info)
 {
 	zend_uchar header[XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE];
-	size_t packets_received = 1;
+	size_t packets_received{1};
 
 	DBG_ENTER("xmysqlnd_pfc::receive");
 	if (!vio || FALSE == vio->data->m.has_valid_stream(vio)) {
@@ -238,7 +236,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_protocol_pa
 PHP_MYSQL_XDEVAPI_API XMYSQLND_PFC *
 xmysqlnd_pfc_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_PFC * pfc = NULL;
+	XMYSQLND_PFC* pfc{nullptr};
 	DBG_ENTER("xmysqlnd_pfc_create");
 	pfc = object_factory->get_protocol_frame_codec(object_factory, persistent, stats, error_info);
 	DBG_RETURN(pfc);

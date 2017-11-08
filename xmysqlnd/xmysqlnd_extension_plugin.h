@@ -57,18 +57,18 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list);
 
 struct st_xmysqlnd_plugin__plugin_area_getters
 {
-	void ** (*get_node_session_area)(const struct st_xmysqlnd_node_session * conn, const unsigned int plugin_id);
-	void ** (*get_node_session_data_data_area)(const struct st_xmysqlnd_node_session_data * conn, const unsigned int plugin_id);
-	void ** (*get_node_schema_area)(const struct st_xmysqlnd_node_schema * schema, unsigned int plugin_id);
-	void ** (*get_node_collection_area)(const struct st_xmysqlnd_node_collection * collection, unsigned int plugin_id);
-	void ** (*get_node_table_area)(const struct st_xmysqlnd_node_table * table, unsigned int plugin_id);
-	void ** (*get_node_stmt_area)(const struct st_xmysqlnd_node_stmt * stmt, unsigned int plugin_id);
-	void ** (*get_node_stmt_result_area)(const struct st_xmysqlnd_node_stmt_result * result, unsigned int plugin_id);
-	void ** (*get_rowset_buffered_area)(const struct st_xmysqlnd_rowset_buffered * result, unsigned int plugin_id);
-	void ** (*get_rowset_fwd_area)(const struct st_xmysqlnd_rowset_fwd * result, unsigned int plugin_id);
-	void ** (*get_node_query_result_meta_area)(const struct st_xmysqlnd_node_stmt_result_meta * result, unsigned int plugin_id);
-	void ** (*get_rowset_area)(const struct st_xmysqlnd_rowset * result, unsigned int plugin_id);
-	void ** (*get_pfc_area)(const struct st_xmysqlnd_protocol_frame_codec * pfc, unsigned int plugin_id);
+	void ** (*get_node_session_area)(const st_xmysqlnd_node_session* conn, const unsigned int plugin_id);
+	void ** (*get_node_session_data_data_area)(const st_xmysqlnd_node_session_data* conn, const unsigned int plugin_id);
+	void ** (*get_node_schema_area)(const st_xmysqlnd_node_schema* schema, unsigned int plugin_id);
+	void ** (*get_node_collection_area)(const st_xmysqlnd_node_collection* collection, unsigned int plugin_id);
+	void ** (*get_node_table_area)(const st_xmysqlnd_node_table* table, unsigned int plugin_id);
+	void ** (*get_node_stmt_area)(const st_xmysqlnd_node_stmt* stmt, unsigned int plugin_id);
+	void ** (*get_node_stmt_result_area)(const st_xmysqlnd_node_stmt_result* result, unsigned int plugin_id);
+	void ** (*get_rowset_buffered_area)(const st_xmysqlnd_rowset_buffered* result, unsigned int plugin_id);
+	void ** (*get_rowset_fwd_area)(const st_xmysqlnd_rowset_fwd* result, unsigned int plugin_id);
+	void ** (*get_node_query_result_meta_area)(const st_xmysqlnd_node_stmt_result_meta* result, unsigned int plugin_id);
+	void ** (*get_rowset_area)(const st_xmysqlnd_rowset* result, unsigned int plugin_id);
+	void ** (*get_pfc_area)(const st_xmysqlnd_protocol_frame_codec* pfc, unsigned int plugin_id);
 };
 
 extern struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters;

@@ -15,10 +15,8 @@
   | Authors: Oracle Corp                                                 |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -323,7 +321,7 @@ Mysqlx::Expr::Expr* Expression_parser::column_field()
   }
   Mysqlx::Expr::ColumnIdentifier* colid = e->mutable_identifier();
   std::vector<std::string>::reverse_iterator myend = parts.rend();
-  int i = 0;
+  int i{0};
   for (std::vector<std::string>::reverse_iterator it = parts.rbegin(); it != myend; ++it, ++i)
   {
     std::string& s = *it;
@@ -931,7 +929,7 @@ Mysqlx::Expr::Expr* Expression_parser::ilri_expr()
   DBG_ENTER("Expression_parser::ilri_expr");
   std::unique_ptr<Mysqlx::Expr::Expr> e(new Mysqlx::Expr::Expr());
   std::unique_ptr<Mysqlx::Expr::Expr> lhs(comp_expr());
-  bool is_not = false;
+  bool is_not{false};
   if (_tokenizer.cur_token_type_is(Token::NOT))
   {
     is_not = true;
@@ -942,7 +940,7 @@ Mysqlx::Expr::Expr* Expression_parser::ilri_expr()
     ::google::protobuf::RepeatedPtrField< ::Mysqlx::Expr::Expr >* params = e->mutable_operator_()->mutable_param();
     const Token& op_name_tok = _tokenizer.peek_token();
     const std::string& op_name = op_name_tok.get_text();
-    bool has_op_name = true;
+    bool has_op_name{true};
     //boost::to_upper(op_name);
 
     if (_tokenizer.cur_token_type_is(Token::IS))
@@ -1140,7 +1138,7 @@ std::string Expression_unparser::document_path_to_string(const ::google::protobu
 {
   std::string s;
   std::vector<std::string> parts;
-  for (int i = 0; i < dp.size(); ++i)
+  for (int i{0}; i < dp.size(); ++i)
   {
     const Mysqlx::Expr::DocumentPathItem& dpi = dp.Get(i);
     switch (dpi.type())
@@ -1196,7 +1194,7 @@ std::string Expression_unparser::function_call_to_string(const Mysqlx::Expr::Fun
   {
     s = Expression_unparser::quote_identifier(fc.name().schema_name()) + "." + s;
   }
-  for (int i = 0; i < fc.param().size(); ++i)
+  for (int i{0}; i < fc.param().size(); ++i)
   {
     s = s + Expression_unparser::expr_to_string(fc.param().Get(i));
     if (i + 1 < fc.param().size())
@@ -1215,7 +1213,7 @@ std::string Expression_unparser::operator_to_string(const Mysqlx::Expr::Operator
   if (name == "IN")
   {
     std::string s = Expression_unparser::expr_to_string(ps.Get(0)) + " IN (";
-    for (int i = 1; i < ps.size(); ++i)
+    for (int i{1}; i < ps.size(); ++i)
     {
       s = s + Expression_unparser::expr_to_string(ps.Get(i));
       if (i + 1 < ps.size())
@@ -1350,8 +1348,8 @@ std::string Expression_unparser::array_to_string(const Mysqlx::Expr::Expr& e)
   std::string result = "[ ";
 
   const Mysqlx::Expr::Array& a = e.array();
-  bool first = true;
-  for (int i = 0; i < a.value_size(); i++)
+  bool first{true};
+  for (int i{0}; i < a.value_size(); i++)
   {
     if (first) first = false;
     else result += ", ";
@@ -1365,9 +1363,9 @@ std::string Expression_unparser::array_to_string(const Mysqlx::Expr::Expr& e)
 
 std::string Expression_unparser::object_to_string(const Mysqlx::Expr::Object& o)
 {
-  bool first = true;
+  bool first{true};
   std::string result = "{ ";
-  for (int i = 0; i < o.fld_size(); ++i)
+  for (int i{0}; i < o.fld_size(); ++i)
   {
     if (first) first = false;
     else result += ", ";
@@ -1401,7 +1399,7 @@ std::string Expression_unparser::order_to_string(const Mysqlx::Crud::Order& c)
 std::string Expression_unparser::column_list_to_string(google::protobuf::RepeatedPtrField< ::Mysqlx::Crud::Projection > columns)
 {
   std::string result("projection (");
-  for (int i = 0; i < columns.size(); i++)
+  for (int i{0}; i < columns.size(); i++)
   {
     std::string strcol = Expression_unparser::column_to_string(columns.Get(i));
     result += strcol;
@@ -1415,7 +1413,7 @@ std::string Expression_unparser::column_list_to_string(google::protobuf::Repeate
 std::string Expression_unparser::order_list_to_string(google::protobuf::RepeatedPtrField< ::Mysqlx::Crud::Order> columns)
 {
   std::string result("orderby (");
-  for (int i = 0; i < columns.size(); i++)
+  for (int i{0}; i < columns.size(); i++)
   {
     std::string strcol = Expression_unparser::order_to_string(columns.Get(i));
     result += strcol;

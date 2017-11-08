@@ -15,10 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <zend_exceptions.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -46,7 +44,7 @@ namespace devapi {
 	.primaryKey()
 	.comment(string)
 */
-zend_class_entry* column_def_base_class_entry = nullptr;
+zend_class_entry* column_def_base_class_entry{nullptr};
 
 namespace
 {
@@ -79,7 +77,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def_base, notNull)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, column_def_base_class_entry))
@@ -104,7 +102,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def_base, uniqueIndex)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, column_def_base_class_entry))
@@ -129,7 +127,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def_base, primaryKey)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, column_def_base_class_entry))
@@ -154,8 +152,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_def_base, comment)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	phputils::string_input_param comment;
+	zval* object_zv{nullptr};
+	phputils::string_view comment;
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
 		&object_zv, column_def_base_class_entry,

@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/json/php_json.h>
 #include <ext/json/php_json_parser.h>
 #include <ext/mysqlnd/mysqlnd.h>
@@ -64,7 +62,7 @@ ZEND_END_ARG_INFO()
 enum_func_status
 execute_statement(XMYSQLND_NODE_STMT* stmt,zval* return_value)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	if (stmt) {
 		zval stmt_zv;
 		ZVAL_UNDEF(&stmt_zv);
@@ -75,7 +73,7 @@ execute_statement(XMYSQLND_NODE_STMT* stmt,zval* return_value)
 		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 			zval zv;
 			ZVAL_UNDEF(&zv);
-			zend_long flags = 0;
+			zend_long flags{0};
 			mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv),
 								flags, MYSQLX_RESULT, &zv);
 			ZVAL_COPY(return_value, &zv);
@@ -145,7 +143,7 @@ xmysqlnd_json_parser_object_create(php_json_parser *parser,
 								zval *object)
 {
 	struct my_php_json_parser* php_json_parser = (struct my_php_json_parser*)parser;
-	int ret = 0;
+	int ret{0};
 	if (parser->scanner.options & PHP_JSON_OBJECT_AS_ARRAY) {
 		ZVAL_UNDEF(object);
 		array_init(object);
@@ -211,7 +209,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 /* {{{ prepare_doc_id */
 phputils::string prepare_doc_id(
 	XMYSQLND_NODE_SESSION *session,
-	const phputils::string_input_param& single_doc_id)
+	const phputils::string_view& single_doc_id)
 {
 	if (single_doc_id.empty()) {
 		const auto uuid = session->session_uuid->generate();
@@ -226,13 +224,13 @@ phputils::string prepare_doc_id(
 enum_func_status
 add_unique_id_to_json(
 	XMYSQLND_NODE_SESSION *session,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	const st_parse_for_id_status *status,
 	MYSQLND_STRING* to_add,
 	const MYSQLND_CSTRING* json)
 {
-	enum_func_status ret = FAIL;
-	char* p = nullptr;
+	enum_func_status ret{FAIL};
+	char* p{nullptr};
 	const auto doc_id = prepare_doc_id(session, single_doc_id);
 
 	if (UNEXPECTED(status->empty)) {
@@ -334,12 +332,12 @@ extract_document_id(const MYSQLND_STRING json,
 MYSQLND_CSTRING
 assign_doc_id_to_json(
 	XMYSQLND_NODE_SESSION* session,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	st_parse_for_id_status status;
-	zend_bool doc_id_string_type = FALSE;
+	zend_bool doc_id_string_type{FALSE};
 	MYSQLND_STRING to_add = { nullptr, 0 };
 	MYSQLND_CSTRING doc_id = { nullptr, 0 };
 	//Better be sure, perhaps raise an exception if is not a string
@@ -398,7 +396,7 @@ doc_add_op_return_status
 node_collection_add_string(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -422,7 +420,7 @@ doc_add_op_return_status
 node_collection_add_object_impl(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -450,7 +448,7 @@ doc_add_op_return_status
 node_collection_add_object(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -465,7 +463,7 @@ doc_add_op_return_status
 node_collection_add_array(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_input_param& single_doc_id,
+	const phputils::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -494,7 +492,7 @@ bool Collection_add::init(
 {
 	if (!obj_zv || !documents || !num_of_documents) return false;
 
-	for (int i = 0; i < num_of_documents; ++i) {
+	for (int i{0}; i < num_of_documents; ++i) {
 		if (Z_TYPE(documents[i]) != IS_STRING &&
 			Z_TYPE(documents[i]) != IS_OBJECT &&
 			Z_TYPE(documents[i]) != IS_ARRAY) {
@@ -512,7 +510,7 @@ bool Collection_add::init(
 	if (!add_op) return false;
 
 	docs = static_cast<zval*>(mnd_ecalloc( num_of_documents, sizeof(zval) ));
-	for (int i = 0; i < num_of_documents; ++i) {
+	for (int i{0}; i < num_of_documents; ++i) {
 		ZVAL_DUP(&docs[i], &documents[i]);
 	}
 	num_of_docs = num_of_documents;
@@ -526,7 +524,7 @@ bool Collection_add::init(
 bool Collection_add::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_input_param& doc_id,
+	const phputils::string_view& doc_id,
 	zval* doc)
 {
 	const int num_of_documents = 1;
@@ -540,7 +538,7 @@ bool Collection_add::init(
 /* {{{ Collection_add::~Collection_add() */
 Collection_add::~Collection_add()
 {
-	for (int i = 0; i < num_of_docs; ++i) {
+	for (int i{0}; i < num_of_docs; ++i) {
 		zval_ptr_dtor(&docs[i]);
 		ZVAL_UNDEF(&docs[i]);
 	}
@@ -560,9 +558,9 @@ Collection_add::~Collection_add()
 /* {{{ Collection_add::execute() */
 void Collection_add::execute(zval* return_value)
 {
-	enum_func_status execute_ret_status = PASS;
-	int noop_cnt = 0;
-	int cur_doc_id_idx = 0;
+	enum_func_status execute_ret_status{PASS};
+	int noop_cnt{0};
+	int cur_doc_id_idx{0};
 
 	DBG_ENTER("Collection_add::execute");
 
@@ -573,7 +571,7 @@ void Collection_add::execute(zval* return_value)
 		execute_ret_status = FAIL;
 	} else {
 		doc_add_op_return_status ret = { Add_op_status::success , nullptr };
-		for (int i = 0 ; i < num_of_docs && ret.return_status != Add_op_status::fail ; ++i) {
+		for (int i{0}; i < num_of_docs && ret.return_status != Add_op_status::fail ; ++i) {
 			ret.return_status = Add_op_status::fail;
 			switch(Z_TYPE(docs[i])) {
 			case IS_STRING:
@@ -629,7 +627,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, __construct)
 /* {{{ proto mixed mysqlx_node_collection__add::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, execute)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection__add::execute");
 

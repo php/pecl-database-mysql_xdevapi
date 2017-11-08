@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 }
@@ -108,9 +106,9 @@ schema_xplugin_op_var_binder(
 	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
-	struct st_schema_exists_in_database_var_binder_ctx * ctx = (struct st_schema_exists_in_database_var_binder_ctx *) context;
-	const MYSQLND_CSTRING * param = NULL;
+	enum_hnd_func_status ret{HND_FAIL};
+	st_schema_exists_in_database_var_binder_ctx* ctx = (st_schema_exists_in_database_var_binder_ctx*) context;
+	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("schema_xplugin_op_var_binder");
 	switch (ctx->counter) {
 		case 0:{
@@ -159,7 +157,7 @@ schema_sql_op_on_row(
 	MYSQLND_STATS * const stats,
 	MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_schema_exists_in_database_ctx * ctx = (struct st_schema_exists_in_database_ctx *) context;
+	st_schema_exists_in_database_ctx* ctx = (st_schema_exists_in_database_ctx*) context;
 	DBG_ENTER("schema_sql_op_on_row");
 	if (ctx && row) {
 		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
@@ -225,7 +223,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 static XMYSQLND_NODE_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name)
 {
-	XMYSQLND_NODE_COLLECTION * collection = NULL;
+	XMYSQLND_NODE_COLLECTION* collection{nullptr};
 	DBG_ENTER("xmysqlnd_node_schema::create_collection_object");
 	DBG_INF_FMT("schema_name=%s", collection_name.s);
 
@@ -250,7 +248,7 @@ collection_op_handler_on_error(void * context,
 							   const MYSQLND_CSTRING sql_state,
 							   const MYSQLND_CSTRING message)
 {
-	struct st_create_collection_handler_ctx * ctx = (struct st_create_collection_handler_ctx *) context;
+	st_create_collection_handler_ctx* ctx = (st_create_collection_handler_ctx*) context;
 	DBG_ENTER("collection_op_handler_on_error");
 	ctx->on_error.handler(ctx->on_error.ctx, ctx->schema, code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
@@ -263,9 +261,9 @@ static const enum_hnd_func_status
 collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	DBG_ENTER("collection_op_var_binder");
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_op_var_binder_ctx* ctx = static_cast<st_collection_op_var_binder_ctx*>(context);
-	const MYSQLND_CSTRING * param = NULL;
+	const MYSQLND_CSTRING* param{nullptr};
 	enum_func_status result;
 	zval zv;
 	switch (ctx->counter) {
@@ -302,7 +300,7 @@ collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQL
 static const enum_func_status
 xmysqlnd_collection_op(
 	XMYSQLND_NODE_SCHEMA * const schema,
-	const phputils::string_input_param& collection_name,
+	const phputils::string_view& collection_name,
 	const MYSQLND_CSTRING query,
 	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
@@ -342,11 +340,11 @@ xmysqlnd_collection_op(
 static XMYSQLND_NODE_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
-	const phputils::string_input_param& collection_name,
+	const phputils::string_view& collection_name,
 	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	static const MYSQLND_CSTRING query = {"create_collection", sizeof("create_collection") - 1 };
-	XMYSQLND_NODE_COLLECTION * collection = NULL;
+	XMYSQLND_NODE_COLLECTION* collection{nullptr};
 	DBG_ENTER("xmysqlnd_node_schema::create_collection");
 	DBG_INF_FMT("schema_name=%s collection_name=%s", schema->data->schema_name.s, collection_name.c_str());
 	if (PASS == xmysqlnd_collection_op(schema, collection_name, query, handler_on_error)) {
@@ -367,7 +365,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, drop_collection)(
 	XMYSQLND_NODE_SCHEMA * const schema,
-	const phputils::string_input_param& collection_name,
+	const phputils::string_view& collection_name,
 	const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
@@ -386,7 +384,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, drop_collection)(
 static XMYSQLND_NODE_TABLE *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name)
 {
-	XMYSQLND_NODE_TABLE * table = NULL;
+	XMYSQLND_NODE_TABLE* table{nullptr};
 	DBG_ENTER("xmysqlnd_node_schema::create_table_object");
 	DBG_INF_FMT("schema_name=%s", table_name.s);
 
@@ -400,7 +398,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object)(XMYSQLND_NODE_SCHEMA 
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, drop_table)(
 	XMYSQLND_NODE_SCHEMA* const schema,
-	const phputils::string_input_param& table_name,
+	const phputils::string_view& table_name,
 	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
@@ -485,9 +483,9 @@ struct st_collection_get_objects_var_binder_ctx
 static const enum_hnd_func_status
 collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
-	struct st_collection_get_objects_var_binder_ctx * ctx = (struct st_collection_get_objects_var_binder_ctx *) context;
-	const MYSQLND_CSTRING * param = NULL;
+	enum_hnd_func_status ret{HND_FAIL};
+	st_collection_get_objects_var_binder_ctx* ctx = (st_collection_get_objects_var_binder_ctx*) context;
+	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_get_objects_var_binder");
 	DBG_INF_FMT("counter=%d", ctx->counter);
 	switch (ctx->counter) {
@@ -542,8 +540,8 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 
 	xmysqlnd_schema_get_db_objects_ctx handler_ctx = { schema, object_type_filter, on_object, handler_on_error };
 
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : NULL, &handler_ctx };
-	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : NULL, &handler_ctx };
+	const struct st_xmysqlnd_node_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
+	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : nullptr, &handler_ctx };
 
 	DBG_ENTER("xmysqlnd_node_schema::get_db_objects");
 
@@ -579,7 +577,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_reference)(XMYSQLND_NODE_SCHEMA * cons
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_schema::free_reference");
 	DBG_INF_FMT("schema=%p old_refcount=%u", schema, schema->data->refcount);
 	if (!(--schema->data->refcount)) {
@@ -598,7 +596,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, free_contents)(XMYSQLND_NODE_SCHEMA * cons
 	DBG_ENTER("xmysqlnd_node_schema::free_contents");
 	if (schema->data->schema_name.s) {
 		mnd_pefree(schema->data->schema_name.s, pers);
-		schema->data->schema_name.s = NULL;
+		schema->data->schema_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -652,7 +650,7 @@ xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION * session,
 							MYSQLND_STATS * const stats,
 							MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_NODE_SCHEMA * ret = NULL;
+	XMYSQLND_NODE_SCHEMA* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_schema_create");
 	if (schema_name.s && schema_name.l) {
 		ret = object_factory->get_node_schema(object_factory, session, schema_name, persistent, stats, error_info);
@@ -670,7 +668,7 @@ PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_node_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_schema_free");
-	DBG_INF_FMT("schema=%p  schema->data=%p  dtor=%p", schema, schema? schema->data:NULL, schema? schema->data->m.dtor:NULL);
+	DBG_INF_FMT("schema=%p  schema->data=%p  dtor=%p", schema, schema? schema->data:nullptr, schema? schema->data->m.dtor:nullptr);
 	if (schema) {
 		if (!stats && schema->data->session->data) {
 			stats = schema->data->session->data->stats;

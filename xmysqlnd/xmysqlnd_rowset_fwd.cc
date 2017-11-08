@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
 }
@@ -69,7 +67,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
 		}
 		result->stmt->data->read_ctx.prefetch_counter = result->stmt->data->read_ctx.fwd_prefetch_count;
 		/* read rows */
-		if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, NULL)) {
+		if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, nullptr)) {
 			DBG_RETURN(FAIL);
 		}
 	} else {
@@ -85,7 +83,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_current)(XMYSQLND_ROWSET_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_current");
 	++result->total_fetched;
 	ret = result->m.fetch_one(result, result->row_cursor, row, stats, error_info);
@@ -137,11 +135,11 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_one)(XMYSQLND_ROWSET_FWD * const resu
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	size_t row_cursor = 0;
+	size_t row_cursor{0};
 	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_all");
 
 	/* read the rest. If this was the first, then we will prefetch everything, otherwise we will read whatever is left */
-	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, NULL)) {
+	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, nullptr)) {
 		DBG_RETURN(FAIL);
 	}
 
@@ -174,7 +172,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, rewind)(XMYSQLND_ROWSET_FWD * const result)
 	if (result->total_fetched == 0 && result->row_cursor == 0) {
 		DBG_RETURN(PASS);
 	} else {
-		php_error_docref(NULL, E_WARNING, "rewind() not possible with a forward only result set. Use a buffered result instead");
+		php_error_docref(nullptr, E_WARNING, "rewind() not possible with a forward only result set. Use a buffered result instead");
 		DBG_RETURN(FAIL);
 	}
 }
@@ -290,17 +288,15 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows_contents)(XMYSQLND_ROWSET_FWD * c
 
 	if (result->rows && result->meta) {
 		const unsigned int col_count = result->meta->m->get_field_count(result->meta);
-		unsigned int row;
-		unsigned int col;
 
 		DBG_INF_FMT("Freeing %u rows with %u columns each", result->row_count, col_count);
 
-		for (row = 0; row < result->row_count; ++row) {
-			for (col = 0; col < col_count; ++col) {
+		for (unsigned int row{0}; row < result->row_count; ++row) {
+			for (unsigned int col{0}; col < col_count; ++col) {
 				zval_ptr_dtor(&(result->rows[row][col]));
 			}
 			result->m.destroy_row(result, result->rows[row], stats, error_info);
-			result->rows[row] = NULL;
+			result->rows[row] = nullptr;
 		}
 		result->row_count = 0;
 		result->row_cursor = 0;
@@ -323,7 +319,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows)(XMYSQLND_ROWSET_FWD * const resu
 		result->m.free_rows_contents(result, stats, error_info);
 
 		mnd_pefree(result->rows, pers);
-		result->rows = NULL;
+		result->rows = nullptr;
 
 		result->rows_allocated = 0;
 	}
@@ -341,7 +337,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_contents)(XMYSQLND_ROWSET_FWD * const 
 	result->m.free_rows(result, stats, error_info);
 
 	if (result->meta) {
-		result->meta = NULL;
+		result->meta = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -401,7 +397,7 @@ xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
 						   MYSQLND_STATS * stats,
 						   MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_ROWSET_FWD * result = NULL;
+	XMYSQLND_ROWSET_FWD* result{nullptr};
 	DBG_ENTER("xmysqlnd_rowset_fwd_create");
 	result = object_factory->get_rowset_fwd(object_factory, prefetch_rows, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);

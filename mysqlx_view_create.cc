@@ -15,10 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <zend_exceptions.h>
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -104,7 +102,7 @@ struct view_create_data : public phputils::custom_allocable
 	}
 
 	drv::Create_view_cmd command;
-	st_xmysqlnd_node_session* session = nullptr;
+	st_xmysqlnd_node_session* session{nullptr};
 };
 
 /* {{{ mysqlx_view_create::__construct */
@@ -121,7 +119,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, definer)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING definer = { nullptr, 0 };
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -148,7 +146,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, algorithm)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING algorithm = { nullptr, 0 };
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -175,7 +173,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, security)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING security = { nullptr, 0 };
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -202,7 +200,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, withCheckOption)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING check_option = { nullptr, 0 };
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -229,8 +227,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, columns)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	zval* columns_zv = nullptr;
+	zval* object_zv{nullptr};
+	zval* columns_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Oz",
 		&object_zv, view_create_class_entry,
@@ -244,7 +242,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, columns)
 	if (Z_TYPE_P(columns_zv) == IS_STRING) {
 		data_object.add_column(columns_zv);
 	} else if (Z_TYPE_P(columns_zv) == IS_ARRAY) {
-		zval* column_zv = nullptr;
+		zval* column_zv{nullptr};
 		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(columns_zv), column_zv) {
 			data_object.add_column(column_zv);
 		} ZEND_HASH_FOREACH_END();
@@ -266,8 +264,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, definedAs)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
-	zval* defined_as_zv = nullptr;
+	zval* object_zv{nullptr};
+	zval* defined_as_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Oz",
 		&object_zv, view_create_class_entry,
@@ -281,7 +279,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, definedAs)
 	}
 
 	zend_class_entry* defined_as_ce = Z_OBJCE_P(defined_as_zv);
-	Mysqlx::Crud::Find* stmt = nullptr;
+	Mysqlx::Crud::Find* stmt{nullptr};
 	if (defined_as_ce == mysqlx_node_table__select_class_entry) {
 		stmt = get_stmt_from_table_select(defined_as_zv);
 	} else if (defined_as_ce == collection_find_class_entry) {
@@ -307,7 +305,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, execute)
 
 	RETVAL_FALSE;
 
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O",
 		&object_zv, view_create_class_entry))
@@ -318,7 +316,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_view_create, execute)
 	auto& data_object = phputils::fetch_data_object<view_create_data>(object_zv);
 	const st_xmysqlnd_pb_message_shell pb_msg = data_object.command.get_message();
 	st_xmysqlnd_node_stmt* stmt = drv::View::create(data_object.session, pb_msg);
-	zend_long flags = 0;
+	zend_long flags{0};
 	execute_new_statement_read_response(
 		stmt,
 		flags,

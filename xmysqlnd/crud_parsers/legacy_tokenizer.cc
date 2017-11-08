@@ -15,10 +15,8 @@
   | Authors: Oracle Corp                                                 |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -300,9 +298,9 @@ void Tokenizer::unget_token()
 void Tokenizer::get_tokens()
 {
   DBG_ENTER("Tokenizer::get_tokens");
-  bool arrow_last = false;
-  bool inside_arrow = false;
-  for (size_t i = 0; i < _input.size(); ++i)
+  bool arrow_last{false};
+  bool inside_arrow{false};
+  for (size_t i{0}; i < _input.size(); ++i)
   {
     char c = _input[i];
     if (std::isspace(c))
@@ -313,7 +311,7 @@ void Tokenizer::get_tokens()
     else if (std::isdigit(c))
     {
       // numerical literal
-      int start = i;
+      size_t start{i};
       // floating grammar is
       // float -> int '.' (int | (int expo[sign] int))
       // int -> digit +
@@ -331,7 +329,7 @@ void Tokenizer::get_tokens()
           ++i;
           if (i < _input.size() && (((c = _input[i]) == '-') || (c == '+')))
             ++i;
-          size_t  j = i;
+          size_t j{i};
           while (i < _input.size() && std::isdigit(_input[i]))
             i++;
           if (i == j)
@@ -496,7 +494,7 @@ void Tokenizer::get_tokens()
       {
         if ((i + 1) < _input.size() && std::isdigit(_input[i + 1]))
         {
-          size_t start = i;
+          size_t start{i};
           ++i;
           // floating grammar is
           // float -> '.' (int | (int expo[sign] int))
@@ -510,7 +508,7 @@ void Tokenizer::get_tokens()
             ++i;
             if (i < _input.size() && (((c = _input[i]) == '+') || (c == '-')))
               ++i;
-            size_t j = i;
+            size_t j{i};
             while (i < _input.size() && std::isdigit(_input[i]))
               ++i;
             if (i == j)
@@ -538,7 +536,7 @@ void Tokenizer::get_tokens()
       }
       else if (c == '"' || c == '\'' || c == '`')
       {
-        char quote_char = c;
+        char quote_char{c};
         std::string val;
         size_t start = ++i;
 
@@ -582,7 +580,7 @@ void Tokenizer::get_tokens()
     }
     else
     {
-      size_t start = i;
+      size_t start{i};
       while (i < _input.size() && (std::isalnum(_input[i]) || _input[i] == '_'))
         ++i;
       std::string val(_input, start, i - start);

@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 }
 #include "php_mysqlx.h"
@@ -110,7 +108,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	mysqlx_std_object_handlers.offset = XtOffsetOf(struct st_mysqlx_object, zo);
 	mysqlx_std_object_handlers.free_obj = mysqlx_object_free_storage;
-	mysqlx_std_object_handlers.clone_obj = NULL;
+	mysqlx_std_object_handlers.clone_obj = nullptr;
 
 	mysqlx_std_object_handlers.read_property = mysqlx_property_get_value;
 	mysqlx_std_object_handlers.write_property = mysqlx_property_set_value;

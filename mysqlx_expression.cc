@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -51,10 +49,10 @@ ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_EXPRESSION_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_expression *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_expression*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->expr) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
 	} \
 } \
@@ -65,7 +63,7 @@ ZEND_END_ARG_INFO()
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
 	zval * object_zv;
-	MYSQLND_CSTRING expression = {NULL, 0};
+	MYSQLND_CSTRING expression = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_expression::__construct");
 
@@ -77,10 +75,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 	}
 
 	{
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(object_zv);
-		struct st_mysqlx_expression * object = (struct st_mysqlx_expression *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(object_zv);
+		st_mysqlx_expression* object = (st_mysqlx_expression*) mysqlx_object->ptr;
 		if (!object) {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			DBG_VOID_RETURN;
 		}
 		DBG_INF_FMT("expression=[%*s]", expression.l, expression.s);
@@ -97,7 +95,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 static const zend_function_entry mysqlx_expression_methods[] = {
 	PHP_ME(mysqlx_expression, __construct,		arginfo_mysqlx_expression__construct,	ZEND_ACC_PUBLIC)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -106,7 +104,7 @@ static const zend_function_entry mysqlx_expression_methods[] = {
    Bind variables to a prepared statement as parameters */
 PHP_FUNCTION(mysql_xdevapi__expression)
 {
-	MYSQLND_CSTRING expression = {NULL, 0};
+	MYSQLND_CSTRING expression = {nullptr, 0};
 
 	DBG_ENTER("mysql_xdevapi__Expression");
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
@@ -127,15 +125,15 @@ static HashTable mysqlx_expression_properties;
 
 const struct st_mysqlx_property_entry mysqlx_expression_property_entries[] =
 {
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 /* {{{ mysqlx_expression_free_storage */
 static void
 mysqlx_expression_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_expression * inner_obj = (struct st_mysqlx_expression *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_expression* inner_obj = (st_mysqlx_expression*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		zval_ptr_dtor(&inner_obj->expression);
@@ -174,7 +172,7 @@ mysqlx_register_expression_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 		mysqlx_expression_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_expression_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_expression_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_expression_properties, mysqlx_expression_property_entries);
@@ -201,13 +199,13 @@ mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression)
 	DBG_ENTER("mysqlx_new_expression");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_expression_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_expression * const object = (struct st_mysqlx_expression *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_expression* const object = (st_mysqlx_expression*) mysqlx_object->ptr;
 		if (object) {
 			DBG_INF_FMT("expression=[%*s]", expression.l, expression.s);
 			ZVAL_STRINGL(&object->expression, expression.s, expression.l);
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}
@@ -230,13 +228,13 @@ is_a_mysqlx_expression(const zval * const value)
 const zval *
 get_mysqlx_expression(const zval * const object_zv)
 {
-	zval * ret = NULL;
+	zval* ret{nullptr};
 	DBG_ENTER("get_mysqlx_expression");
 	if (instanceof_function(Z_OBJCE_P(object_zv), mysqlx_expression_class_entry)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(object_zv);
-		struct st_mysqlx_expression * object = (struct st_mysqlx_expression *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(object_zv);
+		st_mysqlx_expression* object = (st_mysqlx_expression*) mysqlx_object->ptr;
 		if (!object) {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		} else {
 			ret = &object->expression;
 		}

@@ -15,10 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 }
@@ -68,7 +66,7 @@ struct st_index_field
 {
 	phputils::string doc_path;
 	phputils::string column_type;
-	zend_bool is_required = FALSE;
+	zend_bool is_required{FALSE};
 
 	st_index_field()
 	{
@@ -92,7 +90,7 @@ struct st_xmysqlnd_collection_op__create_index : phputils::custom_allocable
 	phputils::string schema_name;
 	phputils::string collection_name;
 	phputils::string index_name;
-	zend_bool is_unique = FALSE;
+	zend_bool is_unique{FALSE};
 
 	st_index_fields index_fields;
 
@@ -117,7 +115,7 @@ struct st_xmysqlnd_collection_op__create_index : phputils::custom_allocable
 XMYSQLND_COLLECTION_OP__CREATE_INDEX *
 xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name)
 {
-	XMYSQLND_COLLECTION_OP__CREATE_INDEX* ret = nullptr;
+	XMYSQLND_COLLECTION_OP__CREATE_INDEX* ret{nullptr};
 	DBG_ENTER("xmysqlnd_collection_create_index__create");
 	DBG_INF_FMT("schema_name=%*s collection_name=%*s", schema_name.l, schema_name.s, collection_name.l, collection_name.s);
 	ret = new st_xmysqlnd_collection_op__create_index(schema_name, collection_name);
@@ -213,7 +211,7 @@ collection_index_bind_bool_param(
 	const zend_bool param)
 {
 	DBG_ENTER("collection_index_bind_bool_param");
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 
 	zval zv;
 	ZVAL_UNDEF(&zv);
@@ -241,7 +239,7 @@ collection_index_bind_string_param(
 	const phputils::string& param)
 {
 	DBG_ENTER("collection_index_bind_string_param");
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 
 	zval zv;
 	ZVAL_UNDEF(&zv);
@@ -269,7 +267,7 @@ collection_index_bind_field_param(
 	const phputils::string& rawPath)
 {
 	DBG_ENTER("collection_index_bind_field_param");
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 
 	phputils::string fieldPath;
 
@@ -284,7 +282,7 @@ collection_index_bind_field_param(
 			}
 		}
 	} catch (old_parser_api::Parser_error &e) {
-		php_error_docref(NULL, E_WARNING, "Error while parsing, details: %s", e.what());
+		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
 		DBG_ERR("Parser error for document field");
 		DBG_RETURN(HND_FAIL);
@@ -318,7 +316,7 @@ collection_index_bind_fields(
 	const unsigned int counter,
 	const st_index_fields& index_fields)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	DBG_ENTER("collection_index_bind_fields");
 
 	const unsigned int GlobalParamsCount = 4;
@@ -364,11 +362,11 @@ collection_create_index_var_binder(
 	XMYSQLND_NODE_SESSION* session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_create_collection_index_var_binder_ctx* ctx = static_cast<st_collection_create_collection_index_var_binder_ctx*>(context);
 	st_xmysqlnd_collection_op__create_index* index_op = ctx->index_op;
 
-	const phputils::string* param = nullptr;
+	const phputils::string* param{nullptr};
 	DBG_ENTER("collection_create_index_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -441,7 +439,7 @@ struct collection_drop_index_data : phputils::custom_allocable
 	collection_drop_index_data(
 		const MYSQLND_CSTRING& schema,
 		const MYSQLND_CSTRING& collection,
-		const phputils::string_input_param& index)
+		const phputils::string_view& index)
 		: schema_name(schema.s, schema.l)
 		, collection_name(collection.s, collection.l)
 		, index_name(index.to_string())
@@ -472,11 +470,11 @@ collection_drop_index_var_binder(
 	XMYSQLND_NODE_SESSION* session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_drop_collection_index_var_binder_ctx* ctx = static_cast<st_collection_drop_collection_index_var_binder_ctx*>(context);
 	collection_drop_index_data* index_op = ctx->index_op;
 
-	const phputils::string* param = nullptr;
+	const phputils::string* param{nullptr};
 	DBG_ENTER("collection_drop_index_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -542,7 +540,7 @@ xmysqlnd_collection_drop_index__execute(
 /* {{{ collection_drop_index */
 bool collection_drop_index(
 	XMYSQLND_NODE_COLLECTION* collection,
-	const phputils::string_input_param& index_name,
+	const phputils::string_view& index_name,
 	st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	collection_drop_index_data op_drop_index(

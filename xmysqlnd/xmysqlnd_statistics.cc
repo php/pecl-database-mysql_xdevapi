@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_statistics.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
@@ -30,7 +28,7 @@ namespace mysqlx {
 
 namespace drv {
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_STATS *xmysqlnd_global_stats = NULL;
+PHP_MYSQL_XDEVAPI_API MYSQLND_STATS* xmysqlnd_global_stats{nullptr};
 
 
 

@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -62,10 +60,10 @@ struct st_mysqlx_message__auth_continue
 
 #define MYSQLX_FETCH_MESSAGE__AUTH_CONTINUE_FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_message__auth_continue *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_message__auth_continue*) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -93,15 +91,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_message__auth_continue * object;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
-	char * user = NULL;
-	size_t user_len = 0;
-	char * password = NULL;
-	size_t password_len = 0;
-	char * schema = NULL;
-	size_t schema_len = 0;
+	st_mysqlx_message__auth_continue* object;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
+	char* user{nullptr};
+	size_t user_len{0};
+	char* password{nullptr};
+	size_t password_len{0};
+	char* schema{nullptr};
+	size_t schema_len{0};
 
 	DBG_ENTER("mysqlx_message__auth_continue::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OsssOO",
@@ -120,7 +118,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	if (!object->message.has_auth_data()) {
-		php_error_docref(NULL, E_WARNING, "No authentication data from the server");
+		php_error_docref(nullptr, E_WARNING, "No authentication data from the server");
 		DBG_VOID_RETURN;
 	}
 
@@ -147,10 +145,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_message__auth_continue * object;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
-	size_t ret = 0;
+	st_mysqlx_message__auth_continue* object;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
+	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__auth_continue::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -181,7 +179,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 static const zend_function_entry mysqlx_message__auth_continue_methods[] = {
 	PHP_ME(mysqlx_message__auth_continue, send,				mysqlx_message__auth_continue__send,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_message__auth_continue, read_response,	mysqlx_message__auth_continue__read_response,	ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -193,8 +191,8 @@ static HashTable mysqlx_message__auth_continue_properties;
 static void
 mysqlx_message__auth_continue_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__auth_continue * message = (struct st_mysqlx_message__auth_continue  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__auth_continue* message = (st_mysqlx_message__auth_continue*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -207,8 +205,8 @@ static zend_object *
 php_mysqlx_message__auth_continue_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__auth_continue * message = new (std::nothrow) struct st_mysqlx_message__auth_continue();
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__auth_continue* message = new (std::nothrow) struct st_mysqlx_message__auth_continue();
 
 	DBG_ENTER("php_mysqlx_message__auth_continue_object_allocator");
 	if (mysqlx_object && message) {
@@ -229,7 +227,7 @@ php_mysqlx_message__auth_continue_object_allocator(zend_class_entry * class_type
 	}
 
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -249,7 +247,7 @@ mysqlx_register_message__auth_continue_class(INIT_FUNC_ARGS, zend_object_handler
 		mysqlx_message__auth_continue_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__auth_continue_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__auth_continue_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 
@@ -267,7 +265,7 @@ mysqlx_unregister_message__auth_continue_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_message__auth_continue(zval * return_value, const Mysqlx::Session::AuthenticateContinue & message)
 {
-	struct st_mysqlx_message__auth_continue * obj;
+	st_mysqlx_message__auth_continue* obj;
 	DBG_ENTER("mysqlx_new_message__auth_continue");
 	object_init_ex(return_value, mysqlx_message__auth_continue_class_entry);
 	MYSQLX_FETCH_MESSAGE__AUTH_CONTINUE_FROM_ZVAL(obj, return_value);

@@ -15,11 +15,7 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
-}
+#include "php_api.h"
 #include "hash_table.h"
 #include "strings.h"
 #include "value.h"
@@ -91,19 +87,19 @@ zval* Hash_table::find(const long key)
 	return zend_hash_index_find(ht, key);
 }
 
-zval* Hash_table::find(const string_input_param& key)
+zval* Hash_table::find(const string_view& key)
 {
 	return zend_hash_str_find(ht, key.str, key.len);
 }
 
 // -----------------------------------------------------------------------------
 
-void Hash_table::insert(const char* key, const string_input_param& value)
+void Hash_table::insert(const char* key, const string_view& value)
 {
 	insert(key, std::strlen(key), value);
 }
 
-void Hash_table::insert(const char* key, std::size_t key_len, const string_input_param& value)
+void Hash_table::insert(const char* key, std::size_t key_len, const string_view& value)
 {
 	zvalue zv(value);
 	zend_hash_str_update(ht, key, key_len, zv.release());

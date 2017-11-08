@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_statistics.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
@@ -220,11 +218,11 @@ static struct st_mysqlnd_plugin_core xmysqlnd_plugin_core =
 		"PHP License 3.01",
 		"Andrey Hristov <andrey@mysql.com>",
 		{
-			NULL, /* will be filled later */
+			nullptr, /* will be filled later */
 			xmysqlnd_stats_values_names,
 		},
 		{
-			NULL /* plugin shutdown */
+			nullptr /* plugin shutdown */
 		}
 	}
 };
@@ -235,7 +233,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void)
 {
 	if (xmysqlnd_library_initted == TRUE) {
 		mysqlnd_stats_end(xmysqlnd_global_stats, 1);
-		xmysqlnd_global_stats = NULL;
+		xmysqlnd_global_stats = nullptr;
 		xmysqlnd_library_initted = FALSE;
 	}
 	xmysqlnd_shutdown_protobuf_library();
@@ -254,7 +252,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void)
 		{
 			xmysqlnd_plugin_core.plugin_header.plugin_stats.values = xmysqlnd_global_stats;
 #ifdef MARINES_0
-			mysqlnd_plugin_register_ex((struct st_mysqlnd_plugin_header *) &xmysqlnd_plugin_core);
+			mysqlnd_plugin_register_ex((st_mysqlnd_plugin_header*) &xmysqlnd_plugin_core);
 #endif
 		}
 	}

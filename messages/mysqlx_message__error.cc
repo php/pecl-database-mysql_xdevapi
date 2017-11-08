@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -50,17 +48,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__error, __construct)
 
 /* {{{ mysqlx_message__error_methods[] */
 static const zend_function_entry mysqlx_message__error_methods[] = {
-	PHP_ME(mysqlx_message__error, __construct,	NULL,	ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_message__error, __construct,	nullptr,	ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 
 /* {{{ mysqlx_message__error_property__message */
 static zval *
-mysqlx_message__error_property__message(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_message__error_property__message(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_message__error * object = static_cast<struct st_mysqlx_message__error *>(obj->ptr);
+	const st_mysqlx_message__error* object = static_cast<st_mysqlx_message__error* >(obj->ptr);
 	DBG_ENTER("mysqlx_message__error_property__message");
 	if (object->message.has_msg()) {
 		ZVAL_STRINGL(return_value, object->message.msg().c_str(), object->message.msg().size());
@@ -69,10 +67,10 @@ mysqlx_message__error_property__message(const struct st_mysqlx_object * obj, zva
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -81,9 +79,9 @@ mysqlx_message__error_property__message(const struct st_mysqlx_object * obj, zva
 
 /* {{{ mysqlx_message__error_property__sql_state */
 static zval *
-mysqlx_message__error_property__sql_state(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_message__error_property__sql_state(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_message__error * object = static_cast<struct st_mysqlx_message__error *>(obj->ptr);
+	const st_mysqlx_message__error* object = static_cast<st_mysqlx_message__error* >(obj->ptr);
 	DBG_ENTER("mysqlx_message__error_property__sql_state");
 	if (object->message.has_sql_state()) {
 		ZVAL_STRINGL(return_value, object->message.sql_state().c_str(), object->message.sql_state().size());
@@ -92,10 +90,10 @@ mysqlx_message__error_property__sql_state(const struct st_mysqlx_object * obj, z
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -104,9 +102,9 @@ mysqlx_message__error_property__sql_state(const struct st_mysqlx_object * obj, z
 
 /* {{{ mysqlx_message__error_property__error_code */
 static zval *
-mysqlx_message__error_property__error_code(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_message__error_property__error_code(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_message__error * object = static_cast<struct st_mysqlx_message__error *>(obj->ptr);
+	const st_mysqlx_message__error* object = static_cast<st_mysqlx_message__error* >(obj->ptr);
 	DBG_ENTER("mysqlx_message__error_property__error_code");
 	if (object->message.has_code()) {
 		/* code is 32 bit unsigned and on 32bit system won't fit into 32 bit signed zend_long, but this won't happen in practice*/
@@ -116,10 +114,10 @@ mysqlx_message__error_property__error_code(const struct st_mysqlx_object * obj, 
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -129,10 +127,10 @@ mysqlx_message__error_property__error_code(const struct st_mysqlx_object * obj, 
 /* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_message__error_property_entries[] =
 {
-	{{"message",			sizeof("message") - 1},		mysqlx_message__error_property__message,	NULL},
-	{{"sql_state",			sizeof("sql_state") - 1},	mysqlx_message__error_property__sql_state,	NULL},
-	{{"code",				sizeof("code") - 1},		mysqlx_message__error_property__error_code,	NULL},
-	{{NULL, 				0},							NULL, 										NULL}
+	{{"message",			sizeof("message") - 1},		mysqlx_message__error_property__message,	nullptr},
+	{{"sql_state",			sizeof("sql_state") - 1},	mysqlx_message__error_property__sql_state,	nullptr},
+	{{"code",				sizeof("code") - 1},		mysqlx_message__error_property__error_code,	nullptr},
+	{{nullptr, 				0},							nullptr, 										nullptr}
 };
 /* }}} */
 
@@ -145,8 +143,8 @@ static HashTable mysqlx_message__error_properties;
 static void
 mysqlx_message__error_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__error * message = (struct st_mysqlx_message__error  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__error* message = (st_mysqlx_message__error*) mysqlx_object->ptr;
 
 	delete message;
 	mysqlx_object_free_storage(object);
@@ -159,8 +157,8 @@ static zend_object *
 php_mysqlx_message__error_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__error * message = new (std::nothrow) struct st_mysqlx_message__error;
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__error* message = new (std::nothrow) struct st_mysqlx_message__error;
 
 	DBG_ENTER("php_mysqlx_message__error_object_allocator");
 	if ( mysqlx_object && message ) {
@@ -180,7 +178,7 @@ php_mysqlx_message__error_object_allocator(zend_class_entry * class_type)
 		mnd_pefree(mysqlx_object, persistent);
 	}
 	delete message;
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -200,7 +198,7 @@ mysqlx_register_message__error_class(INIT_FUNC_ARGS, zend_object_handlers * mysq
 		mysqlx_message__error_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__error_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__error_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	mysqlx_add_properties(&mysqlx_message__error_properties, mysqlx_message__error_property_entries);
 
@@ -225,7 +223,7 @@ mysqlx_unregister_message__error_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_message__error(zval * return_value, const Mysqlx::Error & message)
 {
-	struct st_mysqlx_message__error * error;
+	st_mysqlx_message__error* error;
 	DBG_ENTER("mysqlx_new_message__error");
 	object_init_ex(return_value, mysqlx_message__error_class_entry);
 	MYSQLX_FETCH_MESSAGE__ERROR__FROM_ZVAL(error, return_value);
@@ -239,7 +237,7 @@ mysqlx_new_message__error(zval * return_value, const Mysqlx::Error & message)
 void
 mysqlx_new_message__error(zval * return_value, const char * msg, const char * sql_state, const unsigned int code)
 {
-	struct st_mysqlx_message__error * error;
+	st_mysqlx_message__error* error;
 	DBG_ENTER("mysqlx_new_message__error");
 	object_init_ex(return_value, mysqlx_message__error_class_entry);
 	MYSQLX_FETCH_MESSAGE__ERROR__FROM_ZVAL(error, return_value);
@@ -256,7 +254,7 @@ void
 dump_mysqlx_error(const Mysqlx::Error & error)
 {
 	const char * error_severity = "Uknown Severity";
-	uint32_t code = 0;
+	uint32_t code{0};
 	const char * sql_state = "00000";
 	const char * message = "";
 	if (error.has_severity()) {
@@ -275,7 +273,7 @@ dump_mysqlx_error(const Mysqlx::Error & error)
 	if (error.has_msg()) {
 		message = error.msg().c_str();
 	}
-	php_error_docref(NULL, E_WARNING, "[%s][%u][%s] %s", error_severity, code, sql_state, message);
+	php_error_docref(nullptr, E_WARNING, "[%s][%u][%s] %s", error_severity, code, sql_state, message);
 }
 /* }}} */
 

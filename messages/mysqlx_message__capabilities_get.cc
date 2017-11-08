@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@mysql.com>                           |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -59,10 +57,10 @@ struct st_mysqlx_message__capabilities_get
 
 #define MYSQLX_FETCH_MESSAGE__CAPABILITIES_GET__FROM_ZVAL(_to, _from) \
 { \
-	struct st_mysqlx_object * mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_message__capabilities_get *) mysqlx_object->ptr; \
+	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_message__capabilities_get*) mysqlx_object->ptr; \
 	if (!(_to)) { \
-		php_error_docref(NULL, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object or resource %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
 		DBG_VOID_RETURN; \
 	} \
@@ -86,10 +84,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, send)
 	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_message__capabilities_get * object;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
-	enum_func_status ret = FAIL;
+	st_mysqlx_message__capabilities_get* object;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
+	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -122,10 +120,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 	zval * object_zv;
 	zval * codec_zv;
 	zval * connection_zv;
-	struct st_mysqlx_message__capabilities_get * object;
-	struct st_mysqlx_node_connection * connection;
-	struct st_mysqlx_node_pfc * codec;
-	size_t ret = 0;
+	st_mysqlx_message__capabilities_get* object;
+	st_mysqlx_node_connection* connection;
+	st_mysqlx_node_pfc* codec;
+	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
@@ -156,7 +154,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 static const zend_function_entry mysqlx_message__capabilities_get_methods[] = {
 	PHP_ME(mysqlx_message__capabilities_get, send,				mysqlx_message__capabilities_get__send,				ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_message__capabilities_get, read_response,		mysqlx_message__capabilities_get__read_response,	ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
@@ -169,8 +167,8 @@ static HashTable mysqlx_message__capabilities_get_properties;
 static void
 mysqlx_message__capabilities_get_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_message__capabilities_get * message = (struct st_mysqlx_message__capabilities_get  *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_message__capabilities_get* message = (st_mysqlx_message__capabilities_get*) mysqlx_object->ptr;
 
 	if (message) {
 		mnd_pefree(message, message->persistent);
@@ -185,8 +183,8 @@ static zend_object *
 php_mysqlx_message__capabilities_get_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	struct st_mysqlx_object * mysqlx_object = (struct st_mysqlx_object *) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	struct st_mysqlx_message__capabilities_get * message = (struct st_mysqlx_message__capabilities_get *) mnd_pecalloc(1, sizeof(struct st_mysqlx_message__capabilities_get), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_message__capabilities_get* message = (st_mysqlx_message__capabilities_get*) mnd_pecalloc(1, sizeof(struct st_mysqlx_message__capabilities_get), persistent);
 
 	DBG_ENTER("php_mysqlx_message__capabilities_get_object_allocator");
 	if ( mysqlx_object && message ) {
@@ -207,7 +205,7 @@ php_mysqlx_message__capabilities_get_object_allocator(zend_class_entry * class_t
 	if (message) {
 		mnd_pefree(message, persistent);
 	}
-	DBG_RETURN(NULL);
+	DBG_RETURN(nullptr);
 }
 /* }}} */
 
@@ -227,7 +225,7 @@ mysqlx_register_message__capabilities_get_class(INIT_FUNC_ARGS, zend_object_hand
 		mysqlx_message__capabilities_get_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_message__capabilities_get_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_message__capabilities_get_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 

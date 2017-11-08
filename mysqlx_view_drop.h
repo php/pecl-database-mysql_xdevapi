@@ -24,7 +24,7 @@ namespace devapi {
 
 bool view_drop(
 	drv::st_xmysqlnd_node_schema* schema,
-	const phputils::string_input_param& view_name);
+	const phputils::string_view& view_name);
 
 } // namespace devapi
 

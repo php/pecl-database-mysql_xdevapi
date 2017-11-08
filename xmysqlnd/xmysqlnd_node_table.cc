@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/json/php_json_parser.h"
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_debug.h"
@@ -77,9 +75,9 @@ table_op_var_binder(
 	XMYSQLND_NODE_SESSION * session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
-	enum_hnd_func_status ret = HND_FAIL;
+	enum_hnd_func_status ret{HND_FAIL};
 	table_or_view_var_binder_ctx* ctx = static_cast<table_or_view_var_binder_ctx*>(context);
-	const MYSQLND_CSTRING * param = NULL;
+	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("table_op_var_binder");
 	switch (ctx->counter) {
 		case 0:
@@ -287,7 +285,7 @@ table_sql_single_result_op_on_row(
 	MYSQLND_STATS * const stats,
 	MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_table_sql_single_result_ctx * ctx = (struct st_table_sql_single_result_ctx *) context;
+	st_table_sql_single_result_ctx* ctx = (st_table_sql_single_result_ctx*) context;
 	DBG_ENTER("table_sql_single_result_op_on_row");
 	if (ctx && row) {
 		ZVAL_COPY_VALUE(ctx->result, &row[0]);
@@ -363,7 +361,7 @@ struct st_parse_for_id_status
 
 struct my_php_json_parser {
 	php_json_parser parser;
-	struct st_parse_for_id_status * status;
+	st_parse_for_id_status* status;
 };
 
 
@@ -371,7 +369,7 @@ struct my_php_json_parser {
 int
 xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_string *key, zval *zvalue)
 {
-	struct st_parse_for_id_status * status = ((struct my_php_json_parser *)parser)->status;
+	st_parse_for_id_status* status = ((struct my_php_json_parser *)parser)->status;
 	DBG_ENTER("xmysqlnd_json_parser_object_update");
 	/* if JSON_OBJECT_AS_ARRAY is set */
 	if (parser->depth == 2 && ZSTR_LEN(key) &&
@@ -403,7 +401,7 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 
 /* {{{ xmysqlnd_json_string_find_id */
 enum_func_status
-xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend_long depth, struct st_parse_for_id_status * status)
+xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend_long depth, st_parse_for_id_status* status)
 {
 	php_json_parser_methods own_methods;
 	struct my_php_json_parser parser;
@@ -437,7 +435,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 {
-	XMYSQLND_NODE_STMT * ret = NULL;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_table::opinsert");
 	if (!op || FAIL == xmysqlnd_crud_table_insert__finalize_bind(op))
 	{
@@ -457,7 +455,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, 
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
-		DBG_INF(ret != NULL ? "PASS" : "FAIL");
+		DBG_INF(ret != nullptr ? "PASS" : "FAIL");
 	}
 
 	DBG_RETURN(ret);
@@ -469,7 +467,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, 
 XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 {
-	XMYSQLND_NODE_STMT * ret = NULL;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_table::opdelete");
 	if (!op || FAIL == xmysqlnd_crud_table_delete__finalize_bind(op))
 	{
@@ -488,7 +486,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
-		DBG_INF(ret != NULL ? "PASS" : "FAIL");
+		DBG_INF(ret != nullptr ? "PASS" : "FAIL");
 	}
 
 	DBG_RETURN(ret);
@@ -500,7 +498,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table
 XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 {
-	XMYSQLND_NODE_STMT * ret = NULL;
+	XMYSQLND_NODE_STMT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_table::update");
 	if (!op || FAIL == xmysqlnd_crud_table_update__finalize_bind(op))
 	{
@@ -519,7 +517,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, 
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
-		DBG_INF(ret != NULL ? "PASS" : "FAIL");
+		DBG_INF(ret != nullptr ? "PASS" : "FAIL");
 	}
 
 	DBG_RETURN(ret);
@@ -531,7 +529,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, 
 st_xmysqlnd_node_stmt *
 XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 {
-	XMYSQLND_NODE_STMT * stmt = NULL;
+	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_node_table::select");
 	if (!op || FAIL == xmysqlnd_crud_table_select__finalize_bind(op))
 	{
@@ -544,7 +542,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, 
 		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op), session->data->stats, session->data->error_info))
 		{
 			xmysqlnd_node_stmt_free(stmt, session->data->stats, session->data->error_info);
-			stmt = NULL;
+			stmt = nullptr;
 		}
 	}
 	DBG_RETURN(stmt);
@@ -567,7 +565,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, get_reference)(XMYSQLND_NODE_TABLE * const 
 enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, free_reference)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	enum_func_status ret = PASS;
+	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_table::free_reference");
 	DBG_INF_FMT("table=%p old_refcount=%u", table, table->data->refcount);
 	if (!(--table->data->refcount)) {
@@ -586,7 +584,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, free_contents)(XMYSQLND_NODE_TABLE * const 
 	DBG_ENTER("xmysqlnd_node_table::free_contents");
 	if (table->data->table_name.s) {
 		mnd_pefree(table->data->table_name.s, pers);
-		table->data->table_name.s = NULL;
+		table->data->table_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
@@ -642,7 +640,7 @@ xmysqlnd_node_table_create(XMYSQLND_NODE_SCHEMA * schema,
 						   MYSQLND_STATS * const stats,
 						   MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_NODE_TABLE * ret = NULL;
+	XMYSQLND_NODE_TABLE* ret{nullptr};
 	DBG_ENTER("xmysqlnd_node_table_create");
 	if (table_name.s && table_name.l) {
 		ret = object_factory->get_node_table(object_factory, schema, table_name, persistent, stats, error_info);
@@ -660,7 +658,7 @@ PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_node_table_free(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_node_table_free");
-	DBG_INF_FMT("table=%p  table->data=%p  dtor=%p", table, table? table->data:NULL, table? table->data->m.dtor:NULL);
+	DBG_INF_FMT("table=%p  table->data=%p  dtor=%p", table, table? table->data:nullptr, table? table->data->m.dtor:nullptr);
 	if (table) {
 		table->data->m.free_reference(table, stats, error_info);
 	}

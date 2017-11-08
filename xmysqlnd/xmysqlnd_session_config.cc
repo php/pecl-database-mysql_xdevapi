@@ -15,10 +15,8 @@
   | Authors: Filip Janiszewski <fjanisze@php.net>                        |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
@@ -41,28 +39,29 @@ namespace mysqlx {
 
 namespace devapi {
 
-namespace
-{
-
-/*
- * Small utility which make sure that a given
- * name is compliant with the SPEC details
- */
-bool is_valid_identifier( const phputils::string& str )
+/* {{{ is_valid_identifier */
+static bool
+is_valid_identifier( const phputils::string& str )
 {
 	const int max_identifier_name_length{ 31 };
 	if( str.size() > max_identifier_name_length ) {
 		return false;
 	}
+	int num_of_letter{ 0 };
+	int num_of_digit{ 0 };
 	for( auto& ch : str ) {
-		if( false == std::isalnum( ch ) ) {
+        if( false == std::isalnum( ch ) ) {
 			return false;
 		}
+        if( 0 < std::isalpha( ch ) ) {
+			++num_of_letter;
+		} else {
+			++num_of_digit;
+		}
 	}
-	return true;
+	return num_of_letter > 0;
 }
-
-}
+/* }}} */
 
 /* {{{ Session_config::Session_config */
 Session_config::Session_config(const phputils::string &name)
@@ -209,7 +208,7 @@ phputils::string Session_config::get_json() const
 bool Session_config::add_attributes(const std::pair<phputils::string, phputils::string> &attrib)
 {
 	DBG_ENTER("Session_config::add_attributes");
-	bool ret = true;
+	bool ret{true};
 	auto it = attributes.find( attrib.first );
 	if( it != attributes.end() ) {
 		//Twice the same attribute? Must be an error
@@ -349,7 +348,7 @@ Session_config Session_config_manager::save(const phputils::string &session_name
 Session_config Session_config_manager::save(const Session_config &session)
 {
 	DBG_ENTER("Session_config_manager::save(session)");
-	Session_config new_config = session;
+	Session_config new_config{session};
 	/*
 	 * The session must be already stored, what we're
 	 * saving is the internally stored session.

@@ -23,7 +23,7 @@ namespace mysqlx {
 
 namespace phputils {
 
-struct string_input_param;
+struct string_view;
 
 namespace json {
 
@@ -31,7 +31,7 @@ void to_zv_string(zval* src, zval* dest);
 
 void ensure_doc_id(
 	zval* raw_doc,
-	const string_input_param& id,
+	const string_view& id,
 	zval* doc_with_id);
 
 } // namespace json

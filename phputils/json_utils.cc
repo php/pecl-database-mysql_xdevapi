@@ -16,10 +16,8 @@
   |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/json/php_json.h>
 #include <ext/json/php_json_parser.h>
 #include <zend_smart_str.h>
@@ -68,7 +66,7 @@ class Ensure_doc_id
 	public:
 		Ensure_doc_id(
 			zval* raw_doc,
-			const string_input_param& doc_id,
+			const string_view& doc_id,
 			zval* doc_with_id);
 
 	public:
@@ -84,14 +82,14 @@ class Ensure_doc_id
 
 	private:
 		zval* raw_doc;
-		const string_input_param& doc_id;
+		const string_view& doc_id;
 		zval* doc_with_id;
 
 };
 
 //------------------------------------------------------------------------------
 
-Ensure_doc_id::Ensure_doc_id(zval* src, const string_input_param& id, zval* dest)
+Ensure_doc_id::Ensure_doc_id(zval* src, const string_view& id, zval* dest)
 	: raw_doc(src)
 	, doc_id(id)
 	, doc_with_id(dest)
@@ -172,7 +170,7 @@ void Ensure_doc_id::store_id()
 /* {{{ ensure_doc_id */
 void ensure_doc_id(
 	zval* raw_doc,
-	const string_input_param& id,
+	const string_view& id,
 	zval* doc_with_id)
 {
 	ZVAL_UNDEF(doc_with_id);

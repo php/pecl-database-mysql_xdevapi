@@ -36,16 +36,9 @@
 phpt.*
 #core
 dynlib.m4
-Debug
-Debug_TS
 Makefile
 Makefile.fragments
 Makefile.objects
-Release
-Release_TS
-Release_TSDbg
-Release_TS_inline
-Release_inline
 ZendEngine1
 _libs
 acconfig.h
@@ -172,3 +165,13 @@ tests/*/*/*.sh
 */acinclude.m4
 */config.sub
 xmysqlnd/proto_gen/*
+
+# directories
+Debug
+Debug_TS
+Release
+Release_TS
+Release_TSDbg
+Release_TS_inline
+Release_inline
+.vs

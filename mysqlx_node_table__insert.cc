@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/json/php_json.h>
 #include <zend_smart_str.h>
 #include <ext/mysqlnd/mysqlnd.h>
@@ -65,10 +63,10 @@ struct st_mysqlx_node_table__insert : public phputils::custom_allocable
 
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
-	const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (struct st_mysqlx_node_table__insert *) mysqlx_object->ptr; \
+	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
+	(_to) = (st_mysqlx_node_table__insert*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
-		php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
+		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
 	} \
 } \
@@ -85,11 +83,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, __construct)
 /* {{{ proto mixed mysqlx_node_table__insert::values() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 {
-	struct st_mysqlx_node_table__insert * object;
+	st_mysqlx_node_table__insert* object;
 	zval * object_zv;
-	zval * values = NULL;
-	zend_bool op_failed = FALSE;
-	int    num_of_values = 0, i = 0;
+	zval* values{nullptr};
+	zend_bool op_failed{FALSE};
+	int num_of_values{0};
 
 	DBG_ENTER("mysqlx_node_table__insert::values");
 
@@ -110,7 +108,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 	DBG_INF_FMT("Num of values: %d",
 				num_of_values);
 
-	for( i = 0 ; i < num_of_values ; ++i ) {
+	for(int i{0}; i < num_of_values ; ++i ) {
 		if (FAIL == xmysqlnd_crud_table_insert__add_row(object->crud_op,
 												&values[i])) {
 			op_failed = TRUE;
@@ -130,7 +128,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 /* {{{ proto mixed mysqlx_node_table__insert::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
 {
-	struct st_mysqlx_node_table__insert * object;
+	st_mysqlx_node_table__insert* object;
 	zval * object_zv;
 
 	DBG_ENTER("mysqlx_node_table__insert::execute");
@@ -156,12 +154,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
 				ZVAL_UNDEF(&stmt_zv);
 				mysqlx_new_node_stmt(&stmt_zv, stmt);
 				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_node_stmt_free(stmt, NULL, NULL);
+					xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
 				}
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;
 					ZVAL_UNDEF(&zv);
-					zend_long flags = 0;
+					zend_long flags{0};
 					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 					ZVAL_COPY(return_value, &zv);
@@ -179,21 +177,21 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
 
 /* {{{ mysqlx_node_table__insert_methods[] */
 static const zend_function_entry mysqlx_node_table__insert_methods[] = {
-	PHP_ME(mysqlx_node_table__insert, __construct,	NULL,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_node_table__insert, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_node_table__insert, values,		arginfo_mysqlx_node_table__insert__values,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_table__insert, execute,		arginfo_mysqlx_node_table__insert__execute,		ZEND_ACC_PUBLIC)
 
-	{NULL, NULL, NULL}
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 #if 0
 /* {{{ mysqlx_node_table__insert_property__name */
 static zval *
-mysqlx_node_table__insert_property__name(const struct st_mysqlx_object * obj, zval * return_value)
+mysqlx_node_table__insert_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const struct st_mysqlx_node_table__insert * object = (const struct st_mysqlx_node_table__insert *) (obj->ptr);
+	const st_mysqlx_node_table__insert* object = (const st_mysqlx_node_table__insert* ) (obj->ptr);
 	DBG_ENTER("mysqlx_node_table__insert_property__name");
 	if (object->table && object->table->data->table_name.s) {
 		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
@@ -202,10 +200,10 @@ mysqlx_node_table__insert_property__name(const struct st_mysqlx_object * obj, zv
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
 		  and ISSET will say 'true' while for EG(unin) it is false.
 		  In short:
-		  return NULL; -> isset()===false, value is NULL
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is NULL
+		  return nullptr; -> isset()===false, value is nullptr
+		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
 		*/
-		return_value = NULL;
+		return_value = nullptr;
 	}
 	DBG_RETURN(return_value);
 }
@@ -218,26 +216,26 @@ static HashTable mysqlx_node_table__insert_properties;
 const struct st_mysqlx_property_entry mysqlx_node_table__insert_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_table__insert_property__name,	NULL},
+	{{"name",	sizeof("name") - 1}, mysqlx_node_table__insert_property__name,	nullptr},
 #endif
-	{{NULL,	0}, NULL, NULL}
+	{{nullptr,	0}, nullptr, nullptr}
 };
 
 /* {{{ mysqlx_node_table__insert_free_storage */
 static void
 mysqlx_node_table__insert_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	struct st_mysqlx_node_table__insert * inner_obj = (struct st_mysqlx_node_table__insert *) mysqlx_object->ptr;
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_node_table__insert* inner_obj = (st_mysqlx_node_table__insert*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->table) {
-			xmysqlnd_node_table_free(inner_obj->table, NULL, NULL);
-			inner_obj->table = NULL;
+			xmysqlnd_node_table_free(inner_obj->table, nullptr, nullptr);
+			inner_obj->table = nullptr;
 		}
 		if(inner_obj->crud_op) {
 			xmysqlnd_crud_table_insert__destroy(inner_obj->crud_op);
-			inner_obj->crud_op = NULL;
+			inner_obj->crud_op = nullptr;
 		}
 		mnd_efree(inner_obj);
 	}
@@ -275,7 +273,7 @@ mysqlx_register_node_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * 
 		zend_class_implements(mysqlx_node_table__insert_class_entry, 1, mysqlx_executable_interface_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_table__insert_properties, 0, NULL, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_node_table__insert_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_node_table__insert_properties, mysqlx_node_table__insert_property_entries);
@@ -307,8 +305,8 @@ mysqlx_new_node_table__insert(zval * return_value,
 	DBG_ENTER("mysqlx_new_node_table__insert");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_node_table__insert_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const struct st_mysqlx_object * const mysqlx_object = Z_MYSQLX_P(return_value);
-		struct st_mysqlx_node_table__insert * const object = (struct st_mysqlx_node_table__insert *) mysqlx_object->ptr;
+		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
+		st_mysqlx_node_table__insert* const object = (st_mysqlx_node_table__insert*) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
 			object->crud_op = xmysqlnd_crud_table_insert__create(
@@ -317,7 +315,7 @@ mysqlx_new_node_table__insert(zval * return_value,
 				columns,
 				num_of_columns);
 		} else {
-			php_error_docref(NULL, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
+			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);
 		}

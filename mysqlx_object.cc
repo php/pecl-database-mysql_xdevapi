@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_alloc.h"
 }
@@ -31,11 +29,10 @@ namespace mysqlx {
 namespace devapi {
 
 /* {{{ mysqlx_fetch_object_from_zo */
-struct st_mysqlx_object *
-mysqlx_fetch_object_from_zo(zend_object * obj)
+st_mysqlx_object* mysqlx_fetch_object_from_zo(zend_object * obj)
 {
 	/* Go back `XtOffsetOf of zo in st_mysqlx_object` bytes from `obj`  */
-	return (struct st_mysqlx_object *)((char*)(obj) - XtOffsetOf(struct st_mysqlx_object, zo));
+	return (st_mysqlx_object*)((char*)(obj) - XtOffsetOf(struct st_mysqlx_object, zo));
 }
 /* }}} */
 
@@ -44,7 +41,7 @@ mysqlx_fetch_object_from_zo(zend_object * obj)
 void
 mysqlx_object_free_storage(zend_object * object)
 {
-	struct st_mysqlx_object * mysqlx_object = mysqlx_fetch_object_from_zo(object);
+	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	zend_object_std_dtor(&mysqlx_object->zo);
 }
 /* }}} */
@@ -54,13 +51,13 @@ mysqlx_object_free_storage(zend_object * object)
 HashTable *
 mysqlx_object_get_debug_info(zval *object, int *is_temp)
 {
-	struct st_mysqlx_object * mysqlx_obj = Z_MYSQLX_P(object);
+	st_mysqlx_object* mysqlx_obj = Z_MYSQLX_P(object);
 	HashTable *retval;
 
 	ALLOC_HASHTABLE(retval);
 	ZEND_INIT_SYMTABLE_EX(retval, zend_hash_num_elements(mysqlx_obj->properties) + 1, 0);
 
-	void* raw_property = nullptr;
+	void* raw_property{nullptr};
 	ZEND_HASH_FOREACH_PTR(mysqlx_obj->properties, raw_property) {
 		st_mysqlx_property* property = static_cast<st_mysqlx_property*>(raw_property);
 		zval rv, member;

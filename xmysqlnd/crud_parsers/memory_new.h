@@ -58,7 +58,7 @@ struct Custom_allocator_with_check
 
   Custom_allocator_with_check(const boost::none_t &)
   {
-    function = NULL;
+    function = nullptr;
   }
 
   Custom_allocator_with_check(functor_type user_function)

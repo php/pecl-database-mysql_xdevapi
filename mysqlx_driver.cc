@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include "ext/mysqlnd/mysqlnd.h"
 #include "ext/mysqlnd/mysqlnd_enum_n_def.h"
 #include "ext/mysqlnd/mysqlnd_structs.h"
@@ -48,8 +46,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_driver, __construct)
 
 /* {{{ mysqlx_driver_methods[] */
 static const zend_function_entry mysqlx_driver_methods[] = {
-	PHP_ME(mysqlx_driver, __construct, NULL, ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+	PHP_ME(mysqlx_driver, __construct, nullptr, ZEND_ACC_PRIVATE)
+	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 

@@ -15,10 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
@@ -836,7 +834,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 			message.ParseFromArray(payload, payload_size);
 
 			const char * error_severity = "Uknown Severity";
-			uint32_t code = 0;
+			uint32_t code{0};
 			const char * sql_state = "00000";
 			const char * error_message = "";
 			if (message.has_severity()) {

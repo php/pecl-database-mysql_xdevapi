@@ -15,10 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
+#include "php_api.h"
 extern "C" {
-#include <php.h>
-#undef ERROR
-#undef inline
 #include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_debug.h>
 }
@@ -278,7 +276,7 @@ class Query_builder
 	private:
 		phputils::ostringstream os;
 
-		bool first_create_definition = true;
+		bool first_create_definition{true};
 
 };
 /* }}} */
