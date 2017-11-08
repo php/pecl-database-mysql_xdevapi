@@ -264,6 +264,8 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, init)(XMYSQLND_NODE_SESSION_DATA * o
 	if (!object->io.pfc || !object->io.vio || !object->charset) {
 		DBG_RETURN(FAIL);
 	}
+
+	object->savepoint_name_seed = 1;
 	DBG_RETURN(PASS);
 }
 /* }}} */

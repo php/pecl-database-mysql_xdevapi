@@ -92,6 +92,11 @@ strings to_strings(zval* zvals, int count, Pred pred)
 }
 /* }}} */
 
+/*
+ * Escape an identifier name adding '`' everywhere needed
+ */
+phputils::string escape_identifier( const phputils::string& identifier );
+
 } // namespace phputils
 
 } // namespace mysqlx
