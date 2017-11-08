@@ -819,7 +819,7 @@ xmysqlnd_capabilities_set__send_request(st_xmysqlnd_msg__capabilities_set* msg,
 {
 	size_t bytes_sent;
 	Mysqlx::Connection::CapabilitiesSet message;
-	for (unsigned i = 0; i < cap_count; ++i) {
+	for (unsigned i{0}; i < cap_count; ++i) {
 		Mysqlx::Connection::Capability * capability = message.mutable_capabilities()->add_capabilities();
 		capability->set_name(Z_STRVAL_P(capabilities_names[i]), Z_STRLEN_P(capabilities_names[i]));
 		Mysqlx::Datatypes::Any any_entry;

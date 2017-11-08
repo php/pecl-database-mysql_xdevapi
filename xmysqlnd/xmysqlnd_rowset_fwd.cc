@@ -288,13 +288,11 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows_contents)(XMYSQLND_ROWSET_FWD * c
 
 	if (result->rows && result->meta) {
 		const unsigned int col_count = result->meta->m->get_field_count(result->meta);
-		unsigned int row;
-		unsigned int col;
 
 		DBG_INF_FMT("Freeing %u rows with %u columns each", result->row_count, col_count);
 
-		for (row = 0; row < result->row_count; ++row) {
-			for (col = 0; col < col_count; ++col) {
+		for (unsigned int row{0}; row < result->row_count; ++row) {
+			for (unsigned int col{0}; col < col_count; ++col) {
 				zval_ptr_dtor(&(result->rows[row][col]));
 			}
 			result->m.destroy_row(result, result->rows[row], stats, error_info);

@@ -202,7 +202,7 @@ void Collection_find::add_operation(
 {
 	DBG_ENTER("Collection_find::add_operation");
 
-	for( int i = 0 ; i < num_of_expr ; ++i ) {
+	for( int i{0}; i < num_of_expr ; ++i ) {
 		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
 			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
 			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
@@ -214,7 +214,7 @@ void Collection_find::add_operation(
 
 	RETVAL_FALSE;
 
-	for( int i = 0 ; i < num_of_expr ; ++i ) {
+	for( int i{0}; i < num_of_expr ; ++i ) {
 		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{

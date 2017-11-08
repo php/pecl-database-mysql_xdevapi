@@ -144,10 +144,9 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
-	int i;
 	DBG_ENTER("xmysqlnd_stmt_execution_state::free_contents");
 	if(state && state->last_document_ids != nullptr) {
-		for(i = 0 ; i < state->num_of_doc_ids; ++i ) {
+		for(int i{0}; i < state->num_of_doc_ids; ++i ) {
 			mnd_efree(const_cast<char*>(state->last_document_ids[i].s));
 			state->last_document_ids[i].s = nullptr;
 			state->last_document_ids[i].l = 0;

@@ -492,7 +492,7 @@ bool Collection_add::init(
 {
 	if (!obj_zv || !documents || !num_of_documents) return false;
 
-	for (int i = 0; i < num_of_documents; ++i) {
+	for (int i{0}; i < num_of_documents; ++i) {
 		if (Z_TYPE(documents[i]) != IS_STRING &&
 			Z_TYPE(documents[i]) != IS_OBJECT &&
 			Z_TYPE(documents[i]) != IS_ARRAY) {
@@ -510,7 +510,7 @@ bool Collection_add::init(
 	if (!add_op) return false;
 
 	docs = static_cast<zval*>(mnd_ecalloc( num_of_documents, sizeof(zval) ));
-	for (int i = 0; i < num_of_documents; ++i) {
+	for (int i{0}; i < num_of_documents; ++i) {
 		ZVAL_DUP(&docs[i], &documents[i]);
 	}
 	num_of_docs = num_of_documents;
@@ -538,7 +538,7 @@ bool Collection_add::init(
 /* {{{ Collection_add::~Collection_add() */
 Collection_add::~Collection_add()
 {
-	for (int i = 0; i < num_of_docs; ++i) {
+	for (int i{0}; i < num_of_docs; ++i) {
 		zval_ptr_dtor(&docs[i]);
 		ZVAL_UNDEF(&docs[i]);
 	}
@@ -571,7 +571,7 @@ void Collection_add::execute(zval* return_value)
 		execute_ret_status = FAIL;
 	} else {
 		doc_add_op_return_status ret = { Add_op_status::success , nullptr };
-		for (int i = 0 ; i < num_of_docs && ret.return_status != Add_op_status::fail ; ++i) {
+		for (int i{0}; i < num_of_docs && ret.return_status != Add_op_status::fail ; ++i) {
 			ret.return_status = Add_op_status::fail;
 			switch(Z_TYPE(docs[i])) {
 			case IS_STRING:

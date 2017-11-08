@@ -150,7 +150,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 			const size_t buf_size = object->message.field(i).size();
 			zval zv;
 			DBG_INF_FMT("buf_size=%u", (uint) buf_size);
-			for (unsigned j = 0; j < buf_size; j++) {
+			for (unsigned j{0}; j < buf_size; j++) {
 				DBG_INF_FMT("[%02u]=x%02X", j, buf[j]);
 			}
 			/*

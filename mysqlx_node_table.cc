@@ -338,7 +338,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 	st_mysqlx_node_table* object;
 	zval * object_zv;
 	zval* columns{nullptr};
-	int    num_of_columns = 0, i = 0;
+	int num_of_columns{0};
 
 	DBG_ENTER("mysqlx_node_table::insert");
 
@@ -351,7 +351,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 		DBG_VOID_RETURN;
 	}
 
-	for(i = 0 ; i < num_of_columns ; ++i ) {
+	for(int i{0}; i < num_of_columns ; ++i ) {
 		if (Z_TYPE(columns[i]) != IS_STRING &&
 			Z_TYPE(columns[i]) != IS_OBJECT &&
 			Z_TYPE(columns[i]) != IS_ARRAY) {

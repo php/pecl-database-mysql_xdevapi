@@ -155,7 +155,6 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 	zval * object_zv;
 	zval* sort_expr{nullptr};
 	int num_of_expr{0};
-	int    i;
 
 	DBG_ENTER("mysqlx_node_table__select__add_sort_or_grouping");
 
@@ -168,7 +167,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 		DBG_VOID_RETURN;
 	}
 
-	for(i = 0 ; i < num_of_expr ; ++i ) {
+	for(int i{0}; i < num_of_expr ; ++i ) {
 		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
 			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
 			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
@@ -187,7 +186,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 		DBG_VOID_RETURN;
 	}
 
-	for( i = 0 ; i < num_of_expr ; ++i ) {
+	for(int i{0}; i < num_of_expr ; ++i ) {
 		switch (Z_TYPE(sort_expr[i]))
 		{
 		case IS_STRING:

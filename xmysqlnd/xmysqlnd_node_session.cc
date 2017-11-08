@@ -353,11 +353,10 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 		char hexed_hash[SCRAMBLE_LENGTH*2];
 		if (to_hex) {
 			zend_uchar hash[SCRAMBLE_LENGTH];
-			unsigned int i;
 
 			php_mysqlnd_scramble(hash, (zend_uchar*) salt.s, (const zend_uchar*) ctx->password.c_str(),
 								 ctx->password.size());
-			for (i = 0; i < SCRAMBLE_LENGTH; i++) {
+			for (unsigned int i{0}; i < SCRAMBLE_LENGTH; i++) {
 				hexed_hash[i*2] = hexconvtab[hash[i] >> 4];
 				hexed_hash[i*2 + 1] = hexconvtab[hash[i] & 15];
 			}
@@ -891,8 +890,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DA
 	DBG_INF_FMT("name=%s", name.s);
 	if (name.s && name.l) {
 		unsigned int occurs = 0;
-		unsigned int i;
-		for (i = 0; i < name.l; ++i) {
+		for (unsigned int i{0}; i < name.l; ++i) {
 			if (name.s[i] == '`') {
 				++occurs;
 			}
@@ -902,7 +900,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DA
 		ret.s[0] = '`';
 		if (occurs) {
 			char *p = &ret.s[0];				/* should start at 0 because we pre-increment in the loop */
-			for (i = 0; i < name.l; ++i) {
+			for (unsigned int i{0}; i < name.l; ++i) {
 				const char ch = name.s[i];
 				*++p = ch;						/* we pre-increment, because we start at 0 (which is `) before the loop */
 				if (UNEXPECTED(ch == '`')) {
@@ -2892,7 +2890,7 @@ void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
 	 * Prepare the correct format for the address
 	 * before pushing
 	 */
-	auto new_addr{unformatted_uri};
+	auto new_addr = unformatted_uri;
 	new_addr.insert( beg - 1 , addr.first );
 	list_of_addresses.push_back( { new_addr, addr.second } );
 }

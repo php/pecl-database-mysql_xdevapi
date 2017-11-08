@@ -166,7 +166,6 @@ get_document_id_common(INTERNAL_FUNCTION_PARAMETERS,
 				zend_bool multiple_ids) {
 	zval * object_zv;
 	st_mysqlx_node_result* object;
-	int i;
 
 	DBG_ENTER("get_document_id_common");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -197,7 +196,7 @@ get_document_id_common(INTERNAL_FUNCTION_PARAMETERS,
 		MYSQLND_CSTRING * value = exec_state->m->get_last_document_id(exec_state);
 		if( multiple_ids ) {
 			array_init_size(return_value, num_of_docs);
-			for(i = 0 ; i < num_of_docs ; ++i ) {
+			for(int i{0}; i < num_of_docs ; ++i ) {
 				zval id;
 				ZVAL_STRINGL(&id,value[i].s,value[i].l);
 				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &id);

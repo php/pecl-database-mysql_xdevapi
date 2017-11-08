@@ -87,7 +87,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 	zval * object_zv;
 	zval* values{nullptr};
 	zend_bool op_failed{FALSE};
-	int    num_of_values = 0, i = 0;
+	int num_of_values{0};
 
 	DBG_ENTER("mysqlx_node_table__insert::values");
 
@@ -108,7 +108,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 	DBG_INF_FMT("Num of values: %d",
 				num_of_values);
 
-	for( i = 0 ; i < num_of_values ; ++i ) {
+	for(int i{0}; i < num_of_values ; ++i ) {
 		if (FAIL == xmysqlnd_crud_table_insert__add_row(object->crud_op,
 												&values[i])) {
 			op_failed = TRUE;

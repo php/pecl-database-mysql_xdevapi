@@ -300,7 +300,7 @@ void Tokenizer::get_tokens()
   DBG_ENTER("Tokenizer::get_tokens");
   bool arrow_last{false};
   bool inside_arrow{false};
-  for (size_t i = 0; i < _input.size(); ++i)
+  for (size_t i{0}; i < _input.size(); ++i)
   {
     char c = _input[i];
     if (std::isspace(c))

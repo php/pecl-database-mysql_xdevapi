@@ -601,12 +601,11 @@ list_clients__handler_on_row(void * context,
 		}
 		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
 			const unsigned int field_count = meta->m->get_field_count(meta);
-			unsigned int i;
 			zval zv;
 			ZVAL_UNDEF(&zv);
 			array_init_size(&zv, field_count);
 
-			for (i = 0; i < field_count; ++i) {
+			for (unsigned int i{0}; i < field_count; ++i) {
 				const XMYSQLND_RESULT_FIELD_META * field_meta = meta->m->get_field(meta, i);
 				if (field_meta) {
 					zend_hash_add(Z_ARRVAL(zv), field_meta->zend_hash_key.sname, (zval *)&(row[i]));

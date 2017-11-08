@@ -215,7 +215,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 	zval * object_zv;
 	zval* orderby_expr{nullptr};
 	int num_of_expr{0};
-	int i{0};
 
 	DBG_ENTER("mysqlx_node_table__update::orderby");
 
@@ -236,7 +235,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 		DBG_VOID_RETURN;
 	}
 
-	for( i = 0 ; i < num_of_expr ; ++i ) {
+	for(int i{0}; i < num_of_expr ; ++i ) {
 		switch (Z_TYPE(orderby_expr[i])) {
 		case IS_STRING:
 			{

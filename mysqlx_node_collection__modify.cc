@@ -157,7 +157,7 @@ void Collection_modify::sort(
 
 	RETVAL_FALSE;
 
-	for( int i = 0 ; i < num_of_expr ; ++i ) {
+	for( int i{0}; i < num_of_expr ; ++i ) {
 		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{
@@ -385,7 +385,7 @@ void Collection_modify::unset(
 		DBG_VOID_RETURN;
 	}
 
-	for (int i = 0 ; i < num_of_variables; ++i) {
+	for (int i{0}; i < num_of_variables; ++i) {
 		switch (Z_TYPE(variables[i]))
 		{
 		case IS_STRING:

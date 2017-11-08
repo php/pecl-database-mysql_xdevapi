@@ -85,7 +85,7 @@ strings to_strings(zval* zvals, int count, Pred pred)
 {
 	strings strings;
 	strings.reserve(count);
-	for (int i = 0; i < count; ++i) {
+	for (int i{0}; i < count; ++i) {
 		strings.push_back(pred(&zvals[i]));
 	}
 	return strings;

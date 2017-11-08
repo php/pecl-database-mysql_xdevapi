@@ -118,7 +118,7 @@ void Collection_remove::sort(
 		DBG_VOID_RETURN;
 	}
 
-	for( int i = 0 ; i < num_of_expr ; ++i ) {
+	for( int i{0}; i < num_of_expr ; ++i ) {
 		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{

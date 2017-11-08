@@ -75,8 +75,7 @@ mysqlx_add_property(HashTable * properties, const MYSQLND_CSTRING property_name,
 void
 mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries)
 {
-	unsigned int i;
-	for (i = 0; entries[i].property_name.s != nullptr; ++i) {
+	for (unsigned int i{0}; entries[i].property_name.s != nullptr; ++i) {
 		mysqlx_add_property(ht, entries[i].property_name, entries[i].get_value, entries[i].set_value);
 	}
 }
