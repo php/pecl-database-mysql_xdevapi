@@ -50,12 +50,14 @@ extern "C" {
 #include "php_variables.h"
 #include "mysqlx_exception.h"
 #include "phputils/object.h"
+#include "phputils/string_utils.h"
 #include "phputils/url_utils.h"
 #include <utility>
 #include <algorithm>
 #include <cctype>
 #include <random>
 #include <chrono>
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace mysqlx {
 
@@ -500,7 +502,7 @@ void setup_crypto_options(
 	}
 
 	//Provide the list of supported/unsupported ciphers
-	phputils::string cipher_list = "";
+	phputils::string cipher_list;
 	for( auto& cipher : auth->supported_ciphers ) {
 		cipher_list += cipher.c_str();
 		cipher_list += ':';
@@ -578,7 +580,7 @@ enum_func_status setup_crypto_connection(
 				php_error_docref(NULL, E_WARNING, "Cannot connect to MySQL by using SSL");
 				ret = FAIL;
 			} else {
-                php_stream_context_set( net_stream, nullptr );
+				php_stream_context_set( net_stream, nullptr );
 			}
 		} else {
 			DBG_ERR_FMT("Negative response from the server, not able to setup TLS.");
@@ -2462,7 +2464,7 @@ enum_func_status parse_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
 {
 	DBG_ENTER("parse_ssl_mode");
 	enum_func_status ret = FAIL;
-	using modestr_to_enum = std::map<std::string,SSL_mode>;
+	using modestr_to_enum = std::map<std::string, SSL_mode, phputils::iless>;
 	static modestr_to_enum mode_mapping = {
 		{ "required", SSL_mode::required },
 		{ "disabled", SSL_mode::disabled },
@@ -2473,8 +2475,54 @@ enum_func_status parse_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
 	if( it != mode_mapping.end() ) {
 		ret = set_ssl_mode( auth, it->second );
 	} else {
-		DBG_ERR_FMT("Unknown SSL mode selector: ",
+		DBG_ERR_FMT("Unknown SSL mode selector: %s",
 					mode.c_str());
+	}
+	DBG_RETURN( ret );
+}
+/* }}} */
+
+
+/* {{{ set_auth_mode */
+enum_func_status set_auth_mode( 
+	XMYSQLND_SESSION_AUTH_DATA* auth,
+	Auth_mode auth_mode)
+{
+	DBG_ENTER("set_auth_mode");
+	enum_func_status ret = FAIL;
+	if (auth->auth_mode == Auth_mode::unspecified) {
+		DBG_INF_FMT("Selected auth mode: %d", static_cast<int>(auth_mode));
+		auth->auth_mode = auth_mode;
+		ret = PASS;
+	} else if (auth->auth_mode != auth_mode) {
+		DBG_ERR_FMT("Selected two incompatible auth modes %d vs %d",
+			static_cast<int>(auth->auth_mode), 
+			static_cast<int>(auth_mode));
+		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::invalid_auth_mode);
+	}
+	DBG_RETURN( ret );
+}
+/* }}} */
+
+/* {{{ parse_auth_mode */
+static
+enum_func_status parse_auth_mode(
+	XMYSQLND_SESSION_AUTH_DATA* auth,
+	const phputils::string& auth_mode)
+{
+	DBG_ENTER("parse_auth_mode");
+	enum_func_status ret = FAIL;
+	using str_to_auth_mode = std::map<std::string, Auth_mode, phputils::iless>;
+	static const str_to_auth_mode str_to_auth_modes = {
+		{ "mysql41", Auth_mode::mysql41 },
+		{ "plain", Auth_mode::plain },
+		{ "external", Auth_mode::external }
+	};
+	auto it = str_to_auth_modes.find(auth_mode.c_str());
+	if (it != str_to_auth_modes.end()) {
+		ret = set_auth_mode(auth, it->second);
+	} else {
+		DBG_ERR_FMT("Unknown Auth mode: %s", auth_mode.c_str());
 	}
 	DBG_RETURN( ret );
 }
@@ -2487,48 +2535,64 @@ enum_func_status extract_ssl_information(const std::pair<phputils::string,phputi
 {
 	DBG_ENTER("extract_ssl_information");
 	enum_func_status ret = PASS;
-	using key_to_member = std::vector<std::pair<std::string,
-			phputils::string st_xmysqlnd_session_auth_data::*>>;
+	using ssl_option_to_data_member = std::map<std::string,
+		phputils::string st_xmysqlnd_session_auth_data::*,
+		phputils::iless>;
 	//Map the ssl option to the proper member
-	static const key_to_member param_mapping = {
+	static const ssl_option_to_data_member ssl_option_to_data_members = {
 		{ "ssl-key", &st_xmysqlnd_session_auth_data::ssl_local_pk },
 		{ "ssl-cert",&st_xmysqlnd_session_auth_data::ssl_local_cert },
 		{ "ssl-ca", &st_xmysqlnd_session_auth_data::ssl_cafile },
 		{ "ssl-capath", &st_xmysqlnd_session_auth_data::ssl_capath },
-		{ "ssl-ciphers", &st_xmysqlnd_session_auth_data::ssl_ciphers },
+		{ "ssl-cipher", &st_xmysqlnd_session_auth_data::ssl_ciphers },
 		{ "ssl-crl", &st_xmysqlnd_session_auth_data::ssl_crl },
 		{ "ssl-crlpath", &st_xmysqlnd_session_auth_data::ssl_crlpath },
-		{ "ssl-mode", nullptr },
-		{ "ssl-no-defaults", nullptr }
+		{ "tls-version", &st_xmysqlnd_session_auth_data::tls_version }
 	};
 
-	for( std::size_t idx = 0; idx < param_mapping.size() ; ++idx ) {
-		if( param_mapping[ idx ].first == query.first.c_str() ) {
-			//If the member pointer is null then we're dealing
-			//with the boolean options
-			if( param_mapping[ idx ].second == nullptr ) {
-				if( query.first == "ssl-mode" ) {
-					ret = parse_ssl_mode( auth, query.second );
-				} else if( query.first == "ssl-no-defaults" ) {
-					auth->ssl_no_defaults = true;
-				}
-			} else {
-				if( query.second.empty() ) {
-					DBG_ERR_FMT("The argument to %s shouldn't be empty!",
-								query.first.c_str() );
-					php_error_docref(NULL, E_WARNING, "The argument to %s shouldn't be empty!",
-									query.first.c_str() );
-					ret = FAIL;
-				} else {
-					auth->*param_mapping[ idx ].second = query.second;
-					/*
-					 * some SSL options provided, assuming
-					 * 'required' mode.
-					 */
-					ret = set_ssl_mode( auth, SSL_mode::required );
-				}
+	const phputils::string& ssl_option_name = query.first;
+	const phputils::string& ssl_option_value = query.second;
+	auto it = ssl_option_to_data_members.find(ssl_option_name.c_str());
+	if (it != ssl_option_to_data_members.end()) {
+		if( ssl_option_value.empty() ) {
+			DBG_ERR_FMT("The argument to %s shouldn't be empty!",
+				ssl_option_name.c_str() );
+			php_error_docref(nullptr, E_WARNING, "The argument to %s shouldn't be empty!",
+				ssl_option_name.c_str() );
+			ret = FAIL;
+		} else {
+			auth->*(it->second) = ssl_option_value;
+			/*
+				* some SSL options provided, assuming
+				* 'required' mode if not specified yet.
+				*/
+			if( auth->ssl_mode == SSL_mode::not_specified ) {
+				ret = set_ssl_mode( auth, SSL_mode::required );
+			} else if (auth->ssl_mode == SSL_mode::disabled) {
+				/* 
+					WL#10400 DevAPI: Ensure all Session connections are secure by default
+					- if ssl-mode=disabled is used appearance of any ssl option
+					such as ssl-ca would result in an error
+					- inconsistent options such as  ssl-mode=disabled&ssl-ca=xxxx
+					would result in an error returned to the user
+				*/
+				php_error_docref(nullptr, E_WARNING, "Inconsistent ssl options");
+				ret = FAIL;
 			}
-			break;
+		}
+	} else {
+		if (boost::iequals(ssl_option_name, "ssl-mode")) {
+			ret = parse_ssl_mode(auth, ssl_option_value);
+		} else if (boost::iequals(ssl_option_name, "ssl-no-defaults")) {
+			auth->ssl_no_defaults = true;
+		} else if (boost::iequals(ssl_option_name, "auth")) {
+			ret = parse_auth_mode(auth, ssl_option_value);
+		} else {
+			php_error_docref(nullptr,
+				E_WARNING,
+				"Unknown secure connection option %s.",
+				ssl_option_name.c_str());
+			ret = FAIL;
 		}
 	}
 	DBG_RETURN(ret);
@@ -2975,7 +3039,7 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 				if( auth->ssl_mode != SSL_mode::disabled &&
 					url.second == transport_types::unix_domain_socket ) {
 					DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
-					devapi::RAISE_EXCEPTION( err_msg_tsl_not_supported_1 );
+					devapi::RAISE_EXCEPTION( err_msg_tls_not_supported_1 );
 					DBG_RETURN(FAIL);
 				}
 				else

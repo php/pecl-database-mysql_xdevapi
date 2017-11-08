@@ -61,7 +61,7 @@ error_reporting=0
 	        $nodeSession = mysql_xdevapi\getSession($wrong_ssl);
 		test_step_failed();
 	} catch(Exception $e) {
-	        expect_eq( $e->getCode(), 10033 );
+	        expect_eq( $e->getCode(), 10035 );
 	}
 	try {
 	        $nodeSession = mysql_xdevapi\getSession($basic_uri);

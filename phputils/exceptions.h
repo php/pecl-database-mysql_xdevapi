@@ -78,6 +78,8 @@ struct xdevapi_exception : public std::runtime_error
 		invalid_table_column_length_decimals,
 		invalid_foreign_key,
 		unknown_fkey_change_mode,
+		inconsistent_ssl_options,
+		invalid_auth_mode
 	};
 
 	xdevapi_exception(Code code);
