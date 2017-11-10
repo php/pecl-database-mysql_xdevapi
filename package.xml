@@ -138,8 +138,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_node_schema.h" role="src" />
    <file name="mysqlx_node_session.cc" role="src" />
    <file name="mysqlx_node_session.h" role="src" />
-   <file name="mysqlx_node_session_configuration.cc" role="src" />
-   <file name="mysqlx_node_session_configuration.h" role="src" />
    <file name="mysqlx_node_sql_statement.cc" role="src" />
    <file name="mysqlx_node_sql_statement.h" role="src" />
    <file name="mysqlx_node_sql_statement_result.cc" role="src" />
@@ -283,8 +281,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="031.phpt" role="test" />
     <file name="032.phpt" role="test" />
     <file name="033.phpt" role="test" />
-    <file name="034.phpt" role="test" />
-    <file name="035.phpt" role="test" />
     <file name="036.phpt" role="test" />
     <file name="037.phpt" role="test" />
     <file name="connect.inc" role="test" />
@@ -377,8 +373,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="xmysqlnd_rowset_buffered.h" role="src" />
     <file name="xmysqlnd_rowset_fwd.cc" role="src" />
     <file name="xmysqlnd_rowset_fwd.h" role="src" />
-    <file name="xmysqlnd_session_config.cc" role="src" />
-    <file name="xmysqlnd_session_config.h" role="src" />
     <file name="xmysqlnd_statistics.cc" role="src" />
     <file name="xmysqlnd_stmt_execution_state.cc" role="src" />
     <file name="xmysqlnd_stmt_execution_state.h" role="src" />
