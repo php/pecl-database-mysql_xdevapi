@@ -146,9 +146,9 @@ enum ServerMessages_Type {
                CrudUpdate, CRUD_UPDATE) \
     MSG_CLIENT(X, Mysqlx::Crud::Delete, \
                CrudDelete, CRUD_DELETE) \
-    MSG_CLIENT(X, Mysqlx::Crud::Delete, \
+    MSG_CLIENT(X, Mysqlx::Expect::Open, \
                ExpectOpen, EXPECT_OPEN) \
-    MSG_CLIENT(X, Mysqlx::Crud::Delete, \
+    MSG_CLIENT(X, Mysqlx::Expect::Close, \
                ExpectClose, EXPECT_CLOSE) \
     MSG_CLIENT(X, Mysqlx::Crud::CreateView, CreateView, CRUD_CREATE_VIEW) \
     MSG_CLIENT(X, Mysqlx::Crud::ModifyView, ModifyView, CRUD_MODIFY_VIEW) \
@@ -281,6 +281,7 @@ struct val_fmt
   VAL_UPDATE_OP(X, ITEM_MERGE,  5) \
   VAL_UPDATE_OP(X, ARRAY_INSERT,6) \
   VAL_UPDATE_OP(X, ARRAY_APPEND,7) \
+  VAL_UPDATE_OP(X, MERGE_PATCH, 8) \
 
 #define VAL_UPDATE_OP(X,N,C) VAL_UPDATE_OP_##X(N,C)
 
@@ -413,8 +414,36 @@ typedef cdk::api::Order_by<Expression> Order_by;
 typedef cdk::api::Sort_direction Sort_direction;
 typedef cdk::api::Projection<Expression> Projection;
 typedef cdk::api::Columns Columns;
+typedef cdk::api::Lock_mode::value Lock_mode_value;
 
 typedef cdk::api::View_options  View_options;
+
+
+struct Expectation_processor
+{
+  virtual void set(uint32_t key) = 0;
+  virtual void set(uint32_t key, bytes) = 0;
+  virtual void unset(uint32_t key) = 0;
+};
+
+#undef NO_ERROR
+
+struct Expectations:
+  cdk::api::Expr_list< cdk::api::Expr_base<Expectation_processor> >
+{
+  /* Only these two options are defined in mysqlx_expect.proto */
+  enum { NO_ERROR = 1, FIELD_EXISTS = 2 };
+};
+
+
+struct Protocol_fields
+{
+  /*
+    Enum values will be used as binary flags,
+    so they must be as 2^N
+  */
+  enum value { ROW_LOCKING = 1 , UPSERT = 2 , MERGE_PATCH = 4};
+};
 
 }  // api namespace
 
@@ -449,10 +478,12 @@ public:
 
   typedef api::Projection  Projection;
   typedef api::Expr_list   Expr_list;
+  typedef api::Lock_mode_value Lock_mode_value;
 
   virtual const Projection* project() const = 0;
   virtual const Expr_list*  group_by() const = 0;
   virtual const Expression* having() const = 0;
+  virtual Lock_mode_value locking() const = 0;
 };
 
 
@@ -537,12 +568,19 @@ public:
 
     @param args  defines values of named parameters, if any are used in the
       expressions of the row source object
+
+    @param upsert  Can be set true only in the document mode -- in that case
+      an upsert variant of the Insert command is sent. If inserted document has
+      the same id as an existing document in the collection, the upsert variant
+      replaces the document in the collection with the new one. Without upsert
+      flag such situation leads to error.
   */
 
   Op& snd_Insert(Data_model dm, api::Db_obj &obj,
                  const api::Columns *columns,
                  Row_source &data,
-                 const api::Args_map *args = NULL);
+                 const api::Args_map *args = NULL,
+                 bool upsert = false);
 
   /**
     Send CRUD Update command.
@@ -597,6 +635,8 @@ public:
                      const api::Args_map *args = NULL);
   Op& snd_DropView(const api::Db_obj &obj, bool if_exists);
 
+  Op& snd_Expect_Open(api::Expectations &exp, bool reset = false);
+  Op& snd_Expect_Close();
 
   Op& rcv_AuthenticateReply(Auth_processor &);
   Op& rcv_Reply(Reply_processor &);

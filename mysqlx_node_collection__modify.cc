@@ -85,6 +85,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__merge, 0, ZEND_RE
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, document, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__patch, 0, ZEND_RETURN_VALUE, 1)
+    ZEND_ARG_TYPE_INFO(no_pass_by_ref, document, IS_STRING, dont_allow_null)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__array_insert, 0, ZEND_RETURN_VALUE, 2)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, collection_field, IS_STRING, dont_allow_null)
 	ZEND_ARG_INFO(no_pass_by_ref, expression_or_literal)
@@ -464,6 +468,28 @@ void Collection_modify::merge(
 /* }}} */
 
 
+/* {{{ Collection_modify::patch() */
+void Collection_modify::patch(
+	const phputils::string_view &document_contents,
+	zval* return_value)
+{
+    DBG_ENTER("Collection_modify::patch");
+
+    RETVAL_FALSE;
+
+    MYSQLND_CSTRING emptyDocPath = { nullptr, 0 };
+    zval zvDocumentContents;
+    document_contents.to_zval(&zvDocumentContents);
+    if (FAIL == xmysqlnd_crud_collection_modify__patch(modify_op, emptyDocPath, &zvDocumentContents)) {
+        RAISE_EXCEPTION(err_msg_merge_fail);
+    }
+    ZVAL_COPY(return_value, object_zv);
+
+    DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ Collection_modify::arrayInsert() */
 void Collection_modify::arrayInsert(
 	const phputils::string_view& path,
@@ -734,6 +760,30 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, merge)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_node_collection__modify::patch() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, patch)
+{
+    zval* object_zv = nullptr;
+	phputils::string_view document_contents;
+
+    DBG_ENTER("mysqlx_node_collection__modify::patch");
+
+    if (FAILURE == zend_parse_method_parameters(
+        ZEND_NUM_ARGS(), getThis(), "Os",
+        &object_zv, collection_modify_class_entry,
+        &(document_contents.str), &(document_contents.len)))
+    {
+        DBG_VOID_RETURN;
+    }
+
+    Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+    coll_modify.patch(document_contents, return_value);
+
+    DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ proto mixed mysqlx_node_collection__modify::arrayInsert() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayInsert)
 {
@@ -841,6 +891,7 @@ static const zend_function_entry mysqlx_node_collection__modify_methods[] = {
 	PHP_ME(mysqlx_node_collection__modify,	unset,		arginfo_mysqlx_node_collection__modify__unset,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	replace,	arginfo_mysqlx_node_collection__modify__replace,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	merge,		arginfo_mysqlx_node_collection__modify__merge,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_collection__modify,	patch,		arginfo_mysqlx_node_collection__modify__patch,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	arrayInsert,arginfo_mysqlx_node_collection__modify__array_insert,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	arrayAppend,arginfo_mysqlx_node_collection__modify__array_append,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_collection__modify,	arrayDelete,arginfo_mysqlx_node_collection__modify__array_delete,	ZEND_ACC_PUBLIC)

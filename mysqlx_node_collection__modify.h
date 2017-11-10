@@ -85,6 +85,9 @@ public:
 	void merge(
 		const phputils::string_view& document_contents,
 		zval* return_value);
+	void patch(
+		const phputils::string_view& document_contents,
+		zval* return_value);
 
 	void arrayInsert(
 		const phputils::string_view& path,

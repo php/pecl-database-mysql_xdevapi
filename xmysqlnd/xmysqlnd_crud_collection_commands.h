@@ -70,6 +70,9 @@ enum_func_status xmysqlnd_crud_collection_modify__replace(XMYSQLND_CRUD_COLLECTI
 enum_func_status xmysqlnd_crud_collection_modify__merge(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
 														const MYSQLND_CSTRING path,
 														const zval * const value);
+enum_func_status xmysqlnd_crud_collection_modify__patch(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
+                                                        const MYSQLND_CSTRING path,
+                                                        const zval * const patch);
 enum_func_status xmysqlnd_crud_collection_modify__array_insert(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
 															   const MYSQLND_CSTRING path,
 															   const zval * const value);
