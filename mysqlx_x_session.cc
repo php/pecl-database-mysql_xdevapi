@@ -143,81 +143,26 @@ mysqlx_new_x_session(zval * return_value)
 }
 /* }}} */
 
-namespace
-{
-
-phputils::string subsitute_uri_password(
-		const phputils::string& uri,
-		const phputils::string& new_password )
-{
-	DBG_ENTER("subsitute_uri_password");
-	phputils::string new_uri = uri;
-	std::size_t end = new_uri.find_first_of('@');
-	std::size_t beg = new_uri.find_last_of(':', end);
-	if( end > beg &&
-		end != phputils::string::npos ) {
-		++beg;
-		new_uri.erase( beg, end - beg );
-		new_uri.insert( beg, new_password );
-	}
-	DBG_RETURN( uri );
-}
-
-}
 
 /* {{{ proto bool mysqlx\\mysql_xdevapi__getXSession( ) */
 PHP_FUNCTION(mysql_xdevapi__getXSession)
 {
-	zval * input_parameters{ nullptr };
-	int    num_of_parameters{ 0 };
+	phputils::string_view uri_string = {NULL, 0};
 
 	DBG_ENTER("mysql_xdevapi__getXSession");
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "+",
-										 &input_parameters,
-										 &num_of_parameters))
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+										 &(uri_string.str), &(uri_string.len)))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	DBG_INF_FMT("Number of arguments %d",
-				num_of_parameters);
-
-	if( num_of_parameters <= 0 ||
-		num_of_parameters > 2 ) {
-		RAISE_EXCEPTION( err_msg_wrong_param_6 );
-	} else {
-		phputils::string uri;
-		if( Z_TYPE( input_parameters[0] ) == IS_STRING ) {
-			uri = Z_STRVAL( input_parameters[0] );
-		} else {
-			DBG_ERR_FMT("The argument should be an URI ");
-			RAISE_EXCEPTION( err_msg_wrong_param_6 );
-			DBG_VOID_RETURN;
-		}
-
-		if( false == uri.empty() ) {
-			/*
-			 * A second argument can be provided, the passowrd!
-			 * If this exist the it should override the existing password
-			 */
-			if( num_of_parameters == 2 ) {
-				if( Z_TYPE( input_parameters[1] ) == IS_STRING &&
-					Z_STRLEN( input_parameters[1] ) > 0 ) {
-					/*
-					 * Substitute the password in the URI, if any
-					 */
-					uri = subsitute_uri_password( uri, Z_STRVAL( input_parameters[1] ) );
-				} else {
-					DBG_ERR_FMT("The second argument should be a string!");
-					RAISE_EXCEPTION( err_msg_wrong_param_4 );
-					DBG_VOID_RETURN;
-				}
-			}
-			drv::xmysqlnd_node_new_session_connect( uri.c_str(), return_value);
-		} else {
-			RAISE_EXCEPTION( err_msg_wrong_param_6 );
-		}
+	if (!uri_string.len) {
+		php_error_docref(NULL, E_WARNING, "Empty URI string");
+		RETVAL_FALSE;
+		DBG_VOID_RETURN;
 	}
+
+	drv::xmysqlnd_node_new_session_connect(uri_string.str,return_value);
 
 	DBG_VOID_RETURN;
 }
