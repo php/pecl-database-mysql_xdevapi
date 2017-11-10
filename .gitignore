@@ -166,6 +166,13 @@ tests/*/*/*.sh
 */config.sub
 xmysqlnd/proto_gen/*
 
+# Environment ignores
+*.creator
+*.config
+*.user
+*.includes
+**/build
+
 # directories
 Debug
 Debug_TS

@@ -30,7 +30,6 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd/xmysqlnd_utils.h"
 #include "xmysqlnd/xmysqlnd_session_config.h"
-#include "mysqlx_node_session_configuration.h"
 #include "php_mysqlx.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
@@ -190,18 +189,8 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 		phputils::string uri;
 		if( Z_TYPE( input_parameters[0] ) == IS_STRING ) {
 			uri = Z_STRVAL( input_parameters[0] );
-		} else if( Z_TYPE( input_parameters[0] ) == IS_OBJECT &&
-				   istanceof_session_config( &input_parameters[0] )){
-			const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(&input_parameters[0]);
-			Session_config* session_conf = static_cast< Session_config*>( mysqlx_object->ptr );
-			if ( nullptr == session_conf ) {
-				php_error_docref(nullptr, E_WARNING, "invalid object of class %s",
-								 ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-			} else {
-				uri = session_conf->get_uri();
-			}
 		} else {
-			DBG_ERR_FMT("The argument should be an URI or a valid Session_config object");
+			DBG_ERR_FMT("The argument should be an URI ");
 			RAISE_EXCEPTION( err_msg_wrong_param_6 );
 			DBG_VOID_RETURN;
 		}
@@ -210,7 +199,6 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 			/*
 			 * A second argument can be provided, the passowrd!
 			 * If this exist the it should override the existing password
-			 * int the Session_config object
 			 */
 			if( num_of_parameters == 2 ) {
 				if( Z_TYPE( input_parameters[1] ) == IS_STRING &&
