@@ -75,7 +75,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="config-win.h" role="src" />
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
-   <file name="examples.php" role="doc" />
+   <file name="examples.php" role="test" />
    <file name="mysql_xdevapi.def" role="src" />
    <file name="mysqlx_base_session.cc" role="src" />
    <file name="mysqlx_base_session.h" role="src" />
@@ -160,27 +160,12 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_schema_object.h" role="src" />
    <file name="mysqlx_session.cc" role="src" />
    <file name="mysqlx_session.h" role="src" />
-   <file name="mysqlx_table_create.cc" role="src" />
-   <file name="mysqlx_table_create.h" role="src" />
-   <file name="mysqlx_table_create_column_def.cc" role="src" />
-   <file name="mysqlx_table_create_column_def.h" role="src" />
-   <file name="mysqlx_table_create_column_def_base.cc" role="src" />
-   <file name="mysqlx_table_create_column_def_base.h" role="src" />
-   <file name="mysqlx_table_create_foreign_key_def.cc" role="src" />
-   <file name="mysqlx_table_create_foreign_key_def.h" role="src" />
-   <file name="mysqlx_table_create_generated_column_def.cc" role="src" />
-   <file name="mysqlx_table_create_generated_column_def.h" role="src" />
-   <file name="mysqlx_view_alter.cc" role="src" />
-   <file name="mysqlx_view_alter.h" role="src" />
-   <file name="mysqlx_view_create.cc" role="src" />
-   <file name="mysqlx_view_create.h" role="src" />
-   <file name="mysqlx_view_drop.cc" role="src" />
-   <file name="mysqlx_view_drop.h" role="src" />
    <file name="mysqlx_warning.cc" role="src" />
    <file name="mysqlx_warning.h" role="src" />
    <file name="mysqlx_x_session.cc" role="src" />
    <file name="mysqlx_x_session.h" role="src" />
    <file name="package.xml" role="src" />
+   <file name="php_api.h" role="src" />
    <file name="php_mysql_xdevapi.h" role="src" />
    <file name="php_mysqlx.cc" role="src" />
    <file name="php_mysqlx.h" role="src" />
@@ -284,33 +269,33 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="036.phpt" role="test" />
     <file name="037.phpt" role="test" />
     <file name="connect.inc" role="test" />
-    <file name="mysqlx_create_alter_drop_view.phpt" role="test" />
+    <file name="mergepatch.phpt" role="test" />
     <file name="mysqlx_create_drop_index.phpt" role="test" />
-    <file name="mysqlx_create_table.phpt" role="test" />
     <file name="mysqlx_drop_item.phpt" role="test" />
     <file name="mysqlx_exists_in_database.phpt" role="test" />
     <file name="mysqlx_get_collection_as_table.phpt" role="test" />
     <file name="mysqlx_get_name.phpt" role="test" />
     <file name="mysqlx_multiple_results.phpt" role="test" />
+    <file name="savepoint.phpt" role="test" />
     <file name="simple_ssl.phpt" role="test" />
     <file name="single_doc_ops.phpt" role="test" />
     <dir name="locking">
      <file name="mysqlx_row_locking.inc" role="test" />
      <file name="mysqlx_row_locking_collection_misc.phpt" role="test" />
      <file name="mysqlx_row_locking_collection_parallel_exclusive_exclusive.phpt" role="test" />
-     <file name="mysqlx_row_locking_collection_parallel_exclusive_exclusive_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_collection_parallel_exclusive_exclusive_worker.php" role="test" />
      <file name="mysqlx_row_locking_collection_parallel_exclusive_shared.phpt" role="test" />
-     <file name="mysqlx_row_locking_collection_parallel_exclusive_shared_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_collection_parallel_exclusive_shared_worker.php" role="test" />
      <file name="mysqlx_row_locking_collection_parallel_shared_exclusive.phpt" role="test" />
-     <file name="mysqlx_row_locking_collection_parallel_shared_exclusive_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_collection_parallel_shared_exclusive_worker.php" role="test" />
      <file name="mysqlx_row_locking_collection_sequential.phpt" role="test" />
      <file name="mysqlx_row_locking_table_misc.phpt" role="test" />
      <file name="mysqlx_row_locking_table_parallel_exclusive_exclusive.phpt" role="test" />
-     <file name="mysqlx_row_locking_table_parallel_exclusive_exclusive_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_table_parallel_exclusive_exclusive_worker.php" role="test" />
      <file name="mysqlx_row_locking_table_parallel_exclusive_shared.phpt" role="test" />
-     <file name="mysqlx_row_locking_table_parallel_exclusive_shared_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_table_parallel_exclusive_shared_worker.php" role="test" />
      <file name="mysqlx_row_locking_table_parallel_shared_exclusive.phpt" role="test" />
-     <file name="mysqlx_row_locking_table_parallel_shared_exclusive_worker.php" role="doc" />
+     <file name="mysqlx_row_locking_table_parallel_shared_exclusive_worker.php" role="test" />
      <file name="mysqlx_row_locking_table_sequential.phpt" role="test" />
      <file name="mysqlx_row_locking_table_sequential_native_sql.phpt" role="test" />
     </dir>
@@ -333,10 +318,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="xmysqlnd_crud_commands.h" role="src" />
     <file name="xmysqlnd_crud_table_commands.cc" role="src" />
     <file name="xmysqlnd_crud_table_commands.h" role="src" />
-    <file name="xmysqlnd_ddl_table_defs.cc" role="src" />
-    <file name="xmysqlnd_ddl_table_defs.h" role="src" />
-    <file name="xmysqlnd_ddl_view_commands.cc" role="src" />
-    <file name="xmysqlnd_ddl_view_commands.h" role="src" />
     <file name="xmysqlnd_driver.cc" role="src" />
     <file name="xmysqlnd_driver.h" role="src" />
     <file name="xmysqlnd_enum_n_def.h" role="src" />
@@ -377,12 +358,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="xmysqlnd_stmt_execution_state.cc" role="src" />
     <file name="xmysqlnd_stmt_execution_state.h" role="src" />
     <file name="xmysqlnd_structs.h" role="src" />
-    <file name="xmysqlnd_table_create.cc" role="src" />
-    <file name="xmysqlnd_table_create.h" role="src" />
     <file name="xmysqlnd_utils.cc" role="src" />
     <file name="xmysqlnd_utils.h" role="src" />
-    <file name="xmysqlnd_view.cc" role="src" />
-    <file name="xmysqlnd_view.h" role="src" />
     <file name="xmysqlnd_warning_list.cc" role="src" />
     <file name="xmysqlnd_warning_list.h" role="src" />
     <file name="xmysqlnd_wireprotocol.cc" role="src" />
