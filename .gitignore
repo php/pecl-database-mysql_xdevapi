@@ -34,6 +34,7 @@
 .deps
 .libs
 phpt.*
+*.json
 #core
 dynlib.m4
 Makefile
@@ -89,6 +90,7 @@ php7.spec
 php_lcov.info
 php_test_results_*.txt
 php_version.h
+run-tests.php
 results.txt
 shlibtool
 stamp-h
