@@ -19,7 +19,7 @@
 #define XMYSQLND_PRIV_H
 
 extern "C" {
-#include "ext/mysqlnd/mysqlnd_statistics.h"
+#include <ext/mysqlnd/mysqlnd_statistics.h>
 }
 
 namespace mysqlx {

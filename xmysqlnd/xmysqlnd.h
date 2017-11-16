@@ -32,7 +32,7 @@ extern "C" {
 #ifdef ZTS
 #include "TSRM.h"
 #endif
-#include "ext/mysqlnd/mysqlnd_portability.h"
+#include <ext/mysqlnd/mysqlnd_portability.h>
 }
 
 #include "php_mysql_xdevapi.h"

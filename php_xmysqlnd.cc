@@ -17,16 +17,16 @@
 */
 #include "php_api.h"
 extern "C" {
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_enum_n_def.h"
-#include "ext/mysqlnd/mysqlnd_structs.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysqlnd_statistics.h"
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_enum_n_def.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_statistics.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
 
-#include "ext/standard/info.h"
+#include <ext/standard/info.h>
 #include "zend_smart_str.h"
 
 #ifdef MARINES_0

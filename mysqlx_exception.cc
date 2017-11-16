@@ -23,7 +23,7 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 #ifdef HAVE_SPL
-#include "ext/spl/spl_exceptions.h" /* spl_ce_RuntimeException */
+#include <ext/spl/spl_exceptions.h> /* spl_ce_RuntimeException */
 #endif
 }
 #include "xmysqlnd/xmysqlnd.h"
