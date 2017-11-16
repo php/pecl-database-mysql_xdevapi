@@ -37,7 +37,6 @@ extern "C" {
 #include "mysqlx_expression.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_x_session.h"
-#include "mysqlx_node_session_configuration.h"
 #include <string>
 
 extern "C" {
@@ -243,9 +242,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__expression, 0, ZEND_RETURN_VALUE, 
 	ZEND_ARG_TYPE_INFO(0, expression, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__sessions, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
 /*
   We need a proper macro, that is included in all mysqlx_ files which register classes by using INIT_NS_CLASS_ENTRY.
   For now we use in these files const string "Mysqlx".
@@ -256,7 +252,6 @@ ZEND_END_ARG_INFO()
 static const zend_function_entry mysqlx_functions[] = {
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi__getXSession), arginfo_mysql_xdevapi__get_x_session)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, expression, mysqlx::devapi::ZEND_FN(mysql_xdevapi__expression), arginfo_mysql_xdevapi__expression)
-	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, sessions, mysqlx::devapi::ZEND_FN(mysql_xdevapi__sessions), arginfo_mysql_xdevapi__sessions)
 	PHP_FE_END
 };
 /* }}} */

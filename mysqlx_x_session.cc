@@ -29,8 +29,6 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_node_stmt_result.h"
 #include "xmysqlnd/xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd/xmysqlnd_utils.h"
-#include "xmysqlnd/xmysqlnd_session_config.h"
-#include "mysqlx_node_session_configuration.h"
 #include "php_mysqlx.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
@@ -144,92 +142,26 @@ mysqlx_new_x_session(zval * return_value)
 }
 /* }}} */
 
-namespace
-{
-
-phputils::string subsitute_uri_password(
-		const phputils::string& uri,
-		const phputils::string& new_password )
-{
-	DBG_ENTER("subsitute_uri_password");
-	phputils::string new_uri = uri;
-	std::size_t end = new_uri.find_first_of('@');
-	std::size_t beg = new_uri.find_last_of(':', end);
-	if( end > beg &&
-		end != phputils::string::npos ) {
-		++beg;
-		new_uri.erase( beg, end - beg );
-		new_uri.insert( beg, new_password );
-	}
-	DBG_RETURN( uri );
-}
-
-}
 
 /* {{{ proto bool mysqlx\\mysql_xdevapi__getXSession( ) */
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__getXSession)
 {
-	zval * input_parameters{ nullptr };
-	int    num_of_parameters{ 0 };
+	phputils::string_view uri_string = {NULL, 0};
 
 	DBG_ENTER("mysql_xdevapi__getXSession");
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "+",
-										 &input_parameters,
-										 &num_of_parameters))
+	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+										 &(uri_string.str), &(uri_string.len)))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	DBG_INF_FMT("Number of arguments %d",
-				num_of_parameters);
-
-	if( num_of_parameters <= 0 ||
-		num_of_parameters > 2 ) {
-		RAISE_EXCEPTION( err_msg_wrong_param_6 );
-	} else {
-		phputils::string uri;
-		if( Z_TYPE( input_parameters[0] ) == IS_STRING ) {
-			uri = Z_STRVAL( input_parameters[0] );
-		} else if( Z_TYPE( input_parameters[0] ) == IS_OBJECT &&
-				   istanceof_session_config( &input_parameters[0] )){
-			const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(&input_parameters[0]);
-			Session_config* session_conf = static_cast< Session_config*>( mysqlx_object->ptr );
-			if ( nullptr == session_conf ) {
-				php_error_docref(nullptr, E_WARNING, "invalid object of class %s",
-								 ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-			} else {
-				uri = session_conf->get_uri();
-			}
-		} else {
-			DBG_ERR_FMT("The argument should be an URI or a valid Session_config object");
-			RAISE_EXCEPTION( err_msg_wrong_param_6 );
-			DBG_VOID_RETURN;
-		}
-
-		if( false == uri.empty() ) {
-			/*
-			 * A second argument can be provided, the passowrd!
-			 * If this exist the it should override the existing password
-			 * int the Session_config object
-			 */
-			if( num_of_parameters == 2 ) {
-				if( Z_TYPE( input_parameters[1] ) == IS_STRING &&
-					Z_STRLEN( input_parameters[1] ) > 0 ) {
-					/*
-					 * Substitute the password in the URI, if any
-					 */
-					uri = subsitute_uri_password( uri, Z_STRVAL( input_parameters[1] ) );
-				} else {
-					DBG_ERR_FMT("The second argument should be a string!");
-					RAISE_EXCEPTION( err_msg_wrong_param_4 );
-					DBG_VOID_RETURN;
-				}
-			}
-			drv::xmysqlnd_node_new_session_connect( uri.c_str(), return_value);
-		} else {
-			RAISE_EXCEPTION( err_msg_wrong_param_6 );
-		}
+	if (!uri_string.len) {
+		php_error_docref(NULL, E_WARNING, "Empty URI string");
+		RETVAL_FALSE;
+		DBG_VOID_RETURN;
 	}
+
+	drv::xmysqlnd_node_new_session_connect(uri_string.str,return_value);
 
 	DBG_VOID_RETURN;
 }

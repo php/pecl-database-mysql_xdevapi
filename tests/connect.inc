@@ -101,14 +101,10 @@
 				For this reason, at least for now is better to expect from
 				the test script to call clean_test_db *after* the test
 			*/
-			//clean_test_db();
 			$nodeSession = mysql_xdevapi\getSession($connection_uri);
 			$nodeSession->executeSql("create database $db");
 			$schema = $nodeSession->getSchema($db);
-			$schema->createTable($test_table_name)
-				->addColumn(new mysql_xdevapi\ColumnDef('name', 'varchar', 1024))
-				->addColumn(new mysql_xdevapi\ColumnDef('age', 'int'))
-				->execute();
+			$nodeSession->executeSql("create table $db.$test_table_name(name varchar(1024), age int)");
 			$schema->createCollection($test_collection_name);
 			return $nodeSession;
 		}
@@ -243,11 +239,10 @@
 			global $db;
 			global $test_table_name;
 			global $test_view_name;
+			$nodeSession->executeSql(
+				"CREATE VIEW $db.$test_view_name ".
+				"AS SELECT name, age FROM $db.$test_table_name");
 			$schema = $nodeSession->getSchema($db);
-			$table = $schema->getTable($test_table_name);
-			$select = $table->select('name', 'age');
-			$schema->createView($test_view_name, true)
-				->columns(['name', 'age'])->definedAs($select)->execute();
 			$view = $schema->getTable($test_view_name);
 			return $view;
 		}

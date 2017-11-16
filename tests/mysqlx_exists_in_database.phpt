@@ -16,6 +16,7 @@ mysqlx existsInDatabase for schema, collection, table and view
 	expect_true($table->existsInDatabase());
 	expect_true($collection->existsInDatabase());
 	expect_true($view->existsInDatabase());
+	expect_true($view->isView());
 
 	$table = $schema->getTable("non_found_table");
 	$collection = $schema->getCollection("non_found_collection");
@@ -23,8 +24,6 @@ mysqlx existsInDatabase for schema, collection, table and view
 	expect_false($table->existsInDatabase());
 	expect_false($table->isView());
 	expect_false($collection->existsInDatabase());
-
-	$schema->dropView($test_view_name);
 
 	$schema = $nodeSession->getSchema("non_existing_schema");
 	$table = $schema->getTable("non_existing_table");
@@ -34,8 +33,6 @@ mysqlx existsInDatabase for schema, collection, table and view
 	expect_false($table->existsInDatabase());
 	expect_false($table->isView());
 	expect_false($collection->existsInDatabase());
-	expect_false($view->existsInDatabase());
-	expect_false($view->isView());
 
 	verify_expectations();
 	print "done!".PHP_EOL;

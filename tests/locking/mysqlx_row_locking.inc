@@ -29,16 +29,16 @@
 	}
 
 	function create_test_table($session) {
+		global $db;
 		global $test_schema_name;
 		global $test_table_name;
 
 		$session->createSchema($test_schema_name);
 		$schema = $session->getSchema($test_schema_name);
 
-		$schema->createTable($test_table_name)
-			->addColumn((new mysql_xdevapi\ColumnDef('_id', 'varchar', 8))->primaryKey())
-			->addColumn(new mysql_xdevapi\ColumnDef('n', 'int'))
-			->execute();
+		$session->executeSql(
+			"create table $db.$test_table_name(".
+				"_id varchar(8), n int, PRIMARY KEY(_id))");
 
 		$tab = $schema->getTable($test_table_name);
 

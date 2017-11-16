@@ -604,8 +604,8 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 			try {
 				const std::string source(Z_STRVAL_P(value), Z_STRLEN_P(value));
 				Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
-																						obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
-																						obj->placeholders );
+													obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
+													obj->placeholders );
 				operation->set_allocated_value( exprCriteria );
 			} catch (cdk::Error &e) {
 				php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
@@ -684,6 +684,20 @@ xmysqlnd_crud_collection_modify__merge(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_MERGE;
 	DBG_ENTER("xmysqlnd_crud_collection_modify__merge");
 	const enum_func_status ret = xmysqlnd_crud_collection_modify__add_operation(obj, op_type, path, value, FALSE, TRUE, FALSE);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_modify__patch */
+enum_func_status
+xmysqlnd_crud_collection_modify__patch(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
+                                       const MYSQLND_CSTRING path,
+									   const zval * const patch)
+{
+	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::MERGE_PATCH;
+	DBG_ENTER("xmysqlnd_crud_collection_modify__path");
+	const enum_func_status ret = xmysqlnd_crud_collection_modify__add_operation(obj, op_type, path, patch, FALSE, TRUE, FALSE);
 	DBG_RETURN(ret);
 }
 /* }}} */
