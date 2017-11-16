@@ -752,7 +752,7 @@ void get_session_config_manager(zval * session_zval)
 
 
 /* {{{ proto bool mysqlx\\mysql_xdevapi__sessions() */
-PHP_FUNCTION(mysql_xdevapi__sessions)
+MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__sessions)
 {
 	DBG_ENTER("mysql_xdevapi__sessions");
 

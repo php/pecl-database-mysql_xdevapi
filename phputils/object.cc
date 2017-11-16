@@ -29,8 +29,8 @@ namespace mysqlx {
 
 namespace phputils {
 
-/* {{{ mysqlx::phputils::doc_ref_exception */
-void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
+/* {{{ mysqlx::phputils::safe_call_php_routine */
+void safe_call_php_routine(php_routine_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
 	MYSQL_XDEVAPI_TRY {
 		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);

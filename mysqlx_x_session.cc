@@ -167,7 +167,7 @@ phputils::string subsitute_uri_password(
 }
 
 /* {{{ proto bool mysqlx\\mysql_xdevapi__getXSession( ) */
-PHP_FUNCTION(mysql_xdevapi__getXSession)
+MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__getXSession)
 {
 	zval * input_parameters{ nullptr };
 	int    num_of_parameters{ 0 };
