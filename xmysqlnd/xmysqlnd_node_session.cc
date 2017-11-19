@@ -56,7 +56,9 @@ extern "C" {
 #include <cctype>
 #include <random>
 #include <chrono>
+#include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 namespace mysqlx {
 
@@ -2562,8 +2564,10 @@ enum_func_status parse_auth_mode(
 /* }}} */
 
 /* {{{ extract_ssl_information */
-enum_func_status extract_ssl_information(const std::pair<phputils::string,phputils::string>& query,
-					XMYSQLND_SESSION_AUTH_DATA* auth)
+enum_func_status extract_ssl_information(
+	const phputils::string& auth_option_variable,
+	const phputils::string& auth_option_value,
+	XMYSQLND_SESSION_AUTH_DATA* auth)
 {
 	DBG_ENTER("extract_ssl_information");
 	enum_func_status ret{PASS};
@@ -2582,18 +2586,16 @@ enum_func_status extract_ssl_information(const std::pair<phputils::string,phputi
 		{ "tls-version", &st_xmysqlnd_session_auth_data::tls_version }
 	};
 
-	const phputils::string& ssl_option_name{query.first};
-	const phputils::string& ssl_option_value{query.second};
-	auto it = ssl_option_to_data_members.find(ssl_option_name.c_str());
+	auto it = ssl_option_to_data_members.find(auth_option_variable.c_str());
 	if (it != ssl_option_to_data_members.end()) {
-		if( ssl_option_value.empty() ) {
+		if( auth_option_value.empty() ) {
 			DBG_ERR_FMT("The argument to %s shouldn't be empty!",
-				ssl_option_name.c_str() );
+				auth_option_variable.c_str() );
 			php_error_docref(nullptr, E_WARNING, "The argument to %s shouldn't be empty!",
-				ssl_option_name.c_str() );
+				auth_option_variable.c_str() );
 			ret = FAIL;
 		} else {
-			auth->*(it->second) = ssl_option_value;
+			auth->*(it->second) = auth_option_value;
 			/*
 				* some SSL options provided, assuming
 				* 'required' mode if not specified yet.
@@ -2613,17 +2615,17 @@ enum_func_status extract_ssl_information(const std::pair<phputils::string,phputi
 			}
 		}
 	} else {
-		if (boost::iequals(ssl_option_name, "ssl-mode")) {
-			ret = parse_ssl_mode(auth, ssl_option_value);
-		} else if (boost::iequals(ssl_option_name, "ssl-no-defaults")) {
+		if (boost::iequals(auth_option_variable, "ssl-mode")) {
+			ret = parse_ssl_mode(auth, auth_option_value);
+		} else if (boost::iequals(auth_option_variable, "ssl-no-defaults")) {
 			auth->ssl_no_defaults = true;
-		} else if (boost::iequals(ssl_option_name, "auth")) {
-			ret = parse_auth_mode(auth, ssl_option_value);
+		} else if (boost::iequals(auth_option_variable, "auth")) {
+			ret = parse_auth_mode(auth, auth_option_value);
 		} else {
 			php_error_docref(nullptr,
 				E_WARNING,
 				"Unknown secure connection option %s.",
-				ssl_option_name.c_str());
+				auth_option_variable.c_str());
 			ret = FAIL;
 		}
 	}
@@ -2649,46 +2651,53 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const phputils::Url& node_
 					node_url.query.c_str());
 		/*
 		 * In case of multiple variables with the same
-		 * name, treat_data will pick the value from the last one.
+		 * name, extract_ssl_information will pick the value from the last one.
 		 * This mean that if the user provide ssl_mode=required&ssl_mode=disabled
 		 * the value of SSL mode will be disabled (instead of ERROR)
 		 * We need to parse each variable by hand..
 		 */
-		phputils::string query{ node_url.query };
-		phputils::string variable;
-		phputils::string value;
+		const phputils::string& query{ node_url.query };
+		phputils::vector<phputils::string> auth_data;
+		boost::split(auth_data, query, boost::is_any_of("&"));
 
-		std::size_t cur = 0;
-		auto var = query.find_first_of("&");
-		if( var == phputils::string::npos ) {
-			var = query.size();
-		}
-
-		while( cur < var ) {
-			auto val = query.find_first_of( '=', cur );
-
-			if( val > var ) {
-				variable = query.substr( cur, var );
-				value.clear();
-			} else {
-				variable = query.substr( cur, val - cur );
-				++val;
-				value = query.substr( val, var - val );
-			}
-			DBG_INF_FMT("URI query option: %s=%s",
-					variable.c_str(),
-					value.c_str()
-					);
-			if( FAIL == extract_ssl_information(
-							{variable.c_str(),value.c_str()}, auth) ) {
+		for (const auto& auth_option : auth_data) {
+			if (auth_option.empty()) {
 				ret = FAIL;
 				break;
 			}
-			cur = var + 1;
-			var = query.find_first_of( "&", cur );
-			var = std::min<size_t>( var, query.size() );
+
+			auto separator_pos = auth_option.find_first_of('=');
+			const phputils::string variable{ auth_option.substr(0, separator_pos) };
+			if (variable.empty()) {
+				ret = FAIL;
+				break;
+			}
+
+
+			const phputils::string value{
+				separator_pos == phputils::string::npos
+					? phputils::string() : auth_option.substr(separator_pos + 1)
+			};
+
+
+			DBG_INF_FMT("URI query option: %s=%s",
+				variable.c_str(),
+				value.c_str()
+			);
+
+			if( FAIL == extract_ssl_information(variable, value, auth) ) {
+				ret = FAIL;
+				break;
+			}
 		}
 	}
+
+	if( ret != PASS ){
+		delete auth;
+		auth = nullptr;
+		DBG_RETURN(auth);
+	} 
+
 	/*
 	 * If no SSL mode is selected explicitly then
 	 * assume 'required'
@@ -2698,22 +2707,17 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const phputils::Url& node_
 		ret = set_ssl_mode( auth, SSL_mode::required );
 	}
 
-	if( ret != PASS ){
-		delete auth;
-		auth = nullptr;
-	} else {
-		if( node_url.port != 0 ) {
-			//If is 0, then we're using win pipe
-			//or unix sockets.
-			auth->port = node_url.port;
-			auth->hostname = node_url.host;
-		}
-		auth->username = node_url.user;
-		auth->password = node_url.pass;
+
+	if( node_url.port != 0 ) {
+		//If is 0, then we're using win pipe
+		//or unix sockets.
+		auth->port = node_url.port;
+		auth->hostname = node_url.host;
 	}
+	auth->username = node_url.user;
+	auth->password = node_url.pass;
 
 	DBG_RETURN(auth);
-
 }
 /* }}} */
 
@@ -3080,10 +3084,6 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 					ret = establish_connection(session,auth,
 									url.first,url.second);
 				}
-				if( FAIL == ret ) {
-					zval_dtor(return_value);
-					ZVAL_NULL(return_value);
-				}
 			} else {
 				DBG_ERR_FMT("Connection aborted, not able to setup the 'auth' structure.");
 			}
@@ -3104,6 +3104,10 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 	 * the connection fails, the dtor of 'session'
 	 * will clean it up
 	 */
+	if( FAIL == ret ) {
+		zval_dtor(return_value);
+		ZVAL_NULL(return_value);
+	}
 	DBG_RETURN(ret);
 }
 /* }}} */

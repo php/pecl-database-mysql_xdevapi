@@ -7,8 +7,7 @@ error_reporting=1
 <?php
 	require(__DIR__."/connect.inc");
 
-	function prepare_base_secure_uri() {
-		global $base_uri;
+	function prepare_ssl_query() {
 		global $connection_uri;
 
 		$nodeSession = mysql_xdevapi\getSession($connection_uri);
@@ -19,11 +18,16 @@ error_reporting=1
 		}
 		$rsa_key_path = $mysql_cert_dir.DIRECTORY_SEPARATOR;
 
-		$base_secure_uri = $base_uri
-			. '/?ssl-key=' . $rsa_key_path . 'client-key.pem'
+		$ssl_query = 'ssl-key=' . $rsa_key_path . 'client-key.pem'
 			. '&ssl-cert=' . $rsa_key_path . 'client-cert.pem'
 			. '&ssl-ca=' . $rsa_key_path . 'ca.pem';
 
+		return $ssl_query;
+	}
+
+	function prepare_base_secure_uri($ssl_query) {
+		global $base_uri;
+		$base_secure_uri = $base_uri . '/?' . $ssl_query;
 		return $base_secure_uri;
 	}
 
@@ -48,6 +52,12 @@ error_reporting=1
 		}
 	}
 
+	function test_incorrect_connection($ssl_query) {
+		global $base_uri;
+		$uri = $base_uri . '/?' . $ssl_query;
+		test_connection($uri, null, false);
+	}
+
 	function test_unsecure_connection($auth_method, $expect_success = true) {
 		global $connection_uri;
 		test_connection($connection_uri, $auth_method, $expect_success);
@@ -57,6 +67,31 @@ error_reporting=1
 		global $base_secure_uri;
 		test_connection($base_secure_uri, $auth_method, $expect_success);
 	}
+
+	// setup
+	$ssl_query = prepare_ssl_query();
+	$base_secure_uri = prepare_base_secure_uri($ssl_query);
+
+	// incorrect ssl query
+	test_incorrect_connection($disable_ssl_opt.'&');
+	test_incorrect_connection($ssl_query.'&=');
+	test_incorrect_connection($disable_ssl_opt.'&=&');
+	test_incorrect_connection($ssl_query.'&&&');
+	test_incorrect_connection($disable_ssl_opt.'&=mysql41&');
+	test_incorrect_connection($ssl_query.'&auth&');
+	test_incorrect_connection($disable_ssl_opt.'&auth');
+	test_incorrect_connection($ssl_query.'&auth=');
+	test_incorrect_connection($disable_ssl_opt.'&auth==');
+	test_incorrect_connection($ssl_query.'&auth==&');
+	test_incorrect_connection($disable_ssl_opt.'&auth=plain&&');
+	test_incorrect_connection($ssl_query.'&&auth=&');
+	test_incorrect_connection($disable_ssl_opt.'&&auth=mysql41');
+	test_incorrect_connection($ssl_query.'&&auth&=plain');
+	test_incorrect_connection($disable_ssl_opt.'&auth=plain&&auth=external');
+	test_incorrect_connection($ssl_query.'auth=plain');
+	test_incorrect_connection($disable_ssl_opt.'auth=');
+	test_incorrect_connection('&'.$ssl_query);
+	test_incorrect_connection('&'.$disable_ssl_opt.'&auth=mysql41');
 
 	// unsecure
 	test_unsecure_connection(null);
@@ -77,8 +112,6 @@ error_reporting=1
 	test_unsecure_connection('NonSupported', false);
 
 	// secure
-	$base_secure_uri = prepare_base_secure_uri();
-
 	test_secure_connection(null);
 
 	test_secure_connection('MYSQL41');
