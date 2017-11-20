@@ -167,6 +167,7 @@ namespace {
 const char* Auth_method_mysql41 = "MYSQL41";
 const char* Auth_method_plain = "PLAIN";
 const char* Auth_method_external = "EXTERNAL";
+const char* Auth_method_unspecified = "";
 
 /* {{{ xmysqlnd_throw_exception_from_session_if_needed */
 zend_bool
@@ -621,7 +622,7 @@ phputils::string auth_mode_to_str(const Auth_mode auth_mode)
 		{ Auth_mode::mysql41, Auth_method_mysql41 },
 		{ Auth_mode::plain, Auth_method_plain },
 		{ Auth_mode::external, Auth_method_external },
-		{ Auth_mode::unspecified, "" }
+		{ Auth_mode::unspecified, Auth_method_unspecified }
 	};
 
 	return auth_mode_to_labels.at(auth_mode).c_str();
@@ -669,7 +670,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 			DBG_INF_FMT("tls=%d tls_set=%d", tls, tls_set);
 			DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
 
-			const Auth_mode user_auth_mode = auth->auth_mode;
+			const Auth_mode user_auth_mode{auth->auth_mode};
 			phputils::string auth_mech_name;
 
 			if( auth->ssl_mode != SSL_mode::disabled ) {
@@ -2523,7 +2524,7 @@ enum_func_status set_auth_mode(
 	Auth_mode auth_mode)
 {
 	DBG_ENTER("set_auth_mode");
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	if (auth->auth_mode == Auth_mode::unspecified) {
 		DBG_INF_FMT("Selected auth mode: %d", static_cast<int>(auth_mode));
 		auth->auth_mode = auth_mode;
@@ -2544,7 +2545,7 @@ enum_func_status parse_auth_mode(
 	const phputils::string& auth_mode)
 {
 	DBG_ENTER("parse_auth_mode");
-	enum_func_status ret = FAIL;
+	enum_func_status ret{FAIL};
 	using str_to_auth_mode = std::map<std::string, Auth_mode, phputils::iless>;
 	static const str_to_auth_mode str_to_auth_modes = {
 		{ Auth_method_mysql41, Auth_mode::mysql41 },
@@ -2574,7 +2575,8 @@ enum_func_status extract_ssl_information(
 	using ssl_option_to_data_member = std::map<std::string,
 		phputils::string st_xmysqlnd_session_auth_data::*,
 		phputils::iless>;
-	//Map the ssl option to the proper member
+	// Map the ssl option to the proper member, according to:
+	// https://dev.mysql.com/doc/refman/5.7/en/encrypted-connection-options.html
 	static const ssl_option_to_data_member ssl_option_to_data_members = {
 		{ "ssl-key", &st_xmysqlnd_session_auth_data::ssl_local_pk },
 		{ "ssl-cert",&st_xmysqlnd_session_auth_data::ssl_local_cert },
@@ -2696,7 +2698,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const phputils::Url& node_
 		delete auth;
 		auth = nullptr;
 		DBG_RETURN(auth);
-	} 
+	}
 
 	/*
 	 * If no SSL mode is selected explicitly then

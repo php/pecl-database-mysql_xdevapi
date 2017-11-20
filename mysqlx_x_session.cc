@@ -148,7 +148,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__getXSession)
 {
 	phputils::string_view uri_string = {nullptr, 0};
 
-	RETVAL_FALSE;
+	RETVAL_NULL();
 
 	DBG_ENTER("mysql_xdevapi__getXSession");
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
