@@ -17,9 +17,9 @@
 */
 #include "php_api.h"
 extern "C" {
-#include "ext/json/php_json_parser.h"
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
+#include <ext/json/php_json_parser.h>
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"

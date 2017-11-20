@@ -19,10 +19,10 @@
 */
 #include "php_api.h"
 extern "C" {
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_charset.h"
-#include "ext/mysqlnd/mysqlnd_debug.h"
-#include "ext/mysqlnd/mysqlnd_auth.h" /* php_mysqlnd_scramble */
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_charset.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_auth.h> /* php_mysqlnd_scramble */
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h"

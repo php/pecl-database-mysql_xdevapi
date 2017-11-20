@@ -74,7 +74,7 @@ XMYSQLND_METHOD(mysqlx_node_sql_result_iterator, valid)(zend_object_iterator * i
 /* }}} */
 
 
-#include "ext/standard/php_var.h"
+#include <ext/standard/php_var.h>
 
 /* {{{ mysqlx_node_sql_result_iterator::current_data */
 static zval *

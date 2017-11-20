@@ -17,8 +17,8 @@
 */
 #include "php_api.h"
 extern "C" {
-#include "ext/mysqlnd/mysqlnd.h"
-#include "ext/mysqlnd/mysqlnd_alloc.h"
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "php_mysqlx.h"
 #include "mysqlx_object.h"
