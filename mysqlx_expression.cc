@@ -102,7 +102,7 @@ static const zend_function_entry mysqlx_expression_methods[] = {
 
 /* {{{ proto bool mysqlx\\mysql_xdevapi__Expression(string expression)
    Bind variables to a prepared statement as parameters */
-PHP_FUNCTION(mysql_xdevapi__expression)
+MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 {
 	MYSQLND_CSTRING expression = {nullptr, 0};
 

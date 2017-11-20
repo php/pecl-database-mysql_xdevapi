@@ -144,9 +144,11 @@ mysqlx_new_x_session(zval * return_value)
 
 
 /* {{{ proto bool mysqlx\\mysql_xdevapi__getXSession( ) */
-PHP_FUNCTION(mysql_xdevapi__getXSession)
+MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__getXSession)
 {
-	phputils::string_view uri_string = {NULL, 0};
+	phputils::string_view uri_string = {nullptr, 0};
+
+	RETVAL_NULL();
 
 	DBG_ENTER("mysql_xdevapi__getXSession");
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
@@ -155,9 +157,8 @@ PHP_FUNCTION(mysql_xdevapi__getXSession)
 		DBG_VOID_RETURN;
 	}
 
-	if (!uri_string.len) {
-		php_error_docref(NULL, E_WARNING, "Empty URI string");
-		RETVAL_FALSE;
+	if (uri_string.empty()) {
+		php_error_docref(nullptr, E_WARNING, "Empty URI string");
 		DBG_VOID_RETURN;
 	}
 

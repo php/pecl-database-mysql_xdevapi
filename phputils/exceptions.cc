@@ -81,7 +81,9 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::invalid_table_column_length_decimals, "cannot set decimals when length is not set" },
 	{ xdevapi_exception::Code::invalid_foreign_key, "Invalid foreign key" },
 	{ xdevapi_exception::Code::unknown_fkey_change_mode, "Unknown foreign key change mode" },
-	{ xdevapi_exception::Code::invalid_identifier, "Invalid MySQL identifier provided" }
+	{ xdevapi_exception::Code::invalid_identifier, "Invalid MySQL identifier provided" },
+	{ xdevapi_exception::Code::inconsistent_ssl_options, "Inconsistent ssl options" },
+	{ xdevapi_exception::Code::invalid_auth_mode, "Invalid auth mode" }
 };
 /* }}} */
 

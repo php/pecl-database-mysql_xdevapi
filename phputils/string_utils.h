@@ -37,6 +37,15 @@ struct iless
 			boost::algorithm::is_iless()
 		);
 	}
+
+	bool operator()(const phputils::string& lhs, const phputils::string& rhs) const
+	{
+		return std::lexicographical_compare(
+			lhs.begin(), lhs.end(),
+			rhs.begin(), rhs.end(),
+			boost::algorithm::is_iless()
+		);
+	}
 };
 /* }}} */
 

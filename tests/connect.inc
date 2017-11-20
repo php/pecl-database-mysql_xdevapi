@@ -29,7 +29,8 @@
 	$skip_on_connect_failure = get_mysqlx_env("MYSQLX_TEST_SKIP_CONNECT_FAILURE", "MYSQLX_SKIP_CONNECT_FAILURE", true);
 	$connect_flags = (int)get_mysqlx_env("MYSQLX_TEST_CONNECT_FLAGS", "MYSQLX_CONNECT_FLAGS", 0);
 	$disable_ssl_opt = 'ssl-mode=disabled';
-	$connection_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port.'/?'.$disable_ssl_opt;
+	$base_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
+	$connection_uri = $base_uri.'/?'.$disable_ssl_opt;
 
 	$test_schema_name = $db;
 	$test_table_name = "test_table";
@@ -411,11 +412,11 @@
 		to the test
 	*/
 	if( !function_exists('test_step_failed')) {
-		function test_step_failed($stack_frame_depth = 1) {
+		function test_step_failed($hint = '', $stack_frame_depth = 1) {
 			global $number_of_expectations;
 			global $test_result_string;
 
-			print get_stack_frame_info($stack_frame_depth).': test step failed'.PHP_EOL;
+			print get_stack_frame_info($stack_frame_depth).': test step failed '.$hint.PHP_EOL;
 
 			$number_of_expectations++;
 			$test_result_string .= 'F';

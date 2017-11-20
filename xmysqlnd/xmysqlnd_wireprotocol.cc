@@ -2382,11 +2382,11 @@ xmysqlnd_table_insert__read_response(st_xmysqlnd_msg__table_insert* msg)
 static struct st_xmysqlnd_msg__table_insert
 xmysqlnd_table_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-    const struct st_xmysqlnd_msg__table_insert ctx =
-    {
-        xmysqlnd_table_insert__send_request,
-        xmysqlnd_table_insert__read_response,
-        xmysqlnd_table_insert__init_read,
+	const struct st_xmysqlnd_msg__table_insert ctx =
+	{
+		xmysqlnd_table_insert__send_request,
+		xmysqlnd_table_insert__read_response,
+		xmysqlnd_table_insert__init_read,
 		{
 			vio,
 			pfc,
@@ -2401,8 +2401,8 @@ xmysqlnd_table_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 
 			nullptr,  /* response_zval */
 		}
-    };
-    return ctx;
+	};
+	return ctx;
 }
 /* }}} */
 

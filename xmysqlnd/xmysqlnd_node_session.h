@@ -139,6 +139,14 @@ enum class SSL_mode
 	verify_identity
 };
 
+enum class Auth_mode
+{
+	unspecified,
+	mysql41,
+	plain,
+	external
+};
+
 /*
  * Information used to authenticate
  * the connection with the server
@@ -147,22 +155,24 @@ struct st_xmysqlnd_session_auth_data
 {
 	st_xmysqlnd_session_auth_data();
 
-	phputils::string	hostname;
-	unsigned int		port;
-	phputils::string	username;
-	phputils::string	password;
+	phputils::string hostname;
+	unsigned int port;
+	phputils::string username;
+	phputils::string password;
 	//SSL information
-	SSL_mode			ssl_mode;
-	bool				ssl_enabled;
-	bool				ssl_no_defaults;
-	phputils::string	ssl_local_pk;
-	phputils::string	ssl_local_cert;
-	phputils::string	ssl_cafile;
-	phputils::string	ssl_capath;
-	phputils::string	ssl_passphrase;
-	phputils::string	ssl_ciphers;
-	phputils::string	ssl_crl;
-	phputils::string	ssl_crlpath;
+	SSL_mode ssl_mode;
+	bool ssl_enabled;
+	bool ssl_no_defaults;
+	phputils::string ssl_local_pk;
+	phputils::string ssl_local_cert;
+	phputils::string ssl_cafile;
+	phputils::string ssl_capath;
+	phputils::string ssl_passphrase;
+	phputils::string ssl_ciphers;
+	phputils::string ssl_crl;
+	phputils::string ssl_crlpath;
+	phputils::string tls_version;
+	Auth_mode auth_mode = Auth_mode::unspecified;
 
 	/*
 	 * On demand we need to provide a list of supported ciphers,

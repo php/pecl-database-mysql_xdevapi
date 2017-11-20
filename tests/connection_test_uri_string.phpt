@@ -58,10 +58,10 @@ error_reporting=0
 	}
 	$wrong_ssl = $basic_uri.'/?ssl-mode=disabled&ssl-ca=/path/to/ca&ssl-default';
 	try {
-	        $nodeSession = mysql_xdevapi\getSession($wrong_ssl);
+		$nodeSession = mysql_xdevapi\getSession($wrong_ssl);
 		test_step_failed();
 	} catch(Exception $e) {
-	        expect_eq( $e->getCode(), 10033 );
+		expect_eq( $e->getCode(), 10036 );
 	}
 	try {
 	        $nodeSession = mysql_xdevapi\getSession($basic_uri);
