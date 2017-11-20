@@ -3,6 +3,7 @@ mysqlx authentication methods
 --SKIPIF--
 --INI--
 error_reporting=1
+default_socket_timeout=5
 --FILE--
 <?php
 	require(__DIR__."/connect.inc");
