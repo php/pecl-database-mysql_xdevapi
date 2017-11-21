@@ -33,7 +33,7 @@ default_socket_timeout=5
 	}
 
 	function test_connection($base_uri, $auth_method, $expect_success) {
-        try {
+		try {
 			$uri = $base_uri;
 			if ($auth_method) {
 				$uri .= '&auth=' . $auth_method;
