@@ -247,7 +247,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="collection_remove.phpt" role="test" />
     <file name="complex_query.phpt" role="test" />
     <file name="connect.inc" role="test" />
-    <file name="connection_test_uri_string.php" role="test" />
     <file name="connection_test_uri_string.phpt" role="test" />
     <file name="create_drop_index.phpt" role="test" />
     <file name="createdrop_schema.phpt" role="test" />
