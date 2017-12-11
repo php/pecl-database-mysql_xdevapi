@@ -29,8 +29,17 @@ namespace mysqlx {
 
 namespace phputils {
 
-/* {{{ mysqlx::phputils::safe_call_php_routine */
-void safe_call_php_routine(php_routine_t handler, INTERNAL_FUNCTION_PARAMETERS)
+/* {{{ mysqlx::phputils::safe_call_php_method */
+void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
+{
+	MYSQL_XDEVAPI_TRY {
+		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	} MYSQL_XDEVAPI_CATCH
+}
+/* }}} */
+
+/* {{{ mysqlx::phputils::safe_call_php_function */
+void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
 	MYSQL_XDEVAPI_TRY {
 		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);

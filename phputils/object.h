@@ -222,9 +222,11 @@ zend_object_iterator* create_result_iterator(
 
 //------------------------------------------------------------------------------
 
-using php_routine_t = void(INTERNAL_FUNCTION_PARAMETERS);
+using php_method_t = void(INTERNAL_FUNCTION_PARAMETERS);
+using php_function_t = void(INTERNAL_FUNCTION_PARAMETERS);
 
-void safe_call_php_routine(php_routine_t handler, INTERNAL_FUNCTION_PARAMETERS);
+void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
+void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS);
 
 } // namespace phputils
 
@@ -278,7 +280,7 @@ void safe_call_php_routine(php_routine_t handler, INTERNAL_FUNCTION_PARAMETERS);
 static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
 static PHP_METHOD(class_name, name) \
 { \
-	phputils::safe_call_php_routine(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
+	phputils::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
 } \
 static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 
@@ -287,7 +289,7 @@ static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 static void function_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
 PHP_FUNCTION(name) \
 { \
-	phputils::safe_call_php_routine(function_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
+	phputils::safe_call_php_function(function_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
 } \
 static void function_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 
