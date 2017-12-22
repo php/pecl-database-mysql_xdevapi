@@ -164,7 +164,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_warning.h" role="src" />
    <file name="mysqlx_x_session.cc" role="src" />
    <file name="mysqlx_x_session.h" role="src" />
-   <file name="package.xml" role="src" />
    <file name="php_api.h" role="src" />
    <file name="php_mysql_xdevapi.h" role="src" />
    <file name="php_mysqlx.cc" role="src" />
@@ -232,27 +231,29 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="value.h" role="src" />
    </dir>
    <dir name="tests">
+    <file name="000.phpt" role="test" />
     <file name="add_with_empty_arg_is_noop.phpt" role="test" />
     <file name="array_or_object_contains_operator.phpt" role="test" />
     <file name="basic_collection_operations.phpt" role="test" />
     <file name="basic_execute_sql.phpt" role="test" />
     <file name="basic_transactions.phpt" role="test" />
     <file name="client_side_failover.phpt" role="test" />
-    <file name="collection_find_no_only_full_group_by.phpt" role="test" />
-    <file name="collection_find.phpt" role="test" />
-    <file name="collection_modify_array_delete.phpt" role="test" />
-    <file name="collection_modifysetunset.phpt" role="test" />
-    <file name="collection_modify_sortreplacemerge.phpt" role="test" />
-    <file name="collection_remove.phpt" role="test" />
     <file name="coll_multiple_add_get_document_ids.phpt" role="test" />
+    <file name="collection_find.phpt" role="test" />
+    <file name="collection_find_no_only_full_group_by.phpt" role="test" />
+    <file name="collection_modify_array_delete.phpt" role="test" />
+    <file name="collection_modify_sortreplacemerge.phpt" role="test" />
+    <file name="collection_modifysetunset.phpt" role="test" />
+    <file name="collection_remove.phpt" role="test" />
     <file name="complex_query.phpt" role="test" />
+    <file name="connect.inc" role="test" />
     <file name="connection_test_uri_string.phpt" role="test" />
     <file name="create_drop_index.phpt" role="test" />
     <file name="createdrop_schema.phpt" role="test" />
     <file name="drop_item.phpt" role="test" />
     <file name="exists_in_database.phpt" role="test" />
-    <file name="field_metadata_empty_rowset.phpt" role="test" />
     <file name="field_metadata.phpt" role="test" />
+    <file name="field_metadata_empty_rowset.phpt" role="test" />
     <file name="flexible_number_of_arguments.phpt" role="test" />
     <file name="get_auto_increment_value.phpt" role="test" />
     <file name="get_collection_as_table.phpt" role="test" />
@@ -273,12 +274,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="sql_simple.phpt" role="test" />
     <file name="table_delete_limit_order_by.phpt" role="test" />
     <file name="table_delete_where.phpt" role="test" />
-    <file name="000.phpt" role="test" />
     <file name="unix_domain_socket.phpt" role="test" />
     <file name="update.phpt" role="test" />
     <file name="uuid_validation.phpt" role="test" />
     <file name="warnings.phpt" role="test" />
-    <file name="connect.inc" role="test" />
     <dir name="row_locking">
      <file name="collection_misc.phpt" role="test" />
      <file name="collection_parallel_exclusive_exclusive.phpt" role="test" />
@@ -288,6 +287,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="collection_parallel_shared_exclusive.phpt" role="test" />
      <file name="collection_parallel_shared_exclusive_worker.php" role="test" />
      <file name="collection_sequential.phpt" role="test" />
+     <file name="mysqlx_row_locking.inc" role="test" />
      <file name="table_misc.phpt" role="test" />
      <file name="table_parallel_exclusive_exclusive.phpt" role="test" />
      <file name="table_parallel_exclusive_exclusive_worker.php" role="test" />
@@ -295,8 +295,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="table_parallel_exclusive_shared_worker.php" role="test" />
      <file name="table_parallel_shared_exclusive.phpt" role="test" />
      <file name="table_parallel_shared_exclusive_worker.php" role="test" />
-     <file name="table_sequential_native_sql.phpt" role="test" />
      <file name="table_sequential.phpt" role="test" />
+     <file name="table_sequential_native_sql.phpt" role="test" />
     </dir>
     <dir name="ssl">
      <file name="ca.pem" role="test" />
