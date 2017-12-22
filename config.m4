@@ -47,10 +47,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_node_session.cc \
 		mysqlx_node_collection.cc \
 		mysqlx_node_collection__add.cc \
-		mysqlx_node_collection__create_index.cc \
 		mysqlx_node_collection__find.cc \
 		mysqlx_node_collection__modify.cc \
 		mysqlx_node_collection__remove.cc \
+		mysqlx_node_collection_index.cc \
 		mysqlx_node_table.cc \
 		mysqlx_node_table__delete.cc \
 		mysqlx_node_table__insert.cc \
@@ -108,6 +108,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		phputils/hash_table.cc \
 		phputils/json_utils.cc \
 		phputils/object.cc \
+		phputils/pb_utils.cc \
 		phputils/string_utils.cc \
 		phputils/strings.cc \
 		phputils/url_utils.cc \

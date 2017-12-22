@@ -549,6 +549,7 @@ PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_node_new_session_connect(const c
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_free(XMYSQLND_NODE_SESSION* const session);
 
 
+extern const MYSQLND_CSTRING namespace_mysqlx;
 extern const MYSQLND_CSTRING namespace_sql;
 extern const MYSQLND_CSTRING namespace_xplugin;
 

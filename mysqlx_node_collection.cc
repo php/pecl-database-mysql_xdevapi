@@ -34,7 +34,7 @@ extern "C" {
 #include "mysqlx_node_collection__find.h"
 #include "mysqlx_node_collection__modify.h"
 #include "mysqlx_node_collection__remove.h"
-#include "mysqlx_node_collection__create_index.h"
+#include "mysqlx_node_collection_index.h"
 #include "mysqlx_node_collection.h"
 #include "mysqlx_node_doc_result.h"
 #include "mysqlx_node_schema.h"
@@ -119,7 +119,7 @@ ZEND_END_ARG_INFO()
 // index ops
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__create_index, 0, ZEND_RETURN_VALUE, 2)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, index_name, IS_STRING, dont_allow_null)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, is_unique, IS_LONG, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, index_desc_json, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__drop_index, 0, ZEND_RETURN_VALUE, 1)
@@ -619,48 +619,27 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, removeOne)
 /* {{{ proto mixed mysqlx_node_collection::createIndex() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, createIndex)
 {
-	st_mysqlx_node_collection* object{nullptr};
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING index_name = {nullptr, 0};
-	zend_bool is_unique;
+	phputils::string_view index_name;
+	phputils::string_view index_desc_json;
 
 	DBG_ENTER("mysqlx_node_collection::createIndex");
 
 	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Osb",
+		ZEND_NUM_ARGS(), getThis(), "Oss",
 		&object_zv, mysqlx_node_collection_class_entry,
-		&(index_name.s), &(index_name.l),
-		&is_unique))
+		&index_name.str, &index_name.len,
+		&index_desc_json.str, &index_desc_json.len))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_COLLECTION_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->collection) {
-		mysqlx_new_node_collection__create_index(return_value, index_name, is_unique, object->collection);
-	}
+	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
+	create_collection_index(data_object.collection, index_name, index_desc_json, return_value);
 
 	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ collection_drop_index_on_error */
-static const enum_hnd_func_status
-collection_drop_index_on_error(
-	void * context,
-	XMYSQLND_NODE_SESSION * session,
-	st_xmysqlnd_node_stmt * const stmt,
-	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
-{
-	DBG_ENTER("collection_drop_index_on_error");
-	throw phputils::xdevapi_exception(code, phputils::string(sql_state.s, sql_state.l), phputils::string(message.s, message.l));
-	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
 
@@ -682,14 +661,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, dropIndex)
 	}
 
 	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
-
-	try {
-		const st_xmysqlnd_node_session_on_error_bind on_error = { collection_drop_index_on_error, nullptr };
-		RETVAL_BOOL(drv::collection_drop_index(data_object.collection, index_name, on_error));
-	} catch (std::exception& e) {
-		phputils::log_warning(e.what());
-		RETVAL_FALSE;
-	}
+	drop_collection_index(data_object.collection, index_name, return_value);
 
 	DBG_VOID_RETURN;
 }

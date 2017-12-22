@@ -44,6 +44,10 @@ template<typename CharT, typename Traits = std::char_traits<CharT>>
 using basic_ostringstream = std::basic_ostringstream<CharT, Traits, allocator<CharT>>;
 using ostringstream = basic_ostringstream<char>;
 
+template<typename CharT, typename Traits = std::char_traits<CharT>>
+using basic_istringstream = std::basic_istringstream<CharT, Traits, allocator<CharT>>;
+using istringstream = basic_istringstream<char>;
+
 std::ostream& operator<<(std::ostream& os, const string& str);
 
 

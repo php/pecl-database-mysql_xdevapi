@@ -15,22 +15,29 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
-#define MYSQLX_NODE_COLLECTION__CREATE_INDEX_H
+#ifndef MYSQLX_NODE_COLLECTION_INDEX_H
+#define MYSQLX_NODE_COLLECTION_INDEX_H
 
 namespace mysqlx {
 
 namespace devapi {
 
-void mysqlx_new_node_collection__create_index(zval * return_value, const MYSQLND_CSTRING index_name, const zend_bool is_unique, drv::st_xmysqlnd_node_collection* collection);
-void mysqlx_register_node_collection__create_index_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_collection__create_index_class(SHUTDOWN_FUNC_ARGS);
+void create_collection_index(
+	drv::st_xmysqlnd_node_collection* collection,
+	const phputils::string_view& index_name,
+	const phputils::string_view& index_desc_json,
+	zval* return_value);
+
+void drop_collection_index(
+	const drv::st_xmysqlnd_node_collection* collection,
+	const phputils::string_view& index_name,
+	zval* return_value);
 
 } // namespace devapi
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_COLLECTION__CREATE_INDEX_H */
+#endif /* MYSQLX_NODE_COLLECTION_INDEX_H */
 
 /*
  * Local variables:

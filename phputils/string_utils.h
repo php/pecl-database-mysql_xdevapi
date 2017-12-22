@@ -86,6 +86,13 @@ string to_string(T* val)
 
 //------------------------------------------------------------------------------
 
+inline std::string to_std_string(const string& str)
+{
+	return std::string(str.data(), str.length());
+}
+
+//------------------------------------------------------------------------------
+
 strings to_strings(zval* zvals, int count);
 
 /* {{{ to_strings */

@@ -152,8 +152,9 @@ const std::vector<std::string> st_xmysqlnd_session_auth_data::supported_ciphers 
 //	"!SSLv3" This is not acceptable, but required by the server!!! BAD
 };
 
-const MYSQLND_CSTRING namespace_sql = { "sql", sizeof("sql") - 1 };
-const MYSQLND_CSTRING namespace_xplugin = { "xplugin", sizeof("xplugin") - 1 };
+const MYSQLND_CSTRING namespace_mysqlx{ "mysqlx", sizeof("mysqlx") - 1 };
+const MYSQLND_CSTRING namespace_sql{ "sql", sizeof("sql") - 1 };
+const MYSQLND_CSTRING namespace_xplugin{ "xplugin", sizeof("xplugin") - 1 };
 
 st_xmysqlnd_session_auth_data::st_xmysqlnd_session_auth_data() :
 	port{ 0 },

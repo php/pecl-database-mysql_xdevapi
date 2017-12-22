@@ -692,7 +692,7 @@ xmysqlnd_crud_collection_modify__merge(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj
 /* {{{ xmysqlnd_crud_collection_modify__patch */
 enum_func_status
 xmysqlnd_crud_collection_modify__patch(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
-                                       const MYSQLND_CSTRING path,
+									   const MYSQLND_CSTRING path,
 									   const zval * const patch)
 {
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::MERGE_PATCH;
@@ -1200,6 +1200,15 @@ xmysqlnd_stmt_execute__destroy(XMYSQLND_STMT_OP__EXECUTE * obj)
 	DBG_ENTER("xmysqlnd_stmt_execute__destroy");
 	delete obj;
 	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_stmt_execute__get_pb_msg */
+Mysqlx::Sql::StmtExecute& xmysqlnd_stmt_execute__get_pb_msg(XMYSQLND_STMT_OP__EXECUTE* obj)
+{
+	DBG_ENTER("xmysqlnd_stmt_execute__get_pb_msg");
+	DBG_RETURN(obj->message);
 }
 /* }}} */
 

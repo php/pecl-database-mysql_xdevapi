@@ -20,6 +20,7 @@
 
 #include "xmysqlnd_crud_commands.h"
 #include "phputils/strings.h"
+#include <boost/optional.hpp>
 
 namespace mysqlx {
 
@@ -29,26 +30,51 @@ struct st_xmysqlnd_node_session;
 struct st_xmysqlnd_node_session_on_error_bind;
 struct st_xmysqlnd_node_collection;
 
-typedef struct st_xmysqlnd_collection_op__create_index XMYSQLND_COLLECTION_OP__CREATE_INDEX;
-XMYSQLND_COLLECTION_OP__CREATE_INDEX* xmysqlnd_collection_create_index__create(const MYSQLND_CSTRING schema_name, const MYSQLND_CSTRING collection_name);
-void xmysqlnd_collection_create_index__destroy(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj);
-enum_func_status xmysqlnd_collection_create_index__set_index_name(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, const MYSQLND_CSTRING index_name);
-enum_func_status xmysqlnd_collection_create_index__set_unique(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj, const zend_bool is_unique);
-enum_func_status xmysqlnd_collection_create_index__add_field(
-	XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj,
-	MYSQLND_CSTRING doc_path,
-	MYSQLND_CSTRING column_type,
-	zend_bool is_required);
+struct Index_field
+{
+	phputils::string path;
+	phputils::string type;
+	boost::optional<bool> required;
+	boost::optional<phputils::string> collation;
+	boost::optional<unsigned int> options;
+	boost::optional<unsigned int> srid;
 
-zend_bool xmysqlnd_collection_create_index__is_initialized(XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj);
-enum_func_status xmysqlnd_collection_create_index__execute(
-	st_xmysqlnd_node_session * const session,
-	XMYSQLND_COLLECTION_OP__CREATE_INDEX * obj,
+	bool is_geojson() const;
+	bool is_required() const;
+
+};
+
+struct Index_definition : phputils::custom_allocable
+{
+	enum class Type {
+		Index,
+		Spatial,
+		Default = Index
+	};
+
+	using Fields = phputils::vector<Index_field>;
+
+	phputils::string name;
+	boost::optional<bool> is_unique;
+	boost::optional<Type> type;
+	Fields fields;
+
+	Index_definition(const phputils::string_view& index_name);
+
+	boost::optional<phputils::string> get_type_str() const;
+};
+
+bool collection_create_index_execute(
+	st_xmysqlnd_node_session* const session,
+	const phputils::string_view& schema_name,
+	const phputils::string_view& collection_name,
+	const Index_definition& index_def,
 	st_xmysqlnd_node_session_on_error_bind on_error);
 
-
-bool collection_drop_index(
-	st_xmysqlnd_node_collection* collection,
+bool collection_drop_index_execute(
+	st_xmysqlnd_node_session* const session,
+	const phputils::string_view& schema_name,
+	const phputils::string_view& collection_name,
 	const phputils::string_view& index_name,
 	st_xmysqlnd_node_session_on_error_bind on_error);
 

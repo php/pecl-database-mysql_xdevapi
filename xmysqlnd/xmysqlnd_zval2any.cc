@@ -69,7 +69,7 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 			DBG_INF_FMT("IS_DOUBLE=%f", Z_DVAL_P(zv));
 			any.set_type(Any_Type_SCALAR);
 			any.mutable_scalar()->set_type(Scalar_Type_V_DOUBLE);
-			any.mutable_scalar()->set_v_signed_int(Z_DVAL_P(zv));
+			any.mutable_scalar()->set_v_double(Z_DVAL_P(zv));
 			break;
 		case IS_STRING:
 			DBG_INF_FMT("IS_STRING=%s", Z_STRVAL_P(zv));

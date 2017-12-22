@@ -44,7 +44,6 @@ extern "C" {
 #include "mysqlx_node_collection__find.h"
 #include "mysqlx_node_collection__modify.h"
 #include "mysqlx_node_collection__remove.h"
-#include "mysqlx_node_collection__create_index.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_base_result.h"
 #include "mysqlx_node_doc_result.h"
@@ -133,7 +132,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	mysqlx_register_node_collection_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-	mysqlx_register_node_collection__create_index_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -270,7 +268,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 
 	mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-	mysqlx_unregister_node_collection__create_index_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_collection__modify_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
