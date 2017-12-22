@@ -164,14 +164,14 @@ void to_any(
 
 // -----------------------------------------------------------------------------
 
-Object* phputils::pb::add_object_arg(Mysqlx::Sql::StmtExecute& stmt_message)
+Object* add_object_arg(Mysqlx::Sql::StmtExecute& stmt_message)
 {
 	Any* stmt_arg{stmt_message.add_args()};
 	stmt_arg->set_type(Any_Type_OBJECT);
 	return stmt_arg->mutable_obj();
 }
 
-Array* phputils::pb::add_array_arg(Mysqlx::Sql::StmtExecute& stmt_message)
+Array* add_array_arg(Mysqlx::Sql::StmtExecute& stmt_message)
 {
 	Any* stmt_arg{stmt_message.add_args()};
 	stmt_arg->set_type(Any_Type_ARRAY);
