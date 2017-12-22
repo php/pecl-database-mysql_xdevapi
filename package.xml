@@ -112,14 +112,14 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_node_collection.h" role="src" />
    <file name="mysqlx_node_collection__add.cc" role="src" />
    <file name="mysqlx_node_collection__add.h" role="src" />
-   <file name="mysqlx_node_collection__create_index.cc" role="src" />
-   <file name="mysqlx_node_collection__create_index.h" role="src" />
    <file name="mysqlx_node_collection__find.cc" role="src" />
    <file name="mysqlx_node_collection__find.h" role="src" />
    <file name="mysqlx_node_collection__modify.cc" role="src" />
    <file name="mysqlx_node_collection__modify.h" role="src" />
    <file name="mysqlx_node_collection__remove.cc" role="src" />
    <file name="mysqlx_node_collection__remove.h" role="src" />
+   <file name="mysqlx_node_collection_index.cc" role="src" />
+   <file name="mysqlx_node_collection_index.h" role="src" />
    <file name="mysqlx_node_column_result.cc" role="src" />
    <file name="mysqlx_node_column_result.h" role="src" />
    <file name="mysqlx_node_doc_result.cc" role="src" />
@@ -220,6 +220,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="json_utils.h" role="src" />
     <file name="object.cc" role="src" />
     <file name="object.h" role="src" />
+    <file name="pb_utils.cc" role="src" />
+    <file name="pb_utils.h" role="src" />
     <file name="string_utils.cc" role="src" />
     <file name="string_utils.h" role="src" />
     <file name="strings.cc" role="src" />
@@ -234,6 +236,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="000.phpt" role="test" />
     <file name="add_with_empty_arg_is_noop.phpt" role="test" />
     <file name="array_or_object_contains_operator.phpt" role="test" />
+    <file name="auth_method.phpt" role="test" />
     <file name="basic_collection_operations.phpt" role="test" />
     <file name="basic_execute_sql.phpt" role="test" />
     <file name="basic_transactions.phpt" role="test" />
