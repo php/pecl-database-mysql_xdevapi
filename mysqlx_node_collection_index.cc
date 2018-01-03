@@ -39,6 +39,7 @@ extern "C" {
 #include "phputils/allocator.h"
 #include "phputils/exceptions.h"
 #include "phputils/object.h"
+#include "phputils/string_utils.h"
 #include <boost/property_tree/json_parser.hpp>
 
 namespace mysqlx {
@@ -57,17 +58,20 @@ class Index_definition_parser
 {
 public:
 	Index_definition_parser(
-		const phputils::string_view& index_desc_json,
-		Index_definition& index_def);
+		const phputils::string_view& index_name,
+		const phputils::string_view& index_desc_json);
 
 public:
-	void run();
+	Index_definition run();
 
 private:
 	boost::optional<Index_definition::Type> parse_type();
 
-	void parse_fields();
+	Index_definition::Fields parse_fields();
 	Index_field parse_field(ptree& field_description);
+
+	void verify_field_traits(ptree& field_description);
+	void verify_field_trait(const phputils::string& field_trait_name);
 
 	void verify_field(const Index_field& field);
 	void verify_field_path(const Index_field& field);
@@ -76,24 +80,25 @@ private:
 
 private:
 	ptree index_desc;
-	Index_definition& index_def;
+	Index_definition index_def;
 };
 
 //------------------------------------------------------------------------------
 
 Index_definition_parser::Index_definition_parser(
-	const phputils::string_view& index_desc_json,
-	Index_definition& idx_def)
-	: index_def(idx_def)
+	const phputils::string_view& index_name,
+	const phputils::string_view& index_desc_json)
+	: index_def(index_name)
 {
 	phputils::istringstream is(index_desc_json.to_string());
 	boost::property_tree::read_json(is, index_desc);
 }
 
-void Index_definition_parser::run()
+Index_definition Index_definition_parser::run()
 {
 	index_def.type = parse_type();
-	parse_fields();
+	index_def.fields = parse_fields();
+	return index_def;
 }
 
 boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
@@ -115,17 +120,20 @@ boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
 	return it->second;
 }
 
-void Index_definition_parser::parse_fields()
+Index_definition::Fields Index_definition_parser::parse_fields()
 {
+	Index_definition::Fields fields;
 	for (ptree::value_type& field_desc : index_desc.get_child("fields")) {
 		const Index_field& field = parse_field(field_desc.second);
 		verify_field(field);
-		index_def.fields.push_back(field);
+		fields.push_back(field);
 	}
+	return fields;
 }
 
 Index_field Index_definition_parser::parse_field(ptree& field_description)
 {
+	verify_field_traits(field_description);
 	const Index_field field {
 		field_description.get<phputils::string>("field"),
 		field_description.get<phputils::string>("type"),
@@ -135,6 +143,30 @@ Index_field Index_definition_parser::parse_field(ptree& field_description)
 		field_description.get_optional<unsigned int>("srid")
 	};
 	return field;
+}
+
+void Index_definition_parser::verify_field_traits(ptree& field_description)
+{
+	for (auto field_trait : field_description) {
+		const phputils::string& field_trait_name = field_trait.first.data();
+		verify_field_trait(field_trait_name);
+	}
+}
+
+void Index_definition_parser::verify_field_trait(const phputils::string& field_trait_name)
+{
+	static const phputils::stringset allowed_traits{
+		"field",
+		"type",
+		"required",
+		"collation",
+		"options",
+		"srid"
+	};
+
+	if (!allowed_traits.count(field_trait_name)) {
+		throw std::invalid_argument(std::string("unsupported field trait '") + phputils::to_std_string(field_trait_name) + "" );
+	}
 }
 
 void Index_definition_parser::verify_field(const Index_field& field) {
@@ -162,6 +194,16 @@ void Index_definition_parser::verify_field_geojson_properties(const Index_field&
 		throw std::invalid_argument(
 			"'options' and 'srid' properties are meant for GEOJSON type only");
 	}
+}
+
+// ---------
+
+Index_definition parse_index_def(
+	const phputils::string_view& index_name,
+	const phputils::string_view& index_desc_json)
+{
+	Index_definition_parser idx_def_parser(index_name, index_desc_json);
+	return idx_def_parser.run();
 }
 
 //------------------------------------------------------------------------------
@@ -196,17 +238,10 @@ void create_collection_index(
 
 	RETVAL_FALSE;
 
-	if (index_name.empty())	{
-		throw std::invalid_argument("empty index name");
-	}
-
 	st_xmysqlnd_node_session* session{collection->data->schema->data->session};
 	const phputils::string_view schema_name{collection->data->schema->data->schema_name};
 	const phputils::string_view collection_name{collection->data->collection_name};
-
-	Index_definition index_def(index_name);
-	Index_definition_parser idx_def_parser(index_desc_json, index_def);
-	idx_def_parser.run();
+	Index_definition index_def{parse_index_def(index_name, index_desc_json)};
 
 	const st_xmysqlnd_node_session_on_error_bind on_error{ collection_index_on_error, nullptr };
 	if (drv::collection_create_index_execute(
@@ -241,7 +276,7 @@ void drop_collection_index(
 			index_name,
 			on_error));
 	} catch (std::exception& e) {
-		phputils::log_warning(e.what());
+		phputils::log_warning(phputils::string(e.what()));
 		RETVAL_FALSE;
 	}
 }

@@ -39,6 +39,7 @@ using string = basic_string<char>;
 using wstring = basic_string<wchar_t>;
 
 using strings = vector<string>;
+using stringset = set<string>;
 
 template<typename CharT, typename Traits = std::char_traits<CharT>>
 using basic_ostringstream = std::basic_ostringstream<CharT, Traits, allocator<CharT>>;

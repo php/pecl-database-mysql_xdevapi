@@ -66,7 +66,11 @@ bool Index_field::is_required() const
 
 Index_definition::Index_definition(const phputils::string_view& index_name)
 	: name(index_name.to_string())
+	, is_unique(false) //TODO temporary - shouldn't be needed in future version of server
 {
+	if (index_name.empty())	{
+		throw std::invalid_argument("empty index name");
+	}
 }
 
 boost::optional<phputils::string> Index_definition::get_type_str() const
@@ -78,9 +82,7 @@ boost::optional<phputils::string> Index_definition::get_type_str() const
 	};
 
 	if (type) return type_to_str.at(type.get());
-	//TODO should work with newer server
-	//return boost::optional<phputils::string>();
-	return type_to_str.at(Type::Default);
+	return boost::optional<phputils::string>();
 }
 
 /****************************** COLLECTION.CREATE_INDEX() *******************************************************/
@@ -136,9 +138,7 @@ void Bind_create_index_args::bind_index_args()
 	phputils::pb::add_field_to_object("collection", ctx.collection_name, idx_obj);
 	phputils::pb::add_field_to_object("name", index_def.name, idx_obj);
 	phputils::pb::add_optional_field_to_object("type", index_def.get_type_str(), idx_obj);
-	//TODO should work with newer server
-	//phputils::pb::add_optional_field_to_object("unique", index_def.is_unique, idx_obj);
-	phputils::pb::add_field_to_object("unique", false, idx_obj);
+	phputils::pb::add_optional_field_to_object("unique", index_def.is_unique, idx_obj);
 }
 
 void Bind_create_index_args::bind_index_fields()
@@ -287,7 +287,7 @@ bool collection_drop_index_execute(
 	const enum_func_status ret
 		= session->m->query_cb(
 			session,
-			namespace_xplugin,
+			namespace_mysqlx,
 			query,
 			var_binder,
 			noop__on_result_start,
