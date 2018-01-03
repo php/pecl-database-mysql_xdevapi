@@ -251,7 +251,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="complex_query.phpt" role="test" />
     <file name="connect.inc" role="test" />
     <file name="connection_test_uri_string.phpt" role="test" />
-    <file name="create_drop_index.phpt" role="test" />
     <file name="createdrop_schema.phpt" role="test" />
     <file name="drop_item.phpt" role="test" />
     <file name="exists_in_database.phpt" role="test" />
@@ -281,6 +280,14 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="update.phpt" role="test" />
     <file name="uuid_validation.phpt" role="test" />
     <file name="warnings.phpt" role="test" />
+    <dir name="index">
+     <file name="common.phpt" role="test" />
+     <file name="create.phpt" role="test" />
+     <file name="drop.phpt" role="test" />
+     <file name="extra.phpt" role="test" />
+     <file name="fail.phpt" role="test" />
+     <file name="index_utils.inc" role="test" />
+    </dir>
     <dir name="row_locking">
      <file name="collection_misc.phpt" role="test" />
      <file name="collection_parallel_exclusive_exclusive.phpt" role="test" />
