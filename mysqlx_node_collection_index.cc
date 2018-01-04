@@ -276,7 +276,7 @@ void drop_collection_index(
 			index_name,
 			on_error));
 	} catch (std::exception& e) {
-		phputils::log_warning(phputils::string(e.what()));
+		phputils::log_warning(e.what());
 		RETVAL_FALSE;
 	}
 }
