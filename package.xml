@@ -270,7 +270,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="select_fetch.phpt" role="test" />
     <file name="session_minor_tc.phpt" role="test" />
     <file name="simple_ssl.phpt" role="test" />
-    <file name="single_doc_ops.phpt" role="test" />
     <file name="sql_simple.phpt" role="test" />
     <file name="table_delete_limit_order_by.phpt" role="test" />
     <file name="table_delete_where.phpt" role="test" />

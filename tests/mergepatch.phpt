@@ -5,30 +5,31 @@ mysqlx merge-patch
 error_reporting=0
 --FILE--
 <?php
-        require_once("connect.inc");
+	require_once("connect.inc");
+	clean_test_db();
 	$nodeSession = create_test_db();
 
 	$coll = $nodeSession->getSchema($db)->getCollection( $test_collection_name );
 	expect_true( null != $coll );
 	fill_db_collection( $coll );
 
-        $coll->modify('_id = 1')->patch('{"name" : "New_Marco"}')->execute();
-	$coll->modify('name = :nm')->patch('{"name" : null,"birth" : { "year": year(CURDATE())-age }}')->bind(['nm' => 'Alfredo'])->execute();
+	$coll->modify('_id = 1')->patch('{"name" : "New_Marco"}')->execute();
+	$coll->modify('name = :nm')->patch('{"name" : null,"birth" : { "year": 2018-age }}')->bind(['nm' => 'Alfredo'])->execute();
 	$coll->modify(true)->patch('{"Hobby" : ["Swimming","Dancing"], "code": concat("secret_" , name) }')->execute();
 	$coll->modify('_id IN [2,5,7,10]')->patch('{"age": age + 100}')->execute();
 	$coll->modify('"Programmatore" IN job')->patch('{"Hobby" : "Programmare"}')->execute();
 	$coll->modify('_id >= 10')->patch('{"name" : concat( "UP_", upper(name) )}')->execute();
 	$coll->modify('age MOD 2 = 0 OR age MOD 3 = 0')->patch('{"Hobby" : null}')->execute();
 
-        $data = $coll->find()->execute()->fetchAll();
+	$data = $coll->find()->execute()->fetchAll();
 	var_dump( $data );
 
-        verify_expectations();
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
@@ -53,7 +54,7 @@ array(16) {
     ["_id"]=>
     int(10)
     ["age"]=>
-    int(129)
+    %rint|float%r(129)
     ["job"]=>
     string(11) "Disoccupato"
     ["code"]=>
@@ -167,7 +168,7 @@ array(16) {
     ["_id"]=>
     int(2)
     ["age"]=>
-    int(159)
+    %rint|float%r(159)
     ["job"]=>
     string(8) "Paninaro"
     ["code"]=>
@@ -213,7 +214,7 @@ array(16) {
     ["_id"]=>
     int(5)
     ["age"]=>
-    int(125)
+    %rint|float%r(125)
     ["job"]=>
     string(13) "Programmatore"
     ["code"]=>
@@ -248,7 +249,7 @@ array(16) {
     ["_id"]=>
     int(7)
     ["age"]=>
-    int(127)
+    %rint|float%r(127)
     ["job"]=>
     string(13) "Programmatore"
     ["Hobby"]=>
@@ -256,7 +257,7 @@ array(16) {
     ["birth"]=>
     array(1) {
       ["year"]=>
-      int(1990)
+      %rint|float%r(1991)
     }
   }
   [14]=>
