@@ -179,6 +179,21 @@ void ensure_doc_id(
 }
 /* }}} */
 
+/* {{{ ensure_doc_id_as_string */
+void ensure_doc_id_as_string(
+	const string_view& doc_id,
+	zval* doc)
+{
+	zval doc_with_string_id;
+	phputils::json::ensure_doc_id(
+		doc,
+		doc_id,
+		&doc_with_string_id);
+	to_zv_string(&doc_with_string_id, doc);
+	zval_dtor(&doc_with_string_id);
+}
+/* }}} */
+
 } // namespace json
 
 } // namespace phputils

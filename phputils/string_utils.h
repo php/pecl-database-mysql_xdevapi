@@ -62,6 +62,10 @@ inline string to_string(zval* zv)
 	return to_string(*zv);
 }
 
+string to_string(const st_mysqlnd_string& s); // MYSQLND_STRING
+string to_string(const st_mysqlnd_const_string& s); // MYSQLND_CSTRING
+
+
 inline string to_string(const std::string& str)
 {
 	return string(str.c_str(), str.length());

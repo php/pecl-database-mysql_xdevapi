@@ -366,6 +366,10 @@ assign_doc_id_to_json(
 				RAISE_EXCEPTION(err_msg_unexpected_doc_id);
 			}
 
+			if (!doc_id_string_type) {
+				phputils::json::ensure_doc_id_as_string(doc_id, doc);
+			}
+
 			if (to_add.s != json.s) {
 				efree(to_add.s);
 			}

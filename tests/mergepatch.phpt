@@ -13,12 +13,12 @@ error_reporting=0
 	expect_true( null != $coll );
 	fill_db_collection( $coll );
 
-	$coll->modify('_id = 1')->patch('{"name" : "New_Marco"}')->execute();
+	$coll->modify('CAST(_id AS SIGNED) = 1')->patch('{"name" : "New_Marco"}')->execute();
 	$coll->modify('name = :nm')->patch('{"name" : null,"birth" : { "year": 2018-age }}')->bind(['nm' => 'Alfredo'])->execute();
 	$coll->modify(true)->patch('{"Hobby" : ["Swimming","Dancing"], "code": concat("secret_" , name) }')->execute();
-	$coll->modify('_id IN [2,5,7,10]')->patch('{"age": age + 100}')->execute();
+	$coll->modify('_id IN ["2","5","7","10"]')->patch('{"age": age + 100}')->execute();
 	$coll->modify('"Programmatore" IN job')->patch('{"Hobby" : "Programmare"}')->execute();
-	$coll->modify('_id >= 10')->patch('{"name" : concat( "UP_", upper(name) )}')->execute();
+	$coll->modify('CAST(_id AS SIGNED) >= 10')->patch('{"name" : concat( "UP_", upper(name) )}')->execute();
 	$coll->modify('age MOD 2 = 0 OR age MOD 3 = 0')->patch('{"Hobby" : null}')->execute();
 
 	$data = $coll->find()->execute()->fetchAll();
@@ -37,7 +37,7 @@ array(16) {
   [0]=>
   array(6) {
     ["_id"]=>
-    int(1)
+    string(1) "1"
     ["age"]=>
     int(19)
     ["job"]=>
@@ -52,7 +52,7 @@ array(16) {
   [1]=>
   array(5) {
     ["_id"]=>
-    int(10)
+    string(2) "10"
     ["age"]=>
     %rint|float%r(129)
     ["job"]=>
@@ -65,7 +65,7 @@ array(16) {
   [2]=>
   array(6) {
     ["_id"]=>
-    int(11)
+    string(2) "11"
     ["age"]=>
     int(47)
     ["job"]=>
@@ -85,7 +85,7 @@ array(16) {
   [3]=>
   array(6) {
     ["_id"]=>
-    int(12)
+    string(2) "12"
     ["age"]=>
     int(31)
     ["job"]=>
@@ -105,7 +105,7 @@ array(16) {
   [4]=>
   array(5) {
     ["_id"]=>
-    int(13)
+    string(2) "13"
     ["age"]=>
     int(15)
     ["job"]=>
@@ -118,7 +118,7 @@ array(16) {
   [5]=>
   array(5) {
     ["_id"]=>
-    int(14)
+    string(2) "14"
     ["age"]=>
     int(22)
     ["job"]=>
@@ -131,7 +131,7 @@ array(16) {
   [6]=>
   array(6) {
     ["_id"]=>
-    int(15)
+    string(2) "15"
     ["age"]=>
     int(37)
     ["job"]=>
@@ -151,7 +151,7 @@ array(16) {
   [7]=>
   array(6) {
     ["_id"]=>
-    int(16)
+    string(2) "16"
     ["age"]=>
     int(23)
     ["job"]=>
@@ -166,7 +166,7 @@ array(16) {
   [8]=>
   array(5) {
     ["_id"]=>
-    int(2)
+    string(1) "2"
     ["age"]=>
     %rint|float%r(159)
     ["job"]=>
@@ -179,7 +179,7 @@ array(16) {
   [9]=>
   array(5) {
     ["_id"]=>
-    int(3)
+    string(1) "3"
     ["age"]=>
     int(27)
     ["job"]=>
@@ -192,7 +192,7 @@ array(16) {
   [10]=>
   array(6) {
     ["_id"]=>
-    int(4)
+    string(1) "4"
     ["age"]=>
     int(23)
     ["job"]=>
@@ -212,7 +212,7 @@ array(16) {
   [11]=>
   array(6) {
     ["_id"]=>
-    int(5)
+    string(1) "5"
     ["age"]=>
     %rint|float%r(125)
     ["job"]=>
@@ -227,7 +227,7 @@ array(16) {
   [12]=>
   array(6) {
     ["_id"]=>
-    int(6)
+    string(1) "6"
     ["age"]=>
     int(41)
     ["job"]=>
@@ -247,7 +247,7 @@ array(16) {
   [13]=>
   array(5) {
     ["_id"]=>
-    int(7)
+    string(1) "7"
     ["age"]=>
     %rint|float%r(127)
     ["job"]=>
@@ -263,7 +263,7 @@ array(16) {
   [14]=>
   array(5) {
     ["_id"]=>
-    int(8)
+    string(1) "8"
     ["age"]=>
     int(42)
     ["job"]=>
@@ -276,7 +276,7 @@ array(16) {
   [15]=>
   array(6) {
     ["_id"]=>
-    int(9)
+    string(1) "9"
     ["age"]=>
     int(35)
     ["job"]=>

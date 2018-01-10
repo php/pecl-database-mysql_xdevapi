@@ -34,6 +34,10 @@ void ensure_doc_id(
 	const string_view& id,
 	zval* doc_with_id);
 
+void ensure_doc_id_as_string(
+	const string_view& doc_id,
+	zval* doc);
+
 } // namespace json
 
 } // namespace phputils
