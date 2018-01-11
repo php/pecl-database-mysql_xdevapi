@@ -6,7 +6,6 @@ error_reporting=0
 --FILE--
 <?php
 	require_once("connect.inc");
-	clean_test_db();
 	$nodeSession = create_test_db();
 
 	$coll = $nodeSession->getSchema($db)->getCollection( $test_collection_name );

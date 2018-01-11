@@ -234,6 +234,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="000.phpt" role="test" />
     <file name="add_with_empty_arg_is_noop.phpt" role="test" />
     <file name="array_or_object_contains_operator.phpt" role="test" />
+    <file name="auth_method.phpt" role="test" />
     <file name="basic_collection_operations.phpt" role="test" />
     <file name="basic_execute_sql.phpt" role="test" />
     <file name="basic_transactions.phpt" role="test" />
@@ -296,6 +297,13 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="table_parallel_shared_exclusive_worker.php" role="test" />
      <file name="table_sequential.phpt" role="test" />
      <file name="table_sequential_native_sql.phpt" role="test" />
+    </dir>
+    <dir name="single_doc_ops">
+     <file name="add_or_replace_one.phpt" role="test" />
+     <file name="get_one.phpt" role="test" />
+     <file name="remove_one.phpt" role="test" />
+     <file name="replace_one.phpt" role="test" />
+     <file name="single_doc_utils.inc" role="test" />
     </dir>
     <dir name="ssl">
      <file name="ca.pem" role="test" />
