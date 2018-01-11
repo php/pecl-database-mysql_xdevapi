@@ -1,6 +1,8 @@
 --TEST--
 mysqlx Field Metadata
 --SKIPIF--
+--INI--
+error_reporting=0
 --FILE--
 <?php
 

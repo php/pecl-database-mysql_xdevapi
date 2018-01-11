@@ -1,6 +1,8 @@
 --TEST--
 mysqlx Array or Object, 'contains' operator
 --SKIPIF--
+--INI--
+error_reporting=0
 --FILE--
 <?php
 	require("connect.inc");

@@ -1,6 +1,8 @@
 --TEST--
 mysqlx Flexible number of arguments
 --SKIPIF--
+--INI--
+error_reporting=0
 --FILE--
 <?php
 	require("connect.inc");

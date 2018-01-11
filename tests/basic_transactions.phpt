@@ -1,6 +1,8 @@
 --TEST--
 mysqlx basic transactions
 --SKIPIF--
+--INI--
+error_reporting=0
 --FILE--
 <?php
 	require("connect.inc");
