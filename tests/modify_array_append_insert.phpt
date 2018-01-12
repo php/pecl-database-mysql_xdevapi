@@ -37,9 +37,9 @@ mysqlx modify arrayAppend/Insert
 Exception!
 array(6) {
   [0]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
-    int(1)
+    string(1) "1"
     ["age"]=>
     int(19)
     ["job"]=>
@@ -53,20 +53,24 @@ array(6) {
     }
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(1)
   }
   [1]=>
-  array(3) {
+  array(4) {
     ["_id"]=>
-    int(11)
+    string(2) "11"
     ["job"]=>
     string(7) "Barista"
     ["name"]=>
     string(5) "Lucia"
+    ["ordinal"]=>
+    int(11)
   }
   [2]=>
-  array(3) {
+  array(4) {
     ["_id"]=>
-    int(15)
+    string(2) "15"
     ["job"]=>
     array(3) {
       [0]=>
@@ -78,11 +82,13 @@ array(6) {
     }
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(15)
   }
   [3]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
-    int(16)
+    string(2) "16"
     ["age"]=>
     int(23)
     ["job"]=>
@@ -96,11 +102,13 @@ array(6) {
     }
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(16)
   }
   [4]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
-    int(5)
+    string(1) "5"
     ["job"]=>
     array(3) {
       [0]=>
@@ -114,11 +122,13 @@ array(6) {
     string(3) "BMW"
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(5)
   }
   [5]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
-    int(7)
+    string(1) "7"
     ["job"]=>
     array(3) {
       [0]=>
@@ -132,6 +142,8 @@ array(6) {
     string(3) "BMW"
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(7)
   }
 }
 done!%A

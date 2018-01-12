@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -17,6 +17,12 @@
 */
 #include "string_utils.h"
 #include "exceptions.h"
+extern "C" {
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 
 namespace mysqlx {
 
@@ -47,6 +53,22 @@ string to_string(const zval& zv)
 		default:
 			throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::unsupported_conversion_to_string);
 	}
+}
+/* }}} */
+
+
+/* {{{ string to_string */
+string to_string(const MYSQLND_STRING& s)
+{
+	return string(s.s, s.l);
+}
+/* }}} */
+
+
+/* {{{ string to_string */
+string to_string(const MYSQLND_CSTRING& s)
+{
+	return string(s.s, s.l);
 }
 /* }}} */
 

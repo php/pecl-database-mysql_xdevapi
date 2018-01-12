@@ -5,38 +5,38 @@ mysqlx merge-patch
 error_reporting=0
 --FILE--
 <?php
-        require_once("connect.inc");
+	require_once("connect.inc");
 	$nodeSession = create_test_db();
 
 	$coll = $nodeSession->getSchema($db)->getCollection( $test_collection_name );
 	expect_true( null != $coll );
 	fill_db_collection( $coll );
 
-        $coll->modify('_id = 1')->patch('{"name" : "New_Marco"}')->execute();
-	$coll->modify('name = :nm')->patch('{"name" : null,"birth" : { "year": year(CURDATE())-age }}')->bind(['nm' => 'Alfredo'])->execute();
+	$coll->modify('CAST(_id AS SIGNED) = 1')->patch('{"name" : "New_Marco"}')->execute();
+	$coll->modify('name = :nm')->patch('{"name" : null,"birth" : { "year": 2018-age }}')->bind(['nm' => 'Alfredo'])->execute();
 	$coll->modify(true)->patch('{"Hobby" : ["Swimming","Dancing"], "code": concat("secret_" , name) }')->execute();
-	$coll->modify('_id IN [2,5,7,10]')->patch('{"age": age + 100}')->execute();
+	$coll->modify('_id IN ["2","5","7","10"]')->patch('{"age": age + 100}')->execute();
 	$coll->modify('"Programmatore" IN job')->patch('{"Hobby" : "Programmare"}')->execute();
-	$coll->modify('_id >= 10')->patch('{"name" : concat( "UP_", upper(name) )}')->execute();
+	$coll->modify('CAST(_id AS SIGNED) >= 10')->patch('{"name" : concat( "UP_", upper(name) )}')->execute();
 	$coll->modify('age MOD 2 = 0 OR age MOD 3 = 0')->patch('{"Hobby" : null}')->execute();
 
-        $data = $coll->find()->execute()->fetchAll();
+	$data = $coll->find()->execute()->fetchAll();
 	var_dump( $data );
 
-        verify_expectations();
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
 array(16) {
   [0]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(1)
+    string(1) "1"
     ["age"]=>
     int(19)
     ["job"]=>
@@ -47,24 +47,28 @@ array(16) {
     string(9) "New_Marco"
     ["Hobby"]=>
     string(11) "Programmare"
+    ["ordinal"]=>
+    int(1)
   }
   [1]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
-    int(10)
+    string(2) "10"
     ["age"]=>
-    int(129)
+    %rint|float%r(129)
     ["job"]=>
     string(11) "Disoccupato"
     ["code"]=>
     string(13) "secret_Giulio"
     ["name"]=>
     string(9) "UP_GIULIO"
+    ["ordinal"]=>
+    int(10)
   }
   [2]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(11)
+    string(2) "11"
     ["age"]=>
     int(47)
     ["job"]=>
@@ -80,11 +84,13 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(11)
   }
   [3]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(12)
+    string(2) "12"
     ["age"]=>
     int(31)
     ["job"]=>
@@ -100,11 +106,13 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(12)
   }
   [4]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
-    int(13)
+    string(2) "13"
     ["age"]=>
     int(15)
     ["job"]=>
@@ -113,11 +121,13 @@ array(16) {
     string(17) "secret_Alessandra"
     ["name"]=>
     string(13) "UP_ALESSANDRA"
+    ["ordinal"]=>
+    int(13)
   }
   [5]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
-    int(14)
+    string(2) "14"
     ["age"]=>
     int(22)
     ["job"]=>
@@ -126,11 +136,13 @@ array(16) {
     string(14) "secret_Massimo"
     ["name"]=>
     string(10) "UP_MASSIMO"
+    ["ordinal"]=>
+    int(14)
   }
   [6]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(15)
+    string(2) "15"
     ["age"]=>
     int(37)
     ["job"]=>
@@ -146,11 +158,13 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(15)
   }
   [7]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(16)
+    string(2) "16"
     ["age"]=>
     int(23)
     ["job"]=>
@@ -161,24 +175,28 @@ array(16) {
     string(11) "UP_LEONARDO"
     ["Hobby"]=>
     string(11) "Programmare"
+    ["ordinal"]=>
+    int(16)
   }
   [8]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
-    int(2)
+    string(1) "2"
     ["age"]=>
-    int(159)
+    %rint|float%r(159)
     ["job"]=>
     string(8) "Paninaro"
     ["code"]=>
     string(14) "secret_Lonardo"
     ["name"]=>
     string(7) "Lonardo"
+    ["ordinal"]=>
+    int(2)
   }
   [9]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
-    int(3)
+    string(1) "3"
     ["age"]=>
     int(27)
     ["job"]=>
@@ -187,11 +205,13 @@ array(16) {
     string(15) "secret_Riccardo"
     ["name"]=>
     string(8) "Riccardo"
+    ["ordinal"]=>
+    int(3)
   }
   [10]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(4)
+    string(1) "4"
     ["age"]=>
     int(23)
     ["job"]=>
@@ -207,13 +227,15 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(4)
   }
   [11]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(5)
+    string(1) "5"
     ["age"]=>
-    int(125)
+    %rint|float%r(125)
     ["job"]=>
     string(13) "Programmatore"
     ["code"]=>
@@ -222,11 +244,13 @@ array(16) {
     string(5) "Carlo"
     ["Hobby"]=>
     string(11) "Programmare"
+    ["ordinal"]=>
+    int(5)
   }
   [12]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(6)
+    string(1) "6"
     ["age"]=>
     int(41)
     ["job"]=>
@@ -242,13 +266,15 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(6)
   }
   [13]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
-    int(7)
+    string(1) "7"
     ["age"]=>
-    int(127)
+    %rint|float%r(127)
     ["job"]=>
     string(13) "Programmatore"
     ["Hobby"]=>
@@ -256,13 +282,15 @@ array(16) {
     ["birth"]=>
     array(1) {
       ["year"]=>
-      int(1990)
+      %rint|float%r(1991)
     }
+    ["ordinal"]=>
+    int(7)
   }
   [14]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
-    int(8)
+    string(1) "8"
     ["age"]=>
     int(42)
     ["job"]=>
@@ -271,11 +299,13 @@ array(16) {
     string(16) "secret_Antonella"
     ["name"]=>
     string(9) "Antonella"
+    ["ordinal"]=>
+    int(8)
   }
   [15]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
-    int(9)
+    string(1) "9"
     ["age"]=>
     int(35)
     ["job"]=>
@@ -291,6 +321,8 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(9)
   }
 }
 done!%A

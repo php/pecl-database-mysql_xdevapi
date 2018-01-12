@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -40,6 +40,7 @@ extern "C" {
 #include "phputils/json_utils.h"
 #include "phputils/object.h"
 #include "phputils/strings.h"
+#include "phputils/string_utils.h"
 
 namespace mysqlx {
 
@@ -364,6 +365,12 @@ assign_doc_id_to_json(
 
 			if (!single_doc_id.empty() && (single_doc_id != doc_id)) {
 				RAISE_EXCEPTION(err_msg_unexpected_doc_id);
+			}
+
+			if (!doc_id_string_type) {
+				phputils::log_warning(
+					"_id '" + phputils::to_string(doc_id) + "' provided as non-string value");
+				phputils::json::ensure_doc_id_as_string(doc_id, doc);
 			}
 
 			if (to_add.s != json.s) {

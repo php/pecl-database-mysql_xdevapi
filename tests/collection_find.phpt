@@ -1,6 +1,8 @@
 --TEST--
 mysqlx collection find
 --SKIPIF--
+--INI--
+error_reporting=0
 --FILE--
 <?php
 	require("connect.inc");
