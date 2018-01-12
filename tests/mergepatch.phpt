@@ -34,7 +34,7 @@ error_reporting=0
 --EXPECTF--
 array(16) {
   [0]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(1) "1"
     ["age"]=>
@@ -47,9 +47,11 @@ array(16) {
     string(9) "New_Marco"
     ["Hobby"]=>
     string(11) "Programmare"
+    ["ordinal"]=>
+    int(1)
   }
   [1]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
     string(2) "10"
     ["age"]=>
@@ -60,9 +62,11 @@ array(16) {
     string(13) "secret_Giulio"
     ["name"]=>
     string(9) "UP_GIULIO"
+    ["ordinal"]=>
+    int(10)
   }
   [2]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(2) "11"
     ["age"]=>
@@ -80,9 +84,11 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(11)
   }
   [3]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(2) "12"
     ["age"]=>
@@ -100,9 +106,11 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(12)
   }
   [4]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
     string(2) "13"
     ["age"]=>
@@ -113,9 +121,11 @@ array(16) {
     string(17) "secret_Alessandra"
     ["name"]=>
     string(13) "UP_ALESSANDRA"
+    ["ordinal"]=>
+    int(13)
   }
   [5]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
     string(2) "14"
     ["age"]=>
@@ -126,9 +136,11 @@ array(16) {
     string(14) "secret_Massimo"
     ["name"]=>
     string(10) "UP_MASSIMO"
+    ["ordinal"]=>
+    int(14)
   }
   [6]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(2) "15"
     ["age"]=>
@@ -146,9 +158,11 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(15)
   }
   [7]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(2) "16"
     ["age"]=>
@@ -161,9 +175,11 @@ array(16) {
     string(11) "UP_LEONARDO"
     ["Hobby"]=>
     string(11) "Programmare"
+    ["ordinal"]=>
+    int(16)
   }
   [8]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
     string(1) "2"
     ["age"]=>
@@ -174,9 +190,11 @@ array(16) {
     string(14) "secret_Lonardo"
     ["name"]=>
     string(7) "Lonardo"
+    ["ordinal"]=>
+    int(2)
   }
   [9]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
     string(1) "3"
     ["age"]=>
@@ -187,9 +205,11 @@ array(16) {
     string(15) "secret_Riccardo"
     ["name"]=>
     string(8) "Riccardo"
+    ["ordinal"]=>
+    int(3)
   }
   [10]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(1) "4"
     ["age"]=>
@@ -207,9 +227,11 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(4)
   }
   [11]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(1) "5"
     ["age"]=>
@@ -222,9 +244,11 @@ array(16) {
     string(5) "Carlo"
     ["Hobby"]=>
     string(11) "Programmare"
+    ["ordinal"]=>
+    int(5)
   }
   [12]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(1) "6"
     ["age"]=>
@@ -242,9 +266,11 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(6)
   }
   [13]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
     string(1) "7"
     ["age"]=>
@@ -258,9 +284,11 @@ array(16) {
       ["year"]=>
       %rint|float%r(1991)
     }
+    ["ordinal"]=>
+    int(7)
   }
   [14]=>
-  array(5) {
+  array(6) {
     ["_id"]=>
     string(1) "8"
     ["age"]=>
@@ -271,9 +299,11 @@ array(16) {
     string(16) "secret_Antonella"
     ["name"]=>
     string(9) "Antonella"
+    ["ordinal"]=>
+    int(8)
   }
   [15]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(1) "9"
     ["age"]=>
@@ -291,6 +321,8 @@ array(16) {
       [1]=>
       string(7) "Dancing"
     }
+    ["ordinal"]=>
+    int(9)
   }
 }
 done!%A

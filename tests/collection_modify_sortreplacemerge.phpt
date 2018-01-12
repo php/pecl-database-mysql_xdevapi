@@ -16,8 +16,8 @@ mysqlx collection modify sort/replace/merge
 
 	var_dump($coll->find("job like 'Disoccupato'")->execute()->fetchAll());
 
-	$coll->remove('(CAST(_id AS SIGNED) > 1 and CAST(_id AS SIGNED) < 8) or (CAST(_id AS SIGNED) > 11 and CAST(_id AS SIGNED) < 15)')->execute();
-	$coll->modify('CAST(_id AS SIGNED) >= 1 and CAST(_id AS SIGNED) <= 9')->unset(['age'])->execute();
+	$coll->remove('(ordinal > 1 and ordinal < 8) or (ordinal > 11 and ordinal < 15)')->execute();
+	$coll->modify('ordinal >= 1 and ordinal <= 9')->unset(['age'])->execute();
 	$coll->modify('true')->sort('name desc', 'age asc')->limit(4)->set('Married', 'NO')->execute();
 
 	$coll->modify("Married like 'NO'")->merge("{'Divorced' : 'NO', 'Vegan' : 'YES'}")->execute();
@@ -33,7 +33,7 @@ mysqlx collection modify sort/replace/merge
 --EXPECTF--
 array(3) {
   [0]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(2) "10"
     ["age"]=>
@@ -42,9 +42,11 @@ array(3) {
     string(11) "Disoccupato"
     ["name"]=>
     string(6) "Giulio"
+    ["ordinal"]=>
+    int(10)
   }
   [1]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(1) "7"
     ["age"]=>
@@ -53,9 +55,11 @@ array(3) {
     string(11) "Disoccupato"
     ["name"]=>
     string(7) "Alfredo"
+    ["ordinal"]=>
+    int(7)
   }
   [2]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(1) "9"
     ["age"]=>
@@ -64,11 +68,13 @@ array(3) {
     string(11) "Disoccupato"
     ["name"]=>
     string(6) "Monica"
+    ["ordinal"]=>
+    int(9)
   }
 }
 array(7) {
   [0]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(1) "1"
     ["job"]=>
@@ -79,11 +85,13 @@ array(7) {
     string(3) "YES"
     ["Married"]=>
     string(2) "NO"
+    ["ordinal"]=>
+    int(1)
     ["Divorced"]=>
     string(2) "NO"
   }
   [1]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(2) "10"
     ["age"]=>
@@ -92,9 +100,11 @@ array(7) {
     string(11) "Disoccupato"
     ["name"]=>
     string(6) "Giulio"
+    ["ordinal"]=>
+    int(10)
   }
   [2]=>
-  array(7) {
+  array(8) {
     ["_id"]=>
     string(2) "11"
     ["age"]=>
@@ -107,11 +117,13 @@ array(7) {
     string(3) "YES"
     ["Married"]=>
     string(2) "NO"
+    ["ordinal"]=>
+    int(11)
     ["Divorced"]=>
     string(2) "NO"
   }
   [3]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(2) "15"
     ["age"]=>
@@ -120,9 +132,11 @@ array(7) {
     string(10) "Calciatore"
     ["name"]=>
     string(5) "Carlo"
+    ["ordinal"]=>
+    int(15)
   }
   [4]=>
-  array(7) {
+  array(8) {
     ["_id"]=>
     string(2) "16"
     ["age"]=>
@@ -135,20 +149,24 @@ array(7) {
     string(3) "YES"
     ["Married"]=>
     string(2) "NO"
+    ["ordinal"]=>
+    int(16)
     ["Divorced"]=>
     string(2) "NO"
   }
   [5]=>
-  array(3) {
+  array(4) {
     ["_id"]=>
     string(1) "8"
     ["job"]=>
     string(8) "Studente"
     ["name"]=>
     string(9) "Antonella"
+    ["ordinal"]=>
+    int(8)
   }
   [6]=>
-  array(6) {
+  array(7) {
     ["_id"]=>
     string(1) "9"
     ["job"]=>
@@ -159,6 +177,8 @@ array(7) {
     string(3) "YES"
     ["Married"]=>
     string(2) "NO"
+    ["ordinal"]=>
+    int(9)
     ["Divorced"]=>
     string(2) "NO"
   }

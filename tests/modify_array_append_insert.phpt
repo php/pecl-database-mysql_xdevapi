@@ -37,7 +37,7 @@ mysqlx modify arrayAppend/Insert
 Exception!
 array(6) {
   [0]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(1) "1"
     ["age"]=>
@@ -53,18 +53,22 @@ array(6) {
     }
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(1)
   }
   [1]=>
-  array(3) {
+  array(4) {
     ["_id"]=>
     string(2) "11"
     ["job"]=>
     string(7) "Barista"
     ["name"]=>
     string(5) "Lucia"
+    ["ordinal"]=>
+    int(11)
   }
   [2]=>
-  array(3) {
+  array(4) {
     ["_id"]=>
     string(2) "15"
     ["job"]=>
@@ -78,9 +82,11 @@ array(6) {
     }
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(15)
   }
   [3]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(2) "16"
     ["age"]=>
@@ -96,9 +102,11 @@ array(6) {
     }
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(16)
   }
   [4]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(1) "5"
     ["job"]=>
@@ -114,9 +122,11 @@ array(6) {
     string(3) "BMW"
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(5)
   }
   [5]=>
-  array(4) {
+  array(5) {
     ["_id"]=>
     string(1) "7"
     ["job"]=>
@@ -132,6 +142,8 @@ array(6) {
     string(3) "BMW"
     ["name"]=>
     string(6) "ENTITY"
+    ["ordinal"]=>
+    int(7)
   }
 }
 done!%A

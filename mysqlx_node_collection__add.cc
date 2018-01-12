@@ -369,7 +369,7 @@ assign_doc_id_to_json(
 
 			if (!doc_id_string_type) {
 				phputils::log_warning(
-					"_id '" + phputils::to_string(doc_id) + "' passed as non-string value");
+					"_id '" + phputils::to_string(doc_id) + "' provided as non-string value");
 				phputils::json::ensure_doc_id_as_string(doc_id, doc);
 			}
 
