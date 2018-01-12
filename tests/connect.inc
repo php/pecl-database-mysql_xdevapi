@@ -180,6 +180,11 @@
 	*/
 	if(!function_exists('fill_db_collection')){
 		function fill_db_collection($coll, $extended_set = false) {
+			global $test_collection_name;
+			$coll->createIndex(
+				$test_collection_name.'ordinal_index',
+				'{"fields": [{"field": "$.ordinal", "type": "INTEGER", "required": false}], "unique": false}');
+
 			$coll->add('{"_id": "1", "ordinal":  1, "name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
 			$coll->add('{"_id": "2", "ordinal":  2, "name": "Lonardo",    "age": 59, "job": "Paninaro"}')->execute();
 			$coll->add('{"_id": "3", "ordinal":  3, "name": "Riccardo",   "age": 27, "job": "Cantante"}')->execute();

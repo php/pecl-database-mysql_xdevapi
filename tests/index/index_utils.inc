@@ -12,7 +12,7 @@ function expect_index($index_name, $exists, $stack_frame_depth = 2) {
 
 	$query = "SHOW INDEX FROM test_collection FROM $db WHERE Key_name='$index_name'";
 	$res = $nodeSession->executeSql($query);
-	expect_eq($res->hasData(), $exists, 'exists index ' + $index_name, $stack_frame_depth);
+	expect_eq($res->hasData(), $exists, 'exists index '.$index_name, $stack_frame_depth);
 }
 
 // -------

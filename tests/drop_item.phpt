@@ -14,7 +14,7 @@ mysqlx drop schema, table, collection, collection index, view
 	$collection = $schema->getCollection($test_collection_name);
 
 	$indexName = "name_index";
-	$collection->createIndex($indexName, false)->field("$.name", "TEXT(15)", true)->execute();
+	$collection->createIndex($indexName, '{"fields": [{"field": "$.name", "type": "TEXT(25)", "required": true}], "unique": false}');
 	expect_true($collection->dropIndex($indexName));
 	expect_false($collection->dropIndex($indexName));
 
