@@ -14,13 +14,13 @@ mysqlx collection modify sort/replace/merge
 	$obj = $coll->modify('age > :age1 and age < :age2')->bind(['age1' => 25, 'age2' => 40]);
 	$data = $obj->sort(['_id desc'])->limit(2)->replace('job', 'Disoccupato')->execute();
 
-	var_dump($coll->find('job like \'Disoccupato\'')->execute()->fetchAll());
+	var_dump($coll->find("job like 'Disoccupato'")->execute()->fetchAll());
 
-	$coll->remove('(_id > 1 and _id < 8) or (_id > 11 and _id < 15)')->execute();
-	$coll->modify('_id >= 1 and _id <= 9')->unset(['age'])->execute();
+	$coll->remove('(CAST(_id AS SIGNED) > 1 and CAST(_id AS SIGNED) < 8) or (CAST(_id AS SIGNED) > 11 and CAST(_id AS SIGNED) < 15)')->execute();
+	$coll->modify('CAST(_id AS SIGNED) >= 1 and CAST(_id AS SIGNED) <= 9')->unset(['age'])->execute();
 	$coll->modify('true')->sort('name desc', 'age asc')->limit(4)->set('Married', 'NO')->execute();
 
-	$coll->modify('Married like \'NO\'')->merge('{\'Divorced\' : \'NO\', \'Vegan\' : \'YES\'}')->execute();
+	$coll->modify("Married like 'NO'")->merge("{'Divorced' : 'NO', 'Vegan' : 'YES'}")->execute();
 
 	var_dump($coll->find()->execute()->fetchAll());
 	print "done!\n";
@@ -35,7 +35,7 @@ array(3) {
   [0]=>
   array(4) {
     ["_id"]=>
-    int(10)
+    string(2) "10"
     ["age"]=>
     int(29)
     ["job"]=>
@@ -46,7 +46,7 @@ array(3) {
   [1]=>
   array(4) {
     ["_id"]=>
-    int(7)
+    string(1) "7"
     ["age"]=>
     int(27)
     ["job"]=>
@@ -57,7 +57,7 @@ array(3) {
   [2]=>
   array(4) {
     ["_id"]=>
-    int(9)
+    string(1) "9"
     ["age"]=>
     int(35)
     ["job"]=>
@@ -70,7 +70,7 @@ array(7) {
   [0]=>
   array(6) {
     ["_id"]=>
-    int(1)
+    string(1) "1"
     ["job"]=>
     string(13) "Programmatore"
     ["name"]=>
@@ -85,7 +85,7 @@ array(7) {
   [1]=>
   array(4) {
     ["_id"]=>
-    int(10)
+    string(2) "10"
     ["age"]=>
     int(29)
     ["job"]=>
@@ -96,7 +96,7 @@ array(7) {
   [2]=>
   array(7) {
     ["_id"]=>
-    int(11)
+    string(2) "11"
     ["age"]=>
     int(47)
     ["job"]=>
@@ -113,7 +113,7 @@ array(7) {
   [3]=>
   array(4) {
     ["_id"]=>
-    int(15)
+    string(2) "15"
     ["age"]=>
     int(37)
     ["job"]=>
@@ -124,7 +124,7 @@ array(7) {
   [4]=>
   array(7) {
     ["_id"]=>
-    int(16)
+    string(2) "16"
     ["age"]=>
     int(23)
     ["job"]=>
@@ -141,7 +141,7 @@ array(7) {
   [5]=>
   array(3) {
     ["_id"]=>
-    int(8)
+    string(1) "8"
     ["job"]=>
     string(8) "Studente"
     ["name"]=>
@@ -150,7 +150,7 @@ array(7) {
   [6]=>
   array(6) {
     ["_id"]=>
-    int(9)
+    string(1) "9"
     ["job"]=>
     string(11) "Disoccupato"
     ["name"]=>

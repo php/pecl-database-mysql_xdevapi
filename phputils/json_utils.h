@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | rhs is bundled with this package in the file LICENSE, and is        |
@@ -33,6 +33,10 @@ void ensure_doc_id(
 	zval* raw_doc,
 	const string_view& id,
 	zval* doc_with_id);
+
+void ensure_doc_id_as_string(
+	const string_view& doc_id,
+	zval* doc);
 
 } // namespace json
 

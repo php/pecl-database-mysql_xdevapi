@@ -180,34 +180,34 @@
 	*/
 	if(!function_exists('fill_db_collection')){
 		function fill_db_collection($coll, $extended_set = false) {
-			$coll->add('{"_id": 1, "name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
-			$coll->add('{"_id": 2, "name": "Lonardo",    "age": 59, "job": "Paninaro"}')->execute();
-			$coll->add('{"_id": 3, "name": "Riccardo",   "age": 27, "job": "Cantante"}')->execute();
-			$coll->add('{"_id": 4, "name": "Carlotta",   "age": 23, "job": "Programmatrice"}')->execute();
-			$coll->add('{"_id": 5, "name": "Carlo",      "age": 25, "job": "Programmatore"}')->execute();
-			$coll->add('{"_id": 6, "name": "Mariangela", "age": 41, "job": "Programmatrice"}')->execute();
-			$coll->add('{"_id": 7, "name": "Alfredo",    "age": 27, "job": "Programmatore"}')->execute();
-			$coll->add('{"_id": 8, "name": "Antonella",  "age": 42, "job": "Studente"}')->execute();
-			$coll->add('{"_id": 9, "name": "Monica",     "age": 35, "job": "Ballerino"}')->execute();
-			$coll->add('{"_id":10, "name": "Giulio",     "age": 29, "job": "Disoccupato"}')->execute();
-			$coll->add('{"_id":11, "name": "Lucia",      "age": 47, "job": "Barista"}')->execute();
-			$coll->add('{"_id":12, "name": "Filippo",    "age": 31, "job": "Spazzino"}')->execute();
-			$coll->add('{"_id":13, "name": "Alessandra", "age": 15, "job": "Barista"}')->execute();
-			$coll->add('{"_id":14, "name": "Massimo",    "age": 22, "job": "Programmatore"}')->execute();
-			$coll->add('{"_id":15, "name": "Carlo",      "age": 37, "job": "Calciatore"}')->execute();
-			$coll->add('{"_id":16, "name": "Leonardo",   "age": 23, "job": "Programmatore"}')->execute();
+			$coll->add('{"_id": "1", "name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
+			$coll->add('{"_id": "2", "name": "Lonardo",    "age": 59, "job": "Paninaro"}')->execute();
+			$coll->add('{"_id": "3", "name": "Riccardo",   "age": 27, "job": "Cantante"}')->execute();
+			$coll->add('{"_id": "4", "name": "Carlotta",   "age": 23, "job": "Programmatrice"}')->execute();
+			$coll->add('{"_id": "5", "name": "Carlo",      "age": 25, "job": "Programmatore"}')->execute();
+			$coll->add('{"_id": "6", "name": "Mariangela", "age": 41, "job": "Programmatrice"}')->execute();
+			$coll->add('{"_id": "7", "name": "Alfredo",    "age": 27, "job": "Programmatore"}')->execute();
+			$coll->add('{"_id": "8", "name": "Antonella",  "age": 42, "job": "Studente"}')->execute();
+			$coll->add('{"_id": "9", "name": "Monica",     "age": 35, "job": "Ballerino"}')->execute();
+			$coll->add('{"_id":"10", "name": "Giulio",     "age": 29, "job": "Disoccupato"}')->execute();
+			$coll->add('{"_id":"11", "name": "Lucia",      "age": 47, "job": "Barista"}')->execute();
+			$coll->add('{"_id":"12", "name": "Filippo",    "age": 31, "job": "Spazzino"}')->execute();
+			$coll->add('{"_id":"13", "name": "Alessandra", "age": 15, "job": "Barista"}')->execute();
+			$coll->add('{"_id":"14", "name": "Massimo",    "age": 22, "job": "Programmatore"}')->execute();
+			$coll->add('{"_id":"15", "name": "Carlo",      "age": 37, "job": "Calciatore"}')->execute();
+			$coll->add('{"_id":"16", "name": "Leonardo",   "age": 23, "job": "Programmatore"}')->execute();
 
 			if (!$extended_set) return;
 
-			$coll->add('{"_id":17, "name": "Andrea",     "age": 58, "job": "Cantante"}')->execute();
-			$coll->add('{"_id":18, "name": "Francesco",  "age": 40, "job": "Calciatore"}')->execute();
-			$coll->add('{"_id":19, "name": "Dino",       "age": 75, "job": "Portiere"}')->execute();
-			$coll->add('{"_id":20, "name": "Monica",     "age": 52, "job": "Attrice e modella"}')->execute();
-			$coll->add('{"_id":21, "name": "Fabio",      "age": 59, "job": "Pilota automobilistico"}')->execute();
-			$coll->add('{"_id":22, "name": "Gianluigi",  "age": 39, "job": "Portiere"}')->execute();
-			$coll->add('{"_id":23, "name": "Sophia",     "age": 82, "job": "Attrice"}')->execute();
-			$coll->add('{"_id":24, "name": "Enzo",       "age": 90, "job": "Ferrari"}')->execute();
-			$coll->add('{"_id":25, "name": "Sergio",     "age": 65, "job": "Direzione aziendale"}')->execute();
+			$coll->add('{"_id":"17", "name": "Andrea",     "age": 58, "job": "Cantante"}')->execute();
+			$coll->add('{"_id":"18", "name": "Francesco",  "age": 40, "job": "Calciatore"}')->execute();
+			$coll->add('{"_id":"19", "name": "Dino",       "age": 75, "job": "Portiere"}')->execute();
+			$coll->add('{"_id":"20", "name": "Monica",     "age": 52, "job": "Attrice e modella"}')->execute();
+			$coll->add('{"_id":"21", "name": "Fabio",      "age": 59, "job": "Pilota automobilistico"}')->execute();
+			$coll->add('{"_id":"22", "name": "Gianluigi",  "age": 39, "job": "Portiere"}')->execute();
+			$coll->add('{"_id":"23", "name": "Sophia",     "age": 82, "job": "Attrice"}')->execute();
+			$coll->add('{"_id":"24", "name": "Enzo",       "age": 90, "job": "Ferrari"}')->execute();
+			$coll->add('{"_id":"25", "name": "Sergio",     "age": 65, "job": "Direzione aziendale"}')->execute();
 
 		}
 	}

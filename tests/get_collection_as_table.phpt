@@ -65,14 +65,14 @@ array(9) {
     ["_id"]=>
     string(1) "5"
     ["doc"]=>
-    string(62) "{"_id": 5, "age": 25, "job": "Programmatore", "name": "Carlo"}"
+    string(64) "{"_id": "5", "age": 25, "job": "Programmatore", "name": "Carlo"}"
   }
   [5]=>
   array(2) {
     ["_id"]=>
     string(1) "6"
     ["doc"]=>
-    string(68) "{"_id": 6, "age": 41, "job": "Programmatrice", "name": "Mariangela"}"
+    string(70) "{"_id": "6", "age": 41, "job": "Programmatrice", "name": "Mariangela"}"
   }
   [6]=>
   array(2) {
@@ -86,14 +86,14 @@ array(9) {
     ["_id"]=>
     string(1) "8"
     ["doc"]=>
-    string(61) "{"_id": 8, "age": 42, "job": "Studente", "name": "Antonella"}"
+    string(63) "{"_id": "8", "age": 42, "job": "Studente", "name": "Antonella"}"
   }
   [8]=>
   array(2) {
     ["_id"]=>
     string(1) "9"
     ["doc"]=>
-    string(59) "{"_id": 9, "age": 35, "job": "Ballerino", "name": "Monica"}"
+    string(61) "{"_id": "9", "age": 35, "job": "Ballerino", "name": "Monica"}"
   }
 }
 done!%A
