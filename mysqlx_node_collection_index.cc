@@ -106,13 +106,13 @@ boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
 	auto index_type = index_desc.get_optional<phputils::string>("type");
 	if (!index_type) return boost::optional<Index_definition::Type>();
 
-	using Str_to_type = std::map<phputils::string, Index_definition::Type>;
+	using Str_to_type = std::map<std::string, Index_definition::Type>;
 	static const Str_to_type str_to_type = {
 		{ "INDEX", Index_definition::Type::Index },
 		{ "SPATIAL", Index_definition::Type::Spatial }
 	};
 
-	auto it = str_to_type.find(index_type.get());
+	auto it = str_to_type.find(phputils::to_std_string(index_type.get()));
 	if (it == str_to_type.end()) {
 		throw std::invalid_argument("incorrect index type");
 	}

@@ -75,13 +75,13 @@ Index_definition::Index_definition(const phputils::string_view& index_name)
 
 boost::optional<phputils::string> Index_definition::get_type_str() const
 {
-	using Type_to_str = std::map<Index_definition::Type, phputils::string>;
+	using Type_to_str = std::map<Index_definition::Type, std::string>;
 	static const Type_to_str type_to_str = {
 		{ Index_definition::Type::Index, "INDEX" },
 		{ Index_definition::Type::Spatial, "SPATIAL" }
 	};
 
-	if (type) return type_to_str.at(type.get());
+	if (type) return phputils::to_string(type_to_str.at(type.get()));
 	return boost::optional<phputils::string>();
 }
 
