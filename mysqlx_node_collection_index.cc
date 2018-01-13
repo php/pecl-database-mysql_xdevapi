@@ -155,7 +155,7 @@ void Index_definition_parser::verify_field_traits(ptree& field_description)
 
 void Index_definition_parser::verify_field_trait(const phputils::string& field_trait_name)
 {
-	static const phputils::stringset allowed_traits{
+	static const std::set<std::string> allowed_traits{
 		"field",
 		"type",
 		"required",
@@ -164,7 +164,7 @@ void Index_definition_parser::verify_field_trait(const phputils::string& field_t
 		"srid"
 	};
 
-	if (!allowed_traits.count(field_trait_name)) {
+	if (!allowed_traits.count(phputils::to_std_string(field_trait_name))) {
 		throw std::invalid_argument(std::string("unsupported field trait '") + phputils::to_std_string(field_trait_name) + "" );
 	}
 }
