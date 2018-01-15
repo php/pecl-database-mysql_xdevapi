@@ -147,7 +147,7 @@ Supported X DevAPI features
 ---------------------------
 - collections API - add, find, modify, remove
 - collection single doc API - getOne, replaceOne, addOrReplaceOne, removeOne
-- table API - create, insert, select, update, delete
+- table API - insert, select, update, delete
 - row locking for Collection.Find / Table.Select
 - view API - create, alter, drop
 - collection / table - getName, existsInDatabase, count
