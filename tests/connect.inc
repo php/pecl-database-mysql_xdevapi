@@ -271,17 +271,31 @@
 	// ----------------------------------------------------------------------
 
 	/*
-		Used to get info (filename / line number) of specified stack frame
+		Used to get backtrace in easy to read form (filename / line number)
 	*/
-	if (!function_exists('get_stack_frame_info')) {
-		function get_stack_frame_info($depth = 1) {
+	if (!function_exists('get_backtrace')) {
+		function get_backtrace() {
+			$backtrace_log = '';
 			$backtrace = debug_backtrace();
-			assert($depth <= count($backtrace));
-			$frame_info = $backtrace[$depth];
-			$full_path = $frame_info["file"];
-			$filename = pathinfo($full_path, PATHINFO_BASENAME);
-			$line_num = $frame_info["line"];
-			return $filename.'('.$line_num.')';
+			$frames_count = count($backtrace);
+			$prev_filename = null;
+ 			for ($i = 0; $i < $frames_count; ++$i) {
+				if ($prev_filename) {
+					$backtrace_log .= "=>";
+				}
+
+				$frame_info = $backtrace[$i];
+				$full_path = $frame_info["file"];
+				$filename = pathinfo($full_path, PATHINFO_BASENAME);
+				if ($prev_filename != $filename) {
+					$backtrace_log .= $filename;
+					$prev_filename = $filename;
+				}
+
+				$line_num = $frame_info["line"];
+				$backtrace_log .= "(".$line_num.")";
+			}
+			return $backtrace_log;
 		}
 	}
 
@@ -309,7 +323,7 @@
 			if (preg_match($pattern, $target)) {
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info().': \''.$target.'\' does not match pattern \''.$pattern.'\' '.$hint.PHP_EOL;
+				print get_backtrace().': \''.$target.'\' does not match pattern \''.$pattern.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -319,7 +333,7 @@
 		Used to compare expected values with actual values
 	*/
 	if( !function_exists('expect_eq')) {
-		function expect_eq($target, $expectation, $hint = '', $stack_frame_depth = 1) {
+		function expect_eq($target, $expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -328,7 +342,7 @@
 			if( $target == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info($stack_frame_depth).': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
+				print get_backtrace().': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -337,7 +351,7 @@
 		Used to compare expected a boolean value being true
 	*/
 	if( !function_exists('expect_true')) {
-		function expect_true($expectation, $hint = '', $stack_frame_depth = 1) {
+		function expect_true($expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -346,7 +360,7 @@
 			if( true == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info($stack_frame_depth).': true expected '.$hint.PHP_EOL;
+				print get_backtrace().': true expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -355,7 +369,7 @@
 		Used to compare expected a boolean value being false
 	*/
 	if( !function_exists('expect_false')) {
-		function expect_false($expectation, $hint = '', $stack_frame_depth = 1) {
+		function expect_false($expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -364,7 +378,7 @@
 			if( false == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info($stack_frame_depth).': false expected '.$hint.PHP_EOL;
+				print get_backtrace().': false expected '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -373,7 +387,7 @@
 		Used to compare expected a null value
 	*/
 	if( !function_exists('expect_null')) {
-		function expect_null($expectation, $hint = '', $stack_frame_depth = 1) {
+		function expect_null($expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -382,7 +396,7 @@
 			if( null == $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info($stack_frame_depth).
+				print get_backtrace().
 					': null expected instead of '.$expectation.' ('.$hint.')'.PHP_EOL;
 				$test_result_string .= '0';
 			}
@@ -394,7 +408,7 @@
 		$expectation may be scalar or array
 	*/
 	if( !function_exists('expect_eq_or_in')) {
-		function expect_eq_or_in($target, $expectation, $hint = '', $stack_frame_depth = 1) {
+		function expect_eq_or_in($target, $expectation, $hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
@@ -405,7 +419,7 @@
 			if ($is_equal) {
 				$test_result_string .= '1';
 			} else {
-				print get_stack_frame_info($stack_frame_depth).': \''.$target.'\' != \''.to_string($expectation).'\' '.$hint.PHP_EOL;
+				print get_backtrace().': \''.$target.'\' != \''.to_string($expectation).'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
@@ -416,11 +430,11 @@
 		to the test
 	*/
 	if( !function_exists('test_step_failed')) {
-		function test_step_failed($hint = '', $stack_frame_depth = 1) {
+		function test_step_failed($hint = '') {
 			global $number_of_expectations;
 			global $test_result_string;
 
-			print get_stack_frame_info($stack_frame_depth).': test step failed '.$hint.PHP_EOL;
+			print get_backtrace().': test step failed '.$hint.PHP_EOL;
 
 			$number_of_expectations++;
 			$test_result_string .= 'F';
@@ -458,16 +472,16 @@
 		}
 	}
 	/*
-	        Return true if no expectation are broken
+			Return true if no expectation are broken
 	*/
 	if( !function_exists('any_expectation_broken')) {
-	        function any_expectation_broken() {
-		        global $number_of_expectations;
+		function any_expectation_broken() {
+			global $number_of_expectations;
 			global $test_result_string;
 
-                        $expected = str_repeat( '1', $number_of_expectations );
+			$expected = str_repeat( '1', $number_of_expectations );
 			if( $expected != $test_result_string) {
-			        return true;
+					return true;
 			}
 			return false;
 		}

@@ -6,7 +6,7 @@ error_reporting=0
 --FILE--
 <?php
 	require_once(__DIR__."/../connect.inc");
-	require_once(__DIR__."/mysqlx_row_locking.inc");
+	require_once(__DIR__."/row_locking_utils.inc");
 
 	assert_mysql_xdevapi_loaded();
 
