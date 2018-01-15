@@ -19,7 +19,7 @@
 #include "mysqlx_crud_operation_sortable.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 

@@ -36,8 +36,8 @@ extern "C" {
 #include "mysqlx_executable.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__remove.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -75,7 +75,7 @@ ZEND_END_ARG_INFO()
 bool Collection_remove::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_view& search_expression)
+	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll || search_expression.empty()) return false;
 	object_zv = obj_zv;
@@ -171,7 +171,7 @@ void Collection_remove::limit(
 		DBG_VOID_RETURN;
 	}
 
-	Collection_remove& coll_remove = phputils::fetch_data_object<Collection_remove>(object_zv);
+	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 
 	RETVAL_FALSE;
 
@@ -280,7 +280,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, sort)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_remove& coll_remove = phputils::fetch_data_object<Collection_remove>(object_zv);
+	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 	coll_remove.sort(sort_expr, num_of_expr, return_value);
 
 	DBG_VOID_RETURN;
@@ -307,7 +307,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, limit)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_remove& coll_remove = phputils::fetch_data_object<Collection_remove>(object_zv);
+	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 	coll_remove.limit(rows, return_value);
 
 	DBG_VOID_RETURN;
@@ -329,7 +329,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, bind)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_remove& coll_remove = phputils::fetch_data_object<Collection_remove>(object_zv);
+	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 	coll_remove.bind(bind_variables, return_value);
 
 	DBG_VOID_RETURN;
@@ -349,7 +349,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__remove, execute)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_remove& coll_remove = phputils::fetch_data_object<Collection_remove>(object_zv);
+	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 	coll_remove.execute(return_value);
 
 	DBG_VOID_RETURN;
@@ -383,7 +383,7 @@ const st_mysqlx_property_entry collection_remove_property_entries[] =
 static void
 mysqlx_node_collection__remove_free_storage(zend_object* object)
 {
-	phputils::free_object<Collection_remove>(object);
+	util::free_object<Collection_remove>(object);
 }
 /* }}} */
 
@@ -393,7 +393,7 @@ static zend_object *
 php_mysqlx_node_collection__remove_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("php_mysqlx_collection__remove_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<Collection_remove>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<Collection_remove>(
 		class_type,
 		&collection_remove_handlers,
 		&collection_remove_properties);
@@ -437,7 +437,7 @@ mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_collection__remove(
 	zval* return_value,
-	const phputils::string_view& search_expression,
+	const util::string_view& search_expression,
 	XMYSQLND_NODE_COLLECTION* collection)
 {
 	DBG_ENTER("mysqlx_new_node_collection__remove");

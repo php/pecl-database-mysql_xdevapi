@@ -29,7 +29,7 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 
 #include "mysqlx_message__stmt_execute_ok.h"
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 

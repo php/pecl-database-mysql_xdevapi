@@ -15,49 +15,48 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#include "php_api.h"
-extern "C" {
-#include <ext/standard/url.h>
-}
-#include "url_utils.h"
-#include "string_utils.h"
+#ifndef MYSQL_XDEVAPI_PHP_TYPES_H
+#define MYSQL_XDEVAPI_PHP_TYPES_H
+
+#include <deque>
+#include <map>
+#include <set>
+#include <stack>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+#include "allocator.h"
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-/* {{{ Url::Url */
-Url::Url(const php_url* phpurl)
-	: scheme(to_string(phpurl->scheme))
-	, user(to_string(phpurl->user))
-	, pass(to_string(phpurl->pass))
-	, host(to_string(phpurl->host))
-	, port(phpurl->port)
-	, path(to_string(phpurl->path))
-	, query(to_string(phpurl->query))
-	, fragment(to_string(phpurl->fragment))
-{
-}
-/* }}} */
+template<typename T>
+using vector = std::vector<T, allocator<T>>;
 
+template<typename Key, typename T, typename Compare = std::less<Key>>
+using map = std::map<Key, T, Compare, allocator<std::pair<const Key, T>>>;
 
-/* {{{ Url::empty */
-bool Url::empty() const
-{
-	return scheme.empty()
-		&& user.empty()
-		&& pass.empty()
-		&& host.empty()
-		&& (port == 0)
-		&& path.empty()
-		&& query.empty()
-		&& fragment.empty();
-}
-/* }}} */
+template<typename Key, typename Compare = std::less<Key>>
+using set = std::set<Key, Compare, allocator<Key>>;
 
-} // namespace phputils
+template<typename Key, typename T, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
+using unordered_map = std::unordered_map<Key, T, Hash, KeyEqual, allocator<std::pair<const Key, T>>>;
+
+template<typename Key, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
+using unordered_set = std::unordered_set<Key, Hash, KeyEqual, allocator<Key>>;
+
+template<typename T>
+using deque = std::deque<T, std::allocator<T>>;
+
+template<typename T, typename Container = deque<T>>
+using stack = std::stack<T, Container>;
+
+} // namespace util
 
 } // namespace mysqlx
+
+#endif // MYSQL_XDEVAPI_PHP_TYPES_H
 
 /*
  * Local variables:

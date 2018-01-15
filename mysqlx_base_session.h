@@ -19,7 +19,7 @@
 #define MYSQLX_BASE_SESSION_H
 
 #include "xmysqlnd/xmysqlnd_node_session.h"
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -27,7 +27,7 @@ namespace devapi {
 
 extern zend_class_entry *mysqlx_base_session_class_entry;
 
-struct st_mysqlx_session : public phputils::custom_allocable
+struct st_mysqlx_session : public util::custom_allocable
 {
 	drv::XMYSQLND_NODE_SESSION * session;
 	zend_bool closed;

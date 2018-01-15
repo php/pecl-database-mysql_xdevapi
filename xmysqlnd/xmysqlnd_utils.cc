@@ -132,7 +132,7 @@ const unsigned char os_toebcdic[256] = {
 };
 
 /* {{{ pct_to_char */
-static char pct_to_char( const phputils::string& str,
+static char pct_to_char( const util::string& str,
 		  const std::size_t idx )
 {
 	char value;
@@ -154,11 +154,11 @@ static char pct_to_char( const phputils::string& str,
 
 
 /* {{{ decode_pct_path */
-phputils::string
-decode_pct_path(const phputils::string& encoded_path)
+util::string
+decode_pct_path(const util::string& encoded_path)
 {
 	const std::size_t encoded_size = encoded_path.size();
-	phputils::string decoded_path;
+	util::string decoded_path;
 
 	for( std::size_t i{ 0 } ; i < encoded_size ; ++i) {
 	if ( encoded_path[ i ] == '%' &&

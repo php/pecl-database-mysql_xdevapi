@@ -37,7 +37,7 @@ extern "C" {
 #include "xmysqlnd/proto_gen/mysqlx_connection.pb.h"
 #include "mysqlx_message__error.h"
 
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 

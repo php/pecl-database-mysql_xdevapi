@@ -15,41 +15,61 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#include "php_api.h"
-extern "C" {
-#include <zend_exceptions.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
-#include "mysqlx_class_properties.h"
-#include "object.h"
+#ifndef MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
+#define MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
+
+#include <cstddef>
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-/* {{{ mysqlx::phputils::safe_call_php_method */
-void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
+struct string_view;
+
+/* {{{ Hash_table */
+class Hash_table
 {
-	MYSQL_XDEVAPI_TRY {
-		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-	} MYSQL_XDEVAPI_CATCH
-}
+	public:
+		Hash_table(std::size_t hint_size = 0);
+		Hash_table(zval* zv, bool owner);
+		~Hash_table();
+
+		// temporarily disabled
+		Hash_table(const Hash_table&) = delete;
+		Hash_table& operator=(const Hash_table&) = delete;
+
+	public:
+		bool empty() const;
+		std::size_t size() const;
+		void clear();
+
+		HashTable* ptr();
+		zval* zv_ptr();
+
+	public:
+		zval* find(const long key);
+		zval* find(const string_view& key);
+
+	public:
+		void insert(const char* key, const string_view& value);
+		void insert(const char* key, std::size_t key_len, const string_view& value);
+		void insert(const char* key, zval* value);
+
+		void erase(const char* key);
+		void erase(const long key);
+
+	private:
+		bool owner{false};
+		HashTable* ht{nullptr};
+
+};
 /* }}} */
 
-/* {{{ mysqlx::phputils::safe_call_php_function */
-void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS)
-{
-	MYSQL_XDEVAPI_TRY {
-		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-	} MYSQL_XDEVAPI_CATCH
-}
-/* }}} */
-
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
+
+#endif // MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
 
 /*
  * Local variables:

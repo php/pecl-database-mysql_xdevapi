@@ -38,7 +38,7 @@ extern "C" {
 #include "mysqlx_message__auth_continue.h"
 #include "mysqlx_message__auth_ok.h"
 
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 

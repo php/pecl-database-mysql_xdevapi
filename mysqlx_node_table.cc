@@ -35,8 +35,8 @@ extern "C" {
 #include "mysqlx_node_table__select.h"
 #include "mysqlx_node_table__update.h"
 #include "mysqlx_node_table.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -92,7 +92,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__delete, 0, ZEND_RETURN_VALUE, 
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table : public phputils::custom_allocable
+struct st_mysqlx_node_table : public util::custom_allocable
 {
 	XMYSQLND_NODE_TABLE * table;
 };
@@ -134,7 +134,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSession)
 
 	RETVAL_FALSE;
 
-	throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::not_implemented);
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::not_implemented);
 
 	if (object->table) {
 
@@ -237,7 +237,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, isView)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_table>(object_zv);
 
 	XMYSQLND_NODE_TABLE * table = data_object.table;
 	if (table) {
@@ -549,7 +549,7 @@ static zend_object *
 php_mysqlx_node_table_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_table_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_table>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_table>(
 		class_type,
 		&mysqlx_object_node_table_handlers,
 		&mysqlx_node_table_properties);

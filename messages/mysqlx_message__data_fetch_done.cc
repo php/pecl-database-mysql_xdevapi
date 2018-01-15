@@ -28,7 +28,7 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_message__data_fetch_done.h"
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 

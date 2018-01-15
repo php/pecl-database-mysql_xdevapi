@@ -39,9 +39,9 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__modify.h"
 #include "mysqlx_exception.h"
-#include "phputils/allocator.h"
-#include "phputils/json_utils.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/json_utils.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -115,7 +115,7 @@ ZEND_END_ARG_INFO()
 bool Collection_modify::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_view& search_expression)
+	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll || search_expression.empty()) return false;
 
@@ -278,7 +278,7 @@ void Collection_modify::bind(
 /* {{{ Collection_modify::add_operation */
 void Collection_modify::add_operation(
 	Operation operation,
-	const phputils::string_view& path,
+	const util::string_view& path,
 	const bool is_document,
 	zval* raw_value,
 	zval* return_value)
@@ -314,7 +314,7 @@ void Collection_modify::add_operation(
 			break;
 
 		case IS_ARRAY:
-			phputils::json::to_zv_string(raw_value, &converted_value);
+			util::json::to_zv_string(raw_value, &converted_value);
 			value = &converted_value;
 			break;
 
@@ -363,7 +363,7 @@ void Collection_modify::add_operation(
 
 /* {{{ Collection_modify::set() */
 void Collection_modify::set(
-	const phputils::string_view& path,
+	const util::string_view& path,
 	const bool is_document,
 	zval* value,
 	zval* return_value)
@@ -435,7 +435,7 @@ void Collection_modify::unset(
 
 /* {{{ Collection_modify::replace() */
 void Collection_modify::replace(
-	const phputils::string_view& path,
+	const util::string_view& path,
 	zval* value,
 	zval* return_value)
 {
@@ -448,7 +448,7 @@ void Collection_modify::replace(
 
 /* {{{ Collection_modify::merge() */
 void Collection_modify::merge(
-	const phputils::string_view& document_contents,
+	const util::string_view& document_contents,
 	zval* return_value)
 {
 	DBG_ENTER("Collection_modify::merge");
@@ -470,7 +470,7 @@ void Collection_modify::merge(
 
 /* {{{ Collection_modify::patch() */
 void Collection_modify::patch(
-	const phputils::string_view &document_contents,
+	const util::string_view &document_contents,
 	zval* return_value)
 {
     DBG_ENTER("Collection_modify::patch");
@@ -492,7 +492,7 @@ void Collection_modify::patch(
 
 /* {{{ Collection_modify::arrayInsert() */
 void Collection_modify::arrayInsert(
-	const phputils::string_view& path,
+	const util::string_view& path,
 	zval* value,
 	zval* return_value)
 {
@@ -505,7 +505,7 @@ void Collection_modify::arrayInsert(
 
 /* {{{ Collection_modify::arrayAppend() */
 void Collection_modify::arrayAppend(
-	const phputils::string_view& path,
+	const util::string_view& path,
 	zval* value,
 	zval* return_value)
 {
@@ -518,7 +518,7 @@ void Collection_modify::arrayAppend(
 
 /* {{{ Collection_modify::arrayDelete() */
 void Collection_modify::arrayDelete(
-	const phputils::string_view& array_index_path,
+	const util::string_view& array_index_path,
 	zval* return_value)
 {
 	DBG_ENTER("Collection_modify::arrayDelete");
@@ -601,7 +601,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, sort)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.sort(sort_expr, num_of_expr, return_value);
 
 	DBG_VOID_RETURN;
@@ -624,7 +624,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, limit)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.limit(rows, return_value);
 
 	DBG_VOID_RETURN;
@@ -652,7 +652,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, skip)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.skip(position, return_value);
 
 	DBG_VOID_RETURN;
@@ -675,7 +675,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, bind)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.bind(bind_variables, return_value);
 
 	DBG_VOID_RETURN;
@@ -692,7 +692,7 @@ mysqlx_node_collection__modify__2_param_op(
 {
 	zval* object_zv{nullptr};
 	zval* value{nullptr};
-	phputils::string_view path;
+	util::string_view path;
 
 	DBG_ENTER("mysqlx_node_collection__modify__2_param_op");
 
@@ -706,7 +706,7 @@ mysqlx_node_collection__modify__2_param_op(
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.add_operation(operation, path, is_document, value, return_value);
 
 	DBG_VOID_RETURN;
@@ -740,7 +740,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, replace)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, merge)
 {
 	zval* object_zv{nullptr};
-	phputils::string_view document_contents;
+	util::string_view document_contents;
 
 	DBG_ENTER("mysqlx_node_collection__modify::merge");
 
@@ -752,7 +752,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, merge)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.merge(document_contents, return_value);
 
 	DBG_VOID_RETURN;
@@ -764,7 +764,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, merge)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, patch)
 {
     zval* object_zv = nullptr;
-	phputils::string_view document_contents;
+	util::string_view document_contents;
 
     DBG_ENTER("mysqlx_node_collection__modify::patch");
 
@@ -776,7 +776,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, patch)
         DBG_VOID_RETURN;
     }
 
-    Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+    Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
     coll_modify.patch(document_contents, return_value);
 
     DBG_VOID_RETURN;
@@ -810,7 +810,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayAppend)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayDelete)
 {
 	zval* object_zv{nullptr};
-	phputils::string_view array_index_path;
+	util::string_view array_index_path;
 
 	DBG_ENTER("mysqlx_node_collection__modify::arrayDelete");
 
@@ -822,7 +822,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, arrayDelete)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.arrayDelete(array_index_path, return_value);
 
 	DBG_VOID_RETURN;
@@ -849,7 +849,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, unset)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.unset(variables, num_of_variables, return_value);
 
 	DBG_VOID_RETURN;
@@ -870,7 +870,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, execute)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_modify& coll_modify = phputils::fetch_data_object<Collection_modify>(object_zv);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	coll_modify.execute(return_value);
 
 	DBG_VOID_RETURN;
@@ -915,7 +915,7 @@ const st_mysqlx_property_entry collection_modify_property_entries[] =
 static void
 mysqlx_node_collection__modify_free_storage(zend_object* object)
 {
-	phputils::free_object<Collection_modify>(object);
+	util::free_object<Collection_modify>(object);
 }
 /* }}} */
 
@@ -925,7 +925,7 @@ static zend_object *
 php_mysqlx_node_collection__modify_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("php_mysqlx_collection__modify_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<Collection_modify>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<Collection_modify>(
 		class_type,
 		&collection_modify_handlers,
 		&collection_modify_properties);
@@ -970,7 +970,7 @@ mysqlx_unregister_node_collection__modify_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_collection__modify(
 	zval* return_value,
-	const phputils::string_view& search_expression,
+	const util::string_view& search_expression,
 	XMYSQLND_NODE_COLLECTION* collection)
 {
 	DBG_ENTER("mysqlx_new_node_collection__modify");

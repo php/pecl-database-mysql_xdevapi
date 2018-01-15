@@ -18,7 +18,7 @@
 #ifndef MYSQLX_MESSAGE__CAPABILITY_H
 #define MYSQLX_MESSAGE__CAPABILITY_H
 
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -29,7 +29,7 @@ namespace msg {
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_message__capability_class_entry;
 
-struct st_mysqlx_message__capability : phputils::permanent_allocable
+struct st_mysqlx_message__capability : util::permanent_allocable
 {
 	zval capability_name;
 	zval capability_value;

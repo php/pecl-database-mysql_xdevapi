@@ -24,13 +24,13 @@ namespace devapi {
 
 void create_collection_index(
 	drv::st_xmysqlnd_node_collection* collection,
-	const phputils::string_view& index_name,
-	const phputils::string_view& index_desc_json,
+	const util::string_view& index_name,
+	const util::string_view& index_desc_json,
 	zval* return_value);
 
 void drop_collection_index(
 	const drv::st_xmysqlnd_node_collection* collection,
-	const phputils::string_view& index_name,
+	const util::string_view& index_name,
 	zval* return_value);
 
 } // namespace devapi

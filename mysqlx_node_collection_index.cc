@@ -36,10 +36,10 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection_index.h"
 #include "mysqlx_object.h"
-#include "phputils/allocator.h"
-#include "phputils/exceptions.h"
-#include "phputils/object.h"
-#include "phputils/string_utils.h"
+#include "util/allocator.h"
+#include "util/exceptions.h"
+#include "util/object.h"
+#include "util/string_utils.h"
 #include <boost/property_tree/json_parser.hpp>
 
 namespace mysqlx {
@@ -51,15 +51,15 @@ using namespace drv;
 namespace
 {
 
-using ptree = boost::property_tree::basic_ptree<phputils::string, phputils::string>;
+using ptree = boost::property_tree::basic_ptree<util::string, util::string>;
 
 
 class Index_definition_parser
 {
 public:
 	Index_definition_parser(
-		const phputils::string_view& index_name,
-		const phputils::string_view& index_desc_json);
+		const util::string_view& index_name,
+		const util::string_view& index_desc_json);
 
 public:
 	Index_definition run();
@@ -71,7 +71,7 @@ private:
 	Index_field parse_field(ptree& field_description);
 
 	void verify_field_traits(ptree& field_description);
-	void verify_field_trait(const phputils::string& field_trait_name);
+	void verify_field_trait(const util::string& field_trait_name);
 
 	void verify_field(const Index_field& field);
 	void verify_field_path(const Index_field& field);
@@ -86,11 +86,11 @@ private:
 //------------------------------------------------------------------------------
 
 Index_definition_parser::Index_definition_parser(
-	const phputils::string_view& index_name,
-	const phputils::string_view& index_desc_json)
+	const util::string_view& index_name,
+	const util::string_view& index_desc_json)
 	: index_def(index_name)
 {
-	phputils::istringstream is(index_desc_json.to_string());
+	util::istringstream is(index_desc_json.to_string());
 	boost::property_tree::read_json(is, index_desc);
 }
 
@@ -103,7 +103,7 @@ Index_definition Index_definition_parser::run()
 
 boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
 {
-	auto index_type = index_desc.get_optional<phputils::string>("type");
+	auto index_type = index_desc.get_optional<util::string>("type");
 	if (!index_type) return boost::optional<Index_definition::Type>();
 
 	using Str_to_type = std::map<std::string, Index_definition::Type>;
@@ -112,7 +112,7 @@ boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
 		{ "SPATIAL", Index_definition::Type::Spatial }
 	};
 
-	auto it = str_to_type.find(phputils::to_std_string(index_type.get()));
+	auto it = str_to_type.find(util::to_std_string(index_type.get()));
 	if (it == str_to_type.end()) {
 		throw std::invalid_argument("incorrect index type");
 	}
@@ -135,10 +135,10 @@ Index_field Index_definition_parser::parse_field(ptree& field_description)
 {
 	verify_field_traits(field_description);
 	const Index_field field {
-		field_description.get<phputils::string>("field"),
-		field_description.get<phputils::string>("type"),
+		field_description.get<util::string>("field"),
+		field_description.get<util::string>("type"),
 		field_description.get_optional<bool>("required"),
-		field_description.get_optional<phputils::string>("collation"),
+		field_description.get_optional<util::string>("collation"),
 		field_description.get_optional<unsigned int>("options"),
 		field_description.get_optional<unsigned int>("srid")
 	};
@@ -148,12 +148,12 @@ Index_field Index_definition_parser::parse_field(ptree& field_description)
 void Index_definition_parser::verify_field_traits(ptree& field_description)
 {
 	for (auto field_trait : field_description) {
-		const phputils::string& field_trait_name = field_trait.first.data();
+		const util::string& field_trait_name = field_trait.first.data();
 		verify_field_trait(field_trait_name);
 	}
 }
 
-void Index_definition_parser::verify_field_trait(const phputils::string& field_trait_name)
+void Index_definition_parser::verify_field_trait(const util::string& field_trait_name)
 {
 	static const std::set<std::string> allowed_traits{
 		"field",
@@ -164,8 +164,8 @@ void Index_definition_parser::verify_field_trait(const phputils::string& field_t
 		"srid"
 	};
 
-	if (!allowed_traits.count(phputils::to_std_string(field_trait_name))) {
-		throw std::invalid_argument(std::string("unsupported field trait '") + phputils::to_std_string(field_trait_name) + "" );
+	if (!allowed_traits.count(util::to_std_string(field_trait_name))) {
+		throw std::invalid_argument(std::string("unsupported field trait '") + util::to_std_string(field_trait_name) + "" );
 	}
 }
 
@@ -199,8 +199,8 @@ void Index_definition_parser::verify_field_geojson_properties(const Index_field&
 // ---------
 
 Index_definition parse_index_def(
-	const phputils::string_view& index_name,
-	const phputils::string_view& index_desc_json)
+	const util::string_view& index_name,
+	const util::string_view& index_desc_json)
 {
 	Index_definition_parser idx_def_parser(index_name, index_desc_json);
 	return idx_def_parser.run();
@@ -219,7 +219,7 @@ collection_index_on_error(
 	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("collection_index_on_error");
-	throw phputils::xdevapi_exception(code, phputils::string(sql_state.s, sql_state.l), phputils::string(message.s, message.l));
+	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
@@ -230,8 +230,8 @@ collection_index_on_error(
 /* {{{ create_collection_index */
 void create_collection_index(
 	drv::st_xmysqlnd_node_collection* collection,
-	const phputils::string_view& index_name,
-	const phputils::string_view& index_desc_json,
+	const util::string_view& index_name,
+	const util::string_view& index_desc_json,
 	zval* return_value)
 {
 	DBG_ENTER("create_collection_index");
@@ -239,8 +239,8 @@ void create_collection_index(
 	RETVAL_FALSE;
 
 	st_xmysqlnd_node_session* session{collection->data->schema->data->session};
-	const phputils::string_view schema_name{collection->data->schema->data->schema_name};
-	const phputils::string_view collection_name{collection->data->collection_name};
+	const util::string_view schema_name{collection->data->schema->data->schema_name};
+	const util::string_view collection_name{collection->data->collection_name};
 	Index_definition index_def{parse_index_def(index_name, index_desc_json)};
 
 	const st_xmysqlnd_node_session_on_error_bind on_error{ collection_index_on_error, nullptr };
@@ -261,13 +261,13 @@ void create_collection_index(
 /* {{{ drop_collection_index */
 void drop_collection_index(
 	const st_xmysqlnd_node_collection* collection,
-	const phputils::string_view& index_name,
+	const util::string_view& index_name,
 	zval* return_value)
 {
 	try {
 		st_xmysqlnd_node_session* session{collection->data->schema->data->session};
-		const phputils::string_view schema_name{collection->data->schema->data->schema_name};
-		const phputils::string_view collection_name{collection->data->collection_name};
+		const util::string_view schema_name{collection->data->schema->data->schema_name};
+		const util::string_view collection_name{collection->data->collection_name};
 		const st_xmysqlnd_node_session_on_error_bind on_error{ collection_index_on_error, nullptr };
 		RETVAL_BOOL(drv::collection_drop_index_execute(
 			session,
@@ -276,7 +276,7 @@ void drop_collection_index(
 			index_name,
 			on_error));
 	} catch (std::exception& e) {
-		phputils::log_warning(e.what());
+		util::log_warning(e.what());
 		RETVAL_FALSE;
 	}
 }

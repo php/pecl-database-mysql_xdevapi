@@ -33,7 +33,7 @@ extern "C" {
 #include "mysqlx_resultset__column_metadata.h"
 #include "mysqlx_resultset__resultset_metadata.h"
 
-#include "phputils/object.h"
+#include "util/object.h"
 
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/wire_format_lite.h>

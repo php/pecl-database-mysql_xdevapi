@@ -33,9 +33,9 @@ extern "C" {
 #include "mysqlx_node_collection.h"
 #include "mysqlx_node_table.h"
 #include "mysqlx_node_schema.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
-#include "phputils/string_utils.h"
+#include "util/allocator.h"
+#include "util/object.h"
+#include "util/string_utils.h"
 
 namespace mysqlx {
 
@@ -100,7 +100,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__get_collection_as_table, 0, Z
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_schema : public phputils::custom_allocable
+struct st_mysqlx_node_schema : public util::custom_allocable
 {
 	XMYSQLND_NODE_SCHEMA* schema;
 };
@@ -142,7 +142,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getSession)
 
 	RETVAL_FALSE;
 
-	throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::not_implemented);
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::not_implemented);
 
 	if (object->schema) {
 
@@ -272,7 +272,7 @@ const enum_hnd_func_status on_drop_db_object_error(
 	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("on_drop_db_object_error");
-	throw phputils::xdevapi_exception(code, phputils::string(sql_state.s, sql_state.l), phputils::string(message.s, message.l));
+	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
@@ -283,7 +283,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createCollection)
 {
 	st_mysqlx_node_schema* object{nullptr};
 	zval* object_zv{nullptr};
-	phputils::string_view collection_name;
+	util::string_view collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::createCollection");
 	if (FAILURE == zend_parse_method_parameters(
@@ -318,7 +318,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createCollection)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 {
 	zval* object_zv{nullptr};
-	phputils::string_view collection_name;
+	util::string_view collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::dropCollection");
 	if (FAILURE == zend_parse_method_parameters(
@@ -329,13 +329,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_schema>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_schema>(object_zv);
 
 	try {
 		const st_xmysqlnd_node_schema_on_error_bind on_error = { on_drop_db_object_error, nullptr };
 		RETVAL_BOOL(PASS == data_object.schema->data->m.drop_collection(data_object.schema, collection_name, on_error));
 	} catch(std::exception& e) {
-		phputils::log_warning(e.what());
+		util::log_warning(e.what());
 		RETVAL_FALSE;
 	}
 
@@ -349,7 +349,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 {
 	st_mysqlx_node_schema* object{nullptr};
 	zval* object_zv{nullptr};
-	phputils::string_view collection_name;
+	util::string_view collection_name;
 
 	DBG_ENTER("mysqlx_node_schema::getCollection");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
@@ -380,7 +380,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTable)
 {
 	st_mysqlx_node_schema* object{nullptr};
 	zval* object_zv{nullptr};
-	phputils::string_view table_name;
+	util::string_view table_name;
 
 	DBG_ENTER("mysqlx_node_schema::getTable");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
@@ -626,7 +626,7 @@ static zend_object *
 php_mysqlx_node_schema_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("php_mysqlx_node_schema_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_schema>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_schema>(
 		class_type,
 		&mysqlx_object_node_schema_handlers,
 		&mysqlx_node_schema_properties);

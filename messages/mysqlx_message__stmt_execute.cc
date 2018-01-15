@@ -40,7 +40,7 @@ extern "C" {
 #include "mysqlx_resultset__column_metadata.h"
 #include "mysqlx_resultset__data_row.h"
 #include "mysqlx_message__data_fetch_done.h"
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 

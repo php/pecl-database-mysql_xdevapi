@@ -15,70 +15,43 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#ifndef MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
+#define MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
+
 #include "strings.h"
+
+extern "C" {
+struct php_url;
+}
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-/* {{{ operator<< */
-std::ostream& operator<<(std::ostream& os, const string& str)
+/* {{{ Url */
+struct Url
 {
-	return os << str.c_str();
-}
+	Url() = default;
+	Url(const php_url* phpurl);
+
+	bool empty() const;
+
+	string scheme;
+	string user;
+	string pass;
+	string host;
+	unsigned short port = 0;
+	string path;
+	string query;
+	string fragment;
+};
 /* }}} */
 
-
-/* {{{ string_view::string_view */
-string_view::string_view(zval* zv)
-	: string_view(Z_STRVAL_P(zv), Z_STRLEN_P(zv))
-{
-	assert(Z_TYPE_P(zv) == IS_STRING);
-}
-/* }}} */
-
-
-/* {{{ string_view::string_view */
-string_view::string_view(const MYSQLND_STRING& s)
-	: string_view(s.s, s.l)
-{
-}
-/* }}} */
-
-
-/* {{{ string_view::string_view */
-string_view::string_view(const MYSQLND_CSTRING& s)
-	: string_view(s.s, s.l)
-{
-}
-/* }}} */
-
-
-/* {{{ string_view::to_nd_cstr */
-MYSQLND_CSTRING string_view::to_nd_cstr() const
-{
-	return MYSQLND_CSTRING{ str, len };
-}
-/* }}} */
-
-
-/* {{{ string_view::to_zval */
-void string_view::to_zval(zval* dest) const
-{
-	ZVAL_STRINGL(dest, str, len);
-}
-/* }}} */
-
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
+
+#endif // MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
 
 /*
  * Local variables:

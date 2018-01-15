@@ -48,9 +48,9 @@ extern "C" {
 #include "SAPI.h"
 #include "php_variables.h"
 #include "mysqlx_exception.h"
-#include "phputils/object.h"
-#include "phputils/string_utils.h"
-#include "phputils/url_utils.h"
+#include "util/object.h"
+#include "util/string_utils.h"
+#include "util/url_utils.h"
 #include <utility>
 #include <algorithm>
 #include <cctype>
@@ -293,7 +293,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, init)(XMYSQLND_NODE_SESSION_DATA * o
 /* {{{ xmysqlnd_node_session_data::get_scheme */
 MYSQLND_STRING
 XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DATA * session,
-												const phputils::string& hostname,
+												const util::string& hostname,
 												unsigned int port)
 {
 	MYSQLND_STRING transport;
@@ -350,8 +350,8 @@ struct st_xmysqlnd_auth_41_ctx
 {
 	XMYSQLND_NODE_SESSION_DATA * session;
 	MYSQLND_CSTRING scheme;
-	phputils::string username;
-	phputils::string password;
+	util::string username;
+	util::string password;
 	MYSQLND_CSTRING database;
 
 };
@@ -516,7 +516,7 @@ void setup_crypto_options(
 	}
 
 	//Provide the list of supported/unsupported ciphers
-	phputils::string cipher_list;
+	util::string cipher_list;
 	for( auto& cipher : auth->supported_ciphers ) {
 		cipher_list += cipher.c_str();
 		cipher_list += ':';
@@ -616,7 +616,7 @@ enum_func_status setup_crypto_connection(
 
 
 /* {{{ xmysqlnd_node_session_data::authenticate */
-phputils::string auth_mode_to_str(const Auth_mode auth_mode)
+util::string auth_mode_to_str(const Auth_mode auth_mode)
 {
 	using auth_mode_to_label = std::map<Auth_mode, std::string>;
 	static const auth_mode_to_label auth_mode_to_labels = {
@@ -672,7 +672,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 			DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
 
 			const Auth_mode user_auth_mode{auth->auth_mode};
-			phputils::string auth_mech_name;
+			util::string auth_mech_name;
 
 			if( auth->ssl_mode != SSL_mode::disabled ) {
 				if( TRUE == tls_set ) {
@@ -703,7 +703,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 			if( ret == PASS ) {
 				//Complete the authentication procedure!
 				const MYSQLND_CSTRING method = { auth_mech_name.c_str(),auth_mech_name.size() };
-				const phputils::string authdata = '\0' + auth->username + '\0' + auth->password;
+				const util::string authdata = '\0' + auth->username + '\0' + auth->password;
 				st_xmysqlnd_msg__auth_start auth_start_msg = msg_factory.get__auth_start(&msg_factory);
 				ret = auth_start_msg.send_request(&auth_start_msg,
 									method, {authdata.c_str(), authdata.size()});
@@ -755,8 +755,8 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SES
 }
 /* }}} */
 
-char* get_server_host_info(const phputils::string& format,
-					const phputils::string& name,
+char* get_server_host_info(const util::string& format,
+					const util::string& name,
 					zend_bool session_persistent)
 {
 	char *hostname{ nullptr }, *host_info{ nullptr };
@@ -2270,7 +2270,7 @@ struct mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zva
 /* {{{ establish_connection */
 enum_func_status establish_connection(struct mysqlx::devapi::st_mysqlx_session * object,
 								XMYSQLND_SESSION_AUTH_DATA * auth,
-								const phputils::Url& url,
+								const util::Url& url,
 								transport_types tr_type)
 {
 	DBG_ENTER("establish_connection");
@@ -2317,13 +2317,13 @@ enum_func_status establish_connection(struct mysqlx::devapi::st_mysqlx_session *
  * Be aware that extract_transport will modify
  * the string argument!
  */
-std::pair<phputils::string, transport_types>
-extract_transport(phputils::string& uri)
+std::pair<util::string, transport_types>
+extract_transport(util::string& uri)
 {
-	phputils::string transport;
+	util::string transport;
 	transport_types tr_type = transport_types::network;
 	std::size_t idx = uri.find_last_of('@'),
-			not_found = phputils::string::npos;
+			not_found = util::string::npos;
 	if( idx == not_found ) {
 		return { transport, transport_types::none };
 	}
@@ -2378,7 +2378,7 @@ extract_transport(phputils::string& uri)
 		transport = uri.substr( idx , end_idx - idx );
 		if( false == transport.empty() ) {
 			//Remove the PCT encoding, if any.
-			phputils::string decoded = decode_pct_path( transport );
+			util::string decoded = decode_pct_path( transport );
 			//Remove ( and )
 			decoded.erase( std::remove_if( decoded.begin(),
 								decoded.end(),
@@ -2407,11 +2407,11 @@ extract_transport(phputils::string& uri)
 
 
 /* {{{ extract_uri_information */
-std::pair<phputils::Url, transport_types> extract_uri_information(const char * uri_string)
+std::pair<util::Url, transport_types> extract_uri_information(const char * uri_string)
 {
 	DBG_ENTER("extract_uri_information");
 	DBG_INF_FMT("URI string: %s\n",uri_string);
-	phputils::string uri = uri_string;
+	util::string uri = uri_string;
 	/*
 	 * Check whether there's an attempt to connect
 	 * using a unix domain socket or windows pipe.
@@ -2419,14 +2419,14 @@ std::pair<phputils::Url, transport_types> extract_uri_information(const char * u
 	 * those information
 	 */
 	auto transport = extract_transport(uri);
-	phputils::string tr_path = transport.first;
+	util::string tr_path = transport.first;
 	php_url * raw_node_url = php_url_parse(uri.c_str());
 	if( nullptr == raw_node_url ) {
 		DBG_ERR_FMT("URI parsing failed!");
-		return { phputils::Url(), transport_types::none };
+		return { util::Url(), transport_types::none };
 	}
 
-	phputils::Url node_url(raw_node_url);
+	util::Url node_url(raw_node_url);
 	php_url_free(raw_node_url);
 	raw_node_url = nullptr;
 	enum_func_status ret{PASS};
@@ -2496,11 +2496,11 @@ enum_func_status set_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
 
 /* {{{ parse_ssl_mode */
 enum_func_status parse_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
-						const phputils::string& mode )
+						const util::string& mode )
 {
 	DBG_ENTER("parse_ssl_mode");
 	enum_func_status ret{FAIL};
-	using modestr_to_enum = std::map<std::string, SSL_mode, phputils::iless>;
+	using modestr_to_enum = std::map<std::string, SSL_mode, util::iless>;
 	static modestr_to_enum mode_mapping = {
 		{ "required", SSL_mode::required },
 		{ "disabled", SSL_mode::disabled },
@@ -2534,7 +2534,7 @@ enum_func_status set_auth_mode(
 		DBG_ERR_FMT("Selected two incompatible auth modes %d vs %d",
 			static_cast<int>(auth->auth_mode),
 			static_cast<int>(auth_mode));
-		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::invalid_auth_mode);
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_auth_mode);
 	}
 	DBG_RETURN( ret );
 }
@@ -2543,11 +2543,11 @@ enum_func_status set_auth_mode(
 /* {{{ parse_auth_mode */
 enum_func_status parse_auth_mode(
 	XMYSQLND_SESSION_AUTH_DATA* auth,
-	const phputils::string& auth_mode)
+	const util::string& auth_mode)
 {
 	DBG_ENTER("parse_auth_mode");
 	enum_func_status ret{FAIL};
-	using str_to_auth_mode = std::map<std::string, Auth_mode, phputils::iless>;
+	using str_to_auth_mode = std::map<std::string, Auth_mode, util::iless>;
 	static const str_to_auth_mode str_to_auth_modes = {
 		{ Auth_method_mysql41, Auth_mode::mysql41 },
 		{ Auth_method_plain, Auth_mode::plain },
@@ -2567,15 +2567,15 @@ enum_func_status parse_auth_mode(
 
 /* {{{ extract_ssl_information */
 enum_func_status extract_ssl_information(
-	const phputils::string& auth_option_variable,
-	const phputils::string& auth_option_value,
+	const util::string& auth_option_variable,
+	const util::string& auth_option_value,
 	XMYSQLND_SESSION_AUTH_DATA* auth)
 {
 	DBG_ENTER("extract_ssl_information");
 	enum_func_status ret{PASS};
 	using ssl_option_to_data_member = std::map<std::string,
-		phputils::string st_xmysqlnd_session_auth_data::*,
-		phputils::iless>;
+		util::string st_xmysqlnd_session_auth_data::*,
+		util::iless>;
 	// Map the ssl option to the proper member, according to:
 	// https://dev.mysql.com/doc/refman/5.7/en/encrypted-connection-options.html
 	static const ssl_option_to_data_member ssl_option_to_data_members = {
@@ -2637,7 +2637,7 @@ enum_func_status extract_ssl_information(
 /* }}} */
 
 /* {{{ extract_auth_information */
-XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const phputils::Url& node_url)
+XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 {
 	DBG_ENTER("extract_auth_information");
 	enum_func_status ret{PASS};
@@ -2659,8 +2659,8 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const phputils::Url& node_
 		 * the value of SSL mode will be disabled (instead of ERROR)
 		 * We need to parse each variable by hand..
 		 */
-		const phputils::string& query{ node_url.query };
-		phputils::vector<phputils::string> auth_data;
+		const util::string& query{ node_url.query };
+		util::vector<util::string> auth_data;
 		boost::split(auth_data, query, boost::is_any_of("&"));
 
 		for (const auto& auth_option : auth_data) {
@@ -2670,16 +2670,16 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const phputils::Url& node_
 			}
 
 			auto separator_pos = auth_option.find_first_of('=');
-			const phputils::string variable{ auth_option.substr(0, separator_pos) };
+			const util::string variable{ auth_option.substr(0, separator_pos) };
 			if (variable.empty()) {
 				ret = FAIL;
 				break;
 			}
 
 
-			const phputils::string value{
-				separator_pos == phputils::string::npos
-					? phputils::string() : auth_option.substr(separator_pos + 1)
+			const util::string value{
+				separator_pos == util::string::npos
+					? util::string() : auth_option.substr(separator_pos + 1)
 			};
 
 
@@ -2727,17 +2727,17 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const phputils::Url& node_
 namespace
 {
 
-using vec_of_addresses = phputils::vector< std::pair<phputils::string,long> >;
+using vec_of_addresses = util::vector< std::pair<util::string,long> >;
 
 /* {{{ list_of_addresses_parser */
 class list_of_addresses_parser
 {
 	void invalidate();
-	bool parse_round_token( const phputils::string& str );
+	bool parse_round_token( const util::string& str );
 	void add_address(vec_of_addresses::value_type addr);
 public:
 	list_of_addresses_parser() = default;
-	list_of_addresses_parser(phputils::string uri);
+	list_of_addresses_parser(util::string uri);
 	vec_of_addresses parse();
 private:
 	enum class cur_bracket {
@@ -2748,12 +2748,12 @@ private:
 
 	std::size_t beg{ 0 };
 	std::size_t end{ 0 };
-	phputils::string uri_string = {};
-	phputils::string unformatted_uri = {};
+	util::string uri_string = {};
+	util::string unformatted_uri = {};
 	vec_of_addresses list_of_addresses;
 };
 
-list_of_addresses_parser::list_of_addresses_parser(phputils::string uri)
+list_of_addresses_parser::list_of_addresses_parser(util::string uri)
 {
 	/*
 	 * Remove spaces and tabs..
@@ -2767,7 +2767,7 @@ list_of_addresses_parser::list_of_addresses_parser(phputils::string uri)
 	 * Initial parse the input URI
 	 */
 	beg = uri.find_first_of('@');
-	if( beg != phputils::string::npos ) {
+	if( beg != util::string::npos ) {
 		++beg;
 	} else {
 		/*
@@ -2857,7 +2857,7 @@ vec_of_addresses list_of_addresses_parser::parse()
 		assert(idx < uri_string.length());
 		if( uri_string[ idx ] == '(' ) {
 			pos = uri_string.find_first_of( ')', idx );
-			if( pos == phputils::string::npos ) {
+			if( pos == util::string::npos ) {
 				success = false;
 				break;
 			}
@@ -2920,7 +2920,7 @@ void list_of_addresses_parser::invalidate()
 	end = 0;
 }
 
-bool list_of_addresses_parser::parse_round_token(const phputils::string &str)
+bool list_of_addresses_parser::parse_round_token(const util::string &str)
 {
 	/*
 	 * Assuming no ill-formed input, round squares are
@@ -2932,8 +2932,8 @@ bool list_of_addresses_parser::parse_round_token(const phputils::string &str)
 	static const std::string priority = "priority";
 	auto addr_beg = str.find(address.c_str()),
 			prio_beg = str.find(priority.c_str());
-	if( addr_beg == phputils::string::npos ||
-		prio_beg == phputils::string::npos ||
+	if( addr_beg == util::string::npos ||
+		prio_beg == util::string::npos ||
 		prio_beg < addr_beg ) {
 		//Ill-formed input
 		return false;
@@ -2946,7 +2946,7 @@ bool list_of_addresses_parser::parse_round_token(const phputils::string &str)
 	 */
 	std::size_t idx = addr_beg;
 	std::size_t ss_pos[2] = {0,0};
-	phputils::string output[2];
+	util::string output[2];
 	for(int i{ 0 } ; i < 2; ++i ) {
 		ss_pos[0] = 0;
 		ss_pos[1] = 0;
@@ -3006,7 +3006,7 @@ void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
 /* }}} */
 
 /* {{{ extract_uri_addresses */
-vec_of_addresses extract_uri_addresses(const phputils::string& uri)
+vec_of_addresses extract_uri_addresses(const util::string& uri)
 {
 	/*
 	 * The URI string might contain a list of alternative
@@ -3019,7 +3019,7 @@ vec_of_addresses extract_uri_addresses(const phputils::string& uri)
 	 */
 
 	std::size_t idx = uri.find_last_of('@'),
-			not_found = phputils::string::npos,
+			not_found = util::string::npos,
 			len = uri.size();
 	if( idx == not_found || ( len - idx <= 2) ) {
 		//Ill formed URI

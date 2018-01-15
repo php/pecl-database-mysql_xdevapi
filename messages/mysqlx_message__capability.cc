@@ -28,7 +28,7 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_message__capability.h"
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -132,7 +132,7 @@ php_mysqlx_message__capability_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
 	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
-	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, phputils::permanent_tag));
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, util::permanent_tag));
 	st_mysqlx_message__capability* message = new st_mysqlx_message__capability();
 
 	DBG_ENTER("php_mysqlx_message__capability_object_allocator");

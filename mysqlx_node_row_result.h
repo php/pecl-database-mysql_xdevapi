@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_ROW_RESULT_H
 #define MYSQLX_NODE_ROW_RESULT_H
 
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -28,7 +28,7 @@ struct st_xmysqlnd_node_stmt_result;
 
 namespace devapi {
 
-struct st_mysqlx_node_row_result : public phputils::custom_allocable
+struct st_mysqlx_node_row_result : public util::custom_allocable
 {
 	drv::st_xmysqlnd_node_stmt_result* result;
 };

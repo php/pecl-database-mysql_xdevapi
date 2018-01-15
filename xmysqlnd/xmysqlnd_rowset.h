@@ -86,7 +86,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset)
 	func_xmysqlnd_rowset__dtor dtor;
 };
 
-struct st_xmysqlnd_rowset : public phputils::permanent_allocable
+struct st_xmysqlnd_rowset : public util::permanent_allocable
 {
 	st_xmysqlnd_rowset_buffered* buffered;
 	st_xmysqlnd_rowset_fwd* fwd;

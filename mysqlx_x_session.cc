@@ -38,7 +38,7 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_session.h"
 #include "mysqlx_session.h"
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -146,7 +146,7 @@ mysqlx_new_x_session(zval * return_value)
 /* {{{ proto bool mysqlx\\mysql_xdevapi__getXSession( ) */
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__getXSession)
 {
-	phputils::string_view uri_string = {nullptr, 0};
+	util::string_view uri_string = {nullptr, 0};
 
 	RETVAL_NULL();
 

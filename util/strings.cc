@@ -22,61 +22,61 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_structs.h>
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 }
-#include "allocator.h"
+#include "strings.h"
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-const alloc_tag_t alloc_tag{};
-const permanent_tag_t permanent_tag{};
-
-namespace internal
+/* {{{ operator<< */
+std::ostream& operator<<(std::ostream& os, const string& str)
 {
-
-/* {{{ mysqlx::phputils::internal::mem_alloc */
-void* mem_alloc(std::size_t bytes_count)
-{
-	void* ptr = mnd_ecalloc(1, bytes_count);
-	if (ptr) {
-		return ptr;
-	} else {
-		throw std::bad_alloc();
-	}
+	return os << str.c_str();
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::internal::mem_free */
-void mem_free(void* ptr)
+
+/* {{{ string_view::string_view */
+string_view::string_view(zval* zv)
+	: string_view(Z_STRVAL_P(zv), Z_STRLEN_P(zv))
 {
-	mnd_efree(ptr);
+	assert(Z_TYPE_P(zv) == IS_STRING);
 }
 /* }}} */
 
-//------------------------------------------------------------------------------
 
-/* {{{ mysqlx::phputils::internal::mem_permanent_alloc */
-void* mem_permanent_alloc(std::size_t bytes_count)
+/* {{{ string_view::string_view */
+string_view::string_view(const MYSQLND_STRING& s)
+	: string_view(s.s, s.l)
 {
-	void* ptr = mnd_pecalloc(1, bytes_count, false);
-	if (ptr) {
-		return ptr;
-	} else {
-		throw std::bad_alloc();
-	}
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::internal::mem_permanent_free */
-void mem_permanent_free(void* ptr)
+
+/* {{{ string_view::string_view */
+string_view::string_view(const MYSQLND_CSTRING& s)
+	: string_view(s.s, s.l)
 {
-	mnd_pefree(ptr, false);
 }
 /* }}} */
 
-} // namespace internal
 
-} // namespace phputils
+/* {{{ string_view::to_nd_cstr */
+MYSQLND_CSTRING string_view::to_nd_cstr() const
+{
+	return MYSQLND_CSTRING{ str, len };
+}
+/* }}} */
+
+
+/* {{{ string_view::to_zval */
+void string_view::to_zval(zval* dest) const
+{
+	ZVAL_STRINGL(dest, str, len);
+}
+/* }}} */
+
+} // namespace util
 
 } // namespace mysqlx
 

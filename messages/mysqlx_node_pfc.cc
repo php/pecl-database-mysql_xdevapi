@@ -29,7 +29,7 @@ extern "C" {
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 

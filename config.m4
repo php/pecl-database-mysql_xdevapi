@@ -102,17 +102,17 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 			"
 	fi
 
-	mysqlx_phputils=" \
-		phputils/allocator.cc \
-		phputils/exceptions.cc \
-		phputils/hash_table.cc \
-		phputils/json_utils.cc \
-		phputils/object.cc \
-		phputils/pb_utils.cc \
-		phputils/string_utils.cc \
-		phputils/strings.cc \
-		phputils/url_utils.cc \
-		phputils/value.cc \
+	mysqlx_util=" \
+		util/allocator.cc \
+		util/exceptions.cc \
+		util/hash_table.cc \
+		util/json_utils.cc \
+		util/object.cc \
+		util/pb_utils.cc \
+		util/string_utils.cc \
+		util/strings.cc \
+		util/url_utils.cc \
+		util/value.cc \
 		"
 
 	xmysqlnd_sources=" \
@@ -176,7 +176,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		$xmysqlnd_protobuf_sources \
 		$mysqlx_devapi_sources \
 		$mysqlx_messages \
-		$mysqlx_phputils \
+		$mysqlx_util \
 		$xmysqlnd_sources \
 		$xmysqlnd_cdkbase_parser \
 		$xmysqlnd_crud_parsers \
@@ -194,7 +194,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	PHP_ADD_BUILD_DIR([$ext_builddir])
 	PHP_ADD_BUILD_DIR([$ext_builddir/messages])
-	PHP_ADD_BUILD_DIR([$ext_builddir/phputils])
+	PHP_ADD_BUILD_DIR([$ext_builddir/util])
 	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd])
 	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/crud_parsers])
 	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/proto_gen])

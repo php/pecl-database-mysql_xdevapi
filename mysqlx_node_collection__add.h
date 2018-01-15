@@ -30,7 +30,7 @@ struct st_xmysqlnd_crud_collection_op__add;
 namespace devapi {
 
 /* {{{ Collection_add */
-class Collection_add : public phputils::custom_allocable
+class Collection_add : public util::custom_allocable
 {
 public:
 	bool init(
@@ -41,7 +41,7 @@ public:
 	bool init(
 		zval* object_zv,
 		drv::st_xmysqlnd_node_collection* collection,
-		const phputils::string_view& single_doc_id,
+		const util::string_view& single_doc_id,
 		zval* doc);
 	~Collection_add();
 
@@ -54,7 +54,7 @@ private:
 	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
 	zval* docs{nullptr};
 	int num_of_docs{0};
-	phputils::string_view single_doc_id;
+	util::string_view single_doc_id;
 
 };
 /* }}} */

@@ -39,8 +39,8 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__find.h"
 #include "mysqlx_exception.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 
@@ -97,7 +97,7 @@ ZEND_END_ARG_INFO()
 bool Collection_find::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_view& search_expression)
+	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll) return false;
 
@@ -466,7 +466,7 @@ Mysqlx::Crud::Find* Collection_find::get_stmt()
 		|| (xmysqlnd_crud_collection_find__finalize_bind(find_op) == FAIL)
 		|| !xmysqlnd_crud_collection_find__is_initialized(find_op))
 	{
-		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::find_fail);
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::find_fail);
 	}
 
 	st_xmysqlnd_pb_message_shell msg_shell = xmysqlnd_crud_collection_find__get_protobuf_message(find_op);
@@ -499,7 +499,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, fields)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.fields(fields, return_value);
 
 	DBG_VOID_RETURN;
@@ -528,7 +528,7 @@ mysqlx_node_collection__find__add_sort_or_grouping(
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.add_operation(op_type, sort_expr, num_of_expr, return_value);
 
 	DBG_VOID_RETURN;
@@ -575,7 +575,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, having)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.having(search_condition, return_value);
 
 	DBG_VOID_RETURN;
@@ -598,7 +598,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, limit)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.limit(rows, return_value);
 
 	DBG_VOID_RETURN;
@@ -626,7 +626,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, skip)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.skip(position, return_value);
 
 	DBG_VOID_RETURN;
@@ -649,7 +649,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, bind)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.bind(bind_variables, return_value);
 
 	DBG_VOID_RETURN;
@@ -669,7 +669,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockShared)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.lock_shared(return_value);
 
 	DBG_VOID_RETURN;
@@ -689,7 +689,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockExclusive)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.lock_exclusive(return_value);
 
 	DBG_VOID_RETURN;
@@ -712,7 +712,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, execute)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	coll_find.execute(flags, return_value);
 
 	DBG_VOID_RETURN;
@@ -752,7 +752,7 @@ const st_mysqlx_property_entry collection_find_property_entries[] =
 static void
 mysqlx_node_collection__find_free_storage(zend_object* object)
 {
-	phputils::free_object<Collection_find>(object);
+	util::free_object<Collection_find>(object);
 }
 /* }}} */
 
@@ -762,7 +762,7 @@ static zend_object *
 php_mysqlx_node_collection__find_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("php_mysqlx_collection__find_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<Collection_find>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<Collection_find>(
 		class_type,
 		&collection_find_handlers,
 		&collection_find_properties);
@@ -806,7 +806,7 @@ mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_node_collection__find(
 	zval * return_value,
-	const phputils::string_view& search_expression,
+	const util::string_view& search_expression,
 	drv::st_xmysqlnd_node_collection* collection)
 {
 	zend_bool op_failed{TRUE};
@@ -829,7 +829,7 @@ mysqlx_new_node_collection__find(
 /* {{{ get_stmt_from_collection_find */
 Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv)
 {
-	Collection_find& coll_find = phputils::fetch_data_object<Collection_find>(object_zv);
+	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	return coll_find.get_stmt();
 }
 /* }}} */

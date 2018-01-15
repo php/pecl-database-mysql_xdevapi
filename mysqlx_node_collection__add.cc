@@ -36,11 +36,11 @@ extern "C" {
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_collection__add.h"
 #include "mysqlx_exception.h"
-#include "phputils/allocator.h"
-#include "phputils/json_utils.h"
-#include "phputils/object.h"
-#include "phputils/strings.h"
-#include "phputils/string_utils.h"
+#include "util/allocator.h"
+#include "util/json_utils.h"
+#include "util/object.h"
+#include "util/strings.h"
+#include "util/string_utils.h"
 
 namespace mysqlx {
 
@@ -208,13 +208,13 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend
 
 
 /* {{{ prepare_doc_id */
-phputils::string prepare_doc_id(
+util::string prepare_doc_id(
 	XMYSQLND_NODE_SESSION *session,
-	const phputils::string_view& single_doc_id)
+	const util::string_view& single_doc_id)
 {
 	if (single_doc_id.empty()) {
 		const auto uuid = session->session_uuid->generate();
-		return phputils::string(uuid.data(), uuid.size());
+		return util::string(uuid.data(), uuid.size());
 	}
 	return single_doc_id.to_string();
 }
@@ -225,7 +225,7 @@ phputils::string prepare_doc_id(
 enum_func_status
 add_unique_id_to_json(
 	XMYSQLND_NODE_SESSION *session,
-	const phputils::string_view& single_doc_id,
+	const util::string_view& single_doc_id,
 	const st_parse_for_id_status *status,
 	MYSQLND_STRING* to_add,
 	const MYSQLND_CSTRING* json)
@@ -333,7 +333,7 @@ extract_document_id(const MYSQLND_STRING json,
 MYSQLND_CSTRING
 assign_doc_id_to_json(
 	XMYSQLND_NODE_SESSION* session,
-	const phputils::string_view& single_doc_id,
+	const util::string_view& single_doc_id,
 	zval* doc)
 {
 	enum_func_status ret{FAIL};
@@ -368,9 +368,9 @@ assign_doc_id_to_json(
 			}
 
 			if (!doc_id_string_type) {
-				phputils::log_warning(
-					"_id '" + phputils::to_string(doc_id) + "' provided as non-string value");
-				phputils::json::ensure_doc_id_as_string(doc_id, doc);
+				util::log_warning(
+					"_id '" + util::to_string(doc_id) + "' provided as non-string value");
+				util::json::ensure_doc_id_as_string(doc_id, doc);
 			}
 
 			if (to_add.s != json.s) {
@@ -403,7 +403,7 @@ doc_add_op_return_status
 node_collection_add_string(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_view& single_doc_id,
+	const util::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -427,12 +427,12 @@ doc_add_op_return_status
 node_collection_add_object_impl(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_view& single_doc_id,
+	const util::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
 	zval new_doc;
-	phputils::json::to_zv_string(doc, &new_doc);
+	util::json::to_zv_string(doc, &new_doc);
 
 	doc_add_op_return_status ret = {
 		Add_op_status::fail,
@@ -455,7 +455,7 @@ doc_add_op_return_status
 node_collection_add_object(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_view& single_doc_id,
+	const util::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -470,7 +470,7 @@ doc_add_op_return_status
 node_collection_add_array(
 	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const phputils::string_view& single_doc_id,
+	const util::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
@@ -531,7 +531,7 @@ bool Collection_add::init(
 bool Collection_add::init(
 	zval* obj_zv,
 	XMYSQLND_NODE_COLLECTION* coll,
-	const phputils::string_view& doc_id,
+	const util::string_view& doc_id,
 	zval* doc)
 {
 	const int num_of_documents = 1;
@@ -645,7 +645,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, execute)
 		DBG_VOID_RETURN;
 	}
 
-	Collection_add& coll_add = phputils::fetch_data_object<Collection_add>(object_zv);
+	Collection_add& coll_add = util::fetch_data_object<Collection_add>(object_zv);
 	coll_add.execute(return_value);
 
 	DBG_VOID_RETURN;
@@ -702,7 +702,7 @@ const st_mysqlx_property_entry collection_add_property_entries[] =
 static void
 mysqlx_node_collection__add_free_storage(zend_object* object)
 {
-	phputils::free_object<Collection_add>(object);
+	util::free_object<Collection_add>(object);
 }
 /* }}} */
 
@@ -712,7 +712,7 @@ static zend_object *
 php_mysqlx_node_collection__add_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("php_mysqlx_collection__add_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<Collection_add>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<Collection_add>(
 		class_type,
 		&collection_add_handlers,
 		&collection_add_properties);

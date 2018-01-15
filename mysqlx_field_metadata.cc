@@ -28,8 +28,8 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_wireprotocol.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -39,7 +39,7 @@ using namespace drv;
 
 static zend_class_entry * mysqlx_field_metadata_class_entry;
 
-struct st_mysqlx_field_metadata : public phputils::permanent_allocable
+struct st_mysqlx_field_metadata : public util::permanent_allocable
 {
 	XMYSQLND_RESULT_FIELD_META * field_meta;
 	zend_bool persistent;
@@ -284,7 +284,7 @@ static zend_object *
 php_mysqlx_field_metadata_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_field_metadata_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_permanent_object<st_mysqlx_field_metadata>(
+	st_mysqlx_object* mysqlx_object = util::alloc_permanent_object<st_mysqlx_field_metadata>(
 		class_type,
 		&mysqlx_object_field_metadata_handlers,
 		&mysqlx_field_metadata_properties);

@@ -21,7 +21,7 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_crud_collection_commands.h"
 #include "xmysqlnd_wireprotocol.h" /* struct st_xmysqlnd_msg__sql_stmt_execute */
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -205,7 +205,7 @@ struct st_xmysqlnd_node_stmt_bind_ctx
 	struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok;
 };
 
-struct st_xmysqlnd_node_stmt_data : public phputils::permanent_allocable
+struct st_xmysqlnd_node_stmt_data : public util::permanent_allocable
 {
 	struct st_xmysqlnd_node_session * session;
 	struct st_xmysqlnd_msg__sql_stmt_execute msg_stmt_exec;
@@ -224,7 +224,7 @@ struct st_xmysqlnd_node_stmt_data : public phputils::permanent_allocable
 };
 
 
-struct st_xmysqlnd_node_stmt : public phputils::permanent_allocable
+struct st_xmysqlnd_node_stmt : public util::permanent_allocable
 {
 	XMYSQLND_NODE_STMT_DATA * data;
 

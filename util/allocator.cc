@@ -15,43 +15,70 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
-#define MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
-
-#include "strings.h"
-
+#include "php_api.h"
 extern "C" {
-struct php_url;
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
+#include "allocator.h"
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-/* {{{ Url */
-struct Url
+const alloc_tag_t alloc_tag{};
+const permanent_tag_t permanent_tag{};
+
+namespace internal
 {
-	Url() = default;
-	Url(const php_url* phpurl);
 
-	bool empty() const;
-
-	string scheme;
-	string user;
-	string pass;
-	string host;
-	unsigned short port = 0;
-	string path;
-	string query;
-	string fragment;
-};
+/* {{{ mysqlx::util::internal::mem_alloc */
+void* mem_alloc(std::size_t bytes_count)
+{
+	void* ptr = mnd_ecalloc(1, bytes_count);
+	if (ptr) {
+		return ptr;
+	} else {
+		throw std::bad_alloc();
+	}
+}
 /* }}} */
 
-} // namespace phputils
+/* {{{ mysqlx::util::internal::mem_free */
+void mem_free(void* ptr)
+{
+	mnd_efree(ptr);
+}
+/* }}} */
+
+//------------------------------------------------------------------------------
+
+/* {{{ mysqlx::util::internal::mem_permanent_alloc */
+void* mem_permanent_alloc(std::size_t bytes_count)
+{
+	void* ptr = mnd_pecalloc(1, bytes_count, false);
+	if (ptr) {
+		return ptr;
+	} else {
+		throw std::bad_alloc();
+	}
+}
+/* }}} */
+
+/* {{{ mysqlx::util::internal::mem_permanent_free */
+void mem_permanent_free(void* ptr)
+{
+	mnd_pefree(ptr, false);
+}
+/* }}} */
+
+} // namespace internal
+
+} // namespace util
 
 } // namespace mysqlx
-
-#endif // MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
 
 /*
  * Local variables:

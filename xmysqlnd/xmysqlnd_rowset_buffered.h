@@ -79,7 +79,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered)
 	func_xmysqlnd_rowset_buffered__dtor dtor;
 };
 
-struct st_xmysqlnd_rowset_buffered : public phputils::permanent_allocable
+struct st_xmysqlnd_rowset_buffered : public util::permanent_allocable
 {
 	st_xmysqlnd_node_stmt* stmt;
 	st_xmysqlnd_node_stmt_result_meta* meta;

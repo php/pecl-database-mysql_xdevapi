@@ -26,7 +26,7 @@ extern "C" {
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 /* {{{ to_string */
 string to_string(const zval& zv)
@@ -42,16 +42,16 @@ string to_string(const zval& zv)
 			return "TRUE";
 
 		case IS_LONG:
-			return phputils::to_string(Z_LVAL(zv));
+			return util::to_string(Z_LVAL(zv));
 
 		case IS_DOUBLE:
-			return phputils::to_string(Z_DVAL(zv));
+			return util::to_string(Z_DVAL(zv));
 
 		case IS_STRING:
 			return string(Z_STRVAL(zv), Z_STRLEN(zv));
 
 		default:
-			throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::unsupported_conversion_to_string);
+			throw util::xdevapi_exception(util::xdevapi_exception::Code::unsupported_conversion_to_string);
 	}
 }
 /* }}} */
@@ -87,8 +87,8 @@ strings to_strings(zval* zvals, int count)
 
 
 /* {{{ escape_identifier( string id ) */
-phputils::string
-escape_identifier( const phputils::string& identifier ) {
+util::string
+escape_identifier( const util::string& identifier ) {
 	std::stringstream result;
 	result << '`';
 	for( const auto& ch : identifier ) {
@@ -104,7 +104,7 @@ escape_identifier( const phputils::string& identifier ) {
 /* }}} */
 
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

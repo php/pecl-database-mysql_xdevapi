@@ -21,7 +21,7 @@
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 struct string_view;
 
@@ -40,7 +40,7 @@ void ensure_doc_id_as_string(
 
 } // namespace json
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

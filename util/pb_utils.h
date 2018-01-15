@@ -18,7 +18,7 @@
 #ifndef MYSQL_XDEVAPI_PHPUTILS_PB_UTILS_H
 #define MYSQL_XDEVAPI_PHPUTILS_PB_UTILS_H
 
-#include "phputils/strings.h"
+#include "util/strings.h"
 #include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
 #include <boost/optional.hpp>
 
@@ -26,7 +26,7 @@ namespace Mysqlx { namespace Sql { class StmtExecute; } }
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 namespace pb {
 
@@ -53,8 +53,8 @@ void to_any(double value, Any& any);
 
 void to_any(const char* str,const size_t length, Any& any);
 void to_any(const std::string& value, Any& any);
-void to_any(const phputils::string& value, Any& any);
-void to_any(const phputils::string_view& value, Any& any);
+void to_any(const util::string& value, Any& any);
+void to_any(const util::string_view& value, Any& any);
 
 void to_any(Object* value, Any& any);
 void to_any(Array* value, Any& any);
@@ -71,7 +71,7 @@ void add_field_to_object(const char* key, T value, Object* pb_obj)
 }
 
 template<typename T>
-void add_field_to_object(const phputils::string& key, T value, Object* pb_obj)
+void add_field_to_object(const util::string& key, T value, Object* pb_obj)
 {
 	add_field_to_object(key.c_str(), value, pb_obj);
 }
@@ -85,7 +85,7 @@ void add_field_to_object(const char* key, T value, std::unique_ptr<Object>& pb_o
 }
 
 template<typename T>
-void add_field_to_object(const phputils::string& key, T value, std::unique_ptr<Object>& pb_obj)
+void add_field_to_object(const util::string& key, T value, std::unique_ptr<Object>& pb_obj)
 {
 	add_field_to_object(key, value, pb_obj.get());
 }
@@ -134,7 +134,7 @@ Array* add_array_arg(Mysqlx::Sql::StmtExecute& stmt_message);
 
 } // namespace pb
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

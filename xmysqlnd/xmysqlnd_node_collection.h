@@ -20,7 +20,7 @@
 
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_crud_collection_commands.h"
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -72,7 +72,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection)
 	func_xmysqlnd_node_collection__dtor dtor;
 };
 
-struct st_xmysqlnd_node_collection_data : public phputils::permanent_allocable
+struct st_xmysqlnd_node_collection_data : public util::permanent_allocable
 {
 	st_xmysqlnd_node_schema* schema;
 	MYSQLND_STRING  collection_name;
@@ -85,7 +85,7 @@ struct st_xmysqlnd_node_collection_data : public phputils::permanent_allocable
 };
 
 
-struct st_xmysqlnd_node_collection : public phputils::permanent_allocable
+struct st_xmysqlnd_node_collection : public util::permanent_allocable
 {
 	XMYSQLND_NODE_COLLECTION_DATA * data;
 

@@ -26,7 +26,7 @@ extern "C" {
 #include "mysqlx_node_row_result.h"
 #include "mysqlx_object.h"
 #include "mysqlx_class_properties.h"
-#include "phputils/object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -34,7 +34,7 @@ namespace devapi {
 
 using namespace drv;
 
-struct st_mysqlx_node_row_result_iterator : phputils::custom_allocable
+struct st_mysqlx_node_row_result_iterator : util::custom_allocable
 {
 	zend_object_iterator  intern;
 	XMYSQLND_NODE_STMT_RESULT * result;
@@ -177,7 +177,7 @@ static zend_object_iterator *
 mysqlx_node_row_result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
 {
 	DBG_ENTER("mysqlx_node_row_result_create_iterator");
-	auto iterator = phputils::create_result_iterator<st_mysqlx_node_row_result, st_mysqlx_node_row_result_iterator>(
+	auto iterator = util::create_result_iterator<st_mysqlx_node_row_result, st_mysqlx_node_row_result_iterator>(
 		ce,
 		&mysqlx_node_row_result_iterator_funcs,
 		object,

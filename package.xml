@@ -209,7 +209,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="mysqlx_resultset__resultset_metadata.cc" role="src" />
     <file name="mysqlx_resultset__resultset_metadata.h" role="src" />
    </dir>
-   <dir name="phputils">
+   <dir name="util">
     <file name="allocator.cc" role="src" />
     <file name="allocator.h" role="src" />
     <file name="exceptions.cc" role="src" />

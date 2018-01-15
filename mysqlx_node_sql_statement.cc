@@ -38,8 +38,8 @@ extern "C" {
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_session.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -722,7 +722,7 @@ static zend_object *
 php_mysqlx_node_sql_statement_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_sql_statement_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_statement>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_statement>(
 		class_type,
 		&mysqlx_object_node_sql_statement_handlers,
 		&mysqlx_node_sql_statement_properties);

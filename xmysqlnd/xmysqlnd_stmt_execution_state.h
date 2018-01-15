@@ -19,7 +19,7 @@
 #define XMYSQLND_STMT_EXECUTION_STATE_H
 
 #include "xmysqlnd_driver.h"
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -60,7 +60,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state)
 	func_xmysqlnd_stmt_execution_state__dtor dtor;
 };
 
-struct st_xmysqlnd_stmt_execution_state : public phputils::permanent_allocable
+struct st_xmysqlnd_stmt_execution_state : public util::permanent_allocable
 {
 	size_t items_affected;
 	size_t items_matched;

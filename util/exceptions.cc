@@ -29,14 +29,14 @@ extern "C" {
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 namespace
 {
 
 const char* const general_sql_state = GENERAL_SQL_STATE;
 
-/* {{{ mysqlx::phputils::code_to_err_msg */
+/* {{{ mysqlx::util::code_to_err_msg */
 const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::not_implemented, "Not implemented" },
 	{ xdevapi_exception::Code::fetch_fail, "Coulnd't fetch data" },
@@ -87,7 +87,7 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 };
 /* }}} */
 
-/* {{{ mysqlx::phputils::prepare_reason_msg */
+/* {{{ mysqlx::util::prepare_reason_msg */
 string prepare_reason_msg(const string& sql_state, const string& msg)
 {
 	ostringstream os;
@@ -101,7 +101,7 @@ string prepare_reason_msg(const string& sql_state, const string& msg)
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::phputils::xdevapi_exception::xdevapi_exception */
+/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code)
 	: std::runtime_error(prepare_reason_msg(general_sql_state, code_to_err_msg.at(code)).c_str())
 	, code(static_cast<unsigned int>(code))
@@ -109,7 +109,7 @@ xdevapi_exception::xdevapi_exception(Code code)
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::xdevapi_exception::xdevapi_exception */
+/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
 	: std::runtime_error(prepare_reason_msg(sql_state, msg).c_str())
 	, code(code)
@@ -119,14 +119,14 @@ xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state,
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::phputils::doc_ref_exception::doc_ref_exception */
+/* {{{ mysqlx::util::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, _zend_class_entry* ce)
-	: doc_ref_exception(severity, phputils::string("invalid object of class ") + ZSTR_VAL(ce->name))
+	: doc_ref_exception(severity, util::string("invalid object of class ") + ZSTR_VAL(ce->name))
 {
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::doc_ref_exception::doc_ref_exception */
+/* {{{ mysqlx::util::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
 	: std::runtime_error(msg.c_str())
 	, severity(severity)
@@ -136,7 +136,7 @@ doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::phputils::raise_xdevapi_exception */
+/* {{{ mysqlx::util::raise_xdevapi_exception */
 void raise_xdevapi_exception(const xdevapi_exception& e)
 {
 	const char* what = e.what();
@@ -144,7 +144,7 @@ void raise_xdevapi_exception(const xdevapi_exception& e)
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::raise_doc_ref_exception */
+/* {{{ mysqlx::util::raise_doc_ref_exception */
 void raise_doc_ref_exception(const doc_ref_exception& e)
 {
 	static const std::map<doc_ref_exception::Severity, int> severity_mapping = {
@@ -157,7 +157,7 @@ void raise_doc_ref_exception(const doc_ref_exception& e)
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::raise_common_exception */
+/* {{{ mysqlx::util::raise_common_exception */
 void raise_common_exception(const std::exception& e)
 {
 	const char* what = e.what();
@@ -166,7 +166,7 @@ void raise_common_exception(const std::exception& e)
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::raise_unknown_exception */
+/* {{{ mysqlx::util::raise_unknown_exception */
 void raise_unknown_exception()
 {
 	const char* what = "MySQL XDevAPI - unknown exception";
@@ -175,14 +175,14 @@ void raise_unknown_exception()
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::log_warning */
+/* {{{ mysqlx::util::log_warning */
 void log_warning(const string& msg)
 {
 	php_error_docref(nullptr, E_WARNING, msg.c_str());
 }
 /* }}} */
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

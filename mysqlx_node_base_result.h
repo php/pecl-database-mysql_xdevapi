@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_BASE_RESULT_H
 #define MYSQLX_NODE_BASE_RESULT_H
 
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -30,7 +30,7 @@ namespace devapi {
 
 extern zend_class_entry * mysqlx_node_base_result_interface_entry;
 
-struct st_mysqlx_node_base_result : public phputils::custom_allocable
+struct st_mysqlx_node_base_result : public util::custom_allocable
 {
 	drv::st_xmysqlnd_node_stmt_result* result;
 };

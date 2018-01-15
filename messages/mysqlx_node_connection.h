@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_CONNECTION_H
 #define MYSQLX_NODE_CONNECTION_H
 
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -29,7 +29,7 @@ namespace msg {
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_node_connection_class_entry;
 
-struct st_mysqlx_node_connection : phputils::permanent_allocable
+struct st_mysqlx_node_connection : util::permanent_allocable
 {
 	MYSQLND_VIO		* vio;
 	MYSQLND_STATS	* stats;

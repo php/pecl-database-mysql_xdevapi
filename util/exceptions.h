@@ -27,9 +27,9 @@ struct _zend_class_entry;
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-/* {{{ mysqlx::phputils::xdevapi_exception */
+/* {{{ mysqlx::util::xdevapi_exception */
 struct xdevapi_exception : public std::runtime_error
 {
 	enum class Code : unsigned int
@@ -90,7 +90,7 @@ struct xdevapi_exception : public std::runtime_error
 };
 /* }}} */
 
-/* {{{ mysqlx::phputils::doc_ref_exception */
+/* {{{ mysqlx::util::doc_ref_exception */
 struct doc_ref_exception : public std::runtime_error
 {
 	enum class Severity
@@ -113,7 +113,7 @@ void raise_unknown_exception();
 
 void log_warning(const string& msg);
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 
@@ -122,14 +122,14 @@ void log_warning(const string& msg);
 	try
 
 #define MYSQL_XDEVAPI_CATCH \
-	catch (const phputils::xdevapi_exception& e) { \
-		phputils::raise_xdevapi_exception(e); \
-	} catch (const phputils::doc_ref_exception& e) { \
-		phputils::raise_doc_ref_exception(e); \
+	catch (const util::xdevapi_exception& e) { \
+		util::raise_xdevapi_exception(e); \
+	} catch (const util::doc_ref_exception& e) { \
+		util::raise_doc_ref_exception(e); \
 	} catch (const std::exception& e) { \
-		phputils::raise_common_exception(e); \
+		util::raise_common_exception(e); \
 	} catch (...) { \
-		phputils::raise_unknown_exception(); \
+		util::raise_unknown_exception(); \
 	}
 
 #endif // MYSQL_XDEVAPI_EXCEPTIONS_H

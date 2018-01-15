@@ -22,7 +22,7 @@
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 /* {{{ zvalue */
 class zvalue
@@ -166,7 +166,7 @@ class zvalue_ptr
 };
 /* }}} */
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

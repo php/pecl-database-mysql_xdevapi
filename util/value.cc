@@ -20,7 +20,7 @@
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 zvalue::zvalue()
 {
@@ -407,7 +407,7 @@ bool zvalue_ptr::is_object() const
 	return type() == Type::Object;
 }
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 
