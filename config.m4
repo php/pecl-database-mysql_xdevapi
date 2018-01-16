@@ -1,10 +1,10 @@
-// Note: The extension name is "mysql-xdevapi", you enable it with
-// "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
-// is officially supported
-//
-// required 3rdParty libs may be also configured with below environment variables:
-// - MYSQL_XDEVAPI_PROTOBUF_ROOT to point out google protobuf root
-// - MYSQL_XDEVAPI_BOOST_ROOT to point out boost libraries
+dnl  Note: The extension name is "mysql-xdevapi", you enable it with
+dnl  "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
+dnl  is officially supported
+dnl
+dnl  required 3rdParty libs may be also configured with below environment variables:
+dnl  - MYSQL_XDEVAPI_PROTOBUF_ROOT to point out google protobuf root
+dnl  - MYSQL_XDEVAPI_BOOST_ROOT to point out boost libraries
 
 
 PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
@@ -184,23 +184,23 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14"
 
-	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_builddir or
+	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_srcdir, $ext_builddir or
 	dnl $PHP_PECL_EXTENSION. Should be called before they are used.
 	PHP_NEW_EXTENSION(mysql_xdevapi, $MYSQL_XDEVAPI_SOURCES, $ext_shared,, $MYSQL_XDEVAPI_CXXFLAGS, true)
 	PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
 
-	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase])
-	PHP_ADD_INCLUDE([$ext_builddir/xmysqlnd/cdkbase/include])
+	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase])
+	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/include])
 
-	PHP_ADD_BUILD_DIR([$ext_builddir])
-	PHP_ADD_BUILD_DIR([$ext_builddir/messages])
-	PHP_ADD_BUILD_DIR([$ext_builddir/phputils])
-	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd])
-	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/crud_parsers])
-	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/proto_gen])
-	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/cdkbase/core])
-	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/cdkbase/foundation])
-	PHP_ADD_BUILD_DIR([$ext_builddir/xmysqlnd/cdkbase/parser])
+	PHP_ADD_BUILD_DIR([$ext_srcdir])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/messages])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/phputils])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/crud_parsers])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/proto_gen])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/core])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/foundation])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/parser])
 
 	dnl phpize/pecl build
 	if test "$PHP_PECL_EXTENSION"; then
@@ -281,19 +281,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	fi
 
 	PHP_ADD_MAKEFILE_FRAGMENT()
-
-
-	dnl open-ssl
-	AC_DEFINE([MYSQL_XDEVAPI_SSL_SUPPORTED], 1, [Enable core xmysqlnd SSL code])
-
-	test -z "$PHP_OPENSSL" && PHP_OPENSSL=no
-
-	if test "$PHP_OPENSSL" != "no" || test "$PHP_OPENSSL_DIR" != "no"; then
-		AC_CHECK_LIB(ssl, DSA_get_default_method, AC_DEFINE(HAVE_DSA_DEFAULT_METHOD, 1, [OpenSSL 0.9.7 or later]))
-		AC_CHECK_LIB(crypto, X509_free, AC_DEFINE(HAVE_DSA_DEFAULT_METHOD, 1, [OpenSSL 0.9.7 or later]))
-
-		PHP_SETUP_OPENSSL(MYSQL_XDEVAPI_SHARED_LIBADD, [AC_DEFINE(MYSQL_XDEVAPI_HAVE_SSL,1,[Enable mysql_xdevapi code that uses OpenSSL directly])])
-	fi
 
 	dnl Enable mysqlnd build in case it wasn't passed explicitly in cmd-line
 	if test -z "$PHP_PECL_EXTENSION"; then

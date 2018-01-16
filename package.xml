@@ -491,7 +491,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="mysqlx_sql.proto" role="src" />
     </dir>
     <dir name="proto_gen">
-     <file name=".keep" role="doc" />
+     <file name=".keep" role="src" />
     </dir>
    </dir>
   </dir>
