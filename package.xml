@@ -574,7 +574,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
       - Added support for X DevAPI unified connection string
       - Added support for Unix Domain Sockets
       - Added table.isView()
-      - Added Core TLS/SSLL options
+      - Added Core TLS/SSL options
       - Internal refacotoring
       - Fixed a few bugs
      </notes>

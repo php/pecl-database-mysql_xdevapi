@@ -49,18 +49,6 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 	php_info_print_table_start();
 	php_info_print_table_header(2, "xmysqlnd", "enabled");
 	php_info_print_table_row(2, "Version", mysqlx::drv::xmysqlnd_get_client_info());
-	php_info_print_table_row(2, "core SSL",
-#ifdef MYSQL_XDEVAPI_SSL_SUPPORTED
-								"supported");
-#else
-								"not supported");
-#endif
-	php_info_print_table_row(2, "extended SSL",
-#ifdef MYSQL_XDEVAPI_HAVE_SSL
-								"supported");
-#else
-								"not supported");
-#endif
 	php_info_print_table_row(2, "experimental features",
 #ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
 								"enabled");
