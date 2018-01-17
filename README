@@ -35,36 +35,36 @@ http://dev.mysql.com/doc/refman/5.7/en/document-store.html
 Installation
 ------------
 
-This extension depends on PHP 7.1. For general installation instructions for
-PHP extensions see http://php.net/install.pecl
+This extension depends on PHP 7.1 or newer. For general installation instructions
+for PHP extensions see http://php.net/install.pecl
 
-In addition to PHP's dependencies, Google's Protocol Buffer library is
-required. On any Linux-based systems a package called libprotobuf-dev or
+In addition to PHP's dependencies, Google's Protocol Buffer and boost libraries
+are required. On any Linux-based systems a package called libprotobuf-dev or
 similar is required.
 
 Further hints for installing this module:
 
-0) in-source build
-To enable X DevAPI statically extract the extension in the ext/ directory of a
-PHP source tree as php-src/ext/mysql_xdevapi. Then use the switch
---enable-mysql-xdevapi for configure. This extension depends on 'ext/json' and
-'ext/mysqlnd' extensions.
+0) configure/build
+The extension name is "mysql-xdevapi", you enable it with
+"--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
+is officially supported.
 
-Sample sequence of build commands may look like:
+Required 3rdParty libs (boost, protobuf) may be configured with following options:
+--with-boost[=DIR]
+--with-protobuf[=DIR]
 
-./buildconf --force
-./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo
-	--enable-debug --enable-cli --enable-mysql-xdevapi
-make
-[...]
+They may be pointed out with below environment variables too:
+- MYSQL_XDEVAPI_PROTOBUF_ROOT to point out google protobuf root
+- MYSQL_XDEVAPI_BOOST_ROOT to point out boost libraries
 
-By default it is statically built into PHP binary. In case you want to see that
-extension as dynamic (.so/.dll) use --enable-mysql-xdevapi=shared, e.g.
-./configure --disable-all --enable-json --with-mysqli --with-pdo-mysql --enable-pdo
-	--enable-debug --enable-cli --enable-mysql-xdevapi=shared
+And on Windows also with configure options: --with-extra-includes --with-extra-libs
 
+1) Build on Windows
+It is recommended to prepare environment and build mysql_xdevapi extension according to:
+https://wiki.php.net/internals/windows/stepbystepbuild (older SDK, PHP-7.1 only)
+https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2 (PHP-7.1 or newer)
 
-1) phpize
+2) OpenSSL on Unix
 While building extension with phpize following issue may be met at ./configure stage:
 configure: error: Cannot find OpenSSL's <evp.h>
 See https://bugs.php.net/bug.php?id=72363
@@ -91,70 +91,48 @@ PHP_OPENSSL=yes ./configure
 make
 sudo make install
 
-2) Build on Windows
-You may want to prepare environment and build PHP Connector according to
-http://wiki.php.net/internals/windows/stepbystepbuild
-
-3) Boost on Windows
-Only headers are needed, no boost binaries required. Use option --with-extra-includes
-to point out location of boost headers for configure command, e.g.
-configure [..other options..] --with-extra-includes=c:\3rdParty\boost_1_62_0
+3) Boost
+Only headers are needed, no boost binaries required.
 
 4) Google Protocol Buffers on Windows
-On Windows for static build google protobuf is used by mysql_xdevapi as static library
-with Multi-Threaded DLL runtime. To prepare such build on your own use following options:
+On Windows depending on used run-times the static library with Multi-Threaded DLL
+runtime may be needed. To prepare such library on your own following options should
+be applied:
 -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF
 
-After 'make install' step, use for configure command following options --with-extra-includes
-and --with-extra-libs to point out location of protobuf headers and libraries. Thus,
-command-line may look like this:
-configure [..other options..] --with-extra-includes=c:\3rdParty\protobuf\include;c:\3rdParty\boost_1_63_0
-	--with-extra-libs=c:\3rdParty\protobuf\libs
+5) Google Protocol Buffers / protocol compiler (protoc)
+In configuration of build there is no extra option to set additional dir with binaries,
+so ensure that proper 'protoc' is available on PATH while building. It is especially
+important in case of usage PHP SDK on Windows - its batch scripts may overwrite
+environment.
 
-There is no extra option to set additional dir with binaries, so ensure that proper
-protoc.exe is available on PATH while building. But keep in mind that script
-bin\phpsdk_setvars.bat (mentioned on ttps://wiki.php.net/internals/windows/stepbystepbuild)
-modifies PATH. So you may want to introduce additional changes for that environment
-variable after execution of above batch.
+6) Bison
+Ensure that proper version of Bison is on path while building.
 
-5) Bison on Windows
-Ensure that proper version of Bison is on path while building. Best the one
-delivered with php-sdk-binary-tools from http://windows.php.net/downloads/php-sdk,
-else (in case of improper bison.exe version) you may meet such build errors:
+If you build on Windows it is stronly recommended to use the one delivered with
+chosen PHP SDK, else (in case of improper bison.exe version) following error may
+be met:
 
 c:\php-sdk\phpdev\vc14\x86\connector-php-7.1.0\zend\zend_globals_macros.h(39):
 	error C2375: 'zendparse': redefinition; different linkage
 Zend/zend_language_parser.h(214): note: see declaration of 'zendparse'
 
-Besides, keep in mind that script
-bin\phpsdk_setvars.bat (mentioned on ttps://wiki.php.net/internals/windows/stepbystepbuild)
-also modifies PATH. So you may want to introduce changes for PATH environment variable afterwards.
+Besides, batch scripts from PHP SDK on Windows may overwrite environment.
 
-6) OpenSSL on Windows
-In case there appears error similar to:
-
----------------------------
-php.exe - Ordinal Not Found
----------------------------
-The ordinal 359 could not be located in the dynamic link library <path>\php7ts_debug.dll.
----------------------------
-
-Please ensure everything is fine with OpenSSL library. Try to rebuild without "--with-openssl" switch
-to be sure OpenSSL is the reason.
 
 
 Supported X DevAPI features
 ---------------------------
 - collections API - add, find, modify, remove
 - collection single doc API - getOne, replaceOne, addOrReplaceOne, removeOne
+- authentication modes: MYSQL41, PLAIN, EXTERNAL
 - table API - insert, select, update, delete
 - row locking for Collection.Find / Table.Select
-- view API - create, alter, drop
 - collection / table - getName, existsInDatabase, count
 - collection index - create, drop
 - resultsets / multi-resultsets
 - getCollection(s) / getTable(s) / getCollectionAsTable
-- dropCollection / dropTable
+- drop schema / collection
 
 For a simple use cases see examples.php or tests/*.phpt
 

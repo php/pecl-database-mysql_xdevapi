@@ -1,15 +1,7 @@
 // $Id$
 // vim:ft=javascript
 
-// Note: The extension name is "mysql-xdevapi", you enable it with
-// "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
-// is officially supported
-//
-// required 3rdParty libs may be also configured with below environment variables:
-// - MYSQL_XDEVAPI_PROTOBUF_ROOT to point out google protobuf root
-// - MYSQL_XDEVAPI_BOOST_ROOT to point out boost libraries
-// but check configure options too: --with-extra-includes --with-extra-libs
-
+// Note: see README for build details
 
 ARG_ENABLE("mysql-xdevapi",
 	"MySQL XDevAPI support | Hybrid Native Client Driver",
@@ -22,6 +14,14 @@ ARG_ENABLE("mysql-xdevapi-experimental-features",
 ARG_ENABLE("mysql-xdevapi-message-classes",
 	"Enable support for the experimental message classes in mysql-xdevapi",
 	"yes");
+
+ARG_WITH("boost",
+	"boost library install dir",
+	"");
+
+ARG_WITH("protobuf",
+	"protobuf library install dir",
+	"");
 
 
 var Mysql_xdevapi_ext = {
@@ -253,10 +253,13 @@ function path_exists(path) {
 	return file_system.FolderExists(path) || file_system.FileExists(path);
 }
 
+function prepare_optional_path(base_dir, sub_dir) {
+	if (!base_dir) return null;
+	return base_dir + '/' + sub_dir;
+}
+
 function search_path(base_paths, subpaths, label) {
 	print("Searching for " + (label ? label : subpaths) + " ... ");
-	println(base_paths);
-	println(subpaths);
 	for (var i = 0; i < base_paths.length; ++i) {
 		var base_path = base_paths[i];
 		if (!base_path) continue;
@@ -326,11 +329,15 @@ function hint_3rd_party_lib_env(env_var_name) {
 // ------
 
 function resolve_boost_root() {
-	var dirs_to_search = this.extra_includes.concat([
-		get_env_path('MYSQL_XDEVAPI_BOOST_ROOT'),
-		get_env_path('BOOST_ROOT'),
-		get_env_path('BOOST_PATH')
-	]);
+	var dirs_to_search =
+		[PHP_BOOST]
+		.concat(this.extra_includes)
+		.concat([
+			get_env_path('MYSQL_XDEVAPI_BOOST_ROOT'),
+			get_env_path('BOOST_ROOT'),
+			get_env_path('BOOST_PATH')
+		]
+	);
 
 	return search_base_path(dirs_to_search, "boost/version.hpp");
 }
@@ -339,7 +346,17 @@ function resolve_boost_paths() {
 	this.boost_root = resolve_boost_root();
 	if (!this.boost_root) {
 		hint_3rd_party_lib_env('MYSQL_XDEVAPI_BOOST_ROOT');
+		WARNING("boost library not found")
 	}
+}
+
+// ------
+
+function resolve_default_protobuf_root() {
+	var default_protoc_path = PATH_PROG('protoc', get_env("PATH"));
+	if (!default_protoc_path) return null;
+	var default_protobuf_bin_dir = file_system.GetParentFolderName(default_protoc_path);
+	return file_system.GetParentFolderName(default_protobuf_bin_dir);
 }
 
 // ------
@@ -348,12 +365,18 @@ function get_protobuf_lib_search_label() {
 	return '[lib]protobuf' + (PHP_DEBUG == "yes" ? '[d]' : '') + '.lib';
 }
 
-function get_protobuf_lib_search_dirs() {
-	return this.extra_libs.concat([
-		get_env_lib('MYSQL_XDEVAPI_PROTOBUF_ROOT'),
-		get_env_lib('PROTOBUF_ROOT'),
-		get_env_lib('PROTOBUF_PATH')
-	]);
+function get_protobuf_lib_search_dirs(default_protobuf_root) {
+	var search_dirs =
+		[prepare_optional_path(PHP_PROTOBUF, 'lib')]
+		.concat(this.extra_libs)
+		.concat([
+			get_env_lib('MYSQL_XDEVAPI_PROTOBUF_ROOT'),
+			get_env_lib('PROTOBUF_ROOT'),
+			get_env_lib('PROTOBUF_PATH'),
+			prepare_optional_path(default_protobuf_root, 'lib')
+		]);
+
+	return search_dirs;
 }
 
 function get_protobuf_lib_names() {
@@ -372,32 +395,35 @@ function get_protobuf_lib_names() {
 	return libnames;
 }
 
-function resolve_protobuf_lib_dir() {
-	var dirs_to_search = get_protobuf_lib_search_dirs();
+function resolve_protobuf_lib_dir(default_protobuf_root) {
+	var dirs_to_search = get_protobuf_lib_search_dirs(default_protobuf_root);
 	var libnames = get_protobuf_lib_names();
-	var label =  get_protobuf_lib_search_label();
+	var label = get_protobuf_lib_search_label();
 	return search_path(dirs_to_search, libnames, label);
 }
 
 // ------
 
-function resolve_protobuf_include_dir() {
-	var dirs_to_search = this.extra_includes.concat([
-		get_env_include('MYSQL_XDEVAPI_PROTOBUF_ROOT'),
-		get_env_include('PROTOBUF_ROOT'),
-		get_env_include('PROTOBUF_PATH')
-	]);
+function resolve_protobuf_include_dir(default_protobuf_root) {
+	var dirs_to_search =
+		[prepare_optional_path(PHP_PROTOBUF, 'include')]
+		.concat(this.extra_includes)
+		.concat([
+			get_env_include('MYSQL_XDEVAPI_PROTOBUF_ROOT'),
+			get_env_include('PROTOBUF_ROOT'),
+			get_env_include('PROTOBUF_PATH'),
+			prepare_optional_path(default_protobuf_root, 'include')
+		]);
 
 	return search_base_path(dirs_to_search, "google/protobuf");
 }
 
 function resolve_protoc_path() {
-	var lib_dir_root = this.protobuf_lib_path ? this.protobuf_lib_path.base_path + '/..' : null;
-	var include_dir_root = this.protobuf_include_dir ? this.protobuf_include_dir + '/..' : null;
 	var dirs_to_search = [
+		PHP_PROTOBUF,
 		get_env_path('MYSQL_XDEVAPI_PROTOBUF_ROOT'),
-		lib_dir_root,
-		include_dir_root,
+		prepare_optional_path(this.protobuf_lib_path ? this.protobuf_lib_path.base_path : null, '..'),
+		prepare_optional_path(this.protobuf_include_dir, '..'),
 		get_env_path('PROTOBUF_ROOT'),
 		get_env_path('PROTOBUF_PATH')
 	];
@@ -406,11 +432,13 @@ function resolve_protoc_path() {
 }
 
 function resolve_protobuf_paths() {
-	this.protobuf_lib_path = resolve_protobuf_lib_dir();
-	this.protobuf_include_dir = resolve_protobuf_include_dir();
+	var default_protobuf_root = resolve_default_protobuf_root();
+	this.protobuf_lib_path = resolve_protobuf_lib_dir(default_protobuf_root);
+	this.protobuf_include_dir = resolve_protobuf_include_dir(default_protobuf_root);
 	this.protoc_path = resolve_protoc_path();
 	if (!this.protobuf_lib_path || !this.protobuf_include_dir || !this.protoc_path) {
 		hint_3rd_party_lib_env('MYSQL_XDEVAPI_PROTOBUF_ROOT');
+		ERROR("protobuf library not found")
 	}
 }
 
@@ -612,7 +640,6 @@ if (PHP_MYSQL_XDEVAPI_SHARED) {
 }
 
 // dependencies
-AC_DEFINE("MYSQL_XDEVAPI_SSL_SUPPORTED", 1, "SSL support");
 add_dependency('json');
 add_dependency('mysqlnd');
 

@@ -1,11 +1,4 @@
-dnl  Note: The extension name is "mysql-xdevapi", you enable it with
-dnl  "--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
-dnl  is officially supported
-dnl
-dnl  required 3rdParty libs may be also configured with below environment variables:
-dnl  - MYSQL_XDEVAPI_PROTOBUF_ROOT to point out google protobuf root
-dnl  - MYSQL_XDEVAPI_BOOST_ROOT to point out boost libraries
-
+dnl Note: see README for build details
 
 PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
 	[  --enable-mysql-xdevapi       Enable mysql-xdevapi], no, yes)
@@ -17,6 +10,13 @@ PHP_ARG_ENABLE(mysql-xdevapi-experimental-features, whether to disable experimen
 PHP_ARG_ENABLE(mysql-xdevapi-message-classes, whether to enable the experimental message classes in mysql-xdevapi,
 	[  --enable-mysql-xdevapi-message-classes
 						Enable support for the experimental message classes in mysql-xdevapi], yes, no)
+
+PHP_ARG_WITH(boost, for boost install dir,
+	[  --with-boost[=DIR]          Point out boost library])
+
+PHP_ARG_WITH(protobuf, for protobuf install dir,
+	[  --with-protobuf[=DIR]          Point out protobuf library])
+
 
 dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
 if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes"; then
@@ -232,35 +232,43 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	dnl boost
 	AC_MSG_CHECKING([for boost])
-	SEARCH_PATH="$MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH /usr/local/include /usr/include"
+	SEARCH_PATH="$PHP_BOOST $MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH /usr/local/include /usr/include"
 	SEARCH_FOR="boost/version.hpp"
 	for i in $SEARCH_PATH ; do
-		if test -r $i/$SEARCH_FOR; then
+		if test -r "$i/$SEARCH_FOR"; then
 			BOOST_ROOT_FOUND=$i
 			break
 		fi
 	done
 
-	if test $BOOST_ROOT_FOUND; then
+	if test -d "$BOOST_ROOT_FOUND"; then
 		PHP_ADD_INCLUDE([$BOOST_ROOT_FOUND])
 		AC_MSG_RESULT(found in $BOOST_ROOT_FOUND)
 	else
-		AC_MSG_RESULT([not found, defaults applied (consider setting MYSQL_XDEVAPI_BOOST_ROOT)])
+		AC_MSG_WARN([not found, defaults applied (consider setting MYSQL_XDEVAPI_BOOST_ROOT)])
 	fi
 
 
 	dnl protobuf
 	AC_MSG_CHECKING([for protobuf])
-	SEARCH_PATH="$MYSQL_XDEVAPI_PROTOBUF_ROOT $PROTOBUF_ROOT $PROTOBUF_PATH /usr/local /usr"
+	SEARCH_PATH="$PHP_PROTOBUF $MYSQL_XDEVAPI_PROTOBUF_ROOT $PROTOBUF_ROOT $PROTOBUF_PATH /usr/local /usr"
 	SEARCH_FOR="bin/protoc"
 	for i in $SEARCH_PATH ; do
-		if test -r $i/$SEARCH_FOR; then
+		if test -r "$i/$SEARCH_FOR"; then
 			PROTOBUF_ROOT_FOUND=$i
 			break
 		fi
 	done
 
-	if test $PROTOBUF_ROOT_FOUND; then
+	if test -z "$PROTOBUF_ROOT_FOUND"; then
+		AC_PATH_PROG(PROTOC_PATH_RESOLVED, protoc)
+		if test -x "$PROTOC_PATH_RESOLVED"; then
+			PROTOBUF_BIN_DIR=$(dirname "$PROTOC_PATH_RESOLVED")
+			PROTOBUF_ROOT_FOUND=$(dirname "$PROTOBUF_BIN_DIR")
+		fi
+	fi
+
+	if test -d "$PROTOBUF_ROOT_FOUND"; then
 		MYSQL_XDEVAPI_PROTOC=$PROTOBUF_ROOT_FOUND/bin/protoc
 		PHP_SUBST(MYSQL_XDEVAPI_PROTOC)
 
@@ -272,12 +280,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 		AC_MSG_RESULT([found in $PROTOBUF_ROOT_FOUND])
 	else
-		MYSQL_XDEVAPI_PROTOC=protoc
-		PHP_SUBST(MYSQL_XDEVAPI_PROTOC)
-
-		PHP_ADD_LIBRARY(protobuf,, MYSQL_XDEVAPI_SHARED_LIBADD)
-
-		AC_MSG_RESULT([not found, defaults applied (consider setting MYSQL_XDEVAPI_PROTOBUF_ROOT)])
+		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi
 
 	PHP_ADD_MAKEFILE_FRAGMENT()
