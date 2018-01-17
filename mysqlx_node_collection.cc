@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -38,10 +38,10 @@ extern "C" {
 #include "mysqlx_node_collection.h"
 #include "mysqlx_node_doc_result.h"
 #include "mysqlx_node_schema.h"
-#include "phputils/allocator.h"
-#include "phputils/hash_table.h"
-#include "phputils/json_utils.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/hash_table.h"
+#include "util/json_utils.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -128,7 +128,7 @@ ZEND_END_ARG_INFO()
 
 
 
-struct st_mysqlx_node_collection : public phputils::custom_allocable
+struct st_mysqlx_node_collection : public util::custom_allocable
 {
 	XMYSQLND_NODE_COLLECTION * collection;
 };
@@ -170,7 +170,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSession)
 
 	RETVAL_FALSE;
 
-	throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::not_implemented);
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::not_implemented);
 
 	if (object->collection) {
 
@@ -375,7 +375,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, find)
 {
 	st_mysqlx_node_collection* object{nullptr};
 	zval* object_zv{nullptr};
-	phputils::string_view search_expr;
+	util::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::find");
 
@@ -404,7 +404,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, modify)
 {
 	st_mysqlx_node_collection* object{nullptr};
 	zval* object_zv{nullptr};
-	phputils::string_view search_expr;
+	util::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::modify");
 
@@ -434,7 +434,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, remove)
 {
 	st_mysqlx_node_collection* object{nullptr};
 	zval* object_zv{nullptr};
-	phputils::string_view search_expr;
+	util::string_view search_expr;
 
 	DBG_ENTER("mysqlx_node_collection::remove");
 
@@ -465,7 +465,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getOne)
 	DBG_ENTER("mysqlx_node_collection::getOne");
 
 	zval* object_zv{nullptr};
-	phputils::string_view id;
+	util::string_view id;
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os",
@@ -475,7 +475,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getOne)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_collection>(object_zv);
 
 	Collection_find coll_find;
 	const char* Get_one_search_expression = "_id = :id";
@@ -483,7 +483,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getOne)
 		DBG_VOID_RETURN;
 	}
 
-	phputils::Hash_table bind_variables;
+	util::Hash_table bind_variables;
 	bind_variables.insert("id", id);
 	coll_find.bind(bind_variables.ptr(), return_value);
 	if (Z_TYPE_P(return_value) == IS_FALSE) {
@@ -505,7 +505,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 	DBG_ENTER("mysqlx_node_collection::replaceOne");
 
 	zval* object_zv{nullptr};
-	phputils::string_view id;
+	util::string_view id;
 	zval* doc{nullptr};
 
 	if (FAILURE == zend_parse_method_parameters(
@@ -517,7 +517,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_collection>(object_zv);
 
 	Collection_modify coll_modify;
 	const char* Replace_one_search_expression = "$._id = :id";
@@ -525,16 +525,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 		DBG_VOID_RETURN;
 	}
 
-	phputils::Hash_table bind_variables;
+	util::Hash_table bind_variables;
 	bind_variables.insert("id", id);
 	coll_modify.bind(bind_variables.ptr(), return_value);
 	if (Z_TYPE_P(return_value) == IS_FALSE) {
 		DBG_VOID_RETURN;
 	}
 
-	const phputils::string_view Doc_root_path("$");
+	const util::string_view Doc_root_path("$");
 	zval doc_with_id;
-	phputils::json::ensure_doc_id(doc, id, &doc_with_id);
+	util::json::ensure_doc_id(doc, id, &doc_with_id);
 	coll_modify.set(Doc_root_path, true, &doc_with_id, return_value);
 
 	coll_modify.execute(return_value);
@@ -549,7 +549,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, replaceOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, addOrReplaceOne)
 {
 	zval* object_zv{nullptr};
-	phputils::string_view id;
+	util::string_view id;
 	zval* doc{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection::addOrReplaceOne");
@@ -563,11 +563,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, addOrReplaceOne)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_collection>(object_zv);
 
 	Collection_add coll_add;
 	zval doc_with_id;
-	phputils::json::ensure_doc_id(doc, id, &doc_with_id);
+	util::json::ensure_doc_id(doc, id, &doc_with_id);
 	if (!coll_add.init(object_zv, data_object.collection, id, &doc_with_id)) {
 		DBG_VOID_RETURN;
 	}
@@ -583,7 +583,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, addOrReplaceOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, removeOne)
 {
 	zval* object_zv{nullptr};
-	phputils::string_view id;
+	util::string_view id;
 
 	DBG_ENTER("mysqlx_node_collection::removeOne");
 
@@ -595,14 +595,14 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, removeOne)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_collection>(object_zv);
 	Collection_remove coll_remove;
 	const char* Remove_one_search_expression = "_id = :id";
 	if (!coll_remove.init(object_zv, data_object.collection, Remove_one_search_expression)) {
 		DBG_VOID_RETURN;
 	}
 
-	phputils::Hash_table bind_variables;
+	util::Hash_table bind_variables;
 	bind_variables.insert("id", id);
 	coll_remove.bind(bind_variables.ptr(), return_value);
 	if (Z_TYPE_P(return_value) == IS_FALSE) {
@@ -620,8 +620,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, removeOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, createIndex)
 {
 	zval* object_zv{nullptr};
-	phputils::string_view index_name;
-	phputils::string_view index_desc_json;
+	util::string_view index_name;
+	util::string_view index_desc_json;
 
 	DBG_ENTER("mysqlx_node_collection::createIndex");
 
@@ -636,7 +636,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, createIndex)
 
 	RETVAL_FALSE;
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_collection>(object_zv);
 	create_collection_index(data_object.collection, index_name, index_desc_json, return_value);
 
 	DBG_VOID_RETURN;
@@ -648,7 +648,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, createIndex)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, dropIndex)
 {
 	zval* object_zv{nullptr};
-	phputils::string_view index_name;
+	util::string_view index_name;
 
 	DBG_ENTER("mysqlx_node_collection::dropIndex");
 
@@ -660,7 +660,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, dropIndex)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_collection>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_collection>(object_zv);
 	drop_collection_index(data_object.collection, index_name, return_value);
 
 	DBG_VOID_RETURN;
@@ -754,7 +754,7 @@ static zend_object *
 php_mysqlx_node_collection_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_collection_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_collection>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_collection>(
 		class_type,
 		&mysqlx_object_node_collection_handlers,
 		&mysqlx_node_collection_properties);

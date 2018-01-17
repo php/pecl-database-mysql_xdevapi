@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,8 +26,8 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_expression.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -37,7 +37,7 @@ using namespace drv;
 
 static zend_class_entry * mysqlx_expression_class_entry;
 
-struct st_mysqlx_expression : public phputils::custom_allocable
+struct st_mysqlx_expression : public util::custom_allocable
 {
 	zval expression;
 };
@@ -149,7 +149,7 @@ static zend_object *
 php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_expression_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_expression>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_expression>(
 		class_type,
 		&mysqlx_object_expression_handlers,
 		&mysqlx_expression_properties);

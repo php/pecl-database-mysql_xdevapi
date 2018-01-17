@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -60,7 +60,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list)
 	func_xmysqlnd_warning_list__dtor dtor;
 };
 
-struct st_xmysqlnd_warning_list : public phputils::permanent_allocable
+struct st_xmysqlnd_warning_list : public util::permanent_allocable
 {
 	unsigned int warning_count;
 	st_xmysqlnd_warning* warnings;

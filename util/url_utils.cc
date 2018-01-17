@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -17,37 +17,45 @@
 */
 #include "php_api.h"
 extern "C" {
-#include <zend_exceptions.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
+#include <ext/standard/url.h>
 }
-#include "mysqlx_class_properties.h"
-#include "object.h"
+#include "url_utils.h"
+#include "string_utils.h"
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-/* {{{ mysqlx::phputils::safe_call_php_method */
-void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
+/* {{{ Url::Url */
+Url::Url(const php_url* phpurl)
+	: scheme(to_string(phpurl->scheme))
+	, user(to_string(phpurl->user))
+	, pass(to_string(phpurl->pass))
+	, host(to_string(phpurl->host))
+	, port(phpurl->port)
+	, path(to_string(phpurl->path))
+	, query(to_string(phpurl->query))
+	, fragment(to_string(phpurl->fragment))
 {
-	MYSQL_XDEVAPI_TRY {
-		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-	} MYSQL_XDEVAPI_CATCH
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::safe_call_php_function */
-void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS)
+
+/* {{{ Url::empty */
+bool Url::empty() const
 {
-	MYSQL_XDEVAPI_TRY {
-		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-	} MYSQL_XDEVAPI_CATCH
+	return scheme.empty()
+		&& user.empty()
+		&& pass.empty()
+		&& host.empty()
+		&& (port == 0)
+		&& path.empty()
+		&& query.empty()
+		&& fragment.empty();
 }
 /* }}} */
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

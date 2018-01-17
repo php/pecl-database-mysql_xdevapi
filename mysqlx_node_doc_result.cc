@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -38,8 +38,8 @@ extern "C" {
 #include "mysqlx_node_doc_result.h"
 #include "mysqlx_node_base_result.h"
 #include "mysqlx_field_metadata.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -260,7 +260,7 @@ static zend_object *
 php_mysqlx_node_doc_result_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_doc_result_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_doc_result>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_doc_result>(
 		class_type,
 		&mysqlx_object_node_doc_result_handlers,
 		&mysqlx_node_doc_result_properties);
@@ -335,7 +335,7 @@ void fetch_one_from_doc_result(zval* return_value) {
 		DBG_VOID_RETURN;
 	}
 
-	st_mysqlx_node_doc_result& doc_result = phputils::fetch_data_object<st_mysqlx_node_doc_result>(return_value);
+	st_mysqlx_node_doc_result& doc_result = util::fetch_data_object<st_mysqlx_node_doc_result>(return_value);
 
 	if (TRUE == doc_result.result->m.eof(doc_result.result)) {
 		RETVAL_NULL();

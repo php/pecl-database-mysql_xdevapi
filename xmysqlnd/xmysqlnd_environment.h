@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,7 +18,7 @@
 #ifndef XMYSQLND_ENVIRONMENT_H
 #define XMYSQLND_ENVIRONMENT_H
 
-#include "phputils/strings.h"
+#include "util/strings.h"
 
 namespace mysqlx {
 
@@ -33,7 +33,7 @@ struct Environment
 		Mysqlx_port
 	};
 
-	static phputils::string get_as_string(Variable var);
+	static util::string get_as_string(Variable var);
 	static int get_as_int(Variable var);
 
 };

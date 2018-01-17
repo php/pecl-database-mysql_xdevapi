@@ -31,7 +31,7 @@ struct st_mysqlnd_const_string;
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 template<typename CharT, typename Traits = std::char_traits<CharT>>
 using basic_string = std::basic_string<CharT, Traits, allocator<CharT>>;
@@ -61,7 +61,7 @@ std::ostream& operator<<(std::ostream& os, const string& str);
 	common scenario:
 
 	0)
-	phputils::string_view index_name;
+	util::string_view index_name;
 	[...]
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "Os+",
@@ -69,7 +69,7 @@ std::ostream& operator<<(std::ostream& os, const string& str);
 		&index_name.str, &index_name.len))
 
 	1) then optionally make some checks (whether is empty or make some 	comparison
-	like == ), or immediately get proper phputils::string via to_string() member routine
+	like == ), or immediately get proper util::string via to_string() member routine
 */
 /* {{{ string_view */
 struct string_view
@@ -164,7 +164,7 @@ struct string_view
 };
 /* }}} */
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

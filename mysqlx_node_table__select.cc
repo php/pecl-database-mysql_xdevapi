@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -39,8 +39,8 @@ extern "C" {
 #include "mysqlx_expression.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_table__select.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -88,7 +88,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__execute, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__select : public phputils::custom_allocable
+struct st_mysqlx_node_table__select : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__SELECT * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -415,7 +415,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockShared)
 
 	RETVAL_FALSE;
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
 	if (xmysqlnd_crud_table_select__enable_lock_shared(data_object.crud_op) == PASS) {
 		ZVAL_COPY(return_value, object_zv);
 	}
@@ -439,7 +439,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 
 	RETVAL_FALSE;
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
 	if (xmysqlnd_crud_table_select__enable_lock_exclusive(data_object.crud_op) == PASS) {
 		ZVAL_COPY(return_value, object_zv);
 	}
@@ -582,7 +582,7 @@ static zend_object *
 php_mysqlx_node_table__select_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_table__select_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_table__select>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_table__select>(
 		class_type,
 		&mysqlx_object_node_table__select_handlers,
 		&mysqlx_node_table__select_properties);
@@ -662,13 +662,13 @@ mysqlx_new_node_table__select(zval * return_value,
 /* {{{ get_stmt_from_table_select */
 Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)
 {
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
 	XMYSQLND_CRUD_TABLE_OP__SELECT* select_op = data_object.crud_op;
 	if (!select_op
 		|| (xmysqlnd_crud_table_select__finalize_bind(select_op) == FAIL)
 		|| !xmysqlnd_crud_table_select__is_initialized(select_op))
 	{
-		throw phputils::xdevapi_exception(phputils::xdevapi_exception::Code::find_fail);
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::find_fail);
 	}
 
 	st_xmysqlnd_pb_message_shell msg_shell = xmysqlnd_crud_table_select__get_protobuf_message(select_op);

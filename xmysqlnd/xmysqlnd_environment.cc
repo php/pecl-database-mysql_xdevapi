@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -16,7 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "xmysqlnd_environment.h"
-#include "phputils/strings.h"
+#include "util/strings.h"
 #include <cstdlib>
 
 namespace mysqlx {
@@ -24,7 +24,7 @@ namespace mysqlx {
 namespace drv {
 
 /* {{{ Environment::get_as_string */
-phputils::string Environment::get_as_string(Variable var)
+util::string Environment::get_as_string(Variable var)
 {
 	struct Variable_info {
 		const char* test_env_var;
@@ -57,7 +57,7 @@ phputils::string Environment::get_as_string(Variable var)
 /* {{{ Environment::get_as_int */
 int Environment::get_as_int(Variable var)
 {
-	const phputils::string& value_str = get_as_string(var);
+	const util::string& value_str = get_as_string(var);
 	return std::stoi(value_str.c_str());
 }
 /* }}} */

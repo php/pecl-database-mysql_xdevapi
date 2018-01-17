@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,70 +15,43 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#include "php_api.h"
+#ifndef MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
+#define MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
+
+#include "strings.h"
+
 extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
+struct php_url;
 }
-#include "allocator.h"
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-const alloc_tag_t alloc_tag{};
-const permanent_tag_t permanent_tag{};
-
-namespace internal
+/* {{{ Url */
+struct Url
 {
+	Url() = default;
+	Url(const php_url* phpurl);
 
-/* {{{ mysqlx::phputils::internal::mem_alloc */
-void* mem_alloc(std::size_t bytes_count)
-{
-	void* ptr = mnd_ecalloc(1, bytes_count);
-	if (ptr) {
-		return ptr;
-	} else {
-		throw std::bad_alloc();
-	}
-}
+	bool empty() const;
+
+	string scheme;
+	string user;
+	string pass;
+	string host;
+	unsigned short port = 0;
+	string path;
+	string query;
+	string fragment;
+};
 /* }}} */
 
-/* {{{ mysqlx::phputils::internal::mem_free */
-void mem_free(void* ptr)
-{
-	mnd_efree(ptr);
-}
-/* }}} */
-
-//------------------------------------------------------------------------------
-
-/* {{{ mysqlx::phputils::internal::mem_permanent_alloc */
-void* mem_permanent_alloc(std::size_t bytes_count)
-{
-	void* ptr = mnd_pecalloc(1, bytes_count, false);
-	if (ptr) {
-		return ptr;
-	} else {
-		throw std::bad_alloc();
-	}
-}
-/* }}} */
-
-/* {{{ mysqlx::phputils::internal::mem_permanent_free */
-void mem_permanent_free(void* ptr)
-{
-	mnd_pefree(ptr, false);
-}
-/* }}} */
-
-} // namespace internal
-
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
+
+#endif // MYSQL_XDEVAPI_PHPUTILS_URL_UTILS_H
 
 /*
  * Local variables:

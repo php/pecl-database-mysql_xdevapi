@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,7 +26,7 @@ namespace mysqlx {
 const int dont_allow_null = 0;
 const int no_pass_by_ref = 0;
 
-//TODO: these should be moved to phputils
+//TODO: these should be moved to util
 namespace devapi {
 struct st_mysqlx_property_entry;
 struct st_mysqlx_object;
@@ -34,11 +34,11 @@ struct st_mysqlx_object;
 
 //------------------------------------------------------------------------------
 
-namespace phputils {
+namespace util {
 
 using object_allocator_func_t = zend_object*(zend_class_entry*);
 
-/* {{{ mysqlx::phputils::register_class */
+/* {{{ mysqlx::util::register_class */
 template<typename ... Interfaces>
 zend_class_entry* register_class(
 	zend_class_entry* tmp_ce,
@@ -77,7 +77,7 @@ zend_class_entry* register_class(
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::register_derived_class */
+/* {{{ mysqlx::util::register_derived_class */
 template<typename ... Interfaces>
 zend_class_entry* register_derived_class(
 	zend_class_entry* tmp_ce,
@@ -102,8 +102,8 @@ zend_class_entry* register_derived_class(
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::alloc_object */
-template<typename Data_object, typename Allocation_tag = phputils::alloc_tag_t>
+/* {{{ mysqlx::util::alloc_object */
+template<typename Data_object, typename Allocation_tag = util::alloc_tag_t>
 devapi::st_mysqlx_object* alloc_object(
 	zend_class_entry* class_type,
 	zend_object_handlers* handlers,
@@ -114,7 +114,7 @@ devapi::st_mysqlx_object* alloc_object(
 	const std::size_t bytes_count = sizeof(st_mysqlx_object) + zend_object_properties_size(class_type);
 	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, Allocation_tag()));
 
-	static_assert(std::is_base_of<phputils::internal::allocable<Allocation_tag>, Data_object>::value, "custom allocation should be applied");
+	static_assert(std::is_base_of<util::internal::allocable<Allocation_tag>, Data_object>::value, "custom allocation should be applied");
 	mysqlx_object->ptr = new Data_object;
 
 	zend_object_std_init(&mysqlx_object->zo, class_type);
@@ -127,21 +127,21 @@ devapi::st_mysqlx_object* alloc_object(
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::alloc_permanent_object */
+/* {{{ mysqlx::util::alloc_permanent_object */
 template<typename Data_object>
 devapi::st_mysqlx_object* alloc_permanent_object(
 	zend_class_entry* class_type,
 	zend_object_handlers* handlers,
 	HashTable* properties)
 {
-	return alloc_object<Data_object, phputils::permanent_tag_t>(
+	return alloc_object<Data_object, util::permanent_tag_t>(
 		class_type,
 		handlers,
 		properties);
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::fetch_data_object */
+/* {{{ mysqlx::util::fetch_data_object */
 template<typename Data_object>
 Data_object& fetch_data_object(zval* from)
 {
@@ -150,26 +150,26 @@ Data_object& fetch_data_object(zval* from)
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(from);
 	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
 	if (!data_object) {
-		throw phputils::doc_ref_exception(phputils::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
+		throw util::doc_ref_exception(util::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
 	}
 	return *data_object;
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::init_object */
+/* {{{ mysqlx::util::init_object */
 template<typename Data_object>
 Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
 {
 	if ((SUCCESS == object_init_ex(mysqlx_object, ce)) && (IS_OBJECT == Z_TYPE_P(mysqlx_object))) {
-		auto& data_object = phputils::fetch_data_object<Data_object>(mysqlx_object);
+		auto& data_object = util::fetch_data_object<Data_object>(mysqlx_object);
 		return data_object;
 	} else {
-		throw phputils::doc_ref_exception(phputils::doc_ref_exception::Severity::warning, ce);
+		throw util::doc_ref_exception(util::doc_ref_exception::Severity::warning, ce);
 	}
 }
 /* }}} */
 
-/* {{{ mysqlx::phputils::free_object */
+/* {{{ mysqlx::util::free_object */
 template<typename Data_object>
 void free_object(zend_object* object)
 {
@@ -185,7 +185,7 @@ void free_object(zend_object* object)
 /* }}} */
 
 
-/* {{{ mysqlx::phputils::free_object */
+/* {{{ mysqlx::util::free_object */
 template<typename Result, typename Result_iterator>
 zend_object_iterator* create_result_iterator(
 	zend_class_entry* ce,
@@ -228,7 +228,7 @@ using php_function_t = void(INTERNAL_FUNCTION_PARAMETERS);
 void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS);
 void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS);
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 
@@ -246,7 +246,7 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 { \
 	zend_class_entry tmp_ce; \
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", class_name, methods); \
-	class_entry = phputils::register_class( \
+	class_entry = util::register_class( \
 		&tmp_ce, \
 		std_handlers, \
 		&handlers, \
@@ -268,7 +268,7 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 { \
 	zend_class_entry tmp_ce; \
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", class_name, methods); \
-	class_entry = phputils::register_derived_class( \
+	class_entry = util::register_derived_class( \
 		&tmp_ce, \
 		base_class_entry, \
 		&properties, \
@@ -280,7 +280,7 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
 static PHP_METHOD(class_name, name) \
 { \
-	phputils::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
+	util::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
 } \
 static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 
@@ -289,7 +289,7 @@ static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 static void function_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
 PHP_FUNCTION(name) \
 { \
-	phputils::safe_call_php_function(function_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
+	util::safe_call_php_function(function_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
 } \
 static void function_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 

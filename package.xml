@@ -209,7 +209,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="mysqlx_resultset__resultset_metadata.cc" role="src" />
     <file name="mysqlx_resultset__resultset_metadata.h" role="src" />
    </dir>
-   <dir name="phputils">
+   <dir name="util">
     <file name="allocator.cc" role="src" />
     <file name="allocator.h" role="src" />
     <file name="exceptions.cc" role="src" />
@@ -296,7 +296,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="collection_parallel_shared_exclusive.phpt" role="test" />
      <file name="collection_parallel_shared_exclusive_worker.php" role="test" />
      <file name="collection_sequential.phpt" role="test" />
-     <file name="mysqlx_row_locking.inc" role="test" />
+     <file name="row_locking_utils.inc" role="test" />
      <file name="table_misc.phpt" role="test" />
      <file name="table_parallel_exclusive_exclusive.phpt" role="test" />
      <file name="table_parallel_exclusive_exclusive_worker.php" role="test" />

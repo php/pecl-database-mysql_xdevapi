@@ -248,13 +248,13 @@
 	$Lock_shared = "shared";
 	$Lock_exclusive = "exclusive";
 
-	function check_value($val, $expected_id, $expected_n, $stack_depth = 4) {
-		expect_eq($val['_id'], $expected_id, '_id', $stack_depth);
-		expect_eq($val['n'], $expected_n, 'n', $stack_depth);
+	function check_value($val, $expected_id, $expected_n) {
+		expect_eq($val['_id'], $expected_id, '_id');
+		expect_eq($val['n'], $expected_n, 'n');
 	}
 
 	function check_one($res, $expected_id, $expected_n) {
-		check_value($res->fetchOne(), $expected_id, $expected_n, $stack_depth = 3);
+		check_value($res->fetchOne(), $expected_id, $expected_n);
 	}
 
 	function exec_lock_cmd($cmd, $lock) {
@@ -280,8 +280,7 @@
 
 		$res = exec_lock_cmd($cmd, $lock);
 		$vals = $res->fetchAll();
-		$stack_depth = 3;
-		expect_eq(count($vals), count($expected_vals), "count($vals)", $stack_depth);
+		expect_eq(count($vals), count($expected_vals), "count($vals)");
 
 		for ($i = 0; $i < count($ids); $i++) {
 			check_value($vals[$i], $ids[$i], $expected_vals[$i]);

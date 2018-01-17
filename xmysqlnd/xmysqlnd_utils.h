@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,7 +18,7 @@
 #ifndef XMYSQLND_UTILS_H
 #define XMYSQLND_UTILS_H
 
-#include "phputils/strings.h"
+#include "util/strings.h"
 
 namespace mysqlx {
 
@@ -38,7 +38,7 @@ void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
 void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
 
 //https://en.wikipedia.org/wiki/Percent-encoding
-phputils::string decode_pct_path(const phputils::string& encoded_path);
+util::string decode_pct_path(const util::string& encoded_path);
 
 } // namespace drv
 

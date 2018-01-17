@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_DOC_RESULT_H
 #define MYSQLX_NODE_DOC_RESULT_H
 
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -28,7 +28,7 @@ struct st_xmysqlnd_node_stmt_result;
 
 namespace devapi {
 
-struct st_mysqlx_node_doc_result : public phputils::custom_allocable
+struct st_mysqlx_node_doc_result : public util::custom_allocable
 {
 	drv::st_xmysqlnd_node_stmt_result* result;
 };

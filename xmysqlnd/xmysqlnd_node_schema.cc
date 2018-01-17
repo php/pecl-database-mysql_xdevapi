@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -300,7 +300,7 @@ collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQL
 static const enum_func_status
 xmysqlnd_collection_op(
 	XMYSQLND_NODE_SCHEMA * const schema,
-	const phputils::string_view& collection_name,
+	const util::string_view& collection_name,
 	const MYSQLND_CSTRING query,
 	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
@@ -340,7 +340,7 @@ xmysqlnd_collection_op(
 static XMYSQLND_NODE_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
-	const phputils::string_view& collection_name,
+	const util::string_view& collection_name,
 	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	static const MYSQLND_CSTRING query = {"create_collection", sizeof("create_collection") - 1 };
@@ -365,7 +365,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, drop_collection)(
 	XMYSQLND_NODE_SCHEMA * const schema,
-	const phputils::string_view& collection_name,
+	const util::string_view& collection_name,
 	const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
@@ -398,7 +398,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_table_object)(XMYSQLND_NODE_SCHEMA 
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, drop_table)(
 	XMYSQLND_NODE_SCHEMA* const schema,
-	const phputils::string_view& table_name,
+	const util::string_view& table_name,
 	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;

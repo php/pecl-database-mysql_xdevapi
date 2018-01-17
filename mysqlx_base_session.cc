@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -34,8 +34,8 @@ extern "C" {
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_session.h"
-#include "phputils/object.h"
-#include "phputils/string_utils.h"
+#include "util/object.h"
+#include "util/string_utils.h"
 
 namespace mysqlx {
 
@@ -418,7 +418,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 {
 	zval * object_zv;
 	st_mysqlx_session* object;
-	phputils::string_view schema_name;
+	util::string_view schema_name;
 
 	DBG_ENTER("mysqlx_base_session::getSchema");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(),
@@ -483,7 +483,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 {
 	zval* object_zv{nullptr};
-	phputils::string_view schema_name;
+	util::string_view schema_name;
 
 	DBG_ENTER("mysqlx_base_session::dropSchema");
 	if (zend_parse_method_parameters(
@@ -493,7 +493,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_session>(object_zv);
 
 	RETVAL_FALSE;
 	try {
@@ -501,10 +501,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 		if (PASS == session->m->drop_db(session, schema_name.to_nd_cstr())) {
 			RETVAL_TRUE;
 		} else {
-			phputils::log_warning("cannot drop schema '" + schema_name.to_string() + "'");
+			util::log_warning("cannot drop schema '" + schema_name.to_string() + "'");
 		}
 	} catch(std::exception& e) {
-		phputils::log_warning(e.what());
+		util::log_warning(e.what());
 	}
 
 	DBG_VOID_RETURN;
@@ -594,7 +594,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 
 
 /* {{{ generate_savepoint_name*/
-static phputils::string
+static util::string
 generate_savepoint_name( const unsigned int name_seed )
 {
 	static const std::string SAVEPOINT_NAME_PREFIX{ "SAVEPOINT" };
@@ -610,7 +610,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 {
 	zval * object_zv;
 	DBG_ENTER("mysqlx_base_session::setSavepoint");
-	phputils::string_view savepoint_name;
+	util::string_view savepoint_name;
 
 	if (zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O|s",
@@ -619,11 +619,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_session>(object_zv);
 	RETVAL_FALSE;
 
-	phputils::string query{ "SAVEPOINT " };
-	phputils::string name;
+	util::string query{ "SAVEPOINT " };
+	util::string name;
 	if( savepoint_name.empty() ) {
 		//Generate a valid savepoint name
 		name = generate_savepoint_name( data_object.session->data->savepoint_name_seed++ );
@@ -654,7 +654,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
 {
 	zval* object_zv = nullptr;
-	phputils::string_view savepoint_name;
+	util::string_view savepoint_name;
 
 	DBG_ENTER("mysqlx_base_session::rollbackTo");
 	if (zend_parse_method_parameters(
@@ -665,10 +665,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
 	}
 
 
-	phputils::string name = escape_identifier( savepoint_name.to_string() );
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>( object_zv);
+	util::string name = escape_identifier( savepoint_name.to_string() );
+	auto& data_object = util::fetch_data_object<st_mysqlx_session>( object_zv);
 	RETVAL_FALSE;
-	const phputils::string query{ "ROLLBACK TO " + name };
+	const util::string query{ "ROLLBACK TO " + name };
 
 	if (data_object.session) {
 		zval * args{ nullptr };
@@ -690,7 +690,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollbackTo)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, releaseSavepoint)
 {
 	zval* object_zv = nullptr;
-	phputils::string_view savepoint_name;
+	util::string_view savepoint_name;
 
 	DBG_ENTER("mysqlx_base_session::releaseSavepoint");
 	if (zend_parse_method_parameters(
@@ -701,11 +701,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, releaseSavepoint)
 	}
 
 
-	phputils::string name = escape_identifier( savepoint_name.to_string() );
-	auto& data_object = phputils::fetch_data_object<st_mysqlx_session>( object_zv);
+	util::string name = escape_identifier( savepoint_name.to_string() );
+	auto& data_object = util::fetch_data_object<st_mysqlx_session>( object_zv);
 	RETVAL_FALSE;
 
-	const phputils::string query{ "RELEASE SAVEPOINT " + name };
+	const util::string query{ "RELEASE SAVEPOINT " + name };
 
 	if (data_object.session) {
 		zval * args{ nullptr };
@@ -921,7 +921,7 @@ static zend_object *
 php_mysqlx_base_session_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_base_session_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_session>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_session>(
 		class_type,
 		&mysqlx_object_base_session_handlers,
 		&mysqlx_base_session_properties);

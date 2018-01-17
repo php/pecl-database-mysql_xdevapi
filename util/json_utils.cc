@@ -29,7 +29,7 @@ extern "C" {
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 namespace json {
 
@@ -185,7 +185,7 @@ void ensure_doc_id_as_string(
 	zval* doc)
 {
 	zval doc_with_string_id;
-	phputils::json::ensure_doc_id(
+	util::json::ensure_doc_id(
 		doc,
 		doc_id,
 		&doc_with_string_id);
@@ -196,7 +196,7 @@ void ensure_doc_id_as_string(
 
 } // namespace json
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

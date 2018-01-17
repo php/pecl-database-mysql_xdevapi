@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_SQL_STATEMENT_H
 #define MYSQLX_NODE_SQL_STATEMENT_H
 
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -48,7 +48,7 @@ enum mysqlx_result_type
 #define MYSQLX_EXECUTE_ALL_FLAGS	(0 | MYSQLX_EXECUTE_FLAG_ASYNC | MYSQLX_EXECUTE_FLAG_BUFFERED)
 #define MYSQLX_EXECUTE_FWD_PREFETCH_COUNT 100
 
-struct st_mysqlx_node_statement : public phputils::custom_allocable
+struct st_mysqlx_node_statement : public util::custom_allocable
 {
 	drv::XMYSQLND_NODE_STMT * stmt;
 	drv::XMYSQLND_STMT_OP__EXECUTE * stmt_execute;

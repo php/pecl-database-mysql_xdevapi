@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -34,8 +34,8 @@ extern "C" {
 #include "mysqlx_executable.h"
 #include "mysqlx_node_sql_statement.h"
 #include "mysqlx_node_table__insert.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -54,7 +54,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__insert__execute, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__insert : public phputils::custom_allocable
+struct st_mysqlx_node_table__insert : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__INSERT * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -249,7 +249,7 @@ static zend_object *
 php_mysqlx_node_table__insert_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_node_table__insert_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_object<st_mysqlx_node_table__insert>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_table__insert>(
 		class_type,
 		&mysqlx_object_node_table__insert_handlers,
 		&mysqlx_node_table__insert_properties);

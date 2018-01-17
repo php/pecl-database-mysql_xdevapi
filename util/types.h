@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,61 +15,48 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
-#define MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
+#ifndef MYSQL_XDEVAPI_PHP_TYPES_H
+#define MYSQL_XDEVAPI_PHP_TYPES_H
 
-#include <cstddef>
+#include <deque>
+#include <map>
+#include <set>
+#include <stack>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+#include "allocator.h"
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-struct string_view;
+template<typename T>
+using vector = std::vector<T, allocator<T>>;
 
-/* {{{ Hash_table */
-class Hash_table
-{
-	public:
-		Hash_table(std::size_t hint_size = 0);
-		Hash_table(zval* zv, bool owner);
-		~Hash_table();
+template<typename Key, typename T, typename Compare = std::less<Key>>
+using map = std::map<Key, T, Compare, allocator<std::pair<const Key, T>>>;
 
-		// temporarily disabled
-		Hash_table(const Hash_table&) = delete;
-		Hash_table& operator=(const Hash_table&) = delete;
+template<typename Key, typename Compare = std::less<Key>>
+using set = std::set<Key, Compare, allocator<Key>>;
 
-	public:
-		bool empty() const;
-		std::size_t size() const;
-		void clear();
+template<typename Key, typename T, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
+using unordered_map = std::unordered_map<Key, T, Hash, KeyEqual, allocator<std::pair<const Key, T>>>;
 
-		HashTable* ptr();
-		zval* zv_ptr();
+template<typename Key, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
+using unordered_set = std::unordered_set<Key, Hash, KeyEqual, allocator<Key>>;
 
-	public:
-		zval* find(const long key);
-		zval* find(const string_view& key);
+template<typename T>
+using deque = std::deque<T, std::allocator<T>>;
 
-	public:
-		void insert(const char* key, const string_view& value);
-		void insert(const char* key, std::size_t key_len, const string_view& value);
-		void insert(const char* key, zval* value);
+template<typename T, typename Container = deque<T>>
+using stack = std::stack<T, Container>;
 
-		void erase(const char* key);
-		void erase(const long key);
-
-	private:
-		bool owner{false};
-		HashTable* ht{nullptr};
-
-};
-/* }}} */
-
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 
-#endif // MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
+#endif // MYSQL_XDEVAPI_PHP_TYPES_H
 
 /*
  * Local variables:

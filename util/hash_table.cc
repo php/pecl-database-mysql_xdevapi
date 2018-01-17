@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -29,7 +29,7 @@
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 Hash_table::Hash_table(std::size_t hint_size) : owner(true)
 {
@@ -110,7 +110,7 @@ void Hash_table::insert(const char* key, zval* value)
 	zend_hash_str_update(ht, key, std::strlen(key), value);
 }
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

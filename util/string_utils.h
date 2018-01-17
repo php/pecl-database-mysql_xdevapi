@@ -24,7 +24,7 @@
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
 /* {{{ iless */
 struct iless
@@ -38,7 +38,7 @@ struct iless
 		);
 	}
 
-	bool operator()(const phputils::string& lhs, const phputils::string& rhs) const
+	bool operator()(const util::string& lhs, const util::string& rhs) const
 	{
 		return std::lexicographical_compare(
 			lhs.begin(), lhs.end(),
@@ -115,9 +115,9 @@ strings to_strings(zval* zvals, int count, Pred pred)
 /*
  * Escape an identifier name adding '`' everywhere needed
  */
-phputils::string escape_identifier( const phputils::string& identifier );
+util::string escape_identifier( const util::string& identifier );
 
-} // namespace phputils
+} // namespace util
 
 } // namespace mysqlx
 

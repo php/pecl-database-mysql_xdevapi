@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,48 +15,70 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHP_TYPES_H
-#define MYSQL_XDEVAPI_PHP_TYPES_H
-
-#include <deque>
-#include <map>
-#include <set>
-#include <stack>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#include "php_api.h"
+extern "C" {
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 #include "allocator.h"
 
 namespace mysqlx {
 
-namespace phputils {
+namespace util {
 
-template<typename T>
-using vector = std::vector<T, allocator<T>>;
+const alloc_tag_t alloc_tag{};
+const permanent_tag_t permanent_tag{};
 
-template<typename Key, typename T, typename Compare = std::less<Key>>
-using map = std::map<Key, T, Compare, allocator<std::pair<const Key, T>>>;
+namespace internal
+{
 
-template<typename Key, typename Compare = std::less<Key>>
-using set = std::set<Key, Compare, allocator<Key>>;
+/* {{{ mysqlx::util::internal::mem_alloc */
+void* mem_alloc(std::size_t bytes_count)
+{
+	void* ptr = mnd_ecalloc(1, bytes_count);
+	if (ptr) {
+		return ptr;
+	} else {
+		throw std::bad_alloc();
+	}
+}
+/* }}} */
 
-template<typename Key, typename T, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
-using unordered_map = std::unordered_map<Key, T, Hash, KeyEqual, allocator<std::pair<const Key, T>>>;
+/* {{{ mysqlx::util::internal::mem_free */
+void mem_free(void* ptr)
+{
+	mnd_efree(ptr);
+}
+/* }}} */
 
-template<typename Key, typename Hash = std::hash<Key>,typename KeyEqual = std::equal_to<Key>>
-using unordered_set = std::unordered_set<Key, Hash, KeyEqual, allocator<Key>>;
+//------------------------------------------------------------------------------
 
-template<typename T>
-using deque = std::deque<T, std::allocator<T>>;
+/* {{{ mysqlx::util::internal::mem_permanent_alloc */
+void* mem_permanent_alloc(std::size_t bytes_count)
+{
+	void* ptr = mnd_pecalloc(1, bytes_count, false);
+	if (ptr) {
+		return ptr;
+	} else {
+		throw std::bad_alloc();
+	}
+}
+/* }}} */
 
-template<typename T, typename Container = deque<T>>
-using stack = std::stack<T, Container>;
+/* {{{ mysqlx::util::internal::mem_permanent_free */
+void mem_permanent_free(void* ptr)
+{
+	mnd_pefree(ptr, false);
+}
+/* }}} */
 
-} // namespace phputils
+} // namespace internal
+
+} // namespace util
 
 } // namespace mysqlx
-
-#endif // MYSQL_XDEVAPI_PHP_TYPES_H
 
 /*
  * Local variables:

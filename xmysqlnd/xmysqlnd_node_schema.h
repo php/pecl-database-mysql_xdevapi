@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -19,8 +19,8 @@
 #define XMYSQLND_NODE_SCHEMA_H
 
 #include "xmysqlnd_driver.h"
-#include "phputils/allocator.h"
-#include "phputils/strings.h"
+#include "util/allocator.h"
+#include "util/strings.h"
 
 namespace mysqlx {
 
@@ -61,19 +61,19 @@ typedef st_xmysqlnd_node_collection* (*func_xmysqlnd_node_schema__create_collect
 
 typedef st_xmysqlnd_node_collection* (*func_xmysqlnd_node_schema__create_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
-	const phputils::string_view& collection_name,
+	const util::string_view& collection_name,
 	const st_xmysqlnd_node_schema_on_error_bind on_error);
 
 typedef enum_func_status (*func_xmysqlnd_node_schema__drop_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
-	const phputils::string_view& collection_name,
+	const util::string_view& collection_name,
 	const st_xmysqlnd_node_schema_on_error_bind on_error);
 
 typedef st_xmysqlnd_node_table* (*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
 
 typedef enum_func_status (*func_xmysqlnd_node_schema__drop_table)(
 	XMYSQLND_NODE_SCHEMA* const schema,
-	const phputils::string_view& table_name,
+	const util::string_view& table_name,
 	const st_xmysqlnd_node_schema_on_error_bind on_error);
 
 bool is_table_object_type(const MYSQLND_CSTRING& object_type);
@@ -119,7 +119,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 	func_xmysqlnd_node_schema__dtor dtor;
 };
 
-struct st_xmysqlnd_node_schema_data : public phputils::permanent_allocable
+struct st_xmysqlnd_node_schema_data : public util::permanent_allocable
 {
 	st_xmysqlnd_node_session* session;
 	MYSQLND_STRING schema_name;
@@ -132,7 +132,7 @@ struct st_xmysqlnd_node_schema_data : public phputils::permanent_allocable
 };
 
 
-struct st_xmysqlnd_node_schema : public phputils::permanent_allocable
+struct st_xmysqlnd_node_schema : public util::permanent_allocable
 {
 	XMYSQLND_NODE_SCHEMA_DATA * data;
 

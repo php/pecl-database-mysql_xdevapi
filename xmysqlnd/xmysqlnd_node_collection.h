@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,7 +20,7 @@
 
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_crud_collection_commands.h"
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -72,7 +72,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection)
 	func_xmysqlnd_node_collection__dtor dtor;
 };
 
-struct st_xmysqlnd_node_collection_data : public phputils::permanent_allocable
+struct st_xmysqlnd_node_collection_data : public util::permanent_allocable
 {
 	st_xmysqlnd_node_schema* schema;
 	MYSQLND_STRING  collection_name;
@@ -85,7 +85,7 @@ struct st_xmysqlnd_node_collection_data : public phputils::permanent_allocable
 };
 
 
-struct st_xmysqlnd_node_collection : public phputils::permanent_allocable
+struct st_xmysqlnd_node_collection : public util::permanent_allocable
 {
 	XMYSQLND_NODE_COLLECTION_DATA * data;
 

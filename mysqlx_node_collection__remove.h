@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -30,13 +30,13 @@ struct st_xmysqlnd_crud_collection_op__remove;
 namespace devapi {
 
 /* {{{ Collection_remove */
-class Collection_remove : public phputils::custom_allocable
+class Collection_remove : public util::custom_allocable
 {
 public:
 	bool init(
 		zval* object_zv,
 		drv::st_xmysqlnd_node_collection* collection,
-		const phputils::string_view& search_expression);
+		const util::string_view& search_expression);
 	~Collection_remove();
 
 public:
@@ -63,7 +63,7 @@ private:
 
 void mysqlx_new_node_collection__remove(
 	zval* return_value,
-	const phputils::string_view& search_expression,
+	const util::string_view& search_expression,
 	drv::st_xmysqlnd_node_collection* collection);
 void mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS);

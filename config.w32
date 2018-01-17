@@ -106,7 +106,7 @@ var mysqlx_messages = [
 	"mysqlx_message__data_fetch_done.cc"
 ];
 
-var mysqlx_phputils = [
+var mysqlx_util = [
 	"allocator.cc",
 	"exceptions.cc",
 	"hash_table.cc",
@@ -599,7 +599,7 @@ generate_protobufs();
 
 init_extension(mysqlx_devapi_sources);
 add_sources("messages", mysqlx_messages);
-add_sources("phputils", mysqlx_phputils);
+add_sources("util", mysqlx_util);
 add_sources("xmysqlnd", xmysqlnd_sources);
 add_sources("xmysqlnd/cdkbase/core", xmysqlnd_cdkbase_core);
 add_sources("xmysqlnd/cdkbase/foundation", xmysqlnd_cdkbase_foundation);

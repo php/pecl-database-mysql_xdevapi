@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -28,8 +28,8 @@ extern "C" {
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_node_stmt.h"
-#include "phputils/strings.h"
-#include "phputils/types.h"
+#include "util/strings.h"
+#include "util/types.h"
 #include <array>
 
 namespace mysqlx {
@@ -155,23 +155,23 @@ struct st_xmysqlnd_session_auth_data
 {
 	st_xmysqlnd_session_auth_data();
 
-	phputils::string hostname;
+	util::string hostname;
 	unsigned int port;
-	phputils::string username;
-	phputils::string password;
+	util::string username;
+	util::string password;
 	//SSL information
 	SSL_mode ssl_mode;
 	bool ssl_enabled;
 	bool ssl_no_defaults;
-	phputils::string ssl_local_pk;
-	phputils::string ssl_local_cert;
-	phputils::string ssl_cafile;
-	phputils::string ssl_capath;
-	phputils::string ssl_passphrase;
-	phputils::string ssl_ciphers;
-	phputils::string ssl_crl;
-	phputils::string ssl_crlpath;
-	phputils::string tls_version;
+	util::string ssl_local_pk;
+	util::string ssl_local_cert;
+	util::string ssl_cafile;
+	util::string ssl_capath;
+	util::string ssl_passphrase;
+	util::string ssl_ciphers;
+	util::string ssl_crl;
+	util::string ssl_crlpath;
+	util::string tls_version;
 	Auth_mode auth_mode = Auth_mode::unspecified;
 
 	/*
@@ -225,7 +225,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__local_tx_end)(XMYSQL
 typedef size_t				(*func_xmysqlnd_node_session_data__negotiate_client_api_capabilities)(XMYSQLND_NODE_SESSION_DATA * const session, const size_t flags);
 typedef size_t				(*func_xmysqlnd_node_session_data__get_client_api_capabilities)(const XMYSQLND_NODE_SESSION_DATA * const session);
 
-typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__get_scheme)(XMYSQLND_NODE_SESSION_DATA * session, const phputils::string& hostname, unsigned int port);
+typedef MYSQLND_STRING		(*func_xmysqlnd_node_session_data__get_scheme)(XMYSQLND_NODE_SESSION_DATA * session, const util::string& hostname, unsigned int port);
 
 typedef const enum_hnd_func_status (*func_xmysqlnd_node_session_data__handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 typedef const enum_hnd_func_status (*func_xmysqlnd_node_session_data__handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * const output);
@@ -277,7 +277,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 };
 
 
-struct st_xmysqlnd_node_session_data : public phputils::permanent_allocable
+struct st_xmysqlnd_node_session_data : public util::permanent_allocable
 {
 	/* Operation related */
 	XMYSQLND_L3_IO	io;
@@ -290,7 +290,7 @@ struct st_xmysqlnd_node_session_data : public phputils::permanent_allocable
 	MYSQLND_STRING	current_db;
 	transport_types transport_type;
 	/* Used only in case of non network transports */
-	phputils::string socket_path;
+	util::string socket_path;
 	char			*server_host_info;
 	size_t			client_id;
 
@@ -503,7 +503,7 @@ struct Uuid_format
  * generation algorithm as specified by
  * http://www.ietf.org/rfc/rfc4122.txt
  */
-class Uuid_generator : public phputils::custom_allocable
+class Uuid_generator : public util::custom_allocable
 {
 public:
 	using pointer = Uuid_generator*;
@@ -524,7 +524,7 @@ private:
 	Uuid_format::node_id_t session_node_id;
 };
 
-struct st_xmysqlnd_node_session : public phputils::permanent_allocable
+struct st_xmysqlnd_node_session : public util::permanent_allocable
 {
 	XMYSQLND_NODE_SESSION_DATA * data;
 	char * server_version_string;

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,7 +18,7 @@
 #ifndef MYSQLX_NODE_CONNECTION_H
 #define MYSQLX_NODE_CONNECTION_H
 
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -29,7 +29,7 @@ namespace msg {
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_node_connection_class_entry;
 
-struct st_mysqlx_node_connection : phputils::permanent_allocable
+struct st_mysqlx_node_connection : util::permanent_allocable
 {
 	MYSQLND_VIO		* vio;
 	MYSQLND_STATS	* stats;

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -20,7 +20,7 @@
 
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
-#include "phputils/allocator.h"
+#include "util/allocator.h"
 
 namespace mysqlx {
 
@@ -50,7 +50,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec)
 	func_xmysqlnd_pfc__dtor dtor;
 };
 
-struct st_xmysqlnd_protocol_frame_codec_data : public phputils::permanent_allocable
+struct st_xmysqlnd_protocol_frame_codec_data : public util::permanent_allocable
 {
 	php_stream		*stream;
 	size_t			max_packet_size;
@@ -61,7 +61,7 @@ struct st_xmysqlnd_protocol_frame_codec_data : public phputils::permanent_alloca
 };
 
 
-struct st_xmysqlnd_protocol_frame_codec : public phputils::permanent_allocable
+struct st_xmysqlnd_protocol_frame_codec : public util::permanent_allocable
 {
 	MYSQLND_CMD_BUFFER	cmd_buffer;
 

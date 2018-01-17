@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -27,8 +27,8 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
+#include "util/allocator.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -38,7 +38,7 @@ using namespace drv;
 
 static zend_class_entry * mysqlx_execution_status_class_entry;
 
-struct st_mysqlx_execution_status : public phputils::permanent_allocable
+struct st_mysqlx_execution_status : public util::permanent_allocable
 {
 	size_t items_affected;
 	size_t items_matched;
@@ -175,7 +175,7 @@ static zend_object *
 php_mysqlx_execution_status_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_execution_status_object_allocator");
-	st_mysqlx_object* mysqlx_object = phputils::alloc_permanent_object<st_mysqlx_execution_status>(
+	st_mysqlx_object* mysqlx_object = util::alloc_permanent_object<st_mysqlx_execution_status>(
 		class_type,
 		&mysqlx_object_execution_status_handlers,
 		&mysqlx_execution_status_properties);

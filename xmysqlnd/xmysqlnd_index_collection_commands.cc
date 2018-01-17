@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -36,12 +36,12 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "proto_gen/mysqlx_sql.pb.h"
 #include "proto_gen/mysqlx_expr.pb.h"
-#include "phputils/allocator.h"
-#include "phputils/object.h"
-#include "phputils/pb_utils.h"
-#include "phputils/strings.h"
-#include "phputils/string_utils.h"
-#include "phputils/types.h"
+#include "util/allocator.h"
+#include "util/object.h"
+#include "util/pb_utils.h"
+#include "util/strings.h"
+#include "util/string_utils.h"
+#include "util/types.h"
 
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 #include "xmysqlnd/crud_parsers/expression_parser.h"
@@ -64,7 +64,7 @@ bool Index_field::is_required() const
 
 // -----------------------------------------------------------------------------
 
-Index_definition::Index_definition(const phputils::string_view& index_name)
+Index_definition::Index_definition(const util::string_view& index_name)
 	: name(index_name.to_string())
 	, is_unique(false) //TODO temporary - shouldn't be needed in future version of server
 {
@@ -73,7 +73,7 @@ Index_definition::Index_definition(const phputils::string_view& index_name)
 	}
 }
 
-boost::optional<phputils::string> Index_definition::get_type_str() const
+boost::optional<util::string> Index_definition::get_type_str() const
 {
 	using Type_to_str = std::map<Index_definition::Type, std::string>;
 	static const Type_to_str type_to_str = {
@@ -81,8 +81,8 @@ boost::optional<phputils::string> Index_definition::get_type_str() const
 		{ Index_definition::Type::Spatial, "SPATIAL" }
 	};
 
-	if (type) return phputils::to_string(type_to_str.at(type.get()));
-	return boost::optional<phputils::string>();
+	if (type) return util::to_string(type_to_str.at(type.get()));
+	return boost::optional<util::string>();
 }
 
 /****************************** COLLECTION.CREATE_INDEX() *******************************************************/
@@ -92,8 +92,8 @@ namespace
 
 struct collection_create_index_var_binder_ctx
 {
-	const phputils::string_view& schema_name;
-	const phputils::string_view& collection_name;
+	const util::string_view& schema_name;
+	const util::string_view& collection_name;
 	const Index_definition& index_def;
 };
 
@@ -113,7 +113,7 @@ private:
 
 private:
 	const collection_create_index_var_binder_ctx& ctx;
-	phputils::pb::Object* idx_obj{nullptr};
+	util::pb::Object* idx_obj{nullptr};
 
 };
 
@@ -121,7 +121,7 @@ Bind_create_index_args::Bind_create_index_args(
 	Mysqlx::Sql::StmtExecute& stmt_message,
 	const collection_create_index_var_binder_ctx& ctx)
 	: ctx{ctx}
-	, idx_obj{phputils::pb::add_object_arg(stmt_message)}
+	, idx_obj{util::pb::add_object_arg(stmt_message)}
 {
 }
 
@@ -134,32 +134,32 @@ void Bind_create_index_args::run()
 void Bind_create_index_args::bind_index_args()
 {
 	const Index_definition& index_def = ctx.index_def;
-	phputils::pb::add_field_to_object("schema", ctx.schema_name, idx_obj);
-	phputils::pb::add_field_to_object("collection", ctx.collection_name, idx_obj);
-	phputils::pb::add_field_to_object("name", index_def.name, idx_obj);
-	phputils::pb::add_optional_field_to_object("type", index_def.get_type_str(), idx_obj);
-	phputils::pb::add_optional_field_to_object("unique", index_def.is_unique, idx_obj);
+	util::pb::add_field_to_object("schema", ctx.schema_name, idx_obj);
+	util::pb::add_field_to_object("collection", ctx.collection_name, idx_obj);
+	util::pb::add_field_to_object("name", index_def.name, idx_obj);
+	util::pb::add_optional_field_to_object("type", index_def.get_type_str(), idx_obj);
+	util::pb::add_optional_field_to_object("unique", index_def.is_unique, idx_obj);
 }
 
 void Bind_create_index_args::bind_index_fields()
 {
-	std::unique_ptr<phputils::pb::Array> fields{std::make_unique<phputils::pb::Array>()};
+	std::unique_ptr<util::pb::Array> fields{std::make_unique<util::pb::Array>()};
 
 	for (auto field : ctx.index_def.fields) {
-		std::unique_ptr<phputils::pb::Object> pb_obj{std::make_unique<phputils::pb::Object>()};
+		std::unique_ptr<util::pb::Object> pb_obj{std::make_unique<util::pb::Object>()};
 
-		phputils::pb::add_field_to_object("member", field.path, pb_obj);
-		phputils::pb::add_field_to_object("type", field.type, pb_obj);
-		phputils::pb::add_field_to_object("required", field.is_required(), pb_obj);
+		util::pb::add_field_to_object("member", field.path, pb_obj);
+		util::pb::add_field_to_object("type", field.type, pb_obj);
+		util::pb::add_field_to_object("required", field.is_required(), pb_obj);
 		if (field.is_geojson()) {
-			phputils::pb::add_optional_field_to_object("options", field.options, pb_obj);
-			phputils::pb::add_optional_field_to_object("srid", field.srid, pb_obj);
+			util::pb::add_optional_field_to_object("options", field.options, pb_obj);
+			util::pb::add_optional_field_to_object("srid", field.srid, pb_obj);
 		}
 
-		phputils::pb::add_value_to_array(pb_obj.release(), fields);
+		util::pb::add_value_to_array(pb_obj.release(), fields);
 	}
 
-	phputils::pb::add_field_to_object("constraint", fields.release(), idx_obj);
+	util::pb::add_field_to_object("constraint", fields.release(), idx_obj);
 }
 
 /* {{{ collection_create_index_var_binder */
@@ -187,8 +187,8 @@ collection_create_index_var_binder(
 /* {{{ collection_create_index_execute */
 bool collection_create_index_execute(
 	st_xmysqlnd_node_session* const session,
-	const phputils::string_view& schema_name,
-	const phputils::string_view& collection_name,
+	const util::string_view& schema_name,
+	const util::string_view& collection_name,
 	const Index_definition& index_def,
 	st_xmysqlnd_node_session_on_error_bind on_error)
 {
@@ -230,9 +230,9 @@ namespace
 
 struct collection_drop_index_var_binder_ctx
 {
-	const phputils::string_view& schema_name;
-	const phputils::string_view& collection_name;
-	const phputils::string_view& index_name;
+	const util::string_view& schema_name;
+	const util::string_view& collection_name;
+	const util::string_view& index_name;
 };
 
 /* {{{ collection_drop_index_var_binder */
@@ -249,11 +249,11 @@ collection_drop_index_var_binder(
 
 	Mysqlx::Sql::StmtExecute& stmt_message = xmysqlnd_stmt_execute__get_pb_msg(stmt_execute);
 
-	phputils::pb::Object* idx_obj{phputils::pb::add_object_arg(stmt_message)};
+	util::pb::Object* idx_obj{util::pb::add_object_arg(stmt_message)};
 
-	phputils::pb::add_field_to_object("schema", ctx->schema_name, idx_obj);
-	phputils::pb::add_field_to_object("collection", ctx->collection_name, idx_obj);
-	phputils::pb::add_field_to_object("name", ctx->index_name, idx_obj);
+	util::pb::add_field_to_object("schema", ctx->schema_name, idx_obj);
+	util::pb::add_field_to_object("collection", ctx->collection_name, idx_obj);
+	util::pb::add_field_to_object("name", ctx->index_name, idx_obj);
 
 	DBG_RETURN(HND_PASS);
 }
@@ -264,9 +264,9 @@ collection_drop_index_var_binder(
 /* {{{ collection_drop_index_execute */
 bool collection_drop_index_execute(
 	st_xmysqlnd_node_session* const session,
-	const phputils::string_view& schema_name,
-	const phputils::string_view& collection_name,
-	const phputils::string_view& index_name,
+	const util::string_view& schema_name,
+	const util::string_view& collection_name,
+	const util::string_view& index_name,
 	st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__execute");

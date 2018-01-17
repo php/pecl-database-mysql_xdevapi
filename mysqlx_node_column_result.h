@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2017 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,7 +26,7 @@ struct st_xmysqlnd_result_field_meta;
 
 namespace devapi {
 
-struct st_mysqlx_node_column_result : public phputils::custom_allocable
+struct st_mysqlx_node_column_result : public util::custom_allocable
 {
 	const drv::st_xmysqlnd_result_field_meta * meta;
 };
