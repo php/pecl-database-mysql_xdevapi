@@ -169,11 +169,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const pfc, enum_
 {
 	DBG_ENTER("xmysqlnd_pfc::set_client_option");
 	DBG_INF_FMT("option=%u", option);
-	switch (option) {
-		default:
-			DBG_RETURN(FAIL);
-	}
-	DBG_RETURN(PASS);
+	DBG_RETURN(FAIL);
 }
 /* }}} */
 

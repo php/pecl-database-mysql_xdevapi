@@ -172,7 +172,10 @@ xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_
 			break;
 	}
 	if (state_type != EXEC_STATE_NONE) {
-		ret = on_execution_state_change.handler(on_execution_state_change.ctx, state_type, scalar2uint(message.value()));
+		ret = on_execution_state_change.handler(
+			on_execution_state_change.ctx, 
+			state_type, 
+			static_cast<size_t>(scalar2uint(message.value())));
 	}
 
 #ifdef PHP_DEBUG
@@ -227,7 +230,9 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 				break;
 			case Mysqlx::Notice::SessionStateChanged::CLIENT_ID_ASSIGNED:
 				if (on_client_id.handler) {
-					const enum_func_status status = on_client_id.handler(on_client_id.ctx, scalar2uint(message.value()));
+					const enum_func_status status = on_client_id.handler(
+						on_client_id.ctx, 
+						static_cast<size_t>(scalar2uint(message.value())));
 					ret = (status == PASS)? HND_AGAIN : HND_FAIL;
 				}
 				break;
@@ -610,7 +615,7 @@ capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * re
 {
 	DBG_ENTER("capabilities_to_zv");
 	array_init_size(return_value, message.capabilities_size());
-	for (unsigned int i = 0; i < message.capabilities_size(); ++i) {
+	for (int i = 0; i < message.capabilities_size(); ++i) {
 		zval zv = {0};
 		any2zval(message.capabilities(i).value(), &zv);
 		if (Z_REFCOUNTED(zv)) {
@@ -1374,7 +1379,7 @@ enum_func_status xmysqlnd_row_sint_field_to_zval( zval* zv,
 		} else
 #endif
 		{
-			ZVAL_LONG(zv, ival);
+			ZVAL_LONG(zv, static_cast<zend_long>(ival));
 			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(zv));
 		}
 	} else {
@@ -1406,7 +1411,7 @@ enum_func_status xmysqlnd_row_uint_field_to_zval( zval* zv,
 			ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
 			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(zv));
 		} else {
-			ZVAL_LONG(zv, gval);
+			ZVAL_LONG(zv, static_cast<zend_long>(gval));
 			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(zv));
 		}
 	} else {
@@ -1594,10 +1599,10 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 					ret = FAIL;
 					break;
 				}
-				ZVAL_STRINGL(&set_entry, set_value, gval);
+				ZVAL_STRINGL(&set_entry, set_value, static_cast<zend_long>(gval));
 				DBG_INF_FMT("[%u]subvalue=%s", j, Z_STRVAL(set_entry));
 				zend_hash_next_index_insert(Z_ARRVAL_P(zv), &set_entry);
-				if (!input_stream.Skip(gval)) {
+				if (!input_stream.Skip(static_cast<int>(gval))) {
 					break;
 				}
 			}

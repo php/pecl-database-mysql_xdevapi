@@ -198,9 +198,9 @@ get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 			else if(meta->content_type == CT_GEOMETRY)
 				return FIELD_TYPE_GEOMETRY;
 			const st_mysqlnd_charset * set =
-					mysqlnd_find_charset_nr(meta->collation);
+					mysqlnd_find_charset_nr(static_cast<unsigned int>(meta->collation));
 			if (set == nullptr) {
-				RAISE_EXCEPTION(10001,"Unable to extract metadata");
+				throw util::xdevapi_exception(util::xdevapi_exception::Code::meta_fail);
 			} else if (std::strcmp(set->collation, "binary")) {
 				return FIELD_TYPE_BYTES;
 			} else {
@@ -229,8 +229,7 @@ get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 		return FIELD_TYPE_BIT;
 	case XMYSQLND_TYPE_NONE:
 	default:
-		RAISE_EXCEPTION(err_msg_meta_fail);
-		break;
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::meta_fail);
 	}
 }
 /* }}} */
@@ -267,7 +266,7 @@ void
 get_column_length(zval* return_value, std::uint32_t length)
 {
 #if SIZEOF_ZEND_LONG==4
-	if (std::numeric_limits<zend_long>::max() < length) {
+	if (static_cast<std::uint32_t>(std::numeric_limits<zend_long>::max()) < length) {
 		ZVAL_DOUBLE(return_value, length);
 	} else
 #endif /* #if SIZEOF_LONG==4 */
@@ -322,7 +321,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 						 object->meta->name.l);
 			break;
 		case type:
-			ZVAL_LONG(return_value,get_column_type(object->meta));
+			ZVAL_LONG(return_value,static_cast<zend_long>(get_column_type(object->meta)));
 			break;
 		case length:
 			get_column_length(return_value, object->meta->length);
@@ -337,7 +336,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 		case characterset_name:
 			{
 				const st_mysqlnd_charset* set =
-						mysqlnd_find_charset_nr(object->meta->collation);
+					mysqlnd_find_charset_nr(static_cast<unsigned int>(object->meta->collation));
 				if( set != nullptr && set->collation != nullptr ) {
 					if( selected_meta_field == collation_name ) {
 						ZVAL_STRINGL(return_value,

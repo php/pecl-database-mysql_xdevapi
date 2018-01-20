@@ -254,7 +254,7 @@ mysqlx_column_meta_property__collation(const st_mysqlx_object* obj, zval * retur
 	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__collation");
 	if (object->message.has_collation()) {
-		ZVAL_LONG(return_value, object->message.collation());
+		ZVAL_LONG(return_value, static_cast<zend_long>(object->message.collation()));
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value

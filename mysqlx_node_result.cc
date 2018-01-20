@@ -137,12 +137,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAutoIncrementValue)
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (exec_state) {
-			const size_t value = exec_state->m->get_last_insert_id(exec_state);
+			const uint64_t value = exec_state->m->get_last_insert_id(exec_state);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
 				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
-				ZVAL_LONG(return_value, value);
+				ZVAL_LONG(return_value, static_cast<zend_long>(value));
 				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 			}
 		}

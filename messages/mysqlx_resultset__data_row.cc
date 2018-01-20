@@ -102,12 +102,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 			php_error_docref(nullptr, E_WARNING, "Zero columns");
 			DBG_VOID_RETURN;
 		}
-		//TODO marines
-        const size_t max_column_count = 256;
-        assert(column_count < max_column_count);
-        //const st_mysqlx_column_metadata* meta_ar[column_count];
-        const st_mysqlx_column_metadata* meta_ar[max_column_count];
-        unsigned int i = 0;
+		util::vector<const st_mysqlx_column_metadata*> meta_ar(column_count, nullptr);
+		unsigned int i = 0;
 		/* ZEND_HASH_FOREACH_PTR ?? */
 		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {
@@ -173,7 +169,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						} else
 #endif
 						{
-							ZVAL_LONG(&zv, ival);
+							ZVAL_LONG(&zv, static_cast<zend_long>(ival));
 						}
 					} else {
 						php_error_docref(nullptr, E_WARNING, "Error decoding SINT");
@@ -194,7 +190,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 #endif
 							ZVAL_NEW_STR(&zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
 						} else {
-							ZVAL_LONG(&zv, gval);
+							ZVAL_LONG(&zv, static_cast<zend_long>(gval));
 						}
 					} else {
 						php_error_docref(nullptr, E_WARNING, "Error decoding UINT");
@@ -335,9 +331,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 									php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
 									break;
 								}
-								ZVAL_STRINGL(&set_entry, set_value, gval);
+								ZVAL_STRINGL(&set_entry, set_value, static_cast<size_t>(gval));
 								zend_hash_next_index_insert(Z_ARRVAL(zv), &set_entry);
-								if (!input_stream.Skip(gval)) {
+								if (!input_stream.Skip(static_cast<int>(gval))) {
 									break;
 								}
 							}

@@ -1102,7 +1102,7 @@ struct st_xmysqlnd_stmt_op__execute
 	~st_xmysqlnd_stmt_op__execute()
 	{
 		if (params) {
-			for(int i{0}; i < params_allocated; ++i ) {
+			for(unsigned int i{0}; i < params_allocated; ++i ) {
 				zval_ptr_dtor(&params[i]);
 			}
 			mnd_efree(params);

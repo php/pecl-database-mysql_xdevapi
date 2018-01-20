@@ -191,7 +191,6 @@ mysqlx_execute_base_session_query(XMYSQLND_NODE_SESSION * const session,
 				ZVAL_COPY(return_value, &zv);
 			}
 		}
-end:
 		zval_ptr_dtor(&stmt_zv);
 	}
 
