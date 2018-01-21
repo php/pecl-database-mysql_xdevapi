@@ -1589,7 +1589,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 			if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 				zval set_entry;
 				DBG_INF_FMT("[%u]value length=%3u  rest_buffer_size=%3d", j, (uint) gval, rest_buffer_size);
-				if (gval > static_cast<decltype(gval)>(rest_buffer_size)) {
+				if ((rest_buffer_size < 0) || (gval > static_cast<decltype(gval)>(rest_buffer_size))) {
 					DBG_ERR("Length pointing outside of the buffer");
 					php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
 					ret = FAIL;
@@ -1765,6 +1765,8 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 			break;
 		}
 		case XMYSQLND_TYPE_NONE:{
+			DBG_INF("type    =NONE");
+			break;
 		}
 		}
 		DBG_INF_FMT("TYPE(zv)=%s", ztype2str(zv));
