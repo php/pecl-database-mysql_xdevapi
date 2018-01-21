@@ -2867,7 +2867,7 @@ vec_of_addresses list_of_addresses_parser::parse()
 	 * Either all -1 (no priority) or every
 	 * host shall have its own priority
 	 */
-	long prio_cnt{ 0 };
+	size_t prio_cnt{ 0 };
 	for( auto&& elem : list_of_addresses ) {
 		if( elem.second >= 0 ) {
 			++prio_cnt;
@@ -2947,7 +2947,7 @@ bool list_of_addresses_parser::parse_round_token(const util::string &str)
 				}
 				ss_pos[0] = idx + 1;
 			} else if( str[ idx ] == ',' ||
-					   i == 1 && str[ idx ] == ')' ) {
+					   (i == 1 && str[ idx ] == ')') ) {
 				if( ss_pos[1] != 0 ) {
 					return false;
 				}

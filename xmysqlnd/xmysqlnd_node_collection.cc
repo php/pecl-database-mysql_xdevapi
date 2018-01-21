@@ -237,30 +237,23 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, count)(
 	XMYSQLND_NODE_SCHEMA * schema = collection->data->schema;
 	XMYSQLND_NODE_SESSION * session = schema->data->session;
 
-	char* query_str;
+	char* query_str{nullptr};
 	mnd_sprintf(&query_str, 0, "SELECT COUNT(*) FROM %s.%s", schema->data->schema_name.s, collection->data->collection_name.s);
 	if (!query_str) {
 		DBG_RETURN(FAIL);
 	}
 	const MYSQLND_CSTRING query = {query_str, strlen(query_str)};
 
-	struct st_collection_exists_in_database_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->data->schema_name),
-		mnd_str2c(collection->data->collection_name),
-		0
-	};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
-
-	struct st_collection_sql_single_result_ctx on_row_ctx = {
+ 	st_collection_sql_single_result_ctx on_row_ctx = {
 		counter
 	};
 
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { collection_sql_single_result_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_node_session_on_row_bind on_row = { collection_sql_single_result_op_on_row, &on_row_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_sql,
 							   query,
-							   noop__var_binder, //var_binder,
+							   noop__var_binder,
 							   noop__on_result_start,
 							   on_row,
 							   noop__on_warning,
@@ -284,7 +277,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, add)(XMYSQLND_NODE_COLLECTION * const 
 	struct st_xmysqlnd_message_factory msg_factory;
 	struct st_xmysqlnd_msg__collection_add collection_add;
 
-	if( xmysqlnd_crud_collection_add__finalize_bind(crud_op) == SUCCESS ) {
+	if( xmysqlnd_crud_collection_add__finalize_bind(crud_op) == PASS ) {
 		session = collection->data->schema->data->session;
 
 		msg_factory = xmysqlnd_get_message_factory(&session->data->io,

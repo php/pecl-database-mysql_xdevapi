@@ -335,7 +335,6 @@ static const size_t
 xmysqlnd_send_protobuf_message(st_mysqlx_node_connection* connection, st_mysqlx_node_pfc* codec,
 							   enum xmysqlnd_client_message_type packet_type, ::google::protobuf::Message & message)
 {
-	size_t ret;
 	DBG_ENTER("xmysqlnd_send_protobuf_message");
 
 	const size_t payload_size = message.ByteSize();
@@ -346,7 +345,7 @@ xmysqlnd_send_protobuf_message(st_mysqlx_node_connection* connection, st_mysqlx_
 		DBG_RETURN(0);
 	}
 	message.SerializeToArray(payload, payload_size);
-	ret = codec->pfc->data->m.send(codec->pfc, connection->vio,
+	codec->pfc->data->m.send(codec->pfc, connection->vio,
 								   packet_type,
 								   (zend_uchar *) payload, payload_size,
 								   &bytes_sent,
@@ -657,7 +656,6 @@ capabilities_get_on_CAPABILITIES(const Mysqlx::Connection::Capabilities & messag
 static const enum_hnd_func_status
 capabilities_get_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	st_xmysqlnd_msg__capabilities_get* const ctx = static_cast<st_xmysqlnd_msg__capabilities_get* >(context);
 	return HND_AGAIN;
 }
 /* }}} */
@@ -780,7 +778,6 @@ capabilities_set_on_ERROR(const Mysqlx::Error & error, void * context)
 static const enum_hnd_func_status
 capabilities_set_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	st_xmysqlnd_msg__capabilities_set* const ctx = static_cast<st_xmysqlnd_msg__capabilities_set* >(context);
 	return HND_AGAIN;
 }
 /* }}} */
@@ -1268,7 +1265,6 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData & message, v
 	++ctx->field_count;
 	DBG_INF_FMT("field_count=%u", ctx->field_count);
 
-	XMYSQLND_RESULT_FIELD_META* field{nullptr};
 #if ENABLE_MYSQLX_CTORS
 	if (ctx->response_zval) {
 		mysqlx_new_column_metadata(ctx->response_zval, message);
@@ -1593,7 +1589,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 			if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 				zval set_entry;
 				DBG_INF_FMT("[%u]value length=%3u  rest_buffer_size=%3d", j, (uint) gval, rest_buffer_size);
-				if (gval > rest_buffer_size) {
+				if (gval > static_cast<decltype(gval)>(rest_buffer_size)) {
 					DBG_ERR("Length pointing outside of the buffer");
 					php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
 					ret = FAIL;
@@ -1767,6 +1763,8 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 			DBG_INF("type    =DECIMAL");
 			ret = xmysqlnd_row_decimal_field_to_zval( zv, buf, buf_size );
 			break;
+		}
+		case XMYSQLND_TYPE_NONE:{
 		}
 		}
 		DBG_INF_FMT("TYPE(zv)=%s", ztype2str(zv));
@@ -2042,7 +2040,6 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 static const enum_hnd_func_status
 con_close_on_OK(const Mysqlx::Ok & message, void * context)
 {
-	st_xmysqlnd_msg__connection_close* const ctx = static_cast<st_xmysqlnd_msg__connection_close* >(context);
 	return HND_PASS;
 }
 /* }}} */
@@ -2053,7 +2050,6 @@ static const enum_hnd_func_status
 con_close_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	st_xmysqlnd_msg__connection_close* const ctx = static_cast<st_xmysqlnd_msg__connection_close* >(context);
-	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("con_close_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
@@ -2065,7 +2061,6 @@ con_close_on_ERROR(const Mysqlx::Error & error, void * context)
 static const enum_hnd_func_status
 con_close_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	st_xmysqlnd_msg__connection_close* const ctx = static_cast<st_xmysqlnd_msg__connection_close* >(context);
 	return HND_AGAIN;
 }
 /* }}} */
@@ -2152,7 +2147,6 @@ xmysqlnd_con_close__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 static const enum_hnd_func_status
 collection_add_on_OK(const Mysqlx::Ok & message, void * context)
 {
-	st_xmysqlnd_msg__collection_add* const ctx = static_cast<st_xmysqlnd_msg__collection_add* >(context);
 	return HND_PASS;
 }
 /* }}} */
@@ -2163,7 +2157,6 @@ static const enum_hnd_func_status
 collection_add_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	st_xmysqlnd_msg__collection_add* const ctx = static_cast<st_xmysqlnd_msg__collection_add* >(context);
-	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("collection_add_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
@@ -2175,7 +2168,6 @@ collection_add_on_ERROR(const Mysqlx::Error & error, void * context)
 static const enum_hnd_func_status
 collection_add_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	st_xmysqlnd_msg__collection_add* const ctx = static_cast<st_xmysqlnd_msg__collection_add* >(context);
 	return HND_AGAIN;
 }
 /* }}} */
@@ -2269,7 +2261,6 @@ xmysqlnd_collection_add__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQ
 static const enum_hnd_func_status
 table_insert_on_OK(const Mysqlx::Ok & message, void * context)
 {
-	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx* >(context);
 	return HND_PASS;
 }
 /* }}} */
@@ -2280,7 +2271,6 @@ static const enum_hnd_func_status
 table_insert_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx* >(context);
-	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("table_insert_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
@@ -2416,7 +2406,6 @@ xmysqlnd_table_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 static const enum_hnd_func_status
 collection_ud_on_OK(const Mysqlx::Ok & message, void * context)
 {
-	st_xmysqlnd_msg__collection_ud* const ctx = static_cast<st_xmysqlnd_msg__collection_ud* >(context);
 	return HND_PASS;
 }
 /* }}} */
@@ -2427,7 +2416,6 @@ static const enum_hnd_func_status
 collection_ud_on_ERROR(const Mysqlx::Error & error, void * context)
 {
 	st_xmysqlnd_msg__collection_ud* const ctx = static_cast<st_xmysqlnd_msg__collection_ud* >(context);
-	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("collection_ud_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
@@ -2439,7 +2427,6 @@ collection_ud_on_ERROR(const Mysqlx::Error & error, void * context)
 static const enum_hnd_func_status
 collection_ud_on_NOTICE(const Mysqlx::Notice::Frame & message, void * context)
 {
-	st_xmysqlnd_msg__collection_ud* const ctx = static_cast<st_xmysqlnd_msg__collection_ud* >(context);
 	return HND_AGAIN;
 }
 /* }}} */
@@ -2693,7 +2680,6 @@ xmysqlnd_collection_read__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 static const enum_hnd_func_status
 view_cmd_on_OK(const Mysqlx::Ok & message, void* context)
 {
-	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx*>(context);
 	return HND_PASS;
 }
 /* }}} */
@@ -2704,7 +2690,6 @@ static const enum_hnd_func_status
 view_cmd_on_ERROR(const Mysqlx::Error & error, void* context)
 {
 	st_xmysqlnd_result_ctx* const ctx = static_cast<st_xmysqlnd_result_ctx*>(context);
-	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	DBG_ENTER("view_cmd_on_ERROR");
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;

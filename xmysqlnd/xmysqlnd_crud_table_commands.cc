@@ -90,8 +90,6 @@ xmysqlnd_crud_table__add_orderby(MSG& message,
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__add_orderby");
 	DBG_INF_FMT("orderby=%*s", orderby.l, orderby.s);
-	google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order >* mutable_order =
-			message.mutable_order();
 	const Mysqlx::Crud::DataModel data_model =
 			message.data_model();
 	try {
@@ -689,7 +687,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 	Mysqlx::Crud::UpdateOperation * operation = obj->message.mutable_operation()->Add();
 	operation->set_operation(op_type);
 
-	std::auto_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
+	std::unique_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
 
 	try {
 		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);
@@ -891,7 +889,6 @@ struct st_xmysqlnd_crud_table_op__select
 void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 											const int num_of_columns)
 {
-	zend_bool is_expression{FALSE};
 	enum_func_status ret{PASS};
 	int i{0};
 

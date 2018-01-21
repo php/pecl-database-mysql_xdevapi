@@ -171,8 +171,6 @@ void Collection_remove::limit(
 		DBG_VOID_RETURN;
 	}
 
-	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
-
 	RETVAL_FALSE;
 
 	if (PASS == xmysqlnd_crud_collection_remove__set_limit(remove_op, rows)) {

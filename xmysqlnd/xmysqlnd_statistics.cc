@@ -23,6 +23,7 @@ extern "C" {
 }
 #include "xmysqlnd_enum_n_def.h"
 #include "php_mysql_xdevapi.h"
+#include "util/string_utils.h"
 
 namespace mysqlx {
 
@@ -30,27 +31,25 @@ namespace drv {
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_STATS* xmysqlnd_global_stats{nullptr};
 
-
-
 /* {{{ mysqlnd_stats_values_names */
 const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 {
-	{ MYSQLND_STR_W_LEN("bytes_sent") },
-	{ MYSQLND_STR_W_LEN("bytes_received") },
-	{ MYSQLND_STR_W_LEN("packets_sent") },
-	{ MYSQLND_STR_W_LEN("packets_received") },
-	{ MYSQLND_STR_W_LEN("protocol_overhead_in") },
-	{ MYSQLND_STR_W_LEN("protocol_overhead_out") },
-	{ MYSQLND_STR_W_LEN("explicit_close") },
-	{ MYSQLND_STR_W_LEN("implicit_close") },
-	{ MYSQLND_STR_W_LEN("disconnect_close") },
-	{ MYSQLND_STR_W_LEN("connect_success") },
-	{ MYSQLND_STR_W_LEN("connect_failure") },
-	{ MYSQLND_STR_W_LEN("connection_reused") },
-	{ MYSQLND_STR_W_LEN("reconnect") },
-	{ MYSQLND_STR_W_LEN("pconnect_success") },
-	{ MYSQLND_STR_W_LEN("active_connections") },
-	{ MYSQLND_STR_W_LEN("active_persistent_connections") },
+	{ util::literal_to_mysqlnd_str("bytes_sent") },
+	{ util::literal_to_mysqlnd_str("bytes_received") },
+	{ util::literal_to_mysqlnd_str("packets_sent") },
+	{ util::literal_to_mysqlnd_str("packets_received") },
+	{ util::literal_to_mysqlnd_str("protocol_overhead_in") },
+	{ util::literal_to_mysqlnd_str("protocol_overhead_out") },
+	{ util::literal_to_mysqlnd_str("explicit_close") },
+	{ util::literal_to_mysqlnd_str("implicit_close") },
+	{ util::literal_to_mysqlnd_str("disconnect_close") },
+	{ util::literal_to_mysqlnd_str("connect_success") },
+	{ util::literal_to_mysqlnd_str("connect_failure") },
+	{ util::literal_to_mysqlnd_str("connection_reused") },
+	{ util::literal_to_mysqlnd_str("reconnect") },
+	{ util::literal_to_mysqlnd_str("pconnect_success") },
+	{ util::literal_to_mysqlnd_str("active_connections") },
+	{ util::literal_to_mysqlnd_str("active_persistent_connections") },
 };
 /* }}} */
 

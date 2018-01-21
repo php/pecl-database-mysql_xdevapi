@@ -319,23 +319,16 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 	}
 	const MYSQLND_CSTRING query = {query_str, strlen(query_str)};
 
-	struct table_or_view_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->data->schema_name),
-		mnd_str2c(table->data->table_name),
-		0
-	};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
-
-	struct st_table_sql_single_result_ctx on_row_ctx = {
+	st_table_sql_single_result_ctx on_row_ctx = {
 		counter
 	};
 
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { table_sql_single_result_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_node_session_on_row_bind on_row = { table_sql_single_result_op_on_row, &on_row_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_sql,
 							   query,
-							   noop__var_binder, //var_binder,
+							   noop__var_binder,
 							   noop__on_result_start,
 							   on_row,
 							   noop__on_warning,

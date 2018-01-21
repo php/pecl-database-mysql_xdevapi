@@ -89,8 +89,6 @@ xmysqlnd_crud_collection__add_sort(MSG& message,
 {
 	DBG_ENTER("xmysqlnd_crud_collection__add_sort");
 	DBG_INF_FMT("sort=%*s", sort.l, sort.s);
-	google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order >* mutable_order =
-			message.mutable_order();
 	const Mysqlx::Crud::DataModel data_model =
 			message.data_model();
 
@@ -565,7 +563,7 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 	Mysqlx::Crud::UpdateOperation * operation = obj->message.mutable_operation()->Add();
 	operation->set_operation(op_type);
 
-	std::auto_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
+	std::unique_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
 
 	try {
 		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);

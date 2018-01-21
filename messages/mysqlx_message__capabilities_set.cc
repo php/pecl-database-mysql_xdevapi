@@ -90,15 +90,14 @@ ZEND_END_ARG_INFO()
 /* {{{ proto long mysqlx_message__capabilities_set::send(object messsage, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
-	zval * capabilities_zv;
-	st_mysqlx_message__capabilities_set* object;
-	st_mysqlx_message__capabilities* capabilities;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
-	size_t ret{0};
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	zval* capabilities_zv{nullptr};
+	st_mysqlx_message__capabilities_set* object{nullptr};
+	st_mysqlx_message__capabilities* capabilities{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_message__capabilities_set::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOOO",

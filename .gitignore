@@ -39,10 +39,12 @@ phpt.*
 dynlib.m4
 Makefile
 Makefile.fragments
+Makefile.global
 Makefile.objects
 ZendEngine1
 _libs
 acconfig.h
+acinclude.m4
 aclocal.m4
 autom4te.cache
 bsd_converted
@@ -64,10 +66,13 @@ configuration-parser.h
 configuration-parser.output
 configuration-scanner.c
 configure
+configure.ac
 configure.bat
 configure.js
+configure.lcov
 conftest
 conftest.c
+coverage.lcov
 debug.log
 diff
 generated_lists
@@ -78,6 +83,7 @@ lcov_data
 lcov_html
 libs
 libtool
+ltmain.sh
 meta_cc
 meta_ccld
 missing

@@ -404,8 +404,7 @@ void Collection_modify::unset(
 			break;
 		case IS_ARRAY:
 			{
-				zval* entry;
-				enum_func_status ret{FAIL};
+				zval* entry = nullptr;
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(variables[i]), entry) {
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);

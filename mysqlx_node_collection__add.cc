@@ -336,7 +336,6 @@ assign_doc_id_to_json(
 	const util::string_view& single_doc_id,
 	zval* doc)
 {
-	enum_func_status ret{FAIL};
 	st_parse_for_id_status status;
 	zend_bool doc_id_string_type{FALSE};
 	MYSQLND_STRING to_add = { nullptr, 0 };
@@ -414,7 +413,7 @@ node_collection_add_string(
 				single_doc_id,
 				doc)
 	};
-	if( SUCCESS == xmysqlnd_crud_collection_add__add_doc(add_op,doc) ) {
+	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op,doc) ) {
 		ret.return_status = Add_op_status::success;
 	}
 	return ret;
@@ -441,7 +440,7 @@ node_collection_add_object_impl(
 				single_doc_id,
 				&new_doc)
 	};
-	if( SUCCESS == xmysqlnd_crud_collection_add__add_doc(add_op, &new_doc) ) {
+	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, &new_doc) ) {
 		ret.return_status = Add_op_status::success;
 	}
 	zval_dtor(&new_doc);

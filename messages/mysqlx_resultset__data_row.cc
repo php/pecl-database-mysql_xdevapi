@@ -327,7 +327,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 								zval set_entry;
 								DBG_INF_FMT("value length=%3u  rest_buffer_size=%3d", (uint) gval, rest_buffer_size);
-								if (gval > rest_buffer_size) {
+								if (gval > static_cast<decltype(gval)>(rest_buffer_size)) {
 									php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
 									break;
 								}

@@ -50,9 +50,8 @@ ZEND_END_ARG_INFO()
 /* {{{ proto string mysqlx_message__ok::get_message() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__ok, get_message)
 {
-	zval * object_zv;
-	st_mysqlx_message__ok* object;
-	enum_func_status ret{FAIL};
+	zval* object_zv{nullptr};
+	st_mysqlx_message__ok* object{nullptr};
 
 	DBG_ENTER("mysqlx_message__ok::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
