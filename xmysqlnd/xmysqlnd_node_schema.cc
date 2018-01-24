@@ -142,7 +142,7 @@ schema_xplugin_op_var_binder(
 struct st_schema_exists_in_database_ctx
 {
 	const MYSQLND_CSTRING expected_schema_name;
-	zval* exists;
+	zval* exists{nullptr};
 };
 
 

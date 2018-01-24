@@ -175,7 +175,7 @@ void Collection_modify::sort(
 			break;
 		case IS_ARRAY:
 			{
-				zval* entry;
+				zval* entry{nullptr};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry),
 													Z_STRLEN_P(entry) };
@@ -257,8 +257,8 @@ void Collection_modify::bind(
 
 	RETVAL_FALSE;
 
-	zend_string* key;
-	zval* val;
+	zend_string* key{nullptr};
+	zval* val{nullptr};
 	ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 		if (key) {
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };

@@ -73,8 +73,8 @@ ZEND_END_ARG_INFO()
 /* {{{ proto long mysqlx_message__auth_ok::response(object messsage) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_ok, response)
 {
-	zval * object_zv;
-	st_mysqlx_message__auth_ok* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_message__auth_ok* object{nullptr};
 
 	DBG_ENTER("mysqlx_message__auth_ok::response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -181,7 +181,7 @@ mysqlx_unregister_message__auth_ok_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_message__auth_ok(zval * return_value, const Mysqlx::Session::AuthenticateOk & message)
 {
-	st_mysqlx_message__auth_ok* obj;
+	st_mysqlx_message__auth_ok* obj{nullptr};
 	DBG_ENTER("mysqlx_new_message__auth_ok");
 	object_init_ex(return_value, mysqlx_message__auth_ok_class_entry);
 	MYSQLX_FETCH_MESSAGE__AUTH_OK_FROM_ZVAL(obj, return_value);

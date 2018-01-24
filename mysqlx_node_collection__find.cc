@@ -162,7 +162,7 @@ void Collection_find::fields(
 		const MYSQLND_CSTRING field_str = { Z_STRVAL_P(fields), Z_STRLEN_P(fields) };
 		ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
 	} else if (Z_TYPE_P(fields) == IS_ARRAY) {
-		const zval* entry;
+		const zval* entry{nullptr};
 		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(fields), entry) {
 			is_expression = false;
 			if (Z_TYPE_P(entry) == IS_OBJECT) {
@@ -232,7 +232,7 @@ void Collection_find::add_operation(
 			break;
 		case IS_ARRAY:
 			{
-				zval* entry;
+				zval* entry{nullptr};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					enum_func_status ret{FAIL};
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
@@ -362,8 +362,8 @@ void Collection_find::bind(
 
 	RETVAL_FALSE;
 
-	zend_string* key;
-	zval* val;
+	zend_string* key{nullptr};
+	zval* val{nullptr};
 	ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 		if (key) {
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };

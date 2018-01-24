@@ -101,8 +101,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one)(XMYSQLND_ROWSET_BUFFERED * 
 	array_init_size(row, field_count);
 	if (field_count) {
 		zval * const row_cursor_zv = result->rows[row_cursor];
-		unsigned int col = 0;
-		for (;col < field_count; ++col) {
+		for (unsigned int col{0}; col < field_count; ++col) {
 			const XMYSQLND_RESULT_FIELD_META * field_meta = result->meta->m->get_field(result->meta, col);
 			zval * const zv = &row_cursor_zv[col];
 
@@ -139,8 +138,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one_c)(XMYSQLND_ROWSET_BUFFERED 
 		(*row = static_cast<zval*>(mnd_ecalloc(field_count, sizeof(zval)))))
 	{
 		const zval * const row_cursor_zv = result->rows[row_cursor];
-		unsigned int col = 0;
-		for (;col < field_count; ++col) {
+		for (unsigned int col{0}; col < field_count; ++col) {
 			const zval * const from = &row_cursor_zv[col];
 			zval * to = &(*row)[col];
 			if (duplicate) {
@@ -197,8 +195,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED 
 		for (;row < row_count; ++row) {
 			const zval * const from_row_zv = result->rows[row];
 			const size_t offset = row * field_count;
-			unsigned int col = 0;
-			for (;col < field_count; ++col) {
+			for (unsigned int col{0}; col < field_count; ++col) {
 				const zval * const from = &from_row_zv[col];
 				zval * const to = &(*set)[offset + col];
 				if (duplicate) {

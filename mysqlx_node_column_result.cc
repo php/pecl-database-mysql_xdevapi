@@ -283,8 +283,8 @@ static void
 get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					meta_fields selected_meta_field)
 {
-	zval * object_zv;
-	st_mysqlx_node_column_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_column_result* object{nullptr};
 	DBG_ENTER("get_column_meta_field");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",

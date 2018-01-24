@@ -408,8 +408,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result_meta, free_contents)(XMYSQLND_NODE_STM
 {
 	DBG_ENTER("xmysqlnd_node_stmt_result_meta::free_contents");
 	if (meta->fields) {
-		unsigned int i = 0;
-		for (; i < meta->field_count; ++i) {
+		for (unsigned int i{0}; i < meta->field_count; ++i) {
 			meta->fields[i]->m->dtor(meta->fields[i], stats, error_info);
 		}
 		mnd_pefree(meta->fields, meta->persistent);

@@ -481,7 +481,7 @@ mysqlx_unregister_column_metadata_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_column_metadata(zval * return_value, const Mysqlx::Resultset::ColumnMetaData & message)
 {
-	st_mysqlx_column_metadata* obj;
+	st_mysqlx_column_metadata* obj{nullptr};
 	DBG_ENTER("mysqlx_new_column_metadata");
 	object_init_ex(return_value, mysqlx_column_metadata_class_entry);
 	MYSQLX_FETCH_MESSAGE__COLUMN_METADATA_FROM_ZVAL(obj, return_value);

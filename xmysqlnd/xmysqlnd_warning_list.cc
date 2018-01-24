@@ -101,9 +101,8 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * co
 	DBG_ENTER("xmysqlnd_warning_list::free_contents");
 	if (warn_list->warnings) {
 		if (warn_list->warning_count) {
-			unsigned int i = 0;
 			DBG_INF_FMT("Freeing %u warning(s)", warn_list->warning_count);
-			for (;i < warn_list->warning_count; ++i) {
+			for (unsigned int i{0}; i < warn_list->warning_count; ++i) {
 				mnd_pefree(warn_list->warnings[i].message.s, pers);
 			}
 		}

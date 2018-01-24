@@ -49,7 +49,7 @@ xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t le
 {
 	util::string message_dump(len * 3, '\0');
 	DBG_ENTER("dump_string_to_log");
-	for (unsigned int i = 0; i < len; ++i) {
+	for (unsigned int i{0}; i < len; ++i) {
 		message_dump[i*3+0] = hexconvtab[ s[i] >> 4];
 		message_dump[i*3+1] = hexconvtab[ s[i] & 15];
 		message_dump[i*3+2] = ' ';
@@ -288,7 +288,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 	{
 		char * message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
-		for (unsigned int i = 0; i < payload_size; i++) {
+		for (unsigned int i{0}; i < payload_size; i++) {
 			message_dump[i*3+0] = hexconvtab[((const char*)payload)[i] >> 4];
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';
@@ -306,7 +306,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			if (message.has_capabilities()) {
 				unsigned int caps = message.capabilities().capabilities_size();
 				DBG_INF_FMT("%d capabilit%s", caps, caps == 1? "y":"ies");
-				for (unsigned int i = 0; i < caps; ++i) {
+				for (unsigned int i{0}; i < caps; ++i) {
 					const Mysqlx::Connection::Capability & capability =  message.capabilities().capabilities(i);
 
 					DBG_INF_FMT("name is %s", capability.has_name()? "SET":"NOT SET");
@@ -807,7 +807,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 	{
 		char * message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
-		for (unsigned int i = 0; i < payload_size; i++) {
+		for (unsigned int i{0}; i < payload_size; i++) {
 			message_dump[i*3+0] = hexconvtab[((const char*)payload)[i] >> 4];
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';

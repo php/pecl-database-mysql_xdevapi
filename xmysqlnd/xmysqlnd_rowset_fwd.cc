@@ -111,8 +111,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_one)(XMYSQLND_ROWSET_FWD * const resu
 	array_init_size(row, field_count);
 	if (field_count) {
 		zval * const row_cursor_zv = result->rows[row_cursor];
-		unsigned int col = 0;
-		for (;col < field_count; ++col) {
+		for (unsigned int col{0}; col < field_count; ++col) {
 			const XMYSQLND_RESULT_FIELD_META * field_meta = result->meta->m->get_field(result->meta, col);
 			zval * const zv = &row_cursor_zv[col];
 

@@ -87,8 +87,8 @@ zval *
 mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_slot, zval * rv)
 {
 	zval tmp_member;
-	zval *retval;
-	const st_mysqlx_object* mysqlx_obj;
+	zval* retval{nullptr};
+	const st_mysqlx_object* mysqlx_obj{nullptr};
 	const st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_get_value");
 
@@ -133,7 +133,7 @@ void
 mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cache_slot)
 {
 	zval tmp_member;
-	st_mysqlx_object* mysqlx_obj;
+	st_mysqlx_object* mysqlx_obj{nullptr};
 	const st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_set_value");
 
@@ -171,7 +171,7 @@ int
 mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, void **cache_slot)
 {
 	const st_mysqlx_object* mysqlx_obj = Z_MYSQLX_P(object);
-	const st_mysqlx_property* property;
+	const st_mysqlx_property* property{nullptr};
 	int ret{0};
 	DBG_ENTER("mysqlx_object_has_property");
 

@@ -430,7 +430,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollectionAsTable)
 
 struct st_mysqlx_on_db_object_ctx
 {
-	zval* list;
+	zval* list{nullptr};
 };
 
 /* {{{ mysqlx_on_db_object */

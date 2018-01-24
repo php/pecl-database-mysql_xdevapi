@@ -79,7 +79,7 @@ xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 {
 	array_init(dest);
 	if (Z_TYPE_P(src) == IS_ARRAY) {
-		zval* raw_row;
+		zval* raw_row{nullptr};
 		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(src), raw_row) {
 			zval row;
 			xmysqlnd_utils_decode_doc_row(raw_row, &row);

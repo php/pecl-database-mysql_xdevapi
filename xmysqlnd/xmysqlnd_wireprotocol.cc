@@ -1168,7 +1168,7 @@ xmysqlnd_authentication_continue__send_request(st_xmysqlnd_msg__auth_continue* m
 		zend_uchar hash[SCRAMBLE_LENGTH];
 
 		php_mysqlnd_scramble(hash, (zend_uchar*) salt.s, (const zend_uchar*) password.s, password.l);
-		for (unsigned int i = 0; i < SCRAMBLE_LENGTH; i++) {
+		for (unsigned int i{0}; i < SCRAMBLE_LENGTH; i++) {
 			hexed_hash[i*2] = hexconvtab[hash[i] >> 4];
 			hexed_hash[i*2 + 1] = hexconvtab[hash[i] & 15];
 		}
@@ -1574,7 +1574,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 {
 	DBG_ENTER("xmysqlnd_row_set_field_to_zval");
 	enum_func_status ret{PASS};
-	unsigned int j = 0;
+	unsigned int j{0};
 	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 	::google::protobuf::uint64 gval;
 	bool length_read_ok{true};
@@ -1646,7 +1646,7 @@ enum_func_status xmysqlnd_row_decimal_field_to_zval( zval* zv,
 			*(p++) = '-';
 		}
 		const size_t dot_position = digits - scale - 1;
-		for (unsigned int pos = 0; pos < digits; ++pos) {
+		for (unsigned int pos{0}; pos < digits; ++pos) {
 			const size_t offset = 1 + (pos >> 1);
 			/* if uneven (&0x01) then use the second 4-bits, otherwise shift (>>) the first 4 to the right and then use them */
 			const uint8_t digit = (pos & 0x01 ? buf[offset] : buf[offset] >> 4) & 0x0F;
@@ -1795,7 +1795,7 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row & message, void * context)
 	}
 #endif
 	if (ctx->on_row_field.handler) {
-		for (unsigned int i = 0; i < ctx->field_count; ++i) {
+		for (unsigned int i{0}; i < ctx->field_count; ++i) {
 			const MYSQLND_CSTRING buffer = { message.field(i).c_str(), message.field(i).size() };
 			ret = ctx->on_row_field.handler(ctx->on_row_field.ctx, buffer, i, xmysqlnd_row_field_to_zval);
 

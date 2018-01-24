@@ -191,7 +191,7 @@ void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 			break;
 		case IS_ARRAY:
 			{
-				zval * entry;
+				zval* entry{nullptr};
 				ret = PASS;
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns_zv[i]), entry)
 				{
@@ -272,7 +272,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud
 	switch (Z_TYPE_P(values_zv))
 	{
 		case IS_ARRAY: {
-			zval * entry;
+			zval* entry{nullptr};
 			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(values_zv), entry)
 			{
 				bind_row_field(entry, row);
@@ -904,7 +904,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 			const MYSQLND_CSTRING column_str = { Z_STRVAL(columns[i]), Z_STRLEN(columns[i]) };
 			ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);
 		} else if (Z_TYPE_P(columns) == IS_ARRAY) {
-			const zval * entry;
+			const zval* entry{nullptr};
 			ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns[i]), entry) {
 				if (Z_TYPE_P(entry) != IS_STRING) {
 					devapi::RAISE_EXCEPTION(err_msg_wrong_param_1);

@@ -159,7 +159,7 @@ struct st_xmysqlnd_msg__capabilities_get
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 	struct st_xmysqlnd_on_error_bind on_error;
-	zval * capabilities_zval;
+	zval* capabilities_zval{nullptr};
 };
 
 
@@ -178,7 +178,7 @@ struct st_xmysqlnd_msg__capabilities_set
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 	struct st_xmysqlnd_on_error_bind on_error;
-	zval * return_value_zval;
+	zval* return_value_zval{nullptr};
 };
 
 
@@ -220,7 +220,7 @@ struct st_xmysqlnd_msg__auth_start
 	struct st_xmysqlnd_on_error_bind on_error;
 	struct st_xmysqlnd_on_client_id_bind on_client_id;
 	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
-	zval * auth_start_response_zval;
+	zval* auth_start_response_zval{nullptr};
 };
 
 #if AUTH_CONTINUE
@@ -243,7 +243,7 @@ struct st_xmysqlnd_msg__auth_continue
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 	struct st_xmysqlnd_on_error_bind on_error;
-	zval * auth_continue_response_zval;
+	zval* auth_continue_response_zval{nullptr};
 };
 #endif
 
@@ -317,7 +317,7 @@ struct st_xmysqlnd_result_set_reader_ctx
 	zend_bool has_more_results:1;
 	zend_bool has_more_rows_in_set:1;
 	zend_bool read_started:1;
-	zval * response_zval;
+	zval* response_zval{nullptr};
 };
 
 
@@ -377,7 +377,7 @@ struct st_xmysqlnd_result_ctx
 	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
 	struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
 
-	zval * response_zval;
+	zval* response_zval{nullptr};
 };
 
 /* User for Create */

@@ -78,10 +78,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, __construct)
 /* {{{ proto long mysqlx_data_row::decode(object messsage, array metadata) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 {
-	zval * object_zv;
-	zval * metadata_zv;
-	st_mysqlx_data_row* object;
-	st_mysqlx_resultset_metadata* metadata;
+	zval* object_zv{nullptr};
+	zval* metadata_zv{nullptr};
+	st_mysqlx_data_row* object{nullptr};
+	st_mysqlx_resultset_metadata* metadata{nullptr};
 
 	DBG_ENTER("mysqlx_data_row::decode");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
@@ -96,14 +96,14 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 
 	RETVAL_FALSE;
 	{
-		zval * entry;
+		zval* entry{nullptr};
 		const size_t column_count = zend_hash_num_elements(&metadata->resultset_metadata_ht);
 		if (!column_count) {
 			php_error_docref(nullptr, E_WARNING, "Zero columns");
 			DBG_VOID_RETURN;
 		}
 		util::vector<const st_mysqlx_column_metadata*> meta_ar(column_count, nullptr);
-		unsigned int i = 0;
+		unsigned int i{0};
 		/* ZEND_HASH_FOREACH_PTR ?? */
 		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {
@@ -369,7 +369,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						*(p++) = '-';
 					}
 					const size_t dot_position = digits - scale - 1;
-					for (unsigned int pos = 0; pos < digits; ++pos) {
+					for (unsigned int pos{0}; pos < digits; ++pos) {
 						const size_t offset = 1 + (pos >> 1);
 						/* if uneven (&0x01) then use the second 4-bits, otherwise shift (>>) the first 4 to the right and then use them */
 						const uint8_t digit = (pos & 0x01 ? buf[offset] : buf[offset] >> 4) & 0x0F;
@@ -492,7 +492,7 @@ mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_data_row(zval * return_value, const Mysqlx::Resultset::Row & message)
 {
-	st_mysqlx_data_row* obj;
+	st_mysqlx_data_row* obj{nullptr};
 	DBG_ENTER("mysqlx_new_data_row");
 	object_init_ex(return_value, mysqlx_data_row_class_entry);
 	MYSQLX_FETCH_MESSAGE__DATA_ROW_FROM_ZVAL(obj, return_value);

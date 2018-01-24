@@ -87,8 +87,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, __construct)
 /* {{{ proto mixed mysqlx_node_result::getAffectedItemsCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAffectedItemsCount)
 {
-	zval * object_zv;
-	st_mysqlx_node_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_result::getAffectedItemsCount");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -121,8 +121,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAffectedItemsCount)
 /* {{{ proto mixed mysqlx_node_result::getAutoIncrementValue(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAutoIncrementValue)
 {
-	zval * object_zv;
-	st_mysqlx_node_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_result::getAutoIncrementValue");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -164,8 +164,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAutoIncrementValue)
 static void
 get_document_id_common(INTERNAL_FUNCTION_PARAMETERS,
 				zend_bool multiple_ids) {
-	zval * object_zv;
-	st_mysqlx_node_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_result* object{nullptr};
 
 	DBG_ENTER("get_document_id_common");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -238,8 +238,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getDocumentIds)
 /* {{{ proto mixed mysqlx_node_result::getWarningCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getWarningCount)
 {
-	zval * object_zv;
-	st_mysqlx_node_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_result::getWarningCount");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -272,8 +272,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getWarningCount)
 /* {{{ proto mixed mysqlx_node_result::getWarnings(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getWarnings)
 {
-	zval * object_zv;
-	st_mysqlx_node_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_result::getWarnings");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -289,9 +289,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getWarnings)
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (warnings) {
 			const size_t count = warnings->m->count(warnings);
-			unsigned int i = 0;
 			array_init_size(return_value, count);
-			for (; i < count; ++i) {
+			for (unsigned int i{0}; i < count; ++i) {
 				const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
 				zval warning_zv;
 

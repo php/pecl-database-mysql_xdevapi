@@ -128,7 +128,7 @@ void Collection_remove::sort(
 			break;
 		case IS_ARRAY:
 			{
-				zval* entry;
+				zval* entry{nullptr};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry),
 												Z_STRLEN_P(entry) };
@@ -187,8 +187,8 @@ void Collection_remove::bind(
 
 	RETVAL_FALSE;
 
-	zend_string* key;
-	zval* val;
+	zend_string* key{nullptr};
+	zval* val{nullptr};
 	ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 		if (key) {
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
@@ -215,7 +215,7 @@ void Collection_remove::execute(zval* return_value)
 	DBG_INF_FMT("remove_op=%p collection=%p", remove_op, collection);
 	if (remove_op && collection) {
 		if (FALSE == xmysqlnd_crud_collection_remove__is_initialized(remove_op)) {
-			static const unsigned int errcode = 10002;
+			static const unsigned int errcode{10002};
 			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 			static const MYSQLND_CSTRING errmsg = { "Remove not completely initialized", sizeof("Remove not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);

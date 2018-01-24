@@ -116,7 +116,7 @@ bind:
 struct table_or_view_op_ctx
 {
 	const MYSQLND_CSTRING expected_name;
-	zval* exists;
+	zval* exists{nullptr};
 };
 
 
@@ -270,7 +270,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 
 struct st_table_sql_single_result_ctx
 {
-	zval* result;
+	zval* result{nullptr};
 };
 
 

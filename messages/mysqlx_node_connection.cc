@@ -88,8 +88,8 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 /* {{{ proto bool mysqlx_node_connection::connect(object connection, string hostname, string username, string password) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 {
-	zval * connection_zv;
-	st_mysqlx_node_connection* connection;
+	zval* connection_zv{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
 	MYSQLND_CSTRING hostname = {nullptr, 0};
 	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
@@ -138,8 +138,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 /* {{{ proto long mysqlx_node_connection::send(object session, string payload) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 {
-	zval * connection_zv;
-	st_mysqlx_node_connection* connection;
+	zval* connection_zv{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
 	MYSQLND_CSTRING payload = {nullptr, 0};
 	size_t ret;
 
@@ -170,8 +170,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 /* {{{ proto long mysqlx_node_connection::receive(object connection, long bytes) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 {
-	zval * connection_zv;
-	st_mysqlx_node_connection* connection;
+	zval* connection_zv{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
 	zend_ulong how_many{0};
 	enum_func_status ret;
 

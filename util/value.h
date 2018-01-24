@@ -162,7 +162,7 @@ class zvalue_ptr
 		bool is_object() const;
 
 	private:
-		zval* zv;
+		zval* zv{nullptr};
 };
 /* }}} */
 

@@ -385,11 +385,11 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 		}
 
 		{
-			const std::size_t answer_length = ctx->database.l + 1 + ctx->username.size() + 1 +
-									   1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1;
+			const std::size_t answer_length{ctx->database.l + 1 + ctx->username.size() + 1 +
+				1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1};
 			util::string answer_str(answer_length, '\0');
-			char* answer = &answer_str.front();
-			char* p = answer;
+			char* answer{&answer_str.front()};
+			char* p{answer};
 			memcpy(p, ctx->database.s, ctx->database.l);
 			p+= ctx->database.l;
 			*p++ = '\0';
@@ -460,7 +460,7 @@ xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 zend_bool
 xmysqlnd_is_mysql41_supported(const zval * capabilities)
 {
-	zval * entry;
+	zval* entry{nullptr};
 	const zval * auth_mechs = zend_hash_str_find(Z_ARRVAL_P(capabilities), "authentication.mechanisms", sizeof("authentication.mechanisms") - 1);
 	if (!capabilities || Z_TYPE_P(auth_mechs) != IS_ARRAY) {
 		return FALSE;
@@ -931,7 +931,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DA
 	DBG_ENTER("xmysqlnd_node_session_data::quote_name");
 	DBG_INF_FMT("name=%s", name.s);
 	if (name.s && name.l) {
-		unsigned int occurs = 0;
+		unsigned int occurs{0};
 		for (unsigned int i{0}; i < name.l; ++i) {
 			if (name.s[i] == '`') {
 				++occurs;

@@ -202,7 +202,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, create_row)(XMYSQLND_ROWSET * const result,
 											 MYSQLND_STATS * const stats,
 											 MYSQLND_ERROR_INFO * const error_info)
 {
-	zval * ret;
+	zval* ret{nullptr};
 	DBG_ENTER("xmysqlnd_rowset::create_row");
 	if (result->fwd) {
 		ret = result->fwd->m.create_row(result->fwd, meta, stats, error_info);

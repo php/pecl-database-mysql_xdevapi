@@ -79,7 +79,7 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 			break;
 		case IS_ARRAY: {
 			DBG_INF("IS_ARRAY");
-			zval * entry;
+			zval* entry{nullptr};
 			any.set_type(Any_Type_ARRAY);
 			ZEND_HASH_FOREACH_VAL(Z_ARR_P(zv), entry) {
 				DBG_INF("ENTRY");

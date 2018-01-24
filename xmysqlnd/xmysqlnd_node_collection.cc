@@ -114,7 +114,7 @@ bind:
 struct collection_exists_in_database_ctx
 {
 	const MYSQLND_CSTRING expected_collection_name;
-	zval* exists;
+	zval* exists{nullptr};
 };
 
 
@@ -197,7 +197,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 
 struct st_collection_sql_single_result_ctx
 {
-	zval* result;
+	zval* result{nullptr};
 };
 
 

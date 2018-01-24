@@ -223,7 +223,7 @@ mysqlx_unregister_message__error_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_message__error(zval * return_value, const Mysqlx::Error & message)
 {
-	st_mysqlx_message__error* error;
+	st_mysqlx_message__error* error{nullptr};
 	DBG_ENTER("mysqlx_new_message__error");
 	object_init_ex(return_value, mysqlx_message__error_class_entry);
 	MYSQLX_FETCH_MESSAGE__ERROR__FROM_ZVAL(error, return_value);
@@ -237,7 +237,7 @@ mysqlx_new_message__error(zval * return_value, const Mysqlx::Error & message)
 void
 mysqlx_new_message__error(zval * return_value, const char * msg, const char * sql_state, const unsigned int code)
 {
-	st_mysqlx_message__error* error;
+	st_mysqlx_message__error* error{nullptr};
 	DBG_ENTER("mysqlx_new_message__error");
 	object_init_ex(return_value, mysqlx_message__error_class_entry);
 	MYSQLX_FETCH_MESSAGE__ERROR__FROM_ZVAL(error, return_value);

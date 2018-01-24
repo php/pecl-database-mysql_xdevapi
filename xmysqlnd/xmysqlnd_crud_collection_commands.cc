@@ -1078,7 +1078,7 @@ struct st_xmysqlnd_pb_message_shell
 /****************************** SQL EXECUTE *******************************************************/
 struct st_xmysqlnd_stmt_op__execute
 {
-	zval * params;
+	zval* params{nullptr};
 	unsigned int params_allocated;
 
 	Mysqlx::Sql::StmtExecute message;
@@ -1163,9 +1163,8 @@ enum_func_status
 st_xmysqlnd_stmt_op__execute::finalize_bind()
 {
 	enum_func_status ret{PASS};
-	unsigned int i = 0;
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::finalize_bind");
-	for (; i < params_allocated; ++i) {
+	for (unsigned int i{0}; i < params_allocated; ++i) {
 		Mysqlx::Datatypes::Any * arg = message.add_args();
 		ret = zval2any(&(params[i]), *arg);
 		if (FAIL == ret) {

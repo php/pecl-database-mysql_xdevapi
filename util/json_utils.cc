@@ -81,9 +81,9 @@ class Ensure_doc_id
 		void store_id();
 
 	private:
-		zval* raw_doc;
+		zval* raw_doc{nullptr};
 		const string_view& doc_id;
-		zval* doc_with_id;
+		zval* doc_with_id{nullptr};
 
 };
 

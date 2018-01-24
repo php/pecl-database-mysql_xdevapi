@@ -119,8 +119,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, __construct)
 /* {{{ proto mixed mysqlx_node_table::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSession)
 {
-	st_mysqlx_node_table* object;
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table::getSession");
 
@@ -148,8 +148,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSession)
 /* {{{ proto mixed mysqlx_node_table::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getName)
 {
-	st_mysqlx_node_table* object;
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table::getName");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -176,7 +176,7 @@ static const enum_hnd_func_status
 mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_table_on_error");
-	const unsigned int UnknownDatabaseCode = 1049;
+	const unsigned int UnknownDatabaseCode{1049};
 	if (code == UnknownDatabaseCode) {
 		DBG_RETURN(HND_PASS);
 	} else {
@@ -190,8 +190,8 @@ mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, st_x
 /* {{{ proto mixed mysqlx_node_table::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, existsInDatabase)
 {
-	st_mysqlx_node_table* object;
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table::existsInDatabase");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -222,7 +222,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, existsInDatabase)
 /* {{{ proto mixed mysqlx_node_table::isView() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, isView)
 {
-	zval* object_zv;
+	zval* object_zv{nullptr};
 
 	RETVAL_FALSE;
 
@@ -257,8 +257,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, isView)
 /* {{{ proto mixed mysqlx_node_table::count() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 {
-	st_mysqlx_node_table* object;
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table::count");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -289,10 +289,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 /* {{{ proto mixed mysqlx_node_table::getSchema() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 {
-	st_mysqlx_node_table* object;
-	XMYSQLND_NODE_SESSION * session;
-	MYSQLND_CSTRING schema_name = {nullptr, 0};
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	XMYSQLND_NODE_SESSION* session{nullptr};
+	MYSQLND_CSTRING schema_name{nullptr, 0};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_collection::getSchema");
 
@@ -335,8 +335,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 /* {{{ proto mixed mysqlx_node_table::insert() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 {
-	st_mysqlx_node_table* object;
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	zval* object_zv{nullptr};
 	zval* columns{nullptr};
 	int num_of_columns{0};
 
@@ -381,8 +381,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, insert)
 /* {{{ proto mixed mysqlx_node_table::select() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, select)
 {
-	st_mysqlx_node_table* object;
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	zval* object_zv{nullptr};
 	zval* columns{nullptr};
 	int num_of_columns{0};
 
@@ -419,8 +419,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, select)
 /* {{{ proto mixed mysqlx_node_table::update() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, update)
 {
-	st_mysqlx_node_table* object;
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table::update");
 
@@ -446,8 +446,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, update)
 /* {{{ proto mixed mysqlx_node_table::delete() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, delete)
 {
-	st_mysqlx_node_table* object;
-	zval * object_zv;
+	st_mysqlx_node_table* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table::delete");
 
