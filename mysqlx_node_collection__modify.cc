@@ -762,7 +762,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, merge)
 /* {{{ proto mixed mysqlx_node_collection__modify::patch() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, patch)
 {
-	zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	util::string_view document_contents;
 
 	DBG_ENTER("mysqlx_node_collection__modify::patch");

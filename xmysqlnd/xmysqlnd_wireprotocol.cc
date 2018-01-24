@@ -173,8 +173,8 @@ xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_
 	}
 	if (state_type != EXEC_STATE_NONE) {
 		ret = on_execution_state_change.handler(
-			on_execution_state_change.ctx, 
-			state_type, 
+			on_execution_state_change.ctx,
+			state_type,
 			static_cast<size_t>(scalar2uint(message.value())));
 	}
 
@@ -231,7 +231,7 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 			case Mysqlx::Notice::SessionStateChanged::CLIENT_ID_ASSIGNED:
 				if (on_client_id.handler) {
 					const enum_func_status status = on_client_id.handler(
-						on_client_id.ctx, 
+						on_client_id.ctx,
 						static_cast<size_t>(scalar2uint(message.value())));
 					ret = (status == PASS)? HND_AGAIN : HND_FAIL;
 				}

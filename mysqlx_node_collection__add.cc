@@ -473,7 +473,7 @@ node_collection_add_array(
 	zval* doc,
 	zval* return_value)
 {
-	doc_add_op_return_status ret = { Add_op_status::fail, nullptr };
+	doc_add_op_return_status ret = { Add_op_status::fail, {nullptr, 0} };
 	if( zend_hash_num_elements(Z_ARRVAL_P(doc)) == 0 ) {
 		ret.return_status = Add_op_status::noop;
 	} else {
@@ -576,7 +576,7 @@ void Collection_add::execute(zval* return_value)
 	if ( doc_ids == nullptr ) {
 		execute_ret_status = FAIL;
 	} else {
-		doc_add_op_return_status ret = { Add_op_status::success , nullptr };
+		doc_add_op_return_status ret = { Add_op_status::success, {nullptr, 0} };
 		for (int i{0}; i < num_of_docs && ret.return_status != Add_op_status::fail ; ++i) {
 			ret.return_status = Add_op_status::fail;
 			switch(Z_TYPE(docs[i])) {
