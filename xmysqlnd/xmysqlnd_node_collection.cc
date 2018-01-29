@@ -114,7 +114,7 @@ bind:
 struct collection_exists_in_database_ctx
 {
 	const MYSQLND_CSTRING expected_collection_name;
-	zval* exists{nullptr};
+	zval* exists;
 };
 
 
@@ -165,19 +165,19 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 	XMYSQLND_NODE_SCHEMA * schema = collection->data->schema;
 	XMYSQLND_NODE_SESSION * session = schema->data->session;
 
-	struct st_collection_exists_in_database_var_binder_ctx var_binder_ctx = {
+	st_collection_exists_in_database_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->data->schema_name),
 		mnd_str2c(collection->data->collection_name),
 		0
 	};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
 
 	collection_exists_in_database_ctx on_row_ctx = {
 		mnd_str2c(collection->data->collection_name),
 		exists
 	};
 
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_node_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_xplugin,
@@ -197,7 +197,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 
 struct st_collection_sql_single_result_ctx
 {
-	zval* result{nullptr};
+	zval* result;
 };
 
 

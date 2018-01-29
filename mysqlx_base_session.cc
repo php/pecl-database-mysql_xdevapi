@@ -318,7 +318,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, __construct)
 
 struct st_mysqlx_get_schemas_ctx
 {
-	zval* list{nullptr};
+	zval* list;
 };
 
 
@@ -386,16 +386,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchemas)
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if (XMYSQLND_NODE_SESSION* session = object->session) {
-		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { nullptr, nullptr };
-		const MYSQLND_CSTRING list_query = { "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
+		const st_xmysqlnd_node_session_query_bind_variable_bind var_binder{ nullptr, nullptr };
+		const MYSQLND_CSTRING list_query{ "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
 		zval list;
-		struct st_mysqlx_get_schemas_ctx ctx = { &list };
-		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_row_bind on_row = { get_schemas_handler_on_row, &ctx };
-		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_base_session_command_handler_on_error, nullptr };
-		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { nullptr, nullptr };
+		st_mysqlx_get_schemas_ctx ctx{ &list };
+		const st_xmysqlnd_node_session_on_result_start_bind on_result_start{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_row_bind on_row{ get_schemas_handler_on_row, &ctx };
+		const st_xmysqlnd_node_session_on_warning_bind on_warning{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_error_bind on_error{ mysqlx_base_session_command_handler_on_error, nullptr };
+		const st_xmysqlnd_node_session_on_result_end_bind on_result_end{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok{ nullptr, nullptr };
 
 		ZVAL_UNDEF(&list);
 
@@ -722,7 +722,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, releaseSavepoint)
 
 struct st_mysqlx_list_clients__ctx
 {
-	zval* list{nullptr};
+	zval* list;
 };
 
 /* {{{ list_clients__handler_on_row */
@@ -775,16 +775,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, listClients)
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if (XMYSQLND_NODE_SESSION* session = object->session) {
-		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { nullptr, nullptr };
-		const MYSQLND_CSTRING list_query = { "list_clients", sizeof("list_clients") - 1 };
+		const st_xmysqlnd_node_session_query_bind_variable_bind var_binder{ nullptr, nullptr };
+		const MYSQLND_CSTRING list_query{ "list_clients", sizeof("list_clients") - 1 };
 		zval list;
-		struct st_mysqlx_list_clients__ctx ctx = { &list };
-		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_row_bind on_row = { list_clients__handler_on_row, &ctx };
-		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_base_session_command_handler_on_error, nullptr };
-		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { nullptr, nullptr };
+		st_mysqlx_list_clients__ctx ctx{ &list };
+		const st_xmysqlnd_node_session_on_result_start_bind on_result_start{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_row_bind on_row{ list_clients__handler_on_row, &ctx };
+		const st_xmysqlnd_node_session_on_warning_bind on_warning{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_error_bind on_error{ mysqlx_base_session_command_handler_on_error, nullptr };
+		const st_xmysqlnd_node_session_on_result_end_bind on_result_end{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok{ nullptr, nullptr };
 
 		ZVAL_UNDEF(&list);
 

@@ -142,7 +142,7 @@ schema_xplugin_op_var_binder(
 struct st_schema_exists_in_database_ctx
 {
 	const MYSQLND_CSTRING expected_schema_name;
-	zval* exists{nullptr};
+	zval* exists;
 };
 
 
@@ -190,18 +190,18 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 	static const MYSQLND_CSTRING query = {"SHOW SCHEMAS LIKE ?", sizeof("SHOW SCHEMAS LIKE ?") - 1 };
 	XMYSQLND_NODE_SESSION * session = schema->data->session;
 
-	struct st_schema_exists_in_database_var_binder_ctx var_binder_ctx = {
+	st_schema_exists_in_database_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->data->schema_name),
 		0
 	};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { schema_xplugin_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { schema_xplugin_op_var_binder, &var_binder_ctx };
 
-	struct st_schema_exists_in_database_ctx on_row_ctx = {
+	st_schema_exists_in_database_ctx on_row_ctx = {
 		mnd_str2c(schema->data->schema_name),
 		exists
 	};
 
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { schema_sql_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_node_session_on_row_bind on_row = { schema_sql_op_on_row, &on_row_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_sql,

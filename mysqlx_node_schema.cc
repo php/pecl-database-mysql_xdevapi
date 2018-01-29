@@ -430,7 +430,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollectionAsTable)
 
 struct st_mysqlx_on_db_object_ctx
 {
-	zval* list{nullptr};
+	zval* list;
 };
 
 /* {{{ mysqlx_on_db_object */
@@ -483,9 +483,9 @@ mysqlx_get_database_objects(
 	DBG_ENTER("mysqlx_get_database_objects");
 	if (schema){
 		zval list;
-		struct st_mysqlx_on_db_object_ctx context = { &list };
-		const struct st_xmysqlnd_node_schema_on_database_object_bind on_object = { mysqlx_on_db_object, &context };
-		const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error = { mysqlx_node_schema_on_error, nullptr };
+		st_mysqlx_on_db_object_ctx context{ &list };
+		const st_xmysqlnd_node_schema_on_database_object_bind on_object{ mysqlx_on_db_object, &context };
+		const st_xmysqlnd_node_schema_on_error_bind handler_on_error{ mysqlx_node_schema_on_error, nullptr };
 
 		ZVAL_UNDEF(&list);
 		array_init(&list);

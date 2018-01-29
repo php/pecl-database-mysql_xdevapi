@@ -729,7 +729,7 @@ xmysqlnd_capabilities_get__init_read(st_xmysqlnd_msg__capabilities_get* const ms
 static struct st_xmysqlnd_msg__capabilities_get
 xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	const struct st_xmysqlnd_msg__capabilities_get ctx =
+	const st_xmysqlnd_msg__capabilities_get ctx =
 	{
 		xmysqlnd_capabilities_get__send_request,
 		xmysqlnd_capabilities_get__read_response,

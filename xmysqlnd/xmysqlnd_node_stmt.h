@@ -185,24 +185,24 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 
 struct st_xmysqlnd_node_stmt_bind_ctx
 {
-	XMYSQLND_NODE_STMT * stmt;
-	MYSQLND_STATS * stats;
-	MYSQLND_ERROR_INFO * error_info;
+	XMYSQLND_NODE_STMT* stmt;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
 	func_xmysqlnd_node_stmt__create_rowset create_rowset;
 	size_t fwd_prefetch_count;
 	size_t prefetch_counter;
-	zval* current_row{nullptr};
+	zval* current_row;
 	st_xmysqlnd_rowset* rowset;
 	st_xmysqlnd_node_stmt_result_meta* meta;
 	st_xmysqlnd_node_stmt_result* result;
 	st_xmysqlnd_warning_list* warnings;
 	st_xmysqlnd_stmt_execution_state* exec_state;
 
-	struct st_xmysqlnd_node_stmt_on_row_bind on_row;
-	struct st_xmysqlnd_node_stmt_on_warning_bind on_warning;
-	struct st_xmysqlnd_node_stmt_on_error_bind on_error;
-	struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end;
-	struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok;
+	st_xmysqlnd_node_stmt_on_row_bind on_row;
+	st_xmysqlnd_node_stmt_on_warning_bind on_warning;
+	st_xmysqlnd_node_stmt_on_error_bind on_error;
+	st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end;
+	st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok;
 };
 
 struct st_xmysqlnd_node_stmt_data : public util::permanent_allocable
