@@ -67,11 +67,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__count, 0, ZEND_RETURN_VALUE, 0
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__drop, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__get_schema, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 /************************************** INHERITED END   ****************************************/

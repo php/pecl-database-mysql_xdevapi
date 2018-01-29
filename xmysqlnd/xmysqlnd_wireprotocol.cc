@@ -614,8 +614,9 @@ capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * re
 {
 	DBG_ENTER("capabilities_to_zv");
 	array_init_size(return_value, message.capabilities_size());
-	for (int i = 0; i < message.capabilities_size(); ++i) {
-		zval zv = {0};
+	for (int i{0}; i < message.capabilities_size(); ++i) {
+		zval zv;
+		ZVAL_LONG(&zv, 0);
 		any2zval(message.capabilities(i).value(), &zv);
 		if (Z_REFCOUNTED(zv)) {
 			Z_ADDREF(zv);

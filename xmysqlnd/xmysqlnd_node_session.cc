@@ -893,7 +893,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 			SET_CLIENT_ERROR(session->error_info,
 					CR_CONNECTION_ERROR,
 					UNKNOWN_SQLSTATE,
-					session->error_info->error ? session->error_info->error:"Unknown error");
+					session->error_info->error[0] ? session->error_info->error:"Unknown error");
 			php_error_docref(nullptr, E_WARNING, "[%u] %.128s (trying to connect via %s)",
 					session->error_info->error_no, session->error_info->error, session->scheme.s);
 		}
@@ -1420,7 +1420,7 @@ Uuid_format::uuid_t Uuid_format::get_uuid()
 {
 	using uchar = unsigned char;
 	const std::array< unsigned char, sizeof( Uuid_format ) > raw_uuid
-				{
+				{{
 					//node id
 					node_id.at( 0 ), node_id.at( 1 ), node_id.at( 2 ),
 					node_id.at( 3 ), node_id.at( 4 ), node_id.at( 5 ),
@@ -1438,7 +1438,7 @@ Uuid_format::uuid_t Uuid_format::get_uuid()
 					(uchar)(( time_low >> 16 ) & 0xFF),
 					(uchar)(( time_low >> 8 ) & 0xFF),
 					(uchar)(time_low & 0xFF)
-				}
+				}}
 				;
 	static const char hex[] = "0123456789ABCDEF";
 	Uuid_format::uuid_t uuid;

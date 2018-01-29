@@ -234,7 +234,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 			array_init_size(&properties, any.obj().fld_size());
 
 			object_init(zv);
-			for (int i = 0; i < any.obj().fld_size(); ++i) {
+			for (int i{0}; i < any.obj().fld_size(); ++i) {
 				zval entry;
 				ZVAL_UNDEF(&entry);
 				any2zval(any.obj().fld(i).value(), &entry);
@@ -255,7 +255,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 		}
 		case Any_Type_ARRAY:
 			array_init_size(zv, any.array().value_size());
-			for (int i = 0; i < any.array().value_size(); ++i) {
+			for (int i{0}; i < any.array().value_size(); ++i) {
 				zval entry;
 				ZVAL_UNDEF(&entry);
 				any2zval(any.array().value(i), &entry);
@@ -469,13 +469,13 @@ any2log(const Mysqlx::Datatypes::Any & any)
 			scalar2log(any.scalar());
 			break;
 		case Any_Type_OBJECT: {
-			for (int i = 0; i < any.obj().fld_size(); ++i) {
+			for (int i{0}; i < any.obj().fld_size(); ++i) {
 				any2log(any.obj().fld(i).value());
 			}
 			break;
 		}
 		case Any_Type_ARRAY:
-			for (int i = 0; i < any.array().value_size(); ++i) {
+			for (int i{0}; i < any.array().value_size(); ++i) {
 				any2log(any.array().value(i));
 			}
 			break;

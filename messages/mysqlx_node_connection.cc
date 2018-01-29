@@ -141,7 +141,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 	zval* connection_zv{nullptr};
 	st_mysqlx_node_connection* connection{nullptr};
 	MYSQLND_CSTRING payload = {nullptr, 0};
-	size_t ret;
+	size_t ret{0};
 
 	DBG_ENTER("mysqlx_node_connection::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",

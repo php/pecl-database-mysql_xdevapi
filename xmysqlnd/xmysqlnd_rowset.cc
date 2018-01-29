@@ -183,7 +183,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, rewind)(XMYSQLND_ROWSET * const result)
 static zend_bool
 XMYSQLND_METHOD(xmysqlnd_rowset, eof)(const XMYSQLND_ROWSET * const result)
 {
-	zend_bool ret;
+	zend_bool ret{FALSE};
 	DBG_ENTER("xmysqlnd_rowset::eof");
 	if (result->fwd) {
 		ret = result->fwd->m.eof(result->fwd);
@@ -252,7 +252,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, add_row)(XMYSQLND_ROWSET * const result, zval *
 static size_t
 XMYSQLND_METHOD(xmysqlnd_rowset, get_row_count)(const XMYSQLND_ROWSET * const result)
 {
-	size_t ret;
+	size_t ret{0};
 	DBG_ENTER("xmysqlnd_rowset::get_row_count");
 	if (result->fwd) {
 		ret = result->fwd->m.get_row_count(result->fwd);

@@ -403,15 +403,6 @@ static const zend_function_entry mysqlx_data_row_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_column_meta_property_entries[] */
-static const struct st_mysqlx_property_entry mysqlx_column_meta_property_entries[] =
-{
-	{{nullptr, 0}, nullptr, nullptr}
-};
-/* }}} */
-
-
-
 static zend_object_handlers mysqlx_object_data_row_handlers;
 static HashTable mysqlx_data_row_properties;
 
