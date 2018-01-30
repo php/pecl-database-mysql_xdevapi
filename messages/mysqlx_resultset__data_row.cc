@@ -258,11 +258,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					do {
-						if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("neg  =" MYSQLND_LLU_SPEC, neg);
-						if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
-						if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
-						if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
-						if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
+						if (!input_stream.ReadVarint64(&neg)) break;
+						DBG_INF_FMT("neg  =" MYSQLND_LLU_SPEC, neg);
+						if (!input_stream.ReadVarint64(&hours)) break;
+						DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
+						if (!input_stream.ReadVarint64(&minutes)) break;
+						DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
+						if (!input_stream.ReadVarint64(&seconds)) break;
+						DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
+						if (!input_stream.ReadVarint64(&useconds)) break;
+						DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
 					} while (0);
 					#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
 					ZVAL_NEW_STR(&zv, strpprintf(0, TIME_FMT_STR , neg? "-":"",
@@ -291,13 +296,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					do {
-						if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("year =" MYSQLND_LLU_SPEC, year);
-						if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("month=" MYSQLND_LLU_SPEC, month);
-						if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("day  =" MYSQLND_LLU_SPEC, day);
-						if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
-						if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
-						if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
-						if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
+						if (!input_stream.ReadVarint64(&year)) break;
+						DBG_INF_FMT("year =" MYSQLND_LLU_SPEC, year);
+						if (!input_stream.ReadVarint64(&month)) break;
+						DBG_INF_FMT("month=" MYSQLND_LLU_SPEC, month);
+						if (!input_stream.ReadVarint64(&day)) break;
+						DBG_INF_FMT("day  =" MYSQLND_LLU_SPEC, day);
+						if (!input_stream.ReadVarint64(&hours)) break;
+						DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
+						if (!input_stream.ReadVarint64(&minutes)) break;
+						DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
+						if (!input_stream.ReadVarint64(&seconds)) break;
+						DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
+						if (!input_stream.ReadVarint64(&useconds)) break;
+						DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
 					} while (0);
 					#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
 					ZVAL_NEW_STR(&zv, strpprintf(0, DATETIME_FMT_STR ,
