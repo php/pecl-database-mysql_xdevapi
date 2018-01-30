@@ -112,10 +112,15 @@ strings to_strings(zval* zvals, int count, Pred pred)
 }
 /* }}} */
 
+
+zend_string* to_zend_string(formatter& fmt);
+
+//------------------------------------------------------------------------------
+
 /*
  * Escape an identifier name adding '`' everywhere needed
  */
-util::string escape_identifier( const util::string& identifier );
+string escape_identifier( const string& identifier );
 
 } // namespace util
 

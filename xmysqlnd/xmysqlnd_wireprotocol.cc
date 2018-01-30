@@ -58,6 +58,9 @@ extern "C" {
 #include "messages/mysqlx_message__auth_ok.h"
 #endif
 #include "messages/mysqlx_resultset__data_row.h"
+
+#include "util/string_utils.h"
+
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <ext/mysqlnd/mysql_float_to_double.h>
@@ -1504,13 +1507,14 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 				if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
 				if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
 			} while (0);
-#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
-			ZVAL_NEW_STR(zv, strpprintf(0, TIME_FMT_STR , neg? "-":"",
-										(unsigned int) hours,
-										(unsigned int) minutes,
-										(unsigned int) seconds,
-										(unsigned int) useconds));
-#undef TIME_FMT_STR
+
+			auto str = util::formatter("%s%02u:%02u:%02u.%08u")
+				% (neg ? "-" : "")
+				% hours
+				% minutes
+				% seconds
+				% useconds;
+			ZVAL_NEW_STR(zv, util::to_zend_string(str));
 		}
 	}
 	DBG_RETURN( ret );

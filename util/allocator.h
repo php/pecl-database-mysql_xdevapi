@@ -150,7 +150,7 @@ class allocator
 			return false;
 		}
 
-		T* allocate(const size_t elem_count) const
+		T* allocate(const size_t elem_count, const_pointer hint = nullptr) const
 		{
 			if ((static_cast<size_t>(-1) / sizeof(T)) < elem_count)
 			{
