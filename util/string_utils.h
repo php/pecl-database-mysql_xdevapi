@@ -116,7 +116,7 @@ strings to_strings(zval* zvals, int count, Pred pred)
 /*
  * Escape an identifier name adding '`' everywhere needed
  */
-util::string escape_identifier( const util::string& identifier );
+string escape_identifier( const string& identifier );
 
 template<size_t Length>
 st_mysqlnd_string literal_to_mysqlnd_str(const char (&literal)[Length])

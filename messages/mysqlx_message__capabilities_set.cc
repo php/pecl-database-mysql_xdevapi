@@ -115,7 +115,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	{
-		const size_t cap_count = zend_hash_num_elements(&capabilities->capabilities_ht);
+		const unsigned int cap_count{zend_hash_num_elements(&capabilities->capabilities_ht)};
 		if (!cap_count) {
 			php_error_docref(nullptr, E_WARNING, "Zero Capabilities");
 			DBG_VOID_RETURN;

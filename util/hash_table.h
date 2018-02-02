@@ -30,7 +30,7 @@ struct string_view;
 class Hash_table
 {
 	public:
-		Hash_table(std::size_t hint_size = 0);
+		Hash_table(uint32_t hint_size = 0);
 		Hash_table(zval* zv, bool owner);
 		~Hash_table();
 

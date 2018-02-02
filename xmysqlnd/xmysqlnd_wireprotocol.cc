@@ -58,8 +58,7 @@ extern "C" {
 #include "messages/mysqlx_message__auth_ok.h"
 #endif
 #include "messages/mysqlx_resultset__data_row.h"
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/wire_format_lite.h>
+#include "protobuf_api.h"
 #include <ext/mysqlnd/mysql_float_to_double.h>
 
 namespace mysqlx {
@@ -270,11 +269,13 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 
 	DBG_INF_FMT("type is %s", has_type? "SET":"NOT SET");
 	if (has_scope && frame.scope() == Mysqlx::Notice::Frame_Scope_LOCAL && has_type && has_payload) {
+		const char* frame_payload_str = frame.payload().c_str();
+		const int frame_payload_size = static_cast<int>(frame.payload().size());
 		switch (frame.type()) {
 			case 1:{ /* Warning */
 					Mysqlx::Notice::Warning message;
 					DBG_INF("Warning");
-					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					message.ParseFromArray(frame_payload_str, frame_payload_size);
 					if (on_warning.handler) {
 						ret = xmysqlnd_inspect_warning(on_warning, message);
 					}
@@ -283,7 +284,7 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 			case 2:{ /* SessionVariableChanged */
 					Mysqlx::Notice::SessionVariableChanged message;
 					DBG_INF("SessionVariableChanged");
-					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					message.ParseFromArray(frame_payload_str, frame_payload_size);
 					if (on_session_var_change.handler) {
 						ret = xmysqlnd_inspect_changed_variable(on_session_var_change, message);
 					}
@@ -292,7 +293,7 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 			case 3:{ /* SessionStateChanged */
 					Mysqlx::Notice::SessionStateChanged message;
 					DBG_INF("SessionStateChanged");
-					message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+					message.ParseFromArray(frame_payload_str, frame_payload_size);
 					ret = xmysqlnd_inspect_changed_state(message, on_exec_state_change, on_trx_state_change, on_client_id);
 				}
 				break;
@@ -344,7 +345,7 @@ xmysqlnd_send_protobuf_message(st_mysqlx_node_connection* connection, st_mysqlx_
 		php_error_docref(nullptr, E_WARNING, "Memory allocation problem");
 		DBG_RETURN(0);
 	}
-	message.SerializeToArray(payload, payload_size);
+	message.SerializeToArray(payload, static_cast<int>(payload_size));
 	codec->pfc->data->m.send(codec->pfc, connection->vio,
 								   packet_type,
 								   (zend_uchar *) payload, payload_size,
@@ -386,7 +387,7 @@ xmysqlnd_send_message(enum xmysqlnd_client_message_type packet_type, ::google::p
 		}
 	}
 
-	message.SerializeToArray(payload, payload_size);
+	message.SerializeToArray(payload, static_cast<int>(payload_size));
 	ret = pfc->data->m.send(pfc, vio, packet_type, (zend_uchar *) payload, payload_size, bytes_sent, stats, error_info);
 	if (payload != stack_buffer) {
 		mnd_efree(payload);
@@ -425,14 +426,14 @@ xmysqlnd_receive_message(st_xmysqlnd_server_messages_handlers* handlers, void * 
 	zend_uchar stack_buffer[SIZE_OF_STACK_BUFFER];
 	enum_func_status ret{FAIL};
 	enum_hnd_func_status hnd_ret;
-	size_t payload_size;
+	size_t rcv_payload_size;
 	zend_uchar * payload;
 	zend_uchar type;
 
 	DBG_ENTER("xmysqlnd_receive_message");
 
 	do {
-		ret = pfc->data->m.receive(pfc, vio, stack_buffer, sizeof(stack_buffer), &type, &payload, &payload_size, stats, error_info);
+		ret = pfc->data->m.receive(pfc, vio, stack_buffer, sizeof(stack_buffer), &type, &payload, &rcv_payload_size, stats, error_info);
 		if (FAIL == ret) {
 			DBG_RETURN(FAIL);
 		}
@@ -444,6 +445,7 @@ xmysqlnd_receive_message(st_xmysqlnd_server_messages_handlers* handlers, void * 
 		enum xmysqlnd_server_message_type packet_type = (enum xmysqlnd_server_message_type) type;
 		hnd_ret = HND_PASS;
 		bool handled{false};
+		int payload_size = static_cast<int>(rcv_payload_size);
 		switch (packet_type) {
 			case XMSG_OK:
 				if (handlers->on_OK) {
@@ -1365,7 +1367,7 @@ enum_func_status xmysqlnd_row_sint_field_to_zval( zval* zv,
 {
 	DBG_ENTER("xmysqlnd_row_sint_field_to_zval");
 	enum_func_status ret{PASS};
-	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint64 gval;
 	if (input_stream.ReadVarint64(&gval)) {
 		int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
@@ -1397,7 +1399,7 @@ enum_func_status xmysqlnd_row_uint_field_to_zval( zval* zv,
 {
 	DBG_ENTER("xmysqlnd_row_uint_field_to_zval");
 	enum_func_status ret{PASS};
-	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint64 gval;
 	if (input_stream.ReadVarint64(&gval)) {
 #if SIZEOF_ZEND_LONG==8
@@ -1429,7 +1431,7 @@ enum_func_status xmysqlnd_row_double_field_to_zval( zval* zv,
 {
 	DBG_ENTER("xmysqlnd_row_double_field_to_zval");
 	enum_func_status ret{PASS};
-	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint64 gval;
 	if (input_stream.ReadLittleEndian64(&gval)) {
 		ZVAL_DOUBLE(zv, ::google::protobuf::internal::WireFormatLite::DecodeDouble(gval));
@@ -1454,7 +1456,7 @@ enum_func_status xmysqlnd_row_float_field_to_zval( zval* zv,
 {
 	DBG_ENTER("xmysqlnd_row_float_field_to_zval");
 	enum_func_status ret{PASS};
-	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint32 gval;
 	if (input_stream.ReadLittleEndian32(&gval)) {
 		const float fval = ::google::protobuf::internal::WireFormatLite::DecodeFloat(gval);
@@ -1484,7 +1486,7 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 {
 	DBG_ENTER("xmysqlnd_row_time_field_to_zval");
 	enum_func_status ret{PASS};
-	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint64 neg = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
 	if ( buf_size != 0 )
 	{
@@ -1533,7 +1535,7 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 {
 	DBG_ENTER("xmysqlnd_row_datetime_field_to_zval");
 	enum_func_status ret{PASS};
-	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint64 year = 0, month = 0, day = 0, hours = 0, minutes = 0, seconds = 0, useconds = 0;
 	if ( buf_size != 0 ) {
 		if (buf_size == 1) {
@@ -1588,7 +1590,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 	DBG_ENTER("xmysqlnd_row_set_field_to_zval");
 	enum_func_status ret{PASS};
 	unsigned int j{0};
-	::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
+	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint64 gval;
 	bool length_read_ok{true};
 	array_init(zv);

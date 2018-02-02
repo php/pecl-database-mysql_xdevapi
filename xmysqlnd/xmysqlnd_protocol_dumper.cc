@@ -280,7 +280,7 @@ xmysqlnd_dump_update_operation(const Mysqlx::Crud::UpdateOperation & op)
 
 /* {{{ xmysqlnd_dump_client_message */
 void
-xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const size_t payload_size)
+xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const int payload_size)
 {
 	DBG_ENTER("xmysqlnd_dump_client_message");
 	const Mysqlx::ClientMessages_Type type = (Mysqlx::ClientMessages_Type)(packet_type);
@@ -288,7 +288,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 	{
 		char * message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
-		for (unsigned int i{0}; i < payload_size; i++) {
+		for (int i{0}; i < payload_size; i++) {
 			message_dump[i*3+0] = hexconvtab[((const char*)payload)[i] >> 4];
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';
@@ -751,25 +751,27 @@ xmysqlnd_dump_notice_frame(const Mysqlx::Notice::Frame & frame)
 
 	DBG_INF_FMT("type is %s", has_type? "SET":"NOT SET");
 	if (has_type && has_payload) {
+		const char* frame_payload_str = frame.payload().c_str();
+		const int frame_payload_size = static_cast<int>(frame.payload().size());
 		switch (frame.type()) {
 			case 1:{ /* Warning */
 				Mysqlx::Notice::Warning message;
 				DBG_INF("Warning");
-				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+				message.ParseFromArray(frame_payload_str, frame_payload_size);
 				xmysqlnd_dump_warning(message);
 				break;
 			}
 			case 2:{ /* SessionVariableChanged */
 				Mysqlx::Notice::SessionVariableChanged message;
 				DBG_INF("SessionVariableChanged");
-				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+				message.ParseFromArray(frame_payload_str, frame_payload_size);
 				xmysqlnd_dump_changed_variable(message);
 				break;
 			}
 			case 3:{ /* SessionStateChanged */
 				Mysqlx::Notice::SessionStateChanged message;
 				DBG_INF("SessionStateChanged");
-				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+				message.ParseFromArray(frame_payload_str, frame_payload_size);
 				xmysqlnd_dump_changed_state(message);
 				break;
 			}
@@ -799,15 +801,15 @@ xmysqlnd_dump_capabilities_to_log(const Mysqlx::Connection::Capabilities & messa
 
 /* {{{ xmysqlnd_dump_server_message */
 void
-xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const size_t payload_size)
+xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const int payload_size)
 {
 	DBG_ENTER("xmysqlnd_dump_server_message");
 	const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
 	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ServerMessages_Type_Name(type).c_str(), (uint) payload_size);
 	{
-		char * message_dump = new char[payload_size*3 + 1];
+		char* message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
-		for (unsigned int i{0}; i < payload_size; i++) {
+		for (int i{0}; i < payload_size; i++) {
 			message_dump[i*3+0] = hexconvtab[((const char*)payload)[i] >> 4];
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';

@@ -77,7 +77,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 	}
 
 #ifdef PHP_DEBUG
-	xmysqlnd_dump_client_message(packet_type, buffer, count);
+	xmysqlnd_dump_client_message(packet_type, buffer, static_cast<int>(count));
 #endif
 
 	*bytes_sent = 0;
@@ -146,7 +146,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 		}
 		if (PASS == vio->data->m.network_read(vio, *buffer, *count, stats, error_info)) {
 #ifdef PHP_DEBUG
-			xmysqlnd_dump_server_message(*packet_type, *buffer, *count);
+			xmysqlnd_dump_server_message(*packet_type, *buffer, static_cast<int>(*count));
 #endif
 			XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3(stats,
 				XMYSQLND_STAT_BYTES_RECEIVED, count + packets_received * (XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE),

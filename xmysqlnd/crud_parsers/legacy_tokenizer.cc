@@ -140,7 +140,10 @@ Tokenizer::Maps::Maps()
   unary_operator_names["not"] = "not";
 }
 
-Token::Token(Token::TokenType type, const std::string& text, int cur_pos) : _type(type), _text(text), _pos(cur_pos)
+Token::Token(Token::TokenType type, const std::string& text, size_t cur_pos)
+	: _type(type)
+	, _text(text)
+	, _pos(cur_pos)
 {
 }
 

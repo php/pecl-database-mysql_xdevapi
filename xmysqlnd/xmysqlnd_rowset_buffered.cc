@@ -161,10 +161,9 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all)(XMYSQLND_ROWSET_BUFFERED * 
 													 MYSQLND_ERROR_INFO * const error_info)
 {
 	const size_t row_count = result->row_count;
-	size_t row_cursor{0};
 	DBG_ENTER("xmysqlnd_rowset_buffered::fetch_all");
-	array_init_size(set, row_count);
-	for (;row_cursor < row_count; ++row_cursor) {
+	array_init_size(set, static_cast<uint32_t>(row_count));
+	for (size_t row_cursor{0}; row_cursor < row_count; ++row_cursor) {
 		zval row;
 		ZVAL_UNDEF(&row);
 		if (PASS == result->m.fetch_one(result, row_cursor, &row, stats, error_info)) {
@@ -185,14 +184,13 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED 
 													   MYSQLND_ERROR_INFO * const error_info)
 {
 	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
-	const size_t row_count = result->row_count;
+	const unsigned int row_count = static_cast<unsigned int>(result->row_count);
 	DBG_ENTER("xmysqlnd_rowset_buffered::fetch_all_c");
 	DBG_INF_FMT("dupli=%s", duplicate? "YES":"NO");
 	DBG_INF_FMT("rows =%u  cols=%u", (uint) row_count, (uint) field_count);
 	DBG_INF_FMT("cells=%u", (uint) (row_count * field_count));
 	if ((*set = static_cast<zval*>(mnd_ecalloc(row_count * field_count, sizeof(zval))))) {
-		size_t row{0};
-		for (;row < row_count; ++row) {
+		for (size_t row{0}; row < row_count; ++row) {
 			const zval * const from_row_zv = result->rows[row];
 			const size_t offset = row * field_count;
 			for (unsigned int col{0}; col < field_count; ++col) {

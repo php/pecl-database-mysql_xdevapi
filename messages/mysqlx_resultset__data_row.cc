@@ -35,8 +35,7 @@ extern "C" {
 
 #include "util/object.h"
 
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/wire_format_lite.h>
+#include "protobuf_api.h"
 
 namespace mysqlx {
 
@@ -97,7 +96,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 	RETVAL_FALSE;
 	{
 		zval* entry{nullptr};
-		const size_t column_count = zend_hash_num_elements(&metadata->resultset_metadata_ht);
+		const unsigned int column_count{zend_hash_num_elements(&metadata->resultset_metadata_ht)};
 		if (!column_count) {
 			php_error_docref(nullptr, E_WARNING, "Zero columns");
 			DBG_VOID_RETURN;
@@ -143,9 +142,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 		for (i = 0; i < column_count; ++i) {
 			const Mysqlx::Resultset::ColumnMetaData & meta = meta_ar[i]->message;
 			const uint8_t * buf = reinterpret_cast<const uint8_t*>(object->message.field(i).c_str());
-			const size_t buf_size = object->message.field(i).size();
+			const uint32_t buf_size{static_cast<uint32_t>(object->message.field(i).size())};
 			zval zv;
-			DBG_INF_FMT("buf_size=%u", (uint) buf_size);
+			DBG_INF_FMT("buf_size=%u", static_cast<uint>(buf_size));
 			for (unsigned j{0}; j < buf_size; j++) {
 				DBG_INF_FMT("[%02u]=x%02X", j, buf[j]);
 			}

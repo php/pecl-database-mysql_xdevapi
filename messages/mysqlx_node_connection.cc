@@ -57,7 +57,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ get_scheme */
 static MYSQLND_STRING
-get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned int port, zend_bool * unix_socket, zend_bool * named_pipe)
+get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, zend_long port, zend_bool * unix_socket, zend_bool * named_pipe)
 {
 	MYSQLND_STRING transport;
 	DBG_ENTER("get_scheme");
@@ -77,7 +77,8 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 		if (!port) {
 			port = drv::Environment::get_as_int(drv::Environment::Variable::Mysql_port);
 		}
-		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.s, port);
+		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u",
+			hostname.s, static_cast<unsigned int>(port));
 	}
 	DBG_INF_FMT("transport=%s", transport.s? transport.s:"OOM");
 	DBG_RETURN(transport);

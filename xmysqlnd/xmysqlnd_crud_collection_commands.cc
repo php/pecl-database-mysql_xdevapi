@@ -583,7 +583,8 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 	if (size) {
 		DBG_INF_FMT("doc_path_size=%u", (uint) size);
 		if (validate_array) {
-			const Mysqlx::Expr::DocumentPathItem_Type doc_path_type = identifier.document_path().Get(size - 1).type();
+			const Mysqlx::Expr::DocumentPathItem_Type doc_path_type
+				= identifier.document_path().Get(static_cast<int>(size) - 1).type();
 			DBG_INF_FMT("type=%s", Mysqlx::Expr::DocumentPathItem::Type_Name(doc_path_type).c_str());
 			if (doc_path_type != Mysqlx::Expr::DocumentPathItem::ARRAY_INDEX) {
 				DBG_ERR("An array document path must be specified");

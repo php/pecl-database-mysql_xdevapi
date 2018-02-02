@@ -201,7 +201,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarnings)
 		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (warnings) {
-			const size_t count = warnings->m->count(warnings);
+			const unsigned int count{warnings->m->count(warnings)};
 			array_init_size(return_value, count);
 			for (unsigned int i{0}; i < count; ++i) {
 				const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
@@ -300,7 +300,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumns)
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
-		const size_t count = meta->m->get_field_count(meta);
+		const unsigned int count{meta->m->get_field_count(meta)};
 		array_init_size(return_value, count);
 		for (unsigned int i{0}; i < count; ++i) {
 			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
@@ -328,7 +328,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnNames)
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
-		const size_t count = meta->m->get_field_count(meta);
+		const unsigned int count{meta->m->get_field_count(meta)};
 		array_init_size(return_value, count);
 		for (unsigned int i{0}; i < count; ++i) {
 			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);

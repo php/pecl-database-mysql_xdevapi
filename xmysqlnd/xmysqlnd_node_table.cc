@@ -394,7 +394,7 @@ xmysqlnd_json_parser_object_update(php_json_parser *parser, zval *object, zend_s
 
 /* {{{ xmysqlnd_json_string_find_id */
 enum_func_status
-xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, zend_long options, zend_long depth, st_parse_for_id_status* status)
+xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, int options, int depth, st_parse_for_id_status* status)
 {
 	php_json_parser_methods own_methods;
 	struct my_php_json_parser parser;

@@ -34,7 +34,7 @@ MYSQLND_STRING make_mysqlnd_str(const char * str) {
 	if( str == nullptr ) {
 		return { nullptr, 0 };
 	}
-	const unsigned int len = strlen(str);
+	const size_t len = strlen(str);
 	char * newstr = new char[ len + 1 ];
 	std::copy(str,str + len + 1, newstr);
 	return { newstr, len };
@@ -67,7 +67,12 @@ xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 	HashTable * row_ht = Z_ARRVAL_P(src);
 	zval* row_data = zend_hash_str_find(row_ht, "doc", sizeof("doc") - 1);
 	if (row_data && Z_TYPE_P(row_data) == IS_STRING) {
-		php_json_decode(dest, Z_STRVAL_P(row_data), Z_STRLEN_P(row_data), TRUE, PHP_JSON_PARSER_DEFAULT_DEPTH);
+		php_json_decode(
+			dest,
+			Z_STRVAL_P(row_data),
+			static_cast<int>(Z_STRLEN_P(row_data)),
+			TRUE,
+			PHP_JSON_PARSER_DEFAULT_DEPTH);
 	}
 }
 /* }}} */

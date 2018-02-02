@@ -31,7 +31,7 @@ namespace mysqlx {
 
 namespace util {
 
-Hash_table::Hash_table(std::size_t hint_size) : owner(true)
+Hash_table::Hash_table(uint32_t hint_size) : owner(true)
 {
 	ALLOC_HASHTABLE(ht);
 	zend_hash_init(ht, hint_size, nullptr, nullptr, 0);
