@@ -280,7 +280,7 @@ mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx
 {
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeSession", mysqlx_node_session_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Session", mysqlx_node_session_methods);
 		mysqlx_node_session_class_entry = zend_register_internal_class_ex(
 			&tmp_ce, mysqlx_base_session_class_entry);
 	}
