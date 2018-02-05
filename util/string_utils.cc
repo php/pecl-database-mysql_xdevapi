@@ -42,16 +42,16 @@ string to_string(const zval& zv)
 			return "TRUE";
 
 		case IS_LONG:
-			return util::to_string(Z_LVAL(zv));
+			return to_string(Z_LVAL(zv));
 
 		case IS_DOUBLE:
-			return util::to_string(Z_DVAL(zv));
+			return to_string(Z_DVAL(zv));
 
 		case IS_STRING:
 			return string(Z_STRVAL(zv), Z_STRLEN(zv));
 
 		default:
-			throw util::xdevapi_exception(util::xdevapi_exception::Code::unsupported_conversion_to_string);
+			throw xdevapi_exception(xdevapi_exception::Code::unsupported_conversion_to_string);
 	}
 }
 /* }}} */
@@ -86,9 +86,18 @@ strings to_strings(zval* zvals, int count)
 /* }}} */
 
 
+/* {{{ to_zend_string */
+zend_string* to_zend_string(formatter& fmt)
+{
+	const string& str = fmt.str();
+	return zend_string_init(str.c_str(), str.length(), 0);
+}
+/* }}} */
+
+
 /* {{{ escape_identifier( string id ) */
-util::string
-escape_identifier( const util::string& identifier ) {
+string
+escape_identifier( const string& identifier ) {
 	std::stringstream result;
 	result << '`';
 	for( const auto& ch : identifier ) {
@@ -102,7 +111,6 @@ escape_identifier( const util::string& identifier ) {
 	return result.str().c_str();
 }
 /* }}} */
-
 
 } // namespace util
 
