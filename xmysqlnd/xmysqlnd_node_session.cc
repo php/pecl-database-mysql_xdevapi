@@ -2104,6 +2104,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, free_reference)(XMYSQLND_NODE_SESSION * c
 	DBG_ENTER("xmysqlnd_node_session::free_reference");
 	DBG_INF_FMT("session=%p old_refcount=%u", session, session->refcount);
 	if (!(--session->refcount)) {
+		session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
 		session->m->dtor(session);
 	}
 	DBG_RETURN(ret);

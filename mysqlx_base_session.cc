@@ -906,7 +906,6 @@ mysqlx_base_session_free_storage(zend_object * object)
 		XMYSQLND_NODE_SESSION * session = (XMYSQLND_NODE_SESSION *) inner_obj->session;
 
 		if (session) {
-			session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
 			session->m->free_reference(session);
 		}
 		mnd_efree(inner_obj);
