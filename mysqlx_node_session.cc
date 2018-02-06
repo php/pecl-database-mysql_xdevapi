@@ -60,7 +60,7 @@ ZEND_END_ARG_INFO()
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_session*) mysqlx_object->ptr; \
-	if (!(_to) && !(_to)->session) { \
+        if (!(_to) && !(_to)->session) { \
 		if ((_to)->closed) { \
 			php_error_docref(nullptr, E_WARNING, "closed session"); \
 		} else { \
@@ -74,7 +74,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ mysqlx_throw_exception_from_session_if_needed */
 static zend_bool
-mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA * const session)
+mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA session)
 {
 	const unsigned int error_num = session->m->get_error_no(session);
 	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");

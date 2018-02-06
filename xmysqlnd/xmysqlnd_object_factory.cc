@@ -67,21 +67,20 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 
 
 /* {{{ mysqlnd_object_factory::get_node_session_data */
-static XMYSQLND_NODE_SESSION_DATA *
+static st_xmysqlnd_node_session_data *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-																const zend_bool persistent,
-																MYSQLND_STATS* stats,
-																MYSQLND_ERROR_INFO* error_info)
+                                                                const zend_bool persistent,
+                                                                MYSQLND_STATS* stats,
+                                                                MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session_data");
 	DBG_INF_FMT("persistent=%u", persistent);
-	XMYSQLND_NODE_SESSION_DATA* object = new XMYSQLND_NODE_SESSION_DATA;
+        st_xmysqlnd_node_session_data * object = new st_xmysqlnd_node_session_data;
 	object->persistent = persistent;
-	object->m = xmysqlnd_node_session_data_get_methods();
-	object->m->get_reference(object);
+        object->m = xmysqlnd_node_session_data_get_methods();
 
 	if (FAIL == object->m->init(object, factory, stats, error_info)) {
-		object->m->dtor(object);
+                object->m->dtor(object);
 		DBG_RETURN(nullptr);
 	}
 	DBG_RETURN(object);

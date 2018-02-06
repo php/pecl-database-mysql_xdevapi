@@ -57,14 +57,14 @@ xmysqlnd_plugin__get_node_session_plugin_area(const XMYSQLND_NODE_SESSION * sess
 
 /* {{{ xmysqlnd_plugin__get_node_session_data_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_session_data_plugin_area(const XMYSQLND_NODE_SESSION_DATA * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_node_session_data_plugin_area(const st_xmysqlnd_node_session_data * object, const unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_node_session_data_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
 	}
-	DBG_RETURN(reinterpret_cast<void**>(const_cast<XMYSQLND_NODE_SESSION_DATA*>(object) + sizeof(XMYSQLND_NODE_SESSION_DATA) + plugin_id * sizeof(void *)));
+        DBG_RETURN(reinterpret_cast<void**>(const_cast<st_xmysqlnd_node_session_data*>(object) + sizeof(XMYSQLND_NODE_SESSION_DATA) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
@@ -211,7 +211,7 @@ xmysqlnd_plugin__get_plugin_pfc_data(const XMYSQLND_PFC * object, unsigned int p
 struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 {
 	xmysqlnd_plugin__get_node_session_plugin_area,
-	xmysqlnd_plugin__get_node_session_data_plugin_area,
+        xmysqlnd_plugin__get_node_session_data_plugin_area,
 	xmysqlnd_plugin__get_node_schema_plugin_area,
 	xmysqlnd_plugin__get_node_collection_plugin_area,
 	xmysqlnd_plugin__get_node_table_plugin_area,

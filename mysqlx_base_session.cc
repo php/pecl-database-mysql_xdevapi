@@ -114,7 +114,7 @@ ZEND_END_ARG_INFO()
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_session*) mysqlx_object->ptr; \
-	if (!(_to) && !(_to)->session) { \
+        if (!(_to) && !((_to)->session != nullptr)) { \
 		if ((_to)->closed) { \
 			php_error_docref(nullptr, E_WARNING, "closed session"); \
 		} else { \
@@ -128,7 +128,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ mysqlx_throw_exception_from_session_if_needed */
 static zend_bool
-mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA * const session)
+mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA session)
 {
 	const unsigned int error_num = session->m->get_error_no(session);
 	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");
@@ -216,7 +216,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, quoteName)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 
-	if (XMYSQLND_NODE_SESSION* session = object->session) {
+        if (XMYSQLND_NODE_SESSION * session = object->session) {
 		MYSQLND_STRING quoted_name = session->data->m->quote_name(session->data, name);
 		RETVAL_STRINGL(quoted_name.s, quoted_name.l);
 		if (quoted_name.s) {
@@ -367,7 +367,7 @@ mysqlx_base_session_command_handler_on_error(void * context,
 {
 	DBG_ENTER("mysqlx_base_session_command_handler_on_error");
 	if (session) {
-		session->data->m->handler_on_error(session->data, code, sql_state, message);
+                session->data->m->handler_on_error(session->data.get(), code, sql_state, message);
 	}
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }

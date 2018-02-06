@@ -58,7 +58,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list);
 struct st_xmysqlnd_plugin__plugin_area_getters
 {
 	void ** (*get_node_session_area)(const st_xmysqlnd_node_session* conn, const unsigned int plugin_id);
-	void ** (*get_node_session_data_data_area)(const st_xmysqlnd_node_session_data* conn, const unsigned int plugin_id);
+        void ** (*get_node_session_data_data_area)(const st_xmysqlnd_node_session_data* conn, const unsigned int plugin_id);
 	void ** (*get_node_schema_area)(const st_xmysqlnd_node_schema* schema, unsigned int plugin_id);
 	void ** (*get_node_collection_area)(const st_xmysqlnd_node_collection* collection, unsigned int plugin_id);
 	void ** (*get_node_table_area)(const st_xmysqlnd_node_table* table, unsigned int plugin_id);

@@ -47,7 +47,7 @@ typedef struct st_xmysqlnd_node_session * (*func_xmysqlnd_object_factory__get_no
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);
 
-typedef struct st_xmysqlnd_node_session_data * (*func_xmysqlnd_object_factory__get_node_session_data)(
+typedef struct st_xmysqlnd_node_session_data* (*func_xmysqlnd_object_factory__get_node_session_data)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
