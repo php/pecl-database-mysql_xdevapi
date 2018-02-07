@@ -1,6 +1,8 @@
 # INFO: We're writing into srcdir, not builddir!
 
 $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc: $(srcdir)/xmysqlnd/proto_def/mysqlx.proto
+	$(CXX) --version
+	$(MYSQL_XDEVAPI_PROTOC) --version
 ifdef MYSQL_XDEVAPI_PROTOBUF_INCLUDES
 	$(MYSQL_XDEVAPI_PROTOC) -I$(MYSQL_XDEVAPI_PROTOBUF_INCLUDES) --cpp_out $(srcdir)/xmysqlnd/proto_gen/ --proto_path $(srcdir)/xmysqlnd/proto_def/ $(srcdir)/xmysqlnd/proto_def/mysql*.proto
 else
