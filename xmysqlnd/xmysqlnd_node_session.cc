@@ -234,12 +234,37 @@ MYSQLND_CLASS_METHODS_END;
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_node_session_state_init(XMYSQLND_NODE_SESSION_STATE * const state)
 {
-	DBG_ENTER("xmysqlnd_node_session_state_init");
-	state->m = &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_session_state);
-	state->state = NODE_SESSION_ALLOCED;
-	DBG_VOID_RETURN;
+        DBG_ENTER("xmysqlnd_node_session_state_init");
+        state->m = &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_session_state);
+        state->state = NODE_SESSION_ALLOCED;
+        DBG_VOID_RETURN;
 }
 /* }}} */
+
+/* {{{ xmysqlnd_node_session_data::~st_xmysqlnd_node_session_data */
+st_xmysqlnd_node_session_data::~st_xmysqlnd_node_session_data()
+{
+    DBG_ENTER("xmysqlnd_node_session_data::~st_xmysqlnd_node_session_data");
+
+    m->free_contents(this);
+    m->free_options(this);
+
+    if (io.pfc) {
+            xmysqlnd_pfc_free(io.pfc, stats, error_info);
+            io.pfc = nullptr;
+    }
+
+    if (io.vio) {
+            mysqlnd_vio_free(io.vio, stats, error_info);
+            io.vio = nullptr;
+    }
+
+    if (stats && own_stats) {
+            mysqlnd_stats_end(stats, persistent);
+    }
+}
+/* }}} */
+
 
 namespace {
 
@@ -802,7 +827,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 			session->m->send_close(session);
 		}
 
-		session->m->free_contents(session);
+                session->m->free_contents(session.get());
 	}
 
 	/* Setup the relevant variables! */
@@ -900,7 +925,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 			php_error_docref(nullptr, E_WARNING, "[%u] %.128s (trying to connect via %s)",
 					session->error_info->error_no, session->error_info->error, session->scheme.s);
 		}
-		session->m->free_contents(session);
+                session->m->free_contents(session.get());
 		XMYSQLND_INC_SESSION_STATISTIC(session->stats, XMYSQLND_STAT_CONNECT_FAILURE);
 	}
 
@@ -1072,7 +1097,7 @@ end:
 
 /* {{{ xmysqlnd_node_session_data::free_contents */
 void
-XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents)(XMYSQLND_NODE_SESSION_DATA session)
+XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents)(st_xmysqlnd_node_session_data * session)
 {
 	zend_bool pers = session->persistent;
 
@@ -1117,39 +1142,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents)(XMYSQLND_NODE_SESSION
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::dtor */
-void
-XMYSQLND_METHOD(xmysqlnd_node_session_data, dtor)(st_xmysqlnd_node_session_data * session)
-{
-	DBG_ENTER("xmysqlnd_node_session_data::dtor");
-
-        //FILIP: session->m->free_contents(session);
-        //FILIP: session->m->free_options(session);
-
-	if (session->io.pfc) {
-		xmysqlnd_pfc_free(session->io.pfc, session->stats, session->error_info);
-		session->io.pfc = nullptr;
-	}
-
-	if (session->io.vio) {
-		mysqlnd_vio_free(session->io.vio, session->stats, session->error_info);
-		session->io.vio = nullptr;
-	}
-
-	if (session->stats && session->own_stats) {
-		mysqlnd_stats_end(session->stats, session->persistent);
-	}
-
-        //FILIP: mnd_pefree(session, session->persistent);
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_node_session_data::free_options */
 void
-XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options)(XMYSQLND_NODE_SESSION_DATA session)
+XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options)(st_xmysqlnd_node_session_data * session)
 {
 }
 /* }}} */
@@ -1162,7 +1157,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_reference)(st_xmysqlnd_node_sess
 	DBG_ENTER("xmysqlnd_node_session_data::get_reference");
 	++session->refcount;
         DBG_INF_FMT("session=%p new_refcount=%u", session, session->refcount);
-        fprintf(stderr,"session=%p new_refcount=%u", session, session->refcount);
         DBG_RETURN(session);
 }
 /* }}} */
@@ -1174,7 +1168,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, free_reference)(XMYSQLND_NODE_SESSIO
 {
 	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_session_data::free_reference");
-	fprintf(stderr,"session=%p old_refcount=%u", session, session->refcount);
+        DBG_INF_FMT("session=%p old_refcount=%u", session, session->refcount);
 	if (!(--session->refcount)) {
 		/*
 		  No multithreading issues as we don't share the connection :)
@@ -1182,7 +1176,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, free_reference)(XMYSQLND_NODE_SESSIO
 		  reached zero.
 		*/
 		ret = session->m->send_close(session);
-                session->m->dtor(session.get());
+                //FILIP: session->m->dtor(session.get());
 	}
 	DBG_RETURN(ret);
 }
@@ -1339,7 +1333,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, dtor),
+
 
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_reference),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, free_reference),
@@ -2100,7 +2094,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, get_reference)(XMYSQLND_NODE_SESSION * co
 {
 	DBG_ENTER("xmysqlnd_node_session::get_reference");
 	++session->refcount;
-	fprintf(stderr,"session=%p new_refcount=%u", session, session->refcount);
+        DBG_INF_FMT("session=%p new_refcount=%u", session, session->refcount);
 	DBG_RETURN(session);
 }
 /* }}} */
@@ -3126,23 +3120,6 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 }
 /* }}} */
 
-
-/* {{{ xmysqlnd_node_session_free */
-PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_node_session_free(XMYSQLND_NODE_SESSION* const session)
-{
-	DBG_ENTER("xmysqlnd_node_session_free");
-	DBG_INF_FMT(
-		"session=%p  session->data=%p  dtor=%p",
-		session,
-		session ? session->data : nullptr,
-		session ? session->data->m->dtor : nullptr);
-	if (session) {
-		session->m->free_reference(session);
-	}
-	DBG_VOID_RETURN;
-}
-/* }}} */
 
 } // namespace drv
 

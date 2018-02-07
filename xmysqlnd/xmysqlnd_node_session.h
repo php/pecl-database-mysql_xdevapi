@@ -208,8 +208,8 @@ typedef const char *		(*func_xmysqlnd_node_session_data__get_charset_name)(const
 
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__set_server_option)(XMYSQLND_NODE_SESSION_DATA  session, enum_xmysqlnd_server_option option, const char * const value);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__set_client_option)(XMYSQLND_NODE_SESSION_DATA  session, enum_xmysqlnd_client_option option, const char * const value);
-typedef void				(*func_xmysqlnd_node_session_data__free_contents)(XMYSQLND_NODE_SESSION_DATA session);/* private */
-typedef void				(*func_xmysqlnd_node_session_data__free_options)(XMYSQLND_NODE_SESSION_DATA session);	/* private */
+typedef void				(*func_xmysqlnd_node_session_data__free_contents)(st_xmysqlnd_node_session_data * session);/* private */
+typedef void				(*func_xmysqlnd_node_session_data__free_options)(st_xmysqlnd_node_session_data * session);	/* private */
 typedef void				(*func_xmysqlnd_node_session_data__dtor)(st_xmysqlnd_node_session_data * session);	/* private */
 
 typedef st_xmysqlnd_node_session_data *	(*func_xmysqlnd_node_session_data__get_reference)(st_xmysqlnd_node_session_data *  session);
@@ -256,7 +256,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 
 	func_xmysqlnd_node_session_data__free_contents free_contents;
 	func_xmysqlnd_node_session_data__free_options free_options;
-	func_xmysqlnd_node_session_data__dtor dtor;
 
 	func_xmysqlnd_node_session_data__get_reference get_reference;
 	func_xmysqlnd_node_session_data__free_reference free_reference;
@@ -331,9 +330,7 @@ struct st_xmysqlnd_node_session_data : public util::permanent_allocable
 	/* Seed for the next transaction savepoint identifier */
 	unsigned int savepoint_name_seed;
 
-        ~st_xmysqlnd_node_session_data() {
-            //FILIP: Put it somewhere.
-        }
+        ~st_xmysqlnd_node_session_data();
 };
 
 
@@ -550,9 +547,6 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION * xmysqlnd_node_session_create(const
 																MYSQLND_ERROR_INFO * error_info);
 
 PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string, zval * return_value);
-
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_free(XMYSQLND_NODE_SESSION* const session);
-
 
 extern const MYSQLND_CSTRING namespace_mysqlx;
 extern const MYSQLND_CSTRING namespace_sql;
