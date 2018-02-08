@@ -580,7 +580,6 @@ function get_preprocessor_definitions() {
 
 function get_compiler_options() {
 	return [
-		"/WX", // treat warnings as errors
 		"/W4", // warnings level
 		"/EHsc", // enable exceptions
 		"/std:c++14" // standard compliance

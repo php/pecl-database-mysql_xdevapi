@@ -183,7 +183,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		"
 
 	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14 \
-		-Wall -Werror -Wno-unused-function"
+		-Wall -Wno-unused-function"
 
 	case $host_os in
 		*darwin*)
