@@ -806,8 +806,8 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
 	enum_func_status ret{PASS};
 
-	DBG_ENTER("xmysqlnd_node_session_data::connect");
-	DBG_INF_FMT("session=%p", session);
+        DBG_ENTER("xmysqlnd_node_session_data::connect");
+        DBG_INF_FMT("session=%p", session.get());
 
 	SET_EMPTY_ERROR(session->error_info);
 
@@ -1168,7 +1168,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, free_reference)(XMYSQLND_NODE_SESSIO
 {
 	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_session_data::free_reference");
-        DBG_INF_FMT("session=%p old_refcount=%u", session, session->refcount);
+        DBG_INF_FMT("session=%p old_refcount=%u", session.get(), session->refcount);
 	if (!(--session->refcount)) {
 		/*
 		  No multithreading issues as we don't share the connection :)
@@ -1193,7 +1193,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DA
 	const enum xmysqlnd_node_session_state state = GET_SESSION_STATE(&session->state);
 
 	DBG_ENTER("mysqlnd_send_close");
-	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", session, net_stream? net_stream->abstract:nullptr);
+        DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", session.get(), net_stream? net_stream->abstract:nullptr);
 	DBG_INF_FMT("state=%u", state);
 
 	if (state >= NODE_SESSION_NON_AUTHENTICATED) {
