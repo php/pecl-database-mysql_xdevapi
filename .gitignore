@@ -108,6 +108,12 @@ stamp-h.in
 scan_makefile_in.awk
 
 # Test specific Ignores
+**/tests/*.diff
+**/tests/*.out
+**/tests/*.php
+**/tests/*.exp
+**/tests/*.log
+**/tests/*.sh
 tests/*/*.diff
 tests/*/*.out
 tests/*/*.php
