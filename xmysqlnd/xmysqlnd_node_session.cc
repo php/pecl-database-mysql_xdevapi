@@ -56,6 +56,7 @@ extern "C" {
 #include <cctype>
 #include <random>
 #include <chrono>
+#include <memory>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -291,6 +292,9 @@ st_xmysqlnd_node_session_data::st_xmysqlnd_node_session_data(const MYSQLND_CLASS
 st_xmysqlnd_node_session_data::~st_xmysqlnd_node_session_data()
 {
 	DBG_ENTER("xmysqlnd_node_session_data::~st_xmysqlnd_node_session_data");
+	if( m ) {
+		m->send_close(this);
+	}
 	cleanup();
 	free_contents();
 	DBG_VOID_RETURN;
@@ -918,7 +922,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 		if (GET_SESSION_STATE(&session->state) < NODE_SESSION_CLOSE_SENT) {
 			XMYSQLND_INC_SESSION_STATISTIC(session->stats, XMYSQLND_STAT_CLOSE_IMPLICIT);
 			reconnect = TRUE;
-			session->m->send_close(session);
+			session->m->send_close(session.get());
 		}
 
 		session->cleanup();
@@ -1189,53 +1193,6 @@ end:
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::free_contents *//*
-void
-XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents)(st_xmysqlnd_node_session_data * session)
-{
-	zend_bool pers = session->persistent;
-
-	DBG_ENTER("xmysqlnd_node_session_data::free_contents");
-
-	if (session->io.pfc) {
-		session->io.pfc->data->m.free_contents(session->io.pfc);
-	}
-
-	if (session->io.vio) {
-		session->io.vio->data->m.free_contents(session->io.vio);
-	}
-
-	DBG_INF("Freeing memory of members");
-
-	if(session->auth) {
-		delete session->auth;
-		session->auth = nullptr;
-	}
-	if (session->current_db.s) {
-		mnd_pefree(session->current_db.s, pers);
-		session->current_db.s = nullptr;
-	}
-	DBG_INF_FMT("scheme=%s", session->scheme.s);
-	if (session->scheme.s) {
-		mnd_pefree(session->scheme.s, pers);
-		session->scheme.s = nullptr;
-	}
-	if (session->server_host_info) {
-		mnd_pefree(session->server_host_info, pers);
-		session->server_host_info = nullptr;
-	}
-	if (session->error_info->error_list) {
-		zend_llist_clean(session->error_info->error_list);
-		mnd_pefree(session->error_info->error_list, pers);
-		session->error_info->error_list = nullptr;
-	}
-	session->charset = nullptr;
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_node_session_data::free_options */
 void
 XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options)(st_xmysqlnd_node_session_data * session)
@@ -1244,41 +1201,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options)(st_xmysqlnd_node_sessi
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::get_reference */
-st_xmysqlnd_node_session_data *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_reference)(st_xmysqlnd_node_session_data * session)
-{
-	DBG_ENTER("xmysqlnd_node_session_data::get_reference");
-	++session->refcount;
-        DBG_INF_FMT("session=%p new_refcount=%u", session, session->refcount);
-        DBG_RETURN(session);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session_data::free_reference */
-enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, free_reference)(XMYSQLND_NODE_SESSION_DATA session)
-{
-	enum_func_status ret{PASS};
-	DBG_ENTER("xmysqlnd_node_session_data::free_reference");
-	DBG_INF_FMT("session=%p old_refcount=%u", session.get(), session->refcount);
-	if (!(--session->refcount)) {
-		/*
-		  No multithreading issues as we don't share the connection :)
-		  This will free the object too, of course because references has
-		  reached zero.
-		*/
-		ret = session->m->send_close(session);
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ mysqlnd_send_close */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DATA session)
+XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(st_xmysqlnd_node_session_data * session)
 {
 	enum_func_status ret{PASS};
 	MYSQLND_VIO * vio = session->io.vio;
@@ -1286,7 +1211,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DA
 	const enum xmysqlnd_node_session_state state = GET_SESSION_STATE(&session->state);
 
 	DBG_ENTER("mysqlnd_send_close");
-	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", session.get(), net_stream? net_stream->abstract:nullptr);
+	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", session, net_stream? net_stream->abstract:nullptr);
 	DBG_INF_FMT("state=%u", state);
 
 	if (state >= NODE_SESSION_NON_AUTHENTICATED) {
@@ -1405,7 +1330,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_client_api_capabilities)(const X
 /* }}} */
 
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
-	//FILIP:XMYSQLND_METHOD(xmysqlnd_node_session_data, init),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate),
@@ -1424,12 +1348,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, set_server_option),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_option),
 
-	//FILIP: XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options),
-
-
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, free_reference),
 
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close),
 	XMYSQLND_METHOD(xmysqlnd_node_session_data, ssl_set),
@@ -2165,7 +2084,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_ha
 		  Close now, free_reference will try,
 		  if we are last, but that's not a problem.
 		*/
-		ret = session->m->send_close(session);
+		ret = session->m->send_close(session.get());
 
 		/* If we do it after free_reference/dtor then we might crash */
 		session->m->local_tx_end(session, this_func, ret);
@@ -2229,7 +2148,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session, dtor)(XMYSQLND_NODE_SESSION * session_han
 	DBG_ENTER("xmysqlnd_node_session::dtor");
 	session_handle->m->free_contents(session_handle);
 	if (session_handle->data) {
-		session_handle->data->m->free_reference(session_handle->data);
 		session_handle->data = nullptr;
 	}
 	if(session_handle->session_uuid) {

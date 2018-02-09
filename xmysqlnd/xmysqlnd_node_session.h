@@ -215,7 +215,7 @@ typedef void				(*func_xmysqlnd_node_session_data__dtor)(st_xmysqlnd_node_sessio
 typedef st_xmysqlnd_node_session_data *	(*func_xmysqlnd_node_session_data__get_reference)(st_xmysqlnd_node_session_data *  session);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__free_reference)(XMYSQLND_NODE_SESSION_DATA  session);
 
-typedef enum_func_status	(*func_xmysqlnd_node_session_data__send_close)(XMYSQLND_NODE_SESSION_DATA session);
+typedef enum_func_status	(*func_xmysqlnd_node_session_data__send_close)(st_xmysqlnd_node_session_data * session);
 
 typedef enum_func_status    (*func_xmysqlnd_node_session_data__ssl_set)(XMYSQLND_NODE_SESSION_DATA  session, const char * key, const char * const cert, const char * const ca, const char * const capath, const char * const cipher);
 
@@ -235,7 +235,6 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__set_client_id)(void 
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 {
-	//FILIP: func_xmysqlnd_node_session_data__init init;
 	func_xmysqlnd_node_session_data__get_scheme get_scheme;
 	func_xmysqlnd_node_session_data__connect_handshake connect_handshake;
 	func_xmysqlnd_node_session_data__authenticate authenticate;
@@ -253,12 +252,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 
 	func_xmysqlnd_node_session_data__set_server_option set_server_option;
 	func_xmysqlnd_node_session_data__set_client_option set_client_option;
-
-	//FILIP: func_xmysqlnd_node_session_data__free_contents free_contents;
 	func_xmysqlnd_node_session_data__free_options free_options;
-
-	func_xmysqlnd_node_session_data__get_reference get_reference;
-	func_xmysqlnd_node_session_data__free_reference free_reference;
 
 	func_xmysqlnd_node_session_data__send_close send_close;
 
@@ -277,7 +271,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 };
 
 
-struct st_xmysqlnd_node_session_data : public util::custom_allocable
+struct st_xmysqlnd_node_session_data : public util::custom_allocable, std::enable_shared_from_this< st_xmysqlnd_node_session_data >
 {
 	st_xmysqlnd_node_session_data() = delete;
 	st_xmysqlnd_node_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
@@ -307,13 +301,6 @@ struct st_xmysqlnd_node_session_data : public util::custom_allocable
 
 	/* Operation related */
 	XMYSQLND_NODE_SESSION_STATE state;
-
-	/*
-	  How many result sets reference this connection.
-	  It won't be freed until this number reaches 0.
-	  The last one, please close the door! :-)
-	*/
-	unsigned int	refcount;
 
 	/* options */
 	XMYSQLND_NODE_SESSION_OPTIONS	* options;
