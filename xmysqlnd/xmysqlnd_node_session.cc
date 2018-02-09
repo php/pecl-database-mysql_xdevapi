@@ -316,6 +316,8 @@ void st_xmysqlnd_node_session_data::cleanup()
 		io.vio->data->m.free_contents(io.vio);
 	}
 
+	DBG_INF("Freeing memory of members");
+
 	if(auth) {
 		delete auth;
 		auth = nullptr;
@@ -342,9 +344,6 @@ void st_xmysqlnd_node_session_data::cleanup()
 	}
 	charset = nullptr;
 
-	if (stats && own_stats) {
-		mysqlnd_stats_end(stats, persistent);
-	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -361,6 +360,10 @@ void st_xmysqlnd_node_session_data::free_contents()
 	if (io.vio) {
 		mysqlnd_vio_free(io.vio, stats, error_info);
 		io.vio = nullptr;
+	}
+	if (stats && own_stats) {
+		mysqlnd_stats_end(stats, persistent);
+		stats = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
