@@ -190,7 +190,7 @@ typedef struct st_xmysqlnd_node_session XMYSQLND_NODE_SESSION;
 typedef std::shared_ptr<st_xmysqlnd_node_session_data> XMYSQLND_NODE_SESSION_DATA;
 typedef struct st_xmysqlnd_session_auth_data XMYSQLND_SESSION_AUTH_DATA;
 
-typedef enum_func_status	(*func_xmysqlnd_node_session_data__init)(st_xmysqlnd_node_session_data * session, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+//FILIP: typedef enum_func_status	(*func_xmysqlnd_node_session_data__init)(st_xmysqlnd_node_session_data * session, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect_handshake)(XMYSQLND_NODE_SESSION_DATA session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__authenticate)(XMYSQLND_NODE_SESSION_DATA session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__connect)(XMYSQLND_NODE_SESSION_DATA session, const MYSQLND_CSTRING database, unsigned int port, size_t set_capabilities);
@@ -208,7 +208,7 @@ typedef const char *		(*func_xmysqlnd_node_session_data__get_charset_name)(const
 
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__set_server_option)(XMYSQLND_NODE_SESSION_DATA  session, enum_xmysqlnd_server_option option, const char * const value);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__set_client_option)(XMYSQLND_NODE_SESSION_DATA  session, enum_xmysqlnd_client_option option, const char * const value);
-typedef void				(*func_xmysqlnd_node_session_data__free_contents)(st_xmysqlnd_node_session_data * session);/* private */
+//FILIP: typedef void				(*func_xmysqlnd_node_session_data__free_contents)(st_xmysqlnd_node_session_data * session);/* private */
 typedef void				(*func_xmysqlnd_node_session_data__free_options)(st_xmysqlnd_node_session_data * session);	/* private */
 typedef void				(*func_xmysqlnd_node_session_data__dtor)(st_xmysqlnd_node_session_data * session);	/* private */
 
@@ -235,7 +235,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__set_client_id)(void 
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 {
-	func_xmysqlnd_node_session_data__init init;
+	//FILIP: func_xmysqlnd_node_session_data__init init;
 	func_xmysqlnd_node_session_data__get_scheme get_scheme;
 	func_xmysqlnd_node_session_data__connect_handshake connect_handshake;
 	func_xmysqlnd_node_session_data__authenticate authenticate;
@@ -254,7 +254,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 	func_xmysqlnd_node_session_data__set_server_option set_server_option;
 	func_xmysqlnd_node_session_data__set_client_option set_client_option;
 
-	func_xmysqlnd_node_session_data__free_contents free_contents;
+	//FILIP: func_xmysqlnd_node_session_data__free_contents free_contents;
 	func_xmysqlnd_node_session_data__free_options free_options;
 
 	func_xmysqlnd_node_session_data__get_reference get_reference;
@@ -277,8 +277,13 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
 };
 
 
-struct st_xmysqlnd_node_session_data : public util::permanent_allocable
+struct st_xmysqlnd_node_session_data : public util::custom_allocable
 {
+	st_xmysqlnd_node_session_data() = delete;
+	st_xmysqlnd_node_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+				      MYSQLND_STATS * mysqlnd_stats,
+				      MYSQLND_ERROR_INFO * mysqlnd_error_info);
+	~st_xmysqlnd_node_session_data();
 	/* Operation related */
 	XMYSQLND_L3_IO	io;
 
@@ -330,7 +335,9 @@ struct st_xmysqlnd_node_session_data : public util::permanent_allocable
 	/* Seed for the next transaction savepoint identifier */
 	unsigned int savepoint_name_seed;
 
-        ~st_xmysqlnd_node_session_data();
+	void cleanup();
+private:
+	void free_contents();
 };
 
 
