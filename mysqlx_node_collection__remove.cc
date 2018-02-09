@@ -55,10 +55,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__limit, 0, ZEND_RE
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__skip, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, position, IS_LONG, dont_allow_null)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__remove__bind, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
@@ -132,7 +128,7 @@ void Collection_remove::sort(
 			break;
 		case IS_ARRAY:
 			{
-				zval* entry;
+				zval* entry{nullptr};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry),
 												Z_STRLEN_P(entry) };
@@ -171,8 +167,6 @@ void Collection_remove::limit(
 		DBG_VOID_RETURN;
 	}
 
-	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
-
 	RETVAL_FALSE;
 
 	if (PASS == xmysqlnd_crud_collection_remove__set_limit(remove_op, rows)) {
@@ -193,8 +187,8 @@ void Collection_remove::bind(
 
 	RETVAL_FALSE;
 
-	zend_string* key;
-	zval* val;
+	zend_string* key{nullptr};
+	zval* val{nullptr};
 	ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 		if (key) {
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
@@ -221,7 +215,7 @@ void Collection_remove::execute(zval* return_value)
 	DBG_INF_FMT("remove_op=%p collection=%p", remove_op, collection);
 	if (remove_op && collection) {
 		if (FALSE == xmysqlnd_crud_collection_remove__is_initialized(remove_op)) {
-			static const unsigned int errcode = 10002;
+			static const unsigned int errcode{10002};
 			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
 			static const MYSQLND_CSTRING errmsg = { "Remove not completely initialized", sizeof("Remove not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);

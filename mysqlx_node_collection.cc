@@ -216,7 +216,7 @@ mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
 					const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_collection_on_error");
-	const unsigned int UnknownDatabaseCode = 1049;
+	const unsigned int UnknownDatabaseCode{1049};
 	if (code == UnknownDatabaseCode) {
 		DBG_RETURN(HND_PASS);
 	} else {
@@ -295,7 +295,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, count)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 {
 	st_mysqlx_node_collection* object{nullptr};
-	XMYSQLND_NODE_SESSION * session;
+	XMYSQLND_NODE_SESSION* session{nullptr};
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
 	zval* object_zv{nullptr};
 

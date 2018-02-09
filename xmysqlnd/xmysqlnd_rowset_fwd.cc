@@ -111,8 +111,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_one)(XMYSQLND_ROWSET_FWD * const resu
 	array_init_size(row, field_count);
 	if (field_count) {
 		zval * const row_cursor_zv = result->rows[row_cursor];
-		unsigned int col = 0;
-		for (;col < field_count; ++col) {
+		for (unsigned int col{0}; col < field_count; ++col) {
 			const XMYSQLND_RESULT_FIELD_META * field_meta = result->meta->m->get_field(result->meta, col);
 			zval * const zv = &row_cursor_zv[col];
 
@@ -135,7 +134,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_one)(XMYSQLND_ROWSET_FWD * const resu
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	size_t row_cursor{0};
 	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_all");
 
 	/* read the rest. If this was the first, then we will prefetch everything, otherwise we will read whatever is left */
@@ -143,8 +141,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const resu
 		DBG_RETURN(FAIL);
 	}
 
-	array_init_size(set, result->row_count);
-	for (;row_cursor < result->row_count; ++row_cursor) {
+	array_init_size(set, static_cast<uint32_t>(result->row_count));
+	for (size_t row_cursor{0}; row_cursor < result->row_count; ++row_cursor) {
 		zval row;
 		ZVAL_UNDEF(&row);
 		if (PASS == result->m.fetch_one(result, row_cursor, &row, stats, error_info)) {

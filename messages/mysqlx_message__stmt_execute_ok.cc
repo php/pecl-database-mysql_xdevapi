@@ -145,7 +145,7 @@ mysqlx_unregister_message__stmt_execute_ok_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_stmt_execute_ok(zval * return_value, const Mysqlx::Sql::StmtExecuteOk & message)
 {
-	st_mysqlx_message__stmt_execute_ok* obj;
+	st_mysqlx_message__stmt_execute_ok* obj{nullptr};
 	DBG_ENTER("mysqlx_new_stmt_execute_ok");
 	object_init_ex(return_value, mysqlx_message__stmt_execute_ok_class_entry);
 	MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_OK_FROM_ZVAL(obj, return_value);

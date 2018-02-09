@@ -580,6 +580,7 @@ function get_preprocessor_definitions() {
 
 function get_compiler_options() {
 	return [
+		"/W4", // warnings level
 		"/EHsc", // enable exceptions
 		"/std:c++14" // standard compliance
 	].join(' ');

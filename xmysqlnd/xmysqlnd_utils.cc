@@ -34,7 +34,7 @@ MYSQLND_STRING make_mysqlnd_str(const char * str) {
 	if( str == nullptr ) {
 		return { nullptr, 0 };
 	}
-	const unsigned int len = strlen(str);
+	const size_t len = strlen(str);
 	char * newstr = new char[ len + 1 ];
 	std::copy(str,str + len + 1, newstr);
 	return { newstr, len };
@@ -67,7 +67,12 @@ xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 	HashTable * row_ht = Z_ARRVAL_P(src);
 	zval* row_data = zend_hash_str_find(row_ht, "doc", sizeof("doc") - 1);
 	if (row_data && Z_TYPE_P(row_data) == IS_STRING) {
-		php_json_decode(dest, Z_STRVAL_P(row_data), Z_STRLEN_P(row_data), TRUE, PHP_JSON_PARSER_DEFAULT_DEPTH);
+		php_json_decode(
+			dest,
+			Z_STRVAL_P(row_data),
+			static_cast<int>(Z_STRLEN_P(row_data)),
+			TRUE,
+			PHP_JSON_PARSER_DEFAULT_DEPTH);
 	}
 }
 /* }}} */
@@ -79,7 +84,7 @@ xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 {
 	array_init(dest);
 	if (Z_TYPE_P(src) == IS_ARRAY) {
-		zval* raw_row;
+		zval* raw_row{nullptr};
 		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(src), raw_row) {
 			zval row;
 			xmysqlnd_utils_decode_doc_row(raw_row, &row);
@@ -96,6 +101,7 @@ xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
  * address, in that case this conversion table
  * is needed
  */
+#ifdef CHARSET_EBCDIC
 const unsigned char os_toebcdic[256] = {
 /*00*/  0x00, 0x01, 0x02, 0x03, 0x37, 0x2d, 0x2e, 0x2f,
 		0x16, 0x05, 0x15, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,  /*................*/
@@ -130,6 +136,7 @@ const unsigned char os_toebcdic[256] = {
 /*f0*/  0x8c, 0x49, 0xcd, 0xce, 0xcb, 0xcf, 0xcc, 0xe1,
 		0x70, 0xc0, 0xde, 0xdb, 0xdc, 0x8d, 0x8e, 0xdf   /*................*/
 };
+#endif // CHARSET_EBCDIC
 
 /* {{{ pct_to_char */
 static char pct_to_char( const util::string& str,

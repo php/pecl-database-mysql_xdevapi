@@ -78,17 +78,17 @@ ZEND_END_ARG_INFO()
 /* {{{ proto long mysqlx_message__stmt_execute::send(object messsage, string auth_mechanism, string auth_data, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
 	char* namespace_{nullptr};
 	size_t namespace_len{0};
 	char* stmt{nullptr};
 	size_t stmt_len{0};
 	zend_bool compact_metadata;
-	st_mysqlx_message__stmt_execute* object;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	st_mysqlx_message__stmt_execute* object{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__stmt_execute::send");
@@ -133,12 +133,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 /* {{{ proto long mysqlx_message__stmt_execute::read_response(object messsage, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
-	st_mysqlx_message__stmt_execute* object;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	st_mysqlx_message__stmt_execute* object{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_message__stmt_execute::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",

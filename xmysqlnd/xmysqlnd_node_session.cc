@@ -507,12 +507,11 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 		}
 
 		{
-			//TODO marines
-			//char answer[ctx->database.l + 1 + ctx->username.l + 1 + 1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1];
-			std::size_t alloc_size = ((ctx->database.l + 1 + ctx->username.size() + 1 +
-									   1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1) * sizeof(char));
-			char* answer = static_cast<char*>(mnd_emalloc(alloc_size));
-			char *p = answer;
+			const std::size_t answer_length{ctx->database.l + 1 + ctx->username.size() + 1 +
+				1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1};
+			util::string answer_str(answer_length, '\0');
+			char* answer{&answer_str.front()};
+			char* p{answer};
 			memcpy(p, ctx->database.s, ctx->database.l);
 			p+= ctx->database.l;
 			*p++ = '\0';
@@ -530,8 +529,6 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 			memcpy(output->s, answer, output->l);
 
 			xmysqlnd_dump_string_to_log("output", output->s, output->l);
-			//TODO marines
-			mnd_efree(answer);
 		}
 	}
 	DBG_RETURN(HND_AGAIN);
@@ -585,7 +582,7 @@ xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 zend_bool
 xmysqlnd_is_mysql41_supported(const zval * capabilities)
 {
-	zval * entry;
+	zval* entry{nullptr};
 	const zval * auth_mechs = zend_hash_str_find(Z_ARRVAL_P(capabilities), "authentication.mechanisms", sizeof("authentication.mechanisms") - 1);
 	if (!capabilities || Z_TYPE_P(auth_mechs) != IS_ARRAY) {
 		return FALSE;
@@ -1018,7 +1015,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 			SET_CLIENT_ERROR(session->error_info,
 					CR_CONNECTION_ERROR,
 					UNKNOWN_SQLSTATE,
-					session->error_info->error ? session->error_info->error:"Unknown error");
+					session->error_info->error[0] ? session->error_info->error:"Unknown error");
 			php_error_docref(nullptr, E_WARNING, "[%u] %.128s (trying to connect via %s)",
 					session->error_info->error_no, session->error_info->error, session->scheme.s);
 		}
@@ -1060,7 +1057,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DA
 	DBG_ENTER("xmysqlnd_node_session_data::quote_name");
 	DBG_INF_FMT("name=%s", name.s);
 	if (name.s && name.l) {
-		unsigned int occurs = 0;
+		unsigned int occurs{0};
 		for (unsigned int i{0}; i < name.l; ++i) {
 			if (name.s[i] == '`') {
 				++occurs;
@@ -1521,7 +1518,7 @@ Uuid_format::uuid_t Uuid_format::get_uuid()
 {
 	using uchar = unsigned char;
 	const std::array< unsigned char, sizeof( Uuid_format ) > raw_uuid
-				{
+				{{
 					//node id
 					node_id.at( 0 ), node_id.at( 1 ), node_id.at( 2 ),
 					node_id.at( 3 ), node_id.at( 4 ), node_id.at( 5 ),
@@ -1539,12 +1536,12 @@ Uuid_format::uuid_t Uuid_format::get_uuid()
 					(uchar)(( time_low >> 16 ) & 0xFF),
 					(uchar)(( time_low >> 8 ) & 0xFF),
 					(uchar)(time_low & 0xFF)
-				}
+				}}
 				;
 	static const char hex[] = "0123456789ABCDEF";
 	Uuid_format::uuid_t uuid;
 	uuid.fill( 0 );
-	for( int i{ 0 }; i < raw_uuid.size() ; ++i ) {
+	for( size_t i{ 0 }; i < raw_uuid.size() ; ++i ) {
 		uuid[ i * 2 ] = hex[ raw_uuid[ i ] >> 4 ];
 		uuid[ i * 2 + 1 ] = hex[ raw_uuid[ i ] & 0xF ];
 	}
@@ -1661,19 +1658,12 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 	DBG_INF_FMT("db=%s", db);
 
 	if (quoted_db.s && quoted_db.l) {
-		const size_t query_len = operation.l + quoted_db.l;
-		//TODO marines
-		//char query[query_len + 1];
-		char* query = static_cast<char*>(mnd_emalloc((query_len + 1) * sizeof(char)));
-		memcpy(query, operation.s, operation.l);
-		memcpy(query + operation.l, quoted_db.s, quoted_db.l);
-		query[query_len] = '\0';
-		const MYSQLND_CSTRING select_query = { query, query_len };
+		util::string query(operation.s, operation.l);
+		query.append(quoted_db.s, quoted_db.l);
+		const MYSQLND_CSTRING select_query = { query.c_str(), query.length() };
 		mnd_efree(quoted_db.s);
 
 		ret = session_handle->m->query(session_handle, namespace_sql, select_query, noop__var_binder);
-		//TODO marines
-		mnd_efree(query);
 	}
 	DBG_RETURN(ret);
 
@@ -2978,7 +2968,7 @@ vec_of_addresses list_of_addresses_parser::parse()
 	 * Either all -1 (no priority) or every
 	 * host shall have its own priority
 	 */
-	long prio_cnt{ 0 };
+	size_t prio_cnt{ 0 };
 	for( auto&& elem : list_of_addresses ) {
 		if( elem.second >= 0 ) {
 			++prio_cnt;
@@ -3058,7 +3048,7 @@ bool list_of_addresses_parser::parse_round_token(const util::string &str)
 				}
 				ss_pos[0] = idx + 1;
 			} else if( str[ idx ] == ',' ||
-					   i == 1 && str[ idx ] == ')' ) {
+					   (i == 1 && str[ idx ] == ')') ) {
 				if( ss_pos[1] != 0 ) {
 					return false;
 				}

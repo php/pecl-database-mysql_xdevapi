@@ -106,9 +106,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, __construct)
 static void
 mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
-	st_mysqlx_node_table__update* object;
-	zval * object_zv;
-	const zval * value;
+	st_mysqlx_node_table__update* object{nullptr};
+	zval* object_zv{nullptr};
+	const zval* value{nullptr};
 	MYSQLND_CSTRING table_field = {nullptr, 0};
 	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
@@ -178,8 +178,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, set)
 /* {{{ proto mixed mysqlx_node_table__update::where() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, where)
 {
-	st_mysqlx_node_table__update* object;
-	zval * object_zv;
+	st_mysqlx_node_table__update* object{nullptr};
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING where_expr = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_table__update::where");
@@ -211,8 +211,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, where)
 /* {{{ proto mixed mysqlx_node_table__update::orderby() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 {
-	st_mysqlx_node_table__update* object;
-	zval * object_zv;
+	st_mysqlx_node_table__update* object{nullptr};
+	zval* object_zv{nullptr};
 	zval* orderby_expr{nullptr};
 	int num_of_expr{0};
 
@@ -248,7 +248,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 			break;
 		case IS_ARRAY:
 			{
-				zval * entry;
+				zval* entry{nullptr};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(orderby_expr[i]), entry) {
 					const MYSQLND_CSTRING orderby_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
@@ -276,8 +276,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 /* {{{ proto mixed mysqlx_node_table__update::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, limit)
 {
-	st_mysqlx_node_table__update* object;
-	zval * object_zv;
+	st_mysqlx_node_table__update* object{nullptr};
+	zval* object_zv{nullptr};
 	zend_long rows;
 
 	DBG_ENTER("mysqlx_node_table__update::limit");
@@ -311,8 +311,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, limit)
 /* {{{ proto mixed mysqlx_node_table__update::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, bind)
 {
-	st_mysqlx_node_table__update* object;
-	zval * object_zv;
+	st_mysqlx_node_table__update* object{nullptr};
+	zval* object_zv{nullptr};
 	HashTable * bind_variables;
 
 	DBG_ENTER("mysqlx_node_table__update::bind");
@@ -330,7 +330,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, bind)
 
 	if (object->crud_op) {
 		zend_string * key;
-		zval * val;
+		zval* val{nullptr};
 		zend_bool op_success{TRUE};
 		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 			if (key) {
@@ -353,8 +353,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, bind)
 /* {{{ proto mixed mysqlx_node_table__update::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, execute)
 {
-	st_mysqlx_node_table__update* object;
-	zval * object_zv;
+	st_mysqlx_node_table__update* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table__update::execute");
 

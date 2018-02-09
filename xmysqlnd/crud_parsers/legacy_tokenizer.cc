@@ -45,96 +45,7 @@ namespace mysqlx {
 
 namespace old_parser_api {
 
-struct Tokenizer::Maps Tokenizer::map;
-
-static const char * token_names [] =
-    {
-	  "XMYSQLND",
-      "NOT",
-      "AND",
-      "OR",
-      "XOR",
-      "IS",
-      "LPAREN",
-      "RPAREN",
-      "LSQBRACKET",
-      "RSQBRACKET",
-      "BETWEEN0",
-      "TRUE_",
-      "T_NULL",
-      "FALSE_",
-      "IN_",
-      "LIKE",
-      "INTERVAL",
-      "REGEXP",
-      "ESCAPE",
-      "IDENT",
-      "LSTRING0",
-      "LNUM",
-      "DOT",
-      "AT",
-      "COMMA",
-      "EQ",
-      "NE",
-      "GT",
-      "GE",
-      "LT",
-      "LE0",
-      "BITAND",
-      "BITOR",
-      "BITXOR",
-      "LSHIFT",
-      "RSHIFT",
-      "PLUS",
-      "MINUS",
-      "MUL",
-      "DIV",
-      "HEX0",
-      "BIN",
-      "NEG",
-      "BANG",
-      "MICROSECOND",
-      "SECOND",
-      "MINUTE",
-      "HOUR",
-      "DAY",
-      "WEEK",
-      "MONTH0",
-      "QUARTER",
-      "YEAR",
-      "PLACEHOLDER",
-      "DOUBLESTAR",
-      "MOD",
-      "AS",
-      "ASC",
-      "DESC",
-      "CAST",
-      "CHARACTER0",
-      "SET",
-      "CHARSET",
-      "ASCII",
-      "UNICODE",
-      "BYTE",
-      "BINARY",
-      "CHAR",
-      "NCHAR",
-      "DATE",
-      "DATETIME0",
-      "TIME",
-      "DECIMAL",
-      "SIGNED",
-      "UNSIGNED",
-      "INTEGER",  // 'integer' keyword
-      "LINTEGER", // integer number
-      "DOLLAR",
-      "JSON",
-      "COLON",
-      "LCURLY",
-      "RCURLY",
-      "ARROW",
-      "QUOTE"
-    };
-
+Tokenizer::Maps Tokenizer::map;
 
 Tokenizer::Maps::Maps()
 {
@@ -229,7 +140,10 @@ Tokenizer::Maps::Maps()
   unary_operator_names["not"] = "not";
 }
 
-Token::Token(Token::TokenType type, const std::string& text, int cur_pos) : _type(type), _text(text), _pos(cur_pos)
+Token::Token(Token::TokenType type, const std::string& text, size_t cur_pos)
+	: _type(type)
+	, _text(text)
+	, _pos(cur_pos)
 {
 }
 

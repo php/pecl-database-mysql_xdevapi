@@ -94,8 +94,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, __construct)
 /* {{{ proto mixed mysqlx_node_row_result::fetchOne(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchOne)
 {
-	zval * object_zv;
-	st_mysqlx_node_row_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_row_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_row_result::fetchOne");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -124,8 +124,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchOne)
 /* {{{ proto mixed mysqlx_node_row_result::fetchAll(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchAll)
 {
-	zval * object_zv;
-	st_mysqlx_node_row_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_row_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_row_result::fetchAll");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -151,8 +151,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchAll)
 /* {{{ proto mixed mysqlx_node_row_result::getWarningCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarningCount)
 {
-	zval * object_zv;
-	st_mysqlx_node_row_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_row_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_row_result::getWarningCount");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -185,8 +185,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarningCount)
 /* {{{ proto mixed mysqlx_node_row_result::getWarnings(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarnings)
 {
-	zval * object_zv;
-	st_mysqlx_node_row_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_row_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_node_row_result::getWarnings");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -201,10 +201,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarnings)
 		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (warnings) {
-			const size_t count = warnings->m->count(warnings);
-			unsigned int i = 0;
+			const unsigned int count{warnings->m->count(warnings)};
 			array_init_size(return_value, count);
-			for (; i < count; ++i) {
+			for (unsigned int i{0}; i < count; ++i) {
 				const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
 				zval warning_zv;
 
@@ -239,8 +238,8 @@ static st_xmysqlnd_node_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_node_
 static st_xmysqlnd_node_stmt_result_meta* get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 {
 	st_xmysqlnd_node_stmt_result_meta* meta{nullptr};
-	zval * object_zv;
-	st_mysqlx_node_row_result* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_node_row_result* object{nullptr};
 
 	DBG_ENTER("get_node_stmt_result_meta");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -301,10 +300,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumns)
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
-		const size_t count = meta->m->get_field_count(meta);
-		unsigned int i = 0;
+		const unsigned int count{meta->m->get_field_count(meta)};
 		array_init_size(return_value, count);
-		for (; i < count; ++i) {
+		for (unsigned int i{0}; i < count; ++i) {
 			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
 			zval column_zv;
 
@@ -330,10 +328,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnNames)
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
-		const size_t count = meta->m->get_field_count(meta);
-		unsigned int i = 0;
+		const unsigned int count{meta->m->get_field_count(meta)};
 		array_init_size(return_value, count);
-		for (; i < count; ++i) {
+		for (unsigned int i{0}; i < count; ++i) {
 			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
 			zval column_name;
 

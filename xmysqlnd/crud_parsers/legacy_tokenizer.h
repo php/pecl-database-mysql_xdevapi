@@ -139,15 +139,15 @@ namespace old_parser_api {
       QUOTE = 83
     };
 
-    Token(Token::TokenType type, const std::string& text, int cur_pos);
+    Token(Token::TokenType type, const std::string& text, size_t cur_pos);
 
     const std::string& get_text() const { return _text; }
     TokenType get_type() const { return _type; }
-    int get_pos() const { return _pos; }
+    int get_pos() const { return static_cast<int>(_pos); }
   private:
     TokenType _type;
     std::string _text;
-    int _pos;
+    size_t _pos;
   };
 
   class Tokenizer
@@ -166,7 +166,7 @@ namespace old_parser_api {
     const Token& peek_token();
     void unget_token();
     void inc_pos_token();
-    int get_token_pos() { return _pos; }
+    tokens_t::size_type get_token_pos() { return _pos; }
     const Token& consume_any_token();
     void assert_tok_position();
     bool tokens_available();

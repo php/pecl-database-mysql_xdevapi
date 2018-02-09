@@ -12,25 +12,26 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_PROTOCOL_DUMPER_H
-#define XMYSQLND_PROTOCOL_DUMPER_H
+#ifndef MYSQL_XDEVAPI_PROTOBUF_API_H
+#define MYSQL_XDEVAPI_PROTOBUF_API_H
 
-namespace mysqlx {
+#ifdef PHP_WIN32
+#pragma warning( push )
+#pragma warning( disable : 4244 )
+#endif // PHP_WIN32
 
-namespace drv {
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/wire_format_lite.h>
 
-void xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len);
-void xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const int payload_size);
-void xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const int payload_size);
+#ifdef PHP_WIN32
+#pragma warning( pop )
+#endif // PHP_WIN32
 
-} // namespace drv
+#endif // MYSQL_XDEVAPI_PROTOBUF_API_H
 
-} // namespace mysqlx
-
-#endif /* XMYSQLND_PROTOCOL_DUMPER_H */
 /*
  * Local variables:
  * tab-width: 4

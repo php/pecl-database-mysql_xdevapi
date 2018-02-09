@@ -254,7 +254,7 @@ mysqlx_column_meta_property__collation(const st_mysqlx_object* obj, zval * retur
 	const st_mysqlx_column_metadata* object = static_cast<st_mysqlx_column_metadata* >(obj->ptr);
 	DBG_ENTER("mysqlx_column_meta_property__collation");
 	if (object->message.has_collation()) {
-		ZVAL_LONG(return_value, object->message.collation());
+		ZVAL_LONG(return_value, static_cast<zend_long>(object->message.collation()));
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -481,7 +481,7 @@ mysqlx_unregister_column_metadata_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_column_metadata(zval * return_value, const Mysqlx::Resultset::ColumnMetaData & message)
 {
-	st_mysqlx_column_metadata* obj;
+	st_mysqlx_column_metadata* obj{nullptr};
 	DBG_ENTER("mysqlx_new_column_metadata");
 	object_init_ex(return_value, mysqlx_column_metadata_class_entry);
 	MYSQLX_FETCH_MESSAGE__COLUMN_METADATA_FROM_ZVAL(obj, return_value);

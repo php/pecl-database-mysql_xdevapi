@@ -50,9 +50,8 @@ ZEND_END_ARG_INFO()
 /* {{{ proto string mysqlx_message__ok::get_message() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__ok, get_message)
 {
-	zval * object_zv;
-	st_mysqlx_message__ok* object;
-	enum_func_status ret{FAIL};
+	zval* object_zv{nullptr};
+	st_mysqlx_message__ok* object{nullptr};
 
 	DBG_ENTER("mysqlx_message__ok::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
@@ -162,7 +161,7 @@ mysqlx_unregister_message__ok_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_message__ok(zval * return_value, const Mysqlx::Ok & message)
 {
-	st_mysqlx_message__ok* ok;
+	st_mysqlx_message__ok* ok{nullptr};
 	DBG_ENTER("mysqlx_new_message__ok");
 	object_init_ex(return_value, mysqlx_message__ok_class_entry);
 	MYSQLX_FETCH_MESSAGE__OK__FROM_ZVAL(ok, return_value);

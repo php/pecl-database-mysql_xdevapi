@@ -335,7 +335,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 													 MYSQLND_STATS * const stats,
 													 MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_xmysqlnd_node_stmt_bind_ctx create_ctx =
+	st_xmysqlnd_node_stmt_bind_ctx create_ctx =
 	{
 		stmt,
 		stats,

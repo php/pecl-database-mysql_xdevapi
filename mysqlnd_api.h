@@ -12,25 +12,21 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_PROTOCOL_DUMPER_H
-#define XMYSQLND_PROTOCOL_DUMPER_H
+#ifndef MYSQL_XDEVAPI_MYSQLND_API_H
+#define MYSQL_XDEVAPI_MYSQLND_API_H
 
-namespace mysqlx {
+extern "C" {
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 
-namespace drv {
+#endif // MYSQL_XDEVAPI_MYSQLND_API_H
 
-void xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len);
-void xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const int payload_size);
-void xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const int payload_size);
-
-} // namespace drv
-
-} // namespace mysqlx
-
-#endif /* XMYSQLND_PROTOCOL_DUMPER_H */
 /*
  * Local variables:
  * tab-width: 4

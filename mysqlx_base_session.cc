@@ -170,11 +170,10 @@ mysqlx_execute_base_session_query(XMYSQLND_NODE_SESSION * const session,
 		}
 		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 			zval zv;
-			unsigned int i = 0;
 			ZVAL_UNDEF(&zv);
 
 			bool found{ false };
-			for (; i < argc; ++i) {
+			for (unsigned int i{0}; i < argc; ++i) {
 				ZVAL_UNDEF(&zv);
 				mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], &zv);
 				if (Z_TYPE(zv) == IS_FALSE) {
@@ -191,7 +190,6 @@ mysqlx_execute_base_session_query(XMYSQLND_NODE_SESSION * const session,
 				ZVAL_COPY(return_value, &zv);
 			}
 		}
-end:
 		zval_ptr_dtor(&stmt_zv);
 	}
 
@@ -203,8 +201,8 @@ end:
 /* {{{ proto mixed mysqlx_base_session::quoteName(string query) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, quoteName)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 	MYSQLND_CSTRING name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_base_session::quoteName");
@@ -235,8 +233,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, quoteName)
 /* {{{ proto mixed mysqlx_base_session::getServerVersion() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getServerVersion)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_base_session::getServerVersion");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -260,8 +258,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getServerVersion)
 /* {{{ proto mixed mysqlx_base_session::getClientId() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getClientId)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_base_session::getClientId");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -285,8 +283,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getClientId)
 /* {{{ proto mixed mysqlx_base_session::generateUUID() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, generateUUID)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_base_session::generateUUID");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -320,7 +318,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, __construct)
 
 struct st_mysqlx_get_schemas_ctx
 {
-	zval * list;
+	zval* list;
 };
 
 
@@ -377,8 +375,8 @@ mysqlx_base_session_command_handler_on_error(void * context,
 /* {{{ mysqlx_base_session::getSchemas() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchemas)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_base_session::getSchemas");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -388,16 +386,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchemas)
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if (XMYSQLND_NODE_SESSION* session = object->session) {
-		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { nullptr, nullptr };
-		const MYSQLND_CSTRING list_query = { "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
+		const st_xmysqlnd_node_session_query_bind_variable_bind var_binder{ nullptr, nullptr };
+		const MYSQLND_CSTRING list_query{ "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
 		zval list;
-		struct st_mysqlx_get_schemas_ctx ctx = { &list };
-		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_row_bind on_row = { get_schemas_handler_on_row, &ctx };
-		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_base_session_command_handler_on_error, nullptr };
-		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { nullptr, nullptr };
+		st_mysqlx_get_schemas_ctx ctx{ &list };
+		const st_xmysqlnd_node_session_on_result_start_bind on_result_start{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_row_bind on_row{ get_schemas_handler_on_row, &ctx };
+		const st_xmysqlnd_node_session_on_warning_bind on_warning{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_error_bind on_error{ mysqlx_base_session_command_handler_on_error, nullptr };
+		const st_xmysqlnd_node_session_on_result_end_bind on_result_end{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok{ nullptr, nullptr };
 
 		ZVAL_UNDEF(&list);
 
@@ -416,8 +414,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchemas)
 /* {{{ mysqlx_base_session::getSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 	util::string_view schema_name;
 
 	DBG_ENTER("mysqlx_base_session::getSchema");
@@ -449,8 +447,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 /* {{{ mysqlx_base_session::createSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_base_session::createSchema");
@@ -515,8 +513,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, dropSchema)
 /* {{{ proto mixed mysqlx_base_session::startTransaction() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, startTransaction)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 	MYSQLND_CSTRING query = {"START TRANSACTION", sizeof("START TRANSACTION") - 1};
 	zval* args{nullptr};
 	int argc{0};
@@ -542,8 +540,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, startTransaction)
 /* {{{ proto mixed mysqlx_base_session::commit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, commit)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 	MYSQLND_CSTRING query = {"COMMIT", sizeof("COMMIT") - 1};
 	zval* args{nullptr};
 	int argc{0};
@@ -569,8 +567,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, commit)
 /* {{{ proto mixed mysqlx_base_session::rollback() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, rollback)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 	MYSQLND_CSTRING query = {"ROLLBACK", sizeof("ROLLBACK") - 1};
 	zval* args{nullptr};
 	int argc{0};
@@ -608,7 +606,7 @@ generate_savepoint_name( const unsigned int name_seed )
 /* {{{ proto mixed mysqlx_base_session::setSavepoint() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, setSavepoint)
 {
-	zval * object_zv;
+	zval* object_zv{nullptr};
 	DBG_ENTER("mysqlx_base_session::setSavepoint");
 	util::string_view savepoint_name;
 
@@ -724,7 +722,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, releaseSavepoint)
 
 struct st_mysqlx_list_clients__ctx
 {
-	zval * list;
+	zval* list;
 };
 
 /* {{{ list_clients__handler_on_row */
@@ -766,8 +764,8 @@ list_clients__handler_on_row(void * context,
 /* {{{ mysqlx_base_session::listClients() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, listClients)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_base_session::listClients");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {
@@ -777,16 +775,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, listClients)
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if (XMYSQLND_NODE_SESSION* session = object->session) {
-		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { nullptr, nullptr };
-		const MYSQLND_CSTRING list_query = { "list_clients", sizeof("list_clients") - 1 };
+		const st_xmysqlnd_node_session_query_bind_variable_bind var_binder{ nullptr, nullptr };
+		const MYSQLND_CSTRING list_query{ "list_clients", sizeof("list_clients") - 1 };
 		zval list;
-		struct st_mysqlx_list_clients__ctx ctx = { &list };
-		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_row_bind on_row = { list_clients__handler_on_row, &ctx };
-		const struct st_xmysqlnd_node_session_on_warning_bind on_warning = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_base_session_command_handler_on_error, nullptr };
-		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end = { nullptr, nullptr };
-		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok = { nullptr, nullptr };
+		st_mysqlx_list_clients__ctx ctx{ &list };
+		const st_xmysqlnd_node_session_on_result_start_bind on_result_start{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_row_bind on_row{ list_clients__handler_on_row, &ctx };
+		const st_xmysqlnd_node_session_on_warning_bind on_warning{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_error_bind on_error{ mysqlx_base_session_command_handler_on_error, nullptr };
+		const st_xmysqlnd_node_session_on_result_end_bind on_result_end{ nullptr, nullptr };
+		const st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok{ nullptr, nullptr };
 
 		ZVAL_UNDEF(&list);
 
@@ -805,8 +803,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, listClients)
 /* {{{ mysqlx_base_session::killClient() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, killClient)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 	zend_long client_id;
 
 	DBG_ENTER("mysqlx_base_session::killClient");
@@ -834,8 +832,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, killClient)
 /* {{{ mysqlx_base_session::close */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, close)
 {
-	zval * object_zv;
-	st_mysqlx_session* object;
+	zval* object_zv{nullptr};
+	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_base_session::close");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_base_session_class_entry) == FAILURE) {

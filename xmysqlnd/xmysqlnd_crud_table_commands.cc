@@ -90,8 +90,6 @@ xmysqlnd_crud_table__add_orderby(MSG& message,
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__add_orderby");
 	DBG_INF_FMT("orderby=%*s", orderby.l, orderby.s);
-	google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order >* mutable_order =
-			message.mutable_order();
 	const Mysqlx::Crud::DataModel data_model =
 			message.data_model();
 	try {
@@ -193,7 +191,7 @@ void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 			break;
 		case IS_ARRAY:
 			{
-				zval * entry;
+				zval* entry{nullptr};
 				ret = PASS;
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns_zv[i]), entry)
 				{
@@ -274,7 +272,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud
 	switch (Z_TYPE_P(values_zv))
 	{
 		case IS_ARRAY: {
-			zval * entry;
+			zval* entry{nullptr};
 			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(values_zv), entry)
 			{
 				bind_row_field(entry, row);
@@ -689,7 +687,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 	Mysqlx::Crud::UpdateOperation * operation = obj->message.mutable_operation()->Add();
 	operation->set_operation(op_type);
 
-	std::auto_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
+	std::unique_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
 
 	try {
 		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);
@@ -891,7 +889,6 @@ struct st_xmysqlnd_crud_table_op__select
 void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 											const int num_of_columns)
 {
-	zend_bool is_expression{FALSE};
 	enum_func_status ret{PASS};
 	int i{0};
 
@@ -907,7 +904,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 			const MYSQLND_CSTRING column_str = { Z_STRVAL(columns[i]), Z_STRLEN(columns[i]) };
 			ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);
 		} else if (Z_TYPE_P(columns) == IS_ARRAY) {
-			const zval * entry;
+			const zval* entry{nullptr};
 			ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns[i]), entry) {
 				if (Z_TYPE_P(entry) != IS_STRING) {
 					devapi::RAISE_EXCEPTION(err_msg_wrong_param_1);

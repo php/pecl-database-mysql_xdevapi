@@ -182,7 +182,30 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		$xmysqlnd_crud_parsers \
 		"
 
-	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14"
+	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14 \
+		-Wall -Wno-unused-function"
+
+	case $host_os in
+		*darwin*)
+			dnl On macOS there is problem with older protobuf libs which call deprecated
+			dnl atomic functions. It generates warnings, but causes compilation errors in
+			dnl case of option 'treat warnings as error' enabled (-Werror), e.g.:
+			dnl protobuf/src/google/protobuf/stubs/atomicops_internals_macosx.h:47:9: error:
+			dnl 'OSAtomicCompareAndSwap32' is deprecated: first deprecated in macOS 10.12 -
+			dnl Use std::atomic_compare_exchange_strong_explicit(std::memory_order_relaxed)
+			dnl from <atomic> instead [-Werror,-Wdeprecated-declarations]
+			dnl https://github.com/google/protobuf/issues/2182
+			dnl https://github.com/grpc/grpc/issues/8466
+			dnl it is already fixed
+			dnl https://github.com/google/protobuf/pull/2337
+			dnl but we still use older version on pb2, so have to temporarily suppress
+			dnl warnings regarding deprecated functions
+			dnl btw I tried to find a way to pass includes with switch "-isystem" instead
+			dnl of "-I", but so far didn't find one (PHP_ADD_INCLUDE adds common "-I")
+			AC_MSG_NOTICE([-Wno-deprecated-declarations added])
+			MYSQL_XDEVAPI_CXXFLAGS="$MYSQL_XDEVAPI_CXXFLAGS -Wno-deprecated-declarations"
+			;;
+	esac
 
 	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_srcdir, $ext_builddir or
 	dnl $PHP_PECL_EXTENSION. Should be called before they are used.
@@ -277,6 +300,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 		PHP_ADD_INCLUDE([$MYSQL_XDEVAPI_PROTOBUF_INCLUDES])
 		PHP_ADD_LIBRARY_WITH_PATH(protobuf, [$PROTOBUF_ROOT_FOUND/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
+		PHP_ADD_LIBPATH([$PROTOBUF_ROOT_FOUND/lib/amd64], MYSQL_XDEVAPI_SHARED_LIBADD)
 
 		AC_MSG_RESULT([found in $PROTOBUF_ROOT_FOUND])
 	else

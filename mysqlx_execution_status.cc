@@ -120,7 +120,7 @@ mysqlx_execution_status_property__last_insert_id(const st_mysqlx_object* obj, zv
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property__last_insert_id");
-	ZVAL_LONG(return_value, object->last_insert_id);
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->last_insert_id));
 	DBG_RETURN(return_value);
 }
 /* }}} */
@@ -132,7 +132,7 @@ mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, 
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property__last_document_id");
-	ZVAL_LONG(return_value, object->last_insert_id);
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->last_insert_id));
 	DBG_RETURN(return_value);
 }
 /* }}} */

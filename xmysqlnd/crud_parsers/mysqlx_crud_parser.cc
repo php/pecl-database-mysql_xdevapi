@@ -32,7 +32,7 @@ Args_conv::Args_conv( std::vector<std::string>& placeholders ) :
 /* {{{ mysqlx::devapi::parser::Args_conv::conv_placeholder */
 unsigned Args_conv::conv_placeholder( const cdk::protocol::mysqlx::string& parm )
 {
-	const unsigned next = placeholders.size();
+	const unsigned int next = static_cast<unsigned int>(placeholders.size());
 	placeholders.push_back( parm );
 	return next;
 }
@@ -165,7 +165,7 @@ void Order_by::clear()
 /* {{{ mysqlx::devapi::parser::Order_by::count */
 uint32_t Order_by::count() const
 {
-	return item_list.size();
+	return static_cast<uint32_t>(item_list.size());
 }
 /* }}} */
 
@@ -295,7 +295,7 @@ void Projection_list::clear()
 /* {{{ mysqlx::devapi::parser::Projection_list::count */
 uint32_t Projection_list::count() const
 {
-	return values.size();
+	return static_cast<uint32_t>(values.size());
 }
 /* }}} */
 

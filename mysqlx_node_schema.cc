@@ -60,10 +60,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_schema__exists_in_database, 0, ZEND_R
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema_object__get_schema, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
-ZEND_END_ARG_INFO()
-
 /************************************** INHERITED END   ****************************************/
 
 
@@ -487,9 +483,9 @@ mysqlx_get_database_objects(
 	DBG_ENTER("mysqlx_get_database_objects");
 	if (schema){
 		zval list;
-		struct st_mysqlx_on_db_object_ctx context = { &list };
-		const struct st_xmysqlnd_node_schema_on_database_object_bind on_object = { mysqlx_on_db_object, &context };
-		const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error = { mysqlx_node_schema_on_error, nullptr };
+		st_mysqlx_on_db_object_ctx context{ &list };
+		const st_xmysqlnd_node_schema_on_database_object_bind on_object{ mysqlx_on_db_object, &context };
+		const st_xmysqlnd_node_schema_on_error_bind handler_on_error{ mysqlx_node_schema_on_error, nullptr };
 
 		ZVAL_UNDEF(&list);
 		array_init(&list);
