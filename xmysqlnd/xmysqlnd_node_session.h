@@ -213,7 +213,7 @@ typedef enum_func_status	(*func_xmysqlnd_node_session_data__set_client_option)(X
 typedef void				(*func_xmysqlnd_node_session_data__free_options)(st_xmysqlnd_node_session_data * session);	/* private */
 typedef void				(*func_xmysqlnd_node_session_data__dtor)(st_xmysqlnd_node_session_data * session);	/* private */
 
-typedef st_xmysqlnd_node_session_data *	(*func_xmysqlnd_node_session_data__get_reference)(st_xmysqlnd_node_session_data *  session);
+typedef FILIP_XMYSQLND_NODE_SESSION	(*func_xmysqlnd_node_session_data__get_reference)(FILIP_XMYSQLND_NODE_SESSION  session);
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__free_reference)(XMYSQLND_NODE_SESSION_DATA  session);
 
 typedef enum_func_status	(*func_xmysqlnd_node_session_data__send_close)(st_xmysqlnd_node_session_data * session);
@@ -431,10 +431,10 @@ typedef st_xmysqlnd_node_schema* (*func_xmysqlnd_node_session__create_schema_obj
 
 typedef const enum_func_status				(*func_xmysqlnd_node_session__close)(FILIP_XMYSQLND_NODE_SESSION session, const enum_xmysqlnd_node_session_close_type close_type);
 
-typedef XMYSQLND_NODE_SESSION *	(*func_xmysqlnd_node_session__get_reference)(XMYSQLND_NODE_SESSION * session);
-typedef const enum_func_status	(*func_xmysqlnd_node_session__free_reference)(XMYSQLND_NODE_SESSION * session);
-typedef void					(*func_xmysqlnd_node_session__free_contents)(XMYSQLND_NODE_SESSION * session);/* private */
-typedef void					(*func_xmysqlnd_node_session__dtor)(XMYSQLND_NODE_SESSION * session);
+typedef FILIP_XMYSQLND_NODE_SESSION	(*func_xmysqlnd_node_session__get_reference)(FILIP_XMYSQLND_NODE_SESSION session);
+typedef const enum_func_status	(*func_xmysqlnd_node_session__free_reference)(FILIP_XMYSQLND_NODE_SESSION session);
+typedef void					(*func_xmysqlnd_node_session__free_contents)(FILIP_XMYSQLND_NODE_SESSION session);/* private */
+typedef void					(*func_xmysqlnd_node_session__dtor)(FILIP_XMYSQLND_NODE_SESSION session);
 
 
 

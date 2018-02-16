@@ -241,13 +241,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, drop)
 	RETVAL_FALSE;
 
 	if (object->schema) {
-		XMYSQLND_NODE_SESSION* session = object->schema->data->session;
+		auto session = object->schema->data->session;
 		const MYSQLND_CSTRING schema_name = mnd_str2c(object->schema->data->schema_name);
 
-		//FILIP:
-		std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-		RETVAL_BOOL(session && PASS == session->m->drop_db(ptr, schema_name));
-		you_must_survive.push_back(ptr);;
+		RETVAL_BOOL(session && PASS == session->m->drop_db(session, schema_name));
+		you_must_survive.push_back(session);
 	}
 
 	DBG_VOID_RETURN;

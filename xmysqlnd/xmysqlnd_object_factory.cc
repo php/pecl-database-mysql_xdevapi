@@ -57,7 +57,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 	object->m = xmysqlnd_node_session_get_methods();
 
 	if (FAIL == object->m->init(object, factory, stats, error_info)) {
-		object->m->dtor(object);
+		//FILIP: object->m->dtor(object);
 		DBG_RETURN(nullptr);
 	}
 
@@ -92,7 +92,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CL
 /* {{{ xmysqlnd_object_factory::get_node_schema */
 static XMYSQLND_NODE_SCHEMA *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_schema)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-														  XMYSQLND_NODE_SESSION* session,
+														  FILIP_XMYSQLND_NODE_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  MYSQLND_STATS* stats,
@@ -191,7 +191,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_table)(const MYSQLND_CLASS_MET
 /* {{{ xmysqlnd_object_factory::get_node_stmt */
 static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-														XMYSQLND_NODE_SESSION* session,
+														FILIP_XMYSQLND_NODE_SESSION session,
 														const zend_bool persistent,
 														MYSQLND_STATS* stats,
 														MYSQLND_ERROR_INFO* error_info)

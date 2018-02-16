@@ -77,7 +77,7 @@ bool is_view_object_type(const MYSQLND_CSTRING& object_type)
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, init)(XMYSQLND_NODE_SCHEMA * const schema,
 											const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-											XMYSQLND_NODE_SESSION * const session,
+											FILIP_XMYSQLND_NODE_SESSION session,
 											const MYSQLND_CSTRING schema_name,
 											MYSQLND_STATS * const stats,
 											MYSQLND_ERROR_INFO * const error_info)
@@ -192,7 +192,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"SHOW SCHEMAS LIKE ?", sizeof("SHOW SCHEMAS LIKE ?") - 1 };
-	XMYSQLND_NODE_SESSION * session = schema->data->session;
+	auto session = schema->data->session;
 
 	st_schema_exists_in_database_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->data->schema_name),
@@ -207,9 +207,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { schema_sql_op_on_row, &on_row_ctx };
 
-	//FILIP:
-	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-	ret = session->m->query_cb(ptr,
+	ret = session->m->query_cb(session,
 							   namespace_sql,
 							   query,
 							   var_binder,
@@ -219,7 +217,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(ptr);
+	you_must_survive.push_back(session);
 
 	DBG_RETURN(ret);
 }
@@ -312,7 +310,7 @@ xmysqlnd_collection_op(
 	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
-	XMYSQLND_NODE_SESSION * session = schema->data->session;
+	auto session = schema->data->session;
 
 	st_collection_op_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->data->schema_name),
@@ -327,9 +325,7 @@ xmysqlnd_collection_op(
 
 	DBG_ENTER("xmysqlnd_collection_op");
 
-	//FILIP:
-	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-	ret = session->m->query_cb(ptr,
+	ret = session->m->query_cb(session,
 							   namespace_xplugin,
 							   query,
 							   var_binder,
@@ -339,7 +335,7 @@ xmysqlnd_collection_op(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(ptr);
+	you_must_survive.push_back(session);
 
 	DBG_RETURN(ret);
 }
@@ -540,7 +536,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
-	XMYSQLND_NODE_SESSION * session = schema->data->session;
+	auto session = schema->data->session;
 
 	struct st_collection_get_objects_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->data->schema_name),
@@ -555,9 +551,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 
 	DBG_ENTER("xmysqlnd_node_schema::get_db_objects");
 
-	//FILIP:
-	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-	ret = session->m->query_cb(ptr,
+	ret = session->m->query_cb(session,
 							   namespace_xplugin,
 							   query,
 							   var_binder,
@@ -567,7 +561,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(ptr);
+	you_must_survive.push_back(session);
 
 	DBG_RETURN(ret);
 }
@@ -656,7 +650,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_schema
 
 /* {{{ xmysqlnd_node_schema_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA *
-xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION * session,
+xmysqlnd_node_schema_create(FILIP_XMYSQLND_NODE_SESSION session,
 							const MYSQLND_CSTRING schema_name,
 							const zend_bool persistent,
 							const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,

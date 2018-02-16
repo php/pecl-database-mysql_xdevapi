@@ -287,7 +287,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 {
 	st_mysqlx_node_table* object{nullptr};
-	XMYSQLND_NODE_SESSION* session{nullptr};
+	FILIP_XMYSQLND_NODE_SESSION session;
 	MYSQLND_CSTRING schema_name{nullptr, 0};
 	zval* object_zv{nullptr};
 
@@ -313,11 +313,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 	}
 
 	if(session != nullptr) {
-		//FILIP
-		std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
-					ptr, schema_name);
-		you_must_survive.push_back(ptr);
+					session, schema_name);
+		you_must_survive.push_back(session);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		} else {

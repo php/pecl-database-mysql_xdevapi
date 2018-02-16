@@ -19,12 +19,14 @@
 #define XMYSQLND_OBJECT_FACTORY_H
 
 #include "php_mysql_xdevapi.h"
+#include <memory>
 
 namespace mysqlx {
 
 namespace drv {
 
 struct st_xmysqlnd_node_session;
+typedef std::shared_ptr< st_xmysqlnd_node_session > FILIP_XMYSQLND_NODE_SESSION;
 struct st_xmysqlnd_node_session_data;
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_node_schema_data;
@@ -55,7 +57,7 @@ typedef struct st_xmysqlnd_node_session_data* (*func_xmysqlnd_object_factory__ge
 
 typedef struct st_xmysqlnd_node_schema * (*func_xmysqlnd_object_factory__get_node_schema)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-			struct st_xmysqlnd_node_session * session,
+			FILIP_XMYSQLND_NODE_SESSION session,
 			const MYSQLND_CSTRING schema_name,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
@@ -79,7 +81,7 @@ typedef struct st_xmysqlnd_node_table * (*func_xmysqlnd_object_factory__get_node
 
 typedef struct st_xmysqlnd_node_stmt * (*func_xmysqlnd_object_factory__get_node_stmt)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-			struct st_xmysqlnd_node_session * session,
+			FILIP_XMYSQLND_NODE_SESSION session,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);

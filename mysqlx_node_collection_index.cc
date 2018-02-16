@@ -238,7 +238,7 @@ void create_collection_index(
 
 	RETVAL_FALSE;
 
-	st_xmysqlnd_node_session* session{collection->data->schema->data->session};
+	auto session{collection->data->schema->data->session};
 	const util::string_view schema_name{collection->data->schema->data->schema_name};
 	const util::string_view collection_name{collection->data->collection_name};
 	Index_definition index_def{parse_index_def(index_name, index_desc_json)};
@@ -265,7 +265,7 @@ void drop_collection_index(
 	zval* return_value)
 {
 	try {
-		st_xmysqlnd_node_session* session{collection->data->schema->data->session};
+		auto session{collection->data->schema->data->session};
 		const util::string_view schema_name{collection->data->schema->data->schema_name};
 		const util::string_view collection_name{collection->data->collection_name};
 		const st_xmysqlnd_node_session_on_error_bind on_error{ collection_index_on_error, nullptr };

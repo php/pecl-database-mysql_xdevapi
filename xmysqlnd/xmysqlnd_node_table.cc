@@ -167,7 +167,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
 	XMYSQLND_NODE_SCHEMA * schema = table->data->schema;
-	XMYSQLND_NODE_SESSION * session = schema->data->session;
+	auto session = schema->data->session;
 
 	table_or_view_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->data->schema_name),
@@ -183,10 +183,8 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { table_or_view_exists_in_database_op, &on_row_ctx };
 
-	//FILIP:
-	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 	ret = session->m->query_cb(
-		ptr,
+		session,
 		namespace_xplugin,
 		query,
 		var_binder,
@@ -196,7 +194,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 		on_error,
 		noop__on_result_end,
 		noop__on_statement_ok);
-	you_must_survive.push_back(ptr);;
+	you_must_survive.push_back(session);;
 
 	DBG_RETURN(ret);
 }
@@ -243,7 +241,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
 	XMYSQLND_NODE_SCHEMA * schema = table->data->schema;
-	XMYSQLND_NODE_SESSION * session = schema->data->session;
+	auto session = schema->data->session;
 
 	table_or_view_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->data->schema_name),
@@ -259,10 +257,8 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { check_is_view_op, &on_row_ctx };
 
-	//FILIP:
-	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 	ret = session->m->query_cb(
-		ptr,
+		session,
 		namespace_xplugin,
 		query,
 		var_binder,
@@ -272,7 +268,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 		on_error,
 		noop__on_result_end,
 		noop__on_statement_ok);
-	you_must_survive.push_back(ptr);;
+	you_must_survive.push_back(session);;
 
 	DBG_RETURN(ret);
 }
@@ -322,7 +318,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 	enum_func_status ret;
 
 	XMYSQLND_NODE_SCHEMA * schema = table->data->schema;
-	XMYSQLND_NODE_SESSION * session = schema->data->session;
+	auto session = schema->data->session;
 
 	char* query_str;
 	mnd_sprintf(&query_str, 0, "SELECT COUNT(*) FROM %s.%s", schema->data->schema_name.s, table->data->table_name.s);
@@ -337,9 +333,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { table_sql_single_result_op_on_row, &on_row_ctx };
 
-	//FILIP:
-	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-	ret = session->m->query_cb(ptr,
+	ret = session->m->query_cb(session,
 							   namespace_sql,
 							   query,
 							   noop__var_binder,
@@ -349,7 +343,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(ptr);;
+	you_must_survive.push_back(session);;
 
 	mnd_sprintf_free(query_str);
 	DBG_RETURN(ret);
@@ -451,18 +445,16 @@ XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, 
 	}
 	if (xmysqlnd_crud_table_insert__is_initialized(op))
 	{
-		XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
+		auto session = table->data->schema->data->session;
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 		struct st_xmysqlnd_msg__table_insert table_insert = msg_factory.get__table_insert(&msg_factory);
 		if (PASS == table_insert.send_insert_request(&table_insert, xmysqlnd_crud_table_insert__get_protobuf_message(op)))
 		{
 			//ret = table_insert.read_response(&table_insert);
 
-			XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
-			//FILIP:
-			std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(ptr);
-			you_must_survive.push_back(ptr);;
+			auto session = table->data->schema->data->session;
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			you_must_survive.push_back(session);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -486,17 +478,15 @@ XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table
 	}
 	if (xmysqlnd_crud_table_delete__is_initialized(op))
 	{
-		XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
+		auto session = table->data->schema->data->session;
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 		struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
 		if (PASS == table_ud.send_delete_request(&table_ud, xmysqlnd_crud_table_delete__get_protobuf_message(op)))
 		{
 			//ret = table_ud.read_response(&table_ud);
-			XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
-			//FILIP:
-			std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(ptr);
-			you_must_survive.push_back(ptr);;
+			auto session = table->data->schema->data->session;
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			you_must_survive.push_back(session);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -520,17 +510,15 @@ XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, 
 	}
 	if (xmysqlnd_crud_table_update__is_initialized(op))
 	{
-		XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
+		auto session = table->data->schema->data->session;
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 		struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
 		if (PASS == table_ud.send_update_request(&table_ud, xmysqlnd_crud_table_update__get_protobuf_message(op)))
 		{
 			//ret = table_ud.read_response(&table_ud);
-			XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
-			//FILIP:
-			std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(ptr);
-			you_must_survive.push_back(ptr);;
+			auto session = table->data->schema->data->session;
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			you_must_survive.push_back(session);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -554,11 +542,9 @@ XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, 
 	}
 	if (xmysqlnd_crud_table_select__is_initialized(op))
 	{
-		XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
-		//FILIP:
-		std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-		stmt = session->m->create_statement_object(ptr);
-		you_must_survive.push_back(ptr);;
+		auto session = table->data->schema->data->session;
+		stmt = session->m->create_statement_object(session);
+		you_must_survive.push_back(session);;
 		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op), session->data->stats, session->data->error_info))
 		{
 			xmysqlnd_node_stmt_free(stmt, session->data->stats, session->data->error_info);

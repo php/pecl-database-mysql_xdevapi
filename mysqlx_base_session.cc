@@ -901,10 +901,10 @@ mysqlx_base_session_free_storage(zend_object * object)
 	st_mysqlx_session* inner_obj = (st_mysqlx_session*) mysqlx_object->ptr;
 
 	if (inner_obj) {
-		FILIP_XMYSQLND_NODE_SESSION session = inner_obj->session;
+		auto session = inner_obj->session;
 
 		if (session) {
-			session->m->free_reference(session.get());
+			session->m->free_reference(session);
 		}
 		mnd_efree(inner_obj);
 	}

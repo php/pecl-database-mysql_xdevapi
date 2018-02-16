@@ -1995,7 +1995,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object)(FILIP_XMYSQLND_N
 	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_node_session_data::create_statement_object");
 
-	stmt = xmysqlnd_node_stmt_create(session_handle.get(), session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
+	stmt = xmysqlnd_node_stmt_create(session_handle, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
 	DBG_RETURN(stmt);
 }
 /* }}} */
@@ -2009,7 +2009,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object)(FILIP_XMYSQLND_NODE
 	DBG_ENTER("xmysqlnd_node_session::create_schema_object");
 	DBG_INF_FMT("schema_name=%s", schema_name.s);
 
-	schema = xmysqlnd_node_schema_create(session_handle.get(), schema_name, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
+	schema = xmysqlnd_node_schema_create(session_handle, schema_name, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
 
 	DBG_RETURN(schema);
 }
@@ -2050,8 +2050,8 @@ XMYSQLND_METHOD(xmysqlnd_node_session, close)(FILIP_XMYSQLND_NODE_SESSION sessio
 /* }}} */
 
 /* {{{ xmysqlnd_node_session::get_reference */
-XMYSQLND_NODE_SESSION *
-XMYSQLND_METHOD(xmysqlnd_node_session, get_reference)(XMYSQLND_NODE_SESSION * session)
+FILIP_XMYSQLND_NODE_SESSION
+XMYSQLND_METHOD(xmysqlnd_node_session, get_reference)(FILIP_XMYSQLND_NODE_SESSION session)
 {
 	DBG_ENTER("xmysqlnd_node_session::get_reference");
 /*	FILIP: ++session->refcount;
@@ -2063,7 +2063,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, get_reference)(XMYSQLND_NODE_SESSION * se
 
 /* {{{ xmysqlnd_node_session::free_reference */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, free_reference)(XMYSQLND_NODE_SESSION * session)
+XMYSQLND_METHOD(xmysqlnd_node_session, free_reference)(FILIP_XMYSQLND_NODE_SESSION session)
 {
 	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_node_session::free_reference");
@@ -2079,7 +2079,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, free_reference)(XMYSQLND_NODE_SESSION * s
 
 /* {{{ xmysqlnd_node_session::free_contents */
 void
-XMYSQLND_METHOD(xmysqlnd_node_session, free_contents)(XMYSQLND_NODE_SESSION * session_handle)
+XMYSQLND_METHOD(xmysqlnd_node_session, free_contents)(FILIP_XMYSQLND_NODE_SESSION session_handle)
 {
 	zend_bool pers = session_handle->persistent;
 
@@ -2099,7 +2099,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, free_contents)(XMYSQLND_NODE_SESSION * se
 
 /* {{{ xmysqlnd_node_session::dtor */
 void
-XMYSQLND_METHOD(xmysqlnd_node_session, dtor)(XMYSQLND_NODE_SESSION * session_handle)
+XMYSQLND_METHOD(xmysqlnd_node_session, dtor)(FILIP_XMYSQLND_NODE_SESSION session_handle)
 {
 	DBG_ENTER("xmysqlnd_node_session::dtor");
 	session_handle->m->free_contents(session_handle);
@@ -2109,7 +2109,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, dtor)(XMYSQLND_NODE_SESSION * session_han
 	if(session_handle->session_uuid) {
 		delete session_handle->session_uuid;
 	}
-	mnd_pefree(session_handle, session_handle->persistent);
+	//FILIP: mnd_pefree(session_handle, session_handle->persistent);
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -2143,13 +2143,11 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_sessio
 PHP_MYSQL_XDEVAPI_API FILIP_XMYSQLND_NODE_SESSION
 xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_SESSION * session;
-
 	DBG_ENTER("xmysqlnd_node_session_create");
-	session = object_factory->get_node_session(object_factory, persistent, stats, error_info);
+	auto session = object_factory->get_node_session(object_factory, persistent, stats, error_info);
 	if (session && session->data) {
 		session->data->m->negotiate_client_api_capabilities(session->data, client_flags);
-		session->m->get_reference(session);
+		//FILIP: session->m->get_reference(session);
 	}
 	DBG_RETURN(std::shared_ptr<st_xmysqlnd_node_session>(session));
 }
@@ -2197,7 +2195,7 @@ xmysqlnd_node_session_connect(FILIP_XMYSQLND_NODE_SESSION session,
 			  We have allocated, thus there are no references to this
 			  object - we are free to kill it!
 			*/
-			session->m->dtor(session.get());
+			//FILIP: session->m->dtor(session.get());
 		}
 		DBG_RETURN(nullptr);
 	}
