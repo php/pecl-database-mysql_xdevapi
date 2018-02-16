@@ -92,6 +92,8 @@ struct st_mysqlx_node_table : public util::custom_allocable
 	XMYSQLND_NODE_TABLE * table;
 };
 
+//FILIP:
+static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
 
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
@@ -168,7 +170,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getName)
 
 /* {{{ mysqlx_node_table_on_error */
 static const enum_hnd_func_status
-mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_table_on_error(void * context, FILIP_XMYSQLND_NODE_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_table_on_error");
 	const unsigned int UnknownDatabaseCode{1049};
@@ -311,8 +313,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 	}
 
 	if(session != nullptr) {
+		//FILIP
+		std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
-					session, schema_name);
+					ptr, schema_name);
+		you_must_survive.push_back(ptr);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		} else {

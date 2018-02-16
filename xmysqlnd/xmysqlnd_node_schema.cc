@@ -44,6 +44,10 @@ const MYSQLND_CSTRING db_object_type_filter_view_tag = { "VIEW", sizeof("VIEW") 
 
 } // anonymous namespace
 
+//FILIP:
+static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
+
+
 /* {{{ is_table_object_type */
 bool is_table_object_type(const MYSQLND_CSTRING& object_type)
 {
@@ -103,7 +107,7 @@ struct st_schema_exists_in_database_var_binder_ctx
 static const enum_hnd_func_status
 schema_xplugin_op_var_binder(
 	void * context,
-	XMYSQLND_NODE_SESSION * session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret{HND_FAIL};
@@ -150,7 +154,7 @@ struct st_schema_exists_in_database_ctx
 static const enum_hnd_func_status
 schema_sql_op_on_row(
 	void * context,
-	XMYSQLND_NODE_SESSION * const session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	XMYSQLND_NODE_STMT * const stmt,
 	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 	const zval * const row,
@@ -203,7 +207,9 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { schema_sql_op_on_row, &on_row_ctx };
 
-	ret = session->m->query_cb(session,
+	//FILIP:
+	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+	ret = session->m->query_cb(ptr,
 							   namespace_sql,
 							   query,
 							   var_binder,
@@ -213,6 +219,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
+	you_must_survive.push_back(ptr);
 
 	DBG_RETURN(ret);
 }
@@ -242,7 +249,7 @@ struct st_create_collection_handler_ctx
 /* {{{ collection_op_handler_on_error */
 static const enum_hnd_func_status
 collection_op_handler_on_error(void * context,
-							   XMYSQLND_NODE_SESSION * const session,
+							   FILIP_XMYSQLND_NODE_SESSION session,
 							   XMYSQLND_NODE_STMT * const stmt,
 							   const unsigned int code,
 							   const MYSQLND_CSTRING sql_state,
@@ -258,7 +265,7 @@ collection_op_handler_on_error(void * context,
 
 /* {{{ collection_op_var_binder */
 static const enum_hnd_func_status
-collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+collection_op_var_binder(void * context, FILIP_XMYSQLND_NODE_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	DBG_ENTER("collection_op_var_binder");
 	enum_hnd_func_status ret{HND_FAIL};
@@ -320,7 +327,9 @@ xmysqlnd_collection_op(
 
 	DBG_ENTER("xmysqlnd_collection_op");
 
-	ret = session->m->query_cb(session,
+	//FILIP:
+	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+	ret = session->m->query_cb(ptr,
 							   namespace_xplugin,
 							   query,
 							   var_binder,
@@ -330,6 +339,7 @@ xmysqlnd_collection_op(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
+	you_must_survive.push_back(ptr);
 
 	DBG_RETURN(ret);
 }
@@ -447,7 +457,7 @@ bool match_object_type(
 /* {{{ get_db_objects_on_row */
 static const enum_hnd_func_status
 get_db_objects_on_row(void * context,
-					  XMYSQLND_NODE_SESSION * const session,
+					  FILIP_XMYSQLND_NODE_SESSION session,
 					  XMYSQLND_NODE_STMT * const stmt,
 					  const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 					  const zval * const row,
@@ -481,7 +491,7 @@ struct st_collection_get_objects_var_binder_ctx
 
 /* {{{ collection_get_objects_var_binder */
 static const enum_hnd_func_status
-collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION * session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+collection_get_objects_var_binder(void * context, FILIP_XMYSQLND_NODE_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_get_objects_var_binder_ctx* ctx = (st_collection_get_objects_var_binder_ctx*) context;
@@ -545,7 +555,9 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 
 	DBG_ENTER("xmysqlnd_node_schema::get_db_objects");
 
-	ret = session->m->query_cb(session,
+	//FILIP:
+	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+	ret = session->m->query_cb(ptr,
 							   namespace_xplugin,
 							   query,
 							   var_binder,
@@ -555,6 +567,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
+	you_must_survive.push_back(ptr);
 
 	DBG_RETURN(ret);
 }

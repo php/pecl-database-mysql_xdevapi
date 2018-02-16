@@ -42,6 +42,7 @@ extern "C" {
 #include "util/hash_table.h"
 #include "util/json_utils.h"
 #include "util/object.h"
+#include <vector>
 
 namespace mysqlx {
 
@@ -54,6 +55,10 @@ namespace {
 zend_class_entry* mysqlx_node_collection_class_entry;
 
 } // anonymous namespace
+
+//FILIP:
+static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
+
 
 /************************************** INHERITED START ****************************************/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__get_session, 0, ZEND_RETURN_VALUE, 0)
@@ -209,7 +214,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getName)
 
 /* {{{ mysqlx_node_collection_on_error */
 static const enum_hnd_func_status
-mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
+mysqlx_node_collection_on_error(void * context, FILIP_XMYSQLND_NODE_SESSION session,
 					st_xmysqlnd_node_stmt* const stmt,
 					const unsigned int code,
 					const MYSQLND_CSTRING sql_state,
@@ -321,8 +326,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 	}
 
 	if(session != nullptr) {
+		//FILIP:
+		std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
-					session, schema_name);
+					ptr, schema_name);
+		you_must_survive.push_back(ptr);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		} else {

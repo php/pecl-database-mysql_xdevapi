@@ -29,6 +29,7 @@ extern "C" {
 #include "xmysqlnd_node_stmt_result_meta.h"
 #include "xmysqlnd_node_table.h"
 #include "xmysqlnd_utils.h"
+#include <vector>
 
 namespace mysqlx {
 
@@ -60,6 +61,11 @@ XMYSQLND_METHOD(xmysqlnd_node_table, init)(XMYSQLND_NODE_TABLE * const table,
 
 namespace {
 
+
+//FILIP:
+static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
+
+
 struct table_or_view_var_binder_ctx
 {
 	const MYSQLND_CSTRING schema_name;
@@ -72,7 +78,7 @@ struct table_or_view_var_binder_ctx
 const enum_hnd_func_status
 table_op_var_binder(
 	void * context,
-	XMYSQLND_NODE_SESSION * session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret{HND_FAIL};
@@ -124,7 +130,7 @@ struct table_or_view_op_ctx
 const enum_hnd_func_status
 table_or_view_exists_in_database_op(
 	void * context,
-	XMYSQLND_NODE_SESSION * const session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	XMYSQLND_NODE_STMT * const stmt,
 	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 	const zval * const row,
@@ -177,8 +183,10 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { table_or_view_exists_in_database_op, &on_row_ctx };
 
+	//FILIP:
+	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 	ret = session->m->query_cb(
-		session,
+		ptr,
 		namespace_xplugin,
 		query,
 		var_binder,
@@ -188,6 +196,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 		on_error,
 		noop__on_result_end,
 		noop__on_statement_ok);
+	you_must_survive.push_back(ptr);;
 
 	DBG_RETURN(ret);
 }
@@ -199,7 +208,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 const enum_hnd_func_status
 check_is_view_op(
 	void * context,
-	XMYSQLND_NODE_SESSION * const session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	XMYSQLND_NODE_STMT * const stmt,
 	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 	const zval * const row,
@@ -250,8 +259,10 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { check_is_view_op, &on_row_ctx };
 
+	//FILIP:
+	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 	ret = session->m->query_cb(
-		session,
+		ptr,
 		namespace_xplugin,
 		query,
 		var_binder,
@@ -261,6 +272,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 		on_error,
 		noop__on_result_end,
 		noop__on_statement_ok);
+	you_must_survive.push_back(ptr);;
 
 	DBG_RETURN(ret);
 }
@@ -278,7 +290,7 @@ struct st_table_sql_single_result_ctx
 const enum_hnd_func_status
 table_sql_single_result_op_on_row(
 	void * context,
-	XMYSQLND_NODE_SESSION * const session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	XMYSQLND_NODE_STMT * const stmt,
 	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 	const zval * const row,
@@ -325,7 +337,9 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { table_sql_single_result_op_on_row, &on_row_ctx };
 
-	ret = session->m->query_cb(session,
+	//FILIP:
+	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+	ret = session->m->query_cb(ptr,
 							   namespace_sql,
 							   query,
 							   noop__var_binder,
@@ -335,6 +349,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
+	you_must_survive.push_back(ptr);;
 
 	mnd_sprintf_free(query_str);
 	DBG_RETURN(ret);
@@ -444,7 +459,10 @@ XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, 
 			//ret = table_insert.read_response(&table_insert);
 
 			XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
-			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			//FILIP:
+			std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(ptr);
+			you_must_survive.push_back(ptr);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -475,7 +493,10 @@ XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table
 		{
 			//ret = table_ud.read_response(&table_ud);
 			XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
-			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			//FILIP:
+			std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(ptr);
+			you_must_survive.push_back(ptr);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -506,7 +527,10 @@ XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, 
 		{
 			//ret = table_ud.read_response(&table_ud);
 			XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
-			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+			//FILIP:
+			std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(ptr);
+			you_must_survive.push_back(ptr);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -531,7 +555,10 @@ XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, 
 	if (xmysqlnd_crud_table_select__is_initialized(op))
 	{
 		XMYSQLND_NODE_SESSION * session = table->data->schema->data->session;
-		stmt = session->m->create_statement_object(session);
+		//FILIP:
+		std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+		stmt = session->m->create_statement_object(ptr);
+		you_must_survive.push_back(ptr);;
 		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op), session->data->stats, session->data->error_info))
 		{
 			xmysqlnd_node_stmt_free(stmt, session->data->stats, session->data->error_info);

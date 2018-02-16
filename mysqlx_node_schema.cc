@@ -41,6 +41,7 @@ namespace mysqlx {
 
 namespace devapi {
 
+
 namespace {
 
 using namespace drv;
@@ -100,6 +101,9 @@ struct st_mysqlx_node_schema : public util::custom_allocable
 {
 	XMYSQLND_NODE_SCHEMA* schema;
 };
+
+//FILIP:
+static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
 
 
 #define MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(_to, _from) \
@@ -178,7 +182,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getName)
 
 /* {{{ mysqlx_node_scheme_on_error */
 static const enum_hnd_func_status
-mysqlx_node_scheme_on_error(void* context, XMYSQLND_NODE_SESSION* session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_scheme_on_error(void* context, FILIP_XMYSQLND_NODE_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_scheme_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -240,7 +244,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, drop)
 		XMYSQLND_NODE_SESSION* session = object->schema->data->session;
 		const MYSQLND_CSTRING schema_name = mnd_str2c(object->schema->data->schema_name);
 
-		RETVAL_BOOL(session && PASS == session->m->drop_db(session, schema_name));
+		//FILIP:
+		std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
+		RETVAL_BOOL(session && PASS == session->m->drop_db(ptr, schema_name));
+		you_must_survive.push_back(ptr);;
 	}
 
 	DBG_VOID_RETURN;

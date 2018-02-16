@@ -90,6 +90,10 @@ boost::optional<util::string> Index_definition::get_type_str() const
 namespace
 {
 
+//FILIP:
+static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
+
+
 struct collection_create_index_var_binder_ctx
 {
 	const util::string_view& schema_name;
@@ -166,7 +170,7 @@ void Bind_create_index_args::bind_index_fields()
 const enum_hnd_func_status
 collection_create_index_var_binder(
 	void* context,
-	XMYSQLND_NODE_SESSION* session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
 	DBG_ENTER("collection_create_index_var_binder");
@@ -207,8 +211,10 @@ bool collection_create_index_execute(
 		&var_binder_ctx
 	};
 
+	//FILIP:
+	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 	const enum_func_status ret = session->m->query_cb(
-		session,
+		ptr,
 		namespace_mysqlx,
 		query,
 		var_binder,
@@ -218,6 +224,7 @@ bool collection_create_index_execute(
 		on_error,
 		noop__on_result_end,
 		noop__on_statement_ok);
+	you_must_survive.push_back(ptr);
 
 	DBG_RETURN(ret == PASS);
 }
@@ -239,7 +246,7 @@ struct collection_drop_index_var_binder_ctx
 const enum_hnd_func_status
 collection_drop_index_var_binder(
 	void* context,
-	XMYSQLND_NODE_SESSION* session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
 	DBG_ENTER("collection_drop_index_var_binder");
@@ -284,9 +291,11 @@ bool collection_drop_index_execute(
 		&var_binder_ctx
 	};
 
+	//FILIP:
+	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
 	const enum_func_status ret
 		= session->m->query_cb(
-			session,
+			ptr,
 			namespace_mysqlx,
 			query,
 			var_binder,
@@ -296,6 +305,7 @@ bool collection_drop_index_execute(
 			on_error,
 			noop__on_result_end,
 			noop__on_statement_ok);
+	you_must_survive.push_back(ptr);
 
 	DBG_RETURN(ret == PASS);
 }

@@ -83,7 +83,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CL
 		DBG_RETURN(nullptr);
 	}
 	object->persistent = persistent;
-        object->m = xmysqlnd_node_session_data_get_methods();
+	object->m = xmysqlnd_node_session_data_get_methods();
 	DBG_RETURN(object);
 }
 /* }}} */

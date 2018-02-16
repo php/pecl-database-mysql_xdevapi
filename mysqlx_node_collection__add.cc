@@ -607,7 +607,7 @@ void Collection_add::execute(zval* return_value)
         if( nullptr != stmt ) {
             stmt->data->assigned_document_ids = doc_ids;
             stmt->data->num_of_assigned_doc_ids = cur_doc_id_idx;
-            execute_ret_status =  execute_statement(stmt,return_value);
+		   execute_ret_status =  execute_statement(stmt,return_value);
         } else {
             execute_ret_status = FAIL;
         }

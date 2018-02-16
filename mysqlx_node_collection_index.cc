@@ -212,7 +212,7 @@ Index_definition parse_index_def(
 static const enum_hnd_func_status
 collection_index_on_error(
 	void* context,
-	XMYSQLND_NODE_SESSION* session,
+	FILIP_XMYSQLND_NODE_SESSION session,
 	st_xmysqlnd_node_stmt* const stmt,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,

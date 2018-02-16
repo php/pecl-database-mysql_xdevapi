@@ -29,7 +29,7 @@ extern zend_class_entry *mysqlx_base_session_class_entry;
 
 struct st_mysqlx_session : public util::custom_allocable
 {
-        drv::XMYSQLND_NODE_SESSION * session;
+	drv::FILIP_XMYSQLND_NODE_SESSION session;
 	zend_bool closed;
 };
 
