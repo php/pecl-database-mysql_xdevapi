@@ -378,7 +378,7 @@ struct st_xmysqlnd_node_session_query_bind_variable_bind
 
 
 
-typedef const enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_NODE_SESSION * session,
+typedef const enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_NODE_SESSION* session,
 																	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 																	MYSQLND_STATS * stats,
 																	MYSQLND_ERROR_INFO * error_info);

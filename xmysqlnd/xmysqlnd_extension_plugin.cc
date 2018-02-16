@@ -211,7 +211,7 @@ xmysqlnd_plugin__get_plugin_pfc_data(const XMYSQLND_PFC * object, unsigned int p
 struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 {
 	xmysqlnd_plugin__get_node_session_plugin_area,
-        xmysqlnd_plugin__get_node_session_data_plugin_area,
+	xmysqlnd_plugin__get_node_session_data_plugin_area,
 	xmysqlnd_plugin__get_node_schema_plugin_area,
 	xmysqlnd_plugin__get_node_collection_plugin_area,
 	xmysqlnd_plugin__get_node_table_plugin_area,

@@ -44,7 +44,7 @@ namespace mysqlx {
 namespace drv {
 
 /* {{{ mysqlnd_object_factory::get_node_session */
-static XMYSQLND_NODE_SESSION *
+static st_xmysqlnd_node_session *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 														   const zend_bool persistent,
 														   MYSQLND_STATS* stats,
@@ -52,7 +52,13 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 {
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session");
 	DBG_INF_FMT("persistent=%u", persistent);
-	XMYSQLND_NODE_SESSION* object = new XMYSQLND_NODE_SESSION;
+	st_xmysqlnd_node_session* object{ nullptr };
+	try{
+		object = new st_xmysqlnd_node_session;
+	}catch(std::exception& e)
+	{
+		DBG_RETURN(nullptr);
+	}
 	object->persistent = persistent;
 	object->m = xmysqlnd_node_session_get_methods();
 
