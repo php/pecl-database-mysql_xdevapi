@@ -528,6 +528,7 @@ struct st_xmysqlnd_node_session : public util::permanent_allocable
 							 MYSQLND_STATS * stats,
 							 MYSQLND_ERROR_INFO * error_info);
 	~st_xmysqlnd_node_session();
+
 	XMYSQLND_NODE_SESSION_DATA data;
 	char * server_version_string;
 	Uuid_generator::pointer session_uuid;

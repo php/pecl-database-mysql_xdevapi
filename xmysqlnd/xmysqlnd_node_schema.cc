@@ -44,10 +44,6 @@ const MYSQLND_CSTRING db_object_type_filter_view_tag = { "VIEW", sizeof("VIEW") 
 
 } // anonymous namespace
 
-//FILIP:
-static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
-
-
 /* {{{ is_table_object_type */
 bool is_table_object_type(const MYSQLND_CSTRING& object_type)
 {
@@ -215,7 +211,6 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(session);
 
 	DBG_RETURN(ret);
 }
@@ -333,8 +328,6 @@ xmysqlnd_collection_op(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(session);
-
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -559,7 +552,6 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(session);
 
 	DBG_RETURN(ret);
 }
@@ -615,7 +607,8 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, dtor)(XMYSQLND_NODE_SCHEMA * const schema,
 	DBG_ENTER("xmysqlnd_node_schema::dtor");
 	if (schema) {
 		schema->data->m.free_contents(schema);
-
+		//fprintf(stderr,"COUNTER IN SCHEMA DTOR: %d\n",schema->data->session.use_count() );
+		schema->data->session.~shared_ptr();
 		mnd_pefree(schema->data, schema->data->persistent);
 		mnd_pefree(schema, schema->persistent);
 	}

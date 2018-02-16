@@ -62,10 +62,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, init)(XMYSQLND_NODE_TABLE * const table,
 namespace {
 
 
-//FILIP:
-static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
-
-
 struct table_or_view_var_binder_ctx
 {
 	const MYSQLND_CSTRING schema_name;
@@ -194,7 +190,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 		on_error,
 		noop__on_result_end,
 		noop__on_statement_ok);
-	you_must_survive.push_back(session);;
 
 	DBG_RETURN(ret);
 }
@@ -268,7 +263,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 		on_error,
 		noop__on_result_end,
 		noop__on_statement_ok);
-	you_must_survive.push_back(session);;
 
 	DBG_RETURN(ret);
 }
@@ -343,7 +337,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(session);;
 
 	mnd_sprintf_free(query_str);
 	DBG_RETURN(ret);
@@ -454,7 +447,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, 
 
 			auto session = table->data->schema->data->session;
 			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
-			you_must_survive.push_back(session);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -486,7 +478,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table
 			//ret = table_ud.read_response(&table_ud);
 			auto session = table->data->schema->data->session;
 			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
-			you_must_survive.push_back(session);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -518,7 +509,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, 
 			//ret = table_ud.read_response(&table_ud);
 			auto session = table->data->schema->data->session;
 			XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
-			you_must_survive.push_back(session);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -544,7 +534,6 @@ XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, 
 	{
 		auto session = table->data->schema->data->session;
 		stmt = session->m->create_statement_object(session);
-		you_must_survive.push_back(session);;
 		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op), session->data->stats, session->data->error_info))
 		{
 			xmysqlnd_node_stmt_free(stmt, session->data->stats, session->data->error_info);

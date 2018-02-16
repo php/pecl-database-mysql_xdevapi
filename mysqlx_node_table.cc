@@ -92,8 +92,6 @@ struct st_mysqlx_node_table : public util::custom_allocable
 	XMYSQLND_NODE_TABLE * table;
 };
 
-//FILIP:
-static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
 
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
@@ -315,7 +313,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 	if(session != nullptr) {
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
 					session, schema_name);
-		you_must_survive.push_back(session);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		} else {

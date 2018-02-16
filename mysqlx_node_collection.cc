@@ -56,10 +56,6 @@ zend_class_entry* mysqlx_node_collection_class_entry;
 
 } // anonymous namespace
 
-//FILIP:
-static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
-
-
 /************************************** INHERITED START ****************************************/
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__get_session, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -328,7 +324,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 	if(session != nullptr) {
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
 					session, schema_name);
-		you_must_survive.push_back(session);
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
 		} else {

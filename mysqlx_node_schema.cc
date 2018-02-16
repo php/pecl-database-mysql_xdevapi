@@ -102,9 +102,6 @@ struct st_mysqlx_node_schema : public util::custom_allocable
 	XMYSQLND_NODE_SCHEMA* schema;
 };
 
-//FILIP:
-static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
-
 
 #define MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(_to, _from) \
 { \
@@ -245,7 +242,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, drop)
 		const MYSQLND_CSTRING schema_name = mnd_str2c(object->schema->data->schema_name);
 
 		RETVAL_BOOL(session && PASS == session->m->drop_db(session, schema_name));
-		you_must_survive.push_back(session);
 	}
 
 	DBG_VOID_RETURN;

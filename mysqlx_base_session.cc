@@ -843,7 +843,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, close)
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	if (FILIP_XMYSQLND_NODE_SESSION session = object->session) {
 		session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
-		object->session = nullptr;
 		object->closed = TRUE;
 		RETVAL_TRUE;
 	} else {
@@ -899,10 +898,9 @@ mysqlx_base_session_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	st_mysqlx_session* inner_obj = (st_mysqlx_session*) mysqlx_object->ptr;
+	delete inner_obj;
+	mysqlx_object->ptr = nullptr;
 
-	if (inner_obj) {
-		mnd_efree(inner_obj);
-	}
 	mysqlx_object_free_storage(object);
 }
 /* }}} */

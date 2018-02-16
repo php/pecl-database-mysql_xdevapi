@@ -90,10 +90,6 @@ boost::optional<util::string> Index_definition::get_type_str() const
 namespace
 {
 
-//FILIP:
-static std::vector<FILIP_XMYSQLND_NODE_SESSION> you_must_survive;
-
-
 struct collection_create_index_var_binder_ctx
 {
 	const util::string_view& schema_name;
@@ -222,7 +218,6 @@ bool collection_create_index_execute(
 		on_error,
 		noop__on_result_end,
 		noop__on_statement_ok);
-	you_must_survive.push_back(session);
 
 	DBG_RETURN(ret == PASS);
 }
@@ -301,7 +296,6 @@ bool collection_drop_index_execute(
 			on_error,
 			noop__on_result_end,
 			noop__on_statement_ok);
-	you_must_survive.push_back(session);
 
 	DBG_RETURN(ret == PASS);
 }
