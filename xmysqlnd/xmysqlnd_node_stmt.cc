@@ -45,9 +45,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 										  MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt::init");
-	if (!(stmt->data->session = session->m->get_reference(session))) {
-		return FAIL;
-	}
+	stmt->data->session = session;
 	stmt->data->object_factory = object_factory;
 
 	DBG_RETURN(PASS);
@@ -773,8 +771,6 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQL
 	DBG_ENTER("xmysqlnd_node_stmt::dtor");
 	if (stmt) {
 		stmt->data->m.free_contents(stmt);
-		stmt->data->session->m->free_reference(stmt->data->session);
-
 		mnd_pefree(stmt->data, stmt->data->persistent);
 		mnd_pefree(stmt, stmt->persistent);
 	}

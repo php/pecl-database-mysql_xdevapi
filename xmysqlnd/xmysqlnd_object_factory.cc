@@ -54,18 +54,13 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 	DBG_INF_FMT("persistent=%u", persistent);
 	st_xmysqlnd_node_session* object{ nullptr };
 	try{
-		object = new st_xmysqlnd_node_session;
+		object = new st_xmysqlnd_node_session(factory, stats, error_info);
 	}catch(std::exception& e)
 	{
 		DBG_RETURN(nullptr);
 	}
 	object->persistent = persistent;
 	object->m = xmysqlnd_node_session_get_methods();
-
-	if (FAIL == object->m->init(object, factory, stats, error_info)) {
-		//FILIP: object->m->dtor(object);
-		DBG_RETURN(nullptr);
-	}
 
 	DBG_RETURN(object);
 }

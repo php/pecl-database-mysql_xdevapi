@@ -1325,26 +1325,38 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session_data);
 
-namespace {
 
-/* {{{ xmysqlnd_node_session::init */
-const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_handle,
-                                        const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-                                        MYSQLND_STATS * stats,
-                                        MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_node_session::st_xmysqlnd_node_session */
+st_xmysqlnd_node_session::st_xmysqlnd_node_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+						 MYSQLND_STATS * stats,
+						 MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_session::init");
+	DBG_ENTER("xmysqlnd_node_session::st_xmysqlnd_node_session");
 
-	session_handle->session_uuid = new Uuid_generator();
-        st_xmysqlnd_node_session_data * session_data = factory->get_node_session_data(factory, session_handle->persistent, stats, error_info);
+	session_uuid = new Uuid_generator();
+	st_xmysqlnd_node_session_data * session_data = factory->get_node_session_data(factory, persistent, stats, error_info);
 	if (session_data) {
-		session_handle->data = std::shared_ptr<st_xmysqlnd_node_session_data>(session_data);
+		data = std::shared_ptr<st_xmysqlnd_node_session_data>(session_data);
 	}
-	DBG_RETURN(session_data? PASS:FAIL);
 }
 /* }}} */
 
+
+/* {{{ xmysqlnd_node_session::~st_xmysqlnd_node_session */
+st_xmysqlnd_node_session::~st_xmysqlnd_node_session()
+{
+	DBG_ENTER("xmysqlnd_node_session::~st_xmysqlnd_node_session");
+	if (server_version_string) {
+		mnd_pefree(server_version_string, persistent);
+		server_version_string = nullptr;
+	}
+	if(session_uuid) {
+		delete session_uuid;
+	}
+}
+/* }}} */
+
+namespace {
 
 /* {{{ xmysqlnd_node_session::connect */
 const enum_func_status
@@ -2049,74 +2061,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session, close)(FILIP_XMYSQLND_NODE_SESSION sessio
 }
 /* }}} */
 
-/* {{{ xmysqlnd_node_session::get_reference */
-FILIP_XMYSQLND_NODE_SESSION
-XMYSQLND_METHOD(xmysqlnd_node_session, get_reference)(FILIP_XMYSQLND_NODE_SESSION session)
-{
-	DBG_ENTER("xmysqlnd_node_session::get_reference");
-/*	FILIP: ++session->refcount;
-		DBG_INF_FMT("session=%p new_refcount=%u", session, session->refcount);*/
-	DBG_RETURN(session);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session::free_reference */
-const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, free_reference)(FILIP_XMYSQLND_NODE_SESSION session)
-{
-	enum_func_status ret{PASS};
-	DBG_ENTER("xmysqlnd_node_session::free_reference");
-   // DBG_INF_FMT("session=%p old_refcount=%u", session.get(), session->refcount);
-/*	FILIP: if (!(--session->refcount)) {
-		session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
-		session->m->dtor(session);
-	}*/
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session::free_contents */
-void
-XMYSQLND_METHOD(xmysqlnd_node_session, free_contents)(FILIP_XMYSQLND_NODE_SESSION session_handle)
-{
-	zend_bool pers = session_handle->persistent;
-
-	DBG_ENTER("xmysqlnd_node_session::free_contents");
-
-	DBG_INF("Freeing memory of members");
-
-	if (session_handle->server_version_string) {
-		mnd_pefree(session_handle->server_version_string, pers);
-		session_handle->server_version_string = nullptr;
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session::dtor */
-void
-XMYSQLND_METHOD(xmysqlnd_node_session, dtor)(FILIP_XMYSQLND_NODE_SESSION session_handle)
-{
-	DBG_ENTER("xmysqlnd_node_session::dtor");
-	session_handle->m->free_contents(session_handle);
-	if (session_handle->data) {
-		session_handle->data = nullptr;
-	}
-	if(session_handle->session_uuid) {
-		delete session_handle->session_uuid;
-	}
-	//FILIP: mnd_pefree(session_handle, session_handle->persistent);
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
 
 MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
-	XMYSQLND_METHOD(xmysqlnd_node_session, init),
+	//XMYSQLND_METHOD(xmysqlnd_node_session, init),
 	XMYSQLND_METHOD(xmysqlnd_node_session, connect),
 	XMYSQLND_METHOD(xmysqlnd_node_session, create_db),
 	XMYSQLND_METHOD(xmysqlnd_node_session, select_db),
@@ -2129,10 +2076,10 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
 	XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object),
 	XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object),
 	XMYSQLND_METHOD(xmysqlnd_node_session, close),
-	XMYSQLND_METHOD(xmysqlnd_node_session, get_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_session, free_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_session, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_node_session, dtor),
+	//XMYSQLND_METHOD(xmysqlnd_node_session, get_reference),
+	//XMYSQLND_METHOD(xmysqlnd_node_session, free_reference),
+	//XMYSQLND_METHOD(xmysqlnd_node_session, free_contents),
+	//FILIP: XMYSQLND_METHOD(xmysqlnd_node_session, dtor),
 MYSQLND_CLASS_METHODS_END;
 
 } // anonymous namespace
@@ -2147,7 +2094,6 @@ xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persiste
 	auto session = object_factory->get_node_session(object_factory, persistent, stats, error_info);
 	if (session && session->data) {
 		session->data->m->negotiate_client_api_capabilities(session->data, client_flags);
-		//FILIP: session->m->get_reference(session);
 	}
 	DBG_RETURN(std::shared_ptr<st_xmysqlnd_node_session>(session));
 }
@@ -2190,13 +2136,6 @@ xmysqlnd_node_session_connect(FILIP_XMYSQLND_NODE_SESSION session,
 							port, set_capabilities);
 
 	if (ret == FAIL) {
-		if (self_allocated) {
-			/*
-			  We have allocated, thus there are no references to this
-			  object - we are free to kill it!
-			*/
-			//FILIP: session->m->dtor(session.get());
-		}
 		DBG_RETURN(nullptr);
 	}
 	DBG_RETURN(session);

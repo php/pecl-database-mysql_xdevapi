@@ -183,9 +183,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 
 	const st_xmysqlnd_node_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
 
-	//FILIP:
-	std::shared_ptr<XMYSQLND_NODE_SESSION> ptr(session);
-	ret = session->m->query_cb(ptr,
+	ret = session->m->query_cb(session,
 							   namespace_xplugin,
 							   query,
 							   var_binder,
@@ -195,7 +193,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 							   on_error,
 							   noop__on_result_end,
 							   noop__on_statement_ok);
-	you_must_survive.push_back(ptr);
+	you_must_survive.push_back(session);
 
 	DBG_RETURN(ret);
 }

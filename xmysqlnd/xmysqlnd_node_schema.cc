@@ -83,9 +83,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, init)(XMYSQLND_NODE_SCHEMA * const schema,
 											MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_schema::init");
-	if (!(schema->data->session = session->m->get_reference(session))) {
-		return FAIL;
-	}
+	schema->data->session = session;
 	schema->data->schema_name = mnd_dup_cstring(schema_name, schema->data->persistent);
 	DBG_INF_FMT("name=[%d]%*s", schema->data->schema_name.l, schema->data->schema_name.l, schema->data->schema_name.s);
 
@@ -617,7 +615,6 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, dtor)(XMYSQLND_NODE_SCHEMA * const schema,
 	DBG_ENTER("xmysqlnd_node_schema::dtor");
 	if (schema) {
 		schema->data->m.free_contents(schema);
-		schema->data->session->m->free_reference(schema->data->session);
 
 		mnd_pefree(schema->data, schema->data->persistent);
 		mnd_pefree(schema, schema->persistent);

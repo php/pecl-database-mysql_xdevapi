@@ -440,7 +440,7 @@ typedef void					(*func_xmysqlnd_node_session__dtor)(FILIP_XMYSQLND_NODE_SESSION
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 {
-	func_xmysqlnd_node_session__init init;
+	//func_xmysqlnd_node_session__init init;
 	func_xmysqlnd_node_session__connect connect;
 	func_xmysqlnd_node_session__create_db create_db;
 	func_xmysqlnd_node_session__select_db select_db;
@@ -453,10 +453,10 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
 	func_xmysqlnd_node_session__create_statement_object create_statement_object;
 	func_xmysqlnd_node_session__create_schema_object create_schema_object;
 	func_xmysqlnd_node_session__close close;
-	func_xmysqlnd_node_session__get_reference get_reference;
-	func_xmysqlnd_node_session__free_reference free_reference;
-	func_xmysqlnd_node_session__free_contents free_contents;
-	func_xmysqlnd_node_session__dtor dtor;
+	//func_xmysqlnd_node_session__get_reference get_reference;
+	//func_xmysqlnd_node_session__free_reference free_reference;
+	//func_xmysqlnd_node_session__free_contents free_contents;
+	//FILIP: func_xmysqlnd_node_session__dtor dtor;
 };
 
 #define UUID_VERSION      0x1000
@@ -523,6 +523,11 @@ private:
 
 struct st_xmysqlnd_node_session : public util::permanent_allocable
 {
+	st_xmysqlnd_node_session() = delete;
+	st_xmysqlnd_node_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+							 MYSQLND_STATS * stats,
+							 MYSQLND_ERROR_INFO * error_info);
+	~st_xmysqlnd_node_session();
 	XMYSQLND_NODE_SESSION_DATA data;
 	char * server_version_string;
 	Uuid_generator::pointer session_uuid;
