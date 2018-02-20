@@ -166,7 +166,7 @@ void Bind_create_index_args::bind_index_fields()
 const enum_hnd_func_status
 collection_create_index_var_binder(
 	void* context,
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
 	DBG_ENTER("collection_create_index_var_binder");
@@ -186,7 +186,7 @@ collection_create_index_var_binder(
 
 /* {{{ collection_create_index_execute */
 bool collection_create_index_execute(
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	const util::string_view& schema_name,
 	const util::string_view& collection_name,
 	const Index_definition& index_def,
@@ -239,7 +239,7 @@ struct collection_drop_index_var_binder_ctx
 const enum_hnd_func_status
 collection_drop_index_var_binder(
 	void* context,
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
 	DBG_ENTER("collection_drop_index_var_binder");
@@ -263,7 +263,7 @@ collection_drop_index_var_binder(
 
 /* {{{ collection_drop_index_execute */
 bool collection_drop_index_execute(
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	const util::string_view& schema_name,
 	const util::string_view& collection_name,
 	const util::string_view& index_name,

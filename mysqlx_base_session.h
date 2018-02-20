@@ -29,18 +29,9 @@ extern zend_class_entry *mysqlx_base_session_class_entry;
 
 struct st_mysqlx_session : public util::custom_allocable
 {
-	drv::FILIP_XMYSQLND_NODE_SESSION session;
+	drv::XMYSQLND_NODE_SESSION session;
 	zend_bool closed;
-	st_mysqlx_session()
-	{
-		//fprintf(stderr,"NEW MYSQLX_SESSION\n");
-	}
-	~st_mysqlx_session()
-	{
-		//FILIP:
-
-		//fprintf(stderr,"REMOVING MYSQLX_SESSION: %d\n", session.use_count());
-	}
+	st_mysqlx_session() = default;
 };
 
 void mysqlx_register_base_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);

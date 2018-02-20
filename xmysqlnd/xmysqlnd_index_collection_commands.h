@@ -65,13 +65,13 @@ struct Index_definition : util::custom_allocable
 	boost::optional<util::string> get_type_str() const;
 };
 
-bool collection_create_index_execute(FILIP_XMYSQLND_NODE_SESSION session,
+bool collection_create_index_execute(XMYSQLND_NODE_SESSION session,
 	const util::string_view& schema_name,
 	const util::string_view& collection_name,
 	const Index_definition& index_def,
 	st_xmysqlnd_node_session_on_error_bind on_error);
 
-bool collection_drop_index_execute(FILIP_XMYSQLND_NODE_SESSION session,
+bool collection_drop_index_execute(XMYSQLND_NODE_SESSION session,
 	const util::string_view& schema_name,
 	const util::string_view& collection_name,
 	const util::string_view& index_name,

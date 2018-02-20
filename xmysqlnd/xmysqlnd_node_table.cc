@@ -74,7 +74,7 @@ struct table_or_view_var_binder_ctx
 const enum_hnd_func_status
 table_op_var_binder(
 	void * context,
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret{HND_FAIL};
@@ -126,7 +126,7 @@ struct table_or_view_op_ctx
 const enum_hnd_func_status
 table_or_view_exists_in_database_op(
 	void * context,
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	XMYSQLND_NODE_STMT * const stmt,
 	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 	const zval * const row,
@@ -201,7 +201,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 const enum_hnd_func_status
 check_is_view_op(
 	void * context,
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	XMYSQLND_NODE_STMT * const stmt,
 	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 	const zval * const row,
@@ -280,7 +280,7 @@ struct st_table_sql_single_result_ctx
 const enum_hnd_func_status
 table_sql_single_result_op_on_row(
 	void * context,
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	XMYSQLND_NODE_STMT * const stmt,
 	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 	const zval * const row,

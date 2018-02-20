@@ -209,7 +209,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, int options, int depth,
 
 /* {{{ prepare_doc_id */
 util::string prepare_doc_id(
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	const util::string_view& single_doc_id)
 {
 	if (single_doc_id.empty()) {
@@ -224,7 +224,7 @@ util::string prepare_doc_id(
 /* {{{ add_unique_id_to_json */
 enum_func_status
 add_unique_id_to_json(
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	const util::string_view& single_doc_id,
 	const st_parse_for_id_status *status,
 	MYSQLND_STRING* to_add,
@@ -332,7 +332,7 @@ extract_document_id(const MYSQLND_STRING json,
 /* {{{ assign_doc_id_to_json */
 MYSQLND_CSTRING
 assign_doc_id_to_json(
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	const util::string_view& single_doc_id,
 	zval* doc)
 {

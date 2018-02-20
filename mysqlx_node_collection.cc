@@ -210,7 +210,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getName)
 
 /* {{{ mysqlx_node_collection_on_error */
 static const enum_hnd_func_status
-mysqlx_node_collection_on_error(void * context, FILIP_XMYSQLND_NODE_SESSION session,
+mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION session,
 					st_xmysqlnd_node_stmt* const stmt,
 					const unsigned int code,
 					const MYSQLND_CSTRING sql_state,
@@ -296,7 +296,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, count)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 {
 	st_mysqlx_node_collection* object{nullptr};
-	FILIP_XMYSQLND_NODE_SESSION session;
+	XMYSQLND_NODE_SESSION session;
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
 	zval* object_zv{nullptr};
 

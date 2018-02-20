@@ -73,7 +73,7 @@ bool is_view_object_type(const MYSQLND_CSTRING& object_type)
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, init)(XMYSQLND_NODE_SCHEMA * const schema,
 											const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-											FILIP_XMYSQLND_NODE_SESSION session,
+											XMYSQLND_NODE_SESSION session,
 											const MYSQLND_CSTRING schema_name,
 											MYSQLND_STATS * const stats,
 											MYSQLND_ERROR_INFO * const error_info)
@@ -101,7 +101,7 @@ struct st_schema_exists_in_database_var_binder_ctx
 static const enum_hnd_func_status
 schema_xplugin_op_var_binder(
 	void * context,
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret{HND_FAIL};
@@ -148,7 +148,7 @@ struct st_schema_exists_in_database_ctx
 static const enum_hnd_func_status
 schema_sql_op_on_row(
 	void * context,
-	FILIP_XMYSQLND_NODE_SESSION session,
+	XMYSQLND_NODE_SESSION session,
 	XMYSQLND_NODE_STMT * const stmt,
 	const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 	const zval * const row,
@@ -240,7 +240,7 @@ struct st_create_collection_handler_ctx
 /* {{{ collection_op_handler_on_error */
 static const enum_hnd_func_status
 collection_op_handler_on_error(void * context,
-							   FILIP_XMYSQLND_NODE_SESSION session,
+							   XMYSQLND_NODE_SESSION session,
 							   XMYSQLND_NODE_STMT * const stmt,
 							   const unsigned int code,
 							   const MYSQLND_CSTRING sql_state,
@@ -256,7 +256,7 @@ collection_op_handler_on_error(void * context,
 
 /* {{{ collection_op_var_binder */
 static const enum_hnd_func_status
-collection_op_var_binder(void * context, FILIP_XMYSQLND_NODE_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+collection_op_var_binder(void * context, XMYSQLND_NODE_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	DBG_ENTER("collection_op_var_binder");
 	enum_hnd_func_status ret{HND_FAIL};
@@ -444,7 +444,7 @@ bool match_object_type(
 /* {{{ get_db_objects_on_row */
 static const enum_hnd_func_status
 get_db_objects_on_row(void * context,
-					  FILIP_XMYSQLND_NODE_SESSION session,
+					  XMYSQLND_NODE_SESSION session,
 					  XMYSQLND_NODE_STMT * const stmt,
 					  const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 					  const zval * const row,
@@ -478,7 +478,7 @@ struct st_collection_get_objects_var_binder_ctx
 
 /* {{{ collection_get_objects_var_binder */
 static const enum_hnd_func_status
-collection_get_objects_var_binder(void * context, FILIP_XMYSQLND_NODE_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+collection_get_objects_var_binder(void * context, XMYSQLND_NODE_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
 	enum_hnd_func_status ret{HND_FAIL};
 	st_collection_get_objects_var_binder_ctx* ctx = (st_collection_get_objects_var_binder_ctx*) context;
@@ -640,7 +640,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_schema
 
 /* {{{ xmysqlnd_node_schema_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA *
-xmysqlnd_node_schema_create(FILIP_XMYSQLND_NODE_SESSION session,
+xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION session,
 							const MYSQLND_CSTRING schema_name,
 							const zend_bool persistent,
 							const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
