@@ -501,7 +501,7 @@ mysqlx_get_database_objects(
 }
 /* }}} */
 
-/* {{{ mysqlx_node_session::getTables() */
+/* {{{ mysqlx_session::getTables() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTables)
 {
 	zval* object_zv{nullptr};
@@ -522,7 +522,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTables)
 /* }}} */
 
 
-/* {{{ mysqlx_node_session::getCollections() */
+/* {{{ mysqlx_session::getCollections() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollections)
 {
 	zval* object_zv{nullptr};

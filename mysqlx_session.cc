@@ -110,7 +110,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__quote_name, 0, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 
-#define MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_SESSION_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_session*) mysqlx_object->ptr; \
@@ -197,8 +197,8 @@ mysqlx_execute_node_session_query(XMYSQLND_SESSION  session,
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_session::executeSql(string query [[, mixed param]]) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
+/* {{{ proto mixed mysqlx_session::executeSql(string query [[, mixed param]]) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, executeSql)
 {
 	zval* object_zv{nullptr};
 	st_mysqlx_session* object{nullptr};
@@ -206,7 +206,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 	zval* args{nullptr};
 	int argc{0};
 
-	DBG_ENTER("mysqlx_node_session::executeSql");
+	DBG_ENTER("mysqlx_session::executeSql");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os*", &object_zv, mysqlx_node_session_class_entry,
 																	   &(query.s), &(query.l),
 																	   &args, &argc) == FAILURE)
@@ -219,7 +219,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 		php_error_docref(nullptr, E_WARNING, "Empty query");
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if (object->session) {
 		mysqlx_execute_node_session_query(object->session, namespace_sql, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, argc, args);
@@ -230,15 +230,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, executeSql)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_session::sql(string query) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
+/* {{{ proto mixed mysqlx_session::sql(string query) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 {
 	zval* object_zv{nullptr};
 	st_mysqlx_session* object{nullptr};
 	XMYSQLND_SESSION session;
 	MYSQLND_CSTRING query = {nullptr, 0};
 
-	DBG_ENTER("mysqlx_node_session::sql");
+	DBG_ENTER("mysqlx_session::sql");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_base_session_class_entry,
 																	   &(query.s), &(query.l)) == FAILURE)
 	{
@@ -250,7 +250,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 		RETVAL_FALSE;
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
 		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session);
@@ -268,22 +268,22 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_session::quoteName(string query) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, quoteName)
+/* {{{ proto mixed mysqlx_session::quoteName(string query) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 {
 	zval* object_zv{nullptr};
 	st_mysqlx_session* object{nullptr};
 	XMYSQLND_SESSION session;
 	MYSQLND_CSTRING name = {nullptr, 0};
 
-	DBG_ENTER("mysqlx_node_session::quoteName");
+	DBG_ENTER("mysqlx_session::quoteName");
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry,
 																	   &(name.s), &(name.l)) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_SESSION_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
 		MYSQLND_STRING quoted_name = session->data->m->quote_name(session->data, name);
@@ -301,8 +301,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, quoteName)
 /* }}} */
 
 
-/* {{{ mysqlx_node_session::__construct */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, __construct)
+/* {{{ mysqlx_session::__construct */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 {
 }
 /* }}} */
@@ -310,10 +310,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, __construct)
 
 /* {{{ mysqlx_node_session_methods[] */
 static const zend_function_entry mysqlx_node_session_methods[] = {
-	PHP_ME(mysqlx_node_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_session, executeSql,		nullptr, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, sql,			arginfo_mysqlx_node_session__sql, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_session, quoteName,		arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_session, executeSql,		nullptr, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_node_session__sql, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, quoteName,		arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
