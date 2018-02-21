@@ -27,8 +27,8 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_session;
-typedef std::shared_ptr<st_xmysqlnd_node_session> XMYSQLND_SESSION;
+struct st_xmysqlnd_session;
+typedef std::shared_ptr<st_xmysqlnd_session> XMYSQLND_SESSION;
 struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_warning_list;

@@ -25,8 +25,8 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_session;
-typedef std::shared_ptr< st_xmysqlnd_node_session > XMYSQLND_SESSION;
+struct st_xmysqlnd_session;
+typedef std::shared_ptr< st_xmysqlnd_session > XMYSQLND_SESSION;
 struct st_xmysqlnd_session_data;
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_node_schema_data;
@@ -43,7 +43,7 @@ struct st_xmysqlnd_stmt_execution_state;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
 
-typedef struct st_xmysqlnd_node_session * (*func_xmysqlnd_object_factory__get_node_session)(
+typedef struct st_xmysqlnd_session * (*func_xmysqlnd_object_factory__get_node_session)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,

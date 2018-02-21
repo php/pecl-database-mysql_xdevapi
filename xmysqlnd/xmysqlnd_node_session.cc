@@ -1326,12 +1326,12 @@ MYSQLND_CLASS_METHODS_END;
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session_data);
 
 
-/* {{{ xmysqlnd_session::st_xmysqlnd_node_session */
-st_xmysqlnd_node_session::st_xmysqlnd_node_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+/* {{{ xmysqlnd_session::st_xmysqlnd_session */
+st_xmysqlnd_session::st_xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 						 MYSQLND_STATS * stats,
 						 MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_session::st_xmysqlnd_node_session");
+	DBG_ENTER("xmysqlnd_session::st_xmysqlnd_session");
 	//fprintf(stderr,"NEW NODE_SESSION\n");
 
 	session_uuid = new Uuid_generator();
@@ -1343,11 +1343,11 @@ st_xmysqlnd_node_session::st_xmysqlnd_node_session(const MYSQLND_CLASS_METHODS_T
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::~st_xmysqlnd_node_session */
-st_xmysqlnd_node_session::~st_xmysqlnd_node_session()
+/* {{{ xmysqlnd_session::~st_xmysqlnd_session */
+st_xmysqlnd_session::~st_xmysqlnd_session()
 {
 	//fprintf(stderr,"DESTROY NODE_SESSION\n");
-	DBG_ENTER("xmysqlnd_session::~st_xmysqlnd_node_session");
+	DBG_ENTER("xmysqlnd_session::~st_xmysqlnd_session");
 	if (server_version_string) {
 		mnd_pefree(server_version_string, persistent);
 		server_version_string = nullptr;
@@ -2092,7 +2092,7 @@ xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persiste
 	if (session && session->data) {
 		session->data->m->negotiate_client_api_capabilities(session->data, client_flags);
 	}
-	DBG_RETURN(std::shared_ptr<st_xmysqlnd_node_session>(session));
+	DBG_RETURN(std::shared_ptr<st_xmysqlnd_session>(session));
 }
 /* }}} */
 

@@ -43,14 +43,14 @@ namespace drv {
 
 /* {{{ xmysqlnd_plugin__get_node_session_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_session_plugin_area(const st_xmysqlnd_node_session * session, const unsigned int plugin_id)
+xmysqlnd_plugin__get_node_session_plugin_area(const st_xmysqlnd_session * session, const unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_connection_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!session || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
 	}
-	DBG_RETURN(reinterpret_cast<void**>(const_cast<st_xmysqlnd_node_session*>(session) + sizeof(st_xmysqlnd_node_session) + plugin_id * sizeof(void *)));
+	DBG_RETURN(reinterpret_cast<void**>(const_cast<st_xmysqlnd_session*>(session) + sizeof(st_xmysqlnd_session) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
