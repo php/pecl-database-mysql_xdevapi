@@ -842,7 +842,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, close)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	if (XMYSQLND_SESSION session = object->session) {
-		session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
+		session->m->close(session, SESSION_CLOSE_EXPLICIT);
 		object->closed = TRUE;
 		RETVAL_TRUE;
 	} else {

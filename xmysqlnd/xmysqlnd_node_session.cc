@@ -237,7 +237,7 @@ xmysqlnd_session_state_init(XMYSQLND_SESSION_STATE * const state)
 {
 		DBG_ENTER("xmysqlnd_session_state_init");
 		state->m = &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_session_state);
-        state->state = NODE_SESSION_ALLOCED;
+		state->state = SESSION_ALLOCATED;
         DBG_VOID_RETURN;
 }
 /* }}} */
@@ -260,8 +260,6 @@ st_xmysqlnd_node_session_data::st_xmysqlnd_node_session_data(const MYSQLND_CLASS
 		}
 		error_info = &error_info_impl;
 	}
-
-	options = &(options_impl);
 
 	xmysqlnd_session_state_init(&state);
 
@@ -829,7 +827,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SES
 		PASS == session->io.pfc->data->m.reset(session->io.pfc,
 									session->stats,
 									session->error_info)) {
-		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
+		SET_CONNECTION_STATE(&session->state, SESSION_NON_AUTHENTICATED);
 		ret = session->m->authenticate(session, scheme, database, set_capabilities);
 	}
 	DBG_RETURN(ret);
@@ -874,10 +872,10 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 				session? session->persistent:0,
 				session? GET_SESSION_STATE(&session->state):-1);
 
-	if (GET_SESSION_STATE(&session->state) > NODE_SESSION_ALLOCED) {
+	if (GET_SESSION_STATE(&session->state) > SESSION_ALLOCATED) {
 		DBG_INF("Connecting on a connected handle.");
 
-		if (GET_SESSION_STATE(&session->state) < NODE_SESSION_CLOSE_SENT) {
+		if (GET_SESSION_STATE(&session->state) < SESSION_CLOSE_SENT) {
 			XMYSQLND_INC_SESSION_STATISTIC(session->stats, XMYSQLND_STAT_CLOSE_IMPLICIT);
 			reconnect = TRUE;
 			session->m->send_close(session.get());
@@ -924,7 +922,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 
 	/* Setup server host information */
 	if( ret == PASS ) {
-		SET_CONNECTION_STATE(&session->state, NODE_SESSION_READY);
+		SET_CONNECTION_STATE(&session->state, SESSION_READY);
 		transport_types transport = session->transport_type;
 
 		if ( transport == transport_types::network ) {
@@ -1172,15 +1170,15 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(st_xmysqlnd_node_session
 	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", session, net_stream? net_stream->abstract:nullptr);
 	DBG_INF_FMT("state=%u", state);
 
-	if (state >= NODE_SESSION_NON_AUTHENTICATED) {
+	if (state >= SESSION_NON_AUTHENTICATED) {
 		XMYSQLND_DEC_GLOBAL_STATISTIC(XMYSQLND_STAT_OPENED_CONNECTIONS);
 		if (session->persistent) {
 			XMYSQLND_DEC_GLOBAL_STATISTIC(XMYSQLND_STAT_OPENED_PERSISTENT_CONNECTIONS);
 		}
 	}
 	switch (state) {
-		case NODE_SESSION_NON_AUTHENTICATED:
-		case NODE_SESSION_READY: {
+		case SESSION_NON_AUTHENTICATED:
+		case SESSION_READY: {
 			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
 			struct st_xmysqlnd_msg__connection_close conn_close_msg = msg_factory.get__connection_close(&msg_factory);
 			DBG_INF("Connection clean, sending CON_CLOSE");
@@ -1191,19 +1189,19 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(st_xmysqlnd_node_session
 				/* HANDLE COM_QUIT here */
 				vio->data->m.close_stream(vio, session->stats, session->error_info);
 			}
-			SET_SESSION_STATE(&session->state, NODE_SESSION_CLOSE_SENT);
+			SET_SESSION_STATE(&session->state, SESSION_CLOSE_SENT);
 			break;
 		}
-		case NODE_SESSION_ALLOCED:
+		case SESSION_ALLOCATED:
 			/*
 			  Allocated but not connected or there was failure when trying
 			  to connect with pre-allocated connect.
 
 			  Fall-through
 			*/
-			SET_SESSION_STATE(&session->state, NODE_SESSION_CLOSE_SENT);
+			SET_SESSION_STATE(&session->state, SESSION_CLOSE_SENT);
 			/* Fall-through */
-		case NODE_SESSION_CLOSE_SENT:
+		case SESSION_CLOSE_SENT:
 			/* The user has killed its own connection */
 			vio->data->m.close_stream(vio, session->stats, session->error_info);
 			break;
@@ -2034,7 +2032,7 @@ XMYSQLND_METHOD(xmysqlnd_session, create_schema_object)(XMYSQLND_SESSION session
 
 /* {{{ xmysqlnd_session::close */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, close)(XMYSQLND_SESSION session_handle, const enum_xmysqlnd_node_session_close_type close_type)
+XMYSQLND_METHOD(xmysqlnd_session, close)(XMYSQLND_SESSION session_handle, const enum_xmysqlnd_session_close_type close_type)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session), close);
         XMYSQLND_NODE_SESSION_DATA session = session_handle->data;
@@ -2043,8 +2041,8 @@ XMYSQLND_METHOD(xmysqlnd_session, close)(XMYSQLND_SESSION session_handle, const 
 	DBG_ENTER("xmysqlnd_session::close");
 
 	if (PASS == session->m->local_tx_start(session, this_func)) {
-		if (GET_SESSION_STATE(&session->state) >= NODE_SESSION_READY) {
-			static enum_xmysqlnd_collected_stats close_type_to_stat_map[XMYSQLND_CLOSE_LAST] = {
+		if (GET_SESSION_STATE(&session->state) >= SESSION_READY) {
+			static enum_xmysqlnd_collected_stats close_type_to_stat_map[SESSION_CLOSE_LAST] = {
 				XMYSQLND_STAT_CLOSE_EXPLICIT,
 				XMYSQLND_STAT_CLOSE_IMPLICIT,
 				XMYSQLND_STAT_CLOSE_DISCONNECT

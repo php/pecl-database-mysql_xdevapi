@@ -41,7 +41,7 @@ struct st_xmysqlnd_node_stmt;
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_stmt_op__execute;
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_module_init();
+//PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_module_init();
 
 /* XMYSQLND_NODE_SESSION_DATA::client_capabilities */
 #define XMYSQLND_CLIENT_NO_FLAG	0
@@ -52,20 +52,20 @@ constexpr int MAX_HOST_PRIORITY{ 100 };
 
 enum xmysqlnd_session_state
 {
-	NODE_SESSION_ALLOCED = 0,
-	NODE_SESSION_NON_AUTHENTICATED = 1,
-	NODE_SESSION_READY = 2,
-	NODE_SESSION_CLOSE_SENT = 3
+	SESSION_ALLOCATED = 0,
+	SESSION_NON_AUTHENTICATED = 1,
+	SESSION_READY = 2,
+	SESSION_CLOSE_SENT = 3
 };
 
 
-typedef enum xmysqlnd_node_session_close_type
+typedef enum xmysqlnd_session_close_type
 {
-	XMYSQLND_CLOSE_EXPLICIT = 0,
-	XMYSQLND_CLOSE_IMPLICIT,
-	XMYSQLND_CLOSE_DISCONNECT,
-	XMYSQLND_CLOSE_LAST	/* for checking, should always be last */
-} enum_xmysqlnd_node_session_close_type;
+	SESSION_CLOSE_EXPLICIT = 0,
+	SESSION_CLOSE_IMPLICIT,
+	SESSION_CLOSE_DISCONNECT,
+	SESSION_CLOSE_LAST	/* for checking, should always be last */
+} enum_xmysqlnd_session_close_type;
 
 
 typedef enum xmysqlnd_server_option
@@ -105,10 +105,10 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_session_state_init(XMYSQLND_SESSION_STATE * 
 
 
 
-typedef struct st_xmysqlnd_node_session_options
+typedef struct st_xmysqlnd_session_options
 {
 	size_t	unused;
-} XMYSQLND_NODE_SESSION_OPTIONS;
+} XMYSQLND_SESSION_OPTIONS;
 
 
 typedef struct st_xmysqlnd_level3_io
@@ -300,8 +300,8 @@ struct st_xmysqlnd_node_session_data : public util::custom_allocable
 	XMYSQLND_SESSION_STATE state;
 
 	/* options */
-	XMYSQLND_NODE_SESSION_OPTIONS	* options;
-	XMYSQLND_NODE_SESSION_OPTIONS	options_impl;
+	XMYSQLND_SESSION_OPTIONS	* options;
+	XMYSQLND_SESSION_OPTIONS	options_impl;
 
 	size_t			client_api_capabilities;
 
@@ -425,7 +425,7 @@ typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_session__create_statement_ob
 
 typedef st_xmysqlnd_node_schema* (*func_xmysqlnd_node_session__create_schema_object)(XMYSQLND_SESSION session, const MYSQLND_CSTRING schema_name);
 
-typedef const enum_func_status				(*func_xmysqlnd_node_session__close)(XMYSQLND_SESSION session, const enum_xmysqlnd_node_session_close_type close_type);
+typedef const enum_func_status				(*func_xmysqlnd_node_session__close)(XMYSQLND_SESSION session, const enum_xmysqlnd_session_close_type close_type);
 
 typedef XMYSQLND_SESSION	(*func_xmysqlnd_node_session__get_reference)(XMYSQLND_SESSION session);
 typedef const enum_func_status	(*func_xmysqlnd_node_session__free_reference)(XMYSQLND_SESSION session);
