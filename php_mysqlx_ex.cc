@@ -30,7 +30,7 @@ extern "C" {
 #include "mysqlx_driver.h"
 #include "mysqlx_enum_n_def.h"
 #include "mysqlx_node_session.h"
-#include "mysqlx_session.h"
+//FILIP: #include "mysqlx_session.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_execution_status.h"

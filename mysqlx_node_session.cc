@@ -36,7 +36,7 @@ extern "C" {
 #include "mysqlx_node_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
-#include "mysqlx_session.h"
+//FILIP: #include "mysqlx_session.h"
 #include "util/object.h"
 
 namespace mysqlx {
@@ -44,6 +44,61 @@ namespace mysqlx {
 namespace devapi {
 
 using namespace drv;
+
+zend_class_entry * mysqlx_session_interface_entry;
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_schemas, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_schema, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__create_schema, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__drop_schema, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__close, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
+/* {{{ mysqlx_session_methods[] */
+static const zend_function_entry mysqlx_session_methods[] = {
+	PHP_ABSTRACT_ME(mysqlx_session, getSchemas, arginfo_mysqlx_session__get_schemas)
+	PHP_ABSTRACT_ME(mysqlx_session, getSchema, arginfo_mysqlx_session__get_schema)
+
+	PHP_ABSTRACT_ME(mysqlx_session, createSchema, arginfo_mysqlx_session__create_schema)
+	PHP_ABSTRACT_ME(mysqlx_session, dropSchema, arginfo_mysqlx_session__drop_schema)
+
+	PHP_ABSTRACT_ME(mysqlx_session, close, arginfo_mysqlx_session__close)
+
+	{nullptr, nullptr, nullptr}
+};
+/* }}} */
+
+
+/* {{{ mysqlx_register_session_interface */
+void
+mysqlx_register_session_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+{
+	zend_class_entry tmp_ce;
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Session", mysqlx_session_methods);
+	mysqlx_session_interface_entry = zend_register_internal_interface(&tmp_ce);
+}
+/* }}} */
+
+
+/* {{{ mysqlx_unregister_session_interface */
+void
+mysqlx_unregister_session_interface(SHUTDOWN_FUNC_ARGS)
+{
+}
+/* }}} */
 
 static zend_class_entry *mysqlx_node_session_class_entry;
 
