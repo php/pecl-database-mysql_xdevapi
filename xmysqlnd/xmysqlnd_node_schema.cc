@@ -607,7 +607,6 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, dtor)(XMYSQLND_NODE_SCHEMA * const schema,
 	DBG_ENTER("xmysqlnd_node_schema::dtor");
 	if (schema) {
 		schema->data->m.free_contents(schema);
-		//fprintf(stderr,"COUNTER IN SCHEMA DTOR: %d\n",schema->data->session.use_count() );
 		schema->data->session.~shared_ptr();
 		mnd_pefree(schema->data, schema->data->persistent);
 		mnd_pefree(schema, schema->persistent);

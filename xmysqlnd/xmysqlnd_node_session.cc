@@ -248,7 +248,6 @@ st_xmysqlnd_session_data::st_xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_T
 						MYSQLND_STATS * mysqlnd_stats,
 						MYSQLND_ERROR_INFO * mysqlnd_error_info)
 {
-	//fprintf(stderr,"NEW NODE_SESSION_DATA\n");
 	DBG_ENTER("xmysqlnd_session_data::st_xmysqlnd_session_data");
 	object_factory = factory;
 
@@ -290,7 +289,6 @@ st_xmysqlnd_session_data::st_xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_T
 /* {{{ xmysqlnd_session_data::~st_xmysqlnd_session_data */
 st_xmysqlnd_session_data::~st_xmysqlnd_session_data()
 {
-	//fprintf(stderr,"DESTROY NODE_SESSION_DATA\n");
 	DBG_ENTER("xmysqlnd_session_data::~st_xmysqlnd_session_data");
 	if( m ) {
 		m->send_close(this);
@@ -1332,7 +1330,6 @@ st_xmysqlnd_session::st_xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysql
 						 MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_session::st_xmysqlnd_session");
-	//fprintf(stderr,"NEW NODE_SESSION\n");
 
 	session_uuid = new Uuid_generator();
 	st_xmysqlnd_session_data * session_data = factory->get_node_session_data(factory, persistent, stats, error_info);
@@ -1346,7 +1343,6 @@ st_xmysqlnd_session::st_xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysql
 /* {{{ xmysqlnd_session::~st_xmysqlnd_session */
 st_xmysqlnd_session::~st_xmysqlnd_session()
 {
-	//fprintf(stderr,"DESTROY NODE_SESSION\n");
 	DBG_ENTER("xmysqlnd_session::~st_xmysqlnd_session");
 	if (server_version_string) {
 		mnd_pefree(server_version_string, persistent);
@@ -2144,7 +2140,6 @@ namespace {
 mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zval)
 {
 	DBG_ENTER("create_new_session");
-	//fprintf(stderr,"NEW SESSION\n");
 	mysqlx::devapi::st_mysqlx_session * object{nullptr};
 	if (PASS == mysqlx::devapi::mysqlx_new_session(session_zval)) {
 		object = (struct mysqlx::devapi::st_mysqlx_session *) Z_MYSQLX_P(session_zval)->ptr;

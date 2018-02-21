@@ -771,7 +771,6 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQL
 	DBG_ENTER("xmysqlnd_node_stmt::dtor");
 	if (stmt) {
 		stmt->data->m.free_contents(stmt);
-		//fprintf(stderr,"COUNTER IN STMT DTOR: %d\n",stmt->data->session.use_count() );
 		stmt->data->session.~shared_ptr();
 		mnd_pefree(stmt->data, stmt->data->persistent);
 		mnd_pefree(stmt, stmt->persistent);
