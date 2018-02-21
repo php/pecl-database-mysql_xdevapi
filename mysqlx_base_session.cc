@@ -128,7 +128,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ mysqlx_throw_exception_from_session_if_needed */
 static zend_bool
-mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA session)
+mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
 	const unsigned int error_num = session->m->get_error_no(session);
 	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");

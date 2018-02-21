@@ -57,14 +57,14 @@ xmysqlnd_plugin__get_node_session_plugin_area(const st_xmysqlnd_node_session * s
 
 /* {{{ xmysqlnd_plugin__get_node_session_data_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_session_data_plugin_area(const st_xmysqlnd_node_session_data * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_node_session_data_plugin_area(const st_xmysqlnd_session_data * object, const unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_node_session_data_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
 	}
-        DBG_RETURN(reinterpret_cast<void**>(const_cast<st_xmysqlnd_node_session_data*>(object) + sizeof(XMYSQLND_NODE_SESSION_DATA) + plugin_id * sizeof(void *)));
+        DBG_RETURN(reinterpret_cast<void**>(const_cast<st_xmysqlnd_session_data*>(object) + sizeof(XMYSQLND_SESSION_DATA) + plugin_id * sizeof(void *)));
 }
 /* }}} */
 
