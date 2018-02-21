@@ -99,13 +99,13 @@ mysqlx_unregister_session_interface(SHUTDOWN_FUNC_ARGS)
 }
 /* }}} */
 
-static zend_class_entry *mysqlx_node_session_class_entry;
+static zend_class_entry *mysqlx_session_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__sql, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__sql, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, query, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_session__quote_name, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__quote_name, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
@@ -146,9 +146,9 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA sessio
 
 
 
-/* {{{ mysqlx_execute_node_session_query */
+/* {{{ mysqlx_execute_session_query */
 static void
-mysqlx_execute_node_session_query(XMYSQLND_SESSION  session,
+mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 								  const MYSQLND_CSTRING namespace_,
 								  const MYSQLND_CSTRING query,
 								  const zend_long flags,
@@ -157,7 +157,7 @@ mysqlx_execute_node_session_query(XMYSQLND_SESSION  session,
 								  const zval * args)
 {
 	XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
-	DBG_ENTER("mysqlx_execute_node_session_query");
+	DBG_ENTER("mysqlx_execute_session_query");
 
 	if (stmt) {
 		zval stmt_zv;
@@ -207,7 +207,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, executeSql)
 	int argc{0};
 
 	DBG_ENTER("mysqlx_session::executeSql");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os*", &object_zv, mysqlx_node_session_class_entry,
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os*", &object_zv, mysqlx_session_class_entry,
 																	   &(query.s), &(query.l),
 																	   &args, &argc) == FAILURE)
 	{
@@ -222,7 +222,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, executeSql)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if (object->session) {
-		mysqlx_execute_node_session_query(object->session, namespace_sql, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, argc, args);
+		mysqlx_execute_session_query(object->session, namespace_sql, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, argc, args);
 	}
 
 	DBG_VOID_RETURN;
@@ -277,7 +277,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 	MYSQLND_CSTRING name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_session::quoteName");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_node_session_class_entry,
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &(name.s), &(name.l)) == FAILURE)
 	{
 		DBG_VOID_RETURN;
@@ -312,8 +312,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_session, executeSql,		nullptr, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_node_session__sql, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_session, quoteName,		arginfo_mysqlx_node_session__quote_name, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_session__sql, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, quoteName,		arginfo_mysqlx_session__quote_name, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
@@ -334,7 +334,7 @@ mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_
 	{
 		zend_class_entry tmp_ce;
 		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Session", mysqlx_node_session_methods);
-		mysqlx_node_session_class_entry = zend_register_internal_class_ex(
+		mysqlx_session_class_entry = zend_register_internal_class_ex(
 			&tmp_ce, mysqlx_base_session_class_entry);
 	}
 
@@ -360,7 +360,7 @@ enum_func_status
 mysqlx_new_session(zval * return_value)
 {
 	DBG_ENTER("mysqlx_new_session");
-	DBG_RETURN(SUCCESS == object_init_ex(return_value, mysqlx_node_session_class_entry)? PASS:FAIL);
+	DBG_RETURN(SUCCESS == object_init_ex(return_value, mysqlx_session_class_entry)? PASS:FAIL);
 }
 /* }}} */
 
