@@ -44,7 +44,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_expression.cc \
 		mysqlx_field_metadata.cc \
 		mysqlx_node_schema.cc \
-		mysqlx_node_session.cc \
+		mysqlx_session.cc \
 		mysqlx_node_collection.cc \
 		mysqlx_node_collection__add.cc \
 		mysqlx_node_collection__find.cc \
@@ -70,7 +70,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_node_column_result.cc \
 		mysqlx_object.cc \
 		mysqlx_schema_object.cc \
-		mysqlx_session.cc \
 		mysqlx_warning.cc \
 		mysqlx_x_session.cc \
 		"

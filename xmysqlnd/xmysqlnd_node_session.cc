@@ -44,7 +44,7 @@ extern "C" {
 #include "xmysqlnd_utils.h"
 #include "mysqlx_base_session.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "SAPI.h"
 #include "php_variables.h"
 #include "mysqlx_exception.h"

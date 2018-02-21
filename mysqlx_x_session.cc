@@ -36,7 +36,7 @@ extern "C" {
 #include "mysqlx_x_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 //FILIP: #include "mysqlx_session.h"
 #include "util/object.h"
 

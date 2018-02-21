@@ -33,10 +33,9 @@ extern "C" {
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_base_session.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
-//FILIP: #include "mysqlx_session.h"
 #include "util/object.h"
 
 namespace mysqlx {
