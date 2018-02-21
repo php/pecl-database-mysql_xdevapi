@@ -230,7 +230,7 @@ typedef const enum_hnd_func_status (*func_xmysqlnd_session_data__handler_on_auth
 typedef size_t				(*func_xmysqlnd_session_data__get_client_id)(const XMYSQLND_SESSION_DATA  session);
 typedef enum_func_status	(*func_xmysqlnd_session_data__set_client_id)(void * context, const size_t id);
 
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data)
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data)
 {
 	func_xmysqlnd_session_data__get_scheme get_scheme;
 	func_xmysqlnd_session_data__connect_handshake connect_handshake;
@@ -311,7 +311,7 @@ struct st_xmysqlnd_session_data : public util::custom_allocable
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
-	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * m;
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * m;
 
 	/* persistent connection */
 	zend_bool		persistent;
@@ -528,7 +528,7 @@ struct st_xmysqlnd_session : public util::permanent_allocable
 };
 
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session_data);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_session_data);
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_session);
 
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION xmysqlnd_node_session_create(const size_t client_flags,

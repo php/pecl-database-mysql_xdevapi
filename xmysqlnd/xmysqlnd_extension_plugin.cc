@@ -261,18 +261,18 @@ _xmysqlnd_node_session_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_ses
 
 
 /* {{{ _xmysqlnd_node_session_data_get_methods */
-static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) *
+static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) *
 _xmysqlnd_node_session_data_get_methods()
 {
-	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_session_data);
+	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_session_data);
 }
 /* }}} */
 
 /* {{{ _xmysqlnd_node_session_data_set_methods */
 static void
-_xmysqlnd_node_session_data_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * const methods)
+_xmysqlnd_node_session_data_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * const methods)
 {
-	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_node_session_data) = methods;
+	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_session_data) = methods;
 }
 /* }}} */
 
