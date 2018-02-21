@@ -153,7 +153,7 @@ collection_xplugin_op_on_row(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 	XMYSQLND_NODE_COLLECTION * const collection,
-	struct st_xmysqlnd_node_session_on_error_bind on_error,
+	struct st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_node_collection::exists_in_database");
@@ -169,14 +169,14 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, exists_in_database)(
 		mnd_str2c(collection->data->collection_name),
 		0
 	};
-	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
 
 	collection_exists_in_database_ctx on_row_ctx = {
 		mnd_str2c(collection->data->collection_name),
 		exists
 	};
 
-	const st_xmysqlnd_node_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_xplugin,
@@ -225,7 +225,7 @@ collection_sql_single_result_op_on_row(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_collection, count)(
 	XMYSQLND_NODE_COLLECTION * const collection,
-	struct st_xmysqlnd_node_session_on_error_bind on_error,
+	struct st_xmysqlnd_session_on_error_bind on_error,
 	zval* counter)
 {
 	DBG_ENTER("xmysqlnd_node_collection::count");
@@ -247,7 +247,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, count)(
 		counter
 	};
 
-	const st_xmysqlnd_node_session_on_row_bind on_row = { collection_sql_single_result_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row = { collection_sql_single_result_op_on_row, &on_row_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_sql,

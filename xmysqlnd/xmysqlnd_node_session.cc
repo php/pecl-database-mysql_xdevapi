@@ -191,13 +191,13 @@ xmysqlnd_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA sess
 
 } // anonymous namespace
 
-const st_xmysqlnd_node_session_query_bind_variable_bind noop__var_binder = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_result_start_bind noop__on_result_start = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_row_bind noop__on_row = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_warning_bind noop__on_warning = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_error_bind noop__on_error = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_result_end_bind noop__on_result_end = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_statement_ok_bind noop__on_statement_ok = { nullptr, nullptr };
+const st_xmysqlnd_session_query_bind_variable_bind noop__var_binder = { nullptr, nullptr };
+const st_xmysqlnd_session_on_result_start_bind noop__on_result_start = { nullptr, nullptr };
+const st_xmysqlnd_session_on_row_bind noop__on_row = { nullptr, nullptr };
+const st_xmysqlnd_session_on_warning_bind noop__on_warning = { nullptr, nullptr };
+const st_xmysqlnd_session_on_error_bind noop__on_error = { nullptr, nullptr };
+const st_xmysqlnd_session_on_result_end_bind noop__on_result_end = { nullptr, nullptr };
+const st_xmysqlnd_session_on_statement_ok_bind noop__on_statement_ok = { nullptr, nullptr };
 
 namespace {
 
@@ -1603,12 +1603,12 @@ XMYSQLND_METHOD(xmysqlnd_session, drop_db)(XMYSQLND_SESSION session_handle, cons
 struct st_xmysqlnd_query_cb_ctx
 {
 	XMYSQLND_SESSION session;
-	struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start;
-	struct st_xmysqlnd_node_session_on_row_bind handler_on_row;
-	struct st_xmysqlnd_node_session_on_warning_bind handler_on_warning;
-	struct st_xmysqlnd_node_session_on_error_bind handler_on_error;
-	struct st_xmysqlnd_node_session_on_result_end_bind handler_on_result_end;
-	struct st_xmysqlnd_node_session_on_statement_ok_bind handler_on_statement_ok;
+	struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start;
+	struct st_xmysqlnd_session_on_row_bind handler_on_row;
+	struct st_xmysqlnd_session_on_warning_bind handler_on_warning;
+	struct st_xmysqlnd_session_on_error_bind handler_on_error;
+	struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end;
+	struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok;
 };
 /* }}} */
 
@@ -1727,13 +1727,13 @@ const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_session, query_cb)(XMYSQLND_SESSION session_handle,
 												 const MYSQLND_CSTRING namespace_,
 												 const MYSQLND_CSTRING query,
-												 const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
-												 const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
-												 const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,
-												 const struct st_xmysqlnd_node_session_on_warning_bind handler_on_warning,
-												 const struct st_xmysqlnd_node_session_on_error_bind handler_on_error,
-												 const struct st_xmysqlnd_node_session_on_result_end_bind handler_on_result_end,
-												 const struct st_xmysqlnd_node_session_on_statement_ok_bind handler_on_statement_ok)
+												 const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
+												 const struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
+												 const struct st_xmysqlnd_session_on_row_bind handler_on_row,
+												 const struct st_xmysqlnd_session_on_warning_bind handler_on_warning,
+												 const struct st_xmysqlnd_session_on_error_bind handler_on_error,
+												 const struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end,
+												 const struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok)
 {
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session::query_cb");
@@ -1823,13 +1823,13 @@ const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_session, query_cb_ex)(XMYSQLND_SESSION session_handle,
 													const MYSQLND_CSTRING namespace_,
 													st_xmysqlnd_query_builder* query_builder,
-													const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
-													const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
-													const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,
-													const struct st_xmysqlnd_node_session_on_warning_bind handler_on_warning,
-													const struct st_xmysqlnd_node_session_on_error_bind handler_on_error,
-													const struct st_xmysqlnd_node_session_on_result_end_bind handler_on_result_end,
-													const struct st_xmysqlnd_node_session_on_statement_ok_bind handler_on_statement_ok)
+													const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
+													const struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
+													const struct st_xmysqlnd_session_on_row_bind handler_on_row,
+													const struct st_xmysqlnd_session_on_warning_bind handler_on_warning,
+													const struct st_xmysqlnd_session_on_error_bind handler_on_error,
+													const struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end,
+													const struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok)
 {
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session::query_cb_ex");
@@ -1871,7 +1871,7 @@ const enum_func_status
 XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
 											  const MYSQLND_CSTRING namespace_,
 											  const MYSQLND_CSTRING query,
-											  const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder)
+											  const struct st_xmysqlnd_session_query_bind_variable_bind var_binder)
 {
 	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session), query);
 		XMYSQLND_SESSION_DATA session = session_handle->data;

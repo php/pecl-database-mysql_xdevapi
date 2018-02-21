@@ -207,7 +207,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, existsInDatabase)
 
 	XMYSQLND_NODE_SCHEMA* schema = object->schema;
 	if (schema) {
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_scheme_on_error, nullptr };
+		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_scheme_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == schema->data->m.exists_in_database(schema, on_error, &exists)) {

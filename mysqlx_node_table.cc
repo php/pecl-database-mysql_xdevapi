@@ -201,7 +201,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, existsInDatabase)
 
 	XMYSQLND_NODE_TABLE * table = object->table;
 	if (table) {
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
+		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == table->data->m.exists_in_database(table, on_error, &exists)) {
@@ -236,7 +236,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, isView)
 
 	XMYSQLND_NODE_TABLE * table = data_object.table;
 	if (table) {
-		const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
+		const st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == table->data->m.is_view(table, on_error, &exists)) {
@@ -268,7 +268,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 
 	XMYSQLND_NODE_TABLE * table = object->table;
 	if (table) {
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
+		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
 		if (PASS == table->data->m.count(table, on_error, &counter)) {

@@ -178,7 +178,7 @@ schema_sql_op_on_row(
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 	XMYSQLND_NODE_SCHEMA * const schema,
-	struct st_xmysqlnd_node_session_on_error_bind on_error,
+	struct st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_node_schema::exists_in_database");
@@ -192,14 +192,14 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, exists_in_database)(
 		mnd_str2c(schema->data->schema_name),
 		0
 	};
-	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { schema_xplugin_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { schema_xplugin_op_var_binder, &var_binder_ctx };
 
 	st_schema_exists_in_database_ctx on_row_ctx = {
 		mnd_str2c(schema->data->schema_name),
 		exists
 	};
 
-	const st_xmysqlnd_node_session_on_row_bind on_row = { schema_sql_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row = { schema_sql_op_on_row, &on_row_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_sql,
@@ -310,10 +310,10 @@ xmysqlnd_collection_op(
 		collection_name.to_nd_cstr(),
 		0
 	};
-	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
 
 	st_create_collection_handler_ctx handler_ctx = { schema, handler_on_error };
-	const st_xmysqlnd_node_session_on_error_bind on_error
+	const st_xmysqlnd_session_on_error_bind on_error
 		= { handler_on_error.handler ? collection_op_handler_on_error : nullptr, &handler_ctx };
 
 	DBG_ENTER("xmysqlnd_collection_op");
@@ -533,12 +533,12 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 		mnd_str2c(schema->data->schema_name),
 		0
 	};
-	const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { collection_get_objects_var_binder, &var_binder_ctx };
+	const struct st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_get_objects_var_binder, &var_binder_ctx };
 
 	xmysqlnd_schema_get_db_objects_ctx handler_ctx = { schema, object_type_filter, on_object, handler_on_error };
 
-	const struct st_xmysqlnd_node_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
-	const struct st_xmysqlnd_node_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : nullptr, &handler_ctx };
+	const struct st_xmysqlnd_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
+	const struct st_xmysqlnd_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : nullptr, &handler_ctx };
 
 	DBG_ENTER("xmysqlnd_node_schema::get_db_objects");
 

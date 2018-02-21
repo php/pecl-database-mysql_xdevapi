@@ -30,7 +30,7 @@ namespace drv {
 struct st_xmysqlnd_session;
 struct st_xmysqlnd_node_collection;
 struct st_xmysqlnd_node_table;
-struct st_xmysqlnd_node_session_on_error_bind;
+struct st_xmysqlnd_session_on_error_bind;
 
 typedef struct st_xmysqlnd_node_schema		XMYSQLND_NODE_SCHEMA;
 typedef struct st_xmysqlnd_node_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
@@ -56,7 +56,7 @@ typedef enum_func_status (*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA
 															MYSQLND_STATS * const stats,
 															MYSQLND_ERROR_INFO * const error_info);
 
-typedef enum_func_status (*func_xmysqlnd_node_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const schema, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status (*func_xmysqlnd_node_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const schema, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 
 typedef st_xmysqlnd_node_collection* (*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 

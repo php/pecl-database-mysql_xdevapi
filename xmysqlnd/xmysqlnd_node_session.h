@@ -325,48 +325,48 @@ private:
 };
 
 
-struct st_xmysqlnd_node_session_on_result_start_bind
+struct st_xmysqlnd_session_on_result_start_bind
 {
 	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt);
 	void * ctx;
 };
 
-struct st_xmysqlnd_node_session_on_row_bind
+struct st_xmysqlnd_session_on_row_bind
 {
 	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const st_xmysqlnd_node_stmt_result_meta* const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 	void * ctx;
 };
 
 
-struct st_xmysqlnd_node_session_on_warning_bind
+struct st_xmysqlnd_session_on_warning_bind
 {
 	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
-struct st_xmysqlnd_node_session_on_error_bind
+struct st_xmysqlnd_session_on_error_bind
 {
 	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
-struct st_xmysqlnd_node_session_on_result_end_bind
+struct st_xmysqlnd_session_on_result_end_bind
 {
 	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const zend_bool has_more);
 	void * ctx;
 };
 
 
-struct st_xmysqlnd_node_session_on_statement_ok_bind
+struct st_xmysqlnd_session_on_statement_ok_bind
 {
 	enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state);
 	void * ctx;
 };
 
 
-struct st_xmysqlnd_node_session_query_bind_variable_bind
+struct st_xmysqlnd_session_query_bind_variable_bind
 {
 	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt_op__execute* const stmt);
 	void * ctx;
@@ -374,80 +374,80 @@ struct st_xmysqlnd_node_session_query_bind_variable_bind
 
 
 
-typedef const enum_func_status	(*func_xmysqlnd_node_session__init)(XMYSQLND_SESSION* session,
+typedef const enum_func_status	(*func_xmysqlnd_session__init)(XMYSQLND_SESSION* session,
 																	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 																	MYSQLND_STATS * stats,
 																	MYSQLND_ERROR_INFO * error_info);
 
-typedef const enum_func_status	(*func_xmysqlnd_node_session__connect)(XMYSQLND_SESSION session,
+typedef const enum_func_status	(*func_xmysqlnd_session__connect)(XMYSQLND_SESSION session,
 																	   MYSQLND_CSTRING database,
 																	   const unsigned int port,
 																	   const size_t set_capabilities);
 
-typedef const MYSQLND_CSTRING	(*func_xmysqlnd_node_session__get_uuid)(XMYSQLND_SESSION session);
-typedef const enum_func_status	(*func_xmysqlnd_node_session__precache_uuids)(XMYSQLND_SESSION session);
-typedef const enum_func_status	(*func_xmysqlnd_node_session__create_db)(XMYSQLND_SESSION  session, const MYSQLND_CSTRING db);
-typedef const enum_func_status	(*func_xmysqlnd_node_session__select_db)(XMYSQLND_SESSION  session, const MYSQLND_CSTRING db);
-typedef const enum_func_status	(*func_xmysqlnd_node_session__drop_db)(XMYSQLND_SESSION  session, const MYSQLND_CSTRING db);
-typedef const enum_func_status	(*func_xmysqlnd_node_session__query_cb)(XMYSQLND_SESSION  session,
+typedef const MYSQLND_CSTRING	(*func_xmysqlnd_session__get_uuid)(XMYSQLND_SESSION session);
+typedef const enum_func_status	(*func_xmysqlnd_session__precache_uuids)(XMYSQLND_SESSION session);
+typedef const enum_func_status	(*func_xmysqlnd_session__create_db)(XMYSQLND_SESSION  session, const MYSQLND_CSTRING db);
+typedef const enum_func_status	(*func_xmysqlnd_session__select_db)(XMYSQLND_SESSION  session, const MYSQLND_CSTRING db);
+typedef const enum_func_status	(*func_xmysqlnd_session__drop_db)(XMYSQLND_SESSION  session, const MYSQLND_CSTRING db);
+typedef const enum_func_status	(*func_xmysqlnd_session__query_cb)(XMYSQLND_SESSION  session,
 																		const MYSQLND_CSTRING namespace_,
 																		const MYSQLND_CSTRING query,
-																		const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
-																		const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start,
-																		const struct st_xmysqlnd_node_session_on_row_bind on_row,
-																		const struct st_xmysqlnd_node_session_on_warning_bind on_warning,
-																		const struct st_xmysqlnd_node_session_on_error_bind on_error,
-																		const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end,
-																		const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok);
+																		const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
+																		const struct st_xmysqlnd_session_on_result_start_bind on_result_start,
+																		const struct st_xmysqlnd_session_on_row_bind on_row,
+																		const struct st_xmysqlnd_session_on_warning_bind on_warning,
+																		const struct st_xmysqlnd_session_on_error_bind on_error,
+																		const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
+																		const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
 
-typedef const enum_func_status	(*func_xmysqlnd_node_session__query_cb_ex)(XMYSQLND_SESSION session,
+typedef const enum_func_status	(*func_xmysqlnd_session__query_cb_ex)(XMYSQLND_SESSION session,
 																		   const MYSQLND_CSTRING namespace_,
 																		   st_xmysqlnd_query_builder* query_builder,
-																		   const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
-																		   const struct st_xmysqlnd_node_session_on_result_start_bind on_result_start,
-																		   const struct st_xmysqlnd_node_session_on_row_bind on_row,
-																		   const struct st_xmysqlnd_node_session_on_warning_bind on_warning,
-																		   const struct st_xmysqlnd_node_session_on_error_bind on_error,
-																		   const struct st_xmysqlnd_node_session_on_result_end_bind on_result_end,
-																		   const struct st_xmysqlnd_node_session_on_statement_ok_bind on_statement_ok);
+																		   const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
+																		   const struct st_xmysqlnd_session_on_result_start_bind on_result_start,
+																		   const struct st_xmysqlnd_session_on_row_bind on_row,
+																		   const struct st_xmysqlnd_session_on_warning_bind on_warning,
+																		   const struct st_xmysqlnd_session_on_error_bind on_error,
+																		   const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
+																		   const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
 
 
 
-typedef const enum_func_status	(*func_xmysqlnd_node_session__query)(XMYSQLND_SESSION session,
+typedef const enum_func_status	(*func_xmysqlnd_session__query)(XMYSQLND_SESSION session,
 																	 const MYSQLND_CSTRING namespace_,
 																	 const MYSQLND_CSTRING query,
-																	 const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder);
+																	 const struct st_xmysqlnd_session_query_bind_variable_bind var_binder);
 
-typedef zend_ulong			(*func_xmysqlnd_node_session__get_server_version)(XMYSQLND_SESSION session);
-typedef const char *		(*func_xmysqlnd_node_session__get_server_information)(const XMYSQLND_SESSION session);
+typedef zend_ulong			(*func_xmysqlnd_session__get_server_version)(XMYSQLND_SESSION session);
+typedef const char *		(*func_xmysqlnd_session__get_server_information)(const XMYSQLND_SESSION session);
 
-typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_session__create_statement_object)(XMYSQLND_SESSION session);
+typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_session__create_statement_object)(XMYSQLND_SESSION session);
 
-typedef st_xmysqlnd_node_schema* (*func_xmysqlnd_node_session__create_schema_object)(XMYSQLND_SESSION session, const MYSQLND_CSTRING schema_name);
+typedef st_xmysqlnd_node_schema* (*func_xmysqlnd_session__create_schema_object)(XMYSQLND_SESSION session, const MYSQLND_CSTRING schema_name);
 
-typedef const enum_func_status				(*func_xmysqlnd_node_session__close)(XMYSQLND_SESSION session, const enum_xmysqlnd_session_close_type close_type);
+typedef const enum_func_status				(*func_xmysqlnd_session__close)(XMYSQLND_SESSION session, const enum_xmysqlnd_session_close_type close_type);
 
-typedef XMYSQLND_SESSION	(*func_xmysqlnd_node_session__get_reference)(XMYSQLND_SESSION session);
-typedef const enum_func_status	(*func_xmysqlnd_node_session__free_reference)(XMYSQLND_SESSION session);
-typedef void					(*func_xmysqlnd_node_session__free_contents)(XMYSQLND_SESSION session);/* private */
-typedef void					(*func_xmysqlnd_node_session__dtor)(XMYSQLND_SESSION session);
+typedef XMYSQLND_SESSION	(*func_xmysqlnd_session__get_reference)(XMYSQLND_SESSION session);
+typedef const enum_func_status	(*func_xmysqlnd_session__free_reference)(XMYSQLND_SESSION session);
+typedef void					(*func_xmysqlnd_session__free_contents)(XMYSQLND_SESSION session);/* private */
+typedef void					(*func_xmysqlnd_session__dtor)(XMYSQLND_SESSION session);
 
 
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session)
 {
-	func_xmysqlnd_node_session__connect connect;
-	func_xmysqlnd_node_session__create_db create_db;
-	func_xmysqlnd_node_session__select_db select_db;
-	func_xmysqlnd_node_session__drop_db drop_db;
-	func_xmysqlnd_node_session__query query;
-	func_xmysqlnd_node_session__query_cb query_cb;
-	func_xmysqlnd_node_session__query_cb_ex query_cb_ex;
-	func_xmysqlnd_node_session__get_server_version get_server_version;
-	func_xmysqlnd_node_session__get_server_information get_server_information;
-	func_xmysqlnd_node_session__create_statement_object create_statement_object;
-	func_xmysqlnd_node_session__create_schema_object create_schema_object;
-	func_xmysqlnd_node_session__close close;
+	func_xmysqlnd_session__connect connect;
+	func_xmysqlnd_session__create_db create_db;
+	func_xmysqlnd_session__select_db select_db;
+	func_xmysqlnd_session__drop_db drop_db;
+	func_xmysqlnd_session__query query;
+	func_xmysqlnd_session__query_cb query_cb;
+	func_xmysqlnd_session__query_cb_ex query_cb_ex;
+	func_xmysqlnd_session__get_server_version get_server_version;
+	func_xmysqlnd_session__get_server_information get_server_information;
+	func_xmysqlnd_session__create_statement_object create_statement_object;
+	func_xmysqlnd_session__create_schema_object create_schema_object;
+	func_xmysqlnd_session__close close;
 };
 
 #define UUID_VERSION      0x1000
@@ -543,13 +543,13 @@ extern const MYSQLND_CSTRING namespace_mysqlx;
 extern const MYSQLND_CSTRING namespace_sql;
 extern const MYSQLND_CSTRING namespace_xplugin;
 
-extern const struct st_xmysqlnd_node_session_query_bind_variable_bind noop__var_binder;
-extern const struct st_xmysqlnd_node_session_on_result_start_bind	noop__on_result_start;
-extern const struct st_xmysqlnd_node_session_on_row_bind			noop__on_row;
-extern const struct st_xmysqlnd_node_session_on_warning_bind		noop__on_warning;
-extern const struct st_xmysqlnd_node_session_on_error_bind			noop__on_error;
-extern const struct st_xmysqlnd_node_session_on_result_end_bind		noop__on_result_end;
-extern const struct st_xmysqlnd_node_session_on_statement_ok_bind	noop__on_statement_ok;
+extern const struct st_xmysqlnd_session_query_bind_variable_bind noop__var_binder;
+extern const struct st_xmysqlnd_session_on_result_start_bind	noop__on_result_start;
+extern const struct st_xmysqlnd_session_on_row_bind			noop__on_row;
+extern const struct st_xmysqlnd_session_on_warning_bind		noop__on_warning;
+extern const struct st_xmysqlnd_session_on_error_bind			noop__on_error;
+extern const struct st_xmysqlnd_session_on_result_end_bind		noop__on_result_end;
+extern const struct st_xmysqlnd_session_on_statement_ok_bind	noop__on_statement_ok;
 
 } // namespace drv
 

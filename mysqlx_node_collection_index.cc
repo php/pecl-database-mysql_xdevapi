@@ -243,7 +243,7 @@ void create_collection_index(
 	const util::string_view collection_name{collection->data->collection_name};
 	Index_definition index_def{parse_index_def(index_name, index_desc_json)};
 
-	const st_xmysqlnd_node_session_on_error_bind on_error{ collection_index_on_error, nullptr };
+	const st_xmysqlnd_session_on_error_bind on_error{ collection_index_on_error, nullptr };
 	if (drv::collection_create_index_execute(
 		session,
 		schema_name,
@@ -268,7 +268,7 @@ void drop_collection_index(
 		auto session{collection->data->schema->data->session};
 		const util::string_view schema_name{collection->data->schema->data->schema_name};
 		const util::string_view collection_name{collection->data->collection_name};
-		const st_xmysqlnd_node_session_on_error_bind on_error{ collection_index_on_error, nullptr };
+		const st_xmysqlnd_session_on_error_bind on_error{ collection_index_on_error, nullptr };
 		RETVAL_BOOL(drv::collection_drop_index_execute(
 			session,
 			schema_name,

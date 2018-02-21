@@ -154,7 +154,7 @@ table_or_view_exists_in_database_op(
 enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 	XMYSQLND_NODE_TABLE * const table,
-	struct st_xmysqlnd_node_session_on_error_bind on_error,
+	struct st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_node_table::exists_in_database");
@@ -170,14 +170,14 @@ XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
 		mnd_str2c(table->data->table_name),
 		0
 	};
-	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
 
 	table_or_view_op_ctx on_row_ctx = {
 		mnd_str2c(table->data->table_name),
 		exists
 	};
 
-	const st_xmysqlnd_node_session_on_row_bind on_row = { table_or_view_exists_in_database_op, &on_row_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row = { table_or_view_exists_in_database_op, &on_row_ctx };
 
 	ret = session->m->query_cb(
 		session,
@@ -227,7 +227,7 @@ check_is_view_op(
 enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 	XMYSQLND_NODE_TABLE* const table,
-	st_xmysqlnd_node_session_on_error_bind on_error,
+	st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_node_table::is_view");
@@ -243,14 +243,14 @@ XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
 		mnd_str2c(table->data->table_name),
 		0
 	};
-	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
 
 	table_or_view_op_ctx on_row_ctx = {
 		mnd_str2c(table->data->table_name),
 		exists
 	};
 
-	const st_xmysqlnd_node_session_on_row_bind on_row = { check_is_view_op, &on_row_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row = { check_is_view_op, &on_row_ctx };
 
 	ret = session->m->query_cb(
 		session,
@@ -303,7 +303,7 @@ table_sql_single_result_op_on_row(
 enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 	XMYSQLND_NODE_TABLE * const table,
-	struct st_xmysqlnd_node_session_on_error_bind on_error,
+	struct st_xmysqlnd_session_on_error_bind on_error,
 	zval* counter)
 {
 	DBG_ENTER("xmysqlnd_node_table::count");
@@ -325,7 +325,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, count)(
 		counter
 	};
 
-	const st_xmysqlnd_node_session_on_row_bind on_row = { table_sql_single_result_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row = { table_sql_single_result_op_on_row, &on_row_ctx };
 
 	ret = session->m->query_cb(session,
 							   namespace_sql,

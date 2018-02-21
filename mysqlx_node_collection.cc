@@ -247,7 +247,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 
 	XMYSQLND_NODE_COLLECTION * collection = object->collection;
 	if (collection) {
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_on_error, nullptr };
+		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_collection_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == collection->data->m.exists_in_database(collection, on_error, &exists)) {
@@ -279,7 +279,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, count)
 
 	XMYSQLND_NODE_COLLECTION * collection = object->collection;
 	if (collection) {
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_on_error, nullptr };
+		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_collection_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
 		if (PASS == collection->data->m.count(collection, on_error, &counter)) {
