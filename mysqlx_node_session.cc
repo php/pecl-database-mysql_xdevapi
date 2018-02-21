@@ -273,9 +273,9 @@ const struct st_mysqlx_property_entry mysqlx_node_session_property_entries[] =
 };
 
 
-/* {{{ mysqlx_register_node_session_class */
+/* {{{ mysqlx_register_session_class */
 void
-mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	{
 		zend_class_entry tmp_ce;
@@ -292,20 +292,20 @@ mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_session_class */
+/* {{{ mysqlx_unregister_session_class */
 void
-mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_node_session_properties);
 }
 /* }}} */
 
 
-/* {{{ mysqlx_new_node_session */
+/* {{{ mysqlx_new_session */
 enum_func_status
-mysqlx_new_node_session(zval * return_value)
+mysqlx_new_session(zval * return_value)
 {
-	DBG_ENTER("mysqlx_new_node_session");
+	DBG_ENTER("mysqlx_new_session");
 	DBG_RETURN(SUCCESS == object_init_ex(return_value, mysqlx_node_session_class_entry)? PASS:FAIL);
 }
 /* }}} */

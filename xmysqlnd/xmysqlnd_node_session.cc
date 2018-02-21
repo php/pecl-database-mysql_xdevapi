@@ -2146,7 +2146,7 @@ mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zval)
 	DBG_ENTER("create_new_session");
 	//fprintf(stderr,"NEW SESSION\n");
 	mysqlx::devapi::st_mysqlx_session * object{nullptr};
-	if (PASS == mysqlx::devapi::mysqlx_new_node_session(session_zval)) {
+	if (PASS == mysqlx::devapi::mysqlx_new_session(session_zval)) {
 		object = (struct mysqlx::devapi::st_mysqlx_session *) Z_MYSQLX_P(session_zval)->ptr;
 
 		if (!object && !object->session) {
