@@ -40,7 +40,7 @@ namespace drv {
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 										  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-										  XMYSQLND_NODE_SESSION session,
+										  XMYSQLND_SESSION session,
 										  MYSQLND_STATS * const stats,
 										  MYSQLND_ERROR_INFO * const error_info)
 {
@@ -818,7 +818,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_stmt);
 
 /* {{{ xmysqlnd_node_stmt_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT *
-xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION session,
+xmysqlnd_node_stmt_create(XMYSQLND_SESSION session,
 						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 						  MYSQLND_STATS * const stats,

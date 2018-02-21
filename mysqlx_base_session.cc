@@ -150,7 +150,7 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA s
 
 /* {{{ mysqlx_execute_base_session_query */
 static void
-mysqlx_execute_base_session_query(XMYSQLND_NODE_SESSION session,
+mysqlx_execute_base_session_query(XMYSQLND_SESSION session,
 								  const MYSQLND_CSTRING namespace_,
 								  const MYSQLND_CSTRING query,
 								  const zend_long flags,
@@ -214,7 +214,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, quoteName)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 
-		if (XMYSQLND_NODE_SESSION session = object->session) {
+		if (XMYSQLND_SESSION session = object->session) {
 		MYSQLND_STRING quoted_name = session->data->m->quote_name(session->data, name);
 		RETVAL_STRINGL(quoted_name.s, quoted_name.l);
 		if (quoted_name.s) {
@@ -243,7 +243,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getServerVersion)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 
-	if (XMYSQLND_NODE_SESSION session = object->session) {
+	if (XMYSQLND_SESSION session = object->session) {
 		RETVAL_LONG(session->m->get_server_version(session));
 		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
@@ -268,7 +268,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getClientId)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 
-	if (XMYSQLND_NODE_SESSION session = object->session) {
+	if (XMYSQLND_SESSION session = object->session) {
 		RETVAL_LONG(session->data->m->get_client_id(session->data));
 		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
@@ -295,7 +295,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, generateUUID)
 
 	RETVAL_FALSE;
 
-	if (XMYSQLND_NODE_SESSION session = object->session) {
+	if (XMYSQLND_SESSION session = object->session) {
 		auto uuid = session->session_uuid->generate();
 		if (uuid.size() > 0) {
 			RETVAL_STRINGL(uuid.data(), uuid.size());
@@ -325,7 +325,7 @@ struct st_mysqlx_get_schemas_ctx
 /* {{{ get_schemas_handler_on_row */
 static const enum_hnd_func_status
 get_schemas_handler_on_row(void * context,
-						   XMYSQLND_NODE_SESSION const session,
+						   XMYSQLND_SESSION const session,
 						   XMYSQLND_NODE_STMT * const stmt,
 						   const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 						   const zval * const row,
@@ -357,7 +357,7 @@ get_schemas_handler_on_row(void * context,
 /* {{{ mysqlx_base_session_command_handler_on_error */
 static const enum_hnd_func_status
 mysqlx_base_session_command_handler_on_error(void * context,
-											 XMYSQLND_NODE_SESSION session,
+											 XMYSQLND_SESSION session,
 											 XMYSQLND_NODE_STMT * const stmt,
 											 const unsigned int code,
 											 const MYSQLND_CSTRING sql_state,
@@ -385,7 +385,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchemas)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if (XMYSQLND_NODE_SESSION session = object->session) {
+	if (XMYSQLND_SESSION session = object->session) {
 		const st_xmysqlnd_node_session_query_bind_variable_bind var_binder{ nullptr, nullptr };
 		const MYSQLND_CSTRING list_query{ "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
 		zval list;
@@ -428,7 +428,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, getSchema)
 	}
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-	if (XMYSQLND_NODE_SESSION session = object->session) {
+	if (XMYSQLND_SESSION session = object->session) {
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name.to_nd_cstr());
 		if (schema) {
 			mysqlx_new_node_schema(return_value, schema);
@@ -458,7 +458,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, createSchema)
 	}
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-	if (XMYSQLND_NODE_SESSION session = object->session) {
+	if (XMYSQLND_SESSION session = object->session) {
 		XMYSQLND_NODE_SCHEMA* schema{nullptr};
 		if (PASS == session->m->create_db(session, schema_name) &&
 			(schema = session->m->create_schema_object(session, schema_name)))
@@ -728,7 +728,7 @@ struct st_mysqlx_list_clients__ctx
 /* {{{ list_clients__handler_on_row */
 static const enum_hnd_func_status
 list_clients__handler_on_row(void * context,
-							 XMYSQLND_NODE_SESSION session,
+							 XMYSQLND_SESSION session,
 							 XMYSQLND_NODE_STMT * const stmt,
 							 const XMYSQLND_NODE_STMT_RESULT_META * const meta,
 							 const zval * const row,
@@ -774,7 +774,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, listClients)
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	if (XMYSQLND_NODE_SESSION session = object->session) {
+	if (XMYSQLND_SESSION session = object->session) {
 		const st_xmysqlnd_node_session_query_bind_variable_bind var_binder{ nullptr, nullptr };
 		const MYSQLND_CSTRING list_query{ "list_clients", sizeof("list_clients") - 1 };
 		zval list;
@@ -841,7 +841,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_base_session, close)
 	}
 
 	MYSQLX_FETCH_BASE_SESSION_FROM_ZVAL(object, object_zv);
-	if (XMYSQLND_NODE_SESSION session = object->session) {
+	if (XMYSQLND_SESSION session = object->session) {
 		session->m->close(session, XMYSQLND_CLOSE_EXPLICIT);
 		object->closed = TRUE;
 		RETVAL_TRUE;

@@ -51,7 +51,7 @@ struct st_xmysqlnd_node_schema_on_error_bind
 
 typedef enum_func_status (*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA * const schema,
 															const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-															XMYSQLND_NODE_SESSION const session,
+															XMYSQLND_SESSION const session,
 															const MYSQLND_CSTRING schema_name,
 															MYSQLND_STATS * const stats,
 															MYSQLND_ERROR_INFO * const error_info);
@@ -122,7 +122,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 
 struct st_xmysqlnd_node_schema_data : public util::permanent_allocable
 {
-	XMYSQLND_NODE_SESSION session;
+	XMYSQLND_SESSION session;
 	MYSQLND_STRING schema_name;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
@@ -142,7 +142,7 @@ struct st_xmysqlnd_node_schema : public util::permanent_allocable
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_schema);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(XMYSQLND_NODE_SESSION session,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(XMYSQLND_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,

@@ -168,7 +168,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getName)
 
 /* {{{ mysqlx_node_table_on_error */
 static const enum_hnd_func_status
-mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_table_on_error(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_table_on_error");
 	const unsigned int UnknownDatabaseCode{1049};
@@ -285,7 +285,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 {
 	st_mysqlx_node_table* object{nullptr};
-	XMYSQLND_NODE_SESSION session;
+	XMYSQLND_SESSION session;
 	MYSQLND_CSTRING schema_name{nullptr, 0};
 	zval* object_zv{nullptr};
 

@@ -94,7 +94,7 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA s
 
 /* {{{ mysqlx_execute_node_session_query */
 static void
-mysqlx_execute_node_session_query(XMYSQLND_NODE_SESSION  session,
+mysqlx_execute_node_session_query(XMYSQLND_SESSION  session,
 								  const MYSQLND_CSTRING namespace_,
 								  const MYSQLND_CSTRING query,
 								  const zend_long flags,
@@ -181,7 +181,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, sql)
 {
 	zval* object_zv{nullptr};
 	st_mysqlx_session* object{nullptr};
-	XMYSQLND_NODE_SESSION session;
+	XMYSQLND_SESSION session;
 	MYSQLND_CSTRING query = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_session::sql");
@@ -219,7 +219,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_session, quoteName)
 {
 	zval* object_zv{nullptr};
 	st_mysqlx_session* object{nullptr};
-	XMYSQLND_NODE_SESSION session;
+	XMYSQLND_SESSION session;
 	MYSQLND_CSTRING name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_session::quoteName");
