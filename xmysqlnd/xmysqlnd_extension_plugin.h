@@ -41,7 +41,7 @@ struct st_xmysqlnd_rowset;
 struct st_xmysqlnd_protocol_frame_codec;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session);
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection);
@@ -97,8 +97,8 @@ struct st_xmysqlnd_plugin_methods_xetters
 
 	struct st_xmnd_node_session_xetters
 	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * const methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session) * const methods);
 	} node_session;
 
 	struct st_xmnd_node_session_data_xetters

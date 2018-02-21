@@ -50,7 +50,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_module_init();
 /* Max possible value for an host priority (Client side failovers) */
 constexpr int MAX_HOST_PRIORITY{ 100 };
 
-enum xmysqlnd_node_session_state
+enum xmysqlnd_session_state
 {
 	NODE_SESSION_ALLOCED = 0,
 	NODE_SESSION_NON_AUTHENTICATED = 1,
@@ -82,26 +82,26 @@ struct st_xmysqlnd_query_builder
 
 
 
-typedef struct st_xmysqlnd_node_session_state XMYSQLND_NODE_SESSION_STATE;
-typedef enum xmysqlnd_node_session_state (*func_xmysqlnd_node_session_state__get)(const XMYSQLND_NODE_SESSION_STATE * const state_struct);
-typedef void (*func_xmysqlnd_node_session_state__set)(XMYSQLND_NODE_SESSION_STATE * const state_struct, const enum xmysqlnd_node_session_state state);
+typedef struct st_xmysqlnd_session_state XMYSQLND_SESSION_STATE;
+typedef enum xmysqlnd_session_state (*func_xmysqlnd_session_state__get)(const XMYSQLND_SESSION_STATE * const state_struct);
+typedef void (*func_xmysqlnd_session_state__set)(XMYSQLND_SESSION_STATE * const state_struct, const enum xmysqlnd_session_state state);
 
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_state)
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_state)
 {
-	func_xmysqlnd_node_session_state__get get;
-	func_xmysqlnd_node_session_state__set set;
+	func_xmysqlnd_session_state__get get;
+	func_xmysqlnd_session_state__set set;
 };
 
-struct st_xmysqlnd_node_session_state
+struct st_xmysqlnd_session_state
 {
-	enum xmysqlnd_node_session_state state;
+	enum xmysqlnd_session_state state;
 
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_state) *m;
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_state) *m;
 };
 
 #define GET_SESSION_STATE(state_struct)		(state_struct)->m->get((state_struct))
 #define SET_SESSION_STATE(state_struct, s)	(state_struct)->m->set((state_struct), (s))
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_state_init(XMYSQLND_NODE_SESSION_STATE * const state);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_session_state_init(XMYSQLND_SESSION_STATE * const state);
 
 
 
@@ -297,7 +297,7 @@ struct st_xmysqlnd_node_session_data : public util::custom_allocable
 	MYSQLND_ERROR_INFO	error_info_impl;
 
 	/* Operation related */
-	XMYSQLND_NODE_SESSION_STATE state;
+	XMYSQLND_SESSION_STATE state;
 
 	/* options */
 	XMYSQLND_NODE_SESSION_OPTIONS	* options;
@@ -434,7 +434,7 @@ typedef void					(*func_xmysqlnd_node_session__dtor)(XMYSQLND_SESSION session);
 
 
 
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session)
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session)
 {
 	func_xmysqlnd_node_session__connect connect;
 	func_xmysqlnd_node_session__create_db create_db;
@@ -524,12 +524,12 @@ struct st_xmysqlnd_node_session : public util::permanent_allocable
 	char * server_version_string;
 	Uuid_generator::pointer session_uuid;
 	zend_bool persistent;
-	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * m;
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session) * m;
 };
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session_data);
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_session);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_session);
 
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION xmysqlnd_node_session_create(const size_t client_flags,
 																const zend_bool persistent,
