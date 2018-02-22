@@ -272,7 +272,7 @@ void Expression_parser::document_path(Mysqlx::Expr::ColumnIdentifier& colid)
     }
   }
   size_t size = colid.document_path_size();
-  if (size > 0 && (colid.document_path(size - 1).type() == Mysqlx::Expr::DocumentPathItem::DOUBLE_ASTERISK))
+  if (size > 0 && (colid.document_path(static_cast<int>(size) - 1).type() == Mysqlx::Expr::DocumentPathItem::DOUBLE_ASTERISK))
   {
     const Token& tok = _tokenizer.peek_token();
     throw Parser_error((boost::format("JSON path may not end in '**' at position %d (%s)") % tok.get_pos() % tok.get_text()).str());

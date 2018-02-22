@@ -27,7 +27,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_environment.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "mysqlx_node_connection.h"
 #include "util/object.h"
 
@@ -57,7 +57,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ get_scheme */
 static MYSQLND_STRING
-get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned int port, zend_bool * unix_socket, zend_bool * named_pipe)
+get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, zend_long port, zend_bool * unix_socket, zend_bool * named_pipe)
 {
 	MYSQLND_STRING transport;
 	DBG_ENTER("get_scheme");
@@ -77,7 +77,8 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 		if (!port) {
 			port = drv::Environment::get_as_int(drv::Environment::Variable::Mysql_port);
 		}
-		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.s, port);
+		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u",
+			hostname.s, static_cast<unsigned int>(port));
 	}
 	DBG_INF_FMT("transport=%s", transport.s? transport.s:"OOM");
 	DBG_RETURN(transport);
@@ -88,8 +89,8 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, unsigned in
 /* {{{ proto bool mysqlx_node_connection::connect(object connection, string hostname, string username, string password) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 {
-	zval * connection_zv;
-	st_mysqlx_node_connection* connection;
+	zval* connection_zv{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
 	MYSQLND_CSTRING hostname = {nullptr, 0};
 	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
@@ -138,10 +139,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 /* {{{ proto long mysqlx_node_connection::send(object session, string payload) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 {
-	zval * connection_zv;
-	st_mysqlx_node_connection* connection;
+	zval* connection_zv{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
 	MYSQLND_CSTRING payload = {nullptr, 0};
-	size_t ret;
+	size_t ret{0};
 
 	DBG_ENTER("mysqlx_node_connection::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
@@ -170,8 +171,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 /* {{{ proto long mysqlx_node_connection::receive(object connection, long bytes) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 {
-	zval * connection_zv;
-	st_mysqlx_node_connection* connection;
+	zval* connection_zv{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
 	zend_ulong how_many{0};
 	enum_func_status ret;
 

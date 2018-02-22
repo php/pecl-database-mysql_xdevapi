@@ -32,7 +32,7 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_session_data;
 struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_node_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;
@@ -158,8 +158,8 @@ struct st_xmysqlnd_msg__capabilities_get
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
-	struct st_xmysqlnd_on_error_bind on_error;
-	zval * capabilities_zval;
+	st_xmysqlnd_on_error_bind on_error;
+	zval* capabilities_zval;
 };
 
 
@@ -177,8 +177,8 @@ struct st_xmysqlnd_msg__capabilities_set
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
-	struct st_xmysqlnd_on_error_bind on_error;
-	zval * return_value_zval;
+	st_xmysqlnd_on_error_bind on_error;
+	zval* return_value_zval;
 };
 
 
@@ -215,12 +215,12 @@ struct st_xmysqlnd_msg__auth_start
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
-	struct st_xmysqlnd_on_auth_continue_bind on_auth_continue;
-	struct st_xmysqlnd_on_warning_bind on_warning;
-	struct st_xmysqlnd_on_error_bind on_error;
-	struct st_xmysqlnd_on_client_id_bind on_client_id;
-	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
-	zval * auth_start_response_zval;
+	st_xmysqlnd_on_auth_continue_bind on_auth_continue;
+	st_xmysqlnd_on_warning_bind on_warning;
+	st_xmysqlnd_on_error_bind on_error;
+	st_xmysqlnd_on_client_id_bind on_client_id;
+	st_xmysqlnd_on_session_var_change_bind on_session_var_change;
+	zval* auth_start_response_zval;
 };
 
 #if AUTH_CONTINUE
@@ -242,8 +242,8 @@ struct st_xmysqlnd_msg__auth_continue
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
-	struct st_xmysqlnd_on_error_bind on_error;
-	zval * auth_continue_response_zval;
+	st_xmysqlnd_on_error_bind on_error;
+	zval* auth_continue_response_zval;
 };
 #endif
 
@@ -301,23 +301,23 @@ struct st_xmysqlnd_result_set_reader_ctx
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 
-	struct st_xmysqlnd_meta_field_create_bind create_meta_field;
+	st_xmysqlnd_meta_field_create_bind create_meta_field;
 
-	struct st_xmysqlnd_on_row_field_bind on_row_field;
-	struct st_xmysqlnd_on_meta_field_bind on_meta_field;
-	struct st_xmysqlnd_on_warning_bind on_warning;
-	struct st_xmysqlnd_on_error_bind on_error;
-	struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
-	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
-	struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
-	struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok;
-	struct st_xmysqlnd_on_resultset_end_bind on_resultset_end;
+	st_xmysqlnd_on_row_field_bind on_row_field;
+	st_xmysqlnd_on_meta_field_bind on_meta_field;
+	st_xmysqlnd_on_warning_bind on_warning;
+	st_xmysqlnd_on_error_bind on_error;
+	st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
+	st_xmysqlnd_on_session_var_change_bind on_session_var_change;
+	st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
+	st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok;
+	st_xmysqlnd_on_resultset_end_bind on_resultset_end;
 
 	unsigned int field_count:16;
 	zend_bool has_more_results:1;
 	zend_bool has_more_rows_in_set:1;
 	zend_bool read_started:1;
-	zval * response_zval;
+	zval* response_zval;
 };
 
 
@@ -342,7 +342,7 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 	enum_func_status (*read_response)(st_xmysqlnd_msg__sql_stmt_execute* const msg,
 									  zval * const response);
 
-	struct st_xmysqlnd_result_set_reader_ctx reader_ctx;
+	st_xmysqlnd_result_set_reader_ctx reader_ctx;
 };
 
 
@@ -354,14 +354,14 @@ struct st_xmysqlnd_msg__connection_close
 	enum_func_status (*read_response)(st_xmysqlnd_msg__connection_close* msg);
 
 	enum_func_status (*init_read)(st_xmysqlnd_msg__connection_close* const msg,
-								  const struct st_xmysqlnd_on_error_bind on_error);
+								  const st_xmysqlnd_on_error_bind on_error);
 
 	MYSQLND_VIO * vio;
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 
-	struct st_xmysqlnd_on_error_bind on_error;
+	st_xmysqlnd_on_error_bind on_error;
 };
 
 struct st_xmysqlnd_result_ctx
@@ -371,13 +371,13 @@ struct st_xmysqlnd_result_ctx
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
 
-	struct st_xmysqlnd_on_warning_bind on_warning;
-	struct st_xmysqlnd_on_error_bind on_error;
-	struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
-	struct st_xmysqlnd_on_session_var_change_bind on_session_var_change;
-	struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
+	st_xmysqlnd_on_warning_bind on_warning;
+	st_xmysqlnd_on_error_bind on_error;
+	st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
+	st_xmysqlnd_on_session_var_change_bind on_session_var_change;
+	st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
 
-	zval * response_zval;
+	zval* response_zval;
 };
 
 /* User for Create */

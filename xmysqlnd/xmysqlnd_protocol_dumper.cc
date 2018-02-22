@@ -25,6 +25,7 @@ extern "C" {
 #include "xmysqlnd.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_protocol_dumper.h"
+#include "util/strings.h"
 
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_connection.pb.h"
@@ -46,20 +47,14 @@ static char hexconvtab[] = "0123456789abcdef";
 void
 xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len)
 {
-	//TODO marines
-    //char message_dump[len * 3 + 1];
-    char* message_dump = static_cast<char*>(malloc((len * 3 + 1) * sizeof(char)));
-    DBG_ENTER("dump_string_to_log");
-	message_dump[len * 3] = '\0';
-	unsigned int i = 0;
-	for (; i < len; ++i) {
+	util::string message_dump(len * 3, '\0');
+	DBG_ENTER("dump_string_to_log");
+	for (unsigned int i{0}; i < len; ++i) {
 		message_dump[i*3+0] = hexconvtab[ s[i] >> 4];
 		message_dump[i*3+1] = hexconvtab[ s[i] & 15];
 		message_dump[i*3+2] = ' ';
 	}
-	DBG_INF_FMT("%s[%u]=[%*s]", prefix, (uint) len, len, message_dump);
-	//TODO marines
-    free(message_dump);
+	DBG_INF_FMT("%s[%u]=[%*s]", prefix, (uint) len, len, message_dump.c_str());
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -125,7 +120,7 @@ xmysqlnd_dump_column(const Mysqlx::Crud::Column & column)
 								   has_alias? column.alias().c_str() : "n/a");
 
 	DBG_INF_FMT("%d doc_paths", column.document_path_size());
-	for (unsigned int i = 0; i < column.document_path_size(); ++i) {
+	for (int i{0}; i < column.document_path_size(); ++i) {
 		xmysqlnd_dump_expr_doc_path_item(column.document_path(i));
 	}
 	DBG_VOID_RETURN;
@@ -154,7 +149,7 @@ xmysqlnd_dump_function_call(const Mysqlx::Expr::FunctionCall & fc)
 	}
 
 	DBG_INF_FMT("%d fc::params", fc.param_size());
-	for (unsigned int i = 0; i < fc.param_size(); ++i) {
+	for (int i{0}; i < fc.param_size(); ++i) {
 		xmysqlnd_dump_expr(fc.param(i));
 	}
 
@@ -174,7 +169,7 @@ xmysqlnd_dump_operator(const Mysqlx::Expr::Operator & op)
 								  has_name? op.name().c_str() : "n/a");
 
 	DBG_INF_FMT("%d params", op.param_size());
-	for (unsigned int i = 0; i < op.param_size(); ++i) {
+	for (int i{0}; i < op.param_size(); ++i) {
 		xmysqlnd_dump_expr(op.param(i));
 	}
 	DBG_VOID_RETURN;
@@ -228,7 +223,7 @@ xmysqlnd_dump_expr(const Mysqlx::Expr::Expr & expr)
 	DBG_INF_FMT("object is %s", has_object? "SET":"NOT SET");
 	if (has_object) {
 		DBG_INF_FMT("%d fields", expr.object().fld_size());
-		for (unsigned int i = 0; i < expr.object().fld_size(); ++i) {
+		for (int i{0}; i < expr.object().fld_size(); ++i) {
 			const Mysqlx::Expr::Object::ObjectField & field = expr.object().fld(i);
 
 			const bool has_obj_key = field.has_key();
@@ -247,7 +242,7 @@ xmysqlnd_dump_expr(const Mysqlx::Expr::Expr & expr)
 	DBG_INF_FMT("array is %s", has_array? "SET":"NOT SET");
 	if (has_array) {
 		DBG_INF_FMT("%d array elements", expr.array().value_size());
-		for (unsigned int i = 0; i < expr.array().value_size(); ++i) {
+		for (int i{0}; i < expr.array().value_size(); ++i) {
 			xmysqlnd_dump_expr(expr.array().value(i));
 		}
 	}
@@ -285,7 +280,7 @@ xmysqlnd_dump_update_operation(const Mysqlx::Crud::UpdateOperation & op)
 
 /* {{{ xmysqlnd_dump_client_message */
 void
-xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const size_t payload_size)
+xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const int payload_size)
 {
 	DBG_ENTER("xmysqlnd_dump_client_message");
 	const Mysqlx::ClientMessages_Type type = (Mysqlx::ClientMessages_Type)(packet_type);
@@ -293,7 +288,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 	{
 		char * message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
-		for (unsigned int i = 0; i < payload_size; i++) {
+		for (int i{0}; i < payload_size; i++) {
 			message_dump[i*3+0] = hexconvtab[((const char*)payload)[i] >> 4];
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';
@@ -311,7 +306,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			if (message.has_capabilities()) {
 				unsigned int caps = message.capabilities().capabilities_size();
 				DBG_INF_FMT("%d capabilit%s", caps, caps == 1? "y":"ies");
-				for (unsigned int i = 0; i < caps; ++i) {
+				for (unsigned int i{0}; i < caps; ++i) {
 					const Mysqlx::Connection::Capability & capability =  message.capabilities().capabilities(i);
 
 					DBG_INF_FMT("name is %s", capability.has_name()? "SET":"NOT SET");
@@ -374,7 +369,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 											  has_metadata? (message.compact_metadata()? "YES":"NO") : "n/a");
 			DBG_INF_FMT("%d arguments", message.args_size());
 			if (message.args_size()) {
-				for (unsigned int i = 0; i < message.args_size(); ++i) {
+				for (int i{0}; i < message.args_size(); ++i) {
 					any2log(message.args(i));
 				}
 			}
@@ -406,7 +401,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("%d arguments", message.args_size());
 			if (message.args_size()) {
-				for (unsigned int i = 0; i < message.args_size(); ++i) {
+				for (int i{0}; i < message.args_size(); ++i) {
 					scalar2log(message.args(i));
 				}
 			}
@@ -421,7 +416,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("order_size=%d", message.order_size());
 			if (message.order_size()) {
-				for (unsigned int i = 0; i < message.order_size(); ++i) {
+				for (int i{0}; i < message.order_size(); ++i) {
 					const Mysqlx::Crud::Order & order = message.order(i);
 
 					/* expression dump */
@@ -438,7 +433,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("grouping_size=%d", message.grouping_size());
 			if (message.grouping_size()) {
-				for (unsigned int i = 0; i < message.grouping_size(); ++i) {
+				for (int i{0}; i < message.grouping_size(); ++i) {
 					xmysqlnd_dump_expr(message.grouping(i));
 				}
 			}
@@ -475,7 +470,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("%d arguments", message.args_size());
 			if (message.args_size()) {
-				for (unsigned int i = 0; i < message.args_size(); ++i) {
+				for (int i{0}; i < message.args_size(); ++i) {
 					scalar2log(message.args(i));
 				}
 			}
@@ -506,7 +501,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("%d arguments", message.args_size());
 			if (message.args_size()) {
-				for (unsigned int i = 0; i < message.args_size(); ++i) {
+				for (int i{0}; i < message.args_size(); ++i) {
 					scalar2log(message.args(i));
 				}
 			}
@@ -521,7 +516,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("order_size=%d", message.order_size());
 			if (message.order_size()) {
-				for (unsigned int i = 0; i < message.order_size(); ++i) {
+				for (int i{0}; i < message.order_size(); ++i) {
 					const Mysqlx::Crud::Order & order = message.order(i);
 
 					/* expression dump */
@@ -538,7 +533,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("%d operations", message.operation_size());
 			if (message.operation_size()) {
-				for (unsigned int i = 0; i < message.operation_size(); ++i) {
+				for (int i{0}; i < message.operation_size(); ++i) {
 					xmysqlnd_dump_update_operation(message.operation(i));
 				}
 			}
@@ -568,7 +563,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("%d arguments", message.args_size());
 			if (message.args_size()) {
-				for (unsigned int i = 0; i < message.args_size(); ++i) {
+				for (int i{0}; i < message.args_size(); ++i) {
 					scalar2log(message.args(i));
 				}
 			}
@@ -583,7 +578,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 
 			DBG_INF_FMT("order_size=%d", message.order_size());
 			if (message.order_size()) {
-				for (unsigned int i = 0; i < message.order_size(); ++i) {
+				for (int i{0}; i < message.order_size(); ++i) {
 					const Mysqlx::Crud::Order & order = message.order(i);
 
 					/* expression dump */
@@ -756,25 +751,27 @@ xmysqlnd_dump_notice_frame(const Mysqlx::Notice::Frame & frame)
 
 	DBG_INF_FMT("type is %s", has_type? "SET":"NOT SET");
 	if (has_type && has_payload) {
+		const char* frame_payload_str = frame.payload().c_str();
+		const int frame_payload_size = static_cast<int>(frame.payload().size());
 		switch (frame.type()) {
 			case 1:{ /* Warning */
 				Mysqlx::Notice::Warning message;
 				DBG_INF("Warning");
-				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+				message.ParseFromArray(frame_payload_str, frame_payload_size);
 				xmysqlnd_dump_warning(message);
 				break;
 			}
 			case 2:{ /* SessionVariableChanged */
 				Mysqlx::Notice::SessionVariableChanged message;
 				DBG_INF("SessionVariableChanged");
-				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+				message.ParseFromArray(frame_payload_str, frame_payload_size);
 				xmysqlnd_dump_changed_variable(message);
 				break;
 			}
 			case 3:{ /* SessionStateChanged */
 				Mysqlx::Notice::SessionStateChanged message;
 				DBG_INF("SessionStateChanged");
-				message.ParseFromArray(frame.payload().c_str(), frame.payload().size());
+				message.ParseFromArray(frame_payload_str, frame_payload_size);
 				xmysqlnd_dump_changed_state(message);
 				break;
 			}
@@ -793,7 +790,7 @@ static void
 xmysqlnd_dump_capabilities_to_log(const Mysqlx::Connection::Capabilities & message)
 {
 	DBG_ENTER("xmysqlnd_dump_capabilities_to_log");
-	for (unsigned int i = 0; i < message.capabilities_size(); ++i) {
+	for (int i{0}; i < message.capabilities_size(); ++i) {
 		DBG_INF_FMT("Cap_name[i]=%s", message.capabilities(i).name().c_str());
 		any2log(message.capabilities(i).value());
 	}
@@ -804,15 +801,15 @@ xmysqlnd_dump_capabilities_to_log(const Mysqlx::Connection::Capabilities & messa
 
 /* {{{ xmysqlnd_dump_server_message */
 void
-xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const size_t payload_size)
+xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const int payload_size)
 {
 	DBG_ENTER("xmysqlnd_dump_server_message");
 	const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
 	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ServerMessages_Type_Name(type).c_str(), (uint) payload_size);
 	{
-		char * message_dump = new char[payload_size*3 + 1];
+		char* message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
-		for (unsigned int i = 0; i < payload_size; i++) {
+		for (int i{0}; i < payload_size; i++) {
 			message_dump[i*3+0] = hexconvtab[((const char*)payload)[i] >> 4];
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';

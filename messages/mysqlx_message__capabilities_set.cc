@@ -28,7 +28,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_wireprotocol.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 #include "mysqlx_message__capability.h"
@@ -90,15 +90,14 @@ ZEND_END_ARG_INFO()
 /* {{{ proto long mysqlx_message__capabilities_set::send(object messsage, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
-	zval * capabilities_zv;
-	st_mysqlx_message__capabilities_set* object;
-	st_mysqlx_message__capabilities* capabilities;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
-	size_t ret{0};
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	zval* capabilities_zv{nullptr};
+	st_mysqlx_message__capabilities_set* object{nullptr};
+	st_mysqlx_message__capabilities* capabilities{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_message__capabilities_set::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOOO",
@@ -116,7 +115,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	{
-		const size_t cap_count = zend_hash_num_elements(&capabilities->capabilities_ht);
+		const unsigned int cap_count{zend_hash_num_elements(&capabilities->capabilities_ht)};
 		if (!cap_count) {
 			php_error_docref(nullptr, E_WARNING, "Zero Capabilities");
 			DBG_VOID_RETURN;
@@ -124,7 +123,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 		zval ** capability_names = (zval **) mnd_ecalloc(cap_count, sizeof(zval*));
 		zval ** capability_values = (zval **) mnd_ecalloc(cap_count, sizeof(zval*));
 		unsigned i{0};
-		zval * entry;
+		zval* entry{nullptr};
 		ZEND_HASH_FOREACH_VAL(&capabilities->capabilities_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_message__capability_class_entry) {
 				st_mysqlx_message__capability* capability_entry{nullptr};
@@ -154,12 +153,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 /* {{{ proto long mysqlx_message__capabilities_set::read_response(object messsage, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, read_response)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
-	st_mysqlx_message__capabilities_set* object;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	st_mysqlx_message__capabilities_set* object{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_message__capabilities_set::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",

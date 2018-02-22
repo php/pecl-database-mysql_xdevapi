@@ -19,8 +19,9 @@
 #define MYSQL_XDEVAPI_PHPUTILS_STRING_UTILS_H
 
 #include "php_api.h"
-#include <boost/algorithm/string/compare.hpp>
+#include "mysqlnd_api.h"
 #include "strings.h"
+#include <boost/algorithm/string/compare.hpp>
 
 namespace mysqlx {
 
@@ -121,6 +122,12 @@ zend_string* to_zend_string(formatter& fmt);
  * Escape an identifier name adding '`' everywhere needed
  */
 string escape_identifier( const string& identifier );
+
+template<size_t Length>
+st_mysqlnd_string literal_to_mysqlnd_str(const char (&literal)[Length])
+{
+	return {const_cast<char*>(literal), Length};
+}
 
 } // namespace util
 

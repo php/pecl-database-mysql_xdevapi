@@ -79,7 +79,7 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 			break;
 		case IS_ARRAY: {
 			DBG_INF("IS_ARRAY");
-			zval * entry;
+			zval* entry{nullptr};
 			any.set_type(Any_Type_ARRAY);
 			ZEND_HASH_FOREACH_VAL(Z_ARR_P(zv), entry) {
 				DBG_INF("ENTRY");
@@ -124,7 +124,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 			} else
 #endif
 			{
-				ZVAL_LONG(zv, scalar.v_signed_int());
+				ZVAL_LONG(zv, static_cast<zend_long>(scalar.v_signed_int()));
 			}
 			break;
 		case Scalar_Type_V_UINT:
@@ -137,7 +137,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
 				ZVAL_STRING(zv, tmp);
 			} else {
-				ZVAL_LONG(zv, scalar.v_unsigned_int());
+				ZVAL_LONG(zv, static_cast<zend_long>(scalar.v_unsigned_int()));
 			}
 			break;
 		case Scalar_Type_V_NULL:
@@ -234,7 +234,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 			array_init_size(&properties, any.obj().fld_size());
 
 			object_init(zv);
-			for (unsigned int i = 0; i < any.obj().fld_size(); ++i) {
+			for (int i{0}; i < any.obj().fld_size(); ++i) {
 				zval entry;
 				ZVAL_UNDEF(&entry);
 				any2zval(any.obj().fld(i).value(), &entry);
@@ -255,7 +255,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 		}
 		case Any_Type_ARRAY:
 			array_init_size(zv, any.array().value_size());
-			for (unsigned int i = 0; i < any.array().value_size(); ++i) {
+			for (int i{0}; i < any.array().value_size(); ++i) {
 				zval entry;
 				ZVAL_UNDEF(&entry);
 				any2zval(any.array().value(i), &entry);
@@ -297,10 +297,10 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), nullptr, 10);
 			break;
 		case Scalar_Type_V_DOUBLE:
-			ret = scalar.v_double();
+			ret = static_cast<uint64_t>(scalar.v_double());
 			break;
 		case Scalar_Type_V_FLOAT:
-			ret = mysql_float_to_double(scalar.v_float(), -1);
+			ret = static_cast<uint64_t>(mysql_float_to_double(scalar.v_float(), -1));
 			break;
 		case Scalar_Type_V_BOOL:
 			ret = scalar.v_bool();
@@ -337,10 +337,10 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), nullptr, 10);
 			break;
 		case Scalar_Type_V_DOUBLE:
-			ret = scalar.v_double();
+			ret = static_cast<int64_t>(scalar.v_double());
 			break;
 		case Scalar_Type_V_FLOAT:
-			ret = mysql_float_to_double(scalar.v_float(), -1);
+			ret = static_cast<int64_t>(mysql_float_to_double(scalar.v_float(), -1));
 			break;
 		case Scalar_Type_V_BOOL:
 			ret = scalar.v_bool();
@@ -469,13 +469,13 @@ any2log(const Mysqlx::Datatypes::Any & any)
 			scalar2log(any.scalar());
 			break;
 		case Any_Type_OBJECT: {
-			for (unsigned int i = 0; i < any.obj().fld_size(); ++i) {
+			for (int i{0}; i < any.obj().fld_size(); ++i) {
 				any2log(any.obj().fld(i).value());
 			}
 			break;
 		}
 		case Any_Type_ARRAY:
-			for (unsigned int i = 0; i < any.array().value_size(); ++i) {
+			for (int i{0}; i < any.array().value_size(); ++i) {
 				any2log(any.array().value(i));
 			}
 			break;

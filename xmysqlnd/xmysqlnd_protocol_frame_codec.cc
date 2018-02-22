@@ -77,7 +77,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 	}
 
 #ifdef PHP_DEBUG
-	xmysqlnd_dump_client_message(packet_type, buffer, count);
+	xmysqlnd_dump_client_message(packet_type, buffer, static_cast<int>(count));
 #endif
 
 	*bytes_sent = 0;
@@ -146,7 +146,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 		}
 		if (PASS == vio->data->m.network_read(vio, *buffer, *count, stats, error_info)) {
 #ifdef PHP_DEBUG
-			xmysqlnd_dump_server_message(*packet_type, *buffer, *count);
+			xmysqlnd_dump_server_message(*packet_type, *buffer, static_cast<int>(*count));
 #endif
 			XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3(stats,
 				XMYSQLND_STAT_BYTES_RECEIVED, count + packets_received * (XMYSQLND_PAYLOAD_LENGTH_SIZE + XMYSQLND_PACKET_TYPE_SIZE),
@@ -169,11 +169,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const pfc, enum_
 {
 	DBG_ENTER("xmysqlnd_pfc::set_client_option");
 	DBG_INF_FMT("option=%u", option);
-	switch (option) {
-		default:
-			DBG_RETURN(FAIL);
-	}
-	DBG_RETURN(PASS);
+	DBG_RETURN(FAIL);
 }
 /* }}} */
 

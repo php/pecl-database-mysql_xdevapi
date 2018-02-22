@@ -26,9 +26,10 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_node_session.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "mysqlx_message__capability.h"
 #include "util/object.h"
+#include <iostream>
 
 namespace mysqlx {
 
@@ -85,8 +86,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, echo)
 		DBG_VOID_RETURN;
 	}
 	MYSQLX_FETCH_MESSAGE__CAPABILITY_FROM_ZVAL(capability, capability_zv);
-	printf("echo Cap_name= [%s]\n", Z_STRVAL(capability->capability_name));
-	printf("echo Cap_value [%lu]\n", Z_LVAL(capability->capability_value));
+	std::cout << "echo Cap_name= [" << Z_STRVAL(capability->capability_name) << "]\n";
+	std::cout << "echo Cap_value [" << Z_LVAL(capability->capability_value) << "]\n";
 	DBG_VOID_RETURN;
 }
 /* }}} */

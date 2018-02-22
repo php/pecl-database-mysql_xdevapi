@@ -88,12 +88,12 @@ ZEND_END_ARG_INFO()
 /* {{{ proto long mysqlx_message__auth_continue::send(object messsage, string user, string password, string schema, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
-	st_mysqlx_message__auth_continue* object;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	st_mysqlx_message__auth_continue* object{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 	char* user{nullptr};
 	size_t user_len{0};
 	char* password{nullptr};
@@ -142,12 +142,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 /* {{{ proto long mysqlx_message__auth_continue::read_response(object messsage, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
-	st_mysqlx_message__auth_continue* object;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	st_mysqlx_message__auth_continue* object{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__auth_continue::read_response");
@@ -265,7 +265,7 @@ mysqlx_unregister_message__auth_continue_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_message__auth_continue(zval * return_value, const Mysqlx::Session::AuthenticateContinue & message)
 {
-	st_mysqlx_message__auth_continue* obj;
+	st_mysqlx_message__auth_continue* obj{nullptr};
 	DBG_ENTER("mysqlx_new_message__auth_continue");
 	object_init_ex(return_value, mysqlx_message__auth_continue_class_entry);
 	MYSQLX_FETCH_MESSAGE__AUTH_CONTINUE_FROM_ZVAL(obj, return_value);

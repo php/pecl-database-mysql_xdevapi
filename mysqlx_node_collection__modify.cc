@@ -86,7 +86,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__merge, 0, ZEND_RE
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__patch, 0, ZEND_RETURN_VALUE, 1)
-    ZEND_ARG_TYPE_INFO(no_pass_by_ref, document, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, document, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__modify__array_insert, 0, ZEND_RETURN_VALUE, 2)
@@ -175,7 +175,7 @@ void Collection_modify::sort(
 			break;
 		case IS_ARRAY:
 			{
-				zval* entry;
+				zval* entry{nullptr};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry),
 													Z_STRLEN_P(entry) };
@@ -257,8 +257,8 @@ void Collection_modify::bind(
 
 	RETVAL_FALSE;
 
-	zend_string* key;
-	zval* val;
+	zend_string* key{nullptr};
+	zval* val{nullptr};
 	ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 		if (key) {
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
@@ -404,8 +404,7 @@ void Collection_modify::unset(
 			break;
 		case IS_ARRAY:
 			{
-				zval* entry;
-				enum_func_status ret{FAIL};
+				zval* entry{nullptr};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(variables[i]), entry) {
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
@@ -473,19 +472,19 @@ void Collection_modify::patch(
 	const util::string_view &document_contents,
 	zval* return_value)
 {
-    DBG_ENTER("Collection_modify::patch");
+	DBG_ENTER("Collection_modify::patch");
 
-    RETVAL_FALSE;
+	RETVAL_FALSE;
 
-    MYSQLND_CSTRING emptyDocPath = { nullptr, 0 };
-    zval zvDocumentContents;
-    document_contents.to_zval(&zvDocumentContents);
-    if (FAIL == xmysqlnd_crud_collection_modify__patch(modify_op, emptyDocPath, &zvDocumentContents)) {
-        RAISE_EXCEPTION(err_msg_merge_fail);
-    }
-    ZVAL_COPY(return_value, object_zv);
+	MYSQLND_CSTRING emptyDocPath = { nullptr, 0 };
+	zval zvDocumentContents;
+	document_contents.to_zval(&zvDocumentContents);
+	if (FAIL == xmysqlnd_crud_collection_modify__patch(modify_op, emptyDocPath, &zvDocumentContents)) {
+		RAISE_EXCEPTION(err_msg_merge_fail);
+	}
+	ZVAL_COPY(return_value, object_zv);
 
-    DBG_VOID_RETURN;
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -763,23 +762,23 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, merge)
 /* {{{ proto mixed mysqlx_node_collection__modify::patch() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__modify, patch)
 {
-    zval* object_zv = nullptr;
+	zval* object_zv{nullptr};
 	util::string_view document_contents;
 
-    DBG_ENTER("mysqlx_node_collection__modify::patch");
+	DBG_ENTER("mysqlx_node_collection__modify::patch");
 
-    if (FAILURE == zend_parse_method_parameters(
-        ZEND_NUM_ARGS(), getThis(), "Os",
-        &object_zv, collection_modify_class_entry,
-        &(document_contents.str), &(document_contents.len)))
-    {
-        DBG_VOID_RETURN;
-    }
+	if (FAILURE == zend_parse_method_parameters(
+		ZEND_NUM_ARGS(), getThis(), "Os",
+		&object_zv, collection_modify_class_entry,
+		&(document_contents.str), &(document_contents.len)))
+	{
+		DBG_VOID_RETURN;
+	}
 
-    Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-    coll_modify.patch(document_contents, return_value);
+	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
+	coll_modify.patch(document_contents, return_value);
 
-    DBG_VOID_RETURN;
+	DBG_VOID_RETURN;
 }
 /* }}} */
 

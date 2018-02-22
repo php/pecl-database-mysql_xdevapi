@@ -27,7 +27,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_zval2any.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 
@@ -81,12 +81,12 @@ ZEND_END_ARG_INFO()
 /* {{{ proto bool mysqlx_message__capabilities_get::send(object messsage, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, send)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
-	st_mysqlx_message__capabilities_get* object;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	st_mysqlx_message__capabilities_get* object{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::send");
@@ -117,12 +117,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, send)
 /* {{{ proto long mysqlx_message__capabilities_get::read_response(object messsage, object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 {
-	zval * object_zv;
-	zval * codec_zv;
-	zval * connection_zv;
-	st_mysqlx_message__capabilities_get* object;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	zval* object_zv{nullptr};
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	st_mysqlx_message__capabilities_get* object{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::read_response");

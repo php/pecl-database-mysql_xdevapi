@@ -89,8 +89,6 @@ xmysqlnd_crud_collection__add_sort(MSG& message,
 {
 	DBG_ENTER("xmysqlnd_crud_collection__add_sort");
 	DBG_INF_FMT("sort=%*s", sort.l, sort.s);
-	google::protobuf::RepeatedPtrField< Mysqlx::Crud::Order >* mutable_order =
-			message.mutable_order();
 	const Mysqlx::Crud::DataModel data_model =
 			message.data_model();
 
@@ -565,7 +563,7 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 	Mysqlx::Crud::UpdateOperation * operation = obj->message.mutable_operation()->Add();
 	operation->set_operation(op_type);
 
-	std::auto_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
+	std::unique_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
 
 	try {
 		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);
@@ -585,7 +583,8 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 	if (size) {
 		DBG_INF_FMT("doc_path_size=%u", (uint) size);
 		if (validate_array) {
-			const Mysqlx::Expr::DocumentPathItem_Type doc_path_type = identifier.document_path().Get(size - 1).type();
+			const Mysqlx::Expr::DocumentPathItem_Type doc_path_type
+				= identifier.document_path().Get(static_cast<int>(size) - 1).type();
 			DBG_INF_FMT("type=%s", Mysqlx::Expr::DocumentPathItem::Type_Name(doc_path_type).c_str());
 			if (doc_path_type != Mysqlx::Expr::DocumentPathItem::ARRAY_INDEX) {
 				DBG_ERR("An array document path must be specified");
@@ -1080,7 +1079,7 @@ struct st_xmysqlnd_pb_message_shell
 /****************************** SQL EXECUTE *******************************************************/
 struct st_xmysqlnd_stmt_op__execute
 {
-	zval * params;
+	zval* params{nullptr};
 	unsigned int params_allocated;
 
 	Mysqlx::Sql::StmtExecute message;
@@ -1102,7 +1101,7 @@ struct st_xmysqlnd_stmt_op__execute
 	~st_xmysqlnd_stmt_op__execute()
 	{
 		if (params) {
-			for(int i{0}; i < params_allocated; ++i ) {
+			for(unsigned int i{0}; i < params_allocated; ++i ) {
 				zval_ptr_dtor(&params[i]);
 			}
 			mnd_efree(params);
@@ -1165,9 +1164,8 @@ enum_func_status
 st_xmysqlnd_stmt_op__execute::finalize_bind()
 {
 	enum_func_status ret{PASS};
-	unsigned int i = 0;
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::finalize_bind");
-	for (; i < params_allocated; ++i) {
+	for (unsigned int i{0}; i < params_allocated; ++i) {
 		Mysqlx::Datatypes::Any * arg = message.add_args();
 		ret = zval2any(&(params[i]), *arg);
 		if (FAIL == ret) {

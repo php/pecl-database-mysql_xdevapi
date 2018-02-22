@@ -26,7 +26,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_node_session.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 #include "util/object.h"
@@ -55,10 +55,10 @@ ZEND_END_ARG_INFO()
 /* {{{ proto bool mysqlx_node_pfc::send(object pfc, object connection, long packet_type, string payload) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, send)
 {
-	zval * codec_zv;
-	zval * connection_zv;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 	MYSQLND_CSTRING payload = {nullptr, 0};
 	zend_ulong packet_type;
 	size_t bytes_sent;
@@ -92,10 +92,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, send)
 /* {{{ proto mixed mysqlx_node_pfc::receive(object pfc, object connection) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, receive)
 {
-	zval * codec_zv;
-	zval * connection_zv;
-	st_mysqlx_node_connection* connection;
-	st_mysqlx_node_pfc* codec;
+	zval* codec_zv{nullptr};
+	zval* connection_zv{nullptr};
+	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_node_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_node_pfc::receive");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",

@@ -27,7 +27,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_zval2any.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "messages/mysqlx_message__capability.h"
 #include "mysqlx_resultset__resultset_metadata.h"
 #include "mysqlx_resultset__column_metadata.h"
@@ -56,7 +56,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 	zval* resultset_metadata_zv{nullptr};
 	st_mysqlx_resultset_metadata* resultset_metadata{nullptr};
 	zval* column_metadata_zv{nullptr};
-	st_mysqlx_column_metadata* column_metadata{nullptr};
 
 	DBG_ENTER("mysqlx_node_connection::add");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",

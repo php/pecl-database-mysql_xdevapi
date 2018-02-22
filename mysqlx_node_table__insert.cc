@@ -83,8 +83,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, __construct)
 /* {{{ proto mixed mysqlx_node_table__insert::values() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 {
-	st_mysqlx_node_table__insert* object;
-	zval * object_zv;
+	st_mysqlx_node_table__insert* object{nullptr};
+	zval* object_zv{nullptr};
 	zval* values{nullptr};
 	zend_bool op_failed{FALSE};
 	int num_of_values{0};
@@ -128,8 +128,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 /* {{{ proto mixed mysqlx_node_table__insert::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
 {
-	st_mysqlx_node_table__insert* object;
-	zval * object_zv;
+	st_mysqlx_node_table__insert* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table__insert::execute");
 

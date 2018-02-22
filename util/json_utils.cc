@@ -81,9 +81,9 @@ class Ensure_doc_id
 		void store_id();
 
 	private:
-		zval* raw_doc;
+		zval* raw_doc{nullptr};
 		const string_view& doc_id;
-		zval* doc_with_id;
+		zval* doc_with_id{nullptr};
 
 };
 
@@ -146,7 +146,7 @@ void Ensure_doc_id::decode_json(zval* doc_as_str)
 {
 	assert(Z_TYPE_P(doc_as_str) == IS_STRING);
 	char* json_str = Z_STRVAL_P(doc_as_str);
-	int json_len = Z_STRLEN_P(doc_as_str);
+	int json_len = static_cast<int>(Z_STRLEN_P(doc_as_str));
 	php_json_decode(doc_with_id, json_str, json_len, true, PHP_JSON_PARSER_DEFAULT_DEPTH);
 
 	if (Z_TYPE_P(doc_with_id) != IS_ARRAY) {

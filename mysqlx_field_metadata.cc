@@ -180,7 +180,7 @@ mysqlx_field_meta_property__collation(const st_mysqlx_object* obj, zval * return
 {
 	const st_mysqlx_field_metadata* object = (st_mysqlx_field_metadata*)(obj->ptr);
 	DBG_ENTER("mysqlx_field_meta_property__collation");
-	ZVAL_LONG(return_value, object->field_meta->collation);
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->field_meta->collation));
 	DBG_RETURN(return_value);
 }
 /* }}} */

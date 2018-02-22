@@ -100,8 +100,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, __construct)
 /* {{{ proto mixed mysqlx_node_table__delete::where() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, where)
 {
-	st_mysqlx_node_table__delete* object;
-	zval * object_zv;
+	st_mysqlx_node_table__delete* object{nullptr};
+	zval* object_zv{nullptr};
 	zval* where_expr{nullptr};
 
 	DBG_ENTER("mysqlx_node_table__delete::where");
@@ -140,8 +140,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, where)
 /* {{{ proto mixed mysqlx_node_table__delete::orderby() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 {
-	st_mysqlx_node_table__delete* object;
-	zval * object_zv;
+	st_mysqlx_node_table__delete* object{nullptr};
+	zval* object_zv{nullptr};
 	zval* orderby_expr{nullptr};
 	int num_of_expr{0};
 
@@ -178,7 +178,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 			break;
 		case IS_ARRAY:
 			{
-				zval * entry;
+				zval* entry{nullptr};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(orderby_expr[i]), entry)
 				{
 					const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL_P(entry), Z_STRLEN_P(entry)};
@@ -208,8 +208,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, orderby)
 /* {{{ proto mixed mysqlx_node_table__delete::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, limit)
 {
-	st_mysqlx_node_table__delete* object;
-	zval * object_zv;
+	st_mysqlx_node_table__delete* object{nullptr};
+	zval* object_zv{nullptr};
 	zend_long rows;
 
 	DBG_ENTER("mysqlx_node_table__delete::limit");
@@ -246,8 +246,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, limit)
 /* {{{ proto mixed mysqlx_node_table__delete::offset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, offset)
 {
-	st_mysqlx_node_table__delete* object;
-	zval * object_zv;
+	st_mysqlx_node_table__delete* object{nullptr};
+	zval* object_zv{nullptr};
 	zend_long position;
 
 	DBG_ENTER("mysqlx_node_table__delete::offset");
@@ -283,8 +283,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, offset)
 /* {{{ proto mixed mysqlx_node_table__delete::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, bind)
 {
-	st_mysqlx_node_table__delete* object;
-	zval * object_zv;
+	st_mysqlx_node_table__delete* object{nullptr};
+	zval* object_zv{nullptr};
 	HashTable * bind_variables;
 
 	DBG_ENTER("mysqlx_node_table__delete::bind");
@@ -303,7 +303,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, bind)
 	if (object->crud_op)
 	{
 		zend_string * key;
-		zval * val;
+		zval* val{nullptr};
 		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val)
 		{
 			if (key)
@@ -326,8 +326,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, bind)
 /* {{{ proto mixed mysqlx_node_table__delete::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__delete, execute)
 {
-	st_mysqlx_node_table__delete* object;
-	zval * object_zv;
+	st_mysqlx_node_table__delete* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table__delete::execute");
 

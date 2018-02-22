@@ -139,8 +139,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_node_row_result_iterator.h" role="src" />
    <file name="mysqlx_node_schema.cc" role="src" />
    <file name="mysqlx_node_schema.h" role="src" />
-   <file name="mysqlx_node_session.cc" role="src" />
-   <file name="mysqlx_node_session.h" role="src" />
    <file name="mysqlx_node_sql_statement.cc" role="src" />
    <file name="mysqlx_node_sql_statement.h" role="src" />
    <file name="mysqlx_node_sql_statement_result.cc" role="src" />
@@ -513,7 +511,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
  <extsrcrelease>
   <configureoption default="autodetect" name="enable-mysql-xdevapi" prompt="Enable MySQL X DevAPI" />
   <configureoption default="autodetect" name="with-boost" prompt="Point out boost library install dir" />
-  <configureoption default="autodetect" name="with-protobuf" prompt="Point outprotobuf library install dir" />
+  <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
    <release>

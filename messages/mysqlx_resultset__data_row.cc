@@ -35,8 +35,7 @@ extern "C" {
 
 #include "util/object.h"
 
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/wire_format_lite.h>
+#include "protobuf_api.h"
 
 namespace mysqlx {
 
@@ -78,10 +77,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, __construct)
 /* {{{ proto long mysqlx_data_row::decode(object messsage, array metadata) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 {
-	zval * object_zv;
-	zval * metadata_zv;
-	st_mysqlx_data_row* object;
-	st_mysqlx_resultset_metadata* metadata;
+	zval* object_zv{nullptr};
+	zval* metadata_zv{nullptr};
+	st_mysqlx_data_row* object{nullptr};
+	st_mysqlx_resultset_metadata* metadata{nullptr};
 
 	DBG_ENTER("mysqlx_data_row::decode");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
@@ -96,18 +95,14 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 
 	RETVAL_FALSE;
 	{
-		zval * entry;
-		const size_t column_count = zend_hash_num_elements(&metadata->resultset_metadata_ht);
+		zval* entry{nullptr};
+		const unsigned int column_count{zend_hash_num_elements(&metadata->resultset_metadata_ht)};
 		if (!column_count) {
 			php_error_docref(nullptr, E_WARNING, "Zero columns");
 			DBG_VOID_RETURN;
 		}
-		//TODO marines
-        const size_t max_column_count = 256;
-        assert(column_count < max_column_count);
-        //const st_mysqlx_column_metadata* meta_ar[column_count];
-        const st_mysqlx_column_metadata* meta_ar[max_column_count];
-        unsigned int i = 0;
+		util::vector<const st_mysqlx_column_metadata*> meta_ar(column_count, nullptr);
+		unsigned int i{0};
 		/* ZEND_HASH_FOREACH_PTR ?? */
 		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {
@@ -147,9 +142,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 		for (i = 0; i < column_count; ++i) {
 			const Mysqlx::Resultset::ColumnMetaData & meta = meta_ar[i]->message;
 			const uint8_t * buf = reinterpret_cast<const uint8_t*>(object->message.field(i).c_str());
-			const size_t buf_size = object->message.field(i).size();
+			const uint32_t buf_size{static_cast<uint32_t>(object->message.field(i).size())};
 			zval zv;
-			DBG_INF_FMT("buf_size=%u", (uint) buf_size);
+			DBG_INF_FMT("buf_size=%u", static_cast<uint>(buf_size));
 			for (unsigned j{0}; j < buf_size; j++) {
 				DBG_INF_FMT("[%02u]=x%02X", j, buf[j]);
 			}
@@ -173,7 +168,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						} else
 #endif
 						{
-							ZVAL_LONG(&zv, ival);
+							ZVAL_LONG(&zv, static_cast<zend_long>(ival));
 						}
 					} else {
 						php_error_docref(nullptr, E_WARNING, "Error decoding SINT");
@@ -194,7 +189,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 #endif
 							ZVAL_NEW_STR(&zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
 						} else {
-							ZVAL_LONG(&zv, gval);
+							ZVAL_LONG(&zv, static_cast<zend_long>(gval));
 						}
 					} else {
 						php_error_docref(nullptr, E_WARNING, "Error decoding UINT");
@@ -262,11 +257,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					do {
-						if (!input_stream.ReadVarint64(&neg)) break;		DBG_INF_FMT("neg  =" MYSQLND_LLU_SPEC, neg);
-						if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
-						if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
-						if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
-						if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
+						if (!input_stream.ReadVarint64(&neg)) break;
+						DBG_INF_FMT("neg  =" MYSQLND_LLU_SPEC, neg);
+						if (!input_stream.ReadVarint64(&hours)) break;
+						DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
+						if (!input_stream.ReadVarint64(&minutes)) break;
+						DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
+						if (!input_stream.ReadVarint64(&seconds)) break;
+						DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
+						if (!input_stream.ReadVarint64(&useconds)) break;
+						DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
 					} while (0);
 					#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
 					ZVAL_NEW_STR(&zv, strpprintf(0, TIME_FMT_STR , neg? "-":"",
@@ -295,13 +295,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					do {
-						if (!input_stream.ReadVarint64(&year)) break; 		DBG_INF_FMT("year =" MYSQLND_LLU_SPEC, year);
-						if (!input_stream.ReadVarint64(&month)) break;		DBG_INF_FMT("month=" MYSQLND_LLU_SPEC, month);
-						if (!input_stream.ReadVarint64(&day)) break;		DBG_INF_FMT("day  =" MYSQLND_LLU_SPEC, day);
-						if (!input_stream.ReadVarint64(&hours)) break;		DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
-						if (!input_stream.ReadVarint64(&minutes)) break;	DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
-						if (!input_stream.ReadVarint64(&seconds)) break;	DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
-						if (!input_stream.ReadVarint64(&useconds)) break;	DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
+						if (!input_stream.ReadVarint64(&year)) break;
+						DBG_INF_FMT("year =" MYSQLND_LLU_SPEC, year);
+						if (!input_stream.ReadVarint64(&month)) break;
+						DBG_INF_FMT("month=" MYSQLND_LLU_SPEC, month);
+						if (!input_stream.ReadVarint64(&day)) break;
+						DBG_INF_FMT("day  =" MYSQLND_LLU_SPEC, day);
+						if (!input_stream.ReadVarint64(&hours)) break;
+						DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
+						if (!input_stream.ReadVarint64(&minutes)) break;
+						DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
+						if (!input_stream.ReadVarint64(&seconds)) break;
+						DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
+						if (!input_stream.ReadVarint64(&useconds)) break;
+						DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
 					} while (0);
 					#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
 					ZVAL_NEW_STR(&zv, strpprintf(0, DATETIME_FMT_STR ,
@@ -331,13 +338,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 								zval set_entry;
 								DBG_INF_FMT("value length=%3u  rest_buffer_size=%3d", (uint) gval, rest_buffer_size);
-								if (gval > rest_buffer_size) {
+								if ((rest_buffer_size < 0) || (gval > static_cast<decltype(gval)>(rest_buffer_size))) {
 									php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
 									break;
 								}
-								ZVAL_STRINGL(&set_entry, set_value, gval);
+								ZVAL_STRINGL(&set_entry, set_value, static_cast<size_t>(gval));
 								zend_hash_next_index_insert(Z_ARRVAL(zv), &set_entry);
-								if (!input_stream.Skip(gval)) {
+								if (!input_stream.Skip(static_cast<int>(gval))) {
 									break;
 								}
 							}
@@ -373,7 +380,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						*(p++) = '-';
 					}
 					const size_t dot_position = digits - scale - 1;
-					for (unsigned int pos = 0; pos < digits; ++pos) {
+					for (unsigned int pos{0}; pos < digits; ++pos) {
 						const size_t offset = 1 + (pos >> 1);
 						/* if uneven (&0x01) then use the second 4-bits, otherwise shift (>>) the first 4 to the right and then use them */
 						const uint8_t digit = (pos & 0x01 ? buf[offset] : buf[offset] >> 4) & 0x0F;
@@ -405,15 +412,6 @@ static const zend_function_entry mysqlx_data_row_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
-
-
-/* {{{ mysqlx_column_meta_property_entries[] */
-static const struct st_mysqlx_property_entry mysqlx_column_meta_property_entries[] =
-{
-	{{nullptr, 0}, nullptr, nullptr}
-};
-/* }}} */
-
 
 
 static zend_object_handlers mysqlx_object_data_row_handlers;
@@ -496,7 +494,7 @@ mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_data_row(zval * return_value, const Mysqlx::Resultset::Row & message)
 {
-	st_mysqlx_data_row* obj;
+	st_mysqlx_data_row* obj{nullptr};
 	DBG_ENTER("mysqlx_new_data_row");
 	object_init_ex(return_value, mysqlx_data_row_class_entry);
 	MYSQLX_FETCH_MESSAGE__DATA_ROW_FROM_ZVAL(obj, return_value);

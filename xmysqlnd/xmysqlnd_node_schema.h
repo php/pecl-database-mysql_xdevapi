@@ -21,15 +21,16 @@
 #include "xmysqlnd_driver.h"
 #include "util/allocator.h"
 #include "util/strings.h"
+#include "xmysqlnd/xmysqlnd_node_session.h"
 
 namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_session;
+struct st_xmysqlnd_session;
 struct st_xmysqlnd_node_collection;
 struct st_xmysqlnd_node_table;
-struct st_xmysqlnd_node_session_on_error_bind;
+struct st_xmysqlnd_session_on_error_bind;
 
 typedef struct st_xmysqlnd_node_schema		XMYSQLND_NODE_SCHEMA;
 typedef struct st_xmysqlnd_node_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
@@ -50,12 +51,12 @@ struct st_xmysqlnd_node_schema_on_error_bind
 
 typedef enum_func_status (*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA * const schema,
 															const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-															st_xmysqlnd_node_session* const session,
+															XMYSQLND_SESSION const session,
 															const MYSQLND_CSTRING schema_name,
 															MYSQLND_STATS * const stats,
 															MYSQLND_ERROR_INFO * const error_info);
 
-typedef enum_func_status (*func_xmysqlnd_node_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const schema, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status (*func_xmysqlnd_node_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const schema, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 
 typedef st_xmysqlnd_node_collection* (*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 
@@ -121,7 +122,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 
 struct st_xmysqlnd_node_schema_data : public util::permanent_allocable
 {
-	st_xmysqlnd_node_session* session;
+	XMYSQLND_SESSION session;
 	MYSQLND_STRING schema_name;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
@@ -141,7 +142,7 @@ struct st_xmysqlnd_node_schema : public util::permanent_allocable
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_schema);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(st_xmysqlnd_node_session* session,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(XMYSQLND_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,

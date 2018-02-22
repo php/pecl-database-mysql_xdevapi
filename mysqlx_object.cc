@@ -61,7 +61,7 @@ mysqlx_object_get_debug_info(zval *object, int *is_temp)
 	ZEND_HASH_FOREACH_PTR(mysqlx_obj->properties, raw_property) {
 		st_mysqlx_property* property = static_cast<st_mysqlx_property*>(raw_property);
 		zval rv, member;
-		zval *value;
+		zval* value{nullptr};
 
 		ZVAL_STR(&member, property->name);
 

@@ -18,6 +18,11 @@
 #ifndef MYSQL_XDEVAPI_PHP_API_H
 #define MYSQL_XDEVAPI_PHP_API_H
 
+#ifdef PHP_WIN32
+#pragma warning( push )
+#pragma warning( disable : 4018 )
+#endif // PHP_WIN32
+
 extern "C" {
 #include <php.h>
 #undef ERROR
@@ -25,6 +30,10 @@ extern "C" {
 #undef inline
 #undef max
 }
+
+#ifdef PHP_WIN32
+#pragma warning( pop )
+#endif // PHP_WIN32
 
 #endif // MYSQL_XDEVAPI_PHP_API_H
 

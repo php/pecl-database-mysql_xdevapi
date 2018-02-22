@@ -41,8 +41,7 @@ namespace mysqlx {
 
 namespace devapi {
 
-static zend_class_entry *mysqlx_node_base_result_class_entry;
-zend_class_entry * mysqlx_node_base_result_interface_entry;
+zend_class_entry* mysqlx_node_base_result_interface_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_base_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()

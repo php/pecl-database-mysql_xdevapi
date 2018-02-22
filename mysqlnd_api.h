@@ -12,26 +12,20 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_SESSION_H
-#define MYSQLX_NODE_SESSION_H
+#ifndef MYSQL_XDEVAPI_MYSQLND_API_H
+#define MYSQL_XDEVAPI_MYSQLND_API_H
 
-namespace mysqlx {
+extern "C" {
+#include <ext/mysqlnd/mysqlnd.h>
+#include <ext/mysqlnd/mysqlnd_debug.h>
+#include <ext/mysqlnd/mysqlnd_structs.h>
+#include <ext/mysqlnd/mysqlnd_alloc.h>
+}
 
-namespace devapi {
-
-enum_func_status mysqlx_new_node_session(zval * return_value);
-void mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS);
-
-
-} // namespace devapi
-
-} // namespace mysqlx
-
-#endif /* MYSQLX_NODE_SESSION_H */
+#endif // MYSQL_XDEVAPI_MYSQLND_API_H
 
 /*
  * Local variables:

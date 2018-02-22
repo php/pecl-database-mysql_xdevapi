@@ -36,7 +36,6 @@ extern "C" {
 #include "mysqlx_x_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
-#include "mysqlx_node_session.h"
 #include "mysqlx_session.h"
 #include "util/object.h"
 
@@ -73,7 +72,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 
 /* {{{ mysqlx_throw_exception_from_session_if_needed */
 static zend_bool
-mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA * const session)
+mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
 	const unsigned int error_num = session->m->get_error_no(session);
 	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");

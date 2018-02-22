@@ -145,7 +145,7 @@ mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_data_fetch_done(zval * return_value, const Mysqlx::Resultset::FetchDone & message)
 {
-	st_mysqlx_message__data_fetch_done* obj;
+	st_mysqlx_message__data_fetch_done* obj{nullptr};
 	DBG_ENTER("mysqlx_new_data_fetch_done");
 	object_init_ex(return_value, mysqlx_message__data_fetch_done_class_entry);
 	MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_OK_FROM_ZVAL(obj, return_value);

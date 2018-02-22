@@ -62,7 +62,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_expression::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
-	zval * object_zv;
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING expression = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_expression::__construct");

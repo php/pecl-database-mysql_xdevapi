@@ -116,8 +116,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, __construct)
 /* {{{ mysqlx_node_table__select::where */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, where)
 {
-	st_mysqlx_node_table__select* object;
-	zval * object_zv;
+	st_mysqlx_node_table__select* object{nullptr};
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING where_expr = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_table__select::where");
@@ -151,8 +151,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, where)
 static void
 mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
-	st_mysqlx_node_table__select* object;
-	zval * object_zv;
+	st_mysqlx_node_table__select* object{nullptr};
+	zval* object_zv{nullptr};
 	zval* sort_expr{nullptr};
 	int num_of_expr{0};
 
@@ -205,7 +205,7 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 			}
 		case IS_ARRAY:
 			{
-				zval * entry;
+				zval* entry{nullptr};
 				enum_func_status ret{FAIL};
 				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					ret = FAIL;
@@ -262,8 +262,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, groupBy)
 /* {{{ proto mixed mysqlx_node_table__select::having() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, having)
 {
-	st_mysqlx_node_table__select* object;
-	zval * object_zv;
+	st_mysqlx_node_table__select* object{nullptr};
+	zval* object_zv{nullptr};
 	MYSQLND_CSTRING search_condition = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_node_table__select::having");
@@ -293,8 +293,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, having)
 /* {{{ proto mixed mysqlx_node_table__select::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, limit)
 {
-	st_mysqlx_node_table__select* object;
-	zval * object_zv;
+	st_mysqlx_node_table__select* object{nullptr};
+	zval* object_zv{nullptr};
 	zend_long rows;
 
 	DBG_ENTER("mysqlx_node_table__select::limit");
@@ -329,8 +329,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, limit)
 /* {{{ proto mixed mysqlx_node_table__select::offset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, offset)
 {
-	st_mysqlx_node_table__select* object;
-	zval * object_zv;
+	st_mysqlx_node_table__select* object{nullptr};
+	zval* object_zv{nullptr};
 	zend_long position;
 
 	DBG_ENTER("mysqlx_node_table__select::offset");
@@ -365,8 +365,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, offset)
 /* {{{ proto mixed mysqlx_node_table__select::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, bind)
 {
-	st_mysqlx_node_table__select* object;
-	zval * object_zv;
+	st_mysqlx_node_table__select* object{nullptr};
+	zval* object_zv{nullptr};
 	HashTable * bind_variables;
 
 	DBG_ENTER("mysqlx_node_table__select::bind");
@@ -384,7 +384,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, bind)
 
 	if (object->crud_op && object->table) {
 		zend_string * key;
-		zval * val;
+		zval* val{nullptr};
 		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 			if (key) {
 				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
@@ -453,8 +453,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 {
 	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
-	st_mysqlx_node_table__select* object;
-	zval * object_zv;
+	st_mysqlx_node_table__select* object{nullptr};
+	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_node_table__select::execute");
 

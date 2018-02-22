@@ -27,7 +27,8 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_session;
+struct st_xmysqlnd_session;
+typedef std::shared_ptr<st_xmysqlnd_session> XMYSQLND_SESSION;
 struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_warning_list;
@@ -80,7 +81,7 @@ struct st_xmysqlnd_node_stmt_on_statement_ok_bind
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt,
 															 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-															 struct st_xmysqlnd_node_session * const session,
+															 XMYSQLND_SESSION session,
 															 MYSQLND_STATS * const stats,
 															 MYSQLND_ERROR_INFO * const error_info);
 
@@ -185,29 +186,29 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 
 struct st_xmysqlnd_node_stmt_bind_ctx
 {
-	XMYSQLND_NODE_STMT * stmt;
-	MYSQLND_STATS * stats;
-	MYSQLND_ERROR_INFO * error_info;
+	XMYSQLND_NODE_STMT* stmt;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
 	func_xmysqlnd_node_stmt__create_rowset create_rowset;
 	size_t fwd_prefetch_count;
 	size_t prefetch_counter;
-	zval * current_row;
-	struct st_xmysqlnd_rowset * rowset;
-	struct st_xmysqlnd_node_stmt_result_meta * meta;
-	struct st_xmysqlnd_node_stmt_result * result;
-	struct st_xmysqlnd_warning_list * warnings;
-	struct st_xmysqlnd_stmt_execution_state * exec_state;
+	zval* current_row;
+	st_xmysqlnd_rowset* rowset;
+	st_xmysqlnd_node_stmt_result_meta* meta;
+	st_xmysqlnd_node_stmt_result* result;
+	st_xmysqlnd_warning_list* warnings;
+	st_xmysqlnd_stmt_execution_state* exec_state;
 
-	struct st_xmysqlnd_node_stmt_on_row_bind on_row;
-	struct st_xmysqlnd_node_stmt_on_warning_bind on_warning;
-	struct st_xmysqlnd_node_stmt_on_error_bind on_error;
-	struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end;
-	struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok;
+	st_xmysqlnd_node_stmt_on_row_bind on_row;
+	st_xmysqlnd_node_stmt_on_warning_bind on_warning;
+	st_xmysqlnd_node_stmt_on_error_bind on_error;
+	st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end;
+	st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok;
 };
 
 struct st_xmysqlnd_node_stmt_data : public util::permanent_allocable
 {
-	struct st_xmysqlnd_node_session * session;
+	XMYSQLND_SESSION session;
 	struct st_xmysqlnd_msg__sql_stmt_execute msg_stmt_exec;
 
 	struct st_xmysqlnd_node_stmt_bind_ctx read_ctx;
@@ -233,7 +234,7 @@ struct st_xmysqlnd_node_stmt : public util::permanent_allocable
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(struct st_xmysqlnd_node_session * session,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(XMYSQLND_SESSION session,
 													  const zend_bool persistent,
 													  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 													  MYSQLND_STATS * const stats,
