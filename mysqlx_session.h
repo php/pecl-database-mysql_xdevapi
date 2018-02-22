@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_FILIP_SESSION_H
-#define MYSQLX_FILIP_SESSION_H
+#ifndef MYSQLX_SESSION_H
+#define MYSQLX_SESSION_H
 
 namespace mysqlx {
 

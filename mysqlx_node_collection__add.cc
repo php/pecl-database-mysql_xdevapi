@@ -602,15 +602,15 @@ void Collection_add::execute(zval* return_value)
 	}
 
 	if ( execute_ret_status != FAIL && num_of_docs > noop_cnt ) {
-        XMYSQLND_NODE_STMT* stmt = collection->data->m.add(collection,
-											add_op);
-        if( nullptr != stmt ) {
-            stmt->data->assigned_document_ids = doc_ids;
-            stmt->data->num_of_assigned_doc_ids = cur_doc_id_idx;
-		   execute_ret_status =  execute_statement(stmt,return_value);
-        } else {
-            execute_ret_status = FAIL;
-        }
+		XMYSQLND_NODE_STMT* stmt = collection->data->m.add(collection,
+														   add_op);
+		if( nullptr != stmt ) {
+			stmt->data->assigned_document_ids = doc_ids;
+			stmt->data->num_of_assigned_doc_ids = cur_doc_id_idx;
+			execute_ret_status =  execute_statement(stmt,return_value);
+		} else {
+			execute_ret_status = FAIL;
+		}
 	} else {
 		mnd_efree( doc_ids );
 	}
