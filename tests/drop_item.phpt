@@ -37,5 +37,5 @@ Warning: mysql_xdevapi\NodeCollection::dropIndex(): [HY000] Can't DROP 'name_ind
 
 Warning: mysql_xdevapi\NodeSchema::dropCollection(): [HY000] Unknown table '%s.test_collection' in%A
 
-Warning: mysql_xdevapi\BaseSession::dropSchema(): cannot drop schema '%s' in%A
+Warning: mysql_xdevapi\Session::dropSchema(): cannot drop schema '%s' in%A
 done!%A
