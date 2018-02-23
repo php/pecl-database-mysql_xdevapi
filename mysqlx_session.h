@@ -18,14 +18,27 @@
 #ifndef MYSQLX_SESSION_H
 #define MYSQLX_SESSION_H
 
+#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "util/allocator.h"
+
 namespace mysqlx {
 
 namespace devapi {
 
-extern zend_class_entry * mysqlx_session_interface_entry;
+extern zend_class_entry *mysqlx_session_class_entry;
 
-void mysqlx_register_session_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_session_interface(SHUTDOWN_FUNC_ARGS);
+struct st_mysqlx_session : public util::custom_allocable
+{
+	drv::XMYSQLND_SESSION session;
+	zend_bool closed;
+	st_mysqlx_session() = default;
+};
+
+
+enum_func_status mysqlx_new_session(zval * return_value);
+void mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS);
+
 
 } // namespace devapi
 

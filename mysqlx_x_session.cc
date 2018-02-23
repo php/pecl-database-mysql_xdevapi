@@ -32,11 +32,9 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_base_session.h"
 #include "mysqlx_x_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_sql_statement.h"
-#include "mysqlx_node_session.h"
 #include "mysqlx_session.h"
 #include "util/object.h"
 
@@ -73,7 +71,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 
 /* {{{ mysqlx_throw_exception_from_session_if_needed */
 static zend_bool
-mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA * const session)
+mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
 	const unsigned int error_num = session->m->get_error_no(session);
 	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");
@@ -113,7 +111,7 @@ mysqlx_register_x_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_st
 		zend_class_entry tmp_ce;
 		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "XSession", mysqlx_x_session_methods);
 		mysqlx_x_session_class_entry = zend_register_internal_class_ex(
-			&tmp_ce, mysqlx_base_session_class_entry);
+			&tmp_ce, mysqlx_session_class_entry);
 	}
 
 	zend_hash_init(&mysqlx_x_session_properties, 0, nullptr, mysqlx_free_property_cb, 1);

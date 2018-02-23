@@ -53,5 +53,5 @@ mysqlx NodeSchema
 	clean_test_db();
 ?>
 --EXPECTF--
-Warning: mysql_xdevapi\BaseSession::dropSchema(): cannot drop schema '%s' in %a
+Warning: mysql_xdevapi\Session::dropSchema(): cannot drop schema '%s' in %a
 done!%A

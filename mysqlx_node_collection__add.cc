@@ -209,7 +209,7 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, int options, int depth,
 
 /* {{{ prepare_doc_id */
 util::string prepare_doc_id(
-	XMYSQLND_NODE_SESSION *session,
+	XMYSQLND_SESSION session,
 	const util::string_view& single_doc_id)
 {
 	if (single_doc_id.empty()) {
@@ -224,7 +224,7 @@ util::string prepare_doc_id(
 /* {{{ add_unique_id_to_json */
 enum_func_status
 add_unique_id_to_json(
-	XMYSQLND_NODE_SESSION *session,
+	XMYSQLND_SESSION session,
 	const util::string_view& single_doc_id,
 	const st_parse_for_id_status *status,
 	MYSQLND_STRING* to_add,
@@ -332,7 +332,7 @@ extract_document_id(const MYSQLND_STRING json,
 /* {{{ assign_doc_id_to_json */
 MYSQLND_CSTRING
 assign_doc_id_to_json(
-	XMYSQLND_NODE_SESSION* session,
+	XMYSQLND_SESSION session,
 	const util::string_view& single_doc_id,
 	zval* doc)
 {
@@ -603,10 +603,14 @@ void Collection_add::execute(zval* return_value)
 
 	if ( execute_ret_status != FAIL && num_of_docs > noop_cnt ) {
 		XMYSQLND_NODE_STMT* stmt = collection->data->m.add(collection,
-											add_op);
-		stmt->data->assigned_document_ids = doc_ids;
-		stmt->data->num_of_assigned_doc_ids = cur_doc_id_idx;
-		execute_ret_status =  execute_statement(stmt,return_value);
+														   add_op);
+		if( nullptr != stmt ) {
+			stmt->data->assigned_document_ids = doc_ids;
+			stmt->data->num_of_assigned_doc_ids = cur_doc_id_idx;
+			execute_ret_status =  execute_statement(stmt,return_value);
+		} else {
+			execute_ret_status = FAIL;
+		}
 	} else {
 		mnd_efree( doc_ids );
 	}

@@ -42,9 +42,8 @@ extern "C" {
 #include "xmysqlnd_structs.h"
 #include "php_mysqlx.h"
 #include "xmysqlnd_utils.h"
-#include "mysqlx_base_session.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "SAPI.h"
 #include "php_variables.h"
 #include "mysqlx_exception.h"
@@ -56,6 +55,7 @@ extern "C" {
 #include <cctype>
 #include <random>
 #include <chrono>
+#include <memory>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -172,7 +172,7 @@ const char* Auth_method_unspecified = "";
 
 /* {{{ xmysqlnd_throw_exception_from_session_if_needed */
 zend_bool
-xmysqlnd_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA * const session)
+xmysqlnd_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
 	const unsigned int error_num = session->m->get_error_no(session);
 	DBG_ENTER("xmysqlnd_throw_exception_from_session_if_needed");
@@ -190,32 +190,32 @@ xmysqlnd_throw_exception_from_session_if_needed(const XMYSQLND_NODE_SESSION_DATA
 
 } // anonymous namespace
 
-const st_xmysqlnd_node_session_query_bind_variable_bind noop__var_binder = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_result_start_bind noop__on_result_start = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_row_bind noop__on_row = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_warning_bind noop__on_warning = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_error_bind noop__on_error = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_result_end_bind noop__on_result_end = { nullptr, nullptr };
-const st_xmysqlnd_node_session_on_statement_ok_bind noop__on_statement_ok = { nullptr, nullptr };
+const st_xmysqlnd_session_query_bind_variable_bind noop__var_binder = { nullptr, nullptr };
+const st_xmysqlnd_session_on_result_start_bind noop__on_result_start = { nullptr, nullptr };
+const st_xmysqlnd_session_on_row_bind noop__on_row = { nullptr, nullptr };
+const st_xmysqlnd_session_on_warning_bind noop__on_warning = { nullptr, nullptr };
+const st_xmysqlnd_session_on_error_bind noop__on_error = { nullptr, nullptr };
+const st_xmysqlnd_session_on_result_end_bind noop__on_result_end = { nullptr, nullptr };
+const st_xmysqlnd_session_on_statement_ok_bind noop__on_statement_ok = { nullptr, nullptr };
 
 namespace {
 
-/* {{{ xmysqlnd_node_session_state::get */
-enum xmysqlnd_node_session_state
-XMYSQLND_METHOD(xmysqlnd_node_session_state, get)(const XMYSQLND_NODE_SESSION_STATE * const state_struct)
+/* {{{ xmysqlnd_session_state::get */
+enum xmysqlnd_session_state
+XMYSQLND_METHOD(xmysqlnd_session_state, get)(const XMYSQLND_SESSION_STATE * const state_struct)
 {
-	DBG_ENTER("xmysqlnd_node_session_state::get");
+	DBG_ENTER("xmysqlnd_session_state::get");
 	DBG_INF_FMT("State=%u", state_struct->state);
 	DBG_RETURN(state_struct->state);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_state::set */
+/* {{{ xmysqlnd_session_state::set */
 void
-XMYSQLND_METHOD(xmysqlnd_node_session_state, set)(XMYSQLND_NODE_SESSION_STATE * const state_struct, const enum xmysqlnd_node_session_state state)
+XMYSQLND_METHOD(xmysqlnd_session_state, set)(XMYSQLND_SESSION_STATE * const state_struct, const enum xmysqlnd_session_state state)
 {
-	DBG_ENTER("xmysqlnd_node_session_state::set");
+	DBG_ENTER("xmysqlnd_session_state::set");
 	DBG_INF_FMT("New state=%u", state);
 	state_struct->state = state;
 	DBG_VOID_RETURN;
@@ -223,81 +223,160 @@ XMYSQLND_METHOD(xmysqlnd_node_session_state, set)(XMYSQLND_NODE_SESSION_STATE * 
 /* }}} */
 
 
-MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_state)
-	XMYSQLND_METHOD(xmysqlnd_node_session_state, get),
-	XMYSQLND_METHOD(xmysqlnd_node_session_state, set),
+MYSQLND_CLASS_METHODS_START(xmysqlnd_session_state)
+	XMYSQLND_METHOD(xmysqlnd_session_state, get),
+	XMYSQLND_METHOD(xmysqlnd_session_state, set),
 MYSQLND_CLASS_METHODS_END;
 
 } // anonymous namespace
 
-/* {{{ xmysqlnd_node_session_state_init */
+/* {{{ xmysqlnd_session_state_init */
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_node_session_state_init(XMYSQLND_NODE_SESSION_STATE * const state)
+xmysqlnd_session_state_init(XMYSQLND_SESSION_STATE * const state)
 {
-	DBG_ENTER("xmysqlnd_node_session_state_init");
-	state->m = &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_node_session_state);
-	state->state = NODE_SESSION_ALLOCED;
+		DBG_ENTER("xmysqlnd_session_state_init");
+		state->m = &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_session_state);
+		state->state = SESSION_ALLOCATED;
+        DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_session_data::st_xmysqlnd_session_data */
+st_xmysqlnd_session_data::st_xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+						MYSQLND_STATS * mysqlnd_stats,
+						MYSQLND_ERROR_INFO * mysqlnd_error_info)
+{
+	DBG_ENTER("xmysqlnd_session_data::st_xmysqlnd_session_data");
+	object_factory = factory;
+
+	if (error_info) {
+		error_info = mysqlnd_error_info? mysqlnd_error_info : &error_info_impl;
+	} else {
+		if (FAIL == mysqlnd_error_info_init(&error_info_impl, persistent)) {
+			throw std::runtime_error("mysqlnd_error_info_init failed");
+		}
+		error_info = &error_info_impl;
+	}
+
+	xmysqlnd_session_state_init(&state);
+
+	if (stats) {
+		stats = mysqlnd_stats;
+		own_stats = FALSE;
+	} else {
+		mysqlnd_stats_init(&stats, STAT_LAST, persistent);
+		own_stats = TRUE;
+	}
+
+	io.pfc = xmysqlnd_pfc_create(persistent, object_factory, mysqlnd_stats, error_info);
+	io.vio = mysqlnd_vio_init(persistent, nullptr, mysqlnd_stats, error_info);
+	charset = mysqlnd_find_charset_name(XMYSQLND_NODE_SESSION_CHARSET);
+
+	if (!io.pfc || !io.vio || !charset) {
+		cleanup();
+		free_contents();
+		throw std::runtime_error("Unable to create the object");
+	}
+
+	savepoint_name_seed = 1;
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
-namespace {
 
-/* {{{ xmysqlnd_node_session_data::init */
-enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, init)(XMYSQLND_NODE_SESSION_DATA * object,
-												 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-												 MYSQLND_STATS * stats,
-												 MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_session_data::~st_xmysqlnd_session_data */
+st_xmysqlnd_session_data::~st_xmysqlnd_session_data()
 {
-	DBG_ENTER("xmysqlnd_node_session_data::init");
-
-	object->object_factory = factory;
-
-	if (error_info) {
-		object->error_info = error_info? error_info : &object->error_info_impl;
-	} else {
-		if (FAIL == mysqlnd_error_info_init(&object->error_info_impl, object->persistent)) {
-			DBG_RETURN(FAIL);
-		}
-		object->error_info = &object->error_info_impl;
+	DBG_ENTER("xmysqlnd_session_data::~st_xmysqlnd_session_data");
+	if( m ) {
+		m->send_close(this);
 	}
-
-	object->options = &(object->options_impl);
-
-	xmysqlnd_node_session_state_init(&object->state);
-
-	if (stats) {
-		object->stats = stats;
-		object->own_stats = FALSE;
-	} else {
-		mysqlnd_stats_init(&object->stats, STAT_LAST, object->persistent);
-		object->own_stats = TRUE;
-	}
-
-	object->io.pfc = xmysqlnd_pfc_create(object->persistent, object->object_factory, object->stats, object->error_info);
-	object->io.vio = mysqlnd_vio_init(object->persistent, nullptr, object->stats, object->error_info);
-
-	object->charset = mysqlnd_find_charset_name(XMYSQLND_NODE_SESSION_CHARSET);
-
-	if (!object->io.pfc || !object->io.vio || !object->charset) {
-		DBG_RETURN(FAIL);
-	}
-
-	object->savepoint_name_seed = 1;
-	DBG_RETURN(PASS);
+	cleanup();
+	free_contents();
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::get_scheme */
+/* {{{ xmysqlnd_session_data::cleanup */
+void st_xmysqlnd_session_data::cleanup()
+{
+	DBG_ENTER("xmysqlnd_session_data::reset");
+	zend_bool pers = persistent;
+
+	if (io.pfc) {
+		io.pfc->data->m.free_contents(io.pfc);
+	}
+
+	if (io.vio) {
+		io.vio->data->m.free_contents(io.vio);
+	}
+
+	DBG_INF("Freeing memory of members");
+
+	if(auth) {
+		delete auth;
+		auth = nullptr;
+	}
+	if (current_db.s) {
+		mnd_pefree(current_db.s, pers);
+		current_db.s = nullptr;
+	}
+
+	m->free_options(this);
+
+	if (scheme.s) {
+		mnd_pefree(scheme.s, pers);
+		scheme.s = nullptr;
+	}
+	if (server_host_info) {
+		mnd_pefree(server_host_info, pers);
+		server_host_info = nullptr;
+	}
+	if (error_info->error_list) {
+		zend_llist_clean(error_info->error_list);
+		mnd_pefree(error_info->error_list, pers);
+		error_info->error_list = nullptr;
+	}
+	charset = nullptr;
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_session_data::free_contents */
+void st_xmysqlnd_session_data::free_contents()
+{
+	DBG_ENTER("xmysqlnd_session_data::free_contents");
+	if( io.pfc ) {
+		xmysqlnd_pfc_free(io.pfc, stats, error_info);
+		io.pfc = nullptr;
+	}
+	if (io.vio) {
+		mysqlnd_vio_free(io.vio, stats, error_info);
+		io.vio = nullptr;
+	}
+	if (stats && own_stats) {
+		mysqlnd_stats_end(stats, persistent);
+		stats = nullptr;
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+namespace {
+
+/* {{{ xmysqlnd_session_data::get_scheme */
 MYSQLND_STRING
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DATA * session,
-												const util::string& hostname,
-												unsigned int port)
+XMYSQLND_METHOD(xmysqlnd_session_data, get_scheme)(XMYSQLND_SESSION_DATA session,
+                                                        const util::string& hostname,
+                                                        unsigned int port)
 {
 	MYSQLND_STRING transport;
-	DBG_ENTER("xmysqlnd_node_session_data::get_scheme");
+	DBG_ENTER("xmysqlnd_session_data::get_scheme");
 	/* MY-305: Add support for windows pipe */
 	if( session->transport_type == transport_types::network ) {
 		if (!port) {
@@ -334,9 +413,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme)(XMYSQLND_NODE_SESSION_DA
 
 /* {{{ xmysqlnd_node_stmt::handler_on_warning */
 const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
-	XMYSQLND_NODE_SESSION_DATA * session = (XMYSQLND_NODE_SESSION_DATA *) context;
+		st_xmysqlnd_session_data * session = (st_xmysqlnd_session_data *) context;
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_error");
 	if (session->error_info) {
 		SET_CLIENT_ERROR(session->error_info, code, sql_state.s, message.s);
@@ -348,7 +427,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_error)(void * context, co
 
 struct st_xmysqlnd_auth_41_ctx
 {
-	XMYSQLND_NODE_SESSION_DATA * session;
+		XMYSQLND_SESSION_DATA session;
 	MYSQLND_CSTRING scheme;
 	util::string username;
 	util::string password;
@@ -361,7 +440,7 @@ const char hexconvtab[] = "0123456789abcdef";
 
 /* {{{ xmysqlnd_node_stmt::handler_on_auth_continue */
 const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * context,
+XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_auth_continue)(void * context,
 																const MYSQLND_CSTRING input,
 																MYSQLND_STRING * const output)
 {
@@ -414,22 +493,22 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue)(void * con
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::get_client_id */
+/* {{{ xmysqlnd_session_data::get_client_id */
 size_t
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_client_id)(const XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, get_client_id)(const XMYSQLND_SESSION_DATA session)
 {
 	return session? session->client_id : 0;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::set_client_id */
+/* {{{ xmysqlnd_session_data::set_client_id */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_id)(void * context, const size_t id)
+XMYSQLND_METHOD(xmysqlnd_session_data, set_client_id)(void * context, const size_t id)
 {
 	enum_func_status ret{FAIL};
-	XMYSQLND_NODE_SESSION_DATA * session = (XMYSQLND_NODE_SESSION_DATA *) context;
-	DBG_ENTER("xmysqlnd_node_session_data::set_client_id");
+		st_xmysqlnd_session_data * session = (st_xmysqlnd_session_data *) context;
+	DBG_ENTER("xmysqlnd_session_data::set_client_id");
 	DBG_INF_FMT("id=" MYSQLND_LLU_SPEC, id);
 	if (context) {
 		session->client_id = id;
@@ -478,7 +557,7 @@ xmysqlnd_is_mysql41_supported(const zval * capabilities)
 /* {{{ setup_crypto_options */
 void setup_crypto_options(
 		php_stream_context* stream_context,
-		XMYSQLND_NODE_SESSION_DATA * session)
+				XMYSQLND_SESSION_DATA session)
 {
 	DBG_ENTER("setup_crypto_options");
 	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
@@ -539,14 +618,14 @@ void setup_crypto_options(
 
 /* {{{ setup_crypto_connection */
 enum_func_status setup_crypto_connection(
-		XMYSQLND_NODE_SESSION_DATA * session,
+				XMYSQLND_SESSION_DATA session,
 		st_xmysqlnd_msg__capabilities_get& caps_get,
 		const st_xmysqlnd_message_factory& msg_factory)
 {
 	DBG_ENTER("setup_crypto_connection");
 	enum_func_status ret{FAIL};
 	const struct st_xmysqlnd_on_error_bind on_error =
-			{ session->m->handler_on_error, (void*) session };
+                        { session->m->handler_on_error, (void*) session.get() };
 	//Attempt to set the TLS capa. flag.
 	st_xmysqlnd_msg__capabilities_set caps_set;
 	caps_set = msg_factory.get__capabilities_set(&msg_factory);
@@ -612,7 +691,7 @@ enum_func_status setup_crypto_connection(
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::authenticate */
+/* {{{ xmysqlnd_session_data::authenticate */
 util::string auth_mode_to_str(const Auth_mode auth_mode)
 {
 	using auth_mode_to_label = std::map<Auth_mode, std::string>;
@@ -628,10 +707,10 @@ util::string auth_mode_to_str(const Auth_mode auth_mode)
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::authenticate */
+/* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
-						XMYSQLND_NODE_SESSION_DATA * session,
+XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
+												XMYSQLND_SESSION_DATA session,
 						const MYSQLND_CSTRING scheme,
 						const MYSQLND_CSTRING database,
 						const size_t set_capabilities)
@@ -639,15 +718,15 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 	enum_func_status ret{FAIL};
 	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
-	const struct st_xmysqlnd_on_error_bind on_error = { session->m->handler_on_error, (void*) session };
-	const struct st_xmysqlnd_on_client_id_bind on_client_id = { session->m->set_client_id, (void*) session };
-	const struct st_xmysqlnd_on_warning_bind on_warning = { nullptr, (void*) session };
-	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, (void*) session };
+        const struct st_xmysqlnd_on_error_bind on_error = { session->m->handler_on_error, (void*) session.get() };
+        const struct st_xmysqlnd_on_client_id_bind on_client_id = { session->m->set_client_id, (void*) session.get() };
+        const struct st_xmysqlnd_on_warning_bind on_warning = { nullptr, (void*) session.get() };
+        const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, (void*) session.get() };
 	struct st_xmysqlnd_auth_41_ctx auth_ctx = { session, scheme, auth->username, auth->password, database };
 	const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue = { session->m->handler_on_auth_continue, &auth_ctx };
 
 	struct st_xmysqlnd_msg__capabilities_get caps_get;
-	DBG_ENTER("xmysqlnd_node_session_data::authenticate");
+	DBG_ENTER("xmysqlnd_session_data::authenticate");
 
 	caps_get = msg_factory.get__capabilities_get(&msg_factory);
 
@@ -727,15 +806,15 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate)(
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::connect_handshake */
+/* {{{ xmysqlnd_session_data::connect_handshake */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SESSION_DATA * session,
+XMYSQLND_METHOD(xmysqlnd_session_data, connect_handshake)(XMYSQLND_SESSION_DATA session,
 						const MYSQLND_CSTRING scheme,
 						const MYSQLND_CSTRING database,
 						const size_t set_capabilities)
 {
 	enum_func_status ret{FAIL};
-	DBG_ENTER("xmysqlnd_node_session_data::connect_handshake");
+	DBG_ENTER("xmysqlnd_session_data::connect_handshake");
 
 	if (PASS == session->io.vio->data->m.connect(session->io.vio,
 									scheme,
@@ -745,7 +824,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake)(XMYSQLND_NODE_SES
 		PASS == session->io.pfc->data->m.reset(session->io.pfc,
 									session->stats,
 									session->error_info)) {
-		SET_CONNECTION_STATE(&session->state, NODE_SESSION_NON_AUTHENTICATED);
+		SET_CONNECTION_STATE(&session->state, SESSION_NON_AUTHENTICATED);
 		ret = session->m->authenticate(session, scheme, database, set_capabilities);
 	}
 	DBG_RETURN(ret);
@@ -765,21 +844,21 @@ char* get_server_host_info(const util::string& format,
 	return host_info;
 }
 
-/* {{{ xmysqlnd_node_session_data::connect */
+/* {{{ xmysqlnd_session_data::connect */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA * session,
+XMYSQLND_METHOD(xmysqlnd_session_data, connect)(XMYSQLND_SESSION_DATA session,
 						MYSQLND_CSTRING database,
 						unsigned int port,
 						size_t set_capabilities)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), connect);
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data), connect);
 	zend_bool reconnect{FALSE};
 	MYSQLND_STRING transport = { nullptr, 0 };
 	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
 	enum_func_status ret{PASS};
 
-	DBG_ENTER("xmysqlnd_node_session_data::connect");
-	DBG_INF_FMT("session=%p", session);
+	DBG_ENTER("xmysqlnd_session_data::connect");
+	DBG_INF_FMT("session=%p", session.get());
 
 	SET_EMPTY_ERROR(session->error_info);
 
@@ -790,16 +869,16 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 				session? session->persistent:0,
 				session? GET_SESSION_STATE(&session->state):-1);
 
-	if (GET_SESSION_STATE(&session->state) > NODE_SESSION_ALLOCED) {
+	if (GET_SESSION_STATE(&session->state) > SESSION_ALLOCATED) {
 		DBG_INF("Connecting on a connected handle.");
 
-		if (GET_SESSION_STATE(&session->state) < NODE_SESSION_CLOSE_SENT) {
+		if (GET_SESSION_STATE(&session->state) < SESSION_CLOSE_SENT) {
 			XMYSQLND_INC_SESSION_STATISTIC(session->stats, XMYSQLND_STAT_CLOSE_IMPLICIT);
 			reconnect = TRUE;
-			session->m->send_close(session);
+			session->m->send_close(session.get());
 		}
 
-		session->m->free_contents(session);
+		session->cleanup();
 	}
 
 	/* Setup the relevant variables! */
@@ -840,7 +919,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 
 	/* Setup server host information */
 	if( ret == PASS ) {
-		SET_CONNECTION_STATE(&session->state, NODE_SESSION_READY);
+		SET_CONNECTION_STATE(&session->state, SESSION_READY);
 		transport_types transport = session->transport_type;
 
 		if ( transport == transport_types::network ) {
@@ -897,7 +976,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 			php_error_docref(nullptr, E_WARNING, "[%u] %.128s (trying to connect via %s)",
 					session->error_info->error_no, session->error_info->error, session->scheme.s);
 		}
-		session->m->free_contents(session);
+		session->cleanup();
 		XMYSQLND_INC_SESSION_STATISTIC(session->stats, XMYSQLND_STAT_CONNECT_FAILURE);
 	}
 
@@ -906,13 +985,16 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, connect)(XMYSQLND_NODE_SESSION_DATA 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::escape_string */
+/* {{{ xmysqlnd_session_data::escape_string */
 size_t
-XMYSQLND_METHOD(xmysqlnd_node_session_data, escape_string)(XMYSQLND_NODE_SESSION_DATA * const session, char * newstr, const char * to_escapestr, const size_t to_escapestr_len)
+XMYSQLND_METHOD(xmysqlnd_session_data, escape_string)(XMYSQLND_SESSION_DATA  session,
+                                                           char * newstr,
+                                                           const char * to_escapestr,
+                                                           const size_t to_escapestr_len)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), escape_string);
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data), escape_string);
 	zend_ulong ret{FAIL};
-	DBG_ENTER("xmysqlnd_node_session_data::escape_string");
+	DBG_ENTER("xmysqlnd_session_data::escape_string");
 
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		ret = mysqlnd_cset_escape_slashes(session->charset, newstr, to_escapestr, to_escapestr_len);
@@ -923,12 +1005,13 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, escape_string)(XMYSQLND_NODE_SESSION
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::quote_name */
+/* {{{ xmysqlnd_session_data::quote_name */
 MYSQLND_STRING
-XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DATA * session, const MYSQLND_CSTRING name)
+XMYSQLND_METHOD(xmysqlnd_session_data, quote_name)(XMYSQLND_SESSION_DATA session,
+                                                        const MYSQLND_CSTRING name)
 {
 	MYSQLND_STRING ret = { nullptr, 0 };
-	DBG_ENTER("xmysqlnd_node_session_data::quote_name");
+	DBG_ENTER("xmysqlnd_session_data::quote_name");
 	DBG_INF_FMT("name=%s", name.s);
 	if (name.s && name.l) {
 		unsigned int occurs{0};
@@ -960,67 +1043,69 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name)(XMYSQLND_NODE_SESSION_DA
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::get_error_no */
+/* {{{ xmysqlnd_session_data::get_error_no */
 unsigned int
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_error_no)(const XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, get_error_no)(const XMYSQLND_SESSION_DATA session)
 {
 	return session->error_info->error_no;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::error */
+/* {{{ xmysqlnd_session_data::error */
 const char *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_error)(const XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, get_error)(const XMYSQLND_SESSION_DATA session)
 {
 	return session->error_info->error;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::sqlstate */
+/* {{{ xmysqlnd_session_data::sqlstate */
 const char *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, sqlstate)(const XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, sqlstate)(const XMYSQLND_SESSION_DATA session)
 {
 	return session->error_info->sqlstate[0] ? session->error_info->sqlstate : MYSQLND_SQLSTATE_NULL;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::get_host_info */
+/* {{{ xmysqlnd_session_data::get_host_info */
 const char *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_server_host_info)(const XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, get_server_host_info)(const XMYSQLND_SESSION_DATA session)
 {
 	return session->server_host_info;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::get_protocol_info */
+/* {{{ xmysqlnd_session_data::get_protocol_info */
 const char *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_protocol_info)(const XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, get_protocol_info)(const XMYSQLND_SESSION_DATA session)
 {
 	return "X Protocol";
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::get_charset_name */
+/* {{{ xmysqlnd_session_data::get_charset_name */
 const char *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_charset_name)(const XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, get_charset_name)(const XMYSQLND_SESSION_DATA session)
 {
 	return session->charset->name;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::set_server_option */
+/* {{{ xmysqlnd_session_data::set_server_option */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, set_server_option)(XMYSQLND_NODE_SESSION_DATA * const session, const enum_xmysqlnd_server_option option, const char * const value)
+XMYSQLND_METHOD(xmysqlnd_session_data, set_server_option)(XMYSQLND_SESSION_DATA  session,
+                                                               const enum_xmysqlnd_server_option option,
+                                                               const char * const value)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), set_server_option);
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data), set_server_option);
 	enum_func_status ret{FAIL};
-	DBG_ENTER("xmysqlnd_node_session_data::set_server_option");
+	DBG_ENTER("xmysqlnd_session_data::set_server_option");
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		/* Handle COM_SET_OPTION here */
 
@@ -1031,13 +1116,15 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, set_server_option)(XMYSQLND_NODE_SES
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::set_client_option */
+/* {{{ xmysqlnd_session_data::set_client_option */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_option)(XMYSQLND_NODE_SESSION_DATA * const session, enum_xmysqlnd_client_option option, const char * const value)
+XMYSQLND_METHOD(xmysqlnd_session_data, set_client_option)(XMYSQLND_SESSION_DATA session,
+                                                               enum_xmysqlnd_client_option option,
+                                                               const char * const value)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), set_client_option);
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data), set_client_option);
 	enum_func_status ret{PASS};
-	DBG_ENTER("xmysqlnd_node_session_data::set_client_option");
+	DBG_ENTER("xmysqlnd_session_data::set_client_option");
 	DBG_INF_FMT("option=%u", option);
 
 	if (PASS != session->m->local_tx_start(session, this_func)) {
@@ -1059,146 +1146,36 @@ end:
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::free_contents */
+/* {{{ xmysqlnd_session_data::free_options */
 void
-XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents)(XMYSQLND_NODE_SESSION_DATA * session)
+XMYSQLND_METHOD(xmysqlnd_session_data, free_options)(st_xmysqlnd_session_data * session)
 {
-	zend_bool pers = session->persistent;
-
-	DBG_ENTER("xmysqlnd_node_session_data::free_contents");
-
-	if (session->io.pfc) {
-		session->io.pfc->data->m.free_contents(session->io.pfc);
-	}
-
-	if (session->io.vio) {
-		session->io.vio->data->m.free_contents(session->io.vio);
-	}
-
-	DBG_INF("Freeing memory of members");
-
-	if(session->auth) {
-		delete session->auth;
-		session->auth = nullptr;
-	}
-	if (session->current_db.s) {
-		mnd_pefree(session->current_db.s, pers);
-		session->current_db.s = nullptr;
-	}
-	DBG_INF_FMT("scheme=%s", session->scheme.s);
-	if (session->scheme.s) {
-		mnd_pefree(session->scheme.s, pers);
-		session->scheme.s = nullptr;
-	}
-	if (session->server_host_info) {
-		mnd_pefree(session->server_host_info, pers);
-		session->server_host_info = nullptr;
-	}
-	if (session->error_info->error_list) {
-		zend_llist_clean(session->error_info->error_list);
-		mnd_pefree(session->error_info->error_list, pers);
-		session->error_info->error_list = nullptr;
-	}
-	session->charset = nullptr;
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session_data::dtor */
-void
-XMYSQLND_METHOD(xmysqlnd_node_session_data, dtor)(XMYSQLND_NODE_SESSION_DATA * session)
-{
-	DBG_ENTER("xmysqlnd_node_session_data::dtor");
-
-	session->m->free_contents(session);
-	session->m->free_options(session);
-
-	if (session->io.pfc) {
-		xmysqlnd_pfc_free(session->io.pfc, session->stats, session->error_info);
-		session->io.pfc = nullptr;
-	}
-
-	if (session->io.vio) {
-		mysqlnd_vio_free(session->io.vio, session->stats, session->error_info);
-		session->io.vio = nullptr;
-	}
-
-	if (session->stats && session->own_stats) {
-		mysqlnd_stats_end(session->stats, session->persistent);
-	}
-
-	mnd_pefree(session, session->persistent);
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session_data::free_options */
-void
-XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options)(XMYSQLND_NODE_SESSION_DATA * session)
-{
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session_data::get_reference */
-XMYSQLND_NODE_SESSION_DATA *
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_reference)(XMYSQLND_NODE_SESSION_DATA * const session)
-{
-	DBG_ENTER("xmysqlnd_node_session_data::get_reference");
-	++session->refcount;
-	DBG_INF_FMT("session=%p new_refcount=%u", session, session->refcount);
-	DBG_RETURN(session);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session_data::free_reference */
-enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, free_reference)(XMYSQLND_NODE_SESSION_DATA * const session)
-{
-	enum_func_status ret{PASS};
-	DBG_ENTER("xmysqlnd_node_session_data::free_reference");
-	DBG_INF_FMT("session=%p old_refcount=%u", session, session->refcount);
-	if (!(--session->refcount)) {
-		/*
-		  No multithreading issues as we don't share the connection :)
-		  This will free the object too, of course because references has
-		  reached zero.
-		*/
-		ret = session->m->send_close(session);
-		session->m->dtor(session);
-	}
-	DBG_RETURN(ret);
 }
 /* }}} */
 
 
 /* {{{ mysqlnd_send_close */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, send_close)(st_xmysqlnd_session_data * session)
 {
 	enum_func_status ret{PASS};
 	MYSQLND_VIO * vio = session->io.vio;
 	php_stream * net_stream = vio->data->m.get_stream(vio);
-	const enum xmysqlnd_node_session_state state = GET_SESSION_STATE(&session->state);
+	const enum xmysqlnd_session_state state = GET_SESSION_STATE(&session->state);
 
 	DBG_ENTER("mysqlnd_send_close");
 	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", session, net_stream? net_stream->abstract:nullptr);
 	DBG_INF_FMT("state=%u", state);
 
-	if (state >= NODE_SESSION_NON_AUTHENTICATED) {
+	if (state >= SESSION_NON_AUTHENTICATED) {
 		XMYSQLND_DEC_GLOBAL_STATISTIC(XMYSQLND_STAT_OPENED_CONNECTIONS);
 		if (session->persistent) {
 			XMYSQLND_DEC_GLOBAL_STATISTIC(XMYSQLND_STAT_OPENED_PERSISTENT_CONNECTIONS);
 		}
 	}
 	switch (state) {
-		case NODE_SESSION_NON_AUTHENTICATED:
-		case NODE_SESSION_READY: {
+		case SESSION_NON_AUTHENTICATED:
+		case SESSION_READY: {
 			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
 			struct st_xmysqlnd_msg__connection_close conn_close_msg = msg_factory.get__connection_close(&msg_factory);
 			DBG_INF("Connection clean, sending CON_CLOSE");
@@ -1209,19 +1186,19 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DA
 				/* HANDLE COM_QUIT here */
 				vio->data->m.close_stream(vio, session->stats, session->error_info);
 			}
-			SET_SESSION_STATE(&session->state, NODE_SESSION_CLOSE_SENT);
+			SET_SESSION_STATE(&session->state, SESSION_CLOSE_SENT);
 			break;
 		}
-		case NODE_SESSION_ALLOCED:
+		case SESSION_ALLOCATED:
 			/*
 			  Allocated but not connected or there was failure when trying
 			  to connect with pre-allocated connect.
 
 			  Fall-through
 			*/
-			SET_SESSION_STATE(&session->state, NODE_SESSION_CLOSE_SENT);
+			SET_SESSION_STATE(&session->state, SESSION_CLOSE_SENT);
 			/* Fall-through */
-		case NODE_SESSION_CLOSE_SENT:
+		case SESSION_CLOSE_SENT:
 			/* The user has killed its own connection */
 			vio->data->m.close_stream(vio, session->stats, session->error_info);
 			break;
@@ -1232,19 +1209,19 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close)(XMYSQLND_NODE_SESSION_DA
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::ssl_set */
+/* {{{ xmysqlnd_session_data::ssl_set */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, ssl_set)(XMYSQLND_NODE_SESSION_DATA * const session,
-													const char * const key,
-													const char * const cert,
-													const char * const ca,
-													const char * const capath,
-													const char * const cipher)
+XMYSQLND_METHOD(xmysqlnd_session_data, ssl_set)(XMYSQLND_SESSION_DATA session,
+                                                        const char * const key,
+                                                        const char * const cert,
+                                                        const char * const ca,
+                                                        const char * const capath,
+                                                        const char * const cipher)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data), ssl_set);
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data), ssl_set);
 	enum_func_status ret{FAIL};
 	MYSQLND_VIO * vio = session->io.vio;
-	DBG_ENTER("xmysqlnd_node_session_data::ssl_set");
+	DBG_ENTER("xmysqlnd_session_data::ssl_set");
 
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		ret = (PASS == vio->data->m.set_client_option(vio, MYSQLND_OPT_SSL_KEY, key) &&
@@ -1260,32 +1237,32 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, ssl_set)(XMYSQLND_NODE_SESSION_DATA 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::local_tx_start */
+/* {{{ xmysqlnd_session_data::local_tx_start */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, local_tx_start)(XMYSQLND_NODE_SESSION_DATA * session, const size_t this_func)
+XMYSQLND_METHOD(xmysqlnd_session_data, local_tx_start)(XMYSQLND_SESSION_DATA session, const size_t this_func)
 {
-	DBG_ENTER("xmysqlnd_node_session_data::local_tx_start");
+	DBG_ENTER("xmysqlnd_session_data::local_tx_start");
 	DBG_RETURN(PASS);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::local_tx_end */
+/* {{{ xmysqlnd_session_data::local_tx_end */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session_data, local_tx_end)(XMYSQLND_NODE_SESSION_DATA * session, const size_t this_func, const enum_func_status status)
+XMYSQLND_METHOD(xmysqlnd_session_data, local_tx_end)(XMYSQLND_SESSION_DATA session, const size_t this_func, const enum_func_status status)
 {
-	DBG_ENTER("xmysqlnd_node_session_data::local_tx_end");
+	DBG_ENTER("xmysqlnd_session_data::local_tx_end");
 	DBG_RETURN(status);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::negotiate_client_api_capabilities */
+/* {{{ xmysqlnd_session_data::negotiate_client_api_capabilities */
 size_t
-XMYSQLND_METHOD(xmysqlnd_node_session_data, negotiate_client_api_capabilities)(XMYSQLND_NODE_SESSION_DATA * const session, const size_t flags)
+XMYSQLND_METHOD(xmysqlnd_session_data, negotiate_client_api_capabilities)(XMYSQLND_SESSION_DATA session, const size_t flags)
 {
 	size_t ret{0};
-	DBG_ENTER("xmysqlnd_node_session_data::negotiate_client_api_capabilities");
+	DBG_ENTER("xmysqlnd_session_data::negotiate_client_api_capabilities");
 	if (session) {
 		ret = session->client_api_capabilities;
 		session->client_api_capabilities = flags;
@@ -1296,96 +1273,101 @@ XMYSQLND_METHOD(xmysqlnd_node_session_data, negotiate_client_api_capabilities)(X
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_data::get_client_api_capabilities */
+/* {{{ xmysqlnd_session_data::get_client_api_capabilities */
 size_t
-XMYSQLND_METHOD(xmysqlnd_node_session_data, get_client_api_capabilities)(const XMYSQLND_NODE_SESSION_DATA * const session)
+XMYSQLND_METHOD(xmysqlnd_session_data, get_client_api_capabilities)(const XMYSQLND_SESSION_DATA session)
 {
-	DBG_ENTER("xmysqlnd_node_session_data::get_client_api_capabilities");
+	DBG_ENTER("xmysqlnd_session_data::get_client_api_capabilities");
 	DBG_RETURN(session? session->client_api_capabilities : 0);
 }
 /* }}} */
 
-MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session_data)
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, init),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_scheme),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, connect_handshake),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, authenticate),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, connect),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, escape_string),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, quote_name),
+MYSQLND_CLASS_METHODS_START(xmysqlnd_session_data)
+	XMYSQLND_METHOD(xmysqlnd_session_data, get_scheme),
+	XMYSQLND_METHOD(xmysqlnd_session_data, connect_handshake),
+	XMYSQLND_METHOD(xmysqlnd_session_data, authenticate),
+	XMYSQLND_METHOD(xmysqlnd_session_data, connect),
+	XMYSQLND_METHOD(xmysqlnd_session_data, escape_string),
+	XMYSQLND_METHOD(xmysqlnd_session_data, quote_name),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_error_no),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_error),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, sqlstate),
+	XMYSQLND_METHOD(xmysqlnd_session_data, get_error_no),
+	XMYSQLND_METHOD(xmysqlnd_session_data, get_error),
+	XMYSQLND_METHOD(xmysqlnd_session_data, sqlstate),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_server_host_info),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_protocol_info),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_charset_name),
+	XMYSQLND_METHOD(xmysqlnd_session_data, get_server_host_info),
+	XMYSQLND_METHOD(xmysqlnd_session_data, get_protocol_info),
+	XMYSQLND_METHOD(xmysqlnd_session_data, get_charset_name),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, set_server_option),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_option),
+	XMYSQLND_METHOD(xmysqlnd_session_data, set_server_option),
+	XMYSQLND_METHOD(xmysqlnd_session_data, set_client_option),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, free_options),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, dtor),
+	XMYSQLND_METHOD(xmysqlnd_session_data, free_options),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, free_reference),
+	XMYSQLND_METHOD(xmysqlnd_session_data, send_close),
+	XMYSQLND_METHOD(xmysqlnd_session_data, ssl_set),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, send_close),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, ssl_set),
+	XMYSQLND_METHOD(xmysqlnd_session_data, local_tx_start),
+	XMYSQLND_METHOD(xmysqlnd_session_data, local_tx_end),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, local_tx_start),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, local_tx_end),
+	XMYSQLND_METHOD(xmysqlnd_session_data, negotiate_client_api_capabilities),
+	XMYSQLND_METHOD(xmysqlnd_session_data, get_client_api_capabilities),
 
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, negotiate_client_api_capabilities),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_client_api_capabilities),
-
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_error),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, handler_on_auth_continue),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, get_client_id),
-	XMYSQLND_METHOD(xmysqlnd_node_session_data, set_client_id),
+	XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error),
+	XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_auth_continue),
+	XMYSQLND_METHOD(xmysqlnd_session_data, get_client_id),
+	XMYSQLND_METHOD(xmysqlnd_session_data, set_client_id),
 MYSQLND_CLASS_METHODS_END;
 
 } // anonymous namespace
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session_data);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_session_data);
 
-namespace {
 
-/* {{{ xmysqlnd_node_session::init */
-const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, init)(XMYSQLND_NODE_SESSION * session_handle,
-											const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-											MYSQLND_STATS * stats,
-											MYSQLND_ERROR_INFO * error_info)
+/* {{{ xmysqlnd_session::st_xmysqlnd_session */
+st_xmysqlnd_session::st_xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+						 MYSQLND_STATS * stats,
+						 MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_SESSION_DATA * session_data;
-	DBG_ENTER("xmysqlnd_node_session::init");
+	DBG_ENTER("xmysqlnd_session::st_xmysqlnd_session");
 
-	session_handle->session_uuid = new Uuid_generator();
-	session_data = factory->get_node_session_data(factory, session_handle->persistent, stats, error_info);
+	session_uuid = new Uuid_generator();
+	st_xmysqlnd_session_data * session_data = factory->get_node_session_data(factory, persistent, stats, error_info);
 	if (session_data) {
-		session_handle->data = session_data;
+		data = std::shared_ptr<st_xmysqlnd_session_data>(session_data);
 	}
-	DBG_RETURN(session_data? PASS:FAIL);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::connect */
-const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, connect)(XMYSQLND_NODE_SESSION * session_handle,
-										MYSQLND_CSTRING database,
-										const unsigned int port,
-										const size_t set_capabilities)
+/* {{{ xmysqlnd_session::~st_xmysqlnd_session */
+st_xmysqlnd_session::~st_xmysqlnd_session()
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session),
+	DBG_ENTER("xmysqlnd_session::~st_xmysqlnd_session");
+	if (server_version_string) {
+		mnd_pefree(server_version_string, persistent);
+		server_version_string = nullptr;
+	}
+	if(session_uuid) {
+		delete session_uuid;
+	}
+}
+/* }}} */
+
+namespace {
+
+/* {{{ xmysqlnd_session::connect */
+const enum_func_status
+XMYSQLND_METHOD(xmysqlnd_session, connect)(XMYSQLND_SESSION session_handle,
+                                                MYSQLND_CSTRING database,
+                                                const unsigned int port,
+                                                const size_t set_capabilities)
+{
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session),
 										   connect);
 	enum_func_status ret{FAIL};
-	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
+		XMYSQLND_SESSION_DATA session = session_handle->data;
 
-	DBG_ENTER("xmysqlnd_node_session::connect");
+	DBG_ENTER("xmysqlnd_session::connect");
 
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		ret = session->m->connect(session,
@@ -1552,7 +1534,7 @@ namespace {
 
 /* {{{ xmysqlnd_schema_operation */
 enum_func_status
-xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
+xmysqlnd_schema_operation(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret{FAIL};
 	const MYSQLND_STRING quoted_db = session_handle->data->m->quote_name(session_handle->data, db);
@@ -1573,39 +1555,39 @@ xmysqlnd_schema_operation(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::select_db */
+/* {{{ xmysqlnd_session::select_db */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, select_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
+XMYSQLND_METHOD(xmysqlnd_session, select_db)(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "USE ", sizeof("USE ") - 1 };
-	DBG_ENTER("xmysqlnd_node_session::select_db");
+	DBG_ENTER("xmysqlnd_session::select_db");
 	ret = xmysqlnd_schema_operation(session_handle, operation, db);
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::create_db */
+/* {{{ xmysqlnd_session::create_db */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, create_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
+XMYSQLND_METHOD(xmysqlnd_session, create_db)(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "CREATE DATABASE ", sizeof("CREATE DATABASE ") - 1 };
-	DBG_ENTER("xmysqlnd_node_session::create_db");
+	DBG_ENTER("xmysqlnd_session::create_db");
 	ret = xmysqlnd_schema_operation(session_handle, operation, db);
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::drop_db */
+/* {{{ xmysqlnd_session::drop_db */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, drop_db)(XMYSQLND_NODE_SESSION * session_handle, const MYSQLND_CSTRING db)
+XMYSQLND_METHOD(xmysqlnd_session, drop_db)(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "DROP DATABASE ", sizeof("DROP DATABASE ") - 1 };
-	DBG_ENTER("xmysqlnd_node_session::drop_db");
+	DBG_ENTER("xmysqlnd_session::drop_db");
 	ret = xmysqlnd_schema_operation(session_handle, operation, db);
 	DBG_RETURN(ret);
 }
@@ -1615,13 +1597,13 @@ XMYSQLND_METHOD(xmysqlnd_node_session, drop_db)(XMYSQLND_NODE_SESSION * session_
 /* {{{ st_xmysqlnd_query_cb_ctx */
 struct st_xmysqlnd_query_cb_ctx
 {
-	XMYSQLND_NODE_SESSION * session;
-	struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start;
-	struct st_xmysqlnd_node_session_on_row_bind handler_on_row;
-	struct st_xmysqlnd_node_session_on_warning_bind handler_on_warning;
-	struct st_xmysqlnd_node_session_on_error_bind handler_on_error;
-	struct st_xmysqlnd_node_session_on_result_end_bind handler_on_result_end;
-	struct st_xmysqlnd_node_session_on_statement_ok_bind handler_on_statement_ok;
+	XMYSQLND_SESSION session;
+	struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start;
+	struct st_xmysqlnd_session_on_row_bind handler_on_row;
+	struct st_xmysqlnd_session_on_warning_bind handler_on_warning;
+	struct st_xmysqlnd_session_on_error_bind handler_on_error;
+	struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end;
+	struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok;
 };
 /* }}} */
 
@@ -1735,23 +1717,23 @@ query_cb_handler_on_statement_ok(void * context, XMYSQLND_NODE_STMT * const stmt
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::query_cb */
+/* {{{ xmysqlnd_session::query_cb */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session_handle,
+XMYSQLND_METHOD(xmysqlnd_session, query_cb)(XMYSQLND_SESSION session_handle,
 												 const MYSQLND_CSTRING namespace_,
 												 const MYSQLND_CSTRING query,
-												 const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
-												 const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
-												 const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,
-												 const struct st_xmysqlnd_node_session_on_warning_bind handler_on_warning,
-												 const struct st_xmysqlnd_node_session_on_error_bind handler_on_error,
-												 const struct st_xmysqlnd_node_session_on_result_end_bind handler_on_result_end,
-												 const struct st_xmysqlnd_node_session_on_statement_ok_bind handler_on_statement_ok)
+												 const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
+												 const struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
+												 const struct st_xmysqlnd_session_on_row_bind handler_on_row,
+												 const struct st_xmysqlnd_session_on_warning_bind handler_on_warning,
+												 const struct st_xmysqlnd_session_on_error_bind handler_on_error,
+												 const struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end,
+												 const struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok)
 {
 	enum_func_status ret{FAIL};
-	DBG_ENTER("xmysqlnd_node_session::query_cb");
+	DBG_ENTER("xmysqlnd_session::query_cb");
 	if (session_handle) {
-		XMYSQLND_NODE_SESSION_DATA * const session = session_handle->data;
+				XMYSQLND_SESSION_DATA session = session_handle->data;
 		XMYSQLND_NODE_STMT * const stmt = session_handle->m->create_statement_object(session_handle);
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
 		if (stmt && stmt_execute) {
@@ -1776,7 +1758,9 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 			}
 			ret = xmysqlnd_stmt_execute__finalize_bind(stmt_execute);
 			if (PASS == ret &&
-				(PASS == (ret = stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), session->stats, session->error_info))))
+                                (PASS == (ret = stmt->data->m.send_raw_message(stmt,
+                                                xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
+                                                session->stats, session->error_info))))
 			{
 				struct st_xmysqlnd_query_cb_ctx query_cb_ctx = {
 					session_handle,
@@ -1829,21 +1813,21 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query_cb)(XMYSQLND_NODE_SESSION * session
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::query_cb_ex */
+/* {{{ xmysqlnd_session::query_cb_ex */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, query_cb_ex)(XMYSQLND_NODE_SESSION * session_handle,
+XMYSQLND_METHOD(xmysqlnd_session, query_cb_ex)(XMYSQLND_SESSION session_handle,
 													const MYSQLND_CSTRING namespace_,
 													st_xmysqlnd_query_builder* query_builder,
-													const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder,
-													const struct st_xmysqlnd_node_session_on_result_start_bind handler_on_result_start,
-													const struct st_xmysqlnd_node_session_on_row_bind handler_on_row,
-													const struct st_xmysqlnd_node_session_on_warning_bind handler_on_warning,
-													const struct st_xmysqlnd_node_session_on_error_bind handler_on_error,
-													const struct st_xmysqlnd_node_session_on_result_end_bind handler_on_result_end,
-													const struct st_xmysqlnd_node_session_on_statement_ok_bind handler_on_statement_ok)
+													const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
+													const struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
+													const struct st_xmysqlnd_session_on_row_bind handler_on_row,
+													const struct st_xmysqlnd_session_on_warning_bind handler_on_warning,
+													const struct st_xmysqlnd_session_on_error_bind handler_on_error,
+													const struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end,
+													const struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok)
 {
 	enum_func_status ret{FAIL};
-	DBG_ENTER("xmysqlnd_node_session::query_cb_ex");
+	DBG_ENTER("xmysqlnd_session::query_cb_ex");
 	if (query_builder &&
 		query_builder->create &&
 		session_handle &&
@@ -1877,18 +1861,18 @@ xmysqlnd_node_session_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::query */
+/* {{{ xmysqlnd_session::query */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_handle,
+XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
 											  const MYSQLND_CSTRING namespace_,
 											  const MYSQLND_CSTRING query,
-											  const struct st_xmysqlnd_node_session_query_bind_variable_bind var_binder)
+											  const struct st_xmysqlnd_session_query_bind_variable_bind var_binder)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), query);
-	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session), query);
+		XMYSQLND_SESSION_DATA session = session_handle->data;
 	enum_func_status ret{FAIL};
 
-	DBG_ENTER("xmysqlnd_node_session::query");
+	DBG_ENTER("xmysqlnd_session::query");
 	if (PASS == session->m->local_tx_start(session, this_func)) {
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
 		XMYSQLND_NODE_STMT * stmt = session_handle->m->create_statement_object(session_handle);
@@ -1947,14 +1931,14 @@ XMYSQLND_METHOD(xmysqlnd_node_session, query)(XMYSQLND_NODE_SESSION * session_ha
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::get_server_version */
+/* {{{ xmysqlnd_session::get_server_version */
 zend_ulong
-XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version)(XMYSQLND_NODE_SESSION * const session_handle)
+XMYSQLND_METHOD(xmysqlnd_session, get_server_version)(XMYSQLND_SESSION session_handle)
 {
-	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
+		XMYSQLND_SESSION_DATA session = session_handle->data;
 	zend_long major, minor, patch;
 	char *p;
-	DBG_ENTER("xmysqlnd_node_session::get_server_version");
+	DBG_ENTER("xmysqlnd_session::get_server_version");
 	if (!(p = session_handle->server_version_string)) {
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_sql, query);
@@ -2004,21 +1988,21 @@ XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version)(XMYSQLND_NODE_SESSION
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::get_server_info */
+/* {{{ xmysqlnd_session::get_server_info */
 const char *
-XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version_string)(const XMYSQLND_NODE_SESSION * const session_handle)
+XMYSQLND_METHOD(xmysqlnd_session, get_server_version_string)(const XMYSQLND_SESSION session_handle)
 {
 	return session_handle->server_version_string;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::create_statement_object */
+/* {{{ xmysqlnd_session::create_statement_object */
 XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object)(XMYSQLND_NODE_SESSION * const session_handle)
+XMYSQLND_METHOD(xmysqlnd_session, create_statement_object)(XMYSQLND_SESSION session_handle)
 {
 	XMYSQLND_NODE_STMT* stmt{nullptr};
-	DBG_ENTER("xmysqlnd_node_session_data::create_statement_object");
+	DBG_ENTER("xmysqlnd_session_data::create_statement_object");
 
 	stmt = xmysqlnd_node_stmt_create(session_handle, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
 	DBG_RETURN(stmt);
@@ -2026,12 +2010,12 @@ XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object)(XMYSQLND_NODE_SE
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::create_schema_object */
+/* {{{ xmysqlnd_session::create_schema_object */
 XMYSQLND_NODE_SCHEMA *
-XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object)(XMYSQLND_NODE_SESSION * const session_handle, const MYSQLND_CSTRING schema_name)
+XMYSQLND_METHOD(xmysqlnd_session, create_schema_object)(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING schema_name)
 {
 	XMYSQLND_NODE_SCHEMA* schema{nullptr};
-	DBG_ENTER("xmysqlnd_node_session::create_schema_object");
+	DBG_ENTER("xmysqlnd_session::create_schema_object");
 	DBG_INF_FMT("schema_name=%s", schema_name.s);
 
 	schema = xmysqlnd_node_schema_create(session_handle, schema_name, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
@@ -2041,19 +2025,19 @@ XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object)(XMYSQLND_NODE_SESSI
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session::close */
+/* {{{ xmysqlnd_session::close */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_handle, const enum_xmysqlnd_node_session_close_type close_type)
+XMYSQLND_METHOD(xmysqlnd_session, close)(XMYSQLND_SESSION session_handle, const enum_xmysqlnd_session_close_type close_type)
 {
-	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session), close);
-	XMYSQLND_NODE_SESSION_DATA * session = session_handle->data;
+	const size_t this_func = STRUCT_OFFSET(MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session), close);
+		XMYSQLND_SESSION_DATA session = session_handle->data;
 	enum_func_status ret{FAIL};
 
-	DBG_ENTER("xmysqlnd_node_session::close");
+	DBG_ENTER("xmysqlnd_session::close");
 
 	if (PASS == session->m->local_tx_start(session, this_func)) {
-		if (GET_SESSION_STATE(&session->state) >= NODE_SESSION_READY) {
-			static enum_xmysqlnd_collected_stats close_type_to_stat_map[XMYSQLND_CLOSE_LAST] = {
+		if (GET_SESSION_STATE(&session->state) >= SESSION_READY) {
+			static enum_xmysqlnd_collected_stats close_type_to_stat_map[SESSION_CLOSE_LAST] = {
 				XMYSQLND_STAT_CLOSE_EXPLICIT,
 				XMYSQLND_STAT_CLOSE_IMPLICIT,
 				XMYSQLND_STAT_CLOSE_DISCONNECT
@@ -2065,7 +2049,7 @@ XMYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_ha
 		  Close now, free_reference will try,
 		  if we are last, but that's not a problem.
 		*/
-		ret = session->m->send_close(session);
+		ret = session->m->send_close(session.get());
 
 		/* If we do it after free_reference/dtor then we might crash */
 		session->m->local_tx_end(session, this_func, ret);
@@ -2074,116 +2058,43 @@ XMYSQLND_METHOD(xmysqlnd_node_session, close)(XMYSQLND_NODE_SESSION * session_ha
 }
 /* }}} */
 
-/* {{{ xmysqlnd_node_session::get_reference */
-XMYSQLND_NODE_SESSION *
-XMYSQLND_METHOD(xmysqlnd_node_session, get_reference)(XMYSQLND_NODE_SESSION * const session)
-{
-	DBG_ENTER("xmysqlnd_node_session::get_reference");
-	++session->refcount;
-	DBG_INF_FMT("session=%p new_refcount=%u", session, session->refcount);
-	DBG_RETURN(session);
-}
-/* }}} */
 
-
-/* {{{ xmysqlnd_node_session::free_reference */
-const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_session, free_reference)(XMYSQLND_NODE_SESSION * const session)
-{
-	enum_func_status ret{PASS};
-	DBG_ENTER("xmysqlnd_node_session::free_reference");
-	DBG_INF_FMT("session=%p old_refcount=%u", session, session->refcount);
-	if (!(--session->refcount)) {
-		session->m->dtor(session);
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session::free_contents */
-void
-XMYSQLND_METHOD(xmysqlnd_node_session, free_contents)(XMYSQLND_NODE_SESSION * session_handle)
-{
-	zend_bool pers = session_handle->persistent;
-
-	DBG_ENTER("xmysqlnd_node_session::free_contents");
-
-	DBG_INF("Freeing memory of members");
-
-	if (session_handle->server_version_string) {
-		mnd_pefree(session_handle->server_version_string, pers);
-		session_handle->server_version_string = nullptr;
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_node_session::dtor */
-void
-XMYSQLND_METHOD(xmysqlnd_node_session, dtor)(XMYSQLND_NODE_SESSION * session_handle)
-{
-	DBG_ENTER("xmysqlnd_node_session::dtor");
-	session_handle->m->free_contents(session_handle);
-	if (session_handle->data) {
-		session_handle->data->m->free_reference(session_handle->data);
-		session_handle->data = nullptr;
-	}
-	if(session_handle->session_uuid) {
-		delete session_handle->session_uuid;
-	}
-	mnd_pefree(session_handle, session_handle->persistent);
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-MYSQLND_CLASS_METHODS_START(xmysqlnd_node_session)
-	XMYSQLND_METHOD(xmysqlnd_node_session, init),
-	XMYSQLND_METHOD(xmysqlnd_node_session, connect),
-	XMYSQLND_METHOD(xmysqlnd_node_session, create_db),
-	XMYSQLND_METHOD(xmysqlnd_node_session, select_db),
-	XMYSQLND_METHOD(xmysqlnd_node_session, drop_db),
-	XMYSQLND_METHOD(xmysqlnd_node_session, query),
-	XMYSQLND_METHOD(xmysqlnd_node_session, query_cb),
-	XMYSQLND_METHOD(xmysqlnd_node_session, query_cb_ex),
-	XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version),
-	XMYSQLND_METHOD(xmysqlnd_node_session, get_server_version_string),
-	XMYSQLND_METHOD(xmysqlnd_node_session, create_statement_object),
-	XMYSQLND_METHOD(xmysqlnd_node_session, create_schema_object),
-	XMYSQLND_METHOD(xmysqlnd_node_session, close),
-	XMYSQLND_METHOD(xmysqlnd_node_session, get_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_session, free_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_session, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_node_session, dtor),
+MYSQLND_CLASS_METHODS_START(xmysqlnd_session)
+	XMYSQLND_METHOD(xmysqlnd_session, connect),
+	XMYSQLND_METHOD(xmysqlnd_session, create_db),
+	XMYSQLND_METHOD(xmysqlnd_session, select_db),
+	XMYSQLND_METHOD(xmysqlnd_session, drop_db),
+	XMYSQLND_METHOD(xmysqlnd_session, query),
+	XMYSQLND_METHOD(xmysqlnd_session, query_cb),
+	XMYSQLND_METHOD(xmysqlnd_session, query_cb_ex),
+	XMYSQLND_METHOD(xmysqlnd_session, get_server_version),
+	XMYSQLND_METHOD(xmysqlnd_session, get_server_version_string),
+	XMYSQLND_METHOD(xmysqlnd_session, create_statement_object),
+	XMYSQLND_METHOD(xmysqlnd_session, create_schema_object),
+	XMYSQLND_METHOD(xmysqlnd_session, close),
 MYSQLND_CLASS_METHODS_END;
 
 } // anonymous namespace
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_session);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_session);
 
 /* {{{ xmysqlnd_node_session_create */
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
 xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_SESSION * session;
-
 	DBG_ENTER("xmysqlnd_node_session_create");
-	session = object_factory->get_node_session(object_factory, persistent, stats, error_info);
+	auto session = object_factory->get_node_session(object_factory, persistent, stats, error_info);
 	if (session && session->data) {
 		session->data->m->negotiate_client_api_capabilities(session->data, client_flags);
-		session->m->get_reference(session);
 	}
-	DBG_RETURN(session);
+	DBG_RETURN(std::shared_ptr<st_xmysqlnd_session>(session));
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_node_session_connect */
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SESSION *
-xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
+xmysqlnd_node_session_connect(XMYSQLND_SESSION session,
 								XMYSQLND_SESSION_AUTH_DATA * auth,
 								const MYSQLND_CSTRING database,
 								unsigned int port,
@@ -2192,7 +2103,7 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory =
 			MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	enum_func_status ret{FAIL};
-	zend_bool self_allocated{FALSE};
+
 	const size_t client_api_flags{0}; //This is not used at the moment..
 	/* may need to pass these from outside */
 	MYSQLND_STATS* stats{nullptr};
@@ -2204,7 +2115,6 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 			port, static_cast<unsigned long long>(set_capabilities));
 
 	if (!session) {
-		self_allocated = TRUE;
 		if (!(session = xmysqlnd_node_session_create(client_api_flags,
 										FALSE, factory,
 										stats, error_info))) {
@@ -2217,13 +2127,6 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 							port, set_capabilities);
 
 	if (ret == FAIL) {
-		if (self_allocated) {
-			/*
-			  We have allocated, thus there are no references to this
-			  object - we are free to kill it!
-			*/
-			session->m->dtor(session);
-		}
 		DBG_RETURN(nullptr);
 	}
 	DBG_RETURN(session);
@@ -2233,11 +2136,11 @@ xmysqlnd_node_session_connect(XMYSQLND_NODE_SESSION * session,
 namespace {
 
 /* {{{ create_new_session */
-struct mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zval)
+mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zval)
 {
 	DBG_ENTER("create_new_session");
-	struct mysqlx::devapi::st_mysqlx_session* object{nullptr};
-	if (PASS == mysqlx::devapi::mysqlx_new_node_session(session_zval)) {
+	mysqlx::devapi::st_mysqlx_session * object{nullptr};
+	if (PASS == mysqlx::devapi::mysqlx_new_session(session_zval)) {
 		object = (struct mysqlx::devapi::st_mysqlx_session *) Z_MYSQLX_P(session_zval)->ptr;
 
 		if (!object && !object->session) {
@@ -2258,14 +2161,14 @@ struct mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zva
 
 
 /* {{{ establish_connection */
-enum_func_status establish_connection(struct mysqlx::devapi::st_mysqlx_session * object,
+enum_func_status establish_connection(mysqlx::devapi::st_mysqlx_session * object,
 								XMYSQLND_SESSION_AUTH_DATA * auth,
 								const util::Url& url,
 								transport_types tr_type)
 {
 	DBG_ENTER("establish_connection");
 	enum_func_status ret{PASS};
-	mysqlx::drv::XMYSQLND_NODE_SESSION * new_session;
+	mysqlx::drv::XMYSQLND_SESSION new_session;
 	size_t set_capabilities{0};
 	if( tr_type != transport_types::network ) {
 		DBG_INF_FMT("Connecting with the provided socket/pipe: %s",
@@ -3105,23 +3008,6 @@ enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
 }
 /* }}} */
 
-
-/* {{{ xmysqlnd_node_session_free */
-PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_node_session_free(XMYSQLND_NODE_SESSION* const session)
-{
-	DBG_ENTER("xmysqlnd_node_session_free");
-	DBG_INF_FMT(
-		"session=%p  session->data=%p  dtor=%p",
-		session,
-		session ? session->data : nullptr,
-		session ? session->data->m->dtor : nullptr);
-	if (session) {
-		session->m->free_reference(session);
-	}
-	DBG_VOID_RETURN;
-}
-/* }}} */
 
 } // namespace drv
 

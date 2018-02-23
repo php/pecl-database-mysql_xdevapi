@@ -41,6 +41,7 @@ namespace mysqlx {
 
 namespace devapi {
 
+
 namespace {
 
 using namespace drv;
@@ -178,7 +179,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getName)
 
 /* {{{ mysqlx_node_scheme_on_error */
 static const enum_hnd_func_status
-mysqlx_node_scheme_on_error(void* context, XMYSQLND_NODE_SESSION* session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_scheme_on_error(void* context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_scheme_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -206,7 +207,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, existsInDatabase)
 
 	XMYSQLND_NODE_SCHEMA* schema = object->schema;
 	if (schema) {
-		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_scheme_on_error, nullptr };
+		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_scheme_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == schema->data->m.exists_in_database(schema, on_error, &exists)) {
@@ -237,7 +238,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, drop)
 	RETVAL_FALSE;
 
 	if (object->schema) {
-		XMYSQLND_NODE_SESSION* session = object->schema->data->session;
+		auto session = object->schema->data->session;
 		const MYSQLND_CSTRING schema_name = mnd_str2c(object->schema->data->schema_name);
 
 		RETVAL_BOOL(session && PASS == session->m->drop_db(session, schema_name));
@@ -500,7 +501,7 @@ mysqlx_get_database_objects(
 }
 /* }}} */
 
-/* {{{ mysqlx_node_session::getTables() */
+/* {{{ mysqlx_session::getTables() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTables)
 {
 	zval* object_zv{nullptr};
@@ -521,7 +522,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTables)
 /* }}} */
 
 
-/* {{{ mysqlx_node_session::getCollections() */
+/* {{{ mysqlx_session::getCollections() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollections)
 {
 	zval* object_zv{nullptr};

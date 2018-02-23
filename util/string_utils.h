@@ -113,6 +113,11 @@ strings to_strings(zval* zvals, int count, Pred pred)
 }
 /* }}} */
 
+
+zend_string* to_zend_string(formatter& fmt);
+
+//------------------------------------------------------------------------------
+
 /*
  * Escape an identifier name adding '`' everywhere needed
  */
