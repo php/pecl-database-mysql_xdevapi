@@ -928,15 +928,14 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_session, generateUUID, arginfo_mysqlx_session__generate_uuid, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, createSchema, arginfo_mysqlx_session__create_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, dropSchema, arginfo_mysqlx_session__drop_schema, ZEND_ACC_PUBLIC)
-
+	PHP_ME(mysqlx_session, getSchemas, arginfo_mysqlx_session__get_schemas, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, getSchema, arginfo_mysqlx_session__get_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, startTransaction, arginfo_mysqlx_session__start_transaction, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, commit, arginfo_mysqlx_session__commit, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, rollback, arginfo_mysqlx_session__rollback, ZEND_ACC_PUBLIC)
-
 	PHP_ME(mysqlx_session, setSavepoint, arginfo_mysqlx_session__set_savepoint, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, rollbackTo, arginfo_mysqlx_session__rollback_to, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, releaseSavepoint, arginfo_mysqlx_session__release_savepoint, ZEND_ACC_PUBLIC)
-
 	PHP_ME(mysqlx_session, killClient, arginfo_mysqlx_session__kill_client, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, close, arginfo_mysqlx_session__close, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
