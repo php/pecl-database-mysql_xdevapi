@@ -27,7 +27,7 @@ namespace mysqlx {
 namespace drv {
 
 struct st_xmysqlnd_node_schema;
-struct st_xmysqlnd_session_on_error_bind;
+struct st_xmysqlnd_node_session_on_error_bind;
 
 typedef struct st_xmysqlnd_node_collection		XMYSQLND_NODE_COLLECTION;
 typedef struct st_xmysqlnd_node_collection_data	XMYSQLND_NODE_COLLECTION_DATA;
@@ -42,8 +42,8 @@ typedef enum_func_status (*func_xmysqlnd_node_collection__init)(
 			MYSQLND_ERROR_INFO * const error_info);
 
 typedef XMYSQLND_NODE_COLLECTION * (*func_xmysqlnd_node_collection__get_reference)(XMYSQLND_NODE_COLLECTION * const collection);
-typedef enum_func_status		(*func_xmysqlnd_node_collection__exists_in_database)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-typedef enum_func_status		(*func_xmysqlnd_node_collection__count)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
+typedef enum_func_status		(*func_xmysqlnd_node_collection__exists_in_database)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status		(*func_xmysqlnd_node_collection__count)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* counter);
 typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_collection__add)(XMYSQLND_NODE_COLLECTION * const collection,  XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op);
 typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_collection__remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
 typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_collection__modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op);

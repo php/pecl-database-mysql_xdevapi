@@ -166,7 +166,7 @@ void Bind_create_index_args::bind_index_fields()
 const enum_hnd_func_status
 collection_create_index_var_binder(
 	void* context,
-	XMYSQLND_SESSION session,
+	XMYSQLND_NODE_SESSION* session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
 	DBG_ENTER("collection_create_index_var_binder");
@@ -186,11 +186,11 @@ collection_create_index_var_binder(
 
 /* {{{ collection_create_index_execute */
 bool collection_create_index_execute(
-	XMYSQLND_SESSION session,
+	st_xmysqlnd_node_session* const session,
 	const util::string_view& schema_name,
 	const util::string_view& collection_name,
 	const Index_definition& index_def,
-	st_xmysqlnd_session_on_error_bind on_error)
+	st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("collection_create_index_execute");
 
@@ -202,7 +202,7 @@ bool collection_create_index_execute(
 		index_def
 	};
 
-	const st_xmysqlnd_session_query_bind_variable_bind var_binder{
+	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder{
 		collection_create_index_var_binder,
 		&var_binder_ctx
 	};
@@ -239,7 +239,7 @@ struct collection_drop_index_var_binder_ctx
 const enum_hnd_func_status
 collection_drop_index_var_binder(
 	void* context,
-	XMYSQLND_SESSION session,
+	XMYSQLND_NODE_SESSION* session,
 	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
 	DBG_ENTER("collection_drop_index_var_binder");
@@ -263,11 +263,11 @@ collection_drop_index_var_binder(
 
 /* {{{ collection_drop_index_execute */
 bool collection_drop_index_execute(
-	XMYSQLND_SESSION session,
+	st_xmysqlnd_node_session* const session,
 	const util::string_view& schema_name,
 	const util::string_view& collection_name,
 	const util::string_view& index_name,
-	st_xmysqlnd_session_on_error_bind on_error)
+	st_xmysqlnd_node_session_on_error_bind on_error)
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__execute");
 
@@ -279,7 +279,7 @@ bool collection_drop_index_execute(
 		index_name
 	};
 
-	const st_xmysqlnd_session_query_bind_variable_bind var_binder{
+	const st_xmysqlnd_node_session_query_bind_variable_bind var_binder{
 		collection_drop_index_var_binder,
 		&var_binder_ctx
 	};

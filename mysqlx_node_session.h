@@ -15,23 +15,23 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_SESSION_H
-#define MYSQLX_SESSION_H
+#ifndef MYSQLX_NODE_SESSION_H
+#define MYSQLX_NODE_SESSION_H
 
 namespace mysqlx {
 
 namespace devapi {
 
-extern zend_class_entry * mysqlx_session_interface_entry;
+enum_func_status mysqlx_new_node_session(zval * return_value);
+void mysqlx_register_node_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS);
 
-void mysqlx_register_session_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_session_interface(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_SESSION_H */
+#endif /* MYSQLX_NODE_SESSION_H */
 
 /*
  * Local variables:

@@ -168,7 +168,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getName)
 
 /* {{{ mysqlx_node_table_on_error */
 static const enum_hnd_func_status
-mysqlx_node_table_on_error(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_table_on_error(void * context, XMYSQLND_NODE_SESSION * session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_table_on_error");
 	const unsigned int UnknownDatabaseCode{1049};
@@ -201,7 +201,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, existsInDatabase)
 
 	XMYSQLND_NODE_TABLE * table = object->table;
 	if (table) {
-		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == table->data->m.exists_in_database(table, on_error, &exists)) {
@@ -236,7 +236,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, isView)
 
 	XMYSQLND_NODE_TABLE * table = data_object.table;
 	if (table) {
-		const st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
+		const st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == table->data->m.is_view(table, on_error, &exists)) {
@@ -268,7 +268,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 
 	XMYSQLND_NODE_TABLE * table = object->table;
 	if (table) {
-		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_table_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
 		if (PASS == table->data->m.count(table, on_error, &counter)) {
@@ -285,7 +285,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, count)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table, getSchema)
 {
 	st_mysqlx_node_table* object{nullptr};
-	XMYSQLND_SESSION session;
+	XMYSQLND_NODE_SESSION* session{nullptr};
 	MYSQLND_CSTRING schema_name{nullptr, 0};
 	zval* object_zv{nullptr};
 

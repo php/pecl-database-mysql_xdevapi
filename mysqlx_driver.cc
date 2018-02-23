@@ -37,7 +37,7 @@ using namespace drv;
 
 static zend_class_entry *mysqlx_driver_class_entry;
 
-/* {{{ mysqlx_session::__construct */
+/* {{{ mysqlx_node_session::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_driver, __construct)
 {
 }

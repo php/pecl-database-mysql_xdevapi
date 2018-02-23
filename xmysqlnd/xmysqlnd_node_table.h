@@ -28,7 +28,7 @@ namespace mysqlx {
 namespace drv {
 
 struct st_xmysqlnd_node_schema;
-struct st_xmysqlnd_session_on_error_bind;
+struct st_xmysqlnd_node_session_on_error_bind;
 
 typedef struct st_xmysqlnd_node_table		XMYSQLND_NODE_TABLE;
 typedef struct st_xmysqlnd_node_table_data	XMYSQLND_NODE_TABLE_DATA;
@@ -43,9 +43,9 @@ typedef enum_func_status (*func_xmysqlnd_node_table__init)(
 			MYSQLND_ERROR_INFO * const error_info);
 
 typedef XMYSQLND_NODE_TABLE *	(*func_xmysqlnd_node_table__get_reference)(XMYSQLND_NODE_TABLE * const table);
-typedef enum_func_status		(*func_xmysqlnd_node_table__exists_in_database)(XMYSQLND_NODE_TABLE * const table, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-typedef enum_func_status		(*func_xmysqlnd_node_table__is_view)(XMYSQLND_NODE_TABLE * const table, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-typedef enum_func_status		(*func_xmysqlnd_node_table__count)(XMYSQLND_NODE_TABLE* const table, struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
+typedef enum_func_status		(*func_xmysqlnd_node_table__exists_in_database)(XMYSQLND_NODE_TABLE * const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status		(*func_xmysqlnd_node_table__is_view)(XMYSQLND_NODE_TABLE * const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status		(*func_xmysqlnd_node_table__count)(XMYSQLND_NODE_TABLE* const table, struct st_xmysqlnd_node_session_on_error_bind on_error, zval* counter);
 typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_table__insert)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op);
 typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_table__delete)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op);
 typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_table__update)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op);

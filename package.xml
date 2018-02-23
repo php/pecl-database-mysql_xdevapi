@@ -139,6 +139,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_node_row_result_iterator.h" role="src" />
    <file name="mysqlx_node_schema.cc" role="src" />
    <file name="mysqlx_node_schema.h" role="src" />
+   <file name="mysqlx_node_session.cc" role="src" />
+   <file name="mysqlx_node_session.h" role="src" />
    <file name="mysqlx_node_sql_statement.cc" role="src" />
    <file name="mysqlx_node_sql_statement.h" role="src" />
    <file name="mysqlx_node_sql_statement_result.cc" role="src" />

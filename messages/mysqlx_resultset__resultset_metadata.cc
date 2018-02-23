@@ -27,7 +27,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_zval2any.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_session.h"
+#include "mysqlx_node_session.h"
 #include "messages/mysqlx_message__capability.h"
 #include "mysqlx_resultset__resultset_metadata.h"
 #include "mysqlx_resultset__column_metadata.h"

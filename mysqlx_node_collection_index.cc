@@ -212,7 +212,7 @@ Index_definition parse_index_def(
 static const enum_hnd_func_status
 collection_index_on_error(
 	void* context,
-	XMYSQLND_SESSION session,
+	XMYSQLND_NODE_SESSION* session,
 	st_xmysqlnd_node_stmt* const stmt,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
@@ -238,12 +238,12 @@ void create_collection_index(
 
 	RETVAL_FALSE;
 
-	auto session{collection->data->schema->data->session};
+	st_xmysqlnd_node_session* session{collection->data->schema->data->session};
 	const util::string_view schema_name{collection->data->schema->data->schema_name};
 	const util::string_view collection_name{collection->data->collection_name};
 	Index_definition index_def{parse_index_def(index_name, index_desc_json)};
 
-	const st_xmysqlnd_session_on_error_bind on_error{ collection_index_on_error, nullptr };
+	const st_xmysqlnd_node_session_on_error_bind on_error{ collection_index_on_error, nullptr };
 	if (drv::collection_create_index_execute(
 		session,
 		schema_name,
@@ -265,10 +265,10 @@ void drop_collection_index(
 	zval* return_value)
 {
 	try {
-		auto session{collection->data->schema->data->session};
+		st_xmysqlnd_node_session* session{collection->data->schema->data->session};
 		const util::string_view schema_name{collection->data->schema->data->schema_name};
 		const util::string_view collection_name{collection->data->collection_name};
-		const st_xmysqlnd_session_on_error_bind on_error{ collection_index_on_error, nullptr };
+		const st_xmysqlnd_node_session_on_error_bind on_error{ collection_index_on_error, nullptr };
 		RETVAL_BOOL(drv::collection_drop_index_execute(
 			session,
 			schema_name,

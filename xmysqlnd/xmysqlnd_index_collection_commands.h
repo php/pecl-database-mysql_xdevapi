@@ -21,14 +21,13 @@
 #include "xmysqlnd_crud_commands.h"
 #include "util/strings.h"
 #include <boost/optional.hpp>
-#include "xmysqlnd/xmysqlnd_node_session.h"
 
 namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_session;
-struct st_xmysqlnd_session_on_error_bind;
+struct st_xmysqlnd_node_session;
+struct st_xmysqlnd_node_session_on_error_bind;
 struct st_xmysqlnd_node_collection;
 
 struct Index_field
@@ -65,17 +64,19 @@ struct Index_definition : util::custom_allocable
 	boost::optional<util::string> get_type_str() const;
 };
 
-bool collection_create_index_execute(XMYSQLND_SESSION session,
+bool collection_create_index_execute(
+	st_xmysqlnd_node_session* const session,
 	const util::string_view& schema_name,
 	const util::string_view& collection_name,
 	const Index_definition& index_def,
-	st_xmysqlnd_session_on_error_bind on_error);
+	st_xmysqlnd_node_session_on_error_bind on_error);
 
-bool collection_drop_index_execute(XMYSQLND_SESSION session,
+bool collection_drop_index_execute(
+	st_xmysqlnd_node_session* const session,
 	const util::string_view& schema_name,
 	const util::string_view& collection_name,
 	const util::string_view& index_name,
-	st_xmysqlnd_session_on_error_bind on_error);
+	st_xmysqlnd_node_session_on_error_bind on_error);
 
 } // namespace drv
 

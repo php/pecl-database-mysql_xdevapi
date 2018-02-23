@@ -27,7 +27,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_environment.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_session.h"
+#include "mysqlx_node_session.h"
 #include "mysqlx_node_connection.h"
 #include "util/object.h"
 

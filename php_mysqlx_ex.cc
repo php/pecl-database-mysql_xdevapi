@@ -37,6 +37,7 @@ extern "C" {
 #include "mysqlx_field_metadata.h"
 #include "mysqlx_base_session.h"
 #include "mysqlx_x_session.h"
+#include "mysqlx_node_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_collection.h"
 #include "mysqlx_node_collection__add.h"
@@ -125,7 +126,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	mysqlx_register_base_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_x_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-	mysqlx_register_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_node_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_node_schema_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
@@ -272,7 +273,7 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_node_schema_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-	mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+	mysqlx_unregister_node_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_x_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_base_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

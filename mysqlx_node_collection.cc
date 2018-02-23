@@ -42,7 +42,6 @@ extern "C" {
 #include "util/hash_table.h"
 #include "util/json_utils.h"
 #include "util/object.h"
-#include <vector>
 
 namespace mysqlx {
 
@@ -210,7 +209,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getName)
 
 /* {{{ mysqlx_node_collection_on_error */
 static const enum_hnd_func_status
-mysqlx_node_collection_on_error(void * context, XMYSQLND_SESSION session,
+mysqlx_node_collection_on_error(void * context, XMYSQLND_NODE_SESSION * session,
 					st_xmysqlnd_node_stmt* const stmt,
 					const unsigned int code,
 					const MYSQLND_CSTRING sql_state,
@@ -247,7 +246,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, existsInDatabase)
 
 	XMYSQLND_NODE_COLLECTION * collection = object->collection;
 	if (collection) {
-		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_collection_on_error, nullptr };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
 		if (PASS == collection->data->m.exists_in_database(collection, on_error, &exists)) {
@@ -279,7 +278,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, count)
 
 	XMYSQLND_NODE_COLLECTION * collection = object->collection;
 	if (collection) {
-		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_node_collection_on_error, nullptr };
+		const struct st_xmysqlnd_node_session_on_error_bind on_error = { mysqlx_node_collection_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
 		if (PASS == collection->data->m.count(collection, on_error, &counter)) {
@@ -296,7 +295,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, count)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection, getSchema)
 {
 	st_mysqlx_node_collection* object{nullptr};
-	XMYSQLND_SESSION session;
+	XMYSQLND_NODE_SESSION* session{nullptr};
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
 	zval* object_zv{nullptr};
 

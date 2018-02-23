@@ -80,15 +80,6 @@ strings to_strings(zval* zvals, int count)
 /* }}} */
 
 
-/* {{{ to_zend_string */
-zend_string* to_zend_string(formatter& fmt)
-{
-	const string& str = fmt.str();
-	return zend_string_init(str.c_str(), str.length(), 0);
-}
-/* }}} */
-
-
 /* {{{ escape_identifier( string id ) */
 string
 escape_identifier( const string& identifier ) {
