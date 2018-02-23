@@ -37,7 +37,7 @@ extern "C" {
 #include "mysqlx_node_row_result.h"
 #include "mysqlx_node_sql_statement_result.h"
 #include "mysqlx_node_sql_statement.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "util/allocator.h"
 #include "util/object.h"
 

@@ -27,7 +27,8 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_session;
+struct st_xmysqlnd_session;
+typedef std::shared_ptr<st_xmysqlnd_session> XMYSQLND_SESSION;
 struct st_xmysqlnd_node_stmt_result;
 struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_warning_list;
@@ -80,7 +81,7 @@ struct st_xmysqlnd_node_stmt_on_statement_ok_bind
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt__init)(XMYSQLND_NODE_STMT * const stmt,
 															 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-															 struct st_xmysqlnd_node_session * const session,
+															 XMYSQLND_SESSION session,
 															 MYSQLND_STATS * const stats,
 															 MYSQLND_ERROR_INFO * const error_info);
 
@@ -207,7 +208,7 @@ struct st_xmysqlnd_node_stmt_bind_ctx
 
 struct st_xmysqlnd_node_stmt_data : public util::permanent_allocable
 {
-	st_xmysqlnd_node_session* session;
+	XMYSQLND_SESSION session;
 	struct st_xmysqlnd_msg__sql_stmt_execute msg_stmt_exec;
 
 	struct st_xmysqlnd_node_stmt_bind_ctx read_ctx;
@@ -233,7 +234,7 @@ struct st_xmysqlnd_node_stmt : public util::permanent_allocable
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(struct st_xmysqlnd_node_session * session,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(XMYSQLND_SESSION session,
 													  const zend_bool persistent,
 													  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 													  MYSQLND_STATS * const stats,

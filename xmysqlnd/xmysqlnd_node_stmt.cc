@@ -40,14 +40,12 @@ namespace drv {
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 										  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-										  XMYSQLND_NODE_SESSION * const session,
+										  XMYSQLND_SESSION session,
 										  MYSQLND_STATS * const stats,
 										  MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_node_stmt::init");
-	if (!(stmt->data->session = session->m->get_reference(session))) {
-		return FAIL;
-	}
+	stmt->data->session = session;
 	stmt->data->object_factory = object_factory;
 
 	DBG_RETURN(PASS);
@@ -773,8 +771,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQL
 	DBG_ENTER("xmysqlnd_node_stmt::dtor");
 	if (stmt) {
 		stmt->data->m.free_contents(stmt);
-		stmt->data->session->m->free_reference(stmt->data->session);
-
+		stmt->data->session.~shared_ptr();
 		mnd_pefree(stmt->data, stmt->data->persistent);
 		mnd_pefree(stmt, stmt->persistent);
 	}
@@ -820,7 +817,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_stmt);
 
 /* {{{ xmysqlnd_node_stmt_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT *
-xmysqlnd_node_stmt_create(XMYSQLND_NODE_SESSION * session,
+xmysqlnd_node_stmt_create(XMYSQLND_SESSION session,
 						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 						  MYSQLND_STATS * const stats,

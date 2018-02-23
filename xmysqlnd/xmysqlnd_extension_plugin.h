@@ -27,8 +27,8 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_session;
-struct st_xmysqlnd_node_session_data;
+struct st_xmysqlnd_session;
+struct st_xmysqlnd_session_data;
 struct st_xmysqlnd_node_schema;
 struct st_xmysqlnd_node_collection;
 struct st_xmysqlnd_node_stmt;
@@ -41,8 +41,8 @@ struct st_xmysqlnd_rowset;
 struct st_xmysqlnd_protocol_frame_codec;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session);
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data);
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session);
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt);
@@ -57,8 +57,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list);
 
 struct st_xmysqlnd_plugin__plugin_area_getters
 {
-	void ** (*get_node_session_area)(const st_xmysqlnd_node_session* conn, const unsigned int plugin_id);
-	void ** (*get_node_session_data_data_area)(const st_xmysqlnd_node_session_data* conn, const unsigned int plugin_id);
+	void ** (*get_node_session_area)(const st_xmysqlnd_session* conn, const unsigned int plugin_id);
+        void ** (*get_node_session_data_data_area)(const st_xmysqlnd_session_data* conn, const unsigned int plugin_id);
 	void ** (*get_node_schema_area)(const st_xmysqlnd_node_schema* schema, unsigned int plugin_id);
 	void ** (*get_node_collection_area)(const st_xmysqlnd_node_collection* collection, unsigned int plugin_id);
 	void ** (*get_node_table_area)(const st_xmysqlnd_node_table* table, unsigned int plugin_id);
@@ -97,14 +97,14 @@ struct st_xmysqlnd_plugin_methods_xetters
 
 	struct st_xmnd_node_session_xetters
 	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session) * const methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session) * const methods);
 	} node_session;
 
 	struct st_xmnd_node_session_data_xetters
 	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_session_data) * const methods);
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * (*get)();
+		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * const methods);
 	} node_session_data;
 
 	struct st_xmnd_node_schema_xetters

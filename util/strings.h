@@ -26,6 +26,7 @@ struct st_mysqlnd_const_string;
 #include <string>
 #include <sstream>
 #include <cstring>
+#include <boost/format.hpp>
 #include "allocator.h"
 #include "types.h"
 
@@ -51,6 +52,10 @@ using istringstream = basic_istringstream<char>;
 
 std::ostream& operator<<(std::ostream& os, const string& str);
 
+template<typename CharT, typename Traits = std::char_traits<CharT>>
+using basic_formatter = boost::basic_format<CharT, Traits, allocator<CharT>>;
+using formatter = basic_formatter<char>;
+using wformatter = basic_formatter<wchar_t>;
 
 /*
 	it is meant to work with PHP methods as wrapper for string params coming

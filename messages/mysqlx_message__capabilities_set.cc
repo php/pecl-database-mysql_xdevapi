@@ -28,7 +28,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_wireprotocol.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 #include "mysqlx_message__capability.h"

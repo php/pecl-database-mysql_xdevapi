@@ -27,6 +27,11 @@ extern zend_class_entry * mysqlx_session_interface_entry;
 void mysqlx_register_session_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_session_interface(SHUTDOWN_FUNC_ARGS);
 
+enum_func_status mysqlx_new_session(zval * return_value);
+void mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS);
+
+
 } // namespace devapi
 
 } // namespace mysqlx

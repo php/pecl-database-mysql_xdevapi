@@ -35,7 +35,7 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "php_mysqlx_ex.h"
 #include "mysqlx_expression.h"
-#include "mysqlx_node_session.h"
+#include "mysqlx_session.h"
 #include "mysqlx_x_session.h"
 #include <string>
 

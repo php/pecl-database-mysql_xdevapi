@@ -108,6 +108,12 @@ stamp-h.in
 scan_makefile_in.awk
 
 # Test specific Ignores
+**/tests/*.diff
+**/tests/*.out
+**/tests/*.php
+**/tests/*.exp
+**/tests/*.log
+**/tests/*.sh
 tests/*/*.diff
 tests/*/*.out
 tests/*/*.php
@@ -165,6 +171,7 @@ tests/*/*/*.sh
 
 # Extension specifc ignores
 */configure.in
+configure.in
 */ltmain.sh
 */libs.mk
 */build
@@ -176,6 +183,7 @@ xmysqlnd/proto_gen/*
 
 # Environment ignores
 *.creator
+*.files
 *.config
 *.user
 *.includes

@@ -44,7 +44,7 @@ namespace mysqlx {
 namespace drv {
 
 /* {{{ mysqlnd_object_factory::get_node_session */
-static XMYSQLND_NODE_SESSION *
+static st_xmysqlnd_session *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 														   const zend_bool persistent,
 														   MYSQLND_STATS* stats,
@@ -52,14 +52,15 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 {
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session");
 	DBG_INF_FMT("persistent=%u", persistent);
-	XMYSQLND_NODE_SESSION* object = new XMYSQLND_NODE_SESSION;
-	object->persistent = persistent;
-	object->m = xmysqlnd_node_session_get_methods();
-
-	if (FAIL == object->m->init(object, factory, stats, error_info)) {
-		object->m->dtor(object);
+	st_xmysqlnd_session* object{ nullptr };
+	try{
+		object = new st_xmysqlnd_session(factory, stats, error_info);
+	}catch(std::exception& e)
+	{
 		DBG_RETURN(nullptr);
 	}
+	object->persistent = persistent;
+	object->m = xmysqlnd_node_session_get_methods();
 
 	DBG_RETURN(object);
 }
@@ -67,23 +68,23 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 
 
 /* {{{ mysqlnd_object_factory::get_node_session_data */
-static XMYSQLND_NODE_SESSION_DATA *
+static st_xmysqlnd_session_data *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-																const zend_bool persistent,
-																MYSQLND_STATS* stats,
-																MYSQLND_ERROR_INFO* error_info)
+                                                                const zend_bool persistent,
+                                                                MYSQLND_STATS* stats,
+                                                                MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_object_factory::get_node_session_data");
 	DBG_INF_FMT("persistent=%u", persistent);
-	XMYSQLND_NODE_SESSION_DATA* object = new XMYSQLND_NODE_SESSION_DATA;
-	object->persistent = persistent;
-	object->m = xmysqlnd_node_session_data_get_methods();
-	object->m->get_reference(object);
-
-	if (FAIL == object->m->init(object, factory, stats, error_info)) {
-		object->m->dtor(object);
+	st_xmysqlnd_session_data * object{ nullptr };
+	try{
+		object = new st_xmysqlnd_session_data( factory, stats, error_info );
+	}catch(std::exception& e)
+	{
 		DBG_RETURN(nullptr);
 	}
+	object->persistent = persistent;
+	object->m = xmysqlnd_node_session_data_get_methods();
 	DBG_RETURN(object);
 }
 /* }}} */
@@ -92,7 +93,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CL
 /* {{{ xmysqlnd_object_factory::get_node_schema */
 static XMYSQLND_NODE_SCHEMA *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_schema)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-														  XMYSQLND_NODE_SESSION* session,
+														  XMYSQLND_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  MYSQLND_STATS* stats,
@@ -191,7 +192,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_table)(const MYSQLND_CLASS_MET
 /* {{{ xmysqlnd_object_factory::get_node_stmt */
 static XMYSQLND_NODE_STMT *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-														XMYSQLND_NODE_SESSION* session,
+														XMYSQLND_SESSION session,
 														const zend_bool persistent,
 														MYSQLND_STATS* stats,
 														MYSQLND_ERROR_INFO* error_info)
