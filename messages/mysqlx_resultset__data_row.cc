@@ -34,6 +34,7 @@ extern "C" {
 #include "mysqlx_resultset__resultset_metadata.h"
 
 #include "util/object.h"
+#include "util/pb_utils.h"
 
 #include "protobuf_api.h"
 
@@ -160,7 +161,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 					::google::protobuf::uint64 gval;
 					DBG_INF("SINT");
-					if (input_stream.ReadVarint64(&gval)) {
+					if (util::pb::read_variant_64(input_stream, &gval)) {
 						int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
 #if SIZEOF_ZEND_LONG==4
 						if (UNEXPECTED(ival >= ZEND_LONG_MAX)) {
@@ -181,7 +182,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					::google::protobuf::io::CodedInputStream input_stream(buf, buf_size);
 					::google::protobuf::uint64 gval;
 					DBG_INF("UINT");
-					if (input_stream.ReadVarint64(&gval)) {
+					if (util::pb::read_variant_64(input_stream, &gval)) {
 #if SIZEOF_ZEND_LONG==8
 						if (gval > 9223372036854775807L) {
 #elif SIZEOF_ZEND_LONG==4
@@ -257,15 +258,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					do {
-						if (!input_stream.ReadVarint64(&neg)) break;
+						if (!util::pb::read_variant_64(input_stream, &neg)) break;
 						DBG_INF_FMT("neg  =" MYSQLND_LLU_SPEC, neg);
-						if (!input_stream.ReadVarint64(&hours)) break;
+						if (!util::pb::read_variant_64(input_stream, &hours)) break;
 						DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
-						if (!input_stream.ReadVarint64(&minutes)) break;
+						if (!util::pb::read_variant_64(input_stream, &minutes)) break;
 						DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
-						if (!input_stream.ReadVarint64(&seconds)) break;
+						if (!util::pb::read_variant_64(input_stream, &seconds)) break;
 						DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
-						if (!input_stream.ReadVarint64(&useconds)) break;
+						if (!util::pb::read_variant_64(input_stream, &useconds)) break;
 						DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
 					} while (0);
 					#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
@@ -295,19 +296,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					do {
-						if (!input_stream.ReadVarint64(&year)) break;
+						if (!util::pb::read_variant_64(input_stream, &year)) break;
 						DBG_INF_FMT("year =" MYSQLND_LLU_SPEC, year);
-						if (!input_stream.ReadVarint64(&month)) break;
+						if (!util::pb::read_variant_64(input_stream, &month)) break;
 						DBG_INF_FMT("month=" MYSQLND_LLU_SPEC, month);
-						if (!input_stream.ReadVarint64(&day)) break;
+						if (!util::pb::read_variant_64(input_stream, &day)) break;
 						DBG_INF_FMT("day  =" MYSQLND_LLU_SPEC, day);
-						if (!input_stream.ReadVarint64(&hours)) break;
+						if (!util::pb::read_variant_64(input_stream, &hours)) break;
 						DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
-						if (!input_stream.ReadVarint64(&minutes)) break;
+						if (!util::pb::read_variant_64(input_stream, &minutes)) break;
 						DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
-						if (!input_stream.ReadVarint64(&seconds)) break;
+						if (!util::pb::read_variant_64(input_stream, &seconds)) break;
 						DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
-						if (!input_stream.ReadVarint64(&useconds)) break;
+						if (!util::pb::read_variant_64(input_stream, &useconds)) break;
 						DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
 					} while (0);
 					#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
@@ -332,7 +333,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					while (length_read_ok) {
-						if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
+						if ((length_read_ok = util::pb::read_variant_64(input_stream, &gval))) {
 							char* set_value{nullptr};
 							int rest_buffer_size{0};
 							if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {

@@ -22,6 +22,8 @@
 #include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
 #include <boost/optional.hpp>
 
+namespace google { namespace protobuf { namespace io { class CodedInputStream; } } }
+
 namespace Mysqlx { namespace Sql { class StmtExecute; } }
 
 namespace mysqlx {
@@ -33,6 +35,10 @@ namespace pb {
 using Any = Mysqlx::Datatypes::Any;
 using Array = Mysqlx::Datatypes::Array;
 using Object = Mysqlx::Datatypes::Object;
+
+// -----------------------------------------------------------------------------
+
+bool read_variant_64(::google::protobuf::io::CodedInputStream& input_stream, uint64_t* value);
 
 // -----------------------------------------------------------------------------
 

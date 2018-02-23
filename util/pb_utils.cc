@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "pb_utils.h"
+#include "protobuf_api.h"
 #include "xmysqlnd/proto_gen/mysqlx_sql.pb.h"
 
 namespace mysqlx {
@@ -25,6 +26,41 @@ namespace util {
 namespace pb {
 
 using namespace Mysqlx::Datatypes;
+
+bool read_variant_64(::google::protobuf::io::CodedInputStream& input_stream, uint64_t* value)
+{
+	/*
+		fix for protobuf 3.0.0, there is problem with routine:
+
+		bool CodedInputStream::ReadVarint64(uint64* value)
+
+		it stores random number in 'value' in case it cannot read next value (e.g. stream is
+		at the end)
+		it returns 'false' as expected, but in many places we also expected it will NOT
+		touch the output 'value'
+
+
+		e.g.
+		uint64_t val = INIT_VALUE;
+		if (!input_stream.ReadVarint64(&val)) break;
+
+		in case it returns false in 'val' there may be random number != INIT_VALUE, while we
+		would expect it will be not touched, and still INIT_VALUE
+
+		it may cause severe problems, besides valgrind treats such values as uninitialized
+		hence this helper routine to wrap CodedInputStream::ReadVarint64
+
+		btw behaviour met on both Linux/Win x64, doesn't occur on Win32
+	*/
+	uint64_t tmp;
+	if (input_stream.ReadVarint64(&tmp)) {
+		*value = tmp;
+		return true;
+	}
+	return false;
+}
+
+// -----------------------------------------------------------------------------
 
 void to_any(
 	std::nullptr_t /*nil*/,
