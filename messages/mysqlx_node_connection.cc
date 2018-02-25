@@ -30,6 +30,7 @@ extern "C" {
 #include "mysqlx_session.h"
 #include "mysqlx_node_connection.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -235,11 +236,7 @@ mysqlx_node_connection_free_storage(zend_object * object)
 	st_mysqlx_node_connection* connection = (st_mysqlx_node_connection*) mysqlx_object->ptr;
 	if (connection) {
 		const zend_bool pers = connection->persistent;
-		if (connection->error_info->error_list) {
-			zend_llist_clean(connection->error_info->error_list);
-			mnd_pefree(connection->error_info->error_list, pers);
-			connection->error_info->error_list = nullptr;
-		}
+		util::zend::free_error_info_list(connection->error_info, pers);
 		mysqlnd_vio_free(connection->vio, connection->stats, connection->error_info);
 		mysqlnd_stats_end(connection->stats, pers);
 		mnd_pefree(connection, pers);

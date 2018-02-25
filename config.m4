@@ -111,6 +111,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		util/strings.cc \
 		util/url_utils.cc \
 		util/value.cc \
+		util/zend_utils.cc \
 		"
 
 	xmysqlnd_sources=" \

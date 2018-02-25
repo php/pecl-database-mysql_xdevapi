@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
-#define MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
+#ifndef MYSQL_XDEVAPI_UTIL_HASH_TABLE_H
+#define MYSQL_XDEVAPI_UTIL_HASH_TABLE_H
 
 #include <cstddef>
 
@@ -69,7 +69,7 @@ class Hash_table
 
 } // namespace mysqlx
 
-#endif // MYSQL_XDEVAPI_PHPUTILS_HASH_TABLE_H
+#endif // MYSQL_XDEVAPI_UTIL_HASH_TABLE_H
 
 /*
  * Local variables:

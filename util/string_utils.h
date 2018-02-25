@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_STRING_UTILS_H
-#define MYSQL_XDEVAPI_PHPUTILS_STRING_UTILS_H
+#ifndef MYSQL_XDEVAPI_UTIL_STRING_UTILS_H
+#define MYSQL_XDEVAPI_UTIL_STRING_UTILS_H
 
 #include "php_api.h"
 #include "mysqlnd_api.h"
@@ -133,7 +133,7 @@ st_mysqlnd_string literal_to_mysqlnd_str(const char (&literal)[Length])
 
 } // namespace mysqlx
 
-#endif // MYSQL_XDEVAPI_PHPUTILS_STRING_UTILS_H
+#endif // MYSQL_XDEVAPI_UTIL_STRING_UTILS_H
 
 /*
  * Local variables:

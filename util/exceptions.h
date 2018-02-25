@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_EXCEPTIONS_H
-#define MYSQL_XDEVAPI_PHPUTILS_EXCEPTIONS_H
+#ifndef MYSQL_XDEVAPI_UTIL_EXCEPTIONS_H
+#define MYSQL_XDEVAPI_UTIL_EXCEPTIONS_H
 
 #include "strings.h"
 #include <exception>
@@ -132,7 +132,7 @@ void log_warning(const string& msg);
 		util::raise_unknown_exception(); \
 	}
 
-#endif // MYSQL_XDEVAPI_EXCEPTIONS_H
+#endif // MYSQL_XDEVAPI_UTIL_EXCEPTIONS_H
 
 /*
  * Local variables:

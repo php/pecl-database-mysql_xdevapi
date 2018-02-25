@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_VALUE_H
-#define MYSQL_XDEVAPI_PHPUTILS_VALUE_H
+#ifndef MYSQL_XDEVAPI_UTIL_VALUE_H
+#define MYSQL_XDEVAPI_UTIL_VALUE_H
 
 #include "strings.h"
 
@@ -87,7 +87,6 @@ class zvalue
 			Object = IS_OBJECT,
 			Resource = IS_RESOURCE,
 			Reference = IS_REFERENCE,
-			Constant = IS_CONSTANT,
 			Constant_ast = IS_CONSTANT_AST,
 			Bool = _IS_BOOL,
 			Callable = IS_CALLABLE,
@@ -142,7 +141,6 @@ class zvalue_ptr
 			Object = IS_OBJECT,
 			Resource = IS_RESOURCE,
 			Reference = IS_REFERENCE,
-			Constant = IS_CONSTANT,
 			Constant_ast = IS_CONSTANT_AST,
 			Bool = _IS_BOOL,
 			Callable = IS_CALLABLE,
@@ -170,7 +168,7 @@ class zvalue_ptr
 
 } // namespace mysqlx
 
-#endif // MYSQL_XDEVAPI_PHPUTILS_VALUE_H
+#endif // MYSQL_XDEVAPI_UTIL_VALUE_H
 
 /*
  * Local variables:
