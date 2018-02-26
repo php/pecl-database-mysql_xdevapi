@@ -55,7 +55,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 	st_xmysqlnd_session* object{ nullptr };
 	try{
 		object = new st_xmysqlnd_session(factory, stats, error_info);
-	}catch(std::exception& e)
+	}catch(std::exception&)
 	{
 		DBG_RETURN(nullptr);
 	}
@@ -79,7 +79,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CL
 	st_xmysqlnd_session_data * object{ nullptr };
 	try{
 		object = new st_xmysqlnd_session_data( factory, stats, error_info );
-	}catch(std::exception& e)
+	}catch(std::exception&)
 	{
 		DBG_RETURN(nullptr);
 	}

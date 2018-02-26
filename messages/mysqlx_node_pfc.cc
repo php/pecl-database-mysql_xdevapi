@@ -30,6 +30,7 @@ extern "C" {
 #include "mysqlx_node_connection.h"
 #include "mysqlx_node_pfc.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -145,8 +146,10 @@ static zend_object_handlers mysqlx_object_node_pfc_handlers;
 static HashTable mysqlx_node_pfc_properties;
 
 
+namespace {
+
 /* {{{ mysqlx_node_pfc_free_storage */
-static void
+void
 mysqlx_node_pfc_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
@@ -154,11 +157,7 @@ mysqlx_node_pfc_free_storage(zend_object * object)
 
 	if (codec) {
 		const zend_bool pers = codec->persistent;
-		if (codec->error_info->error_list) {
-			zend_llist_clean(codec->error_info->error_list);
-			mnd_pefree(codec->error_info->error_list, pers);
-			codec->error_info->error_list = nullptr;
-		}
+		util::zend::free_error_info_list(codec->error_info, pers);
 		xmysqlnd_pfc_free(codec->pfc, codec->stats, codec->error_info);
 		mysqlnd_stats_end(codec->stats, pers);
 		mnd_pefree(codec, pers);
@@ -169,7 +168,7 @@ mysqlx_node_pfc_free_storage(zend_object * object)
 
 
 /* {{{ php_mysqlx_node_pfc_object_allocator */
-static zend_object *
+zend_object*
 php_mysqlx_node_pfc_object_allocator(zend_class_entry * class_type)
 {
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
@@ -214,6 +213,7 @@ php_mysqlx_node_pfc_object_allocator(zend_class_entry * class_type)
 }
 /* }}} */
 
+} // anonymous namespace
 
 /* {{{ mysqlx_register_node_pfc_class */
 void

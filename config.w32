@@ -114,7 +114,8 @@ var mysqlx_util = [
 	"string_utils.cc",
 	"strings.cc",
 	"url_utils.cc",
-	"value.cc"
+	"value.cc",
+	"zend_utils.cc"
 ];
 
 var xmysqlnd_sources = [

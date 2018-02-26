@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_PB_UTILS_H
-#define MYSQL_XDEVAPI_PHPUTILS_PB_UTILS_H
+#ifndef MYSQL_XDEVAPI_UTIL_PB_UTILS_H
+#define MYSQL_XDEVAPI_UTIL_PB_UTILS_H
 
 #include "util/strings.h"
 #include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
@@ -144,7 +144,7 @@ Array* add_array_arg(Mysqlx::Sql::StmtExecute& stmt_message);
 
 } // namespace mysqlx
 
-#endif /* MYSQL_XDEVAPI_PHPUTILS_PB_UTILS_H */
+#endif /* MYSQL_XDEVAPI_UTIL_PB_UTILS_H */
 
 /*
  * Local variables:

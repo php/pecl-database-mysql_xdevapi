@@ -50,6 +50,7 @@ extern "C" {
 #include "util/object.h"
 #include "util/string_utils.h"
 #include "util/url_utils.h"
+#include "util/zend_utils.h"
 #include <utility>
 #include <algorithm>
 #include <cctype>
@@ -334,11 +335,7 @@ void st_xmysqlnd_session_data::cleanup()
 		mnd_pefree(server_host_info, pers);
 		server_host_info = nullptr;
 	}
-	if (error_info->error_list) {
-		zend_llist_clean(error_info->error_list);
-		mnd_pefree(error_info->error_list, pers);
-		error_info->error_list = nullptr;
-	}
+	util::zend::free_error_info_list(error_info, pers);
 	charset = nullptr;
 
 	DBG_VOID_RETURN;

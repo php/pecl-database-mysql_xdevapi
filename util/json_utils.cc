@@ -158,8 +158,6 @@ void Ensure_doc_id::store_id()
 {
 	if (Z_TYPE_P(doc_with_id) != IS_ARRAY) return;
 
-	assert(!Z_IMMUTABLE_P(doc_with_id));
-
 	Hash_table ht(doc_with_id, false);
 	const char* Id_column_name = "_id";
 	ht.insert(Id_column_name, doc_id);

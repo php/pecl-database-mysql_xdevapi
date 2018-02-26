@@ -5,7 +5,7 @@
   | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
-  | that is bundled with this package in the file LICENSE, and is        |
+  | rhs is bundled with this package in the file LICENSE, and is        |
   | available through the world-wide-web at the following url:           |
   | http://www.php.net/license/3_01.txt                                  |
   | If you did not receive a copy of the PHP license and are unable to   |
@@ -15,43 +15,26 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_UTIL_URL_UTILS_H
-#define MYSQL_XDEVAPI_UTIL_URL_UTILS_H
-
-#include "strings.h"
-
-extern "C" {
-struct php_url;
-}
+#ifndef MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
+#define MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
 
 namespace mysqlx {
 
 namespace util {
 
-/* {{{ Url */
-struct Url
-{
-	Url() = default;
-	Url(const php_url* phpurl);
+namespace zend {
 
-	bool empty() const;
+void free_error_info_list(
+	MYSQLND_ERROR_INFO* error_info,
+	zend_bool persistent);
 
-	string scheme;
-	string user;
-	string pass;
-	string host;
-	unsigned short port = 0;
-	string path;
-	string query;
-	string fragment;
-};
-/* }}} */
+} // namespace zend
 
 } // namespace util
 
 } // namespace mysqlx
 
-#endif // MYSQL_XDEVAPI_UTIL_URL_UTILS_H
+#endif // MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
 
 /*
  * Local variables:

@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_STRINGS_H
-#define MYSQL_XDEVAPI_PHPUTILS_STRINGS_H
+#ifndef MYSQL_XDEVAPI_UTIL_STRINGS_H
+#define MYSQL_XDEVAPI_UTIL_STRINGS_H
 
 #include "php_api.h"
 extern "C" {
@@ -173,7 +173,7 @@ struct string_view
 
 } // namespace mysqlx
 
-#endif // MYSQL_XDEVAPI_PHP_STRINGS_H
+#endif // MYSQL_XDEVAPI_UTIL_STRINGS_H
 
 /*
  * Local variables:

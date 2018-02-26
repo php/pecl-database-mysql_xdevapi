@@ -16,8 +16,8 @@
   |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHPUTILS_JSON_UTILS_H
-#define MYSQL_XDEVAPI_PHPUTILS_JSON_UTILS_H
+#ifndef MYSQL_XDEVAPI_UTIL_JSON_UTILS_H
+#define MYSQL_XDEVAPI_UTIL_JSON_UTILS_H
 
 namespace mysqlx {
 
@@ -44,7 +44,7 @@ void ensure_doc_id_as_string(
 
 } // namespace mysqlx
 
-#endif // MYSQL_XDEVAPI_PHPUTILS_JSON_UTILS_H
+#endif // MYSQL_XDEVAPI_UTIL_JSON_UTILS_H
 
 /*
  * Local variables:

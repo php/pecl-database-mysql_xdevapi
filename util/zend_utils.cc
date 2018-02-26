@@ -5,7 +5,7 @@
   | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
-  | that is bundled with this package in the file LICENSE, and is        |
+  | rhs is bundled with this package in the file LICENSE, and is        |
   | available through the world-wide-web at the following url:           |
   | http://www.php.net/license/3_01.txt                                  |
   | If you did not receive a copy of the PHP license and are unable to   |
@@ -15,43 +15,57 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_UTIL_URL_UTILS_H
-#define MYSQL_XDEVAPI_UTIL_URL_UTILS_H
-
-#include "strings.h"
-
-extern "C" {
-struct php_url;
-}
+#include "php_api.h"
+#include "mysqlnd_api.h"
+#include "zend_utils.h"
 
 namespace mysqlx {
 
 namespace util {
 
-/* {{{ Url */
-struct Url
+namespace zend {
+
+namespace {
+
+template<typename T>
+void free_error_list(
+	T& error_list,
+	zend_bool persistent);
+
+template<>
+void free_error_list<zend_llist*>(
+	zend_llist*& error_list,
+	zend_bool persistent)
 {
-	Url() = default;
-	Url(const php_url* phpurl);
+	if (error_list) {
+		zend_llist_clean(error_list);
+		mnd_pefree(error_list, persistent);
+		error_list = nullptr;
+	}
+}
 
-	bool empty() const;
+template<>
+void free_error_list<zend_llist>(
+	zend_llist& error_list,
+	zend_bool persistent)
+{
+	zend_llist_clean(&error_list);
+}
 
-	string scheme;
-	string user;
-	string pass;
-	string host;
-	unsigned short port = 0;
-	string path;
-	string query;
-	string fragment;
-};
-/* }}} */
+} // anonymous namespace
+
+void free_error_info_list(
+	MYSQLND_ERROR_INFO* error_info,
+	zend_bool persistent)
+{
+	free_error_list(error_info->error_list, persistent);
+}
+
+} // namespace zend
 
 } // namespace util
 
 } // namespace mysqlx
-
-#endif // MYSQL_XDEVAPI_UTIL_URL_UTILS_H
 
 /*
  * Local variables:
