@@ -30,7 +30,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		php_mysqlx.cc \
 		php_mysqlx_ex.cc \
 		php_xmysqlnd.cc \
-		mysqlx_base_session.cc \
 		mysqlx_class_properties.cc \
 		mysqlx_crud_operation_bindable.cc \
 		mysqlx_crud_operation_limitable.cc \

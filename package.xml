@@ -80,8 +80,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="config.w32" role="src" />
    <file name="examples.php" role="test" />
    <file name="mysql_xdevapi.def" role="src" />
-   <file name="mysqlx_base_session.cc" role="src" />
-   <file name="mysqlx_base_session.h" role="src" />
    <file name="mysqlx_class_properties.cc" role="src" />
    <file name="mysqlx_class_properties.h" role="src" />
    <file name="mysqlx_crud_operation_bindable.cc" role="src" />

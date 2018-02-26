@@ -35,7 +35,6 @@ extern "C" {
 #include "mysqlx_execution_status.h"
 #include "mysqlx_expression.h"
 #include "mysqlx_field_metadata.h"
-#include "mysqlx_base_session.h"
 #include "mysqlx_x_session.h"
 #include "mysqlx_node_schema.h"
 #include "mysqlx_node_collection.h"
@@ -109,7 +108,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_database_object_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_executable_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_schema_object_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-	mysqlx_register_session_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_crud_operation_bindable_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_crud_operation_limitable_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_crud_operation_skippable_interface(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -123,7 +121,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	mysqlx_register_driver_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
-	mysqlx_register_base_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_x_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
@@ -274,7 +271,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_node_schema_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_x_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-	mysqlx_unregister_base_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_field_metadata_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
@@ -288,7 +284,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_crud_operation_bindable_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_schema_object_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-	mysqlx_unregister_session_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_executable_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_database_object_interface(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
