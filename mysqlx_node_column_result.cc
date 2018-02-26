@@ -172,8 +172,8 @@ static uint64_t int_type_mappings[] = {
 	FIELD_TYPE_INT//11
 };
 
-/* {{{ get_column_meta_field */
-static uint64_t
+/* {{{ get_column_type */
+uint64_t
 get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 {
 	switch(meta->type) {
@@ -235,7 +235,7 @@ get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 /* }}} */
 
 /* {{{ get_column_meta_field */
-static zend_bool
+zend_bool
 is_type_signed(const st_xmysqlnd_result_field_meta* const meta)
 {
 	zend_bool is_signed{FALSE};
@@ -259,8 +259,6 @@ is_type_signed(const st_xmysqlnd_result_field_meta* const meta)
 }
 /* }}} */
 
-namespace {
-
 /* {{{ get_column_length */
 void
 get_column_length(zval* return_value, std::uint32_t length)
@@ -276,10 +274,8 @@ get_column_length(zval* return_value, std::uint32_t length)
 }
 /* }}} */
 
-} // anonymous namespace
-
 /* {{{ get_column_meta_field */
-static void
+void
 get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					meta_fields selected_meta_field)
 {

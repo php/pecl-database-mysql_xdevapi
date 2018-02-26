@@ -58,6 +58,7 @@ extern "C" {
 #include "messages/mysqlx_message__auth_ok.h"
 #endif
 #include "messages/mysqlx_resultset__data_row.h"
+#include "util/pb_utils.h"
 #include "util/string_utils.h"
 #include "protobuf_api.h"
 #include <ext/mysqlnd/mysql_float_to_double.h>
@@ -91,6 +92,18 @@ xmysqlnd_field_type_name(const unsigned int type)
 	ret.s = field.c_str();
 	ret.l = field.size();
 	return ret;
+}
+/* }}} */
+
+
+/* {{{ get_datetime_type */
+static int
+get_datetime_type(const XMYSQLND_RESULT_FIELD_META* const field_meta)
+{
+	if (field_meta->content_type_set && (field_meta->content_type == Mysqlx::Resultset::DATE)) {
+		return FIELD_TYPE_DATE;
+	}
+	return FIELD_TYPE_DATETIME;
 }
 /* }}} */
 
@@ -1370,7 +1383,7 @@ enum_func_status xmysqlnd_row_sint_field_to_zval( zval* zv,
 	enum_func_status ret{PASS};
 	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint64 gval;
-	if (input_stream.ReadVarint64(&gval)) {
+	if (util::pb::read_variant_64(input_stream, &gval)) {
 		int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
 #if SIZEOF_ZEND_LONG==4
 		if (UNEXPECTED(ival >= ZEND_LONG_MAX)) {
@@ -1402,7 +1415,7 @@ enum_func_status xmysqlnd_row_uint_field_to_zval( zval* zv,
 	enum_func_status ret{PASS};
 	::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
 	::google::protobuf::uint64 gval;
-	if (input_stream.ReadVarint64(&gval)) {
+	if (util::pb::read_variant_64(input_stream, &gval)) {
 #if SIZEOF_ZEND_LONG==8
 		if (gval > 9223372036854775807L) {
 #elif SIZEOF_ZEND_LONG==4
@@ -1503,15 +1516,15 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 			}
 		} else {
 			do {
-				if (!input_stream.ReadVarint64(&neg)) break;
+				if (!util::pb::read_variant_64(input_stream, &neg)) break;
 				DBG_INF_FMT("neg     =" MYSQLND_LLU_SPEC, neg);
-				if (!input_stream.ReadVarint64(&hours)) break;
+				if (!util::pb::read_variant_64(input_stream, &hours)) break;
 				DBG_INF_FMT("hours   =" MYSQLND_LLU_SPEC, hours);
-				if (!input_stream.ReadVarint64(&minutes)) break;
+				if (!util::pb::read_variant_64(input_stream, &minutes)) break;
 				DBG_INF_FMT("mins    =" MYSQLND_LLU_SPEC, minutes);
-				if (!input_stream.ReadVarint64(&seconds)) break;
+				if (!util::pb::read_variant_64(input_stream, &seconds)) break;
 				DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
-				if (!input_stream.ReadVarint64(&useconds)) break;
+				if (!util::pb::read_variant_64(input_stream, &useconds)) break;
 				DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
 			} while (0);
 
@@ -1546,36 +1559,80 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 				ZVAL_NEW_STR(zv, zend_string_init(DATETIME_NULL_VALUE, sizeof(DATETIME_NULL_VALUE)-1, 0));
 #undef DATETIME_NULL_VALUE
 			} else {
-				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of DATETIME", (uint)(buf[0]));
 				ret = FAIL;
 			}
 		} else {
 			do {
-				if (!input_stream.ReadVarint64(&year)) break;
+				if (!util::pb::read_variant_64(input_stream, &year)) break;
 				DBG_INF_FMT("year    =" MYSQLND_LLU_SPEC, year);
-				if (!input_stream.ReadVarint64(&month)) break;
+				if (!util::pb::read_variant_64(input_stream, &month)) break;
 				DBG_INF_FMT("month   =" MYSQLND_LLU_SPEC, month);
-				if (!input_stream.ReadVarint64(&day)) break;
+				if (!util::pb::read_variant_64(input_stream, &day)) break;
 				DBG_INF_FMT("day     =" MYSQLND_LLU_SPEC, day);
-				if (!input_stream.ReadVarint64(&hours)) break;
+				if (!util::pb::read_variant_64(input_stream, &hours)) break;
 				DBG_INF_FMT("hours   =" MYSQLND_LLU_SPEC, hours);
-				if (!input_stream.ReadVarint64(&minutes)) break;
+				if (!util::pb::read_variant_64(input_stream, &minutes)) break;
 				DBG_INF_FMT("mins    =" MYSQLND_LLU_SPEC, minutes);
-				if (!input_stream.ReadVarint64(&seconds)) break;
+				if (!util::pb::read_variant_64(input_stream, &seconds)) break;
 				DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
-				if (!input_stream.ReadVarint64(&useconds)) break;
+				if (!util::pb::read_variant_64(input_stream, &useconds)) break;
 				DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
 			} while (0);
-#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
-			ZVAL_NEW_STR(zv, strpprintf(0, DATETIME_FMT_STR ,
-										(unsigned int) year,
-										(unsigned int) month,
-										(unsigned int) day,
-										(unsigned int) hours,
-										(unsigned int) minutes,
-										(unsigned int) seconds,
-										(unsigned int) useconds));
-#undef DATETIME_FMT_STR
+
+			auto str = util::formatter("%04u-%02u-%02u %02u:%02u:%02u")
+				% year
+				% month
+				% day
+				% hours
+				% minutes
+				% seconds;
+			ZVAL_NEW_STR(zv, util::to_zend_string(str));
+		}
+	}
+	DBG_RETURN( ret );
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_row_date_field_to_zval */
+static
+enum_func_status xmysqlnd_row_date_field_to_zval(
+	zval* zv,
+	const uint8_t * buf,
+	const size_t buf_size)
+{
+	DBG_ENTER("xmysqlnd_row_date_field_to_zval");
+	enum_func_status ret{FAIL};
+	if (buf_size) {
+		::google::protobuf::io::CodedInputStream input_stream(buf, static_cast<int>(buf_size));
+		::google::protobuf::uint64 year = 0;
+		::google::protobuf::uint64 month = 0;
+		::google::protobuf::uint64 day = 0;
+		if (buf_size == 1) {
+			if (!buf[0]) {
+				const std::string date_null_value("0000-00-00");
+				ZVAL_NEW_STR(zv, zend_string_init(date_null_value.c_str(), date_null_value.length(), 0));
+				ret = PASS;
+			} else {
+				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of DATE", (uint)(buf[0]));
+			}
+		} else {
+			do {
+				if (!util::pb::read_variant_64(input_stream, &year)) break;
+				DBG_INF_FMT("year  =" MYSQLND_LLU_SPEC, year);
+				if (!util::pb::read_variant_64(input_stream, &month)) break;
+				DBG_INF_FMT("month =" MYSQLND_LLU_SPEC, month);
+				if (!util::pb::read_variant_64(input_stream, &day)) break;
+				DBG_INF_FMT("day   =" MYSQLND_LLU_SPEC, day);
+			} while (0);
+
+			auto str = util::formatter("%04u-%02u-%02u")
+				% year
+				% month
+				% day;
+			ZVAL_NEW_STR(zv, util::to_zend_string(str));
+			ret = PASS;
 		}
 	}
 	DBG_RETURN( ret );
@@ -1600,7 +1657,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 		DBG_RETURN( ret );
 	}
 	while (length_read_ok) {
-		if ((length_read_ok = input_stream.ReadVarint64(&gval))) {
+		if ((length_read_ok = util::pb::read_variant_64(input_stream, &gval))) {
 			char* set_value{nullptr};
 			int rest_buffer_size{0};
 			if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
@@ -1767,7 +1824,13 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 		case XMYSQLND_TYPE_DATETIME:
 		{
 			DBG_INF("type    =DATETIME");
-			ret = xmysqlnd_row_datetime_field_to_zval( zv, buf, buf_size );
+			const int datetime_type = get_datetime_type(field_meta);
+			if (datetime_type == FIELD_TYPE_DATETIME) {
+				ret = xmysqlnd_row_datetime_field_to_zval( zv, buf, buf_size );
+			} else {
+				assert(datetime_type == FIELD_TYPE_DATE);
+				ret = xmysqlnd_row_date_field_to_zval( zv, buf, buf_size );
+			}
 			break;
 		}
 		case XMYSQLND_TYPE_SET:
