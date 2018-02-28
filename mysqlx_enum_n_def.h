@@ -34,6 +34,10 @@ const int MYSQL_TYPE_BYTES     = MYSQL_TYPE_BIT + 5;
 #define FIELD_TYPE_BIGINT		MYSQL_TYPE_BIGINT
 #define FIELD_TYPE_BYTES		MYSQL_TYPE_BYTES
 
+const int MYSQLX_LOCK_DEFAULT = 0;
+const int MYSQLX_LOCK_NOWAIT = 1;
+const int MYSQLX_LOCK_SKIP_LOCKED = 2;
+
 } // namespace mysqlx
 
 #endif // MYSQLX_ENUM_N_DEF_H

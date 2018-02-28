@@ -16,14 +16,13 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_wireprotocol.h"
+
+#include "mysqlx_enum_n_def.h"
 
 #include <vector>
 #include <string>
@@ -34,6 +33,8 @@ extern "C" {
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 
 #include "xmysqlnd/crud_parsers/expression_parser.h"
+
+#include "util/exceptions.h"
 
 namespace mysqlx {
 
@@ -1061,6 +1062,35 @@ xmysqlnd_crud_collection_find__enable_lock_exclusive(XMYSQLND_CRUD_COLLECTION_OP
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__enable_lock_exclusive");
 	obj->message.set_locking(::Mysqlx::Crud::Find_RowLock_EXCLUSIVE_LOCK);
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find_set_lock_waiting_option */
+enum_func_status
+xmysqlnd_crud_collection_find_set_lock_waiting_option(
+	XMYSQLND_CRUD_COLLECTION_OP__FIND* obj,
+	int lock_waiting_option)
+{
+	DBG_ENTER("xmysqlnd_crud_collection_find_set_lock_waiting_option");
+	switch (lock_waiting_option)
+	{
+		case MYSQLX_LOCK_DEFAULT:
+			obj->message.clear_locking_options();
+			break;
+
+		case MYSQLX_LOCK_NOWAIT:
+			obj->message.set_locking_options(Mysqlx::Crud::Find_RowLockOptions_NOWAIT);
+			break;
+
+		case MYSQLX_LOCK_SKIP_LOCKED:
+			obj->message.set_locking_options(Mysqlx::Crud::Find_RowLockOptions_SKIP_LOCKED);
+			break;
+
+		default:
+			throw util::xdevapi_exception(util::xdevapi_exception::Code::unknown_lock_waiting_option);
+	}
 	DBG_RETURN(PASS);
 }
 /* }}} */

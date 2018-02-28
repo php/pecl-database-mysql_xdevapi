@@ -33,6 +33,7 @@ extern "C" {
 #include "mysqlx_crud_operation_skippable.h"
 #include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_enum_n_def.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_expression.h"
@@ -81,9 +82,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__bind, 0, ZEND_RETUR
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__lock_shared, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, lock_waiting_option, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__lock_exclusive, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, lock_waiting_option, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__find__execute, 0, ZEND_RETURN_VALUE, 0)
@@ -381,13 +384,15 @@ void Collection_find::bind(
 
 
 /* {{{ proto mixed mysqlx_node_collection__find::lock_shared() */
-void Collection_find::lock_shared(zval* return_value)
+void Collection_find::lock_shared(zval* return_value, int lock_waiting_option)
 {
 	DBG_ENTER("mysqlx_node_collection__find::lock_shared");
 
 	RETVAL_FALSE;
 
-	if (xmysqlnd_crud_collection_find__enable_lock_shared(find_op) == PASS) {
+	if ((xmysqlnd_crud_collection_find__enable_lock_shared(find_op) == PASS)
+		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS))
+	{
 		ZVAL_COPY(return_value, object_zv);
 	}
 
@@ -397,13 +402,15 @@ void Collection_find::lock_shared(zval* return_value)
 
 
 /* {{{ proto mixed mysqlx_node_collection__find::lock_exclusive() */
-void Collection_find::lock_exclusive(zval* return_value)
+void Collection_find::lock_exclusive(zval* return_value, int lock_waiting_option)
 {
 	DBG_ENTER("mysqlx_node_collection__find::lock_exclusive");
 
 	RETVAL_FALSE;
 
-	if (xmysqlnd_crud_collection_find__enable_lock_exclusive(find_op) == PASS) {
+	if ((xmysqlnd_crud_collection_find__enable_lock_exclusive(find_op) == PASS)
+		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS))
+	{
 		ZVAL_COPY(return_value, object_zv);
 	}
 
@@ -663,14 +670,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockShared)
 	DBG_ENTER("mysqlx_node_collection__find::lockShared");
 
 	zval* object_zv{nullptr};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-		&object_zv, collection_find_class_entry))
+	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+		&object_zv, collection_find_class_entry,
+		&lock_waiting_option))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.lock_shared(return_value);
+	coll_find.lock_shared(return_value, static_cast<int>(lock_waiting_option));
 
 	DBG_VOID_RETURN;
 }
@@ -683,14 +692,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__find, lockExclusive)
 	DBG_ENTER("mysqlx_node_collection__find::lockExclusive");
 
 	zval* object_zv{nullptr};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-		&object_zv, collection_find_class_entry))
+	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+		&object_zv, collection_find_class_entry,
+		&lock_waiting_option))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.lock_exclusive(return_value);
+	coll_find.lock_exclusive(return_value, static_cast<int>(lock_waiting_option));
 
 	DBG_VOID_RETURN;
 }

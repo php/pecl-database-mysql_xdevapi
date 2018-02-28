@@ -79,9 +79,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__bind, 0, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__lock_shared, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, lock_waiting_option, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__lock_exclusive, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, lock_waiting_option, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__execute, 0, ZEND_RETURN_VALUE, 0)
@@ -407,8 +409,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockShared)
 	DBG_ENTER("mysqlx_node_table__select::lockShared");
 
 	zval* object_zv{nullptr};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-		&object_zv, mysqlx_node_table__select_class_entry))
+	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+		&object_zv, mysqlx_node_table__select_class_entry,
+		&lock_waiting_option))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -431,8 +435,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 	DBG_ENTER("mysqlx_node_table__select::lockExclusive");
 
 	zval* object_zv{nullptr};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-		&object_zv, mysqlx_node_table__select_class_entry))
+	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
+	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+		&object_zv, mysqlx_node_table__select_class_entry,
+		&lock_waiting_option))
 	{
 		DBG_VOID_RETURN;
 	}

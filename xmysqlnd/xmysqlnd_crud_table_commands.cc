@@ -1193,6 +1193,35 @@ xmysqlnd_crud_table_select__enable_lock_exclusive(XMYSQLND_CRUD_TABLE_OP__SELECT
 /* }}} */
 
 
+/* {{{ xmysqlnd_crud_table_find_set_lock_waiting_option */
+enum_func_status
+xmysqlnd_crud_table_find_set_lock_waiting_option(
+	XMYSQLND_CRUD_TABLE_OP__FIND* obj,
+	int lock_waiting_option)
+{
+	DBG_ENTER("xmysqlnd_crud_table_find_set_lock_waiting_option");
+	switch (lock_waiting_option)
+	{
+		case MYSQLX_LOCK_DEFAULT:
+			obj->message.clear_locking_options();
+			break;
+
+		case MYSQLX_LOCK_NOWAIT:
+			obj->message.set_locking_options(Mysqlx::Crud::Find_RowLockOptions_NOWAIT);
+			break;
+
+		case MYSQLX_LOCK_SKIP_LOCKED:
+			obj->message.set_locking_options(Mysqlx::Crud::Find_RowLockOptions_SKIP_LOCKED);
+			break;
+
+		default:
+			throw util::xdevapi_exception(util::xdevapi_exception::Code::unknown_lock_waiting_option);
+	}
+	DBG_RETURN(PASS);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_crud_table_select__get_protobuf_message */
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_select__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)

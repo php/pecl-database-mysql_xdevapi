@@ -80,7 +80,8 @@ struct xdevapi_exception : public std::runtime_error
 		unknown_fkey_change_mode,
 		invalid_identifier,
 		inconsistent_ssl_options,
-		invalid_auth_mode
+		invalid_auth_mode,
+		unknown_lock_waiting_option
 	};
 
 	xdevapi_exception(Code code);

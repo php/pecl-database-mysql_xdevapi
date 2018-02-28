@@ -83,8 +83,8 @@ public:
 		HashTable* bind_variables,
 		zval* return_value);
 
-	void lock_shared(zval* return_value);
-	void lock_exclusive(zval* return_value);
+	void lock_shared(zval* return_value, int lock_waiting_option);
+	void lock_exclusive(zval* return_value, int lock_waiting_option);
 
 	void execute(zval* return_value);
 	void execute(

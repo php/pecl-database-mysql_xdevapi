@@ -83,7 +83,8 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::unknown_fkey_change_mode, "Unknown foreign key change mode" },
 	{ xdevapi_exception::Code::invalid_identifier, "Invalid MySQL identifier provided" },
 	{ xdevapi_exception::Code::inconsistent_ssl_options, "Inconsistent ssl options" },
-	{ xdevapi_exception::Code::invalid_auth_mode, "Invalid auth mode" }
+	{ xdevapi_exception::Code::invalid_auth_mode, "Invalid auth mode" },
+	{ xdevapi_exception::Code::unknown_lock_waiting_option, "Unknown lock waiting option" }
 };
 /* }}} */
 
