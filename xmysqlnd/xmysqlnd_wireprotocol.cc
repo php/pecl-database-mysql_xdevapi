@@ -188,11 +188,11 @@ xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_
 		ret = on_execution_state_change.handler(
 			on_execution_state_change.ctx,
 			state_type,
-			static_cast<size_t>(scalar2uint(message.value())));
+			static_cast<size_t>(scalar2uint(message.value(0))));
 	}
 
 #ifdef PHP_DEBUG
-	scalar2log(message.value());
+	repeated2log(message.value());
 #endif
 
 	DBG_RETURN(ret);
@@ -209,7 +209,7 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 {
 	enum_hnd_func_status ret{HND_AGAIN};
 	const bool has_param = message.has_param();
-	const bool has_value = message.has_value();
+	const bool has_value = 0 < message.value_size();
 	DBG_ENTER("xmysqlnd_inspect_changed_state");
 	DBG_INF_FMT("on_execution_state_handler=%p", on_exec_state_change.handler);
 	DBG_INF_FMT("on_trx_state_change=%p", on_trx_state_change.handler);
@@ -245,14 +245,14 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 				if (on_client_id.handler) {
 					const enum_func_status status = on_client_id.handler(
 						on_client_id.ctx,
-						static_cast<size_t>(scalar2uint(message.value())));
+						static_cast<size_t>(scalar2uint(message.value(0))));
 					ret = (status == PASS)? HND_AGAIN : HND_FAIL;
 				}
 				break;
 		}
 	}
 	if (has_value) {
-		scalar2log(message.value());
+		repeated2log(message.value());
 	}
 
 	DBG_RETURN(ret);

@@ -723,10 +723,10 @@ xmysqlnd_dump_changed_state(const Mysqlx::Notice::SessionStateChanged & message)
 								   has_param? Mysqlx::Notice::SessionStateChanged::Parameter_Name(message.param()).c_str() : "n/a");
 
 
-	const bool has_value = message.has_value();
+	const bool has_value = 0 < message.value_size();
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 	if (has_value) {
-		scalar2log(message.value());
+		repeated2log(message.value());
 	}
 
 	DBG_VOID_RETURN;

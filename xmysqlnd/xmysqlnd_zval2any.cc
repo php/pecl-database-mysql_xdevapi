@@ -492,6 +492,18 @@ any2log(const Mysqlx::Datatypes::Any & any)
 }
 /* }}} */
 
+
+/* {{{ repeated2log */
+PHP_MYSQL_XDEVAPI_API void repeated2log(
+	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated)
+{
+	for (auto scalar : repeated) {
+		scalar2log(scalar);
+	}
+}
+/* }}} */
+
+
 } // namespace drv
 
 } // namespace mysqlx

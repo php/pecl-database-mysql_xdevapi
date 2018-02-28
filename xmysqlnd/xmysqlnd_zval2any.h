@@ -29,6 +29,8 @@ PHP_MYSQL_XDEVAPI_API enum_func_status zval2any(const zval * const zv, Mysqlx::D
 PHP_MYSQL_XDEVAPI_API enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
 PHP_MYSQL_XDEVAPI_API void any2log(const Mysqlx::Datatypes::Any & any);
 PHP_MYSQL_XDEVAPI_API void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);
+PHP_MYSQL_XDEVAPI_API void repeated2log(
+	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated);
 PHP_MYSQL_XDEVAPI_API uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
 PHP_MYSQL_XDEVAPI_API int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
 PHP_MYSQL_XDEVAPI_API MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
