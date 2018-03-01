@@ -1,8 +1,5 @@
 dnl Note: see README for build details
 
-PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
-	[  --enable-mysql-xdevapi       Enable mysql-xdevapi], no, yes)
-
 PHP_ARG_ENABLE(mysql-xdevapi-experimental-features, whether to disable experimental features in mysql-xdevapi,
 	[  --disable-mysql-xdevapi-experimental-features
 						Disable support for the experimental features in mysql-xdevapi], yes, no)
@@ -16,6 +13,9 @@ PHP_ARG_WITH(boost, for boost install dir,
 
 PHP_ARG_WITH(protobuf, for protobuf install dir,
 	[  --with-protobuf[=DIR]          Point out protobuf library])
+
+PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
+	[  --enable-mysql-xdevapi       Enable mysql-xdevapi], no, yes)
 
 
 dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
