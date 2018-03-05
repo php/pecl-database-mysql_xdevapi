@@ -2180,7 +2180,8 @@ enum_func_status establish_connection(mysqlx::devapi::st_mysqlx_session * object
 	}
 
 	if( ret != FAIL ) {
-		const MYSQLND_CSTRING path = { url.path.c_str(), url.path.length() };
+//		const MYSQLND_CSTRING path = { url.path.c_str(), url.path.length() };
+		const MYSQLND_CSTRING path = { "", 0 };
 		object->session->data->transport_type = tr_type;
 		new_session = xmysqlnd_node_session_connect(object->session,
 									auth,
