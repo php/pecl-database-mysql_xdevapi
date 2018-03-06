@@ -380,9 +380,9 @@
 		return $res->fetchOne();
 	}
 
-	function check_select_lock_one($tab, $id, $expected_n, $lock) {
+	function check_select_lock_one($tab, $id, $expected_n, $lock, $waiting_option = null) {
 		$cmd = $tab->select('_id', 'n')->where("_id = '$id'");
-		check_lock_one($cmd, $id, $expected_n, $lock);
+		check_lock_one($cmd, $id, $expected_n, $lock, $waiting_option);
 	}
 
 	function check_select_lock_all($tab, $ids, $expected_vals, $lock) {
