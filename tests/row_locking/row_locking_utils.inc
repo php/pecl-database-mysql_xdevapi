@@ -305,12 +305,12 @@
 	$Lock_exclusive = "exclusive";
 
 	function check_value($val, $expected_id, $expected_n) {
-		if ($expected_n == null) {
-			return !array_key_exists($expected_id, $val);
+		if ($expected_n != null) {
+			expect_eq($val['_id'], $expected_id, '_id');
+			expect_eq($val['n'], $expected_n, 'n');
+		} else {
+			expect_false($val && is_array($val) && array_key_exists($expected_id, $val));
 		}
-
-		expect_eq($val['_id'], $expected_id, '_id');
-		expect_eq($val['n'], $expected_n, 'n');
 	}
 
 	function check_one($res, $expected_id, $expected_n) {

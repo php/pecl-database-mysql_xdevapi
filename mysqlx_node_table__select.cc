@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_node_session.h"
 #include "xmysqlnd/xmysqlnd_node_schema.h"
@@ -28,6 +24,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_node_stmt.h"
 #include "xmysqlnd/xmysqlnd_crud_table_commands.h"
 #include "php_mysqlx.h"
+#include "mysqlx_enum_n_def.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_crud_operation_bindable.h"

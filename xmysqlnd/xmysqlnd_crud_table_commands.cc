@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/json/php_json_parser.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_any2expr.h"
@@ -32,11 +28,14 @@ extern "C" {
 
 #include "xmysqlnd_crud_table_commands.h"
 #include "proto_gen/mysqlx_sql.pb.h"
+#include "mysqlx_enum_n_def.h"
 #include "mysqlx_expression.h"
 #include "mysqlx_exception.h"
 
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 #include "xmysqlnd/crud_parsers/expression_parser.h"
+
+#include "util/exceptions.h"
 
 namespace mysqlx {
 
@@ -1196,7 +1195,7 @@ xmysqlnd_crud_table_select__enable_lock_exclusive(XMYSQLND_CRUD_TABLE_OP__SELECT
 /* {{{ xmysqlnd_crud_table_find_set_lock_waiting_option */
 enum_func_status
 xmysqlnd_crud_table_find_set_lock_waiting_option(
-	XMYSQLND_CRUD_TABLE_OP__FIND* obj,
+	XMYSQLND_CRUD_TABLE_OP__SELECT* obj,
 	int lock_waiting_option)
 {
 	DBG_ENTER("xmysqlnd_crud_table_find_set_lock_waiting_option");
