@@ -15,7 +15,7 @@ recv_let_worker_run_cmd();
 $session->startTransaction();
 try {
 	check_find_lock_one($coll, '1', 1, $Lock_shared, MYSQLX_LOCK_NOWAIT);
-	//the execution should return immediately, and an error must be thrown
+	// the execution should return immediately, and an error must be thrown
 	test_step_failed();
 } catch(Exception $e) {
 	log_err($e);

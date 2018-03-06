@@ -17,7 +17,8 @@ $worker_process = run_worker(__FILE__);
 if (is_resource($worker_process)) {
 	recv_worker_started();
 
-	// Call lockExclusive and worker tries to read a document locked using lockExclusive without a waiting option.
+	// Call lockExclusive and worker tries to read a document locked using
+	// lockExclusive without a waiting option.
 	// terminal/cmd 1
 	$session->startTransaction();
 	check_find_lock_one($coll, '1', 1, $Lock_exclusive);
@@ -29,7 +30,6 @@ if (is_resource($worker_process)) {
 	// terminal/cmd 1
 	$session->commit();
 	// this line should unlock the transaction in the terminal/cmd 2
-
  	recv_worker_ran_cmd();
 
 	send_let_worker_rollback();

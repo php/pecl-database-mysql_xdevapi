@@ -14,7 +14,8 @@ recv_let_worker_run_cmd();
 // terminal/cmd 2
 $session->startTransaction();
 check_find_lock_one($coll, '1', 1, $Lock_none);
-// the execution should return immediately, no block should be present as MySQL CLI handles this scenario
+// the execution should return immediately, no block should be present
+// as MySQL CLI handles this scenario
 notify_worker_ran_cmd();
 
 recv_let_worker_rollback();

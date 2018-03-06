@@ -17,7 +17,7 @@ $worker_process = run_worker(__FILE__);
 if (is_resource($worker_process)) {
 	recv_worker_started();
 
-	// Call lockExclusive and try to read a document locked using lockExclusive
+	// Call lockExclusive and worker tries to read a document locked using lockExclusive
 	// and the 'NOWAIT' waiting option.
 	// terminal/cmd 1
 	$session->startTransaction();

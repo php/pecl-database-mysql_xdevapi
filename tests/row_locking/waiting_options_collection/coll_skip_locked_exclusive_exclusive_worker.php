@@ -17,6 +17,7 @@ check_find_lock_one($coll, '1', null, $Lock_exclusive, MYSQLX_LOCK_SKIP_LOCKED);
 // the execution should return immediately, and no error must be thrown. No
 // data should be returned
 notify_worker_ran_cmd();
+
 recv_let_worker_rollback();
 // terminal/cmd 2
 // since commit is done in cmd1 then the read must be possible now and no error

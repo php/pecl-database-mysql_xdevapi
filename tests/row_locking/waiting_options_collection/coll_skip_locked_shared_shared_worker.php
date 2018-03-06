@@ -14,7 +14,8 @@ recv_let_worker_run_cmd();
 // terminal/cmd 2
 $session->startTransaction();
 check_find_lock_one($coll, '1', 1, $Lock_shared, MYSQLX_LOCK_SKIP_LOCKED);
-// the execution should return immediately, no block and no error should be present
+// the execution should return immediately, no block and no error should be
+// present. Data should be returned
 notify_worker_ran_cmd();
 
 recv_let_worker_run_cmd();

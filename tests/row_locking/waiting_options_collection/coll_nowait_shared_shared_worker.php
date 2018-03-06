@@ -24,7 +24,7 @@ notify_worker_ran_cmd();
 
 recv_let_worker_rollback();
 // terminal/cmd 2
-// since commit is done in cmd1 then the read must be possible now
+// the execution should return immediately, no block and no error should be present
 check_find_lock_one($coll, '1', 11, $Lock_shared, MYSQLX_LOCK_NOWAIT);
 $session->rollback();
 // rollback the open transaction

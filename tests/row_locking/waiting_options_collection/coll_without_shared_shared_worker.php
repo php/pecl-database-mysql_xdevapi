@@ -14,7 +14,7 @@ recv_let_worker_run_cmd();
 // terminal/cmd 2
 $session->startTransaction();
 check_find_lock_one($coll, '1', 1, $Lock_shared);
-// the execution should not return immediately, the transaction should be blocked
+// the execution should return immediately, no block should be present
 notify_worker_ran_cmd();
 
 recv_let_worker_run_cmd();
@@ -24,7 +24,7 @@ notify_worker_ran_cmd();
 
 recv_let_worker_rollback();
 // terminal/cmd 2
-// since commit is done in cmd1 then the read must be possible now
+// the execution should return immediately, no block should be present
 check_find_lock_one($coll, '1', 11, $Lock_shared);
 $session->rollback();
 // rollback the open transaction

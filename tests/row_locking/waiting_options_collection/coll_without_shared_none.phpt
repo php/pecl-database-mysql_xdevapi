@@ -17,7 +17,8 @@ $worker_process = run_worker(__FILE__);
 if (is_resource($worker_process)) {
 	recv_worker_started();
 
-	// Call lockShared and worker tries to read a document locked without a waiting option.
+	// Call lockShared and worker tries to read a document locked without
+	// a waiting option.
 	// terminal/cmd 1
 	$session->startTransaction();
 	check_find_lock_one($coll, '1', 1, $Lock_shared);
