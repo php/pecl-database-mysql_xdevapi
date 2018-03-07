@@ -36,12 +36,13 @@ Url::Url(const php_url* phpurl)
 	, query(to_string(phpurl->query))
 	, fragment(to_string(phpurl->fragment))
 {
-	if( phpurl->path != nullptr && strlen( phpurl->path ) > 0 ) {
+	const string url_path = to_string( phpurl->path );
+	if( !url_path.empty() ) {
 		short prefix_offset = 0;
-		if( phpurl->path[0] == '/' ) {
+		if( url_path[0] == '/' ) {
 			++prefix_offset;
 		}
-		path = to_string( phpurl->path + prefix_offset );
+		path = url_path.substr( prefix_offset );
 	}
 }
 /* }}} */
