@@ -73,7 +73,7 @@ function verify_ids_and_add( $new_ids, $expected_count ) {
 	$res = $coll->add('{"name": "Lucia",      "age": 47, "job": "Barista"}')->execute();
 	$ids_2 = $res->getGeneratedIds();
 	verify_single_id_and_add( $ids_2 );
-	$id_len = count( $ids_2[0] );
+	$id_len = strlen( $ids_2[0] );
 	$suffix = substr( $ids_2[0], $id_len - 8 );
 	$next_suffix = dechex( 1 + hexdec($suffix) );
 	$next_id = $ids_2[0];
