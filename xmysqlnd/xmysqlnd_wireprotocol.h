@@ -274,6 +274,12 @@ struct st_xmysqlnd_on_execution_state_change_bind
 	void * ctx;
 };
 
+struct st_xmysqlnd_on_generated_doc_ids_bind
+{
+	const enum_hnd_func_status (*handler)(void * context, const MYSQLND_STRING id);
+	void * ctx;
+};
+
 
 struct st_xmysqlnd_on_trx_state_change_bind
 {
@@ -307,6 +313,7 @@ struct st_xmysqlnd_result_set_reader_ctx
 	st_xmysqlnd_on_meta_field_bind on_meta_field;
 	st_xmysqlnd_on_warning_bind on_warning;
 	st_xmysqlnd_on_error_bind on_error;
+	st_xmysqlnd_on_generated_doc_ids_bind on_generated_doc_ids;
 	st_xmysqlnd_on_execution_state_change_bind on_execution_state_change;
 	st_xmysqlnd_on_session_var_change_bind on_session_var_change;
 	st_xmysqlnd_on_trx_state_change_bind on_trx_state_change;
@@ -332,6 +339,7 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 								  const struct st_xmysqlnd_on_meta_field_bind on_meta_field,
 								  const struct st_xmysqlnd_on_warning_bind on_warning,
 								  const struct st_xmysqlnd_on_error_bind on_error,
+								  const struct st_xmysqlnd_on_generated_doc_ids_bind on_generated_doc_ids,
 								  const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change,
 								  const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change,
 								  const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change,

@@ -169,221 +169,6 @@ xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
 }
 /* }}} */
 
-
-/* {{{ xmysqlnd_json_string_find_id */
-enum_func_status
-xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, int options, int depth, st_parse_for_id_status* status)
-{
-	php_json_parser_methods own_methods;
-	struct my_php_json_parser parser;
-	zval return_value;
-	DBG_ENTER("xmysqlnd_json_string_find_id");
-	ZVAL_UNDEF(&return_value);
-
-	zend_hash_init(&parser.array_of_allocated_obj,0,nullptr,ZVAL_PTR_DTOR,FALSE);
-	php_json_parser_init(&parser.parser,
-					&return_value, (char *)json.s, json.l, options, depth);
-	own_methods = parser.parser.methods;
-	own_methods.object_create = xmysqlnd_json_parser_object_create;
-	own_methods.object_update = xmysqlnd_json_parser_object_update;
-	own_methods.object_end = xmysqlnd_json_parser_object_end;
-
-	php_json_parser_init_ex(&parser.parser,
-					&return_value, (char *)json.s, json.l, options, depth, &own_methods);
-	status->found = FALSE;
-	status->empty = TRUE;
-	status->is_string = FALSE;
-	parser.status = status;
-
-	if (php_json_parse(&parser.parser)) {
-		if (!status->found) {
-	//		JSON_G(error_code) = php_json_parser_error_code(&parser);
-			DBG_RETURN(FAIL);
-		}
-		zend_hash_destroy(&parser.array_of_allocated_obj);
-	}
-	DBG_RETURN(PASS);
-}
-/* }}} */
-
-
-/* {{{ prepare_doc_id */
-util::string prepare_doc_id(
-	XMYSQLND_SESSION session,
-	const util::string_view& single_doc_id)
-{
-	if (single_doc_id.empty()) {
-		const auto uuid = session->session_uuid->generate();
-		return util::string(uuid.data(), uuid.size());
-	}
-	return single_doc_id.to_string();
-}
-/* }}} */
-
-
-/* {{{ add_unique_id_to_json */
-enum_func_status
-add_unique_id_to_json(
-	XMYSQLND_SESSION session,
-	const util::string_view& single_doc_id,
-	const st_parse_for_id_status *status,
-	MYSQLND_STRING* to_add,
-	const MYSQLND_CSTRING* json)
-{
-	enum_func_status ret{FAIL};
-	char* p{nullptr};
-	const auto doc_id = prepare_doc_id(session, single_doc_id);
-
-	if (UNEXPECTED(status->empty)) {
-		to_add->s = static_cast<char*>(mnd_emalloc(2 /*braces*/ + sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + UUID_SIZE + 1)); /* allocate a bit more */
-		if (to_add->s) {
-			p = to_add->s;
-			*p++ = '{';
-			ret = PASS;
-		}
-	} else {
-		const char* last = json->s + json->l - 1;
-		while (last >= json->s && *last != '}') {
-			--last;
-		}
-		if (last >= json->s) {
-			to_add->s = static_cast<char*>(mnd_emalloc(json->l + 1 /*comma */+ sizeof(ID_TEMPLATE_PREFIX) - 1 + sizeof(ID_TEMPLATE_SUFFIX) - 1 + UUID_SIZE + 1)); /* allocate a bit more */
-			if (to_add->s) {
-				p = to_add->s;
-				memcpy(p, json->s, last - json->s);
-				p += last - json->s;
-				*p++ = ',';
-				ret = PASS;
-			}
-		}
-	}
-	if(ret == PASS && p!= nullptr) {
-		memcpy(p, ID_TEMPLATE_PREFIX, sizeof(ID_TEMPLATE_PREFIX) - 1);
-		p += sizeof(ID_TEMPLATE_PREFIX) - 1;
-		memcpy(p, doc_id.data(), doc_id.size());
-		p += doc_id.size();
-		memcpy(p, ID_TEMPLATE_SUFFIX, sizeof(ID_TEMPLATE_SUFFIX) - 1);
-		p += sizeof(ID_TEMPLATE_SUFFIX) - 1;
-		*p = '\0';
-		to_add->l = p - to_add->s;
-	}
-	return ret;
-}
-/* }}} */
-
-
-/* {{{ extract_document_id */
-MYSQLND_CSTRING
-extract_document_id(const MYSQLND_STRING json,
-					zend_bool id_is_string)
-{
-	MYSQLND_STRING res = { nullptr, 0 };
-	char* beg = nullptr,
-		* end = json.s + json.l - 1;
-	if( ( beg = strstr(json.s, ID_COLUMN_NAME) ) != nullptr) {
-		beg += sizeof( ID_COLUMN_NAME ) + 1;
-		if( id_is_string ) {
-			//Move to the first char after \"
-			while( beg < end && *beg != '\"' )
-				++beg;
-			++beg;//Skip \"
-		} else {
-			//Skip the spaces, if any
-			while( beg < end && *beg == ' ' )
-				++beg;
-		}
-		if( beg < end ) {
-			//Now we look for the termination mark
-			char* cur = beg;
-			if( id_is_string ) {
-				while( cur != end ) {
-					if( *cur == '\"' ) break;
-					++cur;
-				}
-			} else {
-				while( cur != end ) {
-					if( *cur == ' ' || *cur == ',' || *cur == '}' ) break;
-					++cur;
-				}
-			}
-			end = cur;
-			if( end >= beg ){
-				res.l = ( end - beg);
-				if( res.l > 0 && res.l <= 32 ) {
-					res.s = static_cast<char*>(mnd_emalloc( res.l + 1 ));
-					memcpy(res.s, beg, res.l);
-					res.s[res.l] = '\0';
-				}
-			}
-		}
-	}
-	if( res.s == nullptr ) {
-		RAISE_EXCEPTION(err_msg_json_fail);
-	}
-	MYSQLND_CSTRING ret = {
-		res.s,
-		res.l
-	};
-	return ret;
-}
-/* }}} */
-
-
-/* {{{ assign_doc_id_to_json */
-MYSQLND_CSTRING
-assign_doc_id_to_json(
-	XMYSQLND_SESSION session,
-	const util::string_view& single_doc_id,
-	zval* doc)
-{
-	st_parse_for_id_status status;
-	zend_bool doc_id_string_type{FALSE};
-	MYSQLND_STRING to_add = { nullptr, 0 };
-	MYSQLND_CSTRING doc_id = { nullptr, 0 };
-	//Better be sure, perhaps raise an exception if is not a string
-	if( Z_TYPE_P(doc) == IS_STRING ){
-		MYSQLND_CSTRING json = { Z_STRVAL_P(doc), Z_STRLEN_P(doc) };
-		if( PASS == xmysqlnd_json_string_find_id(json, 0, 0, &status)) {
-			to_add.s = (char *) json.s;
-			to_add.l = json.l;
-
-			if (!status.found) {
-				add_unique_id_to_json(session, single_doc_id, &status, &to_add, &json);
-				doc_id_string_type = TRUE;
-			} else {
-				doc_id_string_type = status.is_string;
-			}
-
-			if( !status.found ) {
-				zval_dtor(doc);
-				ZVAL_STRINGL(doc,to_add.s,to_add.l);
-			}
-
-			doc_id =  extract_document_id(to_add,
-								doc_id_string_type);
-
-			if (!single_doc_id.empty() && (single_doc_id != doc_id)) {
-				RAISE_EXCEPTION(err_msg_unexpected_doc_id);
-			}
-
-			if (!doc_id_string_type) {
-				util::log_warning(
-					"_id '" + util::to_string(doc_id) + "' provided as non-string value");
-				util::json::ensure_doc_id_as_string(doc_id, doc);
-			}
-
-			if (to_add.s != json.s) {
-				efree(to_add.s);
-			}
-		}
-	} else {
-		RAISE_EXCEPTION(err_msg_json_fail);
-	}
-	return doc_id;
-}
-
-/* }}} */
-
 enum class Add_op_status
 {
 	success,
@@ -398,50 +183,32 @@ struct doc_add_op_return_status
 };
 
 /* {{{ node_collection_add_string */
-doc_add_op_return_status
+Add_op_status
 node_collection_add_string(
-	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const util::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
-	doc_add_op_return_status ret = {
-		Add_op_status::fail,
-		assign_doc_id_to_json(
-				collection->data->schema->data->session,
-				single_doc_id,
-				doc)
-	};
 	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op,doc) ) {
-		ret.return_status = Add_op_status::success;
+		return Add_op_status::success;
 	}
-	return ret;
+	return Add_op_status::fail;
 }
 /* }}} */
 
 
 /* {{{ node_collection_add_object*/
-doc_add_op_return_status
+Add_op_status
 node_collection_add_object_impl(
-	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const util::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
 	zval new_doc;
+	Add_op_status ret = Add_op_status::fail;
 	util::json::to_zv_string(doc, &new_doc);
-
-	doc_add_op_return_status ret = {
-		Add_op_status::fail,
-		assign_doc_id_to_json(
-				collection->data->schema->data->session,
-				single_doc_id,
-				&new_doc)
-	};
 	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, &new_doc) ) {
-		ret.return_status = Add_op_status::success;
+		ret = Add_op_status::success;
 	}
 	zval_dtor(&new_doc);
 	return ret;
@@ -450,35 +217,31 @@ node_collection_add_object_impl(
 
 
 /* {{{ node_collection_add_object*/
-doc_add_op_return_status
+Add_op_status
 node_collection_add_object(
-	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const util::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
 	return node_collection_add_object_impl(
-		collection, add_op, single_doc_id, doc, return_value);
+				add_op, doc, return_value);
 }
 /* }}} */
 
 
 /* {{{ node_collection_add_array*/
-doc_add_op_return_status
+Add_op_status
 node_collection_add_array(
-	st_xmysqlnd_node_collection* collection,
 	st_xmysqlnd_crud_collection_op__add* add_op,
-	const util::string_view& single_doc_id,
 	zval* doc,
 	zval* return_value)
 {
-	doc_add_op_return_status ret = { Add_op_status::fail, {nullptr, 0} };
+	Add_op_status ret = Add_op_status::fail;
 	if( zend_hash_num_elements(Z_ARRVAL_P(doc)) == 0 ) {
-		ret.return_status = Add_op_status::noop;
+		ret = Add_op_status::noop;
 	} else {
 		ret = node_collection_add_object_impl(
-			collection, add_op, single_doc_id, doc, return_value);
+			add_op, doc, return_value);
 	}
 	return ret;
 }
@@ -535,7 +298,6 @@ bool Collection_add::init(
 {
 	const int num_of_documents = 1;
 	if (!init(obj_zv, coll, doc, num_of_documents)) return false;
-	single_doc_id = doc_id;
 	return xmysqlnd_crud_collection_add__set_upsert(add_op) == PASS;
 }
 /* }}} */
@@ -548,6 +310,7 @@ Collection_add::~Collection_add()
 		zval_ptr_dtor(&docs[i]);
 		ZVAL_UNDEF(&docs[i]);
 	}
+
 	mnd_efree(docs);
 
 	if (add_op) {
@@ -566,38 +329,30 @@ void Collection_add::execute(zval* return_value)
 {
 	enum_func_status execute_ret_status{PASS};
 	int noop_cnt{0};
-	int cur_doc_id_idx{0};
 
 	DBG_ENTER("Collection_add::execute");
 
 	RETVAL_FALSE;
 
-	MYSQLND_CSTRING* doc_ids = static_cast<MYSQLND_CSTRING*>(mnd_ecalloc( num_of_docs, sizeof(MYSQLND_CSTRING) ));
-	if ( doc_ids == nullptr ) {
-		execute_ret_status = FAIL;
-	} else {
-		doc_add_op_return_status ret = { Add_op_status::success, {nullptr, 0} };
-		for (int i{0}; i < num_of_docs && ret.return_status != Add_op_status::fail ; ++i) {
-			ret.return_status = Add_op_status::fail;
-			switch(Z_TYPE(docs[i])) {
-			case IS_STRING:
-				ret = node_collection_add_string(
-					collection, add_op, single_doc_id, &docs[i], return_value);
-				break;
-			case IS_ARRAY:
-				ret = node_collection_add_array(
-					collection, add_op, single_doc_id, &docs[i], return_value);
-				break;
-			case IS_OBJECT:
-				ret = node_collection_add_object(
-					collection, add_op, single_doc_id, &docs[i], return_value);
-				break;
-			}
-			if( ret.return_status == Add_op_status::noop ) {
-				++noop_cnt;
-			} else {
-				doc_ids[ cur_doc_id_idx++ ] = ret.doc_id;
-			}
+	Add_op_status ret = Add_op_status::success;
+	for (int i{0}; i < num_of_docs && ret != Add_op_status::fail ; ++i) {
+		ret = Add_op_status::fail;
+		switch(Z_TYPE(docs[i])) {
+		case IS_STRING:
+			ret = node_collection_add_string(
+				add_op, &docs[i], return_value);
+			break;
+		case IS_ARRAY:
+			ret = node_collection_add_array(
+				add_op, &docs[i], return_value);
+			break;
+		case IS_OBJECT:
+			ret = node_collection_add_object(
+				add_op, &docs[i], return_value);
+			break;
+		}
+		if( ret == Add_op_status::noop ) {
+			++noop_cnt;
 		}
 	}
 
@@ -605,20 +360,14 @@ void Collection_add::execute(zval* return_value)
 		XMYSQLND_NODE_STMT* stmt = collection->data->m.add(collection,
 														   add_op);
 		if( nullptr != stmt ) {
-			stmt->data->assigned_document_ids = doc_ids;
-			stmt->data->num_of_assigned_doc_ids = cur_doc_id_idx;
 			execute_ret_status =  execute_statement(stmt,return_value);
 		} else {
 			execute_ret_status = FAIL;
 		}
-	} else {
-		mnd_efree( doc_ids );
 	}
-
 	if (FAIL == execute_ret_status && !EG(exception)) {
 		RAISE_EXCEPTION(err_msg_add_doc);
 	}
-
 	DBG_VOID_RETURN;
 }
 /* }}} */

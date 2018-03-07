@@ -3,9 +3,11 @@ mysqlx Unix domain socket
 --SKIPIF--
 --FILE--
 <?php
-        require("connect.inc");
+	require("connect.inc");
+	$nodeSession = mysql_xdevapi\getSession($connection_uri);
+	$nodeSession->executeSql("create database $db");
 
-        $valid_socket = $socket;
+	$valid_socket = $socket;
 	if( $valid_socket == null ) {
 	    /*
 	     * Attempt to obtain the socket path
@@ -25,7 +27,7 @@ mysqlx Unix domain socket
 
 	$sock = substr( $valid_socket, 1 );
 
-        //Prepare the test socket addresses
+	//Prepare the test socket addresses
 	$socket_1 = '/'.str_replace( "/", "%2F", $sock );
 	$socket_2 = '/'.str_replace( "/", "/./", $sock );
 	$socket_3 = '/'.str_replace( "/", "///", $sock );
@@ -40,10 +42,10 @@ mysqlx Unix domain socket
 	    }
 	}
 
-        try{
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_1.'/?'.$disable_ssl_opt;
+	try{
+		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_1.'/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_2.')/'.$db.'/?'.$disable_ssl_opt;
+		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_2.')/'.$db.'?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$valid_socket.')/?'.$disable_ssl_opt;
 		$nodeSession = mysql_xdevapi\getSession($uri);
@@ -58,28 +60,28 @@ mysqlx Unix domain socket
 	        test_step_failed();
 	}
 	try{
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@/tmp%2Fmysqlx.sockk/'.$db;
+		$uri = $scheme.'://'.$user.':'.$passwd.'@/tmp%2Fmysqlx.sockk/'.$db;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		expect_null( $nodeSession );
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
 	try{
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@(/tmp/mysqlx.socck)/'.$db;
+		$uri = $scheme.'://'.$user.':'.$passwd.'@(/tmp/mysqlx.socck)/'.$db;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		expect_null( $nodeSession );
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
 	try{
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@(/tmp2/mysqlx.sock)';
+		$uri = $scheme.'://'.$user.':'.$passwd.'@(/tmp2/mysqlx.sock)';
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		expect_null( $nodeSession );
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
 	try{
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@';
+		$uri = $scheme.'://'.$user.':'.$passwd.'@';
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		expect_null( $nodeSession );
 	} catch( Exception $e ) {
@@ -87,7 +89,7 @@ mysqlx Unix domain socket
 	}
 	//Unix Domain sockets not supported with TLS
 	try{
-	        //TLS is enabled by default if not explicity disabled.
+		//TLS is enabled by default if not explicity disabled.
 		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_1;
 		$nodeSession = mysql_xdevapi\getSession($uri);
 		test_step_failed();
@@ -95,12 +97,13 @@ mysqlx Unix domain socket
 	        test_step_ok();
 	}
 
-        verify_expectations();
-        print "done!\n";
+	verify_expectations();
+	print "done!\n";
 ?>
 --CLEAN--
 <?php
-        require("connect.inc");
+	require("connect.inc");
+	clean_test_db();
 ?>
 --EXPECTF--
 done!%A

@@ -53,10 +53,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_auto_increment_value, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_document_id, 0, ZEND_RETURN_VALUE, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_document_ids, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_generated_ids, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
@@ -151,85 +148,37 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getAutoIncrementValue)
 }
 /* }}} */
 
-/*
- * Handy macro to be used to raise warnings in
- * get_document_id_common
- */
-#define RAISE_WARNING(message) \
-	php_error_docref(nullptr, E_WARNING, message); \
-	zval_ptr_dtor(return_value); \
-	ZVAL_NULL(return_value);
 
-/* {{{ get_document_id_common*/
-static void
-get_document_id_common(INTERNAL_FUNCTION_PARAMETERS,
-				zend_bool multiple_ids) {
+/* {{{ proto mixed mysqlx_node_result::getGeneratedIds(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getGeneratedIds)
+{
+    DBG_ENTER("mysqlx_node_result::getGeneratedIds");
 	zval* object_zv{nullptr};
 	st_mysqlx_node_result* object{nullptr};
 
-	DBG_ENTER("get_document_id_common");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 	MYSQLX_FETCH_NODE_RESULT_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 	if (object->result && object->result->exec_state) {
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
 		if ( exec_state == nullptr ) {
-			RAISE_WARNING("Unable to get the correct exec_state");
+			php_error_docref(nullptr, E_WARNING, "Unable to get the correct exec_state");
 			DBG_VOID_RETURN;
 
 		}
-		int num_of_docs = exec_state->num_of_doc_ids;
-		if( multiple_ids == FALSE && num_of_docs > 1) {
-			/*
-			 * from SPEC:
-			 * "If getDocumentId() gets called for a chained add() an error is emitted"
-			 * Let's raise a warning for now.
-			 */
-			RAISE_WARNING("Cannot use getDocumentId for chained add");
-			DBG_VOID_RETURN;
-		}
-		MYSQLND_CSTRING * value = exec_state->m->get_last_document_id(exec_state);
-		if( multiple_ids ) {
-			array_init_size(return_value, num_of_docs);
-			for(int i{0}; i < num_of_docs ; ++i ) {
-				zval id;
-				ZVAL_STRINGL(&id,value[i].s,value[i].l);
-				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &id);
-			}
-		} else {
-			if (value && value[0].s) {
-				ZVAL_STRINGL(return_value, value[0].s, value[0].l);
-			} else {
-				ZVAL_NULL(return_value);
-			}
+		auto& ids = exec_state->generated_doc_ids;
+		const size_t num_of_docs = ids.size();
+		array_init_size(return_value, num_of_docs);
+		for( auto& elem : ids ) {
+			zval id;
+			ZVAL_STRINGL(&id,elem.c_str(),elem.size());
+			zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &id);
 		}
 	}
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ proto mixed mysqlx_node_result::getDocumentId(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getDocumentId)
-{
-
-	DBG_ENTER("mysqlx_node_result::getDocumentId");
-	get_document_id_common(INTERNAL_FUNCTION_PARAM_PASSTHRU,FALSE);
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ proto mixed mysqlx_node_result::getDocumentIds(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getDocumentIds)
-{
-	DBG_ENTER("mysqlx_node_result::getDocumentIds");
-	get_document_id_common(INTERNAL_FUNCTION_PARAM_PASSTHRU,TRUE);
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -311,12 +260,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_result, getWarnings)
 /* {{{ mysqlx_node_result_methods[] */
 static const zend_function_entry mysqlx_node_result_methods[] = {
 	PHP_ME(mysqlx_node_result, __construct,			nullptr,														ZEND_ACC_PRIVATE)
-
 	PHP_ME(mysqlx_node_result, getAffectedItemsCount,	arginfo_mysqlx_node_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_result, getAutoIncrementValue, 	arginfo_mysqlx_node_result__get_auto_increment_value,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_result, getDocumentId,			arginfo_mysqlx_node_result__get_document_id,			ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_result, getDocumentIds,			arginfo_mysqlx_node_result__get_document_ids,			ZEND_ACC_PUBLIC)
-
+	PHP_ME(mysqlx_node_result, getGeneratedIds,			arginfo_mysqlx_node_result__get_generated_ids,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_result, getWarningCount,			arginfo_mysqlx_node_result__get_warning_count,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_result, getWarnings,				arginfo_mysqlx_node_result__get_warnings, 				ZEND_ACC_PUBLIC)
 

@@ -272,6 +272,19 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_exec_state_change)(void * context
 /* }}} */
 
 
+/* {{{ xmysqlnd_node_stmt::handler_on_generated_doc_ids */
+static const enum_hnd_func_status
+XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_generated_doc_ids)(void * context, const MYSQLND_STRING id)
+{
+	st_xmysqlnd_node_stmt_bind_ctx* const ctx = static_cast<st_xmysqlnd_node_stmt_bind_ctx*>( context );
+	enum_hnd_func_status ret{HND_AGAIN};
+	DBG_ENTER("xmysqlnd_node_stmt::handler_on_generated_doc_ids");
+	ctx->exec_state->m->add_generated_doc_id(ctx->exec_state, id);
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_node_stmt::handler_on_trx_state_change */
 static const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_trx_state_change)(void * context, const enum xmysqlnd_transaction_state_type type)
@@ -358,6 +371,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 	const struct st_xmysqlnd_on_meta_field_bind handler_on_meta_field_msg = { stmt->data->m.handler_on_meta_field, &create_ctx };
 	const struct st_xmysqlnd_on_warning_bind handler_on_warning_msg = { on_warning.handler? stmt->data->m.handler_on_warning : nullptr, &create_ctx };
 	const struct st_xmysqlnd_on_error_bind handler_on_error_msg = { on_error.handler? stmt->data->m.handler_on_error : nullptr , on_error.handler? &create_ctx : nullptr };
+	const struct st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids = {stmt->data->m.handler_on_generated_doc_ids, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_execution_state_change_bind handler_on_exec_state_change = { stmt->data->m.handler_on_exec_state_change, &create_ctx };
 	const struct st_xmysqlnd_on_session_var_change_bind handler_on_session_var_change = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_trx_state_change_bind handler_on_trx_state_change = { stmt->data->m.handler_on_trx_state_change, &create_ctx };
@@ -382,6 +396,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 													handler_on_meta_field_msg,
 													handler_on_warning_msg,
 													handler_on_error_msg,
+													handler_on_generated_doc_ids,
 													handler_on_exec_state_change,
 													handler_on_session_var_change,
 													handler_on_trx_state_change,
@@ -508,6 +523,8 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 		(handler_on_error.handler || error_info) ? stmt->data->m.handler_on_error : nullptr, &create_ctx };
 	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = {
 		stmt->data->m.handler_on_exec_state_change, &create_ctx };
+	const struct st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids = {
+		stmt->data->m.handler_on_generated_doc_ids, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = {
 		stmt->data->m.handler_on_trx_state_change, &create_ctx };
@@ -526,6 +543,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 													on_meta_field,
 													on_warning,
 													on_error,
+													handler_on_generated_doc_ids,
 													on_exec_state_change,
 													on_session_var_change,
 													on_trx_state_change,
@@ -588,6 +606,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 	const struct st_xmysqlnd_on_meta_field_bind on_meta_field = { stmt->data->m.handler_on_meta_field, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_warning_bind on_warning = { handler_on_warning.handler? stmt->data->m.handler_on_warning : nullptr, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_error_bind on_error = { (handler_on_error.handler || error_info) ? stmt->data->m.handler_on_error : nullptr, &stmt->data->read_ctx };
+	const struct st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids = {  stmt->data->m.handler_on_generated_doc_ids, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { stmt->data->m.handler_on_exec_state_change, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
@@ -622,6 +641,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 														on_meta_field,
 														on_warning,
 														on_error,
+														handler_on_generated_doc_ids,
 														on_exec_state_change,
 														on_session_var_change,
 														on_trx_state_change,
@@ -674,6 +694,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const 
 	const struct st_xmysqlnd_on_meta_field_bind on_meta_field = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_warning_bind on_warning = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_error_bind on_error = { nullptr, nullptr };
+	const struct st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids = {stmt->data->m.handler_on_generated_doc_ids, &stmt->data->read_ctx };
 	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { stmt->data->m.handler_on_exec_state_change, &create_ctx };
 	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
@@ -687,6 +708,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const 
 													on_meta_field,
 													on_warning,
 													on_error,
+													handler_on_generated_doc_ids,
 													on_exec_state_change,
 													on_session_var_change,
 													on_trx_state_change,
@@ -802,6 +824,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_meta_field),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error),
+	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_generated_doc_ids),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_exec_state_change),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_trx_state_change),
 	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_statement_ok),

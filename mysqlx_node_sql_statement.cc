@@ -861,11 +861,6 @@ mysqlx_node_statement_execute_read_response(const st_mysqlx_object* const mysqlx
 							object->has_more_rows_in_set? "TRUE":"FALSE");
 
 				if (result) {
-					if( result->exec_state && stmt->data ) {
-						result->exec_state->last_document_ids = stmt->data->assigned_document_ids;
-						result->exec_state->num_of_doc_ids = stmt->data->num_of_assigned_doc_ids;
-						stmt->data->assigned_document_ids = nullptr;
-					}
 					switch(result_type)
 					{
 						case MYSQLX_RESULT:

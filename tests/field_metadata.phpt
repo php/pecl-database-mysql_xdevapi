@@ -80,7 +80,7 @@ function test_collection() {
 	$res = $as_table->select(['_id as a','doc as b'])->execute();
 	$cols = $res->getColumns();
 	$expected_data = [
-		['_id','a',MYSQLX_TYPE_BYTES,128,['utf8mb4_0900_ai_ci', 'utf8mb4_general_ci'],['utf8mb4', 'latin1']],
+		['_id','a',MYSQLX_TYPE_STRING,32,['binary'],['binary']],
 		['doc','b',MYSQLX_TYPE_JSON,4294967295,'binary','binary']
 	];
 

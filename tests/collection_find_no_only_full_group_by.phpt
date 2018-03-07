@@ -15,7 +15,7 @@ mysqlx Collection find, no 'only full group by'
 	$saved_sql_modes = $res->fetchAll()[0]['@@SESSION.sql_mode'];
 
 	//This will disable 'only full group by'
-	$new_sql_modes = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+	$new_sql_modes = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 	$nodeSession->executeSql('SET SESSION sql_mode = \''.$new_sql_modes.'\'');
 
 	try {

@@ -12,23 +12,23 @@ error_reporting=0
 	$schema = $nodeSession->getSchema($db);
 	$coll = $schema->getCollection("test_collection");
 
-	$coll->add('{"_id": 1, "name": "Marco",
+	$coll->add('{"_id": "1", "name": "Marco",
 		"jobs": [{"title":"Mangiatore","Salary":1000},{"title":"Ciarlatano","Salary":12000}],
 		"hobby": ["Spavare","Soffiare Minestrine"], "code":0}')->execute();
 
-	$coll->add('{"_id": 2, "name": "Lucrezia",
+	$coll->add('{"_id": "2", "name": "Lucrezia",
 		"jobs": [{"title":"Urlatrice","Salary":2000},{"title":"Parlatrice","Salary":3400}],
 		"hobby": ["Cucinare","Guidare auto sportive","Cavalcare"], "code":1}')->execute();
 
-	$coll->add('{"_id": 3, "name": "Ciro",
+	$coll->add('{"_id": "3", "name": "Ciro",
 		"jobs": [{"title":"Dentista","Salary":2400},{"title":"Autista","Salary":400},{"title":"Spavatore","Salary":3399}],
 		"hobby": ["PS4","Spavare","Cavalcare"], "code":5}')->execute();
 
-	$coll->add('{"_id": 4, "name": "Lucio",
+	$coll->add('{"_id": "4", "name": "Lucio",
 		"jobs": [{"title":"Cartolaio","Salary":200},{"title":"Barista","Salary":400},{"title":"Buttafuori","Salary":122}],
 		"hobby": ["nessuno"], "code":3}')->execute();
 
-	$coll->add('{"_id": 5, "name": "Lucio",
+	$coll->add('{"_id": "5", "name": "Lucio",
 		"jobs": [{"title":"Spavatore","Salary":1200},{"title":"Mangiatore","Salary":1400},{"title":"Spazzino","Salary":499}],
 		"hobby": ["PS4","Burattinaio","Fachiro","Calciatore"], "code":6}')->execute();
 
@@ -76,11 +76,11 @@ error_reporting=0
 	expect_eq(count($res),1);
 	expect_eq($res[0]["_id"],4);
 
-	$coll->add('{"_id": 6, "name": "Gianfranco",
+	$coll->add('{"_id": "6", "name": "Gianfranco",
 		"jobs": [{"title":"Programmatore","Salary":3200},{"title":"Cartolaio","Salary":340}],
 		"hobby": ["Cavalcare","Programmare","Cucinare"], "code":1}')->execute();
 
-	$coll->add('{"_id": 7, "name": "Magalli",
+	$coll->add('{"_id": "7", "name": "Magalli",
 		"jobs": [{"title":"Spavatore","Salary":5200},{"title":"Programmatore","Salary":3405},{"title":"Contadino","Salary":1900}],
 		"hobby": ["Spavare","Dipingere"], "code":2}')->execute();
 
