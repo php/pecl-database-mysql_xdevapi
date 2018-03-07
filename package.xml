@@ -240,7 +240,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="basic_execute_sql.phpt" role="test" />
     <file name="basic_transactions.phpt" role="test" />
     <file name="client_side_failover.phpt" role="test" />
-    <file name="coll_multiple_add_get_document_ids.phpt" role="test" />
     <file name="collection_find.phpt" role="test" />
     <file name="collection_find_no_only_full_group_by.phpt" role="test" />
     <file name="collection_modify_array_delete.phpt" role="test" />
@@ -258,9 +257,9 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="flexible_number_of_arguments.phpt" role="test" />
     <file name="get_auto_increment_value.phpt" role="test" />
     <file name="get_collection_as_table.phpt" role="test" />
-    <file name="get_document_id.phpt" role="test" />
     <file name="get_name.phpt" role="test" />
     <file name="get_tableget_tables.phpt" role="test" />
+    <file name="generated_doc_ids.phpt" role="test" />
     <file name="mergepatch.phpt" role="test" />
     <file name="modify_array_append_insert.phpt" role="test" />
     <file name="multiple_results.phpt" role="test" />
@@ -276,7 +275,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="table_delete_where.phpt" role="test" />
     <file name="unix_domain_socket.phpt" role="test" />
     <file name="update.phpt" role="test" />
-    <file name="uuid_validation.phpt" role="test" />
     <file name="warnings.phpt" role="test" />
     <dir name="index">
      <file name="common.phpt" role="test" />

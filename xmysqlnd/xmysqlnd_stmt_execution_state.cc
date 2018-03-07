@@ -23,6 +23,8 @@ extern "C" {
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_stmt_execution_state.h"
+#include "util/string_utils.h"
+#include "util/types.h"
 
 namespace mysqlx {
 
@@ -82,12 +84,12 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_insert_id)(const XMYSQLN
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::get_last_document_id */
-static MYSQLND_CSTRING *
-XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_document_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
+/* {{{ xmysqlnd_stmt_execution_state::get_generated_ids */
+static const mysqlx::util::vector<mysqlx::util::string> *
+XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_generated_ids)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
-	DBG_ENTER("xmysqlnd_stmt_execution_state::get_last_document_id");
-	DBG_RETURN(state->last_document_ids);
+	DBG_ENTER("xmysqlnd_stmt_execution_state::get_generated_ids");
+	DBG_RETURN(&state->generated_doc_ids);
 }
 /* }}} */
 
@@ -128,6 +130,18 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count)(XMYSQLND_S
 /* }}} */
 
 
+/* {{{ xmysqlnd_stmt_execution_state::add_generated_doc_id */
+static void
+XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, add_generated_doc_id)(XMYSQLND_STMT_EXECUTION_STATE * const state,
+																	 const MYSQLND_STRING id)
+{
+	DBG_ENTER("xmysqlnd_stmt_execution_state::add_generated_doc_id");
+	state->generated_doc_ids.push_back( util::to_string(id) );
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_stmt_execution_state::set_last_insert_id */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value)
@@ -145,13 +159,9 @@ static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::free_contents");
-	if(state && state->last_document_ids != nullptr) {
-		for(int i{0}; i < state->num_of_doc_ids; ++i ) {
-			mnd_efree(const_cast<char*>(state->last_document_ids[i].s));
-			state->last_document_ids[i].s = nullptr;
-			state->last_document_ids[i].l = 0;
-		}
-		mnd_efree(state->last_document_ids);
+	if( state && !state->generated_doc_ids.empty() ) {
+		state->generated_doc_ids.clear();
+		state->generated_doc_ids.shrink_to_fit();
 	}
 	DBG_VOID_RETURN;
 }
@@ -179,11 +189,13 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt_execution_state)
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_matched_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_found_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_insert_id),
-	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_document_id),
+	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_generated_ids),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id),
+	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, add_generated_doc_id),
+
 
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents),
 	XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor),

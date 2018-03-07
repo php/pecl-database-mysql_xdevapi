@@ -7,7 +7,7 @@ error_reporting=0
 <?php
 		require_once("connect.inc");
 
-                $nodeSession = mysql_xdevapi\getSession($connection_uri);
+		$nodeSession = mysql_xdevapi\getSession($connection_uri);
 
 		$nodeSession->createSchema($db);
 		$schema = $nodeSession->getSchema($db);
@@ -16,6 +16,7 @@ error_reporting=0
 		$coll = $schema->getCollection("test_collection");
 
 		$node_result = $coll->add([])->execute();//Single noop
+
 		expect_false($node_result);
 
 		$res = $coll->find()->execute()->fetchAll();
@@ -23,9 +24,9 @@ error_reporting=0
 
 		$node_result = $coll->add(
 				[],
-				["name" => "Sakila", "age" => 18, "job" => "Student"],
+				["_id" => "1", "name" => "Sakila", "age" => 18, "job" => "Student"],
 				[],
-				["name" => "Mike", "age" => 39, "job" => "Manager"]
+				["_id" => "2", "name" => "Mike", "age" => 39, "job" => "Manager"]
 				)->execute(); //Mixed noop with valid docs
 		expect_eq($node_result->getAffectedItemsCount(), 2);
 

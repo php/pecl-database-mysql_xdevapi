@@ -18,7 +18,7 @@ default_socket_timeout=5
 		[ $scheme.'://'.$user.':'.$passwd.'@[(address=aaa:1,priority=2),(address=[aaa:bbb:ccc]:2,priority=3)]/db/?'.$disable_ssl_opt, 4001 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@[(address=[aaa:bbb:ccc],priority=1000),(address=superhost,priority=2)]/?'.$disable_ssl_opt, 4007 ],
 		//Add failing URIs only BEFORE this point
-		[ $scheme.'://'.$user.':'.$passwd.'@[[aa:bb:cc:dd],'.$host.':'.$port.']/db/?'.$disable_ssl_opt, 0 ],
+		[ $scheme.'://'.$user.':'.$passwd.'@[[aa:bb:cc:dd],'.$host.':'.$port.']/db/?'.$disable_ssl_opt, 4001 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@[(address=aaa:1,priority=2),(address=bbb:2,priority=3),(address='.$host.':'.$port.',priority=1)]/?'.$disable_ssl_opt, 0 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port.'/?'.$disable_ssl_opt, 0 ],
 	];

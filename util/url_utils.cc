@@ -33,10 +33,16 @@ Url::Url(const php_url* phpurl)
 	, pass(to_string(phpurl->pass))
 	, host(to_string(phpurl->host))
 	, port(phpurl->port)
-	, path(to_string(phpurl->path))
 	, query(to_string(phpurl->query))
 	, fragment(to_string(phpurl->fragment))
 {
+	if( phpurl->path != nullptr && strlen( phpurl->path ) > 0 ) {
+		short prefix_offset = 0;
+		if( phpurl->path[0] == '/' ) {
+			++prefix_offset;
+		}
+		path = to_string( phpurl->path + prefix_offset );
+	}
 }
 /* }}} */
 

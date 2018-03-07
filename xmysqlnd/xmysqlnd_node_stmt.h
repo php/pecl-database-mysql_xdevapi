@@ -141,6 +141,7 @@ typedef const enum_hnd_func_status					(*func_xmysqlnd_node_stmt__handler_on_row
 typedef const enum_hnd_func_status					(*func_xmysqlnd_node_stmt__handler_on_meta_field)(void * context, struct st_xmysqlnd_result_field_meta * field);
 typedef const enum_hnd_func_status					(*func_xmysqlnd_node_stmt__handler_on_warning)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
 typedef const enum_hnd_func_status					(*func_xmysqlnd_node_stmt__handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+typedef const enum_hnd_func_status					(*func_xmysqlnd_node_stmt__handler_on_generated_doc_ids)(void * context, const MYSQLND_STRING id);
 typedef const enum_hnd_func_status					(*func_xmysqlnd_node_stmt__handler_on_exec_state_change)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value);
 typedef const enum_hnd_func_status					(*func_xmysqlnd_node_stmt__handler_on_trx_state_change)(void * context, const enum xmysqlnd_transaction_state_type type);
 typedef const enum_hnd_func_status					(*func_xmysqlnd_node_stmt__handler_on_statement_ok)(void * context);
@@ -172,6 +173,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
 	func_xmysqlnd_node_stmt__handler_on_meta_field handler_on_meta_field;	/* export the function for binding */
 	func_xmysqlnd_node_stmt__handler_on_warning handler_on_warning;			/* export the function for binding */
 	func_xmysqlnd_node_stmt__handler_on_error handler_on_error;				/* export the function for binding */
+	func_xmysqlnd_node_stmt__handler_on_generated_doc_ids handler_on_generated_doc_ids;
 	func_xmysqlnd_node_stmt__handler_on_exec_state_change handler_on_exec_state_change;/* export the function for binding */
 	func_xmysqlnd_node_stmt__handler_on_trx_state_change handler_on_trx_state_change;/* export the function for binding */
 	func_xmysqlnd_node_stmt__handler_on_statement_ok handler_on_statement_ok;	/* export the function for binding */
@@ -214,8 +216,6 @@ struct st_xmysqlnd_node_stmt_data : public util::permanent_allocable
 	struct st_xmysqlnd_node_stmt_bind_ctx read_ctx;
 
 	zend_bool         partial_read_started;
-	MYSQLND_CSTRING	* assigned_document_ids;
-	int               num_of_assigned_doc_ids;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 

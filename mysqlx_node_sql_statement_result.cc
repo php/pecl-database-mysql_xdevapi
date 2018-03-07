@@ -65,7 +65,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_last_insert_id, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_last_document_id, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_generated_ids, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_sql_statement_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
@@ -310,13 +310,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getLastInsertId)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_sql_statement_result::getDocumentId(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getDocumentId)
+/* {{{ proto mixed mysqlx_node_sql_statement_result::getGeneratedIds(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getGeneratedIds)
 {
 	zval* object_zv{nullptr};
 	st_mysqlx_node_sql_statement_result* object{nullptr};
 
-	DBG_ENTER("mysqlx_node_sql_statement_result::getDocumentId");
+	DBG_ENTER("mysqlx_node_sql_statement_result::getGeneratedIds");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_node_sql_statement_result_class_entry))
 	{
@@ -327,10 +327,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getDocumentId)
 	RETVAL_FALSE;
 	if (object->result && object->result->exec_state) {
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
-		/* Maybe check here if there was an error and throw an Exception or return a warning */
-		if (exec_state) {
-			MYSQLND_CSTRING * value = exec_state->m->get_last_document_id(exec_state);
-			ZVAL_STRINGL(return_value, value[0].s, value[0].l);
+		if ( exec_state == nullptr ) {
+			php_error_docref(nullptr, E_WARNING, "Unable to get the correct exec_state");
+			DBG_VOID_RETURN;
+		}
+		auto& ids = exec_state->generated_doc_ids;
+		const size_t num_of_docs = ids.size();
+		array_init_size(return_value, num_of_docs);
+		for( auto& elem : ids ) {
+			zval id;
+			ZVAL_STRINGL(&id,elem.c_str(),elem.size());
+			zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &id);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -580,8 +587,8 @@ static const zend_function_entry mysqlx_node_sql_statement_result_methods[] = {
 	PHP_ME(mysqlx_node_sql_statement_result, fetchAll,				arginfo_mysqlx_node_sql_statement_result__fetch_all,				ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_node_sql_statement_result, getAffectedItemsCount,	arginfo_mysqlx_node_sql_statement_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_sql_statement_result, getLastInsertId, 		arginfo_mysqlx_node_sql_statement_result__get_last_insert_id,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_sql_statement_result, getDocumentId, 	arginfo_mysqlx_node_sql_statement_result__get_last_document_id,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement_result, getLastInsertId,		arginfo_mysqlx_node_sql_statement_result__get_last_insert_id,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_node_sql_statement_result, getGeneratedIds,		arginfo_mysqlx_node_sql_statement_result__get_generated_ids,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarningCount,		arginfo_mysqlx_node_sql_statement_result__get_warning_count,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_node_sql_statement_result, getWarnings,			arginfo_mysqlx_node_sql_statement_result__get_warnings, 			ZEND_ACC_PUBLIC)
 

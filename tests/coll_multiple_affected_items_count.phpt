@@ -1,5 +1,5 @@
 --TEST--
-mysqlx coll. multiple add / getDocumentIds
+mysqlx coll. multiple add / Affected item counts
 --SKIPIF--
 --INI--
 error_reporting=0
@@ -19,11 +19,6 @@ error_reporting=0
 			["name" => "Mario", "age" => 44, "job" => "Tifoso"],
 			'{"name": "Marco3","age": 92, "job": "Programmatore2"}')->execute();
 	expect_eq($res->getAffectedItemsCount(), 4);
-	$ids = $res->getDocumentIds();
-	expect_eq(count($ids), 4);
-	for( $i = 0 ; $i < 4 ; $i++ ) {
-		expect_true(( $ids[$i] != null ) && ( count($ids[$i]) > 0 ) );
-	}
 
 	$res = $coll->add(
 		'{"name": "Lonardo","_id": "  2  "  , "age": 59, "job": "Paninaro"}',
@@ -31,11 +26,6 @@ error_reporting=0
 		'{"name": "Carlotta",   "age": 23, "_id":     33.33    , "job": "Programmatrice"}'
 		)->execute();
 	expect_eq($res->getAffectedItemsCount(), 3);
-	$ids = $res->getDocumentIds();
-	expect_eq(count($ids), 3);
-	expect_eq($ids[0],"  2  ");
-	expect_eq($ids[1],34);
-	expect_eq($ids[2],33.33);
 
 	$res = $coll->add(
 		["name" => "Carlotta", "age" => 34, "_id" => 11, "job" => "Dentista"],
@@ -44,10 +34,6 @@ error_reporting=0
 		["name" => "Antonio", "age" => 42, "job" => "Architetto"]
 		)->execute();
 	expect_eq($res->getAffectedItemsCount(), 4);
-	$ids = $res->getDocumentIds();
-	expect_eq(count($ids), 4);
-	expect_eq($ids[0],11);
-	expect_eq($ids[1],344);
 
 
 	$res = $coll->find()->sort('name desc')->execute()->fetchAll();
@@ -73,14 +59,9 @@ error_reporting=0
 
 	$res = $coll->add(["name" => "Marco", "age" => 84, "job" => "Spavatore", "_id" => 123])->execute();
 	expect_eq($res->getAffectedItemsCount(), 1);
-	$ids = $res->getDocumentIds();
-	expect_eq(count($ids), 1);
-	expect_eq($ids[0], 123);
+
 	$res = $coll->add('{"name": "Roberto","age": 39, "job": "Animatore", "_id" : "cool"}')->execute();
 	expect_eq($res->getAffectedItemsCount(), 1);
-	$ids = $res->getDocumentIds();
-	expect_eq(count($ids), 1);
-	expect_eq($ids[0],"cool");
 
 	verify_expectations();
 	print "done!".PHP_EOL;
