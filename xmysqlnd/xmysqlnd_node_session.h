@@ -145,7 +145,8 @@ enum class Auth_mode
 	unspecified,
 	mysql41,
 	plain,
-	external
+	external,
+	sha256_memory
 };
 
 /*

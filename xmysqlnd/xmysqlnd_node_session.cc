@@ -59,6 +59,7 @@ extern "C" {
 #include <memory>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/split.hpp>
 
 namespace mysqlx {
@@ -169,6 +170,7 @@ namespace {
 const char* Auth_method_mysql41 = "MYSQL41";
 const char* Auth_method_plain = "PLAIN";
 const char* Auth_method_external = "EXTERNAL";
+const char* Auth_method_sha256_memory = "SHA256_MEMORY";
 const char* Auth_method_unspecified = "";
 
 /* {{{ xmysqlnd_throw_exception_from_session_if_needed */
@@ -532,24 +534,125 @@ xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 /* }}} */
 
 
-/* {{{ xmysqlnd_is_mysql41_supported */
-zend_bool
-xmysqlnd_is_mysql41_supported(const zval * capabilities)
+// ----------------------------------------------------------------------------
+
+class Prepare_auth_mech_names
+{
+	public:
+		Prepare_auth_mech_names(
+			const XMYSQLND_SESSION_AUTH_DATA* auth,
+			const zval* capabilities,
+			util::strings* auth_mech_names);
+
+		bool run();
+
+	private:
+		util::string auth_mode_to_str(Auth_mode auth_mode) const;
+		bool is_tls_enabled() const;
+		bool is_auth_method_supported(Auth_mode auth_mode) const;
+		void add_auth_mode(Auth_mode auth_mode);
+		void add_auth_mode_if_supported(Auth_mode auth_mode);
+
+	private:
+		const XMYSQLND_SESSION_AUTH_DATA* auth;
+		const zval* capabilities;
+		util::strings& auth_mech_names;
+
+};
+
+// ----------------------------------------------------------------------------
+
+Prepare_auth_mech_names::Prepare_auth_mech_names(
+	const XMYSQLND_SESSION_AUTH_DATA* auth,
+	const zval* capabilities,
+	util::strings* auth_mech_names)
+	: auth(auth)
+	, capabilities(capabilities)
+	, auth_mech_names(*auth_mech_names)
+{
+}
+
+bool Prepare_auth_mech_names::run()
+{
+	/*
+		WL#11591 DevAPI: Add SHA256_MEMORY support
+		if (user picked an auth mechanism in the connection string) {
+			try: whatever the user wants or fail with error reported by the server 
+		} else if (tls_enabled OR unix_domain_socket) {
+			try: PLAIN or fail with error reported by the server
+		} else {
+			first try: MYSQL41
+			then try: SHA256_MEMORY
+			then fail with: { severity: 1, code: 1045, msg: 
+				'Authentication failed using MYSQL41 and SHA256_MEMORY, check username
+				and password or try a secure connection', sql_state: 'HY000' } 
+		}
+	*/
+	const Auth_mode user_auth_mode{auth->auth_mode};
+	if (user_auth_mode != Auth_mode::unspecified) {
+		add_auth_mode(user_auth_mode);
+	} else if (is_tls_enabled()) {
+		add_auth_mode(Auth_mode::plain);
+	} else {
+		add_auth_mode_if_supported(Auth_mode::mysql41);
+		add_auth_mode_if_supported(Auth_mode::sha256_memory);
+	}
+
+	return !auth_mech_names.empty();
+}
+
+util::string Prepare_auth_mech_names::auth_mode_to_str(Auth_mode auth_mode) const
+{
+	using auth_mode_to_label = std::map<Auth_mode, std::string>;
+	static const auth_mode_to_label auth_mode_to_labels = {
+		{ Auth_mode::mysql41, Auth_method_mysql41 },
+		{ Auth_mode::plain, Auth_method_plain },
+		{ Auth_mode::external, Auth_method_external },
+		{ Auth_mode::sha256_memory, Auth_method_sha256_memory },
+		{ Auth_mode::unspecified, Auth_method_unspecified }
+	};
+
+	return auth_mode_to_labels.at(auth_mode).c_str();
+}
+
+bool Prepare_auth_mech_names::is_tls_enabled() const
+{
+	return auth->ssl_mode != SSL_mode::disabled;
+}
+
+bool Prepare_auth_mech_names::is_auth_method_supported(Auth_mode auth_mode) const
 {
 	zval* entry{nullptr};
-	const zval * auth_mechs = zend_hash_str_find(Z_ARRVAL_P(capabilities), "authentication.mechanisms", sizeof("authentication.mechanisms") - 1);
+	const zval* auth_mechs = zend_hash_str_find(Z_ARRVAL_P(capabilities),
+		"authentication.mechanisms", sizeof("authentication.mechanisms") - 1);
 	if (!capabilities || Z_TYPE_P(auth_mechs) != IS_ARRAY) {
-		return FALSE;
+		return false;
 	}
+
+	const util::string& auth_mech_name = auth_mode_to_str(auth_mode);
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mechs), entry) {
-		if (!strcasecmp(Z_STRVAL_P(entry), Auth_method_mysql41)) {
-			return TRUE;
+		if (!strcasecmp(Z_STRVAL_P(entry), auth_mech_name.c_str())) {
+			return true;
 		}
 	} ZEND_HASH_FOREACH_END();
-	return FALSE;
-}
-/* }}} */
 
+	return false;
+}
+
+void Prepare_auth_mech_names::add_auth_mode(Auth_mode auth_mode)
+{
+	const util::string& auth_mech_name = auth_mode_to_str(auth_mode);
+	auth_mech_names.push_back(auth_mech_name);
+}
+
+void Prepare_auth_mech_names::add_auth_mode_if_supported(Auth_mode auth_mode)
+{
+	if (is_auth_method_supported(auth_mode)) {
+		add_auth_mode(auth_mode);
+	}
+}
+
+// ----------------------------------------------------------------------------
 
 /* {{{ setup_crypto_options */
 void setup_crypto_options(
@@ -689,22 +792,6 @@ enum_func_status setup_crypto_connection(
 
 
 /* {{{ xmysqlnd_session_data::authenticate */
-util::string auth_mode_to_str(const Auth_mode auth_mode)
-{
-	using auth_mode_to_label = std::map<Auth_mode, std::string>;
-	static const auth_mode_to_label auth_mode_to_labels = {
-		{ Auth_mode::mysql41, Auth_method_mysql41 },
-		{ Auth_mode::plain, Auth_method_plain },
-		{ Auth_mode::external, Auth_method_external },
-		{ Auth_mode::unspecified, Auth_method_unspecified }
-	};
-
-	return auth_mode_to_labels.at(auth_mode).c_str();
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
 XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 												XMYSQLND_SESSION_DATA session,
@@ -714,15 +801,15 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 {
 	enum_func_status ret{FAIL};
 	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
-	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
-        const struct st_xmysqlnd_on_error_bind on_error = { session->m->handler_on_error, (void*) session.get() };
-        const struct st_xmysqlnd_on_client_id_bind on_client_id = { session->m->set_client_id, (void*) session.get() };
-        const struct st_xmysqlnd_on_warning_bind on_warning = { nullptr, (void*) session.get() };
-        const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, (void*) session.get() };
-	struct st_xmysqlnd_auth_41_ctx auth_ctx = { session, scheme, auth->username, auth->password, database };
-	const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue = { session->m->handler_on_auth_continue, &auth_ctx };
+	const st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
+	const st_xmysqlnd_on_error_bind on_error = { session->m->handler_on_error, (void*) session.get() };
+	const st_xmysqlnd_on_client_id_bind on_client_id = { session->m->set_client_id, (void*) session.get() };
+	const st_xmysqlnd_on_warning_bind on_warning = { nullptr, (void*) session.get() };
+	const st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, (void*) session.get() };
+	st_xmysqlnd_auth_41_ctx auth_ctx = { session, scheme, auth->username, auth->password, database };
+	const st_xmysqlnd_on_auth_continue_bind on_auth_continue = { session->m->handler_on_auth_continue, &auth_ctx };
 
-	struct st_xmysqlnd_msg__capabilities_get caps_get;
+	st_xmysqlnd_msg__capabilities_get caps_get;
 	DBG_ENTER("xmysqlnd_session_data::authenticate");
 
 	caps_get = msg_factory.get__capabilities_get(&msg_factory);
@@ -735,63 +822,58 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 		if (PASS == ret) {
 			zend_bool tls_set{FALSE};
 			const zend_bool tls = xmysqlnd_get_tls_capability(&capabilities, &tls_set);
-			const zend_bool mysql41_supported = xmysqlnd_is_mysql41_supported(&capabilities);
-
-			//The X Protocol currently supports:
-			//   1) PLAIN over TLS (see RFC 4616)
-			//   2) MYSQL41
 
 			DBG_INF_FMT("tls=%d tls_set=%d", tls, tls_set);
-			DBG_INF_FMT("4.1 supported=%d", mysql41_supported);
 
-			const Auth_mode user_auth_mode{auth->auth_mode};
-			util::string auth_mech_name;
-
-			if( auth->ssl_mode != SSL_mode::disabled ) {
-				if( TRUE == tls_set ) {
+			if (auth->ssl_mode != SSL_mode::disabled) {
+				if (TRUE == tls_set) {
 					ret = setup_crypto_connection(session,caps_get,msg_factory);
-					if (user_auth_mode == Auth_mode::unspecified) {
-						auth_mech_name = Auth_method_plain;
-					} else {
-						auth_mech_name = auth_mode_to_str(user_auth_mode);
-					}
 				} else {
 					ret = FAIL;
 					DBG_ERR_FMT("Cannot connect to MySQL by using SSL, unsupported by the server");
 					php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL, unsupported by the server");
 				}
-			} else {
-				if (user_auth_mode == Auth_mode::unspecified) {
-					if (mysql41_supported) {
-						auth_mech_name = Auth_method_mysql41;
-					}
-				} else {
-					auth_mech_name = auth_mode_to_str(user_auth_mode);
-				}
 			}
 
-			DBG_INF_FMT("Authentication mechanism: %s",
-						auth_mech_name.c_str());
-
 			if( ret == PASS ) {
-				//Complete the authentication procedure!
-				const MYSQLND_CSTRING method = { auth_mech_name.c_str(),auth_mech_name.size() };
-				const util::string authdata = '\0' + auth->username + '\0' + auth->password;
-				st_xmysqlnd_msg__auth_start auth_start_msg = msg_factory.get__auth_start(&msg_factory);
-				ret = auth_start_msg.send_request(&auth_start_msg,
-									method, {authdata.c_str(), authdata.size()});
+				util::strings auth_mech_names;
+				Prepare_auth_mech_names prepare_auth_mech_names(auth, &capabilities, &auth_mech_names);
+				if (!prepare_auth_mech_names.run()) {
+					ret = FAIL;
+				}
 
-				if (ret == PASS) {
-					auth_start_msg.init_read(&auth_start_msg,
-									on_auth_continue,
-									on_warning,
-									on_error,
-									on_client_id,
-									on_session_var_change);
-					ret = auth_start_msg.read_response(&auth_start_msg, nullptr);
-					if (PASS == ret) {
-						DBG_INF("AUTHENTICATED. YAY!");
+				for (auto auth_mech_name : auth_mech_names) {
+					DBG_INF_FMT("Authentication mechanism: %s", auth_mech_name.c_str());
+
+					//Complete the authentication procedure!
+					const MYSQLND_CSTRING method = { auth_mech_name.c_str(),auth_mech_name.size() };
+					const util::string authdata = '\0' + auth->username + '\0' + auth->password;
+					st_xmysqlnd_msg__auth_start auth_start_msg = msg_factory.get__auth_start(&msg_factory);
+					ret = auth_start_msg.send_request(&auth_start_msg,
+										method, {authdata.c_str(), authdata.size()});
+
+					if (ret == PASS) {
+						auth_start_msg.init_read(&auth_start_msg,
+										on_auth_continue,
+										on_warning,
+										on_error,
+										on_client_id,
+										on_session_var_change);
+						ret = auth_start_msg.read_response(&auth_start_msg, nullptr);
+						if (PASS == ret) {
+							DBG_INF("AUTHENTICATED. YAY!");
+							break;
+						}
 					}
+				}
+
+
+				if (ret == FAIL) {
+					util::ostringstream os;
+					os << "[HY000] Authentication failed using " 
+						<< boost::join(auth_mech_names, ", ")
+						<< ". Check username and password or try a secure connection";
+					php_error_docref(nullptr, E_WARNING, os.str().c_str());
 				}
 			}
 		}
@@ -2441,7 +2523,8 @@ enum_func_status parse_auth_mode(
 	static const str_to_auth_mode str_to_auth_modes = {
 		{ Auth_method_mysql41, Auth_mode::mysql41 },
 		{ Auth_method_plain, Auth_mode::plain },
-		{ Auth_method_external, Auth_mode::external }
+		{ Auth_method_external, Auth_mode::external },
+		{ Auth_method_sha256_memory , Auth_mode::sha256_memory }
 	};
 	auto it = str_to_auth_modes.find(auth_mode.c_str());
 	if (it != str_to_auth_modes.end()) {
