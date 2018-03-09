@@ -80,6 +80,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="config.w32" role="src" />
    <file name="examples.php" role="test" />
    <file name="mysql_xdevapi.def" role="src" />
+   <file name="mysqlnd_api.h" role="src" />
    <file name="mysqlx_class_properties.cc" role="src" />
    <file name="mysqlx_class_properties.h" role="src" />
    <file name="mysqlx_crud_operation_bindable.cc" role="src" />
@@ -172,6 +173,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="php_xmysqlnd.cc" role="src" />
    <file name="php_xmysqlnd.h" role="src" />
    <file name="product_data.txt" role="doc" />
+   <file name="protobuf_api.h" role="src" />
    <dir name="messages">
     <file name="mysqlx_message__auth_continue.cc" role="src" />
     <file name="mysqlx_message__auth_continue.h" role="src" />
@@ -208,29 +210,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="mysqlx_resultset__resultset_metadata.cc" role="src" />
     <file name="mysqlx_resultset__resultset_metadata.h" role="src" />
    </dir>
-   <dir name="util">
-    <file name="allocator.cc" role="src" />
-    <file name="allocator.h" role="src" />
-    <file name="exceptions.cc" role="src" />
-    <file name="exceptions.h" role="src" />
-    <file name="hash_table.cc" role="src" />
-    <file name="hash_table.h" role="src" />
-    <file name="json_utils.cc" role="src" />
-    <file name="json_utils.h" role="src" />
-    <file name="object.cc" role="src" />
-    <file name="object.h" role="src" />
-    <file name="pb_utils.cc" role="src" />
-    <file name="pb_utils.h" role="src" />
-    <file name="string_utils.cc" role="src" />
-    <file name="string_utils.h" role="src" />
-    <file name="strings.cc" role="src" />
-    <file name="strings.h" role="src" />
-    <file name="types.h" role="src" />
-    <file name="url_utils.cc" role="src" />
-    <file name="url_utils.h" role="src" />
-    <file name="value.cc" role="src" />
-    <file name="value.h" role="src" />
-   </dir>
    <dir name="tests">
     <file name="000.phpt" role="test" />
     <file name="add_with_empty_arg_is_noop.phpt" role="test" />
@@ -240,6 +219,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="basic_execute_sql.phpt" role="test" />
     <file name="basic_transactions.phpt" role="test" />
     <file name="client_side_failover.phpt" role="test" />
+    <file name="coll_multiple_affected_items_count.phpt" role="test" />
     <file name="collection_find.phpt" role="test" />
     <file name="collection_find_no_only_full_group_by.phpt" role="test" />
     <file name="collection_modify_array_delete.phpt" role="test" />
@@ -250,16 +230,17 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="connect.inc" role="test" />
     <file name="connection_test_uri_string.phpt" role="test" />
     <file name="createdrop_schema.phpt" role="test" />
+    <file name="date_time_types.phpt" role="test" />
     <file name="drop_item.phpt" role="test" />
     <file name="exists_in_database.phpt" role="test" />
     <file name="field_metadata.phpt" role="test" />
     <file name="field_metadata_empty_rowset.phpt" role="test" />
     <file name="flexible_number_of_arguments.phpt" role="test" />
+    <file name="generated_doc_ids.phpt" role="test" />
     <file name="get_auto_increment_value.phpt" role="test" />
     <file name="get_collection_as_table.phpt" role="test" />
     <file name="get_name.phpt" role="test" />
     <file name="get_tableget_tables.phpt" role="test" />
-    <file name="generated_doc_ids.phpt" role="test" />
     <file name="mergepatch.phpt" role="test" />
     <file name="modify_array_append_insert.phpt" role="test" />
     <file name="multiple_results.phpt" role="test" />
@@ -303,6 +284,90 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="table_parallel_shared_exclusive_worker.php" role="test" />
      <file name="table_sequential.phpt" role="test" />
      <file name="table_sequential_native_sql.phpt" role="test" />
+     <dir name="waiting_options_collection">
+      <file name="coll_default_exclusive_exclusive.phpt" role="test" />
+      <file name="coll_default_exclusive_exclusive_worker.php" role="test" />
+      <file name="coll_default_exclusive_none.phpt" role="test" />
+      <file name="coll_default_exclusive_none_worker.php" role="test" />
+      <file name="coll_default_exclusive_shared.phpt" role="test" />
+      <file name="coll_default_exclusive_shared_worker.php" role="test" />
+      <file name="coll_default_shared_exclusive.phpt" role="test" />
+      <file name="coll_default_shared_exclusive_worker.php" role="test" />
+      <file name="coll_default_shared_none.phpt" role="test" />
+      <file name="coll_default_shared_none_worker.php" role="test" />
+      <file name="coll_default_shared_shared.phpt" role="test" />
+      <file name="coll_default_shared_shared_worker.php" role="test" />
+      <file name="coll_nowait_exclusive_exclusive.phpt" role="test" />
+      <file name="coll_nowait_exclusive_exclusive_worker.php" role="test" />
+      <file name="coll_nowait_exclusive_shared.phpt" role="test" />
+      <file name="coll_nowait_exclusive_shared_worker.php" role="test" />
+      <file name="coll_nowait_shared_exclusive.phpt" role="test" />
+      <file name="coll_nowait_shared_exclusive_worker.php" role="test" />
+      <file name="coll_nowait_shared_shared.phpt" role="test" />
+      <file name="coll_nowait_shared_shared_worker.php" role="test" />
+      <file name="coll_skip_locked_exclusive_exclusive.phpt" role="test" />
+      <file name="coll_skip_locked_exclusive_exclusive_worker.php" role="test" />
+      <file name="coll_skip_locked_exclusive_shared.phpt" role="test" />
+      <file name="coll_skip_locked_exclusive_shared_worker.php" role="test" />
+      <file name="coll_skip_locked_shared_exclusive.phpt" role="test" />
+      <file name="coll_skip_locked_shared_exclusive_worker.php" role="test" />
+      <file name="coll_skip_locked_shared_shared.phpt" role="test" />
+      <file name="coll_skip_locked_shared_shared_worker.php" role="test" />
+      <file name="coll_without_exclusive_exclusive.phpt" role="test" />
+      <file name="coll_without_exclusive_exclusive_worker.php" role="test" />
+      <file name="coll_without_exclusive_none.phpt" role="test" />
+      <file name="coll_without_exclusive_none_worker.php" role="test" />
+      <file name="coll_without_exclusive_shared.phpt" role="test" />
+      <file name="coll_without_exclusive_shared_worker.php" role="test" />
+      <file name="coll_without_shared_exclusive.phpt" role="test" />
+      <file name="coll_without_shared_exclusive_worker.php" role="test" />
+      <file name="coll_without_shared_none.phpt" role="test" />
+      <file name="coll_without_shared_none_worker.php" role="test" />
+      <file name="coll_without_shared_shared.phpt" role="test" />
+      <file name="coll_without_shared_shared_worker.php" role="test" />
+     </dir>
+     <dir name="waiting_options_table">
+      <file name="tab_default_exclusive_exclusive.phpt" role="test" />
+      <file name="tab_default_exclusive_exclusive_worker.php" role="test" />
+      <file name="tab_default_exclusive_none.phpt" role="test" />
+      <file name="tab_default_exclusive_none_worker.php" role="test" />
+      <file name="tab_default_exclusive_shared.phpt" role="test" />
+      <file name="tab_default_exclusive_shared_worker.php" role="test" />
+      <file name="tab_default_shared_exclusive.phpt" role="test" />
+      <file name="tab_default_shared_exclusive_worker.php" role="test" />
+      <file name="tab_default_shared_none.phpt" role="test" />
+      <file name="tab_default_shared_none_worker.php" role="test" />
+      <file name="tab_default_shared_shared.phpt" role="test" />
+      <file name="tab_default_shared_shared_worker.php" role="test" />
+      <file name="tab_nowait_exclusive_exclusive.phpt" role="test" />
+      <file name="tab_nowait_exclusive_exclusive_worker.php" role="test" />
+      <file name="tab_nowait_exclusive_shared.phpt" role="test" />
+      <file name="tab_nowait_exclusive_shared_worker.php" role="test" />
+      <file name="tab_nowait_shared_exclusive.phpt" role="test" />
+      <file name="tab_nowait_shared_exclusive_worker.php" role="test" />
+      <file name="tab_nowait_shared_shared.phpt" role="test" />
+      <file name="tab_nowait_shared_shared_worker.php" role="test" />
+      <file name="tab_skip_locked_exclusive_exclusive.phpt" role="test" />
+      <file name="tab_skip_locked_exclusive_exclusive_worker.php" role="test" />
+      <file name="tab_skip_locked_exclusive_shared.phpt" role="test" />
+      <file name="tab_skip_locked_exclusive_shared_worker.php" role="test" />
+      <file name="tab_skip_locked_shared_exclusive.phpt" role="test" />
+      <file name="tab_skip_locked_shared_exclusive_worker.php" role="test" />
+      <file name="tab_skip_locked_shared_shared.phpt" role="test" />
+      <file name="tab_skip_locked_shared_shared_worker.php" role="test" />
+      <file name="tab_without_exclusive_exclusive.phpt" role="test" />
+      <file name="tab_without_exclusive_exclusive_worker.php" role="test" />
+      <file name="tab_without_exclusive_none.phpt" role="test" />
+      <file name="tab_without_exclusive_none_worker.php" role="test" />
+      <file name="tab_without_exclusive_shared.phpt" role="test" />
+      <file name="tab_without_exclusive_shared_worker.php" role="test" />
+      <file name="tab_without_shared_exclusive.phpt" role="test" />
+      <file name="tab_without_shared_exclusive_worker.php" role="test" />
+      <file name="tab_without_shared_none.phpt" role="test" />
+      <file name="tab_without_shared_none_worker.php" role="test" />
+      <file name="tab_without_shared_shared.phpt" role="test" />
+      <file name="tab_without_shared_shared_worker.php" role="test" />
+     </dir>
     </dir>
     <dir name="single_doc_ops">
      <file name="add_or_replace_one.phpt" role="test" />
@@ -320,6 +385,31 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="server-key.pem" role="test" />
      <file name="server-req.pem" role="test" />
     </dir>
+   </dir>
+   <dir name="util">
+    <file name="allocator.cc" role="src" />
+    <file name="allocator.h" role="src" />
+    <file name="exceptions.cc" role="src" />
+    <file name="exceptions.h" role="src" />
+    <file name="hash_table.cc" role="src" />
+    <file name="hash_table.h" role="src" />
+    <file name="json_utils.cc" role="src" />
+    <file name="json_utils.h" role="src" />
+    <file name="object.cc" role="src" />
+    <file name="object.h" role="src" />
+    <file name="pb_utils.cc" role="src" />
+    <file name="pb_utils.h" role="src" />
+    <file name="string_utils.cc" role="src" />
+    <file name="string_utils.h" role="src" />
+    <file name="strings.cc" role="src" />
+    <file name="strings.h" role="src" />
+    <file name="types.h" role="src" />
+    <file name="url_utils.cc" role="src" />
+    <file name="url_utils.h" role="src" />
+    <file name="value.cc" role="src" />
+    <file name="value.h" role="src" />
+    <file name="zend_utils.cc" role="src" />
+    <file name="zend_utils.h" role="src" />
    </dir>
    <dir name="xmysqlnd">
     <file name="xmysqlnd.h" role="src" />
