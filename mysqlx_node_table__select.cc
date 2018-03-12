@@ -419,7 +419,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockShared)
 	auto& data_object = util::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
 	auto crud_op = data_object.crud_op;
 	int waiting_option = static_cast<int>(lock_waiting_option);
-	if ((xmysqlnd_crud_table_select__enable_lock_shared(crud_op) == PASS) 
+	if ((xmysqlnd_crud_table_select__enable_lock_shared(crud_op) == PASS)
 		&& (xmysqlnd_crud_table_select_set_lock_waiting_option(crud_op, waiting_option) == PASS))
 	{
 		ZVAL_COPY(return_value, object_zv);
@@ -449,7 +449,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 	auto& data_object = util::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
 	auto crud_op = data_object.crud_op;
 	int waiting_option = static_cast<int>(lock_waiting_option);
-	if ((xmysqlnd_crud_table_select__enable_lock_exclusive(crud_op) == PASS) 
+	if ((xmysqlnd_crud_table_select__enable_lock_exclusive(crud_op) == PASS)
 		&& (xmysqlnd_crud_table_select_set_lock_waiting_option(crud_op, waiting_option) == PASS))
 	{
 		ZVAL_COPY(return_value, object_zv);
