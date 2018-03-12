@@ -1,5 +1,5 @@
 --TEST--
-mysqlx authentication methods
+mysqlx authentication mechanisms
 --SKIPIF--
 --INI--
 error_reporting=1
@@ -32,11 +32,11 @@ default_socket_timeout=5
 		return $base_secure_uri;
 	}
 
-	function test_connection($base_uri, $auth_method, $expect_success) {
+	function test_connection($base_uri, $auth_mechanism, $expect_success) {
 		try {
 			$uri = $base_uri;
-			if ($auth_method) {
-				$uri .= '&auth=' . $auth_method;
+			if ($auth_mechanism) {
+				$uri .= '&auth=' . $auth_mechanism;
 			}
 			$nodeSession = mysql_xdevapi\getSession($uri);
 			if (($expect_success && $nodeSession) || (!$expect_success && !$nodeSession)) {
@@ -59,14 +59,14 @@ default_socket_timeout=5
 		test_connection($uri, null, false);
 	}
 
-	function test_unsecure_connection($auth_method, $expect_success = true) {
+	function test_unsecure_connection($auth_mechanism, $expect_success = true) {
 		global $connection_uri;
-		test_connection($connection_uri, $auth_method, $expect_success);
+		test_connection($connection_uri, $auth_mechanism, $expect_success);
 	}
 
-	function test_secure_connection($auth_method, $expect_success = true) {
+	function test_secure_connection($auth_mechanism, $expect_success = true) {
 		global $base_secure_uri;
-		test_connection($base_secure_uri, $auth_method, $expect_success);
+		test_connection($base_secure_uri, $auth_mechanism, $expect_success);
 	}
 
 	// setup

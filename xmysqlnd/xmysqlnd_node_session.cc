@@ -18,11 +18,13 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
 #include <ext/mysqlnd/mysqlnd_charset.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_auth.h> /* php_mysqlnd_scramble */
+#include <ext/mysqlnd/mysqlnd_auth.h> // php_mysqlnd_scramble
+#undef L64
+#include <ext/hash/php_hash.h>
+#include <ext/hash/php_hash_sha.h> // PHP_SHA256 functions
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h"
@@ -167,11 +169,11 @@ st_xmysqlnd_session_auth_data::st_xmysqlnd_session_auth_data() :
 
 namespace {
 
-const char* Auth_method_mysql41 = "MYSQL41";
-const char* Auth_method_plain = "PLAIN";
-const char* Auth_method_external = "EXTERNAL";
-const char* Auth_method_sha256_memory = "SHA256_MEMORY";
-const char* Auth_method_unspecified = "";
+const char* Auth_mechanism_mysql41 = "MYSQL41";
+const char* Auth_mechanism_plain = "PLAIN";
+const char* Auth_mechanism_external = "EXTERNAL";
+const char* Auth_mechanism_sha256_memory = "SHA256_MEMORY";
+const char* Auth_mechanism_unspecified = "";
 
 /* {{{ xmysqlnd_throw_exception_from_session_if_needed */
 zend_bool
@@ -414,7 +416,7 @@ XMYSQLND_METHOD(xmysqlnd_session_data, get_scheme)(XMYSQLND_SESSION_DATA session
 const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
-		st_xmysqlnd_session_data * session = (st_xmysqlnd_session_data *) context;
+	st_xmysqlnd_session_data * session = (st_xmysqlnd_session_data *) context;
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_error");
 	if (session->error_info) {
 		SET_CLIENT_ERROR(session->error_info, code, sql_state.s, message.s);
@@ -424,69 +426,303 @@ XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error)(void * context, const u
 }
 /* }}} */
 
-struct st_xmysqlnd_auth_41_ctx
+
+// --------------------------
+
+struct Authentication_context
 {
-		XMYSQLND_SESSION_DATA session;
+	XMYSQLND_SESSION_DATA session;
 	MYSQLND_CSTRING scheme;
 	util::string username;
 	util::string password;
-	MYSQLND_CSTRING database;
+	util::string database;
+};
+
+// -------------
+
+// classes calculate client_hash for given authentication mechanism
+class Auth_scrambler
+{
+protected:
+	Auth_scrambler(
+		const Authentication_context& ctx,
+		const unsigned int hash_length);
+
+public:
+	virtual ~Auth_scrambler();
+
+	void run(
+		const MYSQLND_CSTRING& salt,
+		MYSQLND_STRING* output);
+
+protected:
+	bool calc_hash(const MYSQLND_CSTRING& salt);
+	virtual void scramble(
+		const MYSQLND_CSTRING& salt,
+		const util::string& password) = 0;
+	void hex_hash();
+	void store_answer(
+		const util::string& database,
+		const util::string& username,
+		MYSQLND_STRING* output);
+
+protected:
+	const Authentication_context& ctx;
+
+	const unsigned int Hash_length;
+	const unsigned int Scramble_length{ SCRAMBLE_LENGTH };
+
+	std::vector<unsigned char> hash;
+	std::vector<char> hexed_hash;
 
 };
 
-const char hexconvtab[] = "0123456789abcdef";
+// -------------
 
+Auth_scrambler::Auth_scrambler(
+	const Authentication_context& ctx,
+	const unsigned int hash_length)
+	: ctx(ctx)
+	, Hash_length(hash_length)
+{
+}
+
+Auth_scrambler::~Auth_scrambler()
+{
+}
+
+void Auth_scrambler::run(
+	const MYSQLND_CSTRING& salt,
+	MYSQLND_STRING* output)
+{
+	if (drv::is_empty_str(salt)) return;
+
+	if (calc_hash(salt)) {
+		hex_hash();
+	}
+
+	store_answer(ctx.database, ctx.username, output);
+}
+
+bool Auth_scrambler::calc_hash(const MYSQLND_CSTRING& salt)
+{
+	const util::string& password{ ctx.password };
+	if (password.empty()) return false;
+
+	hash.resize(Hash_length, '\0');
+	scramble(salt, password);
+	return true;
+}
+
+void Auth_scrambler::hex_hash()
+{
+	const char hexconvtab[] = "0123456789abcdef";
+	hexed_hash.resize(Hash_length * 2, '\0');
+	for (unsigned int i{0}; i < Hash_length; ++i) {
+		hexed_hash[ i*2 ] = hexconvtab[ hash[i] >> 4 ];
+		hexed_hash[ i*2 + 1 ] = hexconvtab[ hash[i] & 15 ];
+	}
+}
+
+void Auth_scrambler::store_answer(
+	const util::string& database,
+	const util::string& username,
+	MYSQLND_STRING* output)
+{
+	const bool has_hexed_hash = !hexed_hash.empty();
+	const std::size_t answer_length{
+		database.length() + 1 + 
+		username.length() + 1 +
+		(has_hexed_hash ? Hash_length * 2 : 0) + 1 + 1 };
+	util::vector<char> answer(answer_length, '\0');
+	char* p{answer.data()};
+	memcpy(p, database.c_str(), database.length());
+	p += database.length();
+	*p++ = '\0';
+	memcpy(p, username.c_str(), username.length());
+	p += username.length();
+	*p++ = '\0';
+	if (has_hexed_hash) {
+		*p++ = '*';
+		memcpy(p, hexed_hash.data(), Hash_length * 2);
+		p += Hash_length * 2;
+	}
+	*p++ = '\0';
+	output->l = p - answer.data();
+	assert(output->l == answer_length);
+	output->s = static_cast<char*>(mnd_emalloc(output->l));
+	memcpy(output->s, answer.data(), output->l);
+}
+
+// --------------------------
+
+class Mysql41_auth_scrambler : public Auth_scrambler
+{
+public:
+	Mysql41_auth_scrambler(const Authentication_context& ctx);
+
+protected:
+	void scramble(
+		const MYSQLND_CSTRING& salt,
+		const util::string& password) override;
+};
+
+// -------------
+
+Mysql41_auth_scrambler::Mysql41_auth_scrambler(const Authentication_context& ctx)
+	: Auth_scrambler(ctx, SHA1_MAX_LENGTH)
+{
+}
+
+void Mysql41_auth_scrambler::scramble(
+	const MYSQLND_CSTRING& salt,
+	const util::string& password)
+{
+	php_mysqlnd_scramble(
+		hash.data(), 
+		reinterpret_cast<const unsigned char*>(salt.s),
+		reinterpret_cast<const unsigned char*>(password.c_str()),
+		password.length());
+}
+
+// --------------------------
+
+const int SHA256_MAX_LENGTH = 32;
+
+class Sha256_mem_scrambler : public Auth_scrambler
+{
+public:
+	Sha256_mem_scrambler(const Authentication_context& ctx);
+
+protected:
+	void scramble(
+		const MYSQLND_CSTRING& salt,
+		const util::string& password) override;
+
+private:
+	void hash_data(
+		const unsigned char* salt,
+		const unsigned char* password,
+		const size_t password_len,
+		unsigned char* buffer);
+	void crypt_data(
+		const unsigned char* lhs,
+		const unsigned char* rhs,
+		const size_t length,
+		unsigned char* buffer);
+
+};
+
+// -------------
+
+Sha256_mem_scrambler::Sha256_mem_scrambler(const Authentication_context& ctx)
+	: Auth_scrambler(ctx, SHA256_MAX_LENGTH)
+{
+}
+
+void Sha256_mem_scrambler::scramble(
+	const MYSQLND_CSTRING& salt,
+	const util::string& password)
+{
+	scramble(salt, password);
+
+	hash_data(
+		reinterpret_cast<const unsigned char*>(salt.s),
+		reinterpret_cast<const unsigned char*>(password.c_str()),
+		password.length(),
+		hash.data());
+}
+
+void Sha256_mem_scrambler::hash_data(
+	const unsigned char* salt,
+	const unsigned char* password,
+	const size_t password_len,
+	unsigned char* buffer)
+{
+	/*
+		CLIENT_HASH=SHA256(SHA256(SHA256(PASSWORD)),NONCE) XOR SHA256(PASSWORD)
+	*/
+	PHP_SHA256_CTX context;
+
+	// step 0: hash password - sha0=SHA256(PASSWORD)
+	unsigned char sha0[SHA256_MAX_LENGTH];
+	PHP_SHA256Init(&context);
+	PHP_SHA256Update(&context, password, password_len);
+	PHP_SHA256Final(sha0, &context);
+
+	// step 1: hash sha0 - sha1=SHA256(sha0)
+	unsigned char sha1[SHA256_MAX_LENGTH];
+	PHP_SHA256Init(&context);
+	PHP_SHA256Update(&context, sha0, SHA256_MAX_LENGTH);
+	PHP_SHA256Final(sha1, &context);
+
+	// step 2: hash sha1 + NONCE = buffer=SHA256(sha1,NONCE)
+	PHP_SHA256Init(&context);
+	PHP_SHA256Update(&context, sha1, SHA256_MAX_LENGTH);
+	PHP_SHA256Update(&context, salt, Scramble_length);
+	PHP_SHA256Final(buffer, &context);
+
+	// step 3: crypt buffer - buffer XOR sha0
+	crypt_data(buffer, sha0, SHA256_MAX_LENGTH, buffer);
+}
+
+void Sha256_mem_scrambler::crypt_data(
+	const unsigned char* lhs,
+	const unsigned char* rhs,
+	const size_t length,
+	unsigned char* buffer)
+{
+	for (size_t i{0}; i < length; ++i) {
+		buffer[i] = lhs[i] ^ rhs[i];
+	}
+}
+
+// -------------
+
+std::unique_ptr<Auth_scrambler> create_auth_scrambler(
+	const Auth_mechanism auth_mechanism,
+	const Authentication_context& auth_ctx)
+{
+	std::unique_ptr<Auth_scrambler> scrambler;
+	switch (auth_mechanism) {
+		case Auth_mechanism::mysql41:
+			scrambler.reset(new Mysql41_auth_scrambler(auth_ctx));
+			break;
+
+		case Auth_mechanism::sha256_memory:
+			scrambler.reset(new Sha256_mem_scrambler(auth_ctx));
+			break;
+
+		case Auth_mechanism::plain:
+		case Auth_mechanism::external:
+			// do nothing
+			break;
+
+		default:
+			assert(!"unexpected Auth_mechanism!");
+	}
+
+	return scrambler;
+}
+
+// -------------
 
 /* {{{ xmysqlnd_node_stmt::handler_on_auth_continue */
 const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_auth_continue)(void * context,
-																const MYSQLND_CSTRING input,
-																MYSQLND_STRING * const output)
+XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_auth_continue)(
+	void* context,
+	const MYSQLND_CSTRING input,
+	MYSQLND_STRING* const output)
 {
-	const MYSQLND_CSTRING salt = input;
-	st_xmysqlnd_auth_41_ctx* ctx = (st_xmysqlnd_auth_41_ctx*) context;
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_auth_continue");
+
+	const MYSQLND_CSTRING salt{ input };
 	DBG_INF_FMT("salt[%d]=%s", salt.l, salt.s);
-	if (salt.s) {
-		const zend_bool to_hex = !ctx->password.empty();
-		char hexed_hash[SCRAMBLE_LENGTH*2];
-		if (to_hex) {
-			zend_uchar hash[SCRAMBLE_LENGTH];
 
-			php_mysqlnd_scramble(hash, (zend_uchar*) salt.s, (const zend_uchar*) ctx->password.c_str(),
-								 ctx->password.size());
-			for (unsigned int i{0}; i < SCRAMBLE_LENGTH; i++) {
-				hexed_hash[i*2] = hexconvtab[hash[i] >> 4];
-				hexed_hash[i*2 + 1] = hexconvtab[hash[i] & 15];
-			}
-			DBG_INF_FMT("hexed_hash=%s", hexed_hash);
-		}
+	Auth_scrambler* auth_scrambler{ static_cast<Auth_scrambler*>(context) };
+	auth_scrambler->run(salt, output);
+	xmysqlnd_dump_string_to_log("output", output->s, output->l);
 
-		{
-			const std::size_t answer_length{ctx->database.l + 1 + ctx->username.size() + 1 +
-				1 + (to_hex ? SCRAMBLE_LENGTH * 2 : 0) + 1};
-			util::string answer_str(answer_length, '\0');
-			char* answer{&answer_str.front()};
-			char* p{answer};
-			memcpy(p, ctx->database.s, ctx->database.l);
-			p+= ctx->database.l;
-			*p++ = '\0';
-			memcpy(p, ctx->username.c_str(), ctx->username.size());
-			p+= ctx->username.size();
-			*p++ = '\0';
-			if (to_hex) {
-				*p++ = '*';
-				memcpy(p, hexed_hash, SCRAMBLE_LENGTH*2);
-				p+= SCRAMBLE_LENGTH*2;
-			}
-			*p++ = '\0';
-			output->l = p - answer;
-			output->s = static_cast<char*>(mnd_emalloc(output->l));
-			memcpy(output->s, answer, output->l);
-
-			xmysqlnd_dump_string_to_log("output", output->s, output->l);
-		}
-	}
 	DBG_RETURN(HND_AGAIN);
 }
 /* }}} */
@@ -536,101 +772,115 @@ xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 
 // ----------------------------------------------------------------------------
 
-class Prepare_auth_mech_names
+util::string auth_mechanism_to_str(Auth_mechanism auth_mechanism)
 {
-	public:
-		Prepare_auth_mech_names(
-			const XMYSQLND_SESSION_AUTH_DATA* auth,
-			const zval* capabilities,
-			util::strings* auth_mech_names);
+	using auth_mechanism_to_label = std::map<Auth_mechanism, std::string>;
+	static const auth_mechanism_to_label auth_mechanism_to_labels = {
+		{ Auth_mechanism::mysql41, Auth_mechanism_mysql41 },
+		{ Auth_mechanism::plain, Auth_mechanism_plain },
+		{ Auth_mechanism::external, Auth_mechanism_external },
+		{ Auth_mechanism::sha256_memory, Auth_mechanism_sha256_memory },
+		{ Auth_mechanism::unspecified, Auth_mechanism_unspecified }
+	};
 
-		bool run();
+	return util::to_string(auth_mechanism_to_labels.at(auth_mechanism));
+}
 
-	private:
-		util::string auth_mode_to_str(Auth_mode auth_mode) const;
-		bool is_tls_enabled() const;
-		bool is_auth_method_supported(Auth_mode auth_mode) const;
-		void add_auth_mode(Auth_mode auth_mode);
-		void add_auth_mode_if_supported(Auth_mode auth_mode);
+using Auth_mechanisms = util::vector<Auth_mechanism>;
 
-	private:
-		const XMYSQLND_SESSION_AUTH_DATA* auth;
-		const zval* capabilities;
-		util::strings& auth_mech_names;
+util::strings to_auth_mech_names(const Auth_mechanisms& auth_mechanisms)
+{
+	util::strings auth_mech_names;
+	std::transform(
+		auth_mechanisms.begin(),
+		auth_mechanisms.end(),
+		std::back_inserter(auth_mech_names),
+		auth_mechanism_to_str);
+	return auth_mech_names;
+}
+
+// -------------
+
+class Gather_auth_mechanisms
+{
+public:
+	Gather_auth_mechanisms(
+		const XMYSQLND_SESSION_AUTH_DATA* auth,
+		const zval* capabilities,
+		Auth_mechanisms* auth_mechanisms);
+
+	bool run();
+
+private:
+	bool is_tls_enabled() const;
+	bool is_auth_mechanism_supported(Auth_mechanism auth_mechanism) const;
+	void add_auth_mechanism(Auth_mechanism auth_mechanism);
+	void add_auth_mechanism_if_supported(Auth_mechanism auth_mechanism);
+
+private:
+	const XMYSQLND_SESSION_AUTH_DATA* auth;
+	const zval* capabilities;
+	Auth_mechanisms& auth_mechanisms;
 
 };
 
 // ----------------------------------------------------------------------------
 
-Prepare_auth_mech_names::Prepare_auth_mech_names(
+Gather_auth_mechanisms::Gather_auth_mechanisms(
 	const XMYSQLND_SESSION_AUTH_DATA* auth,
 	const zval* capabilities,
-	util::strings* auth_mech_names)
+	Auth_mechanisms* auth_mechanisms)
 	: auth(auth)
 	, capabilities(capabilities)
-	, auth_mech_names(*auth_mech_names)
+	, auth_mechanisms(*auth_mechanisms)
 {
 }
 
-bool Prepare_auth_mech_names::run()
+bool Gather_auth_mechanisms::run()
 {
 	/*
 		WL#11591 DevAPI: Add SHA256_MEMORY support
 		if (user picked an auth mechanism in the connection string) {
-			try: whatever the user wants or fail with error reported by the server 
+			try: whatever the user wants or fail with error reported by the server
 		} else if (tls_enabled OR unix_domain_socket) {
 			try: PLAIN or fail with error reported by the server
 		} else {
 			first try: MYSQL41
 			then try: SHA256_MEMORY
-			then fail with: { severity: 1, code: 1045, msg: 
+			then fail with: { severity: 1, code: 1045, msg:
 				'Authentication failed using MYSQL41 and SHA256_MEMORY, check username
-				and password or try a secure connection', sql_state: 'HY000' } 
+				and password or try a secure connection', sql_state: 'HY000' }
 		}
 	*/
-	const Auth_mode user_auth_mode{auth->auth_mode};
-	if (user_auth_mode != Auth_mode::unspecified) {
-		add_auth_mode(user_auth_mode);
+	const Auth_mechanism user_auth_mechanism{auth->auth_mechanism};
+	if (user_auth_mechanism != Auth_mechanism::unspecified) {
+		add_auth_mechanism(user_auth_mechanism);
 	} else if (is_tls_enabled()) {
-		add_auth_mode(Auth_mode::plain);
+		add_auth_mechanism(Auth_mechanism::plain);
 	} else {
-		add_auth_mode_if_supported(Auth_mode::mysql41);
-		add_auth_mode_if_supported(Auth_mode::sha256_memory);
+		add_auth_mechanism_if_supported(Auth_mechanism::mysql41);
+		add_auth_mechanism_if_supported(Auth_mechanism::sha256_memory);
 	}
 
-	return !auth_mech_names.empty();
+	return !auth_mechanisms.empty();
 }
 
-util::string Prepare_auth_mech_names::auth_mode_to_str(Auth_mode auth_mode) const
-{
-	using auth_mode_to_label = std::map<Auth_mode, std::string>;
-	static const auth_mode_to_label auth_mode_to_labels = {
-		{ Auth_mode::mysql41, Auth_method_mysql41 },
-		{ Auth_mode::plain, Auth_method_plain },
-		{ Auth_mode::external, Auth_method_external },
-		{ Auth_mode::sha256_memory, Auth_method_sha256_memory },
-		{ Auth_mode::unspecified, Auth_method_unspecified }
-	};
-
-	return auth_mode_to_labels.at(auth_mode).c_str();
-}
-
-bool Prepare_auth_mech_names::is_tls_enabled() const
+bool Gather_auth_mechanisms::is_tls_enabled() const
 {
 	return auth->ssl_mode != SSL_mode::disabled;
 }
 
-bool Prepare_auth_mech_names::is_auth_method_supported(Auth_mode auth_mode) const
+bool Gather_auth_mechanisms::is_auth_mechanism_supported(Auth_mechanism auth_mechanism) const
 {
 	zval* entry{nullptr};
-	const zval* auth_mechs = zend_hash_str_find(Z_ARRVAL_P(capabilities),
+	const zval* auth_mech_names = zend_hash_str_find(Z_ARRVAL_P(capabilities),
 		"authentication.mechanisms", sizeof("authentication.mechanisms") - 1);
-	if (!capabilities || Z_TYPE_P(auth_mechs) != IS_ARRAY) {
+	if (!capabilities || Z_TYPE_P(auth_mech_names) != IS_ARRAY) {
 		return false;
 	}
 
-	const util::string& auth_mech_name = auth_mode_to_str(auth_mode);
-	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mechs), entry) {
+	const util::string& auth_mech_name{ auth_mechanism_to_str(auth_mechanism) };
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mech_names), entry) {
 		if (!strcasecmp(Z_STRVAL_P(entry), auth_mech_name.c_str())) {
 			return true;
 		}
@@ -639,16 +889,15 @@ bool Prepare_auth_mech_names::is_auth_method_supported(Auth_mode auth_mode) cons
 	return false;
 }
 
-void Prepare_auth_mech_names::add_auth_mode(Auth_mode auth_mode)
+void Gather_auth_mechanisms::add_auth_mechanism(Auth_mechanism auth_mechanism)
 {
-	const util::string& auth_mech_name = auth_mode_to_str(auth_mode);
-	auth_mech_names.push_back(auth_mech_name);
+	auth_mechanisms.push_back(auth_mechanism);
 }
 
-void Prepare_auth_mech_names::add_auth_mode_if_supported(Auth_mode auth_mode)
+void Gather_auth_mechanisms::add_auth_mechanism_if_supported(Auth_mechanism auth_mechanism)
 {
-	if (is_auth_method_supported(auth_mode)) {
-		add_auth_mode(auth_mode);
+	if (is_auth_mechanism_supported(auth_mechanism)) {
+		add_auth_mechanism(auth_mechanism);
 	}
 }
 
@@ -791,13 +1040,39 @@ enum_func_status setup_crypto_connection(
 /* }}} */
 
 
+/* {{{ prepare_auth_data */
+util::string prepare_auth_data(
+	Auth_mechanism auth_mechanism,
+	const XMYSQLND_SESSION_AUTH_DATA* auth,
+	const util::string& database)
+{
+	util::string authdata;
+	switch (auth_mechanism) {
+		case Auth_mechanism::plain:
+			authdata = database + '\0' + auth->username + '\0' + auth->password;
+			break;
+
+		case Auth_mechanism::mysql41:
+		case Auth_mechanism::external:
+		case Auth_mechanism::sha256_memory:
+			// do nothing
+			break;
+
+		default:
+			assert(!"unexpected Auth_mechanism!");
+	}
+	return authdata;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
 XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
-												XMYSQLND_SESSION_DATA session,
-						const MYSQLND_CSTRING scheme,
-						const MYSQLND_CSTRING database,
-						const size_t set_capabilities)
+	XMYSQLND_SESSION_DATA session,
+	const MYSQLND_CSTRING scheme,
+	const MYSQLND_CSTRING database,
+	const size_t set_capabilities)
 {
 	enum_func_status ret{FAIL};
 	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
@@ -806,8 +1081,6 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 	const st_xmysqlnd_on_client_id_bind on_client_id = { session->m->set_client_id, (void*) session.get() };
 	const st_xmysqlnd_on_warning_bind on_warning = { nullptr, (void*) session.get() };
 	const st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, (void*) session.get() };
-	st_xmysqlnd_auth_41_ctx auth_ctx = { session, scheme, auth->username, auth->password, database };
-	const st_xmysqlnd_on_auth_continue_bind on_auth_continue = { session->m->handler_on_auth_continue, &auth_ctx };
 
 	st_xmysqlnd_msg__capabilities_get caps_get;
 	DBG_ENTER("xmysqlnd_session_data::authenticate");
@@ -836,23 +1109,33 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 			}
 
 			if( ret == PASS ) {
-				util::strings auth_mech_names;
-				Prepare_auth_mech_names prepare_auth_mech_names(auth, &capabilities, &auth_mech_names);
-				if (!prepare_auth_mech_names.run()) {
+				Auth_mechanisms auth_mechanisms;
+				Gather_auth_mechanisms gather_auth_mechanisms(auth, &capabilities, &auth_mechanisms);
+				if (!gather_auth_mechanisms.run()) {
 					ret = FAIL;
 				}
 
-				for (auto auth_mech_name : auth_mech_names) {
+				for (Auth_mechanism auth_mechanism : auth_mechanisms) {
+					const util::string& auth_mech_name = auth_mechanism_to_str(auth_mechanism);
 					DBG_INF_FMT("Authentication mechanism: %s", auth_mech_name.c_str());
 
 					//Complete the authentication procedure!
-					const MYSQLND_CSTRING method = { auth_mech_name.c_str(),auth_mech_name.size() };
-					const util::string authdata = '\0' + auth->username + '\0' + auth->password;
+					const util::string& dbase{ util::to_string(database) };
+					const util::string& auth_data{ prepare_auth_data(auth_mechanism, auth, dbase) };
 					st_xmysqlnd_msg__auth_start auth_start_msg = msg_factory.get__auth_start(&msg_factory);
-					ret = auth_start_msg.send_request(&auth_start_msg,
-										method, {authdata.c_str(), authdata.size()});
+					ret = auth_start_msg.send_request(
+						&auth_start_msg,
+						util::to_mysqlnd_cstr(auth_mech_name),
+						util::to_mysqlnd_cstr(auth_data));
 
 					if (ret == PASS) {
+						Authentication_context auth_ctx{
+							session, scheme, auth->username, auth->password, dbase };
+						std::unique_ptr<Auth_scrambler> auth_scrambler{
+							create_auth_scrambler(auth_mechanism, auth_ctx) };
+
+						const st_xmysqlnd_on_auth_continue_bind on_auth_continue{
+							session->m->handler_on_auth_continue, auth_scrambler.get() };
 						auth_start_msg.init_read(&auth_start_msg,
 										on_auth_continue,
 										on_warning,
@@ -869,8 +1152,9 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 
 
 				if (ret == FAIL) {
+					const util::strings& auth_mech_names{to_auth_mech_names(auth_mechanisms)};
 					util::ostringstream os;
-					os << "[HY000] Authentication failed using " 
+					os << "[HY000] Authentication failed using "
 						<< boost::join(auth_mech_names, ", ")
 						<< ". Check username and password or try a secure connection";
 					php_error_docref(nullptr, E_WARNING, os.str().c_str());
@@ -2491,48 +2775,48 @@ enum_func_status parse_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
 /* }}} */
 
 
-/* {{{ set_auth_mode */
-enum_func_status set_auth_mode(
+/* {{{ set_auth_mechanism */
+enum_func_status set_auth_mechanism(
 	XMYSQLND_SESSION_AUTH_DATA* auth,
-	Auth_mode auth_mode)
+	Auth_mechanism auth_mechanism)
 {
-	DBG_ENTER("set_auth_mode");
+	DBG_ENTER("set_auth_mechanism");
 	enum_func_status ret{FAIL};
-	if (auth->auth_mode == Auth_mode::unspecified) {
-		DBG_INF_FMT("Selected auth mode: %d", static_cast<int>(auth_mode));
-		auth->auth_mode = auth_mode;
+	if (auth->auth_mechanism == Auth_mechanism::unspecified) {
+		DBG_INF_FMT("Selected authentication mechanism: %d", static_cast<int>(auth_mechanism));
+		auth->auth_mechanism = auth_mechanism;
 		ret = PASS;
-	} else if (auth->auth_mode != auth_mode) {
-		DBG_ERR_FMT("Selected two incompatible auth modes %d vs %d",
-			static_cast<int>(auth->auth_mode),
-			static_cast<int>(auth_mode));
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_auth_mode);
+	} else if (auth->auth_mechanism != auth_mechanism) {
+		DBG_ERR_FMT("Selected two incompatible authentication mechanisms %d vs %d",
+			static_cast<int>(auth->auth_mechanism),
+			static_cast<int>(auth_mechanism));
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_auth_mechanism);
 	}
 	DBG_RETURN( ret );
 }
 /* }}} */
 
-/* {{{ parse_auth_mode */
-enum_func_status parse_auth_mode(
+/* {{{ parse_auth_mechanism */
+enum_func_status parse_auth_mechanism(
 	XMYSQLND_SESSION_AUTH_DATA* auth,
-	const util::string& auth_mode)
+	const util::string& auth_mechanism)
 {
-	DBG_ENTER("parse_auth_mode");
+	DBG_ENTER("parse_auth_mechanism");
 	enum_func_status ret{FAIL};
-	using str_to_auth_mode = std::map<std::string, Auth_mode, util::iless>;
-	static const str_to_auth_mode str_to_auth_modes = {
-		{ Auth_method_mysql41, Auth_mode::mysql41 },
-		{ Auth_method_plain, Auth_mode::plain },
-		{ Auth_method_external, Auth_mode::external },
-		{ Auth_method_sha256_memory , Auth_mode::sha256_memory }
+	using str_to_auth_mechanism = std::map<std::string, Auth_mechanism, util::iless>;
+	static const str_to_auth_mechanism str_to_auth_mechanisms = {
+		{ Auth_mechanism_mysql41, Auth_mechanism::mysql41 },
+		{ Auth_mechanism_plain, Auth_mechanism::plain },
+		{ Auth_mechanism_external, Auth_mechanism::external },
+		{ Auth_mechanism_sha256_memory , Auth_mechanism::sha256_memory }
 	};
-	auto it = str_to_auth_modes.find(auth_mode.c_str());
-	if (it != str_to_auth_modes.end()) {
-		ret = set_auth_mode(auth, it->second);
+	auto it = str_to_auth_mechanisms.find(auth_mechanism.c_str());
+	if (it != str_to_auth_mechanisms.end()) {
+		ret = set_auth_mechanism(auth, it->second);
 	} else {
-		devapi::RAISE_EXCEPTION(err_msg_invalid_auth_method);
+		devapi::RAISE_EXCEPTION(err_msg_invalid_auth_mechanism);
 		ret = FAIL;
-		DBG_ERR_FMT("Unknown Auth mode: %s", auth_mode.c_str());
+		DBG_ERR_FMT("Unknown authentication mechanism: %s", auth_mechanism.c_str());
 	}
 	DBG_RETURN( ret );
 }
@@ -2596,7 +2880,7 @@ enum_func_status extract_ssl_information(
 		} else if (boost::iequals(auth_option_variable, "ssl-no-defaults")) {
 			auth->ssl_no_defaults = true;
 		} else if (boost::iequals(auth_option_variable, "auth")) {
-			ret = parse_auth_mode(auth, auth_option_value);
+			ret = parse_auth_mechanism(auth, auth_option_value);
 		} else {
 			php_error_docref(nullptr,
 				E_WARNING,

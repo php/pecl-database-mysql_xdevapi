@@ -82,6 +82,13 @@
 
 	// ----------------------------------------------------------------------
 
+	if (!function_exists('create_test_session')) {
+		function create_test_session() {
+			global $connection_uri;
+			return mysql_xdevapi\getSession($connection_uri);
+		}
+	}
+
 	/*
 		The idea is to have a common function for the purpose of the creationg
 		of the DB and tables needed to run the tests.

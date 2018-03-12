@@ -140,7 +140,7 @@ enum class SSL_mode
 	verify_identity
 };
 
-enum class Auth_mode
+enum class Auth_mechanism
 {
 	unspecified,
 	mysql41,
@@ -174,7 +174,7 @@ struct st_xmysqlnd_session_auth_data
 	util::string ssl_crl;
 	util::string ssl_crlpath;
 	util::string tls_version;
-	Auth_mode auth_mode = Auth_mode::unspecified;
+	Auth_mechanism auth_mechanism = Auth_mechanism::unspecified;
 
 	/*
 	 * On demand we need to provide a list of supported ciphers,

@@ -129,6 +129,11 @@ st_mysqlnd_string literal_to_mysqlnd_str(const char (&literal)[Length])
 	return {const_cast<char*>(literal), Length};
 }
 
+inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
+{
+	return st_mysqlnd_const_string{ str.c_str(), str.length() };
+}
+
 } // namespace util
 
 } // namespace mysqlx
