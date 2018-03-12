@@ -640,6 +640,7 @@ if (PHP_MYSQL_XDEVAPI_SHARED) {
 }
 
 // dependencies
+add_dependency('hash');
 add_dependency('json');
 add_dependency('mysqlnd');
 

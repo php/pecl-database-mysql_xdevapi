@@ -248,6 +248,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 
 	dnl dependencies
+	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, hash)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
 	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
 
