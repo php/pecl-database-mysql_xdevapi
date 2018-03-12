@@ -461,10 +461,18 @@ protected:
 		const MYSQLND_CSTRING& salt,
 		const util::string& password) = 0;
 	void hex_hash();
-	void store_answer(
+
+	virtual void assemble_auth_data(
 		const util::string& database,
-		const util::string& username,
-		MYSQLND_STRING* output);
+		const util::string& username) = 0;
+	void add_prefix_to_auth_data(
+		const util::string& database,
+		const util::string& username);
+	void add_to_auth_data(const util::string& str);
+	void add_to_auth_data(const util::vector<char>& data);
+	void add_to_auth_data(char chr);
+
+	void store_auth_data(MYSQLND_STRING* output);
 
 protected:
 	const Authentication_context& ctx;
@@ -472,8 +480,9 @@ protected:
 	const unsigned int Hash_length;
 	const unsigned int Scramble_length{ SCRAMBLE_LENGTH };
 
-	std::vector<unsigned char> hash;
-	std::vector<char> hexed_hash;
+	util::vector<unsigned char> hash;
+	util::vector<char> hexed_hash;
+	util::vector<char> auth_data;
 
 };
 
@@ -501,7 +510,8 @@ void Auth_scrambler::run(
 		hex_hash();
 	}
 
-	store_answer(ctx.database, ctx.username, output);
+	assemble_auth_data(ctx.database, ctx.username);
+	store_auth_data(output);
 }
 
 bool Auth_scrambler::calc_hash(const MYSQLND_CSTRING& salt)
@@ -511,7 +521,7 @@ bool Auth_scrambler::calc_hash(const MYSQLND_CSTRING& salt)
 
 	hash.resize(Hash_length, '\0');
 	scramble(salt, password);
-	return true;
+	return !hash.empty();
 }
 
 void Auth_scrambler::hex_hash()
@@ -520,38 +530,42 @@ void Auth_scrambler::hex_hash()
 	hexed_hash.resize(Hash_length * 2, '\0');
 	for (unsigned int i{0}; i < Hash_length; ++i) {
 		hexed_hash[ i*2 ] = hexconvtab[ hash[i] >> 4 ];
-		hexed_hash[ i*2 + 1 ] = hexconvtab[ hash[i] & 15 ];
+		hexed_hash[ i*2 + 1 ] = hexconvtab[ hash[i] & 0xF ];
 	}
 }
 
-void Auth_scrambler::store_answer(
+void Auth_scrambler::add_prefix_to_auth_data(
 	const util::string& database,
-	const util::string& username,
-	MYSQLND_STRING* output)
+	const util::string& username)
 {
-	const bool has_hexed_hash = !hexed_hash.empty();
-	const std::size_t answer_length{
-		database.length() + 1 + 
-		username.length() + 1 +
-		(has_hexed_hash ? Hash_length * 2 : 0) + 1 + 1 };
-	util::vector<char> answer(answer_length, '\0');
-	char* p{answer.data()};
-	memcpy(p, database.c_str(), database.length());
-	p += database.length();
-	*p++ = '\0';
-	memcpy(p, username.c_str(), username.length());
-	p += username.length();
-	*p++ = '\0';
-	if (has_hexed_hash) {
-		*p++ = '*';
-		memcpy(p, hexed_hash.data(), Hash_length * 2);
-		p += Hash_length * 2;
-	}
-	*p++ = '\0';
-	output->l = p - answer.data();
-	assert(output->l == answer_length);
+	// auth_data = "SCHEMA\0USER\0{custom_scramble_ending}"
+	// prefix    = "SCHEMA\0USER\0"
+	add_to_auth_data(database);
+	add_to_auth_data('\0');
+	add_to_auth_data(username);
+	add_to_auth_data('\0');
+}
+
+void Auth_scrambler::add_to_auth_data(const util::string& str)
+{
+	auth_data.insert(auth_data.end(), str.begin(), str.end());
+}
+
+void Auth_scrambler::add_to_auth_data(const util::vector<char>& data)
+{
+	auth_data.insert(auth_data.end(), data.begin(), data.end());
+}
+
+void Auth_scrambler::add_to_auth_data(char chr)
+{
+	auth_data.push_back(chr);
+}
+
+void Auth_scrambler::store_auth_data(MYSQLND_STRING* output)
+{
+	output->l = auth_data.size();
 	output->s = static_cast<char*>(mnd_emalloc(output->l));
-	memcpy(output->s, answer.data(), output->l);
+	memcpy(output->s, auth_data.data(), output->l);
 }
 
 // --------------------------
@@ -565,6 +579,11 @@ protected:
 	void scramble(
 		const MYSQLND_CSTRING& salt,
 		const util::string& password) override;
+
+	void assemble_auth_data(
+		const util::string& database,
+		const util::string& username) override;
+
 };
 
 // -------------
@@ -578,11 +597,27 @@ void Mysql41_auth_scrambler::scramble(
 	const MYSQLND_CSTRING& salt,
 	const util::string& password)
 {
+	/*
+		xor(sha256(sha256(sha256(password)), nonce), sha256(password))
+	*/
 	php_mysqlnd_scramble(
-		hash.data(), 
+		hash.data(),
 		reinterpret_cast<const unsigned char*>(salt.s),
 		reinterpret_cast<const unsigned char*>(password.c_str()),
 		password.length());
+}
+
+void Mysql41_auth_scrambler::assemble_auth_data(
+	const util::string& database,
+	const util::string& username)
+{
+	/*
+		auth_data = "SCHEMA\0USER\0*SCRAMBLE\0"
+	*/
+	add_prefix_to_auth_data(database, username);
+	add_to_auth_data('*');
+	add_to_auth_data(hexed_hash);
+	add_to_auth_data('\0');
 }
 
 // --------------------------
@@ -598,6 +633,10 @@ protected:
 	void scramble(
 		const MYSQLND_CSTRING& salt,
 		const util::string& password) override;
+
+	void assemble_auth_data(
+		const util::string& database,
+		const util::string& username) override;
 
 private:
 	void hash_data(
@@ -624,8 +663,6 @@ void Sha256_mem_scrambler::scramble(
 	const MYSQLND_CSTRING& salt,
 	const util::string& password)
 {
-	scramble(salt, password);
-
 	hash_data(
 		reinterpret_cast<const unsigned char*>(salt.s),
 		reinterpret_cast<const unsigned char*>(password.c_str()),
@@ -675,6 +712,17 @@ void Sha256_mem_scrambler::crypt_data(
 	for (size_t i{0}; i < length; ++i) {
 		buffer[i] = lhs[i] ^ rhs[i];
 	}
+}
+
+void Sha256_mem_scrambler::assemble_auth_data(
+	const util::string& database,
+	const util::string& username)
+{
+	/*
+		auth_data = "SCHEMA\0USER\0SCRAMBLE"
+	*/
+	add_prefix_to_auth_data(database, username);
+	add_to_auth_data(hexed_hash);
 }
 
 // -------------
@@ -1046,10 +1094,10 @@ util::string prepare_auth_data(
 	const XMYSQLND_SESSION_AUTH_DATA* auth,
 	const util::string& database)
 {
-	util::string authdata;
+	util::string auth_data;
 	switch (auth_mechanism) {
 		case Auth_mechanism::plain:
-			authdata = database + '\0' + auth->username + '\0' + auth->password;
+			auth_data = database + '\0' + auth->username + '\0' + auth->password;
 			break;
 
 		case Auth_mechanism::mysql41:
@@ -1061,7 +1109,7 @@ util::string prepare_auth_data(
 		default:
 			assert(!"unexpected Auth_mechanism!");
 	}
-	return authdata;
+	return auth_data;
 }
 /* }}} */
 
@@ -1118,8 +1166,6 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 				for (Auth_mechanism auth_mechanism : auth_mechanisms) {
 					const util::string& auth_mech_name = auth_mechanism_to_str(auth_mechanism);
 					DBG_INF_FMT("Authentication mechanism: %s", auth_mech_name.c_str());
-
-					//Complete the authentication procedure!
 					const util::string& dbase{ util::to_string(database) };
 					const util::string& auth_data{ prepare_auth_data(auth_mechanism, auth, dbase) };
 					st_xmysqlnd_msg__auth_start auth_start_msg = msg_factory.get__auth_start(&msg_factory);
