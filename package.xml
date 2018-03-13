@@ -214,7 +214,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="000.phpt" role="test" />
     <file name="add_with_empty_arg_is_noop.phpt" role="test" />
     <file name="array_or_object_contains_operator.phpt" role="test" />
-    <file name="auth_mechanism.phpt" role="test" />
     <file name="basic_collection_operations.phpt" role="test" />
     <file name="basic_execute_sql.phpt" role="test" />
     <file name="basic_transactions.phpt" role="test" />
@@ -257,6 +256,15 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="unix_domain_socket.phpt" role="test" />
     <file name="update.phpt" role="test" />
     <file name="warnings.phpt" role="test" />
+    <dir name="auth">
+     <file name="auth_utils.inc" role="test" />
+     <file name="incorrect_ssl_query.phpt" role="test" />
+     <file name="secure_native.phpt" role="test" />
+     <file name="secure_sha256_mem.phpt" role="test" />
+     <file name="sha256_mem.phpt" role="test" />
+     <file name="unsecure_native.phpt" role="test" />
+     <file name="unsecure_sha256_mem.phpt" role="test" />
+    </dir>
     <dir name="index">
      <file name="common.phpt" role="test" />
      <file name="create.phpt" role="test" />
