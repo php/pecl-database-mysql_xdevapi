@@ -416,7 +416,7 @@ XMYSQLND_METHOD(xmysqlnd_session_data, get_scheme)(XMYSQLND_SESSION_DATA session
 const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
-	st_xmysqlnd_session_data * session = (st_xmysqlnd_session_data *) context;
+	st_xmysqlnd_session_data* session = static_cast<st_xmysqlnd_session_data*>(context);
 	DBG_ENTER("xmysqlnd_node_stmt::handler_on_error");
 	if (session->error_info) {
 		SET_CLIENT_ERROR(session->error_info, code, sql_state.s, message.s);
@@ -440,7 +440,7 @@ struct Authentication_context
 
 // -------------
 
-// classes calculate client_hash for given authentication mechanism
+// classes to calculate client_hash for given authentication mechanism
 class Auth_scrambler
 {
 protected:
@@ -822,8 +822,8 @@ xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 
 util::string auth_mechanism_to_str(Auth_mechanism auth_mechanism)
 {
-	using auth_mechanism_to_label = std::map<Auth_mechanism, std::string>;
-	static const auth_mechanism_to_label auth_mechanism_to_labels = {
+	using Auth_mechanism_to_label = std::map<Auth_mechanism, std::string>;
+	static const Auth_mechanism_to_label auth_mechanism_to_label = {
 		{ Auth_mechanism::mysql41, Auth_mechanism_mysql41 },
 		{ Auth_mechanism::plain, Auth_mechanism_plain },
 		{ Auth_mechanism::external, Auth_mechanism_external },
@@ -831,7 +831,7 @@ util::string auth_mechanism_to_str(Auth_mechanism auth_mechanism)
 		{ Auth_mechanism::unspecified, Auth_mechanism_unspecified }
 	};
 
-	return util::to_string(auth_mechanism_to_labels.at(auth_mechanism));
+	return util::to_string(auth_mechanism_to_label.at(auth_mechanism));
 }
 
 using Auth_mechanisms = util::vector<Auth_mechanism>;
@@ -921,14 +921,14 @@ bool Gather_auth_mechanisms::is_tls_enabled() const
 bool Gather_auth_mechanisms::is_auth_mechanism_supported(Auth_mechanism auth_mechanism) const
 {
 	zval* entry{nullptr};
-	const zval* auth_mech_names = zend_hash_str_find(Z_ARRVAL_P(capabilities),
+	const zval* auth_mechs = zend_hash_str_find(Z_ARRVAL_P(capabilities),
 		"authentication.mechanisms", sizeof("authentication.mechanisms") - 1);
-	if (!capabilities || Z_TYPE_P(auth_mech_names) != IS_ARRAY) {
+	if (!capabilities || Z_TYPE_P(auth_mechs) != IS_ARRAY) {
 		return false;
 	}
 
 	const util::string& auth_mech_name{ auth_mechanism_to_str(auth_mechanism) };
-	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mech_names), entry) {
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mechs), entry) {
 		if (!strcasecmp(Z_STRVAL_P(entry), auth_mech_name.c_str())) {
 			return true;
 		}
