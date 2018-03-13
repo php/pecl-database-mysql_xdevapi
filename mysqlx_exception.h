@@ -74,7 +74,7 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 #define err_msg_tls_not_supported_1 10034, "TLS not supported with unix domain sockets."
 #define err_msg_unexpected_doc_id   10035, "Unexpected document ID provided."
 #define err_msg_inconsistent_ssl_options 10036, "Inconsistent ssl options."
-#define err_msg_invalid_auth_mechanism 10037, "Invalid authorization method"
+#define err_msg_invalid_auth_mechanism 10037, "Invalid authorization mechanism"
 
 extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 

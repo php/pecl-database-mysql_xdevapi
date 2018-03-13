@@ -18,7 +18,6 @@ function create_test_user($user, $auth_plugin) {
 	$session = create_test_session();
 	$password = get_test_user_passwd($user);
 	$query = "CREATE USER '$user'@'$host' IDENTIFIED WITH '$auth_plugin' BY '$password'";
-	// echo $query, "\n";
 	$session->executeSql($query);
 }
 
@@ -52,7 +51,7 @@ function test_connection($base_uri, $auth_method, $expect_success) {
 		}
 	} catch(Exception $e) {
 		if ($expect_success) {
-			test_step_failed($uri, 3);
+			test_step_failed($uri);
 		} else {
 			test_step_ok();
 		}
