@@ -939,6 +939,7 @@ static const zend_function_entry mysqlx_node_session_methods[] = {
 	PHP_ME(mysqlx_session, setSavepoint, arginfo_mysqlx_session__set_savepoint, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, rollbackTo, arginfo_mysqlx_session__rollback_to, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, releaseSavepoint, arginfo_mysqlx_session__release_savepoint, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, listClients, arginfo_mysqlx_session__list_clients, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, killClient, arginfo_mysqlx_session__kill_client, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, close, arginfo_mysqlx_session__close, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
