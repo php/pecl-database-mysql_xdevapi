@@ -42,31 +42,31 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_execution_status.cc \
 		mysqlx_expression.cc \
 		mysqlx_field_metadata.cc \
-		mysqlx_node_schema.cc \
+		mysqlx_schema.cc \
 		mysqlx_session.cc \
-		mysqlx_node_collection.cc \
-		mysqlx_node_collection__add.cc \
-		mysqlx_node_collection__find.cc \
-		mysqlx_node_collection__modify.cc \
-		mysqlx_node_collection__remove.cc \
-		mysqlx_node_collection_index.cc \
-		mysqlx_node_table.cc \
-		mysqlx_node_table__delete.cc \
-		mysqlx_node_table__insert.cc \
-		mysqlx_node_table__select.cc \
-		mysqlx_node_table__update.cc \
-		mysqlx_node_sql_statement.cc \
-		mysqlx_node_base_result.cc \
-		mysqlx_node_base_result_iterator.cc \
-		mysqlx_node_doc_result.cc \
-		mysqlx_node_doc_result_iterator.cc \
-		mysqlx_node_result.cc \
-		mysqlx_node_result_iterator.cc \
-		mysqlx_node_row_result.cc \
-		mysqlx_node_row_result_iterator.cc \
-		mysqlx_node_sql_statement_result.cc \
-		mysqlx_node_sql_statement_result_iterator.cc \
-		mysqlx_node_column_result.cc \
+		mysqlx_collection.cc \
+		mysqlx_collection__add.cc \
+		mysqlx_collection__find.cc \
+		mysqlx_collection__modify.cc \
+		mysqlx_collection__remove.cc \
+		mysqlx_collection_index.cc \
+		mysqlx_table.cc \
+		mysqlx_table__delete.cc \
+		mysqlx_table__insert.cc \
+		mysqlx_table__select.cc \
+		mysqlx_table__update.cc \
+		mysqlx_sql_statement.cc \
+		mysqlx_base_result.cc \
+		mysqlx_base_result_iterator.cc \
+		mysqlx_doc_result.cc \
+		mysqlx_doc_result_iterator.cc \
+		mysqlx_result.cc \
+		mysqlx_result_iterator.cc \
+		mysqlx_row_result.cc \
+		mysqlx_row_result_iterator.cc \
+		mysqlx_sql_statement_result.cc \
+		mysqlx_sql_statement_result_iterator.cc \
+		mysqlx_column_result.cc \
 		mysqlx_object.cc \
 		mysqlx_schema_object.cc \
 		mysqlx_warning.cc \
@@ -78,8 +78,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		AC_DEFINE([MYSQL_XDEVAPI_MESSAGE_CLASSES], 1, [Enable message classes])
 
 		mysqlx_messages=" \
-			messages/mysqlx_node_connection.cc \
-			messages/mysqlx_node_pfc.cc \
+			messages/mysqlx_connection.cc \
+			messages/mysqlx_pfc.cc \
 			\
 			messages/mysqlx_resultset__column_metadata.cc \
 			messages/mysqlx_resultset__resultset_metadata.cc \
@@ -122,13 +122,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_environment.cc \
 		xmysqlnd/xmysqlnd_extension_plugin.cc \
 		xmysqlnd/xmysqlnd_index_collection_commands.cc \
-		xmysqlnd/xmysqlnd_node_collection.cc \
-		xmysqlnd/xmysqlnd_node_schema.cc \
-		xmysqlnd/xmysqlnd_node_session.cc \
-		xmysqlnd/xmysqlnd_node_stmt.cc \
-		xmysqlnd/xmysqlnd_node_stmt_result.cc \
-		xmysqlnd/xmysqlnd_node_stmt_result_meta.cc \
-		xmysqlnd/xmysqlnd_node_table.cc \
+		xmysqlnd/xmysqlnd_collection.cc \
+		xmysqlnd/xmysqlnd_schema.cc \
+		xmysqlnd/xmysqlnd_session.cc \
+		xmysqlnd/xmysqlnd_stmt.cc \
+		xmysqlnd/xmysqlnd_stmt_result.cc \
+		xmysqlnd/xmysqlnd_stmt_result_meta.cc \
+		xmysqlnd/xmysqlnd_table.cc \
 		xmysqlnd/xmysqlnd_object_factory.cc \
 		xmysqlnd/xmysqlnd_protocol_frame_codec.cc \
 		xmysqlnd/xmysqlnd_protocol_dumper.cc \
