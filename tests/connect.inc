@@ -108,12 +108,12 @@
 				For this reason, at least for now is better to expect from
 				the test script to call clean_test_db *after* the test
 			*/
-			$nodeSession = mysql_xdevapi\getSession($connection_uri);
-			$nodeSession->executeSql("create database $db");
-			$schema = $nodeSession->getSchema($db);
-			$nodeSession->executeSql("create table $db.$test_table_name(name varchar(1024), age int)");
+			$session = mysql_xdevapi\getSession($connection_uri);
+			$session->executeSql("create database $db");
+			$schema = $session->getSchema($db);
+			$session->executeSql("create table $db.$test_table_name(name varchar(1024), age int)");
 			$schema->createCollection($test_collection_name);
-			return $nodeSession;
+			return $session;
 		}
 	}
 
@@ -125,8 +125,8 @@
 			global $connection_uri;
 			global $db;
 			if ($db_name == null) $db_name = $db;
-			$nodeSession = mysql_xdevapi\getSession($connection_uri);
-			$nodeSession->executeSql("drop database if exists $db_name");
+			$session = mysql_xdevapi\getSession($connection_uri);
+			$session->executeSql("drop database if exists $db_name");
 		}
 	}
 
@@ -138,19 +138,19 @@
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
-			$nodeSession = mysql_xdevapi\getSession($connection_uri);
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 11)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Eulalia', 11)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 12)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Rufus', 12)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Cassidy', 13)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Olympia', 14)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Lev', 14)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 15)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Octavia', 15)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Vesper', 16)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Caspian', 17)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Romy', 17)");
+			$session = mysql_xdevapi\getSession($connection_uri);
+			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 11)");
+			$session->executeSql("insert into $db.$test_table_name values ('Eulalia', 11)");
+			$session->executeSql("insert into $db.$test_table_name values ('Polly', 12)");
+			$session->executeSql("insert into $db.$test_table_name values ('Rufus', 12)");
+			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 13)");
+			$session->executeSql("insert into $db.$test_table_name values ('Olympia', 14)");
+			$session->executeSql("insert into $db.$test_table_name values ('Lev', 14)");
+			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 15)");
+			$session->executeSql("insert into $db.$test_table_name values ('Octavia', 15)");
+			$session->executeSql("insert into $db.$test_table_name values ('Vesper', 16)");
+			$session->executeSql("insert into $db.$test_table_name values ('Caspian', 17)");
+			$session->executeSql("insert into $db.$test_table_name values ('Romy', 17)");
 		}
 	}
 
@@ -162,23 +162,23 @@
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
-			$nodeSession = mysql_xdevapi\getSession($connection_uri);
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 29)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Mamie', 21)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 34)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Polly', 27)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Cassidy', 33)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Cassidy', 34)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Cassidy', 20)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 46)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 34)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 25)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('Tierney', 39)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('ARomy', 17)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('BRomy', 17)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('CRomy', 17)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('DRomy', 17)");
-			$nodeSession->executeSql("insert into $db.$test_table_name values ('ERomy', 17)");
+			$session = mysql_xdevapi\getSession($connection_uri);
+			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 29)");
+			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 21)");
+			$session->executeSql("insert into $db.$test_table_name values ('Polly', 34)");
+			$session->executeSql("insert into $db.$test_table_name values ('Polly', 27)");
+			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 33)");
+			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 34)");
+			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 20)");
+			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 46)");
+			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 34)");
+			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 25)");
+			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 39)");
+			$session->executeSql("insert into $db.$test_table_name values ('ARomy', 17)");
+			$session->executeSql("insert into $db.$test_table_name values ('BRomy', 17)");
+			$session->executeSql("insert into $db.$test_table_name values ('CRomy', 17)");
+			$session->executeSql("insert into $db.$test_table_name values ('DRomy', 17)");
+			$session->executeSql("insert into $db.$test_table_name values ('ERomy', 17)");
 		}
 	}
 
@@ -228,10 +228,10 @@
 	*/
 	if (!function_exists('fill_test_collection')) {
 		function fill_test_collection($extended_set = false) {
-			global $nodeSession;
+			global $session;
 			global $db;
 			global $test_collection_name;
-			$schema = $nodeSession->getSchema($db);
+			$schema = $session->getSchema($db);
 			$coll = $schema->getCollection($test_collection_name);
 			fill_db_collection($coll, $extended_set);
 			return $coll;
@@ -246,14 +246,14 @@
 		of the view to run the tests. It expects test_table is available.
 	*/
 	if (!function_exists('create_test_view')) {
-		function create_test_view($nodeSession) {
+		function create_test_view($session) {
 			global $db;
 			global $test_table_name;
 			global $test_view_name;
-			$nodeSession->executeSql(
+			$session->executeSql(
 				"CREATE VIEW $db.$test_view_name ".
 				"AS SELECT name, age FROM $db.$test_table_name");
-			$schema = $nodeSession->getSchema($db);
+			$schema = $session->getSchema($db);
 			$view = $schema->getTable($test_view_name);
 			return $view;
 		}
@@ -261,16 +261,16 @@
 
 
 	if (!function_exists('get_mysql_variable')) {
-		function get_mysql_variable($nodeSession, $varname) {
-			$res = $nodeSession->executeSql("SHOW VARIABLES LIKE '$varname'");
+		function get_mysql_variable($session, $varname) {
+			$res = $session->executeSql("SHOW VARIABLES LIKE '$varname'");
 			$vardata = $res->fetchOne();
 			return $vardata["Value"];
 		}
 	}
 
 	if (!function_exists('get_mysql_variables')) {
-		function get_mysql_variables($nodeSession, $pattern) {
-			$res = $nodeSession->executeSql("SHOW VARIABLES LIKE '$pattern'");
+		function get_mysql_variables($session, $pattern) {
+			$res = $session->executeSql("SHOW VARIABLES LIKE '$pattern'");
 			return $res->fetchAll();
 		}
 	}
