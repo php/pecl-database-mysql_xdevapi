@@ -210,7 +210,7 @@ mysqlx_table__insert_property__name(const st_mysqlx_object* obj, zval * return_v
 /* }}} */
 #endif
 
-static zend_object_handlers mysqlx_object_node_table__insert_handlers;
+static zend_object_handlers mysqlx_object_table__insert_handlers;
 static HashTable mysqlx_table__insert_properties;
 
 const struct st_mysqlx_property_entry mysqlx_table__insert_property_entries[] =
@@ -251,7 +251,7 @@ php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 	DBG_ENTER("php_mysqlx_table__insert_object_allocator");
 	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_table__insert>(
 		class_type,
-		&mysqlx_object_node_table__insert_handlers,
+		&mysqlx_object_table__insert_handlers,
 		&mysqlx_table__insert_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
@@ -262,8 +262,8 @@ php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 void
 mysqlx_register_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
-	mysqlx_object_node_table__insert_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_table__insert_handlers.free_obj = mysqlx_table__insert_free_storage;
+	mysqlx_object_table__insert_handlers = *mysqlx_std_object_handlers;
+	mysqlx_object_table__insert_handlers.free_obj = mysqlx_table__insert_free_storage;
 
 	{
 		zend_class_entry tmp_ce;

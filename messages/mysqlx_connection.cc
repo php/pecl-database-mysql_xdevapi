@@ -224,7 +224,7 @@ static const zend_function_entry mysqlx_connection_methods[] = {
 /* }}} */
 
 
-static zend_object_handlers mysqlx_object_node_connection_handlers;
+static zend_object_handlers mysqlx_object_connection_handlers;
 static HashTable mysqlx_connection_properties;
 
 
@@ -274,7 +274,7 @@ php_mysqlx_connection_object_allocator(zend_class_entry * class_type)
 				zend_object_std_init(&mysqlx_object->zo, class_type);
 				object_properties_init(&mysqlx_object->zo, class_type);
 
-				mysqlx_object->zo.handlers = &mysqlx_object_node_connection_handlers;
+				mysqlx_object->zo.handlers = &mysqlx_object_connection_handlers;
 				mysqlx_object->properties = &mysqlx_connection_properties;
 
 				DBG_RETURN(&mysqlx_object->zo);
@@ -297,8 +297,8 @@ php_mysqlx_connection_object_allocator(zend_class_entry * class_type)
 void
 mysqlx_register_connection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
-	mysqlx_object_node_connection_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_connection_handlers.free_obj = mysqlx_connection_free_storage;
+	mysqlx_object_connection_handlers = *mysqlx_std_object_handlers;
+	mysqlx_object_connection_handlers.free_obj = mysqlx_connection_free_storage;
 
 	{
 		zend_class_entry tmp_ce;

@@ -142,7 +142,7 @@ static const zend_function_entry mysqlx_pfc_methods[] = {
 /* }}} */
 
 
-static zend_object_handlers mysqlx_object_node_pfc_handlers;
+static zend_object_handlers mysqlx_object_pfc_handlers;
 static HashTable mysqlx_pfc_properties;
 
 
@@ -195,7 +195,7 @@ php_mysqlx_pfc_object_allocator(zend_class_entry * class_type)
 				zend_object_std_init(&mysqlx_object->zo, class_type);
 				object_properties_init(&mysqlx_object->zo, class_type);
 
-				mysqlx_object->zo.handlers = &mysqlx_object_node_pfc_handlers;
+				mysqlx_object->zo.handlers = &mysqlx_object_pfc_handlers;
 				mysqlx_object->properties = &mysqlx_pfc_properties;
 
 				DBG_RETURN(&mysqlx_object->zo);
@@ -219,8 +219,8 @@ php_mysqlx_pfc_object_allocator(zend_class_entry * class_type)
 void
 mysqlx_register_pfc_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
-	mysqlx_object_node_pfc_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_pfc_handlers.free_obj = mysqlx_pfc_free_storage;
+	mysqlx_object_pfc_handlers = *mysqlx_std_object_handlers;
+	mysqlx_object_pfc_handlers.free_obj = mysqlx_pfc_free_storage;
 
 	{
 		zend_class_entry tmp_ce;

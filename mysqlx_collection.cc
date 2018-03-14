@@ -722,7 +722,7 @@ mysqlx_collection_property__name(const st_mysqlx_object* obj, zval * return_valu
 /* }}} */
 
 
-static zend_object_handlers mysqlx_object_node_collection_handlers;
+static zend_object_handlers mysqlx_object_collection_handlers;
 static HashTable mysqlx_collection_properties;
 
 const struct st_mysqlx_property_entry mysqlx_collection_property_entries[] =
@@ -757,7 +757,7 @@ php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
 	DBG_ENTER("php_mysqlx_collection_object_allocator");
 	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_collection>(
 		class_type,
-		&mysqlx_object_node_collection_handlers,
+		&mysqlx_object_collection_handlers,
 		&mysqlx_collection_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
@@ -768,8 +768,8 @@ php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
 void
 mysqlx_register_collection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
-	mysqlx_object_node_collection_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_collection_handlers.free_obj = mysqlx_collection_free_storage;
+	mysqlx_object_collection_handlers = *mysqlx_std_object_handlers;
+	mysqlx_object_collection_handlers.free_obj = mysqlx_collection_free_storage;
 
 	{
 		zend_class_entry tmp_ce;

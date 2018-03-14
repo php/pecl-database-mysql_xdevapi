@@ -511,7 +511,7 @@ mysqlx_table_property__name(const st_mysqlx_object* obj, zval * return_value)
 /* }}} */
 
 
-static zend_object_handlers mysqlx_object_node_table_handlers;
+static zend_object_handlers mysqlx_object_table_handlers;
 static HashTable mysqlx_table_properties;
 
 const struct st_mysqlx_property_entry mysqlx_table_property_entries[] =
@@ -546,7 +546,7 @@ php_mysqlx_table_object_allocator(zend_class_entry * class_type)
 	DBG_ENTER("php_mysqlx_table_object_allocator");
 	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_table>(
 		class_type,
-		&mysqlx_object_node_table_handlers,
+		&mysqlx_object_table_handlers,
 		&mysqlx_table_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
@@ -557,8 +557,8 @@ php_mysqlx_table_object_allocator(zend_class_entry * class_type)
 void
 mysqlx_register_table_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
-	mysqlx_object_node_table_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_table_handlers.free_obj = mysqlx_table_free_storage;
+	mysqlx_object_table_handlers = *mysqlx_std_object_handlers;
+	mysqlx_object_table_handlers.free_obj = mysqlx_table_free_storage;
 
 	{
 		zend_class_entry tmp_ce;

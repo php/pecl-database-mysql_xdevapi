@@ -563,7 +563,7 @@ static const zend_function_entry mysqlx_column_result_methods[] = {
 /* }}} */
 
 
-static zend_object_handlers mysqlx_object_node_column_result_handlers;
+static zend_object_handlers mysqlx_object_column_result_handlers;
 static HashTable mysqlx_column_result_properties;
 
 const struct st_mysqlx_property_entry mysqlx_column_result_property_entries[] =
@@ -608,7 +608,7 @@ php_mysqlx_column_result_object_allocator(zend_class_entry * class_type)
 	DBG_ENTER("php_mysqlx_column_result_object_allocator");
 	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_column_result>(
 		class_type,
-		&mysqlx_object_node_column_result_handlers,
+		&mysqlx_object_column_result_handlers,
 		&mysqlx_column_result_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
@@ -639,8 +639,8 @@ void
 mysqlx_register_column_result_class(INIT_FUNC_ARGS,
 						zend_object_handlers * mysqlx_std_object_handlers)
 {
-	mysqlx_object_node_column_result_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_column_result_handlers.free_obj =
+	mysqlx_object_column_result_handlers = *mysqlx_std_object_handlers;
+	mysqlx_object_column_result_handlers.free_obj =
 			mysqlx_column_result_free_storage;
 	{
 		zend_class_entry tmp_ce;

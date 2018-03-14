@@ -684,7 +684,7 @@ static const zend_function_entry mysqlx_sql_statement_methods[] = {
 /* }}} */
 
 
-static zend_object_handlers mysqlx_object_node_sql_statement_handlers;
+static zend_object_handlers mysqlx_object_sql_statement_handlers;
 static HashTable mysqlx_sql_statement_properties;
 
 const struct st_mysqlx_property_entry mysqlx_sql_statement_property_entries[] =
@@ -723,7 +723,7 @@ php_mysqlx_sql_statement_object_allocator(zend_class_entry * class_type)
 	DBG_ENTER("php_mysqlx_sql_statement_object_allocator");
 	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_statement>(
 		class_type,
-		&mysqlx_object_node_sql_statement_handlers,
+		&mysqlx_object_sql_statement_handlers,
 		&mysqlx_sql_statement_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
@@ -734,8 +734,8 @@ php_mysqlx_sql_statement_object_allocator(zend_class_entry * class_type)
 void
 mysqlx_register_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
-	mysqlx_object_node_sql_statement_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_sql_statement_handlers.free_obj = mysqlx_sql_statement_free_storage;
+	mysqlx_object_sql_statement_handlers = *mysqlx_std_object_handlers;
+	mysqlx_object_sql_statement_handlers.free_obj = mysqlx_sql_statement_free_storage;
 
 	{
 		zend_class_entry tmp_ce;
@@ -980,7 +980,7 @@ static const zend_function_entry mysqlx_statement_methods[] = {
 /* }}} */
 
 
-static zend_object_handlers mysqlx_object_node_statement_handlers;
+static zend_object_handlers mysqlx_object_statement_handlers;
 static HashTable mysqlx_statement_properties;
 
 const struct st_mysqlx_property_entry mysqlx_statement_property_entries[] =
@@ -1013,8 +1013,8 @@ php_mysqlx_statement_object_allocator(zend_class_entry * class_type)
 void
 mysqlx_register_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
-	mysqlx_object_node_statement_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_statement_handlers.free_obj = mysqlx_statement_free_storage;
+	mysqlx_object_statement_handlers = *mysqlx_std_object_handlers;
+	mysqlx_object_statement_handlers.free_obj = mysqlx_statement_free_storage;
 
 	{
 		zend_class_entry tmp_ce;
