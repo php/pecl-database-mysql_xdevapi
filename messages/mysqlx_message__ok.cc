@@ -41,8 +41,8 @@ using namespace drv;
 zend_class_entry *mysqlx_message__ok_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(mysqlx_message__ok__get_message, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(0, node_pfc, IS_OBJECT, 0)
-	ZEND_ARG_TYPE_INFO(0, node_connection, IS_OBJECT, 0)
+	ZEND_ARG_TYPE_INFO(0, pfc, IS_OBJECT, 0)
+	ZEND_ARG_TYPE_INFO(0, connection, IS_OBJECT, 0)
 ZEND_END_ARG_INFO()
 
 
@@ -138,7 +138,7 @@ mysqlx_register_message__ok_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_
 	{
 		zend_class_entry tmp_ce;
 		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_message__ok", mysqlx_message__ok_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "node_pfc", mysqlx_message__ok_methods);
+//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "pfc", mysqlx_message__ok_methods);
 		tmp_ce.create_object = php_mysqlx_message__ok_object_allocator;
 		mysqlx_message__ok_class_entry = zend_register_internal_class(&tmp_ce);
 	}

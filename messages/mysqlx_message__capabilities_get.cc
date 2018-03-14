@@ -68,14 +68,14 @@ struct st_mysqlx_message__capabilities_get
 
 
 ZEND_BEGIN_ARG_INFO_EX(mysqlx_message__capabilities_get__send, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(0, node_pfc, IS_OBJECT, 0)
-	ZEND_ARG_TYPE_INFO(0, node_connection, IS_OBJECT, 0)
+	ZEND_ARG_TYPE_INFO(0, pfc, IS_OBJECT, 0)
+	ZEND_ARG_TYPE_INFO(0, connection, IS_OBJECT, 0)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(mysqlx_message__capabilities_get__read_response, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(0, node_pfc, IS_OBJECT, 0)
-	ZEND_ARG_TYPE_INFO(0, node_connection, IS_OBJECT, 0)
+	ZEND_ARG_TYPE_INFO(0, pfc, IS_OBJECT, 0)
+	ZEND_ARG_TYPE_INFO(0, connection, IS_OBJECT, 0)
 ZEND_END_ARG_INFO()
 
 /* {{{ proto bool mysqlx_message__capabilities_get::send(object messsage, object pfc, object connection) */
@@ -220,7 +220,7 @@ mysqlx_register_message__capabilities_get_class(INIT_FUNC_ARGS, zend_object_hand
 	{
 		zend_class_entry tmp_ce;
 		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_message__capabilities_get", mysqlx_message__capabilities_get_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "node_pfc", mysqlx_message__capabilities_get_methods);
+//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "pfc", mysqlx_message__capabilities_get_methods);
 		tmp_ce.create_object = php_mysqlx_message__capabilities_get_object_allocator;
 		mysqlx_message__capabilities_get_class_entry = zend_register_internal_class(&tmp_ce);
 	}

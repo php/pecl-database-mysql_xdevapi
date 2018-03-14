@@ -472,7 +472,7 @@ mysqlx_register_data_row_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std
 	{
 		zend_class_entry tmp_ce;
 		INIT_CLASS_ENTRY(tmp_ce, "mysqlx_data_row", mysqlx_data_row_methods);
-//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "node_pfc", mysqlx_data_row_methods);
+//		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "pfc", mysqlx_data_row_methods);
 		tmp_ce.create_object = php_mysqlx_data_row_object_allocator;
 		mysqlx_data_row_class_entry = zend_register_internal_class(&tmp_ce);
 	}

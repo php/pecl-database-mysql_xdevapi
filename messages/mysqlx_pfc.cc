@@ -43,13 +43,13 @@ using namespace drv;
 zend_class_entry *mysqlx_pfc_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_pfc__send, 0, ZEND_RETURN_VALUE, 3)
-	ZEND_ARG_TYPE_INFO(0, node_connection, IS_OBJECT, 1)
+	ZEND_ARG_TYPE_INFO(0, connection, IS_OBJECT, 1)
 	ZEND_ARG_TYPE_INFO(0, message_type, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, message, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_pfc__receive, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(0, node_connection, IS_OBJECT, 1)
+	ZEND_ARG_TYPE_INFO(0, connection, IS_OBJECT, 1)
 ZEND_END_ARG_INFO()
 
 

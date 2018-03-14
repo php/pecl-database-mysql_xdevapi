@@ -182,9 +182,9 @@ struct doc_add_op_return_status
 	MYSQLND_CSTRING doc_id;
 };
 
-/* {{{ node_collection_add_string */
+/* {{{ collection_add_string */
 Add_op_status
-node_collection_add_string(
+collection_add_string(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	zval* doc,
 	zval* return_value)
@@ -197,9 +197,9 @@ node_collection_add_string(
 /* }}} */
 
 
-/* {{{ node_collection_add_object*/
+/* {{{ collection_add_object*/
 Add_op_status
-node_collection_add_object_impl(
+collection_add_object_impl(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	zval* doc,
 	zval* return_value)
@@ -216,22 +216,22 @@ node_collection_add_object_impl(
 /* }}} */
 
 
-/* {{{ node_collection_add_object*/
+/* {{{ collection_add_object*/
 Add_op_status
-node_collection_add_object(
+collection_add_object(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	zval* doc,
 	zval* return_value)
 {
-	return node_collection_add_object_impl(
+	return collection_add_object_impl(
 				add_op, doc, return_value);
 }
 /* }}} */
 
 
-/* {{{ node_collection_add_array*/
+/* {{{ collection_add_array*/
 Add_op_status
-node_collection_add_array(
+collection_add_array(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	zval* doc,
 	zval* return_value)
@@ -240,7 +240,7 @@ node_collection_add_array(
 	if( zend_hash_num_elements(Z_ARRVAL_P(doc)) == 0 ) {
 		ret = Add_op_status::noop;
 	} else {
-		ret = node_collection_add_object_impl(
+		ret = collection_add_object_impl(
 			add_op, doc, return_value);
 	}
 	return ret;
@@ -339,15 +339,15 @@ void Collection_add::execute(zval* return_value)
 		ret = Add_op_status::fail;
 		switch(Z_TYPE(docs[i])) {
 		case IS_STRING:
-			ret = node_collection_add_string(
+			ret = collection_add_string(
 				add_op, &docs[i], return_value);
 			break;
 		case IS_ARRAY:
-			ret = node_collection_add_array(
+			ret = collection_add_array(
 				add_op, &docs[i], return_value);
 			break;
 		case IS_OBJECT:
-			ret = node_collection_add_object(
+			ret = collection_add_object(
 				add_op, &docs[i], return_value);
 			break;
 		}
