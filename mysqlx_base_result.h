@@ -28,9 +28,9 @@ struct st_xmysqlnd_stmt_result;
 
 namespace devapi {
 
-extern zend_class_entry * mysqlx_node_base_result_interface_entry;
+extern zend_class_entry * mysqlx_base_result_interface_entry;
 
-struct st_mysqlx_node_base_result : public util::custom_allocable
+struct st_mysqlx_base_result : public util::custom_allocable
 {
 	drv::st_xmysqlnd_stmt_result* result;
 };

@@ -76,60 +76,60 @@ enum column_metadata_flags {
 	AUTO_INCREMENT        = 0x0100
 };
 
-static zend_class_entry *mysqlx_node_column_result_class_entry;
+static zend_class_entry *mysqlx_column_result_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_schema_name,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_schema_name,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_table_name,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_table_name,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_table_label,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_table_label,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_column_name,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_column_name,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_column_label,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_column_label,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_length,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_length,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_fractional_digits,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_fractional_digits,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_is_number_signed,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_is_number_signed,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_collation_name,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_collation_name,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_character_set_name,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_character_set_name,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_get_type,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_type,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_column_result_is_padded,
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_is_padded,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_NODE_COLUMN_RESULT_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_node_column_result*) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_column_result*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -137,8 +137,8 @@ ZEND_END_ARG_INFO()
 	} \
 } \
 
-/* {{{ mysqlx_node_column_result::__construct */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, __construct)
+/* {{{ mysqlx_column_result::__construct */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, __construct)
 {
 }
 /* }}} */
@@ -280,12 +280,12 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					meta_fields selected_meta_field)
 {
 	zval* object_zv{nullptr};
-	st_mysqlx_node_column_result* object{nullptr};
+	st_mysqlx_column_result* object{nullptr};
 	DBG_ENTER("get_column_meta_field");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 								&object_zv,
-								mysqlx_node_column_result_class_entry))
+								mysqlx_column_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -374,10 +374,10 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getSchemaName */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getSchemaName)
+/* {{{ mysqlx_column_result::getSchemaName */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getSchemaName)
 {
-	DBG_ENTER("mysqlx_node_column_result::getSchemaName");
+	DBG_ENTER("mysqlx_column_result::getSchemaName");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				schema_name);
 	DBG_VOID_RETURN;
@@ -385,10 +385,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getSchemaName)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getTableName */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getTableName)
+/* {{{ mysqlx_column_result::getTableName */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getTableName)
 {
-	DBG_ENTER("mysqlx_node_column_result::getTableName");
+	DBG_ENTER("mysqlx_column_result::getTableName");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				table_name);
 	DBG_VOID_RETURN;
@@ -396,10 +396,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getTableName)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getTableLabel */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getTableLabel)
+/* {{{ mysqlx_column_result::getTableLabel */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getTableLabel)
 {
-	DBG_ENTER("mysqlx_node_column_result::getTableLabel");
+	DBG_ENTER("mysqlx_column_result::getTableLabel");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				table_label);
 	DBG_VOID_RETURN;
@@ -407,10 +407,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getTableLabel)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getColumnName */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getColumnName)
+/* {{{ mysqlx_column_result::getColumnName */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getColumnName)
 {
-	DBG_ENTER("mysqlx_node_column_result::getColumnName");
+	DBG_ENTER("mysqlx_column_result::getColumnName");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				column_name);
 	DBG_VOID_RETURN;
@@ -418,10 +418,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getColumnName)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getColumnLabel */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getColumnLabel)
+/* {{{ mysqlx_column_result::getColumnLabel */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getColumnLabel)
 {
-	DBG_ENTER("mysqlx_node_column_result::getColumnLabel");
+	DBG_ENTER("mysqlx_column_result::getColumnLabel");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				column_label);
 	DBG_VOID_RETURN;
@@ -429,10 +429,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getColumnLabel)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getLength */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getLength)
+/* {{{ mysqlx_column_result::getLength */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getLength)
 {
-	DBG_ENTER("mysqlx_node_column_result::getLength");
+	DBG_ENTER("mysqlx_column_result::getLength");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				length);
 	DBG_VOID_RETURN;
@@ -440,10 +440,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getLength)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getFractionalDigits */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getFractionalDigits)
+/* {{{ mysqlx_column_result::getFractionalDigits */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getFractionalDigits)
 {
-	DBG_ENTER("mysqlx_node_column_result::getFractionalDigits");
+	DBG_ENTER("mysqlx_column_result::getFractionalDigits");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				fractional_digit);
 	DBG_VOID_RETURN;
@@ -451,10 +451,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getFractionalDigits)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::isNumberSigned */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, isNumberSigned)
+/* {{{ mysqlx_column_result::isNumberSigned */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, isNumberSigned)
 {
-	DBG_ENTER("mysqlx_node_column_result::isNumberSigned");
+	DBG_ENTER("mysqlx_column_result::isNumberSigned");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				is_number_signed);
 	DBG_VOID_RETURN;
@@ -462,10 +462,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, isNumberSigned)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getCollationName */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getCollationName)
+/* {{{ mysqlx_column_result::getCollationName */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getCollationName)
 {
-	DBG_ENTER("mysqlx_node_column_result::getCollationName");
+	DBG_ENTER("mysqlx_column_result::getCollationName");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				collation_name);
 	DBG_VOID_RETURN;
@@ -473,10 +473,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getCollationName)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getCharacterSetName */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getCharacterSetName)
+/* {{{ mysqlx_column_result::getCharacterSetName */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getCharacterSetName)
 {
-	DBG_ENTER("mysqlx_node_column_result::getCharacterSetName");
+	DBG_ENTER("mysqlx_column_result::getCharacterSetName");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				characterset_name);
 	DBG_VOID_RETURN;
@@ -484,10 +484,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getCharacterSetName)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::getType */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getType)
+/* {{{ mysqlx_column_result::getType */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getType)
 {
-	DBG_ENTER("mysqlx_node_column_result::getType");
+	DBG_ENTER("mysqlx_column_result::getType");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				type);
 	DBG_VOID_RETURN;
@@ -495,68 +495,68 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, getType)
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result::isPadded */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_column_result, isPadded)
+/* {{{ mysqlx_column_result::isPadded */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, isPadded)
 {
-	DBG_ENTER("mysqlx_node_column_result::isPadded");
+	DBG_ENTER("mysqlx_column_result::isPadded");
 	get_column_meta_field(INTERNAL_FUNCTION_PARAM_PASSTHRU,
 				is_padded);
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
-/* {{{ mysqlx_node_column_methods[] */
-static const zend_function_entry mysqlx_node_column_result_methods[] = {
-	PHP_ME(mysqlx_node_column_result,
+/* {{{ mysqlx_column_methods[] */
+static const zend_function_entry mysqlx_column_result_methods[] = {
+	PHP_ME(mysqlx_column_result,
 		__construct,
 		nullptr,	ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getSchemaName,
-		arginfo_mysqlx_node_column_result_get_schema_name,
+		arginfo_mysqlx_column_result_get_schema_name,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getTableName,
-		arginfo_mysqlx_node_column_result_get_table_name,
+		arginfo_mysqlx_column_result_get_table_name,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getTableLabel,
-		arginfo_mysqlx_node_column_result_get_table_label,
+		arginfo_mysqlx_column_result_get_table_label,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getColumnName,
-		arginfo_mysqlx_node_column_result_get_column_name,
+		arginfo_mysqlx_column_result_get_column_name,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getColumnLabel,
-		arginfo_mysqlx_node_column_result_get_column_label,
+		arginfo_mysqlx_column_result_get_column_label,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getLength,
-		arginfo_mysqlx_node_column_result_get_length,
+		arginfo_mysqlx_column_result_get_length,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getFractionalDigits,
-		arginfo_mysqlx_node_column_result_get_fractional_digits,
+		arginfo_mysqlx_column_result_get_fractional_digits,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		isNumberSigned,
-		arginfo_mysqlx_node_column_result_is_number_signed,
+		arginfo_mysqlx_column_result_is_number_signed,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getCollationName,
-		arginfo_mysqlx_node_column_result_get_collation_name,
+		arginfo_mysqlx_column_result_get_collation_name,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getCharacterSetName,
-		arginfo_mysqlx_node_column_result_get_character_set_name,
+		arginfo_mysqlx_column_result_get_character_set_name,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		getType,
-		arginfo_mysqlx_node_column_result_get_type,
+		arginfo_mysqlx_column_result_get_type,
 		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_column_result,
+	PHP_ME(mysqlx_column_result,
 		isPadded,
-		arginfo_mysqlx_node_column_result_is_padded,
+		arginfo_mysqlx_column_result_is_padded,
 		ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
@@ -564,9 +564,9 @@ static const zend_function_entry mysqlx_node_column_result_methods[] = {
 
 
 static zend_object_handlers mysqlx_object_node_column_result_handlers;
-static HashTable mysqlx_node_column_result_properties;
+static HashTable mysqlx_column_result_properties;
 
-const struct st_mysqlx_property_entry mysqlx_node_column_result_property_entries[] =
+const struct st_mysqlx_property_entry mysqlx_column_result_property_entries[] =
 {
 	{{nullptr,	0}, nullptr, nullptr}
 };
@@ -581,11 +581,11 @@ mysqlx_new_column_result(
 {
 	DBG_ENTER("mysqlx_new_column");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_node_column_result_class_entry) &&
+	if (SUCCESS == object_init_ex(return_value, mysqlx_column_result_class_entry) &&
 			IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_node_column_result* const object =
-				(st_mysqlx_node_column_result*) mysqlx_object->ptr;
+		st_mysqlx_column_result* const object =
+				(st_mysqlx_column_result*) mysqlx_object->ptr;
 		if (object) {
 			object->meta = meta;
 		} else {
@@ -606,22 +606,22 @@ static zend_object *
 php_mysqlx_column_result_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_column_result_object_allocator");
-	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_column_result>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_column_result>(
 		class_type,
 		&mysqlx_object_node_column_result_handlers,
-		&mysqlx_node_column_result_properties);
+		&mysqlx_column_result_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */
 
 
-/* {{{ mysqlx_node_column_result_free_storage */
+/* {{{ mysqlx_column_result_free_storage */
 static void
-mysqlx_node_column_result_free_storage(zend_object * object)
+mysqlx_column_result_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_node_column_result* inner_obj = (
-				st_mysqlx_node_column_result* ) mysqlx_object->ptr;
+	st_mysqlx_column_result* inner_obj = (
+				st_mysqlx_column_result* ) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		//Do not delete meta, that's someone else responsability
@@ -641,24 +641,24 @@ mysqlx_register_node_column_result_class(INIT_FUNC_ARGS,
 {
 	mysqlx_object_node_column_result_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_node_column_result_handlers.free_obj =
-			mysqlx_node_column_result_free_storage;
+			mysqlx_column_result_free_storage;
 	{
 		zend_class_entry tmp_ce;
 		INIT_NS_CLASS_ENTRY(tmp_ce,
 					"mysql_xdevapi",
 					"ColumnResult",
-					mysqlx_node_column_result_methods);
+					mysqlx_column_result_methods);
 		tmp_ce.create_object = php_mysqlx_column_result_object_allocator;
 
-		mysqlx_node_column_result_class_entry = zend_register_internal_class(&tmp_ce);
+		mysqlx_column_result_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_node_column_result_properties,
+	zend_hash_init(&mysqlx_column_result_properties,
 				   0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_node_column_result_properties,
-					mysqlx_node_column_result_property_entries);
+	mysqlx_add_properties(&mysqlx_column_result_properties,
+					mysqlx_column_result_property_entries);
 }
 /* }}} */
 
@@ -667,7 +667,7 @@ mysqlx_register_node_column_result_class(INIT_FUNC_ARGS,
 void
 mysqlx_unregister_node_column_result_class(SHUTDOWN_FUNC_ARGS)
 {
-	zend_hash_destroy(&mysqlx_node_column_result_properties);
+	zend_hash_destroy(&mysqlx_column_result_properties);
 }
 /* }}} */
 

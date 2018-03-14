@@ -43,18 +43,18 @@ namespace devapi {
 
 using namespace drv;
 
-static zend_class_entry *mysqlx_node_table__insert_class_entry;
+static zend_class_entry *mysqlx_table__insert_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__insert__values, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__insert__values, 0, ZEND_RETURN_VALUE, 0)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, row_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__insert__execute, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__insert__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__insert : public util::custom_allocable
+struct st_mysqlx_table__insert : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__INSERT * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -64,7 +64,7 @@ struct st_mysqlx_node_table__insert : public util::custom_allocable
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_node_table__insert*) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_table__insert*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -72,29 +72,29 @@ struct st_mysqlx_node_table__insert : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_node_table__insert::__construct */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, __construct)
+/* {{{ mysqlx_table__insert::__construct */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, __construct)
 {
 }
 /* }}} */
 
 
 
-/* {{{ proto mixed mysqlx_node_table__insert::values() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
+/* {{{ proto mixed mysqlx_table__insert::values() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 {
-	st_mysqlx_node_table__insert* object{nullptr};
+	st_mysqlx_table__insert* object{nullptr};
 	zval* object_zv{nullptr};
 	zval* values{nullptr};
 	zend_bool op_failed{FALSE};
 	int num_of_values{0};
 
-	DBG_ENTER("mysqlx_node_table__insert::values");
+	DBG_ENTER("mysqlx_table__insert::values");
 
 	if (FAILURE == zend_parse_method_parameters(
 		ZEND_NUM_ARGS(), getThis(), "O+",
 		&object_zv,
-		mysqlx_node_table__insert_class_entry,
+		mysqlx_table__insert_class_entry,
 		&values,
 		&num_of_values))
 	{
@@ -125,16 +125,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, values)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__insert::execute() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
+/* {{{ proto mixed mysqlx_table__insert::execute() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 {
-	st_mysqlx_node_table__insert* object{nullptr};
+	st_mysqlx_table__insert* object{nullptr};
 	zval* object_zv{nullptr};
 
-	DBG_ENTER("mysqlx_node_table__insert::execute");
+	DBG_ENTER("mysqlx_table__insert::execute");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table__insert_class_entry))
+												&object_zv, mysqlx_table__insert_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -160,7 +160,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
 					zval zv;
 					ZVAL_UNDEF(&zv);
 					zend_long flags{0};
-					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+					mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 					ZVAL_COPY(return_value, &zv);
 					zval_dtor(&zv);
@@ -175,24 +175,24 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__insert, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_node_table__insert_methods[] */
-static const zend_function_entry mysqlx_node_table__insert_methods[] = {
-	PHP_ME(mysqlx_node_table__insert, __construct,	nullptr,											ZEND_ACC_PRIVATE)
+/* {{{ mysqlx_table__insert_methods[] */
+static const zend_function_entry mysqlx_table__insert_methods[] = {
+	PHP_ME(mysqlx_table__insert, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_table__insert, values,		arginfo_mysqlx_node_table__insert__values,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__insert, execute,		arginfo_mysqlx_node_table__insert__execute,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__insert, values,		arginfo_mysqlx_table__insert__values,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__insert, execute,		arginfo_mysqlx_table__insert__execute,		ZEND_ACC_PUBLIC)
 
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 #if 0
-/* {{{ mysqlx_node_table__insert_property__name */
+/* {{{ mysqlx_table__insert_property__name */
 static zval *
-mysqlx_node_table__insert_property__name(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_table__insert_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const st_mysqlx_node_table__insert* object = (const st_mysqlx_node_table__insert* ) (obj->ptr);
-	DBG_ENTER("mysqlx_node_table__insert_property__name");
+	const st_mysqlx_table__insert* object = (const st_mysqlx_table__insert* ) (obj->ptr);
+	DBG_ENTER("mysqlx_table__insert_property__name");
 	if (object->table && object->table->data->table_name.s) {
 		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
 	} else {
@@ -211,22 +211,22 @@ mysqlx_node_table__insert_property__name(const st_mysqlx_object* obj, zval * ret
 #endif
 
 static zend_object_handlers mysqlx_object_node_table__insert_handlers;
-static HashTable mysqlx_node_table__insert_properties;
+static HashTable mysqlx_table__insert_properties;
 
-const struct st_mysqlx_property_entry mysqlx_node_table__insert_property_entries[] =
+const struct st_mysqlx_property_entry mysqlx_table__insert_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_table__insert_property__name,	nullptr},
+	{{"name",	sizeof("name") - 1}, mysqlx_table__insert_property__name,	nullptr},
 #endif
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_node_table__insert_free_storage */
+/* {{{ mysqlx_table__insert_free_storage */
 static void
-mysqlx_node_table__insert_free_storage(zend_object * object)
+mysqlx_table__insert_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_node_table__insert* inner_obj = (st_mysqlx_node_table__insert*) mysqlx_object->ptr;
+	st_mysqlx_table__insert* inner_obj = (st_mysqlx_table__insert*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->table) {
@@ -244,15 +244,15 @@ mysqlx_node_table__insert_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_node_table__insert_object_allocator */
+/* {{{ php_mysqlx_table__insert_object_allocator */
 static zend_object *
-php_mysqlx_node_table__insert_object_allocator(zend_class_entry * class_type)
+php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 {
-	DBG_ENTER("php_mysqlx_node_table__insert_object_allocator");
-	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_table__insert>(
+	DBG_ENTER("php_mysqlx_table__insert_object_allocator");
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_table__insert>(
 		class_type,
 		&mysqlx_object_node_table__insert_handlers,
-		&mysqlx_node_table__insert_properties);
+		&mysqlx_table__insert_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */
@@ -263,23 +263,23 @@ void
 mysqlx_register_node_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_table__insert_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_table__insert_handlers.free_obj = mysqlx_node_table__insert_free_storage;
+	mysqlx_object_node_table__insert_handlers.free_obj = mysqlx_table__insert_free_storage;
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "TableInsert", mysqlx_node_table__insert_methods);
-		tmp_ce.create_object = php_mysqlx_node_table__insert_object_allocator;
-		mysqlx_node_table__insert_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_node_table__insert_class_entry, 1, mysqlx_executable_interface_entry);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "TableInsert", mysqlx_table__insert_methods);
+		tmp_ce.create_object = php_mysqlx_table__insert_object_allocator;
+		mysqlx_table__insert_class_entry = zend_register_internal_class(&tmp_ce);
+		zend_class_implements(mysqlx_table__insert_class_entry, 1, mysqlx_executable_interface_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_table__insert_properties, 0, nullptr, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_table__insert_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_node_table__insert_properties, mysqlx_node_table__insert_property_entries);
+	mysqlx_add_properties(&mysqlx_table__insert_properties, mysqlx_table__insert_property_entries);
 #if 0
 	/* The following is needed for the Reflection API */
-	zend_declare_property_null(mysqlx_node_table__insert_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
+	zend_declare_property_null(mysqlx_table__insert_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
 /* }}} */
@@ -289,7 +289,7 @@ mysqlx_register_node_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * 
 void
 mysqlx_unregister_node_table__insert_class(SHUTDOWN_FUNC_ARGS)
 {
-	zend_hash_destroy(&mysqlx_node_table__insert_properties);
+	zend_hash_destroy(&mysqlx_table__insert_properties);
 }
 /* }}} */
 
@@ -304,9 +304,9 @@ mysqlx_new_node_table__insert(zval * return_value,
 {
 	DBG_ENTER("mysqlx_new_node_table__insert");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_node_table__insert_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+	if (SUCCESS == object_init_ex(return_value, mysqlx_table__insert_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_node_table__insert* const object = (st_mysqlx_node_table__insert*) mysqlx_object->ptr;
+		st_mysqlx_table__insert* const object = (st_mysqlx_table__insert*) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
 			object->crud_op = xmysqlnd_crud_table_insert__create(

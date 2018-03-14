@@ -376,7 +376,7 @@ xmysqlnd_server_message_type_is_valid(const zend_uchar type)
 
 /* {{{ xmysqlnd_send_protobuf_message */
 static const size_t
-xmysqlnd_send_protobuf_message(st_mysqlx_node_connection* connection, st_mysqlx_node_pfc* codec,
+xmysqlnd_send_protobuf_message(st_mysqlx_connection* connection, st_mysqlx_pfc* codec,
 							   enum xmysqlnd_client_message_type packet_type, ::google::protobuf::Message & message)
 {
 	DBG_ENTER("xmysqlnd_send_protobuf_message");

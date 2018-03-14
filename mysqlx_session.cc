@@ -454,7 +454,7 @@ mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 			bool found{ false };
 			for (unsigned int i{0}; i < argc; ++i) {
 				ZVAL_UNDEF(&zv);
-				mysqlx_node_sql_statement_bind_one_param(&stmt_zv, &args[i], &zv);
+				mysqlx_sql_statement_bind_one_param(&stmt_zv, &args[i], &zv);
 				if (Z_TYPE(zv) == IS_FALSE) {
 					found = true;
 					break;
@@ -464,7 +464,7 @@ mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 			if( false == found ) {
 				ZVAL_UNDEF(&zv);
 
-				mysqlx_node_sql_statement_execute(Z_MYSQLX_P(&stmt_zv), flags, &zv);
+				mysqlx_sql_statement_execute(Z_MYSQLX_P(&stmt_zv), flags, &zv);
 
 				ZVAL_COPY(return_value, &zv);
 				zval_dtor(&zv);
@@ -920,8 +920,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 /* }}} */
 
 
-/* {{{ mysqlx_node_session_methods[] */
-static const zend_function_entry mysqlx_node_session_methods[] = {
+/* {{{ mysqlx_session_methods[] */
+static const zend_function_entry mysqlx_session_methods[] = {
 	PHP_ME(mysqlx_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_session, executeSql,		nullptr, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_session__sql, ZEND_ACC_PUBLIC)
@@ -1002,7 +1002,7 @@ mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Session", mysqlx_node_session_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Session", mysqlx_session_methods);
 		tmp_ce.create_object = php_mysqlx_session_object_allocator;
 		mysqlx_session_class_entry = zend_register_internal_class_ex(
 			&tmp_ce, mysqlx_session_class_entry);

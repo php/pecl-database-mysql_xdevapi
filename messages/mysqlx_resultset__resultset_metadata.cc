@@ -45,19 +45,19 @@ using namespace drv;
 zend_class_entry *mysqlx_resultset_metadata_class_entry;
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_resultset_metadata__add, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_resultset_metadata__add, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, capability, IS_OBJECT, 0)
 ZEND_END_ARG_INFO()
 
 
-/* {{{ proto bool mysqlx_node_connection::echo(object capability) */
+/* {{{ proto bool mysqlx_connection::echo(object capability) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 {
 	zval* resultset_metadata_zv{nullptr};
 	st_mysqlx_resultset_metadata* resultset_metadata{nullptr};
 	zval* column_metadata_zv{nullptr};
 
-	DBG_ENTER("mysqlx_node_connection::add");
+	DBG_ENTER("mysqlx_connection::add");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
 												&resultset_metadata_zv, mysqlx_resultset_metadata_class_entry,
 												&column_metadata_zv, mysqlx_column_metadata_class_entry))
@@ -78,7 +78,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 
 /* {{{ mysqlx_resultset_metadata_methods[] */
 static const zend_function_entry mysqlx_resultset_metadata_methods[] = {
-	PHP_ME(mysqlx_resultset_metadata, add,			arginfo_mysqlx_node_resultset_metadata__add,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_resultset_metadata, add,			arginfo_mysqlx_resultset_metadata__add,			ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */

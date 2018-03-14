@@ -41,12 +41,12 @@ using namespace drv;
 
 zend_class_entry *mysqlx_message__capability_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_capability__construct, 0, ZEND_RETURN_VALUE, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_capability__construct, 0, ZEND_RETURN_VALUE, 2)
 	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
 	ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
-/* {{{ proto bool mysqlx_node_connection::__construct(string name, mixed value) */
+/* {{{ proto bool mysqlx_connection::__construct(string name, mixed value) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 {
 	zval* capability_zv{nullptr};
@@ -55,7 +55,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 	size_t capability_name_len;
 	zval* capability_value{nullptr};
 
-	DBG_ENTER("mysqlx_node_connection::connect");
+	DBG_ENTER("mysqlx_connection::connect");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
 												&capability_zv, mysqlx_message__capability_class_entry,
 												&capability_name, &capability_name_len,
@@ -73,13 +73,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, __construct)
 /* }}} */
 
 
-/* {{{ proto bool mysqlx_node_connection::echo(string name, mixed value) */
+/* {{{ proto bool mysqlx_connection::echo(string name, mixed value) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, echo)
 {
 	zval* capability_zv{nullptr};
 	st_mysqlx_message__capability* capability{nullptr};
 
-	DBG_ENTER("mysqlx_node_connection::echo");
+	DBG_ENTER("mysqlx_connection::echo");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&capability_zv, mysqlx_message__capability_class_entry))
 	{
@@ -95,7 +95,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capability, echo)
 
 /* {{{ mysqlx_message__capability_methods[] */
 static const zend_function_entry mysqlx_message__capability_methods[] = {
-	PHP_ME(mysqlx_message__capability, __construct,		arginfo_mysqlx_node_capability__construct,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_message__capability, __construct,		arginfo_mysqlx_capability__construct,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_message__capability, echo,			nullptr,										ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };

@@ -50,33 +50,33 @@ namespace devapi {
 
 using namespace drv;
 
-static zend_class_entry *mysqlx_node_row_result_class_entry;
+static zend_class_entry *mysqlx_row_result_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_row_result__fetch_one, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__fetch_one, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_row_result__fetch_all, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__fetch_all, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_row_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_row_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_row_result__get_column_count, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__get_column_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_row_result__get_column_names, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__get_column_names, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_row_result__get_columns, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__get_columns, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 #define MYSQLX_FETCH_NODE_ROW_RESULT_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_node_row_result*) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_row_result*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \
@@ -84,22 +84,22 @@ ZEND_END_ARG_INFO()
 	} \
 } \
 
-/* {{{ mysqlx_node_row_result::__construct */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, __construct)
+/* {{{ mysqlx_row_result::__construct */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, __construct)
 {
 }
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_row_result::fetchOne(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchOne)
+/* {{{ proto mixed mysqlx_row_result::fetchOne(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchOne)
 {
 	zval* object_zv{nullptr};
-	st_mysqlx_node_row_result* object{nullptr};
+	st_mysqlx_row_result* object{nullptr};
 
-	DBG_ENTER("mysqlx_node_row_result::fetchOne");
+	DBG_ENTER("mysqlx_row_result::fetchOne");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_row_result_class_entry))
+												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -121,15 +121,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchOne)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_row_result::fetchAll(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchAll)
+/* {{{ proto mixed mysqlx_row_result::fetchAll(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 {
 	zval* object_zv{nullptr};
-	st_mysqlx_node_row_result* object{nullptr};
+	st_mysqlx_row_result* object{nullptr};
 
-	DBG_ENTER("mysqlx_node_row_result::fetchAll");
+	DBG_ENTER("mysqlx_row_result::fetchAll");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_row_result_class_entry))
+												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -148,15 +148,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, fetchAll)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_row_result::getWarningCount(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarningCount)
+/* {{{ proto mixed mysqlx_row_result::getWarningCount(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarningCount)
 {
 	zval* object_zv{nullptr};
-	st_mysqlx_node_row_result* object{nullptr};
+	st_mysqlx_row_result* object{nullptr};
 
-	DBG_ENTER("mysqlx_node_row_result::getWarningCount");
+	DBG_ENTER("mysqlx_row_result::getWarningCount");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_row_result_class_entry))
+												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -182,15 +182,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarningCount)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_row_result::getWarnings(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarnings)
+/* {{{ proto mixed mysqlx_row_result::getWarnings(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarnings)
 {
 	zval* object_zv{nullptr};
-	st_mysqlx_node_row_result* object{nullptr};
+	st_mysqlx_row_result* object{nullptr};
 
-	DBG_ENTER("mysqlx_node_row_result::getWarnings");
+	DBG_ENTER("mysqlx_row_result::getWarnings");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_row_result_class_entry))
+												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -239,17 +239,17 @@ static st_xmysqlnd_stmt_result_meta* get_node_stmt_result_meta(INTERNAL_FUNCTION
 {
 	st_xmysqlnd_stmt_result_meta* meta{nullptr};
 	zval* object_zv{nullptr};
-	st_mysqlx_node_row_result* object{nullptr};
+	st_mysqlx_row_result* object{nullptr};
 
 	DBG_ENTER("get_node_stmt_result_meta");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_row_result_class_entry))
+												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_RETURN(nullptr);
 	}
 
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(object_zv);
-	object = (st_mysqlx_node_row_result*) mysqlx_object->ptr;
+	object = (st_mysqlx_row_result*) mysqlx_object->ptr;
 	if (!object) {
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		DBG_RETURN(nullptr);
@@ -269,11 +269,11 @@ static st_xmysqlnd_stmt_result_meta* get_node_stmt_result_meta(INTERNAL_FUNCTION
 }
 
 
-/* {{{ proto mixed mysqlx_node_row_result::getColumnCount(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnCount)
+/* {{{ proto mixed mysqlx_row_result::getColumnCount(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnCount)
 {
 	st_xmysqlnd_stmt_result_meta* meta;
-	DBG_ENTER("mysqlx_node_row_result::getColumnCount");
+	DBG_ENTER("mysqlx_row_result::getColumnCount");
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
@@ -292,11 +292,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnCount)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_row_result::getColumns(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumns)
+/* {{{ proto mixed mysqlx_row_result::getColumns(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumns)
 {
 	st_xmysqlnd_stmt_result_meta* meta;
-	DBG_ENTER("mysqlx_node_row_result::getColumns");
+	DBG_ENTER("mysqlx_row_result::getColumns");
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
@@ -320,11 +320,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumns)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_row_result::getColumnNames(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnNames)
+/* {{{ proto mixed mysqlx_row_result::getColumnNames(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnNames)
 {
 	st_xmysqlnd_stmt_result_meta* meta;
-	DBG_ENTER("mysqlx_node_row_result::getColumnNames");
+	DBG_ENTER("mysqlx_row_result::getColumnNames");
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
@@ -348,18 +348,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnNames)
 /* }}} */
 
 
-/* {{{ mysqlx_node_row_result_methods[] */
-static const zend_function_entry mysqlx_node_row_result_methods[] = {
-	PHP_ME(mysqlx_node_row_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_node_row_result, fetchOne,				arginfo_mysqlx_node_row_result__fetch_one,				ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_row_result, fetchAll,				arginfo_mysqlx_node_row_result__fetch_all,				ZEND_ACC_PUBLIC)
+/* {{{ mysqlx_row_result_methods[] */
+static const zend_function_entry mysqlx_row_result_methods[] = {
+	PHP_ME(mysqlx_row_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_row_result, fetchOne,				arginfo_mysqlx_row_result__fetch_one,				ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_row_result, fetchAll,				arginfo_mysqlx_row_result__fetch_all,				ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_node_row_result, getWarningCount,		arginfo_mysqlx_node_row_result__get_warning_count,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_row_result, getWarnings,			arginfo_mysqlx_node_row_result__get_warnings, 			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_row_result, getWarningCount,		arginfo_mysqlx_row_result__get_warning_count,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_row_result, getWarnings,			arginfo_mysqlx_row_result__get_warnings, 			ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_node_row_result, getColumnCount,		arginfo_mysqlx_node_row_result__get_column_count,			ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_row_result, getColumnNames,		arginfo_mysqlx_node_row_result__get_column_names,			ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_row_result, getColumns,			arginfo_mysqlx_node_row_result__get_columns,	 			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_row_result, getColumnCount,		arginfo_mysqlx_row_result__get_column_count,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_row_result, getColumnNames,		arginfo_mysqlx_row_result__get_column_names,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_row_result, getColumns,			arginfo_mysqlx_row_result__get_columns,	 			ZEND_ACC_PUBLIC)
 
 	{nullptr, nullptr, nullptr}
 };
@@ -367,19 +367,19 @@ static const zend_function_entry mysqlx_node_row_result_methods[] = {
 
 
 static zend_object_handlers mysqlx_object_node_row_result_handlers;
-static HashTable mysqlx_node_row_result_properties;
+static HashTable mysqlx_row_result_properties;
 
-const struct st_mysqlx_property_entry mysqlx_node_row_result_property_entries[] =
+const struct st_mysqlx_property_entry mysqlx_row_result_property_entries[] =
 {
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_node_row_result_free_storage */
+/* {{{ mysqlx_row_result_free_storage */
 static void
-mysqlx_node_row_result_free_storage(zend_object * object)
+mysqlx_row_result_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_node_row_result* inner_obj = (st_mysqlx_node_row_result*) mysqlx_object->ptr;
+	st_mysqlx_row_result* inner_obj = (st_mysqlx_row_result*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->result) {
@@ -392,15 +392,15 @@ mysqlx_node_row_result_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_node_row_result_object_allocator */
+/* {{{ php_mysqlx_row_result_object_allocator */
 static zend_object *
-php_mysqlx_node_row_result_object_allocator(zend_class_entry * class_type)
+php_mysqlx_row_result_object_allocator(zend_class_entry * class_type)
 {
-	DBG_ENTER("php_mysqlx_node_row_result_object_allocator");
-	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_row_result>(
+	DBG_ENTER("php_mysqlx_row_result_object_allocator");
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_row_result>(
 		class_type,
 		&mysqlx_object_node_row_result_handlers,
-		&mysqlx_node_row_result_properties);
+		&mysqlx_row_result_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */
@@ -411,22 +411,22 @@ void
 mysqlx_register_node_row_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_row_result_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_row_result_handlers.free_obj = mysqlx_node_row_result_free_storage;
+	mysqlx_object_node_row_result_handlers.free_obj = mysqlx_row_result_free_storage;
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "RowResult", mysqlx_node_row_result_methods);
-		tmp_ce.create_object = php_mysqlx_node_row_result_object_allocator;
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "RowResult", mysqlx_row_result_methods);
+		tmp_ce.create_object = php_mysqlx_row_result_object_allocator;
 
-		mysqlx_node_row_result_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_node_row_result_class_entry, 1, mysqlx_node_base_result_interface_entry);
+		mysqlx_row_result_class_entry = zend_register_internal_class(&tmp_ce);
+		zend_class_implements(mysqlx_row_result_class_entry, 1, mysqlx_base_result_interface_entry);
 
-		mysqlx_register_node_row_result_iterator(mysqlx_node_row_result_class_entry);
+		mysqlx_register_node_row_result_iterator(mysqlx_row_result_class_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_row_result_properties, 0, nullptr, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_row_result_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_node_row_result_properties, mysqlx_node_row_result_property_entries);
+	mysqlx_add_properties(&mysqlx_row_result_properties, mysqlx_row_result_property_entries);
 }
 /* }}} */
 
@@ -435,7 +435,7 @@ mysqlx_register_node_row_result_class(INIT_FUNC_ARGS, zend_object_handlers * mys
 void
 mysqlx_unregister_node_row_result_class(SHUTDOWN_FUNC_ARGS)
 {
-	zend_hash_destroy(&mysqlx_node_row_result_properties);
+	zend_hash_destroy(&mysqlx_row_result_properties);
 }
 /* }}} */
 
@@ -446,9 +446,9 @@ mysqlx_new_row_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
 {
 	DBG_ENTER("mysqlx_new_row_result");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_node_row_result_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+	if (SUCCESS == object_init_ex(return_value, mysqlx_row_result_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_node_row_result* const object = (st_mysqlx_node_row_result*) mysqlx_object->ptr;
+		st_mysqlx_row_result* const object = (st_mysqlx_row_result*) mysqlx_object->ptr;
 		if (object) {
 			object->result = result;
 		} else {

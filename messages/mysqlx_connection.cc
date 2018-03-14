@@ -40,18 +40,18 @@ namespace msg {
 
 using namespace drv;
 
-zend_class_entry *mysqlx_node_connection_class_entry;
+zend_class_entry *mysqlx_connection_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_connection__connect, 0, ZEND_RETURN_VALUE, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__connect, 0, ZEND_RETURN_VALUE, 2)
 	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_connection__send, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__send, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, payload, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_connection__receive, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__receive, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, how_many, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
@@ -87,19 +87,19 @@ get_scheme(MYSQLND_CSTRING hostname, MYSQLND_CSTRING socket_or_pipe, zend_long p
 /* }}} */
 
 
-/* {{{ proto bool mysqlx_node_connection::connect(object connection, string hostname, string username, string password) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
+/* {{{ proto bool mysqlx_connection::connect(object connection, string hostname, string username, string password) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 {
 	zval* connection_zv{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_connection* connection{nullptr};
 	MYSQLND_CSTRING hostname = {nullptr, 0};
 	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
 	enum_func_status ret{FAIL};
 
-	DBG_ENTER("mysqlx_node_connection::connect");
+	DBG_ENTER("mysqlx_connection::connect");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os|l",
-												&connection_zv, mysqlx_node_connection_class_entry,
+												&connection_zv, mysqlx_connection_class_entry,
 												&(hostname.s), &(hostname.l),
 												&port))
 	{
@@ -137,17 +137,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, connect)
 /* }}} */
 
 
-/* {{{ proto long mysqlx_node_connection::send(object session, string payload) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
+/* {{{ proto long mysqlx_connection::send(object session, string payload) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, send)
 {
 	zval* connection_zv{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_connection* connection{nullptr};
 	MYSQLND_CSTRING payload = {nullptr, 0};
 	size_t ret{0};
 
-	DBG_ENTER("mysqlx_node_connection::send");
+	DBG_ENTER("mysqlx_connection::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
-												&connection_zv, mysqlx_node_connection_class_entry,
+												&connection_zv, mysqlx_connection_class_entry,
 												&(payload.s), &(payload.l)))
 	{
 		DBG_VOID_RETURN;
@@ -169,17 +169,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, send)
 /* }}} */
 
 
-/* {{{ proto long mysqlx_node_connection::receive(object connection, long bytes) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
+/* {{{ proto long mysqlx_connection::receive(object connection, long bytes) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, receive)
 {
 	zval* connection_zv{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
+	st_mysqlx_connection* connection{nullptr};
 	zend_ulong how_many{0};
 	enum_func_status ret;
 
-	DBG_ENTER("mysqlx_node_connection::receive");
+	DBG_ENTER("mysqlx_connection::receive");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
-												&connection_zv, mysqlx_node_connection_class_entry,
+												&connection_zv, mysqlx_connection_class_entry,
 												&how_many))
 	{
 		DBG_VOID_RETURN;
@@ -214,26 +214,26 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_connection, receive)
 /* }}} */
 
 
-/* {{{ mysqlx_node_connection_methods[] */
-static const zend_function_entry mysqlx_node_connection_methods[] = {
-	PHP_ME(mysqlx_node_connection, connect,		arginfo_mysqlx_node_connection__connect,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_connection, send,		arginfo_mysqlx_node_connection__send,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_connection, receive,		arginfo_mysqlx_node_connection__receive,	ZEND_ACC_PUBLIC)
+/* {{{ mysqlx_connection_methods[] */
+static const zend_function_entry mysqlx_connection_methods[] = {
+	PHP_ME(mysqlx_connection, connect,		arginfo_mysqlx_connection__connect,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_connection, send,		arginfo_mysqlx_connection__send,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_connection, receive,		arginfo_mysqlx_connection__receive,	ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 
 static zend_object_handlers mysqlx_object_node_connection_handlers;
-static HashTable mysqlx_node_connection_properties;
+static HashTable mysqlx_connection_properties;
 
 
-/* {{{ mysqlx_node_connection_free_storage */
+/* {{{ mysqlx_connection_free_storage */
 static void
-mysqlx_node_connection_free_storage(zend_object * object)
+mysqlx_connection_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_node_connection* connection = (st_mysqlx_node_connection*) mysqlx_object->ptr;
+	st_mysqlx_connection* connection = (st_mysqlx_connection*) mysqlx_object->ptr;
 	if (connection) {
 		const zend_bool pers = connection->persistent;
 		util::zend::free_error_info_list(connection->error_info, pers);
@@ -246,16 +246,16 @@ mysqlx_node_connection_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_node_connection_object_allocator */
+/* {{{ php_mysqlx_connection_object_allocator */
 static zend_object *
-php_mysqlx_node_connection_object_allocator(zend_class_entry * class_type)
+php_mysqlx_connection_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
 	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
 	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, util::permanent_tag));
-	st_mysqlx_node_connection * connection = new st_mysqlx_node_connection();
+	st_mysqlx_connection * connection = new st_mysqlx_connection();
 
-	DBG_ENTER("php_mysqlx_node_connection_object_allocator");
+	DBG_ENTER("php_mysqlx_connection_object_allocator");
 
 	if (mysqlx_object && connection) {
 
@@ -275,7 +275,7 @@ php_mysqlx_node_connection_object_allocator(zend_class_entry * class_type)
 				object_properties_init(&mysqlx_object->zo, class_type);
 
 				mysqlx_object->zo.handlers = &mysqlx_object_node_connection_handlers;
-				mysqlx_object->properties = &mysqlx_node_connection_properties;
+				mysqlx_object->properties = &mysqlx_connection_properties;
 
 				DBG_RETURN(&mysqlx_object->zo);
 			}
@@ -298,16 +298,16 @@ void
 mysqlx_register_node_connection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_connection_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_connection_handlers.free_obj = mysqlx_node_connection_free_storage;
+	mysqlx_object_node_connection_handlers.free_obj = mysqlx_connection_free_storage;
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NativeConnection", mysqlx_node_connection_methods);
-		tmp_ce.create_object = php_mysqlx_node_connection_object_allocator;
-		mysqlx_node_connection_class_entry = zend_register_internal_class(&tmp_ce);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NativeConnection", mysqlx_connection_methods);
+		tmp_ce.create_object = php_mysqlx_connection_object_allocator;
+		mysqlx_connection_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_node_connection_properties, 0, nullptr, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_connection_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 
@@ -316,7 +316,7 @@ mysqlx_register_node_connection_class(INIT_FUNC_ARGS, zend_object_handlers * mys
 void
 mysqlx_unregister_node_connection_class(SHUTDOWN_FUNC_ARGS)
 {
-	zend_hash_destroy(&mysqlx_node_connection_properties);
+	zend_hash_destroy(&mysqlx_connection_properties);
 }
 /* }}} */
 

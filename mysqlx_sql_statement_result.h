@@ -29,9 +29,9 @@ struct st_xmysqlnd_stmt_result;
 
 namespace devapi {
 
-struct st_mysqlx_node_statement;
+struct st_mysqlx_statement;
 
-struct st_mysqlx_node_sql_statement_result : public util::custom_allocable
+struct st_mysqlx_sql_statement_result : public util::custom_allocable
 {
 	drv::st_xmysqlnd_stmt_result* result;
 	drv::st_xmysqlnd_stmt* stmt;
@@ -41,7 +41,7 @@ struct st_mysqlx_node_sql_statement_result : public util::custom_allocable
 	zend_bool has_more_rows_in_set;
 };
 
-void mysqlx_new_sql_stmt_result(zval * return_value, drv::st_xmysqlnd_stmt_result* result, st_mysqlx_node_statement* stmt);
+void mysqlx_new_sql_stmt_result(zval * return_value, drv::st_xmysqlnd_stmt_result* result, st_mysqlx_statement* stmt);
 void mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS);
 

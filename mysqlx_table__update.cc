@@ -46,34 +46,34 @@ namespace devapi {
 
 using namespace drv;
 
-static zend_class_entry *mysqlx_node_table__update_class_entry;
+static zend_class_entry *mysqlx_table__update_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__set, 0, ZEND_RETURN_VALUE, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__update__set, 0, ZEND_RETURN_VALUE, 2)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, table_field, IS_STRING, dont_allow_null)
 	ZEND_ARG_INFO(no_pass_by_ref, expression_or_literal)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__where, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__update__where, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, where_expr)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__orderby, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__update__orderby, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, orderby_expr)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__limit, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__update__limit, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__bind, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__update__bind, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__update__execute, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__update__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__update : public util::custom_allocable
+struct st_mysqlx_table__update : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__UPDATE * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -83,7 +83,7 @@ struct st_mysqlx_node_table__update : public util::custom_allocable
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_node_table__update*) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_table__update*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -91,8 +91,8 @@ struct st_mysqlx_node_table__update : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_node_table__update::__construct */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, __construct)
+/* {{{ mysqlx_table__update::__construct */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, __construct)
 {
 }
 /* }}} */
@@ -102,21 +102,21 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, __construct)
 #define TWO_PARAM_OP__ARRAY_INSERT 2
 #define TWO_PARAM_OP__ARRAY_APPEND 3
 
-/* {{{ mysqlx_node_table__update__2_param_op */
+/* {{{ mysqlx_table__update__2_param_op */
 static void
-mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
+mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
-	st_mysqlx_node_table__update* object{nullptr};
+	st_mysqlx_table__update* object{nullptr};
 	zval* object_zv{nullptr};
 	const zval* value{nullptr};
 	MYSQLND_CSTRING table_field = {nullptr, 0};
 	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
 
-	DBG_ENTER("mysqlx_node_table__update__2_param_op");
+	DBG_ENTER("mysqlx_table__update__2_param_op");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
-												&object_zv, mysqlx_node_table__update_class_entry,
+												&object_zv, mysqlx_table__update_class_entry,
 												&(table_field.s), &(table_field.l),
 												(zval *) &value))
 	{
@@ -167,25 +167,25 @@ mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsign
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__update::set() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, set)
+/* {{{ proto mixed mysqlx_table__update::set() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, set)
 {
-	mysqlx_node_table__update__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
+	mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
 }
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__update::where() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, where)
+/* {{{ proto mixed mysqlx_table__update::where() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 {
-	st_mysqlx_node_table__update* object{nullptr};
+	st_mysqlx_table__update* object{nullptr};
 	zval* object_zv{nullptr};
 	MYSQLND_CSTRING where_expr = {nullptr, 0};
 
-	DBG_ENTER("mysqlx_node_table__update::where");
+	DBG_ENTER("mysqlx_table__update::where");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
-												&object_zv, mysqlx_node_table__update_class_entry,
+												&object_zv, mysqlx_table__update_class_entry,
 												&(where_expr.s), &(where_expr.l)))
 	{
 		DBG_VOID_RETURN;
@@ -208,19 +208,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, where)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__update::orderby() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
+/* {{{ proto mixed mysqlx_table__update::orderby() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 {
-	st_mysqlx_node_table__update* object{nullptr};
+	st_mysqlx_table__update* object{nullptr};
 	zval* object_zv{nullptr};
 	zval* orderby_expr{nullptr};
 	int num_of_expr{0};
 
-	DBG_ENTER("mysqlx_node_table__update::orderby");
+	DBG_ENTER("mysqlx_table__update::orderby");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
 												&object_zv,
-												mysqlx_node_table__update_class_entry,
+												mysqlx_table__update_class_entry,
 												&orderby_expr,
 												&num_of_expr))
 	{
@@ -273,17 +273,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, orderby)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__update::limit() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, limit)
+/* {{{ proto mixed mysqlx_table__update::limit() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 {
-	st_mysqlx_node_table__update* object{nullptr};
+	st_mysqlx_table__update* object{nullptr};
 	zval* object_zv{nullptr};
 	zend_long rows;
 
-	DBG_ENTER("mysqlx_node_table__update::limit");
+	DBG_ENTER("mysqlx_table__update::limit");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
-												&object_zv, mysqlx_node_table__update_class_entry,
+												&object_zv, mysqlx_table__update_class_entry,
 												&rows))
 	{
 		DBG_VOID_RETURN;
@@ -308,17 +308,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, limit)
 }
 /* }}} */
 
-/* {{{ proto mixed mysqlx_node_table__update::bind() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, bind)
+/* {{{ proto mixed mysqlx_table__update::bind() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 {
-	st_mysqlx_node_table__update* object{nullptr};
+	st_mysqlx_table__update* object{nullptr};
 	zval* object_zv{nullptr};
 	HashTable * bind_variables;
 
-	DBG_ENTER("mysqlx_node_table__update::bind");
+	DBG_ENTER("mysqlx_table__update::bind");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
-												&object_zv, mysqlx_node_table__update_class_entry,
+												&object_zv, mysqlx_table__update_class_entry,
 												&bind_variables))
 	{
 		DBG_VOID_RETURN;
@@ -350,16 +350,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, bind)
 }
 /* }}} */
 
-/* {{{ proto mixed mysqlx_node_table__update::execute() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, execute)
+/* {{{ proto mixed mysqlx_table__update::execute() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 {
-	st_mysqlx_node_table__update* object{nullptr};
+	st_mysqlx_table__update* object{nullptr};
 	zval* object_zv{nullptr};
 
-	DBG_ENTER("mysqlx_node_table__update::execute");
+	DBG_ENTER("mysqlx_table__update::execute");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table__update_class_entry))
+												&object_zv, mysqlx_table__update_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -385,7 +385,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, execute)
 					zval zv;
 					ZVAL_UNDEF(&zv);
 					zend_long flags{0};
-					mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+					mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 					ZVAL_COPY(return_value, &zv);
 					zval_dtor(&zv);
@@ -400,29 +400,29 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__update, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_node_table__update_methods[] */
-static const zend_function_entry mysqlx_node_table__update_methods[] = {
-	PHP_ME(mysqlx_node_table__update, __construct,	nullptr,											ZEND_ACC_PRIVATE)
+/* {{{ mysqlx_table__update_methods[] */
+static const zend_function_entry mysqlx_table__update_methods[] = {
+	PHP_ME(mysqlx_table__update, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_table__update, set,		arginfo_mysqlx_node_table__update__set,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__update, where,	arginfo_mysqlx_node_table__update__where,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__update, orderby,	arginfo_mysqlx_node_table__update__orderby,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__update, limit,	arginfo_mysqlx_node_table__update__limit,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__update, bind,		arginfo_mysqlx_node_table__update__bind,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__update, set,		arginfo_mysqlx_table__update__set,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__update, where,	arginfo_mysqlx_table__update__where,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__update, orderby,	arginfo_mysqlx_table__update__orderby,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__update, limit,	arginfo_mysqlx_table__update__limit,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__update, bind,		arginfo_mysqlx_table__update__bind,	ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_node_table__update, execute,	arginfo_mysqlx_node_table__update__execute,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__update, execute,	arginfo_mysqlx_table__update__execute,	ZEND_ACC_PUBLIC)
 
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 #if 0
-/* {{{ mysqlx_node_table__update_property__name */
+/* {{{ mysqlx_table__update_property__name */
 static zval *
-mysqlx_node_table__update_property__name(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_table__update_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const st_mysqlx_node_table__update* object = (const st_mysqlx_node_table__update* ) (obj->ptr);
-	DBG_ENTER("mysqlx_node_table__update_property__name");
+	const st_mysqlx_table__update* object = (const st_mysqlx_table__update* ) (obj->ptr);
+	DBG_ENTER("mysqlx_table__update_property__name");
 	if (object->table && object->table->data->table_name.s) {
 		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
 	} else {
@@ -441,22 +441,22 @@ mysqlx_node_table__update_property__name(const st_mysqlx_object* obj, zval * ret
 #endif
 
 static zend_object_handlers mysqlx_object_node_table__update_handlers;
-static HashTable mysqlx_node_table__update_properties;
+static HashTable mysqlx_table__update_properties;
 
-const struct st_mysqlx_property_entry mysqlx_node_table__update_property_entries[] =
+const struct st_mysqlx_property_entry mysqlx_table__update_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_table__update_property__name,	nullptr},
+	{{"name",	sizeof("name") - 1}, mysqlx_table__update_property__name,	nullptr},
 #endif
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_node_table__update_free_storage */
+/* {{{ mysqlx_table__update_free_storage */
 static void
-mysqlx_node_table__update_free_storage(zend_object * object)
+mysqlx_table__update_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_node_table__update* inner_obj = (st_mysqlx_node_table__update*) mysqlx_object->ptr;
+	st_mysqlx_table__update* inner_obj = (st_mysqlx_table__update*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->table) {
@@ -474,15 +474,15 @@ mysqlx_node_table__update_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_node_table__update_object_allocator */
+/* {{{ php_mysqlx_table__update_object_allocator */
 static zend_object *
-php_mysqlx_node_table__update_object_allocator(zend_class_entry * class_type)
+php_mysqlx_table__update_object_allocator(zend_class_entry * class_type)
 {
-	DBG_ENTER("php_mysqlx_node_table__update_object_allocator");
-	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_table__update>(
+	DBG_ENTER("php_mysqlx_table__update_object_allocator");
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_table__update>(
 		class_type,
 		&mysqlx_object_node_table__update_handlers,
-		&mysqlx_node_table__update_properties);
+		&mysqlx_table__update_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */
@@ -493,23 +493,23 @@ void
 mysqlx_register_node_table__update_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_table__update_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_table__update_handlers.free_obj = mysqlx_node_table__update_free_storage;
+	mysqlx_object_node_table__update_handlers.free_obj = mysqlx_table__update_free_storage;
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "TableUpdate", mysqlx_node_table__update_methods);
-		tmp_ce.create_object = php_mysqlx_node_table__update_object_allocator;
-		mysqlx_node_table__update_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_node_table__update_class_entry, 1, mysqlx_executable_interface_entry);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "TableUpdate", mysqlx_table__update_methods);
+		tmp_ce.create_object = php_mysqlx_table__update_object_allocator;
+		mysqlx_table__update_class_entry = zend_register_internal_class(&tmp_ce);
+		zend_class_implements(mysqlx_table__update_class_entry, 1, mysqlx_executable_interface_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_table__update_properties, 0, nullptr, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_table__update_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_node_table__update_properties, mysqlx_node_table__update_property_entries);
+	mysqlx_add_properties(&mysqlx_table__update_properties, mysqlx_table__update_property_entries);
 #if 0
 	/* The following is needed for the Reflection API */
-	zend_declare_property_null(mysqlx_node_table__update_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
+	zend_declare_property_null(mysqlx_table__update_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
 /* }}} */
@@ -519,7 +519,7 @@ mysqlx_register_node_table__update_class(INIT_FUNC_ARGS, zend_object_handlers * 
 void
 mysqlx_unregister_node_table__update_class(SHUTDOWN_FUNC_ARGS)
 {
-	zend_hash_destroy(&mysqlx_node_table__update_properties);
+	zend_hash_destroy(&mysqlx_table__update_properties);
 }
 /* }}} */
 
@@ -530,9 +530,9 @@ mysqlx_new_node_table__update(zval * return_value, XMYSQLND_NODE_TABLE * table, 
 {
 	DBG_ENTER("mysqlx_new_node_table__update");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_node_table__update_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+	if (SUCCESS == object_init_ex(return_value, mysqlx_table__update_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_node_table__update* const object = (st_mysqlx_node_table__update*) mysqlx_object->ptr;
+		st_mysqlx_table__update* const object = (st_mysqlx_table__update*) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
 			object->crud_op = xmysqlnd_crud_table_update__create(

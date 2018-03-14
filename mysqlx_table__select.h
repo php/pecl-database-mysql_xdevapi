@@ -24,7 +24,7 @@ namespace mysqlx {
 
 namespace devapi {
 
-extern zend_class_entry* mysqlx_node_table__select_class_entry;
+extern zend_class_entry* mysqlx_table__select_class_entry;
 
 void mysqlx_new_node_table__select(zval * return_value,
 						drv::st_xmysqlnd_table* schema,

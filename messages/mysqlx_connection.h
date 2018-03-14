@@ -27,9 +27,9 @@ namespace devapi {
 namespace msg {
 
 /* This typically should be static, but we have coupling */
-extern zend_class_entry *mysqlx_node_connection_class_entry;
+extern zend_class_entry *mysqlx_connection_class_entry;
 
-struct st_mysqlx_node_connection : util::permanent_allocable
+struct st_mysqlx_connection : util::permanent_allocable
 {
 	MYSQLND_VIO		* vio;
 	MYSQLND_STATS	* stats;
@@ -41,7 +41,7 @@ struct st_mysqlx_node_connection : util::permanent_allocable
 #define MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(_to, _from) \
 { \
 	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_node_connection*) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_connection*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \

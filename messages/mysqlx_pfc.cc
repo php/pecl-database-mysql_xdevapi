@@ -40,35 +40,35 @@ namespace msg {
 
 using namespace drv;
 
-zend_class_entry *mysqlx_node_pfc_class_entry;
+zend_class_entry *mysqlx_pfc_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_pfc__send, 0, ZEND_RETURN_VALUE, 3)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_pfc__send, 0, ZEND_RETURN_VALUE, 3)
 	ZEND_ARG_TYPE_INFO(0, node_connection, IS_OBJECT, 1)
 	ZEND_ARG_TYPE_INFO(0, message_type, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, message, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_pfc__receive, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_pfc__receive, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, node_connection, IS_OBJECT, 1)
 ZEND_END_ARG_INFO()
 
 
-/* {{{ proto bool mysqlx_node_pfc::send(object pfc, object connection, long packet_type, string payload) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, send)
+/* {{{ proto bool mysqlx_pfc::send(object pfc, object connection, long packet_type, string payload) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_pfc, send)
 {
 	zval* codec_zv{nullptr};
 	zval* connection_zv{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
-	st_mysqlx_node_pfc* codec{nullptr};
+	st_mysqlx_connection* connection{nullptr};
+	st_mysqlx_pfc* codec{nullptr};
 	MYSQLND_CSTRING payload = {nullptr, 0};
 	zend_ulong packet_type;
 	size_t bytes_sent;
 	enum_func_status ret{FAIL};
 
-	DBG_ENTER("mysqlx_node_pfc::send");
+	DBG_ENTER("mysqlx_pfc::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOls",
-												&codec_zv, mysqlx_node_pfc_class_entry,
-												&connection_zv, mysqlx_node_connection_class_entry,
+												&codec_zv, mysqlx_pfc_class_entry,
+												&connection_zv, mysqlx_connection_class_entry,
 												&packet_type,
 												&(payload.s), &(payload.l)))
 	{
@@ -90,18 +90,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, send)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_pfc::receive(object pfc, object connection) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, receive)
+/* {{{ proto mixed mysqlx_pfc::receive(object pfc, object connection) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_pfc, receive)
 {
 	zval* codec_zv{nullptr};
 	zval* connection_zv{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
-	st_mysqlx_node_pfc* codec{nullptr};
+	st_mysqlx_connection* connection{nullptr};
+	st_mysqlx_pfc* codec{nullptr};
 
-	DBG_ENTER("mysqlx_node_pfc::receive");
+	DBG_ENTER("mysqlx_pfc::receive");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
-												&codec_zv, mysqlx_node_pfc_class_entry,
-												&connection_zv, mysqlx_node_connection_class_entry))
+												&codec_zv, mysqlx_pfc_class_entry,
+												&connection_zv, mysqlx_connection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -133,27 +133,27 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_pfc, receive)
 /* }}} */
 
 
-/* {{{ mysqlx_node_pfc_methods[] */
-static const zend_function_entry mysqlx_node_pfc_methods[] = {
-	PHP_ME(mysqlx_node_pfc, send,		arginfo_mysqlx_node_pfc__send,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_pfc, receive,	arginfo_mysqlx_node_pfc__receive,	ZEND_ACC_PUBLIC)
+/* {{{ mysqlx_pfc_methods[] */
+static const zend_function_entry mysqlx_pfc_methods[] = {
+	PHP_ME(mysqlx_pfc, send,		arginfo_mysqlx_pfc__send,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_pfc, receive,	arginfo_mysqlx_pfc__receive,	ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 
 static zend_object_handlers mysqlx_object_node_pfc_handlers;
-static HashTable mysqlx_node_pfc_properties;
+static HashTable mysqlx_pfc_properties;
 
 
 namespace {
 
-/* {{{ mysqlx_node_pfc_free_storage */
+/* {{{ mysqlx_pfc_free_storage */
 void
-mysqlx_node_pfc_free_storage(zend_object * object)
+mysqlx_pfc_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_node_pfc* codec = (st_mysqlx_node_pfc*) mysqlx_object->ptr;
+	st_mysqlx_pfc* codec = (st_mysqlx_pfc*) mysqlx_object->ptr;
 
 	if (codec) {
 		const zend_bool pers = codec->persistent;
@@ -167,16 +167,16 @@ mysqlx_node_pfc_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_node_pfc_object_allocator */
+/* {{{ php_mysqlx_pfc_object_allocator */
 zend_object*
-php_mysqlx_node_pfc_object_allocator(zend_class_entry * class_type)
+php_mysqlx_pfc_object_allocator(zend_class_entry * class_type)
 {
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	const zend_bool persistent = FALSE;
 	st_mysqlx_object * mysqlx_object = static_cast<st_mysqlx_object*>(mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent));
-	st_mysqlx_node_pfc * codec = static_cast<st_mysqlx_node_pfc*>(mnd_pecalloc(1, sizeof(struct st_mysqlx_node_pfc), persistent));
+	st_mysqlx_pfc * codec = static_cast<st_mysqlx_pfc*>(mnd_pecalloc(1, sizeof(struct st_mysqlx_pfc), persistent));
 
-	DBG_ENTER("php_mysqlx_node_pfc_object_allocator");
+	DBG_ENTER("php_mysqlx_pfc_object_allocator");
 	if ( mysqlx_object && codec ) {
 		mysqlx_object->ptr = codec;
 
@@ -196,7 +196,7 @@ php_mysqlx_node_pfc_object_allocator(zend_class_entry * class_type)
 				object_properties_init(&mysqlx_object->zo, class_type);
 
 				mysqlx_object->zo.handlers = &mysqlx_object_node_pfc_handlers;
-				mysqlx_object->properties = &mysqlx_node_pfc_properties;
+				mysqlx_object->properties = &mysqlx_pfc_properties;
 
 				DBG_RETURN(&mysqlx_object->zo);
 			}
@@ -220,16 +220,16 @@ void
 mysqlx_register_node_pfc_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_pfc_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_pfc_handlers.free_obj = mysqlx_node_pfc_free_storage;
+	mysqlx_object_node_pfc_handlers.free_obj = mysqlx_pfc_free_storage;
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "ProtocolFrameCodec", mysqlx_node_pfc_methods);
-		tmp_ce.create_object = php_mysqlx_node_pfc_object_allocator;
-		mysqlx_node_pfc_class_entry = zend_register_internal_class(&tmp_ce);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "ProtocolFrameCodec", mysqlx_pfc_methods);
+		tmp_ce.create_object = php_mysqlx_pfc_object_allocator;
+		mysqlx_pfc_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
-	zend_hash_init(&mysqlx_node_pfc_properties, 0, nullptr, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_pfc_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 }
 /* }}} */
 
@@ -238,7 +238,7 @@ mysqlx_register_node_pfc_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std
 void
 mysqlx_unregister_node_pfc_class(SHUTDOWN_FUNC_ARGS)
 {
-	zend_hash_destroy(&mysqlx_node_pfc_properties);
+	zend_hash_destroy(&mysqlx_pfc_properties);
 }
 /* }}} */
 

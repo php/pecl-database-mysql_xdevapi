@@ -45,49 +45,49 @@ namespace devapi {
 
 using namespace drv;
 
-zend_class_entry* mysqlx_node_table__select_class_entry;
+zend_class_entry* mysqlx_table__select_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__where, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__where, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, projection)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__group_by, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__group_by, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__having, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__having, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__orderby, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__orderby, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__limit, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__limit, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__offset, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__offset, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, position, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__bind, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__bind, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__lock_shared, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__lock_shared, 0, ZEND_RETURN_VALUE, 0)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, lock_waiting_option, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__lock_exclusive, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__lock_exclusive, 0, ZEND_RETURN_VALUE, 0)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, lock_waiting_option, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_table__select__execute, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-struct st_mysqlx_node_table__select : public util::custom_allocable
+struct st_mysqlx_table__select : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__SELECT * crud_op;
 	XMYSQLND_NODE_TABLE * table;
@@ -97,7 +97,7 @@ struct st_mysqlx_node_table__select : public util::custom_allocable
 #define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_node_table__select*) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_table__select*) mysqlx_object->ptr; \
 	if (!(_to) || !(_to)->table) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		DBG_VOID_RETURN; \
@@ -105,24 +105,24 @@ struct st_mysqlx_node_table__select : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_node_table__select::__construct */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, __construct)
+/* {{{ mysqlx_table__select::__construct */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, __construct)
 {
 }
 /* }}} */
 
 
-/* {{{ mysqlx_node_table__select::where */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, where)
+/* {{{ mysqlx_table__select::where */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 {
-	st_mysqlx_node_table__select* object{nullptr};
+	st_mysqlx_table__select* object{nullptr};
 	zval* object_zv{nullptr};
 	MYSQLND_CSTRING where_expr = {nullptr, 0};
 
-	DBG_ENTER("mysqlx_node_table__select::where");
+	DBG_ENTER("mysqlx_table__select::where");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
-												&object_zv, mysqlx_node_table__select_class_entry,
+												&object_zv, mysqlx_table__select_class_entry,
 												&(where_expr.s), &(where_expr.l)))
 	{
 		DBG_VOID_RETURN;
@@ -146,20 +146,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, where)
 #define ADD_SORT 1
 #define ADD_GROUPING 2
 
-/* {{{ mysqlx_node_table__select__add_sort_or_grouping */
+/* {{{ mysqlx_table__select__add_sort_or_grouping */
 static void
-mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
+mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
-	st_mysqlx_node_table__select* object{nullptr};
+	st_mysqlx_table__select* object{nullptr};
 	zval* object_zv{nullptr};
 	zval* sort_expr{nullptr};
 	int num_of_expr{0};
 
-	DBG_ENTER("mysqlx_node_table__select__add_sort_or_grouping");
+	DBG_ENTER("mysqlx_table__select__add_sort_or_grouping");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
 												&object_zv,
-												mysqlx_node_table__select_class_entry,
+												mysqlx_table__select_class_entry,
 												&sort_expr,
 												&num_of_expr))
 	{
@@ -238,37 +238,37 @@ mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, co
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::orderby() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, orderby)
+/* {{{ proto mixed mysqlx_table__select::orderby() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, orderby)
 {
-	DBG_ENTER("mysqlx_node_table__select::orderby");
-	mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_SORT);
+	DBG_ENTER("mysqlx_table__select::orderby");
+	mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_SORT);
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::groupBy() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, groupBy)
+/* {{{ proto mixed mysqlx_table__select::groupBy() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, groupBy)
 {
-	DBG_ENTER("mysqlx_node_table__select::groupBy");
-	mysqlx_node_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_GROUPING);
+	DBG_ENTER("mysqlx_table__select::groupBy");
+	mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_GROUPING);
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::having() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, having)
+/* {{{ proto mixed mysqlx_table__select::having() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 {
-	st_mysqlx_node_table__select* object{nullptr};
+	st_mysqlx_table__select* object{nullptr};
 	zval* object_zv{nullptr};
 	MYSQLND_CSTRING search_condition = {nullptr, 0};
 
-	DBG_ENTER("mysqlx_node_table__select::having");
+	DBG_ENTER("mysqlx_table__select::having");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
-												&object_zv, mysqlx_node_table__select_class_entry,
+												&object_zv, mysqlx_table__select_class_entry,
 												&(search_condition.s), &(search_condition.l)))
 	{
 		DBG_VOID_RETURN;
@@ -289,17 +289,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, having)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::limit() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, limit)
+/* {{{ proto mixed mysqlx_table__select::limit() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 {
-	st_mysqlx_node_table__select* object{nullptr};
+	st_mysqlx_table__select* object{nullptr};
 	zval* object_zv{nullptr};
 	zend_long rows;
 
-	DBG_ENTER("mysqlx_node_table__select::limit");
+	DBG_ENTER("mysqlx_table__select::limit");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
-												&object_zv, mysqlx_node_table__select_class_entry,
+												&object_zv, mysqlx_table__select_class_entry,
 												&rows))
 	{
 		DBG_VOID_RETURN;
@@ -325,17 +325,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::offset() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, offset)
+/* {{{ proto mixed mysqlx_table__select::offset() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 {
-	st_mysqlx_node_table__select* object{nullptr};
+	st_mysqlx_table__select* object{nullptr};
 	zval* object_zv{nullptr};
 	zend_long position;
 
-	DBG_ENTER("mysqlx_node_table__select::offset");
+	DBG_ENTER("mysqlx_table__select::offset");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
-												&object_zv, mysqlx_node_table__select_class_entry,
+												&object_zv, mysqlx_table__select_class_entry,
 												&position))
 	{
 		DBG_VOID_RETURN;
@@ -361,17 +361,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, offset)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::bind() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, bind)
+/* {{{ proto mixed mysqlx_table__select::bind() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 {
-	st_mysqlx_node_table__select* object{nullptr};
+	st_mysqlx_table__select* object{nullptr};
 	zval* object_zv{nullptr};
 	HashTable * bind_variables;
 
-	DBG_ENTER("mysqlx_node_table__select::bind");
+	DBG_ENTER("mysqlx_table__select::bind");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
-												&object_zv, mysqlx_node_table__select_class_entry,
+												&object_zv, mysqlx_table__select_class_entry,
 												&bind_variables))
 	{
 		DBG_VOID_RETURN;
@@ -400,15 +400,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, bind)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::lockShared() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockShared)
+/* {{{ proto mixed mysqlx_table__select::lockShared() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 {
-	DBG_ENTER("mysqlx_node_table__select::lockShared");
+	DBG_ENTER("mysqlx_table__select::lockShared");
 
 	zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
-		&object_zv, mysqlx_node_table__select_class_entry,
+		&object_zv, mysqlx_table__select_class_entry,
 		&lock_waiting_option))
 	{
 		DBG_VOID_RETURN;
@@ -416,7 +416,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockShared)
 
 	RETVAL_FALSE;
 
-	auto& data_object = util::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_table__select>(object_zv);
 	auto crud_op = data_object.crud_op;
 	int waiting_option = static_cast<int>(lock_waiting_option);
 	if ((xmysqlnd_crud_table_select__enable_lock_shared(crud_op) == PASS)
@@ -430,15 +430,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockShared)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::lockExclusive() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
+/* {{{ proto mixed mysqlx_table__select::lockExclusive() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 {
-	DBG_ENTER("mysqlx_node_table__select::lockExclusive");
+	DBG_ENTER("mysqlx_table__select::lockExclusive");
 
 	zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
-		&object_zv, mysqlx_node_table__select_class_entry,
+		&object_zv, mysqlx_table__select_class_entry,
 		&lock_waiting_option))
 	{
 		DBG_VOID_RETURN;
@@ -446,7 +446,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 
 	RETVAL_FALSE;
 
-	auto& data_object = util::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_table__select>(object_zv);
 	auto crud_op = data_object.crud_op;
 	int waiting_option = static_cast<int>(lock_waiting_option);
 	if ((xmysqlnd_crud_table_select__enable_lock_exclusive(crud_op) == PASS)
@@ -460,17 +460,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, lockExclusive)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_table__select::execute() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
+/* {{{ proto mixed mysqlx_table__select::execute() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 {
 	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
-	st_mysqlx_node_table__select* object{nullptr};
+	st_mysqlx_table__select* object{nullptr};
 	zval* object_zv{nullptr};
 
-	DBG_ENTER("mysqlx_node_table__select::execute");
+	DBG_ENTER("mysqlx_table__select::execute");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-												&object_zv, mysqlx_node_table__select_class_entry))
+												&object_zv, mysqlx_table__select_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -495,7 +495,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 						zval zv;
 						ZVAL_UNDEF(&zv);
-						mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_ROW, &zv);
+						mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_ROW, &zv);
 
 						ZVAL_COPY(return_value, &zv);
 						zval_dtor(&zv);
@@ -511,32 +511,32 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_table__select, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_node_table__select_methods[] */
-static const zend_function_entry mysqlx_node_table__select_methods[] = {
-	PHP_ME(mysqlx_node_table__select, __construct, nullptr, ZEND_ACC_PRIVATE)
+/* {{{ mysqlx_table__select_methods[] */
+static const zend_function_entry mysqlx_table__select_methods[] = {
+	PHP_ME(mysqlx_table__select, __construct, nullptr, ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_table__select, where, arginfo_mysqlx_node_table__select__where, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, groupBy, arginfo_mysqlx_node_table__select__group_by, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, having, arginfo_mysqlx_node_table__select__having, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, bind, arginfo_mysqlx_node_table__select__bind, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, orderby, arginfo_mysqlx_node_table__select__orderby, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, limit, arginfo_mysqlx_node_table__select__limit, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, offset, arginfo_mysqlx_node_table__select__offset, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, lockShared, arginfo_mysqlx_node_table__select__lock_shared, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, lockExclusive, arginfo_mysqlx_node_table__select__lock_exclusive, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_node_table__select, execute, arginfo_mysqlx_node_table__select__execute, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, where, arginfo_mysqlx_table__select__where, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, groupBy, arginfo_mysqlx_table__select__group_by, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, having, arginfo_mysqlx_table__select__having, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, bind, arginfo_mysqlx_table__select__bind, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, orderby, arginfo_mysqlx_table__select__orderby, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, limit, arginfo_mysqlx_table__select__limit, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, offset, arginfo_mysqlx_table__select__offset, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, lockShared, arginfo_mysqlx_table__select__lock_shared, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, lockExclusive, arginfo_mysqlx_table__select__lock_exclusive, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_table__select, execute, arginfo_mysqlx_table__select__execute, ZEND_ACC_PUBLIC)
 
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 #if 0
-/* {{{ mysqlx_node_table__select_property__name */
+/* {{{ mysqlx_table__select_property__name */
 static zval *
-mysqlx_node_table__select_property__name(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_table__select_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
-	const st_mysqlx_node_table__select* object = (const st_mysqlx_node_table__select* ) (obj->ptr);
-	DBG_ENTER("mysqlx_node_table__select_property__name");
+	const st_mysqlx_table__select* object = (const st_mysqlx_table__select* ) (obj->ptr);
+	DBG_ENTER("mysqlx_table__select_property__name");
 	if (object->table && object->table->data->table_name.s) {
 		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
 	} else {
@@ -555,22 +555,22 @@ mysqlx_node_table__select_property__name(const st_mysqlx_object* obj, zval * ret
 #endif
 
 static zend_object_handlers mysqlx_object_node_table__select_handlers;
-static HashTable mysqlx_node_table__select_properties;
+static HashTable mysqlx_table__select_properties;
 
-const struct st_mysqlx_property_entry mysqlx_node_table__select_property_entries[] =
+const struct st_mysqlx_property_entry mysqlx_table__select_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_table__select_property__name,	nullptr},
+	{{"name",	sizeof("name") - 1}, mysqlx_table__select_property__name,	nullptr},
 #endif
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_node_table__select_free_storage */
+/* {{{ mysqlx_table__select_free_storage */
 static void
-mysqlx_node_table__select_free_storage(zend_object * object)
+mysqlx_table__select_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_node_table__select* inner_obj = (st_mysqlx_node_table__select*) mysqlx_object->ptr;
+	st_mysqlx_table__select* inner_obj = (st_mysqlx_table__select*) mysqlx_object->ptr;
 
 	if (inner_obj) {
 		if (inner_obj->table) {
@@ -588,15 +588,15 @@ mysqlx_node_table__select_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_node_table__select_object_allocator */
+/* {{{ php_mysqlx_table__select_object_allocator */
 static zend_object *
-php_mysqlx_node_table__select_object_allocator(zend_class_entry * class_type)
+php_mysqlx_table__select_object_allocator(zend_class_entry * class_type)
 {
-	DBG_ENTER("php_mysqlx_node_table__select_object_allocator");
-	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_node_table__select>(
+	DBG_ENTER("php_mysqlx_table__select_object_allocator");
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_table__select>(
 		class_type,
 		&mysqlx_object_node_table__select_handlers,
-		&mysqlx_node_table__select_properties);
+		&mysqlx_table__select_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */
@@ -607,23 +607,23 @@ void
 mysqlx_register_node_table__select_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_table__select_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_node_table__select_handlers.free_obj = mysqlx_node_table__select_free_storage;
+	mysqlx_object_node_table__select_handlers.free_obj = mysqlx_table__select_free_storage;
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "TableSelect", mysqlx_node_table__select_methods);
-		tmp_ce.create_object = php_mysqlx_node_table__select_object_allocator;
-		mysqlx_node_table__select_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_node_table__select_class_entry, 1, mysqlx_executable_interface_entry);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "TableSelect", mysqlx_table__select_methods);
+		tmp_ce.create_object = php_mysqlx_table__select_object_allocator;
+		mysqlx_table__select_class_entry = zend_register_internal_class(&tmp_ce);
+		zend_class_implements(mysqlx_table__select_class_entry, 1, mysqlx_executable_interface_entry);
 	}
 
-	zend_hash_init(&mysqlx_node_table__select_properties, 0, nullptr, mysqlx_free_property_cb, 1);
+	zend_hash_init(&mysqlx_table__select_properties, 0, nullptr, mysqlx_free_property_cb, 1);
 
 	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_node_table__select_properties, mysqlx_node_table__select_property_entries);
+	mysqlx_add_properties(&mysqlx_table__select_properties, mysqlx_table__select_property_entries);
 #if 0
 	/* The following is needed for the Reflection API */
-	zend_declare_property_null(mysqlx_node_table__select_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
+	zend_declare_property_null(mysqlx_table__select_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
 /* }}} */
@@ -633,7 +633,7 @@ mysqlx_register_node_table__select_class(INIT_FUNC_ARGS, zend_object_handlers * 
 void
 mysqlx_unregister_node_table__select_class(SHUTDOWN_FUNC_ARGS)
 {
-	zend_hash_destroy(&mysqlx_node_table__select_properties);
+	zend_hash_destroy(&mysqlx_table__select_properties);
 }
 /* }}} */
 
@@ -648,9 +648,9 @@ mysqlx_new_node_table__select(zval * return_value,
 {
 	DBG_ENTER("mysqlx_new_node_table__select");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_node_table__select_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
+	if (SUCCESS == object_init_ex(return_value, mysqlx_table__select_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_node_table__select* const object = (st_mysqlx_node_table__select*) mysqlx_object->ptr;
+		st_mysqlx_table__select* const object = (st_mysqlx_table__select*) mysqlx_object->ptr;
 		if (object) {
 			object->table = clone? table->data->m.get_reference(table) : table;
 			object->crud_op = xmysqlnd_crud_table_select__create(
@@ -673,7 +673,7 @@ mysqlx_new_node_table__select(zval * return_value,
 /* {{{ get_stmt_from_table_select */
 Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)
 {
-	auto& data_object = util::fetch_data_object<st_mysqlx_node_table__select>(object_zv);
+	auto& data_object = util::fetch_data_object<st_mysqlx_table__select>(object_zv);
 	XMYSQLND_CRUD_TABLE_OP__SELECT* select_op = data_object.crud_op;
 	if (!select_op
 		|| (xmysqlnd_crud_table_select__finalize_bind(select_op) == FAIL)

@@ -92,8 +92,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 	zval* codec_zv{nullptr};
 	zval* connection_zv{nullptr};
 	st_mysqlx_message__auth_continue* object{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
-	st_mysqlx_node_pfc* codec{nullptr};
+	st_mysqlx_connection* connection{nullptr};
+	st_mysqlx_pfc* codec{nullptr};
 	char* user{nullptr};
 	size_t user_len{0};
 	char* password{nullptr};
@@ -107,8 +107,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 												&user, &user_len,
 												&password, &password_len,
 												&schema, &schema_len,
-												&codec_zv, mysqlx_node_pfc_class_entry,
-												&connection_zv, mysqlx_node_connection_class_entry))
+												&codec_zv, mysqlx_pfc_class_entry,
+												&connection_zv, mysqlx_connection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -146,15 +146,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 	zval* codec_zv{nullptr};
 	zval* connection_zv{nullptr};
 	st_mysqlx_message__auth_continue* object{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
-	st_mysqlx_node_pfc* codec{nullptr};
+	st_mysqlx_connection* connection{nullptr};
+	st_mysqlx_pfc* codec{nullptr};
 	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__auth_continue::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
 												&object_zv, mysqlx_message__auth_continue_class_entry,
-												&codec_zv, mysqlx_node_pfc_class_entry,
-												&connection_zv, mysqlx_node_connection_class_entry))
+												&codec_zv, mysqlx_pfc_class_entry,
+												&connection_zv, mysqlx_connection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}

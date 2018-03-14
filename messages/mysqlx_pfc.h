@@ -28,9 +28,9 @@ namespace msg {
 
 /* This typically should be static, but we have coupling */
 
-extern zend_class_entry *mysqlx_node_pfc_class_entry;
+extern zend_class_entry *mysqlx_pfc_class_entry;
 
-struct st_mysqlx_node_pfc
+struct st_mysqlx_pfc
 {
 	drv::XMYSQLND_PFC	* pfc;
 	MYSQLND_STATS	* stats;
@@ -42,7 +42,7 @@ struct st_mysqlx_node_pfc
 #define MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(_to, _from) \
 { \
 	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_node_pfc*) mysqlx_object->ptr; \
+	(_to) = (st_mysqlx_pfc*) mysqlx_object->ptr; \
 	if (!(_to)) { \
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
 		RETVAL_NULL(); \

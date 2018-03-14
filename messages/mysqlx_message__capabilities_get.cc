@@ -85,15 +85,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, send)
 	zval* codec_zv{nullptr};
 	zval* connection_zv{nullptr};
 	st_mysqlx_message__capabilities_get* object{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
-	st_mysqlx_node_pfc* codec{nullptr};
+	st_mysqlx_connection* connection{nullptr};
+	st_mysqlx_pfc* codec{nullptr};
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::send");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
 												&object_zv, mysqlx_message__capabilities_get_class_entry,
-												&codec_zv, mysqlx_node_pfc_class_entry,
-												&connection_zv, mysqlx_node_connection_class_entry))
+												&codec_zv, mysqlx_pfc_class_entry,
+												&connection_zv, mysqlx_connection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -121,15 +121,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 	zval* codec_zv{nullptr};
 	zval* connection_zv{nullptr};
 	st_mysqlx_message__capabilities_get* object{nullptr};
-	st_mysqlx_node_connection* connection{nullptr};
-	st_mysqlx_node_pfc* codec{nullptr};
+	st_mysqlx_connection* connection{nullptr};
+	st_mysqlx_pfc* codec{nullptr};
 	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::read_response");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
 												&object_zv, mysqlx_message__capabilities_get_class_entry,
-												&codec_zv, mysqlx_node_pfc_class_entry,
-												&connection_zv, mysqlx_node_connection_class_entry))
+												&codec_zv, mysqlx_pfc_class_entry,
+												&connection_zv, mysqlx_connection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}

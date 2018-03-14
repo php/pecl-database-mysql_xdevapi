@@ -891,7 +891,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 	enum_func_status ret{PASS};
 	int i{0};
 
-	DBG_ENTER("mysqlx_node_table__select::columns");
+	DBG_ENTER("mysqlx_table__select::columns");
 
 	do{
 		if(Z_TYPE(columns[i]) == IS_OBJECT) {

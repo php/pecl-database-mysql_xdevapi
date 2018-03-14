@@ -41,20 +41,20 @@ namespace mysqlx {
 
 namespace devapi {
 
-zend_class_entry* mysqlx_node_base_result_interface_entry;
+zend_class_entry* mysqlx_base_result_interface_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_base_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_base_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-/* {{{ mysqlx_node_base_result_methods[] */
-static const zend_function_entry mysqlx_node_base_result_methods[] = {
-	//PHP_ME(mysqlx_node_base_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
-	PHP_ABSTRACT_ME(mysqlx_node_base_result, getWarningCount,		arginfo_mysqlx_node_base_result__get_warning_count)
-	PHP_ABSTRACT_ME(mysqlx_node_base_result, getWarnings,			arginfo_mysqlx_node_base_result__get_warnings)
+/* {{{ mysqlx_base_result_methods[] */
+static const zend_function_entry mysqlx_base_result_methods[] = {
+	//PHP_ME(mysqlx_base_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
+	PHP_ABSTRACT_ME(mysqlx_base_result, getWarningCount,		arginfo_mysqlx_base_result__get_warning_count)
+	PHP_ABSTRACT_ME(mysqlx_base_result, getWarnings,			arginfo_mysqlx_base_result__get_warnings)
 
 	{nullptr, nullptr, nullptr}
 };
@@ -66,8 +66,8 @@ void
 mysqlx_register_node_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "BaseResult", mysqlx_node_base_result_methods);
-	mysqlx_node_base_result_interface_entry = zend_register_internal_interface(&tmp_ce);
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "BaseResult", mysqlx_base_result_methods);
+	mysqlx_base_result_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
 /* }}} */
 

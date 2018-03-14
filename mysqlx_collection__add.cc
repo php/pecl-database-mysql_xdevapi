@@ -52,7 +52,7 @@ namespace {
 
 zend_class_entry* collection_add_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_node_collection__add__execute, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
@@ -75,7 +75,7 @@ execute_statement(XMYSQLND_NODE_STMT* stmt,zval* return_value)
 			zval zv;
 			ZVAL_UNDEF(&zv);
 			zend_long flags{0};
-			mysqlx_node_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv),
+			mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv),
 								flags, MYSQLX_RESULT, &zv);
 			ZVAL_COPY(return_value, &zv);
 			zval_dtor(&zv);
@@ -376,19 +376,19 @@ void Collection_add::execute(zval* return_value)
 //------------------------------------------------------------------------------
 
 
-/* {{{ mysqlx_node_collection__add::__construct */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, __construct)
+/* {{{ mysqlx_collection__add::__construct */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, __construct)
 {
 }
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_node_collection__add::execute() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, execute)
+/* {{{ proto mixed mysqlx_collection__add::execute() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 {
 	zval* object_zv{nullptr};
 
-	DBG_ENTER("mysqlx_node_collection__add::execute");
+	DBG_ENTER("mysqlx_collection__add::execute");
 
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv,
@@ -405,23 +405,23 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_collection__add, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_node_collection__add_methods[] */
-static const zend_function_entry mysqlx_node_collection__add_methods[] = {
-	PHP_ME(mysqlx_node_collection__add, __construct,	nullptr,											ZEND_ACC_PRIVATE)
+/* {{{ mysqlx_collection__add_methods[] */
+static const zend_function_entry mysqlx_collection__add_methods[] = {
+	PHP_ME(mysqlx_collection__add, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 
-	PHP_ME(mysqlx_node_collection__add,	execute,		arginfo_mysqlx_node_collection__add__execute,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_collection__add,	execute,		arginfo_mysqlx_collection__add__execute,	ZEND_ACC_PUBLIC)
 
 	{nullptr, nullptr, nullptr}
 };
 /* }}} */
 
 #if 0
-/* {{{ mysqlx_node_collection__add_property__name */
+/* {{{ mysqlx_collection__add_property__name */
 static zval *
-mysqlx_node_collection__add_property__name(const st_mysqlx_object* obj, zval* return_value)
+mysqlx_collection__add_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
 	const Collection_add* object = (const Collection_add *) (obj->ptr);
-	DBG_ENTER("mysqlx_node_collection__add_property__name");
+	DBG_ENTER("mysqlx_collection__add_property__name");
 	if (object->collection && object->collection->data->collection_name.s) {
 		ZVAL_STRINGL(return_value, object->collection->data->collection_name.s, object->collection->data->collection_name.l);
 	} else {
@@ -445,23 +445,23 @@ static HashTable collection_add_properties;
 const st_mysqlx_property_entry collection_add_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_node_collection__add_property__name,	nullptr},
+	{{"name",	sizeof("name") - 1}, mysqlx_collection__add_property__name,	nullptr},
 #endif
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_node_collection__add_free_storage */
+/* {{{ mysqlx_collection__add_free_storage */
 static void
-mysqlx_node_collection__add_free_storage(zend_object* object)
+mysqlx_collection__add_free_storage(zend_object* object)
 {
 	util::free_object<Collection_add>(object);
 }
 /* }}} */
 
 
-/* {{{ php_mysqlx_node_collection__add_object_allocator */
+/* {{{ php_mysqlx_collection__add_object_allocator */
 static zend_object *
-php_mysqlx_node_collection__add_object_allocator(zend_class_entry* class_type)
+php_mysqlx_collection__add_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("php_mysqlx_collection__add_object_allocator");
 	st_mysqlx_object* mysqlx_object = util::alloc_object<Collection_add>(
@@ -482,9 +482,9 @@ mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers*
 		"CollectionAdd",
 		mysqlx_std_object_handlers,
 		collection_add_handlers,
-		php_mysqlx_node_collection__add_object_allocator,
-		mysqlx_node_collection__add_free_storage,
-		mysqlx_node_collection__add_methods,
+		php_mysqlx_collection__add_object_allocator,
+		mysqlx_collection__add_free_storage,
+		mysqlx_collection__add_methods,
 		collection_add_properties,
 		collection_add_property_entries,
 		mysqlx_executable_interface_entry);

@@ -28,7 +28,7 @@ struct st_xmysqlnd_stmt_result;
 
 namespace devapi {
 
-struct st_mysqlx_node_row_result : public util::custom_allocable
+struct st_mysqlx_row_result : public util::custom_allocable
 {
 	drv::st_xmysqlnd_stmt_result* result;
 };
