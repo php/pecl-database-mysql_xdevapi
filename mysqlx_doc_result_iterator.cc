@@ -22,9 +22,9 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_debug.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
-#include "xmysqlnd/xmysqlnd_node_stmt_result.h"
+#include "xmysqlnd/xmysqlnd_stmt_result.h"
 #include "xmysqlnd/xmysqlnd_utils.h"
-#include "mysqlx_node_doc_result.h"
+#include "mysqlx_doc_result.h"
 #include "mysqlx_object.h"
 #include "mysqlx_class_properties.h"
 #include "util/object.h"

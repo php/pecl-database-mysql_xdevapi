@@ -23,8 +23,8 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
-#include "xmysqlnd/xmysqlnd_node_session.h"
-#include "xmysqlnd/xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd/xmysqlnd_session.h"
+#include "xmysqlnd/xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd/xmysqlnd_wireprotocol.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"

@@ -21,7 +21,7 @@
 #include "xmysqlnd_driver.h"
 #include "util/allocator.h"
 #include "util/strings.h"
-#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "xmysqlnd/xmysqlnd_session.h"
 
 namespace mysqlx {
 

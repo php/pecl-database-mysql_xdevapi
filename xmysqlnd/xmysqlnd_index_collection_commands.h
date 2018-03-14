@@ -21,7 +21,7 @@
 #include "xmysqlnd_crud_commands.h"
 #include "util/strings.h"
 #include <boost/optional.hpp>
-#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "xmysqlnd/xmysqlnd_session.h"
 
 namespace mysqlx {
 

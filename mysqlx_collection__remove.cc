@@ -22,10 +22,10 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
-#include "xmysqlnd/xmysqlnd_node_session.h"
-#include "xmysqlnd/xmysqlnd_node_schema.h"
-#include "xmysqlnd/xmysqlnd_node_stmt.h"
-#include "xmysqlnd/xmysqlnd_node_collection.h"
+#include "xmysqlnd/xmysqlnd_session.h"
+#include "xmysqlnd/xmysqlnd_schema.h"
+#include "xmysqlnd/xmysqlnd_stmt.h"
+#include "xmysqlnd/xmysqlnd_collection.h"
 #include "xmysqlnd/xmysqlnd_crud_collection_commands.h"
 #include "php_mysqlx.h"
 #include "mysqlx_crud_operation_bindable.h"
@@ -34,8 +34,8 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_executable.h"
-#include "mysqlx_node_sql_statement.h"
-#include "mysqlx_node_collection__remove.h"
+#include "mysqlx_sql_statement.h"
+#include "mysqlx_collection__remove.h"
 #include "util/allocator.h"
 #include "util/object.h"
 

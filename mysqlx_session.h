@@ -18,7 +18,7 @@
 #ifndef MYSQLX_SESSION_H
 #define MYSQLX_SESSION_H
 
-#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "xmysqlnd/xmysqlnd_session.h"
 #include "util/allocator.h"
 
 namespace mysqlx {

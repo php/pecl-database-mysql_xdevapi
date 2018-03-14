@@ -23,7 +23,7 @@ extern "C" {
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
-#include "xmysqlnd_node_session.h"
+#include "xmysqlnd_session.h"
 #include "php_mysql_xdevapi.h"
 #include "util/string_utils.h"
 

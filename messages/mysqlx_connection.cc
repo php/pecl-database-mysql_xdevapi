@@ -23,12 +23,12 @@ extern "C" {
 #include <ext/mysqlnd/mysqlnd_statistics.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
-#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_environment.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_session.h"
-#include "mysqlx_node_connection.h"
+#include "mysqlx_connection.h"
 #include "util/object.h"
 #include "util/zend_utils.h"
 

@@ -23,11 +23,11 @@ extern "C" {
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
-#include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_schema.h"
-#include "xmysqlnd_node_collection.h"
-#include "xmysqlnd_node_stmt.h"
-#include "xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd_session.h"
+#include "xmysqlnd_schema.h"
+#include "xmysqlnd_collection.h"
+#include "xmysqlnd_stmt.h"
+#include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_utils.h"
 #include "mysqlx_exception.h"
 

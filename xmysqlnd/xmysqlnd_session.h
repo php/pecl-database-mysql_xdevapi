@@ -27,7 +27,7 @@ extern "C" {
 }
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
-#include "xmysqlnd_node_stmt.h"
+#include "xmysqlnd_stmt.h"
 #include "util/strings.h"
 #include "util/types.h"
 #include <array>

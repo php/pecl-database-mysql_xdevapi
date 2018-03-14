@@ -22,10 +22,10 @@ extern "C" {
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
-#include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_stmt.h"
-#include "xmysqlnd_node_stmt_result.h"
-#include "xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd_session.h"
+#include "xmysqlnd_stmt.h"
+#include "xmysqlnd_stmt_result.h"
+#include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_rowset_buffered.h"
 
 namespace mysqlx {

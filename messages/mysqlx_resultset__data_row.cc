@@ -25,7 +25,7 @@ extern "C" {
 }
 #include <ext/mysqlnd/mysql_float_to_double.h>
 #include "xmysqlnd/xmysqlnd.h"
-#include "xmysqlnd/xmysqlnd_node_session.h"
+#include "xmysqlnd/xmysqlnd_session.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 

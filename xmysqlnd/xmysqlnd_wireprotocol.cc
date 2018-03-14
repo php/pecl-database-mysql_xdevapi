@@ -29,9 +29,9 @@ extern "C" {
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_protocol_dumper.h"
 
-#include "xmysqlnd_node_session.h"
-#include "xmysqlnd_node_stmt_result.h"
-#include "xmysqlnd_node_stmt_result_meta.h"
+#include "xmysqlnd_session.h"
+#include "xmysqlnd_stmt_result.h"
+#include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_stmt_execution_state.h"
 #include "xmysqlnd_rowset.h"
@@ -45,8 +45,8 @@ extern "C" {
 #include "proto_gen/mysqlx_sql.pb.h"
 
 #include "xmysqlnd_crud_collection_commands.h"
-#include "messages/mysqlx_node_connection.h"
-#include "messages/mysqlx_node_pfc.h"
+#include "messages/mysqlx_connection.h"
+#include "messages/mysqlx_pfc.h"
 #include "messages/mysqlx_resultset__column_metadata.h"
 #include "messages/mysqlx_message__ok.h"
 #include "messages/mysqlx_message__stmt_execute_ok.h"
