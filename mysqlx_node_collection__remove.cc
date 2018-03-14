@@ -402,7 +402,7 @@ mysqlx_register_node_collection__remove_class(INIT_FUNC_ARGS, zend_object_handle
 {
 	MYSQL_XDEVAPI_REGISTER_CLASS(
 		collection_remove_class_entry,
-		"NodeCollectionRemove",
+		"CollectionRemove",
 		mysqlx_std_object_handlers,
 		collection_remove_handlers,
 		php_mysqlx_node_collection__remove_object_allocator,

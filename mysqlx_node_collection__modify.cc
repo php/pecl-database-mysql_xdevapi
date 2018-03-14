@@ -939,7 +939,7 @@ mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS, zend_object_handle
 {
 	MYSQL_XDEVAPI_REGISTER_CLASS(
 		collection_modify_class_entry,
-		"NodeCollectionModify",
+		"CollectionModify",
 		mysqlx_std_object_handlers,
 		collection_modify_handlers,
 		php_mysqlx_node_collection__modify_object_allocator,

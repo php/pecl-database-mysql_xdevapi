@@ -1,5 +1,5 @@
 --TEST--
-mysqlx NodeTable
+mysqlx Table
 --SKIPIF--
 --FILE--
 <?php

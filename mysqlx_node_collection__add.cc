@@ -479,7 +479,7 @@ mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers*
 {
 	MYSQL_XDEVAPI_REGISTER_CLASS(
 		collection_add_class_entry,
-		"NodeCollectionAdd",
+		"CollectionAdd",
 		mysqlx_std_object_handlers,
 		collection_add_handlers,
 		php_mysqlx_node_collection__add_object_allocator,

@@ -1,6 +1,6 @@
 <?php
    /*
-                With X DevAPI we can connect directly to a specific session by a call to getNodeSession
+                With X DevAPI we can connect directly to a specific session by a call to getSession
 		or invoke getSession to connect to one or *more* servers.
 
 		Details: https://dev.mysql.com/doc/x-devapi-userguide/en/xsession-vs-node-session.html
@@ -113,7 +113,7 @@
 		in order to have the data sorted by the price in ascending order,
 		followed by 'limit' call, which set the amount of data I want to retrieve.
 
-		This call returns a 'NodeDocResult' object, from which I can fetch the
+		This call returns a 'DocResult' object, from which I can fetch the
 		retrieved rows:
 			1) fetchAll, will fetch all the rows
 			2) fetchOne, will fetch just one row
@@ -216,7 +216,7 @@ Array
                 Let's use SQL to create two tables for our new products:
     */
 
-    $nodeSession = mysql_xdevapi\getNodeSession("localhost", "root", "");
+    $nodeSession = mysql_xdevapi\getSession("localhost", "root", "");
     $nodeSession->executeSql("create table products.new_products_table(name text,price float,description text)");
     $nodeSession->executeSql("create table products.new_cheap_products_table(name text,price float,description text)");
 

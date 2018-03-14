@@ -788,7 +788,7 @@ mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers
 {
 	MYSQL_XDEVAPI_REGISTER_CLASS(
 		collection_find_class_entry,
-		"NodeCollectionFind",
+		"CollectionFind",
 		mysqlx_std_object_handlers,
 		collection_find_handlers,
 		php_mysqlx_node_collection__find_object_allocator,

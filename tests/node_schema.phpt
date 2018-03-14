@@ -1,5 +1,5 @@
 --TEST--
-mysqlx NodeSchema
+mysqlx Schema
 --SKIPIF--
 --FILE--
 <?php

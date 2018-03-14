@@ -562,7 +562,7 @@ mysqlx_register_node_table_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeTable", mysqlx_node_table_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Table", mysqlx_node_table_methods);
 		tmp_ce.create_object = php_mysqlx_node_table_object_allocator;
 		mysqlx_node_table_class_entry = zend_register_internal_class(&tmp_ce);
 		zend_class_implements(mysqlx_node_table_class_entry, 1, mysqlx_schema_object_interface_entry);

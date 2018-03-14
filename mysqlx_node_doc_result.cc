@@ -276,7 +276,7 @@ mysqlx_register_node_doc_result_class(INIT_FUNC_ARGS, zend_object_handlers * mys
 	mysqlx_object_node_doc_result_handlers.free_obj = mysqlx_node_doc_result_free_storage;
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeDocResult", mysqlx_node_doc_result_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "DocResult", mysqlx_node_doc_result_methods);
 		tmp_ce.create_object = php_mysqlx_node_doc_result_object_allocator;
 
 		mysqlx_node_doc_result_class_entry = zend_register_internal_class(&tmp_ce);

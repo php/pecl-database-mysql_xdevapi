@@ -739,7 +739,7 @@ mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * 
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeSqlStatement", mysqlx_node_sql_statement_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "SqlStatement", mysqlx_node_sql_statement_methods);
 		tmp_ce.create_object = php_mysqlx_node_sql_statement_object_allocator;
 		mysqlx_node_sql_statement_class_entry = zend_register_internal_class(&tmp_ce);
 	}
@@ -1018,7 +1018,7 @@ mysqlx_register_node_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysq
 
 	{
 		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeStatement", mysqlx_node_statement_methods);
+		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Statement", mysqlx_node_statement_methods);
 		tmp_ce.create_object = php_mysqlx_node_statement_object_allocator;
 		mysqlx_node_statement_class_entry = zend_register_internal_class(&tmp_ce);
 	}

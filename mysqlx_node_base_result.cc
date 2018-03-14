@@ -66,7 +66,7 @@ void
 mysqlx_register_node_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "NodeBaseResult", mysqlx_node_base_result_methods);
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "BaseResult", mysqlx_node_base_result_methods);
 	mysqlx_node_base_result_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
 /* }}} */

@@ -1,5 +1,5 @@
 --TEST--
-mysqlx NodeCollection
+mysqlx Collection
 --SKIPIF--
 --FILE--
 <?php
