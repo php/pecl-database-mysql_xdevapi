@@ -210,7 +210,7 @@ Array
 
     /*
                 The extension allows you to run SQL query from the script
-		with minimum effort, in order to do that a node session object
+		with minimum effort, in order to do that a session object
 		is required.
 
                 Let's use SQL to create two tables for our new products:

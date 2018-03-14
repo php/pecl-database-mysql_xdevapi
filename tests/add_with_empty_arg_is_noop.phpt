@@ -15,29 +15,29 @@ error_reporting=0
 		$schema->createCollection("test_collection");
 		$coll = $schema->getCollection("test_collection");
 
-		$node_result = $coll->add([])->execute();//Single noop
+		$result = $coll->add([])->execute();//Single noop
 
-		expect_false($node_result);
+		expect_false($result);
 
 		$res = $coll->find()->execute()->fetchAll();
 		expect_false($res);
 
-		$node_result = $coll->add(
+		$result = $coll->add(
 				[],
 				["_id" => "1", "name" => "Sakila", "age" => 18, "job" => "Student"],
 				[],
 				["_id" => "2", "name" => "Mike", "age" => 39, "job" => "Manager"]
 				)->execute(); //Mixed noop with valid docs
-		expect_eq($node_result->getAffectedItemsCount(), 2);
+		expect_eq($result->getAffectedItemsCount(), 2);
 
-		$node_result = $coll->add([])->execute();//Again noop
-		expect_false($node_result);
+		$result = $coll->add([])->execute();//Again noop
+		expect_false($result);
 
 		$res = $coll->find()->execute()->fetchAll();
 		expect_eq(count($res),2);
 
-		$node_result = $coll->add([],[],[])->execute(); //Perverted case...
-		expect_false($node_result);
+		$result = $coll->add([],[],[])->execute(); //Perverted case...
+		expect_false($result);
 		$res = $coll->find()->execute()->fetchAll();
 		expect_eq(count($res),2);
 
