@@ -219,7 +219,7 @@ xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt_result_free */
+/* {{{ xmysqlnd_stmt_result_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {

@@ -445,7 +445,7 @@ mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 		ZVAL_UNDEF(&stmt_zv);
 		mysqlx_new_sql_stmt(&stmt_zv, stmt, namespace_, query);
 		if (Z_TYPE(stmt_zv) == IS_NULL) {
-			xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
+			xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 		}
 		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 			zval zv;
@@ -538,7 +538,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query);
 			if (Z_TYPE_P(return_value) == IS_NULL) {
-				xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
+				xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 				mysqlx_throw_exception_from_session_if_needed(session->data);
 			}
 		}
@@ -982,7 +982,7 @@ php_mysqlx_session_object_allocator(zend_class_entry * class_type)
 	MYSQLND_ERROR_INFO* error_info{nullptr};
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	st_mysqlx_session* data_object = static_cast<st_mysqlx_session*>(mysqlx_object->ptr);
-	if (!(data_object->session = xmysqlnd_node_session_create(0, FALSE, factory, stats, error_info))) {
+	if (!(data_object->session = xmysqlnd_session_create(0, FALSE, factory, stats, error_info))) {
 		mnd_efree(data_object);
 		mnd_efree(mysqlx_object);
 		DBG_RETURN(nullptr);

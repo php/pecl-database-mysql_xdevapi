@@ -135,7 +135,7 @@ typedef const XMYSQLND_RESULT_FIELD_META * (*func_xmysqlnd_stmt_result_meta__get
 typedef void				(*func_xmysqlnd_stmt_result_meta__free_contents)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void				(*func_xmysqlnd_stmt_result_meta__dtor)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta)
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta)
 {
 	func_xmysqlnd_stmt_result_meta__init init;
 	func_xmysqlnd_stmt_result_meta__add_field add_field;
@@ -151,14 +151,14 @@ struct st_xmysqlnd_stmt_result_meta : public util::permanent_allocable
 	XMYSQLND_RESULT_FIELD_META ** fields;
 	unsigned int fields_size;
 
-	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta) * m;
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta) * m;
 	zend_bool		persistent;
 };
 
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt_result_meta);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT_RESULT_META * xmysqlnd_node_stmt_result_meta_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_stmt_result_meta_free(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_stmt_result_meta);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT_RESULT_META * xmysqlnd_stmt_result_meta_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_result_meta_free(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 

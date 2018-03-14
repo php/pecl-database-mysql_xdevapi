@@ -702,7 +702,7 @@ mysqlx_sql_statement_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->stmt) {
-			xmysqlnd_node_stmt_free(inner_obj->stmt, nullptr, nullptr);
+			xmysqlnd_stmt_free(inner_obj->stmt, nullptr, nullptr);
 			inner_obj->stmt = nullptr;
 		}
 		if (inner_obj->stmt_execute) {
@@ -907,7 +907,7 @@ void execute_new_statement_read_response(
 	ZVAL_UNDEF(&stmt_zv);
 	mysqlx_new_stmt(&stmt_zv, stmt);
 	if (Z_TYPE(stmt_zv) == IS_NULL) {
-		xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
+		xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 	} else if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 		zval zv;
 		ZVAL_UNDEF(&zv);

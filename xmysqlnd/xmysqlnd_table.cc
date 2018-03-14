@@ -35,16 +35,16 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_node_table::init */
+/* {{{ xmysqlnd_table::init */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_table, init)(XMYSQLND_NODE_TABLE * const table,
+XMYSQLND_METHOD(xmysqlnd_table, init)(XMYSQLND_NODE_TABLE * const table,
 										   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 										   XMYSQLND_NODE_SCHEMA * const schema,
 										   const MYSQLND_CSTRING table_name,
 										   MYSQLND_STATS * const stats,
 										   MYSQLND_ERROR_INFO * const error_info)
 {
-	DBG_ENTER("xmysqlnd_node_table::init");
+	DBG_ENTER("xmysqlnd_table::init");
 	if (!(table->data->schema = schema->data->m.get_reference(schema))) {
 		return FAIL;
 	}
@@ -150,14 +150,14 @@ table_or_view_exists_in_database_op(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_node_table::exists_in_database */
+/* {{{ xmysqlnd_table::exists_in_database */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database)(
+XMYSQLND_METHOD(xmysqlnd_table, exists_in_database)(
 	XMYSQLND_NODE_TABLE * const table,
 	struct st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
-	DBG_ENTER("xmysqlnd_node_table::exists_in_database");
+	DBG_ENTER("xmysqlnd_table::exists_in_database");
 	ZVAL_FALSE(exists);
 
 	enum_func_status ret;
@@ -223,14 +223,14 @@ check_is_view_op(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_node_table::is_view */
+/* {{{ xmysqlnd_table::is_view */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_table, is_view)(
+XMYSQLND_METHOD(xmysqlnd_table, is_view)(
 	XMYSQLND_NODE_TABLE* const table,
 	st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
-	DBG_ENTER("xmysqlnd_node_table::is_view");
+	DBG_ENTER("xmysqlnd_table::is_view");
 	ZVAL_FALSE(exists);
 
 	enum_func_status ret;
@@ -299,14 +299,14 @@ table_sql_single_result_op_on_row(
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table::count */
+/* {{{ xmysqlnd_table::count */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_table, count)(
+XMYSQLND_METHOD(xmysqlnd_table, count)(
 	XMYSQLND_NODE_TABLE * const table,
 	struct st_xmysqlnd_session_on_error_bind on_error,
 	zval* counter)
 {
-	DBG_ENTER("xmysqlnd_node_table::count");
+	DBG_ENTER("xmysqlnd_table::count");
 	ZVAL_LONG(counter, 0);
 
 	enum_func_status ret;
@@ -426,12 +426,12 @@ xmysqlnd_json_string_find_id(const MYSQLND_CSTRING json, int options, int depth,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table::insert */
+/* {{{ xmysqlnd_table::insert */
 XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op)
+XMYSQLND_METHOD(xmysqlnd_table, insert)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 {
 	XMYSQLND_NODE_STMT* ret{nullptr};
-	DBG_ENTER("xmysqlnd_node_table::opinsert");
+	DBG_ENTER("xmysqlnd_table::opinsert");
 	if (!op || FAIL == xmysqlnd_crud_table_insert__finalize_bind(op))
 	{
 		DBG_RETURN(ret);
@@ -458,12 +458,12 @@ XMYSQLND_METHOD(xmysqlnd_node_table, insert)(XMYSQLND_NODE_TABLE * const table, 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table::opdelete */
+/* {{{ xmysqlnd_table::opdelete */
 XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op)
+XMYSQLND_METHOD(xmysqlnd_table, opdelete)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 {
 	XMYSQLND_NODE_STMT* ret{nullptr};
-	DBG_ENTER("xmysqlnd_node_table::opdelete");
+	DBG_ENTER("xmysqlnd_table::opdelete");
 	if (!op || FAIL == xmysqlnd_crud_table_delete__finalize_bind(op))
 	{
 		DBG_RETURN(ret);
@@ -489,12 +489,12 @@ XMYSQLND_METHOD(xmysqlnd_node_table, opdelete)(XMYSQLND_NODE_TABLE * const table
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table::update */
+/* {{{ xmysqlnd_table::update */
 XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
+XMYSQLND_METHOD(xmysqlnd_table, update)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 {
 	XMYSQLND_NODE_STMT* ret{nullptr};
-	DBG_ENTER("xmysqlnd_node_table::update");
+	DBG_ENTER("xmysqlnd_table::update");
 	if (!op || FAIL == xmysqlnd_crud_table_update__finalize_bind(op))
 	{
 		DBG_RETURN(ret);
@@ -520,12 +520,12 @@ XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table::select */
+/* {{{ xmysqlnd_table::select */
 st_xmysqlnd_stmt *
-XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__SELECT * op)
+XMYSQLND_METHOD(xmysqlnd_table, select)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 {
 	XMYSQLND_NODE_STMT* stmt{nullptr};
-	DBG_ENTER("xmysqlnd_node_table::select");
+	DBG_ENTER("xmysqlnd_table::select");
 	if (!op || FAIL == xmysqlnd_crud_table_select__finalize_bind(op))
 	{
 		DBG_RETURN(stmt);
@@ -536,7 +536,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, 
 		stmt = session->m->create_statement_object(session);
 		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op), session->data->stats, session->data->error_info))
 		{
-			xmysqlnd_node_stmt_free(stmt, session->data->stats, session->data->error_info);
+			xmysqlnd_stmt_free(stmt, session->data->stats, session->data->error_info);
 			stmt = nullptr;
 		}
 	}
@@ -544,11 +544,11 @@ XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, 
 }
 /* }}} */
 
-/* {{{ xmysqlnd_node_table::get_reference */
+/* {{{ xmysqlnd_table::get_reference */
 XMYSQLND_NODE_TABLE *
-XMYSQLND_METHOD(xmysqlnd_node_table, get_reference)(XMYSQLND_NODE_TABLE * const table)
+XMYSQLND_METHOD(xmysqlnd_table, get_reference)(XMYSQLND_NODE_TABLE * const table)
 {
-	DBG_ENTER("xmysqlnd_node_table::get_reference");
+	DBG_ENTER("xmysqlnd_table::get_reference");
 	++table->data->refcount;
 	DBG_INF_FMT("table=%p new_refcount=%u", table, table->data->refcount);
 	DBG_RETURN(table);
@@ -556,12 +556,12 @@ XMYSQLND_METHOD(xmysqlnd_node_table, get_reference)(XMYSQLND_NODE_TABLE * const 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table::free_reference */
+/* {{{ xmysqlnd_table::free_reference */
 enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_table, free_reference)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_table, free_reference)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	enum_func_status ret{PASS};
-	DBG_ENTER("xmysqlnd_node_table::free_reference");
+	DBG_ENTER("xmysqlnd_table::free_reference");
 	DBG_INF_FMT("table=%p old_refcount=%u", table, table->data->refcount);
 	if (!(--table->data->refcount)) {
 		table->data->m.dtor(table, stats, error_info);
@@ -571,12 +571,12 @@ XMYSQLND_METHOD(xmysqlnd_node_table, free_reference)(XMYSQLND_NODE_TABLE * const
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table::free_contents */
+/* {{{ xmysqlnd_table::free_contents */
 void
-XMYSQLND_METHOD(xmysqlnd_node_table, free_contents)(XMYSQLND_NODE_TABLE * const table)
+XMYSQLND_METHOD(xmysqlnd_table, free_contents)(XMYSQLND_NODE_TABLE * const table)
 {
 	const zend_bool pers = table->data->persistent;
-	DBG_ENTER("xmysqlnd_node_table::free_contents");
+	DBG_ENTER("xmysqlnd_table::free_contents");
 	if (table->data->table_name.s) {
 		mnd_pefree(table->data->table_name.s, pers);
 		table->data->table_name.s = nullptr;
@@ -586,15 +586,15 @@ XMYSQLND_METHOD(xmysqlnd_node_table, free_contents)(XMYSQLND_NODE_TABLE * const 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table::dtor */
+/* {{{ xmysqlnd_table::dtor */
 void
-XMYSQLND_METHOD(xmysqlnd_node_table, dtor)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_table, dtor)(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_table::dtor");
+	DBG_ENTER("xmysqlnd_table::dtor");
 	if (table) {
 		table->data->m.free_contents(table);
 
-		xmysqlnd_node_schema_free(table->data->schema, stats, error_info);
+		xmysqlnd_schema_free(table->data->schema, stats, error_info);
 
 		mnd_pefree(table->data, table->data->persistent);
 		mnd_pefree(table, table->persistent);
@@ -604,31 +604,31 @@ XMYSQLND_METHOD(xmysqlnd_node_table, dtor)(XMYSQLND_NODE_TABLE * const table, MY
 /* }}} */
 
 
-MYSQLND_CLASS_METHODS_START(xmysqlnd_node_table)
-	XMYSQLND_METHOD(xmysqlnd_node_table, init),
-	XMYSQLND_METHOD(xmysqlnd_node_table, exists_in_database),
-	XMYSQLND_METHOD(xmysqlnd_node_table, is_view),
-	XMYSQLND_METHOD(xmysqlnd_node_table, count),
+MYSQLND_CLASS_METHODS_START(xmysqlnd_table)
+	XMYSQLND_METHOD(xmysqlnd_table, init),
+	XMYSQLND_METHOD(xmysqlnd_table, exists_in_database),
+	XMYSQLND_METHOD(xmysqlnd_table, is_view),
+	XMYSQLND_METHOD(xmysqlnd_table, count),
 
-	XMYSQLND_METHOD(xmysqlnd_node_table, insert),
-	XMYSQLND_METHOD(xmysqlnd_node_table, opdelete),
-	XMYSQLND_METHOD(xmysqlnd_node_table, update),
-	XMYSQLND_METHOD(xmysqlnd_node_table, select),
+	XMYSQLND_METHOD(xmysqlnd_table, insert),
+	XMYSQLND_METHOD(xmysqlnd_table, opdelete),
+	XMYSQLND_METHOD(xmysqlnd_table, update),
+	XMYSQLND_METHOD(xmysqlnd_table, select),
 
-	XMYSQLND_METHOD(xmysqlnd_node_table, get_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_table, free_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_table, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_node_table, dtor),
+	XMYSQLND_METHOD(xmysqlnd_table, get_reference),
+	XMYSQLND_METHOD(xmysqlnd_table, free_reference),
+	XMYSQLND_METHOD(xmysqlnd_table, free_contents),
+	XMYSQLND_METHOD(xmysqlnd_table, dtor),
 MYSQLND_CLASS_METHODS_END;
 
 } // anonymouse namespace
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_table);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_table);
 
 
-/* {{{ xmysqlnd_node_table_create */
+/* {{{ xmysqlnd_table_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_TABLE *
-xmysqlnd_node_table_create(XMYSQLND_NODE_SCHEMA * schema,
+xmysqlnd_table_create(XMYSQLND_NODE_SCHEMA * schema,
 						   const MYSQLND_CSTRING table_name,
 						   const zend_bool persistent,
 						   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -636,7 +636,7 @@ xmysqlnd_node_table_create(XMYSQLND_NODE_SCHEMA * schema,
 						   MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_NODE_TABLE* ret{nullptr};
-	DBG_ENTER("xmysqlnd_node_table_create");
+	DBG_ENTER("xmysqlnd_table_create");
 	if (table_name.s && table_name.l) {
 		ret = object_factory->get_node_table(object_factory, schema, table_name, persistent, stats, error_info);
 		if (ret) {
@@ -648,11 +648,11 @@ xmysqlnd_node_table_create(XMYSQLND_NODE_SCHEMA * schema,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_table_free */
+/* {{{ xmysqlnd_table_free */
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_node_table_free(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_table_free(XMYSQLND_NODE_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_table_free");
+	DBG_ENTER("xmysqlnd_table_free");
 	DBG_INF_FMT("table=%p  table->data=%p  dtor=%p", table, table? table->data:nullptr, table? table->data->m.dtor:nullptr);
 	if (table) {
 		table->data->m.free_reference(table, stats, error_info);

@@ -41,7 +41,7 @@ struct st_xmysqlnd_stmt;
 struct st_xmysqlnd_schema;
 struct st_xmysqlnd_stmt_op__execute;
 
-//PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_module_init();
+//PHP_MYSQL_XDEVAPI_API void xmysqlnd_session_module_init();
 
 /* XMYSQLND_SESSION_DATA::client_capabilities */
 #define XMYSQLND_CLIENT_NO_FLAG	0
@@ -532,13 +532,13 @@ struct st_xmysqlnd_session : public util::permanent_allocable
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_session_data);
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_session);
 
-PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION xmysqlnd_node_session_create(const size_t client_flags,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION xmysqlnd_session_create(const size_t client_flags,
 																const zend_bool persistent,
 																const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 																MYSQLND_STATS * stats,
 																MYSQLND_ERROR_INFO * error_info);
 
-PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string, zval * return_value);
+PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(const char* uri_string, zval * return_value);
 
 extern const MYSQLND_CSTRING namespace_mysqlx;
 extern const MYSQLND_CSTRING namespace_sql;

@@ -302,7 +302,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, attach_meta)(XMYSQLND_ROWSET_BUFFERED 
 	DBG_ENTER("xmysqlnd_rowset_buffered::attach_meta");
 	if (meta) {
 		if (result->meta) {
-			xmysqlnd_node_stmt_result_meta_free(result->meta, stats, error_info);
+			xmysqlnd_stmt_result_meta_free(result->meta, stats, error_info);
 		}
 		result->meta = meta;
 	}

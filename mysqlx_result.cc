@@ -288,7 +288,7 @@ mysqlx_result_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->result) {
-			xmysqlnd_node_stmt_result_free(inner_obj->result, nullptr, nullptr);
+			xmysqlnd_stmt_result_free(inner_obj->result, nullptr, nullptr);
 		}
 		mnd_efree(inner_obj);
 	}

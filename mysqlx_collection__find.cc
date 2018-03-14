@@ -128,7 +128,7 @@ Collection_find::~Collection_find()
 	}
 
 	if (collection) {
-		xmysqlnd_node_collection_free(collection, nullptr, nullptr);
+		xmysqlnd_collection_free(collection, nullptr, nullptr);
 	}
 }
 /* }}} */
@@ -446,7 +446,7 @@ void Collection_find::execute(
 				ZVAL_UNDEF(&stmt_zv);
 				mysqlx_new_stmt(&stmt_zv, stmt);
 				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
+					xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 				}
 				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 					zval zv;

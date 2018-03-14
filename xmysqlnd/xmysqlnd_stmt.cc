@@ -36,15 +36,15 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_node_stmt::init */
+/* {{{ xmysqlnd_stmt::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
+XMYSQLND_METHOD(xmysqlnd_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 										  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 										  XMYSQLND_SESSION session,
 										  MYSQLND_STATS * const stats,
 										  MYSQLND_ERROR_INFO * const error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt::init");
+	DBG_ENTER("xmysqlnd_stmt::init");
 	stmt->data->session = session;
 	stmt->data->object_factory = object_factory;
 
@@ -53,9 +53,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, init)(XMYSQLND_NODE_STMT * const stmt,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::send_raw_message */
+/* {{{ xmysqlnd_stmt::send_raw_message */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, send_raw_message)(XMYSQLND_NODE_STMT * const stmt,
+XMYSQLND_METHOD(xmysqlnd_stmt, send_raw_message)(XMYSQLND_NODE_STMT * const stmt,
 													  const struct st_xmysqlnd_pb_message_shell message_shell,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info)
@@ -66,7 +66,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_raw_message)(XMYSQLND_NODE_STMT * const
 	/* pass stmt->data->session->data->io directly ?*/
 	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
 	enum_func_status ret{FAIL};
-	DBG_ENTER("xmysqlnd_node_stmt::send_raw_message");
+	DBG_ENTER("xmysqlnd_stmt::send_raw_message");
 
 	stmt->data->partial_read_started = FALSE;
 	stmt->data->msg_stmt_exec = msg_factory.get__collection_read(&msg_factory);
@@ -80,61 +80,61 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, send_raw_message)(XMYSQLND_NODE_STMT * const
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::create_rowset_fwd */
+/* {{{ xmysqlnd_stmt::create_rowset_fwd */
 static XMYSQLND_ROWSET *
-XMYSQLND_METHOD(xmysqlnd_node_stmt, create_rowset_fwd)(void * context)
+XMYSQLND_METHOD(xmysqlnd_stmt, create_rowset_fwd)(void * context)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
 	XMYSQLND_ROWSET * result;
-	DBG_ENTER("xmysqlnd_node_stmt::create_rowset_fwd");
+	DBG_ENTER("xmysqlnd_stmt::create_rowset_fwd");
 	result = xmysqlnd_rowset_create(XMYSQLND_TYPE_ROWSET_FWD_ONLY, ctx->fwd_prefetch_count, ctx->stmt, ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
 	DBG_RETURN(result);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::create_rowset_buffered */
+/* {{{ xmysqlnd_stmt::create_rowset_buffered */
 static XMYSQLND_ROWSET *
-XMYSQLND_METHOD(xmysqlnd_node_stmt, create_rowset_buffered)(void * context)
+XMYSQLND_METHOD(xmysqlnd_stmt, create_rowset_buffered)(void * context)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
 	XMYSQLND_ROWSET * result;
-	DBG_ENTER("xmysqlnd_node_stmt::create_rowset_buffered");
+	DBG_ENTER("xmysqlnd_stmt::create_rowset_buffered");
 	result = xmysqlnd_rowset_create(XMYSQLND_TYPE_ROWSET_BUFFERED, (size_t)~0, ctx->stmt, ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
 	DBG_RETURN(result);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::create_meta */
+/* {{{ xmysqlnd_stmt::create_meta */
 static XMYSQLND_NODE_STMT_RESULT_META *
-XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta)(void * context)
+XMYSQLND_METHOD(xmysqlnd_stmt, create_meta)(void * context)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
 	XMYSQLND_NODE_STMT_RESULT_META * meta;
-	DBG_ENTER("xmysqlnd_node_stmt::create_meta");
-	meta = xmysqlnd_node_stmt_result_meta_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
+	DBG_ENTER("xmysqlnd_stmt::create_meta");
+	meta = xmysqlnd_stmt_result_meta_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
 	DBG_RETURN(meta);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::create_meta_field */
+/* {{{ xmysqlnd_stmt::create_meta_field */
 static XMYSQLND_RESULT_FIELD_META *
-XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta_field)(void * context)
+XMYSQLND_METHOD(xmysqlnd_stmt, create_meta_field)(void * context)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
 	XMYSQLND_RESULT_FIELD_META * field;
-	DBG_ENTER("xmysqlnd_node_stmt::create_meta_field");
+	DBG_ENTER("xmysqlnd_stmt::create_meta_field");
 	field = xmysqlnd_result_field_meta_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
 	DBG_RETURN(field);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_meta_field */
+/* {{{ xmysqlnd_stmt::handler_on_meta_field */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field)(void * context,
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_row_field)(void * context,
 														  const MYSQLND_CSTRING buffer,
 														  const unsigned int idx,
 														  const func_xmysqlnd_wireprotocol__row_field_decoder decoder)
@@ -142,7 +142,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field)(void * context,
 	st_xmysqlnd_stmt_bind_ctx* const ctx = (st_xmysqlnd_stmt_bind_ctx*) context;
 	enum_hnd_func_status ret{HND_AGAIN};
 
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_row_field");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_row_field");
 	DBG_INF_FMT("rowset=%p  meta=%p  on_row.handler=%p", ctx->rowset, ctx->meta, ctx->on_row.handler);
 	if (!ctx->rowset && ctx->meta) {
 		ctx->rowset = ctx->create_rowset(ctx);
@@ -177,17 +177,17 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field)(void * context,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_meta_field */
+/* {{{ xmysqlnd_stmt::handler_on_meta_field */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_meta_field)(void * context, st_xmysqlnd_result_field_meta* field)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_meta_field)(void * context, st_xmysqlnd_result_field_meta* field)
 {
 	st_xmysqlnd_stmt_bind_ctx* const ctx = (st_xmysqlnd_stmt_bind_ctx*) context;
 	enum_hnd_func_status ret{HND_AGAIN};
 
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_meta_field");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_meta_field");
 	DBG_INF_FMT("rowset=%p  meta=%p", ctx->rowset, ctx->meta);
 	if (!ctx->meta) {
-		ctx->meta = xmysqlnd_node_stmt_result_meta_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
+		ctx->meta = xmysqlnd_stmt_result_meta_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
 	}
 	if (ctx->meta) {
 		ctx->meta->m->add_field(ctx->meta, field, ctx->stats, ctx->error_info);
@@ -198,14 +198,14 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_meta_field)(void * context, st_xm
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_warning */
+/* {{{ xmysqlnd_stmt::handler_on_warning */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_warning)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	st_xmysqlnd_stmt_bind_ctx* const ctx = (st_xmysqlnd_stmt_bind_ctx*) context;
 	enum_hnd_func_status ret{HND_AGAIN};
 
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_warning");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_warning");
 	if (ctx->on_warning.handler) {
 		ret = ctx->on_warning.handler(ctx->on_warning.ctx, ctx->stmt, level, code, message);
 	}
@@ -220,13 +220,13 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning)(void * context, const en
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_error */
+/* {{{ xmysqlnd_stmt::handler_on_error */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
 	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_error");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_error");
 	if (ctx->on_error.handler) {
 		ret = ctx->on_error.handler(ctx->on_error.ctx, ctx->stmt, code, sql_state, message);
 	} else if (ctx->error_info) {
@@ -237,14 +237,14 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error)(void * context, const unsi
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_exec_state_change */
+/* {{{ xmysqlnd_stmt::handler_on_exec_state_change */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_exec_state_change)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_exec_state_change)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value)
 {
 	st_xmysqlnd_stmt_bind_ctx* const ctx = (st_xmysqlnd_stmt_bind_ctx*) context;
 	enum_hnd_func_status ret{HND_AGAIN};
 
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_exec_state_change");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_exec_state_change");
 	if (!ctx->exec_state) {
 		ctx->exec_state = xmysqlnd_stmt_execution_state_create(ctx->stmt->persistent, ctx->stmt->data->object_factory, ctx->stats, ctx->error_info);
 	}
@@ -272,42 +272,42 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_exec_state_change)(void * context
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_generated_doc_ids */
+/* {{{ xmysqlnd_stmt::handler_on_generated_doc_ids */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_generated_doc_ids)(void * context, const MYSQLND_STRING id)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_generated_doc_ids)(void * context, const MYSQLND_STRING id)
 {
 	st_xmysqlnd_stmt_bind_ctx* const ctx = static_cast<st_xmysqlnd_stmt_bind_ctx*>( context );
 	enum_hnd_func_status ret{HND_AGAIN};
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_generated_doc_ids");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_generated_doc_ids");
 	ctx->exec_state->m->add_generated_doc_id(ctx->exec_state, id);
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_trx_state_change */
+/* {{{ xmysqlnd_stmt::handler_on_trx_state_change */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_trx_state_change)(void * context, const enum xmysqlnd_transaction_state_type type)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_trx_state_change)(void * context, const enum xmysqlnd_transaction_state_type type)
 {
 #if 0
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
 #endif
 	const enum_hnd_func_status ret = HND_AGAIN;
 
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_trx_state_change");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_trx_state_change");
 	DBG_INF_FMT("type=%s", type == TRX_STATE_COMMITTED? "COMMITTED":(type == TRX_STATE_ROLLEDBACK? "ROLLED BACK":"n/a"));
 	DBG_RETURN(ret);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_resultset_end */
+/* {{{ xmysqlnd_stmt::handler_on_resultset_end */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_resultset_end)(void * context, const zend_bool has_more)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_resultset_end)(void * context, const zend_bool has_more)
 {
 	enum_hnd_func_status ret{HND_AGAIN};
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_resultset_end");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_resultset_end");
 	DBG_INF_FMT("on_resultset_end.handler=%p", ctx->on_resultset_end.handler);
 	if (ctx->on_resultset_end.handler) {
 		ret = ctx->on_resultset_end.handler(ctx->on_resultset_end.ctx, ctx->stmt, has_more);
@@ -317,13 +317,13 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_resultset_end)(void * context, co
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_statement_ok */
+/* {{{ xmysqlnd_stmt::handler_on_statement_ok */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_statement_ok)(void * context)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_statement_ok)(void * context)
 {
 	enum_hnd_func_status ret{HND_PASS};
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_statement_ok");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_statement_ok");
 	DBG_INF_FMT("on_statement_ok.handler=%p", ctx->on_statement_ok.handler);
 	if (ctx->on_statement_ok.handler) {
 		ret = ctx->on_statement_ok.handler(ctx->on_row.ctx, ctx->stmt, ctx->exec_state);
@@ -334,9 +334,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_statement_ok)(void * context)
 
 
 
-/* {{{ xmysqlnd_node_stmt::read_one_result */
+/* {{{ xmysqlnd_stmt::read_one_result */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const stmt,
+XMYSQLND_METHOD(xmysqlnd_stmt, read_one_result)(XMYSQLND_NODE_STMT * const stmt,
 													 const struct st_xmysqlnd_stmt_on_row_bind on_row,
 													 const struct st_xmysqlnd_stmt_on_warning_bind on_warning,
 													 const struct st_xmysqlnd_stmt_on_error_bind on_error,
@@ -378,7 +378,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 	const struct st_xmysqlnd_on_stmt_execute_ok_bind handler_on_stmt_execute_ok = { on_resultset_end.handler? stmt->data->m.handler_on_statement_ok : nullptr, &create_ctx };
 	const struct st_xmysqlnd_on_resultset_end_bind handler_on_resultset_end = { on_statement_ok.handler? stmt->data->m.handler_on_resultset_end : nullptr, &create_ctx };
 
-	DBG_ENTER("xmysqlnd_node_stmt::read_one_result");
+	DBG_ENTER("xmysqlnd_stmt::read_one_result");
 	DBG_INF_FMT("on_row.handler=%p", on_row.handler);
 	DBG_INF_FMT("on_warning.handler=%p", on_warning.handler);
 	DBG_INF_FMT("on_error.handler=%p", on_error.handler);
@@ -418,7 +418,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 		create_ctx.rowset = nullptr;
 	}
 	if (create_ctx.meta) {
-		xmysqlnd_node_stmt_result_meta_free(create_ctx.meta, stats, error_info);
+		xmysqlnd_stmt_result_meta_free(create_ctx.meta, stats, error_info);
 		create_ctx.meta = nullptr;
 	}
 	if (create_ctx.exec_state) {
@@ -434,9 +434,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result)(XMYSQLND_NODE_STMT * const 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::read_all_results */
+/* {{{ xmysqlnd_stmt::read_all_results */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const stmt,
+XMYSQLND_METHOD(xmysqlnd_stmt, read_all_results)(XMYSQLND_NODE_STMT * const stmt,
 													  const struct st_xmysqlnd_stmt_on_row_bind on_row,
 													  const struct st_xmysqlnd_stmt_on_warning_bind on_warning,
 													  const struct st_xmysqlnd_stmt_on_error_bind on_error,
@@ -448,7 +448,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const
 {
 	enum_func_status ret{FAIL};
 	zend_bool has_more;
-	DBG_ENTER("xmysqlnd_node_stmt::read_all_results");
+	DBG_ENTER("xmysqlnd_stmt::read_all_results");
 	do {
 		has_more = FALSE;
 		if (on_result_start.handler) {
@@ -469,20 +469,20 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results)(XMYSQLND_NODE_STMT * const
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::has_more_results */
+/* {{{ xmysqlnd_stmt::has_more_results */
 static zend_bool
-XMYSQLND_METHOD(xmysqlnd_node_stmt, has_more_results)(const XMYSQLND_NODE_STMT * const stmt)
+XMYSQLND_METHOD(xmysqlnd_stmt, has_more_results)(const XMYSQLND_NODE_STMT * const stmt)
 {
-	DBG_ENTER("xmysqlnd_node_stmt::has_more_results");
+	DBG_ENTER("xmysqlnd_stmt::has_more_results");
 	DBG_INF_FMT("has_more=%s", stmt->data->msg_stmt_exec.reader_ctx.has_more_results? "TRUE":"FALSE");
 	DBG_RETURN(stmt->data->msg_stmt_exec.reader_ctx.has_more_results);
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::get_buffered_result */
+/* {{{ xmysqlnd_stmt::get_buffered_result */
 static XMYSQLND_NODE_STMT_RESULT *
-XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * const stmt,
+XMYSQLND_METHOD(xmysqlnd_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * const stmt,
 														 zend_bool * const has_more_results,
 														 const struct st_xmysqlnd_stmt_on_warning_bind handler_on_warning,
 														 const struct st_xmysqlnd_stmt_on_error_bind handler_on_error,
@@ -530,7 +530,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 		stmt->data->m.handler_on_trx_state_change, &create_ctx };
 	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
-	DBG_ENTER("xmysqlnd_node_stmt::get_buffered_result");
+	DBG_ENTER("xmysqlnd_stmt::get_buffered_result");
 
 	/*
 	  Maybe we can inject a callbacks that creates `meta` on demand, but we still DI it.
@@ -560,7 +560,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 	DBG_INF_FMT("exec_state =%p", create_ctx.exec_state);
 	DBG_INF_FMT("warnings   =%p", create_ctx.warnings);
 
-	result = xmysqlnd_node_stmt_result_create(stmt->data->persistent, stmt->data->object_factory, stats, error_info);
+	result = xmysqlnd_stmt_result_create(stmt->data->persistent, stmt->data->object_factory, stats, error_info);
 	if (result) {
 		result->m.attach_rowset(result, create_ctx.rowset, stats, error_info);
 		result->m.attach_meta(result, create_ctx.meta, stats, error_info);
@@ -572,7 +572,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 			create_ctx.rowset = nullptr;
 		}
 		if (create_ctx.meta) {
-			xmysqlnd_node_stmt_result_meta_free(create_ctx.meta, stats, error_info);
+			xmysqlnd_stmt_result_meta_free(create_ctx.meta, stats, error_info);
 			create_ctx.meta = nullptr;
 		}
 		if (create_ctx.exec_state) {
@@ -589,9 +589,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result)(XMYSQLND_NODE_STMT * co
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::get_fwd_result */
+/* {{{ xmysqlnd_stmt::get_fwd_result */
 static XMYSQLND_NODE_STMT_RESULT *
-XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const stmt,
+XMYSQLND_METHOD(xmysqlnd_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const stmt,
 													const size_t rows,
 													zend_bool * const has_more_rows_in_set,
 													zend_bool * const has_more_results,
@@ -612,7 +612,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
-	DBG_ENTER("xmysqlnd_node_stmt::get_fwd_result");
+	DBG_ENTER("xmysqlnd_stmt::get_fwd_result");
 	DBG_INF_FMT("rows=" MYSQLND_LLU_SPEC, rows);
 
 	if (FALSE == stmt->data->partial_read_started) {
@@ -623,7 +623,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 		stmt->data->read_ctx.current_row = nullptr;
 		stmt->data->read_ctx.rowset = nullptr;
 		stmt->data->read_ctx.meta = nullptr;
-		stmt->data->read_ctx.result = xmysqlnd_node_stmt_result_create(stmt->data->persistent, stmt->data->object_factory, stats, error_info);
+		stmt->data->read_ctx.result = xmysqlnd_stmt_result_create(stmt->data->persistent, stmt->data->object_factory, stats, error_info);
 		stmt->data->read_ctx.warnings = xmysqlnd_warning_list_create(stmt->persistent, stmt->data->object_factory, stats, error_info);
 		stmt->data->read_ctx.exec_state = xmysqlnd_stmt_execution_state_create(stmt->persistent, stmt->data->object_factory, stats, error_info);
 		stmt->data->read_ctx.on_warning = handler_on_warning;
@@ -648,7 +648,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 														on_stmt_execute_ok,
 														on_resultset_end))
 		{
-			xmysqlnd_node_stmt_result_free(stmt->data->read_ctx.result, stats, error_info);
+			xmysqlnd_stmt_result_free(stmt->data->read_ctx.result, stats, error_info);
 			DBG_RETURN(nullptr);
 		}
 		stmt->data->partial_read_started = TRUE;
@@ -684,9 +684,9 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result)(XMYSQLND_NODE_STMT * const s
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::skip_one_result */
+/* {{{ xmysqlnd_stmt::skip_one_result */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	struct st_xmysqlnd_stmt_bind_ctx create_ctx = { stmt, stats, error_info };
 	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { nullptr, nullptr };
@@ -701,7 +701,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const 
 	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
 
-	DBG_ENTER("xmysqlnd_node_stmt::skip_one_result");
+	DBG_ENTER("xmysqlnd_stmt::skip_one_result");
 	if (FAIL == stmt->data->msg_stmt_exec.init_read(&stmt->data->msg_stmt_exec,
 													create_meta_field,
 													on_row_field,
@@ -734,13 +734,13 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result)(XMYSQLND_NODE_STMT * const 
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::skip_all_results */
+/* {{{ xmysqlnd_stmt::skip_all_results */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_all_results)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt, skip_all_results)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	enum_func_status ret;
 	zend_bool has_more;
-	DBG_ENTER("xmysqlnd_node_stmt::skip_all_results");
+	DBG_ENTER("xmysqlnd_stmt::skip_all_results");
 	do {
 		ret = stmt->data->m.skip_one_result(stmt, &has_more, stats, error_info);
 	} while (PASS == ret && has_more == TRUE);
@@ -749,11 +749,11 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_all_results)(XMYSQLND_NODE_STMT * const
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::get_reference */
+/* {{{ xmysqlnd_stmt::get_reference */
 static XMYSQLND_NODE_STMT *
-XMYSQLND_METHOD(xmysqlnd_node_stmt, get_reference)(XMYSQLND_NODE_STMT * const stmt)
+XMYSQLND_METHOD(xmysqlnd_stmt, get_reference)(XMYSQLND_NODE_STMT * const stmt)
 {
-	DBG_ENTER("xmysqlnd_node_stmt::get_reference");
+	DBG_ENTER("xmysqlnd_stmt::get_reference");
 	++stmt->data->refcount;
 	DBG_INF_FMT("stmt=%p new_refcount=%u", stmt, stmt->data->refcount);
 	DBG_RETURN(stmt);
@@ -761,12 +761,12 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, get_reference)(XMYSQLND_NODE_STMT * const st
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::free_reference */
+/* {{{ xmysqlnd_stmt::free_reference */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt, free_reference)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	enum_func_status ret{PASS};
-	DBG_ENTER("xmysqlnd_node_stmt::free_reference");
+	DBG_ENTER("xmysqlnd_stmt::free_reference");
 	DBG_INF_FMT("stmt=%p old_refcount=%u", stmt, stmt->data->refcount);
 	if (!(--stmt->data->refcount)) {
 		stmt->data->m.dtor(stmt, stats, error_info);
@@ -776,21 +776,21 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference)(XMYSQLND_NODE_STMT * const s
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::free_contents */
+/* {{{ xmysqlnd_stmt::free_contents */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt, free_contents)(XMYSQLND_NODE_STMT * const stmt)
+XMYSQLND_METHOD(xmysqlnd_stmt, free_contents)(XMYSQLND_NODE_STMT * const stmt)
 {
-	DBG_ENTER("xmysqlnd_node_stmt::free_contents");
+	DBG_ENTER("xmysqlnd_stmt::free_contents");
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::dtor */
+/* {{{ xmysqlnd_stmt::dtor */
 static void
-XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt::dtor");
+	DBG_ENTER("xmysqlnd_stmt::dtor");
 	if (stmt) {
 		stmt->data->m.free_contents(stmt);
 		stmt->data->session.~shared_ptr();
@@ -802,52 +802,52 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQL
 /* }}} */
 
 static
-MYSQLND_CLASS_METHODS_START(xmysqlnd_node_stmt)
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, init),
+MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt)
+	XMYSQLND_METHOD(xmysqlnd_stmt, init),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, send_raw_message),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_one_result),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, read_all_results),
+	XMYSQLND_METHOD(xmysqlnd_stmt, send_raw_message),
+	XMYSQLND_METHOD(xmysqlnd_stmt, read_one_result),
+	XMYSQLND_METHOD(xmysqlnd_stmt, read_all_results),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, has_more_results),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, get_buffered_result),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, get_fwd_result),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_one_result),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, skip_all_results),
+	XMYSQLND_METHOD(xmysqlnd_stmt, has_more_results),
+	XMYSQLND_METHOD(xmysqlnd_stmt, get_buffered_result),
+	XMYSQLND_METHOD(xmysqlnd_stmt, get_fwd_result),
+	XMYSQLND_METHOD(xmysqlnd_stmt, skip_one_result),
+	XMYSQLND_METHOD(xmysqlnd_stmt, skip_all_results),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, create_rowset_fwd),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, create_rowset_buffered),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, create_meta_field),
+	XMYSQLND_METHOD(xmysqlnd_stmt, create_rowset_fwd),
+	XMYSQLND_METHOD(xmysqlnd_stmt, create_rowset_buffered),
+	XMYSQLND_METHOD(xmysqlnd_stmt, create_meta),
+	XMYSQLND_METHOD(xmysqlnd_stmt, create_meta_field),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_row_field),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_meta_field),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_warning),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_error),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_generated_doc_ids),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_exec_state_change),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_trx_state_change),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_statement_ok),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, handler_on_resultset_end),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_row_field),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_meta_field),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_warning),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_error),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_generated_doc_ids),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_exec_state_change),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_trx_state_change),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_statement_ok),
+	XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_resultset_end),
 
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, get_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, free_reference),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_node_stmt, dtor),
+	XMYSQLND_METHOD(xmysqlnd_stmt, get_reference),
+	XMYSQLND_METHOD(xmysqlnd_stmt, free_reference),
+	XMYSQLND_METHOD(xmysqlnd_stmt, free_contents),
+	XMYSQLND_METHOD(xmysqlnd_stmt, dtor),
 MYSQLND_CLASS_METHODS_END;
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_node_stmt);
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_stmt);
 
-/* {{{ xmysqlnd_node_stmt_create */
+/* {{{ xmysqlnd_stmt_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT *
-xmysqlnd_node_stmt_create(XMYSQLND_SESSION session,
+xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 						  MYSQLND_STATS * const stats,
 						  MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_NODE_STMT* stmt{nullptr};
-	DBG_ENTER("xmysqlnd_node_stmt_create");
+	DBG_ENTER("xmysqlnd_stmt_create");
 	stmt = object_factory->get_node_stmt(object_factory, session, persistent, stats, error_info);
 	if (stmt) {
 		stmt = stmt->data->m.get_reference(stmt);
@@ -857,11 +857,11 @@ xmysqlnd_node_stmt_create(XMYSQLND_SESSION session,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt_free */
+/* {{{ xmysqlnd_stmt_free */
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_stmt_free(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_stmt_free");
+	DBG_ENTER("xmysqlnd_stmt_free");
 	DBG_INF_FMT("stmt=%p  stmt->data=%p  dtor=%p", stmt, stmt? stmt->data:nullptr, stmt? stmt->data->m.dtor:nullptr);
 	if (stmt) {
 		if (!stats) {

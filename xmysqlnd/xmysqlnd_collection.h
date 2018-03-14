@@ -52,7 +52,7 @@ typedef enum_func_status		(*func_xmysqlnd_collection__free_reference)(XMYSQLND_N
 typedef void					(*func_xmysqlnd_collection__free_contents)(XMYSQLND_NODE_COLLECTION * const collection);
 typedef void					(*func_xmysqlnd_collection__dtor)(XMYSQLND_NODE_COLLECTION * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection)
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_collection)
 {
 	func_xmysqlnd_collection__init init;
 
@@ -80,7 +80,7 @@ struct st_xmysqlnd_collection_data : public util::permanent_allocable
 	unsigned int	refcount;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection) m;
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_collection) m;
 
 };
 
@@ -93,15 +93,15 @@ struct st_xmysqlnd_collection : public util::permanent_allocable
 };
 
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_collection);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_COLLECTION * xmysqlnd_node_collection_create(st_xmysqlnd_schema* schema,
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_collection);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_COLLECTION * xmysqlnd_collection_create(st_xmysqlnd_schema* schema,
 																  const MYSQLND_CSTRING collection_name,
 																  const zend_bool persistent,
 																  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 																  MYSQLND_STATS * const stats,
 																  MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_collection_free(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_collection_free(XMYSQLND_NODE_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 

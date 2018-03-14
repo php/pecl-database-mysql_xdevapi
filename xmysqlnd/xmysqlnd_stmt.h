@@ -152,7 +152,7 @@ typedef enum_func_status	(*func_xmysqlnd_stmt__free_reference)(XMYSQLND_NODE_STM
 typedef void				(*func_xmysqlnd_stmt__free_contents)(XMYSQLND_NODE_STMT * const stmt);
 typedef void				(*func_xmysqlnd_stmt__dtor)(XMYSQLND_NODE_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt)
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt)
 {
 	func_xmysqlnd_stmt__init init;
 	func_xmysqlnd_stmt__send_raw_message send_raw_message;
@@ -220,7 +220,7 @@ struct st_xmysqlnd_stmt_data : public util::permanent_allocable
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
 	unsigned int	refcount;
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt) m;
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt) m;
 	zend_bool		persistent;
 };
 
@@ -233,14 +233,14 @@ struct st_xmysqlnd_stmt : public util::permanent_allocable
 };
 
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_stmt);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT * xmysqlnd_node_stmt_create(XMYSQLND_SESSION session,
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_stmt);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT * xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 													  const zend_bool persistent,
 													  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_stmt_free(XMYSQLND_NODE_STMT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_free(XMYSQLND_NODE_STMT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 

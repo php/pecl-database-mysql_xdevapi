@@ -490,7 +490,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 					ZVAL_UNDEF(&stmt_zv);
 					mysqlx_new_stmt(&stmt_zv, stmt);
 					if (Z_TYPE(stmt_zv) == IS_NULL) {
-						xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
+						xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 					}
 					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 						zval zv;
@@ -574,7 +574,7 @@ mysqlx_table__select_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->table) {
-			xmysqlnd_node_table_free(inner_obj->table, nullptr, nullptr);
+			xmysqlnd_table_free(inner_obj->table, nullptr, nullptr);
 			inner_obj->table = nullptr;
 		}
 		if(inner_obj->crud_op) {

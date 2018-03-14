@@ -60,7 +60,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session)(const MYSQLND_CLASS_M
 		DBG_RETURN(nullptr);
 	}
 	object->persistent = persistent;
-	object->m = xmysqlnd_node_session_get_methods();
+	object->m = xmysqlnd_session_get_methods();
 
 	DBG_RETURN(object);
 }
@@ -84,7 +84,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_session_data)(const MYSQLND_CL
 		DBG_RETURN(nullptr);
 	}
 	object->persistent = persistent;
-	object->m = xmysqlnd_node_session_data_get_methods();
+	object->m = xmysqlnd_session_data_get_methods();
 	DBG_RETURN(object);
 }
 /* }}} */
@@ -107,7 +107,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_schema)(const MYSQLND_CLASS_ME
 	if (object && object_data) {
 		object->data = object_data;
 		object->persistent = object->data->persistent = persistent;
-		object->data->m = *xmysqlnd_node_schema_get_methods();
+		object->data->m = *xmysqlnd_schema_get_methods();
 
 		if (PASS != object->data->m.init(object, factory, session, schema_name, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
@@ -140,7 +140,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_collection)(const MYSQLND_CLAS
 	if (object && object_data) {
 		object->data = object_data;
 		object->persistent = object->data->persistent = persistent;
-		object->data->m = *xmysqlnd_node_collection_get_methods();
+		object->data->m = *xmysqlnd_collection_get_methods();
 
 		if (PASS != object->data->m.init(object, factory, schema, collection_name, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
@@ -173,7 +173,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_table)(const MYSQLND_CLASS_MET
 	if (object && object_data) {
 		object->data = object_data;
 		object->persistent = object->data->persistent = persistent;
-		object->data->m = *xmysqlnd_node_table_get_methods();
+		object->data->m = *xmysqlnd_table_get_methods();
 
 		if (PASS != object->data->m.init(object, factory, schema, table_name, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
@@ -205,7 +205,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(const MYSQLND_CLASS_METH
 	if (object && object_data) {
 		object->data = object_data;
 		object->persistent = object->data->persistent = persistent;
-		object->data->m = *xmysqlnd_node_stmt_get_methods();
+		object->data->m = *xmysqlnd_stmt_get_methods();
 
 		if (PASS != object->data->m.init(object, factory, session, stats, error_info)) {
 			object->data->m.dtor(object, stats, error_info);
@@ -233,7 +233,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(const MYSQLND_CLA
 	DBG_ENTER("xmysqlnd_object_factory::get_node_stmt_result");
 	DBG_INF_FMT("persistent=%u", persistent);
 	if (object) {
-		object->m = *xmysqlnd_node_stmt_result_get_methods();
+		object->m = *xmysqlnd_stmt_result_get_methods();
 
 		if (PASS != object->m.init(object, factory, stats, error_info)) {
 			object->m.dtor(object, stats, error_info);
@@ -336,7 +336,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(const MYSQLN
 	DBG_INF_FMT("persistent=%u", persistent);
 	if (object) {
 		object->persistent = persistent;
-		object->m = xmysqlnd_node_stmt_result_meta_get_methods();
+		object->m = xmysqlnd_stmt_result_meta_get_methods();
 
 		if (PASS != object->m->init(object, stats, error_info)) {
 			object->m->dtor(object, stats, error_info);

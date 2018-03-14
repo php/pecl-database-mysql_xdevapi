@@ -160,7 +160,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__getXSession)
 		DBG_VOID_RETURN;
 	}
 
-	drv::xmysqlnd_node_new_session_connect(uri_string.str,return_value);
+	drv::xmysqlnd_new_session_connect(uri_string.str,return_value);
 
 	DBG_VOID_RETURN;
 }

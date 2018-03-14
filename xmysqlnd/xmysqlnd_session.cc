@@ -412,12 +412,12 @@ XMYSQLND_METHOD(xmysqlnd_session_data, get_scheme)(XMYSQLND_SESSION_DATA session
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_stmt::handler_on_warning */
+/* {{{ xmysqlnd_stmt::handler_on_warning */
 const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	st_xmysqlnd_session_data* session = static_cast<st_xmysqlnd_session_data*>(context);
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_error");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_error");
 	if (session->error_info) {
 		SET_CLIENT_ERROR(session->error_info, code, sql_state.s, message.s);
 	}
@@ -755,14 +755,14 @@ std::unique_ptr<Auth_scrambler> create_auth_scrambler(
 
 // -------------
 
-/* {{{ xmysqlnd_node_stmt::handler_on_auth_continue */
+/* {{{ xmysqlnd_stmt::handler_on_auth_continue */
 const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_auth_continue)(
 	void* context,
 	const MYSQLND_CSTRING input,
 	MYSQLND_STRING* const output)
 {
-	DBG_ENTER("xmysqlnd_node_stmt::handler_on_auth_continue");
+	DBG_ENTER("xmysqlnd_stmt::handler_on_auth_continue");
 
 	const MYSQLND_CSTRING salt{ input };
 	DBG_INF_FMT("salt[%d]=%s", salt.l, salt.s);
@@ -2210,7 +2210,7 @@ XMYSQLND_METHOD(xmysqlnd_session, query_cb)(XMYSQLND_SESSION session_handle,
 		}
 		/* no else, please */
 		if (stmt) {
-			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
+			xmysqlnd_stmt_free(stmt, session->stats, session->error_info);
 		}
 		if (stmt_execute) {
 			xmysqlnd_stmt_execute__destroy(stmt_execute);
@@ -2259,11 +2259,11 @@ XMYSQLND_METHOD(xmysqlnd_session, query_cb_ex)(XMYSQLND_SESSION session_handle,
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_on_warning */
+/* {{{ xmysqlnd_session_on_warning */
 const enum_hnd_func_status
-xmysqlnd_node_session_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+xmysqlnd_session_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
-	DBG_ENTER("xmysqlnd_node_session_on_warning");
+	DBG_ENTER("xmysqlnd_session_on_warning");
 	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
 	DBG_RETURN(HND_AGAIN);
 }
@@ -2310,13 +2310,13 @@ XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
 				(PASS == (ret = stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), session->stats, session->error_info))))
 			{
 				do {
-					const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { xmysqlnd_node_session_on_warning, nullptr };
+					const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { xmysqlnd_session_on_warning, nullptr };
 					const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 					zend_bool has_more{FALSE};
 					XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, session->stats, session->error_info);
 					if (result) {
 						ret = PASS;
-						xmysqlnd_node_stmt_result_free(result, session->stats, session->error_info);
+						xmysqlnd_stmt_result_free(result, session->stats, session->error_info);
 					} else {
 						ret = FAIL;
 					}
@@ -2325,7 +2325,7 @@ XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
 		}
 		/* no else, please */
 		if (stmt) {
-			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
+			xmysqlnd_stmt_free(stmt, session->stats, session->error_info);
 		}
 		if (stmt_execute) {
 			xmysqlnd_stmt_execute__destroy(stmt_execute);
@@ -2370,12 +2370,12 @@ XMYSQLND_METHOD(xmysqlnd_session, get_server_version)(XMYSQLND_SESSION session_h
 						mnd_efree(set);
 					}
 				}
-				xmysqlnd_node_stmt_result_free(res, session->stats, session->error_info);
+				xmysqlnd_stmt_result_free(res, session->stats, session->error_info);
 			}
 		}
 		/* no else, please */
 		if (stmt) {
-			xmysqlnd_node_stmt_free(stmt, session->stats, session->error_info);
+			xmysqlnd_stmt_free(stmt, session->stats, session->error_info);
 		}
 		if (stmt_execute) {
 			xmysqlnd_stmt_execute__destroy(stmt_execute);
@@ -2413,7 +2413,7 @@ XMYSQLND_METHOD(xmysqlnd_session, create_statement_object)(XMYSQLND_SESSION sess
 	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_session_data::create_statement_object");
 
-	stmt = xmysqlnd_node_stmt_create(session_handle, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
+	stmt = xmysqlnd_stmt_create(session_handle, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
 	DBG_RETURN(stmt);
 }
 /* }}} */
@@ -2427,7 +2427,7 @@ XMYSQLND_METHOD(xmysqlnd_session, create_schema_object)(XMYSQLND_SESSION session
 	DBG_ENTER("xmysqlnd_session::create_schema_object");
 	DBG_INF_FMT("schema_name=%s", schema_name.s);
 
-	schema = xmysqlnd_node_schema_create(session_handle, schema_name, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
+	schema = xmysqlnd_schema_create(session_handle, schema_name, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
 
 	DBG_RETURN(schema);
 }
@@ -2487,11 +2487,11 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_session);
 
-/* {{{ xmysqlnd_node_session_create */
+/* {{{ xmysqlnd_session_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
-xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_node_session_create");
+	DBG_ENTER("xmysqlnd_session_create");
 	auto session = object_factory->get_node_session(object_factory, persistent, stats, error_info);
 	if (session && session->data) {
 		session->data->m->negotiate_client_api_capabilities(session->data, client_flags);
@@ -2501,9 +2501,9 @@ xmysqlnd_node_session_create(const size_t client_flags, const zend_bool persiste
 /* }}} */
 
 
-/* {{{ xmysqlnd_node_session_connect */
+/* {{{ xmysqlnd_session_connect */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
-xmysqlnd_node_session_connect(XMYSQLND_SESSION session,
+xmysqlnd_session_connect(XMYSQLND_SESSION session,
 								XMYSQLND_SESSION_AUTH_DATA * auth,
 								const MYSQLND_CSTRING database,
 								unsigned int port,
@@ -2518,13 +2518,13 @@ xmysqlnd_node_session_connect(XMYSQLND_SESSION session,
 	MYSQLND_STATS* stats{nullptr};
 	MYSQLND_ERROR_INFO* error_info{nullptr};
 
-	DBG_ENTER("xmysqlnd_node_session_connect");
+	DBG_ENTER("xmysqlnd_session_connect");
 	DBG_INF_FMT("host=%s user=%s db=%s port=%u flags=%llu",
 			auth->hostname.c_str(), auth->username.c_str(), database.s,
 			port, static_cast<unsigned long long>(set_capabilities));
 
 	if (!session) {
-		if (!(session = xmysqlnd_node_session_create(client_api_flags,
+		if (!(session = xmysqlnd_session_create(client_api_flags,
 										FALSE, factory,
 										stats, error_info))) {
 			/* OOM */
@@ -2594,7 +2594,7 @@ enum_func_status establish_connection(mysqlx::devapi::st_mysqlx_session * object
 	if( ret != FAIL ) {
 		const MYSQLND_CSTRING path = { url.path.c_str(), url.path.length() };
 		object->session->data->transport_type = tr_type;
-		new_session = xmysqlnd_node_session_connect(object->session,
+		new_session = xmysqlnd_session_connect(object->session,
 									auth,
 									path,
 									url.port,
@@ -3338,12 +3338,12 @@ vec_of_addresses extract_uri_addresses(const util::string& uri)
 } // anonymous namespace
 
 
-/* {{{ xmysqlnd_node_new_session_connect */
+/* {{{ xmysqlnd_new_session_connect */
 PHP_MYSQL_XDEVAPI_API
-enum_func_status xmysqlnd_node_new_session_connect(const char* uri_string,
+enum_func_status xmysqlnd_new_session_connect(const char* uri_string,
 							zval * return_value)
 {
-	DBG_ENTER("xmysqlnd_node_new_session_connect");
+	DBG_ENTER("xmysqlnd_new_session_connect");
 	DBG_INF_FMT("URI: %s",uri_string);
 	enum_func_status ret{FAIL};
 	if( nullptr == uri_string ) {

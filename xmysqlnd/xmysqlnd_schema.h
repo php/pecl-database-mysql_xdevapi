@@ -99,7 +99,7 @@ typedef enum_func_status		(*func_xmysqlnd_schema__free_reference)(XMYSQLND_NODE_
 typedef void					(*func_xmysqlnd_schema__free_contents)(XMYSQLND_NODE_SCHEMA * const schema);
 typedef void					(*func_xmysqlnd_schema__dtor)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
+MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema)
 {
 	func_xmysqlnd_schema__init init;
 
@@ -128,7 +128,7 @@ struct st_xmysqlnd_schema_data : public util::permanent_allocable
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
 	unsigned int	refcount;
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema) m;
+	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema) m;
 	zend_bool		persistent;
 };
 
@@ -141,15 +141,15 @@ struct st_xmysqlnd_schema : public util::permanent_allocable
 };
 
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_schema);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_node_schema_create(XMYSQLND_SESSION session,
+PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_schema);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_schema_create(XMYSQLND_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														  MYSQLND_STATS * const stats,
 														  MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 

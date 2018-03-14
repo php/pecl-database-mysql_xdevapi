@@ -302,7 +302,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 			DBG_INF_FMT("type=%d", Z_TYPE_P(return_value));
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
 				DBG_ERR("Something is wrong");
-				xmysqlnd_node_collection_free(collection, nullptr, nullptr);
+				xmysqlnd_collection_free(collection, nullptr, nullptr);
 			}
 		}
 	}
@@ -363,7 +363,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 		if (collection) {
 			mysqlx_new_collection(return_value, collection, FALSE);
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
-				xmysqlnd_node_collection_free(collection, nullptr, nullptr);
+				xmysqlnd_collection_free(collection, nullptr, nullptr);
 			}
 		}
 	}
@@ -393,7 +393,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 		st_xmysqlnd_table* const table = object->schema->data->m.create_table_object(object->schema, table_name.to_nd_cstr());
 		mysqlx_new_table(return_value, table, FALSE /* no clone */);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
-			xmysqlnd_node_table_free(table, nullptr, nullptr);
+			xmysqlnd_table_free(table, nullptr, nullptr);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -421,7 +421,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 		st_xmysqlnd_table* const table = object->schema->data->m.create_table_object(object->schema, collection_name);
 		mysqlx_new_table(return_value, table, FALSE /* no clone */);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
-			xmysqlnd_node_table_free(table, nullptr, nullptr);
+			xmysqlnd_table_free(table, nullptr, nullptr);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -452,7 +452,7 @@ mysqlx_on_db_object(void* context, XMYSQLND_NODE_SCHEMA* const schema, const MYS
 			if (Z_TYPE(zv) == IS_OBJECT) {
 				add_assoc_zval_ex(ctx->list, object_name.s, object_name.l, &zv);
 			} else {
-				xmysqlnd_node_table_free(table, nullptr, nullptr);
+				xmysqlnd_table_free(table, nullptr, nullptr);
 				zval_dtor(&zv);
 			}
 		}
@@ -463,7 +463,7 @@ mysqlx_on_db_object(void* context, XMYSQLND_NODE_SCHEMA* const schema, const MYS
 			if (Z_TYPE(zv) == IS_OBJECT) {
 				add_assoc_zval_ex(ctx->list, object_name.s, object_name.l, &zv);
 			} else {
-				xmysqlnd_node_collection_free(collection, nullptr, nullptr);
+				xmysqlnd_collection_free(collection, nullptr, nullptr);
 				zval_dtor(&zv);
 			}
 		}
@@ -608,7 +608,7 @@ mysqlx_schema_free_storage(zend_object* object)
 
 	if (inner_obj) {
 		if (inner_obj->schema) {
-			xmysqlnd_node_schema_free(inner_obj->schema, nullptr, nullptr);
+			xmysqlnd_schema_free(inner_obj->schema, nullptr, nullptr);
 			inner_obj->schema = nullptr;
 		}
 		mnd_efree(inner_obj);

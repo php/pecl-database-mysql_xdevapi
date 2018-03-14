@@ -437,20 +437,20 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="xmysqlnd_extension_plugin.h" role="src" />
     <file name="xmysqlnd_index_collection_commands.cc" role="src" />
     <file name="xmysqlnd_index_collection_commands.h" role="src" />
-    <file name="xmysqlnd_node_collection.cc" role="src" />
-    <file name="xmysqlnd_node_collection.h" role="src" />
-    <file name="xmysqlnd_node_schema.cc" role="src" />
-    <file name="xmysqlnd_node_schema.h" role="src" />
-    <file name="xmysqlnd_node_session.cc" role="src" />
-    <file name="xmysqlnd_node_session.h" role="src" />
-    <file name="xmysqlnd_node_stmt.cc" role="src" />
-    <file name="xmysqlnd_node_stmt.h" role="src" />
-    <file name="xmysqlnd_node_stmt_result.cc" role="src" />
-    <file name="xmysqlnd_node_stmt_result.h" role="src" />
-    <file name="xmysqlnd_node_stmt_result_meta.cc" role="src" />
-    <file name="xmysqlnd_node_stmt_result_meta.h" role="src" />
-    <file name="xmysqlnd_node_table.cc" role="src" />
-    <file name="xmysqlnd_node_table.h" role="src" />
+    <file name="xmysqlnd_collection.cc" role="src" />
+    <file name="xmysqlnd_collection.h" role="src" />
+    <file name="xmysqlnd_schema.cc" role="src" />
+    <file name="xmysqlnd_schema.h" role="src" />
+    <file name="xmysqlnd_session.cc" role="src" />
+    <file name="xmysqlnd_session.h" role="src" />
+    <file name="xmysqlnd_stmt.cc" role="src" />
+    <file name="xmysqlnd_stmt.h" role="src" />
+    <file name="xmysqlnd_stmt_result.cc" role="src" />
+    <file name="xmysqlnd_stmt_result.h" role="src" />
+    <file name="xmysqlnd_stmt_result_meta.cc" role="src" />
+    <file name="xmysqlnd_stmt_result_meta.h" role="src" />
+    <file name="xmysqlnd_table.cc" role="src" />
+    <file name="xmysqlnd_table.h" role="src" />
     <file name="xmysqlnd_object_factory.cc" role="src" />
     <file name="xmysqlnd_object_factory.h" role="src" />
     <file name="xmysqlnd_priv.h" role="src" />

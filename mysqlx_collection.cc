@@ -740,7 +740,7 @@ mysqlx_collection_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->collection) {
-			xmysqlnd_node_collection_free(inner_obj->collection, nullptr, nullptr);
+			xmysqlnd_collection_free(inner_obj->collection, nullptr, nullptr);
 			inner_obj->collection = nullptr;
 		}
 		mnd_efree(inner_obj);

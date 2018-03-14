@@ -529,7 +529,7 @@ mysqlx_table_free_storage(zend_object * object)
 
 	if (inner_obj) {
 		if (inner_obj->table) {
-			xmysqlnd_node_table_free(inner_obj->table, nullptr, nullptr);
+			xmysqlnd_table_free(inner_obj->table, nullptr, nullptr);
 			inner_obj->table = nullptr;
 		}
 		mnd_efree(inner_obj);
