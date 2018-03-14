@@ -99,7 +99,7 @@ ZEND_END_ARG_INFO()
 /* {{{ Collection_find::init() */
 bool Collection_find::init(
 	zval* obj_zv,
-	XMYSQLND_NODE_COLLECTION* coll,
+	XMYSQLND_COLLECTION* coll,
 	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll) return false;
@@ -439,7 +439,7 @@ void Collection_find::execute(
 	if (FALSE == xmysqlnd_crud_collection_find__is_initialized(find_op)) {
 		RAISE_EXCEPTION(err_msg_find_fail);
 	} else {
-		XMYSQLND_NODE_STMT* stmt = collection->data->m.find(collection, find_op);
+		XMYSQLND_STMT* stmt = collection->data->m.find(collection, find_op);
 		{
 			if (stmt) {
 				zval stmt_zv;

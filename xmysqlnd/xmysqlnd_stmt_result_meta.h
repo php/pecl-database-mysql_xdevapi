@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_NODE_STMT_RESULT_META_H
-#define XMYSQLND_NODE_STMT_RESULT_META_H
+#ifndef XMYSQLND_STMT_RESULT_META_H
+#define XMYSQLND_STMT_RESULT_META_H
 
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_driver.h"
@@ -126,14 +126,14 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD
 
 /*******************************************************************************************************************************************/
 
-typedef struct st_xmysqlnd_stmt_result_meta XMYSQLND_NODE_STMT_RESULT_META;
+typedef struct st_xmysqlnd_stmt_result_meta XMYSQLND_STMT_RESULT_META;
 
-typedef enum_func_status	(*func_xmysqlnd_stmt_result_meta__init)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef enum_func_status	(*func_xmysqlnd_stmt_result_meta__add_field)(XMYSQLND_NODE_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef unsigned int		(*func_xmysqlnd_stmt_result_meta__get_field_count)(const XMYSQLND_NODE_STMT_RESULT_META * const meta);
-typedef const XMYSQLND_RESULT_FIELD_META * (*func_xmysqlnd_stmt_result_meta__get_field)(const XMYSQLND_NODE_STMT_RESULT_META * const meta, unsigned int field);
-typedef void				(*func_xmysqlnd_stmt_result_meta__free_contents)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef void				(*func_xmysqlnd_stmt_result_meta__dtor)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef enum_func_status	(*func_xmysqlnd_stmt_result_meta__init)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_stmt_result_meta__add_field)(XMYSQLND_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef unsigned int		(*func_xmysqlnd_stmt_result_meta__get_field_count)(const XMYSQLND_STMT_RESULT_META * const meta);
+typedef const XMYSQLND_RESULT_FIELD_META * (*func_xmysqlnd_stmt_result_meta__get_field)(const XMYSQLND_STMT_RESULT_META * const meta, unsigned int field);
+typedef void				(*func_xmysqlnd_stmt_result_meta__free_contents)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef void				(*func_xmysqlnd_stmt_result_meta__dtor)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta)
 {
@@ -157,14 +157,14 @@ struct st_xmysqlnd_stmt_result_meta : public util::permanent_allocable
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_stmt_result_meta);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT_RESULT_META * xmysqlnd_stmt_result_meta_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_result_meta_free(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_RESULT_META * xmysqlnd_stmt_result_meta_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_result_meta_free(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_NODE_STMT_RESULT_META_H */
+#endif /* XMYSQLND_STMT_RESULT_META_H */
 
 /*
  * Local variables:

@@ -229,8 +229,8 @@ struct st_mysqlx_get_schemas_ctx
 static const enum_hnd_func_status
 get_schemas_handler_on_row(void * context,
 						   XMYSQLND_SESSION const session,
-						   XMYSQLND_NODE_STMT * const stmt,
-						   const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+						   XMYSQLND_STMT * const stmt,
+						   const XMYSQLND_STMT_RESULT_META * const meta,
 						   const zval * const row,
 						   MYSQLND_STATS * const stats,
 						   MYSQLND_ERROR_INFO * const error_info)
@@ -243,7 +243,7 @@ get_schemas_handler_on_row(void * context,
 		}
 		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
 			const MYSQLND_CSTRING schema_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
-			XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
+			XMYSQLND_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
 			if (schema) {
 				zval zv;
 				ZVAL_UNDEF(&zv);
@@ -261,7 +261,7 @@ get_schemas_handler_on_row(void * context,
 static const enum_hnd_func_status
 mysqlx_session_command_handler_on_error(void * context,
 											 XMYSQLND_SESSION session,
-											 XMYSQLND_NODE_STMT * const stmt,
+											 XMYSQLND_STMT * const stmt,
 											 const unsigned int code,
 											 const MYSQLND_CSTRING sql_state,
 											 const MYSQLND_CSTRING message)
@@ -332,7 +332,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 	if (XMYSQLND_SESSION session = object->session) {
-		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name.to_nd_cstr());
+		XMYSQLND_SCHEMA * schema = session->m->create_schema_object(session, schema_name.to_nd_cstr());
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
 		} else {
@@ -355,8 +355,8 @@ struct st_mysqlx_list_clients__ctx
 static const enum_hnd_func_status
 list_clients__handler_on_row(void * context,
 							 XMYSQLND_SESSION session,
-							 XMYSQLND_NODE_STMT * const stmt,
-							 const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+							 XMYSQLND_STMT * const stmt,
+							 const XMYSQLND_STMT_RESULT_META * const meta,
 							 const zval * const row,
 							 MYSQLND_STATS * const stats,
 							 MYSQLND_ERROR_INFO * const error_info)
@@ -437,7 +437,7 @@ mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 								  const unsigned int argc,
 								  const zval * args)
 {
-	XMYSQLND_NODE_STMT * stmt = session->m->create_statement_object(session);
+	XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
 	DBG_ENTER("mysqlx_execute_session_query");
 
 	if (stmt) {
@@ -534,7 +534,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		XMYSQLND_NODE_STMT * const stmt = session->m->create_statement_object(session);
+		XMYSQLND_STMT * const stmt = session->m->create_statement_object(session);
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query);
 			if (Z_TYPE_P(return_value) == IS_NULL) {
@@ -597,7 +597,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 	if (XMYSQLND_SESSION session = object->session) {
-		XMYSQLND_NODE_SCHEMA* schema{nullptr};
+		XMYSQLND_SCHEMA* schema{nullptr};
 		if (PASS == session->m->create_db(session, schema_name) &&
 			(schema = session->m->create_schema_object(session, schema_name)))
 		{

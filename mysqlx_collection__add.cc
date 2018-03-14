@@ -61,7 +61,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ execute_statement */
 enum_func_status
-execute_statement(XMYSQLND_NODE_STMT* stmt,zval* return_value)
+execute_statement(XMYSQLND_STMT* stmt,zval* return_value)
 {
 	enum_func_status ret{FAIL};
 	if (stmt) {
@@ -255,7 +255,7 @@ node_collection_add_array(
 /* {{{ Collection_add::init() */
 bool Collection_add::init(
 	zval* obj_zv,
-	XMYSQLND_NODE_COLLECTION* coll,
+	XMYSQLND_COLLECTION* coll,
 	zval* documents,
 	int num_of_documents)
 {
@@ -292,7 +292,7 @@ bool Collection_add::init(
 /* {{{ Collection_add::init() */
 bool Collection_add::init(
 	zval* obj_zv,
-	XMYSQLND_NODE_COLLECTION* coll,
+	XMYSQLND_COLLECTION* coll,
 	const util::string_view& doc_id,
 	zval* doc)
 {
@@ -357,7 +357,7 @@ void Collection_add::execute(zval* return_value)
 	}
 
 	if ( execute_ret_status != FAIL && num_of_docs > noop_cnt ) {
-		XMYSQLND_NODE_STMT* stmt = collection->data->m.add(collection,
+		XMYSQLND_STMT* stmt = collection->data->m.add(collection,
 														   add_op);
 		if( nullptr != stmt ) {
 			execute_ret_status =  execute_statement(stmt,return_value);
@@ -510,7 +510,7 @@ mysqlx_unregister_collection__add_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_collection__add(
 	zval* return_value,
-	XMYSQLND_NODE_COLLECTION* collection,
+	XMYSQLND_COLLECTION* collection,
 	zval* docs,
 	int num_of_docs)
 {

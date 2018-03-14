@@ -99,7 +99,7 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_schema : public util::custom_allocable
 {
-	XMYSQLND_NODE_SCHEMA* schema;
+	XMYSQLND_SCHEMA* schema;
 };
 
 
@@ -205,7 +205,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_NODE_SCHEMA* schema = object->schema;
+	XMYSQLND_SCHEMA* schema = object->schema;
 	if (schema) {
 		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_scheme_on_error, nullptr };
 		zval exists;
@@ -251,7 +251,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, drop)
 
 /* {{{ mysqlx_schema_on_error */
 static const enum_hnd_func_status
-mysqlx_schema_on_error(void* context, const XMYSQLND_NODE_SCHEMA* const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_schema_on_error(void* context, const XMYSQLND_SCHEMA* const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_schema_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -263,7 +263,7 @@ mysqlx_schema_on_error(void* context, const XMYSQLND_NODE_SCHEMA* const schema, 
 /* {{{ on_drop_db_object_error */
 const enum_hnd_func_status on_drop_db_object_error(
 	void* context,
-	const XMYSQLND_NODE_SCHEMA * const schema,
+	const XMYSQLND_SCHEMA * const schema,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
@@ -436,7 +436,7 @@ struct st_mysqlx_on_db_object_ctx
 
 /* {{{ mysqlx_on_db_object */
 static void
-mysqlx_on_db_object(void* context, XMYSQLND_NODE_SCHEMA* const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type)
+mysqlx_on_db_object(void* context, XMYSQLND_SCHEMA* const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type)
 {
 	st_mysqlx_on_db_object_ctx* ctx = static_cast<st_mysqlx_on_db_object_ctx*>(context);
 	zval zv;
@@ -446,7 +446,7 @@ mysqlx_on_db_object(void* context, XMYSQLND_NODE_SCHEMA* const schema, const MYS
 	ZVAL_UNDEF(&zv);
 
 	if ((object_type.s[0] == 'T') || (object_type.s[0] == 'V')) {
-		XMYSQLND_NODE_TABLE* const table = schema->data->m.create_table_object(schema, object_name);
+		XMYSQLND_TABLE* const table = schema->data->m.create_table_object(schema, object_name);
 		if (table) {
 			mysqlx_new_table(&zv, table, FALSE);
 			if (Z_TYPE(zv) == IS_OBJECT) {
@@ -457,7 +457,7 @@ mysqlx_on_db_object(void* context, XMYSQLND_NODE_SCHEMA* const schema, const MYS
 			}
 		}
 	} else if (object_type.s[0] == 'C') {
-		XMYSQLND_NODE_COLLECTION* const collection = schema->data->m.create_collection_object(schema, object_name);
+		XMYSQLND_COLLECTION* const collection = schema->data->m.create_collection_object(schema, object_name);
 		if (collection) {
 			mysqlx_new_collection(&zv, collection, FALSE);
 			if (Z_TYPE(zv) == IS_OBJECT) {
@@ -477,7 +477,7 @@ mysqlx_on_db_object(void* context, XMYSQLND_NODE_SCHEMA* const schema, const MYS
 /* {{{ mysqlx_get_database_objects */
 static void
 mysqlx_get_database_objects(
-	XMYSQLND_NODE_SCHEMA* schema,
+	XMYSQLND_SCHEMA* schema,
 	const db_object_type_filter object_type_filter,
 	zval* return_value)
 {
@@ -670,7 +670,7 @@ mysqlx_unregister_schema_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_schema */
 void
-mysqlx_new_schema(zval* return_value, XMYSQLND_NODE_SCHEMA* schema)
+mysqlx_new_schema(zval* return_value, XMYSQLND_SCHEMA* schema)
 {
 	DBG_ENTER("mysqlx_new_schema");
 

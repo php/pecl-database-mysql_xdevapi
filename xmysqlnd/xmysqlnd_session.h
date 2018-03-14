@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_NODE_SESSION_H
-#define XMYSQLND_NODE_SESSION_H
+#ifndef XMYSQLND_SESSION_H
+#define XMYSQLND_SESSION_H
 
 extern "C" {
 #include <ext/mysqlnd/mysqlnd_connection.h>
@@ -556,7 +556,7 @@ extern const struct st_xmysqlnd_session_on_statement_ok_bind	noop__on_statement_
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_NODE_SESSION_H */
+#endif /* XMYSQLND_SESSION_H */
 
 /*
  * Local variables:

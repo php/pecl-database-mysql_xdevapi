@@ -114,7 +114,7 @@ ZEND_END_ARG_INFO()
 /* {{{ Collection_modify::init() */
 bool Collection_modify::init(
 	zval* obj_zv,
-	XMYSQLND_NODE_COLLECTION* coll,
+	XMYSQLND_COLLECTION* coll,
 	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll || search_expression.empty()) return false;
@@ -546,7 +546,7 @@ void Collection_modify::execute(
 	if (FALSE == xmysqlnd_crud_collection_modify__is_initialized(modify_op)) {
 		RAISE_EXCEPTION(err_msg_modify_fail);
 	} else {
-		XMYSQLND_NODE_STMT* stmt = collection->data->m.modify(collection, modify_op);
+		XMYSQLND_STMT* stmt = collection->data->m.modify(collection, modify_op);
 		if (stmt) {
 			zval stmt_zv;
 			ZVAL_UNDEF(&stmt_zv);
@@ -970,7 +970,7 @@ void
 mysqlx_new_collection__modify(
 	zval* return_value,
 	const util::string_view& search_expression,
-	XMYSQLND_NODE_COLLECTION* collection)
+	XMYSQLND_COLLECTION* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__modify");
 

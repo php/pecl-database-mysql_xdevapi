@@ -38,7 +38,7 @@ using namespace drv;
 struct st_mysqlx_doc_result_iterator : util::custom_allocable
 {
 	zend_object_iterator  intern;
-	XMYSQLND_NODE_STMT_RESULT * result;
+	XMYSQLND_STMT_RESULT * result;
 	zval current_row;
 	size_t row_num;
 	zend_bool started;

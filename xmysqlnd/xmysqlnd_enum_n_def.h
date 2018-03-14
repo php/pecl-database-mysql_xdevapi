@@ -23,7 +23,7 @@ namespace mysqlx {
 namespace drv {
 
 #define XMYSQLND_MAX_PACKET_SIZE (1024L * 1024L)
-#define XMYSQLND_NODE_SESSION_CHARSET	"utf8mb4"
+#define XMYSQLND_SESSION_CHARSET	"utf8mb4"
 
 typedef enum xmysqlnd_collected_stats
 {

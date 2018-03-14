@@ -70,7 +70,7 @@ ZEND_END_ARG_INFO()
 /* {{{ Collection_remove::init() */
 bool Collection_remove::init(
 	zval* obj_zv,
-	XMYSQLND_NODE_COLLECTION* coll,
+	XMYSQLND_COLLECTION* coll,
 	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll || search_expression.empty()) return false;
@@ -220,7 +220,7 @@ void Collection_remove::execute(zval* return_value)
 			static const MYSQLND_CSTRING errmsg = { "Remove not completely initialized", sizeof("Remove not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
-			XMYSQLND_NODE_STMT* stmt = collection->data->m.remove(collection, remove_op);
+			XMYSQLND_STMT* stmt = collection->data->m.remove(collection, remove_op);
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);
@@ -432,7 +432,7 @@ void
 mysqlx_new_collection__remove(
 	zval* return_value,
 	const util::string_view& search_expression,
-	XMYSQLND_NODE_COLLECTION* collection)
+	XMYSQLND_COLLECTION* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__remove");
 	if (SUCCESS == object_init_ex(return_value, collection_remove_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {

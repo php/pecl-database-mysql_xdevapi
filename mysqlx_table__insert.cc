@@ -57,7 +57,7 @@ ZEND_END_ARG_INFO()
 struct st_mysqlx_table__insert : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__INSERT * crud_op;
-	XMYSQLND_NODE_TABLE * table;
+	XMYSQLND_TABLE * table;
 };
 
 
@@ -148,7 +148,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 		if (FALSE == xmysqlnd_crud_table_insert__is_initialized(object->crud_op)) {
 			RAISE_EXCEPTION(err_msg_insert_fail);
 		} else {
-			XMYSQLND_NODE_STMT * stmt = object->table->data->m.insert(object->table, object->crud_op);
+			XMYSQLND_STMT * stmt = object->table->data->m.insert(object->table, object->crud_op);
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);
@@ -297,7 +297,7 @@ mysqlx_unregister_table__insert_class(SHUTDOWN_FUNC_ARGS)
 /* {{{ mysqlx_new_table__insert */
 void
 mysqlx_new_table__insert(zval * return_value,
-					XMYSQLND_NODE_TABLE * table,
+					XMYSQLND_TABLE * table,
 					const zend_bool clone,
 					zval * columns,
 					const int num_of_columns)

@@ -357,7 +357,7 @@ xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD_META * const object, MYSQL
 
 /* {{{ xmysqlnd_stmt_result_meta::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, init)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, init)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	return PASS;
 }
@@ -366,7 +366,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, init)(XMYSQLND_NODE_STMT_RESULT_META 
 
 /* {{{ xmysqlnd_stmt_result_meta::add_field */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, add_field)(XMYSQLND_NODE_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, add_field)(XMYSQLND_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result_meta::add_field");
 	if (!meta->fields || meta->field_count == meta->fields_size) {
@@ -386,7 +386,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, add_field)(XMYSQLND_NODE_STMT_RESULT_
 
 /* {{{ xmysqlnd_stmt_result_meta::count */
 static unsigned int
-XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, count)(const XMYSQLND_NODE_STMT_RESULT_META * const meta)
+XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, count)(const XMYSQLND_STMT_RESULT_META * const meta)
 {
 	return (meta->field_count);
 }
@@ -395,7 +395,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, count)(const XMYSQLND_NODE_STMT_RESUL
 
 /* {{{ xmysqlnd_stmt_result_meta::get_field */
 static const XMYSQLND_RESULT_FIELD_META *
-XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, get_field)(const XMYSQLND_NODE_STMT_RESULT_META * const meta, unsigned int field)
+XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, get_field)(const XMYSQLND_STMT_RESULT_META * const meta, unsigned int field)
 {
 	return((meta->field_count > 0 && field < meta->field_count)? meta->fields[field] : nullptr);
 }
@@ -404,7 +404,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, get_field)(const XMYSQLND_NODE_STMT_R
 
 /* {{{ xmysqlnd_stmt_result_meta::free_contents */
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, free_contents)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, free_contents)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result_meta::free_contents");
 	if (meta->fields) {
@@ -421,7 +421,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, free_contents)(XMYSQLND_NODE_STMT_RES
 
 /* {{{ xmysqlnd_stmt_result_meta::dtor */
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, dtor)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, dtor)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result_meta::dtor");
 	if (meta) {
@@ -447,13 +447,13 @@ MYSQLND_CLASS_METHODS_END;
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_stmt_result_meta);
 
 /* {{{ xmysqlnd_stmt_result_meta_create */
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_STMT_RESULT_META *
+PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_RESULT_META *
 xmysqlnd_stmt_result_meta_create(const zend_bool persistent,
 									  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 									  MYSQLND_STATS * stats,
 									  MYSQLND_ERROR_INFO * error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT_META* object{nullptr};
+	XMYSQLND_STMT_RESULT_META* object{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_result_meta_create");
 	object = object_factory->get_stmt_result_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);
@@ -463,7 +463,7 @@ xmysqlnd_stmt_result_meta_create(const zend_bool persistent,
 
 /* {{{ xmysqlnd_stmt_result_meta_free */
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_stmt_result_meta_free(XMYSQLND_NODE_STMT_RESULT_META * const object, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_stmt_result_meta_free(XMYSQLND_STMT_RESULT_META * const object, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result_meta_free");
 	if (object) {

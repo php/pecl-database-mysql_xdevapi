@@ -76,7 +76,7 @@ ZEND_END_ARG_INFO()
 struct st_mysqlx_table__update : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__UPDATE * crud_op;
-	XMYSQLND_NODE_TABLE * table;
+	XMYSQLND_TABLE * table;
 };
 
 
@@ -373,7 +373,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 		if (FALSE == xmysqlnd_crud_table_update__is_initialized(object->crud_op)) {
 			RAISE_EXCEPTION(err_msg_update_fail);
 		} else {
-			XMYSQLND_NODE_STMT * stmt = object->table->data->m.update(object->table, object->crud_op);
+			XMYSQLND_STMT * stmt = object->table->data->m.update(object->table, object->crud_op);
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);
@@ -526,7 +526,7 @@ mysqlx_unregister_table__update_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_table__update */
 void
-mysqlx_new_table__update(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone)
+mysqlx_new_table__update(zval * return_value, XMYSQLND_TABLE * table, const zend_bool clone)
 {
 	DBG_ENTER("mysqlx_new_table__update");
 

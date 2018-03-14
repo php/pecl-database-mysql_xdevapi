@@ -36,7 +36,7 @@ namespace drv {
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, init)(XMYSQLND_ROWSET_BUFFERED * const result,
 												const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-												XMYSQLND_NODE_STMT * const stmt,
+												XMYSQLND_STMT * const stmt,
 												MYSQLND_STATS * const stats,
 												MYSQLND_ERROR_INFO * const error_info)
 {
@@ -234,7 +234,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, eof)(const XMYSQLND_ROWSET_BUFFERED * 
 /* {{{ xmysqlnd_rowset_buffered::create_row */
 static zval *
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, create_row)(XMYSQLND_ROWSET_BUFFERED * const result,
-													  const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+													  const XMYSQLND_STMT_RESULT_META * const meta,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info)
 {
@@ -295,7 +295,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, get_row_count)(const XMYSQLND_ROWSET_B
 /* {{{ xmysqlnd_rowset_buffered::attach_meta */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, attach_meta)(XMYSQLND_ROWSET_BUFFERED * const result,
-													   XMYSQLND_NODE_STMT_RESULT_META * const meta,
+													   XMYSQLND_STMT_RESULT_META * const meta,
 													   MYSQLND_STATS * const stats,
 													   MYSQLND_ERROR_INFO * const error_info)
 {
@@ -431,7 +431,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset_buff
 
 /* {{{ xmysqlnd_rowset_buffered_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_BUFFERED *
-xmysqlnd_rowset_buffered_create(XMYSQLND_NODE_STMT * stmt,
+xmysqlnd_rowset_buffered_create(XMYSQLND_STMT * stmt,
 								const zend_bool persistent,
 								const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 								MYSQLND_STATS * stats,

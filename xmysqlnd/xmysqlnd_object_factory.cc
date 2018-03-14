@@ -91,7 +91,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_session_data)(const MYSQLND_CLASS_M
 
 
 /* {{{ xmysqlnd_object_factory::get_schema */
-static XMYSQLND_NODE_SCHEMA *
+static XMYSQLND_SCHEMA *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_schema)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 														  XMYSQLND_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
@@ -99,8 +99,8 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_schema)(const MYSQLND_CLASS_METHODS
 														  MYSQLND_STATS* stats,
 														  MYSQLND_ERROR_INFO* error_info)
 {
-	XMYSQLND_NODE_SCHEMA* object = new XMYSQLND_NODE_SCHEMA;
-	XMYSQLND_NODE_SCHEMA_DATA* object_data = new XMYSQLND_NODE_SCHEMA_DATA;
+	XMYSQLND_SCHEMA* object = new XMYSQLND_SCHEMA;
+	XMYSQLND_SCHEMA_DATA* object_data = new XMYSQLND_SCHEMA_DATA;
 
 	DBG_ENTER("xmysqlnd_object_factory::get_schema");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -124,16 +124,16 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_schema)(const MYSQLND_CLASS_METHODS
 
 
 /* {{{ xmysqlnd_object_factory::get_collection */
-static XMYSQLND_NODE_COLLECTION *
+static XMYSQLND_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_collection)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-															  XMYSQLND_NODE_SCHEMA* schema,
+															  XMYSQLND_SCHEMA* schema,
 															  const MYSQLND_CSTRING collection_name,
 															  const zend_bool persistent,
 															  MYSQLND_STATS* stats,
 															  MYSQLND_ERROR_INFO* error_info)
 {
-	XMYSQLND_NODE_COLLECTION* object = new XMYSQLND_NODE_COLLECTION;
-	XMYSQLND_NODE_COLLECTION_DATA* object_data = new XMYSQLND_NODE_COLLECTION_DATA;
+	XMYSQLND_COLLECTION* object = new XMYSQLND_COLLECTION;
+	XMYSQLND_COLLECTION_DATA* object_data = new XMYSQLND_COLLECTION_DATA;
 
 	DBG_ENTER("xmysqlnd_object_factory::get_collection");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -157,16 +157,16 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_collection)(const MYSQLND_CLASS_MET
 
 
 /* {{{ xmysqlnd_object_factory::get_table */
-static XMYSQLND_NODE_TABLE *
+static XMYSQLND_TABLE *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_table)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-														 XMYSQLND_NODE_SCHEMA* schema,
+														 XMYSQLND_SCHEMA* schema,
 														 const MYSQLND_CSTRING table_name,
 														 const zend_bool persistent,
 														 MYSQLND_STATS* stats,
 														 MYSQLND_ERROR_INFO* error_info)
 {
-	XMYSQLND_NODE_TABLE* object = new XMYSQLND_NODE_TABLE;
-	XMYSQLND_NODE_TABLE_DATA* object_data = new XMYSQLND_NODE_TABLE_DATA;
+	XMYSQLND_TABLE* object = new XMYSQLND_TABLE;
+	XMYSQLND_TABLE_DATA* object_data = new XMYSQLND_TABLE_DATA;
 
 	DBG_ENTER("xmysqlnd_object_factory::get_table");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -190,15 +190,15 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_table)(const MYSQLND_CLASS_METHODS_
 
 
 /* {{{ xmysqlnd_object_factory::get_stmt */
-static XMYSQLND_NODE_STMT *
+static XMYSQLND_STMT *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 														XMYSQLND_SESSION session,
 														const zend_bool persistent,
 														MYSQLND_STATS* stats,
 														MYSQLND_ERROR_INFO* error_info)
 {
-	XMYSQLND_NODE_STMT* object = new XMYSQLND_NODE_STMT;
-	XMYSQLND_NODE_STMT_DATA* object_data = new XMYSQLND_NODE_STMT_DATA;
+	XMYSQLND_STMT* object = new XMYSQLND_STMT;
+	XMYSQLND_STMT_DATA* object_data = new XMYSQLND_STMT_DATA;
 
 	DBG_ENTER("xmysqlnd_object_factory::get_stmt");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -222,13 +222,13 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt)(const MYSQLND_CLASS_METHODS_T
 
 
 /* {{{ xmysqlnd_object_factory::get_stmt_result */
-static XMYSQLND_NODE_STMT_RESULT *
+static XMYSQLND_STMT_RESULT *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 															   const zend_bool persistent,
 															   MYSQLND_STATS* stats,
 															   MYSQLND_ERROR_INFO* error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT* object = new XMYSQLND_NODE_STMT_RESULT;
+	XMYSQLND_STMT_RESULT* object = new XMYSQLND_STMT_RESULT;
 
 	DBG_ENTER("xmysqlnd_object_factory::get_stmt_result");
 	DBG_INF_FMT("persistent=%u", persistent);
@@ -248,7 +248,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result)(const MYSQLND_CLASS_ME
 /* {{{ xmysqlnd_object_factory::get_rowset_buffered */
 static XMYSQLND_ROWSET_BUFFERED *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
-															  XMYSQLND_NODE_STMT* stmt,
+															  XMYSQLND_STMT* stmt,
 															  const zend_bool persistent,
 															  MYSQLND_STATS* stats,
 															  MYSQLND_ERROR_INFO* error_info)
@@ -274,7 +274,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered)(const MYSQLND_CLAS
 static XMYSQLND_ROWSET_FWD *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_fwd)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 														 const size_t prefetch_rows,
-														 XMYSQLND_NODE_STMT* stmt,
+														 XMYSQLND_STMT* stmt,
 														 const zend_bool persistent,
 														 MYSQLND_STATS* stats,
 														 MYSQLND_ERROR_INFO* error_info)
@@ -301,7 +301,7 @@ static XMYSQLND_ROWSET *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 													 unsigned int type,
 													 const size_t prefetch_rows,
-													 XMYSQLND_NODE_STMT* stmt,
+													 XMYSQLND_STMT* stmt,
 													 const zend_bool persistent,
 													 MYSQLND_STATS* stats,
 													 MYSQLND_ERROR_INFO* error_info)
@@ -324,13 +324,13 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(const MYSQLND_CLASS_METHODS
 
 
 /* {{{ xmysqlnd_object_factory::get_stmt_result_meta */
-static XMYSQLND_NODE_STMT_RESULT_META *
+static XMYSQLND_STMT_RESULT_META *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 																	const zend_bool persistent,
 																	MYSQLND_STATS* stats,
 																	MYSQLND_ERROR_INFO* error_info)
 {
-	XMYSQLND_NODE_STMT_RESULT_META* object = new XMYSQLND_NODE_STMT_RESULT_META;
+	XMYSQLND_STMT_RESULT_META* object = new XMYSQLND_STMT_RESULT_META;
 
 	DBG_ENTER("xmysqlnd_object_factory::get_stmt_result_meta");
 	DBG_INF_FMT("persistent=%u", persistent);

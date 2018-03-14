@@ -37,7 +37,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, init)(XMYSQLND_ROWSET_FWD * const result,
 										   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 										   const size_t prefetch_rows,
-										   XMYSQLND_NODE_STMT * const stmt,
+										   XMYSQLND_STMT * const stmt,
 										   MYSQLND_STATS * const stats,
 										   MYSQLND_ERROR_INFO * const error_info)
 {
@@ -195,7 +195,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, eof)(const XMYSQLND_ROWSET_FWD * const resu
 /* {{{ xmysqlnd_rowset_fwd::create_row */
 static zval *
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, create_row)(XMYSQLND_ROWSET_FWD * const result,
-												 const XMYSQLND_NODE_STMT_RESULT_META * const meta,
+												 const XMYSQLND_STMT_RESULT_META * const meta,
 												 MYSQLND_STATS * const stats,
 												 MYSQLND_ERROR_INFO * const error_info)
 {
@@ -263,7 +263,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, get_row_count)(const XMYSQLND_ROWSET_FWD * 
 
 /* {{{ xmysqlnd_rowset_fwd::attach_meta */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_rowset_fwd, attach_meta)(XMYSQLND_ROWSET_FWD * const result, XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, attach_meta)(XMYSQLND_ROWSET_FWD * const result, XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::attach_meta");
 	if (meta) {
@@ -389,7 +389,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset_fwd)
 /* {{{ xmysqlnd_rowset_fwd_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_FWD *
 xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
-						   XMYSQLND_NODE_STMT * stmt,
+						   XMYSQLND_STMT * stmt,
 						   const zend_bool persistent,
 						   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 						   MYSQLND_STATS * stats,

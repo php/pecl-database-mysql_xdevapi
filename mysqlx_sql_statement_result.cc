@@ -100,7 +100,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ mysqlx_sql_stmt_result_on_warning */
 static const enum_hnd_func_status
-mysqlx_sql_stmt_result_on_warning(void * context, XMYSQLND_NODE_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+mysqlx_sql_stmt_result_on_warning(void * context, XMYSQLND_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_sql_stmt_result_on_warning");
 	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
@@ -111,7 +111,7 @@ mysqlx_sql_stmt_result_on_warning(void * context, XMYSQLND_NODE_STMT * const stm
 
 /* {{{ mysqlx_sql_stmt_result_on_error */
 static const enum_hnd_func_status
-mysqlx_sql_stmt_result_on_error(void * context, XMYSQLND_NODE_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_sql_stmt_result_on_error(void * context, XMYSQLND_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_sql_stmt_result_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -125,11 +125,11 @@ static int mysqlx_sql_statement_read_next_result(st_mysqlx_sql_statement_result*
 {
 	int nextResult{0};
 	if (PASS == object->send_query_status) {
-		XMYSQLND_NODE_STMT * stmt = object->stmt;
+		XMYSQLND_STMT * stmt = object->stmt;
 
 		const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_result_on_warning, nullptr };
 		const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_result_on_error, nullptr };
-		XMYSQLND_NODE_STMT_RESULT * result;
+		XMYSQLND_STMT_RESULT * result;
 
 		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
 			result = stmt->data->m.get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
@@ -681,7 +681,7 @@ mysqlx_unregister_sql_statement_result_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_sql_stmt_result */
 void
-mysqlx_new_sql_stmt_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result, st_mysqlx_statement* stmt)
+mysqlx_new_sql_stmt_result(zval * return_value, XMYSQLND_STMT_RESULT * result, st_mysqlx_statement* stmt)
 {
 	DBG_ENTER("mysqlx_new_sql_stmt_result");
 

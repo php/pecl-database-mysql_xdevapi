@@ -304,7 +304,7 @@ mysqlx_unregister_doc_result_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_doc_result */
 void
-mysqlx_new_doc_result(zval * return_value, XMYSQLND_NODE_STMT_RESULT * result)
+mysqlx_new_doc_result(zval * return_value, XMYSQLND_STMT_RESULT * result)
 {
 	DBG_ENTER("mysqlx_new_doc_result");
 

@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_NODE_SCHEMA_H
-#define XMYSQLND_NODE_SCHEMA_H
+#ifndef XMYSQLND_SCHEMA_H
+#define XMYSQLND_SCHEMA_H
 
 #include "xmysqlnd_driver.h"
 #include "util/allocator.h"
@@ -32,48 +32,48 @@ struct st_xmysqlnd_collection;
 struct st_xmysqlnd_table;
 struct st_xmysqlnd_session_on_error_bind;
 
-typedef struct st_xmysqlnd_schema		XMYSQLND_NODE_SCHEMA;
-typedef struct st_xmysqlnd_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
+typedef struct st_xmysqlnd_schema		XMYSQLND_SCHEMA;
+typedef struct st_xmysqlnd_schema_data	XMYSQLND_SCHEMA_DATA;
 
 struct st_xmysqlnd_schema_on_database_object_bind
 {
-	void (*handler)(void * context, XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type);
+	void (*handler)(void * context, XMYSQLND_SCHEMA * const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_schema_on_error_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const XMYSQLND_NODE_SCHEMA * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, const XMYSQLND_SCHEMA * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
-typedef enum_func_status (*func_xmysqlnd_schema__init)(XMYSQLND_NODE_SCHEMA * const schema,
+typedef enum_func_status (*func_xmysqlnd_schema__init)(XMYSQLND_SCHEMA * const schema,
 															const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 															XMYSQLND_SESSION const session,
 															const MYSQLND_CSTRING schema_name,
 															MYSQLND_STATS * const stats,
 															MYSQLND_ERROR_INFO * const error_info);
 
-typedef enum_func_status (*func_xmysqlnd_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const schema, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status (*func_xmysqlnd_scheme__exists_in_database)(XMYSQLND_SCHEMA * const schema, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 
-typedef st_xmysqlnd_collection* (*func_xmysqlnd_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
+typedef st_xmysqlnd_collection* (*func_xmysqlnd_schema__create_collection_object)(XMYSQLND_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 
 typedef st_xmysqlnd_collection* (*func_xmysqlnd_schema__create_collection)(
-	XMYSQLND_NODE_SCHEMA* const schema,
+	XMYSQLND_SCHEMA* const schema,
 	const util::string_view& collection_name,
 	const st_xmysqlnd_schema_on_error_bind on_error);
 
 typedef enum_func_status (*func_xmysqlnd_schema__drop_collection)(
-	XMYSQLND_NODE_SCHEMA* const schema,
+	XMYSQLND_SCHEMA* const schema,
 	const util::string_view& collection_name,
 	const st_xmysqlnd_schema_on_error_bind on_error);
 
-typedef st_xmysqlnd_table* (*func_xmysqlnd_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
+typedef st_xmysqlnd_table* (*func_xmysqlnd_schema__create_table_object)(XMYSQLND_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
 
 typedef enum_func_status (*func_xmysqlnd_schema__drop_table)(
-	XMYSQLND_NODE_SCHEMA* const schema,
+	XMYSQLND_SCHEMA* const schema,
 	const util::string_view& table_name,
 	const st_xmysqlnd_schema_on_error_bind on_error);
 
@@ -88,16 +88,16 @@ enum class db_object_type_filter
 };
 
 typedef enum_func_status (*func_xmysqlnd_schema__get_db_objects)(
-	XMYSQLND_NODE_SCHEMA * const schema,
+	XMYSQLND_SCHEMA * const schema,
 	const MYSQLND_CSTRING& collection_name,
 	const db_object_type_filter object_type_filter,
 	const st_xmysqlnd_schema_on_database_object_bind on_object,
 	const st_xmysqlnd_schema_on_error_bind on_error);
 
-typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);
-typedef enum_func_status		(*func_xmysqlnd_schema__free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef void					(*func_xmysqlnd_schema__free_contents)(XMYSQLND_NODE_SCHEMA * const schema);
-typedef void					(*func_xmysqlnd_schema__dtor)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef XMYSQLND_SCHEMA *	(*func_xmysqlnd_schema__get_reference)(XMYSQLND_SCHEMA * const schema);
+typedef enum_func_status		(*func_xmysqlnd_schema__free_reference)(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef void					(*func_xmysqlnd_schema__free_contents)(XMYSQLND_SCHEMA * const schema);
+typedef void					(*func_xmysqlnd_schema__dtor)(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema)
 {
@@ -135,27 +135,27 @@ struct st_xmysqlnd_schema_data : public util::permanent_allocable
 
 struct st_xmysqlnd_schema : public util::permanent_allocable
 {
-	XMYSQLND_NODE_SCHEMA_DATA * data;
+	XMYSQLND_SCHEMA_DATA * data;
 
 	zend_bool		persistent;
 };
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_schema);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_SCHEMA * xmysqlnd_schema_create(XMYSQLND_SESSION session,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_SCHEMA * xmysqlnd_schema_create(XMYSQLND_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														  MYSQLND_STATS * const stats,
 														  MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_schema_free(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_schema_free(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_NODE_SCHEMA_H */
+#endif /* XMYSQLND_SCHEMA_H */
 
 /*
  * Local variables:

@@ -89,7 +89,7 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_table : public util::custom_allocable
 {
-	XMYSQLND_NODE_TABLE * table;
+	XMYSQLND_TABLE * table;
 };
 
 
@@ -199,7 +199,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_NODE_TABLE * table = object->table;
+	XMYSQLND_TABLE * table = object->table;
 	if (table) {
 		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
 		zval exists;
@@ -234,7 +234,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 
 	auto& data_object = util::fetch_data_object<st_mysqlx_table>(object_zv);
 
-	XMYSQLND_NODE_TABLE * table = data_object.table;
+	XMYSQLND_TABLE * table = data_object.table;
 	if (table) {
 		const st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
 		zval exists;
@@ -266,7 +266,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_NODE_TABLE * table = object->table;
+	XMYSQLND_TABLE * table = object->table;
 	if (table) {
 		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
 		zval counter;
@@ -311,7 +311,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 	}
 
 	if(session != nullptr) {
-		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
+		XMYSQLND_SCHEMA * schema = session->m->create_schema_object(
 					session, schema_name);
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
@@ -590,7 +590,7 @@ mysqlx_unregister_table_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_table */
 void
-mysqlx_new_table(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone)
+mysqlx_new_table(zval * return_value, XMYSQLND_TABLE * table, const zend_bool clone)
 {
 	DBG_ENTER("mysqlx_new_table");
 
