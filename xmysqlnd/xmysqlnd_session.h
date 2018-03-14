@@ -37,8 +37,8 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_stmt;
-struct st_xmysqlnd_node_schema;
+struct st_xmysqlnd_stmt;
+struct st_xmysqlnd_schema;
 struct st_xmysqlnd_stmt_op__execute;
 
 //PHP_MYSQL_XDEVAPI_API void xmysqlnd_node_session_module_init();
@@ -328,41 +328,41 @@ private:
 
 struct st_xmysqlnd_session_on_result_start_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt);
 	void * ctx;
 };
 
 struct st_xmysqlnd_session_on_row_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const st_xmysqlnd_node_stmt_result_meta* const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const st_xmysqlnd_stmt_result_meta* const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_warning_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_error_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_result_end_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const zend_bool has_more);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const zend_bool has_more);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_statement_ok_bind
 {
-	enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state);
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state);
 	void * ctx;
 };
 
@@ -422,9 +422,9 @@ typedef const enum_func_status	(*func_xmysqlnd_session__query)(XMYSQLND_SESSION 
 typedef zend_ulong			(*func_xmysqlnd_session__get_server_version)(XMYSQLND_SESSION session);
 typedef const char *		(*func_xmysqlnd_session__get_server_information)(const XMYSQLND_SESSION session);
 
-typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_session__create_statement_object)(XMYSQLND_SESSION session);
+typedef st_xmysqlnd_stmt* (*func_xmysqlnd_session__create_statement_object)(XMYSQLND_SESSION session);
 
-typedef st_xmysqlnd_node_schema* (*func_xmysqlnd_session__create_schema_object)(XMYSQLND_SESSION session, const MYSQLND_CSTRING schema_name);
+typedef st_xmysqlnd_schema* (*func_xmysqlnd_session__create_schema_object)(XMYSQLND_SESSION session, const MYSQLND_CSTRING schema_name);
 
 typedef const enum_func_status				(*func_xmysqlnd_session__close)(XMYSQLND_SESSION session, const enum_xmysqlnd_session_close_type close_type);
 

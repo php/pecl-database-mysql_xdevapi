@@ -26,17 +26,17 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_schema;
+struct st_xmysqlnd_schema;
 struct st_xmysqlnd_session_on_error_bind;
 
-typedef struct st_xmysqlnd_node_collection		XMYSQLND_NODE_COLLECTION;
-typedef struct st_xmysqlnd_node_collection_data	XMYSQLND_NODE_COLLECTION_DATA;
+typedef struct st_xmysqlnd_collection		XMYSQLND_NODE_COLLECTION;
+typedef struct st_xmysqlnd_collection_data	XMYSQLND_NODE_COLLECTION_DATA;
 
 
 typedef enum_func_status (*func_xmysqlnd_node_collection__init)(
 			XMYSQLND_NODE_COLLECTION * const collection,
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-			st_xmysqlnd_node_schema* const schema,
+			st_xmysqlnd_schema* const schema,
 			const MYSQLND_CSTRING collection_name,
 			MYSQLND_STATS * const stats,
 			MYSQLND_ERROR_INFO * const error_info);
@@ -44,10 +44,10 @@ typedef enum_func_status (*func_xmysqlnd_node_collection__init)(
 typedef XMYSQLND_NODE_COLLECTION * (*func_xmysqlnd_node_collection__get_reference)(XMYSQLND_NODE_COLLECTION * const collection);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__exists_in_database)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__count)(XMYSQLND_NODE_COLLECTION * const collection, struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
-typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_collection__add)(XMYSQLND_NODE_COLLECTION * const collection,  XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op);
-typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_collection__remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
-typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_collection__modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op);
-typedef st_xmysqlnd_node_stmt* (*func_xmysqlnd_node_collection__find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op);
+typedef st_xmysqlnd_stmt* (*func_xmysqlnd_node_collection__add)(XMYSQLND_NODE_COLLECTION * const collection,  XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op);
+typedef st_xmysqlnd_stmt* (*func_xmysqlnd_node_collection__remove)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
+typedef st_xmysqlnd_stmt* (*func_xmysqlnd_node_collection__modify)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op);
+typedef st_xmysqlnd_stmt* (*func_xmysqlnd_node_collection__find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op);
 typedef enum_func_status		(*func_xmysqlnd_node_collection__free_reference)(XMYSQLND_NODE_COLLECTION * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 typedef void					(*func_xmysqlnd_node_collection__free_contents)(XMYSQLND_NODE_COLLECTION * const collection);
 typedef void					(*func_xmysqlnd_node_collection__dtor)(XMYSQLND_NODE_COLLECTION * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -72,9 +72,9 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_collection)
 	func_xmysqlnd_node_collection__dtor dtor;
 };
 
-struct st_xmysqlnd_node_collection_data : public util::permanent_allocable
+struct st_xmysqlnd_collection_data : public util::permanent_allocable
 {
-	st_xmysqlnd_node_schema* schema;
+	st_xmysqlnd_schema* schema;
 	MYSQLND_STRING  collection_name;
 	zend_bool       persistent;
 	unsigned int	refcount;
@@ -85,7 +85,7 @@ struct st_xmysqlnd_node_collection_data : public util::permanent_allocable
 };
 
 
-struct st_xmysqlnd_node_collection : public util::permanent_allocable
+struct st_xmysqlnd_collection : public util::permanent_allocable
 {
 	XMYSQLND_NODE_COLLECTION_DATA * data;
 
@@ -94,7 +94,7 @@ struct st_xmysqlnd_node_collection : public util::permanent_allocable
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_node_collection);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_COLLECTION * xmysqlnd_node_collection_create(st_xmysqlnd_node_schema* schema,
+PHP_MYSQL_XDEVAPI_API XMYSQLND_NODE_COLLECTION * xmysqlnd_node_collection_create(st_xmysqlnd_schema* schema,
 																  const MYSQLND_CSTRING collection_name,
 																  const zend_bool persistent,
 																  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,

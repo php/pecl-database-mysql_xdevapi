@@ -355,7 +355,7 @@ XMYSQLND_METHOD(xmysqlnd_node_collection, modify)(XMYSQLND_NODE_COLLECTION * con
 
 
 /* {{{ xmysqlnd_node_collection::find */
-static st_xmysqlnd_node_stmt* XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
+static st_xmysqlnd_stmt* XMYSQLND_METHOD(xmysqlnd_node_collection, find)(XMYSQLND_NODE_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 {
 	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_node_collection::find");

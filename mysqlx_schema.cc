@@ -179,7 +179,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getName)
 
 /* {{{ mysqlx_node_scheme_on_error */
 static const enum_hnd_func_status
-mysqlx_node_scheme_on_error(void* context, XMYSQLND_SESSION session, st_xmysqlnd_node_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_node_scheme_on_error(void* context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_node_scheme_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -293,9 +293,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, createCollection)
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	 if (!collection_name.empty() && object->schema) {
-		const struct st_xmysqlnd_node_schema_on_error_bind on_error = { mysqlx_node_schema_on_error, nullptr };
+		const struct st_xmysqlnd_schema_on_error_bind on_error = { mysqlx_node_schema_on_error, nullptr };
 
-		st_xmysqlnd_node_collection* const collection = object->schema->data->m.create_collection(object->schema, collection_name, on_error);
+		st_xmysqlnd_collection* const collection = object->schema->data->m.create_collection(object->schema, collection_name, on_error);
 		DBG_INF_FMT("collection=%p", collection);
 		if (collection) {
 			mysqlx_new_node_collection(return_value, collection, FALSE);
@@ -329,7 +329,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, dropCollection)
 	auto& data_object = util::fetch_data_object<st_mysqlx_node_schema>(object_zv);
 
 	try {
-		const st_xmysqlnd_node_schema_on_error_bind on_error = { on_drop_db_object_error, nullptr };
+		const st_xmysqlnd_schema_on_error_bind on_error = { on_drop_db_object_error, nullptr };
 		RETVAL_BOOL(PASS == data_object.schema->data->m.drop_collection(data_object.schema, collection_name, on_error));
 	} catch(std::exception& e) {
 		util::log_warning(e.what());
@@ -359,7 +359,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollection)
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if ( !collection_name.empty() && object->schema) {
-		st_xmysqlnd_node_collection* const collection = object->schema->data->m.create_collection_object(object->schema, collection_name.to_nd_cstr());
+		st_xmysqlnd_collection* const collection = object->schema->data->m.create_collection_object(object->schema, collection_name.to_nd_cstr());
 		if (collection) {
 			mysqlx_new_node_collection(return_value, collection, FALSE);
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
@@ -390,7 +390,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getTable)
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if ( !table_name.empty() && object->schema) {
-		st_xmysqlnd_node_table* const table = object->schema->data->m.create_table_object(object->schema, table_name.to_nd_cstr());
+		st_xmysqlnd_table* const table = object->schema->data->m.create_table_object(object->schema, table_name.to_nd_cstr());
 		mysqlx_new_node_table(return_value, table, FALSE /* no clone */);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
 			xmysqlnd_node_table_free(table, nullptr, nullptr);
@@ -418,7 +418,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_schema, getCollectionAsTable)
 	MYSQLX_FETCH_NODE_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if (collection_name.s && collection_name.l && object->schema) {
-		st_xmysqlnd_node_table* const table = object->schema->data->m.create_table_object(object->schema, collection_name);
+		st_xmysqlnd_table* const table = object->schema->data->m.create_table_object(object->schema, collection_name);
 		mysqlx_new_node_table(return_value, table, FALSE /* no clone */);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
 			xmysqlnd_node_table_free(table, nullptr, nullptr);
@@ -485,8 +485,8 @@ mysqlx_get_database_objects(
 	if (schema){
 		zval list;
 		st_mysqlx_on_db_object_ctx context{ &list };
-		const st_xmysqlnd_node_schema_on_database_object_bind on_object{ mysqlx_on_db_object, &context };
-		const st_xmysqlnd_node_schema_on_error_bind handler_on_error{ mysqlx_node_schema_on_error, nullptr };
+		const st_xmysqlnd_schema_on_database_object_bind on_object{ mysqlx_on_db_object, &context };
+		const st_xmysqlnd_schema_on_error_bind handler_on_error{ mysqlx_node_schema_on_error, nullptr };
 
 		ZVAL_UNDEF(&list);
 		array_init(&list);

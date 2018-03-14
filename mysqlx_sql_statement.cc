@@ -115,7 +115,7 @@ struct st_xmysqlnd_exec_with_cb_ctx
 static const enum_hnd_func_status
 exec_with_cb_handle_on_row(void * context,
 						   XMYSQLND_NODE_STMT * const stmt,
-						   const st_xmysqlnd_node_stmt_result_meta* const meta,
+						   const st_xmysqlnd_stmt_result_meta* const meta,
 						   const zval * const row,
 						   MYSQLND_STATS * const stats,
 						   MYSQLND_ERROR_INFO * const error_info)
@@ -387,11 +387,11 @@ mysqlx_fetch_data_with_callback(st_mysqlx_node_statement* object, st_xmysqlnd_ex
 	const zend_bool on_rset_end_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_rset_end.fci);
 	const zend_bool on_stmt_ok_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_stmt_ok.fci);
 
-	const struct st_xmysqlnd_node_stmt_on_row_bind on_row = { exec_with_cb_handle_on_row, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { exec_with_cb_handle_on_warning, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { exec_with_cb_handle_on_error, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_node_stmt_on_result_end_bind on_resultset_end = { on_rset_end_passed? exec_with_cb_handle_on_resultset_end : nullptr, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok = { on_stmt_ok_passed? exec_with_cb_handle_on_statement_ok : nullptr, xmysqlnd_exec_with_cb_ctx };
+	const struct st_xmysqlnd_stmt_on_row_bind on_row = { exec_with_cb_handle_on_row, xmysqlnd_exec_with_cb_ctx };
+	const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { exec_with_cb_handle_on_warning, xmysqlnd_exec_with_cb_ctx };
+	const struct st_xmysqlnd_stmt_on_error_bind on_error = { exec_with_cb_handle_on_error, xmysqlnd_exec_with_cb_ctx };
+	const struct st_xmysqlnd_stmt_on_result_end_bind on_resultset_end = { on_rset_end_passed? exec_with_cb_handle_on_resultset_end : nullptr, xmysqlnd_exec_with_cb_ctx };
+	const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = { on_stmt_ok_passed? exec_with_cb_handle_on_statement_ok : nullptr, xmysqlnd_exec_with_cb_ctx };
 
 	DBG_ENTER("mysqlx_fetch_data_with_callback");
 
@@ -515,8 +515,8 @@ mysqlx_node_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, c
 				DBG_INF("ASYNC");
 				RETVAL_BOOL(PASS == object->send_query_status);
 			} else {
-				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_on_warning, nullptr };
-				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_on_error, nullptr };
+				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_on_warning, nullptr };
+				const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_on_error, nullptr };
 				XMYSQLND_NODE_STMT_RESULT * result;
 				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
 					result = stmt->data->m.get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
@@ -627,8 +627,8 @@ static void mysqlx_node_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, 
 		if (use_callbacks) {
 			RETVAL_BOOL(PASS == mysqlx_fetch_data_with_callback(object, &xmysqlnd_exec_with_cb_ctx));
 		} else {
-			const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_on_warning, nullptr };
-			const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_on_error, nullptr };
+			const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_on_warning, nullptr };
+			const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_on_error, nullptr };
 			XMYSQLND_NODE_STMT_RESULT * result;
 
 			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
@@ -840,8 +840,8 @@ mysqlx_node_statement_execute_read_response(const st_mysqlx_object* const mysqlx
 			DBG_INF("ASYNC");
 			RETVAL_BOOL(PASS == object->send_query_status);
 		} else {
-				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_on_warning, nullptr };
-				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_on_error, nullptr };
+				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_on_warning, nullptr };
+				const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_on_error, nullptr };
 				XMYSQLND_NODE_STMT_RESULT * result;
 				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
 					result = stmt->data->m.get_buffered_result(stmt,
@@ -898,7 +898,7 @@ mysqlx_node_statement_execute_read_response(const st_mysqlx_object* const mysqlx
 
 /* {{{ execute_new_statement_read_response */
 void execute_new_statement_read_response(
-	drv::st_xmysqlnd_node_stmt* stmt,
+	drv::st_xmysqlnd_stmt* stmt,
 	const zend_long flags,
 	const mysqlx_result_type result_type,
 	zval* return_value)

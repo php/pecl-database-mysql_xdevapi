@@ -521,7 +521,7 @@ XMYSQLND_METHOD(xmysqlnd_node_table, update)(XMYSQLND_NODE_TABLE * const table, 
 
 
 /* {{{ xmysqlnd_node_table::select */
-st_xmysqlnd_node_stmt *
+st_xmysqlnd_stmt *
 XMYSQLND_METHOD(xmysqlnd_node_table, select)(XMYSQLND_NODE_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 {
 	XMYSQLND_NODE_STMT* stmt{nullptr};

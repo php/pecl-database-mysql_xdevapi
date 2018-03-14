@@ -29,7 +29,7 @@ namespace drv {
 
 struct st_xmysqlnd_session;
 struct st_xmysqlnd_session_on_error_bind;
-struct st_xmysqlnd_node_collection;
+struct st_xmysqlnd_collection;
 
 struct Index_field
 {

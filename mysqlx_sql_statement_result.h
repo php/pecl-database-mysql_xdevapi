@@ -23,8 +23,8 @@
 namespace mysqlx {
 
 namespace drv {
-struct st_xmysqlnd_node_stmt;
-struct st_xmysqlnd_node_stmt_result;
+struct st_xmysqlnd_stmt;
+struct st_xmysqlnd_stmt_result;
 }
 
 namespace devapi {
@@ -33,15 +33,15 @@ struct st_mysqlx_node_statement;
 
 struct st_mysqlx_node_sql_statement_result : public util::custom_allocable
 {
-	drv::st_xmysqlnd_node_stmt_result* result;
-	drv::st_xmysqlnd_node_stmt* stmt;
+	drv::st_xmysqlnd_stmt_result* result;
+	drv::st_xmysqlnd_stmt* stmt;
 	zend_long execute_flags;
 	enum_func_status send_query_status;
 	zend_bool has_more_results;
 	zend_bool has_more_rows_in_set;
 };
 
-void mysqlx_new_sql_stmt_result(zval * return_value, drv::st_xmysqlnd_node_stmt_result* result, st_mysqlx_node_statement* stmt);
+void mysqlx_new_sql_stmt_result(zval * return_value, drv::st_xmysqlnd_stmt_result* result, st_mysqlx_node_statement* stmt);
 void mysqlx_register_node_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS);
 

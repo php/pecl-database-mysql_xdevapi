@@ -28,21 +28,21 @@ namespace mysqlx {
 namespace drv {
 
 struct st_xmysqlnd_session;
-struct st_xmysqlnd_node_collection;
-struct st_xmysqlnd_node_table;
+struct st_xmysqlnd_collection;
+struct st_xmysqlnd_table;
 struct st_xmysqlnd_session_on_error_bind;
 
-typedef struct st_xmysqlnd_node_schema		XMYSQLND_NODE_SCHEMA;
-typedef struct st_xmysqlnd_node_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
+typedef struct st_xmysqlnd_schema		XMYSQLND_NODE_SCHEMA;
+typedef struct st_xmysqlnd_schema_data	XMYSQLND_NODE_SCHEMA_DATA;
 
-struct st_xmysqlnd_node_schema_on_database_object_bind
+struct st_xmysqlnd_schema_on_database_object_bind
 {
 	void (*handler)(void * context, XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type);
 	void * ctx;
 };
 
 
-struct st_xmysqlnd_node_schema_on_error_bind
+struct st_xmysqlnd_schema_on_error_bind
 {
 	const enum_hnd_func_status (*handler)(void * context, const XMYSQLND_NODE_SCHEMA * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 	void * ctx;
@@ -58,24 +58,24 @@ typedef enum_func_status (*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA
 
 typedef enum_func_status (*func_xmysqlnd_node_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const schema, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 
-typedef st_xmysqlnd_node_collection* (*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
+typedef st_xmysqlnd_collection* (*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 
-typedef st_xmysqlnd_node_collection* (*func_xmysqlnd_node_schema__create_collection)(
+typedef st_xmysqlnd_collection* (*func_xmysqlnd_node_schema__create_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const util::string_view& collection_name,
-	const st_xmysqlnd_node_schema_on_error_bind on_error);
+	const st_xmysqlnd_schema_on_error_bind on_error);
 
 typedef enum_func_status (*func_xmysqlnd_node_schema__drop_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const util::string_view& collection_name,
-	const st_xmysqlnd_node_schema_on_error_bind on_error);
+	const st_xmysqlnd_schema_on_error_bind on_error);
 
-typedef st_xmysqlnd_node_table* (*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
+typedef st_xmysqlnd_table* (*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
 
 typedef enum_func_status (*func_xmysqlnd_node_schema__drop_table)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const util::string_view& table_name,
-	const st_xmysqlnd_node_schema_on_error_bind on_error);
+	const st_xmysqlnd_schema_on_error_bind on_error);
 
 bool is_table_object_type(const MYSQLND_CSTRING& object_type);
 bool is_collection_object_type(const MYSQLND_CSTRING& object_type);
@@ -91,8 +91,8 @@ typedef enum_func_status (*func_xmysqlnd_node_schema__get_db_objects)(
 	XMYSQLND_NODE_SCHEMA * const schema,
 	const MYSQLND_CSTRING& collection_name,
 	const db_object_type_filter object_type_filter,
-	const st_xmysqlnd_node_schema_on_database_object_bind on_object,
-	const st_xmysqlnd_node_schema_on_error_bind on_error);
+	const st_xmysqlnd_schema_on_database_object_bind on_object,
+	const st_xmysqlnd_schema_on_error_bind on_error);
 
 typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_node_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);
 typedef enum_func_status		(*func_xmysqlnd_node_schema__free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -120,7 +120,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 	func_xmysqlnd_node_schema__dtor dtor;
 };
 
-struct st_xmysqlnd_node_schema_data : public util::permanent_allocable
+struct st_xmysqlnd_schema_data : public util::permanent_allocable
 {
 	XMYSQLND_SESSION session;
 	MYSQLND_STRING schema_name;
@@ -133,7 +133,7 @@ struct st_xmysqlnd_node_schema_data : public util::permanent_allocable
 };
 
 
-struct st_xmysqlnd_node_schema : public util::permanent_allocable
+struct st_xmysqlnd_schema : public util::permanent_allocable
 {
 	XMYSQLND_NODE_SCHEMA_DATA * data;
 

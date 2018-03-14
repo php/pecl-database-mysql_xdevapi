@@ -23,7 +23,7 @@
 namespace mysqlx {
 
 namespace drv {
-struct st_xmysqlnd_node_stmt_result;
+struct st_xmysqlnd_stmt_result;
 }
 
 namespace devapi {
@@ -32,7 +32,7 @@ extern zend_class_entry * mysqlx_node_base_result_interface_entry;
 
 struct st_mysqlx_node_base_result : public util::custom_allocable
 {
-	drv::st_xmysqlnd_node_stmt_result* result;
+	drv::st_xmysqlnd_stmt_result* result;
 };
 
 void mysqlx_register_node_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);

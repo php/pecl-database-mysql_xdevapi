@@ -254,7 +254,7 @@ XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_rowset)(XMYSQLND_NODE_STMT_RES
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_stmt_result, attach_meta)(
 					XMYSQLND_NODE_STMT_RESULT * const result,
-					st_xmysqlnd_node_stmt_result_meta* const meta,
+					st_xmysqlnd_stmt_result_meta* const meta,
 					MYSQLND_STATS * const stats,
 					MYSQLND_ERROR_INFO * const error_info)
 {

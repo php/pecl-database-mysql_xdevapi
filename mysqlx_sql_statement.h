@@ -23,7 +23,7 @@
 namespace mysqlx {
 
 namespace drv {
-struct st_xmysqlnd_node_stmt;
+struct st_xmysqlnd_stmt;
 }
 
 namespace devapi {
@@ -63,7 +63,7 @@ struct st_mysqlx_node_statement : public util::custom_allocable
 void mysqlx_register_node_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_statement_class(SHUTDOWN_FUNC_ARGS);
 
-void mysqlx_new_node_stmt(zval * return_value, drv::st_xmysqlnd_node_stmt* stmt);
+void mysqlx_new_node_stmt(zval * return_value, drv::st_xmysqlnd_stmt* stmt);
 void mysqlx_node_statement_execute_read_response(
 	const st_mysqlx_object* const mysqlx_object,
 	const zend_long flags,
@@ -71,7 +71,7 @@ void mysqlx_node_statement_execute_read_response(
 	zval* return_value);
 
 void execute_new_statement_read_response(
-	drv::st_xmysqlnd_node_stmt* stmt,
+	drv::st_xmysqlnd_stmt* stmt,
 	const zend_long flags,
 	const mysqlx_result_type result_type,
 	zval* return_value);
@@ -81,7 +81,7 @@ void execute_new_statement_read_response(
 void mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS);
 
-void mysqlx_new_sql_stmt(zval * return_value, drv::st_xmysqlnd_node_stmt* stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query);
+void mysqlx_new_sql_stmt(zval * return_value, drv::st_xmysqlnd_stmt* stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query);
 void mysqlx_node_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zval * return_value);
 void mysqlx_node_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const zend_long flags, zval * return_value);
 

@@ -22,7 +22,7 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_collection;
+struct st_xmysqlnd_collection;
 struct st_xmysqlnd_crud_collection_op__add;
 
 } // namespace drv
@@ -35,12 +35,12 @@ class Collection_add : public util::custom_allocable
 public:
 	bool init(
 		zval* object_zv,
-		drv::st_xmysqlnd_node_collection* collection,
+		drv::st_xmysqlnd_collection* collection,
 		zval* docs,
 		int num_of_docs);
 	bool init(
 		zval* object_zv,
-		drv::st_xmysqlnd_node_collection* collection,
+		drv::st_xmysqlnd_collection* collection,
 		const util::string_view& single_doc_id,
 		zval* doc);
 	~Collection_add();
@@ -50,7 +50,7 @@ public:
 
 private:
 	zval* object_zv{nullptr};
-	drv::st_xmysqlnd_node_collection* collection{nullptr};
+	drv::st_xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
 	zval* docs{nullptr};
 	int num_of_docs{0};
@@ -60,7 +60,7 @@ private:
 
 void mysqlx_new_node_collection__add(
 	zval* return_value,
-	drv::st_xmysqlnd_node_collection* schema,
+	drv::st_xmysqlnd_collection* schema,
 	zval* docs,
 	int num_of_docs);
 void mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);

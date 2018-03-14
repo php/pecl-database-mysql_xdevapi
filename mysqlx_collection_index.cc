@@ -213,7 +213,7 @@ static const enum_hnd_func_status
 collection_index_on_error(
 	void* context,
 	XMYSQLND_SESSION session,
-	st_xmysqlnd_node_stmt* const stmt,
+	st_xmysqlnd_stmt* const stmt,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
@@ -229,7 +229,7 @@ collection_index_on_error(
 
 /* {{{ create_collection_index */
 void create_collection_index(
-	drv::st_xmysqlnd_node_collection* collection,
+	drv::st_xmysqlnd_collection* collection,
 	const util::string_view& index_name,
 	const util::string_view& index_desc_json,
 	zval* return_value)
@@ -260,7 +260,7 @@ void create_collection_index(
 
 /* {{{ drop_collection_index */
 void drop_collection_index(
-	const st_xmysqlnd_node_collection* collection,
+	const st_xmysqlnd_collection* collection,
 	const util::string_view& index_name,
 	zval* return_value)
 {

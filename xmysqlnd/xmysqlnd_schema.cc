@@ -234,7 +234,7 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection_object)(XMYSQLND_NODE_SC
 struct st_create_collection_handler_ctx
 {
 	const XMYSQLND_NODE_SCHEMA * schema;
-	const struct st_xmysqlnd_node_schema_on_error_bind on_error;
+	const struct st_xmysqlnd_schema_on_error_bind on_error;
 };
 
 /* {{{ collection_op_handler_on_error */
@@ -300,7 +300,7 @@ xmysqlnd_collection_op(
 	XMYSQLND_NODE_SCHEMA * const schema,
 	const util::string_view& collection_name,
 	const MYSQLND_CSTRING query,
-	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	auto session = schema->data->session;
@@ -338,7 +338,7 @@ static XMYSQLND_NODE_COLLECTION *
 XMYSQLND_METHOD(xmysqlnd_node_schema, create_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const util::string_view& collection_name,
-	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	static const MYSQLND_CSTRING query = {"create_collection", sizeof("create_collection") - 1 };
 	XMYSQLND_NODE_COLLECTION* collection{nullptr};
@@ -363,7 +363,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, drop_collection)(
 	XMYSQLND_NODE_SCHEMA * const schema,
 	const util::string_view& collection_name,
-	const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+	const struct st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"drop_collection", sizeof("drop_collection") - 1 };
@@ -396,7 +396,7 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_node_schema, drop_table)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const util::string_view& table_name,
-	const st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"drop_collection", sizeof("drop_collection") - 1 };
@@ -416,8 +416,8 @@ struct xmysqlnd_schema_get_db_objects_ctx
 {
 	XMYSQLND_NODE_SCHEMA * schema;
 	const db_object_type_filter object_type_filter;
-	const st_xmysqlnd_node_schema_on_database_object_bind on_object;
-	const st_xmysqlnd_node_schema_on_error_bind on_error;
+	const st_xmysqlnd_schema_on_database_object_bind on_object;
+	const st_xmysqlnd_schema_on_error_bind on_error;
 };
 
 
@@ -522,8 +522,8 @@ XMYSQLND_METHOD(xmysqlnd_node_schema, get_db_objects)(
 	XMYSQLND_NODE_SCHEMA * const schema,
 	const MYSQLND_CSTRING& collection_name,
 	const db_object_type_filter object_type_filter,
-	const struct st_xmysqlnd_node_schema_on_database_object_bind on_object,
-	const struct st_xmysqlnd_node_schema_on_error_bind handler_on_error)
+	const struct st_xmysqlnd_schema_on_database_object_bind on_object,
+	const struct st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };

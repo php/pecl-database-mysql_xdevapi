@@ -2037,7 +2037,7 @@ query_cb_handler_on_result_start(void * context, XMYSQLND_NODE_STMT * const stmt
 const enum_hnd_func_status
 query_cb_handler_on_row(void * context,
 						XMYSQLND_NODE_STMT * const stmt,
-						const st_xmysqlnd_node_stmt_result_meta* const meta,
+						const st_xmysqlnd_stmt_result_meta* const meta,
 						const zval * const row,
 						MYSQLND_STATS * const stats,
 						MYSQLND_ERROR_INFO * const error_info)
@@ -2180,27 +2180,27 @@ XMYSQLND_METHOD(xmysqlnd_session, query_cb)(XMYSQLND_SESSION session_handle,
 					handler_on_result_end,
 					handler_on_statement_ok
 				};
-				const struct st_xmysqlnd_node_stmt_on_row_bind on_row = {
+				const struct st_xmysqlnd_stmt_on_row_bind on_row = {
 					handler_on_row.handler? query_cb_handler_on_row : nullptr,
 					&query_cb_ctx
 				};
-				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = {
+				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = {
 					handler_on_warning.handler? query_cb_handler_on_warning : nullptr,
 					&query_cb_ctx
 				};
-				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = {
+				const struct st_xmysqlnd_stmt_on_error_bind on_error = {
 					handler_on_error.handler? query_cb_handler_on_error : nullptr,
 					&query_cb_ctx
 				};
-				const struct st_xmysqlnd_node_stmt_on_result_start_bind on_result_start = {
+				const struct st_xmysqlnd_stmt_on_result_start_bind on_result_start = {
 					handler_on_result_start.handler? query_cb_handler_on_result_start : nullptr,
 					&query_cb_ctx
 				};
-				const struct st_xmysqlnd_node_stmt_on_result_end_bind on_result_end = {
+				const struct st_xmysqlnd_stmt_on_result_end_bind on_result_end = {
 					handler_on_result_end.handler? query_cb_handler_on_result_end : nullptr,
 					&query_cb_ctx
 				};
-				const struct st_xmysqlnd_node_stmt_on_statement_ok_bind on_statement_ok = {
+				const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = {
 					handler_on_statement_ok.handler? query_cb_handler_on_statement_ok : nullptr,
 					&query_cb_ctx
 				};
@@ -2310,8 +2310,8 @@ XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
 				(PASS == (ret = stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), session->stats, session->error_info))))
 			{
 				do {
-					const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { xmysqlnd_node_session_on_warning, nullptr };
-					const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { nullptr, nullptr };
+					const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { xmysqlnd_node_session_on_warning, nullptr };
+					const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 					zend_bool has_more{FALSE};
 					XMYSQLND_NODE_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, session->stats, session->error_info);
 					if (result) {
@@ -2354,8 +2354,8 @@ XMYSQLND_METHOD(xmysqlnd_session, get_server_version)(XMYSQLND_SESSION session_h
 		XMYSQLND_NODE_STMT * stmt = session_handle->m->create_statement_object(session_handle);
 		if (stmt && stmt_execute) {
 			if (PASS == stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), session->stats, session->error_info)) {
-				const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { nullptr, nullptr };
-				const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { nullptr, nullptr };
+				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { nullptr, nullptr };
+				const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 				zend_bool has_more{FALSE};
 				XMYSQLND_NODE_STMT_RESULT * res = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, session->stats, session->error_info);
 				if (res) {

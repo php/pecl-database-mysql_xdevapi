@@ -818,7 +818,7 @@ void
 mysqlx_new_node_collection__find(
 	zval * return_value,
 	const util::string_view& search_expression,
-	drv::st_xmysqlnd_node_collection* collection)
+	drv::st_xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_node_collection__find");
 	if (SUCCESS == object_init_ex(return_value, collection_find_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {

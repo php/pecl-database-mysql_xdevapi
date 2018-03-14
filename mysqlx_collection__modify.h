@@ -22,7 +22,7 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_node_collection;
+struct st_xmysqlnd_collection;
 struct st_xmysqlnd_crud_collection_op__modify;
 
 } // namespace drv
@@ -35,7 +35,7 @@ class Collection_modify : public util::custom_allocable
 public:
 	bool init(
 		zval* object_zv,
-		drv::st_xmysqlnd_node_collection* collection,
+		drv::st_xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
 	~Collection_modify();
 
@@ -105,7 +105,7 @@ public:
 
 private:
 	zval* object_zv{nullptr};
-	drv::st_xmysqlnd_node_collection* collection{nullptr};
+	drv::st_xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__modify* modify_op{nullptr};
 
 };
@@ -115,7 +115,7 @@ private:
 void mysqlx_new_node_collection__modify(
 	zval* return_value,
 	const util::string_view& search_expression,
-	drv::st_xmysqlnd_node_collection* collection);
+	drv::st_xmysqlnd_collection* collection);
 void mysqlx_register_node_collection__modify_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__modify_class(SHUTDOWN_FUNC_ARGS);
 

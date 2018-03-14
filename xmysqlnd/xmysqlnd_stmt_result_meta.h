@@ -126,7 +126,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD
 
 /*******************************************************************************************************************************************/
 
-typedef struct st_xmysqlnd_node_stmt_result_meta XMYSQLND_NODE_STMT_RESULT_META;
+typedef struct st_xmysqlnd_stmt_result_meta XMYSQLND_NODE_STMT_RESULT_META;
 
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_meta__init)(XMYSQLND_NODE_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_node_stmt_result_meta__add_field)(XMYSQLND_NODE_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
@@ -145,7 +145,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_stmt_result_meta)
 	func_xmysqlnd_node_stmt_result_meta__dtor dtor;
 };
 
-struct st_xmysqlnd_node_stmt_result_meta : public util::permanent_allocable
+struct st_xmysqlnd_stmt_result_meta : public util::permanent_allocable
 {
 	unsigned int field_count;
 	XMYSQLND_RESULT_FIELD_META ** fields;

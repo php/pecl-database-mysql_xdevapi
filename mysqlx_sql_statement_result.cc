@@ -127,8 +127,8 @@ static int mysqlx_node_sql_statement_read_next_result(st_mysqlx_node_sql_stateme
 	if (PASS == object->send_query_status) {
 		XMYSQLND_NODE_STMT * stmt = object->stmt;
 
-		const struct st_xmysqlnd_node_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_result_on_warning, nullptr };
-		const struct st_xmysqlnd_node_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_result_on_error, nullptr };
+		const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_node_sql_stmt_result_on_warning, nullptr };
+		const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_node_sql_stmt_result_on_error, nullptr };
 		XMYSQLND_NODE_STMT_RESULT * result;
 
 		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
@@ -138,7 +138,7 @@ static int mysqlx_node_sql_statement_read_next_result(st_mysqlx_node_sql_stateme
 		}
 
 		if (result) {
-			st_xmysqlnd_node_stmt_result* prevResult = object->result;
+			st_xmysqlnd_stmt_result* prevResult = object->result;
 			if (prevResult) {
 				xmysqlnd_node_stmt_result_free(prevResult, nullptr, nullptr);
 			}
@@ -419,9 +419,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getWarnings)
 
 
 /* {{{ get_stmt_result_meta */
-static st_xmysqlnd_node_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_node_stmt_result* stmt_result)
+static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_stmt_result* stmt_result)
 {
-	st_xmysqlnd_node_stmt_result_meta* meta = 0;
+	st_xmysqlnd_stmt_result_meta* meta = 0;
 	if (stmt_result && stmt_result->rowset)
 	{
 		switch (stmt_result->rowset->type)
@@ -459,7 +459,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getColumnCount)
 
 	RETVAL_FALSE;
 	if (object->result) {
-		st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+		st_xmysqlnd_stmt_result_meta* meta = get_stmt_result_meta(object->result);
 		if (meta)
 		{
 			const size_t value = meta->m->get_field_count(meta);
@@ -493,7 +493,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getColumns)
 
 	RETVAL_FALSE;
 	if (object->result) {
-		st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+		st_xmysqlnd_stmt_result_meta* meta = get_stmt_result_meta(object->result);
 		/* Maybe check here if there was an error and throw an Exception or return a column */
 		if (meta) {
 			const unsigned int count{meta->m->get_field_count(meta)};
@@ -532,7 +532,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_sql_statement_result, getColumnNames)
 
 	RETVAL_FALSE;
 	if (object->result) {
-		st_xmysqlnd_node_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+		st_xmysqlnd_stmt_result_meta* meta = get_stmt_result_meta(object->result);
 		/* Maybe check here if there was an error and throw an Exception or return a column */
 		if (meta) {
 			const unsigned int count{meta->m->get_field_count(meta)};

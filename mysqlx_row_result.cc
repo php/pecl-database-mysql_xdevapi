@@ -222,9 +222,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getWarnings)
 
 
 /* {{{ get_stmt_result_meta */
-static st_xmysqlnd_node_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_node_stmt_result* stmt_result)
+static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_stmt_result* stmt_result)
 {
-	st_xmysqlnd_node_stmt_result_meta* meta = 0;
+	st_xmysqlnd_stmt_result_meta* meta = 0;
 	if (stmt_result && stmt_result->meta)
 	{
 		meta = stmt_result->meta;
@@ -235,9 +235,9 @@ static st_xmysqlnd_node_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_node_
 
 
 /* {{{ get_node_stmt_result_meta */
-static st_xmysqlnd_node_stmt_result_meta* get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
+static st_xmysqlnd_stmt_result_meta* get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 {
-	st_xmysqlnd_node_stmt_result_meta* meta{nullptr};
+	st_xmysqlnd_stmt_result_meta* meta{nullptr};
 	zval* object_zv{nullptr};
 	st_mysqlx_node_row_result* object{nullptr};
 
@@ -272,7 +272,7 @@ static st_xmysqlnd_node_stmt_result_meta* get_node_stmt_result_meta(INTERNAL_FUN
 /* {{{ proto mixed mysqlx_node_row_result::getColumnCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnCount)
 {
-	st_xmysqlnd_node_stmt_result_meta* meta;
+	st_xmysqlnd_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_node_row_result::getColumnCount");
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
@@ -295,7 +295,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnCount)
 /* {{{ proto mixed mysqlx_node_row_result::getColumns(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumns)
 {
-	st_xmysqlnd_node_stmt_result_meta* meta;
+	st_xmysqlnd_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_node_row_result::getColumns");
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
@@ -323,7 +323,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumns)
 /* {{{ proto mixed mysqlx_node_row_result::getColumnNames(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_node_row_result, getColumnNames)
 {
-	st_xmysqlnd_node_stmt_result_meta* meta;
+	st_xmysqlnd_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_node_row_result::getColumnNames");
 	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
