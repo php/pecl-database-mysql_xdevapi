@@ -95,43 +95,43 @@ struct st_xmysqlnd_plugin_methods_xetters
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const methods);
 	} object_factory;
 
-	struct st_xmnd_node_session_xetters
+	struct st_xmnd_session_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session) * const methods);
 	} node_session;
 
-	struct st_xmnd_node_session_data_xetters
+	struct st_xmnd_session_data_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * const methods);
 	} node_session_data;
 
-	struct st_xmnd_node_schema_xetters
+	struct st_xmnd_schema_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema) * const methods);
 	} node_schema;
 
-	struct st_xmnd_node_collection_xetters
+	struct st_xmnd_collection_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_collection) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_collection) * const methods);
 	} node_collection;
 
-	struct st_xmnd_node_table_xetters
+	struct st_xmnd_table_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_table) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_table) * const methods);
 	} node_table;
 
-	struct st_xmnd_node_stmt_xetters
+	struct st_xmnd_stmt_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt) * const methods);
 	} node_stmt;
 
-	struct st_xmnd_node_stmt_result_xetters
+	struct st_xmnd_stmt_result_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result) * const methods);
@@ -149,7 +149,7 @@ struct st_xmysqlnd_plugin_methods_xetters
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) * const methods);
 	} rowset_fwd;
 
-	struct st_xmnd_node_query_result_meta_xetters
+	struct st_xmnd_query_result_meta_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta) * const methods);
