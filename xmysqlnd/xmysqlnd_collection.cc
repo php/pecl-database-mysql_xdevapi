@@ -467,7 +467,7 @@ xmysqlnd_collection_create(XMYSQLND_NODE_SCHEMA * schema,
 	XMYSQLND_NODE_COLLECTION* ret{nullptr};
 	DBG_ENTER("xmysqlnd_collection_create");
 	if (collection_name.s && collection_name.l) {
-		ret = object_factory->get_node_collection(object_factory, schema, collection_name, persistent, stats, error_info);
+		ret = object_factory->get_collection(object_factory, schema, collection_name, persistent, stats, error_info);
 		if (ret) {
 			ret = ret->data->m.get_reference(ret);
 		}

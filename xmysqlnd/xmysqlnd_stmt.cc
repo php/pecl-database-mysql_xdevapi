@@ -848,7 +848,7 @@ xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 {
 	XMYSQLND_NODE_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_create");
-	stmt = object_factory->get_node_stmt(object_factory, session, persistent, stats, error_info);
+	stmt = object_factory->get_stmt(object_factory, session, persistent, stats, error_info);
 	if (stmt) {
 		stmt = stmt->data->m.get_reference(stmt);
 	}

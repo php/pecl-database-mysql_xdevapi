@@ -234,14 +234,14 @@ static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_stmt_resul
 /* }}} */
 
 
-/* {{{ get_node_stmt_result_meta */
-static st_xmysqlnd_stmt_result_meta* get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
+/* {{{ get_stmt_result_meta */
+static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(INTERNAL_FUNCTION_PARAMETERS)
 {
 	st_xmysqlnd_stmt_result_meta* meta{nullptr};
 	zval* object_zv{nullptr};
 	st_mysqlx_row_result* object{nullptr};
 
-	DBG_ENTER("get_node_stmt_result_meta");
+	DBG_ENTER("get_stmt_result_meta");
 	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
@@ -261,7 +261,7 @@ static st_xmysqlnd_stmt_result_meta* get_node_stmt_result_meta(INTERNAL_FUNCTION
 	}
 
 	if(meta == nullptr) {
-		RAISE_EXCEPTION(10001,"get_node_stmt_result_meta: Unable to extract metadata");
+		RAISE_EXCEPTION(10001,"get_stmt_result_meta: Unable to extract metadata");
 	}
 
 	DBG_RETURN(meta);
@@ -274,7 +274,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnCount)
 {
 	st_xmysqlnd_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_row_result::getColumnCount");
-	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	meta = get_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
 		const size_t value = meta->m->get_field_count(meta);
@@ -297,7 +297,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumns)
 {
 	st_xmysqlnd_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_row_result::getColumns");
-	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	meta = get_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
 		const unsigned int count{meta->m->get_field_count(meta)};
@@ -325,7 +325,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnNames)
 {
 	st_xmysqlnd_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_row_result::getColumnNames");
-	meta = get_node_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	meta = get_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 
 	if (meta) {
 		const unsigned int count{meta->m->get_field_count(meta)};

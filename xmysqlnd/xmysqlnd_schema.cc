@@ -649,7 +649,7 @@ xmysqlnd_schema_create(XMYSQLND_SESSION session,
 	XMYSQLND_NODE_SCHEMA* ret{nullptr};
 	DBG_ENTER("xmysqlnd_schema_create");
 	if (schema_name.s && schema_name.l) {
-		ret = object_factory->get_node_schema(object_factory, session, schema_name, persistent, stats, error_info);
+		ret = object_factory->get_schema(object_factory, session, schema_name, persistent, stats, error_info);
 		if (ret) {
 			ret = ret->data->m.get_reference(ret);
 		}

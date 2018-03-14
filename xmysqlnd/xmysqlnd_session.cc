@@ -1740,7 +1740,7 @@ st_xmysqlnd_session::st_xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysql
 	DBG_ENTER("xmysqlnd_session::st_xmysqlnd_session");
 
 	session_uuid = new Uuid_generator();
-	st_xmysqlnd_session_data * session_data = factory->get_node_session_data(factory, persistent, stats, error_info);
+	st_xmysqlnd_session_data * session_data = factory->get_session_data(factory, persistent, stats, error_info);
 	if (session_data) {
 		data = std::shared_ptr<st_xmysqlnd_session_data>(session_data);
 	}
@@ -2492,7 +2492,7 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
 xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_session_create");
-	auto session = object_factory->get_node_session(object_factory, persistent, stats, error_info);
+	auto session = object_factory->get_session(object_factory, persistent, stats, error_info);
 	if (session && session->data) {
 		session->data->m->negotiate_client_api_capabilities(session->data, client_flags);
 	}

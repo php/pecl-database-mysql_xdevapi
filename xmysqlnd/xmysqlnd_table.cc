@@ -638,7 +638,7 @@ xmysqlnd_table_create(XMYSQLND_NODE_SCHEMA * schema,
 	XMYSQLND_NODE_TABLE* ret{nullptr};
 	DBG_ENTER("xmysqlnd_table_create");
 	if (table_name.s && table_name.l) {
-		ret = object_factory->get_node_table(object_factory, schema, table_name, persistent, stats, error_info);
+		ret = object_factory->get_table(object_factory, schema, table_name, persistent, stats, error_info);
 		if (ret) {
 			ret = ret->data->m.get_reference(ret);
 		}
