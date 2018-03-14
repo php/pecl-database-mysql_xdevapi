@@ -224,7 +224,7 @@ void Collection_remove::execute(zval* return_value)
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);
-				mysqlx_new_node_stmt(&stmt_zv, stmt);
+				mysqlx_new_stmt(&stmt_zv, stmt);
 				if (Z_TYPE(stmt_zv) == IS_NULL) {
 					xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
 				}
@@ -427,14 +427,14 @@ mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_node_collection__remove */
+/* {{{ mysqlx_new_collection__remove */
 void
-mysqlx_new_node_collection__remove(
+mysqlx_new_collection__remove(
 	zval* return_value,
 	const util::string_view& search_expression,
 	XMYSQLND_NODE_COLLECTION* collection)
 {
-	DBG_ENTER("mysqlx_new_node_collection__remove");
+	DBG_ENTER("mysqlx_new_collection__remove");
 	if (SUCCESS == object_init_ex(return_value, collection_remove_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		Collection_remove* const coll_remove = static_cast<Collection_remove*>(mysqlx_object->ptr);

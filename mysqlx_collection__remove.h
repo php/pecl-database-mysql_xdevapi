@@ -61,7 +61,7 @@ private:
 /* }}} */
 
 
-void mysqlx_new_node_collection__remove(
+void mysqlx_new_collection__remove(
 	zval* return_value,
 	const util::string_view& search_expression,
 	drv::st_xmysqlnd_collection* collection);

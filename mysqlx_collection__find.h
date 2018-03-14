@@ -104,7 +104,7 @@ private:
 
 extern zend_class_entry* collection_find_class_entry;
 
-void mysqlx_new_node_collection__find(
+void mysqlx_new_collection__find(
 	zval * return_value,
 	const util::string_view& search_expression,
 	drv::st_xmysqlnd_collection* collection);

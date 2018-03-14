@@ -58,7 +58,7 @@ private:
 /* }}} */
 
 
-void mysqlx_new_node_collection__add(
+void mysqlx_new_collection__add(
 	zval* return_value,
 	drv::st_xmysqlnd_collection* schema,
 	zval* docs,

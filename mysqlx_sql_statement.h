@@ -63,7 +63,7 @@ struct st_mysqlx_statement : public util::custom_allocable
 void mysqlx_register_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_statement_class(SHUTDOWN_FUNC_ARGS);
 
-void mysqlx_new_node_stmt(zval * return_value, drv::st_xmysqlnd_stmt* stmt);
+void mysqlx_new_stmt(zval * return_value, drv::st_xmysqlnd_stmt* stmt);
 void mysqlx_statement_execute_read_response(
 	const st_mysqlx_object* const mysqlx_object,
 	const zend_long flags,

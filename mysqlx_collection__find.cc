@@ -444,7 +444,7 @@ void Collection_find::execute(
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);
-				mysqlx_new_node_stmt(&stmt_zv, stmt);
+				mysqlx_new_stmt(&stmt_zv, stmt);
 				if (Z_TYPE(stmt_zv) == IS_NULL) {
 					xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
 				}
@@ -813,14 +813,14 @@ mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_node_collection__find */
+/* {{{ mysqlx_new_collection__find */
 void
-mysqlx_new_node_collection__find(
+mysqlx_new_collection__find(
 	zval * return_value,
 	const util::string_view& search_expression,
 	drv::st_xmysqlnd_collection* collection)
 {
-	DBG_ENTER("mysqlx_new_node_collection__find");
+	DBG_ENTER("mysqlx_new_collection__find");
 	if (SUCCESS == object_init_ex(return_value, collection_find_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		Collection_find* const coll_find = static_cast<Collection_find*>(mysqlx_object->ptr);

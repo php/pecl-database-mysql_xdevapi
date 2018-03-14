@@ -247,7 +247,7 @@ get_schemas_handler_on_row(void * context,
 			if (schema) {
 				zval zv;
 				ZVAL_UNDEF(&zv);
-				mysqlx_new_node_schema(&zv, schema);
+				mysqlx_new_schema(&zv, schema);
 				zend_hash_next_index_insert(Z_ARRVAL_P(ctx->list), &zv);
 			}
 		}
@@ -334,7 +334,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 	if (XMYSQLND_SESSION session = object->session) {
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(session, schema_name.to_nd_cstr());
 		if (schema) {
-			mysqlx_new_node_schema(return_value, schema);
+			mysqlx_new_schema(return_value, schema);
 		} else {
 			mysqlx_throw_exception_from_session_if_needed(session->data);
 		}
@@ -602,7 +602,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 			(schema = session->m->create_schema_object(session, schema_name)))
 		{
 			DBG_INF_FMT("schema=%p", schema);
-			mysqlx_new_node_schema(return_value, schema);
+			mysqlx_new_schema(return_value, schema);
 		} else {
 			mysqlx_throw_exception_from_session_if_needed(session->data);
 		}

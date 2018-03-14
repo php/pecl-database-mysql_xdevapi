@@ -325,7 +325,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
 					session, schema_name);
 		if (schema) {
-			mysqlx_new_node_schema(return_value, schema);
+			mysqlx_new_schema(return_value, schema);
 		} else {
 			RAISE_EXCEPTION(10001,"Invalid object of class schema");
 		}
@@ -361,7 +361,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__add(return_value, object->collection,
+		mysqlx_new_collection__add(return_value, object->collection,
 										docs,
 										num_of_docs);
 	}
@@ -392,7 +392,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__find(return_value, search_expr, object->collection);
+		mysqlx_new_collection__find(return_value, search_expr, object->collection);
 	}
 
 	DBG_VOID_RETURN;
@@ -422,7 +422,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__modify(return_value, search_expr, object->collection);
+		mysqlx_new_collection__modify(return_value, search_expr, object->collection);
 	}
 
 	DBG_VOID_RETURN;
@@ -452,7 +452,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 	RETVAL_FALSE;
 
 	if (object->collection) {
-		mysqlx_new_node_collection__remove(return_value, search_expr, object->collection);
+		mysqlx_new_collection__remove(return_value, search_expr, object->collection);
 	}
 
 	DBG_VOID_RETURN;
@@ -799,11 +799,11 @@ mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_node_collection */
+/* {{{ mysqlx_new_collection */
 void
-mysqlx_new_node_collection(zval * return_value, XMYSQLND_NODE_COLLECTION * collection, const zend_bool clone)
+mysqlx_new_collection(zval * return_value, XMYSQLND_NODE_COLLECTION * collection, const zend_bool clone)
 {
-	DBG_ENTER("mysqlx_new_node_collection");
+	DBG_ENTER("mysqlx_new_collection");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_collection_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);

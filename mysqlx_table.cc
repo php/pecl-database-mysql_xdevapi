@@ -314,7 +314,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 		XMYSQLND_NODE_SCHEMA * schema = session->m->create_schema_object(
 					session, schema_name);
 		if (schema) {
-			mysqlx_new_node_schema(return_value, schema);
+			mysqlx_new_schema(return_value, schema);
 		} else {
 			RAISE_EXCEPTION(10001,"Invalid object of class schema");
 		}
@@ -361,7 +361,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 	RETVAL_FALSE;
 
 	if (object->table && num_of_columns > 0) {
-		mysqlx_new_node_table__insert(return_value,
+		mysqlx_new_table__insert(return_value,
 									  object->table,
 									  TRUE /* clone */,
 									  columns,
@@ -399,7 +399,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 	if (object->table && columns) {
 		DBG_INF_FMT("Num of columns: %d",
 					num_of_columns);
-		mysqlx_new_node_table__select(return_value,
+		mysqlx_new_table__select(return_value,
 						object->table,
 						TRUE /* clone */,
 						columns,
@@ -430,7 +430,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 	RETVAL_FALSE;
 
 	if (object->table) {
-		mysqlx_new_node_table__update(return_value, object->table, TRUE /* clone */);
+		mysqlx_new_table__update(return_value, object->table, TRUE /* clone */);
 	}
 
 	DBG_VOID_RETURN;
@@ -457,7 +457,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 	RETVAL_FALSE;
 
 	if (object->table) {
-		mysqlx_new_node_table__delete(return_value, object->table, TRUE /* clone */);
+		mysqlx_new_table__delete(return_value, object->table, TRUE /* clone */);
 	}
 
 	DBG_VOID_RETURN;
@@ -588,11 +588,11 @@ mysqlx_unregister_node_table_class(SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_node_table */
+/* {{{ mysqlx_new_table */
 void
-mysqlx_new_node_table(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone)
+mysqlx_new_table(zval * return_value, XMYSQLND_NODE_TABLE * table, const zend_bool clone)
 {
-	DBG_ENTER("mysqlx_new_node_table");
+	DBG_ENTER("mysqlx_new_table");
 
 	if (SUCCESS == object_init_ex(return_value, mysqlx_table_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);

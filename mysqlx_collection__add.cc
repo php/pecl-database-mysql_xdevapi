@@ -67,7 +67,7 @@ execute_statement(XMYSQLND_NODE_STMT* stmt,zval* return_value)
 	if (stmt) {
 		zval stmt_zv;
 		ZVAL_UNDEF(&stmt_zv);
-		mysqlx_new_node_stmt(&stmt_zv, stmt);
+		mysqlx_new_stmt(&stmt_zv, stmt);
 		if (Z_TYPE(stmt_zv) == IS_NULL) {
 			xmysqlnd_node_stmt_free(stmt, nullptr, nullptr);
 		}
@@ -506,15 +506,15 @@ mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_node_collection__add */
+/* {{{ mysqlx_new_collection__add */
 void
-mysqlx_new_node_collection__add(
+mysqlx_new_collection__add(
 	zval* return_value,
 	XMYSQLND_NODE_COLLECTION* collection,
 	zval* docs,
 	int num_of_docs)
 {
-	DBG_ENTER("mysqlx_new_node_collection__add");
+	DBG_ENTER("mysqlx_new_collection__add");
 
 	if (SUCCESS == object_init_ex(return_value, collection_add_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
