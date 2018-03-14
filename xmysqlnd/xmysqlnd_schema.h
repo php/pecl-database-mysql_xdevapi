@@ -49,30 +49,30 @@ struct st_xmysqlnd_schema_on_error_bind
 };
 
 
-typedef enum_func_status (*func_xmysqlnd_node_schema__init)(XMYSQLND_NODE_SCHEMA * const schema,
+typedef enum_func_status (*func_xmysqlnd_schema__init)(XMYSQLND_NODE_SCHEMA * const schema,
 															const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 															XMYSQLND_SESSION const session,
 															const MYSQLND_CSTRING schema_name,
 															MYSQLND_STATS * const stats,
 															MYSQLND_ERROR_INFO * const error_info);
 
-typedef enum_func_status (*func_xmysqlnd_node_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const schema, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+typedef enum_func_status (*func_xmysqlnd_scheme__exists_in_database)(XMYSQLND_NODE_SCHEMA * const schema, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 
-typedef st_xmysqlnd_collection* (*func_xmysqlnd_node_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
+typedef st_xmysqlnd_collection* (*func_xmysqlnd_schema__create_collection_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
 
-typedef st_xmysqlnd_collection* (*func_xmysqlnd_node_schema__create_collection)(
+typedef st_xmysqlnd_collection* (*func_xmysqlnd_schema__create_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const util::string_view& collection_name,
 	const st_xmysqlnd_schema_on_error_bind on_error);
 
-typedef enum_func_status (*func_xmysqlnd_node_schema__drop_collection)(
+typedef enum_func_status (*func_xmysqlnd_schema__drop_collection)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const util::string_view& collection_name,
 	const st_xmysqlnd_schema_on_error_bind on_error);
 
-typedef st_xmysqlnd_table* (*func_xmysqlnd_node_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
+typedef st_xmysqlnd_table* (*func_xmysqlnd_schema__create_table_object)(XMYSQLND_NODE_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
 
-typedef enum_func_status (*func_xmysqlnd_node_schema__drop_table)(
+typedef enum_func_status (*func_xmysqlnd_schema__drop_table)(
 	XMYSQLND_NODE_SCHEMA* const schema,
 	const util::string_view& table_name,
 	const st_xmysqlnd_schema_on_error_bind on_error);
@@ -87,37 +87,37 @@ enum class db_object_type_filter
 	collection
 };
 
-typedef enum_func_status (*func_xmysqlnd_node_schema__get_db_objects)(
+typedef enum_func_status (*func_xmysqlnd_schema__get_db_objects)(
 	XMYSQLND_NODE_SCHEMA * const schema,
 	const MYSQLND_CSTRING& collection_name,
 	const db_object_type_filter object_type_filter,
 	const st_xmysqlnd_schema_on_database_object_bind on_object,
 	const st_xmysqlnd_schema_on_error_bind on_error);
 
-typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_node_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);
-typedef enum_func_status		(*func_xmysqlnd_node_schema__free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef void					(*func_xmysqlnd_node_schema__free_contents)(XMYSQLND_NODE_SCHEMA * const schema);
-typedef void					(*func_xmysqlnd_node_schema__dtor)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef XMYSQLND_NODE_SCHEMA *	(*func_xmysqlnd_schema__get_reference)(XMYSQLND_NODE_SCHEMA * const schema);
+typedef enum_func_status		(*func_xmysqlnd_schema__free_reference)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef void					(*func_xmysqlnd_schema__free_contents)(XMYSQLND_NODE_SCHEMA * const schema);
+typedef void					(*func_xmysqlnd_schema__dtor)(XMYSQLND_NODE_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_node_schema)
 {
-	func_xmysqlnd_node_schema__init init;
+	func_xmysqlnd_schema__init init;
 
-	func_xmysqlnd_node_scheme__exists_in_database exists_in_database;
+	func_xmysqlnd_scheme__exists_in_database exists_in_database;
 
-	func_xmysqlnd_node_schema__create_collection_object create_collection_object;
-	func_xmysqlnd_node_schema__create_collection create_collection;
-	func_xmysqlnd_node_schema__drop_collection drop_collection;
-	func_xmysqlnd_node_schema__create_table_object create_table_object;
-	func_xmysqlnd_node_schema__drop_table drop_table;
+	func_xmysqlnd_schema__create_collection_object create_collection_object;
+	func_xmysqlnd_schema__create_collection create_collection;
+	func_xmysqlnd_schema__drop_collection drop_collection;
+	func_xmysqlnd_schema__create_table_object create_table_object;
+	func_xmysqlnd_schema__drop_table drop_table;
 
-	func_xmysqlnd_node_schema__get_db_objects get_db_objects;
+	func_xmysqlnd_schema__get_db_objects get_db_objects;
 
-	func_xmysqlnd_node_schema__get_reference get_reference;
-	func_xmysqlnd_node_schema__free_reference free_reference;
+	func_xmysqlnd_schema__get_reference get_reference;
+	func_xmysqlnd_schema__free_reference free_reference;
 
-	func_xmysqlnd_node_schema__free_contents free_contents;
-	func_xmysqlnd_node_schema__dtor dtor;
+	func_xmysqlnd_schema__free_contents free_contents;
+	func_xmysqlnd_schema__dtor dtor;
 };
 
 struct st_xmysqlnd_schema_data : public util::permanent_allocable
