@@ -659,9 +659,9 @@ mysqlx_register_schema_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_ob
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_schema_class */
+/* {{{ mysqlx_unregister_schema_class */
 void
-mysqlx_unregister_node_schema_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_schema_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_schema_properties);
 }

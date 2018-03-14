@@ -758,9 +758,9 @@ mysqlx_register_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysql
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_sql_statement_class */
+/* {{{ mysqlx_unregister_sql_statement_class */
 void
-mysqlx_unregister_node_sql_statement_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_sql_statement_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_sql_statement_properties);
 }
@@ -1034,9 +1034,9 @@ mysqlx_register_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_st
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_statement_class */
+/* {{{ mysqlx_unregister_statement_class */
 void
-mysqlx_unregister_node_statement_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_statement_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_statement_properties);
 }

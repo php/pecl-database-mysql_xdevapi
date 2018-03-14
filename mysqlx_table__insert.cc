@@ -285,9 +285,9 @@ mysqlx_register_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * mysql
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_table__insert_class */
+/* {{{ mysqlx_unregister_table__insert_class */
 void
-mysqlx_unregister_node_table__insert_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_table__insert_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__insert_properties);
 }

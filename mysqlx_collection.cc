@@ -790,9 +790,9 @@ mysqlx_register_collection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_collection_class */
+/* {{{ mysqlx_unregister_collection_class */
 void
-mysqlx_unregister_node_collection_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_collection_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_collection_properties);
 }

@@ -66,7 +66,7 @@ void mysqlx_new_collection__remove(
 	const util::string_view& search_expression,
 	drv::st_xmysqlnd_collection* collection);
 void mysqlx_register_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_collection__remove_class(SHUTDOWN_FUNC_ARGS);
+void mysqlx_unregister_collection__remove_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi
 

@@ -804,9 +804,9 @@ mysqlx_register_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers* mys
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_collection__find_class */
+/* {{{ mysqlx_unregister_collection__find_class */
 void
-mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_collection__find_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&collection_find_properties);
 }

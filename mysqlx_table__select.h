@@ -32,7 +32,7 @@ void mysqlx_new_table__select(zval * return_value,
 						zval * columns,
 						const int num_of_columns);
 void mysqlx_register_table__select_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_table__select_class(SHUTDOWN_FUNC_ARGS);
+void mysqlx_unregister_table__select_class(SHUTDOWN_FUNC_ARGS);
 
 Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv);
 

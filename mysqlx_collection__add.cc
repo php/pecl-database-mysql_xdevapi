@@ -497,9 +497,9 @@ mysqlx_register_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysq
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_collection__add_class */
+/* {{{ mysqlx_unregister_collection__add_class */
 void
-mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_collection__add_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&collection_add_properties);
 }

@@ -579,9 +579,9 @@ mysqlx_register_table_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_ob
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_table_class */
+/* {{{ mysqlx_unregister_table_class */
 void
-mysqlx_unregister_node_table_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_table_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table_properties);
 }

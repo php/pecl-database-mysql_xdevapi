@@ -663,9 +663,9 @@ mysqlx_register_column_result_class(INIT_FUNC_ARGS,
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_column_result_class */
+/* {{{ mysqlx_unregister_column_result_class */
 void
-mysqlx_unregister_node_column_result_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_column_result_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_column_result_properties);
 }

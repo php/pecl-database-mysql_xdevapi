@@ -64,7 +64,7 @@ void mysqlx_new_collection__add(
 	zval* docs,
 	int num_of_docs);
 void mysqlx_register_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
-void mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS);
+void mysqlx_unregister_collection__add_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi
 

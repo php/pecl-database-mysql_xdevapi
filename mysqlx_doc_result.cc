@@ -293,9 +293,9 @@ mysqlx_register_doc_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_doc_result_class */
+/* {{{ mysqlx_unregister_doc_result_class */
 void
-mysqlx_unregister_node_doc_result_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_doc_result_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_doc_result_properties);
 }

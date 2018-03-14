@@ -71,9 +71,9 @@ mysqlx_register_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mys
 }
 /* }}} */
 
-/* {{{ mysqlx_unregister_node_base_result_interface */
+/* {{{ mysqlx_unregister_base_result_interface */
 void
-mysqlx_unregister_node_base_result_interface(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_base_result_interface(SHUTDOWN_FUNC_ARGS)
 {
 }
 /* }}} */

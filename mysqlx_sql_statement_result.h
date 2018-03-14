@@ -43,7 +43,7 @@ struct st_mysqlx_sql_statement_result : public util::custom_allocable
 
 void mysqlx_new_sql_stmt_result(zval * return_value, drv::st_xmysqlnd_stmt_result* result, st_mysqlx_statement* stmt);
 void mysqlx_register_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_node_sql_statement_result_class(SHUTDOWN_FUNC_ARGS);
+void mysqlx_unregister_sql_statement_result_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi
 

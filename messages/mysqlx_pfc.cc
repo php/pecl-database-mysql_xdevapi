@@ -234,9 +234,9 @@ mysqlx_register_pfc_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_obje
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_node_pfc_class */
+/* {{{ mysqlx_unregister_pfc_class */
 void
-mysqlx_unregister_node_pfc_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_pfc_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_pfc_properties);
 }
