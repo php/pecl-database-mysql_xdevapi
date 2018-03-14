@@ -39,7 +39,7 @@ struct st_mysqlx_object
 
 typedef struct
 {
-	void *ptr;		/* resource: (driver, xsession, node_session)   */
+	void *ptr;		/* resource: (driver, xsession, session)   */
 } MYSQLX_RESOURCE;
 
 /**
