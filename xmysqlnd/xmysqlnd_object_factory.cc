@@ -221,16 +221,16 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt)(const MYSQLND_CLASS_METH
 /* }}} */
 
 
-/* {{{ xmysqlnd_object_factory::get_node_stmt_result */
+/* {{{ xmysqlnd_object_factory::get_stmt_result */
 static XMYSQLND_NODE_STMT_RESULT *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 															   const zend_bool persistent,
 															   MYSQLND_STATS* stats,
 															   MYSQLND_ERROR_INFO* error_info)
 {
 	XMYSQLND_NODE_STMT_RESULT* object = new XMYSQLND_NODE_STMT_RESULT;
 
-	DBG_ENTER("xmysqlnd_object_factory::get_node_stmt_result");
+	DBG_ENTER("xmysqlnd_object_factory::get_stmt_result");
 	DBG_INF_FMT("persistent=%u", persistent);
 	if (object) {
 		object->m = *xmysqlnd_stmt_result_get_methods();
@@ -323,16 +323,16 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(const MYSQLND_CLASS_METHODS
 /* }}} */
 
 
-/* {{{ xmysqlnd_object_factory::get_node_stmt_result_meta */
+/* {{{ xmysqlnd_object_factory::get_stmt_result_meta */
 static XMYSQLND_NODE_STMT_RESULT_META *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 																	const zend_bool persistent,
 																	MYSQLND_STATS* stats,
 																	MYSQLND_ERROR_INFO* error_info)
 {
 	XMYSQLND_NODE_STMT_RESULT_META* object = new XMYSQLND_NODE_STMT_RESULT_META;
 
-	DBG_ENTER("xmysqlnd_object_factory::get_node_stmt_result_meta");
+	DBG_ENTER("xmysqlnd_object_factory::get_stmt_result_meta");
 	DBG_INF_FMT("persistent=%u", persistent);
 	if (object) {
 		object->persistent = persistent;
@@ -463,11 +463,11 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_collection),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_table),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt),
-	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_fwd),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset),
-	XMYSQLND_METHOD(xmysqlnd_object_factory, get_node_stmt_result_meta),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list),

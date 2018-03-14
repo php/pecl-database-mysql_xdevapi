@@ -455,7 +455,7 @@ xmysqlnd_stmt_result_create(const zend_bool persistent,
 {
 	XMYSQLND_NODE_STMT_RESULT* result{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_result_create");
-	result = object_factory->get_node_stmt_result(object_factory, persistent, stats, error_info);
+	result = object_factory->get_stmt_result(object_factory, persistent, stats, error_info);
 	if (result) {
 		result = result->m.get_reference(result);
 	}

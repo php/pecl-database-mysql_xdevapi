@@ -455,7 +455,7 @@ xmysqlnd_stmt_result_meta_create(const zend_bool persistent,
 {
 	XMYSQLND_NODE_STMT_RESULT_META* object{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_result_meta_create");
-	object = object_factory->get_node_stmt_result_meta(object_factory, persistent, stats, error_info);
+	object = object_factory->get_stmt_result_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);
 }
 /* }}} */

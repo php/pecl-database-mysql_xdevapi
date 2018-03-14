@@ -62,8 +62,8 @@ struct st_xmysqlnd_plugin__plugin_area_getters
 	void ** (*get_node_schema_area)(const st_xmysqlnd_schema* schema, unsigned int plugin_id);
 	void ** (*get_node_collection_area)(const st_xmysqlnd_collection* collection, unsigned int plugin_id);
 	void ** (*get_node_table_area)(const st_xmysqlnd_table* table, unsigned int plugin_id);
-	void ** (*get_node_stmt_area)(const st_xmysqlnd_stmt* stmt, unsigned int plugin_id);
-	void ** (*get_node_stmt_result_area)(const st_xmysqlnd_stmt_result* result, unsigned int plugin_id);
+	void ** (*get_stmt_area)(const st_xmysqlnd_stmt* stmt, unsigned int plugin_id);
+	void ** (*get_stmt_result_area)(const st_xmysqlnd_stmt_result* result, unsigned int plugin_id);
 	void ** (*get_rowset_buffered_area)(const st_xmysqlnd_rowset_buffered* result, unsigned int plugin_id);
 	void ** (*get_rowset_fwd_area)(const st_xmysqlnd_rowset_fwd* result, unsigned int plugin_id);
 	void ** (*get_node_query_result_meta_area)(const st_xmysqlnd_stmt_result_meta* result, unsigned int plugin_id);
@@ -78,8 +78,8 @@ extern struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_gette
 #define xmysqlnd_plugin_get_node_schema_plugin_area(s, p_id)				xmysqlnd_plugin_area_getters.get_node_schema_area((s), (p_id))
 #define xmysqlnd_plugin_get_node_collection_plugin_area(s, p_id)			xmysqlnd_plugin_area_getters.get_node_collection_area((s), (p_id))
 #define xmysqlnd_plugin_get_node_table_plugin_area(s, p_id)					xmysqlnd_plugin_area_getters.get_node_table_area((s), (p_id))
-#define xmysqlnd_plugin_get_node_stmt_plugin_area(s, p_id)					xmysqlnd_plugin_area_getters.get_node_stmt_area((s), (p_id))
-#define xmysqlnd_plugin_get_node_stmt_result_plugin_area(r, p_id)			xmysqlnd_plugin_area_getters.get_node_stmt_result_area((r), (p_id))
+#define xmysqlnd_plugin_get_stmt_plugin_area(s, p_id)					xmysqlnd_plugin_area_getters.get_stmt_area((s), (p_id))
+#define xmysqlnd_plugin_get_stmt_result_plugin_area(r, p_id)			xmysqlnd_plugin_area_getters.get_stmt_result_area((r), (p_id))
 #define xmysqlnd_plugin_get_rowset_buffered_plugin_area(r, p_id)			xmysqlnd_plugin_area_getters.get_rowset_buffered_area((r), (p_id))
 #define xmysqlnd_plugin_get_rowset_fwd_plugin_area(r, p_id)					xmysqlnd_plugin_area_getters.get_rowset_fwd_area((r), (p_id))
 #define xmysqlnd_plugin_get_node_query_result_meta_plugin_area(m, p_id)		xmysqlnd_plugin_area_getters.get_node_query_result_meta_area((m), (p_id))
