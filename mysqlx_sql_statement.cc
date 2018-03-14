@@ -730,9 +730,9 @@ php_mysqlx_sql_statement_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_node_sql_statement_class */
+/* {{{ mysqlx_register_sql_statement_class */
 void
-mysqlx_register_node_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_sql_statement_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_node_sql_statement_handlers.free_obj = mysqlx_sql_statement_free_storage;
@@ -1009,9 +1009,9 @@ php_mysqlx_statement_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_node_sql_statement_class */
+/* {{{ mysqlx_register_sql_statement_class */
 void
-mysqlx_register_node_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_statement_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_node_statement_handlers.free_obj = mysqlx_statement_free_storage;

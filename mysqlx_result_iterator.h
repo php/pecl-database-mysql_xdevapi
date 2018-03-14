@@ -22,7 +22,7 @@ namespace mysqlx {
 
 namespace devapi {
 
-void mysqlx_register_node_result_iterator(zend_class_entry * ce);
+void mysqlx_register_result_iterator(zend_class_entry * ce);
 
 } // namespace devapi
 

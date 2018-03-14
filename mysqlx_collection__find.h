@@ -108,7 +108,7 @@ void mysqlx_new_node_collection__find(
 	zval * return_value,
 	const util::string_view& search_expression,
 	drv::st_xmysqlnd_collection* collection);
-void mysqlx_register_node_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_register_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__find_class(SHUTDOWN_FUNC_ARGS);
 
 Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv);

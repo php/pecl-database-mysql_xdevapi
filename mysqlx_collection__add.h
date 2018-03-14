@@ -63,7 +63,7 @@ void mysqlx_new_node_collection__add(
 	drv::st_xmysqlnd_collection* schema,
 	zval* docs,
 	int num_of_docs);
-void mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
+void mysqlx_register_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_node_collection__add_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi

@@ -268,9 +268,9 @@ php_mysqlx_doc_result_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_node_doc_result_class */
+/* {{{ mysqlx_register_doc_result_class */
 void
-mysqlx_register_node_doc_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_doc_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_doc_result_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_node_doc_result_handlers.free_obj = mysqlx_doc_result_free_storage;
@@ -282,7 +282,7 @@ mysqlx_register_node_doc_result_class(INIT_FUNC_ARGS, zend_object_handlers * mys
 		mysqlx_doc_result_class_entry = zend_register_internal_class(&tmp_ce);
 		zend_class_implements(mysqlx_doc_result_class_entry, 1, mysqlx_base_result_interface_entry);
 
-		mysqlx_register_node_doc_result_iterator(mysqlx_doc_result_class_entry);
+		mysqlx_register_doc_result_iterator(mysqlx_doc_result_class_entry);
 	}
 
 	zend_hash_init(&mysqlx_doc_result_properties, 0, nullptr, mysqlx_free_property_cb, 1);

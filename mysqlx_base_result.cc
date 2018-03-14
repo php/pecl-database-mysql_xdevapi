@@ -61,9 +61,9 @@ static const zend_function_entry mysqlx_base_result_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_register_node_base_result_interface */
+/* {{{ mysqlx_register_base_result_interface */
 void
-mysqlx_register_node_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	zend_class_entry tmp_ce;
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "BaseResult", mysqlx_base_result_methods);

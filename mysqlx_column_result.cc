@@ -636,7 +636,7 @@ mysqlx_column_result_free_storage(zend_object * object)
 
 /* {{{ mysqlx_register_column_result_class */
 void
-mysqlx_register_node_column_result_class(INIT_FUNC_ARGS,
+mysqlx_register_column_result_class(INIT_FUNC_ARGS,
 						zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_column_result_handlers = *mysqlx_std_object_handlers;

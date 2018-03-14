@@ -488,9 +488,9 @@ php_mysqlx_table__update_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_node_table__update_class */
+/* {{{ mysqlx_register_table__update_class */
 void
-mysqlx_register_node_table__update_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_table__update_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_table__update_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_node_table__update_handlers.free_obj = mysqlx_table__update_free_storage;

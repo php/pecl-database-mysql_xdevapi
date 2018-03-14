@@ -215,9 +215,9 @@ php_mysqlx_pfc_object_allocator(zend_class_entry * class_type)
 
 } // anonymous namespace
 
-/* {{{ mysqlx_register_node_pfc_class */
+/* {{{ mysqlx_register_pfc_class */
 void
-mysqlx_register_node_pfc_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_pfc_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_pfc_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_node_pfc_handlers.free_obj = mysqlx_pfc_free_storage;

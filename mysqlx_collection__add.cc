@@ -473,9 +473,9 @@ php_mysqlx_collection__add_object_allocator(zend_class_entry* class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_node_collection__add_class */
+/* {{{ mysqlx_register_collection__add_class */
 void
-mysqlx_register_node_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
+mysqlx_register_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
 	MYSQL_XDEVAPI_REGISTER_CLASS(
 		collection_add_class_entry,

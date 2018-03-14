@@ -633,9 +633,9 @@ php_mysqlx_schema_object_allocator(zend_class_entry* class_type)
 
 } // anonymous namespace
 
-/* {{{ mysqlx_register_node_schema_class */
+/* {{{ mysqlx_register_schema_class */
 void
-mysqlx_register_node_schema_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
+mysqlx_register_schema_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
 	mysqlx_object_node_schema_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_node_schema_handlers.free_obj = mysqlx_schema_free_storage;

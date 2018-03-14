@@ -187,9 +187,9 @@ mysqlx_row_result_create_iterator(zend_class_entry * ce, zval * object, int by_r
 /* }}} */
 
 
-/* {{{ mysqlx_register_node_row_result_iterator */
+/* {{{ mysqlx_register_row_result_iterator */
 void
-mysqlx_register_node_row_result_iterator(zend_class_entry * ce)
+mysqlx_register_row_result_iterator(zend_class_entry * ce)
 {
 	ce->get_iterator = mysqlx_row_result_create_iterator;
 	ce->iterator_funcs.funcs = &mysqlx_row_result_iterator_funcs;
