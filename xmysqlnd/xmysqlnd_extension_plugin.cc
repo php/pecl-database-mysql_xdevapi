@@ -41,9 +41,9 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_plugin__get_node_session_plugin_area */
+/* {{{ xmysqlnd_plugin__get_session_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_session_plugin_area(const st_xmysqlnd_session * session, const unsigned int plugin_id)
+xmysqlnd_plugin__get_session_plugin_area(const st_xmysqlnd_session * session, const unsigned int plugin_id)
 {
 	DBG_ENTER("xmysqlnd_plugin__get_connection_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
@@ -55,11 +55,11 @@ xmysqlnd_plugin__get_node_session_plugin_area(const st_xmysqlnd_session * sessio
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_session_data_plugin_area */
+/* {{{ xmysqlnd_plugin__get_session_data_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_session_data_plugin_area(const st_xmysqlnd_session_data * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_session_data_plugin_area(const st_xmysqlnd_session_data * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_session_data_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_session_data_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
@@ -69,11 +69,11 @@ xmysqlnd_plugin__get_node_session_data_plugin_area(const st_xmysqlnd_session_dat
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_schema_plugin_area */
+/* {{{ xmysqlnd_plugin__get_schema_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_schema_plugin_area(const XMYSQLND_NODE_SCHEMA * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_schema_plugin_area(const XMYSQLND_NODE_SCHEMA * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_schema_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_schema_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
@@ -83,11 +83,11 @@ xmysqlnd_plugin__get_node_schema_plugin_area(const XMYSQLND_NODE_SCHEMA * object
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_collection_plugin_area */
+/* {{{ xmysqlnd_plugin__get_collection_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_collection_plugin_area(const XMYSQLND_NODE_COLLECTION * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_collection_plugin_area(const XMYSQLND_NODE_COLLECTION * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_collection_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_collection_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
@@ -97,11 +97,11 @@ xmysqlnd_plugin__get_node_collection_plugin_area(const XMYSQLND_NODE_COLLECTION 
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_table_plugin_area */
+/* {{{ xmysqlnd_plugin__get_table_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_table_plugin_area(const XMYSQLND_NODE_TABLE * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_table_plugin_area(const XMYSQLND_NODE_TABLE * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_table_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_table_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
@@ -111,11 +111,11 @@ xmysqlnd_plugin__get_node_table_plugin_area(const XMYSQLND_NODE_TABLE * object, 
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_stmt_plugin_area */
+/* {{{ xmysqlnd_plugin__get_stmt_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_stmt_plugin_area(const XMYSQLND_NODE_STMT * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_stmt_plugin_area(const XMYSQLND_NODE_STMT * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_stmt_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_stmt_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
@@ -125,11 +125,11 @@ xmysqlnd_plugin__get_node_stmt_plugin_area(const XMYSQLND_NODE_STMT * object, co
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_stmt_result_plugin_area */
+/* {{{ xmysqlnd_plugin__get_stmt_result_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_stmt_result_plugin_area(const XMYSQLND_NODE_STMT_RESULT * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_stmt_result_plugin_area(const XMYSQLND_NODE_STMT_RESULT * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_stmt_result_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_stmt_result_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
@@ -167,11 +167,11 @@ xmysqlnd_plugin__get_rowset_fwd_plugin_area(const XMYSQLND_ROWSET_FWD * object, 
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_node_query_result_meta_plugin_area */
+/* {{{ xmysqlnd_plugin__get_query_result_meta_plugin_area */
 static void **
-xmysqlnd_plugin__get_node_query_result_meta_plugin_area(const XMYSQLND_NODE_STMT_RESULT_META * object, const unsigned int plugin_id)
+xmysqlnd_plugin__get_query_result_meta_plugin_area(const XMYSQLND_NODE_STMT_RESULT_META * object, const unsigned int plugin_id)
 {
-	DBG_ENTER("xmysqlnd_plugin__get_node_query_result_meta_plugin_area");
+	DBG_ENTER("xmysqlnd_plugin__get_query_result_meta_plugin_area");
 	DBG_INF_FMT("plugin_id=%u", plugin_id);
 	if (!object || plugin_id >= mysqlnd_plugin_count()) {
 		return nullptr;
@@ -210,16 +210,16 @@ xmysqlnd_plugin__get_plugin_pfc_data(const XMYSQLND_PFC * object, unsigned int p
 
 struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 {
-	xmysqlnd_plugin__get_node_session_plugin_area,
-	xmysqlnd_plugin__get_node_session_data_plugin_area,
-	xmysqlnd_plugin__get_node_schema_plugin_area,
-	xmysqlnd_plugin__get_node_collection_plugin_area,
-	xmysqlnd_plugin__get_node_table_plugin_area,
-	xmysqlnd_plugin__get_node_stmt_plugin_area,
-	xmysqlnd_plugin__get_node_stmt_result_plugin_area,
+	xmysqlnd_plugin__get_session_plugin_area,
+	xmysqlnd_plugin__get_session_data_plugin_area,
+	xmysqlnd_plugin__get_schema_plugin_area,
+	xmysqlnd_plugin__get_collection_plugin_area,
+	xmysqlnd_plugin__get_table_plugin_area,
+	xmysqlnd_plugin__get_stmt_plugin_area,
+	xmysqlnd_plugin__get_stmt_result_plugin_area,
 	xmysqlnd_plugin__get_rowset_buffered_plugin_area,
 	xmysqlnd_plugin__get_rowset_fwd_plugin_area,
-	xmysqlnd_plugin__get_node_query_result_meta_plugin_area,
+	xmysqlnd_plugin__get_query_result_meta_plugin_area,
 	xmysqlnd_plugin__get_rowset_plugin_area,
 	xmysqlnd_plugin__get_plugin_pfc_data,
 };
