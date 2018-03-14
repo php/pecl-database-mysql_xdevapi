@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_SQL_STATEMENT_H
-#define MYSQLX_NODE_SQL_STATEMENT_H
+#ifndef MYSQLX_SQL_STATEMENT_H
+#define MYSQLX_SQL_STATEMENT_H
 
 #include "util/allocator.h"
 
@@ -89,7 +89,7 @@ void mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, c
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_SQL_STATEMENT_H */
+#endif /* MYSQLX_SQL_STATEMENT_H */
 
 /*
  * Local variables:

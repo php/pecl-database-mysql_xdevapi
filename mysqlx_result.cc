@@ -62,7 +62,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-#define MYSQLX_FETCH_NODE_RESULT_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_RESULT_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_result*) mysqlx_object->ptr; \
@@ -93,7 +93,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -127,7 +127,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAutoIncrementValue)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result && object->result->exec_state) {
@@ -161,7 +161,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 	if (object->result && object->result->exec_state) {
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
@@ -196,7 +196,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningCount)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -230,7 +230,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {

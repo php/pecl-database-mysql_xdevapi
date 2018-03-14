@@ -111,8 +111,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 
 	MYSQLX_FETCH_MESSAGE__CAPABILITIES_SET_FROM_ZVAL(object, object_zv);
 	MYSQLX_FETCH_MESSAGE__CAPABILITIES_FROM_ZVAL(capabilities, capabilities_zv);
-	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_PFC_FROM_ZVAL(codec, codec_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	{
 		const unsigned int cap_count{zend_hash_num_elements(&capabilities->capabilities_ht)};
@@ -170,8 +170,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, read_response)
 	}
 
 	MYSQLX_FETCH_MESSAGE__CAPABILITIES_SET_FROM_ZVAL(object, object_zv);
-	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_PFC_FROM_ZVAL(codec, codec_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	RETVAL_FALSE;
 

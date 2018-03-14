@@ -111,7 +111,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 		hostname.l = sizeof("127.0.0.1") - 1;
 	}
 
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 	if (connection->vio) {
 		zend_bool not_needed;
 		MYSQLND_STRING transport = get_scheme(hostname, socket_or_pipe, port, &not_needed, &not_needed);
@@ -153,7 +153,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, send)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 	if (!connection->vio || FALSE == connection->vio->data->m.has_valid_stream(connection->vio)) {
 		DBG_VOID_RETURN;
 	}
@@ -189,7 +189,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, receive)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 	if (connection->vio && TRUE == connection->vio->data->m.has_valid_stream(connection->vio)) {
 		zend_uchar * read_buffer = static_cast<zend_uchar*>(mnd_emalloc(how_many + 1));
 		if (!read_buffer) {

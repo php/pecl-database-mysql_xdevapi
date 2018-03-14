@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLLECTION_INDEX_H
-#define MYSQLX_NODE_COLLECTION_INDEX_H
+#ifndef MYSQLX_COLLECTION_INDEX_H
+#define MYSQLX_COLLECTION_INDEX_H
 
 namespace mysqlx {
 
@@ -37,7 +37,7 @@ void drop_collection_index(
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_COLLECTION_INDEX_H */
+#endif /* MYSQLX_COLLECTION_INDEX_H */
 
 /*
  * Local variables:

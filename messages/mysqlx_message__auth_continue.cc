@@ -114,8 +114,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, send)
 	}
 
 	MYSQLX_FETCH_MESSAGE__AUTH_CONTINUE_FROM_ZVAL(object, object_zv);
-	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_PFC_FROM_ZVAL(codec, codec_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	if (!object->message.has_auth_data()) {
 		php_error_docref(nullptr, E_WARNING, "No authentication data from the server");
@@ -160,8 +160,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_continue, read_response)
 	}
 
 	MYSQLX_FETCH_MESSAGE__AUTH_CONTINUE_FROM_ZVAL(object, object_zv);
-	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_PFC_FROM_ZVAL(codec, codec_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	RETVAL_FALSE;
 

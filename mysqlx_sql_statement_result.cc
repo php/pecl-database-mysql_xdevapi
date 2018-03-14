@@ -86,7 +86,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement_result__next_result, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-#define MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_sql_statement_result*) mysqlx_object->ptr; \
@@ -177,7 +177,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, hasData)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_BOOL(object && object->result && FALSE == object->result->m.eof(object->result));
 	DBG_VOID_RETURN;
@@ -198,7 +198,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, fetchOne)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -227,7 +227,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, fetchAll)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object && object->result) {
@@ -254,7 +254,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getAffectedItemsCount)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -288,7 +288,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getLastInsertId)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result && object->result->exec_state) {
@@ -322,7 +322,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getGeneratedIds)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result && object->result->exec_state) {
@@ -357,7 +357,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarningCount)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -391,7 +391,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarnings)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -455,7 +455,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnCount)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -489,7 +489,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumns)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -528,7 +528,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnNames)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result) {
@@ -567,7 +567,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, nextResult)
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_NODE_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (object->result && object->has_more_results) {

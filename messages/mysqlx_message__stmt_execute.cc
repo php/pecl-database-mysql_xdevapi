@@ -104,8 +104,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 	}
 
 	MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_FROM_ZVAL(object, object_zv);
-	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_PFC_FROM_ZVAL(codec, codec_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 
 	const XMYSQLND_L3_IO io = {connection->vio, codec->pfc};
@@ -150,8 +150,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 	}
 
 	MYSQLX_FETCH_MESSAGE__STMT_EXECUTE_FROM_ZVAL(object, object_zv);
-	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_PFC_FROM_ZVAL(codec, codec_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 
 	RETVAL_FALSE;
 

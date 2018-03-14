@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLLECTION__FIND_H
-#define MYSQLX_NODE_COLLECTION__FIND_H
+#ifndef MYSQLX_COLLECTION__FIND_H
+#define MYSQLX_COLLECTION__FIND_H
 
 namespace Mysqlx { namespace Crud { class Find; } }
 
@@ -117,7 +117,7 @@ Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_COLLECTION__FIND_H */
+#endif /* MYSQLX_COLLECTION__FIND_H */
 
 /*
  * Local variables:

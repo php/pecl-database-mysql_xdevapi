@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_TABLE__DELETE_H
-#define MYSQLX_NODE_TABLE__DELETE_H
+#ifndef MYSQLX_TABLE__DELETE_H
+#define MYSQLX_TABLE__DELETE_H
 
 namespace mysqlx {
 
@@ -30,7 +30,7 @@ void mysqlx_unregister_table__delete_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_TABLE__DELETE_H */
+#endif /* MYSQLX_TABLE__DELETE_H */
 
 /*
  * Local variables:

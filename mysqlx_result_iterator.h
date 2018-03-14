@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_RESULT_ITERATOR_H
-#define MYSQLX_NODE_RESULT_ITERATOR_H
+#ifndef MYSQLX_RESULT_ITERATOR_H
+#define MYSQLX_RESULT_ITERATOR_H
 
 namespace mysqlx {
 
@@ -28,7 +28,7 @@ void mysqlx_register_result_iterator(zend_class_entry * ce);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_RESULT_ITERATOR_H */
+#endif /* MYSQLX_RESULT_ITERATOR_H */
 
 /*
  * Local variables:

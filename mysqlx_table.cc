@@ -93,7 +93,7 @@ struct st_mysqlx_table : public util::custom_allocable
 };
 
 
-#define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_TABLE_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_table*) mysqlx_object->ptr; \
@@ -125,7 +125,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -153,7 +153,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	if (object->table) {
 		RETVAL_STRINGL(object->table->data->table_name.s, object->table->data->table_name.l);
@@ -195,7 +195,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -262,7 +262,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -300,7 +300,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 
 	if( object->table &&
@@ -356,7 +356,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 		}
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -392,7 +392,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -425,7 +425,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -452,7 +452,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 

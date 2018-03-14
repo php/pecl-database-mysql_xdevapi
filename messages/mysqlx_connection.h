@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_CONNECTION_H
-#define MYSQLX_NODE_CONNECTION_H
+#ifndef MYSQLX_CONNECTION_H
+#define MYSQLX_CONNECTION_H
 
 #include "util/allocator.h"
 
@@ -38,7 +38,7 @@ struct st_mysqlx_connection : util::permanent_allocable
 	zend_bool persistent;
 };
 
-#define MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_CONNECTION_FROM_ZVAL(_to, _from) \
 { \
 	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_connection*) mysqlx_object->ptr; \
@@ -58,7 +58,7 @@ void mysqlx_unregister_connection_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_CONNECTION_H */
+#endif /* MYSQLX_CONNECTION_H */
 
 /*
  * Local variables:

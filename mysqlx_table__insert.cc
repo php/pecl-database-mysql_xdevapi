@@ -61,7 +61,7 @@ struct st_mysqlx_table__insert : public util::custom_allocable
 };
 
 
-#define MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_TABLE_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_table__insert*) mysqlx_object->ptr; \
@@ -101,7 +101,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 
@@ -139,7 +139,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_TABLE_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 

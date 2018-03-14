@@ -15,8 +15,8 @@
   | Authors: Filip Janiszewski <fjanisze@php.net>                        |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLUMN_RESULT_H
-#define MYSQLX_NODE_COLUMN_RESULT_H
+#ifndef MYSQLX_COLUMN_RESULT_H
+#define MYSQLX_COLUMN_RESULT_H
 
 namespace mysqlx {
 
@@ -39,4 +39,4 @@ void mysqlx_unregister_column_result_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_COLUMN_RESULT_H */
+#endif /* MYSQLX_COLUMN_RESULT_H */

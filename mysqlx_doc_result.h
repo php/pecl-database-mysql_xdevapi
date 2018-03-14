@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_DOC_RESULT_H
-#define MYSQLX_NODE_DOC_RESULT_H
+#ifndef MYSQLX_DOC_RESULT_H
+#define MYSQLX_DOC_RESULT_H
 
 #include "util/allocator.h"
 
@@ -43,7 +43,7 @@ void fetch_one_from_doc_result(zval* return_value);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_DOC_RESULT_H */
+#endif /* MYSQLX_DOC_RESULT_H */
 
 /*
  * Local variables:

@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_PFC_H
-#define MYSQLX_NODE_PFC_H
+#ifndef MYSQLX_PFC_H
+#define MYSQLX_PFC_H
 
 #include "xmysqlnd/xmysqlnd_protocol_frame_codec.h"
 
@@ -39,7 +39,7 @@ struct st_mysqlx_pfc
 	zend_bool persistent;
 };
 
-#define MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_PFC_FROM_ZVAL(_to, _from) \
 { \
 	st_mysqlx_object* mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_pfc*) mysqlx_object->ptr; \
@@ -59,7 +59,7 @@ void mysqlx_unregister_pfc_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_PFC_H */
+#endif /* MYSQLX_PFC_H */
 
 /*
  * Local variables:

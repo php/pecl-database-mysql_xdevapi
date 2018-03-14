@@ -75,8 +75,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_pfc, send)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_PFC_FROM_ZVAL(codec, codec_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 	ret = codec->pfc->data->m.send(codec->pfc, connection->vio,
 								   (zend_uchar) packet_type,
 								   (const zend_uchar*) payload.s, payload.l,
@@ -106,8 +106,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_pfc, receive)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_PFC_FROM_ZVAL(codec, codec_zv);
-	MYSQLX_FETCH_NODE_CONNECTION_FROM_ZVAL(connection, connection_zv);
+	MYSQLX_FETCH_PFC_FROM_ZVAL(codec, codec_zv);
+	MYSQLX_FETCH_CONNECTION_FROM_ZVAL(connection, connection_zv);
 	{
 		size_t count;
 		zend_uchar packet_type;

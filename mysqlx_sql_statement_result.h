@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_SQL_STATEMENT_RESULT_H
-#define MYSQLX_NODE_SQL_STATEMENT_RESULT_H
+#ifndef MYSQLX_SQL_STATEMENT_RESULT_H
+#define MYSQLX_SQL_STATEMENT_RESULT_H
 
 #include "util/allocator.h"
 
@@ -49,7 +49,7 @@ void mysqlx_unregister_sql_statement_result_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_SQL_STATEMENT_RESULT_H */
+#endif /* MYSQLX_SQL_STATEMENT_RESULT_H */
 
 /*
  * Local variables:

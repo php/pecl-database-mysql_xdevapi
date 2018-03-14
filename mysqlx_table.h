@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_TABLE_H
-#define MYSQLX_NODE_TABLE_H
+#ifndef MYSQLX_TABLE_H
+#define MYSQLX_TABLE_H
 
 namespace mysqlx {
 
@@ -34,7 +34,7 @@ void mysqlx_unregister_table_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_TABLE_H */
+#endif /* MYSQLX_TABLE_H */
 
 /*
  * Local variables:

@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_TABLE__SELECT_H
-#define MYSQLX_NODE_TABLE__SELECT_H
+#ifndef MYSQLX_TABLE__SELECT_H
+#define MYSQLX_TABLE__SELECT_H
 
 namespace Mysqlx { namespace Crud { class Find; } }
 
@@ -40,7 +40,7 @@ Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_TABLE__SELECT_H */
+#endif /* MYSQLX_TABLE__SELECT_H */
 
 /*
  * Local variables:

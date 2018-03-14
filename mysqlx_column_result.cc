@@ -126,7 +126,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_is_padded,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-#define MYSQLX_FETCH_NODE_COLUMN_RESULT_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_COLUMN_RESULT_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_column_result*) mysqlx_object->ptr; \
@@ -290,7 +290,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_COLUMN_RESULT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_COLUMN_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 

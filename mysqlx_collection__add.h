@@ -15,8 +15,8 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_NODE_COLLECTION__ADD_H
-#define MYSQLX_NODE_COLLECTION__ADD_H
+#ifndef MYSQLX_COLLECTION__ADD_H
+#define MYSQLX_COLLECTION__ADD_H
 
 namespace mysqlx {
 
@@ -70,7 +70,7 @@ void mysqlx_unregister_collection__add_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_NODE_COLLECTION__ADD_H */
+#endif /* MYSQLX_COLLECTION__ADD_H */
 
 /*
  * Local variables:

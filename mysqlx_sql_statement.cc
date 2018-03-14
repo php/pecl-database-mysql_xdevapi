@@ -68,7 +68,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__get_result, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-#define MYSQLX_FETCH_NODE_STATEMENT_FROM_ZVAL(_to, _from) \
+#define MYSQLX_FETCH_STATEMENT_FROM_ZVAL(_to, _from) \
 { \
 	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
 	(_to) = (st_mysqlx_statement*) mysqlx_object->ptr; \
@@ -419,7 +419,7 @@ mysqlx_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zva
 {
 	st_mysqlx_statement* object{nullptr};
 	DBG_ENTER("mysqlx_sql_statement_bind_one_param");
-	MYSQLX_FETCH_NODE_STATEMENT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_STATEMENT_FROM_ZVAL(object, object_zv);
 	RETVAL_TRUE;
 	if (TRUE == object->in_execution) {
 		php_error_docref(nullptr, E_WARNING, "Statement in execution. Please fetch all data first.");
@@ -577,7 +577,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, hasMoreResults)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_STATEMENT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_STATEMENT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_BOOL(object->stmt->data->m.has_more_results(object->stmt));
 	DBG_INF_FMT("%s", Z_TYPE_P(return_value) == IS_TRUE? "YES":"NO");
@@ -618,7 +618,7 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 		use_callbacks = TRUE;
 	}
 
-	MYSQLX_FETCH_NODE_STATEMENT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_STATEMENT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
 	if (PASS == object->send_query_status) {
@@ -942,7 +942,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, hasMoreResults)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_NODE_STATEMENT_FROM_ZVAL(object, object_zv);
+	MYSQLX_FETCH_STATEMENT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_BOOL(object->stmt->data->m.has_more_results(object->stmt));
 	DBG_INF_FMT("%s", Z_TYPE_P(return_value) == IS_TRUE? "YES":"NO");
