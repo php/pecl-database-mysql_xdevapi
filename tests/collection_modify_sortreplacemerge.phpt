@@ -5,8 +5,8 @@ mysqlx collection modify sort/replace/merge
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
-	$schema = $nodeSession->getSchema($db);
+	$session = create_test_db();
+	$schema = $session->getSchema($db);
 	$coll = $schema->getCollection("test_collection");
 
 	fill_db_collection($coll);

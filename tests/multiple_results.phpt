@@ -21,20 +21,20 @@ mysqlx support for multiple resultsets
 
 	function run_test_proc($create_test_proc) {
 		global $counter;
-		global $nodeSession;
-		global $nodeSession;
+		global $session;
+		global $session;
 		global $db;
 		echo "---- ", $counter, " ----", PHP_EOL;
-		$nodeSession->executeSql($create_test_proc);
+		$session->executeSql($create_test_proc);
 
-		$res = $nodeSession->executeSql("CALL $db.test_proc()");
+		$res = $session->executeSql("CALL $db.test_proc()");
 		dump_multi_result($res);
 
-		$nodeSession->executeSql("DROP PROCEDURE $db.test_proc");
+		$session->executeSql("DROP PROCEDURE $db.test_proc");
 	}
 
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 	fill_db_table();
 
 	$counter = 0;

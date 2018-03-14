@@ -7,10 +7,10 @@ error_reporting=0
 <?php
 	require("connect.inc");
 
-	$nodeSession = mysql_xdevapi\getSession($connection_uri);
-	$nodeSession->executeSql("create database $db");
-	$nodeSession->executeSql("create table $db.test_table(a text, b int, c text)");
-	$schema = $nodeSession->getSchema($db);
+	$session = mysql_xdevapi\getSession($connection_uri);
+	$session->executeSql("create database $db");
+	$session->executeSql("create table $db.test_table(a text, b int, c text)");
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
 	$table->insert('a', 'b', 'c')->values(['a', 1,'a2'],
@@ -54,7 +54,7 @@ error_reporting=0
 	expect_eq($data[0]['b'],69);
 	expect_eq($data[0]['c'],'a2');
 
-	$nodeSession->getSchema($db)->createCollection("test_collection");
+	$session->getSchema($db)->createCollection("test_collection");
 	$coll = $schema->getCollection("test_collection");
 	$coll->add('{"name": "Marco", "job": "zzzz"}',
 		'{"_id": 2, "name": "Lonardo", "job": "zzzz"}',

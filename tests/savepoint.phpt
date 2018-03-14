@@ -6,9 +6,9 @@ error_reporting=0
 --FILE--
 <?php
         require_once("connect.inc");
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
-	$coll = $nodeSession->getSchema($db)->getCollection( $test_collection_name );
+	$coll = $session->getSchema($db)->getCollection( $test_collection_name );
 	expect_true( null != $coll );
 
 function fetch_and_verify( $num_of_docs ) {
@@ -28,163 +28,163 @@ function fetch_and_verify( $num_of_docs ) {
 }
 
         /* 1th scenario */
-	$nodeSession->startTransaction();
-	$sp1 = $nodeSession->setSavepoint();
+	$session->startTransaction();
+	$sp1 = $session->setSavepoint();
 	expect_true( 0 < strlen( $sp1 ) );
-	$nodeSession->rollbackTo( $sp1 ); //Raise error if sp_name do not exist
-	$nodeSession->rollback();
+	$session->rollbackTo( $sp1 ); //Raise error if sp_name do not exist
+	$session->rollback();
 	fetch_and_verify( 0 );
 
         /* 2th Scenario */
-	$nodeSession->startTransaction();
+	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
-	$sp1 = $nodeSession->setSavepoint();
+	$sp1 = $session->setSavepoint();
 	expect_true( 0 < strlen( $sp1 ) );
 	$coll->add( '{"test3":3, "test4":4}' )->execute();
 	fetch_and_verify( 2 );
-	$nodeSession->rollbackTo( $sp1 );
+	$session->rollbackTo( $sp1 );
 	fetch_and_verify( 1 );
-	$nodeSession->rollback();
+	$session->rollback();
 
         /* 3th Scenario */
-	$nodeSession->startTransaction();
+	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
-	$sp1 = $nodeSession->setSavepoint();
+	$sp1 = $session->setSavepoint();
 	expect_true( 0 < strlen( $sp1 ) );
 	$coll->add( '{"test3":3, "test4":4}' )->execute();
 	fetch_and_verify( 2 );
-	$nodeSession->releaseSavepoint( $sp1 );
+	$session->releaseSavepoint( $sp1 );
 	fetch_and_verify( 2 );
-	$nodeSession->rollback();
+	$session->rollback();
 
         /* 4th Scenario */
-	$nodeSession->startTransaction();
+	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
-	$sp1 = $nodeSession->setSavepoint( 'mysavepoint1' );
+	$sp1 = $session->setSavepoint( 'mysavepoint1' );
 	expect_eq( $sp1, 'mysavepoint1' );
 	$coll->add( '{"test3":3, "test4":4}' )->execute();
 	fetch_and_verify( 2 );
-	$nodeSession->rollbackTo( 'mysavepoint1' );
+	$session->rollbackTo( 'mysavepoint1' );
 	fetch_and_verify( 1 );
-	$nodeSession->rollback();
+	$session->rollback();
 
         /* 5th Scenario */
-	$nodeSession->startTransaction();
+	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
-	$sp1 = $nodeSession->setSavepoint( 'mysavepoint1' );
+	$sp1 = $session->setSavepoint( 'mysavepoint1' );
 	expect_eq( $sp1, 'mysavepoint1' );
 	$coll->add( '{"test3":3, "test4":4}' )->execute();
 	fetch_and_verify( 2 );
-	$nodeSession->releaseSavepoint( 'mysavepoint1' );
+	$session->releaseSavepoint( 'mysavepoint1' );
 	fetch_and_verify( 2 );
-	$nodeSession->rollback();
+	$session->rollback();
 
         /* 6th */
-	$nodeSession->startTransaction();
+	$session->startTransaction();
 	try{
-	        $nodeSession->setSavepoint( ' ' );
+	        $session->setSavepoint( ' ' );
 		test_step_ok();
 	} catch( Exception $e ) {
 	        test_step_failed();
 	}
 	try{
-	        $nodeSession->setSavepoint( '_' );
+	        $session->setSavepoint( '_' );
 		test_step_ok();
 	} catch( Exception $e ) {
 	        test_step_failed();
 	}
 	try{
-	        $nodeSession->setSavepoint( '-' );
+	        $session->setSavepoint( '-' );
 		test_step_ok();
 	} catch( Exception $e ) {
 	        test_step_failed();
 	}
 	try{
-	        $nodeSession->setSavepoint( 'mysp+' );
+	        $session->setSavepoint( 'mysp+' );
 		test_step_ok();
 	} catch( Exception $e ) {
 	        test_step_failed();
 	}
 	try{
-	        $nodeSession->setSavepoint( '3306' );
+	        $session->setSavepoint( '3306' );
 		test_step_ok();
 	} catch( Exception $e ) {
 	        test_step_failed();
 	}
 	try{
-	        $nodeSession->setSavepoint( 'mysql3306' );
+	        $session->setSavepoint( 'mysql3306' );
 		test_step_ok();
 	} catch( Exception $e ) {
 	        test_step_failed();
 	}
 	try{
-	        $nodeSession->releaseSavepoint( 'invalid ');
+	        $session->releaseSavepoint( 'invalid ');
 		test_step_failed();
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
 	try{
-	        $nodeSession->rollbackTo( 'invalid ');
+	        $session->rollbackTo( 'invalid ');
 		test_step_failed();
 	} catch( Exception $e ) {
 	        test_step_ok();
 	}
-	$nodeSession->rollback();
+	$session->rollback();
 	fetch_and_verify( 0 );
 
         /* 7th */
-	$nodeSession->startTransaction();
+	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
-	$spOrigin = $nodeSession->setSavepoint();
-	$sp1 = $nodeSession->setSavepoint();
+	$spOrigin = $session->setSavepoint();
+	$sp1 = $session->setSavepoint();
 	expect_true( 0 < strlen( $sp1 ) );
 	$coll->add( '{"test3":3, "test4":4}' )->execute();
 	fetch_and_verify( 2 );
-	$sp2 = $nodeSession->setSavepoint( $sp1 );
+	$sp2 = $session->setSavepoint( $sp1 );
 	expect_eq( $sp1 , $sp2 );
 	$coll->add( '{"test5":5, "test6":6}' )->execute();
 	fetch_and_verify( 3 );
-	$sp3 = $nodeSession->setSavepoint( $sp1 );
+	$sp3 = $session->setSavepoint( $sp1 );
 	expect_eq( $sp1 , $sp3 );
 	$coll->add( '{"test7":7, "test8":8}' )->execute();
 	fetch_and_verify( 4 );
-	$nodeSession->rollbackTo( $sp2 );
+	$session->rollbackTo( $sp2 );
 	fetch_and_verify( 3 );
-	$nodeSession->rollbackTo( $spOrigin );
+	$session->rollbackTo( $spOrigin );
 	fetch_and_verify( 1 );
-	$nodeSession->rollback();
+	$session->rollback();
 	fetch_and_verify( 0 );
 
         /* 8th */
-	$nodeSession->startTransaction();
-	$sp1 = $nodeSession->setSavepoint();
+	$session->startTransaction();
+	$sp1 = $session->setSavepoint();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
-	$nodeSession->releaseSavepoint( $sp1 );
+	$session->releaseSavepoint( $sp1 );
 	try{
-	        $nodeSession->releaseSavepoint( $sp1 );
+	        $session->releaseSavepoint( $sp1 );
 		test_step_failed();
 	} catch( Exception $e ){
 	        test_step_ok();
 	}
 	fetch_and_verify( 1 );
-	$nodeSession->rollback();
+	$session->rollback();
 	fetch_and_verify( 0 );
 	try{
-	        $nodeSession->releaseSavepoint( $sp1 );
+	        $session->releaseSavepoint( $sp1 );
 		test_step_failed();
 	} catch( Exception $e ){
 	        test_step_ok();
 	}
 
         /* 9th */
-	$nodeSession->startTransaction();
+	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
-	$sp1 = $nodeSession->setSavepoint( );
+	$sp1 = $session->setSavepoint( );
 	$coll->add( '{"test3":3, "test4":4}' )->execute();
 	fetch_and_verify( 2 );
-	$nodeSession->commit();
+	$session->commit();
 	try{
-	        $nodeSession->rollbackTo( $sp1 );
+	        $session->rollbackTo( $sp1 );
 		test_step_failed();
 	} catch( Exception $e ){
 	        test_step_ok();

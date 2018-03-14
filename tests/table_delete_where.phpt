@@ -11,11 +11,11 @@ mysqlx table delete/where
 		var_dump($all_row);
 	}
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
 	fill_db_table();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable($test_table_name);
 
 	$table->delete()->where('name in (\'Romy\', \'Caspian\', \'Olympia\', \'Mamie\') and age > :age_limit')->bind(['age_limit' => 13])->execute();

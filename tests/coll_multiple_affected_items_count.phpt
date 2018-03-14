@@ -7,9 +7,9 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-        $nodeSession = mysql_xdevapi\getSession($connection_uri);
-	$nodeSession->createSchema($db);
-	$schema = $nodeSession->getSchema($db);
+        $session = mysql_xdevapi\getSession($connection_uri);
+	$session->createSchema($db);
+	$schema = $session->getSchema($db);
 
 	$schema->createCollection("test_collection");
 	$coll = $schema->getCollection("test_collection");

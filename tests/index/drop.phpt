@@ -8,8 +8,8 @@ error_reporting=0
 require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/index_utils.inc");
 
-$nodeSession = create_test_db();
-$schema = $nodeSession->getSchema($db);
+$session = create_test_db();
+$schema = $session->getSchema($db);
 $coll = $schema->getCollection($test_collection_name);
 
 drop_index(false);

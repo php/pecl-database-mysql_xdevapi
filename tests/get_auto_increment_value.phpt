@@ -7,11 +7,11 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-        $nodeSession = mysql_xdevapi\getSession($connection_uri);
-	$nodeSession->executeSql("create database $db");
-	$nodeSession->executeSql("create table $db.test_table(id int not null auto_increment,name char(30), primary key (id))");
+        $session = mysql_xdevapi\getSession($connection_uri);
+	$session->executeSql("create database $db");
+	$session->executeSql("create table $db.test_table(id int not null auto_increment,name char(30), primary key (id))");
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
 	$res = $table->insert(['name'])->values(['name'=>'Luigi']);

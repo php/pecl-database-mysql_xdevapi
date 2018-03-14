@@ -7,21 +7,21 @@ error_reporting=0
 <?php
 
 	require("connect.inc");
-	$nodeSession = mysql_xdevapi\getSession($connection_uri);
-	$nodeSession->executeSql("create database $db");
+	$session = mysql_xdevapi\getSession($connection_uri);
+	$session->executeSql("create database $db");
 
 function test_numeric_types() {
-	global $nodeSession;
+	global $session;
 	global $db;
-	$nodeSession->executeSql("create table $db.table1(a int, b tinyint, c smallint, d mediumint,
+	$session->executeSql("create table $db.table1(a int, b tinyint, c smallint, d mediumint,
 	e int unsigned, f tinyint unsigned,g smallint unsigned,h mediumint unsigned,
 	i float,j double,k decimal,l float unsigned,m double unsigned,n decimal unsigned,
 	o bit,p bigint,q bigint unsigned)");
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("table1");
 
-	$nodeSession->executeSql("insert into $db.table1 values (1,1,1,1,1,1,1,1,1.1,1.1,1,1.1,1.1,1,1,1,1)");
+	$session->executeSql("insert into $db.table1 values (1,1,1,1,1,1,1,1,1.1,1.1,1,1.1,1.1,1,1,1,1)");
 
 	$res = $table->select(['a as aa','b as bb','c as cc','d as dd',
 	'e as ee','f as ff','g as gg','h as hh',
@@ -67,9 +67,9 @@ function test_numeric_types() {
 }
 
 function test_collection() {
-	global $nodeSession;
+	global $session;
 	global $db;
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$schema->createCollection("test_collection");
 	$coll = $schema->getCollection("test_collection");
 	$coll->add('{"_id":99, "name": "Ugp",                 "job": "Cavia"}')->execute();
@@ -105,15 +105,15 @@ function test_collection() {
 
 
 function test_other_types() {
-	global $nodeSession;
+	global $session;
 	global $db;
 
-	$nodeSession->executeSql("create table $db.table2 (a bit, b char(20) not null, c tinyint unsigned primary key, d decimal(20, 3),
+	$session->executeSql("create table $db.table2 (a bit, b char(20) not null, c tinyint unsigned primary key, d decimal(20, 3),
 e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))");
-	$nodeSession->executeSql("insert into $db.table2 values (1,'test',1,22,'3:33:22',
+	$session->executeSql("insert into $db.table2 values (1,'test',1,22,'3:33:22',
 '1900-01-22 22:22:22','1971-01-01 00:00:01','9000-12-31','1','2')");
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("table2");
 	$res = $table->select(['a as aa','b as bb','c as cc','d as dd',
 'e as ee','f as ff','g as gg','h as hh',
@@ -152,15 +152,15 @@ e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))");
 }
 
 function test_geometries() {
-	global $nodeSession;
+	global $session;
 	global $db;
 
-	$nodeSession->executeSql("create table $db.table3 (name int not null primary key, b geometry)");
-	$nodeSession->executeSql("insert into $db.table3 values (1, ST_GeomFromText(\"POINT(1 1)\"))");
-	$nodeSession->executeSql("insert into $db.table3 values (2, ST_GeomFromText(\"MULTIPOLYGON(((5 0,15 25,25 0,15 5,5 0)),
+	$session->executeSql("create table $db.table3 (name int not null primary key, b geometry)");
+	$session->executeSql("insert into $db.table3 values (1, ST_GeomFromText(\"POINT(1 1)\"))");
+	$session->executeSql("insert into $db.table3 values (2, ST_GeomFromText(\"MULTIPOLYGON(((5 0,15 25,25 0,15 5,5 0)),
 ((25 0,0 15,30 15,22 10,25 0)))\"))");
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("table3");
 	$res = $table->select(['name as myname','b as bb'])->execute();
 

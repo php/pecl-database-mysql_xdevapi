@@ -6,9 +6,9 @@ error_reporting=0
 --FILE--
 <?php
 	require_once("connect.inc");
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
-	$coll = $nodeSession->getSchema($db)->getCollection( $test_collection_name );
+	$coll = $session->getSchema($db)->getCollection( $test_collection_name );
 	expect_true( null != $coll );
 	fill_db_collection( $coll );
 

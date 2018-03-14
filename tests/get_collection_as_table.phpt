@@ -5,10 +5,10 @@ mysqlx getCollectionAsTable
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 	fill_test_collection();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$collection_as_table = $schema->getCollectionAsTable("test_collection");
 	expect_false($collection_as_table->isView());
 	$collection_as_table->delete()->limit(10)->execute();

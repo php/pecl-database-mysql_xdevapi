@@ -12,9 +12,9 @@ mysqlx getTable/getTables
 		expect_eq($tables[$name]->isView(), $is_view);
 	}
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("wrong_table");
 
 	expect_false($table->existsInDatabase());
@@ -27,9 +27,9 @@ mysqlx getTable/getTables
 	}
 	expect_false($schema->getTable(""));
 
-	$nodeSession->executeSql("create table $db.test_table2(job text, experience int, uuid int)");
-	$nodeSession->executeSql("create table $db.test_table3(name text, surname text)");
-	create_test_view($nodeSession);
+	$session->executeSql("create table $db.test_table2(job text, experience int, uuid int)");
+	$session->executeSql("create table $db.test_table3(name text, surname text)");
+	create_test_view($session);
 
 	$tables = $schema->getTables();
 	assert_table($test_table_name);

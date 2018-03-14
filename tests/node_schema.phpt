@@ -5,9 +5,9 @@ mysqlx Schema
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$coll = $schema->getCollection("test_collection");
 
 	fill_db_collection($coll);
@@ -41,8 +41,8 @@ mysqlx Schema
 	expect_true($collections['test_collection_3']->existsInDatabase());
 	expect_eq($collections['test_collection_3']->name, 'test_collection_3');
 
-	expect_true($nodeSession->dropSchema($test_schema_name));
-	expect_false($nodeSession->dropSchema($test_schema_name));
+	expect_true($session->dropSchema($test_schema_name));
+	expect_false($session->dropSchema($test_schema_name));
 
 	verify_expectations();
 	print "done!\n";

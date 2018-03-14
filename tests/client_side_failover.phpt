@@ -26,11 +26,11 @@ default_socket_timeout=5
 	for( $i = 0 ; $i < count($uri_string) ; $i++ ) {
 		try {
 			$session_uri = $uri_string[$i][0];
-			$nodeSession = mysql_xdevapi\getSession($session_uri);
+			$session = mysql_xdevapi\getSession($session_uri);
 			if( $i > 6 ) {
-				expect_true( $nodeSession != null, $session_uri );
+				expect_true( $session != null, $session_uri );
 			} else {
-				expect_false( $nodeSession, $session_uri );
+				expect_false( $session, $session_uri );
 			}
 
 		} catch(Exception $e) {

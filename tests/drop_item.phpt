@@ -5,12 +5,12 @@ mysqlx drop schema, table, collection, collection index, view
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 	fill_db_table();
 	fill_test_collection();
-	$view = create_test_view($nodeSession);
+	$view = create_test_view($session);
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$collection = $schema->getCollection($test_collection_name);
 
 	$indexName = "name_index";
@@ -21,8 +21,8 @@ mysqlx drop schema, table, collection, collection index, view
 	expect_true($schema->dropCollection($test_collection_name));
 	expect_false($schema->dropCollection($test_collection_name));
 
-	expect_true($nodeSession->dropSchema($test_schema_name));
-	expect_false($nodeSession->dropSchema($test_schema_name));
+	expect_true($session->dropSchema($test_schema_name));
+	expect_false($session->dropSchema($test_schema_name));
 
 	verify_expectations();
 	print "done!\n";

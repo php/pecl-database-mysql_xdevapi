@@ -5,9 +5,9 @@ mysqlx Table
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
 	fill_db_table();

@@ -7,7 +7,7 @@ error_reporting=0
 <?php
 	require_once("connect.inc");
 
-	$nodeSession = mysql_xdevapi\getSession($connection_uri);
+	$session = mysql_xdevapi\getSession($connection_uri);
 
 	function verify_doc($doc, $name, $job, $age) {
 		$result = ($doc[0] = $name);
@@ -16,8 +16,8 @@ error_reporting=0
 		return $result;
 	}
 
-	$nodeSession->createSchema($test_schema_name);
-	$schema = $nodeSession->getSchema($test_schema_name);
+	$session->createSchema($test_schema_name);
+	$schema = $session->getSchema($test_schema_name);
 
 	$schema->createCollection("test_collection");
 	$coll = $schema->getCollection("test_collection");
@@ -74,7 +74,7 @@ error_reporting=0
 	check_incorrect_condition(' ');
 	check_incorrect_condition('@ incorrect $ condition &');
 
-	$nodeSession->dropSchema($test_schema_name);
+	$session->dropSchema($test_schema_name);
 
 	verify_expectations();
 	print "done!\n";

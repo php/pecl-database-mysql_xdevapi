@@ -4,9 +4,9 @@ mysqlx Field Metadata, empty rowset
 --FILE--
 <?php
 	require("connect.inc");
-	$nodeSession = mysql_xdevapi\getSession($connection_uri);
-	$nodeSession->executeSql("create database $db");
-	$schema = $nodeSession->getSchema($db);
+	$session = mysql_xdevapi\getSession($connection_uri);
+	$session->executeSql("create database $db");
+	$schema = $session->getSchema($db);
 
 	$schema->createCollection("test_collection");
 	$coll = $schema->getCollection("test_collection");

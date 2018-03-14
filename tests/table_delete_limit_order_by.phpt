@@ -5,11 +5,11 @@ mysqlx table delete/limit/orderBy
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
 	fill_db_table_use_dup();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable('test_table');
 
 	try {
@@ -55,9 +55,9 @@ mysqlx table delete/limit/orderBy
 	expect_eq($res[1]['name'],'BRomy');
 	expect_eq($res[1]['age'],17);
 
-	$nodeSession->executeSql("insert into $db.test_table values ('Zillon', 29)");
-	$nodeSession->executeSql("insert into $db.test_table values ('Zillon', 21)");
-	$nodeSession->executeSql("insert into $db.test_table values ('Zillon', 34)");
+	$session->executeSql("insert into $db.test_table values ('Zillon', 29)");
+	$session->executeSql("insert into $db.test_table values ('Zillon', 21)");
+	$session->executeSql("insert into $db.test_table values ('Zillon', 34)");
 
 	$table->delete()->orderby(['name desc','age desc'])->limit(2)->execute();
 	$res = $table->select('name','age')->where('name = \'Zillon\'')->execute()->fetchAll();

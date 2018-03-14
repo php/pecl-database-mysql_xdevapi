@@ -8,7 +8,7 @@ error_reporting=0
 require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/single_doc_utils.inc");
 
-$nodeSession = create_test_db();
+$session = create_test_db();
 $coll = fill_test_collection(true);
 
 // ----------------------------------------------------------------------

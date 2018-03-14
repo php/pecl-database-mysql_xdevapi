@@ -5,11 +5,11 @@ mysqlx warnings
 <?php
 	require("connect.inc");
 
-        $nodeSession = mysql_xdevapi\getSession($connection_uri);
-	$nodeSession->executeSql("create database $db");
-	$nodeSession->executeSql("create table $db.test_table(x int)");
+        $session = mysql_xdevapi\getSession($connection_uri);
+	$session->executeSql("create database $db");
+	$session->executeSql("create table $db.test_table(x int)");
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
 	$table->insert(['x'])->values([1])->values([2])->values([3])->execute();

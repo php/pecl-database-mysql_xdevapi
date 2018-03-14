@@ -36,8 +36,8 @@ function verify_ids_and_add( $new_ids, $expected_count ) {
 	}
 }
 
-	$nodeSession = create_test_db();
-	$schema = $nodeSession->getSchema($db);
+	$session = create_test_db();
+	$schema = $session->getSchema($db);
 	$coll = $schema->getCollection("test_collection");
 
 	$res = $coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore"}',

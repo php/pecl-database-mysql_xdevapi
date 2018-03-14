@@ -5,11 +5,11 @@ mysqlx select / fetch
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
 	fill_db_table_use_dup();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable('test_table');
 
         $res = $table->select('name','age')->where('name like \'P%\' or name like\'C%\'')

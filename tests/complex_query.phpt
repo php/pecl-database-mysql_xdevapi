@@ -5,11 +5,11 @@ mysqlx complex query
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
 	fill_db_table();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
 	$sel = $table->select(['age as age_group', 'count(name) as cnt'])->groupBy('age_group');

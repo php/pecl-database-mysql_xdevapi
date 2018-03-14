@@ -5,18 +5,18 @@ mysqlx Collection find, no 'only full group by'
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$coll = $schema->getCollection("test_collection");
 	fill_db_collection($coll);
 
-	$res = $nodeSession->executeSql('SELECT @@SESSION.sql_mode');
+	$res = $session->executeSql('SELECT @@SESSION.sql_mode');
 	$saved_sql_modes = $res->fetchAll()[0]['@@SESSION.sql_mode'];
 
 	//This will disable 'only full group by'
 	$new_sql_modes = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-	$nodeSession->executeSql('SET SESSION sql_mode = \''.$new_sql_modes.'\'');
+	$session->executeSql('SET SESSION sql_mode = \''.$new_sql_modes.'\'');
 
 	try {
 		//This is going to work now but the representant of each group is indeterminate (probably the first available entry)
@@ -34,7 +34,7 @@ mysqlx Collection find, no 'only full group by'
 		test_step_failed();
 	}
 
-	$nodeSession->executeSql('SET SESSION sql_mode = \''.$saved_sql_modes.'\'');
+	$session->executeSql('SET SESSION sql_mode = \''.$saved_sql_modes.'\'');
 	//This shall fail now
 	try {
 		$res = $coll->find()->fields(['name as n','age as a','job as j'])->groupBy('j')->execute();

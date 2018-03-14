@@ -8,10 +8,10 @@ $Default_index_name = 'myIndex';
 
 function expect_index($index_name, $exists) {
 	global $db;
-	global $nodeSession;
+	global $session;
 
 	$query = "SHOW INDEX FROM test_collection FROM $db WHERE Key_name='$index_name'";
-	$res = $nodeSession->executeSql($query);
+	$res = $session->executeSql($query);
 	expect_eq($res->hasData(), $exists, 'exists index '.$index_name);
 }
 

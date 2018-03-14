@@ -4,12 +4,12 @@ mysqlx simple SSL connection
 --FILE--
 <?php
 	require(__DIR__."/connect.inc");
-	$nodeSession = mysql_xdevapi\getSession($connection_uri);
+	$session = mysql_xdevapi\getSession($connection_uri);
 
-	$ssl_info_query = $nodeSession->executeSql("show variables like '%ssl%'");
+	$ssl_info_query = $session->executeSql("show variables like '%ssl%'");
 	$ssl_info = $ssl_info_query->fetchAll();
 
-	$mysql_datadir = get_mysql_variable($nodeSession, 'datadir');
+	$mysql_datadir = get_mysql_variable($session, 'datadir');
 
 	if( false == is_dir( $mysql_datadir ) ) {
 		$mysql_datadir = __DIR__.'/ssl';
@@ -24,8 +24,8 @@ mysqlx simple SSL connection
 	$new_uri .= 'ssl-cert=' . $rsa_key_path . 'client-cert.pem&';
 	$new_uri .= 'ssl-ca=' . $rsa_key_path . 'ca.pem';
 
-	$nodeSession = mysql_xdevapi\getSession($new_uri);
-	$res = $nodeSession->executeSql('SELECT USER()');
+	$session = mysql_xdevapi\getSession($new_uri);
+	$res = $session->executeSql('SELECT USER()');
 	$userdata = $res->fetchOne();
 
 	expect_eq($userdata['USER()'], $user.'@'.$host);

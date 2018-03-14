@@ -5,14 +5,14 @@ mysqlx basic executeSql
 <?php
 	require("connect.inc");
 
-	$nodeSession = create_test_db();
-	$schema = $nodeSession->getSchema($db);
+	$session = create_test_db();
+	$schema = $session->getSchema($db);
 
-	$nodeSession->executeSql("drop table if exists $db.test_table");
+	$session->executeSql("drop table if exists $db.test_table");
 
-	$nodeSession->executeSql("create table if not exists $db.test_table (name text, age int , job text)");
+	$session->executeSql("create table if not exists $db.test_table (name text, age int , job text)");
 	try {
-		$nodeSession->executeSql("create table $db.test_table (name text, age int, job text)");
+		$session->executeSql("create table $db.test_table (name text, age int, job text)");
 	} catch(Exception $e) {
 		expect_eq($e->getMessage(),
 			'[HY000] Couldn\'t fetch data');
@@ -20,9 +20,9 @@ mysqlx basic executeSql
 		print "Exception!".PHP_EOL;
 	}
 
-	$nodeSession->executeSql("insert into $db.test_table values ('Marco', 25, 'Programmer')");
-	$nodeSession->executeSql("insert into $db.test_table values ('Luca', 39, 'Student')");
-	$sql = $nodeSession->executeSql("insert into $db.test_table values ('Antonio', 66, 'Dentist'),('Marcello',19,'Studente')");
+	$session->executeSql("insert into $db.test_table values ('Marco', 25, 'Programmer')");
+	$session->executeSql("insert into $db.test_table values ('Luca', 39, 'Student')");
+	$sql = $session->executeSql("insert into $db.test_table values ('Antonio', 66, 'Dentist'),('Marcello',19,'Studente')");
 
 	expect_eq($sql->getAffectedItemsCount(), 2);
 	expect_eq($sql->hasData(), false);
@@ -34,7 +34,7 @@ mysqlx basic executeSql
 	expect_eq($sql->getWarningCount(), 0);
 	expect_eq($sql->getWarnings(), false);
 
-	$sql = $nodeSession->executeSql("select * from $db.test_table");
+	$sql = $session->executeSql("select * from $db.test_table");
 
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->hasData(), true);

@@ -5,16 +5,16 @@
 <?php
 	require("connect.inc");
 
-        $nodeSession = mysql_xdevapi\getSession($connection_uri);
-	$nodeSession->executeSql("create database $db");
-	$nodeSession->executeSql("create table $db.test_table(name text, age tinyint)");
+        $session = mysql_xdevapi\getSession($connection_uri);
+	$session->executeSql("create database $db");
+	$session->executeSql("create table $db.test_table(name text, age tinyint)");
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
 	fill_db_table();
 
-	$sql = $nodeSession->sql("select * from $db.test_table")->execute();
+	$sql = $session->sql("select * from $db.test_table")->execute();
 	expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->getWarningCount(), 0);
@@ -23,13 +23,13 @@
 	$res = $sql->fetchAll();
 	expect_eq(count($res), 12);
 
-	$sql = $nodeSession->sql("insert into $db.test_table values ('Alessio',56),('Mattia',33),('Lucrezia',67)")->execute();
+	$sql = $session->sql("insert into $db.test_table values ('Alessio',56),('Mattia',33),('Lucrezia',67)")->execute();
 	expect_false($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 3);
 	expect_eq($sql->getWarningCount(), 0);
 	expect_eq($sql->getColumnCount(), 0);
 
-	$sql = $nodeSession->sql("select * from $db.test_table where age < ? order by age desc limit ?")->bind(14)->bind(2)->execute();
+	$sql = $session->sql("select * from $db.test_table where age < ? order by age desc limit ?")->bind(14)->bind(2)->execute();
 	expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->getWarningCount(), 0);
@@ -43,7 +43,7 @@
 	expect_eq($res['age'], 12);
 
 	try {
-		$nodeSession->sql("select wrong from $db.test_table")->execute();
+		$session->sql("select wrong from $db.test_table")->execute();
 		test_step_failed();
 	}catch(Exception $e) {
 		expect_eq($e->getMessage(),
@@ -53,7 +53,7 @@
 
 	try {
 		//Not tiny!
-		$sql = $nodeSession->sql("insert into $db.test_table values ('Carlos',9999)")->execute();
+		$sql = $session->sql("insert into $db.test_table values ('Carlos',9999)")->execute();
 		test_step_failed();
 	}catch(Exception $e) {
 		expect_eq($e->getMessage(),
@@ -61,7 +61,7 @@
 		expect_eq($e->getCode(), 10000);
 	}
 
-	$sql = $nodeSession->sql("select age, age/0 as x from $db.test_table limit 2")->execute();
+	$sql = $session->sql("select age, age/0 as x from $db.test_table limit 2")->execute();
 	expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->getWarningCount(), 2);

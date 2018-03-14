@@ -6,8 +6,8 @@ mysqlx create/drop index - common cases
 require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/index_utils.inc");
 
-$nodeSession = create_test_db();
-$schema = $nodeSession->getSchema($db);
+$session = create_test_db();
+$schema = $session->getSchema($db);
 $coll = $schema->getCollection($test_collection_name);
 
 expect_create_index('{"fields": [{"field": "$.myField", "type": "TEXT(5)", "required": true}], "unique": true}');

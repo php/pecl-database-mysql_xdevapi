@@ -6,8 +6,8 @@ mysqlx create/drop index - failure cases
 require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/index_utils.inc");
 
-$nodeSession = create_test_db();
-$schema = $nodeSession->getSchema($db);
+$session = create_test_db();
+$schema = $session->getSchema($db);
 $coll = $schema->getCollection($test_collection_name);
 
 // FR5_1 Create an Index with an invalid name.

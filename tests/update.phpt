@@ -11,9 +11,9 @@ mysqlx update
 		var_dump($all_row);
 	}
 
-	$nodeSession = create_test_db();
+	$session = create_test_db();
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
         $table->insert("name", "age")->values(["Sakila", 128],["Sakila", 512])->execute();

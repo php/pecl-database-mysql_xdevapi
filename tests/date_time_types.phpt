@@ -7,14 +7,14 @@ error_reporting=E_ALL
 <?php
 
 	require("connect.inc");
-	$nodeSession = mysql_xdevapi\getSession($connection_uri);
+	$session = mysql_xdevapi\getSession($connection_uri);
 	create_test_db();
 	$test_table = 'test_date_time_table';
 
-	$nodeSession->executeSql("create table $db.$test_table ("
+	$session->executeSql("create table $db.$test_table ("
 		."dt datetime, ts timestamp, dd date, tt time)");
 
-	$schema = $nodeSession->getSchema($db);
+	$schema = $session->getSchema($db);
 	$table = $schema->getTable($test_table);
 
 	$table->insert('dt', 'ts', 'dd', 'tt')->values(
