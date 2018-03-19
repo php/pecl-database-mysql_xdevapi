@@ -27,50 +27,50 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	fi
 
 	mysqlx_devapi_sources=" \
-		php_mysqlx.cc \
-		php_mysqlx_ex.cc \
-		php_xmysqlnd.cc \
+		mysqlx_base_result.cc \
+		mysqlx_base_result_iterator.cc \
 		mysqlx_class_properties.cc \
-		mysqlx_crud_operation_bindable.cc \
-		mysqlx_crud_operation_limitable.cc \
-		mysqlx_crud_operation_skippable.cc \
-		mysqlx_crud_operation_sortable.cc \
-		mysqlx_database_object.cc \
-		mysqlx_driver.cc \
-		mysqlx_exception.cc \
-		mysqlx_executable.cc \
-		mysqlx_execution_status.cc \
-		mysqlx_expression.cc \
-		mysqlx_field_metadata.cc \
-		mysqlx_schema.cc \
-		mysqlx_session.cc \
 		mysqlx_collection.cc \
 		mysqlx_collection__add.cc \
 		mysqlx_collection__find.cc \
 		mysqlx_collection__modify.cc \
 		mysqlx_collection__remove.cc \
 		mysqlx_collection_index.cc \
+		mysqlx_column_result.cc \
+		mysqlx_crud_operation_bindable.cc \
+		mysqlx_crud_operation_limitable.cc \
+		mysqlx_crud_operation_skippable.cc \
+		mysqlx_crud_operation_sortable.cc \
+		mysqlx_database_object.cc \
+		mysqlx_doc_result.cc \
+		mysqlx_doc_result_iterator.cc \
+		mysqlx_driver.cc \
+		mysqlx_exception.cc \
+		mysqlx_executable.cc \
+		mysqlx_execution_status.cc \
+		mysqlx_expression.cc \
+		mysqlx_field_metadata.cc \
+		mysqlx_object.cc \
+		mysqlx_result.cc \
+		mysqlx_result_iterator.cc \
+		mysqlx_row_result.cc \
+		mysqlx_row_result_iterator.cc \
+		mysqlx_schema.cc \
+		mysqlx_schema_object.cc \
+		mysqlx_session.cc \
+		mysqlx_sql_statement.cc \
+		mysqlx_sql_statement_result.cc \
+		mysqlx_sql_statement_result_iterator.cc \
 		mysqlx_table.cc \
 		mysqlx_table__delete.cc \
 		mysqlx_table__insert.cc \
 		mysqlx_table__select.cc \
 		mysqlx_table__update.cc \
-		mysqlx_sql_statement.cc \
-		mysqlx_base_result.cc \
-		mysqlx_base_result_iterator.cc \
-		mysqlx_doc_result.cc \
-		mysqlx_doc_result_iterator.cc \
-		mysqlx_result.cc \
-		mysqlx_result_iterator.cc \
-		mysqlx_row_result.cc \
-		mysqlx_row_result_iterator.cc \
-		mysqlx_sql_statement_result.cc \
-		mysqlx_sql_statement_result_iterator.cc \
-		mysqlx_column_result.cc \
-		mysqlx_object.cc \
-		mysqlx_schema_object.cc \
 		mysqlx_warning.cc \
 		mysqlx_x_session.cc \
+		php_mysqlx.cc \
+		php_mysqlx_ex.cc \
+		php_xmysqlnd.cc \
 		"
 
 	mysqlx_messages=""
@@ -79,24 +79,22 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 		mysqlx_messages=" \
 			messages/mysqlx_connection.cc \
-			messages/mysqlx_pfc.cc \
-			\
-			messages/mysqlx_resultset__column_metadata.cc \
-			messages/mysqlx_resultset__resultset_metadata.cc \
-			messages/mysqlx_resultset__data_row.cc \
-			\
-			messages/mysqlx_message__error.cc \
-			messages/mysqlx_message__ok.cc \
-			messages/mysqlx_message__auth_start.cc \
 			messages/mysqlx_message__auth_continue.cc \
 			messages/mysqlx_message__auth_ok.cc \
+			messages/mysqlx_message__auth_start.cc \
+			messages/mysqlx_message__capabilities.cc \
 			messages/mysqlx_message__capabilities_get.cc \
 			messages/mysqlx_message__capabilities_set.cc \
-			messages/mysqlx_message__capabilities.cc \
 			messages/mysqlx_message__capability.cc \
+			messages/mysqlx_message__data_fetch_done.cc \
+			messages/mysqlx_message__error.cc \
+			messages/mysqlx_message__ok.cc \
 			messages/mysqlx_message__stmt_execute.cc \
 			messages/mysqlx_message__stmt_execute_ok.cc \
-			messages/mysqlx_message__data_fetch_done.cc \
+			messages/mysqlx_pfc.cc \
+			messages/mysqlx_resultset__column_metadata.cc \
+			messages/mysqlx_resultset__data_row.cc \
+			messages/mysqlx_resultset__resultset_metadata.cc \
 			"
 	fi
 
@@ -116,27 +114,27 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	xmysqlnd_sources=" \
 		xmysqlnd/xmysqlnd_any2expr.cc \
+		xmysqlnd/xmysqlnd_collection.cc \
 		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
 		xmysqlnd/xmysqlnd_crud_table_commands.cc \
 		xmysqlnd/xmysqlnd_driver.cc \
 		xmysqlnd/xmysqlnd_environment.cc \
 		xmysqlnd/xmysqlnd_extension_plugin.cc \
 		xmysqlnd/xmysqlnd_index_collection_commands.cc \
-		xmysqlnd/xmysqlnd_collection.cc \
-		xmysqlnd/xmysqlnd_schema.cc \
-		xmysqlnd/xmysqlnd_session.cc \
-		xmysqlnd/xmysqlnd_stmt.cc \
-		xmysqlnd/xmysqlnd_stmt_result.cc \
-		xmysqlnd/xmysqlnd_stmt_result_meta.cc \
-		xmysqlnd/xmysqlnd_table.cc \
 		xmysqlnd/xmysqlnd_object_factory.cc \
-		xmysqlnd/xmysqlnd_protocol_frame_codec.cc \
 		xmysqlnd/xmysqlnd_protocol_dumper.cc \
+		xmysqlnd/xmysqlnd_protocol_frame_codec.cc \
 		xmysqlnd/xmysqlnd_rowset.cc \
 		xmysqlnd/xmysqlnd_rowset_buffered.cc \
 		xmysqlnd/xmysqlnd_rowset_fwd.cc \
+		xmysqlnd/xmysqlnd_schema.cc \
+		xmysqlnd/xmysqlnd_session.cc \
 		xmysqlnd/xmysqlnd_statistics.cc \
+		xmysqlnd/xmysqlnd_stmt.cc \
 		xmysqlnd/xmysqlnd_stmt_execution_state.cc \
+		xmysqlnd/xmysqlnd_stmt_result.cc \
+		xmysqlnd/xmysqlnd_stmt_result_meta.cc \
+		xmysqlnd/xmysqlnd_table.cc \
 		xmysqlnd/xmysqlnd_utils.cc \
 		xmysqlnd/xmysqlnd_warning_list.cc \
 		xmysqlnd/xmysqlnd_wireprotocol.cc \
