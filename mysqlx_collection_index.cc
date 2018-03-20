@@ -40,6 +40,7 @@ extern "C" {
 #include "util/exceptions.h"
 #include "util/object.h"
 #include "util/string_utils.h"
+#include <boost/version.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 namespace mysqlx {
@@ -51,8 +52,23 @@ using namespace drv;
 namespace
 {
 
-using ptree = boost::property_tree::basic_ptree<util::string, util::string>;
+/*
+	in older versions of boost (e.g. 1.53.0 which is at the moment still officially
+	delivered as the newest one package for CentOS7) there is bug in boost::property_tree
+	it doesn't support strings with custom allocator - somewhere deep in code there is
+	applied std::string directly with standard allocator
+	compiler fails at conversion std::string <=> util::string (custom allocator)
+	in newer versions it is fixed
+	the oldest version we've successfully tried is 1.59.0
+	and beginning with that version we apply util::string, while for older one std::string
+*/
+#if 105900 <= BOOST_VERSION
+using ptree_string = util::string;
+#else
+using ptree_string = std::string;
+#endif
 
+using ptree = boost::property_tree::basic_ptree<ptree_string, ptree_string>;
 
 class Index_definition_parser
 {
@@ -71,7 +87,7 @@ private:
 	Index_field parse_field(ptree& field_description);
 
 	void verify_field_traits(ptree& field_description);
-	void verify_field_trait(const util::string& field_trait_name);
+	void verify_field_trait(const std::string& field_trait_name);
 
 	void verify_field(const Index_field& field);
 	void verify_field_path(const Index_field& field);
@@ -103,7 +119,7 @@ Index_definition Index_definition_parser::run()
 
 boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
 {
-	auto index_type = index_desc.get_optional<util::string>("type");
+	auto index_type = index_desc.get_optional<ptree_string>("type");
 	if (!index_type) return boost::optional<Index_definition::Type>();
 
 	using Str_to_type = std::map<std::string, Index_definition::Type>;
@@ -134,11 +150,12 @@ Index_definition::Fields Index_definition_parser::parse_fields()
 Index_field Index_definition_parser::parse_field(ptree& field_description)
 {
 	verify_field_traits(field_description);
+	auto collation{ field_description.get_optional<ptree_string>("collation") };
 	const Index_field field {
-		field_description.get<util::string>("field"),
-		field_description.get<util::string>("type"),
+		util::to_string(field_description.get<ptree_string>("field")),
+		util::to_string(field_description.get<ptree_string>("type")),
 		field_description.get_optional<bool>("required"),
-		field_description.get_optional<util::string>("collation"),
+		collation ? util::to_string(collation.get()) : boost::optional<util::string>(),
 		field_description.get_optional<unsigned int>("options"),
 		field_description.get_optional<unsigned int>("srid")
 	};
@@ -148,12 +165,12 @@ Index_field Index_definition_parser::parse_field(ptree& field_description)
 void Index_definition_parser::verify_field_traits(ptree& field_description)
 {
 	for (auto field_trait : field_description) {
-		const util::string& field_trait_name = field_trait.first.data();
+		const std::string field_trait_name{ field_trait.first.data() };
 		verify_field_trait(field_trait_name);
 	}
 }
 
-void Index_definition_parser::verify_field_trait(const util::string& field_trait_name)
+void Index_definition_parser::verify_field_trait(const std::string& field_trait_name)
 {
 	static const std::set<std::string> allowed_traits{
 		"field",
@@ -164,8 +181,8 @@ void Index_definition_parser::verify_field_trait(const util::string& field_trait
 		"srid"
 	};
 
-	if (!allowed_traits.count(util::to_std_string(field_trait_name))) {
-		throw std::invalid_argument(std::string("unsupported field trait '") + util::to_std_string(field_trait_name) + "" );
+	if (!allowed_traits.count(field_trait_name)) {
+		throw std::invalid_argument(std::string("unsupported field trait '") + field_trait_name + "" );
 	}
 }
 

@@ -67,6 +67,11 @@ string to_string(const st_mysqlnd_string& s); // MYSQLND_STRING
 string to_string(const st_mysqlnd_const_string& s); // MYSQLND_CSTRING
 
 
+inline string to_string(const string& str)
+{
+	return str;
+}
+
 inline string to_string(const std::string& str)
 {
 	return string(str.c_str(), str.length());
@@ -94,6 +99,11 @@ string to_string(T* val)
 inline std::string to_std_string(const string& str)
 {
 	return std::string(str.data(), str.length());
+}
+
+inline std::string to_std_string(const std::string& str)
+{
+	return str;
 }
 
 //------------------------------------------------------------------------------
