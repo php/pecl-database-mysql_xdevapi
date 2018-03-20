@@ -45,16 +45,10 @@ extern "C" {
  */
 PHP_MINFO_FUNCTION(mysql_xdevapi)
 {
-	/* ---------------- xmysqlnd ---------------- */
 	php_info_print_table_start();
-	php_info_print_table_header(2, "xmysqlnd", "enabled");
+	//TODO: we need global const "mysql_xdevapi", it appears in plenty of locations
+	php_info_print_table_header(2, "mysql_xdevapi", "enabled");
 	php_info_print_table_row(2, "Version", mysqlx::drv::xmysqlnd_get_client_info());
-	php_info_print_table_row(2, "experimental features",
-#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
-								"enabled");
-#else
-								"disabled");
-#endif
 
 	php_info_print_table_row(2, "Read timeout", std::to_string(MYSQL_XDEVAPI_G(net_read_timeout)).c_str());
 
@@ -63,24 +57,6 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 
 	php_info_print_table_row(2, "Tracing", MYSQL_XDEVAPI_G(debug)? MYSQL_XDEVAPI_G(debug):"n/a");
 
-	php_info_print_table_end();
-
-
-	/* ---------------- mysqlx ---------------- */
-	php_info_print_table_start();
-	php_info_print_table_header(2, "mysqlx", "enabled");
-	php_info_print_table_row(2, "message classes",
-#ifdef MYSQL_XDEVAPI_MESSAGE_CLASSES
-								"enabled");
-#else
-								"disabled");
-#endif
-	php_info_print_table_row(2, "experimental features",
-#ifdef MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES
-								"enabled");
-#else
-								"disabled");
-#endif
 	php_info_print_table_end();
 }
 /* }}} */
@@ -249,7 +225,7 @@ static const zend_function_entry mysqlx_functions[] = {
 static const zend_module_dep mysqlx_deps[] = {
 	ZEND_MOD_REQUIRED("standard")
 	ZEND_MOD_REQUIRED("mysqlnd")
-	//ZEND_MOD_REQUIRED("xmysqlnd")
+	ZEND_MOD_REQUIRED("hash")
 	ZEND_MOD_REQUIRED("json")
 	ZEND_MOD_END
 };

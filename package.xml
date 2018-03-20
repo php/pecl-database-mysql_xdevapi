@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-  <date>2018-01-17</date>
+  <date>2018-03-20</date>
   <time>20:00:00</time>
   <version>
-   <release>8.0.4</release>
+   <release>8.0.11</release>
    <api>1.0.0</api>
   </version>
   <stability>
@@ -61,13 +61,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   </stability>
   <license uri="http://www.php.net/license">PHP</license>
   <notes>
-	WL#9898-Driver: Extended Authentication support (incl. SHA256)
-	WL#10089-DevAPI: Cleanup Drop APIs
-	WL#9876-DevAPI: Collection.createIndex
-	WL#11301-Remove CreateTable and CreateView
-	WL#10725-DevAPI: Modify/MergePatch
-	WL#10868-DevAPI: transaction save-points
-	WL#11340-Remove configuration API
+	WL#11591-DevAPI: Add SHA256_MEMORY support
+	WL#11390-DevAPI: New document _id generation support
+	WL#11242-Support locking modes: NOWAIT and SKIP LOCKED
+	refactoring: reference counting, clear warnings
   </notes>
  <contents>
   <dir name="/">
@@ -608,6 +605,28 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+   <release>
+	<date>2018-01-17</date>
+	<time>20:00:00</time>
+	<version>
+		<release>8.0.4</release>
+		<api>1.0.0</api>
+	</version>
+	<stability>
+		<release>alpha</release>
+		<api>alpha</api>
+	</stability>
+	<license uri="http://www.php.net/license">PHP</license>
+	<notes>
+		WL#9898-Driver: Extended Authentication support (incl. SHA256)
+		WL#10089-DevAPI: Cleanup Drop APIs
+		WL#9876-DevAPI: Collection.createIndex
+		WL#11301-Remove CreateTable and CreateView
+		WL#10725-DevAPI: Modify/MergePatch
+		WL#10868-DevAPI: transaction save-points
+		WL#11340-Remove configuration API
+	</notes>
+   </release>
    <release>
 	<date>2017-09-28</date>
 	<time>20:00:00</time>
