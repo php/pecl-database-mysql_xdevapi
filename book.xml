@@ -14,7 +14,7 @@
 
  &reference.mysql-xdevapi.setup;
  &reference.mysql-xdevapi.constants;
- 
+ &reference.mysql-xdevapi.examples;
  &reference.mysql-xdevapi.reference;
 
  &reference.mysql-xdevapi.mysql-xdevapi.baseresult;

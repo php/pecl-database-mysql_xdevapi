@@ -85,11 +85,16 @@ if (false !== strpos($book, $entity_base)) {
 }
 
 // Remove examples entry
+/*
+Adding -e to docgen.php adds examples.xml and example sections in each method/function
+so we do that now. Leaving code here just in case for later, though.
+
 if (false !== strpos($book, '&reference.'. $myextension .'.examples;')) {
     $book = file_get_contents('book.xml');
     $newbook = str_replace('&reference.'. $myextension .'.examples;', '', $book);
     file_put_contents('book.xml', $newbook);
 }
+*/
 
 // Fix xinclude problem for classes with only a constructor
 // @todo confirm this works

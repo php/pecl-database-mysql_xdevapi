@@ -38,6 +38,28 @@
  -->
 
 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title><function>mysql_xdevapi\DocResult::__construct</function> example</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+/* ... */
+
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+...
+]]>
+   </screen>
+  </example>
+ </refsect1>
+
 
 </refentry>
 

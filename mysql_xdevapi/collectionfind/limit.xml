@@ -42,6 +42,28 @@
   </para>
  </refsect1>
 
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title><function>mysql_xdevapi\CollectionFind::limit</function> example</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+/* ... */
+
+?>
+]]>
+   </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+...
+]]>
+   </screen>
+  </example>
+ </refsect1>
+
 
 </refentry>
 
