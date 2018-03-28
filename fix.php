@@ -13,7 +13,7 @@
 
    $ svn checkout https://svn.php.net/repository/phpdoc/modules/doc-en phpdoc-en
    $ cd phpdoc-en
-   $ php doc-base/scripts/docgen/docgen.php -e mysql_xdevapi -p
+   $ php doc-base/scripts/docgen/docgen.php -e mysql_xdevapi -p -x
    $ cp ~/whateverthisis/fix.php output/
    $ cd output
    $ php fix.php
