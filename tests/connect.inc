@@ -404,7 +404,28 @@
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().
-					': null expected instead of '.$expectation.' ('.$hint.')'.PHP_EOL;
+					': null expected, but met value ('.$hint.')'.PHP_EOL;
+				var_dump($expectation);
+				$test_result_string .= '0';
+			}
+		}
+	}
+
+	/*
+		Used to verify an expected non-null value
+	*/
+	if( !function_exists('expect_not_null')) {
+		function expect_not_null($expectation, $hint = '') {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			if( null != $expectation ){
+				$test_result_string .= '1';
+			} else {
+				print get_backtrace().
+					': non-null expected, but met null value '.$expectation.' ('.$hint.')'.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}

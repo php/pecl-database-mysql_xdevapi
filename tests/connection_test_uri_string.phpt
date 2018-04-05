@@ -5,56 +5,56 @@ mysqlx connection test / URI string
 error_reporting=0
 --FILE--
 <?php
-        require_once("connect.inc");
+	require_once("connect.inc");
 
-        create_test_db();
+	create_test_db();
 	fill_db_table();
 
-        //[ URI, Expected code ]
+	//[ URI, Expected code ]
 	$uri_string = [
-	    [ $scheme.'://user:password@localhost/?'.$disable_ssl_opt       ,1045 ],
-	    [ $scheme.'://'.$user.':password@localhost/?'.$disable_ssl_opt  ,1045 ],
-	    [ $scheme.'://'.$user.':'.$passwd.'@fakehost/?'.$disable_ssl_opt,2002 ],
-	    [ $scheme.'://:'.$passwd.'@fakehost/?'.$disable_ssl_opt         ,2002 ],
-	    [ '//'.$user.':'.$passwd.'@'.$host.':19999/?'.$disable_ssl_opt  ,2002 ],
-	    [ '//user:password@localhost/?'.$disable_ssl_opt                ,1045]
+		[ $scheme.'://user:password@localhost/?'.$disable_ssl_opt       ,1045 ],
+		[ $scheme.'://'.$user.':password@localhost/?'.$disable_ssl_opt  ,1045 ],
+		[ $scheme.'://'.$user.':'.$passwd.'@fakehost/?'.$disable_ssl_opt,2002 ],
+		[ $scheme.'://:'.$passwd.'@fakehost/?'.$disable_ssl_opt         ,2002 ],
+		[ '//'.$user.':'.$passwd.'@'.$host.':19999/?'.$disable_ssl_opt  ,2002 ],
+		[ '//user:password@localhost/?'.$disable_ssl_opt                ,1045]
 	];
 
-        for( $i = 0 ; $i < count($uri_string) ; $i++ ) {
-	    try {
-	            $session = mysql_xdevapi\getSession($uri_string[$i][0]);
-		     expect_null( $session );
-	    } catch(Exception $e) {
-	            expect_eq($e->getCode(), $uri_string[$i][1]);
-	    }
+	for( $i = 0 ; $i < count($uri_string) ; $i++ ) {
+		try {
+			$session = mysql_xdevapi\getSession($uri_string[$i][0]);
+			expect_null( $session, $uri_string[$i][0] );
+		} catch(Exception $e) {
+			expect_eq($e->getCode(), $uri_string[$i][1]);
+		}
 	}
 
-        try {
-	        $uri = '//'.$user.':'.$passwd.'@'.$host.':'.$port.'/?'.$disable_ssl_opt;
+	try {
+		$uri = '//'.$user.':'.$passwd.'@'.$host.':'.$port.'/?'.$disable_ssl_opt;
 		$session = mysql_xdevapi\getSession($uri);
 
 		$session = mysql_xdevapi\getSession($scheme.':'.$uri);
 	} catch(Exception $e) {
-	        test_step_failed();
+		test_step_failed();
 	}
 
-        //test IPv6
+	//test IPv6
 	try {
-	        $uri = $scheme.'://'.$user.':'.$passwd.'@'.'[::1]:'.$port.'/?'.$disable_ssl_opt;
+		$uri = $scheme.'://'.$user.':'.$passwd.'@'.'[::1]:'.$port.'/?'.$disable_ssl_opt;
 		$session = mysql_xdevapi\getSession($uri);
 	} catch(Exception $e) {
-	        print $e->getCode()." : ".$e->getMessage().PHP_EOL;
-	        test_step_failed();
+		print $e->getCode()." : ".$e->getMessage().PHP_EOL;
+		test_step_failed();
 	}
 
 	//Verify SSL options
 	$basic_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
 	$wrong_ssl = $basic_uri.'/?ssl-mode=disabled&ssl-mode=verify_ca&ssl-default';
 	try {
-	        $session = mysql_xdevapi\getSession($wrong_ssl);
+		$session = mysql_xdevapi\getSession($wrong_ssl);
 		test_step_failed();
 	} catch(Exception $e) {
-	        expect_eq( $e->getCode(), 10033 );
+		expect_eq( $e->getCode(), 10033 );
 	}
 	$wrong_ssl = $basic_uri.'/?ssl-mode=disabled&ssl-ca=/path/to/ca&ssl-default';
 	try {
@@ -64,18 +64,18 @@ error_reporting=0
 		expect_eq( $e->getCode(), 10036 );
 	}
 	try {
-	        $session = mysql_xdevapi\getSession($basic_uri);
-		expect_null( $session );
+		$session = mysql_xdevapi\getSession($basic_uri);
+		expect_not_null( $session, $basic_uri );
 	} catch(Exception $e) {
-	        test_step_failed();
+		test_step_failed();
 	}
 
-        verify_expectations();
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 	clean_test_db();
 ?>
 --EXPECTF--

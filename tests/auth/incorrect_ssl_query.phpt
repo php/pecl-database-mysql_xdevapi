@@ -24,7 +24,7 @@ test_incorrect_connection($ssl_query.'&&auth=&');
 test_incorrect_connection($disable_ssl_opt.'&&auth=mysql41');
 test_incorrect_connection($ssl_query.'&&auth&=plain');
 test_incorrect_connection($disable_ssl_opt.'&auth=plain&&auth=external');
-test_incorrect_connection($ssl_query.'auth=plain');
+test_incorrect_connection($ssl_query.'auth=plajn');
 test_incorrect_connection($disable_ssl_opt.'auth=');
 test_incorrect_connection($ssl_query.'auth=sha256_memory&');
 test_incorrect_connection($disable_ssl_opt.'&auth=sha256_memory&&&');
