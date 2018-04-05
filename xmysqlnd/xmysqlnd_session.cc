@@ -1006,6 +1006,7 @@ void setup_crypto_options(
 	php_stream_context_set_option(stream_context,"ssl","allow_self_signed",&verify_peer_zval);
 
 	ZVAL_FALSE(&verify_peer_zval);
+	php_stream_context_set_option(stream_context,"ssl","verify_peer",&verify_peer_zval);
 	php_stream_context_set_option(stream_context,"ssl","verify_peer_name",&verify_peer_zval);
 	DBG_VOID_RETURN;
 }
