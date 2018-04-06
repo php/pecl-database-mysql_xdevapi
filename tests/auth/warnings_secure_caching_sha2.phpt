@@ -37,32 +37,32 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:33160/?ssl-%s&auth=MYSQL41
+mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@%s/?ssl-%s&auth=MYSQL41
 
 Warning: mysql_xdevapi\getSession(): [1045][HY000] Invalid user or password in %s
 ----------------------
-mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:33160/?ssl-%s&auth=SHA256_MEMORY
+mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@%s/?ssl-%s&auth=SHA256_MEMORY
 
 Warning: mysql_xdevapi\getSession(): [1045][HY000] Invalid user or password in %s
 ----------------------
-mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:33160/?ssl-%s&auth=EXTERNAL
+mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@%s/?ssl-%s&auth=EXTERNAL
 
 Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s
 
 Warning: mysql_xdevapi\getSession(): SSL: An established connection was aborted by the software in your host machine.
  in %s
 ----------------------
-mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:33160/?ssl-%s&auth=UNKNOWN
+mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@%s/?ssl-%s&auth=UNKNOWN
 ----------------------
-mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:33160/?ssl-%s&auth=SHA256_MEMORY
+mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@%s/?ssl-%s&auth=SHA256_MEMORY
 ----------------------
-mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:33160/?ssl-%s&auth=SHA256_MEMORY
+mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@%s/?ssl-%s&auth=SHA256_MEMORY
 
 Warning: mysql_xdevapi\getSession(): [1045][HY000] Invalid user or password in %s
 ----------------------
-mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:33160/?ssl-%s&auth=sha256_memory
+mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@%s/?ssl-%s&auth=sha256_memory
 ----------------------
-mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:33160/?ssl-%s&auth=sha256_memory
+mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@%s/?ssl-%s&auth=sha256_memory
 
 Warning: mysql_xdevapi\getSession(): [1045][HY000] Invalid user or password in %s
 ----------------------
