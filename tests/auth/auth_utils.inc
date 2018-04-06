@@ -37,12 +37,16 @@ function prepare_base_uri($user) {
 	return $base_uri;
 }
 
-function test_connection($base_uri, $auth_method, $expect_success) {
+function test_connection($base_uri, $auth_method, $expect_success, $verbose = false) {
 	try {
 		$uri = $base_uri;
 		if ($auth_method) {
 			$uri .= '&auth=' . $auth_method;
 		}
+		if ($verbose) {
+			echo $uri, "\n";
+		}
+
 		$session = mysql_xdevapi\getSession($uri);
 		if (($expect_success && $session) || (!$expect_success && !$session)) {
 			test_step_ok();
@@ -55,6 +59,10 @@ function test_connection($base_uri, $auth_method, $expect_success) {
 		} else {
 			test_step_ok();
 		}
+	}
+
+	if ($verbose) {
+		echo "----------------------", "\n";
 	}
 }
 
@@ -75,9 +83,9 @@ function prepare_unsecure_uri($user) {
 	return $uri;
 }
 
-function test_unsecure_connection($user, $auth_method, $expect_success = true) {
+function test_unsecure_connection($user, $auth_method, $expect_success = true, $verbose = false) {
 	$uri = prepare_unsecure_uri($user);
-	test_connection($uri, $auth_method, $expect_success);
+	test_connection($uri, $auth_method, $expect_success, $verbose);
 }
 
 // -----------
@@ -105,9 +113,9 @@ function prepare_secure_uri($user) {
 	return $uri;
 }
 
-function test_secure_connection($user, $auth_method, $expect_success = true) {
+function test_secure_connection($user, $auth_method, $expect_success = true, $verbose = false) {
 	$uri = prepare_secure_uri($user);
-	test_connection($uri, $auth_method, $expect_success);
+	test_connection($uri, $auth_method, $expect_success, $verbose);
 }
 
 ?>
