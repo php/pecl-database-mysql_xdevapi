@@ -431,9 +431,9 @@ XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error)(void * context, const u
 /* {{{ on_suppress_auth_warning */
 const enum_hnd_func_status
 on_suppress_auth_warning(
-	void* context, 
+	void* context,
 	const xmysqlnd_stmt_warning_level level,
-	const unsigned int code, 
+	const unsigned int code,
 	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("on_suppress_auth_warning");
@@ -446,9 +446,9 @@ on_suppress_auth_warning(
 /* {{{ on_suppress_auth_error */
 const enum_hnd_func_status
 on_suppress_auth_error(
-	void* context, 
-	const unsigned int code, 
-	const MYSQLND_CSTRING sql_state, 
+	void* context,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("on_suppress_auth_error");
