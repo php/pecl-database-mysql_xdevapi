@@ -1,5 +1,5 @@
 --TEST--
-mysqlx authentication mechanisms - warnings
+mysqlx authentication mechanisms - unsecure caching_sha2_password warnings
 --SKIPIF--
 --INI--
 error_reporting=E_ALL
@@ -10,7 +10,7 @@ require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
-$test_user = DEVAPI_EXT_NAME.'_test_user_sha2';
+$test_user = $Test_user_sha2;
 $ssl_query = prepare_ssl_query();
 reset_test_user($test_user, 'caching_sha2_password');
 
@@ -23,7 +23,12 @@ test_unsecure_connection($test_user, 'UNSUPPORTED', false, true);
 
 test_secure_connection($test_user, 'PLAIN', true, false);
 test_unsecure_connection($test_user, 'SHA256_MEMORY', true, true);
-test_unsecure_connection($Unknown_user, 'SHA256_MEMORY', false, true);
+test_unsecure_connection($Test_user_unknown, 'SHA256_MEMORY', false, true);
+
+reset_test_user($test_user, 'caching_sha2_password');
+test_secure_connection($test_user, null, true, false);
+test_unsecure_connection($test_user, 'sha256_memory', true, true);
+test_unsecure_connection($Test_user_unknown, 'sha256_memory', false, true);
 
 verify_expectations();
 print "done!\n";
@@ -59,6 +64,12 @@ mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@loca
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:33160/?ssl-mode=disabled&auth=SHA256_MEMORY
 ----------------------
 mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:33160/?ssl-mode=disabled&auth=SHA256_MEMORY
+
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Invalid user or password in %s
+----------------------
+mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:33160/?ssl-mode=disabled&auth=sha256_memory
+----------------------
+mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:33160/?ssl-mode=disabled&auth=sha256_memory
 
 Warning: mysql_xdevapi\getSession(): [1045][HY000] Invalid user or password in %s
 ----------------------

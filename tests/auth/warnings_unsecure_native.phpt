@@ -1,5 +1,5 @@
 --TEST--
-mysqlx authentication mechanisms - warnings
+mysqlx authentication mechanisms - unsecure mysql_native_password warnings
 --SKIPIF--
 --INI--
 error_reporting=E_ALL
@@ -10,7 +10,7 @@ require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
-$test_user = DEVAPI_EXT_NAME.'_test_user_native';
+$test_user = $Test_user_native;
 reset_test_user($test_user, 'mysql_native_password');
 
 test_unsecure_connection($test_user, 'sha256_memory', false, true);
@@ -18,8 +18,8 @@ test_unsecure_connection($test_user, 'plain', false, true);
 test_unsecure_connection($test_user, 'external', false, true);
 test_unsecure_connection($test_user, 'unsupported', false, true);
 
-test_unsecure_connection($Unknown_user, null, false, true);
-test_unsecure_connection($Unknown_user, 'mysql41', false, true);
+test_unsecure_connection($Test_user_unknown, null, false, true);
+test_unsecure_connection($Test_user_unknown, 'mysql41', false, true);
 
 verify_expectations();
 print "done!\n";

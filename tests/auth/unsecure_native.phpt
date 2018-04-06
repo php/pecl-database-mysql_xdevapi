@@ -10,7 +10,7 @@ require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
-$test_user = DEVAPI_EXT_NAME.'_test_user_native';
+$test_user = $Test_user_native;
 reset_test_user($test_user, 'mysql_native_password');
 
 test_unsecure_connection($test_user, null);
