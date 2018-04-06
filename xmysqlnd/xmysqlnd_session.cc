@@ -412,7 +412,7 @@ XMYSQLND_METHOD(xmysqlnd_session_data, get_scheme)(XMYSQLND_SESSION_DATA session
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_warning */
+/* {{{ xmysqlnd_stmt::handler_on_error */
 const enum_hnd_func_status
 XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
@@ -426,6 +426,36 @@ XMYSQLND_METHOD(xmysqlnd_session_data, handler_on_error)(void * context, const u
 }
 /* }}} */
 
+// ----------------------------------------------------------------------------
+
+/* {{{ on_suppress_auth_warning */
+const enum_hnd_func_status
+on_suppress_auth_warning(
+	void* context, 
+	const xmysqlnd_stmt_warning_level level,
+	const unsigned int code, 
+	const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("on_suppress_auth_warning");
+	DBG_INF_FMT("[%4u] %d %s", code, level, message.s ? message.s : "");
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
+
+
+/* {{{ on_suppress_auth_error */
+const enum_hnd_func_status
+on_suppress_auth_error(
+	void* context, 
+	const unsigned int code, 
+	const MYSQLND_CSTRING sql_state, 
+	const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("on_suppress_auth_error");
+	DBG_INF_FMT("[%4u][%s] %s", code, sql_state.s ? sql_state.s : "", message.s ? message.s : "");
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+/* }}} */
 
 // --------------------------
 
@@ -1164,6 +1194,7 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 					ret = FAIL;
 				}
 
+				const bool suppress_server_messages = 1 < auth_mechanisms.size();
 				for (Auth_mechanism auth_mechanism : auth_mechanisms) {
 					const util::string& auth_mech_name = auth_mechanism_to_str(auth_mechanism);
 					DBG_INF_FMT("Authentication mechanism: %s", auth_mech_name.c_str());
@@ -1183,10 +1214,14 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 
 						const st_xmysqlnd_on_auth_continue_bind on_auth_continue{
 							session->m->handler_on_auth_continue, auth_scrambler.get() };
+						const st_xmysqlnd_on_warning_bind on_auth_warning{
+							on_suppress_auth_warning, nullptr };
+						const st_xmysqlnd_on_error_bind on_auth_error{
+							on_suppress_auth_error, nullptr };
 						auth_start_msg.init_read(&auth_start_msg,
 										on_auth_continue,
-										on_warning,
-										on_error,
+										suppress_server_messages ? on_auth_warning : on_warning,
+										suppress_server_messages ? on_auth_error : on_error,
 										on_client_id,
 										on_session_var_change);
 						ret = auth_start_msg.read_response(&auth_start_msg, nullptr);
@@ -1198,7 +1233,7 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 				}
 
 
-				if (ret == FAIL) {
+				if ((ret == FAIL) && suppress_server_messages) {
 					const util::strings& auth_mech_names{to_auth_mech_names(auth_mechanisms)};
 					util::ostringstream os;
 					os << "[HY000] Authentication failed using "
