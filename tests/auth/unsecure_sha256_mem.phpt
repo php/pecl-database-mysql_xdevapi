@@ -10,7 +10,7 @@ require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
-$test_user = 'user_sha256_mem';
+$test_user = DEVAPI_EXT_NAME.'_test_user_sha2';
 reset_test_user($test_user, 'caching_sha2_password');
 
 
