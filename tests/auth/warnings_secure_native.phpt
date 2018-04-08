@@ -37,8 +37,7 @@ Warning: mysql_xdevapi\getSession(): [1045][HY000] Invalid user or password in %
 ----------------------
 mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%s/?ssl-%s&auth=external
 
-Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s
-%A
+Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s%A
 ----------------------
 mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%s/?ssl-%s&auth=unknown
 ----------------------
