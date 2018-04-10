@@ -14,7 +14,8 @@
    <void />
   </methodsynopsis>
   <para>
-
+   Returns the session object ( assuming that there's a valid connection to the server ) related with the
+   Collection object.
   </para>
 
   &warn.undocumented.func;
@@ -29,7 +30,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   The session object,
   </para>
  </refsect1>
 
@@ -41,7 +42,9 @@
 <![CDATA[
 <?php
 
-/* ... */
+//If $coll is a valid collection object, then getSession will return the
+//corresponding Session object
+$schema = $coll->getSession();
 
 ?>
 ]]>

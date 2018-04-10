@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-
+   Returns the amounf of warnings raised by the last operation. Specifically, those are the warnings raised by the server.
   </para>
 
   &warn.undocumented.func;
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   The returned value is the amout of warnings that has been raised.
   </para>
  </refsect1>
 

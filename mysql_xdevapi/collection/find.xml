@@ -14,7 +14,8 @@
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   This function is usefull for looking in the database colletion for a document or set of documents; The returned
+   documents are contained in the CollectionFind object that can be used further to fetch one or all the documents.
   </para>
 
   &warn.undocumented.func;
@@ -28,7 +29,13 @@
     <term><parameter>search_condition</parameter></term>
     <listitem>
      <para>
-      
+      Althought this is an optional parameter, normally you would expect to use a condition to delimit the
+      results of the find operation to a subset of all your documents. Providing an empty search_condition triggers
+      the client to lookup for all the documents, while when a condition is provided the returned set of documents
+      whould be the one that match the condition.
+
+      Multiple elements might build the condition and the syntax supports parameter binding. The expression used as
+      search condition must be a valid SQL expression.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +45,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   The function returns a CollectionFind object that can use used to verify both the result of the operation and 
+   to fetch one or all the documents that has been found.
   </para>
  </refsect1>
 
@@ -50,7 +58,34 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object
+
+
+$coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
+$coll->add('{"name": "Lonardo",    "age": 59, "job": "Paninaro"}')->execute();
+$coll->add('{"name": "Riccardo",   "age": 27, "job": "Cantante"}')->execute();
+$coll->add('{"name": "Carlotta",   "age": 23, "job": "Programmatrice"}')->execute();
+$coll->add('{"name": "Carlo",      "age": 25, "job": "Programmatore"}')->execute();
+$coll->add('{"name": "Mariangela", "age": 41, "job": "Programmatrice"}')->execute();
+$coll->add('{"name": "Alfredo",    "age": 27, "job": "Programmatore"}')->execute();
+$coll->add('{"name": "Antonella",  "age": 42, "job": "Studente"}')->execute();
+$coll->add('{"name": "Monica",     "age": 35, "job": "Ballerino"}')->execute();
+$coll->add('{"name": "Giulio",     "age": 29, "job": "Disoccupato"}')->execute();
+$coll->add('{"name": "Lucia",      "age": 47, "job": "Barista"}')->execute();
+$coll->add('{"name": "Filippo",    "age": 31, "job": "Spazzino"}')->execute();
+$coll->add('{"name": "Alessandra", "age": 15, "job": "Barista"}')->execute();
+$coll->add('{"name": "Massimo",    "age": 22, "job": "Programmatore"}')->execute();
+$coll->add('{"name": "Carlo",      "age": 37, "job": "Calciatore"}')->execute();
+
+/*
+   This query will look for up to 2 documents in the Collection sorted by age (descending),
+   the documents must have the job 'Programmatore' and the age field higher or equal to 20
+
+   The actual resulting documents are 'Carlo' and 'Alfredo'
+*/
+
+$res = $coll->find('job like :job and age > :age')->fields('age')->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
+$data = $res->execute()->fetchAll();
 
 ?>
 ]]>

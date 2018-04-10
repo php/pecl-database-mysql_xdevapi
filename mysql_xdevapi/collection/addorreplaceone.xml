@@ -15,7 +15,16 @@
    <methodparam><type>string</type><parameter>doc</parameter></methodparam>
   </methodsynopsis>
   <para>
+   This is one of a set of operations that are not going to operate on a single document but on all the documents
+   that are matching a specific filter. addOrReplaceOne in particular will add or if the document already exists, will repace,
+   the entry in the collection which match the ID provided.
 
+   To understand this function is worth to list all the possible scenarios that the user can encounter:
+   1) If neither the id nor any unique key values conflict with any document in the collection, the document must be added to it.
+   2) If the id does not match any document but one or more unique key values conflict with a document in the collection, then an error is raised
+   3) If id matches an existing document AND no unique keys are defined for the collection, the document is replaced.
+   4) If id matches an existing document AND (all unique keys in the replacement document match that same document OR don't conflict with any other documents in the collection), the document is replaced
+   5) If id matches an existing document AND one or more unique keys match a different document from the collection, then an error is raised
   </para>
 
   &warn.undocumented.func;
@@ -29,7 +38,7 @@
     <term><parameter>id</parameter></term>
     <listitem>
      <para>
-      
+      This is the filter ID, If this ID or any other field that has a unique index on it already exists in the collection, it will update the matching document instead.
      </para>
     </listitem>
    </varlistentry>
@@ -37,7 +46,7 @@
     <term><parameter>doc</parameter></term>
     <listitem>
      <para>
-      
+      This is the document that is going to be added or replaced by the function
      </para>
     </listitem>
    </varlistentry>
@@ -47,7 +56,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   The function returns a 'Result' object.
   </para>
  </refsect1>
 
@@ -59,7 +68,12 @@
 <![CDATA[
 <?php
 
-/* ... */
+/*
+    Assuming that $coll is a valid collection object, the following call to addOrReplaceOne
+    will search for a document with the ID 121 and will either replace it or add a new one with
+    that ID.
+*/
+$res = $coll->addOrReplaceOne('121', '{"name": "Sakila", "age": 30, "job": "Radio", "_id": "121" }');
 
 ?>
 ]]>
