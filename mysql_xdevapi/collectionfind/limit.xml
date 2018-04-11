@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::limit</methodname>
+   <modifier>public</modifier> <type>FindObject</type><methodname>mysql_xdevapi\CollectionFind::limit</methodname>
    <methodparam><type>integer</type><parameter>rows</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Limit the amount of documents returned by the 'find' option by the amount provided as argument
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>rows</parameter></term>
     <listitem>
      <para>
-      
+      This is the maximum amount of documents that have to be returned by the find operation
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   FindObject that can be used for further processing
   </para>
  </refsect1>
 
@@ -50,7 +48,14 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object
+
+//Extract only the first 10 documents from the collection
+$res = $coll->find()->limit(10)->execute();
+
+//Sort the documents on the base of the 'age' field
+//and return the first two "oldest" person in the collection
+$res = $coll->find()->sort('age desc')->limit(2)->execute();
 
 ?>
 ]]>

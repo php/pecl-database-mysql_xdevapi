@@ -45,6 +45,9 @@
 </para>
   <para>
       search condition must be a valid SQL expression.
+      </para>
+      <para>
+       If no search condition is provided (field empty) then find('true') is assumed.
      </para>
     </listitem>
    </varlistentry>
@@ -98,6 +101,9 @@ $coll->add('{"name": "Carlo",      "age": 37, "job": "Calciatore"}')->execute();
 $obj = $coll->find('job like :job and age > :age')->fields('age');
 $res = $obj->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
 $data = $res->execute()->fetchAll();
+
+//The search condition mighe also be very complex and use multiple functions
+$res = $coll->find('(1>5) IN (true,false) && {"title":"Spavatore"} NOT IN jobs && CAST(_id AS SIGNED) > 2')->execute();
 
 ?>
 ]]>

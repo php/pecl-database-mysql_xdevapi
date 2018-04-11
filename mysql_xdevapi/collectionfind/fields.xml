@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::fields</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::fields</methodname>
    <methodparam><type>string</type><parameter>projection</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   This is the equivalent of the SQL projection, which allows to select which columns the query shall return.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,10 @@
     <term><parameter>projection</parameter></term>
     <listitem>
      <para>
-      
+      Can either be a single string or an array of string, those strings are identifying the columns
+     </para>
+     <para>
+      that have to be returned for each document that match the search condition.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +39,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   A CollectionFind object that can be used for further processing
   </para>
  </refsect1>
 
@@ -50,7 +51,18 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid collection object
+
+/*
+   The following find call will search for all the documents
+   with a 'job' like 'tassinaro' and will return only the column
+   'age' from each document
+*/
+$res = $coll->find('job like \'tassinaro\'')->fields('age')->execute();
+
+//Example which make use of the COUNT function
+	$res = $coll->find()->fields(['COUNT(name) as cn', 'MAX(age) as ma', 'job as j'])->execute();
+	
 
 ?>
 ]]>

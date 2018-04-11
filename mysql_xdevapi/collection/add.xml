@@ -88,6 +88,16 @@ $coll->add(
     ["_id" => "1", "name" => "Sakila", "age" => 18, "job" => "Student"],
     ["_id" => "2", "name" => "Mike", "age" => 39, "job" => "Manager"]
     )->execute();
+
+//Two more examples of add operations, using JSON strings this time
+$coll->add('{"_id": "3", "name": "Marco",
+		"jobs": [{"title":"Mangiatore","Salary":1000},{"title":"Ciarlatano","Salary":12000}],
+		"hobby": ["Spavare","Soffiare Minestrine"], "code":0}')->execute();
+
+	$coll->add('{"_id": "4", "name": "Lucrezia",
+		"jobs": [{"title":"Urlatrice","Salary":2000},{"title":"Parlatrice","Salary":3400}],
+		"hobby": ["Cucinare","Guidare auto sportive","Cavalcare"], "code":1}')->execute();
+
 ?>
 ]]>
    </programlisting>

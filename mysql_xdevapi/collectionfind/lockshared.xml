@@ -10,14 +10,21 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::lockShared</methodname>
+   <modifier>public</modifier> <type>FindObject</type><methodname>mysql_xdevapi\CollectionFind::lockShared</methodname>
    <methodparam choice="opt"><type>integer</type><parameter>lock_waiting_option</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Allows to share the documents between multiple transactions which are locking in shared mode.
   </para>
-
-  &warn.undocumented.func;
+  <para>
+   Other sessions can read the rows, but cannot modify them until your transaction commits. 
+  </para>
+  <para>
+   If any of these rows were changed by another transaction that has not yet committed, 
+  </para>
+  <para>
+   your query waits until that transaction ends and then uses the latest values.
+  </para>
 
  </refsect1>
 
@@ -28,7 +35,20 @@
     <term><parameter>lock_waiting_option</parameter></term>
     <listitem>
      <para>
-      
+         This is an optional parameter that can be used to specify the way the lock function should behave, the
+      </para>
+      <para>
+       allowed options are:
+      </para>
+      <para>
+       1) MYSQLX_LOCK_DEFAULT: Use the default locking mechanism
+      </para>
+      <para>
+       2) MYSQLX_LOCK_NOWAIT: If lock is not possible, then return an error without locking
+      </para>
+      <para>
+       3) MYSQLX_LOCK_SKIP_LOCKED: If the document is already locked, then ignore it
+
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +58,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   A FindObject that can be used for further processing
   </para>
  </refsect1>
 
