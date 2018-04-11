@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::getOne</methodname>
+   <modifier>public</modifier> <type>Document</type><methodname>mysql_xdevapi\Collection::getOne</methodname>
    <methodparam><type>string</type><parameter>id</parameter></methodparam>
   </methodsynopsis>
   <para>
    Return the document with the given id. This is a shortcut for: Collection.find("_id = :id").bind("id", id).execute().fetchOne()  
 </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

@@ -10,15 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::remove</methodname>
+   <modifier>public</modifier> <type>Result Object</type><methodname>mysql_xdevapi\Collection::remove</methodname>
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
    Allows to remove one or more documents from the Collection, the search_condition is used as valid SQL expression
    to select the documents to erase.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

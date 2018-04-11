@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::addOrReplaceOne</methodname>
+   <modifier>public</modifier> <type>Result</type><methodname>mysql_xdevapi\Collection::addOrReplaceOne</methodname>
    <methodparam><type>string</type><parameter>id</parameter></methodparam>
    <methodparam><type>string</type><parameter>doc</parameter></methodparam>
   </methodsynopsis>
@@ -26,8 +26,6 @@
    4) If id matches an existing document AND (all unique keys in the replacement document match that same document OR don't conflict with any other documents in the collection), the document is replaced
    5) If id matches an existing document AND one or more unique keys match a different document from the collection, then an error is raised
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -46,7 +44,7 @@
     <term><parameter>doc</parameter></term>
     <listitem>
      <para>
-      This is the document that is going to be added or replaced by the function
+      This is the document that is going to be added or replaced by the function, which is a JSON string.
      </para>
     </listitem>
    </varlistentry>

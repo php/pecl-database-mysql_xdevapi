@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::replaceOne</methodname>
+   <modifier>public</modifier> <type>Result Object</type><methodname>mysql_xdevapi\Collection::replaceOne</methodname>
    <methodparam><type>string</type><parameter>id</parameter></methodparam>
    <methodparam><type>string</type><parameter>doc</parameter></methodparam>
   </methodsynopsis>
@@ -18,8 +18,6 @@
    Updates (or replaces) the document identified by id with the provided one, if it exists. This operation does
    not required to call the 'execute' function.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -51,7 +49,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The returned object can be used to verify how many documents as been affected &c.
+   The returned object can be used to verify how many documents as been affected.
   </para>
  </refsect1>
 

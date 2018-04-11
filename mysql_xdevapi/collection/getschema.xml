@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::getSchema</methodname>
+   <modifier>public</modifier> <type>Schema Object</type><methodname>mysql_xdevapi\Collection::getSchema</methodname>
    <void />
   </methodsynopsis>
   <para>
    Returns the schema object which contains the collection.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

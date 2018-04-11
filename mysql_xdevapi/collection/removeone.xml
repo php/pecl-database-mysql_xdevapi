@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::removeOne</methodname>
+   <modifier>public</modifier> <type>Result Object</type><methodname>mysql_xdevapi\Collection::removeOne</methodname>
    <methodparam><type>string</type><parameter>id</parameter></methodparam>
   </methodsynopsis>
   <para>
    Remove one single document from the collection, the document is selected by it's ID, this is a shortcut for Collection.remove("_id = :id").bind("id", id).execute()
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns an object which can be queried for the amount of affected documents &c
+   Returns an object which can be queried for the amount of affected documents.
   </para>
  </refsect1>
 

@@ -14,7 +14,8 @@
    <void />
   </methodsynopsis>
   <para>
-
+   The execute function needs to be invoked in order to trigger the client to send the CRUD operation request
+   to the server.
   </para>
 
   &warn.undocumented.func;
@@ -41,7 +42,9 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid collection Object, the call to 'execute' is needed to trigger
+//the submission of the CRUD operation to the server.
+$coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
 
 ?>
 ]]>

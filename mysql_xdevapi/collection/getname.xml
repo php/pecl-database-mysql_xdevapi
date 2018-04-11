@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::getName</methodname>
+   <modifier>public</modifier> <type>String</type><methodname>mysql_xdevapi\Collection::getName</methodname>
    <void />
   </methodsynopsis>
   <para>
    Return the name of the collection.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::modify</methodname>
+   <modifier>public</modifier> <type>Result Object</type><methodname>mysql_xdevapi\Collection::modify</methodname>
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
@@ -20,8 +20,6 @@
 
    the modify operation supports parameter binding.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

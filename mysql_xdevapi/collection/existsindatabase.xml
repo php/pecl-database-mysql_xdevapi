@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::existsInDatabase</methodname>
+   <modifier>public</modifier> <type>bool</type><methodname>mysql_xdevapi\Collection::existsInDatabase</methodname>
    <void />
   </methodsynopsis>
   <para>
    The function verify if the Collection object refers to a collection which actually exists in the DB scheme.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -41,7 +39,10 @@
 <![CDATA[
 <?php
 
+//Assuming $coll is a valid Collection object
 
+//$result will be either true or false
+$result = $coll->existsInDatabase()
 
 ?>
 ]]>

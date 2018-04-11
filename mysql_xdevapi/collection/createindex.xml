@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::createIndex</methodname>
+   <modifier>public</modifier> <type>void</type><methodname>mysql_xdevapi\Collection::createIndex</methodname>
    <methodparam><type>string</type><parameter>index_name</parameter></methodparam>
    <methodparam><type>string</type><parameter>index_desc_json</parameter></methodparam>
   </methodsynopsis>
@@ -20,8 +20,6 @@
     Fails with error if an index with the same name already exists or if index definition
     is not correctly formed.
 </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

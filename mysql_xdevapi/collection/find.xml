@@ -10,15 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::find</methodname>
+   <modifier>public</modifier> <type>CollectionFind object</type><methodname>mysql_xdevapi\Collection::find</methodname>
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
    This function is usefull for looking in the database colletion for a document or set of documents; The returned
    documents are contained in the CollectionFind object that can be used further to fetch one or all the documents.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -84,7 +82,8 @@ $coll->add('{"name": "Carlo",      "age": 37, "job": "Calciatore"}')->execute();
    The actual resulting documents are 'Carlo' and 'Alfredo'
 */
 
-$res = $coll->find('job like :job and age > :age')->fields('age')->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
+$obj = $coll->find('job like :job and age > :age')->fields('age');
+$res = $obj->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
 $data = $res->execute()->fetchAll();
 
 ?>

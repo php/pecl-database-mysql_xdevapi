@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::add</methodname>
+   <modifier>public</modifier> <type>Result</type><methodname>mysql_xdevapi\Collection::add</methodname>
    <methodparam><type>string</type><parameter>json</parameter></methodparam>
   </methodsynopsis>
   <para>
@@ -23,8 +23,6 @@
    the document, if that happens then the server will not generate an identifier but the user ID will be used, is
    important to make sure that the ID is unique within the session or the 'add' operation will fail.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
