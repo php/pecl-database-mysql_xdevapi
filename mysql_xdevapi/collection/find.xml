@@ -15,6 +15,8 @@
   </methodsynopsis>
   <para>
    This function is usefull for looking in the database colletion for a document or set of documents; The returned
+</para>
+  <para>
    documents are contained in the CollectionFind object that can be used further to fetch one or all the documents.
   </para>
 
@@ -28,11 +30,20 @@
     <listitem>
      <para>
       Althought this is an optional parameter, normally you would expect to use a condition to delimit the
+</para>
+  <para>
       results of the find operation to a subset of all your documents. Providing an empty search_condition triggers
+</para>
+  <para>
       the client to lookup for all the documents, while when a condition is provided the returned set of documents
+</para>
+  <para>
       whould be the one that match the condition.
-
+</para>
+  <para>
       Multiple elements might build the condition and the syntax supports parameter binding. The expression used as
+</para>
+  <para>
       search condition must be a valid SQL expression.
      </para>
     </listitem>
@@ -44,6 +55,8 @@
   &reftitle.returnvalues;
   <para>
    The function returns a CollectionFind object that can use used to verify both the result of the operation and 
+</para>
+  <para>
    to fetch one or all the documents that has been found.
   </para>
  </refsect1>

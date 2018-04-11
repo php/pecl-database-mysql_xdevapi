@@ -16,6 +16,8 @@
   </methodsynopsis>
   <para>
    Updates (or replaces) the document identified by id with the provided one, if it exists. This operation does
+</para>
+  <para>
    not required to call the 'execute' function.
   </para>
 
@@ -37,8 +39,11 @@
     <listitem>
      <para>
       This is the document that will be used to update or replace the document pointed by the ID from the first
+</para>
+  <para>
       argument.
-
+</para>
+  <para>
       The document can be either a document object or a valid JSON string describing a new document.
      </para>
     </listitem>

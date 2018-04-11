@@ -16,14 +16,29 @@
   </methodsynopsis>
   <para>
    This is one of a set of operations that are not going to operate on a single document but on all the documents
+</para>
+  <para>
    that are matching a specific filter. addOrReplaceOne in particular will add or if the document already exists, will repace,
+</para>
+  <para>
    the entry in the collection which match the ID provided.
-
+</para>
+  <para>
    To understand this function is worth to list all the possible scenarios that the user can encounter:
+</para>
+  <para>
    1) If neither the id nor any unique key values conflict with any document in the collection, the document must be added to it.
+</para>
+  <para>
    2) If the id does not match any document but one or more unique key values conflict with a document in the collection, then an error is raised
+</para>
+  <para>
    3) If id matches an existing document AND no unique keys are defined for the collection, the document is replaced.
+</para>
+  <para>
    4) If id matches an existing document AND (all unique keys in the replacement document match that same document OR don't conflict with any other documents in the collection), the document is replaced
+</para>
+  <para>
    5) If id matches an existing document AND one or more unique keys match a different document from the collection, then an error is raised
   </para>
 

@@ -15,8 +15,14 @@
   </methodsynopsis>
   <para>
    It allows to manipulate the content of the collection selecting documents that are going to be modified.
+</para>
+  <para>
    The documents that are going to be changed are selected via the search_condition mandatory parameter, there
+</para>
+  <para>
    are multiple allowed operation and all the detail are provided in the relevant documentation subcategory.
+</para>
+  <para>
 
    the modify operation supports parameter binding.
   </para>
@@ -31,12 +37,21 @@
     <listitem>
      <para>
       It must be a valid SQL expression that will be used to match the documents thare are going to be modified,
+</para>
+  <para>
       this expression might as simple as 'true' which will match all the docuemnts, or it might use functions like:
-      
+      </para>
+  <para>
       1) 'CAST(_id AS SIGNED) >= 10'
+</para>
+  <para>
       2) 'age MOD 2 = 0 OR age MOD 3 = 0'
+</para>
+  <para>
 
       Also the IN operator is currently supported,for example: '_id IN ["2","5","7","10"]'. For more detail
+</para>
+  <para>
       have a look at the code sample
      </para>
     </listitem>
@@ -48,8 +63,11 @@
   &reftitle.returnvalues;
   <para>
    If the operation is not executed then the function will return a Modify object that can be used to provide
+</para>
+  <para>
    further options to the modify operation.
-
+</para>
+  <para>
    If the modify operation is executed then the returned object is going to hold the result of the operation.
   </para>
  </refsect1>

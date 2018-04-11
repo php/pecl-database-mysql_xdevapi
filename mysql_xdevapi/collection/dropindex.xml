@@ -15,6 +15,8 @@
   </methodsynopsis>
   <para>
    Drop an index with the given name. Silently succeeds if the index does not exist (no error or warning raised).
+</para>
+  <para>
    To confirm the drop has been executed the user should check the boolean return type.
   </para>
 

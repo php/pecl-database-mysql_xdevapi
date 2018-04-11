@@ -15,12 +15,24 @@
   </methodsynopsis>
   <para>
    This function triggers the insertion of the given document(s) into the collection, multiple variants of the
+  </para>
+  <para>
    function are supported, the user can either: 1) Add a single document as a JSON string 2) Add a single document
+</para>
+  <para>
    as an array in the form of [ 'field' => 'value', 'field2' => 'value2' ... ] 3) mix the (1) and (2) 4) Add multiple
+</para>
+  <para>
    documents in the same operation.
+</para>
+  <para>
 
    Attempting to add an empty doc ( [] for example ) is a no op. The user can provide a unique document ID with
+</para>
+  <para>
    the document, if that happens then the server will not generate an identifier but the user ID will be used, is
+</para>
+  <para>
    important to make sure that the ID is unique within the session or the 'add' operation will fail.
   </para>
 
@@ -34,6 +46,8 @@
     <listitem>
      <para>
       One or multiple documents, this can either be a JSON or an array of fields with their values, see the example
+</para>
+  <para>
       below for more details.
      </para>
     </listitem>
@@ -45,6 +59,8 @@
   &reftitle.returnvalues;
   <para>
    Once executed the add operation return a Result object that can be used to query the amount of effected items,
+</para>
+  <para>
    the amount of warnings or to get the list of generated IDs for the inserted documents.
   </para>
  </refsect1>

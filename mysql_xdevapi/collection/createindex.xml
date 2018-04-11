@@ -16,8 +16,11 @@
   </methodsynopsis>
   <para>
     Creates an index on the collection with the given name and options.
-
+</para>
+  <para>
     Fails with error if an index with the same name already exists or if index definition
+</para>
+  <para>
     is not correctly formed.
 </para>
 
@@ -31,6 +34,8 @@
     <listitem>
      <para>
       The name of the index that has to be create, this name must be a valid index name as accepted by SQL
+</para>
+  <para>
       command "CREATE INDEX ... ".
      </para>
     </listitem>

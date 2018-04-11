@@ -28,6 +28,8 @@
   &reftitle.returnvalues;
   <para>
    Either the schema object or null if the object cannot be retrieved for the given collection,
+</para>
+  <para>
    this might happen if the connection has been closed for example.
   </para>
  </refsect1>
