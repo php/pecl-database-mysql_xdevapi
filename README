@@ -3,7 +3,7 @@ MySQL X DevAPI for PHP
 
 This PHP Extension provides MySQL's X DevAPI. The X DevAPI is a new CRUD-style
 API for accessing MySQL as a Document Store. It is based on the X Protocol
-introduced with the X Plugin in MySQL 5.7.12 and unifies JSON document and
+introduced with the X Plugin in MySQL 8.0 and unifies JSON document and
 table access, and it includes SQL support. The API features a popular fluent
 interface style and aims to be particularly easy to use yet powerful. The
 X DevAPI sees wide cross product support. Developers can use the same syntax
@@ -29,7 +29,7 @@ To learn more about the details of the X DevAPI refer to the documentation on
 http://dev.mysql.com/doc/x-devapi-userguide/en/
 
 To learn more about MySQL as a Document Store efer to documentation on
-http://dev.mysql.com/doc/refman/5.7/en/document-store.html
+http://dev.mysql.com/doc/refman/8.0/en/document-store.html
 
 
 Installation
@@ -64,54 +64,27 @@ It is recommended to prepare environment and build mysql_xdevapi extension accor
 https://wiki.php.net/internals/windows/stepbystepbuild (older SDK, PHP-7.1 only)
 https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2 (PHP-7.1 or newer)
 
-2) OpenSSL on Unix
-While building extension with phpize following issue may be met at ./configure stage:
-configure: error: Cannot find OpenSSL's <evp.h>
-See https://bugs.php.net/bug.php?id=72363
-
-
-Following packages in system may be needed:
-pkg-config
-libssl-dev
-libsslcommon2-dev
-openssl-devel
-
-or following switch(es) for ./configure
---with-openssl
---with-openssl-dir
-e.g.
---with-openssl --with-openssl-dir=/usr/local/bin
-
-In case it doesn't help use
-PHP_OPENSSL=yes ./configure
-
-so the whole sequence would look like:
-phpize
-PHP_OPENSSL=yes ./configure
-make
-sudo make install
-
-3) Boost
+2) Boost
 Only headers are needed, no boost binaries required.
 
-4) Google Protocol Buffers on Windows
+3) Google Protocol Buffers on Windows
 On Windows depending on used run-times the static library with Multi-Threaded DLL
 runtime may be needed. To prepare such library on your own following options should
 be applied:
 -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF
 
-5) Google Protocol Buffers / protocol compiler (protoc)
+4) Google Protocol Buffers / protocol compiler (protoc)
 In configuration of build there is no extra option to set additional dir with binaries,
 so ensure that proper 'protoc' is available on PATH while building. It is especially
 important in case of usage PHP SDK on Windows - its batch scripts may overwrite
 environment.
 
-6) Bison
+5) Bison
 Ensure that proper version of Bison is on path while building.
 
-If you build on Windows it is stronly recommended to use the one delivered with
-chosen PHP SDK, else (in case of improper bison.exe version) following error may
-be met:
+If you build on Windows (especially with older SDK - see point 1.) it is strongly
+recommended to use the one delivered with chosen PHP SDK, else (in case of improper
+bison.exe version) following error may be met:
 
 c:\php-sdk\phpdev\vc14\x86\connector-php-7.1.0\zend\zend_globals_macros.h(39):
 	error C2375: 'zendparse': redefinition; different linkage
@@ -125,9 +98,10 @@ Supported X DevAPI features
 ---------------------------
 - collections API - add, find, modify, remove
 - collection single doc API - getOne, replaceOne, addOrReplaceOne, removeOne
-- authentication modes: MYSQL41, PLAIN, EXTERNAL
+- new document _id generation
+- authentication modes: MYSQL41, PLAIN, EXTERNAL, SHA256_MEM
 - table API - insert, select, update, delete
-- row locking for Collection.Find / Table.Select
+- row locking for Collection.Find / Table.Select, also modes NOWAIT and SKIP LOCKED
 - collection / table - getName, existsInDatabase, count
 - collection index - create, drop
 - resultsets / multi-resultsets
