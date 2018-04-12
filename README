@@ -2,13 +2,13 @@ MySQL X DevAPI for PHP
 ======================
 
 This PHP Extension provides MySQL's X DevAPI. The X DevAPI is a new CRUD-style
-API for accessing MySQL as a Document Store. It is based on the X Protocol
-introduced with the X Plugin in MySQL 8.0 and unifies JSON document and
-table access, and it includes SQL support. The API features a popular fluent
-interface style and aims to be particularly easy to use yet powerful. The
-X DevAPI sees wide cross product support. Developers can use the same syntax
-and rely on the existence of virtually the same feature set in may products
-they work with on a day to day basis.
+API for accessing MySQL as a Document Store. It is based on the MySQL 8's X
+protocol and unifies JSON document and table access, and it includes SQL
+support. The API features a popular fluent interface style and aims to be
+particularly easy to use yet powerful. The X DevAPI sees wide cross product
+support. Developers can use the same syntax and rely on the existence of
+virtually the same feature set in may products they work with on a day to
+day basis.
 
 The X DevAPI combines elements of the relational database model with elements
 of storing JSON documents. Working with schemaless data serialized in JSON has
