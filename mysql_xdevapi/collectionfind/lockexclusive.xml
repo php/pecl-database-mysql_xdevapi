@@ -80,7 +80,7 @@ $res = $col1->find("age > 50")->lockExclusive()->execute();
 
 //... Do some operation on the document
 
-//Complete the transaction and unlock the document if the document was locked
+//Complete the transaction and unlock the document
 $session->commit();
 
 ?>

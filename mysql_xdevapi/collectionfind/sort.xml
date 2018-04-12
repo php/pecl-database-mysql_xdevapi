@@ -10,14 +10,21 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::sort</methodname>
+   <modifier>public</modifier> <type>FindObject</type><methodname>mysql_xdevapi\CollectionFind::sort</methodname>
    <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Sort the result set by the field that has been selected in in the sort_expr argument, the allowed orders are:
   </para>
-
-  &warn.undocumented.func;
+  <para>
+   1) ASC: Ascending.
+  </para>
+ <para>
+ 2) DESC: Descending.
+  </para>
+  <para>
+   This operation is equivalent to the 'ORDER BY' SQL operation and it follows the same set of rules for what concerns the ordering option.
+  </para>
 
  </refsect1>
 
@@ -28,7 +35,10 @@
     <term><parameter>sort_expr</parameter></term>
     <listitem>
      <para>
-      
+      One or more sorting expression can be provided, the evaluation of these will be from the leftmost to the
+     </para>
+     <para>
+      rightmost, each expression must be separated by a comma.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +48,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   A Find object that can be used for further processing.
   </para>
  </refsect1>
 
@@ -50,7 +60,11 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object.
+
+//Find all the documents and sort them by 'age' in descending order, then sort again
+//the result by 'job' in descending order and at the end by 'num' in ascending order
+$res = $coll->find()->sort('age desc','job desc','num asc')->execute();
 
 ?>
 ]]>

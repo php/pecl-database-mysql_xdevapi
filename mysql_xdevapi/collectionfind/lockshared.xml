@@ -70,7 +70,19 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object and $session is a valid Session Object
+
+$session->startTransaction();
+
+//Returns all the documents with 'age' greather than 50 and attempt to lock them
+$res = $col1->find("age > 50")->lockShared()->execute();
+
+//Read the document in shared mode ..
+//...
+
+//Complete the transaction and unlock the document
+$session->commit();
+
 
 ?>
 ]]>
