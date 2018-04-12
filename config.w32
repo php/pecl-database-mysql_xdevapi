@@ -7,14 +7,6 @@ ARG_ENABLE("mysql-xdevapi",
 	"MySQL XDevAPI support | Hybrid Native Client Driver",
 	"no");
 
-ARG_ENABLE("mysql-xdevapi-experimental-features",
-	"Disable support for the experimental features in mysql-xdevapi",
-	"yes");
-
-ARG_ENABLE("mysql-xdevapi-message-classes",
-	"Enable support for the experimental message classes in mysql-xdevapi",
-	"yes");
-
 ARG_WITH("boost",
 	"boost library install dir",
 	"");
@@ -81,7 +73,6 @@ var mysqlx_devapi_sources = [
 	"mysqlx_x_session.cc",
 	"php_mysqlx.cc",
 	"php_mysqlx_ex.cc",
-	"php_xmysqlnd.cc"
 ];
 
 var mysqlx_messages = [
@@ -571,9 +562,7 @@ function get_preprocessor_definitions() {
 	return [
 		"/D ZEND_ENABLE_STATIC_TSRMLS_CACHE=1",
 		"/D ZEND_WIN32_KEEP_INLINE",
-		"/U ZEND_WIN32_FORCE_INLINE",
-		cfg_preprocessor_def(PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES, "MYSQL_XDEVAPI_MESSAGE_CLASSES"),
-		cfg_preprocessor_def(PHP_MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES, "MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES")
+		"/U ZEND_WIN32_FORCE_INLINE"
 	].join(' ');
 }
 

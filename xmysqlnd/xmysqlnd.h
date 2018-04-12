@@ -59,37 +59,7 @@ PHP_MYSQL_XDEVAPI_API extern MYSQLND_STATS *xmysqlnd_global_stats;
 
 } // namespace mysqlx
 
-#ifdef MARINES_0
-
-ZEND_BEGIN_MODULE_GLOBALS(xmysqlnd)
-	zend_bool		collect_statistics;
-	zend_bool		collect_memory_statistics;
-	char *			debug;					/* The actual string */
-	MYSQLND_DEBUG *	dbg;					/* The DBG object for standard tracing */
-	char *			trace_alloc_settings;	/* The actual string */
-	MYSQLND_DEBUG *	trace_alloc;			/* The DBG object for allocation tracing */
-	zend_long		net_read_timeout;
-	zend_long		mempool_default_size;
-	zend_long		debug_emalloc_fail_threshold;
-	zend_long		debug_ecalloc_fail_threshold;
-	zend_long		debug_erealloc_fail_threshold;
-	zend_long		debug_malloc_fail_threshold;
-	zend_long		debug_calloc_fail_threshold;
-	zend_long		debug_realloc_fail_threshold;
-ZEND_END_MODULE_GLOBALS(xmysqlnd)
-
-PHP_MYSQL_XDEVAPI_API ZEND_EXTERN_MODULE_GLOBALS(xmysqlnd)
-#define XMYSQLND_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(xmysqlnd, v)
-
-#if defined(ZTS) && defined(COMPILE_DL_XMYSQLND)
-ZEND_TSRMLS_CACHE_EXTERN();
-#endif
-
-#endif // MARINES_0
-
-
 #endif	/* XMYSQLND_H */
-
 
 /*
  * Local variables:

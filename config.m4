@@ -1,13 +1,5 @@
 dnl Note: see README for build details
 
-PHP_ARG_ENABLE(mysql-xdevapi-experimental-features, whether to disable experimental features in mysql-xdevapi,
-	[  --disable-mysql-xdevapi-experimental-features
-						Disable support for the experimental features in mysql-xdevapi], yes, no)
-
-PHP_ARG_ENABLE(mysql-xdevapi-message-classes, whether to enable the experimental message classes in mysql-xdevapi,
-	[  --enable-mysql-xdevapi-message-classes
-						Enable support for the experimental message classes in mysql-xdevapi], yes, no)
-
 PHP_ARG_WITH(boost, for boost install dir,
 	[  --with-boost[=DIR]          Point out boost library])
 
@@ -21,10 +13,6 @@ PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
 dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
 if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes"; then
 	PHP_REQUIRE_CXX
-
-	if test "$PHP_MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES" != "no"; then
-		AC_DEFINE([MYSQL_XDEVAPI_EXPERIMENTAL_FEATURES], 1, [Enable experimental features])
-	fi
 
 	mysqlx_devapi_sources=" \
 		mysqlx_base_result.cc \
@@ -70,33 +58,27 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_x_session.cc \
 		php_mysqlx.cc \
 		php_mysqlx_ex.cc \
-		php_xmysqlnd.cc \
 		"
 
-	mysqlx_messages=""
-	if test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES" != "no" || test "$PHP_MYSQL_XDEVAPI_MESSAGE_CLASSES_ENABLED" = "yes"; then
-		AC_DEFINE([MYSQL_XDEVAPI_MESSAGE_CLASSES], 1, [Enable message classes])
-
-		mysqlx_messages=" \
-			messages/mysqlx_connection.cc \
-			messages/mysqlx_message__auth_continue.cc \
-			messages/mysqlx_message__auth_ok.cc \
-			messages/mysqlx_message__auth_start.cc \
-			messages/mysqlx_message__capabilities.cc \
-			messages/mysqlx_message__capabilities_get.cc \
-			messages/mysqlx_message__capabilities_set.cc \
-			messages/mysqlx_message__capability.cc \
-			messages/mysqlx_message__data_fetch_done.cc \
-			messages/mysqlx_message__error.cc \
-			messages/mysqlx_message__ok.cc \
-			messages/mysqlx_message__stmt_execute.cc \
-			messages/mysqlx_message__stmt_execute_ok.cc \
-			messages/mysqlx_pfc.cc \
-			messages/mysqlx_resultset__column_metadata.cc \
-			messages/mysqlx_resultset__data_row.cc \
-			messages/mysqlx_resultset__resultset_metadata.cc \
-			"
-	fi
+	mysqlx_messages=" \
+		messages/mysqlx_connection.cc \
+		messages/mysqlx_message__auth_continue.cc \
+		messages/mysqlx_message__auth_ok.cc \
+		messages/mysqlx_message__auth_start.cc \
+		messages/mysqlx_message__capabilities.cc \
+		messages/mysqlx_message__capabilities_get.cc \
+		messages/mysqlx_message__capabilities_set.cc \
+		messages/mysqlx_message__capability.cc \
+		messages/mysqlx_message__data_fetch_done.cc \
+		messages/mysqlx_message__error.cc \
+		messages/mysqlx_message__ok.cc \
+		messages/mysqlx_message__stmt_execute.cc \
+		messages/mysqlx_message__stmt_execute_ok.cc \
+		messages/mysqlx_pfc.cc \
+		messages/mysqlx_resultset__column_metadata.cc \
+		messages/mysqlx_resultset__data_row.cc \
+		messages/mysqlx_resultset__resultset_metadata.cc \
+		"
 
 	mysqlx_util=" \
 		util/allocator.cc \
