@@ -1266,6 +1266,195 @@ enum_func_status setup_crypto_connection(
 }
 /* }}} */
 
+// --------------------------------------------------
+
+class Authenticate
+{
+public:
+	Authenticate(
+		XMYSQLND_SESSION_DATA& session,
+		const MYSQLND_CSTRING& scheme,
+		const MYSQLND_CSTRING& database);
+	~Authenticate();
+
+	bool run();
+
+private:
+	bool init_capabilities();
+	bool init_connection();
+	bool gather_auth_mechanisms();
+	bool authentication_loop();
+	bool authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_plugin);
+	void log_custom_error_msg();
+	bool is_suppress_server_messages() const;
+
+private:
+	XMYSQLND_SESSION_DATA& session;
+	const MYSQLND_CSTRING& scheme;
+	const MYSQLND_CSTRING& database;
+
+	const st_xmysqlnd_message_factory msg_factory;
+	st_xmysqlnd_msg__capabilities_get caps_get;
+	const XMYSQLND_SESSION_AUTH_DATA* auth;
+
+	zval capabilities;
+
+	Auth_mechanisms auth_mechanisms;
+
+};
+
+// ----------
+
+Authenticate::Authenticate(
+	XMYSQLND_SESSION_DATA& session,
+	const MYSQLND_CSTRING& scheme,
+	const MYSQLND_CSTRING& database)
+	: session(session)
+	, scheme(scheme)
+	, database(database)
+	, msg_factory(xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info))
+	, auth(session->auth)
+{
+}
+
+Authenticate::~Authenticate()
+{
+	zval_dtor(&capabilities);
+}
+
+bool Authenticate::run()
+{
+	if (!init_capabilities()) return false;
+
+	if (!init_connection()) return false;
+
+	if (!gather_auth_mechanisms()) return false;
+
+	return authentication_loop();
+}
+
+bool Authenticate::init_capabilities()
+{
+	caps_get = msg_factory.get__capabilities_get(&msg_factory);
+	if (caps_get.send_request(&caps_get) != PASS) return false;
+
+	ZVAL_NULL(&capabilities);
+	const st_xmysqlnd_on_error_bind on_error{
+		session->m->handler_on_error,
+		session.get()
+	};
+
+	caps_get.init_read(&caps_get, on_error);
+	return caps_get.read_response(&caps_get, &capabilities) == PASS;
+}
+
+bool Authenticate::init_connection()
+{
+	zend_bool tls_set{FALSE};
+	const zend_bool tls{ xmysqlnd_get_tls_capability(&capabilities, &tls_set) };
+
+	if (auth->ssl_mode == SSL_mode::disabled) return true;
+
+	if (tls_set) {
+		return setup_crypto_connection(session, caps_get, msg_factory) == PASS;
+	} else {
+		php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL, unsupported by the server");
+		return false;
+	}
+}
+
+bool Authenticate::gather_auth_mechanisms()
+{
+	Gather_auth_mechanisms gather_auth_mechanisms(auth, &capabilities, &auth_mechanisms);
+	return gather_auth_mechanisms.run();
+}
+
+bool Authenticate::authentication_loop()
+{
+	Authentication_context auth_ctx{
+		session,
+		scheme,
+		auth->username,
+		auth->password,
+		util::to_string(database)
+	};
+
+	for (Auth_mechanism auth_mechanism : auth_mechanisms) {
+		std::unique_ptr<Auth_plugin> auth_plugin{
+			create_auth_plugin(auth_mechanism, auth_ctx)
+		};
+
+		if (authenticate_with_plugin(auth_plugin)) {
+			return true;
+		}
+	}
+
+	if (is_suppress_server_messages()) {
+		log_custom_error_msg();
+	}
+
+	return false;
+}
+
+bool Authenticate::authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_plugin)
+{
+	const util::string& auth_mech_name = auth_plugin->get_mech_name();
+	const util::string& auth_data{ auth_plugin->prepare_start_auth_data() };
+	st_xmysqlnd_msg__auth_start auth_start_msg{ msg_factory.get__auth_start(&msg_factory) };
+	auto ret{ auth_start_msg.send_request(
+		&auth_start_msg,
+		util::to_mysqlnd_cstr(auth_mech_name),
+		util::to_mysqlnd_cstr(auth_data))
+	};
+
+	if (ret != PASS) return false;
+
+	const st_xmysqlnd_on_auth_continue_bind on_auth_continue{
+		session->m->handler_on_auth_continue,
+		auth_plugin.get()
+	};
+	const st_xmysqlnd_on_warning_bind on_warning{
+		is_suppress_server_messages() ? on_auth_warning : nullptr,
+		session.get()
+	};
+	const st_xmysqlnd_on_error_bind on_error{
+		is_suppress_server_messages() ? on_auth_error : session->m->handler_on_error,
+		session.get()
+	};
+	const st_xmysqlnd_on_client_id_bind on_client_id{
+		session->m->set_client_id,
+		session.get()
+	};
+	const st_xmysqlnd_on_session_var_change_bind on_session_var_change{
+		nullptr,
+		session.get()
+	};
+
+	auth_start_msg.init_read(&auth_start_msg,
+		on_auth_continue,
+		on_warning,
+		on_error,
+		on_client_id,
+		on_session_var_change);
+	return auth_start_msg.read_response(&auth_start_msg, nullptr) == PASS;
+}
+
+void Authenticate::log_custom_error_msg()
+{
+	const util::strings& auth_mech_names{ to_auth_mech_names(auth_mechanisms) };
+	util::ostringstream os;
+	os << "[HY000] Authentication failed using "
+		<< boost::join(auth_mech_names, ", ")
+		<< ". Check username and password or try a secure connection";
+	php_error_docref(nullptr, E_WARNING, os.str().c_str());
+}
+
+bool Authenticate::is_suppress_server_messages() const
+{
+	return 1 < auth_mechanisms.size();
+}
+
+// ----------
 
 /* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
@@ -1275,105 +1464,13 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 	const MYSQLND_CSTRING database,
 	const size_t set_capabilities)
 {
-	enum_func_status ret{FAIL};
-	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
-	const st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info);
-	const st_xmysqlnd_on_error_bind on_error = { session->m->handler_on_error, (void*) session.get() };
-	const st_xmysqlnd_on_client_id_bind on_client_id = { session->m->set_client_id, (void*) session.get() };
-	const st_xmysqlnd_on_warning_bind on_warning = { nullptr, (void*) session.get() };
-	const st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, (void*) session.get() };
-
-	st_xmysqlnd_msg__capabilities_get caps_get;
 	DBG_ENTER("xmysqlnd_session_data::authenticate");
-
-	caps_get = msg_factory.get__capabilities_get(&msg_factory);
-
-	if (PASS == caps_get.send_request(&caps_get)) {
-		zval capabilities;
-		ZVAL_NULL(&capabilities);
-		caps_get.init_read(&caps_get, on_error);
-		ret = caps_get.read_response(&caps_get, &capabilities);
-		if (PASS == ret) {
-			zend_bool tls_set{FALSE};
-			const zend_bool tls = xmysqlnd_get_tls_capability(&capabilities, &tls_set);
-
-			DBG_INF_FMT("tls=%d tls_set=%d", tls, tls_set);
-
-			if (auth->ssl_mode != SSL_mode::disabled) {
-				if (TRUE == tls_set) {
-					ret = setup_crypto_connection(session,caps_get,msg_factory);
-				} else {
-					ret = FAIL;
-					DBG_ERR_FMT("Cannot connect to MySQL by using SSL, unsupported by the server");
-					php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL, unsupported by the server");
-				}
-			}
-
-			if( ret == PASS ) {
-				Auth_mechanisms auth_mechanisms;
-				Gather_auth_mechanisms gather_auth_mechanisms(auth, &capabilities, &auth_mechanisms);
-				if (!gather_auth_mechanisms.run()) {
-					ret = FAIL;
-				}
-
-				const bool suppress_server_messages = 1 < auth_mechanisms.size();
-				for (Auth_mechanism auth_mechanism : auth_mechanisms) {
-					Authentication_context auth_ctx{
-						session,
-						scheme,
-						auth->username,
-						auth->password,
-						util::to_string(database)
-					};
-
-					std::unique_ptr<Auth_plugin> auth_plugin{
-						create_auth_plugin(auth_mechanism, auth_ctx)
-					};
-
-					const util::string& auth_mech_name = auth_plugin->get_mech_name();
-					DBG_INF_FMT("Authentication mechanism: %s", auth_mech_name.c_str());
-					const util::string& auth_data{ auth_plugin->prepare_start_auth_data() };
-					st_xmysqlnd_msg__auth_start auth_start_msg = msg_factory.get__auth_start(&msg_factory);
-					ret = auth_start_msg.send_request(
-						&auth_start_msg,
-						util::to_mysqlnd_cstr(auth_mech_name),
-						util::to_mysqlnd_cstr(auth_data));
-
-					if (ret == PASS) {
-						const st_xmysqlnd_on_auth_continue_bind on_auth_continue{
-							session->m->handler_on_auth_continue, auth_plugin.get() };
-						const st_xmysqlnd_on_warning_bind on_suppress_auth_warning{
-							on_auth_warning, nullptr };
-						const st_xmysqlnd_on_error_bind on_suppress_auth_error{
-							on_auth_error, nullptr };
-						auth_start_msg.init_read(&auth_start_msg,
-							on_auth_continue,
-							suppress_server_messages ? on_suppress_auth_warning : on_warning,
-							suppress_server_messages ? on_suppress_auth_error : on_error,
-							on_client_id,
-							on_session_var_change);
-						ret = auth_start_msg.read_response(&auth_start_msg, nullptr);
-						if (PASS == ret) {
-							DBG_INF("AUTHENTICATED. YAY!");
-							break;
-						}
-					}
-				}
-
-
-				if ((ret == FAIL) && suppress_server_messages) {
-					const util::strings& auth_mech_names{to_auth_mech_names(auth_mechanisms)};
-					util::ostringstream os;
-					os << "[HY000] Authentication failed using "
-						<< boost::join(auth_mech_names, ", ")
-						<< ". Check username and password or try a secure connection";
-					php_error_docref(nullptr, E_WARNING, os.str().c_str());
-				}
-			}
-		}
-		zval_dtor(&capabilities);
+	Authenticate authenticate(session, scheme, database);
+	enum_func_status ret{FAIL};
+	if (authenticate.run()) {
+		DBG_INF("AUTHENTICATED. YAY!");
+		ret = PASS;
 	}
-
 	DBG_RETURN(ret);
 }
 /* }}} */
