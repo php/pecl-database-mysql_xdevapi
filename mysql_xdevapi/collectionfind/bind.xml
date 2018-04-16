@@ -10,20 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>FindOjbect</type><methodname>mysql_xdevapi\CollectionFind::bind</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::bind</methodname>
    <methodparam><type>array</type><parameter>placeholder_values</parameter></methodparam>
   </methodsynopsis>
   <para>
-
    It allows the user to bind a parameter to the placeholder in the search condition of the find operation.
-  </para>
-  <para>
    The placeholder has the form of :NAME where ':' is a common prefix that must always exists before any NAME,
-  </para>
-  <para>
    NAME is the actual name of the placeholder. The bind function accepts a list of placeholders if multiple
-  </para>
-  <para>
    entities have to be substituted in the search condition.
   </para>
 
@@ -38,8 +31,6 @@
     <listitem>
      <para>
       The values of the placeholder to substitute in the search condition, multiple values are allowed
-     </para>
-     <para>
       and have to be passed as an array of mappings PLACEHOLDER_NAME->PLACEHOLDER_VALUE, for more details see the examples.
      </para>
     </listitem>
@@ -50,7 +41,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A FindObject that can be used for further processing.
+   A CollectionFind that can be used for further processing.
   </para>
  </refsect1>
 

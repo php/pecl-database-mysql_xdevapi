@@ -42,7 +42,9 @@
 //Assuming $coll is a valid Collection object
 
 //$result will be either true or false
-$result = $coll->existsInDatabase()
+if( !$coll->existsInDatabase() ) {
+    print('Sorry, but the collection do not exists in the provided database!');
+}
 
 ?>
 ]]>

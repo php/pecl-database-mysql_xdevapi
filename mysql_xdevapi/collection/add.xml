@@ -15,24 +15,13 @@
   </methodsynopsis>
   <para>
    This function triggers the insertion of the given document(s) into the collection, multiple variants of the
-  </para>
-  <para>
    function are supported, the user can either: 1) Add a single document as a JSON string 2) Add a single document
-</para>
-  <para>
    as an array in the form of [ 'field' => 'value', 'field2' => 'value2' ... ] 3) mix the (1) and (2) 4) Add multiple
-</para>
-  <para>
    documents in the same operation.
 </para>
   <para>
-
    Attempting to add an empty doc ( [] for example ) is a no op. The user can provide a unique document ID with
-</para>
-  <para>
    the document, if that happens then the server will not generate an identifier but the user ID will be used, is
-</para>
-  <para>
    important to make sure that the ID is unique within the session or the 'add' operation will fail.
   </para>
 
@@ -89,15 +78,20 @@ $coll->add(
     ["_id" => "2", "name" => "Mike", "age" => 39, "job" => "Manager"]
     )->execute();
 
-//Two more examples of add operations, using JSON strings this time
-$coll->add('{"_id": "3", "name": "Marco",
+//Adding two documents in JSON format using one single ADD operation
+$res = $coll->add('{"name": "Marco",
 		"jobs": [{"title":"Mangiatore","Salary":1000},{"title":"Ciarlatano","Salary":12000}],
-		"hobby": ["Spavare","Soffiare Minestrine"], "code":0}')->execute();
-
-	$coll->add('{"_id": "4", "name": "Lucrezia",
+		"hobby": ["Spavare","Soffiare Minestrine"], "code":0}',
+  '{"name": "Lucrezia",
 		"jobs": [{"title":"Urlatrice","Salary":2000},{"title":"Parlatrice","Salary":3400}],
 		"hobby": ["Cucinare","Guidare auto sportive","Cavalcare"], "code":1}')->execute();
 
+//Get the list of generated ID's and print them, given that two documents
+//were added this code will print two string.
+$ids = $res->getGeneratedIds();
+for( $i = 0 ; $i < count( $res ); $i++ ) {
+    print("Next ID: ".$ids[$i].PHP_EOL);
+}
 ?>
 ]]>
    </programlisting>

@@ -10,13 +10,11 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>CollectionFind object</type><methodname>mysql_xdevapi\Collection::find</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\Collection::find</methodname>
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
    This function is usefull for looking in the database colletion for a document or set of documents; The returned
-</para>
-  <para>
    documents are contained in the CollectionFind object that can be used further to fetch one or all the documents.
   </para>
 
@@ -30,23 +28,13 @@
     <listitem>
      <para>
       Althought this is an optional parameter, normally you would expect to use a condition to delimit the
-</para>
-  <para>
       results of the find operation to a subset of all your documents. Providing an empty search_condition triggers
-</para>
-  <para>
       the client to lookup for all the documents, while when a condition is provided the returned set of documents
-</para>
-  <para>
       whould be the one that match the condition.
 </para>
   <para>
       Multiple elements might build the condition and the syntax supports parameter binding. The expression used as
-</para>
-  <para>
       search condition must be a valid SQL expression.
-      </para>
-      <para>
        If no search condition is provided (field empty) then find('true') is assumed.
      </para>
     </listitem>

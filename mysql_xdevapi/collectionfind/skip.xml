@@ -10,13 +10,11 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>FindObject</type><methodname>mysql_xdevapi\CollectionFind::skip</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::skip</methodname>
    <methodparam><type>integer</type><parameter>position</parameter></methodparam>
   </methodsynopsis>
   <para>
    For the result set of a find operation, skip the first N elements that would be returned by the find operation.
-   <para>
-   </para>
    If the amout of element skipped is bigger than the size of the result set then the find operation will return an empty set.
   </para>
 
@@ -39,7 +37,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   FindObject that can be used for further processing
+   CollectionFind object that can be used for further processing
   </para>
  </refsect1>
 

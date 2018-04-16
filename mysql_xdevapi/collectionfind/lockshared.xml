@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>FindObject</type><methodname>mysql_xdevapi\CollectionFind::lockShared</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::lockShared</methodname>
    <methodparam choice="opt"><type>integer</type><parameter>lock_waiting_option</parameter></methodparam>
   </methodsynopsis>
   <para>
@@ -36,19 +36,10 @@
     <listitem>
      <para>
          This is an optional parameter that can be used to specify the way the lock function should behave, the
-      </para>
-      <para>
        allowed options are:
-      </para>
-      <para>
        1) MYSQLX_LOCK_DEFAULT: Use the default locking mechanism
-      </para>
-      <para>
        2) MYSQLX_LOCK_NOWAIT: If lock is not possible, then return an error without locking
-      </para>
-      <para>
        3) MYSQLX_LOCK_SKIP_LOCKED: If the document is already locked, then ignore it
-
      </para>
     </listitem>
    </varlistentry>
@@ -58,7 +49,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A FindObject that can be used for further processing
+   A CollectionFind object that can be used for further processing
   </para>
  </refsect1>
 

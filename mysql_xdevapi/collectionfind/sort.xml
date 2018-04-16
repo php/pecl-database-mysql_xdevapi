@@ -10,19 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>FindObject</type><methodname>mysql_xdevapi\CollectionFind::sort</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::sort</methodname>
    <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
    Sort the result set by the field that has been selected in in the sort_expr argument, the allowed orders are:
-  </para>
-  <para>
    1) ASC: Ascending.
-  </para>
- <para>
- 2) DESC: Descending.
-  </para>
-  <para>
+   2) DESC: Descending.
    This operation is equivalent to the 'ORDER BY' SQL operation and it follows the same set of rules for what concerns the ordering option.
   </para>
 
@@ -36,8 +30,6 @@
     <listitem>
      <para>
       One or more sorting expression can be provided, the evaluation of these will be from the leftmost to the
-     </para>
-     <para>
       rightmost, each expression must be separated by a comma.
      </para>
     </listitem>
@@ -48,7 +40,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A Find object that can be used for further processing.
+   A CollectionFind object that can be used for further processing.
   </para>
  </refsect1>
 

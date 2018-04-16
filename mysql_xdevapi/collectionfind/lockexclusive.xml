@@ -10,21 +10,15 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>FindObject</type><methodname>mysql_xdevapi\CollectionFind::lockExclusive</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::lockExclusive</methodname>
    <methodparam choice="opt"><type>integer</type><parameter>lock_waiting_option</parameter></methodparam>
   </methodsynopsis>
   <para>
    Lock exclusively the document, other transactions are blocked from updating the document until the document is locked
-   <para>
     While the document is locked, other transactions are blocked from updating those docs, from doing SELECT ... LOCK IN SHARE MODE, 
-    </para>
-    <para>
      or from reading the data in certain transaction isolation levels. Consistent reads ignore any locks set on the records 
-    </para>
-    <para>
      that exist in the read view.
    </para>
-  </para>
   <para>
    This feature is directly useful with the modify() command, to avoid concurrency problems. Basically, it serializes access to a row through row locking
   </para>
@@ -38,17 +32,9 @@
     <listitem>
      <para>
       This is an optional parameter that can be used to specify the way the lock function should behave, the
-      </para>
-      <para>
        allowed options are:
-      </para>
-      <para>
        1) MYSQLX_LOCK_DEFAULT: Use the default locking mechanism
-      </para>
-      <para>
        2) MYSQLX_LOCK_NOWAIT: If exclusive lock is not possible, then return an error without locking
-      </para>
-      <para>
        3) MYSQLX_LOCK_SKIP_LOCKED: If the document is already locked, then ignore it
       </para>
     </listitem>
@@ -59,7 +45,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a FindObject that can be used for further processing
+   Returns a CollectionFind object that can be used for further processing
   </para>
  </refsect1>
 

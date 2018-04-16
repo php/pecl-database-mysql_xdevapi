@@ -15,8 +15,6 @@
   </methodsynopsis>
   <para>
    Allows to remove one or more documents from the Collection, the search_condition is used as valid SQL expression
-</para>
-  <para>
    to select the documents to erase.
   </para>
 
@@ -30,20 +28,12 @@
     <listitem>
      <para>
       It must be a valid SQL expression that will be used to match the documents thare are going to be erased,
-</para>
-  <para>
       this expression might as simple as 'true' which will match all the docuemnts, or it might use functions like:
-      </para>
-  <para>
       1) 'CAST(_id AS SIGNED) >= 10'
-</para>
-  <para>
       2) 'age MOD 2 = 0 OR age MOD 3 = 0'
 </para>
   <para>
       Also the IN operator is currently supported,for example: '_id IN ["2","5","7","10"]'. For more detail
-</para>
-  <para>
       have a look at the code sample
  
      </para>

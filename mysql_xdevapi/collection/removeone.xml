@@ -52,8 +52,12 @@
 
 //Remove two documents with IDs 25 and 100
 $coll->removeOne('25');
-$coll->removeOne('100');
 
+//Let's verify the result of the operation
+$res = $coll->removeOne('100');
+if( $res->getAffectedItemsCount() == 0 ) {
+    print('The document with ID 100 seems to not exists, nothing was removed');
+}
 ?>
 ]]>
    </programlisting>

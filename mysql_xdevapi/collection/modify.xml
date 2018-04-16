@@ -37,21 +37,13 @@
     <listitem>
      <para>
       It must be a valid SQL expression that will be used to match the documents thare are going to be modified,
-</para>
-  <para>
       this expression might as simple as 'true' which will match all the docuemnts, or it might use functions like:
-      </para>
-  <para>
       1) 'CAST(_id AS SIGNED) >= 10'
-</para>
-  <para>
       2) 'age MOD 2 = 0 OR age MOD 3 = 0'
 </para>
   <para>
 
       Also the IN operator is currently supported,for example: '_id IN ["2","5","7","10"]'. For more detail
-</para>
-  <para>
       have a look at the code sample
      </para>
     </listitem>
@@ -63,8 +55,6 @@
   &reftitle.returnvalues;
   <para>
    If the operation is not executed then the function will return a Modify object that can be used to provide
-</para>
-  <para>
    further options to the modify operation.
 </para>
   <para>
@@ -83,7 +73,7 @@
 //Assuming that $coll is a valid Collection object
 
 //To all the documents with the 'job' field like 'Programmatore' or 'Cantante' append two new jobs: Volontario and Tassinaro
-$coll->modify('job in (\'Programmatore\', \'Cantante\')')->arrayAppend('job', 'Volontario')->arrayAppend('job', 'Tassinaro')->execute();
+$coll->modify("job in ('Programmatore', 'Cantante')")->arrayAppend('job', 'Volontario')->arrayAppend('job', 'Tassinaro')->execute();
 
 //Remove the 'age' field from all the docs with 'ordinal' between 1 and 9
 $coll->modify('ordinal >= 1 and ordinal <= 9')->unset(['age'])->execute();

@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>FindObject</type><methodname>mysql_xdevapi\CollectionFind::groupBy</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::groupBy</methodname>
    <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
@@ -30,8 +30,6 @@
     <listitem>
      <para>
       The columns or columns that have to be used for the group operation, this can either be a single string
-     </para>
-     <para>
       or an array of string arguments, one for each column.
      </para>
     </listitem>
@@ -42,7 +40,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A FindObject that can be used for further processing
+   A CollectionFind that can be used for further processing
   </para>
  </refsect1>
 

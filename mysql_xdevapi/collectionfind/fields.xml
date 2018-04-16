@@ -27,8 +27,6 @@
     <listitem>
      <para>
       Can either be a single string or an array of string, those strings are identifying the columns
-     </para>
-     <para>
       that have to be returned for each document that match the search condition.
      </para>
     </listitem>
