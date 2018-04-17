@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-crudoperationsortable.sort" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CrudOperationSortable::sort</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Sort the result set based on the selected column</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

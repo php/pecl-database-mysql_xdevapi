@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-schema.getcollections" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getCollections</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Returns an array of CollectionObjects for the given schema</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Schema::getCollections</methodname>
+   <modifier>public</modifier> <type>Array</type><methodname>mysql_xdevapi\Schema::getCollections</methodname>
    <void />
   </methodsynopsis>
   <para>

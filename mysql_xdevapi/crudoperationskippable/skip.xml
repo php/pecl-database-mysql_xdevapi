@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-crudoperationskippable.skip" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CrudOperationSkippable::skip</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Set the initial number of results set to skip</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

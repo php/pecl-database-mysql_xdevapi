@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-databaseobject.existsindatabase" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DatabaseObject::existsInDatabase</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Returns true if the given entity exist in the database</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\DatabaseObject::existsInDatabase</methodname>
+   <modifier>abstract</modifier> <modifier>public</modifier> <type>Bool</type><methodname>mysql_xdevapi\DatabaseObject::existsInDatabase</methodname>
    <void />
   </methodsynopsis>
   <para>

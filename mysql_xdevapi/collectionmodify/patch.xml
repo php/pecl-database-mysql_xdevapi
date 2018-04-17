@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.patch" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::patch</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Takes a patch object and applies it on one or more documents</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

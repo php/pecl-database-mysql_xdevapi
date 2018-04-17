@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.replace" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::replace</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Replace a given field value with a new one</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

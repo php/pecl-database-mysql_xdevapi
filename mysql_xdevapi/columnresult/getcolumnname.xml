@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-columnresult.getcolumnname" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>ColumnResult::getColumnName</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Get the name of the given column</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

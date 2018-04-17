@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-crudoperationlimitable.limit" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CrudOperationLimitable::limit</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Set the maximum number of results set for a give operation</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

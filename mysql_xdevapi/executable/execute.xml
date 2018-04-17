@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-executable.execute" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Executable::execute</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Execute the given executable object</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Executable::execute</methodname>
+   <modifier>abstract</modifier> <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\Executable::execute</methodname>
    <void />
   </methodsynopsis>
   <para>
