@@ -4,17 +4,17 @@
 <refentry xml:id="mysql-xdevapi-databaseobject.getname" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DatabaseObject::getName</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Retrieve the object name</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\DatabaseObject::getName</methodname>
+   <modifier>abstract</modifier> <modifier>public</modifier> <type>string</type><methodname>mysql_xdevapi\DatabaseObject::getName</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+	Returns the name of this database object.
   </para>
 
   &warn.undocumented.func;
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	The name of this database object.
   </para>
  </refsect1>
 
@@ -41,7 +41,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$dbObjName = $dbObj->getName();
 
 ?>
 ]]>
