@@ -18,8 +18,9 @@
    8.0 server.
   </para>
   <para>
-    For general information about the X DevAPI, please refer to documentation on
-    https://dev.mysql.com/doc/x-devapi-userguide/en/.
+   For general information about the MySQL Document Store, please refer to the
+   <link xlink:href="&url.mysql.docs.document-store;">MySQL Document Store</link>
+   chapter in the MySQL manual.
   </para>
  </preface>
 
