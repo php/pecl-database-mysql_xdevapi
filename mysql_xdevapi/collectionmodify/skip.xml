@@ -14,7 +14,8 @@
    <methodparam><type>integer</type><parameter>position</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	  For the result set of a find operation, skip the first N elements that would be returned by the find operation.
+	  If the amout of element skipped is bigger than the size of the result set then the find operation will return an empty set.
   </para>
 
   &warn.undocumented.func;
@@ -28,8 +29,8 @@
     <term><parameter>position</parameter></term>
     <listitem>
      <para>
-      
-     </para>
+		 Number of elements to skip.
+	 </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -38,7 +39,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	  CollectionModify object that can be used for further processing.
   </para>
  </refsect1>
 
@@ -50,7 +51,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$coll->modify('age > :age')->sort('age desc')->unset(['age'])->bind(['age' => 20])->limit(4)->skip(0)->execute();//TODO: only skip(0) allowed?
 
 ?>
 ]]>

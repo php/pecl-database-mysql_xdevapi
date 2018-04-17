@@ -14,7 +14,7 @@
    <methodparam><type>string</type><parameter>variables</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	  Removes attributes from documents in a collection.
   </para>
 
   &warn.undocumented.func;
@@ -28,8 +28,8 @@
     <term><parameter>variables</parameter></term>
     <listitem>
      <para>
-      
-     </para>
+		 The attributes to remove from documents in a collection.
+	 </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	  CollectionModify object that can be used for further processing.
   </para>
  </refsect1>
 
@@ -50,7 +50,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $coll->modify('job like :job_name')->unset(["age", "name"])->bind(['job_name' => 'Plumber'])->execute();
 
 ?>
 ]]>

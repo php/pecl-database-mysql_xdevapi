@@ -14,7 +14,7 @@
    <methodparam><type>string</type><parameter>document</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	  Adds attributes taken from a document into the documents in a collection.
   </para>
 
   &warn.undocumented.func;
@@ -28,8 +28,8 @@
     <term><parameter>document</parameter></term>
     <listitem>
      <para>
-
-     </para>
+	 The document from which the attributes will be merged.
+	 </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-
+	  CollectionModify object.
   </para>
  </refsect1>
 
@@ -50,7 +50,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $coll->modify("Married like 'NO'")->merge("{'Divorced' : 'NO', 'Vegan' : 'YES'}")->execute();
 
 ?>
 ]]>

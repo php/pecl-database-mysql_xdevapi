@@ -15,7 +15,7 @@
    <methodparam><type>string</type><parameter>expression_or_literal</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	  Sets or updates attributes on documents in a collection.
   </para>
 
   &warn.undocumented.func;
@@ -29,16 +29,16 @@
     <term><parameter>collection_field</parameter></term>
     <listitem>
      <para>
-      
-     </para>
+		 The document path of the item to be set.
+	 </para>
     </listitem>
    </varlistentry>
    <varlistentry>
     <term><parameter>expression_or_literal</parameter></term>
     <listitem>
      <para>
-      
-     </para>
+		 The value to be set on the specified attribute.
+	 </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -47,7 +47,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	  CollectionModify object.
   </para>
  </refsect1>
 
@@ -59,7 +59,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $coll->modify('name like :param')->set("job", "Unemployed")->bind(['param' => 'Sakila'])->execute();
 
 ?>
 ]]>

@@ -14,7 +14,7 @@
    <methodparam><type>string</type><parameter>document</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	  Update multiple document properties.
   </para>
 
   &warn.undocumented.func;
@@ -28,8 +28,8 @@
     <term><parameter>document</parameter></term>
     <listitem>
      <para>
-
-     </para>
+		 A document with the properties to apply to the matching documents.
+	 </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-
+	  CollectionModify object.
   </para>
  </refsect1>
 
@@ -50,7 +50,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $coll->modify('"Programmatore" IN job')->patch('{"Hobby" : "Programmare"}')->execute();
 
 ?>
 ]]>
