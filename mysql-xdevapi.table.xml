@@ -12,9 +12,7 @@
   <section xml:id="mysql-xdevapi-table.intro">
    &reftitle.intro;
    <para>
-	Represents a database table on a schema.
-   </para>
-	Provides access to the table through standard INSERT/SELECT/UPDATE/DELETE statements.
+	Provides access to the table through INSERT/SELECT/UPDATE/DELETE statements.
    </para>
   </section>
 <!-- }}} -->
