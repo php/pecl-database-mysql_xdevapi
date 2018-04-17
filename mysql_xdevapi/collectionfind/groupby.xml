@@ -15,8 +15,6 @@
   </methodsynopsis>
   <para>
    This function can be used to group the result-set by one more columns, frequently this is used with
-   <para>
-   </para>
    aggregate functions like COUNT,MAX,MIN,SUM etc.
   </para>
 

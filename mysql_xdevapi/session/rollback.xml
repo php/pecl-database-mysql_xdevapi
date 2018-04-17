@@ -4,20 +4,18 @@
 <refentry xml:id="mysql-xdevapi-session.rollback" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::rollback</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Rollback the transaction</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Session::rollback</methodname>
+   <modifier>public</modifier> <type>void</type><methodname>mysql_xdevapi\Session::rollback</methodname>
    <void />
   </methodsynopsis>
   <para>
 
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

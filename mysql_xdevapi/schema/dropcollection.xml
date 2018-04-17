@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-schema.dropcollection" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::dropCollection</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Drop the selected collection from the schema</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Schema::dropCollection</methodname>
+   <modifier>public</modifier> <type>bool</type><methodname>mysql_xdevapi\Schema::dropCollection</methodname>
    <methodparam><type>string</type><parameter>schema_name</parameter></methodparam>
    <methodparam><type>string</type><parameter>collection_name</parameter></methodparam>
   </methodsynopsis>

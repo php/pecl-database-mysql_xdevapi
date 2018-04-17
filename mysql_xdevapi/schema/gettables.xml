@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-schema.gettables" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getTables</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return an array of table objects</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Schema::getTables</methodname>
+   <modifier>public</modifier> <type>Objects</type><methodname>mysql_xdevapi\Schema::getTables</methodname>
    <void />
   </methodsynopsis>
   <para>

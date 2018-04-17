@@ -10,16 +10,15 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionModify::arrayAppend</methodname>
+   <modifier>public</modifier> <type>CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::arrayAppend</methodname>
    <methodparam><type>string</type><parameter>collection_field</parameter></methodparam>
    <methodparam><type>string</type><parameter>expression_or_literal</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Add an element to one of the fields of a document, multiple elements of a field are reppresented as an array.
+   the arrayAppend differs from arrayIndert in the way that this function will always append the new element
+   at the end of the array, while arrayInsert allows the user to specify where the item have to be placed
   </para>
-
-  &warn.undocumented.func;
-
  </refsect1>
 
  <refsect1 role="parameters">
@@ -29,7 +28,7 @@
     <term><parameter>collection_field</parameter></term>
     <listitem>
      <para>
-      
+      The identifier of the field to which the new element has to be inserted.
      </para>
     </listitem>
    </varlistentry>
@@ -37,7 +36,7 @@
     <term><parameter>expression_or_literal</parameter></term>
     <listitem>
      <para>
-      
+      This is the new element that will be inserted into the document field array.
      </para>
     </listitem>
    </varlistentry>
@@ -47,7 +46,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   Returns a CollectionModify object that can be used to execute the command or to add further operations
   </para>
  </refsect1>
 
@@ -59,7 +58,11 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object
+
+//For each document with a `job` like Programmatore or Cantante, add an additional
+//job: 'Volontario'
+$coll->modify("job in ('Programmatore', 'Cantante')")->arrayAppend('job', 'Volontario')->execute();
 
 ?>
 ]]>

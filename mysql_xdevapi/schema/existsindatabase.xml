@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-schema.existsindatabase" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::existsInDatabase</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Verify if the schema exists in the database</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Schema::existsInDatabase</methodname>
+   <modifier>public</modifier> <type>bool</type><methodname>mysql_xdevapi\Schema::existsInDatabase</methodname>
    <void />
   </methodsynopsis>
   <para>

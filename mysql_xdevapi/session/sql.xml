@@ -4,20 +4,18 @@
 <refentry xml:id="mysql-xdevapi-session.sql" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::sql</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Execute an SQL query</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Session::sql</methodname>
+   <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\Session::sql</methodname>
    <methodparam><type>string</type><parameter>query</parameter></methodparam>
   </methodsynopsis>
   <para>
 
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

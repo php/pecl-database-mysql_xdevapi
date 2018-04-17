@@ -10,19 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>Result Object</type><methodname>mysql_xdevapi\Collection::modify</methodname>
+   <modifier>public</modifier> <type>Result</type><methodname>mysql_xdevapi\Collection::modify</methodname>
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
    It allows to manipulate the content of the collection selecting documents that are going to be modified.
-</para>
-  <para>
    The documents that are going to be changed are selected via the search_condition mandatory parameter, there
-</para>
-  <para>
    are multiple allowed operation and all the detail are provided in the relevant documentation subcategory.
-</para>
-  <para>
 
    the modify operation supports parameter binding.
   </para>
