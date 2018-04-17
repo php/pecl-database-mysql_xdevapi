@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\SqlStatement::bind</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\SqlStatement</type><methodname>mysql_xdevapi\SqlStatement::bind</methodname>
    <methodparam><type>string</type><parameter>param</parameter></methodparam>
   </methodsynopsis>
   <para>

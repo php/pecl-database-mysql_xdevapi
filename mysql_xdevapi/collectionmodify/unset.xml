@@ -11,7 +11,7 @@
   &reftitle.description;
   <methodsynopsis>
    <modifier>public</modifier> <type>mysql_xdevapi\CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::unset</methodname>
-   <methodparam><type>string</type><parameter>variables</parameter></methodparam>
+   <methodparam><type>array</type><parameter>variables</parameter></methodparam>
   </methodsynopsis>
   <para>
 	  Removes attributes from documents in a collection.

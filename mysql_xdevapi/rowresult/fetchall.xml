@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\RowResult::fetchAll</methodname>
+   <modifier>public</modifier> <type>array</type><methodname>mysql_xdevapi\RowResult::fetchAll</methodname>
    <void />
   </methodsynopsis>
   <para>

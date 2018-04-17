@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>Object</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\SchemaObject::getSchema</methodname>
+   <modifier>abstract</modifier> <modifier>mysql_xdevapi\Schema</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\SchemaObject::getSchema</methodname>
    <void />
   </methodsynopsis>
   <para>

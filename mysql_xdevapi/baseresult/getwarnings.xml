@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>public</modifier> <type>integer</type><methodname>mysql_xdevapi\BaseResult::getWarnings</methodname>
+   <modifier>abstract</modifier> <modifier>public</modifier> <type>array</type><methodname>mysql_xdevapi\BaseResult::getWarnings</methodname>
    <void />
   </methodsynopsis>
   <para>
