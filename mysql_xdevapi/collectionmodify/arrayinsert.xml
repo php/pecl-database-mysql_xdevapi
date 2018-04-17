@@ -37,8 +37,6 @@
      <para>
       The INDEX field is zero based, so the leftmost item from the array has an index of 0.
      </para>
-
-     </para>
     </listitem>
    </varlistentry>
    <varlistentry>
