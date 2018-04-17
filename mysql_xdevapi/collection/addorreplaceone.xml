@@ -16,15 +16,18 @@
   </methodsynopsis>
   <para>
    This is one of a set of operations that are not going to operate on a single document but on all the documents
-   that are matching a specific filter. addOrReplaceOne in particular will add or if the document already exists, will repace,
-   the entry in the collection which match the ID provided.
-   To understand this function is worth to list all the possible scenarios that the user can encounter:
-   1) If neither the id nor any unique key values conflict with any document in the collection, the document must be added to it.
-   2) If the id does not match any document but one or more unique key values conflict with a document in the collection, then an error is raised
-   3) If id matches an existing document AND no unique keys are defined for the collection, the document is replaced.
-   4) If id matches an existing document AND (all unique keys in the replacement document match that same document OR don't conflict with any other documents in the collection), the document is replaced
-   5) If id matches an existing document AND one or more unique keys match a different document from the collection, then an error is raised
+   that are matching a specific filter. <function>addOrReplaceOne</function> in particular will add or if the document already exists, will repace, the entry in the collection which match the ID provided.
   </para>
+  <para>
+   To understand this function is worth to list all the possible scenarios that the user can encounter:
+  </para>
+  <itemizedlist>
+   <listitem><para>If neither the id nor any unique key values conflict with any document in the collection, the document must be added to it.</para></listitem>
+   <listitem><para>If the id does not match any document but one or more unique key values conflict with a document in the collection, then an error is raised.</para></listitem>
+   <listitem><para>If id matches an existing document AND no unique keys are defined for the collection, the document is replaced.</para></listitem>
+   <listitem><para>If id matches an existing document AND (all unique keys in the replacement document match that same document OR don't conflict with any other documents in the collection), the document is replaced.</para></listitem>
+   <listitem><para>If id matches an existing document AND one or more unique keys match a different document from the collection, then an error is raised.</para></listitem>
+  </itemizedlist>
 
  </refsect1>
 
@@ -35,7 +38,7 @@
     <term><parameter>id</parameter></term>
     <listitem>
      <para>
-      This is the filter ID, If this ID or any other field that has a unique index on it already exists in the collection, it will update the matching document instead.
+      This is the filter ID, if this ID or any other field that has a unique index on it already exists in the collection, it will update the matching document instead.
      </para>
     </listitem>
    </varlistentry>

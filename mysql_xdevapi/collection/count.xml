@@ -14,8 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-   The function will submit a "SELECT COUNT(*)..." to the server for the current schema and collection, the returned
-   value is provided to the user. In short, the function counts the amount of docs in the collection.
+   The function will submit a operation similar to SQL <code>SELECT COUNT(*)...</code> to the server for the current schema and collection, the returned value is provided to the user. In short, the function counts the amount of docs in the collection.
   </para>
 
  </refsect1>
