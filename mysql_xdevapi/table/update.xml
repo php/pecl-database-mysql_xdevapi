@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Table::update</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\TableUpdate</type><methodname>mysql_xdevapi\Table::update</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+	Creates a new TableUpdate object.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	TableUpdate object.
   </para>
  </refsect1>
 
@@ -41,7 +39,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $table->update()->set('age',69)->where('age > 15 and age < 22')->limit(4)->orderby(['age asc','name desc'])->execute();
 
 ?>
 ]]>

@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Table::count</methodname>
+   <modifier>public</modifier> <type>integer</type><methodname>mysql_xdevapi\Table::count</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+	Counts the rows in the table.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	The total of rows in the table.
   </para>
  </refsect1>
 
@@ -41,7 +39,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$rowsCount = $table->count();
 
 ?>
 ]]>

@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Table::existsInDatabase</methodname>
+   <modifier>public</modifier> <type>bool</type><methodname>mysql_xdevapi\Table::existsInDatabase</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+	Verifies if this object exists in the database.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	True if object exists in database.
   </para>
  </refsect1>
 
@@ -41,7 +39,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$existInDb = $table->existsInDatabase();
 
 ?>
 ]]>

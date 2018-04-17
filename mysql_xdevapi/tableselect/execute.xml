@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\TableSelect::execute</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\RowResult</type><methodname>mysql_xdevapi\TableSelect::execute</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+	Execute the statement.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	RowResult object.
   </para>
  </refsect1>
 
@@ -41,7 +39,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $table->select('name','age')->where('name like \'P%\' or name like\'C%\'')->execute()
 
 ?>
 ]]>
