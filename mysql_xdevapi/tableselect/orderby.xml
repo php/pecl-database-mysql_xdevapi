@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\TableSelect::orderby</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\TableSelect</type><methodname>mysql_xdevapi\TableSelect::orderby</methodname>
    <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	Sets the order by criteria.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>sort_expr</parameter></term>
     <listitem>
      <para>
-      
+		The expression strings defining the order by criteria.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	TableSelect object.
   </para>
  </refsect1>
 
@@ -50,7 +48,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $table->select(['name','age'])->where('name in (\'Cassidy\',\'Polly\')')->orderBy(['age desc','name asc'])->execute();
 
 ?>
 ]]>

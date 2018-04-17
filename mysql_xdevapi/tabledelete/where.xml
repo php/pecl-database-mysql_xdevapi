@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\TableDelete::where</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\TableDelete</type><methodname>mysql_xdevapi\TableDelete::where</methodname>
    <methodparam><type>string</type><parameter>where_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	Sets the search condition to filter.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>where_expr</parameter></term>
     <listitem>
      <para>
-      
+	Search condition to filter documents or records.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	TableDelete object.
   </para>
  </refsect1>
 
@@ -50,7 +48,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$table->delete()->orderby('age desc')->where('age < 20 and age > 12 and name != :name')->bind(['name' => 'Tierney'])->limit(2)->execute();
 
 ?>
 ]]>

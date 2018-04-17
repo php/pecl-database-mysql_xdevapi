@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\ColumnResult::getColumnLabel</methodname>
+   <modifier>public</modifier> <type>string</type><methodname>mysql_xdevapi\ColumnResult::getColumnLabel</methodname>
    <void />
   </methodsynopsis>
   <para>

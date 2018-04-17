@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Table::isView</methodname>
+   <modifier>public</modifier> <type>bool</type><methodname>mysql_xdevapi\Table::isView</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+	Determine if the underlying object is a view or not.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	True if the underlying object is a view.
   </para>
  </refsect1>
 
@@ -41,7 +39,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$isView = $table->isView();
 
 ?>
 ]]>

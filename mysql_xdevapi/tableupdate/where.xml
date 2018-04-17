@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\TableUpdate::where</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\TableUpdate</type><methodname>mysql_xdevapi\TableUpdate::where</methodname>
    <methodparam><type>string</type><parameter>where_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	Sets the search condition to filter.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>where_expr</parameter></term>
     <listitem>
      <para>
-      
+		Sets the search condition to filter documents or records.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	TableUpdate object.
   </para>
  </refsect1>
 
@@ -50,7 +48,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $table->update()->set('doc', '{"_id": "7", "name": "John", "job": "Smith"}')->where('_id = "7"')->execute();
 
 ?>
 ]]>

@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CrudOperationBindable::bind</methodname>
+   <modifier>abstract</modifier> <modifier>public</modifier> <type>mysql_xdevapi\CrudOperationBindable</type><methodname>mysql_xdevapi\CrudOperationBindable::bind</methodname>
    <methodparam><type>array</type><parameter>placeholder_values</parameter></methodparam>
   </methodsynopsis>
   <para>

@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CrudOperationSortable::sort</methodname>
+   <modifier>abstract</modifier> <modifier>public</modifier> <type>mysql_xdevapi\CrudOperationSortable</type><methodname>mysql_xdevapi\CrudOperationSortable::sort</methodname>
    <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>

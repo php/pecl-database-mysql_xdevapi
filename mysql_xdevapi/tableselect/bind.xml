@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\TableSelect::bind</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\TableSelect</type><methodname>mysql_xdevapi\TableSelect::bind</methodname>
    <methodparam><type>array</type><parameter>placeholder_values</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	Binds a value to a specific placeholder.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>placeholder_values</parameter></term>
     <listitem>
      <para>
-      
+		The name of the placeholder and the value to bind.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	TableSelect object.
   </para>
  </refsect1>
 
@@ -50,7 +48,8 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $table->select('name','age')->where('name like :name and age > :age')
+	->bind(['name' => 'Tierney', 'age' => 34])->orderBy('age desc')->execute();
 
 ?>
 ]]>

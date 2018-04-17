@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\TableSelect::lockShared</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\TableSelect</type><methodname>mysql_xdevapi\TableSelect::lockShared</methodname>
    <methodparam choice="opt"><type>integer</type><parameter>lock_waiting_option</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	Execute a read operation with SHARED LOCK. Only one lock can be active at a time.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>lock_waiting_option</parameter></term>
     <listitem>
      <para>
-      
+		Optional waiting option. By default it is MYSQLX_LOCK_DEFAULT.	Other values: NOWAIT (MYSQLX_LOCK_NOWAIT), SKIP LOCKED (MYSQLX_LOCK_SKIP_LOCKED).
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	TableSelect object.
   </para>
  </refsect1>
 
@@ -50,7 +48,9 @@
 <![CDATA[
 <?php
 
-/* ... */
+$session->startTransaction();
+$res = $table->select('ordinal', 'n')->where("ordinal like '3'")->lockShared()->execute();
+$session->commit();
 
 ?>
 ]]>

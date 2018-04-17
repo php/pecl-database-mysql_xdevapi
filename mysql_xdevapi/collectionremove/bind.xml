@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionRemove::bind</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\CollectionRemove</type><methodname>mysql_xdevapi\CollectionRemove::bind</methodname>
    <methodparam><type>array</type><parameter>placeholder_values</parameter></methodparam>
   </methodsynopsis>
   <para>
