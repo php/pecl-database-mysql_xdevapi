@@ -10,14 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::skip</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::skip</methodname>
    <methodparam><type>integer</type><parameter>position</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   For the result set of a find operation, skip the first N elements that would be returned by the find operation.
+   If the amout of element skipped is bigger than the size of the result set then the find operation will return an empty set.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +27,7 @@
     <term><parameter>position</parameter></term>
     <listitem>
      <para>
-      
+      Number of elements to skip.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +37,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   CollectionFind object that can be used for further processing
   </para>
  </refsect1>
 
@@ -50,7 +49,10 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object
+
+//Find all the documents for which the 'job' field is equal to 'Programmatore', skip the first 3
+$res = $coll->find('job like \'Programmatore\'')->skip(3)->execute();
 
 ?>
 ]]>

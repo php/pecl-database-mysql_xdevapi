@@ -4,26 +4,36 @@
 <refentry xml:id="mysql-xdevapi-session.dropschema" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::dropSchema</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Drop a schema</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Session::dropSchema</methodname>
-   <void />
+   <modifier>public</modifier> <type>bool</type><methodname>mysql_xdevapi\Session::dropSchema</methodname>
+   <methodparam><type>string</type><parameter>schema_name</parameter></methodparam>
   </methodsynopsis>
   <para>
 
   </para>
 
-  &warn.undocumented.func;
-
  </refsect1>
 
  <refsect1 role="parameters">
   &reftitle.parameters;
-  &no.function.parameters;
+   <variablelist>
+   <varlistentry>
+    <term><parameter>schema_name</parameter></term>
+    <listitem>
+     <para>
+      Name of the schema to drop.
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+
+
  </refsect1>
 
  <refsect1 role="returnvalues">

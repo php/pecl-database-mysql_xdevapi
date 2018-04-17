@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-rowresult.getcolumncount" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>RowResult::getColumnCount</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return the number of columns</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\RowResult::getColumnCount</methodname>
+   <modifier>public</modifier> <type>int</type><methodname>mysql_xdevapi\RowResult::getColumnCount</methodname>
    <void />
   </methodsynopsis>
   <para>

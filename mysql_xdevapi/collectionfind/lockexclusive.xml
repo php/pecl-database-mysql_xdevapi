@@ -10,15 +10,18 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::lockExclusive</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::lockExclusive</methodname>
    <methodparam choice="opt"><type>integer</type><parameter>lock_waiting_option</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Lock exclusively the document, other transactions are blocked from updating the document until the document is locked
+    While the document is locked, other transactions are blocked from updating those docs, from doing SELECT ... LOCK IN SHARE MODE, 
+     or from reading the data in certain transaction isolation levels. Consistent reads ignore any locks set on the records 
+     that exist in the read view.
+   </para>
+  <para>
+   This feature is directly useful with the modify() command, to avoid concurrency problems. Basically, it serializes access to a row through row locking
   </para>
-
-  &warn.undocumented.func;
-
  </refsect1>
 
  <refsect1 role="parameters">
@@ -28,8 +31,12 @@
     <term><parameter>lock_waiting_option</parameter></term>
     <listitem>
      <para>
-      
-     </para>
+      This is an optional parameter that can be used to specify the way the lock function should behave, the
+       allowed options are:
+       1) MYSQLX_LOCK_DEFAULT: Use the default locking mechanism
+       2) MYSQLX_LOCK_NOWAIT: If exclusive lock is not possible, then return an error without locking
+       3) MYSQLX_LOCK_SKIP_LOCKED: If the document is already locked, then ignore it
+      </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -38,7 +45,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   Returns a CollectionFind object that can be used for further processing
   </para>
  </refsect1>
 
@@ -50,7 +57,17 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object and $session is a valid Session Object
+
+$session->startTransaction();
+
+//Returns all the documents with 'age' greather than 50 and attempt to lock them
+$res = $col1->find("age > 50")->lockExclusive()->execute();
+
+//... Do some operation on the document
+
+//Complete the transaction and unlock the document
+$session->commit();
 
 ?>
 ]]>

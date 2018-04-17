@@ -10,14 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::getSession</methodname>
-   <void />
+   <modifier>public</modifier> <type>Session</type><methodname>mysql_xdevapi\Collection::getSession</methodname>
+   <mothodparam>><type>string</type><parameter>URI</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Returns the session object ( assuming that there's a valid connection to the server ) related with the
+   Collection object.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +28,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   The session object,
   </para>
  </refsect1>
 
@@ -41,7 +40,9 @@
 <![CDATA[
 <?php
 
-/* ... */
+//If $coll is a valid collection object, then getSession will return the
+//corresponding Session object
+$schema = $coll->getSession();
 
 ?>
 ]]>

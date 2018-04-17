@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::removeOne</methodname>
+   <modifier>public</modifier> <type>Result</type><methodname>mysql_xdevapi\Collection::removeOne</methodname>
    <methodparam><type>string</type><parameter>id</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Remove one single document from the collection, the document is selected by it's ID, this is a shortcut for Collection.remove("_id = :id").bind("id", id).execute()
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>id</parameter></term>
     <listitem>
      <para>
-      
+      The ID of the document to remove.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   Returns an object which can be queried for the amount of affected documents.
   </para>
  </refsect1>
 
@@ -50,8 +48,16 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid collection object
 
+//Remove two documents with IDs 25 and 100
+$coll->removeOne('25');
+
+//Let's verify the result of the operation
+$res = $coll->removeOne('100');
+if( $res->getAffectedItemsCount() == 0 ) {
+    print('The document with ID 100 seems to not exists, nothing was removed');
+}
 ?>
 ]]>
    </programlisting>

@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-schema.gettable" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getTable</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Returns the table object for the given table name</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Schema::getTable</methodname>
+   <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\Schema::getTable</methodname>
    <methodparam><type>string</type><parameter>name</parameter></methodparam>
   </methodsynopsis>
   <para>

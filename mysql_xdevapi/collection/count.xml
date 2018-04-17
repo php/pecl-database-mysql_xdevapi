@@ -10,14 +10,15 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::count</methodname>
+   <modifier>public</modifier> <type>integer</type><methodname>mysql_xdevapi\Collection::count</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+   The function will submit a "SELECT COUNT(*)..." to the server for the current schema and collection, the returned
+</para>
+  <para>
+   value is provided to the user. In short, the function counts the amount of docs in the collection.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +30,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   The amount of document that has been enumerated in the collection.
   </para>
  </refsect1>
 

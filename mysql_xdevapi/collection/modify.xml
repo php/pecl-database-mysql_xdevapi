@@ -10,14 +10,16 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::modify</methodname>
+   <modifier>public</modifier> <type>Result</type><methodname>mysql_xdevapi\Collection::modify</methodname>
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
+   It allows to manipulate the content of the collection selecting documents that are going to be modified.
+   The documents that are going to be changed are selected via the search_condition mandatory parameter, there
+   are multiple allowed operation and all the detail are provided in the relevant documentation subcategory.
 
+   the modify operation supports parameter binding.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +30,15 @@
     <term><parameter>search_condition</parameter></term>
     <listitem>
      <para>
-      
+      It must be a valid SQL expression that will be used to match the documents thare are going to be modified,
+      this expression might as simple as 'true' which will match all the docuemnts, or it might use functions like:
+      1) 'CAST(_id AS SIGNED) >= 10'
+      2) 'age MOD 2 = 0 OR age MOD 3 = 0'
+</para>
+  <para>
+
+      Also the IN operator is currently supported,for example: '_id IN ["2","5","7","10"]'. For more detail
+      have a look at the code sample
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +48,11 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   If the operation is not executed then the function will return a Modify object that can be used to provide
+   further options to the modify operation.
+</para>
+  <para>
+   If the modify operation is executed then the returned object is going to hold the result of the operation.
   </para>
  </refsect1>
 
@@ -50,7 +64,20 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming that $coll is a valid Collection object
+
+//To all the documents with the 'job' field like 'Programmatore' or 'Cantante' append two new jobs: Volontario and Tassinaro
+$coll->modify("job in ('Programmatore', 'Cantante')")->arrayAppend('job', 'Volontario')->arrayAppend('job', 'Tassinaro')->execute();
+
+//Remove the 'age' field from all the docs with 'ordinal' between 1 and 9
+$coll->modify('ordinal >= 1 and ordinal <= 9')->unset(['age'])->execute();
+
+/*
+ The modify operation is split in two lines, the object returned by a not executed 'modify'
+ holds the state of the current modify (it might be executed later)
+*/
+$obj = $coll->modify('age > :age1 and age < :age2')->bind(['age1' => 25, 'age2' => 40]);
+$data = $obj->sort(['_id desc'])->limit(2)->replace('job', 'Disoccupato')->execute();
 
 ?>
 ]]>

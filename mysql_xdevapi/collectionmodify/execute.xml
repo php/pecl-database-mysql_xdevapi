@@ -10,14 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionModify::execute</methodname>
+   <modifier>public</modifier> <type>Result</type><methodname>mysql_xdevapi\CollectionModify::execute</methodname>
    <void />
   </methodsynopsis>
   <para>
+   The execute function needs to be invoked in order to trigger the client to send the CRUD operation request to the server.
 
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +28,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   A Result object that can be used to obtain the amount of affected items and other useful informations. 
   </para>
  </refsect1>
 

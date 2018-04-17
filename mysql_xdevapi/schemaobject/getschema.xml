@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-schemaobject.getschema" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>SchemaObject::getSchema</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return the current schema object</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\SchemaObject::getSchema</methodname>
+   <modifier>abstract</modifier> <modifier>Object</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\SchemaObject::getSchema</methodname>
    <void />
   </methodsynopsis>
   <para>

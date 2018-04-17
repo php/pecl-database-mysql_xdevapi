@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::having</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::having</methodname>
    <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   This function can be used after the 'field' operation in order to make a selection on the documents to extract.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>sort_expr</parameter></term>
     <listitem>
      <para>
-      
+      This must be a valid SQL expression, the use of aggreate functions is allowed
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+  CollectionFind object that can be used for further processing 
   </para>
  </refsect1>
 
@@ -50,7 +48,11 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object
+
+//Find all the documents for which the 'age' is greather than 40,
+//Only the columns 'name' and 'age' are returned in the Result object
+$res = $coll->find()->fields(['name','age'])->having('age > 40')->execute();
 
 ?>
 ]]>

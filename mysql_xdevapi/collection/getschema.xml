@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::getSchema</methodname>
+   <modifier>public</modifier> <type>Schema Object</type><methodname>mysql_xdevapi\Collection::getSchema</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+   Returns the schema object which contains the collection.
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -29,7 +27,10 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   Either the schema object or null if the object cannot be retrieved for the given collection,
+</para>
+  <para>
+   this might happen if the connection has been closed for example.
   </para>
  </refsect1>
 
@@ -41,7 +42,9 @@
 <![CDATA[
 <?php
 
-/* ... */
+//If $coll is a valid collection object, then getSchema will return the
+//corresponding schema object
+$schema = $coll->getSchema();
 
 ?>
 ]]>

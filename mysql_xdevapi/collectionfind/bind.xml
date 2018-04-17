@@ -10,14 +10,16 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::bind</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::bind</methodname>
    <methodparam><type>array</type><parameter>placeholder_values</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   It allows the user to bind a parameter to the placeholder in the search condition of the find operation.
+   The placeholder has the form of :NAME where ':' is a common prefix that must always exists before any NAME,
+   NAME is the actual name of the placeholder. The bind function accepts a list of placeholders if multiple
+   entities have to be substituted in the search condition.
   </para>
 
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +30,8 @@
     <term><parameter>placeholder_values</parameter></term>
     <listitem>
      <para>
-      
+      The values of the placeholder to substitute in the search condition, multiple values are allowed
+      and have to be passed as an array of mappings PLACEHOLDER_NAME->PLACEHOLDER_VALUE, for more details see the examples.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +41,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   A CollectionFind that can be used for further processing.
   </para>
  </refsect1>
 
@@ -50,7 +53,12 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid collection
+
+//In this example we're binding :job and :age to 'Programmatore' and 20.
+$res = $coll->find('job like :job and age > :age');
+$res = $res->bind(['job' => 'Programmatore', 'age' => 20])->execute();
+//At this point $res will contain the Result object
 
 ?>
 ]]>

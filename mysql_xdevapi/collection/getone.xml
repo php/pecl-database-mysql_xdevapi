@@ -10,14 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Collection::getOne</methodname>
+   <modifier>public</modifier> <type>Document</type><methodname>mysql_xdevapi\Collection::getOne</methodname>
    <methodparam><type>string</type><parameter>id</parameter></methodparam>
   </methodsynopsis>
   <para>
-
-  </para>
-
-  &warn.undocumented.func;
+   Return the document with the given id. This is a shortcut for: Collection.find("_id = :id").bind("id", id).execute().fetchOne()  
+</para>
 
  </refsect1>
 
@@ -28,7 +26,7 @@
     <term><parameter>id</parameter></term>
     <listitem>
      <para>
-      
+      This is the ID of the document to extract from the Collection
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   The collection object is returned, or null if the ID do not match any document.
   </para>
  </refsect1>
 
@@ -50,8 +48,21 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming that $connection_uri is a valid URI
+$session = mysql_xdevapi\getSession($connection_uri);
 
+//Assuming 'test_collection' is a valid collection in the 'test' DB
+$schema = $session->getSchema('test');
+$coll = $schema->getCollection("test_collection");
+
+$coll->add('{"_id": "1", "name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
+$coll->add('{"_id": "2", "name": "Lonardo",    "age": 59, "job": "Paninaro"}')->execute();
+$coll->add('{"_id": "3", "name": "Riccardo",   "age": 27, "job": "Cantante"}')->execute();
+$coll->add('{"_id": "4", "name": "Carlotta",   "age": 23, "job": "Programmatrice"}')->execute();
+$coll->add('{"_id": "5", "name": "Carlo",      "age": 25, "job": "Programmatore"}')->execute();
+
+$doc = $coll->getOne(3); //Will return the third doc ("Riccardo").
+$doc = $coll->getOne(5); //Will return the last doc ("Carlo")
 ?>
 ]]>
    </programlisting>

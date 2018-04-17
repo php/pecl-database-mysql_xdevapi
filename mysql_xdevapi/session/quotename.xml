@@ -4,20 +4,18 @@
 <refentry xml:id="mysql-xdevapi-session.quotename" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::quoteName</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Quote the provided name</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Session::quoteName</methodname>
+   <modifier>public</modifier> <type>String</type><methodname>mysql_xdevapi\Session::quoteName</methodname>
    <methodparam><type>string</type><parameter>name</parameter></methodparam>
   </methodsynopsis>
   <para>
 
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

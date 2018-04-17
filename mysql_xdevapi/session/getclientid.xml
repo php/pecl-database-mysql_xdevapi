@@ -4,20 +4,18 @@
 <refentry xml:id="mysql-xdevapi-session.getclientid" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::getClientId</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return the ID of the currently connected client</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Session::getClientId</methodname>
+   <modifier>public</modifier> <type>String</type><methodname>mysql_xdevapi\Session::getClientId</methodname>
    <void />
   </methodsynopsis>
   <para>
 
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 

@@ -10,14 +10,13 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionModify::arrayDelete</methodname>
+   <modifier>public</modifier> <type>CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::arrayDelete</methodname>
    <methodparam><type>string</type><parameter>collection_field</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Delete one of the elements from a document field, if the deleted element is the last one
+   then the function will remove the field 
   </para>
-
-  &warn.undocumented.func;
 
  </refsect1>
 
@@ -28,7 +27,11 @@
     <term><parameter>collection_field</parameter></term>
     <listitem>
      <para>
-      
+      The format of this parameter is: FIELD_NAME[ INDEX ] where FIELD_NAME is the name of the document
+      field from which one element has to be removed and INDEX is the INDEX of the element within the field.
+     </para>
+     <para>
+      The INDEX field is zero based, so the leftmost item from the array has an index of 0.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +41,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   Returns a CollectionModify object that can be used to execute the command or to add further operations
   </para>
  </refsect1>
 
@@ -50,7 +53,14 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object
+
+//Remove the first element from the array of 'jobs' for all the documents
+//with name like Riccardo or Carlo
+$coll->modify("name in ('Riccardo', 'Carlo')")->arrayDelete('job[0]')->execute();
+
+//Remove the second element from the documents which `age` field is greater than 30
+$coll->modify('age > 30')->arrayDelete('job[1]')->execute();
 
 ?>
 ]]>

@@ -4,14 +4,14 @@
 <refentry xml:id="mysql-xdevapi-schema.getcollectionastable" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getCollectionAsTable</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return a collection as an Object reppresenting a table</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Schema::getCollectionAsTable</methodname>
-   <void />
+   <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\Schema::getCollectionAsTable</methodname>
+   <methodparam><type>string</type><parameter>name</parameter></methodparam>   
   </methodsynopsis>
   <para>
 
@@ -23,7 +23,18 @@
 
  <refsect1 role="parameters">
   &reftitle.parameters;
-  &no.function.parameters;
+  <variablelist>
+   <varlistentry>
+    <term><parameter>name</parameter></term>
+    <listitem>
+     <para>
+      
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+ 
  </refsect1>
 
  <refsect1 role="returnvalues">

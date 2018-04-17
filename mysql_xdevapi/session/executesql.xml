@@ -4,26 +4,36 @@
 <refentry xml:id="mysql-xdevapi-session.executesql" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::executeSql</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Execute an SQL statement</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Session::executeSql</methodname>
-   <void />
+   <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\Session::executeSql</methodname>
+   <methodparam><type>string</type><parameter>statement</parameter></methodparam>  
   </methodsynopsis>
   <para>
 
   </para>
 
-  &warn.undocumented.func;
-
  </refsect1>
 
  <refsect1 role="parameters">
   &reftitle.parameters;
-  &no.function.parameters;
+   <variablelist>
+   <varlistentry>
+    <term><parameter>statement</parameter></term>
+    <listitem>
+     <para>
+      SQL statement to execute
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+ </refsect1>
+
+
  </refsect1>
 
  <refsect1 role="returnvalues">

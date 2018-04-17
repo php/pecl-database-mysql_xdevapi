@@ -10,14 +10,21 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionFind::lockShared</methodname>
+   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::lockShared</methodname>
    <methodparam choice="opt"><type>integer</type><parameter>lock_waiting_option</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Allows to share the documents between multiple transactions which are locking in shared mode.
   </para>
-
-  &warn.undocumented.func;
+  <para>
+   Other sessions can read the rows, but cannot modify them until your transaction commits. 
+  </para>
+  <para>
+   If any of these rows were changed by another transaction that has not yet committed, 
+  </para>
+  <para>
+   your query waits until that transaction ends and then uses the latest values.
+  </para>
 
  </refsect1>
 
@@ -28,7 +35,11 @@
     <term><parameter>lock_waiting_option</parameter></term>
     <listitem>
      <para>
-      
+         This is an optional parameter that can be used to specify the way the lock function should behave, the
+       allowed options are:
+       1) MYSQLX_LOCK_DEFAULT: Use the default locking mechanism
+       2) MYSQLX_LOCK_NOWAIT: If lock is not possible, then return an error without locking
+       3) MYSQLX_LOCK_SKIP_LOCKED: If the document is already locked, then ignore it
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +49,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   A CollectionFind object that can be used for further processing
   </para>
  </refsect1>
 
@@ -50,7 +61,19 @@
 <![CDATA[
 <?php
 
-/* ... */
+//Assuming $coll is a valid Collection object and $session is a valid Session Object
+
+$session->startTransaction();
+
+//Returns all the documents with 'age' greather than 50 and attempt to lock them
+$res = $col1->find("age > 50")->lockShared()->execute();
+
+//Read the document in shared mode ..
+//...
+
+//Complete the transaction and unlock the document
+$session->commit();
+
 
 ?>
 ]]>
