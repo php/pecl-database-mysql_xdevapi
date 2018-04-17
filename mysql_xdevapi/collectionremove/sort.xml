@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionremove.sort" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionRemove::sort</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Set the sorting criteria</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

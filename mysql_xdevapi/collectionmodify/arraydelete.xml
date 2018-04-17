@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.arraydelete" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::arrayDelete</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Delete element from an array</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
