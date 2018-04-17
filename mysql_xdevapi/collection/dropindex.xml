@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.dropindex" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::dropIndex</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Drop and index from the collection</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

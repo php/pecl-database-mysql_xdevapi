@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.createindex" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::createIndex</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Create an index on the collection</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

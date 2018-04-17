@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-docresult.fetchone" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DocResult::fetchOne</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return one single result object from the last operation on a collection</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\DocResult::fetchOne</methodname>
+   <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\DocResult::fetchOne</methodname>
    <void />
   </methodsynopsis>
   <para>
