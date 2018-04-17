@@ -26,7 +26,7 @@
     <term><parameter>lock_waiting_option</parameter></term>
     <listitem>
      <para>
-		Optional waiting option. By default it is MYSQLX_LOCK_DEFAULT.	Other values: NOWAIT (MYSQLX_LOCK_NOWAIT), SKIP LOCKED (MYSQLX_LOCK_SKIP_LOCKED).
+      Optional waiting option. By default it is <constant>MYSQLX_LOCK_DEFAULT</constant>.	Other values: NOWAIT (<constant>MYSQLX_LOCK_NOWAIT</constant>), SKIP LOCKED (<constant>MYSQLX_LOCK_SKIP_LOCKED</constant>).
      </para>
     </listitem>
    </varlistentry>
