@@ -15,12 +15,16 @@
   </methodsynopsis>
   <para>
    This function triggers the insertion of the given document(s) into the collection, multiple variants of the
-   function are supported, the user can either: 1) Add a single document as a JSON string 2) Add a single document
-   as an array in the form of [ 'field' => 'value', 'field2' => 'value2' ... ] 3) mix the (1) and (2) 4) Add multiple
-   documents in the same operation.
-</para>
+   function are supported, the user can either:
+  </para>
+  <orderedlist>
+   <listitem><para>Add a single document as a JSON string</para></listitem>
+   <listitem><para>Add a single document as an array in the form of <code>[ 'field' => 'value', 'field2' => 'value2' ... ]</code></para></listitem>
+   <listitem><para>Mix (1) and (2)</para></listitem>
+   <listitem><para>Add multiple documents in the same operation.</para></listitem>
+  </orderedlist>
   <para>
-   Attempting to add an empty doc ( [] for example ) is a no op. The user can provide a unique document ID with
+   Attempting to add an empty doc (<code>[]</code> for example ) is a no op. The user can provide a unique document ID with
    the document, if that happens then the server will not generate an identifier but the user ID will be used, is
    important to make sure that the ID is unique within the session or the 'add' operation will fail.
   </para>
@@ -34,10 +38,7 @@
     <term><parameter>json</parameter></term>
     <listitem>
      <para>
-      One or multiple documents, this can either be a JSON or an array of fields with their values, see the example
-</para>
-  <para>
-      below for more details.
+      One or multiple documents, this can either be a JSON or an array of fields with their values, see the example below for more details.
      </para>
     </listitem>
    </varlistentry>
@@ -47,10 +48,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Once executed the add operation return a Result object that can be used to query the amount of effected items,
-</para>
-  <para>
-   the amount of warnings or to get the list of generated IDs for the inserted documents.
+   Once executed the add operation return a Result object that can be used to query the amount of effected items, the amount of warnings or to get the list of generated IDs for the inserted documents.
   </para>
  </refsect1>
 
