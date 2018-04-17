@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.count" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::count</refname>
-  <refpurpose>Get amount of documents in the collection</refpurpose>
+  <refpurpose>Return the number of documents in the collection</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -15,8 +15,6 @@
   </methodsynopsis>
   <para>
    The function will submit a "SELECT COUNT(*)..." to the server for the current schema and collection, the returned
-</para>
-  <para>
    value is provided to the user. In short, the function counts the amount of docs in the collection.
   </para>
 

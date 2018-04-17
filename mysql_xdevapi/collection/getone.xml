@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.getone" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::getOne</refname>
-  <refpurpose>Return a document matching the given id</refpurpose>
+  <refpurpose>Return the document with the specified ID</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <methodparam><type>string</type><parameter>id</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Return the document with the given id. This is a shortcut for: Collection.find("_id = :id").bind("id", id).execute().fetchOne()  
+   Return the document with the given id. This is a shortcut for: Collection.find("_id = :id").bind("id", id).execute().fetchOne()
 </para>
 
  </refsect1>

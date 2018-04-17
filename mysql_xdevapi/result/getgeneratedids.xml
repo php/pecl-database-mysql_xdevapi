@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-result.getgeneratedids" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Result::getGeneratedIds</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return an array with the generated ID's for the last add operation</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Result::getGeneratedIds</methodname>
+   <modifier>public</modifier> <type>ArrayOfInt</type><methodname>mysql_xdevapi\Result::getGeneratedIds</methodname>
    <void />
   </methodsynopsis>
   <para>

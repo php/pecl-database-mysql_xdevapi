@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-result.getautoincrementvalue" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Result::getAutoIncrementValue</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return the autoincremented value</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Result::getAutoIncrementValue</methodname>
+   <modifier>public</modifier> <type>int</type><methodname>mysql_xdevapi\Result::getAutoIncrementValue</methodname>
    <void />
   </methodsynopsis>
   <para>

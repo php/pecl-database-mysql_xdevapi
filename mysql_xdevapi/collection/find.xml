@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.find" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::find</refname>
-  <refpurpose>Retrieves documents from a collection</refpurpose>
+  <refpurpose>Search for a document</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -45,7 +45,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The function returns a CollectionFind object that can use used to verify both the result of the operation and 
+   The function returns a CollectionFind object that can use used to verify both the result of the operation and
 </para>
   <para>
    to fetch one or all the documents that has been found.

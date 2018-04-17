@@ -11,7 +11,7 @@
   &reftitle.description;
   <methodsynopsis>
    <modifier>public</modifier> <type>Session</type><methodname>mysql_xdevapi\Collection::getSession</methodname>
-   <mothodparam>><type>string</type><parameter>URI</parameter></methodparam>
+   <methodparam><type>string</type><parameter>URI</parameter></methodparam>
   </methodsynopsis>
   <para>
    Returns the session object ( assuming that there's a valid connection to the server ) related with the

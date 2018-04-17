@@ -31,12 +31,13 @@
     <term><parameter>lock_waiting_option</parameter></term>
     <listitem>
      <para>
-      This is an optional parameter that can be used to specify the way the lock function should behave, the
-       allowed options are:
-       1) MYSQLX_LOCK_DEFAULT: Use the default locking mechanism
-       2) MYSQLX_LOCK_NOWAIT: If exclusive lock is not possible, then return an error without locking
-       3) MYSQLX_LOCK_SKIP_LOCKED: If the document is already locked, then ignore it
-      </para>
+      Optional waiting option. By default it is <constant>MYSQLX_LOCK_DEFAULT</constant>.	Valid values are these constants:
+     </para>
+     <itemizedlist>
+      <listitem><para><constant>MYSQLX_LOCK_DEFAULT</constant></para></listitem>
+      <listitem><para><constant>MYSQLX_LOCK_NOWAIT</constant></para></listitem>
+      <listitem><para><constant>MYSQLX_LOCK_SKIP_LOCKED</constant></para></listitem>
+     </itemizedlist>
     </listitem>
    </varlistentry>
   </variablelist>
