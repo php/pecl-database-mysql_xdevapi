@@ -7,7 +7,7 @@
  <section xml:id="mysql-xdevapi.requirements">
   &reftitle.required;
   <para>
-   This extension has Boost, Libxml2, OpenSSL, and Protobuf dependencies.
+   For compiling this extension Boost, Libxml2, OpenSSL, and Protobuf libraries are required as dependencies.
   </para>
   <para>
    An example installation on Ubuntu 16.04:
@@ -22,6 +22,9 @@ $ apt install php7.1-cli php7.1-dev php7.1-mysql php7.1-pdo php7.1-xml
 $ pecl install mysql_xdevapi
 ]]>
 </programlisting>
+  <para>
+   For using the module a MySQL 8.0 server with X Plugin enabled is required.
+  </para>
  </section>
 
  <section xml:id="mysql-xdevapi.installation">

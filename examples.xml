@@ -3,21 +3,122 @@
 
 <chapter xml:id="mysql-xdevapi.examples" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  &reftitle.examples;
+ <para>
+  The central entry point to the X DevAPI is the <function>mysql_xdevapi\getSession</function>
+  function, which receives an URI to a MySQL 8.0 Server and returns a
+  <classname>mysql_xdevap\Session</classname> object.
+ </para>
  <example>
-  <title>Mysql_xdevapi Example</title>
+  <title>Connecting to a server</title>
   <programlisting role="php">
 <![CDATA[
 <?php
+$session = mysql_xdevapi\getSession("mysqlx://user:pass@host");
+if ($session === NULL) {
+  die("Connection could not be established");
+} 
 
-/* ... */
+// ... use $session
+?>
+]]>
+  </programlisting>
+ </example>
+ <para>
+  Once the session is established full access to the API is provided. If this is a fresh
+  installation likely the first thing needed is to create a database schema with a collection 
+  within to store data.
+ </para>
+ <example>
+  <title>Creating a Schema and Collection on the server</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+$schema = $session->createSchema("php test");
+$collection = $schema->createCollection("example");
+?>
+]]>
+  </programlisting>
+ </example>
+ <para>
+  When storing data anything which can be encoded using <function>json_encode</function>
+  into JSON can be stored insde such a collection.
+ </para>
+ <para>
+  The following example will store data in the collection we created above and then
+  retrieve parts of it again.
+ </para>
+ <example>
+  <title>Storing and retrieving data</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+$marco = [
+  "name" => "Marco",
+  "age"  => 19,
+  "job"  => "Programmer"
+];
+$mike = [
+  "name" => "Mike",
+  "age"  => 39,
+  "job"  => "Manager"
+];
 
+$schema = $session->getSchema("php test");
+$collection = $schema->getCollection("example");
+
+$collection->add($marco, $mike)->execute();
+
+var_dump($collection->find("name = 'Mike'")->execute()->fetchOne());
 ?>
 ]]>
   </programlisting>
   &example.outputs.similar;
   <screen>
+   <![CDATA[
+array(4) {
+  ["_id"]=>
+  string(28) "00005ad66aaf0000000000000003"
+  ["age"]=>
+  int(39)
+  ["job"]=>
+  string(7) "Manager"
+  ["name"]=>
+  string(4) "Mike"
+}
+]]>
+  </screen>
+ </example>
+ <para>
+  In this example it is shown that the MySQL Server will add an extra field called
+  <code>_id</code> will be added. This <code>_id</code> serves as primary key to the
+  document.
+ </para>
+ <para>
+  The example also shows that the order of fields in the retrieved is sorted alphabticlly.
+  That specific order comes from the efficient binary storage inside the MySQL Server, but
+  should not be relied upon. Refer to the documention of the MySQL JSON datatype for details.
+ </para>
+ <para>
+  Instead of returning just a single document, we can also fetch all documents and use 
+  PHP's iterators to process the results:
+ </para>
+ <example>
+  <title>Fetching multiple documents and iterating</title>
+  <programlisting role="php">
 <![CDATA[
-...
+<?php
+$result = $collection->find()->execute());
+foreach ($result as $doc) {
+  echo "${doc["name"]} is a ${doc["job"]}.\n";
+}
+?>
+]]>
+  </programlisting>
+  &example.outputs.similar;
+  <screen>
+   <![CDATA[
+Marco is a Programmer.
+Mike is a Manager.
 ]]>
   </screen>
  </example>

@@ -8,9 +8,14 @@
  <preface xml:id="intro.mysql-xdevapi">
   &reftitle.intro;
   <para>
-    This extension uses the MySQL X DevAPI that supports relational tables
-    and JSON documents making it possible to use both tables and collections
-    at the same time.
+   This extension provides access to the MySQL Document Store via the X DevAPI. The X DevAPI
+   is a common API provided by multiple MySQL Connectors providing easy access to relational
+   tables as well as collections of documents, which are represented in JSON, from a API
+   with CRUD-style operations.
+  </para>
+  <para>
+   The X DevAPI uses the X Protocol, the new generation client-server protocol of the MySQL
+   8.0 server.
   </para>
   <para>
     For general information about the X DevAPI, please refer to documentation on
@@ -20,7 +25,7 @@
 
  &reference.mysql-xdevapi.setup;
  &reference.mysql-xdevapi.constants;
-<!-- &reference.mysql-xdevapi.examples; -->
+ &reference.mysql-xdevapi.examples;
  &reference.mysql-xdevapi.reference;
 
  &reference.mysql-xdevapi.mysql-xdevapi.baseresult;
