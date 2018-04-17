@@ -11,6 +11,7 @@
   &reftitle.description;
   <methodsynopsis>
    <modifier>public</modifier> <type>Object</type><methodname>mysql_xdevapi\Session::getSchema</methodname>
+   <methodparam><type>string</type><parameter>schema_name</parameter></methodparam>
    <void />
   </methodsynopsis>
   <para>
@@ -21,13 +22,22 @@
 
  <refsect1 role="parameters">
   &reftitle.parameters;
-  &no.function.parameters;
+   <variablelist>
+   <varlistentry>
+    <term><parameter>schema_name</parameter></term>
+    <listitem>
+     <para>
+      Name of the schema to get.
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
  </refsect1>
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+
   </para>
  </refsect1>
 
