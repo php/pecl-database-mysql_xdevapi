@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::bind</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::bind</methodname>
    <methodparam><type>array</type><parameter>placeholder_values</parameter></methodparam>
   </methodsynopsis>
   <para>

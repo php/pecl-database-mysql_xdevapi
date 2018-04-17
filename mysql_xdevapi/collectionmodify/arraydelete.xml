@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::arrayDelete</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::arrayDelete</methodname>
    <methodparam><type>string</type><parameter>collection_field</parameter></methodparam>
   </methodsynopsis>
   <para>

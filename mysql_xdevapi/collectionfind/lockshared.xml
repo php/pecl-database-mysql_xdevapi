@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::lockShared</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::lockShared</methodname>
    <methodparam choice="opt"><type>integer</type><parameter>lock_waiting_option</parameter></methodparam>
   </methodsynopsis>
   <para>

@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>Result</type><methodname>mysql_xdevapi\Collection::add</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\Result</type><methodname>mysql_xdevapi\Collection::add</methodname>
    <methodparam><type>string</type><parameter>json</parameter></methodparam>
   </methodsynopsis>
   <para>
