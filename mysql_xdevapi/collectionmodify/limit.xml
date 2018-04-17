@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\CollectionModify::limit</methodname>
+   <modifier>public</modifier> <type>integer</type><methodname>mysql_xdevapi\CollectionModify::limit</methodname>
    <methodparam><type>integer</type><parameter>rows</parameter></methodparam>
   </methodsynopsis>
   <para>
@@ -28,7 +28,7 @@
     <term><parameter>rows</parameter></term>
     <listitem>
      <para>
-      
+
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+
   </para>
  </refsect1>
 
