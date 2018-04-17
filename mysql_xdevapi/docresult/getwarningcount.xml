@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-docresult.getwarningcount" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DocResult::getWarningCount</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return the amount of warnings raised by the last operation</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\DocResult::getWarningCount</methodname>
+   <modifier>public</modifier> <type>int</type><methodname>mysql_xdevapi\DocResult::getWarningCount</methodname>
    <void />
   </methodsynopsis>
   <para>

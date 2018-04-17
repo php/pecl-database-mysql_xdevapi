@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-result.getwarnings" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Result::getWarnings</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return an array of warning object</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Result::getWarnings</methodname>
+   <modifier>public</modifier> <type>Array</type><methodname>mysql_xdevapi\Result::getWarnings</methodname>
    <void />
   </methodsynopsis>
   <para>

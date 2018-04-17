@@ -4,13 +4,13 @@
 <refentry xml:id="mysql-xdevapi-result.getaffecteditemscount" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Result::getAffectedItemsCount</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Return the amount of affected items by the last operation</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>ReturnType</type><methodname>mysql_xdevapi\Result::getAffectedItemsCount</methodname>
+   <modifier>public</modifier> <type>int</type><methodname>mysql_xdevapi\Result::getAffectedItemsCount</methodname>
    <void />
   </methodsynopsis>
   <para>

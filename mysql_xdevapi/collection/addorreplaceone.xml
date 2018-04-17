@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.addorreplaceone" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::addOrReplaceOne</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Add or replace a document in the collection</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
