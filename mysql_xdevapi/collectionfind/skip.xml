@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionfind.skip" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionFind::skip</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Skip given number of elements to be returned</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

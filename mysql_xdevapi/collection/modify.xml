@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.modify" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::modify</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Modifies documents in collection</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

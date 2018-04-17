@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionfind.construct" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionFind::__construct</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>CollectionFind constructor</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

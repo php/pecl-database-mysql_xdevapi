@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionfind.fields" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionFind::fields</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Set document field filter</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

@@ -4,17 +4,17 @@
 <refentry xml:id="mysql-xdevapi-collection.find" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::find</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Retrieves documents from a collection</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>CollectionFind</type><methodname>mysql_xdevapi\Collection::find</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\CollectionFind</type><methodname>mysql_xdevapi\Collection::find</methodname>
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
-   This function is usefull for looking in the database colletion for a document or set of documents; The returned
+   This function is useful for looking in the database collection for a document or set of documents; The returned
    documents are contained in the CollectionFind object that can be used further to fetch one or all the documents.
   </para>
 

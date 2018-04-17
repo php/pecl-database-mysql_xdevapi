@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionfind.having" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionFind::having</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Set condition for aggregate functions</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
