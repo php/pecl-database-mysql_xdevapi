@@ -12,7 +12,6 @@
   <methodsynopsis>
    <modifier>public</modifier> <type>mysql_xdevapi\Schema</type><methodname>mysql_xdevapi\Session::getSchema</methodname>
    <methodparam><type>string</type><parameter>schema_name</parameter></methodparam>
-   <void />
   </methodsynopsis>
   <para>
 
