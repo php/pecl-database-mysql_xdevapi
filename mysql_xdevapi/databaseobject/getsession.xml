@@ -4,17 +4,17 @@
 <refentry xml:id="mysql-xdevapi-databaseobject.getsession" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DatabaseObject::getSession</refname>
-  <refpurpose>Returns the session object related to the database object</refpurpose>
+  <refpurpose>Returns the Session object</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>abstract</modifier> <modifier>public</modifier> <type>SessionObject</type><methodname>mysql_xdevapi\DatabaseObject::getSession</methodname>
+   <modifier>abstract</modifier> <modifier>public</modifier> <type>mysql_xdevapi\Session</type><methodname>mysql_xdevapi\DatabaseObject::getSession</methodname>
    <void />
   </methodsynopsis>
   <para>
-
+	  Retrieve the session associated to the database object.
   </para>
 
   &warn.undocumented.func;
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	  The Session object.
   </para>
  </refsect1>
 
@@ -41,7 +41,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$session = $dbObj->getSession();
 
 ?>
 ]]>

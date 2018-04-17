@@ -10,7 +10,7 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::arrayInsert</methodname>
+   <modifier>public</modifier> <type>mysql_xdevapi\CollectionModify</type><methodname>mysql_xdevapi\CollectionModify::arrayInsert</methodname>
    <methodparam><type>string</type><parameter>collection_field</parameter></methodparam>
    <methodparam><type>string</type><parameter>expression_or_literal</parameter></methodparam>
   </methodsynopsis>
