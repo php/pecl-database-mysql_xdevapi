@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-table.count" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Table::count</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Get rows count</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-table.getsession" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Table::getSession</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Returns the Session object</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-	Returns the session of this Table object.
+	Retrieve the session  associated to the table.
   </para>
 
  </refsect1>

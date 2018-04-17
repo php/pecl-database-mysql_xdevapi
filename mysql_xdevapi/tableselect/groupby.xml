@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableselect.groupby" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableSelect::groupBy</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Set the grouping criteria</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

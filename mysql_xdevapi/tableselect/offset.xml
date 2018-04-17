@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableselect.offset" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableSelect::offset</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Sets the limit offset</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <methodparam><type>integer</type><parameter>position</parameter></methodparam>
   </methodsynopsis>
   <para>
-	Sets the limit offset.
+	Skip given number of rows to be returned.
   </para>
 
  </refsect1>

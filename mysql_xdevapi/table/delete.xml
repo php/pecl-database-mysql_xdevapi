@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-table.delete" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Table::delete</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Delete rows from table</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

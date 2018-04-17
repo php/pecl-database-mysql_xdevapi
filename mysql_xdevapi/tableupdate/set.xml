@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableupdate.set" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableUpdate::set</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Add field to be updated</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableupdate.limit" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableUpdate::limit</refname>
-  <refpurpose>Description</refpurpose>
+  <refpurpose>Set the maximum number of rows to be updated</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
