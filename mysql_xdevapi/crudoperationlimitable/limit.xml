@@ -14,7 +14,7 @@
    <methodparam><type>integer</type><parameter>rows</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	Sets the maximum number of records or documents to be returned.
   </para>
 
   &warn.undocumented.func;
@@ -28,7 +28,7 @@
     <term><parameter>rows</parameter></term>
     <listitem>
      <para>
-      
+		The maximum number of records or documents.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+	CrudOperationLimitable object.
   </para>
  </refsect1>
 
@@ -50,7 +50,8 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $coll->find()->fields(['name as n','age as a','job as j'])->groupBy('j')->limit(11)->execute();
+$res = $table->update()->set('age',69)->where('age > 15 and age < 22')->limit(4)->orderby(['age asc','name desc'])->execute();
 
 ?>
 ]]>

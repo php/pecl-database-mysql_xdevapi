@@ -40,7 +40,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a CollectionModify object that can be used to execute the command or to add further operations   
+   Returns a CollectionModify object that can be used to execute the command or to add further operations.
   </para>
  </refsect1>
 
