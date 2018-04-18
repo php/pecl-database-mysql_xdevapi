@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-schema.getsession" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getSession</refname>
-  <refpurpose>Return the session object for the given connection</refpurpose>
+  <refpurpose>Get schema session</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-schema.createcollection" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::createCollection</refname>
-  <refpurpose>Create a collection within the schema</refpurpose>
+  <refpurpose>Add collection to schema</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <methodparam><type>string</type><parameter>name</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Create a collection within the schema.
   </para>
 
   &warn.undocumented.func;

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-schema.getcollectionastable" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getCollectionAsTable</refname>
-  <refpurpose>Return a collection as an Object reppresenting a table</refpurpose>
+  <refpurpose>Get collection table object</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   A table object for the defined table.
   </para>
  </refsect1>
 

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-schema.gettables" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getTables</refname>
-  <refpurpose>Return an array of table objects</refpurpose>
+  <refpurpose>Get schema tables</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   An array of table objects.
   </para>
  </refsect1>
 

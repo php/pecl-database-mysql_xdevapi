@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-schema.gettable" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getTable</refname>
-  <refpurpose>Returns the table object for the given table name</refpurpose>
+  <refpurpose>Get schema table</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

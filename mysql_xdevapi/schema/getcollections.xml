@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-schema.getcollections" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Schema::getCollections</refname>
-  <refpurpose>Returns an array of CollectionObjects for the given schema</refpurpose>
+  <refpurpose>Get all schema collections</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-	Returns a list of collections for this schema.
+	 Fetch a list of collections for this schema.
   </para>
 
  </refsect1>
