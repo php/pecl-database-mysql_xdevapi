@@ -14,7 +14,7 @@
    <methodparam><type>integer</type><parameter>rows</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+	  Sets the maximum number of documents to be returned.
   </para>
 
   &warn.undocumented.func;
@@ -28,7 +28,7 @@
     <term><parameter>rows</parameter></term>
     <listitem>
      <para>
-      
+		 The maximum number of documents.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   Returns a CollectionRemove object that can be used to execute the command or to add further operations.
   </para>
  </refsect1>
 
@@ -50,7 +50,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $coll->remove('job in (\'Barista\', \'Programmatore\', \'Ballerino\', \'Programmatrice\')')->limit(5)->sort(['age desc', 'name asc'])->execute();
 
 ?>
 ]]>

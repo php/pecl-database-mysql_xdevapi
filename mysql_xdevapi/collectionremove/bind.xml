@@ -14,7 +14,10 @@
    <methodparam><type>array</type><parameter>placeholder_values</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   It allows the user to bind a parameter to the placeholder in the search condition of the remove operation.
+   The placeholder has the form of :NAME where ':' is a common prefix that must always exists before any NAME,
+   NAME is the actual name of the placeholder. The bind function accepts a list of placeholders if multiple
+   entities have to be substituted in the search condition of the remove operation.
   </para>
 
   &warn.undocumented.func;
@@ -28,7 +31,8 @@
     <term><parameter>placeholder_values</parameter></term>
     <listitem>
      <para>
-      
+      The values of the placeholder to substitute in the search condition, multiple values are allowed
+      and have to be passed as an array of mappings PLACEHOLDER_NAME->PLACEHOLDER_VALUE, for more details see the examples.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +42,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   Returns a CollectionRemove object that can be used to execute the command or to add further operations.
   </para>
  </refsect1>
 
@@ -50,7 +54,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $coll->remove('age > :age_from and age < :age_to')->bind(['age_from' => 20, 'age_to' => 50])->limit(7)->execute();
 
 ?>
 ]]>

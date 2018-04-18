@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-
+   The execute function needs to be invoked in order to trigger the client to send the CRUD operation request to the server.
   </para>
 
   &warn.undocumented.func;
@@ -41,7 +41,7 @@
 <![CDATA[
 <?php
 
-/* ... */
+$res = $coll->remove('true')->sort('age desc')->limit(2)->execute();
 
 ?>
 ]]>
