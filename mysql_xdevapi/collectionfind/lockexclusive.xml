@@ -73,12 +73,6 @@ $session->commit();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableupdate.bind" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableUpdate::bind</refname>
-  <refpurpose>Bind values to query parameters</refpurpose>
+  <refpurpose>Bind query parameters</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -26,7 +26,7 @@
     <term><parameter>placeholder_values</parameter></term>
     <listitem>
      <para>
-		 The name of the placeholder and the value to bind.
+		 The name of the placeholder, and the value to bind.
      </para>
     </listitem>
    </varlistentry>
@@ -36,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	TableUpdate object.
+	A TableUpdate object.
   </para>
  </refsect1>
 
@@ -53,12 +53,6 @@ $res = $table->update()->set('name', 'Alfonso')->where('name = :name and age > 2
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

@@ -55,12 +55,6 @@ $res = $coll->modify('job like :job_name')->unset(["age", "name"])->bind(['job_n
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

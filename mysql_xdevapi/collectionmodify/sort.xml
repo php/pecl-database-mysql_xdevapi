@@ -59,12 +59,6 @@ $res = $coll->modify('true')->sort('name desc', 'age asc')->limit(4)->set('Marri
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

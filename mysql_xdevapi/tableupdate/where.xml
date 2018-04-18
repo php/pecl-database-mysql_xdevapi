@@ -53,12 +53,6 @@ $res = $table->update()->set('doc', '{"_id": "7", "name": "John", "job": "Smith"
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

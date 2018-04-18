@@ -56,12 +56,6 @@ $coll->modify('age > :age')->sort('age desc')->unset(['age'])->bind(['age' => 20
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

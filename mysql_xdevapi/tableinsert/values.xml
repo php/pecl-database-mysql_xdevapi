@@ -53,12 +53,6 @@ $res = $table->insert("name", "age")->values(["Oracila", 1800])->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

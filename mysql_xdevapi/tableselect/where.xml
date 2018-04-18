@@ -53,12 +53,6 @@ $res = $table->select('name as nm','age as ag')->where('age > 34')->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

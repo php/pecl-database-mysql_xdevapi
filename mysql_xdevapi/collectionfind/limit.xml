@@ -60,12 +60,6 @@ $res = $coll->find()->sort('age desc')->limit(2)->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

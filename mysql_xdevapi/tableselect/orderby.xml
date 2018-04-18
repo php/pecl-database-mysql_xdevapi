@@ -53,12 +53,6 @@ $res = $table->select(['name','age'])->where('name in (\'Cassidy\',\'Polly\')')-
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

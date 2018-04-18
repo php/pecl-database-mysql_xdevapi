@@ -53,12 +53,6 @@ $res = $table->select('count(b) as bb')->groupBy('b')->orderBy('b asc')->execute
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

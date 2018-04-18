@@ -44,12 +44,6 @@ $res = $table->delete()->where('name = \'user_name\'')->limit(1)->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

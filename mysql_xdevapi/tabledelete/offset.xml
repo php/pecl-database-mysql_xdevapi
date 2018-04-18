@@ -53,12 +53,6 @@ $table->delete()->where('age = 17')->orderby('name desc')->limit(3)->offset(0)->
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

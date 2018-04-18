@@ -53,12 +53,6 @@ $res = $table->update()->set('age',69)->where('age > 15 and age < 22')->limit(4)
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

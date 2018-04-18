@@ -64,12 +64,6 @@ $res = $data = $obj->sort(['_id desc'])->limit(2)->replace('job', 'Disoccupato')
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

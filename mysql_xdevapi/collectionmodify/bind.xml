@@ -60,12 +60,6 @@ $coll->modify('name like :param')->set("job", "Unemployed")->bind(['param' => 'S
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

@@ -54,12 +54,6 @@ $res = $upd->where('age > :param1 and age < :param2')->bind(['param1' => 500, 'p
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

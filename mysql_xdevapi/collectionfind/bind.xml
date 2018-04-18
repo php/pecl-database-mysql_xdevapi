@@ -63,12 +63,6 @@ $res = $res->bind(['job' => 'Programmatore', 'age' => 20])->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

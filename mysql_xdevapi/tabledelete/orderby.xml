@@ -53,12 +53,6 @@ $res = $table->select('a as aa','b as bb','c as cc')->orderby('b desc','a desc')
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

@@ -74,12 +74,6 @@ $coll->modify("name like 'Paolo'")->arrayInsert('job[1]', 'Calciatore')->execute
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

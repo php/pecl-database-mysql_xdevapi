@@ -53,12 +53,6 @@ $res = $table->select()->where("name = :name")->orderby("age DESC")->limit(2)->b
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

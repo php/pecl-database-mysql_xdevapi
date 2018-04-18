@@ -44,12 +44,6 @@ $res = $table->insert(['x'])->values([1])->values([2])->values([3])->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

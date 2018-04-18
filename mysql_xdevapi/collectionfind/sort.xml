@@ -61,12 +61,6 @@ $res = $coll->find()->sort('age desc','job desc','num asc')->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

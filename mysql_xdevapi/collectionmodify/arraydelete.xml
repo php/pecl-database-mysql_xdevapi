@@ -65,12 +65,6 @@ $coll->modify('age > 30')->arrayDelete('job[1]')->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

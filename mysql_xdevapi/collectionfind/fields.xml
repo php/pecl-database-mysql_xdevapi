@@ -65,12 +65,6 @@ $res = $coll->find('job like \'tassinaro\'')->fields('age')->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

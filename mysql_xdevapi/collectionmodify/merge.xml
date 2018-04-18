@@ -55,12 +55,6 @@ $res = $coll->modify("Married like 'NO'")->merge("{'Divorced' : 'NO', 'Vegan' : 
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

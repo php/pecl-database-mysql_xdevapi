@@ -14,8 +14,8 @@
    <void />
   </methodsynopsis>
   <para>
-   The execute function needs to be invoked in order to trigger the client to send the CRUD operation request
-   to the server.
+   The execute method is required to send the CRUD operation request
+   to the MySQL server.
   </para>
 
  </refsect1>
@@ -28,7 +28,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The function returns a Result object that can be used to verify the status of the operation.
+   A Result object that can be used to verify the status of the operation.
   </para>
  </refsect1>
 
@@ -47,12 +47,6 @@ $coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore"}')->execute
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

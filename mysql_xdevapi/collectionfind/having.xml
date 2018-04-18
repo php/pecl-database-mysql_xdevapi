@@ -57,12 +57,6 @@ $res = $coll->find()->fields(['name','age'])->having('age > 40')->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

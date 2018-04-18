@@ -67,12 +67,6 @@ $coll->modify("job in ('Programmatore', 'Cantante')")->arrayAppend('job', 'Volon
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

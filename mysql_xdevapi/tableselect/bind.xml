@@ -54,12 +54,6 @@ $res = $table->select('name','age')->where('name like :name and age > :age')
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

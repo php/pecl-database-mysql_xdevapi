@@ -44,12 +44,6 @@ $table->delete()->where("name = :name")->orderby("id DESC")->limit(2)->bind(['na
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 
