@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-session.sql" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::sql</refname>
-  <refpurpose>Execute an SQL query</refpurpose>
+  <refpurpose>Execute SQL query</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,10 @@
    <methodparam><type>string</type><parameter>query</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Execute an SQL query.
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 

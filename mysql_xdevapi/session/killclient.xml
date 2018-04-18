@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-session.killclient" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::killClient</refname>
-  <refpurpose>Kill the selected client and terminate the collection</refpurpose>
+  <refpurpose>Kill the client</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,10 @@
    <methodparam><type>integer</type><parameter>client_id</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Kill the selected client and terminate the collection
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 

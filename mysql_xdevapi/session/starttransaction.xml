@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-session.starttransaction" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::startTransaction</refname>
-  <refpurpose>Start a new transaction</refpurpose>
+  <refpurpose>Start transaction</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,10 @@
    <void />
   </methodsynopsis>
   <para>
-
+   Start a new transaction.
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-session.rollbackto" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::rollbackTo</refname>
-  <refpurpose>Rollback the transaction back to the named savepoint</refpurpose>
+  <refpurpose>Rollback transaction to savepoint</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,10 @@
    <methodparam choice="opt"><type>string</type><parameter>name</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Rollback the transaction back to the savepoint.
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 
