@@ -30,59 +30,70 @@
      <para>
       The URI to the MySQL server, such as
       <literal>mysqlx://user:password@host</literal>.
-
-Uri format:
-<code>
-scheme://[user[:[password]]@]target[:port][/schema][?attribute1=value1&amp;attribute2=value2...
-</code>
-
-schema: required, the connection protocol
-in mysql_xdevapi it is always 'mysqlx' (for X Protocol)
-
-user: optional, the MySQL user account to be used for the authentication
-
-password: optional, the password to be used for the authentication
-
-target: required, the server instance the connection refers to:
-- TCP connection (host name, IPv4 address, or IPv6 address)
-- Unix socket path (local file path)
-- Windows named-pipe (local file path)
-
-port: optional, network port of MySQL server.
-by default port for X Protocol is 33060
-
-?attribute=value: this element is optional and specifies a data dictionary that contains options, e.g. for encrypted connections or 'auth'
-https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-options.html
-
-following values for 'auth' attribute are supported (authentication mechanism):
-- plain
-- mysql41
-- external
-- sha256_mem
-
-more details:
-https://dev.mysql.com/doc/internals/en/x-protocol-authentication-authentication.html
-
-
-Examples:
-<code>
-mysqlx://foobar
-mysqlx://root@localhost?socket=%2Ftmp%2Fmysqld.sock%2F
-mysqlx://foo:bar@localhost:33060
-mysqlx://foo:bar@localhost:33160?ssl-mode=disabled
-mysqlx://foo:bar@localhost:33260?ssl-mode=required
-mysqlx://foo:bar@localhost:33360?ssl-mode=required&amp;auth=mysql41
-mysqlx://foo:bar@(/path/to/socket)
-mysqlx://foo:bar@(/path/to/socket)?auth=sha256_mem
-mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]
-mysqlx://foobar?ssl-ca=(/path/to/ca.pem)&amp;ssl-crl=(/path/to/crl.pem)
-mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled
-</code>
-
-more details:
-https://dev.mysql.com/doc/refman/8.0/en/mysql-shell-connection-using-uri.html
-
      </para>
+
+<para>Uri format:</para>
+<para><code>
+<para>scheme://[user[:[password]]@]target[:port][/schema][?attribute1=value1&amp;attribute2=value2...</para>
+</code></para>
+<para></para>
+<itemizedlist>
+<listitem>
+<para>schema: required, the connection protocol</para>
+<para>in mysql_xdevapi it is always 'mysqlx' (for X Protocol)</para>
+</listitem>
+<listitem>
+<para>user: optional, the MySQL user account to be used for the authentication</para>
+</listitem>
+<listitem>
+<para>password: optional, the password to be used for the authentication</para>
+</listitem>
+<listitem>
+<para>target: required, the server instance the connection refers to:</para>
+<para>- TCP connection (host name, IPv4 address, or IPv6 address)</para>
+<para>- Unix socket path (local file path)</para>
+<para>- Windows named-pipe (local file path)</para>
+</listitem>
+<listitem>
+<para>port: optional, network port of MySQL server.</para>
+<para>by default port for X Protocol is 33060</para>
+</listitem>
+<listitem>
+<para>?attribute=value: this element is optional and specifies a data dictionary that contains options, e.g. for encrypted connections or 'auth'</para>
+<para>https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-options.html</para>
+<para></para>
+<para>following values for 'auth' attribute are supported (authentication mechanism):</para>
+<itemizedlist>
+<listitem><para>- plain<para></listitem>
+<listitem><para>- mysql41<para></listitem>
+<listitem><para>- external<para></listitem>
+<listitem><para>- sha256_mem<para></listitem>
+</itemizedlist>
+<para></para>
+<para>more details:</para>
+<para>https://dev.mysql.com/doc/internals/en/x-protocol-authentication-authentication.html</para>
+</listitem>
+</itemizedlist>
+<para></para>
+<para></para>
+<para>Examples:</para>
+<para><code>
+<para>mysqlx://foobar</para>
+<para>mysqlx://root@localhost?socket=%2Ftmp%2Fmysqld.sock%2F</para>
+<para>mysqlx://foo:bar@localhost:33060</para>
+<para>mysqlx://foo:bar@localhost:33160?ssl-mode=disabled</para>
+<para>mysqlx://foo:bar@localhost:33260?ssl-mode=required</para>
+<para>mysqlx://foo:bar@localhost:33360?ssl-mode=required&amp;auth=mysql41</para>
+<para>mysqlx://foo:bar@(/path/to/socket)</para>
+<para>mysqlx://foo:bar@(/path/to/socket)?auth=sha256_mem</para>
+<para>mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]</para>
+<para>mysqlx://foobar?ssl-ca=(/path/to/ca.pem)&amp;ssl-crl=(/path/to/crl.pem)</para>
+<para>mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled</para>
+</code></para>
+<para></para>
+<para>more details:</para>
+<para>https://dev.mysql.com/doc/refman/8.0/en/mysql-shell-connection-using-uri.html</para>
+
     </listitem>
    </varlistentry>
   </variablelist>
