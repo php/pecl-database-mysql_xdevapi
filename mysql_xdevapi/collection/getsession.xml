@@ -4,18 +4,17 @@
 <refentry xml:id="mysql-xdevapi-collection.getsession" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::getSession</refname>
-  <refpurpose>Returns the session object</refpurpose>
+  <refpurpose>Get session object</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <modifier>public</modifier> <type>Session</type><methodname>mysql_xdevapi\Collection::getSession</methodname>
-   <methodparam><type>string</type><parameter>URI</parameter></methodparam>
+   <void />
   </methodsynopsis>
   <para>
-   Returns the session object ( assuming that there's a valid connection to the server ) related with the
-   Collection object.
+   Retrieve a session object that contains the collection.
   </para>
 
  </refsect1>
@@ -28,34 +27,9 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The session object,
+   The session object.
   </para>
  </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <example>
-   <title><function>mysql_xdevapi\Collection::getSession</function> example</title>
-   <programlisting role="php">
-<![CDATA[
-<?php
-
-//If $coll is a valid collection object, then getSession will return the
-//corresponding Session object
-$schema = $coll->getSession();
-
-?>
-]]>
-   </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
-  </example>
- </refsect1>
-
 
 </refentry>
 

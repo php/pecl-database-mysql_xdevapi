@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-baseresult.getwarningcount" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>BaseResult::getWarningCount</refname>
-  <refpurpose>Get warnings count for last operation</refpurpose>
+  <refpurpose>Fetch warning count from last operation</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,8 @@
    <void />
   </methodsynopsis>
   <para>
-   Returns the amount of warnings raised by the last operation. Specifically, those are the warnings raised by the server.
+   Returns the number of warnings raised by the last operation. Specifically, 
+   these warnings are raised by the MySQL server.
   </para>
 
  </refsect1>
@@ -27,30 +28,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The returned value is the amout of warnings that has been raised.
+   The number of warnings from the last operation.
   </para>
- </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <example>
-   <title><function>mysql_xdevapi\BaseResult::getWarningCount</function> example</title>
-   <programlisting role="php">
-<![CDATA[
-<?php
-
-/* ... */
-
-?>
-]]>
-   </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
-  </example>
  </refsect1>
 
 

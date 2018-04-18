@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.addorreplaceone" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::addOrReplaceOne</refname>
-  <refpurpose>Add or replace a document in the collection</refpurpose>
+  <refpurpose>Add or replace collection document</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -15,18 +15,43 @@
    <methodparam><type>string</type><parameter>doc</parameter></methodparam>
   </methodsynopsis>
   <para>
-   This is one of a set of operations that are not going to operate on a single document but on all the documents
-   that are matching a specific filter. <function>addOrReplaceOne</function> in particular will add or if the document already exists, will repace, the entry in the collection which match the ID provided.
+   Add a new document, or replace a document if it already exists.
   </para>
   <para>
-   To understand this function is worth to list all the possible scenarios that the user can encounter:
+   Here are several scenarios for this method:
   </para>
   <itemizedlist>
-   <listitem><para>If neither the id nor any unique key values conflict with any document in the collection, the document must be added to it.</para></listitem>
-   <listitem><para>If the id does not match any document but one or more unique key values conflict with a document in the collection, then an error is raised.</para></listitem>
-   <listitem><para>If id matches an existing document AND no unique keys are defined for the collection, the document is replaced.</para></listitem>
-   <listitem><para>If id matches an existing document AND (all unique keys in the replacement document match that same document OR don't conflict with any other documents in the collection), the document is replaced.</para></listitem>
-   <listitem><para>If id matches an existing document AND one or more unique keys match a different document from the collection, then an error is raised.</para></listitem>
+   <listitem>
+    <para>
+      If neither the id or any unique key values conflict with any document in the collection, 
+      then the document is added.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+      If the id does not match any document but one or more unique key values conflict with a 
+      document in the collection, then an error is raised.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+     If id matches an existing document and no unique keys are defined for the collection, 
+     then the document is replaced.
+   </para>
+   </listitem>
+   <listitem>
+    <para>
+      If id matches an existing document, and either all unique keys in the replacement document 
+      match that same document or they don't conflict with any other documents in the collection, 
+      then the document is replaced.
+    </para>
+   </listitem>
+   <listitem>
+    <para>
+      If id matches an existing document and one or more unique keys match a different document 
+      from the collection, then an error is raised.
+    </para>
+   </listitem>
   </itemizedlist>
 
  </refsect1>
@@ -38,7 +63,8 @@
     <term><parameter>id</parameter></term>
     <listitem>
      <para>
-      This is the filter ID, if this ID or any other field that has a unique index on it already exists in the collection, it will update the matching document instead.
+      This is the filter id. If this id or any other field that has a unique index already 
+      exists in the collection, then it will update the matching document instead.
      </para>
     </listitem>
    </varlistentry>
@@ -46,7 +72,7 @@
     <term><parameter>doc</parameter></term>
     <listitem>
      <para>
-      This is the document that is going to be added or replaced by the function, which is a JSON string.
+      This is the document to add or replace, which is a JSON string.
      </para>
     </listitem>
    </varlistentry>
@@ -56,7 +82,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The function returns a 'Result' object.
+   A Result object.
   </para>
  </refsect1>
 
@@ -67,7 +93,6 @@
    <programlisting role="php">
 <![CDATA[
 <?php
-
 /*
     Assuming that $coll is a valid collection object, the following call to addOrReplaceOne
     will search for a document with the ID 121 and will either replace it or add a new one with
@@ -78,12 +103,6 @@ $res = $coll->addOrReplaceOne('121', '{"name": "Sakila", "age": 30, "job": "Radi
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

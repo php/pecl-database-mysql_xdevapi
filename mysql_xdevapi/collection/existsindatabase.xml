@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.existsindatabase" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::existsInDatabase</refname>
-  <refpurpose>Returns true if the collection exists in the database</refpurpose>
+  <refpurpose>Check if collection exists in database</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-   The function verify if the Collection object refers to a collection which actually exists in the DB scheme.
+   Checks if the Collection object refers to a collection in the database.
   </para>
 
  </refsect1>
@@ -27,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   returns a boolean true or false, depending on the existance of the Collection in the DB.
+   Returns &true; if collection exists in the database, else &false; if it does not.
   </para>
  </refsect1>
 
@@ -39,22 +39,14 @@
 <![CDATA[
 <?php
 
-//Assuming $coll is a valid Collection object
+// Assuming $coll is a valid Collection object
 
-//$result will be either true or false
 if( !$coll->existsInDatabase() ) {
     print('Sorry, but the collection do not exists in the provided database!');
 }
-
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 

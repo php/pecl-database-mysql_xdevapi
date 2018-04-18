@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.find" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::find</refname>
-  <refpurpose>Search for a document</refpurpose>
+  <refpurpose>Search for document</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,9 @@
    <methodparam choice="opt"><type>string</type><parameter>search_condition</parameter></methodparam>
   </methodsynopsis>
   <para>
-   This function is useful for looking in the database collection for a document or set of documents; The returned
-   documents are contained in the CollectionFind object that can be used further to fetch one or all the documents.
+   Search a database collection for a document or set of documents. The returned
+   documents are contained in the CollectionFind object that can be used further 
+   to fetch one or all the documents.
   </para>
 
  </refsect1>
@@ -27,15 +28,13 @@
     <term><parameter>search_condition</parameter></term>
     <listitem>
      <para>
-      Althought this is an optional parameter, normally you would expect to use a condition to delimit the
-      results of the find operation to a subset of all your documents. Providing an empty search_condition triggers
-      the client to lookup for all the documents, while when a condition is provided the returned set of documents
-      whould be the one that match the condition.
-</para>
-  <para>
-      Multiple elements might build the condition and the syntax supports parameter binding. The expression used as
-      search condition must be a valid SQL expression.
-       If no search condition is provided (field empty) then find('true') is assumed.
+      Although optional, normally a condition is defined to limit the results
+      to a subset of documents.
+     </para>
+     <para>
+      Multiple elements might build the condition and the syntax supports parameter binding. 
+      The expression used as search condition must be a valid SQL expression.
+      If no search condition is provided (field empty) then find('true') is assumed.
      </para>
     </listitem>
    </varlistentry>
@@ -45,10 +44,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The function returns a CollectionFind object that can use used to verify both the result of the operation and
-</para>
-  <para>
-   to fetch one or all the documents that has been found.
+   A CollectionFind object that can use used to verify the operation
+   or fetch found documents.
   </para>
  </refsect1>
 
@@ -60,8 +57,7 @@
 <![CDATA[
 <?php
 
-//Assuming $coll is a valid Collection object
-
+// Assuming $coll is a valid Collection object
 
 $coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
 $coll->add('{"name": "Lonardo",    "age": 59, "job": "Paninaro"}')->execute();
@@ -86,25 +82,18 @@ $coll->add('{"name": "Carlo",      "age": 37, "job": "Calciatore"}')->execute();
    The actual resulting documents are 'Carlo' and 'Alfredo'
 */
 
-$obj = $coll->find('job like :job and age > :age')->fields('age');
-$res = $obj->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
+$obj  = $coll->find('job like :job and age > :age')->fields('age');
+$res  = $obj->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
 $data = $res->execute()->fetchAll();
 
-//The search condition mighe also be very complex and use multiple functions
-$res = $coll->find('(1>5) IN (true,false) && {"title":"Spavatore"} NOT IN jobs && CAST(_id AS SIGNED) > 2')->execute();
+// The search condition mighe also be very complex and use multiple functions
+$res  = $coll->find('(1>5) IN (true,false) && {"title":"Spavatore"} NOT IN jobs && CAST(_id AS SIGNED) > 2')->execute();
 
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
-
 
 </refentry>
 

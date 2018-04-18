@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.getname" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::getName</refname>
-  <refpurpose>Return the name of the collection</refpurpose>
+  <refpurpose>Get collection name</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-   Return the name of the collection.
+   Retrieve the collection's name.
   </para>
 
  </refsect1>
@@ -27,32 +27,9 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The return value is a string containing the name of the collection
+   The collection name, as a string.
   </para>
  </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <example>
-   <title><function>mysql_xdevapi\Collection::getName</function> example</title>
-   <programlisting role="php">
-<![CDATA[
-<?php
-
-/* ... */
-
-?>
-]]>
-   </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
-  </example>
- </refsect1>
-
 
 </refentry>
 

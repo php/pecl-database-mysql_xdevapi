@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.getone" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::getOne</refname>
-  <refpurpose>Return the document with the specified ID</refpurpose>
+  <refpurpose>Get one document</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,8 @@
    <methodparam><type>string</type><parameter>id</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Return the document with the given id. This is a shortcut for: Collection.find("_id = :id").bind("id", id).execute().fetchOne()
-</para>
+   This is a shortcut for <code>Collection.find("_id = :id").bind("id", id).execute().fetchOne();</code>.
+  </para>
 
  </refsect1>
 
@@ -26,7 +26,7 @@
     <term><parameter>id</parameter></term>
     <listitem>
      <para>
-      This is the ID of the document to extract from the Collection
+      The document ID in the collection.
      </para>
     </listitem>
    </varlistentry>
@@ -36,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   The collection object is returned, or null if the ID do not match any document.
+   The collection object, or &null; if the ID does not match a document.
   </para>
  </refsect1>
 
@@ -47,13 +47,10 @@
    <programlisting role="php">
 <![CDATA[
 <?php
+$session = mysql_xdevapi\getSession("mysqlx://user:password@host");
 
-//Assuming that $connection_uri is a valid URI
-$session = mysql_xdevapi\getSession($connection_uri);
-
-//Assuming 'test_collection' is a valid collection in the 'test' DB
 $schema = $session->getSchema('test');
-$coll = $schema->getCollection("test_collection");
+$coll   = $schema->getCollection('test_collection');
 
 $coll->add('{"_id": "1", "name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
 $coll->add('{"_id": "2", "name": "Lonardo",    "age": 59, "job": "Paninaro"}')->execute();
@@ -61,15 +58,28 @@ $coll->add('{"_id": "3", "name": "Riccardo",   "age": 27, "job": "Cantante"}')->
 $coll->add('{"_id": "4", "name": "Carlotta",   "age": 23, "job": "Programmatrice"}')->execute();
 $coll->add('{"_id": "5", "name": "Carlo",      "age": 25, "job": "Programmatore"}')->execute();
 
-$doc = $coll->getOne(3); //Will return the third doc ("Riccardo").
-$doc = $coll->getOne(5); //Will return the last doc ("Carlo")
+print_r( $coll->getOne(3) );
+print_r( $coll->getOne(5) );
 ?>
 ]]>
    </programlisting>
    &example.outputs.similar;
    <screen>
 <![CDATA[
-...
+Array
+(
+    [_id] => 3
+    [age] => 27
+    [job] => Cantante
+    [name] => Riccardo
+)
+Array
+(
+    [_id] => 5
+    [age] => 25
+    [job] => Programmatore
+    [name] => Carlo
+)
 ]]>
    </screen>
   </example>

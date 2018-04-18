@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.getschema" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::getSchema</refname>
-  <refpurpose>Returns the schema object</refpurpose>
+  <refpurpose>Get schema object</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-   Returns the schema object which contains the collection.
+   Retrieve the schema object that contains the collection.
   </para>
 
  </refsect1>
@@ -27,37 +27,10 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Either the schema object or null if the object cannot be retrieved for the given collection,
-</para>
-  <para>
-   this might happen if the connection has been closed for example.
+   The schema object on success, or &null; if the object cannot be retrieved 
+   for the given collection.
   </para>
  </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <example>
-   <title><function>mysql_xdevapi\Collection::getSchema</function> example</title>
-   <programlisting role="php">
-<![CDATA[
-<?php
-
-//If $coll is a valid collection object, then getSchema will return the
-//corresponding schema object
-$schema = $coll->getSchema();
-
-?>
-]]>
-   </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
-  </example>
- </refsect1>
-
 
 </refentry>
 

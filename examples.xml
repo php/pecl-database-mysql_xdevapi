@@ -5,15 +5,15 @@
  &reftitle.examples;
  <para>
   The central entry point to the X DevAPI is the <function>mysql_xdevapi\getSession</function>
-  function, which receives an URI to a MySQL 8.0 Server and returns a
+  function, which receives a URI to a MySQL 8.0 Server and returns a
   <classname>mysql_xdevap\Session</classname> object.
  </para>
  <example>
-  <title>Connecting to a server</title>
+  <title>Connecting to a MySQL Server</title>
   <programlisting role="php">
 <![CDATA[
 <?php
-$session = mysql_xdevapi\getSession("mysqlx://user:pass@host");
+$session = mysql_xdevapi\getSession("mysqlx://user:password@host");
 if ($session === NULL) {
   die("Connection could not be established");
 } 
@@ -24,31 +24,31 @@ if ($session === NULL) {
   </programlisting>
  </example>
  <para>
-  Once the session is established full access to the API is provided. If this is a fresh
-  installation likely the first thing needed is to create a database schema with a collection 
-  within to store data.
+  The session provides full access to the API. For a new MySQL Server installation,
+  the first step is to create a database schema with a collection 
+  to store data:
  </para>
  <example>
-  <title>Creating a Schema and Collection on the server</title>
+  <title>Creating a Schema and Collection on the MySQL Server</title>
   <programlisting role="php">
 <![CDATA[
 <?php
-$schema = $session->createSchema("php test");
+$schema = $session->createSchema("test");
 $collection = $schema->createCollection("example");
 ?>
 ]]>
   </programlisting>
  </example>
  <para>
-  When storing data anything which can be encoded using <function>json_encode</function>
-  into JSON can be stored insde such a collection.
+  When storing data, typically <function>json_encode</function> is used to encode
+  the data into JSON, which can then be stored inside a collection.
  </para>
  <para>
-  The following example will store data in the collection we created above and then
-  retrieve parts of it again.
+  The following example stores data into the collection we created earlier, 
+  and then retrieve parts of it again.
  </para>
  <example>
-  <title>Storing and retrieving data</title>
+  <title>Storing and Retrieving Data</title>
   <programlisting role="php">
 <![CDATA[
 <?php
@@ -63,7 +63,7 @@ $mike = [
   "job"  => "Manager"
 ];
 
-$schema = $session->getSchema("php test");
+$schema = $session->getSchema("test");
 $collection = $schema->getCollection("example");
 
 $collection->add($marco, $mike)->execute();
@@ -89,21 +89,19 @@ array(4) {
   </screen>
  </example>
  <para>
-  In this example it is shown that the MySQL Server will add an extra field called
-  <code>_id</code> will be added. This <code>_id</code> serves as primary key to the
-  document.
+  The example demonstrates that the MySQL Server adds an extra field named
+  <code>_id</code>, which serves as primary key to the document.
  </para>
  <para>
-  The example also shows that the order of fields in the retrieved is sorted alphabticlly.
-  That specific order comes from the efficient binary storage inside the MySQL Server, but
-  should not be relied upon. Refer to the documention of the MySQL JSON datatype for details.
+  The example also demonstrates that retrieved data is sorted alphabetically.
+  That specific order comes from the efficient binary storage inside the MySQL server, but
+  it should not be relied upon. Refer to the MySQL JSON datatype documentation for details.
  </para>
  <para>
-  Instead of returning just a single document, we can also fetch all documents and use 
-  PHP's iterators to process the results:
+  Optionally use PHP's iterators fetch multiple documents:
  </para>
  <example>
-  <title>Fetching multiple documents and iterating</title>
+  <title>Fetching and Iterating Multiple Documents</title>
   <programlisting role="php">
 <![CDATA[
 <?php

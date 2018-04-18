@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collection.createindex" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Collection::createIndex</refname>
-  <refpurpose>Create an index on the collection</refpurpose>
+  <refpurpose>Create collection index</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -15,11 +15,12 @@
    <methodparam><type>string</type><parameter>index_desc_json</parameter></methodparam>
   </methodsynopsis>
   <para>
-    Creates an index on the collection with the given name and options.
-    An exception is thrown if an index with the same name already exists or if index definition
-    is not correctly formed.
+    Creates an index on the collection.
+  </para>
+  <para>
+    An exception is thrown if an index with the same name already exists,
+    or if index definition is not correctly formed.
    </para>
-
  </refsect1>
 
  <refsect1 role="parameters">
@@ -29,8 +30,8 @@
     <term><parameter>index_name</parameter></term>
     <listitem>
      <para>
-      The name of the index that has to be create, this name must be a valid index name as accepted by SQL
-      command <code>CREATE INDEX ... </code>.
+      The name of the index that to create. This name must be a valid index name as 
+      accepted by the <literal>CREATE INDEX</literal> SQL query.
      </para>
     </listitem>
    </varlistentry>
@@ -38,25 +39,50 @@
     <term><parameter>index_desc_json</parameter></term>
     <listitem>
      <para>
-      This is the definition of the index that has to be created, it contains an array of IndexField objects,
-      each describing a single document member to be included in the index (see below) and an optional string for
-      the type of the index which might be one of INDEX or SPATIAL. Default is INDEX and may be omitted.
+      Definition of the index to create. It contains an array of IndexField objects,
+      and each object describes a single document member to include in the index, 
+      and an optional string for the type of index that might be INDEX (default) or SPATIAL.
      </para>
      <para>
       A single IndexField description consists of the following fields:
      </para>
      <itemizedlist>
-      <listitem><para><code>field</code>: string, the full document path to the document member or field to be indexed</para></listitem>
       <listitem>
-       <para><code>type</code>: string, one of the supported SQL column types to map the field into.</para>
-       <para>For numeric types, the optional UNSIGNED keyword may follow. </para>
-       <para>For the TEXT type, the length to consider for indexing may be added.</para>
+        <para>
+          <code>field</code>: string, the full document path to the document member or field to be indexed.
+        </para>
       </listitem>
-      <listitem><para><code>required</code>: bool, (optional) true if the field is required to exist in the document. defaults to <constant>false</constant>, except for <code>GEOJSON</code> where it defaults to <constant>true</constant></para></listitem>
-      <listitem><para><code>options</code>: int, (optional) special option flags for use when decoding <code>GEOJSON</code> data</para></listitem>
-      <listitem><para><code>srid</code>: int, (optional) srid value for use when decoding <code>GEOJSON</code> data</para></listitem>
-   </itemizedlist>
-        <para>It is an error to include other fields not described above in IndexDefinition or IndexField documents.</para>
+      <listitem>
+       <para>
+        <code>type</code>: string, one of the supported SQL column types to map the field into.
+        For numeric types, the optional UNSIGNED keyword may follow.
+        For the TEXT type, the length to consider for indexing may be added.
+       </para>
+      </listitem>
+      <listitem>
+        <para>
+          <code>required</code>: bool, (optional) true if the field is required to exist in the document. 
+          Defaults to &false;, except for <literal>GEOJSON</literal> where it defaults to &true;.
+         </para>
+       </listitem>
+      <listitem>
+        <para>
+          <code>options</code>: integer, (optional) special option flags for use 
+          when decoding <literal>GEOJSON</literal> data.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <code>srid</code>: integer, (optional) srid value for use when 
+          decoding <literal>GEOJSON</literal> data.
+        </para>
+      </listitem>
+      </itemizedlist>
+
+      <para>
+        It is an error to include other fields not described above in 
+        IndexDefinition or IndexField documents.
+      </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -64,9 +90,7 @@
 
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
-  <para>
-  no return value 
-  </para>
+  <para></para>
  </refsect1>
 
  <refsect1 role="examples">
@@ -76,32 +100,23 @@
    <programlisting role="php">
 <![CDATA[
 <?php
-//Assuming $coll is a valid Collection object.
+// Creating index on single field
+$coll->createIndex("index1",{fields:[{field:"$.name", type: "TEXT(15)"}]})->execute();
 
-//creating index on single field
-	$coll->createIndex("index1",{fields:[{field:"$.name", type: "TEXT(15)"}]})->execute();
+// Creating index with unique set to false
+$coll->createIndex("index2",{fields:[{field:"$.name", type: "TEXT(15)"}],unique : false})->execute();
 
-//creating index with unique set to false
-	$coll->createIndex("index2",{fields:[{field:"$.name", type: "TEXT(15)"}],unique : false})->execute();
-
-//creating an index with required option set to true
+// Creating an index with required option set to true
 $coll->createIndex("index3",{fields:[{field:"$.name", type: "TEXT(15)",required : true}]})->execute();
 
-//creating index on multiple feilds
-	$coll->createIndex("index4",{fields:[{field:"$.name", type: "TEXT(20)"},{field:"$.age",type: "INTEGER"}]})->execute();
+// Creating index on multiple feilds
+$coll->createIndex("index4",{fields:[{field:"$.name", type: "TEXT(20)"},{field:"$.age",type: "INTEGER"}]})->execute();
 
-//creating spatial index
-	$coll->createIndex("index1",{fields:[{field:"$.name", type: "GEOJSON"}],type : "SPATIAL"})->execute();
-
+// Creating spatial index
+$coll->createIndex("index1",{fields:[{field:"$.name", type: "GEOJSON"}],type : "SPATIAL"})->execute();
 ?>
 ]]>
    </programlisting>
-   &example.outputs.similar;
-   <screen>
-<![CDATA[
-...
-]]>
-   </screen>
   </example>
  </refsect1>
 
