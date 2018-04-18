@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableupdate.limit" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableUpdate::limit</refname>
-  <refpurpose>Set the maximum number of rows to be updated</refpurpose>
+  <refpurpose>Limit update row count</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <methodparam><type>integer</type><parameter>rows</parameter></methodparam>
   </methodsynopsis>
   <para>
-	Sets the maximum number of records or documents to be returned.
+	 Set the maximum number of records or documents update.
   </para>
 
  </refsect1>
@@ -26,7 +26,7 @@
     <term><parameter>rows</parameter></term>
     <listitem>
      <para>
-		The maximum number of records or documents.
+		The maximum number of records or documents to update.
      </para>
     </listitem>
    </varlistentry>
@@ -36,7 +36,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	TableUpdate object.
+	 A TableUpdate object.
   </para>
  </refsect1>
 

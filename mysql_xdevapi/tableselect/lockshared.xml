@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableselect.lockshared" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableSelect::lockShared</refname>
-  <refpurpose>Execute operation with SHARED LOCK</refpurpose>
+  <refpurpose>Execute SHARED LOCK</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -26,8 +26,14 @@
     <term><parameter>lock_waiting_option</parameter></term>
     <listitem>
      <para>
-      Optional waiting option. By default it is <constant>MYSQLX_LOCK_DEFAULT</constant>.	Other values: NOWAIT (<constant>MYSQLX_LOCK_NOWAIT</constant>), SKIP LOCKED (<constant>MYSQLX_LOCK_SKIP_LOCKED</constant>).
+      The optional waiting option that defaults to <constant>MYSQLX_LOCK_DEFAULT</constant>. 
+      Valid values are:
      </para>
+     <itemizedlist>
+      <listitem><para><constant>MYSQLX_LOCK_DEFAULT</constant></para></listitem>
+      <listitem><para><constant>MYSQLX_LOCK_NOWAIT</constant></para></listitem>
+      <listitem><para><constant>MYSQLX_LOCK_SKIP_LOCKED</constant></para></listitem>
+     </itemizedlist>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -36,7 +42,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	TableSelect object.
+	A TableSelect object.
   </para>
  </refsect1>
 
@@ -49,7 +55,7 @@
 <?php
 
 $session->startTransaction();
-$res = $table->select('ordinal', 'n')->where("ordinal like '3'")->lockShared()->execute();
+$res = $table->select('ordinal', 'n')->where("ordinal like '3'")->lockShared(MYSQLX_LOCK_NOWAIT)->execute();
 $session->commit();
 
 ?>

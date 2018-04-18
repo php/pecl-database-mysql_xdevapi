@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableselect.lockexclusive" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableSelect::lockExclusive</refname>
-  <refpurpose>Execute operation with EXCLUSIVE LOCK</refpurpose>
+  <refpurpose>Execute EXCLUSIVE LOCK</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -26,7 +26,8 @@
     <term><parameter>lock_waiting_option</parameter></term>
     <listitem>
      <para>
-      Optional waiting option. By default it is <constant>MYSQLX_LOCK_DEFAULT</constant>.	Valid values are these constants:
+      The optional waiting option that defaults to <constant>MYSQLX_LOCK_DEFAULT</constant>.	
+      Valid values are:
      </para>
      <itemizedlist>
       <listitem><para><constant>MYSQLX_LOCK_DEFAULT</constant></para></listitem>
@@ -54,7 +55,7 @@
 <?php
 
 $session->startTransaction();
-$res = $table->select('ordinal', 'n')->where("ordinal like '1'")->lockExclusive()->execute();
+$res = $table->select('ordinal', 'n')->where("ordinal like '1'")->lockExclusive(MYSQLX_LOCK_NOWAIT)->execute();
 $session->commit();
 
 ?>

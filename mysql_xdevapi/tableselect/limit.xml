@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableselect.limit" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableSelect::limit</refname>
-  <refpurpose>Set the maximum number of rows to be returned</refpurpose>
+  <refpurpose>Limit return rows</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <methodparam><type>integer</type><parameter>rows</parameter></methodparam>
   </methodsynopsis>
   <para>
-	Sets the maximum number of records or documents to be returned.
+	Sets the maximum number of records or documents to return.
   </para>
 
  </refsect1>
@@ -36,26 +36,9 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	TableSelect object.
+	A TableSelect object.
   </para>
  </refsect1>
-
- <refsect1 role="examples">
-  &reftitle.examples;
-  <example>
-   <title><function>mysql_xdevapi\TableSelect::limit</function> example</title>
-   <programlisting role="php">
-<![CDATA[
-<?php
-
-/* ... */
-
-?>
-]]>
-   </programlisting>
-  </example>
- </refsect1>
-
 
 </refentry>
 
