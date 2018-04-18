@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tabledelete.where" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableDelete::where</refname>
-  <refpurpose>Set search condition</refpurpose>
+  <refpurpose>Set delete search condition</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <methodparam><type>string</type><parameter>where_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-	Sets the search condition to filter.
+	 Sets the search condition to filter.
   </para>
 
  </refsect1>
@@ -26,7 +26,7 @@
     <term><parameter>where_expr</parameter></term>
     <listitem>
      <para>
-	Search condition to filter documents or records.
+	   Define the search condition to filter documents or records.
      </para>
     </listitem>
    </varlistentry>

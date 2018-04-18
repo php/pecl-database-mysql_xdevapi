@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-table.existsindatabase" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Table::existsInDatabase</refname>
-  <refpurpose>Check if the table exists in the database</refpurpose>
+  <refpurpose>Check if table exists in database</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-	Verifies if this object exists in the database.
+	Verifies if this table exists in the database.
   </para>
 
  </refsect1>
@@ -27,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	True if object exists in database.
+	 Returns &true; if table exists in the database, else &false; if it does not.
   </para>
  </refsect1>
 

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableselect.execute" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableSelect::execute</refname>
-  <refpurpose>Execute statement</refpurpose>
+  <refpurpose>Execute select statement</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

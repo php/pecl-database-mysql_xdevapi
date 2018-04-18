@@ -27,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	TableUpdate object.
+	 A TableUpdate object.
   </para>
  </refsect1>
 

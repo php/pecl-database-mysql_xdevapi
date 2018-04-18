@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-tableinsert.values" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableInsert::values</refname>
-  <refpurpose>Add row values</refpurpose>
+  <refpurpose>Add insert row values</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

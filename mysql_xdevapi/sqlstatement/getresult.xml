@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-sqlstatement.getresult" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>SqlStatement::getResult</refname>
-  <refpurpose>Returns the result object</refpurpose>
+  <refpurpose>Get result</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -16,6 +16,8 @@
   <para>
 
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 

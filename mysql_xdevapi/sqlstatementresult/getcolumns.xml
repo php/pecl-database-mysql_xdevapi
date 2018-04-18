@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-sqlstatementresult.getcolumns" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>SqlStatementResult::getColumns</refname>
-  <refpurpose>Returns the set of columns from a result set</refpurpose>
+  <refpurpose>Get columns</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -16,6 +16,8 @@
   <para>
 
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 

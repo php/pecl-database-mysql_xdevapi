@@ -4,17 +4,17 @@
 <refentry xml:id="mysql-xdevapi-tableselect.groupby" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableSelect::groupBy</refname>
-  <refpurpose>Set grouping criteria</refpurpose>
+  <refpurpose>Set select grouping criteria</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <modifier>public</modifier> <type>mysql_xdevapi\TableSelect</type><methodname>mysql_xdevapi\TableSelect::groupBy</methodname>
-   <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
+   <methodparam><type>mixed</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-	Sets a grouping criteria for the resultset.
+	Sets a grouping criteria for the result set.
   </para>
 
  </refsect1>

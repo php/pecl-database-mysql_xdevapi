@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-table.isview" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Table::isView</refname>
-  <refpurpose>Check whether the table is a view</refpurpose>
+  <refpurpose>Check if table is view</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -27,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	True if the underlying object is a view.
+    &true; if the underlying object is a view, otherwise &false;.
   </para>
  </refsect1>
 

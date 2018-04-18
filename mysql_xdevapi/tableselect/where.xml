@@ -4,14 +4,14 @@
 <refentry xml:id="mysql-xdevapi-tableselect.where" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>TableSelect::where</refname>
-  <refpurpose>Set search condition</refpurpose>
+  <refpurpose>Set select search condition</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
    <modifier>public</modifier> <type>mysql_xdevapi\TableSelect</type><methodname>mysql_xdevapi\TableSelect::where</methodname>
-   <methodparam><type>string</type><parameter>projection</parameter></methodparam>
+   <methodparam><type>string</type><parameter>where_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
 	Sets the search condition to filter.
@@ -23,10 +23,10 @@
   &reftitle.parameters;
   <variablelist>
    <varlistentry>
-    <term><parameter>projection</parameter></term>
+    <term><parameter>where_expr</parameter></term>
     <listitem>
      <para>
-		Sets the search condition to filter documents or records.
+		  Define the search condition to filter documents or records.
      </para>
     </listitem>
    </varlistentry>
