@@ -30,6 +30,54 @@
      <para>
       The URI to the MySQL server, such as
       <literal>mysqlx://user:password@host</literal>.
+
+Uri format:
+scheme://[user[:[password]]@]target[:port][/schema][?attribute1=value1&attribute2=value2...
+
+schema: required, the connection protocol
+in mysql_xdevapi it is always 'mysqlx' (for X Protocol)
+
+user: optional, the MySQL user account to be used for the authentication
+
+password: optional, the password to be used for the authentication
+
+target: required, the server instance the connection refers to:
+- TCP connection (host name, IPv4 address, or IPv6 address)
+- Unix socket path (local file path)
+- Windows named-pipe (local file path)
+
+port: optional, network port of MySQL server.
+by default port for X Protocol is 33060
+
+?attribute=value: this element is optional and specifies a data dictionary that contains options, e.g. for encrypted connections or 'auth'
+https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-options.html
+
+following values for 'auth' attribute are supported (authentication mechanism):
+- plain
+- mysql41
+- external
+- sha256_mem
+
+more details:
+https://dev.mysql.com/doc/internals/en/x-protocol-authentication-authentication.html
+
+
+Examples:
+mysqlx://foobar
+mysqlx://root@localhost?socket=%2Ftmp%2Fmysqld.sock%2F
+mysqlx://foo:bar@localhost:33060
+mysqlx://foo:bar@localhost:33160?ssl-mode=disabled
+mysqlx://foo:bar@localhost:33260?ssl-mode=required
+mysqlx://foo:bar@localhost:33360?ssl-mode=required&auth=mysql41
+mysqlx://foo:bar@(/path/to/socket)
+mysqlx://foo:bar@(/path/to/socket)?auth=sha256_mem
+mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]
+mysqlx://foobar?ssl-ca=(/path/to/ca.pem)&ssl-crl=(/path/to/crl.pem)
+mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled
+
+more details:
+https://dev.mysql.com/doc/refman/8.0/en/mysql-shell-connection-using-uri.html
+
      </para>
     </listitem>
    </varlistentry>
@@ -53,7 +101,7 @@
 $session = mysql_xdevapi\getSession("mysqlx://user:password@host");
 if ($session === NULL) {
     die("Connection could not be established");
-} 
+}
 
 var_dump($collection->find("name = 'Alfred'")->execute()->fetchOne());
 ?>
