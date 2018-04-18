@@ -13,8 +13,6 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
 */
- * 02110-1301  USA
- */
 
 #ifndef CDK_API_QUERY_H
 #define CDK_API_QUERY_H
