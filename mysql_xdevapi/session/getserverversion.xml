@@ -4,18 +4,20 @@
 <refentry xml:id="mysql-xdevapi-session.getserverversion" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::getServerVersion</refname>
-  <refpurpose>Returns the server version</refpurpose>
+  <refpurpose>Get server version</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>int</type><methodname>mysql_xdevapi\Session::getServerVersion</methodname>
+   <modifier>public</modifier> <type>integer</type><methodname>mysql_xdevapi\Session::getServerVersion</methodname>
    <void />
   </methodsynopsis>
   <para>
 
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 
@@ -27,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   The MySQL server version for the session.
   </para>
  </refsect1>
 

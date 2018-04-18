@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-session.getclientid" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::getClientId</refname>
-  <refpurpose>Return the ID of the currently connected client</refpurpose>
+  <refpurpose>Get client ID</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -16,6 +16,8 @@
   <para>
 
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 
@@ -27,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   ID of the connected client.
   </para>
  </refsect1>
 

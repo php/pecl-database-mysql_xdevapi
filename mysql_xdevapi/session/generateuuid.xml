@@ -4,18 +4,20 @@
 <refentry xml:id="mysql-xdevapi-session.generateuuid" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::generateUUID</refname>
-  <refpurpose>Returns a new UUID</refpurpose>
+  <refpurpose>Get new UUID</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>String</type><methodname>mysql_xdevapi\Session::generateUUID</methodname>
+   <modifier>public</modifier> <type>string</type><methodname>mysql_xdevapi\Session::generateUUID</methodname>
    <void />
   </methodsynopsis>
   <para>
 
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-session.close" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::close</refname>
-  <refpurpose>Close the session with the server</refpurpose>
+  <refpurpose>Close session</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,10 @@
    <void />
   </methodsynopsis>
   <para>
-
+   Close the session with the server.
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 

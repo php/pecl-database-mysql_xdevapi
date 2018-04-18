@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-session.listclients" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::listClients</refname>
-  <refpurpose>Return an array containing the currently logged clients</refpurpose>
+  <refpurpose>Get client list</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -16,6 +16,8 @@
   <para>
 
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 
@@ -27,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   An array containing the currently logged clients.
   </para>
  </refsect1>
 

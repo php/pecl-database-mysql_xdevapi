@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-session.releasesavepoint" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Session::releaseSavepoint</refname>
-  <refpurpose>Release a previously set savepoint</refpurpose>
+  <refpurpose>Release set savepoint</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,10 @@
    <methodparam choice="opt"><type>string</type><parameter>name</parameter></methodparam>
   </methodsynopsis>
   <para>
-
+   Release a previously set savepoint.
   </para>
+  
+  &warn.undocumented.func;
 
  </refsect1>
 
