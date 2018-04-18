@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-result.getautoincrementvalue" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Result::getAutoIncrementValue</refname>
-  <refpurpose>Return the autoincremented value</refpurpose>
+  <refpurpose>Get autoincremented value</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

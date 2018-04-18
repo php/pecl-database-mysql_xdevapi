@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-databaseobject.existsindatabase" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DatabaseObject::existsInDatabase</refname>
-  <refpurpose>Verifies if this object exists in the database</refpurpose>
+  <refpurpose>Check if object exists in database</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-	The function verify if the database object refers to an object which actually exists in the DB scheme.
+	 Verifies if the database object refers to an object that exists in the database.
   </para>
 
  </refsect1>
@@ -27,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	True if object exists in database.
+   Returns &true; if object exists in the database, else &false; if it does not.
   </para>
  </refsect1>
 

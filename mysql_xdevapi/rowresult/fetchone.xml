@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-rowresult.fetchone" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>RowResult::fetchOne</refname>
-  <refpurpose>Fetch one result from the result set</refpurpose>
+  <refpurpose>Get row from result</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-
+   Fetch one result from the result set.
   </para>
 
   &warn.undocumented.func;

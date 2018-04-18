@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-	Execute the statement - collection operation or table query.
+	 Execute the statement from either a collection operation or a table query.
   </para>
 
  </refsect1>
@@ -27,7 +27,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Result object.
+   A Result object.
   </para>
  </refsect1>
 

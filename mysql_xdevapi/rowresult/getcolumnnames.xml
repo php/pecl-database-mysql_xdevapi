@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-rowresult.getcolumnnames" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>RowResult::getColumnNames</refname>
-  <refpurpose>Return an array with the columns name</refpurpose>
+  <refpurpose>Get all column names</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   An array with the columns names.
   </para>
  </refsect1>
 

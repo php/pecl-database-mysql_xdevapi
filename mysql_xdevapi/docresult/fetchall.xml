@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-docresult.fetchall" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DocResult::fetchAll</refname>
-  <refpurpose>Fetch all the results resulting from the last operation on a collection</refpurpose>
+  <refpurpose>Get all rows</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   An array of Result objects from the last operation on the collection.
   </para>
  </refsect1>
 

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-rowresult.fetchall" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>RowResult::fetchAll</refname>
-  <refpurpose>Fetch all the rows from the result set</refpurpose>
+  <refpurpose>Get all rows from result</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-
+   Fetch all the rows from the result set.
   </para>
 
   &warn.undocumented.func;

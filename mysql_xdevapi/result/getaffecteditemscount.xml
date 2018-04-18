@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-result.getaffecteditemscount" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Result::getAffectedItemsCount</refname>
-  <refpurpose>Return the amount of affected items by the last operation</refpurpose>
+  <refpurpose>Get affected row count</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

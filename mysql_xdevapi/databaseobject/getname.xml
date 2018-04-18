@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-databaseobject.getname" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DatabaseObject::getName</refname>
-  <refpurpose>Retrieve the object name</refpurpose>
+  <refpurpose>Get object name</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-	Returns the name of this database object.
+	Fetch name of this database object.
   </para>
 
   &warn.undocumented.func;

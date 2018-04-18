@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-result.getwarnings" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>Result::getWarnings</refname>
-  <refpurpose>Return an array of warning object</refpurpose>
+  <refpurpose></refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   An array of Warning objects from the last operation.
   </para>
  </refsect1>
 

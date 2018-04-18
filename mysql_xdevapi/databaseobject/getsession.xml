@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-databaseobject.getsession" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>DatabaseObject::getSession</refname>
-  <refpurpose>Returns the Session object</refpurpose>
+  <refpurpose>Get session name</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <void />
   </methodsynopsis>
   <para>
-	  Retrieve the session associated to the database object.
+	  Fetch session associated to the database object.
   </para>
 
   &warn.undocumented.func;
