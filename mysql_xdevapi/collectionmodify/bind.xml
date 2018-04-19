@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.bind" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::bind</refname>
-  <refpurpose>Bind values to query parameters</refpurpose>
+  <refpurpose>Bind value to query placeholder</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,9 +14,11 @@
    <methodparam><type>array</type><parameter>placeholder_values</parameter></methodparam>
   </methodsynopsis>
   <para>
-   It allows the user to bind a parameter to the placeholder in the search condition of the modify operation.
-   The placeholder has the form of :NAME where ':' is a common prefix that must always exists before any NAME,
-   NAME is the actual name of the placeholder. The bind function accepts a list of placeholders if multiple
+   Bind a parameter to the placeholder in the search condition of the modify operation.
+  </para>
+  <para>
+   The placeholder has the form of :NAME where ':' is a common prefix that must always exists before any NAME
+   where NAME is the name of the placeholder. The bind method accepts a list of placeholders if multiple
    entities have to be substituted in the search condition of the modify operation.
   </para>
 
@@ -29,8 +31,8 @@
     <term><parameter>placeholder_values</parameter></term>
     <listitem>
      <para>
-      The values of the placeholder to substitute in the search condition, multiple values are allowed
-      and have to be passed as an array of mappings PLACEHOLDER_NAME->PLACEHOLDER_VALUE, for more details see the examples.
+      Placeholder values to substitute in the search condition. Multiple values are allowed
+      and have to be passed as an array of mappings PLACEHOLDER_NAME->PLACEHOLDER_VALUE.
      </para>
     </listitem>
    </varlistentry>
@@ -40,7 +42,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a CollectionModify object that can be used to execute the command or to add further operations.
+   A CollectionModify object that can be used to execute the command, or to add additional operations.
   </para>
  </refsect1>
 
@@ -51,10 +53,9 @@
    <programlisting role="php">
 <![CDATA[
 <?php
+// Assuming $coll is a valid Collection object
 
-//Assuming $coll is a valid Collection object
-
-//Add a new job to the document which field name is equal to 'Sakila'
+// Add a new job to the document which field name is equal to 'Sakila'
 $coll->modify('name like :param')->set("job", "Unemployed")->bind(['param' => 'Sakila'])->execute();
 
 ?>

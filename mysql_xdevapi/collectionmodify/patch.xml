@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.patch" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::patch</refname>
-  <refpurpose>Takes a patch object and applies it on one or more documents</refpurpose>
+  <refpurpose>Patch document</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,8 @@
    <methodparam><type>string</type><parameter>document</parameter></methodparam>
   </methodsynopsis>
   <para>
-	  Update multiple document properties.
+    Takes a patch object and applies it on one or more documents, and
+	  can update multiple document properties.
   </para>
 
   &warn.undocumented.func;
@@ -28,8 +29,8 @@
     <term><parameter>document</parameter></term>
     <listitem>
      <para>
-		 A document with the properties to apply to the matching documents.
-	 </para>
+		  A document with the properties to apply to the matching documents.
+	   </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -38,7 +39,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	  CollectionModify object.
+	  A CollectionModify object.
   </para>
  </refsect1>
 

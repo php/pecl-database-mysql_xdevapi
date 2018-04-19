@@ -14,10 +14,9 @@
    <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Sort the result set by the field that has been selected in in the sort_expr argument, the allowed orders are:
-   1) ASC: Ascending.
-   2) DESC: Descending.
-   This operation is equivalent to the 'ORDER BY' SQL operation and it follows the same set of rules for what concerns the ordering option.
+   Sort the result set by the field selected in the sort_expr argument. The allowed
+   orders are ASC (Ascending) or DESC (Descending). This operation is equivalent to the 'ORDER BY' SQL operation
+   and it follows the same set of rules.
   </para>
 
  </refsect1>
@@ -29,8 +28,8 @@
     <term><parameter>sort_expr</parameter></term>
     <listitem>
      <para>
-      One or more sorting expression can be provided, the evaluation of these will be from the leftmost to the
-      rightmost, each expression must be separated by a comma.
+      One or more sorting expressions can be provided. The evaluation is from left to right,
+      and each expression is separated by a comma.
      </para>
     </listitem>
    </varlistentry>
@@ -40,7 +39,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A CollectionFind object that can be used for further processing.
+   A CollectionFind object that can be used to execute the command, or to add additional operations.
   </para>
  </refsect1>
 
@@ -51,11 +50,10 @@
    <programlisting role="php">
 <![CDATA[
 <?php
-
 //Assuming $coll is a valid Collection object.
 
-//Find all the documents and sort them by 'age' in descending order, then sort again
-//the result by 'job' in descending order and at the end by 'num' in ascending order
+// Find all the documents and sort them by 'age' in descending order, then sort again
+// the result by 'job' in descending order and at the end by 'num' in ascending order
 $res = $coll->find()->sort('age desc','job desc','num asc')->execute();
 
 ?>

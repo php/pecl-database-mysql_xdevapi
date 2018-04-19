@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionfind.limit" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionFind::limit</refname>
-  <refpurpose>Set the maximum number of documents to be returned</refpurpose>
+  <refpurpose>Limit number of returned documents</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">

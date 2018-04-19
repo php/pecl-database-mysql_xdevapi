@@ -15,9 +15,9 @@
    <methodparam><type>string</type><parameter>expression_or_literal</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Add an element to one of the fields of a document, multiple elements of a field are reppresented as an array.
-   the arrayAppend differs from arrayIndert in the way that this function will always append the new element
-   at the end of the array, while arrayInsert allows the user to specify where the item have to be placed
+   Add an element to a document's field, as multiple elements of a field are represented as an array.
+   Unlike arrayInsert(), arrayAppend() always appends the new element
+   at the end of the array, whereas arrayInsert() can define the location.
   </para>
  </refsect1>
 
@@ -28,7 +28,7 @@
     <term><parameter>collection_field</parameter></term>
     <listitem>
      <para>
-      The identifier of the field to which the new element has to be inserted.
+      The identifier of the field where the new element is inserted.
      </para>
     </listitem>
    </varlistentry>
@@ -36,7 +36,7 @@
     <term><parameter>expression_or_literal</parameter></term>
     <listitem>
      <para>
-      This is the new element that will be inserted into the document field array.
+      The new element to insert at the end of the document field array.
      </para>
     </listitem>
    </varlistentry>
@@ -46,7 +46,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a CollectionModify object that can be used to execute the command or to add further operations
+   A CollectionModify object that can be used to execute the command, or to add additional operations.
   </para>
  </refsect1>
 
@@ -58,10 +58,10 @@
 <![CDATA[
 <?php
 
-//Assuming $coll is a valid Collection object
+// Assuming $coll is a valid Collection object
 
-//For each document with a `job` like Programmatore or Cantante, add an additional
-//job: 'Volontario'
+// For each document with a `job` like Programmatore or Cantante, add an additional
+// job: 'Volontario'
 $coll->modify("job in ('Programmatore', 'Cantante')")->arrayAppend('job', 'Volontario')->execute();
 
 ?>

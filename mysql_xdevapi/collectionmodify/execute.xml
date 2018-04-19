@@ -14,8 +14,8 @@
    <void />
   </methodsynopsis>
   <para>
-   The execute function needs to be invoked in order to trigger the client to send the CRUD operation request to the server.
-
+   The execute method is required to send the CRUD operation request
+   to the MySQL server.
   </para>
 
  </refsect1>
@@ -28,7 +28,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A Result object that can be used to obtain the amount of affected items and other useful informations. 
+   A Result object that can be used to verify the status of the operation,
+   such as the number of affected rows.
   </para>
  </refsect1>
 

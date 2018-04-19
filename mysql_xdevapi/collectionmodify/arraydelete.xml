@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.arraydelete" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::arrayDelete</refname>
-  <refpurpose>Delete element from an array</refpurpose>
+  <refpurpose>Delete element</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,8 +14,8 @@
    <methodparam><type>string</type><parameter>collection_field</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Delete one of the elements from a document field, if the deleted element is the last one
-   then the function will remove the field 
+   Delete a document field element. If the deleted element is the only
+   element then the field is removed. 
   </para>
 
  </refsect1>
@@ -27,8 +27,8 @@
     <term><parameter>collection_field</parameter></term>
     <listitem>
      <para>
-      The format of this parameter is: FIELD_NAME[ INDEX ] where FIELD_NAME is the name of the document
-      field from which one element has to be removed and INDEX is the INDEX of the element within the field.
+      The format of this parameter is <literal>FIELD_NAME[ INDEX ]</literal> where FIELD_NAME is the name of the document
+      field to remove the element from, and INDEX is the INDEX of the element within the field.
      </para>
      <para>
       The INDEX field is zero based, so the leftmost item from the array has an index of 0.
@@ -41,7 +41,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a CollectionModify object that can be used to execute the command or to add further operations
+   A CollectionModify object that can be used to execute the command, or to add further operations
   </para>
  </refsect1>
 
@@ -53,13 +53,13 @@
 <![CDATA[
 <?php
 
-//Assuming $coll is a valid Collection object
+// Assuming $coll is a valid Collection object
 
-//Remove the first element from the array of 'jobs' for all the documents
-//with name like Riccardo or Carlo
+// Remove the first element from the array of 'jobs' for all the documents
+// with name like Riccardo or Carlo
 $coll->modify("name in ('Riccardo', 'Carlo')")->arrayDelete('job[0]')->execute();
 
-//Remove the second element from the documents which `age` field is greater than 30
+// Remove the second element from the documents which `age` field is greater than 30
 $coll->modify('age > 30')->arrayDelete('job[1]')->execute();
 
 ?>

@@ -15,10 +15,9 @@
    <methodparam><type>string</type><parameter>expression_or_literal</parameter></methodparam>
   </methodsynopsis>
   <para>
-   In a similar way to arrayAppend this function allows to add a new element to a field of a document, the 
-   main difference between the two functions is tha arrayInsert permit the user to specify after which
-   item of the array the new element has to be inserted, whereas arryAppend appends always the element at
-   the end of the array.
+   Add an element to a document's field, as multiple elements of a field are represented as an array.
+   Unlike arrayAppend(), arrayInsert() allows you to specify where the new element is inserted by
+   defining which item it is after, whereas arrayAppend() always appends the new element at the end of the array.
   </para>
 
  </refsect1>
@@ -30,9 +29,10 @@
     <term><parameter>collection_field</parameter></term>
     <listitem>
      <para>
-      Identify the item in the array after which the new element has to be inserted.
-      The format of this parameter is: FIELD_NAME[ INDEX ] where FIELD_NAME is the name of the document
-      field and INDEX is the INDEX of the element within the field.
+      Identify the item in the array that the new element is inserted after.
+       The format of this parameter is <literal>FIELD_NAME[ INDEX ]</literal> where 
+       FIELD_NAME is the name of the document field to remove the element from, 
+       and INDEX is the INDEX of the element within the field.
      </para>
      <para>
       The INDEX field is zero based, so the leftmost item from the array has an index of 0.
@@ -43,7 +43,7 @@
     <term><parameter>expression_or_literal</parameter></term>
     <listitem>
      <para>
-      The new element that will be inserted after FIELD_NAME[ INDEX ]
+      The new element to insert after FIELD_NAME[ INDEX ]
      </para>
     </listitem>
    </varlistentry>
@@ -53,7 +53,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a CollectionModify object that can be used to execute the command or to add further operations
+   A CollectionModify object that can be used to execute the command, or to add additional operations
   </para>
  </refsect1>
 
@@ -64,12 +64,10 @@
    <programlisting role="php">
 <![CDATA[
 <?php
+// Assuming that $coll is a valid Collection object
 
-//Assuming that $coll is a valid Collection object
-
-//Add a new job 'Calciatore' after the second element in jobs
+// Add a new job 'Calciatore' after the second element in jobs
 $coll->modify("name like 'Paolo'")->arrayInsert('job[1]', 'Calciatore')->execute();
-
 
 ?>
 ]]>

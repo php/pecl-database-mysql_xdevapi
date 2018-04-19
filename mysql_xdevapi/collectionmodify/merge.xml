@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.merge" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::merge</refname>
-  <refpurpose>Execute the merge operation on a document</refpurpose>
+  <refpurpose>Merge attributes to document</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -28,8 +28,8 @@
     <term><parameter>document</parameter></term>
     <listitem>
      <para>
-	 The document from which the attributes will be merged.
-	 </para>
+	    The document with attributes to merge.
+	   </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	  CollectionModify object.
+	  A CollectionModify object.
   </para>
  </refsect1>
 

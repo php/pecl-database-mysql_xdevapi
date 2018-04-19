@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.sort" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::sort</refname>
-  <refpurpose>Sets the sorting criteria</refpurpose>
+  <refpurpose>Set the sorting criteria</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,10 +14,9 @@
    <methodparam><type>string</type><parameter>sort_expr</parameter></methodparam>
   </methodsynopsis>
   <para>
-	  Sort the result set by the field that has been selected in in the sort_expr argument, the allowed orders are:
-	  1) ASC: Ascending.
-	  2) DESC: Descending.
-	  This operation is equivalent to the 'ORDER BY' SQL operation and it follows the same set of rules for what concerns the ordering option.
+   Sort the result set by the field selected in the sort_expr argument. The allowed
+   orders are ASC (Ascending) or DESC (Descending). This operation is equivalent to the 'ORDER BY' SQL operation
+   and it follows the same set of rules.
   </para>
 
   &warn.undocumented.func;

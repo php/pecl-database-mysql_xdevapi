@@ -28,7 +28,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A Result object that can be used to verify the status of the operation.
+   A Result object that can be used to verify the status of the operation,
+   such as the number of affected rows.
   </para>
  </refsect1>
 
@@ -39,9 +40,8 @@
    <programlisting role="php">
 <![CDATA[
 <?php
-
-//Assuming $coll is a valid collection Object, the call to 'execute' is needed to trigger
-//the submission of the CRUD operation to the server.
+// Assuming $coll is a valid collection Object, the call to 'execute' is needed to trigger
+// the submission of the CRUD operation to the server.
 $coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore"}')->execute();
 
 ?>

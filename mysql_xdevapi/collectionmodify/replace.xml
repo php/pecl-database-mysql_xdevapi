@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionmodify.replace" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionModify::replace</refname>
-  <refpurpose>Replace a given field value with a new one</refpurpose>
+  <refpurpose>Replace document field</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -15,7 +15,7 @@
    <methodparam choice="opt"><type>string</type><parameter>expression_or_literal</parameter></methodparam>
   </methodsynopsis>
   <para>
-	  Add an update to the statement setting the field, if it exists at the document path, to the given value.
+    Replace (update) a given field value with a new one. 
   </para>
 
   &warn.undocumented.func;
@@ -29,16 +29,16 @@
     <term><parameter>collection_field</parameter></term>
     <listitem>
      <para>
-		 The document path of the item to be set.
-	 </para>
+		  The document path of the item to set.
+	   </para>
     </listitem>
    </varlistentry>
    <varlistentry>
     <term><parameter>expression_or_literal</parameter></term>
     <listitem>
      <para>
-		 The value to be set on the specified attribute.
-	 </para>
+		  The value to set on the specified attribute.
+	   </para>
     </listitem>
    </varlistentry>
   </variablelist>
@@ -47,7 +47,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	  CollectionModify object.
+	  A CollectionModify object.
   </para>
  </refsect1>
 
