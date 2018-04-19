@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-crudoperationskippable.skip" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CrudOperationSkippable::skip</refname>
-  <refpurpose>Set the initial number of results set to skip</refpurpose>
+  <refpurpose>Number of operations to skip</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <methodparam><type>integer</type><parameter>skip</parameter></methodparam>
   </methodsynopsis>
   <para>
-	Skip given number of records to be returned.
+	 Skip this number of records in the returned operation.
   </para>
 
   &warn.undocumented.func;
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	CrudOperationSkippable object.
+	A CrudOperationSkippable object.
   </para>
  </refsect1>
 

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-crudoperationbindable.bind" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CrudOperationBindable::bind</refname>
-  <refpurpose>Bind a give value to a parameter</refpurpose>
+  <refpurpose>Bind value to placeholder</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -28,7 +28,7 @@
     <term><parameter>placeholder_values</parameter></term>
     <listitem>
      <para>
-		 The name of the placeholder and the value to bind.
+		 The name of the placeholders and the values to bind.
 	 </para>
     </listitem>
    </varlistentry>
@@ -38,7 +38,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-	  CrudOperationBindable object.
+	  A CrudOperationBindable object.
   </para>
  </refsect1>
 

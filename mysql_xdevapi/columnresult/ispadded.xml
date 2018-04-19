@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-columnresult.ispadded" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>ColumnResult::isPadded</refname>
-  <refpurpose>Return true if a given table is padded</refpurpose>
+  <refpurpose>Check if padded</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   &true; if a given column is padded.
   </para>
  </refsect1>
 

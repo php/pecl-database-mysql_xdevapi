@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-collectionremove.limit" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>CollectionRemove::limit</refname>
-  <refpurpose>Set the maximum number of documents to be returned</refpurpose>
+  <refpurpose>Limit number of documents to remove</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -14,7 +14,7 @@
    <methodparam><type>integer</type><parameter>rows</parameter></methodparam>
   </methodsynopsis>
   <para>
-	  Sets the maximum number of documents to be returned.
+	  Sets the maximum number of documents to remove.
   </para>
 
   &warn.undocumented.func;
@@ -28,7 +28,7 @@
     <term><parameter>rows</parameter></term>
     <listitem>
      <para>
-		 The maximum number of documents.
+		 The maximum number of documents to remove.
      </para>
     </listitem>
    </varlistentry>
@@ -38,7 +38,8 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   Returns a CollectionRemove object that can be used to execute the command or to add further operations.
+   Returns a CollectionRemove object that can be used to execute the command,
+   or to add additional operations.
   </para>
  </refsect1>
 

@@ -4,7 +4,7 @@
 <refentry xml:id="mysql-xdevapi-columnresult.gettablename" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
   <refname>ColumnResult::getTableName</refname>
-  <refpurpose>Return the name of the table for a given column</refpurpose>
+  <refpurpose>Get table name</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
@@ -29,7 +29,7 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   
+   Name of the table for the column.
   </para>
  </refsect1>
 
