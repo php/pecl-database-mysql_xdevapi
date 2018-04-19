@@ -10,15 +10,12 @@
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <type>ReturnType</type><methodname>mysql_xdevapi\getSession</methodname>
+   <type>mysql_xdevapi\Session</type><methodname>mysql_xdevapi\getSession</methodname>
    <methodparam><type>string</type><parameter>uri</parameter></methodparam>
   </methodsynopsis>
   <para>
    Connects to the MySQL server.
   </para>
-
-  &warn.undocumented.func;
-
  </refsect1>
 
  <refsect1 role="parameters">
@@ -28,55 +25,59 @@
     <term><parameter>uri</parameter></term>
     <listitem>
      <para>
-      The URI to the MySQL server, such as
-      <literal>mysqlx://user:password@host</literal>.
+      The URI to the MySQL server, such as <literal>mysqlx://user:password@host</literal>.
      </para>
+     <para>
+      URI format:
+     </para>
+     <para>
+      <code>scheme://[user[:[password]]@]target[:port][/schema][?attribute1=value1&amp;attribute2=value2...</code>
+     </para>
+     <itemizedlist>
+      <listitem>
+        <para><literal>schema</literal>: required, the connection protocol</para>
+        <para>In mysql_xdevapi it is always 'mysqlx' (for X Protocol)</para>
+      </listitem>
+      <listitem>
+        <para><literal>user</literal>: optional, the MySQL user account for authentication</para>
+      </listitem>
+      <listitem>
+        <para><literal>password</literal>: optional, the MySQL user's password for authentication</para>
+      </listitem>
+      <listitem>
+        <para><literal>target</literal>: required, the server instance the connection refers to:</para>
+        <para>* TCP connection (host name, IPv4 address, or IPv6 address)</para>
+        <para>* Unix socket path (local file path)</para>
+        <para>* Windows named-pipe (local file path)</para>
+      </listitem>
+      <listitem>
+        <para><literal>port</literal>: optional, network port of MySQL server.</para>
+        <para>by default port for X Protocol is 33060</para>
+      </listitem>
+      <listitem>
+        <para>
+          <literal>?attribute=value</literal>: this element is optional and specifies a data dictionary that contains options, 
+          e.g. for encrypted connections or 'auth'. For additional information, see
+          <link xlink:href="&url.mysql.docs.connect.encryption;">Command Options for Encrypted Connections</link>.
+        </para>
+        <para>
+          
+        </para>
+        <para>
+          The following values for 'auth' attribute are supported (authentication mechanism):
+        </para>
+        <itemizedlist>
+          <listitem><para>plain</para></listitem>
+          <listitem><para>mysql41</para></listitem>
+          <listitem><para>external</para></listitem>
+          <listitem><para>sha256_mem</para></listitem>
+         </itemizedlist>
+       </listitem>
+      </itemizedlist>
 
-<para>Uri format:</para>
-<para><code>
-scheme://[user[:[password]]@]target[:port][/schema][?attribute1=value1&amp;attribute2=value2...
-</code></para>
-<para></para>
-<itemizedlist>
-<listitem>
-<para>schema: required, the connection protocol</para>
-<para>in mysql_xdevapi it is always 'mysqlx' (for X Protocol)</para>
-</listitem>
-<listitem>
-<para>user: optional, the MySQL user account to be used for the authentication</para>
-</listitem>
-<listitem>
-<para>password: optional, the password to be used for the authentication</para>
-</listitem>
-<listitem>
-<para>target: required, the server instance the connection refers to:</para>
-<para>- TCP connection (host name, IPv4 address, or IPv6 address)</para>
-<para>- Unix socket path (local file path)</para>
-<para>- Windows named-pipe (local file path)</para>
-</listitem>
-<listitem>
-<para>port: optional, network port of MySQL server.</para>
-<para>by default port for X Protocol is 33060</para>
-</listitem>
-<listitem>
-<para>?attribute=value: this element is optional and specifies a data dictionary that contains options, e.g. for encrypted connections or 'auth'</para>
-<para>https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-options.html</para>
-<para></para>
-<para>following values for 'auth' attribute are supported (authentication mechanism):</para>
-<itemizedlist>
- <listitem><para>plain</para></listitem>
- <listitem><para>mysql41</para></listitem>
- <listitem><para>external</para></listitem>
- <listitem><para>sha256_mem</para></listitem>
-</itemizedlist>
-<para></para>
-<para>more details:</para>
-<para>https://dev.mysql.com/doc/internals/en/x-protocol-authentication-authentication.html</para>
-</listitem>
-</itemizedlist>
-<example>
+  <example>
   <title>URI examples</title>
-  <programlisting>
+  <programlisting role="php">
 mysqlx://foobar
 mysqlx://root@localhost?socket=%2Ftmp%2Fmysqld.sock%2F
 mysqlx://foo:bar@localhost:33060
@@ -91,9 +92,10 @@ mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled
   </programlisting>
 </example>
 
-<para></para>
-<para>more details:</para>
-<para>https://dev.mysql.com/doc/refman/8.0/en/mysql-shell-connection-using-uri.html</para>
+   <para>
+    For related information, see MySQL Shell's
+    <link xlink:href="&url.mysql.docs.connect.shell.uri;">Connecting using a URI String</link>.
+   </para>
 
     </listitem>
    </varlistentry>
