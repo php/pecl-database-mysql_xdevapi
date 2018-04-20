@@ -8,8 +8,6 @@
 
 	const DEVAPI_EXT_NAME = "mysql_xdevapi";
 
-	$driver    = new mysqli_driver;
-
 	if (!function_exists('get_mysqlx_env')) {
 		function get_mysqlx_env($test_envar, $common_envar, $default_value) {
 			if (getenv($test_envar)) return getenv($test_envar);
@@ -36,15 +34,6 @@
 	$test_table_name = "test_table";
 	$test_collection_name = "test_collection";
 	$test_view_name = "test_view";
-
-	if ($socket) {
-		ini_set('mysqli.default_socket', $socket);
-	}
-
-	/* Development setting: test experimal features and/or feature requests that never worked before? */
-	$TEST_EXPERIMENTAL = (in_array(getenv("MYSQLX_TEST_EXPERIMENTAL"), array(0, 1))) ?
-				((1 == getenv("MYSQLX_TEST_EXPERIMENTAL")) ? true : false) :
-				false;
 
 	// ----------------------------------------------------------------------
 

@@ -58,9 +58,6 @@ extern "C" {
 #include "mysqlx_object.h"
 #include "mysqlx_warning.h"
 
-
-#ifdef MYSQL_XDEVAPI_MESSAGE_CLASSES
-
 #include "messages/mysqlx_connection.h"
 #include "messages/mysqlx_pfc.h"
 
@@ -80,8 +77,6 @@ extern "C" {
 #include "messages/mysqlx_message__stmt_execute.h"
 #include "messages/mysqlx_message__stmt_execute_ok.h"
 #include "messages/mysqlx_message__data_fetch_done.h"
-
-#endif
 
 namespace mysqlx {
 
@@ -149,7 +144,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_table__update_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 
-#if MYSQL_XDEVAPI_MESSAGE_CLASSES
 	using namespace msg;
 
 	mysqlx_register_connection_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -173,7 +167,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_data_row_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-#endif
 
 	/* xmysqlnd_real_connect flags */
 	REGISTER_LONG_CONSTANT("MYSQLX_CLIENT_SSL", CLIENT_SSL, CONST_CS | CONST_PERSISTENT);
@@ -228,7 +221,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 PHP_MYSQL_XDEVAPI_API int
 mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 {
-#ifdef MYSQL_XDEVAPI_MESSAGE_CLASSES
 	using namespace msg;
 
 	mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
@@ -251,7 +243,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_message__ok_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_pfc_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_connection_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-#endif
 
 	mysqlx_unregister_table__update_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_table__select_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
