@@ -7,7 +7,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <channel>pecl.php.net</channel>
  <summary>MySQL X DevAPI for PHP</summary>
 
- <description>The X DevAPI is he new common API for MySQL Connectors built on the X Protocol introduced in MySQL 5.7.12.
+ <description>The X DevAPI is the new common API for MySQL Connectors built on the X Protocol introduced in MySQL 5.7.12.
 
 The X DevAPI wraps powerful concepts in a simple API.
 * A new high-level session concept enables you to write code that can transparently scale from single MySQL Server to a multiple server environment.
