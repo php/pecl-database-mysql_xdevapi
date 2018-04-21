@@ -35,6 +35,7 @@ extern "C" {
 
 #include "util/object.h"
 #include "util/pb_utils.h"
+#include "util/zend_utils.h"
 
 #include "protobuf_api.h"
 
@@ -84,7 +85,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 	st_mysqlx_resultset_metadata* metadata{nullptr};
 
 	DBG_ENTER("mysqlx_data_row::decode");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OO",
 												&object_zv, mysqlx_data_row_class_entry,
 												&metadata_zv, mysqlx_resultset_metadata_class_entry))
 	{

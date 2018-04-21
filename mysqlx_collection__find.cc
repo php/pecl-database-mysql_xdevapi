@@ -42,6 +42,7 @@ extern "C" {
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 
@@ -499,7 +500,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 
 	DBG_ENTER("mysqlx_collection__find::fields");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
 												(zval *) &fields))
 	{
@@ -526,7 +527,7 @@ mysqlx_collection__find__add_sort_or_grouping(
 	zval* sort_expr{nullptr};
 	int num_of_expr{0};
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_find_class_entry,
 									&sort_expr,
@@ -575,7 +576,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 
 	DBG_ENTER("mysqlx_collection__find::having");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, collection_find_class_entry,
 												&(search_condition.s), &(search_condition.l)))
 	{
@@ -598,7 +599,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 
 	DBG_ENTER("mysqlx_collection__find::limit");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_find_class_entry,
 												&rows))
 	{
@@ -621,7 +622,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, skip)
 
 	DBG_ENTER("mysqlx_collection__find::skip");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_find_class_entry,
 												&position))
 	{
@@ -649,7 +650,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 
 	DBG_ENTER("mysqlx_collection__find::bind");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
 												&object_zv, collection_find_class_entry,
 												&bind_variables))
 	{
@@ -671,7 +672,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockShared)
 
 	zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 		&object_zv, collection_find_class_entry,
 		&lock_waiting_option))
 	{
@@ -693,7 +694,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 
 	zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 		&object_zv, collection_find_class_entry,
 		&lock_waiting_option))
 	{
@@ -716,7 +717,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, execute)
 
 	DBG_ENTER("mysqlx_collection__find::execute");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 												&object_zv, collection_find_class_entry,
 												&flags))
 	{

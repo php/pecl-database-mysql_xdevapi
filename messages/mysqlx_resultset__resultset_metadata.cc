@@ -33,6 +33,7 @@ extern "C" {
 #include "mysqlx_resultset__column_metadata.h"
 
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -58,7 +59,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 	zval* column_metadata_zv{nullptr};
 
 	DBG_ENTER("mysqlx_connection::add");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OO",
 												&resultset_metadata_zv, mysqlx_resultset_metadata_class_entry,
 												&column_metadata_zv, mysqlx_column_metadata_class_entry))
 	{

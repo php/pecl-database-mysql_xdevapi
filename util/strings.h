@@ -59,7 +59,7 @@ using wformatter = basic_formatter<wchar_t>;
 
 /*
 	it is meant to work with PHP methods as wrapper for string params coming
-	from zend_parse_method_parameters
+	from util::zend::parse_method_parameters
 	in general it keeps pointer/len of string parameter, has some helper routines, and its contents
 	INVALIDATES when called from MYSQL_XDEVAPI_PHP_METHOD ends
 
@@ -68,8 +68,8 @@ using wformatter = basic_formatter<wchar_t>;
 	0)
 	util::string_view index_name;
 	[...]
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os+",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os+",
 		&object_zv, table_create_class_entry,
 		&index_name.str, &index_name.len))
 

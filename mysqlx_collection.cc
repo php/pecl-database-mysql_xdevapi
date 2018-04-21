@@ -42,6 +42,7 @@ extern "C" {
 #include "util/hash_table.h"
 #include "util/json_utils.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 #include <vector>
 
 namespace mysqlx {
@@ -161,7 +162,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 
 	DBG_ENTER("mysqlx_collection::getSession");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -189,7 +190,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_collection::getName");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -235,7 +236,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_collection::existsInDatabase");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -267,7 +268,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_collection::count");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -302,8 +303,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 
 	DBG_ENTER("mysqlx_collection::getSchema");
 
-	if (FAILURE == zend_parse_method_parameters(
-				ZEND_NUM_ARGS(),
+	if (FAILURE == util::zend::parse_method_parameters(
+				execute_data,
 				getThis(), "Os",
 				&object_zv,
 				mysqlx_collection_class_entry,
@@ -347,7 +348,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 
 	DBG_ENTER("mysqlx_collection::add");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 												&object_zv,
 												mysqlx_collection_class_entry,
 												&docs,
@@ -380,7 +381,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 
 	DBG_ENTER("mysqlx_collection::find");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|s",
 												&object_zv, mysqlx_collection_class_entry,
 												&(search_expr.str), &(search_expr.len)))
 	{
@@ -409,8 +410,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 
 	DBG_ENTER("mysqlx_collection::modify");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
 		&(search_expr.str), &(search_expr.len)))
 	{
@@ -439,8 +440,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 
 	DBG_ENTER("mysqlx_collection::remove");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
 		&(search_expr.str), &(search_expr.len)))
 	{
@@ -468,8 +469,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 	zval* object_zv{nullptr};
 	util::string_view id;
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
 		&id.str, &id.len))
 	{
@@ -509,8 +510,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 	util::string_view id;
 	zval* doc{nullptr};
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Osz",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Osz",
 		&object_zv, mysqlx_collection_class_entry,
 		&id.str, &id.len,
 		&doc))
@@ -555,8 +556,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 
 	DBG_ENTER("mysqlx_collection::addOrReplaceOne");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Osz",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Osz",
 		&object_zv, mysqlx_collection_class_entry,
 		&id.str, &id.len,
 		&doc))
@@ -588,8 +589,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 
 	DBG_ENTER("mysqlx_collection::removeOne");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
 		&id.str, &id.len))
 	{
@@ -626,8 +627,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 
 	DBG_ENTER("mysqlx_collection::createIndex");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Oss",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Oss",
 		&object_zv, mysqlx_collection_class_entry,
 		&index_name.str, &index_name.len,
 		&index_desc_json.str, &index_desc_json.len))
@@ -653,8 +654,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 
 	DBG_ENTER("mysqlx_collection::dropIndex");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
 		&(index_name.str), &(index_name.len)))
 	{

@@ -37,6 +37,7 @@ extern "C" {
 #include "mysqlx_table.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -119,7 +120,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 
 	DBG_ENTER("mysqlx_table::getSession");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -147,7 +148,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_table::getName");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -189,7 +190,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_table::existsInDatabase");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -222,8 +223,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 	RETVAL_FALSE;
 
 	DBG_ENTER("mysqlx_table::isView");
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(),
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data,
 		getThis(),
 		"O",
 		&object_zv,
@@ -256,7 +257,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_table::count");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -291,8 +292,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 
 	DBG_ENTER("mysqlx_collection::getSchema");
 
-	if (FAILURE == zend_parse_method_parameters(
-				ZEND_NUM_ARGS(),
+	if (FAILURE == util::zend::parse_method_parameters(
+				execute_data,
 				getThis(), "Os",
 				&object_zv,
 				mysqlx_table_class_entry,
@@ -337,8 +338,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 
 	DBG_ENTER("mysqlx_table::insert");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "O+",
 		&object_zv, mysqlx_table_class_entry,
 		&columns,
 		&num_of_columns))
@@ -383,8 +384,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 
 	DBG_ENTER("mysqlx_table::select");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "O+",
 		&object_zv, mysqlx_table_class_entry,
 		&columns,
 		&num_of_columns))
@@ -419,7 +420,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 
 	DBG_ENTER("mysqlx_table::update");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -446,7 +447,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 
 	DBG_ENTER("mysqlx_table::delete");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;

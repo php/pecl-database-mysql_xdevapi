@@ -98,7 +98,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_connection::connect");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os|l",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os|l",
 												&connection_zv, mysqlx_connection_class_entry,
 												&(hostname.s), &(hostname.l),
 												&port))
@@ -146,7 +146,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, send)
 	size_t ret{0};
 
 	DBG_ENTER("mysqlx_connection::send");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&connection_zv, mysqlx_connection_class_entry,
 												&(payload.s), &(payload.l)))
 	{
@@ -178,7 +178,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, receive)
 	enum_func_status ret;
 
 	DBG_ENTER("mysqlx_connection::receive");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&connection_zv, mysqlx_connection_class_entry,
 												&how_many))
 	{
