@@ -72,11 +72,13 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__get_schema, 0, ZEND_RETURN_VALUE, 0
 ZEND_END_ARG_INFO()
 /************************************** INHERITED END   ****************************************/
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, columns)
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__insert, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__insert, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, columns)
 ZEND_END_ARG_INFO()
 
 

@@ -91,6 +91,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__lock_exclusive, 0, ZEND_
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__execute, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, flags, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 

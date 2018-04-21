@@ -5,7 +5,7 @@ mysqlx save-points
 error_reporting=0
 --FILE--
 <?php
-        require_once("connect.inc");
+	require_once("connect.inc");
 	$session = create_test_db();
 
 	$coll = $session->getSchema($db)->getCollection( $test_collection_name );
@@ -15,19 +15,19 @@ function fetch_and_verify( $num_of_docs ) {
 	global $coll;
 	$data = $coll->find()->execute()->fetchAll();
 	if( 0 < $num_of_docs ) {
-	    expect_eq( count( $data ) , $num_of_docs );
-	    if( count( $data ) == $num_of_docs ) {
-	        for( $i = 1 ; $i <= count( $data ) ; $i++ ) {
-		    expect_eq( $data[$i-1]["test".( $i*2 - 1) ], $i*2 - 1 );
-		    expect_eq( $data[$i-1]["test".( $i*2) ], $i*2 );
+		expect_eq( count( $data ) , $num_of_docs );
+		if( count( $data ) == $num_of_docs ) {
+			for( $i = 1 ; $i <= count( $data ) ; $i++ ) {
+				expect_eq( $data[$i-1]["test".( $i*2 - 1) ], $i*2 - 1 );
+				expect_eq( $data[$i-1]["test".( $i*2) ], $i*2 );
+			}
 		}
-	    }
 	} else {
-	    expect_false( $data );
+		expect_false( $data );
 	}
 }
 
-        /* 1th scenario */
+	/* 1th scenario */
 	$session->startTransaction();
 	$sp1 = $session->setSavepoint();
 	expect_true( 0 < strlen( $sp1 ) );
@@ -35,7 +35,7 @@ function fetch_and_verify( $num_of_docs ) {
 	$session->rollback();
 	fetch_and_verify( 0 );
 
-        /* 2th Scenario */
+	/* 2th Scenario */
 	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $session->setSavepoint();
@@ -46,7 +46,7 @@ function fetch_and_verify( $num_of_docs ) {
 	fetch_and_verify( 1 );
 	$session->rollback();
 
-        /* 3th Scenario */
+	/* 3th Scenario */
 	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $session->setSavepoint();
@@ -57,7 +57,7 @@ function fetch_and_verify( $num_of_docs ) {
 	fetch_and_verify( 2 );
 	$session->rollback();
 
-        /* 4th Scenario */
+	/* 4th Scenario */
 	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $session->setSavepoint( 'mysavepoint1' );
@@ -68,7 +68,7 @@ function fetch_and_verify( $num_of_docs ) {
 	fetch_and_verify( 1 );
 	$session->rollback();
 
-        /* 5th Scenario */
+	/* 5th Scenario */
 	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $session->setSavepoint( 'mysavepoint1' );
@@ -79,60 +79,60 @@ function fetch_and_verify( $num_of_docs ) {
 	fetch_and_verify( 2 );
 	$session->rollback();
 
-        /* 6th */
+	/* 6th */
 	$session->startTransaction();
 	try{
-	        $session->setSavepoint( ' ' );
+		$session->setSavepoint( ' ' );
 		test_step_ok();
 	} catch( Exception $e ) {
-	        test_step_failed();
+		test_step_failed();
 	}
 	try{
-	        $session->setSavepoint( '_' );
+		$session->setSavepoint( '_' );
 		test_step_ok();
 	} catch( Exception $e ) {
-	        test_step_failed();
+		test_step_failed();
 	}
 	try{
-	        $session->setSavepoint( '-' );
+		$session->setSavepoint( '-' );
 		test_step_ok();
 	} catch( Exception $e ) {
-	        test_step_failed();
+		test_step_failed();
 	}
 	try{
-	        $session->setSavepoint( 'mysp+' );
+		$session->setSavepoint( 'mysp+' );
 		test_step_ok();
 	} catch( Exception $e ) {
-	        test_step_failed();
+		test_step_failed();
 	}
 	try{
-	        $session->setSavepoint( '3306' );
+		$session->setSavepoint( '3306' );
 		test_step_ok();
 	} catch( Exception $e ) {
-	        test_step_failed();
+		test_step_failed();
 	}
 	try{
-	        $session->setSavepoint( 'mysql3306' );
+		$session->setSavepoint( 'mysql3306' );
 		test_step_ok();
 	} catch( Exception $e ) {
-	        test_step_failed();
+		test_step_failed();
 	}
 	try{
-	        $session->releaseSavepoint( 'invalid ');
+		$session->releaseSavepoint( 'invalid ');
 		test_step_failed();
 	} catch( Exception $e ) {
-	        test_step_ok();
+		test_step_ok();
 	}
 	try{
-	        $session->rollbackTo( 'invalid ');
+		$session->rollbackTo( 'invalid ');
 		test_step_failed();
 	} catch( Exception $e ) {
-	        test_step_ok();
+		test_step_ok();
 	}
 	$session->rollback();
 	fetch_and_verify( 0 );
 
-        /* 7th */
+	/* 7th */
 	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$spOrigin = $session->setSavepoint();
@@ -155,28 +155,28 @@ function fetch_and_verify( $num_of_docs ) {
 	$session->rollback();
 	fetch_and_verify( 0 );
 
-        /* 8th */
+	/* 8th */
 	$session->startTransaction();
 	$sp1 = $session->setSavepoint();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$session->releaseSavepoint( $sp1 );
 	try{
-	        $session->releaseSavepoint( $sp1 );
+		$session->releaseSavepoint( $sp1 );
 		test_step_failed();
 	} catch( Exception $e ){
-	        test_step_ok();
+		test_step_ok();
 	}
 	fetch_and_verify( 1 );
 	$session->rollback();
 	fetch_and_verify( 0 );
 	try{
-	        $session->releaseSavepoint( $sp1 );
+		$session->releaseSavepoint( $sp1 );
 		test_step_failed();
 	} catch( Exception $e ){
-	        test_step_ok();
+		test_step_ok();
 	}
 
-        /* 9th */
+	/* 9th */
 	$session->startTransaction();
 	$coll->add( '{"test1":1, "test2":2}' )->execute();
 	$sp1 = $session->setSavepoint( );
@@ -184,19 +184,19 @@ function fetch_and_verify( $num_of_docs ) {
 	fetch_and_verify( 2 );
 	$session->commit();
 	try{
-	        $session->rollbackTo( $sp1 );
+		$session->rollbackTo( $sp1 );
 		test_step_failed();
 	} catch( Exception $e ){
-	        test_step_ok();
+		test_step_ok();
 	}
 
 
-        verify_expectations();
+	verify_expectations();
 	print "done!\n";
 ?>
 --CLEAN--
 <?php
-        require("connect.inc");
+	require("connect.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
