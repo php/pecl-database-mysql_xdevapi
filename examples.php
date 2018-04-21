@@ -5,7 +5,7 @@
 
 		Details: https://dev.mysql.com/doc/x-devapi-userguide/en/xsession-vs-node-session.html
 
-                For using he X DevAPI a MySQL Server with enabled X Plugin is required.
+                For using the X DevAPI a MySQL Server with enabled X Plugin is required.
 		The X Plugin is part of MySQL 5.7.12. For instructions about installation and configuration
 		please refer to the MySQL documentation at:
 
