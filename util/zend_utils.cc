@@ -68,6 +68,41 @@ void free_error_info_list(
 
 namespace {
 
+struct Arg_list
+{
+	Arg_list(const zend_execute_data* execute_data);
+
+	std::size_t args_count() const;
+	std::size_t required_args_count() const;
+	bool is_variadic() const;
+
+	const zend_execute_data* const execute_data;
+};
+
+// ------------
+
+Arg_list::Arg_list(const zend_execute_data* execute_data)
+	: execute_data(execute_data)
+{
+}
+
+std::size_t Arg_list::args_count() const
+{
+	return execute_data->func->common.num_args;
+}
+
+std::size_t Arg_list::required_args_count() const
+{
+	return execute_data->func->common.required_num_args;
+}
+
+bool Arg_list::is_variadic() const
+{
+	return (execute_data->func->common.fn_flags & ZEND_ACC_VARIADIC) == ZEND_ACC_VARIADIC;
+}
+
+// ------------------------
+
 struct Type_spec
 {
 	enum class Variadic {
@@ -77,20 +112,20 @@ struct Type_spec
 	};
 
 	Type_spec(
-		const util::string& args, 
+		const util::string& args,
 		Variadic variadic);
 
 	bool empty() const;
 	bool is_variadic() const;
 
-	util::string args;
-	Variadic variadic;
+	const util::string args;
+	const Variadic variadic;
 };
 
 // ------------
 
 Type_spec::Type_spec(
-	const util::string& args, 
+	const util::string& args,
 	Variadic variadic)
 	: args(args)
 	, variadic(variadic)
@@ -114,7 +149,7 @@ class Verify_call_parameters
 public:
 	Verify_call_parameters(
 		bool is_method,
-		zend_execute_data* execute_data, 
+		zend_execute_data* execute_data,
 		const char* type_spec);
 
 	void run();
@@ -126,18 +161,26 @@ private:
 	Type_spec create_type_spec(const util::string& raw_args);
 	Type_spec::Variadic resolve_variadic(const util::string& args);
 	void validate_type_spec(const Type_spec& type_spec);
+
 	void verify_variadic(
 		const Type_spec& type_spec_required_args,
 		const Type_spec& type_spec_optional_args);
+
 	void verify_required_args_count(
 		const Type_spec& type_spec_required_args);
-	std::size_t calc_min_args_count(const Type_spec& type_spec);
-	void raise_error(const util::string& reason);
+	void verify_optional_args_count(
+		const Type_spec& type_spec_optional_args);
+	uint32_t calc_arglist_optional_args_count();
+
+	std::size_t calc_min_args_count(
+		const Type_spec& type_spec,
+		bool required);
+
+	std::invalid_argument verify_error(const util::string& reason);
 
 private:
 	const bool is_method;
-	const uint32_t call_args_count;
-	const uint32_t arglist_required_args_count;
+	const Arg_list arg_list;
 	const util::string type_spec;
 };
 
@@ -145,12 +188,11 @@ private:
 
 Verify_call_parameters::Verify_call_parameters(
 	bool is_method,
-	zend_execute_data* execute_data, 
+	zend_execute_data* execute_data,
 	const char* type_spec)
-	: is_method( is_method )
-	, call_args_count( execute_data->func->common.num_args )
-	, arglist_required_args_count( execute_data->func->common.required_num_args )
-	, type_spec( type_spec )
+	: is_method(is_method)
+	, arg_list(execute_data)
+	, type_spec(type_spec)
 {
 }
 
@@ -169,6 +211,7 @@ void Verify_call_parameters::run()
 	verify_variadic(type_spec_required_args, type_spec_optional_args);
 
 	verify_required_args_count(type_spec_required_args);
+	verify_optional_args_count(type_spec_optional_args);
 }
 
 void Verify_call_parameters::extract_type_spec_fragments(
@@ -181,7 +224,7 @@ void Verify_call_parameters::extract_type_spec_fragments(
 	if (type_spec_fragments.size() < 2) {
 		type_spec_fragments.resize(2);
 	} else if (2 < type_spec_fragments.size()) {
-		raise_error("only one optional args block is allowed");
+		throw verify_error("only one optional args block is allowed");
 	}
 
 	*required_args = type_spec_fragments.front();
@@ -208,7 +251,7 @@ Type_spec::Variadic Verify_call_parameters::resolve_variadic(const util::string&
 	if (idx == util::string::npos) return Type_spec::Variadic::None;
 
 	if (idx + 1 != args.length()) {
-		raise_error("variadic specificator is always last char or it is invalid");
+		throw verify_error("variadic specificator is always last char or it is invalid");
 	}
 
 	switch (type_spec[idx]) {
@@ -249,7 +292,7 @@ void Verify_call_parameters::validate_type_spec(const Type_spec& type_spec)
 
 	const std::size_t disallowed_type_idx{ type_spec.args.find_first_not_of(allowed_types) };
 	if (disallowed_type_idx != util::string::npos) {
-		raise_error("unknown type in type_spec");
+		throw verify_error("unknown type in type_spec");
 	}
 }
 
@@ -258,27 +301,70 @@ void Verify_call_parameters::verify_variadic(
 	const Type_spec& type_spec_optional_args)
 {
 	if (type_spec_required_args.is_variadic() && !type_spec_optional_args.empty()) {
-		raise_error("variadic specificator is always last char in whole type_spec");
+		throw verify_error("variadic specificator is always last char in whole type_spec");
 	}
 }
 
 void Verify_call_parameters::verify_required_args_count(
 	const Type_spec& type_spec_required_args)
 {
-	const std::size_t type_spec_required_args_count{ calc_min_args_count(type_spec_required_args) };
+	const std::size_t arglist_required_args_count{
+		arg_list.required_args_count()
+	};
+	const std::size_t type_spec_required_args_count{
+		calc_min_args_count(type_spec_required_args, true)
+	};
 	if (arglist_required_args_count != type_spec_required_args_count) {
-		raise_error("required number of args in type_spec and arglist are different");
+		throw verify_error("required number of args in arglist and type_spec are different");
 	}
 }
 
-std::size_t Verify_call_parameters::calc_min_args_count(const Type_spec& type_spec)
+void Verify_call_parameters::verify_optional_args_count(
+	const Type_spec& type_spec_optional_args)
+{
+	const std::size_t arglist_optional_args_count{
+		calc_arglist_optional_args_count()
+	};
+	const std::size_t type_spec_optional_args_count{
+		calc_min_args_count(type_spec_optional_args, false)
+	};
+	if (arglist_optional_args_count != type_spec_optional_args_count) {
+		throw verify_error("optional number of args in arglist and type_spec are different");
+	}
+}
+
+std::size_t Verify_call_parameters::calc_arglist_optional_args_count()
+{
+	const std::size_t arglist_args_count{ arg_list.args_count() };
+	const std::size_t arglist_required_args_count{ arg_list.required_args_count() };
+
+	if (arglist_required_args_count <= arglist_args_count) {
+		return arglist_args_count - arglist_required_args_count;
+	}
+
+	if (!arg_list.is_variadic()) {
+		throw verify_error("arglist args count less than required args count, and no variadic arg");
+	}
+
+	if ((arglist_args_count + 1) == arglist_required_args_count) {
+		return 0;
+	}
+
+	assert((arglist_args_count + 1) < arglist_required_args_count);
+	throw verify_error("arglist args count less than required args count, despite variadic arg");
+}
+
+std::size_t Verify_call_parameters::calc_min_args_count(
+	const Type_spec& type_spec,
+	bool required)
 {
 	std::size_t args_count{ type_spec.args.size() };
 
-	if (is_method) {
+	if (is_method && required) {
 		if (args_count == 0) {
-			raise_error("method call needs at least one argument - object");
+			throw verify_error("method call needs at least one argument - object");
 		}
+		// decrement due to obligatory specifier for object ('O' or 'o')
 		--args_count;
 	}
 
@@ -289,18 +375,18 @@ std::size_t Verify_call_parameters::calc_min_args_count(const Type_spec& type_sp
 	return args_count;
 }
 
-void Verify_call_parameters::raise_error(const util::string& reason)
+std::invalid_argument Verify_call_parameters::verify_error(const util::string& reason)
 {
 	std::ostringstream os;
 	os << "verification of call params failed: " << reason;
-	throw std::invalid_argument(os.str());
+	return std::invalid_argument(os.str());
 }
 
 } // anonymous namespace
 
 void verify_call_parameters(
-	bool is_method, 
-	zend_execute_data* execute_data, 
+	bool is_method,
+	zend_execute_data* execute_data,
 	const char* type_spec)
 {
 	Verify_call_parameters verify_parameters(is_method, execute_data, type_spec);

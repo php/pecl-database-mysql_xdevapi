@@ -31,25 +31,42 @@ void free_error_info_list(
 // ----------------
 
 void verify_call_parameters(
-	bool is_method, 
-	zend_execute_data* execute_data, 
+	bool is_method,
+	zend_execute_data* execute_data,
 	const char* type_spec);
+
+// temporarily, will be defined in config files
+#define MYSQL_XDEVAPI_ENABLE_DEV_MODE
 
 template<typename ...Params>
 int parse_method_parameters(
-	zend_execute_data* execute_data, 
-	zval* this_ptr, 
-	const char* type_spec, 
+	zend_execute_data* execute_data,
+	zval* this_ptr,
+	const char* type_spec,
 	Params&&... params)
 {
-#define MYSQL_XDEVAPI_ENABLE_DEV_MODE
 #ifdef MYSQL_XDEVAPI_ENABLE_DEV_MODE
 	verify_call_parameters(true, execute_data, type_spec);
 #endif
 	return zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), 
-		this_ptr, 
-		type_spec, 
+		ZEND_NUM_ARGS(),
+		this_ptr,
+		type_spec,
+		std::forward<Params>(params)...);
+}
+
+template<typename ...Params>
+int parse_function_parameters(
+	zend_execute_data* execute_data,
+	const char* type_spec,
+	Params&&... params)
+{
+#ifdef MYSQL_XDEVAPI_ENABLE_DEV_MODE
+	verify_call_parameters(false, execute_data, type_spec);
+#endif
+	return zend_parse_parameters(
+		ZEND_NUM_ARGS(),
+		type_spec,
 		std::forward<Params>(params)...);
 }
 
