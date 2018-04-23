@@ -57,9 +57,9 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__bind, 0, ZEND_RETURN_VALUE,
 ZEND_END_ARG_INFO()
 
 
-//ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__execute, 0, ZEND_RETURN_VALUE, 0)
-//	ZEND_ARG_TYPE_INFO(no_pass_by_ref, flags, IS_LONG, dont_allow_null)
-//ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__execute, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, flags, IS_LONG, dont_allow_null)
+ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__has_more_results, 0, ZEND_RETURN_VALUE, 0)
@@ -676,7 +676,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, getNextResult)
 static const zend_function_entry mysqlx_sql_statement_methods[] = {
 	PHP_ME(mysqlx_sql_statement, __construct,		nullptr,													ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_sql_statement, bind,				arginfo_mysqlx_sql_statement__bind,				ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_sql_statement, execute,			nullptr,													ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_sql_statement, execute,			arginfo_mysqlx_sql_statement__execute,													ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_sql_statement, hasMoreResults,	arginfo_mysqlx_sql_statement__has_more_results,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_sql_statement, getResult,		arginfo_mysqlx_sql_statement__get_result, 			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_sql_statement, getNextResult,	arginfo_mysqlx_sql_statement__get_result, 			ZEND_ACC_PUBLIC)
