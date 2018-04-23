@@ -108,7 +108,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 	MYSQLND_CSTRING expression = {nullptr, 0};
 
 	DBG_ENTER("mysql_xdevapi__Expression");
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s",
 										 &(expression.s), &(expression.l)))
 	{
 		DBG_VOID_RETURN;
