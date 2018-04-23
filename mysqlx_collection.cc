@@ -297,17 +297,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 {
 	st_mysqlx_collection* object{nullptr};
 	XMYSQLND_SESSION session;
-	MYSQLND_CSTRING schema_name = {nullptr, 0};
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_collection::getSchema");
 
 	if (FAILURE == zend_parse_method_parameters(
 				ZEND_NUM_ARGS(),
-				getThis(), "Os",
+				getThis(), "O",
 				&object_zv,
-				mysqlx_collection_class_entry,
-				&(schema_name.s), &(schema_name.l))) {
+				mysqlx_collection_class_entry)) {
 		DBG_VOID_RETURN;
 	}
 
@@ -322,8 +320,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 	}
 
 	if(session != nullptr) {
+		MYSQLND_STRING& schema_name{ object->collection->data->schema->data->schema_name };
 		XMYSQLND_SCHEMA * schema = session->m->create_schema_object(
-					session, schema_name);
+					session, mnd_str2c(schema_name));
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
 		} else {
