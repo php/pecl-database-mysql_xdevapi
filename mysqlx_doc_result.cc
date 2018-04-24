@@ -40,6 +40,7 @@ extern "C" {
 #include "mysqlx_field_metadata.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -87,7 +88,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchOne)
 	st_mysqlx_doc_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_doc_result::fetchOne");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -119,7 +120,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 	st_mysqlx_doc_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_doc_result::fetchAll");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -148,7 +149,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningCount)
 	st_mysqlx_doc_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_doc_result::getWarningCount");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -182,7 +183,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 	st_mysqlx_doc_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_doc_result::getWarnings");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;

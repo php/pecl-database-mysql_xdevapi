@@ -41,6 +41,7 @@ extern "C" {
 #include "util/object.h"
 #include "util/strings.h"
 #include "util/string_utils.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -390,7 +391,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 
 	DBG_ENTER("mysqlx_collection__add::execute");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv,
 												collection_add_class_entry))
 	{

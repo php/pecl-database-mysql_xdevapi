@@ -38,6 +38,7 @@ extern "C" {
 #include "mysqlx_message__error.h"
 
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -90,7 +91,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, send)
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::send");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OOO",
 												&object_zv, mysqlx_message__capabilities_get_class_entry,
 												&codec_zv, mysqlx_pfc_class_entry,
 												&connection_zv, mysqlx_connection_class_entry))
@@ -126,7 +127,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_get, read_response)
 	size_t ret{0};
 
 	DBG_ENTER("mysqlx_message__capabilities_get::read_response");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OOO",
 												&object_zv, mysqlx_message__capabilities_get_class_entry,
 												&codec_zv, mysqlx_pfc_class_entry,
 												&connection_zv, mysqlx_connection_class_entry))

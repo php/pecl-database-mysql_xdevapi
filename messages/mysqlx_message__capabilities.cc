@@ -32,6 +32,7 @@ extern "C" {
 #include "mysqlx_message__capabilities.h"
 
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -57,7 +58,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities, add)
 	zval* capability_zv{nullptr};
 
 	DBG_ENTER("mysqlx_connection::add");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OO",
 												&capabilities_zv, mysqlx_message__capabilities_class_entry,
 												&capability_zv, mysqlx_message__capability_class_entry))
 	{

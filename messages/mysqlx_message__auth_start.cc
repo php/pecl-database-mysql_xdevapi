@@ -39,6 +39,7 @@ extern "C" {
 #include "mysqlx_message__auth_ok.h"
 
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -97,7 +98,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_start, send)
 	st_mysqlx_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_message__auth_start::send");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OssOO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OssOO",
 												&object_zv, mysqlx_message__auth_start_class_entry,
 												&auth_mech_name, &auth_mech_name_len,
 												&auth_data, &auth_data_len,
@@ -135,7 +136,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__auth_start, read_response)
 	st_mysqlx_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_message__auth_start::read_response");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OOO",
 												&object_zv, mysqlx_message__auth_start_class_entry,
 												&codec_zv, mysqlx_pfc_class_entry,
 												&connection_zv, mysqlx_connection_class_entry))

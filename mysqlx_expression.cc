@@ -28,6 +28,7 @@ extern "C" {
 #include "mysqlx_expression.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -67,7 +68,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 
 	DBG_ENTER("mysqlx_expression::__construct");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_expression_class_entry,
 												&(expression.s), &(expression.l)))
 	{
@@ -107,7 +108,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 	MYSQLND_CSTRING expression = {nullptr, 0};
 
 	DBG_ENTER("mysql_xdevapi__Expression");
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s",
 										 &(expression.s), &(expression.l)))
 	{
 		DBG_VOID_RETURN;
