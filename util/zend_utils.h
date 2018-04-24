@@ -18,6 +18,8 @@
 #ifndef MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
 #define MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
 
+#include <utility>
+
 namespace mysqlx {
 
 namespace util {
