@@ -170,7 +170,7 @@ private:
 		const Type_spec& type_spec_required_args);
 	void verify_optional_args_count(
 		const Type_spec& type_spec_optional_args);
-	uint32_t calc_arglist_optional_args_count();
+	std::size_t calc_arglist_optional_args_count();
 
 	std::size_t calc_min_args_count(
 		const Type_spec& type_spec,
