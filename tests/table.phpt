@@ -17,8 +17,8 @@ mysqlx Table
 	expect_eq($table->count(), 12);
 	expect_true($table->existsInDatabase());
 
-        try {
-	        $schema = $table->getSchema($db);
+	try {
+		$schema = $table->getSchema();
 		expect_eq($schema->getName(),$db);
 		expect_true($schema->existsInDatabase());
 		$table2 = $schema->getTable('test_table');
