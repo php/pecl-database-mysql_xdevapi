@@ -49,8 +49,7 @@ error_reporting=0
 		$test[3] = "1";
 	}
 
-	for ($n = 1; $n <= 3; $n++)
-	{
+	for ($n = 1; $n <= 3; $n++)	{
 		$session->createSchema("test_schema$n");
 	}
 
@@ -88,6 +87,9 @@ error_reporting=0
 <?php
 	require("connect.inc");
 	clean_test_db($test_schema_name);
+	for ($n = 1; $n <= 3; $n++)	{
+		clean_test_db("test_schema$n");
+	}
 ?>
 --EXPECTF--
 %s(6) "111111"

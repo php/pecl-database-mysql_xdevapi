@@ -40,6 +40,7 @@ extern "C" {
 #include "mysqlx_session.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -56,9 +57,9 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__bind, 0, ZEND_RETURN_VALUE,
 ZEND_END_ARG_INFO()
 
 
-//ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__execute, 0, ZEND_RETURN_VALUE, 0)
-//	ZEND_ARG_TYPE_INFO(no_pass_by_ref, flags, IS_LONG, dont_allow_null)
-//ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__execute, 0, ZEND_RETURN_VALUE, 0)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, flags, IS_LONG, dont_allow_null)
+ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__has_more_results, 0, ZEND_RETURN_VALUE, 0)
@@ -439,7 +440,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 	zval* param_zv{nullptr};
 
 	DBG_ENTER("mysqlx_sql_statement::bind");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, mysqlx_sql_statement_class_entry,
 												&param_zv))
 	{
@@ -550,7 +551,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, execute)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_sql_statement::execute");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 												&object_zv, mysqlx_sql_statement_class_entry,
 												&flags))
 	{
@@ -571,7 +572,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, hasMoreResults)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_sql_statement::hasMoreResults");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -598,13 +599,13 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 
 	DBG_ENTER("mysqlx_sql_statement_read_result");
 	if (ZEND_NUM_ARGS() == 0) {
-		if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+		if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 													&object_zv, class_entry))
 		{
 			DBG_VOID_RETURN;
 		}
 	} else {
-		if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Offff!f!z",
+		if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Offff!f!z",
 													&object_zv, class_entry,
 													&xmysqlnd_exec_with_cb_ctx.on_row.fci, &xmysqlnd_exec_with_cb_ctx.on_row.fci_cache,
 													&xmysqlnd_exec_with_cb_ctx.on_warning.fci, &xmysqlnd_exec_with_cb_ctx.on_warning.fci_cache,
@@ -675,7 +676,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, getNextResult)
 static const zend_function_entry mysqlx_sql_statement_methods[] = {
 	PHP_ME(mysqlx_sql_statement, __construct,		nullptr,													ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_sql_statement, bind,				arginfo_mysqlx_sql_statement__bind,				ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_sql_statement, execute,			nullptr,													ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_sql_statement, execute,			arginfo_mysqlx_sql_statement__execute,													ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_sql_statement, hasMoreResults,	arginfo_mysqlx_sql_statement__has_more_results,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_sql_statement, getResult,		arginfo_mysqlx_sql_statement__get_result, 			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_sql_statement, getNextResult,	arginfo_mysqlx_sql_statement__get_result, 			ZEND_ACC_PUBLIC)
@@ -936,7 +937,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, hasMoreResults)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_statement::hasMoreResults");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_statement_class_entry))
 	{
 		DBG_VOID_RETURN;

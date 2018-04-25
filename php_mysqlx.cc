@@ -199,7 +199,8 @@ static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 /* }}} */
 #endif
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_x_session, 0, ZEND_RETURN_VALUE, 3)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_x_session, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(0, uri, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__expression, 0, ZEND_RETURN_VALUE, 1)

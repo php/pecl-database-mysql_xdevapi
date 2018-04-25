@@ -29,6 +29,7 @@ extern "C" {
 
 #include "mysqlx_message__ok.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -54,7 +55,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__ok, get_message)
 	st_mysqlx_message__ok* object{nullptr};
 
 	DBG_ENTER("mysqlx_message__ok::send");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_message__ok_class_entry))
 	{
 		DBG_VOID_RETURN;

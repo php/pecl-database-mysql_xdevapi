@@ -38,6 +38,7 @@
 #include "mysqlx_table__select.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -48,7 +49,7 @@ using namespace drv;
 zend_class_entry* mysqlx_table__select_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__where, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, projection)
+	ZEND_ARG_INFO(no_pass_by_ref, where_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__group_by, 0, ZEND_RETURN_VALUE, 1)
@@ -121,7 +122,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 
 	DBG_ENTER("mysqlx_table__select::where");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__select_class_entry,
 												&(where_expr.s), &(where_expr.l)))
 	{
@@ -157,7 +158,7 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 
 	DBG_ENTER("mysqlx_table__select__add_sort_or_grouping");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 												&object_zv,
 												mysqlx_table__select_class_entry,
 												&sort_expr,
@@ -267,7 +268,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 
 	DBG_ENTER("mysqlx_table__select::having");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__select_class_entry,
 												&(search_condition.s), &(search_condition.l)))
 	{
@@ -298,7 +299,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 
 	DBG_ENTER("mysqlx_table__select::limit");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, mysqlx_table__select_class_entry,
 												&rows))
 	{
@@ -334,7 +335,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 
 	DBG_ENTER("mysqlx_table__select::offset");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, mysqlx_table__select_class_entry,
 												&position))
 	{
@@ -370,7 +371,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 
 	DBG_ENTER("mysqlx_table__select::bind");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
 												&object_zv, mysqlx_table__select_class_entry,
 												&bind_variables))
 	{
@@ -407,7 +408,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 
 	zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 		&object_zv, mysqlx_table__select_class_entry,
 		&lock_waiting_option))
 	{
@@ -437,7 +438,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 
 	zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 		&object_zv, mysqlx_table__select_class_entry,
 		&lock_waiting_option))
 	{
@@ -469,7 +470,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 
 	DBG_ENTER("mysqlx_table__select::execute");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__select_class_entry))
 	{
 		DBG_VOID_RETURN;
