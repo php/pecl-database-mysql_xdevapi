@@ -37,6 +37,7 @@ extern "C" {
 #include "mysqlx_sql_statement.h"
 #include "mysqlx_session.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -149,7 +150,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__getXSession)
 	RETVAL_NULL();
 
 	DBG_ENTER("mysql_xdevapi__getXSession");
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "s",
+	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s",
 										 &(uri_string.str), &(uri_string.len)))
 	{
 		DBG_VOID_RETURN;

@@ -36,6 +36,7 @@ extern "C" {
 #include "util/allocator.h"
 #include "util/object.h"
 #include "util/string_utils.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -69,14 +70,13 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__create_collection, 0, ZEND_RETURN_
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__drop_collection, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, schema_name, IS_STRING, dont_allow_null)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__drop_collection, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, collection_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__get_collection, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, collection_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -85,7 +85,7 @@ ZEND_END_ARG_INFO()
 
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__get_table, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, table_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -93,7 +93,8 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__get_tables, 0, ZEND_RETURN_VALUE, 
 ZEND_END_ARG_INFO()
 
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__get_collection_as_table, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__get_collection_as_table, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, collection_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -129,7 +130,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
 
 	DBG_ENTER("mysqlx_schema::getSession");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_schema_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -157,7 +158,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_schema::getName");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_schema_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -195,7 +196,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_schema::existsInDatabase");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_schema_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -227,7 +228,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, drop)
 	zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_schema::drop");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_schema_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -283,8 +284,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 	util::string_view collection_name;
 
 	DBG_ENTER("mysqlx_schema::createCollection");
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_schema_class_entry,
 		&(collection_name.str), &(collection_name.len)))
 	{
@@ -318,8 +319,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 	util::string_view collection_name;
 
 	DBG_ENTER("mysqlx_schema::dropCollection");
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_schema_class_entry,
 		&collection_name.str, &collection_name.len))
 	{
@@ -349,7 +350,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 	util::string_view collection_name;
 
 	DBG_ENTER("mysqlx_schema::getCollection");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(collection_name.str), &(collection_name.len)))
 	{
@@ -380,7 +381,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 	util::string_view table_name;
 
 	DBG_ENTER("mysqlx_schema::getTable");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(table_name.str), &(table_name.len)))
 	{
@@ -409,7 +410,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 	MYSQLND_CSTRING collection_name = { nullptr, 0 };
 
 	DBG_ENTER("mysqlx_schema::getCollectionAsTable");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(collection_name.s), &(collection_name.l)))
 	{
@@ -508,7 +509,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTables)
 	st_mysqlx_schema* object{nullptr};
 
 	DBG_ENTER("mysqlx_schema::getTables");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_schema_class_entry) == FAILURE) {
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_schema_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -529,7 +530,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 	st_mysqlx_schema* object{nullptr};
 
 	DBG_ENTER("mysqlx_schema::getCollections");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_schema_class_entry) == FAILURE) {
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_schema_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 

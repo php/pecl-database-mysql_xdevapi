@@ -38,6 +38,7 @@ extern "C" {
 #include "mysqlx_collection__remove.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -265,7 +266,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, sort)
 	zval* object_zv{nullptr};
 	zval* sort_expr{nullptr};
 	int num_of_expr{0};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_remove_class_entry,
 									&sort_expr,
@@ -289,7 +290,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 
 	zval* object_zv{nullptr};
 	zend_long rows{0};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_remove_class_entry,
 												&rows))
 	{
@@ -316,7 +317,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 
 	zval* object_zv{nullptr};
 	HashTable* bind_variables{nullptr};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
 												&object_zv, collection_remove_class_entry,
 												&bind_variables))
 	{
@@ -337,7 +338,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 	DBG_ENTER("mysqlx_collection__remove::execute");
 
 	zval* object_zv{nullptr};
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, collection_remove_class_entry))
 	{
 		DBG_VOID_RETURN;

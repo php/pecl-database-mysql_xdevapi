@@ -42,6 +42,7 @@ extern "C" {
 #include "util/allocator.h"
 #include "util/json_utils.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -73,10 +74,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__set, 0, ZEND_RETURN_VA
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__unset, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, variables)
+	ZEND_ARG_INFO(no_pass_by_ref, fields)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__replace, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__replace, 0, ZEND_RETURN_VALUE, 2)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, collection_field, IS_STRING, dont_allow_null)
 	ZEND_ARG_INFO(no_pass_by_ref, expression_or_literal)
 ZEND_END_ARG_INFO()
@@ -99,7 +100,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__array_append, 0, ZEND_
 	ZEND_ARG_INFO(no_pass_by_ref, expression_or_literal)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__array_delete, 0, ZEND_RETURN_VALUE, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__array_delete, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, collection_field, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
@@ -591,7 +592,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 
 	DBG_ENTER("mysqlx_collection__modify::sort");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_modify_class_entry,
 									&sort_expr,
@@ -616,7 +617,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 
 	DBG_ENTER("mysqlx_collection__modify::limit");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_modify_class_entry,
 												&rows))
 	{
@@ -639,7 +640,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 
 	DBG_ENTER("mysqlx_collection__modify::skip");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_modify_class_entry,
 												&position))
 	{
@@ -667,7 +668,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 
 	DBG_ENTER("mysqlx_collection__modify::bind");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
 												&object_zv, collection_modify_class_entry,
 												&bind_variables))
 	{
@@ -697,7 +698,7 @@ mysqlx_collection__modify__2_param_op(
 
 	RETVAL_FALSE;
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
 												&object_zv, collection_modify_class_entry,
 												&(path.str), &(path.len),
 												&value))
@@ -743,8 +744,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, merge)
 
 	DBG_ENTER("mysqlx_collection__modify::merge");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, collection_modify_class_entry,
 		&(document_contents.str), &(document_contents.len)))
 	{
@@ -767,8 +768,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 
 	DBG_ENTER("mysqlx_collection__modify::patch");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, collection_modify_class_entry,
 		&(document_contents.str), &(document_contents.len)))
 	{
@@ -813,8 +814,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayDelete)
 
 	DBG_ENTER("mysqlx_collection__modify::arrayDelete");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, collection_modify_class_entry,
 		&(array_index_path.str), &(array_index_path.len)))
 	{
@@ -838,8 +839,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 
 	DBG_ENTER("mysqlx_collection__modify::unset");
 
-	if (FAILURE == zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "O+",
 		&object_zv,
 		collection_modify_class_entry,
 		&variables,
@@ -863,7 +864,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 
 	DBG_ENTER("mysqlx_collection__modify::execute");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, collection_modify_class_entry))
 	{
 		DBG_VOID_RETURN;

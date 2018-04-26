@@ -38,6 +38,7 @@ extern "C" {
 #include "mysqlx_table__delete.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -106,7 +107,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 
 	DBG_ENTER("mysqlx_table__delete::where");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oz",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&where_expr))
 	{
@@ -147,7 +148,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 
 	DBG_ENTER("mysqlx_table__delete::orderby");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 									&object_zv,
 									mysqlx_table__delete_class_entry,
 									&orderby_expr,
@@ -214,7 +215,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 
 	DBG_ENTER("mysqlx_table__delete::limit");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&rows))
 	{
@@ -252,7 +253,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, offset)
 
 	DBG_ENTER("mysqlx_table__delete::offset");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&position))
 	{
@@ -289,7 +290,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 
 	DBG_ENTER("mysqlx_table__delete::bind");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&bind_variables))
 	{
@@ -331,7 +332,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 
 	DBG_ENTER("mysqlx_table__delete::execute");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__delete_class_entry))
 	{
 		DBG_VOID_RETURN;

@@ -37,6 +37,7 @@ extern "C" {
 #include "mysqlx_sql_statement.h"
 #include "util/object.h"
 #include "util/string_utils.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -46,10 +47,12 @@ using namespace drv;
 
 zend_class_entry *mysqlx_session_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__create_schema, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__create_schema, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, schema_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__drop_schema, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__drop_schema, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, schema_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_server_version, 0, ZEND_RETURN_VALUE, 0)
@@ -59,6 +62,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_client_id, 0, ZEND_RETURN_VAL
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__generate_uuid, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session_execute_sql, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, query, IS_STRING, dont_allow_null)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, args)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__sql, 0, ZEND_RETURN_VALUE, 1)
@@ -72,7 +80,8 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_schemas, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_schema, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_schema, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__list_clients, 0, ZEND_RETURN_VALUE, 0)
@@ -88,15 +97,15 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__rollback, 0, ZEND_RETURN_VALUE, 0
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__set_savepoint, 0, ZEND_RETURN_VALUE, 0)
-		ZEND_ARG_INFO(no_pass_by_ref, name)
+	ZEND_ARG_INFO(no_pass_by_ref, savepoint_name)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__rollback_to, 0, ZEND_RETURN_VALUE, 0)
-		ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__rollback_to, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, savepoint_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__release_savepoint, 0, ZEND_RETURN_VALUE, 0)
-		ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__release_savepoint, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, savepoint_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__kill_client, 0, ZEND_RETURN_VALUE, 1)
@@ -151,7 +160,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getServerVersion)
 	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_session::getServerVersion");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -175,7 +184,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getClientId)
 	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_session::getClientId");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -200,7 +209,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, generateUUID)
 	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_session::generateUUID");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -282,7 +291,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_session::getSchemas");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -322,7 +331,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 	util::string_view schema_name;
 
 	DBG_ENTER("mysqlx_session::getSchema");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(),
+	if (util::zend::parse_method_parameters(execute_data,
 									 getThis(),
 									 "Os", &object_zv,
 									 mysqlx_session_class_entry,
@@ -394,7 +403,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, listClients)
 	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_session::listClients");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -488,7 +497,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, executeSql)
 	int argc{0};
 
 	DBG_ENTER("mysqlx_session::executeSql");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os*", &object_zv, mysqlx_session_class_entry,
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os*", &object_zv, mysqlx_session_class_entry,
 																	   &(query.s), &(query.l),
 																	   &args, &argc) == FAILURE)
 	{
@@ -520,7 +529,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 	MYSQLND_CSTRING query = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_session::sql");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_session_class_entry,
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &(query.s), &(query.l)) == FAILURE)
 	{
 		DBG_VOID_RETURN;
@@ -558,7 +567,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 	MYSQLND_CSTRING name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_session::quoteName");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_session_class_entry,
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &(name.s), &(name.l)) == FAILURE)
 	{
 		DBG_VOID_RETURN;
@@ -590,7 +599,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 	MYSQLND_CSTRING schema_name = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_session::createSchema");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &object_zv, mysqlx_session_class_entry,
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &(schema_name.s), &(schema_name.l)) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
@@ -622,8 +631,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 	util::string_view schema_name;
 
 	DBG_ENTER("mysqlx_session::dropSchema");
-	if (zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
 		&(schema_name.str), &(schema_name.len)) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -658,7 +667,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, startTransaction)
 	int argc{0};
 
 	DBG_ENTER("mysqlx_session::startTransaction");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
@@ -685,7 +694,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, commit)
 	int argc{0};
 
 	DBG_ENTER("mysqlx_session::commit");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
@@ -712,7 +721,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollback)
 	int argc{0};
 
 	DBG_ENTER("mysqlx_session::rollback");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
@@ -748,8 +757,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, setSavepoint)
 	DBG_ENTER("mysqlx_session::setSavepoint");
 	util::string_view savepoint_name;
 
-	if (zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "O|s",
+	if (util::zend::parse_method_parameters(
+		execute_data, getThis(), "O|s",
 		&object_zv, mysqlx_session_class_entry,
 		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -793,8 +802,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollbackTo)
 	util::string_view savepoint_name;
 
 	DBG_ENTER("mysqlx_session::rollbackTo");
-	if (zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
 		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -829,8 +838,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, releaseSavepoint)
 	util::string_view savepoint_name;
 
 	DBG_ENTER("mysqlx_session::releaseSavepoint");
-	if (zend_parse_method_parameters(
-		ZEND_NUM_ARGS(), getThis(), "Os",
+	if (util::zend::parse_method_parameters(
+		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
 		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -867,7 +876,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, killClient)
 	zend_long client_id;
 
 	DBG_ENTER("mysqlx_session::killClient");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol", &object_zv, mysqlx_session_class_entry,
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "Ol", &object_zv, mysqlx_session_class_entry,
 																	   &client_id) == FAILURE)
 	{
 		DBG_VOID_RETURN;
@@ -895,7 +904,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 	st_mysqlx_session* object{nullptr};
 
 	DBG_ENTER("mysqlx_session::close");
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -923,7 +932,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 /* {{{ mysqlx_session_methods[] */
 static const zend_function_entry mysqlx_session_methods[] = {
 	PHP_ME(mysqlx_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_session, executeSql,		nullptr, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, executeSql,		arginfo_mysqlx_session_execute_sql, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_session__sql, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, quoteName,		arginfo_mysqlx_session__quote_name, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, getServerVersion, arginfo_mysqlx_session__get_server_version, ZEND_ACC_PUBLIC)

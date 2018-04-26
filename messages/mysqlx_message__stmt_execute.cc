@@ -41,6 +41,7 @@ extern "C" {
 #include "mysqlx_resultset__data_row.h"
 #include "mysqlx_message__data_fetch_done.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -92,7 +93,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, send)
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_message__stmt_execute::send");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OssbOO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OssbOO",
 												&object_zv, mysqlx_message__stmt_execute_class_entry,
 												&namespace_, &namespace_len,
 												&stmt, &stmt_len,
@@ -141,7 +142,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__stmt_execute, read_response)
 	st_mysqlx_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_message__stmt_execute::read_response");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OOO",
 												&object_zv, mysqlx_message__stmt_execute_class_entry,
 												&codec_zv, mysqlx_pfc_class_entry,
 												&connection_zv, mysqlx_connection_class_entry))

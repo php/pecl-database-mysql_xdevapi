@@ -66,7 +66,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_pfc, send)
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_pfc::send");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OOls",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OOls",
 												&codec_zv, mysqlx_pfc_class_entry,
 												&connection_zv, mysqlx_connection_class_entry,
 												&packet_type,
@@ -99,7 +99,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_pfc, receive)
 	st_mysqlx_pfc* codec{nullptr};
 
 	DBG_ENTER("mysqlx_pfc::receive");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "OO",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "OO",
 												&codec_zv, mysqlx_pfc_class_entry,
 												&connection_zv, mysqlx_connection_class_entry))
 	{

@@ -39,6 +39,7 @@ extern "C" {
 #include "mysqlx_table__update.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -115,7 +116,7 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 
 	DBG_ENTER("mysqlx_table__update__2_param_op");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Osz",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
 												&object_zv, mysqlx_table__update_class_entry,
 												&(table_field.s), &(table_field.l),
 												(zval *) &value))
@@ -184,7 +185,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 
 	DBG_ENTER("mysqlx_table__update::where");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__update_class_entry,
 												&(where_expr.s), &(where_expr.l)))
 	{
@@ -218,7 +219,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 
 	DBG_ENTER("mysqlx_table__update::orderby");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O+",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 												&object_zv,
 												mysqlx_table__update_class_entry,
 												&orderby_expr,
@@ -282,7 +283,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 
 	DBG_ENTER("mysqlx_table__update::limit");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Ol",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, mysqlx_table__update_class_entry,
 												&rows))
 	{
@@ -317,7 +318,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 
 	DBG_ENTER("mysqlx_table__update::bind");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Oh",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
 												&object_zv, mysqlx_table__update_class_entry,
 												&bind_variables))
 	{
@@ -358,7 +359,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 
 	DBG_ENTER("mysqlx_table__update::execute");
 
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__update_class_entry))
 	{
 		DBG_VOID_RETURN;

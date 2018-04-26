@@ -43,6 +43,7 @@ extern "C" {
 
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -98,7 +99,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchOne)
 	st_mysqlx_row_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_row_result::fetchOne");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -128,7 +129,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 	st_mysqlx_row_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_row_result::fetchAll");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -155,7 +156,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarningCount)
 	st_mysqlx_row_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_row_result::getWarningCount");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -189,7 +190,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarnings)
 	st_mysqlx_row_result* object{nullptr};
 
 	DBG_ENTER("mysqlx_row_result::getWarnings");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -242,7 +243,7 @@ static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(INTERNAL_FUNCTION_PARA
 	st_mysqlx_row_result* object{nullptr};
 
 	DBG_ENTER("get_stmt_result_meta");
-	if (FAILURE == zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_RETURN(nullptr);
