@@ -122,10 +122,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 
 	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(
-		execute_data, 
-		getThis(), 
+		execute_data,
+		getThis(),
 		"O",
-		&object_zv, 
+		&object_zv,
 		mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;

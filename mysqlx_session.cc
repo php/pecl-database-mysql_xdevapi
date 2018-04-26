@@ -1050,16 +1050,9 @@ mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session)
 {
 	DBG_ENTER("mysqlx_new_session");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_session_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object{ Z_MYSQLX_P(return_value) };
-		st_mysqlx_session* const object{ static_cast<st_mysqlx_session*>(mysqlx_object->ptr) };
-		if (object) {
-			object->session = session;
-		} else {
-			zval_ptr_dtor(return_value);
-			throw util::doc_ref_exception(util::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
-		}
-	}
+	st_mysqlx_session& data_object{
+		util::init_object<st_mysqlx_session>(mysqlx_session_class_entry, return_value) };
+	data_object.session = session;
 
 	DBG_VOID_RETURN;
 }
