@@ -1,5 +1,5 @@
 --TEST--
-mysqlx get session from schema
+mysqlx get session from table
 --SKIPIF--
 --INI--
 error_reporting=E_ALL
