@@ -17,7 +17,7 @@ mysqlx Collection
 	expect_eq($coll->count(), 16);
 
 	try {
-	        $schema = $coll->getSchema($db);
+		$schema = $coll->getSchema();
 		expect_eq($schema->getName(),$db);
 		expect_true($schema->existsInDatabase());
 		$coll2 = $schema->getCollection('test_collection');
