@@ -73,11 +73,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 static zend_bool
 mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
-	const unsigned int error_num = session->m->get_error_no(session);
+    const unsigned int error_num = session->get_error_no();
 	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");
 	if (error_num) {
-		MYSQLND_CSTRING sqlstate = { session->m->get_sqlstate(session) , 0 };
-		MYSQLND_CSTRING errmsg = { session->m->get_error_str(session) , 0 };
+        MYSQLND_CSTRING sqlstate = { session->get_sqlstate() , 0 };
+        MYSQLND_CSTRING errmsg = { session->get_error_str() , 0 };
 		sqlstate.l = strlen(sqlstate.s);
 		errmsg.l = strlen(errmsg.s);
 		mysqlx_new_exception(error_num, sqlstate, errmsg);

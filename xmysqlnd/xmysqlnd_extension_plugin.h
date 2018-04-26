@@ -101,12 +101,6 @@ struct st_xmysqlnd_plugin_methods_xetters
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session) * const methods);
 	} session;
 
-	struct st_xmnd_session_data_xetters
-	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * const methods);
-	} session_data;
-
 	struct st_xmnd_schema_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema) * (*get)();
@@ -194,9 +188,6 @@ PHP_MYSQL_XDEVAPI_API extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_
 
 #define xmysqlnd_session_get_methods()				xmysqlnd_plugin_methods_xetters.session.get()
 #define xmysqlnd_session_set_methods(m)			xmysqlnd_plugin_methods_xetters.session.set((m))
-
-#define xmysqlnd_session_data_get_methods()		xmysqlnd_plugin_methods_xetters.session_data.get()
-#define xmysqlnd_session_data_set_methods(m)		xmysqlnd_plugin_methods_xetters.session_data.set((m))
 
 #define xmysqlnd_schema_get_methods()				xmysqlnd_plugin_methods_xetters.schema.get()
 #define xmysqlnd_schema_set_methods(m)				xmysqlnd_plugin_methods_xetters.schema.set((m))

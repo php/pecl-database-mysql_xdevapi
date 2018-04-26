@@ -172,8 +172,8 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt)
 	func_xmysqlnd_stmt__handler_on_row_field handler_on_row_field;		/* export the function for binding */
 	func_xmysqlnd_stmt__handler_on_meta_field handler_on_meta_field;	/* export the function for binding */
 	func_xmysqlnd_stmt__handler_on_warning handler_on_warning;			/* export the function for binding */
-	func_xmysqlnd_stmt__handler_on_error handler_on_error;				/* export the function for binding */
-	func_xmysqlnd_stmt__handler_on_generated_doc_ids handler_on_generated_doc_ids;
+    func_xmysqlnd_stmt__handler_on_error handler_on_error;				/* export the function for binding */
+    func_xmysqlnd_stmt__handler_on_generated_doc_ids handler_on_generated_doc_ids;
 	func_xmysqlnd_stmt__handler_on_exec_state_change handler_on_exec_state_change;/* export the function for binding */
 	func_xmysqlnd_stmt__handler_on_trx_state_change handler_on_trx_state_change;/* export the function for binding */
 	func_xmysqlnd_stmt__handler_on_statement_ok handler_on_statement_ok;	/* export the function for binding */

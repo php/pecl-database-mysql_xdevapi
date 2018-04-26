@@ -191,136 +191,263 @@ typedef std::shared_ptr< st_xmysqlnd_session > XMYSQLND_SESSION;
 typedef std::shared_ptr<st_xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
 typedef struct st_xmysqlnd_session_auth_data XMYSQLND_SESSION_AUTH_DATA;
 
-typedef enum_func_status	(*func_xmysqlnd_session_data__connect_handshake)(XMYSQLND_SESSION_DATA session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
-typedef enum_func_status	(*func_xmysqlnd_session_data__authenticate)(XMYSQLND_SESSION_DATA session, const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
-typedef enum_func_status	(*func_xmysqlnd_session_data__connect)(XMYSQLND_SESSION_DATA session, const MYSQLND_CSTRING database, unsigned int port, size_t set_capabilities);
-typedef size_t                  (*func_xmysqlnd_session_data__escape_string)(XMYSQLND_SESSION_DATA session, char *newstr, const char *escapestr, const size_t escapestr_len);
-typedef MYSQLND_STRING		(*func_xmysqlnd_session_data__quote_name)(XMYSQLND_SESSION_DATA session, const MYSQLND_CSTRING name);
+using vec_of_addresses = util::vector< std::pair<util::string,long> >;
 
-typedef unsigned int		(*func_xmysqlnd_session_data__get_error_no)(const XMYSQLND_SESSION_DATA session);
-typedef const char *		(*func_xmysqlnd_session_data__get_error_str)(const XMYSQLND_SESSION_DATA session);
-typedef const char *		(*func_xmysqlnd_session_data__get_sqlstate)(const XMYSQLND_SESSION_DATA session);
-
-typedef const char *		(*func_xmysqlnd_session_data__get_host_information)(const XMYSQLND_SESSION_DATA  session);
-typedef const char *		(*func_xmysqlnd_session_data__get_protocol_information)(const XMYSQLND_SESSION_DATA  session);
-typedef const char *		(*func_xmysqlnd_session_data__get_charset_name)(const XMYSQLND_SESSION_DATA  session);
-
-typedef enum_func_status	(*func_xmysqlnd_session_data__set_server_option)(XMYSQLND_SESSION_DATA  session, enum_xmysqlnd_server_option option, const char * const value);
-typedef enum_func_status	(*func_xmysqlnd_session_data__set_client_option)(XMYSQLND_SESSION_DATA  session, enum_xmysqlnd_client_option option, const char * const value);
-typedef void				(*func_xmysqlnd_session_data__free_options)(st_xmysqlnd_session_data * session);	/* private */
-typedef void				(*func_xmysqlnd_session_data__dtor)(st_xmysqlnd_session_data * session);	/* private */
-
-typedef XMYSQLND_SESSION	(*func_xmysqlnd_session_data__get_reference)(XMYSQLND_SESSION  session);
-typedef enum_func_status	(*func_xmysqlnd_session_data__free_reference)(XMYSQLND_SESSION_DATA  session);
-
-typedef enum_func_status	(*func_xmysqlnd_session_data__send_close)(st_xmysqlnd_session_data * session);
-
-typedef enum_func_status    (*func_xmysqlnd_session_data__ssl_set)(XMYSQLND_SESSION_DATA  session, const char * key, const char * const cert, const char * const ca, const char * const capath, const char * const cipher);
-
-
-typedef enum_func_status	(*func_xmysqlnd_session_data__local_tx_start)(XMYSQLND_SESSION_DATA session, const size_t this_func);
-typedef enum_func_status	(*func_xmysqlnd_session_data__local_tx_end)(XMYSQLND_SESSION_DATA session, const size_t this_func, const enum_func_status status);
-
-typedef size_t				(*func_xmysqlnd_session_data__negotiate_client_api_capabilities)(XMYSQLND_SESSION_DATA session, const size_t flags);
-typedef size_t				(*func_xmysqlnd_session_data__get_client_api_capabilities)(const XMYSQLND_SESSION_DATA  session);
-
-typedef MYSQLND_STRING		(*func_xmysqlnd_session_data__get_scheme)(XMYSQLND_SESSION_DATA session, const util::string& hostname, unsigned int port);
-
-typedef const enum_hnd_func_status (*func_xmysqlnd_session_data__handler_on_error)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
-typedef const enum_hnd_func_status (*func_xmysqlnd_session_data__handler_on_auth_continue)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * const output);
-typedef size_t				(*func_xmysqlnd_session_data__get_client_id)(const XMYSQLND_SESSION_DATA  session);
-typedef enum_func_status	(*func_xmysqlnd_session_data__set_client_id)(void * context, const size_t id);
-
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data)
+/* {{{ list_of_addresses_parser */
+class list_of_addresses_parser
 {
-	func_xmysqlnd_session_data__get_scheme get_scheme;
-	func_xmysqlnd_session_data__connect_handshake connect_handshake;
-	func_xmysqlnd_session_data__authenticate authenticate;
-	func_xmysqlnd_session_data__connect connect;
-	func_xmysqlnd_session_data__escape_string escape_string;
-	func_xmysqlnd_session_data__quote_name quote_name;
+	void invalidate();
+	bool parse_round_token( const util::string& str );
+	void add_address(vec_of_addresses::value_type addr);
+public:
+	list_of_addresses_parser() = default;
+	list_of_addresses_parser(util::string uri);
+	vec_of_addresses parse();
+private:
+	enum class cur_bracket {
+		none, //Still need to find the first one
+		square_bracket,
+		round_bracket,
+	};
 
-	func_xmysqlnd_session_data__get_error_no get_error_no;
-	func_xmysqlnd_session_data__get_error_str get_error_str;
-	func_xmysqlnd_session_data__get_sqlstate get_sqlstate;
+	std::size_t beg{ 0 };
+	std::size_t end{ 0 };
+	util::string uri_string = {};
+	util::string unformatted_uri = {};
+	vec_of_addresses list_of_addresses;
+};
 
-	func_xmysqlnd_session_data__get_host_information get_host_information;
-	func_xmysqlnd_session_data__get_protocol_information get_protocol_information;
-	func_xmysqlnd_session_data__get_charset_name get_charset_name;
+using Auth_mechanisms = util::vector<Auth_mechanism>;
 
-	func_xmysqlnd_session_data__set_server_option set_server_option;
-	func_xmysqlnd_session_data__set_client_option set_client_option;
-	func_xmysqlnd_session_data__free_options free_options;
 
-	func_xmysqlnd_session_data__send_close send_close;
-
-	func_xmysqlnd_session_data__ssl_set ssl_set;
-
-	func_xmysqlnd_session_data__local_tx_start local_tx_start;
-	func_xmysqlnd_session_data__local_tx_end local_tx_end;
-
-	func_xmysqlnd_session_data__negotiate_client_api_capabilities negotiate_client_api_capabilities;
-	func_xmysqlnd_session_data__get_client_api_capabilities get_client_api_capabilities;
-
-	func_xmysqlnd_session_data__handler_on_error handler_on_error;	/* export the function which is used as network event handler */
-	func_xmysqlnd_session_data__handler_on_auth_continue handler_on_auth_continue;
-	func_xmysqlnd_session_data__get_client_id get_client_id;
-	func_xmysqlnd_session_data__set_client_id set_client_id;
+struct Authentication_context
+{
+	st_xmysqlnd_session_data* session;
+	MYSQLND_CSTRING scheme;
+	util::string username;
+	util::string password;
+	util::string database;
 };
 
 
-struct st_xmysqlnd_session_data : public util::custom_allocable
+// classes to calculate client_hash for given authentication mechanism
+class Auth_scrambler
 {
+protected:
+	Auth_scrambler(
+			const Authentication_context& context,
+			const unsigned int hash_length);
+
+public:
+	virtual ~Auth_scrambler();
+
+	void run(
+			const MYSQLND_CSTRING& salt,
+			util::vector<char>& result);
+
+protected:
+	bool calc_hash(const MYSQLND_CSTRING& salt);
+	virtual void scramble(const MYSQLND_CSTRING& salt) = 0;
+	void hex_hash(util::vector<char>& hexed_hash);
+
+protected:
+	const Authentication_context& context;
+
+	const unsigned int Hash_length;
+	const unsigned int Scramble_length{ SCRAMBLE_LENGTH };
+
+	util::vector<unsigned char> hash;
+
+};
+
+class Auth_plugin
+{
+public:
+	virtual ~Auth_plugin() {}
+	virtual const char* get_mech_name() const = 0;
+	virtual util::string prepare_start_auth_data() = 0;
+	virtual util::string prepare_continue_auth_data(const MYSQLND_CSTRING& salt) = 0;
+};
+
+// -------------
+
+class Auth_plugin_base : public Auth_plugin
+{
+protected:
+	Auth_plugin_base(
+			const char* mech_name,
+			const Authentication_context& context);
+
+public:
+	const char* get_mech_name() const override;
+	util::string prepare_start_auth_data() override;
+	util::string prepare_continue_auth_data(const MYSQLND_CSTRING& salt) override;
+
+protected:
+	void add_prefix_to_auth_data();
+	void add_scramble_to_auth_data(const MYSQLND_CSTRING& salt);
+
+	void add_to_auth_data(const util::string& str);
+	void add_to_auth_data(const util::vector<char>& data);
+	void add_to_auth_data(char chr);
+
+	virtual std::unique_ptr<Auth_scrambler> get_scrambler();
+
+	util::string auth_data_to_string() const;
+
+protected:
+	const char* mech_name;
+	const Authentication_context& context;
+	util::vector<char> auth_data;
+};
+
+
+class Authenticate
+{
+public:
+	Authenticate(
+			st_xmysqlnd_session_data* session,
+			const MYSQLND_CSTRING& scheme,
+			const MYSQLND_CSTRING& database);
+	~Authenticate();
+
+	bool run();
+
+private:
+	bool init_capabilities();
+	bool init_connection();
+	bool gather_auth_mechanisms();
+	bool authentication_loop();
+	bool authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_plugin);
+	void log_custom_error_msg();
+	bool is_suppress_server_messages() const;
+
+private:
+	st_xmysqlnd_session_data* session;
+	const MYSQLND_CSTRING& scheme;
+	const MYSQLND_CSTRING& database;
+
+	const st_xmysqlnd_message_factory msg_factory;
+	st_xmysqlnd_msg__capabilities_get caps_get;
+	const XMYSQLND_SESSION_AUTH_DATA* auth;
+
+	zval capabilities;
+
+	Auth_mechanisms auth_mechanisms;
+
+};
+
+util::string  auth_mechanism_to_str(Auth_mechanism auth_mechanism);
+util::strings to_auth_mech_names(const Auth_mechanisms& auth_mechanisms);
+util::string  prepare_auth_data(Auth_mechanism auth_mechanism,const XMYSQLND_SESSION_AUTH_DATA* auth,const util::string& database);
+std::unique_ptr<Auth_scrambler> create_auth_scrambler(const Auth_mechanism auth_mechanism,const Authentication_context& auth_ctx);
+
+const enum_hnd_func_status
+on_suppress_auth_warning(
+		void* context,
+		const xmysqlnd_stmt_warning_level level,
+		const unsigned int code,
+		const MYSQLND_CSTRING message);
+const enum_hnd_func_status
+on_suppress_auth_error(
+		void* context,
+		const unsigned int code,
+		const MYSQLND_CSTRING sql_state,
+		const MYSQLND_CSTRING message);
+
+class Gather_auth_mechanisms
+{
+public:
+	Gather_auth_mechanisms(
+			const XMYSQLND_SESSION_AUTH_DATA* auth,
+			const zval* capabilities,
+			Auth_mechanisms* auth_mechanisms);
+
+	bool run();
+
+private:
+	bool is_tls_enabled() const;
+	bool is_auth_mechanism_supported(Auth_mechanism auth_mechanism) const;
+	void add_auth_mechanism(Auth_mechanism auth_mechanism);
+	void add_auth_mechanism_if_supported(Auth_mechanism auth_mechanism);
+
+private:
+	const XMYSQLND_SESSION_AUTH_DATA* auth;
+	const zval* capabilities;
+	Auth_mechanisms& auth_mechanisms;
+
+};
+
+enum_func_status           setup_crypto_connection(st_xmysqlnd_session_data* session,st_xmysqlnd_msg__capabilities_get& caps_get,const st_xmysqlnd_message_factory& msg_factory);
+char*                      build_server_host_info(const util::string& format,const util::string& name,zend_bool session_persistent);
+const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+const enum_hnd_func_status xmysqlnd_session_data_handler_on_auth_continue(void* context,const MYSQLND_CSTRING input,MYSQLND_STRING* const output);
+enum_func_status           xmysqlnd_session_data_set_client_id(void * context, const size_t id);
+
+class st_xmysqlnd_session_data : public util::custom_allocable
+{
+public:
 	st_xmysqlnd_session_data() = delete;
 	st_xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-				      MYSQLND_STATS * mysqlnd_stats,
-				      MYSQLND_ERROR_INFO * mysqlnd_error_info);
+							 MYSQLND_STATS * mysqlnd_stats,
+							 MYSQLND_ERROR_INFO * mysqlnd_error_info);
 	~st_xmysqlnd_session_data();
-	/* Operation related */
-	XMYSQLND_L3_IO	io;
-
-	/* Authentication info */
-	const XMYSQLND_SESSION_AUTH_DATA * auth;
-
-	/* Other connection info */
-	MYSQLND_STRING	scheme;
-	MYSQLND_STRING	current_db;
-	transport_types transport_type;
-	/* Used only in case of non network transports */
-	util::string socket_path;
-	char			*server_host_info;
-	size_t			client_id;
-
-	const MYSQLND_CHARSET * charset;
-
-	/* If error packet, we use these */
-	MYSQLND_ERROR_INFO	* error_info;
-	MYSQLND_ERROR_INFO	error_info_impl;
-
-	/* Operation related */
-	XMYSQLND_SESSION_STATE state;
-
-	/* options */
-	XMYSQLND_SESSION_OPTIONS	* options;
-	XMYSQLND_SESSION_OPTIONS	options_impl;
-
-	size_t			client_api_capabilities;
-
-	/* stats */
-	MYSQLND_STATS	* stats;
-	zend_bool		own_stats;
-
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
-	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * m;
+	MYSQLND_STRING    get_scheme(const util::string& hostname,unsigned int port);
+	enum_func_status  connect_handshake(const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
+	enum_func_status  authenticate(const MYSQLND_CSTRING scheme,const MYSQLND_CSTRING database,const size_t set_capabilities);
+	enum_func_status  connect(MYSQLND_CSTRING database,unsigned int port,size_t set_capabilities);
+	size_t            escape_string(char * newstr,const char * to_escapestr,const size_t to_escapestr_len);
+	MYSQLND_STRING    quote_name(const MYSQLND_CSTRING name);
+	unsigned int      get_error_no();
+	const char*       get_error_str();
+	const char*       get_sqlstate();
 
+	const char*       get_charset_name();
+	enum_func_status  set_server_option(const enum_xmysqlnd_server_option option, const char * const value);
+	enum_func_status  set_client_option(enum_xmysqlnd_client_option option, const char * const value);
+
+	const char*       get_server_host_info();
+	const char*       get_protocol_info();
+
+	enum_func_status  send_close();
+	enum_func_status  ssl_set(const char * const key,const char * const cert, const char * const ca, const char * const capath, const char * const cipher);
+	size_t            negotiate_client_api_capabilities(const size_t flags);
+	size_t            get_client_api_capabilities();
+
+	size_t            get_client_id();
+	void              cleanup();
+public:
+	/* Operation related */
+	XMYSQLND_L3_IO	                   io;
+	/* Authentication info */
+	const XMYSQLND_SESSION_AUTH_DATA*  auth;
+	/* Other connection info */
+	MYSQLND_STRING	                   scheme;
+	MYSQLND_STRING	                   current_db;
+	transport_types                    transport_type;
+	/* Used only in case of non network transports */
+	util::string                       socket_path;
+	char*			                   server_host_info;
+	size_t			                   client_id;
+	const MYSQLND_CHARSET*             charset;
+	/* If error packet, we use these */
+	MYSQLND_ERROR_INFO*                error_info;
+	MYSQLND_ERROR_INFO	               error_info_impl;
+	/* Operation related */
+	XMYSQLND_SESSION_STATE             state;
+	/* options */
+	XMYSQLND_SESSION_OPTIONS*          options;
+	XMYSQLND_SESSION_OPTIONS	       options_impl;
+	size_t			                   client_api_capabilities;
+	/* stats */
+	MYSQLND_STATS*                     stats;
+	zend_bool		                   own_stats;
 	/* persistent connection */
-	zend_bool		persistent;
-
+	zend_bool		                   persistent;
 	/* Seed for the next transaction savepoint identifier */
-	unsigned int savepoint_name_seed;
-
-	void cleanup();
+	unsigned int                       savepoint_name_seed;
 private:
 	void free_contents();
 };
@@ -376,14 +503,14 @@ struct st_xmysqlnd_session_query_bind_variable_bind
 
 
 typedef const enum_func_status	(*func_xmysqlnd_session__init)(XMYSQLND_SESSION* session,
-																	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-																	MYSQLND_STATS * stats,
-																	MYSQLND_ERROR_INFO * error_info);
+															   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+															   MYSQLND_STATS * stats,
+															   MYSQLND_ERROR_INFO * error_info);
 
 typedef const enum_func_status	(*func_xmysqlnd_session__connect)(XMYSQLND_SESSION session,
-																	   MYSQLND_CSTRING database,
-																	   const unsigned int port,
-																	   const size_t set_capabilities);
+																  MYSQLND_CSTRING database,
+																  const unsigned int port,
+																  const size_t set_capabilities);
 
 typedef const MYSQLND_CSTRING	(*func_xmysqlnd_session__get_uuid)(XMYSQLND_SESSION session);
 typedef const enum_func_status	(*func_xmysqlnd_session__precache_uuids)(XMYSQLND_SESSION session);
@@ -391,33 +518,33 @@ typedef const enum_func_status	(*func_xmysqlnd_session__create_db)(XMYSQLND_SESS
 typedef const enum_func_status	(*func_xmysqlnd_session__select_db)(XMYSQLND_SESSION  session, const MYSQLND_CSTRING db);
 typedef const enum_func_status	(*func_xmysqlnd_session__drop_db)(XMYSQLND_SESSION  session, const MYSQLND_CSTRING db);
 typedef const enum_func_status	(*func_xmysqlnd_session__query_cb)(XMYSQLND_SESSION  session,
-																		const MYSQLND_CSTRING namespace_,
-																		const MYSQLND_CSTRING query,
-																		const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
-																		const struct st_xmysqlnd_session_on_result_start_bind on_result_start,
-																		const struct st_xmysqlnd_session_on_row_bind on_row,
-																		const struct st_xmysqlnd_session_on_warning_bind on_warning,
-																		const struct st_xmysqlnd_session_on_error_bind on_error,
-																		const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
-																		const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
+																   const MYSQLND_CSTRING namespace_,
+																   const MYSQLND_CSTRING query,
+																   const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
+																   const struct st_xmysqlnd_session_on_result_start_bind on_result_start,
+																   const struct st_xmysqlnd_session_on_row_bind on_row,
+																   const struct st_xmysqlnd_session_on_warning_bind on_warning,
+																   const struct st_xmysqlnd_session_on_error_bind on_error,
+																   const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
+																   const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
 
 typedef const enum_func_status	(*func_xmysqlnd_session__query_cb_ex)(XMYSQLND_SESSION session,
-																		   const MYSQLND_CSTRING namespace_,
-																		   st_xmysqlnd_query_builder* query_builder,
-																		   const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
-																		   const struct st_xmysqlnd_session_on_result_start_bind on_result_start,
-																		   const struct st_xmysqlnd_session_on_row_bind on_row,
-																		   const struct st_xmysqlnd_session_on_warning_bind on_warning,
-																		   const struct st_xmysqlnd_session_on_error_bind on_error,
-																		   const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
-																		   const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
+																	  const MYSQLND_CSTRING namespace_,
+																	  st_xmysqlnd_query_builder* query_builder,
+																	  const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
+																	  const struct st_xmysqlnd_session_on_result_start_bind on_result_start,
+																	  const struct st_xmysqlnd_session_on_row_bind on_row,
+																	  const struct st_xmysqlnd_session_on_warning_bind on_warning,
+																	  const struct st_xmysqlnd_session_on_error_bind on_error,
+																	  const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
+																	  const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
 
 
 
 typedef const enum_func_status	(*func_xmysqlnd_session__query)(XMYSQLND_SESSION session,
-																	 const MYSQLND_CSTRING namespace_,
-																	 const MYSQLND_CSTRING query,
-																	 const struct st_xmysqlnd_session_query_bind_variable_bind var_binder);
+																const MYSQLND_CSTRING namespace_,
+																const MYSQLND_CSTRING query,
+																const struct st_xmysqlnd_session_query_bind_variable_bind var_binder);
 
 typedef zend_ulong			(*func_xmysqlnd_session__get_server_version)(XMYSQLND_SESSION session);
 typedef const char *		(*func_xmysqlnd_session__get_server_information)(const XMYSQLND_SESSION session);
@@ -517,8 +644,8 @@ struct st_xmysqlnd_session : public util::permanent_allocable
 {
 	st_xmysqlnd_session() = delete;
 	st_xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-							 MYSQLND_STATS * stats,
-							 MYSQLND_ERROR_INFO * error_info);
+						MYSQLND_STATS * stats,
+						MYSQLND_ERROR_INFO * error_info);
 	~st_xmysqlnd_session();
 
 	XMYSQLND_SESSION_DATA data;
@@ -533,10 +660,10 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_session_da
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_session);
 
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION xmysqlnd_session_create(const size_t client_flags,
-																const zend_bool persistent,
-																const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-																MYSQLND_STATS * stats,
-																MYSQLND_ERROR_INFO * error_info);
+															   const zend_bool persistent,
+															   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
+															   MYSQLND_STATS * stats,
+															   MYSQLND_ERROR_INFO * error_info);
 
 PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(const char* uri_string, zval * return_value);
 

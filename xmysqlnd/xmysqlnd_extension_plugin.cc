@@ -259,24 +259,6 @@ _xmysqlnd_session_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session)
 }
 /* }}} */
 
-
-/* {{{ _xmysqlnd_session_data_get_methods */
-static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) *
-_xmysqlnd_session_data_get_methods()
-{
-	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_session_data);
-}
-/* }}} */
-
-/* {{{ _xmysqlnd_session_data_set_methods */
-static void
-_xmysqlnd_session_data_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session_data) * const methods)
-{
-	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_session_data) = methods;
-}
-/* }}} */
-
-
 /* {{{ _xmysqlnd_schema_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema) *
 _xmysqlnd_schema_get_methods()
@@ -510,10 +492,6 @@ PHP_MYSQL_XDEVAPI_API struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_
 	{
 		_xmysqlnd_session_get_methods,
 		_xmysqlnd_session_set_methods,
-	},
-	{
-		_xmysqlnd_session_data_get_methods,
-		_xmysqlnd_session_data_set_methods,
 	},
 	{
 		_xmysqlnd_schema_get_methods,

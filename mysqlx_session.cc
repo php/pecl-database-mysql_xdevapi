@@ -127,11 +127,11 @@ ZEND_END_ARG_INFO()
 static zend_bool
 mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
-	const unsigned int error_num = session->m->get_error_no(session);
+    const unsigned int error_num = session->get_error_no();
 	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");
 	if (error_num) {
-		MYSQLND_CSTRING sqlstate = { session->m->get_sqlstate(session) , 0 };
-		MYSQLND_CSTRING errmsg = { session->m->get_error_str(session) , 0 };
+        MYSQLND_CSTRING sqlstate = { session->get_sqlstate() , 0 };
+        MYSQLND_CSTRING errmsg = { session->get_error_str() , 0 };
 		sqlstate.l = strlen(sqlstate.s);
 		errmsg.l = strlen(errmsg.s);
 		mysqlx_new_exception(error_num, sqlstate, errmsg);
@@ -182,7 +182,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getClientId)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if (XMYSQLND_SESSION session = object->session) {
-		RETVAL_LONG(session->data->m->get_client_id(session->data));
+        RETVAL_LONG(session->data->get_client_id());
 		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
 		RETVAL_FALSE;
@@ -267,8 +267,8 @@ mysqlx_session_command_handler_on_error(void * context,
 											 const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_session_command_handler_on_error");
-	if (session) {
-				session->data->m->handler_on_error(session->data.get(), code, sql_state, message);
+    if (session) {
+        xmysqlnd_session_data_handler_on_error(session->data.get(), code, sql_state, message);
 	}
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
@@ -567,7 +567,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		MYSQLND_STRING quoted_name = session->data->m->quote_name(session->data, name);
+        MYSQLND_STRING quoted_name = session->data->quote_name(name);
 		RETVAL_STRINGL(quoted_name.s, quoted_name.l);
 		if (quoted_name.s) {
 			mnd_efree(quoted_name.s);
