@@ -7,12 +7,12 @@ mysqlx Collection
 
 	$session = create_test_db();
 	$schema = $session->getSchema($db);
-	$coll = $schema->getCollection("test_collection");
+	$coll = $schema->getCollection($test_collection_name);
 
 	fill_db_collection($coll);
 
-	expect_eq($coll->getName(),'test_collection');
-	expect_eq($coll->name, 'test_collection');
+	expect_eq($coll->getName(),$test_collection_name);
+	expect_eq($coll->name, $test_collection_name);
 	expect_true($coll->existsInDatabase());
 	expect_eq($coll->count(), 16);
 
@@ -20,8 +20,8 @@ mysqlx Collection
 		$schema = $coll->getSchema();
 		expect_eq($schema->getName(),$db);
 		expect_true($schema->existsInDatabase());
-		$coll2 = $schema->getCollection('test_collection');
-		expect_eq($coll2->getName(),'test_collection');
+		$coll2 = $schema->getCollection($test_collection_name);
+		expect_eq($coll2->getName(),$test_collection_name);
 		expect_true($coll2->existsInDatabase());
 	} catch(Exception $ex) {
 		test_step_failed();

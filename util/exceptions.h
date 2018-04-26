@@ -34,7 +34,6 @@ struct xdevapi_exception : public std::runtime_error
 {
 	enum class Code : unsigned int
 	{
-		not_implemented = 1000,
 		fetch_fail = 10000,
 		meta_fail,
 		add_doc,

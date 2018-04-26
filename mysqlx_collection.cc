@@ -38,6 +38,7 @@ extern "C" {
 #include "mysqlx_collection.h"
 #include "mysqlx_doc_result.h"
 #include "mysqlx_schema.h"
+#include "mysqlx_session.h"
 #include "util/allocator.h"
 #include "util/hash_table.h"
 #include "util/json_utils.h"
@@ -157,26 +158,25 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, __construct)
 /* {{{ proto mixed mysqlx_collection::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 {
-	st_mysqlx_collection* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_collection::getSession");
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
-												&object_zv, mysqlx_collection_class_entry))
+	zval* object_zv{nullptr};
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, 
+		getThis(), 
+		"O",
+		&object_zv, 
+		mysqlx_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
 
 	RETVAL_FALSE;
 
-	throw util::xdevapi_exception(util::xdevapi_exception::Code::not_implemented);
-
-	if (object->collection) {
-
-	}
+	XMYSQLND_SESSION session{ data_object.collection->data->schema->data->session };
+	mysqlx_new_session(return_value, session);
 
 	DBG_VOID_RETURN;
 }
