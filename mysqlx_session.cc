@@ -1043,6 +1043,21 @@ mysqlx_new_session(zval * return_value)
 }
 /* }}} */
 
+
+/* {{{ mysqlx_new_session */
+void
+mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session)
+{
+	DBG_ENTER("mysqlx_new_session");
+
+	st_mysqlx_session& data_object{
+		util::init_object<st_mysqlx_session>(mysqlx_session_class_entry, return_value) };
+	data_object.session = session;
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 } // namespace devapi
 
 } // namespace mysqlx

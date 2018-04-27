@@ -30,6 +30,7 @@ extern "C" {
 #include "mysqlx_exception.h"
 #include "mysqlx_schema_object.h"
 #include "mysqlx_schema.h"
+#include "mysqlx_session.h"
 #include "mysqlx_table__delete.h"
 #include "mysqlx_table__insert.h"
 #include "mysqlx_table__select.h"
@@ -117,26 +118,25 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, __construct)
 /* {{{ proto mixed mysqlx_table::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 {
-	st_mysqlx_table* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table::getSession");
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
-												&object_zv, mysqlx_table_class_entry))
+	zval* object_zv{nullptr};
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data,
+		getThis(),
+		"O",
+		&object_zv,
+		mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 
 	RETVAL_FALSE;
 
-	throw util::xdevapi_exception(util::xdevapi_exception::Code::not_implemented);
-
-	if (object->table) {
-
-	}
+	XMYSQLND_SESSION session{ data_object.table->data->schema->data->session };
+	mysqlx_new_session(return_value, session);
 
 	DBG_VOID_RETURN;
 }
@@ -291,7 +291,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 	XMYSQLND_SESSION session;
 	zval* object_zv{nullptr};
 
-	DBG_ENTER("mysqlx_collection::getSchema");
+	DBG_ENTER("mysqlx_table::getSchema");
 
 	if (FAILURE == util::zend::parse_method_parameters(
 				execute_data,
