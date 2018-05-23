@@ -35,6 +35,8 @@
 .libs
 phpt.*
 *.json
+*.autosave
+
 #core
 dynlib.m4
 Makefile
@@ -168,6 +170,7 @@ tests/*/*/*.sh
 */*/tests/*/*/*/*.exp
 */*/tests/*/*/*/*.log
 */*/tests/*/*/*/*.sh
+coverage*
 
 # Extension specifc ignores
 */configure.in

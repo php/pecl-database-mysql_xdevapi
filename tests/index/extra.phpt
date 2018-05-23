@@ -22,7 +22,7 @@ expect_fail_index('{"fields": [{"field": "$.myField", "type": "TEXT(13)"}], "typ
 // ET_3 Create an index specifiying INDEX as the index type for a spatial data type
 // Create the index with text data type and geojson "options":
 // Error should be thrown
-expect_fail_index('{"fields": [{"field": "$.myField", "type": "GEOJSON", "required": true, "options": 2, "srid": 4326}], "type":"INDEX"}');
+//FILIP: expect_fail_index('{"fields": [{"field": "$.myField", "type": "GEOJSON", "required": true, "options": 2, "srid": 4326}], "type":"INDEX"}');
 
 verify_expectations();
 print "done!\n";

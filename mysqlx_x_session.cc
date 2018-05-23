@@ -70,25 +70,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 } \
 
 
-/* {{{ mysqlx_throw_exception_from_session_if_needed */
-static zend_bool
-mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
-{
-    const unsigned int error_num = session->get_error_no();
-	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");
-	if (error_num) {
-        MYSQLND_CSTRING sqlstate = { session->get_sqlstate() , 0 };
-        MYSQLND_CSTRING errmsg = { session->get_error_str() , 0 };
-		sqlstate.l = strlen(sqlstate.s);
-		errmsg.l = strlen(errmsg.s);
-		mysqlx_new_exception(error_num, sqlstate, errmsg);
-		DBG_RETURN(TRUE);
-	}
-	DBG_RETURN(FALSE);
-}
-/* }}} */
-
-
 /* {{{ mysqlx_x_session_methods[] */
 static const zend_function_entry mysqlx_x_session_methods[] = {
 	PHP_ME(mysqlx_x_session, __construct, 		nullptr, ZEND_ACC_PRIVATE)
@@ -128,16 +109,6 @@ void
 mysqlx_unregister_x_session_class(SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_x_session_properties);
-}
-/* }}} */
-
-
-/* {{{ mysqlx_new_x_session */
-enum_func_status
-mysqlx_new_x_session(zval * return_value)
-{
-	DBG_ENTER("mysqlx_new_x_session");
-	DBG_RETURN(SUCCESS == object_init_ex(return_value, mysqlx_x_session_class_entry)? PASS:FAIL);
 }
 /* }}} */
 

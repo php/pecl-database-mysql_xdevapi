@@ -47,6 +47,8 @@ mysqlx basic executeSql
 	expect_eq($sql->getWarnings(), false);
 
 	$expected_names = array('name','age','job');
+	$expected_lengths = array( 65535, 11, 65535 );
+	$expected_collations = array( 255, 0, 255 );
 
 	// I know, I shall probably check all those fields..
 	for($i = 0 ; $i < 3 ; $i++ ) {
@@ -55,6 +57,13 @@ mysqlx basic executeSql
 		expect_eq($sql->getColumns()[$i]->table, 'test_table');
 		expect_eq($sql->getColumns()[$i]->original_table, 'test_table');
 		expect_eq($sql->getColumns()[$i]->schema, $db);
+		expect_eq($sql->getColumns()[$i]->catalog, "def");
+		expect_eq($sql->getColumns()[$i]->content_type, 0);
+		expect_eq($sql->getColumns()[$i]->flags, 0);
+		expect_eq($sql->getColumns()[$i]->length, $expected_lengths[$i]);
+		expect_eq($sql->getColumns()[$i]->fractional_digits, 0);
+		expect_eq($sql->getColumns()[$i]->collation, $expected_collations[$i]);
+
 	}
 
 	verify_expectations();

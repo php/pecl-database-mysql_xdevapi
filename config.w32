@@ -31,7 +31,6 @@ var Ext_name = "mysql_xdevapi";
 
 var mysqlx_devapi_sources = [
 	"mysqlx_base_result.cc",
-	"mysqlx_base_result_iterator.cc",
 	"mysqlx_class_properties.cc",
 	"mysqlx_collection.cc",
 	"mysqlx_collection__add.cc",
@@ -77,7 +76,6 @@ var mysqlx_devapi_sources = [
 
 var mysqlx_messages = [
 	"mysqlx_connection.cc",
-	"mysqlx_message__auth_continue.cc",
 	"mysqlx_message__auth_ok.cc",
 	"mysqlx_message__auth_start.cc",
 	"mysqlx_message__capabilities.cc",

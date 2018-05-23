@@ -80,8 +80,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlnd_api.h" role="src" />
    <file name="mysqlx_base_result.cc" role="src" />
    <file name="mysqlx_base_result.h" role="src" />
-   <file name="mysqlx_base_result_iterator.cc" role="src" />
-   <file name="mysqlx_base_result_iterator.h" role="src" />
    <file name="mysqlx_class_properties.cc" role="src" />
    <file name="mysqlx_class_properties.h" role="src" />
    <file name="mysqlx_collection.cc" role="src" />
@@ -172,8 +170,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <dir name="messages">
     <file name="mysqlx_connection.cc" role="src" />
     <file name="mysqlx_connection.h" role="src" />
-    <file name="mysqlx_message__auth_continue.cc" role="src" />
-    <file name="mysqlx_message__auth_continue.h" role="src" />
     <file name="mysqlx_message__auth_ok.cc" role="src" />
     <file name="mysqlx_message__auth_ok.h" role="src" />
     <file name="mysqlx_message__auth_start.cc" role="src" />

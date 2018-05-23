@@ -14,26 +14,44 @@
 
 	fill_db_table();
 
-	$sql = $session->sql("select * from $db.test_table")->execute();
+	$sql = $session->sql("select * from $db.test_table");
+	expect_false($sql->hasMoreResults());
+	expect_false($sql->getResult());
+	expect_false($sql->getNextResult());
+	$sql = $sql->execute();
 	expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->getWarningCount(), 0);
 	expect_eq($sql->getColumnCount(), 2);
+        $col_name = $sql->getColumnNames();
+        expect_eq($col_name[0],"name");
+        expect_eq($col_name[1],"age");
 
 	$res = $sql->fetchAll();
 	expect_eq(count($res), 12);
 
 	$sql = $session->sql("insert into $db.test_table values ('Alessio',56),('Mattia',33),('Lucrezia',67)")->execute();
-	expect_false($sql->hasData());
+	expect_eq($sql->getLastInsertId(),0);
+        expect_eq($sql->getGeneratedIds(),[]);
+        expect_false($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 3);
 	expect_eq($sql->getWarningCount(), 0);
 	expect_eq($sql->getColumnCount(), 0);
 
 	$sql = $session->sql("select * from $db.test_table where age < ? order by age desc limit ?")->bind(14)->bind(2)->execute();
-	expect_true($sql->hasData());
+	expect_false($sql->nextResult());
+        expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->getWarningCount(), 0);
 	expect_eq($sql->getColumnCount(), 2);
+        $col_name = $sql->getColumnNames();
+        expect_eq($col_name[0],"name");
+        expect_eq($col_name[1],"age");
+        $columns = $sql->getColumns();
+        expect_eq($columns[0]->name,"name");
+        expect_eq($columns[0]->table,"test_table");
+        expect_eq($columns[1]->name,"age");
+        expect_eq($columns[1]->table,"test_table");
 
 	$res = $sql->fetchOne();
 	expect_eq($res['name'],'Cassidy');
@@ -72,6 +90,7 @@
 	    expect_eq($warn[0]->code,1365);
 	}
 	expect_eq($sql->getColumnCount(), 2);
+
 	verify_expectations();
 	print "done!\n";
 ?>

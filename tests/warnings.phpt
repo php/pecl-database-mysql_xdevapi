@@ -24,6 +24,15 @@ mysqlx warnings
 	    expect_eq($warn[0]->code,1365);
 	}
 
+        $schema->createCollection($test_collection_name);
+        $coll = $schema->getCollection($test_collection_name);
+        $res = $coll->add('{"name": "Marco",      "age": 19, "job": "Programmatore"}',
+		'{"name": "Lonardo",    "age": 59, "job": "Paninaro"}',
+		'{"name": "Riccardo",   "age": 27, "job": "Cantante"}',
+		'{"name": "Carlotta",   "age": 23, "job": "Programmatrice"}')->execute();
+        expect_eq($res->getWarningCount(), 0);
+        expect_eq($res->getWarnings(), []);
+
 	verify_expectations();
 	print "done!\n";
 ?>

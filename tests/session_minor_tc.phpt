@@ -35,6 +35,8 @@ mysqlx session minor TC's
 	var_dump($session->quoteName("x'y'z' test"));
 	var_dump($session->quoteName(""));
 
+        var_dump($session->quoteName("test `test` `2`"));
+
 	var_dump($test);
 
 	print "done!\n";
@@ -51,5 +53,6 @@ string(0) ""
 string(16) "`test test test`"
 string(13) "`x'y'z' test`"
 string(0) ""
+string(21) "`test ``test`` ``2```"
 string(3) "111"
 done!%A

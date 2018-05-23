@@ -15,13 +15,18 @@ error_reporting=0
 
 	$res = $coll->find('job like :job and age > :age')->fields('age');
 	$res = $res->bind(['job' => 'Programmatore', 'age' => 20])->sort('age desc')->limit(2);
-	$data = $res->execute()->fetchAll();
+	$res = $res->execute();
+	expect_eq($res->getWarningCount(), 0);
+	expect_eq($res->getWarnings(), []);
+	$data = $res->fetchAll();
 
 	expect_eq(count($data),2);
 	expect_eq($data[0]['age'],27);
 	expect_eq($data[1]['age'],25);
 
 	$res = $coll->find('job like \'Programmatore\'')->limit(1)->skip(3)->sort('age asc')->execute();
+	expect_eq($res->getWarningCount(), 0);
+	expect_eq($res->getWarnings(), []);
 	$data = $res->fetchAll();
 
 	expect_eq(count($data),1);
@@ -45,7 +50,10 @@ error_reporting=0
 
 	$res = $coll->find('job like :job and age = :age')->fields(['age', 'job'])->groupBy('age', 'job');
 	$res = $res->bind(['job' => 'Studioso', 'age' => 10])->sort('age desc')->limit(4);
-	$data = $res->execute()->fetchAll();
+	$res = $res->execute();
+	expect_eq($res->getWarningCount(), 0);
+	expect_eq($res->getWarnings(), []);
+	$data = $res->fetchAll();
 
 	expect_eq(count($data),1);
 	expect_eq($data[0]['age'],10);
@@ -58,9 +66,7 @@ error_reporting=0
 	$coll->add('{"_id":96, "name": "Alfonso",  "age": 35, "job": "Cavia"}')->execute();
 	$coll->add('{"_id":17, "name": "Luca",     "age": 99, "job": "Cavia"}')->execute();
 
-	$res = $coll->find('job like \'Cavia\'')->sort('age desc', '_id desc')->execute();
-	$data = $res->fetchAll();
-
+function verify_composed_sort( $data ) {
 	$expected = [
 		[17,99,'Cavia','Luca'],
 		[96,35,'Cavia','Alfonso'],
@@ -82,8 +88,24 @@ error_reporting=0
 		expect_eq($data[$i]['name'],$expected[$i][3]);
 	   }
 	}
+}
+	$res = $coll->find('job like \'Cavia\'')->sort('age desc', '_id desc')->execute();
+	expect_eq($res->getWarningCount(), 0);
+	expect_eq($res->getWarnings(), []);
+	$data = $res->fetchAll();
+
+	verify_composed_sort($data);
+
+	$res = $coll->find('job like \'Cavia\'')->sort(['age desc', '_id desc'])->execute();
+	expect_eq($res->getWarningCount(), 0);
+	expect_eq($res->getWarnings(), []);
+	$data = $res->fetchAll();
+
+	verify_composed_sort($data);
 
 	$res = $coll->find()->fields(['name','age'])->limit(3)->sort('age desc')->having('age > 40')->execute();
+	expect_eq($res->getWarningCount(), 0);
+	expect_eq($res->getWarnings(), []);
 	$data = $res->fetchAll();
 
 	$expected = [

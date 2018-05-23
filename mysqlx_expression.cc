@@ -113,7 +113,6 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 	{
 		DBG_VOID_RETURN;
 	}
-
 	mysqlx_new_expression(return_value, expression);
 
 	DBG_VOID_RETURN;

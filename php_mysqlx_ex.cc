@@ -68,7 +68,6 @@ extern "C" {
 #include "messages/mysqlx_message__ok.h"
 #include "messages/mysqlx_message__error.h"
 #include "messages/mysqlx_message__auth_start.h"
-#include "messages/mysqlx_message__auth_continue.h"
 #include "messages/mysqlx_message__auth_ok.h"
 #include "messages/mysqlx_message__capabilities_get.h"
 #include "messages/mysqlx_message__capabilities_set.h"
@@ -157,7 +156,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_message__capabilities_set_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_message__auth_start_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-	mysqlx_register_message__auth_continue_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_message__auth_ok_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_message__stmt_execute_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -232,7 +230,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_message__stmt_execute_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_message__auth_ok_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-	mysqlx_unregister_message__auth_continue_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_message__auth_start_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_message__capabilities_set_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

@@ -63,20 +63,6 @@ enum_func_status xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE 
 													  const zval * const value,
 													  const zend_bool is_expression,
 													  const zend_bool is_document);
-//enum_func_status xmysqlnd_crud_table_update__replace(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-//														  const MYSQLND_CSTRING path,
-//														  const zval * const value,
-//														  const zend_bool is_expression,
-//														  const zend_bool is_document);
-//enum_func_status xmysqlnd_crud_table_update__merge(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-//														const MYSQLND_CSTRING path,
-//														const zval * const value);
-//enum_func_status xmysqlnd_crud_table_update__array_insert(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-//															   const MYSQLND_CSTRING path,
-//															   const zval * const value);
-//enum_func_status xmysqlnd_crud_table_update__array_append(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-//															   const MYSQLND_CSTRING path,
-//															   const zval * const value);
 enum_func_status xmysqlnd_crud_table_update__finalize_bind(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj);
 struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_table_update__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj);
 zend_bool xmysqlnd_crud_table_update__is_initialized(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj);

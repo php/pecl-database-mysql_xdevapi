@@ -339,7 +339,6 @@ private:
 
 util::string  auth_mechanism_to_str(Auth_mechanism auth_mechanism);
 util::strings to_auth_mech_names(const Auth_mechanisms& auth_mechanisms);
-util::string  prepare_auth_data(Auth_mechanism auth_mechanism,const XMYSQLND_SESSION_AUTH_DATA* auth,const util::string& database);
 std::unique_ptr<Auth_scrambler> create_auth_scrambler(const Auth_mechanism auth_mechanism,const Authentication_context& auth_ctx);
 
 const enum_hnd_func_status
@@ -398,23 +397,15 @@ public:
 	enum_func_status  connect_handshake(const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
 	enum_func_status  authenticate(const MYSQLND_CSTRING scheme,const MYSQLND_CSTRING database,const size_t set_capabilities);
 	enum_func_status  connect(MYSQLND_CSTRING database,unsigned int port,size_t set_capabilities);
-	size_t            escape_string(char * newstr,const char * to_escapestr,const size_t to_escapestr_len);
 	MYSQLND_STRING    quote_name(const MYSQLND_CSTRING name);
 	unsigned int      get_error_no();
 	const char*       get_error_str();
 	const char*       get_sqlstate();
 
-	const char*       get_charset_name();
-	enum_func_status  set_server_option(const enum_xmysqlnd_server_option option, const char * const value);
 	enum_func_status  set_client_option(enum_xmysqlnd_client_option option, const char * const value);
 
-	const char*       get_server_host_info();
-	const char*       get_protocol_info();
-
 	enum_func_status  send_close();
-	enum_func_status  ssl_set(const char * const key,const char * const cert, const char * const ca, const char * const capath, const char * const cipher);
 	size_t            negotiate_client_api_capabilities(const size_t flags);
-	size_t            get_client_api_capabilities();
 
 	size_t            get_client_id();
 	void              cleanup();
@@ -528,19 +519,6 @@ typedef const enum_func_status	(*func_xmysqlnd_session__query_cb)(XMYSQLND_SESSI
 																   const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
 																   const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
 
-typedef const enum_func_status	(*func_xmysqlnd_session__query_cb_ex)(XMYSQLND_SESSION session,
-																	  const MYSQLND_CSTRING namespace_,
-																	  st_xmysqlnd_query_builder* query_builder,
-																	  const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
-																	  const struct st_xmysqlnd_session_on_result_start_bind on_result_start,
-																	  const struct st_xmysqlnd_session_on_row_bind on_row,
-																	  const struct st_xmysqlnd_session_on_warning_bind on_warning,
-																	  const struct st_xmysqlnd_session_on_error_bind on_error,
-																	  const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
-																	  const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
-
-
-
 typedef const enum_func_status	(*func_xmysqlnd_session__query)(XMYSQLND_SESSION session,
 																const MYSQLND_CSTRING namespace_,
 																const MYSQLND_CSTRING query,
@@ -570,7 +548,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_session)
 	func_xmysqlnd_session__drop_db drop_db;
 	func_xmysqlnd_session__query query;
 	func_xmysqlnd_session__query_cb query_cb;
-	func_xmysqlnd_session__query_cb_ex query_cb_ex;
 	func_xmysqlnd_session__get_server_version get_server_version;
 	func_xmysqlnd_session__get_server_information get_server_information;
 	func_xmysqlnd_session__create_statement_object create_statement_object;

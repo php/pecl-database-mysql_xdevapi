@@ -18,8 +18,6 @@
 #ifndef XMYSQLND_WIREPROTOCOL_H
 #define XMYSQLND_WIREPROTOCOL_H
 
-#define AUTH_CONTINUE 1
-
 extern "C" {
 #include <ext/mysqlnd/mysqlnd_vio.h>
 }

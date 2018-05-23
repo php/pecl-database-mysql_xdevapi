@@ -154,7 +154,7 @@ void Collection_find::fields(
 				fields = get_mysqlx_expression(fields);
 				is_expression = true;
 			}
-			/* fall-through */
+			break;
 		default:
 			RAISE_EXCEPTION(err_msg_invalid_type);
 			DBG_VOID_RETURN;

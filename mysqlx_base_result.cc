@@ -33,7 +33,6 @@ extern "C" {
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
-#include "mysqlx_base_result_iterator.h"
 #include "mysqlx_base_result.h"
 #include "mysqlx_field_metadata.h"
 

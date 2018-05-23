@@ -16,7 +16,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	mysqlx_devapi_sources=" \
 		mysqlx_base_result.cc \
-		mysqlx_base_result_iterator.cc \
 		mysqlx_class_properties.cc \
 		mysqlx_collection.cc \
 		mysqlx_collection__add.cc \
@@ -62,7 +61,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	mysqlx_messages=" \
 		messages/mysqlx_connection.cc \
-		messages/mysqlx_message__auth_continue.cc \
 		messages/mysqlx_message__auth_ok.cc \
 		messages/mysqlx_message__auth_start.cc \
 		messages/mysqlx_message__capabilities.cc \

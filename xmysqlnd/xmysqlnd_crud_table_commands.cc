@@ -762,64 +762,6 @@ xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_table_update__replace */
-enum_func_status
-xmysqlnd_crud_table_update__replace(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-										 const MYSQLND_CSTRING path,
-										 const zval * const value,
-										 const zend_bool is_expression,
-										 const zend_bool is_document)
-{
-	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_REPLACE;
-	DBG_ENTER("xmysqlnd_crud_table_update__replace");
-	const enum_func_status ret = xmysqlnd_crud_table_update__add_operation(obj, op_type, path, value, is_expression, is_document, FALSE);
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_crud_table_update__merge */
-enum_func_status
-xmysqlnd_crud_table_update__merge(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-									   const MYSQLND_CSTRING path,
-									   const zval * const value)
-{
-	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_MERGE;
-	DBG_ENTER("xmysqlnd_crud_table_update__merge");
-	const enum_func_status ret = xmysqlnd_crud_table_update__add_operation(obj, op_type, path, value, FALSE, TRUE, FALSE);
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_crud_table_update__array_insert */
-enum_func_status
-xmysqlnd_crud_table_update__array_insert(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-											  const MYSQLND_CSTRING path,
-											  const zval * const value)
-{
-	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ARRAY_INSERT;
-	DBG_ENTER("xmysqlnd_crud_table_update__array_insert");
-	const enum_func_status ret = xmysqlnd_crud_table_update__add_operation(obj, op_type, path, value, FALSE, FALSE, TRUE);
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_crud_table_update__array_append */
-enum_func_status
-xmysqlnd_crud_table_update__array_append(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-											  const MYSQLND_CSTRING path,
-											  const zval * const value)
-{
-	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ARRAY_APPEND;
-	DBG_ENTER("xmysqlnd_crud_table_update__array_append");
-	const enum_func_status ret = xmysqlnd_crud_table_update__add_operation(obj, op_type, path, value, FALSE, FALSE, FALSE);
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_crud_table_update__is_initialized */
 zend_bool
 xmysqlnd_crud_table_update__is_initialized(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)

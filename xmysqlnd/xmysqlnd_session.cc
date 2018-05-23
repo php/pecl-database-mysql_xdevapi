@@ -399,21 +399,6 @@ st_xmysqlnd_session_data::connect(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::escape_string */
-size_t
-st_xmysqlnd_session_data::escape_string(char * newstr,
-										const char * to_escapestr,
-										const size_t to_escapestr_len)
-{
-	zend_ulong ret{FAIL};
-	DBG_ENTER("xmysqlnd_session_data::escape_string");
-
-	ret = mysqlnd_cset_escape_slashes(charset, newstr, to_escapestr, to_escapestr_len);
-
-	DBG_RETURN(ret);
-}
-/* }}} */
-
 
 /* {{{ xmysqlnd_session_data::quote_name */
 MYSQLND_STRING
@@ -475,29 +460,6 @@ st_xmysqlnd_session_data::get_sqlstate()
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::get_charset_name */
-const char *
-st_xmysqlnd_session_data::get_charset_name()
-{
-	return charset->name;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_session_data::set_server_option */
-enum_func_status
-st_xmysqlnd_session_data::set_server_option(
-		const enum_xmysqlnd_server_option option,
-		const char * const value)
-{
-	enum_func_status ret{PASS};
-	DBG_ENTER("xmysqlnd_session_data::set_server_option");
-	/* Handle COM_SET_OPTION here */
-
-	DBG_RETURN(ret);
-}
-/* }}} */
-
 
 /* {{{ xmysqlnd_session_data::set_client_option */
 enum_func_status
@@ -516,23 +478,6 @@ st_xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
 		ret = FAIL;
 	}
 	DBG_RETURN(ret);
-}
-/* }}} */
-
-/* {{{ xmysqlnd_session_data::get_host_info */
-const char *
-st_xmysqlnd_session_data::get_server_host_info()
-{
-	return server_host_info;
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_session_data::get_protocol_info */
-const char *
-st_xmysqlnd_session_data::get_protocol_info()
-{
-	return "X Protocol";
 }
 /* }}} */
 
@@ -592,30 +537,6 @@ st_xmysqlnd_session_data::send_close()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::ssl_set */
-enum_func_status
-st_xmysqlnd_session_data::ssl_set(
-		const char * const key,
-		const char * const cert,
-		const char * const ca,
-		const char * const capath,
-		const char * const cipher)
-{
-	enum_func_status ret{FAIL};
-	MYSQLND_VIO * vio = io.vio;
-	DBG_ENTER("xmysqlnd_session_data::ssl_set");
-
-	ret = (PASS == vio->data->m.set_client_option(vio, MYSQLND_OPT_SSL_KEY, key) &&
-		   PASS == vio->data->m.set_client_option(vio, MYSQLND_OPT_SSL_CERT, cert) &&
-		   PASS == vio->data->m.set_client_option(vio, MYSQLND_OPT_SSL_CA, ca) &&
-		   PASS == vio->data->m.set_client_option(vio, MYSQLND_OPT_SSL_CAPATH, capath) &&
-		   PASS == vio->data->m.set_client_option(vio, MYSQLND_OPT_SSL_CIPHER, cipher)) ? PASS : FAIL;
-
-
-	DBG_RETURN(ret);
-}
-/* }}} */
-
 /* {{{ xmysqlnd_session_data::negotiate_client_api_capabilities */
 size_t
 st_xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
@@ -631,15 +552,6 @@ st_xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::get_client_api_capabilities */
-size_t
-st_xmysqlnd_session_data::get_client_api_capabilities()
-{
-	DBG_ENTER("xmysqlnd_session_data::get_client_api_capabilities");
-	DBG_RETURN(client_api_capabilities);
-}
-/* }}} */
-
 /* {{{ xmysqlnd_session_data::get_client_id */
 size_t
 st_xmysqlnd_session_data::get_client_id()
@@ -653,24 +565,6 @@ const char* Auth_mechanism_plain = "PLAIN";
 const char* Auth_mechanism_external = "EXTERNAL";
 const char* Auth_mechanism_sha256_memory = "SHA256_MEMORY";
 const char* Auth_mechanism_unspecified = "";
-
-/* {{{ xmysqlnd_throw_exception_from_session_if_needed */
-zend_bool
-xmysqlnd_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
-{
-	const unsigned int error_num = session->get_error_no();
-	DBG_ENTER("xmysqlnd_throw_exception_from_session_if_needed");
-	if (error_num) {
-		MYSQLND_CSTRING sqlstate = { session->get_sqlstate() , 0 };
-		MYSQLND_CSTRING errmsg = { session->get_error_str() , 0 };
-		sqlstate.l = strlen(sqlstate.s);
-		errmsg.l = strlen(errmsg.s);
-		devapi::mysqlx_new_exception(error_num, sqlstate, errmsg);
-		DBG_RETURN(TRUE);
-	}
-	DBG_RETURN(FALSE);
-}
-/* }}} */
 
 
 const st_xmysqlnd_session_query_bind_variable_bind noop__var_binder = { nullptr, nullptr };
@@ -1419,7 +1313,7 @@ bool Authenticate::init_capabilities()
 bool Authenticate::init_connection()
 {
 	zend_bool tls_set{FALSE};
-	const zend_bool tls{ xmysqlnd_get_tls_capability(&capabilities, &tls_set) };
+	xmysqlnd_get_tls_capability(&capabilities, &tls_set);
 
 	if (auth->ssl_mode == SSL_mode::disabled) return true;
 
@@ -1696,30 +1590,6 @@ enum_func_status setup_crypto_connection(
 }
 /* }}} */
 
-/* {{{ prepare_auth_data */
-util::string prepare_auth_data(
-		Auth_mechanism auth_mechanism,
-		const XMYSQLND_SESSION_AUTH_DATA* auth,
-		const util::string& database)
-{
-	util::string auth_data;
-	switch (auth_mechanism) {
-	case Auth_mechanism::plain:
-		auth_data = database + '\0' + auth->username + '\0' + auth->password;
-		break;
-
-	case Auth_mechanism::mysql41:
-	case Auth_mechanism::external:
-	case Auth_mechanism::sha256_memory:
-		// do nothing
-		break;
-
-	default:
-		assert(!"unexpected Auth_mechanism!");
-	}
-	return auth_data;
-}
-/* }}} */
 
 char* build_server_host_info(const util::string& format,
 							 const util::string& name,
@@ -2210,44 +2080,6 @@ XMYSQLND_METHOD(xmysqlnd_session, query_cb)(XMYSQLND_SESSION session_handle,
 }
 /* }}} */
 
-
-/* {{{ xmysqlnd_session::query_cb_ex */
-const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, query_cb_ex)(XMYSQLND_SESSION session_handle,
-											   const MYSQLND_CSTRING namespace_,
-											   st_xmysqlnd_query_builder* query_builder,
-											   const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
-											   const struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
-											   const struct st_xmysqlnd_session_on_row_bind handler_on_row,
-											   const struct st_xmysqlnd_session_on_warning_bind handler_on_warning,
-											   const struct st_xmysqlnd_session_on_error_bind handler_on_error,
-											   const struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end,
-											   const struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok)
-{
-	enum_func_status ret{FAIL};
-	DBG_ENTER("xmysqlnd_session::query_cb_ex");
-	if (query_builder &&
-			query_builder->create &&
-			session_handle &&
-			PASS == (ret = query_builder->create(query_builder)))
-	{
-		ret = session_handle->m->query_cb(session_handle,
-										  namespace_,
-										  mnd_str2c(query_builder->query),
-										  var_binder,
-										  handler_on_result_start,
-										  handler_on_row,
-										  handler_on_warning,
-										  handler_on_error,
-										  handler_on_result_end,
-										  handler_on_statement_ok);
-		query_builder->destroy(query_builder);
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_session_on_warning */
 const enum_hnd_func_status
 xmysqlnd_session_on_warning(void * context, XMYSQLND_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
@@ -2455,7 +2287,6 @@ XMYSQLND_METHOD(xmysqlnd_session, select_db),
 XMYSQLND_METHOD(xmysqlnd_session, drop_db),
 XMYSQLND_METHOD(xmysqlnd_session, query),
 XMYSQLND_METHOD(xmysqlnd_session, query_cb),
-XMYSQLND_METHOD(xmysqlnd_session, query_cb_ex),
 XMYSQLND_METHOD(xmysqlnd_session, get_server_version),
 XMYSQLND_METHOD(xmysqlnd_session, get_server_version_string),
 XMYSQLND_METHOD(xmysqlnd_session, create_statement_object),

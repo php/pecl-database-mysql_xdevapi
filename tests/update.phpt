@@ -50,6 +50,13 @@ mysqlx update
 	expect_eq($res[3]['name'], 'ERomy');
 	expect_eq($res[3]['age'], 69);
 
+        try{
+                $res = $table->update()->set('age',50)->where('age > 15 and age < 100')->limit(2)->orderby(['fail asc','name desc'])->execute();
+                test_step_failed();
+        } catch( Exception $ex ) {
+                test_step_ok();
+        }
+
 	verify_expectations();
 	print "done!\n";
 ?>

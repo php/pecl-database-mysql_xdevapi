@@ -35,7 +35,6 @@ extern "C" {
 #include "mysqlx_message__ok.h"
 #include "mysqlx_message__error.h"
 #include "mysqlx_message__auth_start.h"
-#include "mysqlx_message__auth_continue.h"
 #include "mysqlx_message__auth_ok.h"
 
 #include "util/object.h"
