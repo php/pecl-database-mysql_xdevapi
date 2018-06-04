@@ -57,7 +57,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__get_generated_ids, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__get_warnings_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
@@ -185,13 +185,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_result::getWarningCount(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningCount)
+/* {{{ proto mixed mysqlx_result::getWarningsCount(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 {
 	zval* object_zv{nullptr};
 	st_mysqlx_result* object{nullptr};
 
-	DBG_ENTER("mysqlx_result::getWarningCount");
+	DBG_ENTER("mysqlx_result::getWarningsCount");
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
@@ -264,7 +264,7 @@ static const zend_function_entry mysqlx_result_methods[] = {
 	PHP_ME(mysqlx_result, getAffectedItemsCount,	arginfo_mysqlx_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_result, getAutoIncrementValue, 	arginfo_mysqlx_result__get_auto_increment_value,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_result, getGeneratedIds,			arginfo_mysqlx_result__get_generated_ids,			ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_result, getWarningCount,			arginfo_mysqlx_result__get_warning_count,			ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_result, getWarningsCount,			arginfo_mysqlx_result__get_warnings_count,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_result, getWarnings,				arginfo_mysqlx_result__get_warnings, 				ZEND_ACC_PUBLIC)
 
 	{nullptr, nullptr, nullptr}

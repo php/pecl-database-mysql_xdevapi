@@ -404,16 +404,16 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const MYSQLND_CLASS_METHODS_TY
 /* }}} */
 
 
-/* {{{ xmysqlnd_object_factory::get_warning_list */
+/* {{{ xmysqlnd_object_factory::get_warnings_list */
 static XMYSQLND_WARNING_LIST *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_warnings_list)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 														   const zend_bool persistent,
 														   MYSQLND_STATS* stats,
 														   MYSQLND_ERROR_INFO* error_info)
 {
 	XMYSQLND_WARNING_LIST* object = new XMYSQLND_WARNING_LIST;
 
-	DBG_ENTER("xmysqlnd_object_factory::get_warning_list");
+	DBG_ENTER("xmysqlnd_object_factory::get_warnings_list");
 	DBG_INF_FMT("persistent=%u", persistent);
 	if (object) {
 		object->persistent = persistent;
@@ -469,7 +469,7 @@ MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc),
-	XMYSQLND_METHOD(xmysqlnd_object_factory, get_warning_list),
+	XMYSQLND_METHOD(xmysqlnd_object_factory, get_warnings_list),
 	XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state),
 MYSQLND_CLASS_METHODS_END;
 

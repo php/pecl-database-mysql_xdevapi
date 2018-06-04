@@ -134,7 +134,7 @@ typedef struct st_xmysqlnd_protocol_frame_codec * (*func_xmysqlnd_object_factory
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);
 
-typedef struct st_xmysqlnd_warning_list * (*func_xmysqlnd_object_factory__get_warning_list)(
+typedef struct st_xmysqlnd_warning_list * (*func_xmysqlnd_object_factory__get_warnings_list)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
@@ -161,7 +161,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)
 	func_xmysqlnd_object_factory__get_stmt_result_meta get_stmt_result_meta;
 	func_xmysqlnd_object_factory__get_result_field_meta get_result_field_meta;
 	func_xmysqlnd_object_factory__get_pfc get_protocol_frame_codec;
-	func_xmysqlnd_object_factory__get_warning_list get_warning_list;
+	func_xmysqlnd_object_factory__get_warnings_list get_warnings_list;
 	func_xmysqlnd_object_factory__get_stmt_execution_state get_stmt_execution_state;
 };
 

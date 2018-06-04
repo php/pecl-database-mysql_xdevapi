@@ -75,7 +75,7 @@ public:
 		zend_long rows,
 		zval* return_value);
 
-	void skip(
+	void offset(
 		zend_long position,
 		zval* return_value);
 

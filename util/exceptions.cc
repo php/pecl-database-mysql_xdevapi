@@ -53,6 +53,7 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::insert_fail, "Insert not completely initialized" },
 	{ xdevapi_exception::Code::invalid_type, "Invalid value type" },
 	{ xdevapi_exception::Code::modify_fail, "Modify not completely initialized" },
+	{ xdevapi_exception::Code::remove_fail, "Remove not completely initialized" },
 	{ xdevapi_exception::Code::wrong_param_1, "Parameter must be an array of strings" },
 	{ xdevapi_exception::Code::wrong_param_2, "Parameter must be a non-negative value" },
 	{ xdevapi_exception::Code::wrong_param_3, "Parameter must be a string or array of strings" },

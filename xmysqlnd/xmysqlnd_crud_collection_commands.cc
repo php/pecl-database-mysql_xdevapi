@@ -864,11 +864,11 @@ xmysqlnd_crud_collection_find__set_limit(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_collection_find__set_skip */
+/* {{{ xmysqlnd_crud_collection_find__set_offset */
 enum_func_status
-xmysqlnd_crud_collection_find__set_skip(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t offset)
+xmysqlnd_crud_collection_find__set_offset(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t offset)
 {
-	DBG_ENTER("xmysqlnd_crud_collection_find__set_skip");
+	DBG_ENTER("xmysqlnd_crud_collection_find__set_offset");
 	obj->message.mutable_limit()->set_offset(offset);
 	DBG_RETURN(PASS);
 }

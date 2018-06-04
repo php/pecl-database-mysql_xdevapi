@@ -53,6 +53,13 @@ error_reporting=0
 	$coll->modify('job like :job_param')->set("name", "Martin")->bind(['job_param' => 'nojob'])->execute();
 	$coll->modify('name like :name_param')->unset(["crap1", "crap2"])->bind(['name_param' => 'Sakila'])->execute();
 
+	try{
+	    $coll->modify()->set("name","test")->execute();
+	    test_step_failed();
+	} catch( Exception $ex ) {
+	    test_step_ok();
+	}
+
 	$res = $coll->find()->execute();
 	$data = $res->fetchAll();
 

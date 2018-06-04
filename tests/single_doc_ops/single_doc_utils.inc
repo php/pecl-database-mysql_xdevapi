@@ -6,7 +6,7 @@ require_once(__DIR__."/../connect.inc");
 
 function verify_result($result, $id, $items_count) {
 	expect_eq($result->getAffectedItemsCount(), $items_count, $id." affected items");
-	expect_eq($result->getWarningCount(), 0, $id." warnings");
+	expect_eq($result->getWarningsCount(), 0, $id." warnings");
 }
 
 // ----------------------------------------------------------------------

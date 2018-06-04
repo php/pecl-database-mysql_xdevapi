@@ -49,6 +49,7 @@ struct xdevapi_exception : public std::runtime_error
 		insert_fail,
 		invalid_type,
 		modify_fail,
+		remove_fail,
 		wrong_param_1,
 		wrong_param_2,
 		wrong_param_3,

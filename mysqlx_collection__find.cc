@@ -74,7 +74,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__limit, 0, ZEND_RETURN_VA
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__skip, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__offset, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, position, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
@@ -335,12 +335,12 @@ void Collection_find::limit(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::skip() */
-void Collection_find::skip(
+/* {{{ proto mixed mysqlx_collection__find::offset() */
+void Collection_find::offset(
 	zend_long position,
 	zval* return_value)
 {
-	DBG_ENTER("mysqlx_collection__find::skip");
+	DBG_ENTER("mysqlx_collection__find::offset");
 
 	if (position < 0) {
 		RAISE_EXCEPTION(err_msg_wrong_param_2);
@@ -349,7 +349,7 @@ void Collection_find::skip(
 
 	RETVAL_FALSE;
 
-	if (PASS == xmysqlnd_crud_collection_find__set_skip(find_op, position)) {
+	if (PASS == xmysqlnd_crud_collection_find__set_offset(find_op, position)) {
 		ZVAL_COPY(return_value, object_zv);
 	}
 
@@ -615,13 +615,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::skip() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, skip)
+/* {{{ proto mixed mysqlx_collection__find::offset() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 {
 	zval* object_zv{nullptr};
 	zend_long position{0};
 
-	DBG_ENTER("mysqlx_collection__find::skip");
+	DBG_ENTER("mysqlx_collection__find::offset");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_find_class_entry,
@@ -636,7 +636,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, skip)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.skip(position, return_value);
+	coll_find.offset(position, return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -743,7 +743,7 @@ static const zend_function_entry mysqlx_collection__find_methods[] = {
 	PHP_ME(mysqlx_collection__find, bind, arginfo_mysqlx_collection__find__bind, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__find, sort, arginfo_mysqlx_collection__find__sort, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__find, limit, arginfo_mysqlx_collection__find__limit, ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_collection__find, skip, arginfo_mysqlx_collection__find__skip, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_collection__find, offset, arginfo_mysqlx_collection__find__offset, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__find, lockShared, arginfo_mysqlx_collection__find__lock_shared, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__find, lockExclusive, arginfo_mysqlx_collection__find__lock_exclusive, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__find, execute, arginfo_mysqlx_collection__find__execute, ZEND_ACC_PUBLIC)

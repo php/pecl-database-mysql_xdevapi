@@ -414,7 +414,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 		&object_zv, mysqlx_collection_class_entry,
 		&(search_expr.str), &(search_expr.len)))
 	{
-		DBG_VOID_RETURN;
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::modify_fail);
 	}
 
 	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
@@ -444,7 +444,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 		&object_zv, mysqlx_collection_class_entry,
 		&(search_expr.str), &(search_expr.len)))
 	{
-		DBG_VOID_RETURN;
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::remove_fail);
 	}
 
 	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);

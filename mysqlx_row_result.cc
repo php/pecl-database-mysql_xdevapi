@@ -59,7 +59,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__fetch_all, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__get_warnings_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_row_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
@@ -149,13 +149,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_row_result::getWarningCount(object result) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarningCount)
+/* {{{ proto mixed mysqlx_row_result::getWarningsCount(object result) */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarningsCount)
 {
 	zval* object_zv{nullptr};
 	st_mysqlx_row_result* object{nullptr};
 
-	DBG_ENTER("mysqlx_row_result::getWarningCount");
+	DBG_ENTER("mysqlx_row_result::getWarningsCount");
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
@@ -355,7 +355,7 @@ static const zend_function_entry mysqlx_row_result_methods[] = {
 	PHP_ME(mysqlx_row_result, fetchOne,				arginfo_mysqlx_row_result__fetch_one,				ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_row_result, fetchAll,				arginfo_mysqlx_row_result__fetch_all,				ZEND_ACC_PUBLIC)
 
-	PHP_ME(mysqlx_row_result, getWarningCount,		arginfo_mysqlx_row_result__get_warning_count,		ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_row_result, getWarningsCount,		arginfo_mysqlx_row_result__get_warnings_count,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_row_result, getWarnings,			arginfo_mysqlx_row_result__get_warnings, 			ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_row_result, getColumnCount,		arginfo_mysqlx_row_result__get_column_count,			ZEND_ACC_PUBLIC)

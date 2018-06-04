@@ -1,5 +1,5 @@
 --TEST--
-mysqlx collection modify arrayDelete
+mysqlx collection modify, deleting elements from an array
 --SKIPIF--
 --FILE--
 <?php
@@ -13,9 +13,9 @@ mysqlx collection modify arrayDelete
 
 
 	$coll->modify('job in (\'Programmatore\', \'Cantante\')')->arrayAppend('job', 'Volontario')->arrayAppend('job', 'Tassinaro')->execute();
-	$coll->modify('name in (\'Riccardo\', \'Carlo\')')->arrayDelete('job[0]')->execute();
-	$coll->modify('name in (\'Alfredo\', \'Leonardo\')')->arrayDelete('job[1]')->execute();
-	$coll->modify('name like \'Lonardo\'')->arrayDelete('job[0]')->execute();
+	$coll->modify('name in (\'Riccardo\', \'Carlo\')')->unset('job[0]')->execute();
+	$coll->modify('name in (\'Alfredo\', \'Leonardo\')')->unset('job[1]')->execute();
+	$coll->modify('name like \'Lonardo\'')->unset('job[0]')->execute();
 	var_dump($coll->find()->execute()->fetchAll());
 	print "done!\n";
 ?>

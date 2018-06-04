@@ -21,7 +21,7 @@
 	$sql = $sql->execute();
 	expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
-	expect_eq($sql->getWarningCount(), 0);
+	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getColumnCount(), 2);
         $col_name = $sql->getColumnNames();
         expect_eq($col_name[0],"name");
@@ -35,14 +35,14 @@
         expect_eq($sql->getGeneratedIds(),[]);
         expect_false($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 3);
-	expect_eq($sql->getWarningCount(), 0);
+	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getColumnCount(), 0);
 
 	$sql = $session->sql("select * from $db.test_table where age < ? order by age desc limit ?")->bind(14)->bind(2)->execute();
 	expect_false($sql->nextResult());
         expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
-	expect_eq($sql->getWarningCount(), 0);
+	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getColumnCount(), 2);
         $col_name = $sql->getColumnNames();
         expect_eq($col_name[0],"name");
@@ -82,7 +82,7 @@
 	$sql = $session->sql("select age, age/0 as x from $db.test_table limit 2")->execute();
 	expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
-	expect_eq($sql->getWarningCount(), 2);
+	expect_eq($sql->getWarningsCount(), 2);
 	$warn = $sql->getWarnings();
 	for( $i = 0 ; $i < 2; $i++ ) {
 	    //expect_eq($warn[0]->message,'');

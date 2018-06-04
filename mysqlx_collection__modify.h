@@ -82,9 +82,6 @@ public:
 		const util::string_view& path,
 		zval* value,
 		zval* return_value);
-	void merge(
-		const util::string_view& document_contents,
-		zval* return_value);
 	void patch(
 		const util::string_view& document_contents,
 		zval* return_value);
@@ -96,9 +93,6 @@ public:
 	void arrayAppend(
 		const util::string_view& path,
 		zval* value,
-		zval* return_value);
-	void arrayDelete(
-		const util::string_view& array_index_path,
 		zval* return_value);
 
 	void execute(zval* return_value);

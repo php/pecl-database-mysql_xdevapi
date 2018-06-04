@@ -31,7 +31,7 @@ mysqlx basic executeSql
 	expect_eq($sql->getColumnNames(), false);
 	expect_eq($sql->getColumns(), false);
 
-	expect_eq($sql->getWarningCount(), 0);
+	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getWarnings(), false);
 
 	$sql = $session->executeSql("select * from $db.test_table");
@@ -43,7 +43,7 @@ mysqlx basic executeSql
 	expect_eq($sql->getColumnNames()[1], 'age');
 	expect_eq($sql->getColumnNames()[2], 'job');
 
-	expect_eq($sql->getWarningCount(), 0);
+	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getWarnings(), false);
 
 	$expected_names = array('name','age','job');

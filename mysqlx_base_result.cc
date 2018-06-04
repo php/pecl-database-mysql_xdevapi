@@ -42,7 +42,7 @@ namespace devapi {
 
 zend_class_entry* mysqlx_base_result_interface_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_result__get_warning_count, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_result__get_warnings_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
@@ -52,7 +52,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_base_result_methods[] */
 static const zend_function_entry mysqlx_base_result_methods[] = {
 	//PHP_ME(mysqlx_base_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
-	PHP_ABSTRACT_ME(mysqlx_base_result, getWarningCount,		arginfo_mysqlx_base_result__get_warning_count)
+	PHP_ABSTRACT_ME(mysqlx_base_result, getWarningsCount,		arginfo_mysqlx_base_result__get_warnings_count)
 	PHP_ABSTRACT_ME(mysqlx_base_result, getWarnings,			arginfo_mysqlx_base_result__get_warnings)
 
 	{nullptr, nullptr, nullptr}

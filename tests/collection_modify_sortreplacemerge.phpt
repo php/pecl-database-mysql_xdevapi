@@ -20,7 +20,7 @@ mysqlx collection modify sort/replace/merge
 	$coll->modify('ordinal >= 1 and ordinal <= 9')->unset(['age'])->execute();
 	$coll->modify('true')->sort('name desc', 'age asc')->limit(4)->set('Married', 'NO')->execute();
 
-	$coll->modify("Married like 'NO'")->merge("{'Divorced' : 'NO', 'Vegan' : 'YES'}")->execute();
+	$coll->modify("Married like 'NO'")->patch("{'Divorced' : 'NO', 'Vegan' : 'YES'}")->execute();
 
 	var_dump($coll->find()->execute()->fetchAll());
 	print "done!\n";

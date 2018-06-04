@@ -147,7 +147,7 @@ xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_MET
 {
 	XMYSQLND_WARNING_LIST* result{nullptr};
 	DBG_ENTER("xmysqlnd_warning_list_create");
-	result = object_factory->get_warning_list(object_factory, persistent, stats, error_info);
+	result = object_factory->get_warnings_list(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
 /* }}} */

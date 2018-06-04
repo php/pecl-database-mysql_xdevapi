@@ -15,7 +15,7 @@ mysqlx warnings
 	$table->insert(['x'])->values([1])->values([2])->values([3])->execute();
 	$res = $table->select(['x/0 as bad_x'])->execute();
 
-	expect_eq($res->getWarningCount(), 3);
+	expect_eq($res->getWarningsCount(), 3);
 
 	$warn = $res->getWarnings();
 	for( $i = 0 ; $i < 3; $i++ ) {
@@ -30,7 +30,7 @@ mysqlx warnings
 		'{"name": "Lonardo",    "age": 59, "job": "Paninaro"}',
 		'{"name": "Riccardo",   "age": 27, "job": "Cantante"}',
 		'{"name": "Carlotta",   "age": 23, "job": "Programmatrice"}')->execute();
-        expect_eq($res->getWarningCount(), 0);
+        expect_eq($res->getWarningsCount(), 0);
         expect_eq($res->getWarnings(), []);
 
 	verify_expectations();

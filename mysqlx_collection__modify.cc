@@ -446,28 +446,6 @@ void Collection_modify::replace(
 /* }}} */
 
 
-/* {{{ Collection_modify::merge() */
-void Collection_modify::merge(
-	const util::string_view& document_contents,
-	zval* return_value)
-{
-	DBG_ENTER("Collection_modify::merge");
-
-	RETVAL_FALSE;
-
-	MYSQLND_CSTRING emptyDocPath = { nullptr, 0 };
-	zval zvDocumentContents;
-	document_contents.to_zval(&zvDocumentContents);
-	if (FAIL == xmysqlnd_crud_collection_modify__merge(modify_op, emptyDocPath, &zvDocumentContents)) {
-		RAISE_EXCEPTION(err_msg_merge_fail);
-	}
-	ZVAL_COPY(return_value, object_zv);
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ Collection_modify::patch() */
 void Collection_modify::patch(
 	const util::string_view &document_contents,
@@ -511,25 +489,6 @@ void Collection_modify::arrayAppend(
 {
 	DBG_ENTER("Collection_modify::arrayAppend");
 	add_operation(Operation::Array_append, path, false, value, return_value);
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ Collection_modify::arrayDelete() */
-void Collection_modify::arrayDelete(
-	const util::string_view& array_index_path,
-	zval* return_value)
-{
-	DBG_ENTER("Collection_modify::arrayDelete");
-
-	RETVAL_FALSE;
-
-	if (FAIL == xmysqlnd_crud_collection_modify__array_delete(modify_op, array_index_path.to_nd_cstr())) {
-		RAISE_EXCEPTION(err_msg_arridx_del_fail);
-	}
-	ZVAL_COPY(return_value, object_zv);
-
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -735,31 +694,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 }
 /* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection__modify::merge() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, merge)
-{
-	zval* object_zv{nullptr};
-	util::string_view document_contents;
-
-	DBG_ENTER("mysqlx_collection__modify::merge");
-
-	if (FAILURE == util::zend::parse_method_parameters(
-		execute_data, getThis(), "Os",
-		&object_zv, collection_modify_class_entry,
-		&(document_contents.str), &(document_contents.len)))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.merge(document_contents, return_value);
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ proto mixed mysqlx_collection__modify::patch() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 {
@@ -801,30 +735,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 	DBG_ENTER("mysqlx_collection__modify::arrayAppend");
 	mysqlx_collection__modify__2_param_op(
 		INTERNAL_FUNCTION_PARAM_PASSTHRU, Collection_modify::Operation::Array_append);
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
-/* {{{ proto mixed mysqlx_collection__modify::arrayDelete() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayDelete)
-{
-	zval* object_zv{nullptr};
-	util::string_view array_index_path;
-
-	DBG_ENTER("mysqlx_collection__modify::arrayDelete");
-
-	if (FAILURE == util::zend::parse_method_parameters(
-		execute_data, getThis(), "Os",
-		&object_zv, collection_modify_class_entry,
-		&(array_index_path.str), &(array_index_path.len)))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.arrayDelete(array_index_path, return_value);
-
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -890,11 +800,9 @@ static const zend_function_entry mysqlx_collection__modify_methods[] = {
 	PHP_ME(mysqlx_collection__modify,	set,		arginfo_mysqlx_collection__modify__set,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__modify,	unset,		arginfo_mysqlx_collection__modify__unset,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__modify,	replace,	arginfo_mysqlx_collection__modify__replace,		ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_collection__modify,	merge,		arginfo_mysqlx_collection__modify__merge,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__modify,	patch,		arginfo_mysqlx_collection__modify__patch,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__modify,	arrayInsert,arginfo_mysqlx_collection__modify__array_insert,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__modify,	arrayAppend,arginfo_mysqlx_collection__modify__array_append,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_collection__modify,	arrayDelete,arginfo_mysqlx_collection__modify__array_delete,	ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_collection__modify,	execute,	arginfo_mysqlx_collection__modify__execute,		ZEND_ACC_PUBLIC)
 
