@@ -242,7 +242,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, drop)
 		auto session = object->schema->data->session;
 		const MYSQLND_CSTRING schema_name = mnd_str2c(object->schema->data->schema_name);
 
-		RETVAL_BOOL(session && PASS == session->m->drop_db(session, schema_name));
+		RETVAL_BOOL(session && PASS == session->drop_db(schema_name));
 	}
 
 	DBG_VOID_RETURN;

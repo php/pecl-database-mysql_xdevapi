@@ -179,8 +179,7 @@ XMYSQLND_METHOD(xmysqlnd_table, exists_in_database)(
 
 	const st_xmysqlnd_session_on_row_bind on_row = { table_or_view_exists_in_database_op, &on_row_ctx };
 
-	ret = session->m->query_cb(
-		session,
+	ret = session->query_cb(
 		namespace_xplugin,
 		query,
 		var_binder,
@@ -252,8 +251,7 @@ XMYSQLND_METHOD(xmysqlnd_table, is_view)(
 
 	const st_xmysqlnd_session_on_row_bind on_row = { check_is_view_op, &on_row_ctx };
 
-	ret = session->m->query_cb(
-		session,
+	ret = session->query_cb(
 		namespace_xplugin,
 		query,
 		var_binder,
@@ -327,8 +325,7 @@ XMYSQLND_METHOD(xmysqlnd_table, count)(
 
 	const st_xmysqlnd_session_on_row_bind on_row = { table_sql_single_result_op_on_row, &on_row_ctx };
 
-	ret = session->m->query_cb(session,
-							   namespace_sql,
+	ret = session->query_cb(namespace_sql,
 							   query,
 							   noop__var_binder,
 							   noop__on_result_start,
@@ -446,7 +443,7 @@ XMYSQLND_METHOD(xmysqlnd_table, insert)(XMYSQLND_TABLE * const table, XMYSQLND_C
 			//ret = table_insert.read_response(&table_insert);
 
 			auto session = table->data->schema->data->session;
-			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
+			XMYSQLND_STMT * stmt = session->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -477,7 +474,7 @@ XMYSQLND_METHOD(xmysqlnd_table, opdelete)(XMYSQLND_TABLE * const table, XMYSQLND
 		{
 			//ret = table_ud.read_response(&table_ud);
 			auto session = table->data->schema->data->session;
-			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
+			XMYSQLND_STMT * stmt = session->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -508,7 +505,7 @@ XMYSQLND_METHOD(xmysqlnd_table, update)(XMYSQLND_TABLE * const table, XMYSQLND_C
 		{
 			//ret = table_ud.read_response(&table_ud);
 			auto session = table->data->schema->data->session;
-			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
+			XMYSQLND_STMT * stmt = session->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -533,10 +530,11 @@ XMYSQLND_METHOD(xmysqlnd_table, select)(XMYSQLND_TABLE * const table, XMYSQLND_C
 	if (xmysqlnd_crud_table_select__is_initialized(op))
 	{
 		auto session = table->data->schema->data->session;
-		stmt = session->m->create_statement_object(session);
-		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op), session->data->stats, session->data->error_info))
+		stmt = session->create_statement_object(session);
+		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op),
+                session->get_data()->stats, session->get_data()->error_info))
 		{
-			xmysqlnd_stmt_free(stmt, session->data->stats, session->data->error_info);
+			xmysqlnd_stmt_free(stmt, session->get_data()->stats, session->get_data()->error_info);
 			stmt = nullptr;
 		}
 	}

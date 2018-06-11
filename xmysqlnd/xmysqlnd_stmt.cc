@@ -793,7 +793,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt, dtor)(XMYSQLND_STMT * const stmt, MYSQLND_STATS *
 	DBG_ENTER("xmysqlnd_stmt::dtor");
 	if (stmt) {
 		stmt->data->m.free_contents(stmt);
-		stmt->data->session.~shared_ptr();
 		mnd_pefree(stmt->data, stmt->data->persistent);
 		mnd_pefree(stmt, stmt->persistent);
 	}

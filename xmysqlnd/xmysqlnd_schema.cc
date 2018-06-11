@@ -201,8 +201,7 @@ XMYSQLND_METHOD(xmysqlnd_schema, exists_in_database)(
 
 	const st_xmysqlnd_session_on_row_bind on_row = { schema_sql_op_on_row, &on_row_ctx };
 
-	ret = session->m->query_cb(session,
-							   namespace_sql,
+	ret = session->query_cb(namespace_sql,
 							   query,
 							   var_binder,
 							   noop__on_result_start,
@@ -318,8 +317,7 @@ xmysqlnd_collection_op(
 
 	DBG_ENTER("xmysqlnd_collection_op");
 
-	ret = session->m->query_cb(session,
-							   namespace_xplugin,
+	ret = session->query_cb(namespace_xplugin,
 							   query,
 							   var_binder,
 							   noop__on_result_start,
@@ -542,8 +540,7 @@ XMYSQLND_METHOD(xmysqlnd_schema, get_db_objects)(
 
 	DBG_ENTER("xmysqlnd_schema::get_db_objects");
 
-	ret = session->m->query_cb(session,
-							   namespace_xplugin,
+	ret = session->query_cb(namespace_xplugin,
 							   query,
 							   var_binder,
 							   noop__on_result_start,

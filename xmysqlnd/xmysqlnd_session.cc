@@ -240,7 +240,7 @@ st_xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme,
 			PASS == io.pfc->data->m.reset(io.pfc,
 										  stats,
 										  error_info)) {
-		SET_CONNECTION_STATE(&state, SESSION_NON_AUTHENTICATED);
+		state.set(SESSION_NON_AUTHENTICATED);
 		ret = authenticate(scheme, database, set_capabilities);
 	}
 	DBG_RETURN(ret);
@@ -285,12 +285,12 @@ st_xmysqlnd_session_data::connect(
 				!auth->username.empty()?auth->username.c_str():"",
 				database.s?database.s:"", port, (uint) set_capabilities,
 				persistent,
-				GET_SESSION_STATE(&state));
+				state.get());
 
-	if (GET_SESSION_STATE(&state) > SESSION_ALLOCATED) {
+	if (state.get() > SESSION_ALLOCATED) {
 		DBG_INF("Connecting on a connected handle.");
 
-		if (GET_SESSION_STATE(&state) < SESSION_CLOSE_SENT) {
+		if (state.get() < SESSION_CLOSE_SENT) {
 			XMYSQLND_INC_SESSION_STATISTIC(stats, XMYSQLND_STAT_CLOSE_IMPLICIT);
 			reconnect = TRUE;
 			send_close();
@@ -335,7 +335,7 @@ st_xmysqlnd_session_data::connect(
 
 	/* Setup server host information */
 	if( ret == PASS ) {
-		SET_CONNECTION_STATE(&state, SESSION_READY);
+		state.set(SESSION_READY);
 		transport_types transport = transport_type;
 
 		if ( transport == transport_types::network ) {
@@ -489,7 +489,7 @@ st_xmysqlnd_session_data::send_close()
 	enum_func_status ret{PASS};
 	MYSQLND_VIO * vio = io.vio;
 	php_stream * net_stream = vio->data->m.get_stream(vio);
-	const enum xmysqlnd_session_state state_val = GET_SESSION_STATE(&state);
+	const enum xmysqlnd_session_state state_val = state.get();
 
 	DBG_ENTER("mysqlnd_send_close");
 	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", this, net_stream? net_stream->abstract:nullptr);
@@ -514,7 +514,7 @@ st_xmysqlnd_session_data::send_close()
 			/* HANDLE COM_QUIT here */
 			vio->data->m.close_stream(vio, stats, error_info);
 		}
-		SET_SESSION_STATE(&state, SESSION_CLOSE_SENT);
+		state.set(SESSION_CLOSE_SENT);
 		break;
 	}
 	case SESSION_ALLOCATED:
@@ -524,7 +524,7 @@ st_xmysqlnd_session_data::send_close()
 
 			  Fall-through
 			*/
-		SET_SESSION_STATE(&state, SESSION_CLOSE_SENT);
+		state.set(SESSION_CLOSE_SENT);
 		/* Fall-through */
 	case SESSION_CLOSE_SENT:
 		/* The user has killed its own connection */
@@ -577,41 +577,32 @@ const st_xmysqlnd_session_on_statement_ok_bind noop__on_statement_ok = { nullptr
 
 /* {{{ xmysqlnd_session_state::get */
 enum xmysqlnd_session_state
-		XMYSQLND_METHOD(xmysqlnd_session_state, get)(const XMYSQLND_SESSION_STATE * const state_struct)
+st_xmysqlnd_session_state::get()
 {
 	DBG_ENTER("xmysqlnd_session_state::get");
-	DBG_INF_FMT("State=%u", state_struct->state);
-	DBG_RETURN(state_struct->state);
+	DBG_INF_FMT("State=%u", state);
+	DBG_RETURN(state);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_session_state::set */
 void
-XMYSQLND_METHOD(xmysqlnd_session_state, set)(XMYSQLND_SESSION_STATE * const state_struct, const enum xmysqlnd_session_state state)
+st_xmysqlnd_session_state::set(const enum xmysqlnd_session_state new_state)
 {
 	DBG_ENTER("xmysqlnd_session_state::set");
 	DBG_INF_FMT("New state=%u", state);
-	state_struct->state = state;
+	state = new_state;
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
 
-MYSQLND_CLASS_METHODS_START(xmysqlnd_session_state)
-XMYSQLND_METHOD(xmysqlnd_session_state, get),
-XMYSQLND_METHOD(xmysqlnd_session_state, set),
-MYSQLND_CLASS_METHODS_END;
-
-
 /* {{{ xmysqlnd_session_state_init */
-PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_session_state_init(XMYSQLND_SESSION_STATE * const state)
+st_xmysqlnd_session_state::st_xmysqlnd_session_state()
 {
-	DBG_ENTER("xmysqlnd_session_state_init");
-	state->m = &MYSQLND_CLASS_METHOD_TABLE_NAME(xmysqlnd_session_state);
-	state->state = SESSION_ALLOCATED;
-	DBG_VOID_RETURN;
+	DBG_ENTER("st_xmysqlnd_session_state constructor");
+	state = SESSION_ALLOCATED;
 }
 /* }}} */
 
@@ -632,8 +623,6 @@ st_xmysqlnd_session_data::st_xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_T
 		}
 		error_info = &error_info_impl;
 	}
-
-	xmysqlnd_session_state_init(&state);
 
 	if (stats) {
 		stats = mysqlnd_stats;
@@ -1634,21 +1623,25 @@ st_xmysqlnd_session::~st_xmysqlnd_session()
 }
 /* }}} */
 
+XMYSQLND_SESSION_DATA
+st_xmysqlnd_session::get_data()
+{
+	return data;
+}
+
 /* {{{ xmysqlnd_session::connect */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, connect)(XMYSQLND_SESSION session_handle,
-										   MYSQLND_CSTRING database,
-										   const unsigned int port,
-										   const size_t set_capabilities)
+st_xmysqlnd_session::connect(MYSQLND_CSTRING database,
+							const unsigned int port,
+							const size_t set_capabilities)
 {
 	enum_func_status ret{FAIL};
-	XMYSQLND_SESSION_DATA session = session_handle->data;
 
 	DBG_ENTER("xmysqlnd_session::connect");
-	ret = session->connect(database,port, set_capabilities);
+	ret = data->connect(database,port, set_capabilities);
 #ifdef WANTED_TO_PRECACHE_UUIDS_AT_CONNECT
 	if (PASS == ret) {
-		ret = session_handle->m->precache_uuids(session_handle);
+		ret = precache_uuids();
 	}
 #endif
 	DBG_RETURN(ret);
@@ -1802,20 +1795,20 @@ void Uuid_generator::assign_timestamp( Uuid_format& uuid )
 
 /* {{{ xmysqlnd_schema_operation */
 enum_func_status
-xmysqlnd_schema_operation(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
+st_xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret{FAIL};
-	const MYSQLND_STRING quoted_db = session_handle->data->quote_name(db);
+	const MYSQLND_STRING quoted_db = data->quote_name(db);
 	DBG_ENTER("xmysqlnd_schema_operation");
 	DBG_INF_FMT("db=%s", db);
 
 	if (quoted_db.s && quoted_db.l) {
-		util::string query(operation.s, operation.l);
-		query.append(quoted_db.s, quoted_db.l);
-		const MYSQLND_CSTRING select_query = { query.c_str(), query.length() };
+		util::string query_content(operation.s, operation.l);
+		query_content.append(quoted_db.s, quoted_db.l);
+		const MYSQLND_CSTRING select_query = { query_content.c_str(), query_content.length() };
 		mnd_efree(quoted_db.s);
 
-		ret = session_handle->m->query(session_handle, namespace_sql, select_query, noop__var_binder);
+		ret = query( namespace_sql, select_query, noop__var_binder);
 	}
 	DBG_RETURN(ret);
 
@@ -1825,12 +1818,12 @@ xmysqlnd_schema_operation(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING
 
 /* {{{ xmysqlnd_session::select_db */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, select_db)(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING db)
+st_xmysqlnd_session::select_db(const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "USE ", sizeof("USE ") - 1 };
 	DBG_ENTER("xmysqlnd_session::select_db");
-	ret = xmysqlnd_schema_operation(session_handle, operation, db);
+	ret = xmysqlnd_schema_operation( operation, db);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1838,12 +1831,12 @@ XMYSQLND_METHOD(xmysqlnd_session, select_db)(XMYSQLND_SESSION session_handle, co
 
 /* {{{ xmysqlnd_session::create_db */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, create_db)(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING db)
+st_xmysqlnd_session::create_db(const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "CREATE DATABASE ", sizeof("CREATE DATABASE ") - 1 };
 	DBG_ENTER("xmysqlnd_session::create_db");
-	ret = xmysqlnd_schema_operation(session_handle, operation, db);
+	ret = xmysqlnd_schema_operation( operation, db);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1851,12 +1844,12 @@ XMYSQLND_METHOD(xmysqlnd_session, create_db)(XMYSQLND_SESSION session_handle, co
 
 /* {{{ xmysqlnd_session::drop_db */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, drop_db)(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING db)
+st_xmysqlnd_session::drop_db(const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "DROP DATABASE ", sizeof("DROP DATABASE ") - 1 };
 	DBG_ENTER("xmysqlnd_session::drop_db");
-	ret = xmysqlnd_schema_operation(session_handle, operation, db);
+	ret = xmysqlnd_schema_operation( operation, db);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1987,8 +1980,7 @@ query_cb_handler_on_statement_ok(void * context, XMYSQLND_STMT * const stmt, con
 
 /* {{{ xmysqlnd_session::query_cb */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, query_cb)(XMYSQLND_SESSION session_handle,
-											const MYSQLND_CSTRING namespace_,
+st_xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 											const MYSQLND_CSTRING query,
 											const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
 											const struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
@@ -2000,81 +1992,81 @@ XMYSQLND_METHOD(xmysqlnd_session, query_cb)(XMYSQLND_SESSION session_handle,
 {
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session::query_cb");
-	if (session_handle) {
-		XMYSQLND_SESSION_DATA session = session_handle->data;
-		XMYSQLND_STMT * const stmt = session_handle->m->create_statement_object(session_handle);
-		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
-		if (stmt && stmt_execute) {
-			ret = PASS;
-			if (var_binder.handler) {
-				zend_bool loop{TRUE};
-				do {
-					const enum_hnd_func_status var_binder_result = var_binder.handler(var_binder.ctx, session_handle, stmt_execute);
-					switch (var_binder_result) {
-					case HND_FAIL:
-					case HND_PASS_RETURN_FAIL:
-						ret = FAIL;
-						/* fallthrough */
-					case HND_PASS:
-						loop = FALSE;
-						break;
-					case HND_AGAIN: /* do nothing */
-					default:
-						break;
-					}
-				} while (loop);
-			}
-			ret = xmysqlnd_stmt_execute__finalize_bind(stmt_execute);
-			if (PASS == ret &&
-					(PASS == (ret = stmt->data->m.send_raw_message(stmt,
-																   xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
-																   session->stats, session->error_info))))
-			{
-				struct st_xmysqlnd_query_cb_ctx query_cb_ctx = {
-					session_handle,
-							handler_on_result_start,
-							handler_on_row,
-							handler_on_warning,
-							handler_on_error,
-							handler_on_result_end,
-							handler_on_statement_ok
-				};
-				const struct st_xmysqlnd_stmt_on_row_bind on_row = {
-					handler_on_row.handler? query_cb_handler_on_row : nullptr,
-							&query_cb_ctx
-				};
-				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = {
-					handler_on_warning.handler? query_cb_handler_on_warning : nullptr,
-							&query_cb_ctx
-				};
-				const struct st_xmysqlnd_stmt_on_error_bind on_error = {
-					handler_on_error.handler? query_cb_handler_on_error : nullptr,
-							&query_cb_ctx
-				};
-				const struct st_xmysqlnd_stmt_on_result_start_bind on_result_start = {
-					handler_on_result_start.handler? query_cb_handler_on_result_start : nullptr,
-							&query_cb_ctx
-				};
-				const struct st_xmysqlnd_stmt_on_result_end_bind on_result_end = {
-					handler_on_result_end.handler? query_cb_handler_on_result_end : nullptr,
-							&query_cb_ctx
-				};
-				const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = {
-					handler_on_statement_ok.handler? query_cb_handler_on_statement_ok : nullptr,
-							&query_cb_ctx
-				};
-				ret = stmt->data->m.read_all_results(stmt, on_row, on_warning, on_error, on_result_start, on_result_end, on_statement_ok,
-													 session->stats, session->error_info);
-			}
-		}
-		/* no else, please */
-		if (stmt) {
-			xmysqlnd_stmt_free(stmt, session->stats, session->error_info);
-		}
-		if (stmt_execute) {
-			xmysqlnd_stmt_execute__destroy(stmt_execute);
-		}
-	}
+    XMYSQLND_SESSION session_handle(this);
+    XMYSQLND_STMT * const stmt = create_statement_object(session_handle);
+    XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
+    if (stmt && stmt_execute) {
+        ret = PASS;
+        if (var_binder.handler) {
+            zend_bool loop{TRUE};
+            do {
+                const enum_hnd_func_status var_binder_result = var_binder.handler(var_binder.ctx, session_handle, stmt_execute);
+                switch (var_binder_result) {
+                case HND_FAIL:
+                case HND_PASS_RETURN_FAIL:
+                    ret = FAIL;
+                    /* fallthrough */
+                case HND_PASS:
+                    loop = FALSE;
+                    break;
+                case HND_AGAIN: /* do nothing */
+                default:
+                    break;
+                }
+            } while (loop);
+        }
+        ret = xmysqlnd_stmt_execute__finalize_bind(stmt_execute);
+        if (PASS == ret &&
+        (PASS == (ret = stmt->data->m.send_raw_message(stmt,
+        xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
+        data->stats, data->error_info))))
+        {
+            struct st_xmysqlnd_query_cb_ctx query_cb_ctx = {
+                session_handle,
+                handler_on_result_start,
+                handler_on_row,
+                handler_on_warning,
+                handler_on_error,
+                handler_on_result_end,
+                handler_on_statement_ok
+            };
+            const struct st_xmysqlnd_stmt_on_row_bind on_row = {
+                handler_on_row.handler? query_cb_handler_on_row : nullptr,
+                &query_cb_ctx
+            };
+            const struct st_xmysqlnd_stmt_on_warning_bind on_warning = {
+                handler_on_warning.handler? query_cb_handler_on_warning : nullptr,
+                &query_cb_ctx
+            };
+            const struct st_xmysqlnd_stmt_on_error_bind on_error = {
+                handler_on_error.handler? query_cb_handler_on_error : nullptr,
+                &query_cb_ctx
+            };
+            const struct st_xmysqlnd_stmt_on_result_start_bind on_result_start = {
+                handler_on_result_start.handler? query_cb_handler_on_result_start : nullptr,
+                &query_cb_ctx
+            };
+            const struct st_xmysqlnd_stmt_on_result_end_bind on_result_end = {
+                handler_on_result_end.handler? query_cb_handler_on_result_end : nullptr,
+                &query_cb_ctx
+            };
+            const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = {
+                handler_on_statement_ok.handler? query_cb_handler_on_statement_ok : nullptr,
+                &query_cb_ctx
+            };
+            ret = stmt->data->m.read_all_results(stmt, on_row, on_warning, on_error, on_result_start, on_result_end, on_statement_ok,
+            data->stats, data->error_info);
+        }
+    }
+    /* no else, please */
+    if (stmt) {
+        xmysqlnd_stmt_free(stmt, data->stats, data->error_info);
+    }
+    if (stmt_execute) {
+        xmysqlnd_stmt_execute__destroy(stmt_execute);
+    }
+
+    session_handle.reset();
 	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
@@ -2093,23 +2085,21 @@ xmysqlnd_session_on_warning(void * context, XMYSQLND_STMT * const stmt, const en
 
 /* {{{ xmysqlnd_session::query */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
-										 const MYSQLND_CSTRING namespace_,
+st_xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 										 const MYSQLND_CSTRING query,
 										 const struct st_xmysqlnd_session_query_bind_variable_bind var_binder)
 {
-	XMYSQLND_SESSION_DATA session = session_handle->data;
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("xmysqlnd_session::query");
 	XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
-	XMYSQLND_STMT * stmt = session_handle->m->create_statement_object(session_handle);
+	XMYSQLND_STMT * stmt = create_statement_object(shared_from_this());
 	if (stmt && stmt_execute) {
 		ret = PASS;
 		if (var_binder.handler) {
 			zend_bool loop{TRUE};
 			do {
-				const enum_hnd_func_status var_binder_result = var_binder.handler(var_binder.ctx, session_handle, stmt_execute);
+				const enum_hnd_func_status var_binder_result = var_binder.handler(var_binder.ctx, shared_from_this(), stmt_execute);
 				switch (var_binder_result) {
 				case HND_FAIL:
 				case HND_PASS_RETURN_FAIL:
@@ -2126,16 +2116,16 @@ XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
 		}
 
 		if (PASS == ret &&
-				(PASS == (ret = stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), session->stats, session->error_info))))
+				(PASS == (ret = stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info))))
 		{
 			do {
 				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { xmysqlnd_session_on_warning, nullptr };
 				const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 				zend_bool has_more{FALSE};
-				XMYSQLND_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, session->stats, session->error_info);
+				XMYSQLND_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, data->stats, data->error_info);
 				if (result) {
 					ret = PASS;
-					xmysqlnd_stmt_result_free(result, session->stats, session->error_info);
+					xmysqlnd_stmt_result_free(result, data->stats, data->error_info);
 				} else {
 					ret = FAIL;
 				}
@@ -2144,7 +2134,7 @@ XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
 	}
 	/* no else, please */
 	if (stmt) {
-		xmysqlnd_stmt_free(stmt, session->stats, session->error_info);
+		xmysqlnd_stmt_free(stmt, data->stats, data->error_info);
 	}
 	if (stmt_execute) {
 		xmysqlnd_stmt_execute__destroy(stmt_execute);
@@ -2158,48 +2148,49 @@ XMYSQLND_METHOD(xmysqlnd_session, query)(XMYSQLND_SESSION session_handle,
 
 /* {{{ xmysqlnd_session::get_server_version */
 zend_ulong
-XMYSQLND_METHOD(xmysqlnd_session, get_server_version)(XMYSQLND_SESSION session_handle)
+st_xmysqlnd_session::get_server_version()
 {
-	XMYSQLND_SESSION_DATA session = session_handle->data;
 	zend_long major, minor, patch;
 	char *p;
 	DBG_ENTER("xmysqlnd_session::get_server_version");
-	if (!(p = session_handle->server_version_string)) {
+	if (!(p = server_version_string)) {
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_sql, query);
-		XMYSQLND_STMT * stmt = session_handle->m->create_statement_object(session_handle);
+        XMYSQLND_SESSION session_handle(this);
+		XMYSQLND_STMT * stmt = create_statement_object(session_handle);
 		if (stmt && stmt_execute) {
-			if (PASS == stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), session->stats, session->error_info)) {
+			if (PASS == stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info)) {
 				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { nullptr, nullptr };
 				const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 				zend_bool has_more{FALSE};
-				XMYSQLND_STMT_RESULT * res = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, session->stats, session->error_info);
+				XMYSQLND_STMT_RESULT * res = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, data->stats, data->error_info);
 				if (res) {
 					zval* set{nullptr};
-					if (PASS == res->m.fetch_all_c(res, &set, FALSE /* don't duplicate, reference it */, session->stats, session->error_info) &&
+					if (PASS == res->m.fetch_all_c(res, &set, FALSE /* don't duplicate, reference it */, data->stats, data->error_info) &&
 							Z_TYPE(set[0 * 0]) == IS_STRING)
 					{
 						DBG_INF_FMT("Found %*s", Z_STRLEN(set[0 * 0]), Z_STRVAL(set[0 * 0]));
-						session_handle->server_version_string = mnd_pestrndup(Z_STRVAL(set[0 * 0]), Z_STRLEN(set[0 * 0]), session_handle->persistent);
+						server_version_string = mnd_pestrndup(Z_STRVAL(set[0 * 0]), Z_STRLEN(set[0 * 0]), persistent);
 					}
 					if (set) {
 						mnd_efree(set);
 					}
 				}
-				xmysqlnd_stmt_result_free(res, session->stats, session->error_info);
+				xmysqlnd_stmt_result_free(res, data->stats, data->error_info);
 			}
 		}
 		/* no else, please */
 		if (stmt) {
-			xmysqlnd_stmt_free(stmt, session->stats, session->error_info);
+			xmysqlnd_stmt_free(stmt, data->stats, data->error_info);
 		}
 		if (stmt_execute) {
 			xmysqlnd_stmt_execute__destroy(stmt_execute);
 		}
+        session_handle.reset();
 	} else {
-		DBG_INF_FMT("server_version_string=%s", session_handle->server_version_string);
+		DBG_INF_FMT("server_version_string=%s", server_version_string);
 	}
-	if (!(p = session_handle->server_version_string)) {
+	if (!(p = server_version_string)) {
 		return 0;
 	}
 	major = ZEND_STRTOL(p, &p, 10);
@@ -2212,38 +2203,26 @@ XMYSQLND_METHOD(xmysqlnd_session, get_server_version)(XMYSQLND_SESSION session_h
 }
 /* }}} */
 
-
-/* {{{ xmysqlnd_session::get_server_info */
-const char *
-XMYSQLND_METHOD(xmysqlnd_session, get_server_version_string)(const XMYSQLND_SESSION session_handle)
-{
-	return session_handle->server_version_string;
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_session::create_statement_object */
 XMYSQLND_STMT *
-XMYSQLND_METHOD(xmysqlnd_session, create_statement_object)(XMYSQLND_SESSION session_handle)
+st_xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 {
 	XMYSQLND_STMT* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_session_data::create_statement_object");
-
-	stmt = xmysqlnd_stmt_create(session_handle, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
-	DBG_RETURN(stmt);
+	stmt = xmysqlnd_stmt_create(session_handle, session_handle->persistent, data->object_factory, data->stats, data->error_info);
+    DBG_RETURN(stmt);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_session::create_schema_object */
 XMYSQLND_SCHEMA *
-XMYSQLND_METHOD(xmysqlnd_session, create_schema_object)(XMYSQLND_SESSION session_handle, const MYSQLND_CSTRING schema_name)
+st_xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 {
 	XMYSQLND_SCHEMA* schema{nullptr};
 	DBG_ENTER("xmysqlnd_session::create_schema_object");
 	DBG_INF_FMT("schema_name=%s", schema_name.s);
-
-	schema = xmysqlnd_schema_create(session_handle, schema_name, session_handle->persistent, session_handle->data->object_factory, session_handle->data->stats, session_handle->data->error_info);
+	schema = xmysqlnd_schema_create(shared_from_this(), schema_name, persistent, data->object_factory, data->stats, data->error_info);
 
 	DBG_RETURN(schema);
 }
@@ -2252,50 +2231,31 @@ XMYSQLND_METHOD(xmysqlnd_session, create_schema_object)(XMYSQLND_SESSION session
 
 /* {{{ xmysqlnd_session::close */
 const enum_func_status
-XMYSQLND_METHOD(xmysqlnd_session, close)(XMYSQLND_SESSION session_handle, const enum_xmysqlnd_session_close_type close_type)
+st_xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 {
-	XMYSQLND_SESSION_DATA session = session_handle->data;
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("xmysqlnd_session::close");
 
-	if (GET_SESSION_STATE(&session->state) >= SESSION_READY) {
+	if (data->state.get() >= SESSION_READY) {
 		static enum_xmysqlnd_collected_stats close_type_to_stat_map[SESSION_CLOSE_LAST] = {
 			XMYSQLND_STAT_CLOSE_EXPLICIT,
 			XMYSQLND_STAT_CLOSE_IMPLICIT,
 			XMYSQLND_STAT_CLOSE_DISCONNECT
 		};
-		XMYSQLND_INC_SESSION_STATISTIC(session->stats, close_type_to_stat_map[close_type]);
+		XMYSQLND_INC_SESSION_STATISTIC(data->stats, close_type_to_stat_map[close_type]);
 	}
 
 	/*
 		  Close now, free_reference will try,
 		  if we are last, but that's not a problem.
 		*/
-	ret = session->send_close();
+	ret = data->send_close();
 
 
 	DBG_RETURN(ret);
 }
 /* }}} */
-
-
-MYSQLND_CLASS_METHODS_START(xmysqlnd_session)
-XMYSQLND_METHOD(xmysqlnd_session, connect),
-XMYSQLND_METHOD(xmysqlnd_session, create_db),
-XMYSQLND_METHOD(xmysqlnd_session, select_db),
-XMYSQLND_METHOD(xmysqlnd_session, drop_db),
-XMYSQLND_METHOD(xmysqlnd_session, query),
-XMYSQLND_METHOD(xmysqlnd_session, query_cb),
-XMYSQLND_METHOD(xmysqlnd_session, get_server_version),
-XMYSQLND_METHOD(xmysqlnd_session, get_server_version_string),
-XMYSQLND_METHOD(xmysqlnd_session, create_statement_object),
-XMYSQLND_METHOD(xmysqlnd_session, create_schema_object),
-XMYSQLND_METHOD(xmysqlnd_session, close),
-MYSQLND_CLASS_METHODS_END;
-
-
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_session);
 
 /* {{{ xmysqlnd_session_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
@@ -2340,8 +2300,7 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 		}
 	}
 	session->data->auth = auth;
-	ret = session->m->connect(session,database,
-							  port, set_capabilities);
+	ret = session->connect(database,port, set_capabilities);
 
 	if (ret == FAIL) {
 		DBG_RETURN(nullptr);
@@ -2792,301 +2751,301 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 			};
 
 
-				DBG_INF_FMT("URI query option: %s=%s",
-							variable.c_str(),
-							value.c_str()
-							);
+			DBG_INF_FMT("URI query option: %s=%s",
+						variable.c_str(),
+						value.c_str()
+						);
 
-				if( FAIL == extract_ssl_information(variable, value, auth) ) {
-					ret = FAIL;
-					break;
-				}
+			if( FAIL == extract_ssl_information(variable, value, auth) ) {
+				ret = FAIL;
+				break;
 			}
 		}
+	}
 
-		if( ret != PASS ){
-			delete auth;
-			auth = nullptr;
-			DBG_RETURN(auth);
-		}
+	if( ret != PASS ){
+		delete auth;
+		auth = nullptr;
+		DBG_RETURN(auth);
+	}
 
-		/*
+	/*
 	 * If no SSL mode is selected explicitly then
 	 * assume 'required'
 	 */
-		if( auth->ssl_mode == SSL_mode::not_specified ) {
-			DBG_INF_FMT("Setting default SSL mode to REQUIRED");
-			ret = set_ssl_mode( auth, SSL_mode::required );
-		}
-
-
-		if( node_url.port != 0 ) {
-			//If is 0, then we're using win pipe
-			//or unix sockets.
-			auth->port = node_url.port;
-			auth->hostname = node_url.host;
-		}
-		auth->username = node_url.user;
-		auth->password = node_url.pass;
-
-		DBG_RETURN(auth);
+	if( auth->ssl_mode == SSL_mode::not_specified ) {
+		DBG_INF_FMT("Setting default SSL mode to REQUIRED");
+		ret = set_ssl_mode( auth, SSL_mode::required );
 	}
-	/* }}} */
 
-	list_of_addresses_parser::list_of_addresses_parser(util::string uri)
-	{
-		/*
+
+	if( node_url.port != 0 ) {
+		//If is 0, then we're using win pipe
+		//or unix sockets.
+		auth->port = node_url.port;
+		auth->hostname = node_url.host;
+	}
+	auth->username = node_url.user;
+	auth->password = node_url.pass;
+
+	DBG_RETURN(auth);
+}
+/* }}} */
+
+list_of_addresses_parser::list_of_addresses_parser(util::string uri)
+{
+	/*
 	 * Remove spaces and tabs..
 	 */
-		uri.erase( std::remove_if(
-					   uri.begin(),
-					   uri.end(),
-					   [](char ch){ return std::isspace( ch ); }),
-				   uri.end());
-		/*
+	uri.erase( std::remove_if(
+				   uri.begin(),
+				   uri.end(),
+				   [](char ch){ return std::isspace( ch ); }),
+			   uri.end());
+	/*
 	 * Initial parse the input URI
 	 */
-		beg = uri.find_first_of('@');
-		if( beg != util::string::npos ) {
-			++beg;
-		} else {
-			/*
-		 * Bad formatted URI
-		 */
-			invalidate();
-			return;
-		}
-		/*
+	beg = uri.find_first_of('@');
+	if( beg != util::string::npos ) {
+		++beg;
+	} else {
+	/*
+	 * Bad formatted URI
+	 */
+		invalidate();
+		return;
+	}
+	/*
 	 * Enable parsing only if this is a list
 	 * of addresses
 	 */
-		bool valid_list{ false };
-		/*
+	bool valid_list{ false };
+	/*
 	 * Find the first opening [ (start of the list) and
 	 * the relative closing ] (end of the list). Verify
 	 * if that can possibly be a list.
 	 *
 	 * (This code is not safe from ill-formatted URI's.. nobody is)
 	 */
-		int brk_cnt{ uri[ beg ] == '[' };
-		for( end = beg + 1 ; brk_cnt > 0 && end < uri.size() ; ++end ) {
-			switch( uri[ end ] )
-			{
-			case '[':
-				if( ++brk_cnt > 1 ) {
-					//possible only if this is a list
-					valid_list = true;
-				}
-				break;
-			case ']':
-				if( 0 == --brk_cnt ) {
-					//done..
-					--end;
-				}
-				break;
-			case ','://Found a list separator
+	int brk_cnt{ uri[ beg ] == '[' };
+	for( end = beg + 1 ; brk_cnt > 0 && end < uri.size() ; ++end ) {
+		switch( uri[ end ] )
+		{
+		case '[':
+			if( ++brk_cnt > 1 ) {
+				//possible only if this is a list
 				valid_list = true;
-				break;
-			case '(':
-			case ')':
-				valid_list = true;
-				break;
-			default:
-				break;
 			}
+			break;
+		case ']':
+			if( 0 == --brk_cnt ) {
+				//done..
+				--end;
+			}
+			break;
+		case ','://Found a list separator
+			valid_list = true;
+			break;
+		case '(':
+		case ')':
+			valid_list = true;
+			break;
+		default:
+			break;
 		}
+	}
 
-		if( brk_cnt != 0 ) {
-			//Ill-formed URI
-			invalidate();
-			return;
-		}
+	if( brk_cnt != 0 ) {
+		//Ill-formed URI
+		invalidate();
+		return;
+	}
 
-		if( valid_list ) {
-			uri_string = uri;
-			/*
+	if( valid_list ) {
+		uri_string = uri;
+		/*
 		 * The unformatted_uri string is used
 		 * to build the proper addresses for each
 		 * host provided in the list
 		 */
-			unformatted_uri = uri_string;
-			unformatted_uri.erase( beg , end - beg + 1 );
-			/*
+		unformatted_uri = uri_string;
+		unformatted_uri.erase( beg , end - beg + 1 );
+		/*
 		 * Skip the brackets
 		 */
-			++beg; --end;
-		} else {
-			/*
+		++beg; --end;
+	} else {
+		/*
 		 * Only one address
 		 */
-			list_of_addresses.push_back({
-											uri,
-											MAX_HOST_PRIORITY });
-			invalidate(); //Signal to 'parse' to actually not parse.
+		list_of_addresses.push_back({
+										uri,
+										MAX_HOST_PRIORITY });
+		invalidate(); //Signal to 'parse' to actually not parse.
+	}
+}
+
+
+vec_of_addresses list_of_addresses_parser::parse()
+{
+	DBG_ENTER("list_of_addresses_parser::parse");
+	bool success{ true };
+	std::size_t pos{ beg },
+	last_pos{ beg };
+	for( std::size_t idx{ beg }; success && idx <= end; ++idx ) {
+		assert(idx < uri_string.length());
+		if( uri_string[ idx ] == '(' ) {
+			pos = uri_string.find_first_of( ')', idx );
+			if( pos == util::string::npos ) {
+				success = false;
+				break;
+			}
+			success = parse_round_token( uri_string.substr(idx, pos - idx + 1) );
+			last_pos = pos + 2;
+			idx = pos;
+		} else if( ( uri_string[ idx ] == ',' || idx == end ) && last_pos < idx) {
+			add_address( { uri_string.substr( last_pos, idx - last_pos + ( idx == end ) ), -1 } );
+			last_pos = ++idx;
 		}
 	}
-
-
-	vec_of_addresses list_of_addresses_parser::parse()
-	{
-		DBG_ENTER("list_of_addresses_parser::parse");
-		bool success{ true };
-		std::size_t pos{ beg },
-		last_pos{ beg };
-		for( std::size_t idx{ beg }; success && idx <= end; ++idx ) {
-			assert(idx < uri_string.length());
-			if( uri_string[ idx ] == '(' ) {
-				pos = uri_string.find_first_of( ')', idx );
-				if( pos == util::string::npos ) {
-					success = false;
-					break;
-				}
-				success = parse_round_token( uri_string.substr(idx, pos - idx + 1) );
-				last_pos = pos + 2;
-				idx = pos;
-			} else if( ( uri_string[ idx ] == ',' || idx == end ) && last_pos < idx) {
-				add_address( { uri_string.substr( last_pos, idx - last_pos + ( idx == end ) ), -1 } );
-				last_pos = ++idx;
-			}
-		}
-		if( false == success ) {
-			//Nothing more to do here.
-			return {};
-		}
-		/*
+	if( false == success ) {
+		//Nothing more to do here.
+		return {};
+	}
+	/*
 	 * Either all -1 (no priority) or every
 	 * host shall have its own priority
 	 */
-		size_t prio_cnt{ 0 };
-		for( auto&& elem : list_of_addresses ) {
-			if( elem.second >= 0 ) {
-				++prio_cnt;
-			}
+	size_t prio_cnt{ 0 };
+	for( auto&& elem : list_of_addresses ) {
+		if( elem.second >= 0 ) {
+			++prio_cnt;
 		}
-		if( prio_cnt != 0 &&
-				prio_cnt != list_of_addresses.size() ) {
-			devapi::RAISE_EXCEPTION( err_msg_invalid_prio_assignment );
-			list_of_addresses.clear();
-		} else {
-			/*
+	}
+	if( prio_cnt != 0 &&
+			prio_cnt != list_of_addresses.size() ) {
+		devapi::RAISE_EXCEPTION( err_msg_invalid_prio_assignment );
+		list_of_addresses.clear();
+	} else {
+		/*
 		 * Setup default priorities if they were
 		 * not provided
 		 */
-			if( prio_cnt == 0 ) {
-				int current_prio{ MAX_HOST_PRIORITY };
-				for( auto&& elem : list_of_addresses ) {
-					elem.second = std::max( current_prio--, 0 );
-				}
-			} else {
-				/*
+		if( prio_cnt == 0 ) {
+			int current_prio{ MAX_HOST_PRIORITY };
+			for( auto&& elem : list_of_addresses ) {
+				elem.second = std::max( current_prio--, 0 );
+			}
+		} else {
+			/*
 			 * The priority define the order
 			 * of connections and failovers
 			 */
-				std::sort( list_of_addresses.begin(),
-						   list_of_addresses.end(),
-						   [](const vec_of_addresses::value_type& elem_1,
-						   const vec_of_addresses::value_type& elem_2) {
-					return elem_1.second > elem_2.second;
-				});
+			std::sort( list_of_addresses.begin(),
+					   list_of_addresses.end(),
+					   [](const vec_of_addresses::value_type& elem_1,
+					   const vec_of_addresses::value_type& elem_2) {
+				return elem_1.second > elem_2.second;
+			});
 			}
-		}
-		DBG_RETURN( list_of_addresses );
 	}
+	DBG_RETURN( list_of_addresses );
+}
 
-	void list_of_addresses_parser::invalidate()
-	{
-		//Signal to 'parse' to actually not parse.
-		beg = 1;
-		end = 0;
-	}
+void list_of_addresses_parser::invalidate()
+{
+	//Signal to 'parse' to actually not parse.
+	beg = 1;
+	end = 0;
+}
 
-	bool list_of_addresses_parser::parse_round_token(const util::string &str)
-	{
-		/*
+bool list_of_addresses_parser::parse_round_token(const util::string &str)
+{
+	/*
 	 * Assuming no ill-formed input, round squares are
 	 * allowed only when addresses and priorities are provided:
 	 *
 	 * addresspriority  ::= "(address=" address ", priority=" prio ")"
 	 */
-		static const std::string address = "address";
-		static const std::string priority = "priority";
-		auto addr_beg = str.find(address.c_str()),
-				prio_beg = str.find(priority.c_str());
-		if( addr_beg == util::string::npos ||
-				prio_beg == util::string::npos ||
-				prio_beg < addr_beg ) {
-			//Ill-formed input
-			return false;
-		}
-		addr_beg += address.size();
-		prio_beg += priority.size();
-		/*
+	static const std::string address = "address";
+	static const std::string priority = "priority";
+	auto addr_beg = str.find(address.c_str()),
+			prio_beg = str.find(priority.c_str());
+	if( addr_beg == util::string::npos ||
+			prio_beg == util::string::npos ||
+			prio_beg < addr_beg ) {
+		//Ill-formed input
+		return false;
+	}
+	addr_beg += address.size();
+	prio_beg += priority.size();
+	/*
 	 * Extract address and priority, with very minium error
 	 * checking (ill-formed input string)
 	 */
-		std::size_t idx = addr_beg;
-		std::size_t ss_pos[2] = {0,0};
-		util::string output[2];
-		for(int i{ 0 } ; i < 2; ++i ) {
-			ss_pos[0] = 0;
-			ss_pos[1] = 0;
-			for( ; idx < str.size(); ++idx ) {
-				if( str[ idx ] == '=' ) {
-					if( ss_pos[0] != 0 ) {
-						return false;
-					}
-					ss_pos[0] = idx + 1;
-				} else if( str[ idx ] == ',' ||
-						   (i == 1 && str[ idx ] == ')') ) {
-					if( ss_pos[1] != 0 ) {
-						return false;
-					}
-					ss_pos[1] = idx;
-					break;
+	std::size_t idx = addr_beg;
+	std::size_t ss_pos[2] = {0,0};
+	util::string output[2];
+	for(int i{ 0 } ; i < 2; ++i ) {
+		ss_pos[0] = 0;
+		ss_pos[1] = 0;
+		for( ; idx < str.size(); ++idx ) {
+			if( str[ idx ] == '=' ) {
+				if( ss_pos[0] != 0 ) {
+					return false;
 				}
-			}
-			if( ( i == 0 && idx >= prio_beg ) ||
-					ss_pos[0] > ss_pos[1] ) {
-				return false;
-			}
-			//Trim the tabs and spaces
-			for( auto&& ch : str.substr( ss_pos[0], ss_pos[1] - ss_pos[0]) ) {
-				if( ch != ' ' && ch != '\t' ) {
-					output[i] += ch;
+				ss_pos[0] = idx + 1;
+			} else if( str[ idx ] == ',' ||
+					   (i == 1 && str[ idx ] == ')') ) {
+				if( ss_pos[1] != 0 ) {
+					return false;
 				}
+				ss_pos[1] = idx;
+				break;
 			}
-			idx = prio_beg;
 		}
-
-		vec_of_addresses::value_type new_addr = { output[0], std::atoi( output[1].c_str() ) };
-		/*
-	 * Allowed priorities between 0 and 100 inclusive
-	 */
-		if( new_addr.second < 0 || new_addr.second > MAX_HOST_PRIORITY ) {
-			devapi::RAISE_EXCEPTION( err_msg_prio_values_not_inrange );
+		if( ( i == 0 && idx >= prio_beg ) ||
+				ss_pos[0] > ss_pos[1] ) {
 			return false;
 		}
-		add_address(new_addr);
-		return true;
+		//Trim the tabs and spaces
+		for( auto&& ch : str.substr( ss_pos[0], ss_pos[1] - ss_pos[0]) ) {
+			if( ch != ' ' && ch != '\t' ) {
+				output[i] += ch;
+			}
+		}
+		idx = prio_beg;
 	}
 
+	vec_of_addresses::value_type new_addr = { output[0], std::atoi( output[1].c_str() ) };
+	/*
+	 * Allowed priorities between 0 and 100 inclusive
+	 */
+	if( new_addr.second < 0 || new_addr.second > MAX_HOST_PRIORITY ) {
+		devapi::RAISE_EXCEPTION( err_msg_prio_values_not_inrange );
+		return false;
+	}
+	add_address(new_addr);
+	return true;
+}
 
-	void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
-	{
-		/*
+
+void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
+{
+	/*
 	 * Prepare the correct format for the address
 	 * before pushing
 	 */
-		auto new_addr = unformatted_uri;
-		new_addr.insert( beg - 1 , addr.first );
-		list_of_addresses.push_back( { new_addr, addr.second } );
-	}
-	/* }}} */
+	auto new_addr = unformatted_uri;
+	new_addr.insert( beg - 1 , addr.first );
+	list_of_addresses.push_back( { new_addr, addr.second } );
+}
+/* }}} */
 
-	/* {{{ extract_uri_addresses */
-	vec_of_addresses extract_uri_addresses(const util::string& uri)
-	{
-		/*
+/* {{{ extract_uri_addresses */
+vec_of_addresses extract_uri_addresses(const util::string& uri)
+{
+	/*
 	 * The URI string might contain a list of alternative
 	 * address to routers which are provided to
 	 * implement the client side failover feature
@@ -3096,100 +3055,98 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 	 * on the base of their priority
 	 */
 
-		std::size_t idx = uri.find_last_of('@'),
-				not_found = util::string::npos,
-				len = uri.size();
-		if( idx == not_found || ( len - idx <= 2) ) {
-			//Ill formed URI
-			devapi::RAISE_EXCEPTION(err_msg_uri_string_fail);
-			return {};
-		}
-
-		list_of_addresses_parser parser( uri );
-		return parser.parse();
+	std::size_t idx = uri.find_last_of('@'),
+			not_found = util::string::npos,
+			len = uri.size();
+	if( idx == not_found || ( len - idx <= 2) ) {
+		//Ill formed URI
+		devapi::RAISE_EXCEPTION(err_msg_uri_string_fail);
+		return {};
 	}
-	/* }}} */
+	list_of_addresses_parser parser( uri );
+	return parser.parse();
+}
+/* }}} */
 
 
-	/* {{{ xmysqlnd_new_session_connect */
-	PHP_MYSQL_XDEVAPI_API
-			enum_func_status xmysqlnd_new_session_connect(const char* uri_string,
-														  zval * return_value)
-	{
-		DBG_ENTER("xmysqlnd_new_session_connect");
-		DBG_INF_FMT("URI: %s",uri_string);
-		enum_func_status ret{FAIL};
-		if( nullptr == uri_string ) {
-			DBG_ERR_FMT("The provided URI string is null!");
-			return ret;
-		}
-		/*
+/* {{{ xmysqlnd_new_session_connect */
+PHP_MYSQL_XDEVAPI_API
+		enum_func_status xmysqlnd_new_session_connect(const char* uri_string,
+													  zval * return_value)
+{
+	DBG_ENTER("xmysqlnd_new_session_connect");
+	DBG_INF_FMT("URI: %s",uri_string);
+	enum_func_status ret{FAIL};
+	if( nullptr == uri_string ) {
+		DBG_ERR_FMT("The provided URI string is null!");
+		return ret;
+	}
+	/*
 	 * Verify whether a list of addresses is provided,
 	 * if that's the case we need to parse those addresses
 	 * and their priority in order to implement the
 	 * Client Side Failover
 	 */
-		auto uris = extract_uri_addresses( uri_string );
-		/*
+	auto uris = extract_uri_addresses( uri_string );
+	/*
 	 * For each address attempt to perform a connection
 	 * (The addresses are sorted by priority)
 	 */
-		for( auto&& current_uri : uris ) {
-			DBG_INF_FMT("Attempting to connect with: %s\n",
-						current_uri.first.c_str());
-
-			auto url = extract_uri_information( current_uri.first.c_str() );
-			if( !url.first.empty() ) {
-				mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
-				if( nullptr == session ) {
-					devapi::RAISE_EXCEPTION( err_msg_internal_error );
-					DBG_RETURN(ret);
-				}
-				XMYSQLND_SESSION_AUTH_DATA * auth = extract_auth_information(url.first);
-				if( nullptr != auth ) {
-					/*
+	for( auto&& current_uri : uris ) {
+		DBG_INF_FMT("Attempting to connect with: %s\n",
+					current_uri.first.c_str());
+		auto url = extract_uri_information( current_uri.first.c_str() );
+		if( !url.first.empty() ) {
+			mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
+			if( nullptr == session ) {
+				devapi::RAISE_EXCEPTION( err_msg_internal_error );
+				DBG_RETURN(ret);
+			}
+			XMYSQLND_SESSION_AUTH_DATA * auth = extract_auth_information(url.first);
+			if( nullptr != auth ) {
+				/*
 				 * If Unix sockets are used then TLS connections
 				 * are not allowed either implicitly nor explicitly
 				 */
-					if( auth->ssl_mode != SSL_mode::disabled &&
-							url.second == transport_types::unix_domain_socket ) {
-						DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
-						devapi::RAISE_EXCEPTION( err_msg_tls_not_supported_1 );
-						DBG_RETURN(FAIL);
-					}
-					else
-					{
-						DBG_INF_FMT("Attempting to connect...");
-						ret = establish_connection(session,auth,
-												   url.first,url.second);
-					}
-				} else {
-					DBG_ERR_FMT("Connection aborted, not able to setup the 'auth' structure.");
+				if( auth->ssl_mode != SSL_mode::disabled &&
+						url.second == transport_types::unix_domain_socket ) {
+					DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
+					devapi::RAISE_EXCEPTION( err_msg_tls_not_supported_1 );
+					DBG_RETURN(FAIL);
+				}
+				else
+				{
+					DBG_INF_FMT("Attempting to connect...");
+					ret = establish_connection(session,auth,
+											   url.first,url.second);
 				}
 			} else {
-				devapi::RAISE_EXCEPTION( err_msg_uri_string_fail );
-				DBG_RETURN(FAIL);
+				DBG_ERR_FMT("Connection aborted, not able to setup the 'auth' structure.");
 			}
-			if( ret == PASS ) {
-				//Ok, connection accepted with this host.
-				break;
-			}
+		} else {
+			devapi::RAISE_EXCEPTION( err_msg_uri_string_fail );
+			DBG_RETURN(FAIL);
 		}
-		if( uris.size() > 1 && ret == FAIL ) {
-			devapi::RAISE_EXCEPTION( err_msg_all_routers_failed );
+		if( ret == PASS ) {
+			//Ok, connection accepted with this host.
+			break;
 		}
-		/*
+	}
+	if( uris.size() > 1 && ret == FAIL ) {
+		devapi::RAISE_EXCEPTION( err_msg_all_routers_failed );
+	}
+	/*
 	 * Do not worry about the allocated auth if
 	 * the connection fails, the dtor of 'session'
 	 * will clean it up
 	 */
-		if( FAIL == ret ) {
-			zval_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-		DBG_RETURN(ret);
+	if( FAIL == ret ) {
+		zval_dtor(return_value);
+		ZVAL_NULL(return_value);
 	}
-	/* }}} */
+	DBG_RETURN(ret);
+}
+/* }}} */
 
 
 } // namespace drv

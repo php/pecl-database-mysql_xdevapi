@@ -178,8 +178,7 @@ XMYSQLND_METHOD(xmysqlnd_collection, exists_in_database)(
 
 	const st_xmysqlnd_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
 
-	ret = session->m->query_cb(session,
-							   namespace_xplugin,
+	ret = session->query_cb(namespace_xplugin,
 							   query,
 							   var_binder,
 							   noop__on_result_start,
@@ -249,8 +248,7 @@ XMYSQLND_METHOD(xmysqlnd_collection, count)(
 
 	const st_xmysqlnd_session_on_row_bind on_row = { collection_sql_single_result_op_on_row, &on_row_ctx };
 
-	ret = session->m->query_cb(session,
-							   namespace_sql,
+	ret = session->query_cb(namespace_sql,
 							   query,
 							   noop__var_binder,
 							   noop__on_result_start,
@@ -285,7 +283,7 @@ XMYSQLND_METHOD(xmysqlnd_collection, add)(XMYSQLND_COLLECTION * const collection
 		enum_func_status request_ret = collection_add.send_request(&collection_add,
 											xmysqlnd_crud_collection_add__get_protobuf_message(crud_op));
 		if (PASS == request_ret) {
-			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
+			XMYSQLND_STMT * stmt = session->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -314,7 +312,7 @@ XMYSQLND_METHOD(xmysqlnd_collection, remove)(XMYSQLND_COLLECTION * const collect
 		if (PASS == collection_ud.send_delete_request(&collection_ud, xmysqlnd_crud_collection_remove__get_protobuf_message(op))) {
 			//ret = collection_ud.read_response(&collection_ud);
 			auto session = collection->data->schema->data->session;
-			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
+			XMYSQLND_STMT * stmt = session->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -342,7 +340,7 @@ XMYSQLND_METHOD(xmysqlnd_collection, modify)(XMYSQLND_COLLECTION * const collect
 		if (PASS == collection_ud.send_update_request(&collection_ud, xmysqlnd_crud_collection_modify__get_protobuf_message(op))) {
 			//ret = collection_ud.read_response(&collection_ud);
 			auto session = collection->data->schema->data->session;
-			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);;
+			XMYSQLND_STMT * stmt = session->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
 		}
@@ -364,7 +362,7 @@ static st_xmysqlnd_stmt* XMYSQLND_METHOD(xmysqlnd_collection, find)(XMYSQLND_COL
 	}
 	if (xmysqlnd_crud_collection_find__is_initialized(op)) {
 		auto session = collection->data->schema->data->session;
-		stmt = session->m->create_statement_object(session);
+		stmt = session->create_statement_object(session);
 		if (FAIL == stmt->data->m.send_raw_message(stmt, xmysqlnd_crud_collection_find__get_protobuf_message(op), session->data->stats, session->data->error_info)) {
 			xmysqlnd_stmt_free(stmt, session->data->stats, session->data->error_info);
 			stmt = nullptr;

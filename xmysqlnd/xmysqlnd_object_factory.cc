@@ -60,7 +60,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_session)(const MYSQLND_CLASS_METHOD
 		DBG_RETURN(nullptr);
 	}
 	object->persistent = persistent;
-	object->m = xmysqlnd_session_get_methods();
 
 	DBG_RETURN(object);
 }

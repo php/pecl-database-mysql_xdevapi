@@ -167,8 +167,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getServerVersion)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if (XMYSQLND_SESSION session = object->session) {
-		RETVAL_LONG(session->m->get_server_version(session));
-		mysqlx_throw_exception_from_session_if_needed(session->data);
+		RETVAL_LONG(session->get_server_version());
+		mysqlx_throw_exception_from_session_if_needed(session->get_data());
 	} else {
 		RETVAL_FALSE;
 	}
@@ -191,8 +191,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getClientId)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if (XMYSQLND_SESSION session = object->session) {
-        RETVAL_LONG(session->data->get_client_id());
-		mysqlx_throw_exception_from_session_if_needed(session->data);
+        RETVAL_LONG(session->get_data()->get_client_id());
+		mysqlx_throw_exception_from_session_if_needed(session->get_data());
 	} else {
 		RETVAL_FALSE;
 	}
@@ -252,7 +252,7 @@ get_schemas_handler_on_row(void * context,
 		}
 		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
 			const MYSQLND_CSTRING schema_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
-			XMYSQLND_SCHEMA * schema = session->m->create_schema_object(session, schema_name);
+			XMYSQLND_SCHEMA * schema = session->create_schema_object(schema_name);
 			if (schema) {
 				zval zv;
 				ZVAL_UNDEF(&zv);
@@ -311,7 +311,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 
 		ZVAL_UNDEF(&list);
 
-		if (PASS == session->m->query_cb(session, namespace_sql, list_query, var_binder, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+		if (PASS == session->query_cb(namespace_sql, list_query, var_binder, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
@@ -341,7 +341,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 	if (XMYSQLND_SESSION session = object->session) {
-		XMYSQLND_SCHEMA * schema = session->m->create_schema_object(session, schema_name.to_nd_cstr());
+		XMYSQLND_SCHEMA * schema = session->create_schema_object(schema_name.to_nd_cstr());
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
 		} else {
@@ -423,7 +423,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, listClients)
 
 		ZVAL_UNDEF(&list);
 
-		if (PASS == session->m->query_cb(session, namespace_xplugin, list_query, var_binder, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
+		if (PASS == session->query_cb(namespace_xplugin, list_query, var_binder, on_result_start, on_row, on_warning, on_error, on_result_end, on_statement_ok)) {
 			ZVAL_COPY_VALUE(return_value, &list);
 		} else {
 			zval_dtor(&list);
@@ -446,7 +446,7 @@ mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 								  const unsigned int argc,
 								  const zval * args)
 {
-	XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
+	XMYSQLND_STMT * stmt = session->create_statement_object(session);
 	DBG_ENTER("mysqlx_execute_session_query");
 
 	if (stmt) {
@@ -543,7 +543,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 
 	if ((session = object->session)) {
-		XMYSQLND_STMT * const stmt = session->m->create_statement_object(session);
+		XMYSQLND_STMT * const stmt = session->create_statement_object(session);
 		if (stmt) {
 			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query);
 			if (Z_TYPE_P(return_value) == IS_NULL) {
@@ -607,8 +607,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 	if (XMYSQLND_SESSION session = object->session) {
 		XMYSQLND_SCHEMA* schema{nullptr};
-		if (PASS == session->m->create_db(session, schema_name) &&
-			(schema = session->m->create_schema_object(session, schema_name)))
+		if (PASS == session->create_db(schema_name) &&
+			(schema = session->create_schema_object( schema_name)))
 		{
 			DBG_INF_FMT("schema=%p", schema);
 			mysqlx_new_schema(return_value, schema);
@@ -643,7 +643,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 	RETVAL_FALSE;
 	try {
 		auto session = data_object.session;
-		if (PASS == session->m->drop_db(session, schema_name.to_nd_cstr())) {
+		if (PASS == session->drop_db(schema_name.to_nd_cstr())) {
 			RETVAL_TRUE;
 		} else {
 			util::log_warning("cannot drop schema '" + schema_name.to_string() + "'");
@@ -910,7 +910,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 	if (XMYSQLND_SESSION session = object->session) {
-		session->m->close(session, SESSION_CLOSE_EXPLICIT);
+		session->close(SESSION_CLOSE_EXPLICIT);
 		object->closed = TRUE;
 		RETVAL_TRUE;
 	} else {

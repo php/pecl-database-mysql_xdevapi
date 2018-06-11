@@ -207,8 +207,7 @@ bool collection_create_index_execute(
 		&var_binder_ctx
 	};
 
-	const enum_func_status ret = session->m->query_cb(
-		session,
+	const enum_func_status ret = session->query_cb(
 		namespace_mysqlx,
 		query,
 		var_binder,
@@ -285,8 +284,7 @@ bool collection_drop_index_execute(
 	};
 
 	const enum_func_status ret
-		= session->m->query_cb(
-			session,
+		= session->query_cb(
 			namespace_mysqlx,
 			query,
 			var_binder,

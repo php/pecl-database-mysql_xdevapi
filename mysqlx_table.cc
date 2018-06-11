@@ -313,8 +313,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 
 	if(session != nullptr) {
 		MYSQLND_STRING& schema_name{ object->table->data->schema->data->schema_name };
-		XMYSQLND_SCHEMA * schema = session->m->create_schema_object(
-					session, mnd_str2c(schema_name));
+		XMYSQLND_SCHEMA * schema = session->create_schema_object(
+					mnd_str2c(schema_name));
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
 		} else {
