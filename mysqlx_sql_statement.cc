@@ -115,7 +115,7 @@ struct st_xmysqlnd_exec_with_cb_ctx
 /* {{{ exec_with_cb_handle_on_row */
 static const enum_hnd_func_status
 exec_with_cb_handle_on_row(void * context,
-						   XMYSQLND_STMT * const stmt,
+						   xmysqlnd_stmt * const stmt,
 						   const st_xmysqlnd_stmt_result_meta* const meta,
 						   const zval * const row,
 						   MYSQLND_STATS * const stats,
@@ -204,7 +204,7 @@ exec_with_cb_handle_on_row(void * context,
 
 /* {{{ exec_with_cb_handle_on_warning */
 static const enum_hnd_func_status
-exec_with_cb_handle_on_warning(void * context, XMYSQLND_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+exec_with_cb_handle_on_warning(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	enum_hnd_func_status ret{HND_AGAIN};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -244,7 +244,7 @@ exec_with_cb_handle_on_warning(void * context, XMYSQLND_STMT * const stmt, const
 
 /* {{{ exec_with_cb_handle_on_error */
 static const enum_hnd_func_status
-exec_with_cb_handle_on_error(void * context, XMYSQLND_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+exec_with_cb_handle_on_error(void * context, xmysqlnd_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -287,7 +287,7 @@ exec_with_cb_handle_on_error(void * context, XMYSQLND_STMT * const stmt, const u
 
 /* {{{ exec_with_cb_handle_on_resultset_end */
 static const enum_hnd_func_status
-exec_with_cb_handle_on_resultset_end(void * context, XMYSQLND_STMT * const stmt, const zend_bool has_more)
+exec_with_cb_handle_on_resultset_end(void * context, xmysqlnd_stmt * const stmt, const zend_bool has_more)
 {
 	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -324,7 +324,7 @@ exec_with_cb_handle_on_resultset_end(void * context, XMYSQLND_STMT * const stmt,
 /* {{{ exec_with_cb_handle_on_statement_ok */
 static const enum_hnd_func_status
 exec_with_cb_handle_on_statement_ok(void * context,
-									XMYSQLND_STMT * const stmt,
+									xmysqlnd_stmt * const stmt,
 									const st_xmysqlnd_stmt_execution_state* const exec_state)
 {
 	enum_hnd_func_status ret{HND_PASS};
@@ -384,7 +384,7 @@ mysqlx_fetch_data_with_callback(st_mysqlx_statement* object, st_xmysqlnd_exec_wi
 {
 	enum_func_status ret;
 	zend_bool has_more_results{FALSE};
-	XMYSQLND_STMT * stmt = object->stmt;
+	xmysqlnd_stmt * stmt = object->stmt;
 	const zend_bool on_rset_end_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_rset_end.fci);
 	const zend_bool on_stmt_ok_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_stmt_ok.fci);
 
@@ -399,7 +399,7 @@ mysqlx_fetch_data_with_callback(st_mysqlx_statement* object, st_xmysqlnd_exec_wi
 	xmysqlnd_exec_with_cb_ctx->on_error.fci.params = xmysqlnd_exec_with_cb_ctx->on_row.fci.params;
 	xmysqlnd_exec_with_cb_ctx->on_error.fci.param_count = xmysqlnd_exec_with_cb_ctx->on_row.fci.param_count;
 
-	ret = stmt->data->m.read_one_result(stmt,
+	ret = stmt->read_one_result(stmt,
 										on_row,
 										on_warning,
 										on_error,
@@ -459,7 +459,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 
 /* {{{ mysqlx_sql_stmt_on_warning */
 static const enum_hnd_func_status
-mysqlx_sql_stmt_on_warning(void * context, XMYSQLND_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+mysqlx_sql_stmt_on_warning(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_sql_stmt_on_warning");
 	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
@@ -470,7 +470,7 @@ mysqlx_sql_stmt_on_warning(void * context, XMYSQLND_STMT * const stmt, const enu
 
 /* {{{ mysqlx_sql_stmt_on_error */
 static const enum_hnd_func_status
-mysqlx_sql_stmt_on_error(void * context, XMYSQLND_STMT * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_sql_stmt_on_error(void * context, xmysqlnd_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_sql_stmt_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -505,11 +505,11 @@ mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const 
 	if (TRUE == object->in_execution) {
 		php_error_docref(nullptr, E_WARNING, "Statement in execution. Please fetch all data first.");
 	} else if (PASS == xmysqlnd_stmt_execute__finalize_bind(object->stmt_execute)) {
-		XMYSQLND_STMT * stmt = object->stmt;
+		xmysqlnd_stmt * stmt = object->stmt;
 		object->execute_flags = flags;
 		object->has_more_rows_in_set = FALSE;
 		object->has_more_results = FALSE;
-		object->send_query_status = stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(object->stmt_execute), nullptr, nullptr);
+		object->send_query_status = stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(object->stmt_execute), nullptr, nullptr);
 
 		if (PASS == object->send_query_status) {
 			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
@@ -520,9 +520,9 @@ mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const 
 				const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
 				XMYSQLND_STMT_RESULT * result;
 				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-					result = stmt->data->m.get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+					result = stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
 				} else {
-					result = stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+					result = stmt->get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
 				}
 
 				DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
@@ -580,7 +580,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, hasMoreResults)
 
 	MYSQLX_FETCH_STATEMENT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_BOOL(object->stmt->data->m.has_more_results(object->stmt));
+	RETVAL_BOOL(object->stmt->has_more_results(object->stmt));
 	DBG_INF_FMT("%s", Z_TYPE_P(return_value) == IS_TRUE? "YES":"NO");
 
 	DBG_VOID_RETURN;
@@ -623,7 +623,7 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 
 	RETVAL_FALSE;
 	if (PASS == object->send_query_status) {
-		XMYSQLND_STMT * stmt = object->stmt;
+		xmysqlnd_stmt * stmt = object->stmt;
 
 		if (use_callbacks) {
 			RETVAL_BOOL(PASS == mysqlx_fetch_data_with_callback(object, &xmysqlnd_exec_with_cb_ctx));
@@ -633,9 +633,9 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 			XMYSQLND_STMT_RESULT * result;
 
 			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-				result = object->stmt->data->m.get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+				result = object->stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
 			} else {
-				result = object->stmt->data->m.get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+				result = object->stmt->get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
 			}
 
 			DBG_INF_FMT("result=%p  has_more_results=%s", result, object->has_more_results? "TRUE":"FALSE");
@@ -770,7 +770,7 @@ mysqlx_unregister_sql_statement_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_sql_stmt */
 void
-mysqlx_new_sql_stmt(zval * return_value, XMYSQLND_STMT * stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query)
+mysqlx_new_sql_stmt(zval * return_value, xmysqlnd_stmt * stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query)
 {
 	DBG_ENTER("mysqlx_new_sql_stmt");
 
@@ -831,7 +831,7 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 	if (TRUE == object->in_execution) {
 		php_error_docref(nullptr, E_WARNING, "Statement in execution. Please fetch all data first.");
 	} else {
-		XMYSQLND_STMT * stmt = object->stmt;
+		xmysqlnd_stmt * stmt = object->stmt;
 		object->execute_flags = flags;
 		object->has_more_rows_in_set = FALSE;
 		object->has_more_results = FALSE;
@@ -845,12 +845,12 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 				const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
 				XMYSQLND_STMT_RESULT * result;
 				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-					result = stmt->data->m.get_buffered_result(stmt,
+					result = stmt->get_buffered_result(stmt,
 								&object->has_more_results,
 								on_warning,
 								on_error, nullptr, nullptr);
 				} else {
-					result = stmt->data->m.get_fwd_result(stmt,
+					result = stmt->get_fwd_result(stmt,
 								MYSQLX_EXECUTE_FWD_PREFETCH_COUNT,
 								&object->has_more_rows_in_set,
 								&object->has_more_results,
@@ -899,7 +899,7 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 
 /* {{{ execute_new_statement_read_response */
 void execute_new_statement_read_response(
-	drv::st_xmysqlnd_stmt* stmt,
+	drv::xmysqlnd_stmt* stmt,
 	const zend_long flags,
 	const mysqlx_result_type result_type,
 	zval* return_value)
@@ -945,7 +945,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, hasMoreResults)
 
 	MYSQLX_FETCH_STATEMENT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_BOOL(object->stmt->data->m.has_more_results(object->stmt));
+	RETVAL_BOOL(object->stmt->has_more_results(object->stmt));
 	DBG_INF_FMT("%s", Z_TYPE_P(return_value) == IS_TRUE? "YES":"NO");
 
 	DBG_VOID_RETURN;
@@ -1046,7 +1046,7 @@ mysqlx_unregister_statement_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_stmt */
 void
-mysqlx_new_stmt(zval * return_value, XMYSQLND_STMT * stmt)
+mysqlx_new_stmt(zval * return_value, xmysqlnd_stmt * stmt)
 {
 	DBG_ENTER("mysqlx_new_stmt");
 

@@ -24,14 +24,14 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_stmt;
+struct xmysqlnd_stmt;
 struct st_xmysqlnd_stmt_result_meta;
 
 
 typedef struct st_xmysqlnd_rowset_fwd	XMYSQLND_ROWSET_FWD;
 
 
-typedef enum_func_status	(*func_xmysqlnd_rowset_fwd__init)(XMYSQLND_ROWSET_FWD * const result, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const size_t prefetch_rows, st_xmysqlnd_stmt* const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+typedef enum_func_status	(*func_xmysqlnd_rowset_fwd__init)(XMYSQLND_ROWSET_FWD * const result, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, const size_t prefetch_rows, xmysqlnd_stmt* const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_rowset_fwd__next)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_rowset_fwd__fetch_current)(XMYSQLND_ROWSET_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_rowset_fwd__fetch_one)(XMYSQLND_ROWSET_FWD * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
@@ -79,7 +79,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd)
 
 struct st_xmysqlnd_rowset_fwd : public util::permanent_allocable
 {
-	st_xmysqlnd_stmt* stmt;
+	xmysqlnd_stmt* stmt;
 	st_xmysqlnd_stmt_result_meta* meta;
 
 	zval ** rows; /* every row is a memory segment of field_count * sizeof(zval) */
@@ -97,7 +97,7 @@ struct st_xmysqlnd_rowset_fwd : public util::permanent_allocable
 
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_rowset_fwd);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_FWD * xmysqlnd_rowset_fwd_create(const size_t prefetch_rows, st_xmysqlnd_stmt* stmt, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_FWD * xmysqlnd_rowset_fwd_create(const size_t prefetch_rows, xmysqlnd_stmt* stmt, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_rowset_fwd_free(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv

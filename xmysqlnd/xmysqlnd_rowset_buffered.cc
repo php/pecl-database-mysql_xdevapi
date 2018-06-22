@@ -36,12 +36,12 @@ namespace drv {
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, init)(XMYSQLND_ROWSET_BUFFERED * const result,
 												const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-												XMYSQLND_STMT * const stmt,
+												xmysqlnd_stmt * const stmt,
 												MYSQLND_STATS * const stats,
 												MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_buffered::init");
-	result->stmt = stmt->data->m.get_reference(stmt);
+	result->stmt = stmt->get_reference(stmt);
 	DBG_RETURN(result->stmt? PASS:FAIL);
 }
 /* }}} */
@@ -391,7 +391,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, dtor)(XMYSQLND_ROWSET_BUFFERED * const
 	if (result) {
 		result->m.free_contents(result, stats, error_info);
 		if (result->stmt) {
-			result->stmt->data->m.free_reference(result->stmt, stats, error_info);
+			result->stmt->free_reference(result->stmt);
 		}
 
 		mnd_pefree(result, result->persistent);
@@ -431,7 +431,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset_buff
 
 /* {{{ xmysqlnd_rowset_buffered_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_BUFFERED *
-xmysqlnd_rowset_buffered_create(XMYSQLND_STMT * stmt,
+xmysqlnd_rowset_buffered_create(xmysqlnd_stmt * stmt,
 								const zend_bool persistent,
 								const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 								MYSQLND_STATS * stats,

@@ -23,7 +23,7 @@
 namespace mysqlx {
 
 namespace drv {
-struct st_xmysqlnd_stmt;
+struct xmysqlnd_stmt;
 struct st_xmysqlnd_stmt_result;
 }
 
@@ -34,7 +34,7 @@ struct st_mysqlx_statement;
 struct st_mysqlx_sql_statement_result : public util::custom_allocable
 {
 	drv::st_xmysqlnd_stmt_result* result;
-	drv::st_xmysqlnd_stmt* stmt;
+	drv::xmysqlnd_stmt* stmt;
 	zend_long execute_flags;
 	enum_func_status send_query_status;
 	zend_bool has_more_results;

@@ -27,13 +27,13 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_session;
-struct st_xmysqlnd_session_data;
-struct st_xmysqlnd_schema;
-struct st_xmysqlnd_collection;
-struct st_xmysqlnd_stmt;
+struct xmysqlnd_session;
+struct xmysqlnd_session_data;
+struct xmysqlnd_schema;
+struct xmysqlnd_collection;
+struct xmysqlnd_stmt;
 struct st_xmysqlnd_stmt_result;
-struct st_xmysqlnd_table;
+struct xmysqlnd_table;
 struct st_xmysqlnd_rowset_buffered;
 struct st_xmysqlnd_rowset_fwd;
 struct st_xmysqlnd_stmt_result_meta;
@@ -57,12 +57,12 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list);
 
 struct st_xmysqlnd_plugin__plugin_area_getters
 {
-	void ** (*get_session_area)(const st_xmysqlnd_session* conn, const unsigned int plugin_id);
-        void ** (*get_session_data_data_area)(const st_xmysqlnd_session_data* conn, const unsigned int plugin_id);
-	void ** (*get_schema_area)(const st_xmysqlnd_schema* schema, unsigned int plugin_id);
-	void ** (*get_collection_area)(const st_xmysqlnd_collection* collection, unsigned int plugin_id);
-	void ** (*get_table_area)(const st_xmysqlnd_table* table, unsigned int plugin_id);
-	void ** (*get_stmt_area)(const st_xmysqlnd_stmt* stmt, unsigned int plugin_id);
+	void ** (*get_session_area)(const xmysqlnd_session* conn, const unsigned int plugin_id);
+	void ** (*get_session_data_data_area)(const xmysqlnd_session_data* conn, const unsigned int plugin_id);
+	void ** (*get_schema_area)(const xmysqlnd_schema* schema, unsigned int plugin_id);
+	void ** (*get_collection_area)(const xmysqlnd_collection* collection, unsigned int plugin_id);
+	void ** (*get_table_area)(const xmysqlnd_table* table, unsigned int plugin_id);
+	void ** (*get_stmt_area)(const xmysqlnd_stmt* stmt, unsigned int plugin_id);
 	void ** (*get_stmt_result_area)(const st_xmysqlnd_stmt_result* result, unsigned int plugin_id);
 	void ** (*get_rowset_buffered_area)(const st_xmysqlnd_rowset_buffered* result, unsigned int plugin_id);
 	void ** (*get_rowset_fwd_area)(const st_xmysqlnd_rowset_fwd* result, unsigned int plugin_id);
@@ -94,30 +94,6 @@ struct st_xmysqlnd_plugin_methods_xetters
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * (*get)();
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const methods);
 	} object_factory;
-
-	struct st_xmnd_schema_xetters
-	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema) * const methods);
-	} schema;
-
-	struct st_xmnd_collection_xetters
-	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_collection) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_collection) * const methods);
-	} collection;
-
-	struct st_xmnd_table_xetters
-	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_table) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_table) * const methods);
-	} table;
-
-	struct st_xmnd_stmt_xetters
-	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt) * const methods);
-	} stmt;
 
 	struct st_xmnd_stmt_result_xetters
 	{
@@ -179,18 +155,6 @@ PHP_MYSQL_XDEVAPI_API extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_
 
 #define xmysqlnd_object_factory_get_methods()			xmysqlnd_plugin_methods_xetters.object_factory.get()
 #define xmysqlnd_object_factory_set_methods(m)			xmysqlnd_plugin_methods_xetters.object_factory.set((m))
-
-#define xmysqlnd_schema_get_methods()				xmysqlnd_plugin_methods_xetters.schema.get()
-#define xmysqlnd_schema_set_methods(m)				xmysqlnd_plugin_methods_xetters.schema.set((m))
-
-#define xmysqlnd_collection_get_methods()			xmysqlnd_plugin_methods_xetters.collection.get()
-#define xmysqlnd_collection_set_methods(m)			xmysqlnd_plugin_methods_xetters.collection.set((m))
-
-#define xmysqlnd_table_get_methods()				xmysqlnd_plugin_methods_xetters.table.get()
-#define xmysqlnd_table_set_methods(m)				xmysqlnd_plugin_methods_xetters.table.set((m))
-
-#define xmysqlnd_stmt_get_methods()				xmysqlnd_plugin_methods_xetters.stmt.get()
-#define xmysqlnd_stmt_set_methods(m)				xmysqlnd_plugin_methods_xetters.stmt.set((m))
 
 #define xmysqlnd_stmt_result_get_methods()			xmysqlnd_plugin_methods_xetters.stmt_result.get()
 #define xmysqlnd_stmt_result_set_methods(m)		xmysqlnd_plugin_methods_xetters.stmt_result.set((m))

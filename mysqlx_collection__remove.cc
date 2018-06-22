@@ -71,15 +71,15 @@ ZEND_END_ARG_INFO()
 /* {{{ Collection_remove::init() */
 bool Collection_remove::init(
 	zval* obj_zv,
-	XMYSQLND_COLLECTION* coll,
+	xmysqlnd_collection* coll,
 	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll || search_expression.empty()) return false;
 	object_zv = obj_zv;
-	collection = coll->data->m.get_reference(coll);
+	collection = coll->get_reference();
 	remove_op = xmysqlnd_crud_collection_remove__create(
-		mnd_str2c(collection->data->schema->data->schema_name),
-		mnd_str2c(collection->data->collection_name));
+		mnd_str2c(collection->get_schema()->get_name()),
+		mnd_str2c(collection->get_name()));
 	if (!remove_op) return false;
 
 	return xmysqlnd_crud_collection_remove__set_criteria(remove_op, search_expression.to_std_string()) == PASS;
@@ -221,7 +221,7 @@ void Collection_remove::execute(zval* return_value)
 			static const MYSQLND_CSTRING errmsg = { "Remove not completely initialized", sizeof("Remove not completely initialized") - 1 };
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
-			XMYSQLND_STMT* stmt = collection->data->m.remove(collection, remove_op);
+			xmysqlnd_stmt* stmt = collection->remove(remove_op);
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);
@@ -433,14 +433,14 @@ void
 mysqlx_new_collection__remove(
 	zval* return_value,
 	const util::string_view& search_expression,
-	XMYSQLND_COLLECTION* collection)
+	xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__remove");
 	if (SUCCESS == object_init_ex(return_value, collection_remove_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		Collection_remove* const coll_remove = static_cast<Collection_remove*>(mysqlx_object->ptr);
 		if (!coll_remove ||
-			!coll_remove->init(return_value, collection->data->m.get_reference(collection), search_expression))
+			!coll_remove->init(return_value, collection->get_reference(), search_expression))
 		{
 			DBG_ERR("Error");
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));

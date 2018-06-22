@@ -230,7 +230,7 @@ static const enum_hnd_func_status
 collection_index_on_error(
 	void* context,
 	XMYSQLND_SESSION session,
-	st_xmysqlnd_stmt* const stmt,
+	xmysqlnd_stmt* const stmt,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
@@ -246,7 +246,7 @@ collection_index_on_error(
 
 /* {{{ create_collection_index */
 void create_collection_index(
-	drv::st_xmysqlnd_collection* collection,
+	drv::xmysqlnd_collection* collection,
 	const util::string_view& index_name,
 	const util::string_view& index_desc_json,
 	zval* return_value)
@@ -255,9 +255,9 @@ void create_collection_index(
 
 	RETVAL_FALSE;
 
-	auto session{collection->data->schema->data->session};
-	const util::string_view schema_name{collection->data->schema->data->schema_name};
-	const util::string_view collection_name{collection->data->collection_name};
+	auto session{collection->get_schema()->get_session()};
+	const util::string_view schema_name{collection->get_schema()->get_name()};
+	const util::string_view collection_name{collection->get_name()};
 	Index_definition index_def{parse_index_def(index_name, index_desc_json)};
 
 	const st_xmysqlnd_session_on_error_bind on_error{ collection_index_on_error, nullptr };
@@ -277,14 +277,14 @@ void create_collection_index(
 
 /* {{{ drop_collection_index */
 void drop_collection_index(
-	const st_xmysqlnd_collection* collection,
+	xmysqlnd_collection* collection,
 	const util::string_view& index_name,
 	zval* return_value)
 {
 	try {
-		auto session{collection->data->schema->data->session};
-		const util::string_view schema_name{collection->data->schema->data->schema_name};
-		const util::string_view collection_name{collection->data->collection_name};
+		auto session{collection->get_schema()->get_session()};
+		const util::string_view schema_name{collection->get_schema()->get_name()};
+		const util::string_view collection_name{collection->get_name()};
 		const st_xmysqlnd_session_on_error_bind on_error{ collection_index_on_error, nullptr };
 		RETVAL_BOOL(drv::collection_drop_index_execute(
 			session,

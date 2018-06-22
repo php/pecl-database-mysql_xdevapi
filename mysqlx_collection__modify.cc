@@ -115,16 +115,16 @@ ZEND_END_ARG_INFO()
 /* {{{ Collection_modify::init() */
 bool Collection_modify::init(
 	zval* obj_zv,
-	XMYSQLND_COLLECTION* coll,
+	xmysqlnd_collection* coll,
 	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll || search_expression.empty()) return false;
 
 	object_zv = obj_zv;
-	collection = coll->data->m.get_reference(coll);
+	collection = coll->get_reference();
 	modify_op = xmysqlnd_crud_collection_modify__create(
-		mnd_str2c(collection->data->schema->data->schema_name),
-		mnd_str2c(collection->data->collection_name));
+		mnd_str2c(collection->get_schema()->get_name()),
+		mnd_str2c(collection->get_name()));
 
 	if (!modify_op) return false;
 
@@ -506,7 +506,7 @@ void Collection_modify::execute(
 	if (FALSE == xmysqlnd_crud_collection_modify__is_initialized(modify_op)) {
 		RAISE_EXCEPTION(err_msg_modify_fail);
 	} else {
-		XMYSQLND_STMT* stmt = collection->data->m.modify(collection, modify_op);
+		xmysqlnd_stmt* stmt = collection->modify(modify_op);
 		if (stmt) {
 			zval stmt_zv;
 			ZVAL_UNDEF(&stmt_zv);
@@ -879,7 +879,7 @@ void
 mysqlx_new_collection__modify(
 	zval* return_value,
 	const util::string_view& search_expression,
-	XMYSQLND_COLLECTION* collection)
+	xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__modify");
 

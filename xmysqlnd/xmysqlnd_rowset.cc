@@ -42,7 +42,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, init)(XMYSQLND_ROWSET * const result,
 									   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 									   const enum xmysqlnd_rowset_type type,
 									   const size_t prefetch_rows,
-									   XMYSQLND_STMT * const stmt,
+									   xmysqlnd_stmt * const stmt,
 									   MYSQLND_STATS * const stats,
 									   MYSQLND_ERROR_INFO * const error_info)
 {
@@ -372,7 +372,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset);
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET *
 xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type,
 					   const size_t prefetch_rows,
-					   XMYSQLND_STMT * stmt,
+					   xmysqlnd_stmt * stmt,
 					   const zend_bool persistent,
 					   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 					   MYSQLND_STATS * stats,

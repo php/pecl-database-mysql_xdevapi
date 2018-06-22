@@ -69,32 +69,43 @@ bool is_view_object_type(const MYSQLND_CSTRING& object_type)
 
 //------------------------------------------------------------------------------
 
-/* {{{ xmysqlnd_schema::init */
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_schema, init)(XMYSQLND_SCHEMA * const schema,
-											const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-											XMYSQLND_SESSION session,
-											const MYSQLND_CSTRING schema_name,
-											MYSQLND_STATS * const stats,
-											MYSQLND_ERROR_INFO * const error_info)
-{
-	DBG_ENTER("xmysqlnd_schema::init");
-	schema->data->session = session;
-	schema->data->schema_name = mnd_dup_cstring(schema_name, schema->data->persistent);
-	DBG_INF_FMT("name=[%d]%*s", schema->data->schema_name.l, schema->data->schema_name.l, schema->data->schema_name.s);
-
-	schema->data->object_factory = object_factory;
-
-	DBG_RETURN(PASS);
-}
-/* }}} */
-
-
 struct st_schema_exists_in_database_var_binder_ctx
 {
 	const MYSQLND_CSTRING schema_name;
 	unsigned int counter;
 };
+
+xmysqlnd_schema::xmysqlnd_schema(
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const obj_factory,
+		XMYSQLND_SESSION provided_session,
+		const MYSQLND_CSTRING provided_schema_name,
+		zend_bool is_persistent)
+{
+	DBG_ENTER("xmysqlnd_schema::xmysqlnd_schema");
+	session = provided_session;
+	schema_name = mnd_dup_cstring(provided_schema_name, persistent);
+	DBG_INF_FMT("name=[%d]%*s", provided_schema_name.l, provided_schema_name.l, provided_schema_name.s);
+	persistent = is_persistent;
+	object_factory = obj_factory;
+}
+
+xmysqlnd_schema::~xmysqlnd_schema()
+{
+	DBG_ENTER("xmysqlnd_schema::~xmysqlnd_schema");
+	cleanup();
+	session.~shared_ptr();
+}
+
+void xmysqlnd_schema::cleanup()
+{
+	const zend_bool pers = persistent;
+	DBG_ENTER("xmysqlnd_schema::cleanup");
+	if (schema_name.s) {
+		mnd_pefree(schema_name.s, pers);
+		schema_name.s = nullptr;
+	}
+	DBG_VOID_RETURN;
+}
 
 
 /* {{{ schema_xplugin_op_var_binder */
@@ -149,7 +160,7 @@ static const enum_hnd_func_status
 schema_sql_op_on_row(
 	void * context,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT * const stmt,
+	xmysqlnd_stmt * const stmt,
 	const XMYSQLND_STMT_RESULT_META * const meta,
 	const zval * const row,
 	MYSQLND_STATS * const stats,
@@ -175,9 +186,8 @@ schema_sql_op_on_row(
 
 
 /* {{{ xmysqlnd_schema::exists_in_database */
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_schema, exists_in_database)(
-	XMYSQLND_SCHEMA * const schema,
+enum_func_status
+xmysqlnd_schema::exists_in_database(
 	struct st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
@@ -186,16 +196,18 @@ XMYSQLND_METHOD(xmysqlnd_schema, exists_in_database)(
 
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"SHOW SCHEMAS LIKE ?", sizeof("SHOW SCHEMAS LIKE ?") - 1 };
-	auto session = schema->data->session;
 
 	st_schema_exists_in_database_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->data->schema_name),
+		mnd_str2c(schema_name),
 		0
 	};
-	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { schema_xplugin_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder = {
+		schema_xplugin_op_var_binder,
+		&var_binder_ctx
+	};
 
 	st_schema_exists_in_database_ctx on_row_ctx = {
-		mnd_str2c(schema->data->schema_name),
+		mnd_str2c(schema_name),
 		exists
 	};
 
@@ -215,16 +227,22 @@ XMYSQLND_METHOD(xmysqlnd_schema, exists_in_database)(
 }
 /* }}} */
 
-
 /* {{{ xmysqlnd_schema::create_collection_object */
-static XMYSQLND_COLLECTION *
-XMYSQLND_METHOD(xmysqlnd_schema, create_collection_object)(XMYSQLND_SCHEMA * const schema, const MYSQLND_CSTRING collection_name)
+xmysqlnd_collection *
+xmysqlnd_schema::create_collection_object(
+		const MYSQLND_CSTRING collection_name
+)
 {
-	XMYSQLND_COLLECTION* collection{nullptr};
+	xmysqlnd_collection* collection{nullptr};
 	DBG_ENTER("xmysqlnd_schema::create_collection_object");
 	DBG_INF_FMT("schema_name=%s", collection_name.s);
 
-	collection = xmysqlnd_collection_create(schema, collection_name, schema->persistent, schema->data->object_factory, schema->data->session->data->stats, schema->data->session->data->error_info);
+	collection = xmysqlnd_collection_create(this,
+											collection_name,
+											persistent,
+											object_factory,
+											session->data->stats,
+											session->data->error_info);
 	DBG_RETURN(collection);
 }
 /* }}} */
@@ -232,7 +250,7 @@ XMYSQLND_METHOD(xmysqlnd_schema, create_collection_object)(XMYSQLND_SCHEMA * con
 
 struct st_create_collection_handler_ctx
 {
-	const XMYSQLND_SCHEMA * schema;
+	const xmysqlnd_schema * schema;
 	const struct st_xmysqlnd_schema_on_error_bind on_error;
 };
 
@@ -240,7 +258,7 @@ struct st_create_collection_handler_ctx
 static const enum_hnd_func_status
 collection_op_handler_on_error(void * context,
 							   XMYSQLND_SESSION session,
-							   XMYSQLND_STMT * const stmt,
+							   xmysqlnd_stmt * const stmt,
 							   const unsigned int code,
 							   const MYSQLND_CSTRING sql_state,
 							   const MYSQLND_CSTRING message)
@@ -281,7 +299,7 @@ collection_op_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT
 		ZVAL_STRINGL(&zv, param->s, param->l);
 		DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
 		result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
-		//result = stmt->data->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
+		//result = stmt->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
 		zval_ptr_dtor(&zv);
 		if (FAIL == result) {
 			ret = HND_FAIL;
@@ -296,16 +314,16 @@ collection_op_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT
 /* {{{ xmysqlnd_collection_op */
 static const enum_func_status
 xmysqlnd_collection_op(
-	XMYSQLND_SCHEMA * const schema,
+	xmysqlnd_schema * const schema,
 	const util::string_view& collection_name,
 	const MYSQLND_CSTRING query,
 	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
-	auto session = schema->data->session;
+	auto session = schema->get_session();
 
 	st_collection_op_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->data->schema_name),
+		mnd_str2c(schema->get_name()),
 		collection_name.to_nd_cstr(),
 		0
 	};
@@ -332,24 +350,23 @@ xmysqlnd_collection_op(
 
 
 /* {{{ xmysqlnd_schema::create_collection */
-static XMYSQLND_COLLECTION *
-XMYSQLND_METHOD(xmysqlnd_schema, create_collection)(
-	XMYSQLND_SCHEMA* const schema,
+xmysqlnd_collection *
+xmysqlnd_schema::create_collection(
 	const util::string_view& collection_name,
 	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	static const MYSQLND_CSTRING query = {"create_collection", sizeof("create_collection") - 1 };
-	XMYSQLND_COLLECTION* collection{nullptr};
+	xmysqlnd_collection* collection{nullptr};
 	DBG_ENTER("xmysqlnd_schema::create_collection");
-	DBG_INF_FMT("schema_name=%s collection_name=%s", schema->data->schema_name.s, collection_name.c_str());
-	if (PASS == xmysqlnd_collection_op(schema, collection_name, query, handler_on_error)) {
+	DBG_INF_FMT("schema_name=%s collection_name=%s", schema_name.s, collection_name.c_str());
+	if (PASS == xmysqlnd_collection_op(this, collection_name, query, handler_on_error)) {
 		collection = xmysqlnd_collection_create(
-			schema,
+			this,
 			collection_name.to_nd_cstr(),
-			schema->persistent,
-			schema->data->object_factory,
-			schema->data->session->data->stats,
-			schema->data->session->data->error_info);
+			persistent,
+			object_factory,
+			session->data->stats,
+			session->data->error_info);
 	}
 	DBG_RETURN(collection);
 }
@@ -357,18 +374,17 @@ XMYSQLND_METHOD(xmysqlnd_schema, create_collection)(
 
 
 /* {{{ xmysqlnd_schema::drop_collection */
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_schema, drop_collection)(
-	XMYSQLND_SCHEMA * const schema,
+enum_func_status
+xmysqlnd_schema::drop_collection(
 	const util::string_view& collection_name,
 	const struct st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"drop_collection", sizeof("drop_collection") - 1 };
 	DBG_ENTER("xmysqlnd_schema::drop_collection");
-	DBG_INF_FMT("schema_name=%s collection_name=%s", schema->data->schema_name.s, collection_name.c_str());
+	DBG_INF_FMT("schema_name=%s collection_name=%s", schema_name.s, collection_name.c_str());
 
-	ret = xmysqlnd_collection_op(schema, collection_name.to_nd_cstr(), query, handler_on_error);
+	ret = xmysqlnd_collection_op(this, collection_name.to_nd_cstr(), query, handler_on_error);
 
 	DBG_RETURN(ret);
 }
@@ -376,32 +392,34 @@ XMYSQLND_METHOD(xmysqlnd_schema, drop_collection)(
 
 
 /* {{{ xmysqlnd_schema::create_table_object */
-static XMYSQLND_TABLE *
-XMYSQLND_METHOD(xmysqlnd_schema, create_table_object)(XMYSQLND_SCHEMA * const schema, const MYSQLND_CSTRING table_name)
+xmysqlnd_table *
+xmysqlnd_schema::create_table_object( const MYSQLND_CSTRING table_name)
 {
-	XMYSQLND_TABLE* table{nullptr};
+	xmysqlnd_table* table{nullptr};
 	DBG_ENTER("xmysqlnd_schema::create_table_object");
 	DBG_INF_FMT("schema_name=%s", table_name.s);
 
-	table = xmysqlnd_table_create(schema, table_name, schema->persistent, schema->data->object_factory, schema->data->session->data->stats, schema->data->session->data->error_info);
+	table = xmysqlnd_table_create(this, table_name, persistent,
+								  object_factory,
+								  session->data->stats,
+								  session->data->error_info);
 	DBG_RETURN(table);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_schema::drop_table */
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_schema, drop_table)(
-	XMYSQLND_SCHEMA* const schema,
+enum_func_status
+xmysqlnd_schema::drop_table(
 	const util::string_view& table_name,
 	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"drop_collection", sizeof("drop_collection") - 1 };
 	DBG_ENTER("xmysqlnd_schema::drop_table");
-	DBG_INF_FMT("schema_name=%s table_name=%s ", schema->data->schema_name.s, table_name.c_str());
+	DBG_INF_FMT("schema_name=%s table_name=%s ", schema_name.s, table_name.c_str());
 
-	ret = xmysqlnd_collection_op(schema, table_name.to_nd_cstr(), query, handler_on_error);
+	ret = xmysqlnd_collection_op(this, table_name.to_nd_cstr(), query, handler_on_error);
 
 	DBG_RETURN(ret);
 }
@@ -412,7 +430,7 @@ namespace {
 
 struct xmysqlnd_schema_get_db_objects_ctx
 {
-	XMYSQLND_SCHEMA * schema;
+	xmysqlnd_schema * schema;
 	const db_object_type_filter object_type_filter;
 	const st_xmysqlnd_schema_on_database_object_bind on_object;
 	const st_xmysqlnd_schema_on_error_bind on_error;
@@ -443,7 +461,7 @@ bool match_object_type(
 static const enum_hnd_func_status
 get_db_objects_on_row(void * context,
 					  XMYSQLND_SESSION session,
-					  XMYSQLND_STMT * const stmt,
+					  xmysqlnd_stmt * const stmt,
 					  const XMYSQLND_STMT_RESULT_META * const meta,
 					  const zval * const row,
 					  MYSQLND_STATS * const stats,
@@ -496,7 +514,7 @@ collection_get_objects_var_binder(void * context, XMYSQLND_SESSION session, XMYS
 
 				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
 
-//				result = stmt->data->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
+//				result = stmt->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
 
 				zval_ptr_dtor(&zv);
 				if (FAIL == result) {
@@ -515,9 +533,8 @@ collection_get_objects_var_binder(void * context, XMYSQLND_SESSION session, XMYS
 } // anonymous namespace
 
 /* {{{ xmysqlnd_schema::get_db_objects */
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_schema, get_db_objects)(
-	XMYSQLND_SCHEMA * const schema,
+enum_func_status
+xmysqlnd_schema::get_db_objects(
 	const MYSQLND_CSTRING& collection_name,
 	const db_object_type_filter object_type_filter,
 	const struct st_xmysqlnd_schema_on_database_object_bind on_object,
@@ -525,15 +542,14 @@ XMYSQLND_METHOD(xmysqlnd_schema, get_db_objects)(
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
-	auto session = schema->data->session;
 
 	struct st_collection_get_objects_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->data->schema_name),
+		mnd_str2c(schema_name),
 		0
 	};
 	const struct st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_get_objects_var_binder, &var_binder_ctx };
 
-	xmysqlnd_schema_get_db_objects_ctx handler_ctx = { schema, object_type_filter, on_object, handler_on_error };
+	xmysqlnd_schema_get_db_objects_ctx handler_ctx = { this, object_type_filter, on_object, handler_on_error };
 
 	const struct st_xmysqlnd_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
 	const struct st_xmysqlnd_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : nullptr, &handler_ctx };
@@ -556,26 +572,27 @@ XMYSQLND_METHOD(xmysqlnd_schema, get_db_objects)(
 
 
 /* {{{ xmysqlnd_schema::get_reference */
-static XMYSQLND_SCHEMA *
-XMYSQLND_METHOD(xmysqlnd_schema, get_reference)(XMYSQLND_SCHEMA * const schema)
+xmysqlnd_schema *
+xmysqlnd_schema::get_reference()
 {
 	DBG_ENTER("xmysqlnd_schema::get_reference");
-	++schema->data->refcount;
-	DBG_INF_FMT("schema=%p new_refcount=%u", schema, schema->data->refcount);
-	DBG_RETURN(schema);
+	++refcount;
+	DBG_INF_FMT("new_refcount=%u", refcount);
+	DBG_RETURN(this);
 }
 /* }}} */
 
 
 /* {{{ xmysqlnd_schema::free_reference */
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_schema, free_reference)(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+enum_func_status
+xmysqlnd_schema::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_schema::free_reference");
-	DBG_INF_FMT("schema=%p old_refcount=%u", schema, schema->data->refcount);
-	if (!(--schema->data->refcount)) {
-		schema->data->m.dtor(schema, stats, error_info);
+	DBG_INF_FMT("old_refcount=%u",  refcount);
+	if (!(--refcount)) {
+		free_contents();
+		session.~shared_ptr();
 	}
 	DBG_RETURN(ret);
 }
@@ -583,59 +600,21 @@ XMYSQLND_METHOD(xmysqlnd_schema, free_reference)(XMYSQLND_SCHEMA * const schema,
 
 
 /* {{{ xmysqlnd_schema::free_contents */
-static void
-XMYSQLND_METHOD(xmysqlnd_schema, free_contents)(XMYSQLND_SCHEMA * const schema)
+void
+xmysqlnd_schema::free_contents()
 {
-	const zend_bool pers = schema->data->persistent;
+	const zend_bool pers = persistent;
 	DBG_ENTER("xmysqlnd_schema::free_contents");
-	if (schema->data->schema_name.s) {
-		mnd_pefree(schema->data->schema_name.s, pers);
-		schema->data->schema_name.s = nullptr;
+	if (schema_name.s) {
+		mnd_pefree(schema_name.s, pers);
+		schema_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
-
-
-/* {{{ xmysqlnd_schema::dtor */
-static void
-XMYSQLND_METHOD(xmysqlnd_schema, dtor)(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
-{
-	DBG_ENTER("xmysqlnd_schema::dtor");
-	if (schema) {
-		schema->data->m.free_contents(schema);
-		schema->data->session.~shared_ptr();
-		mnd_pefree(schema->data, schema->data->persistent);
-		mnd_pefree(schema, schema->persistent);
-	}
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-static
-MYSQLND_CLASS_METHODS_START(xmysqlnd_schema)
-	XMYSQLND_METHOD(xmysqlnd_schema, init),
-	XMYSQLND_METHOD(xmysqlnd_schema, exists_in_database),
-
-	XMYSQLND_METHOD(xmysqlnd_schema, create_collection_object),
-	XMYSQLND_METHOD(xmysqlnd_schema, create_collection),
-	XMYSQLND_METHOD(xmysqlnd_schema, drop_collection),
-	XMYSQLND_METHOD(xmysqlnd_schema, create_table_object),
-	XMYSQLND_METHOD(xmysqlnd_schema, drop_table),
-
-	XMYSQLND_METHOD(xmysqlnd_schema, get_db_objects),
-
-	XMYSQLND_METHOD(xmysqlnd_schema, get_reference),
-	XMYSQLND_METHOD(xmysqlnd_schema, free_reference),
-	XMYSQLND_METHOD(xmysqlnd_schema, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_schema, dtor),
-MYSQLND_CLASS_METHODS_END;
-
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_schema);
-
 
 /* {{{ xmysqlnd_schema_create */
-PHP_MYSQL_XDEVAPI_API XMYSQLND_SCHEMA *
+PHP_MYSQL_XDEVAPI_API xmysqlnd_schema *
 xmysqlnd_schema_create(XMYSQLND_SESSION session,
 							const MYSQLND_CSTRING schema_name,
 							const zend_bool persistent,
@@ -643,12 +622,12 @@ xmysqlnd_schema_create(XMYSQLND_SESSION session,
 							MYSQLND_STATS * const stats,
 							MYSQLND_ERROR_INFO * const error_info)
 {
-	XMYSQLND_SCHEMA* ret{nullptr};
+	xmysqlnd_schema* ret{nullptr};
 	DBG_ENTER("xmysqlnd_schema_create");
 	if (schema_name.s && schema_name.l) {
 		ret = object_factory->get_schema(object_factory, session, schema_name, persistent, stats, error_info);
 		if (ret) {
-			ret = ret->data->m.get_reference(ret);
+			ret = ret->get_reference();
 		}
 	}
 	DBG_RETURN(ret);
@@ -658,18 +637,19 @@ xmysqlnd_schema_create(XMYSQLND_SESSION session,
 
 /* {{{ xmysqlnd_schema_free */
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_schema_free(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_schema_free(xmysqlnd_schema * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_schema_free");
-	DBG_INF_FMT("schema=%p  schema->data=%p  dtor=%p", schema, schema? schema->data:nullptr, schema? schema->data->m.dtor:nullptr);
+	DBG_INF_FMT("schema=%p",
+				schema);
 	if (schema) {
-		if (!stats && schema->data->session->data) {
-			stats = schema->data->session->data->stats;
+		if (!stats && schema->get_session()->data) {
+			stats = schema->get_session()->data->stats;
 		}
-		if (!error_info && schema->data->session->data) {
-			error_info = schema->data->session->data->error_info;
+		if (!error_info && schema->get_session()->data) {
+			error_info = schema->get_session()->data->error_info;
 		}
-		schema->data->m.free_reference(schema, stats, error_info);
+		schema->free_reference(stats, error_info);
 	}
 	DBG_VOID_RETURN;
 }

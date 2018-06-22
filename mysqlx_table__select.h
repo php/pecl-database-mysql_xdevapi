@@ -27,7 +27,7 @@ namespace devapi {
 extern zend_class_entry* mysqlx_table__select_class_entry;
 
 void mysqlx_new_table__select(zval * return_value,
-						drv::st_xmysqlnd_table* schema,
+						drv::xmysqlnd_table* schema,
 						const zend_bool clone,
 						zval * columns,
 						const int num_of_columns);

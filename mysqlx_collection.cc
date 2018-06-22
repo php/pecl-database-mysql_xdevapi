@@ -133,7 +133,7 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_collection : public util::custom_allocable
 {
-	XMYSQLND_COLLECTION * collection;
+	xmysqlnd_collection * collection;
 };
 
 
@@ -175,7 +175,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_SESSION session{ data_object.collection->data->schema->data->session };
+	XMYSQLND_SESSION session{ data_object.collection->get_schema()->get_session()};
 	mysqlx_new_session(return_value, session);
 
 	DBG_VOID_RETURN;
@@ -199,7 +199,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
 
 	if (object->collection) {
-		RETVAL_STRINGL(object->collection->data->collection_name.s, object->collection->data->collection_name.l);
+		RETVAL_STRINGL(object->collection->get_name().s, object->collection->get_name().l);
 	} else {
 		RETVAL_FALSE;
 	}
@@ -212,7 +212,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 /* {{{ mysqlx_collection_on_error */
 static const enum_hnd_func_status
 mysqlx_collection_on_error(void * context, XMYSQLND_SESSION session,
-					st_xmysqlnd_stmt* const stmt,
+					xmysqlnd_stmt* const stmt,
 					const unsigned int code,
 					const MYSQLND_CSTRING sql_state,
 					const MYSQLND_CSTRING message)
@@ -246,12 +246,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_COLLECTION * collection = object->collection;
+	xmysqlnd_collection * collection = object->collection;
 	if (collection) {
 		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_collection_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
-		if (PASS == collection->data->m.exists_in_database(collection, on_error, &exists)) {
+		if (PASS == collection->exists_in_database( on_error, &exists)) {
 			ZVAL_COPY_VALUE(return_value, &exists);
 		}
 	}
@@ -278,12 +278,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_COLLECTION * collection = object->collection;
+	xmysqlnd_collection * collection = object->collection;
 	if (collection) {
 		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_collection_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
-		if (PASS == collection->data->m.count(collection, on_error, &counter)) {
+		if (PASS == collection->count(on_error, &counter)) {
 			ZVAL_COPY_VALUE(return_value, &counter);
 		}
 	}
@@ -314,15 +314,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 	RETVAL_FALSE;
 
 	if( object->collection &&
-		object->collection->data &&
-		object->collection->data->schema &&
-		object->collection->data->schema->data ) {
-		session = object->collection->data->schema->data->session;
+		object->collection->get_schema() ) {
+		session = object->collection->get_schema()->get_session();
 	}
 
 	if(session != nullptr) {
-		MYSQLND_STRING& schema_name{ object->collection->data->schema->data->schema_name };
-		XMYSQLND_SCHEMA * schema = session->create_schema_object(
+		MYSQLND_STRING schema_name{ object->collection->get_schema()->get_name() };
+		xmysqlnd_schema * schema = session->create_schema_object(
 					mnd_str2c(schema_name));
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
@@ -705,8 +703,8 @@ mysqlx_collection_property__name(const st_mysqlx_object* obj, zval * return_valu
 {
 	const st_mysqlx_collection* object = (const st_mysqlx_collection* ) (obj->ptr);
 	DBG_ENTER("mysqlx_collection_property__name");
-	if (object->collection && object->collection->data->collection_name.s) {
-		ZVAL_STRINGL(return_value, object->collection->data->collection_name.s, object->collection->data->collection_name.l);
+	if (object->collection && object->collection->get_name().s) {
+		ZVAL_STRINGL(return_value, object->collection->get_name().s, object->collection->get_name().l);
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -801,7 +799,7 @@ mysqlx_unregister_collection_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_collection */
 void
-mysqlx_new_collection(zval * return_value, XMYSQLND_COLLECTION * collection, const zend_bool clone)
+mysqlx_new_collection(zval * return_value, xmysqlnd_collection * collection, const zend_bool clone)
 {
 	DBG_ENTER("mysqlx_new_collection");
 
@@ -809,7 +807,7 @@ mysqlx_new_collection(zval * return_value, XMYSQLND_COLLECTION * collection, con
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		st_mysqlx_collection* const object = (st_mysqlx_collection*) mysqlx_object->ptr;
 		if (object) {
-			object->collection = clone? collection->data->m.get_reference(collection) : collection;
+			object->collection = clone? collection->get_reference() : collection;
 		} else {
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

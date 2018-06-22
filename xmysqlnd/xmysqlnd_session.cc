@@ -184,7 +184,7 @@ st_xmysqlnd_session_auth_data::st_xmysqlnd_session_auth_data() :
 
 /* {{{ xmysqlnd_session_data::get_scheme */
 MYSQLND_STRING
-st_xmysqlnd_session_data::get_scheme(
+xmysqlnd_session_data::get_scheme(
 		const util::string& hostname,
 		unsigned int port)
 {
@@ -225,7 +225,7 @@ st_xmysqlnd_session_data::get_scheme(
 
 /* {{{ xmysqlnd_session_data::connect_handshake */
 enum_func_status
-st_xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme,
+xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme,
 											const MYSQLND_CSTRING database,
 											const size_t set_capabilities)
 {
@@ -249,7 +249,7 @@ st_xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme,
 
 /* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
-st_xmysqlnd_session_data::authenticate(const MYSQLND_CSTRING scheme,
+xmysqlnd_session_data::authenticate(const MYSQLND_CSTRING scheme,
 									   const MYSQLND_CSTRING database,
 									   const size_t set_capabilities)
 {
@@ -267,7 +267,7 @@ st_xmysqlnd_session_data::authenticate(const MYSQLND_CSTRING scheme,
 
 /* {{{ xmysqlnd_session_data::connect */
 enum_func_status
-st_xmysqlnd_session_data::connect(
+xmysqlnd_session_data::connect(
 		MYSQLND_CSTRING database,
 		unsigned int port,
 		size_t set_capabilities)
@@ -402,7 +402,7 @@ st_xmysqlnd_session_data::connect(
 
 /* {{{ xmysqlnd_session_data::quote_name */
 MYSQLND_STRING
-st_xmysqlnd_session_data::quote_name(const MYSQLND_CSTRING name)
+xmysqlnd_session_data::quote_name(const MYSQLND_CSTRING name)
 {
 	MYSQLND_STRING ret = { nullptr, 0 };
 	DBG_ENTER("xmysqlnd_session_data::quote_name");
@@ -438,7 +438,7 @@ st_xmysqlnd_session_data::quote_name(const MYSQLND_CSTRING name)
 
 /* {{{ xmysqlnd_session_data::get_error_no */
 unsigned int
-st_xmysqlnd_session_data::get_error_no()
+xmysqlnd_session_data::get_error_no()
 {
 	return error_info->error_no;
 }
@@ -446,7 +446,7 @@ st_xmysqlnd_session_data::get_error_no()
 
 /* {{{ xmysqlnd_session_data::error */
 const char *
-st_xmysqlnd_session_data::get_error_str()
+xmysqlnd_session_data::get_error_str()
 {
 	return error_info->error;
 }
@@ -454,7 +454,7 @@ st_xmysqlnd_session_data::get_error_str()
 
 /* {{{ xmysqlnd_session_data::sqlstate */
 const char *
-st_xmysqlnd_session_data::get_sqlstate()
+xmysqlnd_session_data::get_sqlstate()
 {
 	return error_info->sqlstate[0] ? error_info->sqlstate : MYSQLND_SQLSTATE_NULL;
 }
@@ -463,7 +463,7 @@ st_xmysqlnd_session_data::get_sqlstate()
 
 /* {{{ xmysqlnd_session_data::set_client_option */
 enum_func_status
-st_xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
+xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
 											const char * const value)
 {
 	enum_func_status ret{PASS};
@@ -484,7 +484,7 @@ st_xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
 
 /* {{{ mysqlnd_send_close */
 enum_func_status
-st_xmysqlnd_session_data::send_close()
+xmysqlnd_session_data::send_close()
 {
 	enum_func_status ret{PASS};
 	MYSQLND_VIO * vio = io.vio;
@@ -539,7 +539,7 @@ st_xmysqlnd_session_data::send_close()
 
 /* {{{ xmysqlnd_session_data::negotiate_client_api_capabilities */
 size_t
-st_xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
+xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 {
 	size_t ret{0};
 	DBG_ENTER("xmysqlnd_session_data::negotiate_client_api_capabilities");
@@ -554,7 +554,7 @@ st_xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 
 /* {{{ xmysqlnd_session_data::get_client_id */
 size_t
-st_xmysqlnd_session_data::get_client_id()
+xmysqlnd_session_data::get_client_id()
 {
 	return client_id;
 }
@@ -607,12 +607,12 @@ st_xmysqlnd_session_state::st_xmysqlnd_session_state()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::st_xmysqlnd_session_data */
-st_xmysqlnd_session_data::st_xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+/* {{{ xmysqlnd_session_data::xmysqlnd_session_data */
+xmysqlnd_session_data::xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 												   MYSQLND_STATS * mysqlnd_stats,
 												   MYSQLND_ERROR_INFO * mysqlnd_error_info)
 {
-	DBG_ENTER("xmysqlnd_session_data::st_xmysqlnd_session_data");
+	DBG_ENTER("xmysqlnd_session_data::xmysqlnd_session_data");
 	object_factory = factory;
 
 	if (error_info) {
@@ -648,10 +648,10 @@ st_xmysqlnd_session_data::st_xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_T
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::~st_xmysqlnd_session_data */
-st_xmysqlnd_session_data::~st_xmysqlnd_session_data()
+/* {{{ xmysqlnd_session_data::~xmysqlnd_session_data */
+xmysqlnd_session_data::~xmysqlnd_session_data()
 {
-	DBG_ENTER("xmysqlnd_session_data::~st_xmysqlnd_session_data");
+	DBG_ENTER("xmysqlnd_session_data::~xmysqlnd_session_data");
 	send_close();
 	cleanup();
 	free_contents();
@@ -661,7 +661,7 @@ st_xmysqlnd_session_data::~st_xmysqlnd_session_data()
 
 
 /* {{{ xmysqlnd_session_data::cleanup */
-void st_xmysqlnd_session_data::cleanup()
+void xmysqlnd_session_data::cleanup()
 {
 	DBG_ENTER("xmysqlnd_session_data::reset");
 	zend_bool pers = persistent;
@@ -702,7 +702,7 @@ void st_xmysqlnd_session_data::cleanup()
 
 
 /* {{{ xmysqlnd_session_data::free_contents */
-void st_xmysqlnd_session_data::free_contents()
+void xmysqlnd_session_data::free_contents()
 {
 	DBG_ENTER("xmysqlnd_session_data::free_contents");
 	if( io.pfc ) {
@@ -727,7 +727,7 @@ void st_xmysqlnd_session_data::free_contents()
 const enum_hnd_func_status
 xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
-	st_xmysqlnd_session_data* session = static_cast<st_xmysqlnd_session_data*>(context);
+	xmysqlnd_session_data* session = static_cast<xmysqlnd_session_data*>(context);
 	DBG_ENTER("xmysqlnd_stmt::handler_on_error");
 	if (session->error_info) {
 		SET_CLIENT_ERROR(session->error_info, code, sql_state.s, message.s);
@@ -766,7 +766,7 @@ enum_func_status
 xmysqlnd_session_data_set_client_id(void * context, const size_t id)
 {
 	enum_func_status ret{FAIL};
-	st_xmysqlnd_session_data * session = (st_xmysqlnd_session_data *) context;
+	xmysqlnd_session_data * session = (xmysqlnd_session_data *) context;
 	DBG_ENTER("xmysqlnd_session_data_set_client_id");
 	DBG_INF_FMT("id=" MYSQLND_LLU_SPEC, id);
 	if (context) {
@@ -1257,7 +1257,7 @@ bool Gather_auth_mechanisms::run()
 }
 
 Authenticate::Authenticate(
-		st_xmysqlnd_session_data* session,
+		xmysqlnd_session_data* session,
 		const MYSQLND_CSTRING& scheme,
 		const MYSQLND_CSTRING& database)
 	: session(session)
@@ -1446,7 +1446,7 @@ void Gather_auth_mechanisms::add_auth_mechanism_if_supported(Auth_mechanism auth
 /* {{{ setup_crypto_options */
 void setup_crypto_options(
 		php_stream_context* stream_context,
-		st_xmysqlnd_session_data* session)
+		xmysqlnd_session_data* session)
 {
 	DBG_ENTER("setup_crypto_options");
 	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
@@ -1507,7 +1507,7 @@ void setup_crypto_options(
 
 /* {{{ setup_crypto_connection */
 enum_func_status setup_crypto_connection(
-		st_xmysqlnd_session_data* session,
+		xmysqlnd_session_data* session,
 		st_xmysqlnd_msg__capabilities_get& caps_get,
 		const st_xmysqlnd_message_factory& msg_factory)
 {
@@ -1593,26 +1593,26 @@ char* build_server_host_info(const util::string& format,
 	return host_info;
 }
 
-/* {{{ xmysqlnd_session::st_xmysqlnd_session */
-st_xmysqlnd_session::st_xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+/* {{{ xmysqlnd_session::xmysqlnd_session */
+xmysqlnd_session::xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 										 MYSQLND_STATS * stats,
 										 MYSQLND_ERROR_INFO * error_info)
 {
-	DBG_ENTER("xmysqlnd_session::st_xmysqlnd_session");
+	DBG_ENTER("xmysqlnd_session::xmysqlnd_session");
 
 	session_uuid = new Uuid_generator();
-	st_xmysqlnd_session_data * session_data = factory->get_session_data(factory, persistent, stats, error_info);
+	xmysqlnd_session_data * session_data = factory->get_session_data(factory, persistent, stats, error_info);
 	if (session_data) {
-		data = std::shared_ptr<st_xmysqlnd_session_data>(session_data);
+		data = std::shared_ptr<xmysqlnd_session_data>(session_data);
 	}
 }
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::~st_xmysqlnd_session */
-st_xmysqlnd_session::~st_xmysqlnd_session()
+/* {{{ xmysqlnd_session::~xmysqlnd_session */
+xmysqlnd_session::~xmysqlnd_session()
 {
-	DBG_ENTER("xmysqlnd_session::~st_xmysqlnd_session");
+	DBG_ENTER("xmysqlnd_session::~xmysqlnd_session");
 	if (server_version_string) {
 		mnd_pefree(server_version_string, persistent);
 		server_version_string = nullptr;
@@ -1624,14 +1624,14 @@ st_xmysqlnd_session::~st_xmysqlnd_session()
 /* }}} */
 
 XMYSQLND_SESSION_DATA
-st_xmysqlnd_session::get_data()
+xmysqlnd_session::get_data()
 {
 	return data;
 }
 
 /* {{{ xmysqlnd_session::connect */
 const enum_func_status
-st_xmysqlnd_session::connect(MYSQLND_CSTRING database,
+xmysqlnd_session::connect(MYSQLND_CSTRING database,
 							const unsigned int port,
 							const size_t set_capabilities)
 {
@@ -1795,7 +1795,7 @@ void Uuid_generator::assign_timestamp( Uuid_format& uuid )
 
 /* {{{ xmysqlnd_schema_operation */
 enum_func_status
-st_xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
+xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
 {
 	enum_func_status ret{FAIL};
 	const MYSQLND_STRING quoted_db = data->quote_name(db);
@@ -1818,7 +1818,7 @@ st_xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, 
 
 /* {{{ xmysqlnd_session::select_db */
 const enum_func_status
-st_xmysqlnd_session::select_db(const MYSQLND_CSTRING db)
+xmysqlnd_session::select_db(const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "USE ", sizeof("USE ") - 1 };
@@ -1831,7 +1831,7 @@ st_xmysqlnd_session::select_db(const MYSQLND_CSTRING db)
 
 /* {{{ xmysqlnd_session::create_db */
 const enum_func_status
-st_xmysqlnd_session::create_db(const MYSQLND_CSTRING db)
+xmysqlnd_session::create_db(const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "CREATE DATABASE ", sizeof("CREATE DATABASE ") - 1 };
@@ -1844,7 +1844,7 @@ st_xmysqlnd_session::create_db(const MYSQLND_CSTRING db)
 
 /* {{{ xmysqlnd_session::drop_db */
 const enum_func_status
-st_xmysqlnd_session::drop_db(const MYSQLND_CSTRING db)
+xmysqlnd_session::drop_db(const MYSQLND_CSTRING db)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING operation = { "DROP DATABASE ", sizeof("DROP DATABASE ") - 1 };
@@ -1871,7 +1871,7 @@ struct st_xmysqlnd_query_cb_ctx
 
 /* {{{ query_cb_handler_on_result_start */
 const enum_hnd_func_status
-query_cb_handler_on_result_start(void * context, XMYSQLND_STMT * const stmt)
+query_cb_handler_on_result_start(void * context, xmysqlnd_stmt * const stmt)
 {
 	enum_hnd_func_status ret;
 	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
@@ -1888,7 +1888,7 @@ query_cb_handler_on_result_start(void * context, XMYSQLND_STMT * const stmt)
 /* {{{ query_cb_handler_on_row */
 const enum_hnd_func_status
 query_cb_handler_on_row(void * context,
-						XMYSQLND_STMT * const stmt,
+						xmysqlnd_stmt * const stmt,
 						const st_xmysqlnd_stmt_result_meta* const meta,
 						const zval * const row,
 						MYSQLND_STATS * const stats,
@@ -1909,7 +1909,7 @@ query_cb_handler_on_row(void * context,
 /* {{{ query_cb_handler_on_warning */
 const enum_hnd_func_status
 query_cb_handler_on_warning(void * context,
-							XMYSQLND_STMT * const stmt,
+							xmysqlnd_stmt * const stmt,
 							const enum xmysqlnd_stmt_warning_level level,
 							const unsigned int code,
 							const MYSQLND_CSTRING message)
@@ -1929,7 +1929,7 @@ query_cb_handler_on_warning(void * context,
 /* {{{ query_cb_handler_on_error */
 const enum_hnd_func_status
 query_cb_handler_on_error(void * context,
-						  XMYSQLND_STMT * const stmt,
+						  xmysqlnd_stmt * const stmt,
 						  const unsigned int code,
 						  const MYSQLND_CSTRING sql_state,
 						  const MYSQLND_CSTRING message)
@@ -1948,7 +1948,7 @@ query_cb_handler_on_error(void * context,
 
 /* {{{ query_cb_handler_on_result_end */
 const enum_hnd_func_status
-query_cb_handler_on_result_end(void * context, XMYSQLND_STMT * const stmt, const zend_bool has_more)
+query_cb_handler_on_result_end(void * context, xmysqlnd_stmt * const stmt, const zend_bool has_more)
 {
 	enum_hnd_func_status ret;
 	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
@@ -1964,7 +1964,7 @@ query_cb_handler_on_result_end(void * context, XMYSQLND_STMT * const stmt, const
 
 /* {{{ query_cb_handler_on_statement_ok */
 const enum_hnd_func_status
-query_cb_handler_on_statement_ok(void * context, XMYSQLND_STMT * const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state)
+query_cb_handler_on_statement_ok(void * context, xmysqlnd_stmt * const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state)
 {
 	enum_hnd_func_status ret;
 	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
@@ -1980,7 +1980,7 @@ query_cb_handler_on_statement_ok(void * context, XMYSQLND_STMT * const stmt, con
 
 /* {{{ xmysqlnd_session::query_cb */
 const enum_func_status
-st_xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
+xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 											const MYSQLND_CSTRING query,
 											const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
 											const struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
@@ -1993,7 +1993,7 @@ st_xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session::query_cb");
     XMYSQLND_SESSION session_handle(this);
-    XMYSQLND_STMT * const stmt = create_statement_object(session_handle);
+	xmysqlnd_stmt * const stmt = create_statement_object(session_handle);
     XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
     if (stmt && stmt_execute) {
         ret = PASS;
@@ -2017,7 +2017,7 @@ st_xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
         }
         ret = xmysqlnd_stmt_execute__finalize_bind(stmt_execute);
         if (PASS == ret &&
-        (PASS == (ret = stmt->data->m.send_raw_message(stmt,
+		(PASS == (ret = stmt->send_raw_message(stmt,
         xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
         data->stats, data->error_info))))
         {
@@ -2054,7 +2054,7 @@ st_xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
                 handler_on_statement_ok.handler? query_cb_handler_on_statement_ok : nullptr,
                 &query_cb_ctx
             };
-            ret = stmt->data->m.read_all_results(stmt, on_row, on_warning, on_error, on_result_start, on_result_end, on_statement_ok,
+			ret = stmt->read_all_results(stmt, on_row, on_warning, on_error, on_result_start, on_result_end, on_statement_ok,
             data->stats, data->error_info);
         }
     }
@@ -2074,7 +2074,7 @@ st_xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 
 /* {{{ xmysqlnd_session_on_warning */
 const enum_hnd_func_status
-xmysqlnd_session_on_warning(void * context, XMYSQLND_STMT * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+xmysqlnd_session_on_warning(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("xmysqlnd_session_on_warning");
 	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
@@ -2085,7 +2085,7 @@ xmysqlnd_session_on_warning(void * context, XMYSQLND_STMT * const stmt, const en
 
 /* {{{ xmysqlnd_session::query */
 const enum_func_status
-st_xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
+xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 										 const MYSQLND_CSTRING query,
 										 const struct st_xmysqlnd_session_query_bind_variable_bind var_binder)
 {
@@ -2093,7 +2093,7 @@ st_xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 
 	DBG_ENTER("xmysqlnd_session::query");
 	XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
-	XMYSQLND_STMT * stmt = create_statement_object(shared_from_this());
+	xmysqlnd_stmt * stmt = create_statement_object(shared_from_this());
 	if (stmt && stmt_execute) {
 		ret = PASS;
 		if (var_binder.handler) {
@@ -2116,20 +2116,20 @@ st_xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 		}
 
 		if (PASS == ret &&
-				(PASS == (ret = stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info))))
+				(PASS == (ret = stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info))))
 		{
 			do {
 				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { xmysqlnd_session_on_warning, nullptr };
 				const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 				zend_bool has_more{FALSE};
-				XMYSQLND_STMT_RESULT * result = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, data->stats, data->error_info);
+				XMYSQLND_STMT_RESULT * result = stmt->get_buffered_result(stmt, &has_more, on_warning, on_error, data->stats, data->error_info);
 				if (result) {
 					ret = PASS;
 					xmysqlnd_stmt_result_free(result, data->stats, data->error_info);
 				} else {
 					ret = FAIL;
 				}
-			} while (stmt->data->m.has_more_results(stmt) == TRUE);
+			} while (stmt->has_more_results(stmt) == TRUE);
 		}
 	}
 	/* no else, please */
@@ -2148,7 +2148,7 @@ st_xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 
 /* {{{ xmysqlnd_session::get_server_version */
 zend_ulong
-st_xmysqlnd_session::get_server_version()
+xmysqlnd_session::get_server_version()
 {
 	zend_long major, minor, patch;
 	char *p;
@@ -2157,13 +2157,13 @@ st_xmysqlnd_session::get_server_version()
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_sql, query);
         XMYSQLND_SESSION session_handle(this);
-		XMYSQLND_STMT * stmt = create_statement_object(session_handle);
+		xmysqlnd_stmt * stmt = create_statement_object(session_handle);
 		if (stmt && stmt_execute) {
-			if (PASS == stmt->data->m.send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info)) {
+			if (PASS == stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info)) {
 				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { nullptr, nullptr };
 				const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 				zend_bool has_more{FALSE};
-				XMYSQLND_STMT_RESULT * res = stmt->data->m.get_buffered_result(stmt, &has_more, on_warning, on_error, data->stats, data->error_info);
+				XMYSQLND_STMT_RESULT * res = stmt->get_buffered_result(stmt, &has_more, on_warning, on_error, data->stats, data->error_info);
 				if (res) {
 					zval* set{nullptr};
 					if (PASS == res->m.fetch_all_c(res, &set, FALSE /* don't duplicate, reference it */, data->stats, data->error_info) &&
@@ -2204,10 +2204,10 @@ st_xmysqlnd_session::get_server_version()
 /* }}} */
 
 /* {{{ xmysqlnd_session::create_statement_object */
-XMYSQLND_STMT *
-st_xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
+xmysqlnd_stmt *
+xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 {
-	XMYSQLND_STMT* stmt{nullptr};
+	xmysqlnd_stmt* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_session_data::create_statement_object");
 	stmt = xmysqlnd_stmt_create(session_handle, session_handle->persistent, data->object_factory, data->stats, data->error_info);
     DBG_RETURN(stmt);
@@ -2216,10 +2216,10 @@ st_xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 
 
 /* {{{ xmysqlnd_session::create_schema_object */
-XMYSQLND_SCHEMA *
-st_xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
+xmysqlnd_schema *
+xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 {
-	XMYSQLND_SCHEMA* schema{nullptr};
+	xmysqlnd_schema* schema{nullptr};
 	DBG_ENTER("xmysqlnd_session::create_schema_object");
 	DBG_INF_FMT("schema_name=%s", schema_name.s);
 	schema = xmysqlnd_schema_create(shared_from_this(), schema_name, persistent, data->object_factory, data->stats, data->error_info);
@@ -2231,7 +2231,7 @@ st_xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 
 /* {{{ xmysqlnd_session::close */
 const enum_func_status
-st_xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
+xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 {
 	enum_func_status ret{FAIL};
 
@@ -2266,7 +2266,7 @@ xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, c
 	if (session && session->data) {
 		session->data->negotiate_client_api_capabilities( client_flags);
 	}
-	DBG_RETURN(std::shared_ptr<st_xmysqlnd_session>(session));
+	DBG_RETURN(std::shared_ptr<xmysqlnd_session>(session));
 }
 /* }}} */
 

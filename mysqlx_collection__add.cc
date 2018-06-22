@@ -62,7 +62,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ execute_statement */
 enum_func_status
-execute_statement(XMYSQLND_STMT* stmt,zval* return_value)
+execute_statement(xmysqlnd_stmt* stmt,zval* return_value)
 {
 	enum_func_status ret{FAIL};
 	if (stmt) {
@@ -179,7 +179,7 @@ collection_add_array(
 /* {{{ Collection_add::init() */
 bool Collection_add::init(
 	zval* obj_zv,
-	XMYSQLND_COLLECTION* coll,
+	xmysqlnd_collection* coll,
 	zval* documents,
 	int num_of_documents)
 {
@@ -195,10 +195,10 @@ bool Collection_add::init(
 	}
 
 	object_zv = obj_zv;
-	collection = coll->data->m.get_reference(coll);
+	collection = coll->get_reference();
 	add_op = xmysqlnd_crud_collection_add__create(
-		mnd_str2c(collection->data->schema->data->schema_name),
-		mnd_str2c(collection->data->collection_name));
+		mnd_str2c(collection->get_schema()->get_name()),
+		mnd_str2c(collection->get_name()));
 
 	if (!add_op) return false;
 
@@ -216,7 +216,7 @@ bool Collection_add::init(
 /* {{{ Collection_add::init() */
 bool Collection_add::init(
 	zval* obj_zv,
-	XMYSQLND_COLLECTION* coll,
+	xmysqlnd_collection* coll,
 	const util::string_view& doc_id,
 	zval* doc)
 {
@@ -281,8 +281,7 @@ void Collection_add::execute(zval* return_value)
 	}
 
 	if ( execute_ret_status != FAIL && num_of_docs > noop_cnt ) {
-		XMYSQLND_STMT* stmt = collection->data->m.add(collection,
-														   add_op);
+		xmysqlnd_stmt* stmt = collection->add(add_op);
 		if( nullptr != stmt ) {
 			execute_ret_status =  execute_statement(stmt,return_value);
 		} else {
@@ -346,8 +345,8 @@ mysqlx_collection__add_property__name(const st_mysqlx_object* obj, zval* return_
 {
 	const Collection_add* object = (const Collection_add *) (obj->ptr);
 	DBG_ENTER("mysqlx_collection__add_property__name");
-	if (object->collection && object->collection->data->collection_name.s) {
-		ZVAL_STRINGL(return_value, object->collection->data->collection_name.s, object->collection->data->collection_name.l);
+	if (object->collection && object->collection->get_name().s) {
+		ZVAL_STRINGL(return_value, object->collection->get_name().s, object->collection->get_name().l);
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -434,7 +433,7 @@ mysqlx_unregister_collection__add_class(SHUTDOWN_FUNC_ARGS)
 void
 mysqlx_new_collection__add(
 	zval* return_value,
-	XMYSQLND_COLLECTION* collection,
+	xmysqlnd_collection* collection,
 	zval* docs,
 	int num_of_docs)
 {

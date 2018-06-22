@@ -37,8 +37,8 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_stmt;
-struct st_xmysqlnd_schema;
+struct xmysqlnd_stmt;
+struct xmysqlnd_schema;
 struct st_xmysqlnd_stmt_op__execute;
 
 /* Max possible value for an host priority (Client side failovers) */
@@ -164,8 +164,8 @@ struct st_xmysqlnd_session_auth_data
 	static const std::vector<std::string> supported_ciphers;
 };
 
-typedef std::shared_ptr< st_xmysqlnd_session > XMYSQLND_SESSION;
-typedef std::shared_ptr<st_xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
+typedef std::shared_ptr< xmysqlnd_session > XMYSQLND_SESSION;
+typedef std::shared_ptr<xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
 typedef struct st_xmysqlnd_session_auth_data XMYSQLND_SESSION_AUTH_DATA;
 
 using vec_of_addresses = util::vector< std::pair<util::string,long> >;
@@ -199,7 +199,7 @@ using Auth_mechanisms = util::vector<Auth_mechanism>;
 
 struct Authentication_context
 {
-	st_xmysqlnd_session_data* session;
+	xmysqlnd_session_data* session;
 	MYSQLND_CSTRING scheme;
 	util::string username;
 	util::string password;
@@ -283,7 +283,7 @@ class Authenticate
 {
 public:
 	Authenticate(
-			st_xmysqlnd_session_data* session,
+			xmysqlnd_session_data* session,
 			const MYSQLND_CSTRING& scheme,
 			const MYSQLND_CSTRING& database);
 	~Authenticate();
@@ -300,7 +300,7 @@ private:
 	bool is_suppress_server_messages() const;
 
 private:
-	st_xmysqlnd_session_data* session;
+	xmysqlnd_session_data* session;
 	const MYSQLND_CSTRING& scheme;
 	const MYSQLND_CSTRING& database;
 
@@ -354,20 +354,20 @@ private:
 
 };
 
-enum_func_status           setup_crypto_connection(st_xmysqlnd_session_data* session,st_xmysqlnd_msg__capabilities_get& caps_get,const st_xmysqlnd_message_factory& msg_factory);
+enum_func_status           setup_crypto_connection(xmysqlnd_session_data* session,st_xmysqlnd_msg__capabilities_get& caps_get,const st_xmysqlnd_message_factory& msg_factory);
 char*                      build_server_host_info(const util::string& format,const util::string& name,zend_bool session_persistent);
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_auth_continue(void* context,const MYSQLND_CSTRING input,MYSQLND_STRING* const output);
 enum_func_status           xmysqlnd_session_data_set_client_id(void * context, const size_t id);
 
-class st_xmysqlnd_session_data : public util::custom_allocable
+class xmysqlnd_session_data : public util::custom_allocable
 {
 public:
-	st_xmysqlnd_session_data() = delete;
-	st_xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+	xmysqlnd_session_data() = delete;
+	xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 							 MYSQLND_STATS * mysqlnd_stats,
 							 MYSQLND_ERROR_INFO * mysqlnd_error_info);
-	~st_xmysqlnd_session_data();
+	~xmysqlnd_session_data();
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
 	MYSQLND_STRING    get_scheme(const util::string& hostname,unsigned int port);
@@ -423,41 +423,41 @@ private:
 
 struct st_xmysqlnd_session_on_result_start_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt);
 	void * ctx;
 };
 
 struct st_xmysqlnd_session_on_row_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const st_xmysqlnd_stmt_result_meta* const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const st_xmysqlnd_stmt_result_meta* const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_warning_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_error_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_result_end_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const zend_bool has_more);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const zend_bool has_more);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_statement_ok_bind
 {
-	enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state);
+	enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state);
 	void * ctx;
 };
 
@@ -525,7 +525,7 @@ private:
 	/*
 	 * There is one unique session ID for
 	 * each UUID, this value is created once for
-	 * st_xmysqlnd_session which should reflect
+	 * xmysqlnd_session which should reflect
 	 * the lifetime of a session
 	 */
 	void generate_session_node_info();
@@ -536,14 +536,14 @@ private:
 	Uuid_format::node_id_t session_node_id;
 };
 
-class st_xmysqlnd_session : public util::permanent_allocable, public std::enable_shared_from_this<st_xmysqlnd_session>
+class xmysqlnd_session : public util::permanent_allocable, public std::enable_shared_from_this<xmysqlnd_session>
 {
 public:
-	st_xmysqlnd_session() = delete;
-	st_xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+	xmysqlnd_session() = delete;
+	xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 						MYSQLND_STATS * stats,
 						MYSQLND_ERROR_INFO * error_info);
-	~st_xmysqlnd_session();
+	~xmysqlnd_session();
 
 	enum_func_status xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db);
 
@@ -569,9 +569,10 @@ public:
 
     zend_ulong			get_server_version();
 
-    st_xmysqlnd_stmt* create_statement_object(XMYSQLND_SESSION session_handle);
+    xmysqlnd_stmt* create_statement_object(XMYSQLND_SESSION session_handle);
 
-    st_xmysqlnd_schema* create_schema_object(const MYSQLND_CSTRING schema_name);
+	xmysqlnd_schema* create_schema_object(const MYSQLND_CSTRING schema_name);
+
 
     const enum_func_status close(const enum_xmysqlnd_session_close_type close_type);
 

@@ -93,7 +93,7 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_table : public util::custom_allocable
 {
-	XMYSQLND_TABLE * table;
+	xmysqlnd_table * table;
 };
 
 
@@ -135,7 +135,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_SESSION session{ data_object.table->data->schema->data->session };
+	XMYSQLND_SESSION session{ data_object.table->get_schema()->get_session() };
 	mysqlx_new_session(return_value, session);
 
 	DBG_VOID_RETURN;
@@ -159,7 +159,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
 
 	if (object->table) {
-		RETVAL_STRINGL(object->table->data->table_name.s, object->table->data->table_name.l);
+		RETVAL_STRINGL(object->table->get_name().s, object->table->get_name().l);
 	} else {
 		RETVAL_FALSE;
 	}
@@ -171,7 +171,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 
 /* {{{ mysqlx_table_on_error */
 static const enum_hnd_func_status
-mysqlx_table_on_error(void * context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_table_on_error(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_table_on_error");
 	const unsigned int UnknownDatabaseCode{1049};
@@ -202,12 +202,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_TABLE * table = object->table;
+	xmysqlnd_table * table = object->table;
 	if (table) {
 		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
-		if (PASS == table->data->m.exists_in_database(table, on_error, &exists)) {
+		if (PASS == table->exists_in_database(on_error, &exists)) {
 			ZVAL_COPY_VALUE(return_value, &exists);
 		}
 	}
@@ -237,12 +237,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 
 	auto& data_object = util::fetch_data_object<st_mysqlx_table>(object_zv);
 
-	XMYSQLND_TABLE * table = data_object.table;
+	xmysqlnd_table * table = data_object.table;
 	if (table) {
 		const st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
 		zval exists;
 		ZVAL_UNDEF(&exists);
-		if (PASS == table->data->m.is_view(table, on_error, &exists)) {
+		if (PASS == table->is_view(on_error, &exists)) {
 			ZVAL_COPY_VALUE(return_value, &exists);
 		}
 	}
@@ -269,12 +269,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 
 	RETVAL_FALSE;
 
-	XMYSQLND_TABLE * table = object->table;
+	xmysqlnd_table * table = object->table;
 	if (table) {
 		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
-		if (PASS == table->data->m.count(table, on_error, &counter)) {
+		if (PASS == table->count(on_error, &counter)) {
 			ZVAL_COPY_VALUE(return_value, &counter);
 		}
 	}
@@ -305,15 +305,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 	RETVAL_FALSE;
 
 	if( object->table &&
-		object->table->data &&
-		object->table->data->schema &&
-		object->table->data->schema->data ) {
-		session = object->table->data->schema->data->session;
+		object->table->get_schema() ) {
+		session = object->table->get_schema()->get_session();
 	}
 
 	if(session != nullptr) {
-		MYSQLND_STRING& schema_name{ object->table->data->schema->data->schema_name };
-		XMYSQLND_SCHEMA * schema = session->create_schema_object(
+		MYSQLND_STRING schema_name{ object->table->get_schema()->get_name() };
+		xmysqlnd_schema * schema = session->create_schema_object(
 					mnd_str2c(schema_name));
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
@@ -496,8 +494,8 @@ mysqlx_table_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
 	const st_mysqlx_table* object = (const st_mysqlx_table* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table_property__name");
-	if (object->table && object->table->data->table_name.s) {
-		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
+	if (object->table && object->table->get_name().s) {
+		ZVAL_STRINGL(return_value, object->table->get_name().s, object->table->get_name().l);
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -592,7 +590,7 @@ mysqlx_unregister_table_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_table */
 void
-mysqlx_new_table(zval * return_value, XMYSQLND_TABLE * table, const zend_bool clone)
+mysqlx_new_table(zval * return_value, xmysqlnd_table * table, const zend_bool clone)
 {
 	DBG_ENTER("mysqlx_new_table");
 
@@ -600,7 +598,7 @@ mysqlx_new_table(zval * return_value, XMYSQLND_TABLE * table, const zend_bool cl
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		st_mysqlx_table* const object = (st_mysqlx_table*) mysqlx_object->ptr;
 		if (object) {
-			object->table = clone? table->data->m.get_reference(table) : table;
+			object->table = clone? table->get_reference() : table;
 		} else {
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

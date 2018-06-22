@@ -81,7 +81,9 @@ struct xdevapi_exception : public std::runtime_error
 		invalid_identifier,
 		inconsistent_ssl_options,
 		invalid_auth_mechanism,
-		unknown_lock_waiting_option
+		unknown_lock_waiting_option,
+		schema_creation_failed,
+		table_creation_failed
 	};
 
 	xdevapi_exception(Code code);

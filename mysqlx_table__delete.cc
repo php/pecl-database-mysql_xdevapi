@@ -75,7 +75,7 @@ ZEND_END_ARG_INFO()
 struct st_mysqlx_table__delete : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__DELETE * crud_op;
-	XMYSQLND_TABLE * table;
+	xmysqlnd_table * table;
 };
 
 
@@ -347,7 +347,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 		if (FALSE == xmysqlnd_crud_table_delete__is_initialized(object->crud_op)) {
 			RAISE_EXCEPTION(err_msg_delete_fail);
 		} else {
-			XMYSQLND_STMT * stmt = object->table->data->m.opdelete(object->table, object->crud_op);
+			xmysqlnd_stmt * stmt = object->table->opdelete( object->crud_op);
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);
@@ -396,8 +396,8 @@ mysqlx_table__delete_property__name(const st_mysqlx_object* obj, zval * return_v
 {
 	const st_mysqlx_table__delete* object = (const st_mysqlx_table__delete* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table__delete_property__name");
-	if (object->table && object->table->data->table_name.s) {
-		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
+	if (object->table && object->table->get_name().s) {
+		ZVAL_STRINGL(return_value, object->table->get_name().s, object->table->get_name().l);
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -499,7 +499,7 @@ mysqlx_unregister_table__delete_class(SHUTDOWN_FUNC_ARGS)
 
 /* {{{ mysqlx_new_table__delete */
 void
-mysqlx_new_table__delete(zval * return_value, XMYSQLND_TABLE * table, const zend_bool clone)
+mysqlx_new_table__delete(zval * return_value, xmysqlnd_table * table, const zend_bool clone)
 {
 	DBG_ENTER("mysqlx_new_table__delete");
 
@@ -507,10 +507,10 @@ mysqlx_new_table__delete(zval * return_value, XMYSQLND_TABLE * table, const zend
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		st_mysqlx_table__delete* const object = (st_mysqlx_table__delete*) mysqlx_object->ptr;
 		if (object) {
-			object->table = clone? table->data->m.get_reference(table) : table;
+			object->table = clone? table->get_reference(): table;
 			object->crud_op = xmysqlnd_crud_table_delete__create(
-				mnd_str2c(object->table->data->schema->data->schema_name),
-				mnd_str2c(object->table->data->table_name));
+				mnd_str2c(object->table->get_schema()->get_name()),
+				mnd_str2c(object->table->get_name()));
 		} else {
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

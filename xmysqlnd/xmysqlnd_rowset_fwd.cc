@@ -37,12 +37,12 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, init)(XMYSQLND_ROWSET_FWD * const result,
 										   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 										   const size_t prefetch_rows,
-										   XMYSQLND_STMT * const stmt,
+										   xmysqlnd_stmt * const stmt,
 										   MYSQLND_STATS * const stats,
 										   MYSQLND_ERROR_INFO * const error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::init");
-	result->stmt = stmt->data->m.get_reference(stmt);
+	result->stmt = stmt->get_reference(stmt);
 	result->prefetch_rows = prefetch_rows;
 	DBG_RETURN(result->stmt? PASS:FAIL);
 }
@@ -55,7 +55,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
 										   MYSQLND_STATS * const stats,
 										   MYSQLND_ERROR_INFO * const error_info)
 {
-	const zend_bool no_more_on_the_line = !result->stmt->data->msg_stmt_exec.reader_ctx.has_more_rows_in_set;
+	const zend_bool no_more_on_the_line = !result->stmt->get_msg_stmt_exec().reader_ctx.has_more_rows_in_set;
 	DBG_ENTER("xmysqlnd_rowset_fwd::next");
 	DBG_INF_FMT("row_cursor=" MYSQLND_LLU_SPEC "  row_count=" MYSQLND_LLU_SPEC, result->row_cursor, result->row_count);
 
@@ -65,9 +65,9 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
 			/* Remove what we have */
 			result->m.free_rows_contents(result, stats, error_info);
 		}
-		result->stmt->data->read_ctx.prefetch_counter = result->stmt->data->read_ctx.fwd_prefetch_count;
+		result->stmt->get_read_ctx().prefetch_counter = result->stmt->get_read_ctx().fwd_prefetch_count;
 		/* read rows */
-		if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, nullptr)) {
+		if (FAIL == result->stmt->get_msg_stmt_exec().read_response(&result->stmt->get_msg_stmt_exec(), nullptr)) {
 			DBG_RETURN(FAIL);
 		}
 	} else {
@@ -137,7 +137,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const resu
 	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_all");
 
 	/* read the rest. If this was the first, then we will prefetch everything, otherwise we will read whatever is left */
-	if (FAIL == result->stmt->data->msg_stmt_exec.read_response(&result->stmt->data->msg_stmt_exec, nullptr)) {
+	if (FAIL == result->stmt->get_msg_stmt_exec().read_response(&result->stmt->get_msg_stmt_exec(), nullptr)) {
 		DBG_RETURN(FAIL);
 	}
 
@@ -182,7 +182,7 @@ static zend_bool
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, eof)(const XMYSQLND_ROWSET_FWD * const result)
 {
 	const zend_bool no_more_prefetched = result->row_cursor >= result->row_count;
-	const zend_bool no_more_on_the_line = !result->stmt->data->msg_stmt_exec.reader_ctx.has_more_rows_in_set;
+	const zend_bool no_more_on_the_line = !result->stmt->get_msg_stmt_exec().reader_ctx.has_more_rows_in_set;
 	DBG_ENTER("xmysqlnd_rowset_fwd::eof");
 	DBG_INF_FMT("no_more_prefetched=%s", no_more_prefetched? "TRUE":"FALSE");
 	DBG_INF_FMT("no_more_on_the_line=%s", no_more_on_the_line? "TRUE":"FALSE");
@@ -350,7 +350,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, dtor)(XMYSQLND_ROWSET_FWD * const result, M
 	if (result) {
 		result->m.free_contents(result, stats, error_info);
 		if (result->stmt) {
-			result->stmt->data->m.free_reference(result->stmt, stats, error_info);
+			result->stmt->free_reference(result->stmt);
 		}
 
 		mnd_pefree(result, result->persistent);
@@ -389,7 +389,7 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset_fwd)
 /* {{{ xmysqlnd_rowset_fwd_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_FWD *
 xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
-						   XMYSQLND_STMT * stmt,
+						   xmysqlnd_stmt * stmt,
 						   const zend_bool persistent,
 						   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 						   MYSQLND_STATS * stats,

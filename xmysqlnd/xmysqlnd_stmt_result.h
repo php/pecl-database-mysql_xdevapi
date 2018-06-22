@@ -25,7 +25,7 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_stmt;
+struct xmysqlnd_stmt;
 struct st_xmysqlnd_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_rowset;

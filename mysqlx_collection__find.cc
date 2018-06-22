@@ -101,16 +101,16 @@ ZEND_END_ARG_INFO()
 /* {{{ Collection_find::init() */
 bool Collection_find::init(
 	zval* obj_zv,
-	XMYSQLND_COLLECTION* coll,
+	xmysqlnd_collection* coll,
 	const util::string_view& search_expression)
 {
 	if (!obj_zv || !coll) return false;
 
 	object_zv = obj_zv;
-	collection = coll->data->m.get_reference(coll);
+	collection = coll->get_reference();
 	find_op = xmysqlnd_crud_collection_find__create(
-		mnd_str2c(collection->data->schema->data->schema_name),
-		mnd_str2c(collection->data->collection_name));
+		mnd_str2c(collection->get_schema()->get_name()),
+		mnd_str2c(collection->get_name()));
 
 	if (!find_op) return false;
 
@@ -441,7 +441,7 @@ void Collection_find::execute(
 	if (FALSE == xmysqlnd_crud_collection_find__is_initialized(find_op)) {
 		RAISE_EXCEPTION(err_msg_find_fail);
 	} else {
-		XMYSQLND_STMT* stmt = collection->data->m.find(collection, find_op);
+		xmysqlnd_stmt* stmt = collection->find(find_op);
 		{
 			if (stmt) {
 				zval stmt_zv;
@@ -820,7 +820,7 @@ void
 mysqlx_new_collection__find(
 	zval * return_value,
 	const util::string_view& search_expression,
-	drv::st_xmysqlnd_collection* collection)
+	drv::xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__find");
 	if (SUCCESS == object_init_ex(return_value, collection_find_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {

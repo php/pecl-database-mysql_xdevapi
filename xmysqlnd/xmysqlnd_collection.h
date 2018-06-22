@@ -26,82 +26,48 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_schema;
+struct xmysqlnd_schema;
 struct st_xmysqlnd_session_on_error_bind;
 
-typedef struct st_xmysqlnd_collection		XMYSQLND_COLLECTION;
-typedef struct st_xmysqlnd_collection_data	XMYSQLND_COLLECTION_DATA;
-
-
-typedef enum_func_status (*func_xmysqlnd_collection__init)(
-			XMYSQLND_COLLECTION * const collection,
-			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-			st_xmysqlnd_schema* const schema,
-			const MYSQLND_CSTRING collection_name,
-			MYSQLND_STATS * const stats,
-			MYSQLND_ERROR_INFO * const error_info);
-
-typedef XMYSQLND_COLLECTION * (*func_xmysqlnd_collection__get_reference)(XMYSQLND_COLLECTION * const collection);
-typedef enum_func_status		(*func_xmysqlnd_collection__exists_in_database)(XMYSQLND_COLLECTION * const collection, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-typedef enum_func_status		(*func_xmysqlnd_collection__count)(XMYSQLND_COLLECTION * const collection, struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
-typedef st_xmysqlnd_stmt* (*func_xmysqlnd_collection__add)(XMYSQLND_COLLECTION * const collection,  XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op);
-typedef st_xmysqlnd_stmt* (*func_xmysqlnd_collection__remove)(XMYSQLND_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
-typedef st_xmysqlnd_stmt* (*func_xmysqlnd_collection__modify)(XMYSQLND_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op);
-typedef st_xmysqlnd_stmt* (*func_xmysqlnd_collection__find)(XMYSQLND_COLLECTION * const collection, XMYSQLND_CRUD_COLLECTION_OP__FIND * op);
-typedef enum_func_status		(*func_xmysqlnd_collection__free_reference)(XMYSQLND_COLLECTION * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef void					(*func_xmysqlnd_collection__free_contents)(XMYSQLND_COLLECTION * const collection);
-typedef void					(*func_xmysqlnd_collection__dtor)(XMYSQLND_COLLECTION * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_collection)
+struct xmysqlnd_collection : public util::custom_allocable
 {
-	func_xmysqlnd_collection__init init;
+public:
+	xmysqlnd_collection() = default;
+	xmysqlnd_collection(xmysqlnd_schema * const cur_schema,
+								const MYSQLND_CSTRING cur_collection_name,
+								zend_bool is_persistent);
+	enum_func_status		exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+	enum_func_status		count( struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
+	xmysqlnd_stmt*       add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op);
+	xmysqlnd_stmt*		remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
+	xmysqlnd_stmt*		modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op);
+	xmysqlnd_stmt*		find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op);
 
-	func_xmysqlnd_collection__exists_in_database exists_in_database;
-	func_xmysqlnd_collection__count count;
-
-	func_xmysqlnd_collection__add add;
-
-	func_xmysqlnd_collection__remove remove;
-	func_xmysqlnd_collection__modify modify;
-	func_xmysqlnd_collection__find find;
-
-	func_xmysqlnd_collection__get_reference get_reference;
-	func_xmysqlnd_collection__free_reference free_reference;
-
-	func_xmysqlnd_collection__free_contents free_contents;
-	func_xmysqlnd_collection__dtor dtor;
+	xmysqlnd_collection *   get_reference();
+	enum_func_status		free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+	void					free_contents();
+	void					cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+	MYSQLND_STRING          get_name(){
+		return collection_name;
+	}
+	xmysqlnd_schema*     get_schema(){
+		return schema;
+	}
+private:
+	xmysqlnd_schema*	schema;
+	MYSQLND_STRING      collection_name;
+	zend_bool           persistent;
+	unsigned int	    refcount;
 };
 
-struct st_xmysqlnd_collection_data : public util::permanent_allocable
-{
-	st_xmysqlnd_schema* schema;
-	MYSQLND_STRING  collection_name;
-	zend_bool       persistent;
-	unsigned int	refcount;
-
-	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_collection) m;
-
-};
-
-
-struct st_xmysqlnd_collection : public util::permanent_allocable
-{
-	XMYSQLND_COLLECTION_DATA * data;
-
-	zend_bool		persistent;
-};
-
-
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_collection);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_COLLECTION * xmysqlnd_collection_create(st_xmysqlnd_schema* schema,
+PHP_MYSQL_XDEVAPI_API xmysqlnd_collection * xmysqlnd_collection_create(xmysqlnd_schema* schema,
 																  const MYSQLND_CSTRING collection_name,
 																  const zend_bool persistent,
 																  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 																  MYSQLND_STATS * const stats,
 																  MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_collection_free(XMYSQLND_COLLECTION * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_collection_free(xmysqlnd_collection * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 

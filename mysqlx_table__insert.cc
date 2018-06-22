@@ -58,7 +58,7 @@ ZEND_END_ARG_INFO()
 struct st_mysqlx_table__insert : public util::custom_allocable
 {
 	XMYSQLND_CRUD_TABLE_OP__INSERT * crud_op;
-	XMYSQLND_TABLE * table;
+	xmysqlnd_table * table;
 };
 
 
@@ -149,7 +149,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 		if (FALSE == xmysqlnd_crud_table_insert__is_initialized(object->crud_op)) {
 			RAISE_EXCEPTION(err_msg_insert_fail);
 		} else {
-			XMYSQLND_STMT * stmt = object->table->data->m.insert(object->table, object->crud_op);
+			xmysqlnd_stmt * stmt = object->table->insert(object->crud_op);
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);
@@ -194,8 +194,8 @@ mysqlx_table__insert_property__name(const st_mysqlx_object* obj, zval * return_v
 {
 	const st_mysqlx_table__insert* object = (const st_mysqlx_table__insert* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table__insert_property__name");
-	if (object->table && object->table->data->table_name.s) {
-		ZVAL_STRINGL(return_value, object->table->data->table_name.s, object->table->data->table_name.l);
+	if (object->table && object->table->get_name().s) {
+		ZVAL_STRINGL(return_value, object->table->get_name().s, object->table->get_name().l);
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -298,7 +298,7 @@ mysqlx_unregister_table__insert_class(SHUTDOWN_FUNC_ARGS)
 /* {{{ mysqlx_new_table__insert */
 void
 mysqlx_new_table__insert(zval * return_value,
-					XMYSQLND_TABLE * table,
+					xmysqlnd_table * table,
 					const zend_bool clone,
 					zval * columns,
 					const int num_of_columns)
@@ -309,10 +309,10 @@ mysqlx_new_table__insert(zval * return_value,
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		st_mysqlx_table__insert* const object = (st_mysqlx_table__insert*) mysqlx_object->ptr;
 		if (object) {
-			object->table = clone? table->data->m.get_reference(table) : table;
+			object->table = clone? table->get_reference() : table;
 			object->crud_op = xmysqlnd_crud_table_insert__create(
-				mnd_str2c(object->table->data->schema->data->schema_name),
-				mnd_str2c(object->table->data->table_name),
+				mnd_str2c(object->table->get_schema()->get_name()),
+				mnd_str2c(object->table->get_name()),
 				columns,
 				num_of_columns);
 		} else {

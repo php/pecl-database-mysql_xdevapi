@@ -27,84 +27,54 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_schema;
+struct xmysqlnd_schema;
 struct st_xmysqlnd_session_on_error_bind;
 
-typedef struct st_xmysqlnd_table		XMYSQLND_TABLE;
-typedef struct st_xmysqlnd_table_data	XMYSQLND_TABLE_DATA;
-
-
-typedef enum_func_status (*func_xmysqlnd_table__init)(
-			XMYSQLND_TABLE * const table,
-			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-			st_xmysqlnd_schema* const schema,
-			const MYSQLND_CSTRING table_name,
-			MYSQLND_STATS * const stats,
-			MYSQLND_ERROR_INFO * const error_info);
-
-typedef XMYSQLND_TABLE *	(*func_xmysqlnd_table__get_reference)(XMYSQLND_TABLE * const table);
-typedef enum_func_status		(*func_xmysqlnd_table__exists_in_database)(XMYSQLND_TABLE * const table, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-typedef enum_func_status		(*func_xmysqlnd_table__is_view)(XMYSQLND_TABLE * const table, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-typedef enum_func_status		(*func_xmysqlnd_table__count)(XMYSQLND_TABLE* const table, struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
-typedef st_xmysqlnd_stmt* (*func_xmysqlnd_table__insert)(XMYSQLND_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__INSERT * op);
-typedef st_xmysqlnd_stmt* (*func_xmysqlnd_table__delete)(XMYSQLND_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__DELETE * op);
-typedef st_xmysqlnd_stmt* (*func_xmysqlnd_table__update)(XMYSQLND_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__UPDATE * op);
-typedef st_xmysqlnd_stmt* (*func_xmysqlnd_table__select)(XMYSQLND_TABLE * const table, XMYSQLND_CRUD_TABLE_OP__SELECT * op);
-typedef enum_func_status		(*func_xmysqlnd_table__free_reference)(XMYSQLND_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef void					(*func_xmysqlnd_table__free_contents)(XMYSQLND_TABLE * const table);
-typedef void					(*func_xmysqlnd_table__dtor)(XMYSQLND_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_table)
+struct xmysqlnd_table : util::custom_allocable
 {
-	func_xmysqlnd_table__init init;
+public:
+	xmysqlnd_table() = default;
+	xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const cur_obj_factory,
+				xmysqlnd_schema* const cur_schema,
+				const MYSQLND_CSTRING cur_table_name,
+				zend_bool is_persistent);
+	enum_func_status		exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+	enum_func_status		is_view(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+	enum_func_status		count(struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
+	xmysqlnd_stmt*       insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op);
+	xmysqlnd_stmt*       opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op);
+	xmysqlnd_stmt*		update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op);
+	xmysqlnd_stmt*		select(XMYSQLND_CRUD_TABLE_OP__SELECT * op);
 
-	func_xmysqlnd_table__exists_in_database exists_in_database;
-	func_xmysqlnd_table__is_view is_view;
-	func_xmysqlnd_table__count count;
-
-	func_xmysqlnd_table__insert insert;
-
-	func_xmysqlnd_table__delete opdelete;
-	func_xmysqlnd_table__update update;
-	func_xmysqlnd_table__select select;
-
-	func_xmysqlnd_table__get_reference get_reference;
-	func_xmysqlnd_table__free_reference free_reference;
-
-	func_xmysqlnd_table__free_contents free_contents;
-	func_xmysqlnd_table__dtor dtor;
-};
-
-struct st_xmysqlnd_table_data : public util::permanent_allocable
-{
-	st_xmysqlnd_schema* schema;
+	xmysqlnd_table *		get_reference();
+	enum_func_status		free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+	void					free_contents();
+	void					cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+	xmysqlnd_schema* get_schema() {
+		return schema;
+	}
+	MYSQLND_STRING get_name() {
+		return table_name;
+	}
+private:
+	xmysqlnd_schema* schema;
 	MYSQLND_STRING table_name;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
 	unsigned int	refcount;
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_table) m;
 	zend_bool		persistent;
 };
 
 
-struct st_xmysqlnd_table : util::permanent_allocable
-{
-	XMYSQLND_TABLE_DATA * data;
-
-	zend_bool		persistent;
-};
-
-
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_table);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_TABLE * xmysqlnd_table_create(st_xmysqlnd_schema* schema,
+PHP_MYSQL_XDEVAPI_API xmysqlnd_table * xmysqlnd_table_create(xmysqlnd_schema* schema,
 														const MYSQLND_CSTRING table_name,
 														const zend_bool persistent,
 														const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														MYSQLND_STATS * const stats,
 														MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_table_free(XMYSQLND_TABLE * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_table_free(xmysqlnd_table * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 

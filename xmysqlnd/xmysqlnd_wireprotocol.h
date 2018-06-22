@@ -30,7 +30,7 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_session_data;
+struct xmysqlnd_session_data;
 struct st_xmysqlnd_stmt_result;
 struct st_xmysqlnd_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;

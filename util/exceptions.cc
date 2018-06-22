@@ -84,7 +84,9 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::invalid_identifier, "Invalid MySQL identifier provided" },
 	{ xdevapi_exception::Code::inconsistent_ssl_options, "Inconsistent ssl options" },
 	{ xdevapi_exception::Code::invalid_auth_mechanism, "Invalid authentication mechanism" },
-	{ xdevapi_exception::Code::unknown_lock_waiting_option, "Unknown lock waiting option" }
+	{ xdevapi_exception::Code::unknown_lock_waiting_option, "Unknown lock waiting option" },
+	{ xdevapi_exception::Code::schema_creation_failed, "Unable to create the schema object" },
+	{ xdevapi_exception::Code::table_creation_failed, "Unable to create the table object"}
 };
 /* }}} */
 

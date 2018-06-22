@@ -27,55 +27,22 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_session;
-struct st_xmysqlnd_collection;
-struct st_xmysqlnd_table;
+struct xmysqlnd_session;
+struct xmysqlnd_collection;
+struct xmysqlnd_table;
 struct st_xmysqlnd_session_on_error_bind;
-
-typedef struct st_xmysqlnd_schema		XMYSQLND_SCHEMA;
-typedef struct st_xmysqlnd_schema_data	XMYSQLND_SCHEMA_DATA;
 
 struct st_xmysqlnd_schema_on_database_object_bind
 {
-	void (*handler)(void * context, XMYSQLND_SCHEMA * const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type);
+	void (*handler)(void * context, xmysqlnd_schema * const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type);
 	void * ctx;
 };
-
 
 struct st_xmysqlnd_schema_on_error_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const XMYSQLND_SCHEMA * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, const xmysqlnd_schema * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 	void * ctx;
 };
-
-
-typedef enum_func_status (*func_xmysqlnd_schema__init)(XMYSQLND_SCHEMA * const schema,
-															const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
-															XMYSQLND_SESSION const session,
-															const MYSQLND_CSTRING schema_name,
-															MYSQLND_STATS * const stats,
-															MYSQLND_ERROR_INFO * const error_info);
-
-typedef enum_func_status (*func_xmysqlnd_scheme__exists_in_database)(XMYSQLND_SCHEMA * const schema, struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-
-typedef st_xmysqlnd_collection* (*func_xmysqlnd_schema__create_collection_object)(XMYSQLND_SCHEMA * const schema, const MYSQLND_CSTRING collection_name);
-
-typedef st_xmysqlnd_collection* (*func_xmysqlnd_schema__create_collection)(
-	XMYSQLND_SCHEMA* const schema,
-	const util::string_view& collection_name,
-	const st_xmysqlnd_schema_on_error_bind on_error);
-
-typedef enum_func_status (*func_xmysqlnd_schema__drop_collection)(
-	XMYSQLND_SCHEMA* const schema,
-	const util::string_view& collection_name,
-	const st_xmysqlnd_schema_on_error_bind on_error);
-
-typedef st_xmysqlnd_table* (*func_xmysqlnd_schema__create_table_object)(XMYSQLND_SCHEMA * const schema, const MYSQLND_CSTRING table_name);
-
-typedef enum_func_status (*func_xmysqlnd_schema__drop_table)(
-	XMYSQLND_SCHEMA* const schema,
-	const util::string_view& table_name,
-	const st_xmysqlnd_schema_on_error_bind on_error);
 
 bool is_table_object_type(const MYSQLND_CSTRING& object_type);
 bool is_collection_object_type(const MYSQLND_CSTRING& object_type);
@@ -87,69 +54,59 @@ enum class db_object_type_filter
 	collection
 };
 
-typedef enum_func_status (*func_xmysqlnd_schema__get_db_objects)(
-	XMYSQLND_SCHEMA * const schema,
-	const MYSQLND_CSTRING& collection_name,
-	const db_object_type_filter object_type_filter,
-	const st_xmysqlnd_schema_on_database_object_bind on_object,
-	const st_xmysqlnd_schema_on_error_bind on_error);
-
-typedef XMYSQLND_SCHEMA *	(*func_xmysqlnd_schema__get_reference)(XMYSQLND_SCHEMA * const schema);
-typedef enum_func_status		(*func_xmysqlnd_schema__free_reference)(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-typedef void					(*func_xmysqlnd_schema__free_contents)(XMYSQLND_SCHEMA * const schema);
-typedef void					(*func_xmysqlnd_schema__dtor)(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema)
+class xmysqlnd_schema : public util::custom_allocable
 {
-	func_xmysqlnd_schema__init init;
+public:
+	xmysqlnd_schema() = default;
+	xmysqlnd_schema(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const obj_factory,
+							XMYSQLND_SESSION session,
+							const MYSQLND_CSTRING schema_name,
+							zend_bool is_persistent);
+	~xmysqlnd_schema();
+	void cleanup();
 
-	func_xmysqlnd_scheme__exists_in_database exists_in_database;
+	enum_func_status        exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+	xmysqlnd_collection* create_collection_object(const MYSQLND_CSTRING collection_name);
+	xmysqlnd_collection* create_collection(const util::string_view& collection_name,const st_xmysqlnd_schema_on_error_bind on_error);
+	enum_func_status        drop_collection(const util::string_view& collection_name,const st_xmysqlnd_schema_on_error_bind on_error);
+	xmysqlnd_table*      create_table_object(const MYSQLND_CSTRING table_name);
+	enum_func_status        drop_table(const util::string_view& table_name,const st_xmysqlnd_schema_on_error_bind on_error);
+	enum_func_status        get_db_objects(const MYSQLND_CSTRING& collection_name,const db_object_type_filter object_type_filter,const st_xmysqlnd_schema_on_database_object_bind on_object,const st_xmysqlnd_schema_on_error_bind on_error);
 
-	func_xmysqlnd_schema__create_collection_object create_collection_object;
-	func_xmysqlnd_schema__create_collection create_collection;
-	func_xmysqlnd_schema__drop_collection drop_collection;
-	func_xmysqlnd_schema__create_table_object create_table_object;
-	func_xmysqlnd_schema__drop_table drop_table;
-
-	func_xmysqlnd_schema__get_db_objects get_db_objects;
-
-	func_xmysqlnd_schema__get_reference get_reference;
-	func_xmysqlnd_schema__free_reference free_reference;
-
-	func_xmysqlnd_schema__free_contents free_contents;
-	func_xmysqlnd_schema__dtor dtor;
-};
-
-struct st_xmysqlnd_schema_data : public util::permanent_allocable
-{
+	xmysqlnd_schema *	    get_reference();
+	enum_func_status	    free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+	void				    free_contents();
+	MYSQLND_STRING          get_name() {
+		return schema_name;
+	}
+	XMYSQLND_SESSION        get_session() {
+		return session;
+	}
+	zend_bool				is_persistent() {
+		return persistent;
+	}
+	unsigned int            get_counter() {
+		return refcount;
+	}
+private:
 	XMYSQLND_SESSION session;
 	MYSQLND_STRING schema_name;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
 	unsigned int	refcount;
-	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_schema) m;
 	zend_bool		persistent;
 };
 
 
-struct st_xmysqlnd_schema : public util::permanent_allocable
-{
-	XMYSQLND_SCHEMA_DATA * data;
-
-	zend_bool		persistent;
-};
-
-
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_schema);
-PHP_MYSQL_XDEVAPI_API XMYSQLND_SCHEMA * xmysqlnd_schema_create(XMYSQLND_SESSION session,
+PHP_MYSQL_XDEVAPI_API xmysqlnd_schema * xmysqlnd_schema_create(XMYSQLND_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														  MYSQLND_STATS * const stats,
 														  MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_schema_free(XMYSQLND_SCHEMA * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_schema_free(xmysqlnd_schema * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 
