@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd_enum_n_def.h"
 #include "php_mysql_xdevapi.h"
 #include "util/string_utils.h"
@@ -58,6 +54,9 @@ const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 PHP_MYSQL_XDEVAPI_API void
 _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FILE_LINE_DC)
 {
+	UNUSED(__zend_lineno);
+	UNUSED(__zend_filename);
+
 	MYSQLND_STATS stats;
 	DBG_ENTER("_xmysqlnd_get_client_stats");
 	if (!stats_ptr) {

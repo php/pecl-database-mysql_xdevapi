@@ -109,6 +109,7 @@ struct st_mysqlx_table__select : public util::custom_allocable
 /* {{{ mysqlx_table__select::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -207,7 +208,7 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 			{
 				zval* entry{nullptr};
 				enum_func_status ret{FAIL};
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
+				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					ret = FAIL;
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
@@ -385,7 +386,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 	if (object->crud_op && object->table) {
 		zend_string * key;
 		zval* val{nullptr};
-		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
+		MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 			if (key) {
 				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 				if (FAIL == xmysqlnd_crud_table_select__bind_value(object->crud_op, variable, val)) {
@@ -605,7 +606,7 @@ php_mysqlx_table__select_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_table__select_class */
 void
-mysqlx_register_table__select_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_table__select_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_table__select_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_table__select_handlers.free_obj = mysqlx_table__select_free_storage;
@@ -632,7 +633,7 @@ mysqlx_register_table__select_class(INIT_FUNC_ARGS, zend_object_handlers * mysql
 
 /* {{{ mysqlx_unregister_table__select_class */
 void
-mysqlx_unregister_table__select_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_table__select_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__select_properties);
 }

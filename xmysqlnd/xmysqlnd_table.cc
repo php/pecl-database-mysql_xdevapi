@@ -16,10 +16,9 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <ext/json/php_json_parser.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
@@ -41,11 +40,11 @@ XMYSQLND_METHOD(xmysqlnd_table, init)(XMYSQLND_TABLE * const table,
 										   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 										   XMYSQLND_SCHEMA * const schema,
 										   const MYSQLND_CSTRING table_name,
-										   MYSQLND_STATS * const stats,
-										   MYSQLND_ERROR_INFO * const error_info)
+										   MYSQLND_STATS * const /*stats*/,
+										   MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_table::init");
-	if (!(table->data->schema = schema->data->m.get_reference(schema))) {
+	if (!((table->data->schema = schema->data->m.get_reference(schema)))) {
 		return FAIL;
 	}
 	table->data->table_name = mnd_dup_cstring(table_name, table->data->persistent);
@@ -127,11 +126,11 @@ const enum_hnd_func_status
 table_or_view_exists_in_database_op(
 	void * context,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT * const stmt,
-	const XMYSQLND_STMT_RESULT_META * const meta,
+	XMYSQLND_STMT * const /*stmt*/,
+	const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 	const zval * const row,
-	MYSQLND_STATS * const stats,
-	MYSQLND_ERROR_INFO * const error_info)
+	MYSQLND_STATS * const /*stats*/,
+	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	table_or_view_op_ctx* ctx = static_cast<table_or_view_op_ctx*>(context);
 	DBG_ENTER("table_or_view_exists_in_database_op");
@@ -202,11 +201,11 @@ const enum_hnd_func_status
 check_is_view_op(
 	void * context,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT * const stmt,
-	const XMYSQLND_STMT_RESULT_META * const meta,
+	XMYSQLND_STMT * const /*stmt*/,
+	const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 	const zval * const row,
-	MYSQLND_STATS * const stats,
-	MYSQLND_ERROR_INFO * const error_info)
+	MYSQLND_STATS * const /*stats*/,
+	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	table_or_view_op_ctx* ctx = static_cast<table_or_view_op_ctx*>(context);
 	DBG_ENTER("check_is_view_op");
@@ -281,11 +280,11 @@ const enum_hnd_func_status
 table_sql_single_result_op_on_row(
 	void * context,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT * const stmt,
-	const XMYSQLND_STMT_RESULT_META * const meta,
+	XMYSQLND_STMT * const /*stmt*/,
+	const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 	const zval * const row,
-	MYSQLND_STATS * const stats,
-	MYSQLND_ERROR_INFO * const error_info)
+	MYSQLND_STATS * const /*stats*/,
+	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	st_table_sql_single_result_ctx* ctx = (st_table_sql_single_result_ctx*) context;
 	DBG_ENTER("table_sql_single_result_op_on_row");
@@ -443,9 +442,6 @@ XMYSQLND_METHOD(xmysqlnd_table, insert)(XMYSQLND_TABLE * const table, XMYSQLND_C
 		struct st_xmysqlnd_msg__table_insert table_insert = msg_factory.get__table_insert(&msg_factory);
 		if (PASS == table_insert.send_insert_request(&table_insert, xmysqlnd_crud_table_insert__get_protobuf_message(op)))
 		{
-			//ret = table_insert.read_response(&table_insert);
-
-			auto session = table->data->schema->data->session;
 			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
@@ -475,8 +471,6 @@ XMYSQLND_METHOD(xmysqlnd_table, opdelete)(XMYSQLND_TABLE * const table, XMYSQLND
 		struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
 		if (PASS == table_ud.send_delete_request(&table_ud, xmysqlnd_crud_table_delete__get_protobuf_message(op)))
 		{
-			//ret = table_ud.read_response(&table_ud);
-			auto session = table->data->schema->data->session;
 			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
@@ -506,8 +500,6 @@ XMYSQLND_METHOD(xmysqlnd_table, update)(XMYSQLND_TABLE * const table, XMYSQLND_C
 		struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
 		if (PASS == table_ud.send_update_request(&table_ud, xmysqlnd_crud_table_update__get_protobuf_message(op)))
 		{
-			//ret = table_ud.read_response(&table_ud);
-			auto session = table->data->schema->data->session;
 			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;

@@ -20,9 +20,7 @@
 
 #define AUTH_CONTINUE 1
 
-extern "C" {
-#include <ext/mysqlnd/mysqlnd_vio.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd_protocol_frame_codec.h"
 
 #include "proto_gen/mysqlx.pb.h"
@@ -32,7 +30,7 @@ namespace mysqlx {
 
 namespace drv {
 
-struct st_xmysqlnd_session_data;
+class st_xmysqlnd_session_data;
 struct st_xmysqlnd_stmt_result;
 struct st_xmysqlnd_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;

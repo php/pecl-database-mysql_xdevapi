@@ -42,7 +42,7 @@ static const zend_function_entry mysqlx_crud_operation_sortable_methods[] = {
 
 /* {{{ mysqlx_register_crud_operation_sortable_interface */
 void
-mysqlx_register_crud_operation_sortable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_crud_operation_sortable_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
 	zend_class_entry tmp_ce;
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "CrudOperationSortable", mysqlx_crud_operation_sortable_methods);
@@ -53,7 +53,7 @@ mysqlx_register_crud_operation_sortable_interface(INIT_FUNC_ARGS, zend_object_ha
 
 /* {{{ mysqlx_unregister_crud_operation_sortable_interface */
 void
-mysqlx_unregister_crud_operation_sortable_interface(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_crud_operation_sortable_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
 /* }}} */

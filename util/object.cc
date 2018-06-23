@@ -16,11 +16,9 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <zend_exceptions.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "mysqlx_class_properties.h"
 #include "object.h"

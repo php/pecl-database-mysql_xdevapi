@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_schema.h"
 #include "xmysqlnd/xmysqlnd_session.h"
@@ -118,6 +114,7 @@ struct st_mysqlx_schema : public util::custom_allocable
 /* {{{ mysqlx_schema::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -180,7 +177,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 
 /* {{{ mysqlx_scheme_on_error */
 static const enum_hnd_func_status
-mysqlx_scheme_on_error(void* context, XMYSQLND_SESSION session, st_xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_scheme_on_error(
+	void* /*context*/, 
+	XMYSQLND_SESSION session,
+	st_xmysqlnd_stmt* const /*stmt*/, 
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_scheme_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -221,38 +224,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_schema::drop() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, drop)
-{
-	st_mysqlx_schema* object{nullptr};
-	zval* object_zv{nullptr};
-
-	DBG_ENTER("mysqlx_schema::drop");
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
-												&object_zv, mysqlx_schema_class_entry))
-	{
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_SCHEMA_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
-
-	if (object->schema) {
-		auto session = object->schema->data->session;
-		const MYSQLND_CSTRING schema_name = mnd_str2c(object->schema->data->schema_name);
-
-		RETVAL_BOOL(session && PASS == session->m->drop_db(session, schema_name));
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
 /************************************** INHERITED END   ****************************************/
 
 /* {{{ mysqlx_schema_on_error */
 static const enum_hnd_func_status
-mysqlx_schema_on_error(void* context, const XMYSQLND_SCHEMA* const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_schema_on_error(
+	void* /*context*/,
+	const XMYSQLND_SCHEMA* const /*schema*/,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_schema_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -263,15 +244,13 @@ mysqlx_schema_on_error(void* context, const XMYSQLND_SCHEMA* const schema, const
 
 /* {{{ on_drop_db_object_error */
 const enum_hnd_func_status on_drop_db_object_error(
-	void* context,
-	const XMYSQLND_SCHEMA * const schema,
+	void* /*context*/,
+	const XMYSQLND_SCHEMA * const /*schema*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
 {
-	DBG_ENTER("on_drop_db_object_error");
 	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
-	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
 
@@ -636,7 +615,7 @@ php_mysqlx_schema_object_allocator(zend_class_entry* class_type)
 
 /* {{{ mysqlx_register_schema_class */
 void
-mysqlx_register_schema_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
+mysqlx_register_schema_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
 	mysqlx_object_schema_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_schema_handlers.free_obj = mysqlx_schema_free_storage;
@@ -662,7 +641,7 @@ mysqlx_register_schema_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_ob
 
 /* {{{ mysqlx_unregister_schema_class */
 void
-mysqlx_unregister_schema_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_schema_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_schema_properties);
 }

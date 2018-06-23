@@ -16,6 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 
 #ifdef HAVE_CONFIG_H
@@ -24,11 +25,6 @@ extern "C" {
 
 #include <zend_smart_str.h>
 #include <ext/standard/info.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_enum_n_def.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
@@ -45,6 +41,8 @@ extern "C" {
  */
 PHP_MINFO_FUNCTION(mysql_xdevapi)
 {
+	UNUSED(zend_module);
+
 	php_info_print_table_start();
 	//TODO: we need global const "mysql_xdevapi", it appears in plenty of locations
 	php_info_print_table_header(2, "mysql_xdevapi", "enabled");
@@ -152,6 +150,7 @@ static PHP_MSHUTDOWN_FUNCTION(mysql_xdevapi)
  */
 static PHP_RINIT_FUNCTION(mysql_xdevapi)
 {
+	UNUSED_FUNC_ARGS();
 	/* ---------------- xmysqlnd ---------------- */
 	if (MYSQL_XDEVAPI_G(debug)) {
 		st_mysqlnd_plugin_trace_log * trace_log_plugin = static_cast<st_mysqlnd_plugin_trace_log*>(mysqlnd_plugin_find("debug_trace"));
@@ -180,6 +179,7 @@ static PHP_RINIT_FUNCTION(mysql_xdevapi)
  */
 static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 {
+	UNUSED_FUNC_ARGS();
 	/* ---------------- xmysqlnd ---------------- */
 	MYSQLND_DEBUG * dbg = MYSQL_XDEVAPI_G(dbg);
 	MYSQLND_DEBUG * trace_alloc = MYSQL_XDEVAPI_G(trace_alloc);

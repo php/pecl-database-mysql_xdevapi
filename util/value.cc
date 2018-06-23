@@ -38,7 +38,7 @@ zvalue::zvalue(zvalue&& rhs)
 	std::swap(zv, rhs.zv);
 }
 
-zvalue::zvalue(std::nullptr_t value)
+zvalue::zvalue(std::nullptr_t /*value*/)
 {
 	ZVAL_NULL(&zv);
 }
@@ -121,7 +121,7 @@ zvalue& zvalue::operator=(zvalue&& rhs)
 	return *this;
 }
 
-zvalue& zvalue::operator=(std::nullptr_t value)
+zvalue& zvalue::operator=(std::nullptr_t /*value*/)
 {
 	zval_dtor(&zv);
 	ZVAL_NULL(&zv);

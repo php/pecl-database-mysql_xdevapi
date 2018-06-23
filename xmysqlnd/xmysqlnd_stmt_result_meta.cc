@@ -16,13 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_connection.h>
-#include <ext/mysqlnd/mysqlnd_priv.h>
-#include <ext/mysqlnd/mysqlnd_wireprotocol.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h" // XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3
 #include "xmysqlnd_stmt.h"
@@ -38,8 +32,8 @@ namespace drv {
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, init)(XMYSQLND_RESULT_FIELD_META * const field,
 												  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-												  MYSQLND_STATS * const stats,
-												  MYSQLND_ERROR_INFO * const error_info)
+												  MYSQLND_STATS * const /*stats*/,
+												  MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	field->object_factory = factory;
 	return PASS;
@@ -63,6 +57,9 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_type)(XMYSQLND_RESULT_FIELD_META
 static inline enum_func_status
 xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, const size_t value_len, const zend_bool persistent MYSQLND_MEM_D)
 {
+	UNUSED(__zend_lineno);
+	UNUSED(__zend_filename);
+
 	if (value) {
 		str->s = value_len? mnd_pestrndup(value, value_len, persistent) : (char *) mysqlnd_empty_string;
 		str->l = value_len;
@@ -289,7 +286,10 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD
 
 /* {{{ xmysqlnd_result_field_meta::dtor */
 static void
-XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(XMYSQLND_RESULT_FIELD_META * const field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(
+	XMYSQLND_RESULT_FIELD_META* const field,
+	MYSQLND_STATS* /*stats*/,
+	MYSQLND_ERROR_INFO* /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::dtor");
 	if (field) {
@@ -357,7 +357,10 @@ xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD_META * const object, MYSQL
 
 /* {{{ xmysqlnd_stmt_result_meta::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, init)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, init)(
+	XMYSQLND_STMT_RESULT_META* const /*meta*/,
+	MYSQLND_STATS* const /*stats*/,
+	MYSQLND_ERROR_INFO* const /*error_info*/)
 {
 	return PASS;
 }
@@ -366,7 +369,11 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, init)(XMYSQLND_STMT_RESULT_META * con
 
 /* {{{ xmysqlnd_stmt_result_meta::add_field */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, add_field)(XMYSQLND_STMT_RESULT_META * const meta, XMYSQLND_RESULT_FIELD_META * field, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, add_field)(
+	XMYSQLND_STMT_RESULT_META* const meta,
+	XMYSQLND_RESULT_FIELD_META* field,
+	MYSQLND_STATS* /*stats*/,
+	MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result_meta::add_field");
 	if (!meta->fields || meta->field_count == meta->fields_size) {

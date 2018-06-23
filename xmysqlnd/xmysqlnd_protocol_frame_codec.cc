@@ -16,13 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_connection.h>
-#include <ext/mysqlnd/mysqlnd_priv.h>
-#include <ext/mysqlnd/mysqlnd_wireprotocol.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h" // XMYSQLND_INC_SESSION_STATISTIC_W_VALUE3
 #include "xmysqlnd_protocol_frame_codec.h"
@@ -45,7 +39,7 @@ namespace drv {
 
 /* {{{ xmysqlnd_pfc::reset */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_pfc, reset)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_pfc, reset)(XMYSQLND_PFC * const /*pfc*/, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_pfc::reset");
 	DBG_RETURN(PASS);
@@ -118,7 +112,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 
 /* {{{ xmysqlnd_pfc::receive */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
+XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const /*pfc*/,
 									   MYSQLND_VIO * const vio,
 									   zend_uchar * prealloc_buffer,
 									   const size_t prealloc_buffer_len,
@@ -165,7 +159,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const pfc,
 
 /* {{{ xmysqlnd_pfc::set_client_option */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const pfc, enum_xmysqlnd_client_option option, const char * const value)
+XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const /*pfc*/, enum_xmysqlnd_client_option option, const char * const /*value*/)
 {
 	DBG_ENTER("xmysqlnd_pfc::set_client_option");
 	DBG_INF_FMT("option=%u", option);
@@ -176,7 +170,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const pfc, enum_
 
 /* {{{ xmysqlnd_pfc::free_contents */
 static void
-XMYSQLND_METHOD(xmysqlnd_pfc, free_contents)(XMYSQLND_PFC * pfc)
+XMYSQLND_METHOD(xmysqlnd_pfc, free_contents)(XMYSQLND_PFC * /*pfc*/)
 {
 	DBG_ENTER("xmysqlnd_pfc::free_contents");
 
@@ -187,7 +181,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, free_contents)(XMYSQLND_PFC * pfc)
 
 /* {{{ xmysqlnd_pfc::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const pfc, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const /*pfc*/, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const /*object_factory*/, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_pfc::init");
 	DBG_RETURN(PASS);
@@ -197,7 +191,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const pfc, const MYSQLND_CLAS
 
 /* {{{ xmysqlnd_pfc::dtor */
 static void
-XMYSQLND_METHOD(xmysqlnd_pfc, dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_pfc, dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_pfc::dtor");
 	if (pfc) {

@@ -16,10 +16,8 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
 #include <ext/standard/url.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
@@ -238,11 +236,11 @@ struct st_mysqlx_get_schemas_ctx
 static const enum_hnd_func_status
 get_schemas_handler_on_row(void * context,
 						   XMYSQLND_SESSION const session,
-						   XMYSQLND_STMT * const stmt,
-						   const XMYSQLND_STMT_RESULT_META * const meta,
+						   XMYSQLND_STMT * const /*stmt*/,
+						   const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 						   const zval * const row,
-						   MYSQLND_STATS * const stats,
-						   MYSQLND_ERROR_INFO * const error_info)
+						   MYSQLND_STATS * const /*stats*/,
+						   MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const st_mysqlx_get_schemas_ctx* ctx = (const st_mysqlx_get_schemas_ctx* ) context;
 	DBG_ENTER("get_schemas_handler_on_row");
@@ -268,12 +266,13 @@ get_schemas_handler_on_row(void * context,
 
 /* {{{ mysqlx_session_command_handler_on_error */
 static const enum_hnd_func_status
-mysqlx_session_command_handler_on_error(void * context,
-											 XMYSQLND_SESSION session,
-											 XMYSQLND_STMT * const stmt,
-											 const unsigned int code,
-											 const MYSQLND_CSTRING sql_state,
-											 const MYSQLND_CSTRING message)
+mysqlx_session_command_handler_on_error(
+	void * /*context*/,
+	XMYSQLND_SESSION session,
+	XMYSQLND_STMT * const /*stmt*/,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_session_command_handler_on_error");
     if (session) {
@@ -364,11 +363,11 @@ struct st_mysqlx_list_clients__ctx
 static const enum_hnd_func_status
 list_clients__handler_on_row(void * context,
 							 XMYSQLND_SESSION session,
-							 XMYSQLND_STMT * const stmt,
+							 XMYSQLND_STMT * const /*stmt*/,
 							 const XMYSQLND_STMT_RESULT_META * const meta,
 							 const zval * const row,
-							 MYSQLND_STATS * const stats,
-							 MYSQLND_ERROR_INFO * const error_info)
+							 MYSQLND_STATS * const /*stats*/,
+							 MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const st_mysqlx_list_clients__ctx* ctx = (const st_mysqlx_list_clients__ctx* ) context;
 	DBG_ENTER("list_clients__handler_on_row");
@@ -607,8 +606,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 	if (XMYSQLND_SESSION session = object->session) {
 		XMYSQLND_SCHEMA* schema{nullptr};
-		if (PASS == session->m->create_db(session, schema_name) &&
-			(schema = session->m->create_schema_object(session, schema_name)))
+		if ((PASS == session->m->create_db(session, schema_name)) &&
+			((schema = session->m->create_schema_object(session, schema_name)) != nullptr))
 		{
 			DBG_INF_FMT("schema=%p", schema);
 			mysqlx_new_schema(return_value, schema);
@@ -925,6 +924,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 /* {{{ mysqlx_session::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -1004,7 +1004,7 @@ php_mysqlx_session_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_session_class */
 void
-mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_session_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_session_handlers.free_obj = mysqlx_session_free_storage;
@@ -1027,7 +1027,7 @@ mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_
 
 /* {{{ mysqlx_unregister_session_class */
 void
-mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_session_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_session_properties);
 }

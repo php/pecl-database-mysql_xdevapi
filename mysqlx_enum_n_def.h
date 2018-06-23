@@ -18,8 +18,6 @@
 #ifndef MYSQLX_ENUM_N_DEF_H
 #define MYSQLX_ENUM_N_DEF_H
 
-#include <ext/mysqlnd/mysqlnd_enum_n_def.h>
-
 namespace mysqlx {
 
 const int MYSQL_TYPE_SMALLINT  = MYSQL_TYPE_BIT + 1;

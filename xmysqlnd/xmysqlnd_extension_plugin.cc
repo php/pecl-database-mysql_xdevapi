@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_session.h"

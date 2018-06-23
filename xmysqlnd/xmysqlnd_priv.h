@@ -18,10 +18,6 @@
 #ifndef XMYSQLND_PRIV_H
 #define XMYSQLND_PRIV_H
 
-extern "C" {
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-}
-
 namespace mysqlx {
 
 namespace drv {

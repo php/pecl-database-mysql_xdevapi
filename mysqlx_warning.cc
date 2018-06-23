@@ -16,12 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
@@ -60,6 +55,7 @@ struct st_mysqlx_warning
 /* {{{ mysqlx_warning::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -189,7 +185,7 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_warning_class */
 void
-mysqlx_register_warning_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_warning_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_warning_handlers.free_obj = mysqlx_warning_free_storage;
@@ -215,7 +211,7 @@ mysqlx_register_warning_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_
 
 /* {{{ mysqlx_unregister_warning_class */
 void
-mysqlx_unregister_warning_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_warning_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_warning_properties);
 }

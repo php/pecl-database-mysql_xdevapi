@@ -27,7 +27,7 @@ namespace drv {
 
 struct st_xmysqlnd_session;
 typedef std::shared_ptr< st_xmysqlnd_session > XMYSQLND_SESSION;
-struct st_xmysqlnd_session_data;
+class st_xmysqlnd_session_data;
 struct st_xmysqlnd_schema;
 struct st_xmysqlnd_schema_data;
 struct st_xmysqlnd_collection;
@@ -49,7 +49,7 @@ typedef struct st_xmysqlnd_session * (*func_xmysqlnd_object_factory__get_session
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);
 
-typedef struct st_xmysqlnd_session_data* (*func_xmysqlnd_object_factory__get_session_data)(
+typedef class st_xmysqlnd_session_data* (*func_xmysqlnd_object_factory__get_session_data)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,

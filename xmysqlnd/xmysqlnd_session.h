@@ -18,11 +18,8 @@
 #ifndef XMYSQLND_SESSION_H
 #define XMYSQLND_SESSION_H
 
+#include "mysqlnd_api.h"
 extern "C" {
-#include <ext/mysqlnd/mysqlnd_connection.h>
-#include <ext/mysqlnd/mysqlnd_enum_n_def.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-#include <ext/mysqlnd/mysqlnd_vio.h>
 #include <ext/standard/url.h>
 }
 #include "xmysqlnd_driver.h"

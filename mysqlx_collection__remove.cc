@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_schema.h"
@@ -130,7 +126,7 @@ void Collection_remove::sort(
 		case IS_ARRAY:
 			{
 				zval* entry{nullptr};
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
+				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry),
 												Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
@@ -190,7 +186,7 @@ void Collection_remove::bind(
 
 	zend_string* key{nullptr};
 	zval* val{nullptr};
-	ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
+	MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 		if (key) {
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 			if (FAIL == xmysqlnd_crud_collection_remove__bind_value(remove_op, variable, val)) {
@@ -254,6 +250,7 @@ void Collection_remove::execute(zval* return_value)
 /* {{{ mysqlx_collection__remove::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -399,7 +396,7 @@ php_mysqlx_collection__remove_object_allocator(zend_class_entry* class_type)
 
 /* {{{ mysqlx_register_collection__remove_class */
 void
-mysqlx_register_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
+mysqlx_register_collection__remove_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
 	MYSQL_XDEVAPI_REGISTER_CLASS(
 		collection_remove_class_entry,
@@ -421,7 +418,7 @@ mysqlx_register_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers* m
 
 /* {{{ mysqlx_unregister_collection__remove_class */
 void
-mysqlx_unregister_collection__remove_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_collection__remove_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&collection_remove_properties);
 }

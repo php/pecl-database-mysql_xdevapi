@@ -20,7 +20,7 @@
 
 #ifdef PHP_WIN32
 #pragma warning( push )
-#pragma warning( disable : 4018 )
+#pragma warning( disable : 4018 4244)
 #endif // PHP_WIN32
 
 extern "C" {
@@ -34,6 +34,49 @@ extern "C" {
 #ifdef PHP_WIN32
 #pragma warning( pop )
 #endif // PHP_WIN32
+
+#define UNUSED(x) (void)x
+
+#define UNUSED_INTERNAL_FUNCTION_PARAMETERS() \
+	UNUSED(return_value); \
+	UNUSED(execute_data)
+
+#define UNUSED_FUNC_ARGS() \
+	UNUSED(module_number); \
+	UNUSED(type)
+
+#define UNUSED_INIT_FUNC_ARGS int /*type*/, int /*module_number*/
+#define UNUSED_SHUTDOWN_FUNC_ARGS int /*type*/, int /*module_number*/
+
+
+#ifdef PHP_WIN32
+
+#define MYSQLX_HASH_FOREACH_VAL(ht, _val) \
+	__pragma(warning(push)) \
+	__pragma(warning(disable : 4127)) \
+	ZEND_HASH_FOREACH_VAL(ht, _val) \
+	__pragma(warning(pop))
+
+#define MYSQLX_HASH_FOREACH_PTR(ht, _ptr) \
+	__pragma(warning(push)) \
+	__pragma(warning(disable : 4127)) \
+	ZEND_HASH_FOREACH_PTR(ht, _ptr) \
+	__pragma(warning(pop))
+
+#define MYSQLX_HASH_FOREACH_STR_KEY_VAL(ht, _key, _val) \
+	__pragma(warning(push)) \
+	__pragma(warning(disable : 4127)) \
+	ZEND_HASH_FOREACH_STR_KEY_VAL(ht, _key, _val) \
+	__pragma(warning(pop))
+
+#else
+
+#define MYSQLX_HASH_FOREACH_VAL ZEND_HASH_FOREACH_VAL
+#define MYSQLX_HASH_FOREACH_PTR	ZEND_HASH_FOREACH_PTR
+#define MYSQLX_HASH_FOREACH_STR_KEY_VAL ZEND_HASH_FOREACH_STR_KEY_VAL
+
+#endif
+
 
 #endif // MYSQL_XDEVAPI_PHP_API_H
 

@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_session.h"
@@ -41,8 +38,8 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt, init)(XMYSQLND_STMT * const stmt,
 										  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 										  XMYSQLND_SESSION session,
-										  MYSQLND_STATS * const stats,
-										  MYSQLND_ERROR_INFO * const error_info)
+										  MYSQLND_STATS * const /*stats*/,
+										  MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_stmt::init");
 	stmt->data->session = session;
@@ -287,7 +284,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_generated_doc_ids)(void * context, con
 
 /* {{{ xmysqlnd_stmt::handler_on_trx_state_change */
 static const enum_hnd_func_status
-XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_trx_state_change)(void * context, const enum xmysqlnd_transaction_state_type type)
+XMYSQLND_METHOD(xmysqlnd_stmt, handler_on_trx_state_change)(void * /*context*/, const enum xmysqlnd_transaction_state_type type)
 {
 #if 0
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
@@ -778,7 +775,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt, free_reference)(XMYSQLND_STMT * const stmt, MYSQL
 
 /* {{{ xmysqlnd_stmt::free_contents */
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt, free_contents)(XMYSQLND_STMT * const stmt)
+XMYSQLND_METHOD(xmysqlnd_stmt, free_contents)(XMYSQLND_STMT * const /*stmt*/)
 {
 	DBG_ENTER("xmysqlnd_stmt::free_contents");
 	DBG_VOID_RETURN;
@@ -788,7 +785,10 @@ XMYSQLND_METHOD(xmysqlnd_stmt, free_contents)(XMYSQLND_STMT * const stmt)
 
 /* {{{ xmysqlnd_stmt::dtor */
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt, dtor)(XMYSQLND_STMT * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt, dtor)(
+	XMYSQLND_STMT* const stmt,
+	MYSQLND_STATS* const /*stats*/,
+	MYSQLND_ERROR_INFO* const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_stmt::dtor");
 	if (stmt) {

@@ -16,12 +16,9 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <zend_exceptions.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "exceptions.h"
 #include "mysqlx_exception.h"
@@ -88,7 +85,7 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 /* }}} */
 
 /* {{{ mysqlx::util::prepare_reason_msg */
-string prepare_reason_msg(const string& sql_state, const string& msg)
+string prepare_reason_msg(const string& /*sql_state*/, const string& msg)
 {
 	ostringstream os;
 	os << '[' << general_sql_state << "] " << msg;

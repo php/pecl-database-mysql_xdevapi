@@ -16,10 +16,9 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <ext/json/php_json_parser.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
@@ -41,8 +40,8 @@ XMYSQLND_METHOD(xmysqlnd_collection, init)(XMYSQLND_COLLECTION * const collectio
 										  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 										  XMYSQLND_SCHEMA * const schema,
 										  const MYSQLND_CSTRING collection_name,
-										  MYSQLND_STATS * const stats,
-										  MYSQLND_ERROR_INFO * const error_info)
+										  MYSQLND_STATS * const /*stats*/,
+										  MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_collection::init");
 	if (!(collection->data->schema = schema->data->m.get_reference(schema))) {
@@ -122,11 +121,11 @@ static const enum_hnd_func_status
 collection_xplugin_op_on_row(
 	void * context,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT * const stmt,
-	const XMYSQLND_STMT_RESULT_META * const meta,
+	XMYSQLND_STMT * const /*stmt*/,
+	const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 	const zval * const row,
-	MYSQLND_STATS * const stats,
-	MYSQLND_ERROR_INFO * const error_info)
+	MYSQLND_STATS * const /*stats*/,
+	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	collection_exists_in_database_ctx* ctx = static_cast<collection_exists_in_database_ctx*>(context);
 	DBG_ENTER("collection_xplugin_op_on_row");
@@ -205,11 +204,11 @@ static const enum_hnd_func_status
 collection_sql_single_result_op_on_row(
 	void * context,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT * const stmt,
-	const XMYSQLND_STMT_RESULT_META * const meta,
+	XMYSQLND_STMT * const /*stmt*/,
+	const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 	const zval * const row,
-	MYSQLND_STATS * const stats,
-	MYSQLND_ERROR_INFO * const error_info)
+	MYSQLND_STATS * const /*stats*/,
+	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	st_collection_sql_single_result_ctx* ctx = (st_collection_sql_single_result_ctx*) context;
 	DBG_ENTER("collection_xplugin_op_on_row");
@@ -312,8 +311,6 @@ XMYSQLND_METHOD(xmysqlnd_collection, remove)(XMYSQLND_COLLECTION * const collect
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 		struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
 		if (PASS == collection_ud.send_delete_request(&collection_ud, xmysqlnd_crud_collection_remove__get_protobuf_message(op))) {
-			//ret = collection_ud.read_response(&collection_ud);
-			auto session = collection->data->schema->data->session;
 			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;
@@ -340,8 +337,6 @@ XMYSQLND_METHOD(xmysqlnd_collection, modify)(XMYSQLND_COLLECTION * const collect
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
 		struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
 		if (PASS == collection_ud.send_update_request(&collection_ud, xmysqlnd_crud_collection_modify__get_protobuf_message(op))) {
-			//ret = collection_ud.read_response(&collection_ud);
-			auto session = collection->data->schema->data->session;
 			XMYSQLND_STMT * stmt = session->m->create_statement_object(session);;
 			stmt->data->msg_stmt_exec = msg_factory.get__sql_stmt_execute(&msg_factory);
 			ret = stmt;

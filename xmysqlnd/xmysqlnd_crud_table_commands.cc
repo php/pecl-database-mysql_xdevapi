@@ -192,7 +192,7 @@ void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 			{
 				zval* entry{nullptr};
 				ret = PASS;
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns_zv[i]), entry)
+				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(columns_zv[i]), entry)
 				{
 					if (Z_TYPE_P(entry) == IS_STRING) {
 						add_column(entry);
@@ -272,7 +272,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud
 	{
 		case IS_ARRAY: {
 			zval* entry{nullptr};
-			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(values_zv), entry)
+			MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(values_zv), entry)
 			{
 				bind_row_field(entry, row);
 			} ZEND_HASH_FOREACH_END();
@@ -904,7 +904,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 			ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);
 		} else if (Z_TYPE_P(columns) == IS_ARRAY) {
 			const zval* entry{nullptr};
-			ZEND_HASH_FOREACH_VAL(Z_ARRVAL(columns[i]), entry) {
+			MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(columns[i]), entry) {
 				if (Z_TYPE_P(entry) != IS_STRING) {
 					devapi::RAISE_EXCEPTION(err_msg_wrong_param_1);
 					DBG_VOID_RETURN;
@@ -1058,7 +1058,7 @@ xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 enum_func_status
 xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 										  const MYSQLND_CSTRING column,
-										  const zend_bool is_expression,
+										  const zend_bool /*is_expression*/,
 										  const zend_bool allow_alias)
 {
 	const bool is_document = (obj->message.data_model() == Mysqlx::Crud::DOCUMENT);

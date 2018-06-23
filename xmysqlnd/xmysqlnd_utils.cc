@@ -16,11 +16,9 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <ext/json/php_json.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "xmysqlnd_utils.h"
 #include <algorithm>
@@ -85,7 +83,7 @@ xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 	array_init(dest);
 	if (Z_TYPE_P(src) == IS_ARRAY) {
 		zval* raw_row{nullptr};
-		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(src), raw_row) {
+		MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(src), raw_row) {
 			zval row;
 			xmysqlnd_utils_decode_doc_row(raw_row, &row);
 			add_next_index_zval(dest, &row);
@@ -147,12 +145,12 @@ static char pct_to_char( const util::string& str,
 
 	c = str[ idx ];
 	if (isupper(c))
-			c = tolower(c);
+			c = static_cast<char>(tolower(c));
 	value = (c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10) * 16;
 
 	c = str[ idx + 1 ];
 	if (isupper(c))
-			c = tolower(c);
+			c = static_cast<char>(tolower(c));
 	value += c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10;
 
 	return value;

@@ -57,7 +57,8 @@ zend_class_entry* register_class(
 
 	tmp_ce->create_object = object_allocator_func;
 	zend_class_entry* class_entry = zend_register_internal_class(tmp_ce);
-	if (sizeof...(Interfaces)) {
+	auto interfaces_count{ sizeof...(Interfaces) };
+	if (interfaces_count) {
 		zend_class_implements(
 			class_entry,
 			sizeof...(Interfaces),
@@ -188,7 +189,7 @@ void free_object(zend_object* object)
 /* {{{ mysqlx::util::free_object */
 template<typename Result, typename Result_iterator>
 zend_object_iterator* create_result_iterator(
-	zend_class_entry* ce,
+	zend_class_entry* /*ce*/,
 	zend_object_iterator_funcs* result_iterator_funcs,
 	zval* object,
 	int by_ref)

@@ -16,13 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_enum_n_def.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_priv.h"
 #include "php_mysqlx.h"
@@ -40,6 +34,7 @@ static zend_class_entry *mysqlx_driver_class_entry;
 /* {{{ mysqlx_session::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_driver, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -54,7 +49,7 @@ static const zend_function_entry mysqlx_driver_methods[] = {
 
 /* {{{ mysqlx_register_driver_class */
 void
-mysqlx_register_driver_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_driver_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
 	zend_class_entry tmp_ce;
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Driver", mysqlx_driver_methods);
@@ -68,7 +63,7 @@ mysqlx_register_driver_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_o
 
 /* {{{ mysqlx_unregister_driver_class */
 void
-mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_driver_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
 /* }}} */

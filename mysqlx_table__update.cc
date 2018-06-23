@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_schema.h"
@@ -95,6 +91,7 @@ struct st_mysqlx_table__update : public util::custom_allocable
 /* {{{ mysqlx_table__update::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -118,7 +115,7 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
 												&object_zv, mysqlx_table__update_class_entry,
-												&(table_field.s), &(table_field.l),
+											 	&(table_field.s), &(table_field.l),
 												(zval *) &value))
 	{
 		DBG_VOID_RETURN;
@@ -250,7 +247,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 		case IS_ARRAY:
 			{
 				zval* entry{nullptr};
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(orderby_expr[i]), entry) {
+				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(orderby_expr[i]), entry) {
 					const MYSQLND_CSTRING orderby_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
@@ -333,7 +330,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 		zend_string * key;
 		zval* val{nullptr};
 		zend_bool op_success{TRUE};
-		ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
+		MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 			if (key) {
 				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 				if (FAIL == xmysqlnd_crud_table_update__bind_value(object->crud_op, variable, val)) {
@@ -491,7 +488,7 @@ php_mysqlx_table__update_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_table__update_class */
 void
-mysqlx_register_table__update_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_table__update_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_table__update_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_table__update_handlers.free_obj = mysqlx_table__update_free_storage;
@@ -518,7 +515,7 @@ mysqlx_register_table__update_class(INIT_FUNC_ARGS, zend_object_handlers * mysql
 
 /* {{{ mysqlx_unregister_table__update_class */
 void
-mysqlx_unregister_table__update_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_table__update_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__update_properties);
 }

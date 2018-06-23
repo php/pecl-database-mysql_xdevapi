@@ -16,12 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include <ext/mysqlnd/mysqlnd_structs.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_stmt.h"
 #include "xmysqlnd/xmysqlnd_stmt_result.h"
@@ -141,6 +136,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_column_result::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -637,7 +633,7 @@ mysqlx_column_result_free_storage(zend_object * object)
 
 /* {{{ mysqlx_register_column_result_class */
 void
-mysqlx_register_column_result_class(INIT_FUNC_ARGS,
+mysqlx_register_column_result_class(UNUSED_INIT_FUNC_ARGS,
 						zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_column_result_handlers = *mysqlx_std_object_handlers;
@@ -666,7 +662,7 @@ mysqlx_register_column_result_class(INIT_FUNC_ARGS,
 
 /* {{{ mysqlx_unregister_column_result_class */
 void
-mysqlx_unregister_column_result_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_column_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_column_result_properties);
 }

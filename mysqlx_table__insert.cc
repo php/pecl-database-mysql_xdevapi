@@ -16,12 +16,10 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <ext/json/php_json.h>
 #include <zend_smart_str.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
@@ -76,6 +74,7 @@ struct st_mysqlx_table__insert : public util::custom_allocable
 /* {{{ mysqlx_table__insert::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -261,7 +260,7 @@ php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_table__insert_class */
 void
-mysqlx_register_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_table__insert_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_table__insert_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_table__insert_handlers.free_obj = mysqlx_table__insert_free_storage;
@@ -288,7 +287,7 @@ mysqlx_register_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers * mysql
 
 /* {{{ mysqlx_unregister_table__insert_class */
 void
-mysqlx_unregister_table__insert_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_table__insert_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__insert_properties);
 }

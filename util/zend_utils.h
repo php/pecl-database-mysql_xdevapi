@@ -37,9 +37,6 @@ void verify_call_parameters(
 	zend_execute_data* execute_data,
 	const char* type_spec);
 
-// temporarily, will be defined in config files
-#define MYSQL_XDEVAPI_ENABLE_DEV_MODE
-
 template<typename ...Params>
 int parse_method_parameters(
 	zend_execute_data* execute_data,
@@ -47,7 +44,7 @@ int parse_method_parameters(
 	const char* type_spec,
 	Params&&... params)
 {
-#ifdef MYSQL_XDEVAPI_ENABLE_DEV_MODE
+#ifdef MYSQL_XDEVAPI_DEV_MODE
 	verify_call_parameters(true, execute_data, type_spec);
 #endif
 	return zend_parse_method_parameters(
@@ -63,7 +60,7 @@ int parse_function_parameters(
 	const char* type_spec,
 	Params&&... params)
 {
-#ifdef MYSQL_XDEVAPI_ENABLE_DEV_MODE
+#ifdef MYSQL_XDEVAPI_DEV_MODE
 	verify_call_parameters(false, execute_data, type_spec);
 #endif
 	return zend_parse_parameters(

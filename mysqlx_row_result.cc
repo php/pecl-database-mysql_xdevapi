@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_stmt.h"
 #include "xmysqlnd/xmysqlnd_stmt_result.h"
@@ -88,6 +84,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_row_result::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -266,7 +263,6 @@ static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(INTERNAL_FUNCTION_PARA
 	}
 
 	DBG_RETURN(meta);
-	return meta;
 }
 
 
@@ -409,7 +405,7 @@ php_mysqlx_row_result_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_row_result_class */
 void
-mysqlx_register_row_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_row_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_row_result_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_row_result_handlers.free_obj = mysqlx_row_result_free_storage;
@@ -434,7 +430,7 @@ mysqlx_register_row_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 
 /* {{{ mysqlx_unregister_row_result_class */
 void
-mysqlx_unregister_row_result_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_row_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_row_result_properties);
 }
