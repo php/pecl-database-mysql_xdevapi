@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_stmt.h"
 #include "xmysqlnd/xmysqlnd_stmt_result.h"
@@ -63,7 +59,7 @@ static const zend_function_entry mysqlx_base_result_methods[] = {
 
 /* {{{ mysqlx_register_base_result_interface */
 void
-mysqlx_register_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_base_result_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
 	zend_class_entry tmp_ce;
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "BaseResult", mysqlx_base_result_methods);
@@ -73,7 +69,7 @@ mysqlx_register_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mys
 
 /* {{{ mysqlx_unregister_base_result_interface */
 void
-mysqlx_unregister_base_result_interface(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_base_result_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
 /* }}} */

@@ -16,12 +16,10 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <ext/json/php_json.h>
 #include <ext/json/php_json_parser.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
@@ -110,7 +108,7 @@ struct my_php_json_parser {
 /* {{{ xmysqlnd_json_parser_object_update */
 int
 xmysqlnd_json_parser_object_update(php_json_parser *parser,
-					zval *object,
+					zval* /*object*/,
 					zend_string *key,
 					zval *zvalue)
 {
@@ -162,7 +160,7 @@ xmysqlnd_json_parser_object_create(php_json_parser *parser,
 
 /* {{{ xmysqlnd_json_parser_object_end */
 int
-xmysqlnd_json_parser_object_end(php_json_parser *parser, zval *object)
+xmysqlnd_json_parser_object_end(php_json_parser* /*parser*/, zval* object)
 {
 	DBG_ENTER("xmysqlnd_json_parser_object_end");
 	zval_dtor(object);
@@ -188,7 +186,7 @@ Add_op_status
 collection_add_string(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	zval* doc,
-	zval* return_value)
+	zval* /*return_value*/)
 {
 	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op,doc) ) {
 		return Add_op_status::success;
@@ -203,7 +201,7 @@ Add_op_status
 collection_add_object_impl(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	zval* doc,
-	zval* return_value)
+	zval* /*return_value*/)
 {
 	zval new_doc;
 	Add_op_status ret = Add_op_status::fail;
@@ -294,7 +292,7 @@ bool Collection_add::init(
 bool Collection_add::init(
 	zval* obj_zv,
 	XMYSQLND_COLLECTION* coll,
-	const util::string_view& doc_id,
+	const util::string_view& /*doc_id*/,
 	zval* doc)
 {
 	const int num_of_documents = 1;
@@ -380,6 +378,7 @@ void Collection_add::execute(zval* return_value)
 /* {{{ mysqlx_collection__add::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -476,7 +475,7 @@ php_mysqlx_collection__add_object_allocator(zend_class_entry* class_type)
 
 /* {{{ mysqlx_register_collection__add_class */
 void
-mysqlx_register_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
+mysqlx_register_collection__add_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
 	MYSQL_XDEVAPI_REGISTER_CLASS(
 		collection_add_class_entry,
@@ -500,7 +499,7 @@ mysqlx_register_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysq
 
 /* {{{ mysqlx_unregister_collection__add_class */
 void
-mysqlx_unregister_collection__add_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_collection__add_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&collection_add_properties);
 }

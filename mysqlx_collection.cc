@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_index_collection_commands.h"
 #include "xmysqlnd/xmysqlnd_collection.h"
@@ -150,6 +146,7 @@ struct st_mysqlx_collection : public util::custom_allocable
 /* {{{ mysqlx_collection::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -211,8 +208,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 
 /* {{{ mysqlx_collection_on_error */
 static const enum_hnd_func_status
-mysqlx_collection_on_error(void * context, XMYSQLND_SESSION session,
-					st_xmysqlnd_stmt* const stmt,
+mysqlx_collection_on_error(void * /*context*/, XMYSQLND_SESSION session,
+					st_xmysqlnd_stmt* const /*stmt*/,
 					const unsigned int code,
 					const MYSQLND_CSTRING sql_state,
 					const MYSQLND_CSTRING message)
@@ -766,7 +763,7 @@ php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_collection_class */
 void
-mysqlx_register_collection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_collection_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_collection_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_collection_handlers.free_obj = mysqlx_collection_free_storage;
@@ -792,7 +789,7 @@ mysqlx_register_collection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 
 /* {{{ mysqlx_unregister_collection_class */
 void
-mysqlx_unregister_collection_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_collection_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_collection_properties);
 }

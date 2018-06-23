@@ -16,12 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_zval2any.h"
@@ -125,7 +120,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities_set, send)
 		zval ** capability_values = (zval **) mnd_ecalloc(cap_count, sizeof(zval*));
 		unsigned i{0};
 		zval* entry{nullptr};
-		ZEND_HASH_FOREACH_VAL(&capabilities->capabilities_ht, entry) {
+		MYSQLX_HASH_FOREACH_VAL(&capabilities->capabilities_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_message__capability_class_entry) {
 				st_mysqlx_message__capability* capability_entry{nullptr};
 				MYSQLX_FETCH_MESSAGE__CAPABILITY_FROM_ZVAL(capability_entry, entry);
@@ -244,7 +239,7 @@ php_mysqlx_message__capabilities_set_object_allocator(zend_class_entry * class_t
 
 /* {{{ mysqlx_register_message__capabilities_set_class */
 void
-mysqlx_register_message__capabilities_set_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_message__capabilities_set_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_message__capabilities_set_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_message__capabilities_set_handlers.free_obj = mysqlx_message__capabilities_set_free_storage;
@@ -264,7 +259,7 @@ mysqlx_register_message__capabilities_set_class(INIT_FUNC_ARGS, zend_object_hand
 
 /* {{{ mysqlx_unregister_message__capabilities_set_class */
 void
-mysqlx_unregister_message__capabilities_set_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_message__capabilities_set_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_message__capabilities_set_properties);
 }
