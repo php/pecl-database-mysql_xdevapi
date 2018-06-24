@@ -51,7 +51,7 @@ extern "C" {
 
 #ifdef PHP_WIN32
 
-#define MYSQLX_SUPPRESS_WARNINGS(…)
+#define MYSQLX_SUPPRESS_WARNINGS(...)
 	__pragma(warning(push)) \
 	__pragma(warning(disable : __VA_ARGS__))
 
@@ -79,7 +79,7 @@ extern "C" {
 
 #else
 
-#define MYSQLX_SUPPRESS_WARNINGS(…)
+#define MYSQLX_SUPPRESS_WARNINGS(...)
 #define MYSQLX_RESTORE_WARNINGS()
 
 
