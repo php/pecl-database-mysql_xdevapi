@@ -51,6 +51,14 @@ extern "C" {
 
 #ifdef PHP_WIN32
 
+#define MYSQLX_SUPPRESS_WARNINGS(…)
+	__pragma(warning(push)) \
+	__pragma(warning(disable : __VA_ARGS__))
+
+#define MYSQLX_RESTORE_WARNINGS() \
+	__pragma(warning(pop))
+
+
 #define MYSQLX_HASH_FOREACH_VAL(ht, _val) \
 	__pragma(warning(push)) \
 	__pragma(warning(disable : 4127)) \
@@ -70,6 +78,10 @@ extern "C" {
 	__pragma(warning(pop))
 
 #else
+
+#define MYSQLX_SUPPRESS_WARNINGS(…)
+#define MYSQLX_RESTORE_WARNINGS()
+
 
 #define MYSQLX_HASH_FOREACH_VAL ZEND_HASH_FOREACH_VAL
 #define MYSQLX_HASH_FOREACH_PTR	ZEND_HASH_FOREACH_PTR
