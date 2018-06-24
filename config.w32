@@ -612,7 +612,7 @@ function prepare_cxx_flags() {
 
 function set_warnings_level(warnings_level) {
 	var cflags = get_define("CFLAGS");
-	var new_cflags = cflags.replace(/\s+\/W3\s+/g, " /W" + warnings_level + " ");
+	var new_cflags = cflags.replace(/\s+\/W3\s+/g, ' ' + warnings_level + ' ');
 	DEFINE("CFLAGS", new_cflags);
 }
 
@@ -626,26 +626,20 @@ function init_extension(base_sources) {
 		PHP_MYSQL_XDEVAPI_SHARED,
 		prepare_cxx_flags());
 
-	set_warnings_level(3);
+//	set_warnings_level('/W4');
+	set_warnings_level('/W3');
 }
 
-function add_build_dir_cflags(build_subdir, cflags) {
+function add_sources_cflags(subdir, cflags) {
 	var prefix = "CFLAGS_BD_";
-	var bd_cflags_symbol = prefix + build_subdir.toUpperCase();
+	var mangled_build_dir = subdir.replace("\\", "_").toUpperCase();
+	var bd_cflags_symbol = prefix + mangled_build_dir;
 	ADD_FLAG(bd_cflags_symbol, cflags);
 }
 
 function add_sources(subdir, sources, cflags) {
-	var build_subdir = null;
-	if (cflags) {
-		build_subdir = subdir.replace("\\", "_");
-	}
-
-	ADD_SOURCES(get_src_dir(subdir), sources.join(' '), Ext_name, build_subdir);
-
-	if (cflags) {
-		add_build_dir_cflags(build_subdir, cflags);
-	}
+	ADD_SOURCES(get_src_dir(subdir), sources.join(' '), Ext_name, subdir);
+	if (cflags) add_sources_cflags(subdir, cflags);
 }
 
 function add_dependency(dep_extension_name) {
