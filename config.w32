@@ -15,6 +15,9 @@ ARG_WITH("protobuf",
 	"protobuf library install dir",
 	"");
 
+ARG_ENABLE("dev-mode",
+	"Enable developer mode",
+	"no");
 
 var Mysql_xdevapi_ext = {
 
