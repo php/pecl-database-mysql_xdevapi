@@ -7,7 +7,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <channel>pecl.php.net</channel>
  <summary>MySQL X DevAPI for PHP</summary>
 
- <description>The X DevAPI is he new common API for MySQL Connectors built on the X Protocol introduced in MySQL 5.7.12.
+ <description>The X DevAPI is the new common API for MySQL Connectors built on the X Protocol introduced in MySQL 5.7.12.
 
 The X DevAPI wraps powerful concepts in a simple API.
 * A new high-level session concept enables you to write code that can transparently scale from single MySQL Server to a multiple server environment.
@@ -49,23 +49,22 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-  <date>2018-04-12</date>
-  <time>20:00:00</time>
-  <version>
-   <release>8.0.11</release>
-   <api>1.0.0</api>
-  </version>
-  <stability>
-   <release>stable</release>
-   <api>stable</api>
-  </stability>
-  <license uri="http://www.php.net/license">PHP</license>
-  <notes>
-	WL#11591-DevAPI: Add SHA256_MEMORY support
-	WL#11390-DevAPI: New document _id generation support
-	WL#11242-Support locking modes: NOWAIT and SKIP LOCKED
-	refactoring: reference counting, clear warnings
-  </notes>
+	<date>2018-06-26</date>
+	<time>20:00:00</time>
+	<version>
+		<release>8.0.12</release>
+		<api>1.0.0</api>
+	</version>
+	<stability>
+		<release>stable</release>
+		<api>stable</api>
+	</stability>
+	<license uri="http://www.php.net/license">PHP</license>
+	<notes>
+		WL#11957: DevAPI, Core v1 Alignment
+		WL#11955: Increase coverage
+		refactorings: WL#11960, WL#11945,  WL#11949, WL#11947, WL#11854
+	</notes>
  <contents>
   <dir name="/">
    <file name="CREDITS" role="doc" />
@@ -232,6 +231,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="get_collection_as_table.phpt" role="test" />
     <file name="get_name.phpt" role="test" />
     <file name="get_tableget_tables.phpt" role="test" />
+    <file name="iterators.phpt" role="test" />
     <file name="mergepatch.phpt" role="test" />
     <file name="modify_array_append_insert.phpt" role="test" />
     <file name="multiple_results.phpt" role="test" />
@@ -239,6 +239,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="schema.phpt" role="test" />
     <file name="select_fetch.phpt" role="test" />
     <file name="session_minor_tc.phpt" role="test" />
+    <file name="simple_expression.phpt" role="test" />
     <file name="simple_ssl.phpt" role="test" />
     <file name="sql_simple.phpt" role="test" />
     <file name="table.phpt" role="test" />
@@ -371,6 +372,11 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
       <file name="tab_without_shared_shared.phpt" role="test" />
       <file name="tab_without_shared_shared_worker.php" role="test" />
      </dir>
+    </dir>
+    <dir name="session">
+     <file name="from_collection.phpt" role="test" />
+     <file name="from_schema.phpt" role="test" />
+     <file name="from_table.phpt" role="test" />
     </dir>
     <dir name="single_doc_ops">
      <file name="add_or_replace_one.phpt" role="test" />
@@ -603,6 +609,25 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2018-04-12</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.11</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#11591-DevAPI: Add SHA256_MEMORY support
+			WL#11390-DevAPI: New document _id generation support
+			WL#11242-Support locking modes: NOWAIT and SKIP LOCKED
+			refactoring: reference counting, clear warnings
+		</notes>
+	</release>
    <release>
 	<date>2018-01-17</date>
 	<time>20:00:00</time>
