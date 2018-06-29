@@ -318,8 +318,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 												 (unsigned int) day,
 												 (unsigned int) hours,
 												 (unsigned int) minutes,
-												 (unsigned int) seconds,
-												 (unsigned int) useconds));
+												 (unsigned int) seconds));
 					#undef DATETIME_FMT_STR
 					break;
 				}
@@ -360,7 +359,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					if (buf_size == 1) {
-						php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME");
+						php_error_docref(nullptr, E_WARNING, "Unexpected value for first byte of TIME");
 					}
 					const uint8_t scale = buf[0];
 					const uint8_t last_byte = buf[buf_size - 1]; /* last byte is the sign and the last 4 bits, if any */
