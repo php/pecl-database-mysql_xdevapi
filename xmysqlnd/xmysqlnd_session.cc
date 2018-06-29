@@ -1239,7 +1239,7 @@ XMYSQLND_METHOD(xmysqlnd_session_data, authenticate)(
 					os << "[HY000] Authentication failed using "
 						<< boost::join(auth_mech_names, ", ")
 						<< ". Check username and password or try a secure connection";
-					php_error_docref(nullptr, E_WARNING, os.str().c_str());
+					php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
 				}
 			}
 		}
@@ -2983,7 +2983,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 	XMYSQLND_SESSION_AUTH_DATA * auth = new XMYSQLND_SESSION_AUTH_DATA;
 
 	if( nullptr == auth ) {
-		php_error_docref(nullptr, E_WARNING, "Coulnd't allocate %u bytes",
+		php_error_docref(nullptr, E_WARNING, "Coulnd't allocate %lu bytes",
 						sizeof(XMYSQLND_SESSION_AUTH_DATA));
 		DBG_RETURN(nullptr);
 	}
