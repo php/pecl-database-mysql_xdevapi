@@ -34,8 +34,8 @@ namespace mysqlx {
 
 namespace drv {
 
-struct xmysqlnd_stmt;
-struct xmysqlnd_schema;
+class xmysqlnd_stmt;
+class xmysqlnd_schema;
 struct st_xmysqlnd_stmt_op__execute;
 
 /* Max possible value for an host priority (Client side failovers) */

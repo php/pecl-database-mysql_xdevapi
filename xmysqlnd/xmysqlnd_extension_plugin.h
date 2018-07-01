@@ -24,11 +24,11 @@ namespace mysqlx {
 
 namespace drv {
 
-struct xmysqlnd_session;
+class xmysqlnd_session;
 class xmysqlnd_session_data;
-struct xmysqlnd_schema;
+class xmysqlnd_schema;
 struct xmysqlnd_collection;
-struct xmysqlnd_stmt;
+class xmysqlnd_stmt;
 struct st_xmysqlnd_stmt_result;
 struct xmysqlnd_table;
 struct st_xmysqlnd_rowset_buffered;

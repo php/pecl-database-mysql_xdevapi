@@ -21,7 +21,7 @@
 namespace mysqlx {
 
 namespace drv {
-struct xmysqlnd_schema;
+class xmysqlnd_schema;
 }
 
 namespace devapi {

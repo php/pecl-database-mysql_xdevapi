@@ -127,7 +127,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_collection)(const MYSQLND_CLASS_MET
 		object = new xmysqlnd_collection(schema,
 										collection_name,
 										persistent);
-	} catch( std::exception& ex ){
+	} catch( std::exception& /*ex*/ ) {
 		DBG_RETURN(nullptr);
 	}
 
@@ -154,7 +154,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_table)(const MYSQLND_CLASS_METHODS_
 									schema,
 									table_name,
 									persistent);
-	} catch( std::exception& ex ) {
+	} catch( std::exception& /*ex*/ ) {
 		DBG_RETURN(nullptr);
 	}
 	DBG_RETURN(object);
@@ -175,7 +175,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt)(const MYSQLND_CLASS_METHODS_T
 	xmysqlnd_stmt* object{ nullptr };
 	try{
 		object = new xmysqlnd_stmt(factory, session);
-	} catch( std::exception& ex ) {
+	} catch( std::exception& /*ex*/ ) {
 		DBG_RETURN(nullptr);
 	}
 	DBG_RETURN(object);

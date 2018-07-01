@@ -27,7 +27,7 @@ namespace mysqlx {
 
 namespace drv {
 
-struct xmysqlnd_session;
+class xmysqlnd_session;
 struct st_xmysqlnd_session_on_error_bind;
 struct xmysqlnd_collection;
 

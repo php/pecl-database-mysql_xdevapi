@@ -23,7 +23,7 @@
 namespace mysqlx {
 
 namespace drv {
-struct xmysqlnd_stmt;
+class xmysqlnd_stmt;
 struct st_xmysqlnd_stmt_result;
 }
 
