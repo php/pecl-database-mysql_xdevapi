@@ -112,7 +112,7 @@ struct st_xmysqlnd_exec_with_cb_ctx
 /* {{{ exec_with_cb_handle_on_row */
 static const enum_hnd_func_status
 exec_with_cb_handle_on_row(void * context,
-						   XMYSQLND_STMT * const /*stmt*/,
+						   xmysqlnd_stmt * const /*stmt*/,
 						   const st_xmysqlnd_stmt_result_meta* const meta,
 						   const zval * const row,
 						   MYSQLND_STATS * const /*stats*/,
@@ -203,7 +203,7 @@ exec_with_cb_handle_on_row(void * context,
 static const enum_hnd_func_status
 exec_with_cb_handle_on_warning(
 	void * context,
-	XMYSQLND_STMT * const /*stmt*/,
+	xmysqlnd_stmt * const /*stmt*/,
 	const enum xmysqlnd_stmt_warning_level /*level*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING message)
@@ -248,7 +248,7 @@ exec_with_cb_handle_on_warning(
 static const enum_hnd_func_status
 exec_with_cb_handle_on_error(
 	void * context,
-	XMYSQLND_STMT * const /*stmt*/,
+	xmysqlnd_stmt * const /*stmt*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
@@ -294,7 +294,7 @@ exec_with_cb_handle_on_error(
 
 /* {{{ exec_with_cb_handle_on_resultset_end */
 static const enum_hnd_func_status
-exec_with_cb_handle_on_resultset_end(void * context, XMYSQLND_STMT * const /*stmt*/, const zend_bool has_more)
+exec_with_cb_handle_on_resultset_end(void * context, xmysqlnd_stmt * const /*stmt*/, const zend_bool has_more)
 {
 	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -331,7 +331,7 @@ exec_with_cb_handle_on_resultset_end(void * context, XMYSQLND_STMT * const /*stm
 /* {{{ exec_with_cb_handle_on_statement_ok */
 static const enum_hnd_func_status
 exec_with_cb_handle_on_statement_ok(void * context,
-									XMYSQLND_STMT * const /*stmt*/,
+									xmysqlnd_stmt * const /*stmt*/,
 									const st_xmysqlnd_stmt_execution_state* const exec_state)
 {
 	enum_hnd_func_status ret{HND_PASS};
@@ -468,7 +468,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 static const enum_hnd_func_status
 mysqlx_sql_stmt_on_warning(
 	void * /*context*/,
-	XMYSQLND_STMT * const /*stmt*/,
+	xmysqlnd_stmt * const /*stmt*/,
 	const enum xmysqlnd_stmt_warning_level /*level*/,
 	const unsigned int /*code*/,
 	const MYSQLND_CSTRING /*message*/)
@@ -484,7 +484,7 @@ mysqlx_sql_stmt_on_warning(
 static const enum_hnd_func_status
 mysqlx_sql_stmt_on_error(
 	void * /*context*/,
-	XMYSQLND_STMT * const /*stmt*/,
+	xmysqlnd_stmt * const /*stmt*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)

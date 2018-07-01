@@ -214,7 +214,7 @@ bool Collection_add::init(
 /* {{{ Collection_add::init() */
 bool Collection_add::init(
 	zval* obj_zv,
-	XMYSQLND_COLLECTION* coll,
+	xmysqlnd_collection* coll,
 	const util::string_view& /*doc_id*/,
 	zval* doc)
 {

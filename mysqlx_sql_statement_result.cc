@@ -99,7 +99,7 @@ ZEND_END_ARG_INFO()
 static const enum_hnd_func_status
 mysqlx_sql_stmt_result_on_warning(
 	void * /*context*/,
-	XMYSQLND_STMT * const /*stmt*/,
+	xmysqlnd_stmt * const /*stmt*/,
 	const enum xmysqlnd_stmt_warning_level /*level*/,
 	const unsigned int /*code*/,
 	const MYSQLND_CSTRING /*message*/)
@@ -115,7 +115,7 @@ mysqlx_sql_stmt_result_on_warning(
 static const enum_hnd_func_status
 mysqlx_sql_stmt_result_on_error(
 	void * /*context*/,
-	XMYSQLND_STMT * const /*stmt*/,
+	xmysqlnd_stmt * const /*stmt*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)

@@ -171,7 +171,7 @@ static const enum_hnd_func_status
 mysqlx_table_on_error(
 	void * /*context*/,
 	XMYSQLND_SESSION session,
-	st_xmysqlnd_stmt* const /*stmt*/,
+	xmysqlnd_stmt* const /*stmt*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)

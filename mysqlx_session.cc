@@ -236,7 +236,7 @@ struct st_mysqlx_get_schemas_ctx
 static const enum_hnd_func_status
 get_schemas_handler_on_row(void * context,
 						   XMYSQLND_SESSION const session,
-						   XMYSQLND_STMT * const /*stmt*/,
+						   xmysqlnd_stmt * const /*stmt*/,
 						   const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 						   const zval * const row,
 						   MYSQLND_STATS * const /*stats*/,
@@ -269,7 +269,7 @@ static const enum_hnd_func_status
 mysqlx_session_command_handler_on_error(
 	void * /*context*/,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT * const /*stmt*/,
+	xmysqlnd_stmt * const /*stmt*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
@@ -363,7 +363,7 @@ struct st_mysqlx_list_clients__ctx
 static const enum_hnd_func_status
 list_clients__handler_on_row(void * context,
 							 XMYSQLND_SESSION session,
-							 XMYSQLND_STMT * const /*stmt*/,
+							 xmysqlnd_stmt * const /*stmt*/,
 							 const XMYSQLND_STMT_RESULT_META * const meta,
 							 const zval * const row,
 							 MYSQLND_STATS * const /*stats*/,
@@ -605,9 +605,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 
 	MYSQLX_FETCH_SESSION_FROM_ZVAL(object, object_zv);
 	if (XMYSQLND_SESSION session = object->session) {
-		XMYSQLND_SCHEMA* schema{nullptr};
-		if ((PASS == session->m->create_db(session, schema_name)) &&
-			((schema = session->m->create_schema_object(session, schema_name)) != nullptr))
+		xmysqlnd_schema* schema{nullptr};
+		if ((PASS == session->create_db(schema_name)) &&
+			((schema = session->create_schema_object(schema_name)) != nullptr))
 		{
 			DBG_INF_FMT("schema=%p", schema);
 			mysqlx_new_schema(return_value, schema);

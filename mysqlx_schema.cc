@@ -180,7 +180,7 @@ static const enum_hnd_func_status
 mysqlx_scheme_on_error(
 	void* /*context*/,
 	XMYSQLND_SESSION session,
-	st_xmysqlnd_stmt* const /*stmt*/,
+	xmysqlnd_stmt* const /*stmt*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
@@ -230,7 +230,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 static const enum_hnd_func_status
 mysqlx_schema_on_error(
 	void* /*context*/,
-	const XMYSQLND_SCHEMA* const /*schema*/,
+	const xmysqlnd_schema* const /*schema*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
@@ -245,7 +245,7 @@ mysqlx_schema_on_error(
 /* {{{ on_drop_db_object_error */
 const enum_hnd_func_status on_drop_db_object_error(
 	void* /*context*/,
-	const XMYSQLND_SCHEMA * const /*schema*/,
+	const xmysqlnd_schema * const /*schema*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
