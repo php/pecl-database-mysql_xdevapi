@@ -18,10 +18,7 @@
 #include "php_api.h"
 extern "C" {
 #include <zend_exceptions.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
+#include "mysqlnd_api.h"
 #ifdef HAVE_SPL
 #include <ext/spl/spl_exceptions.h> /* spl_ce_RuntimeException */
 #endif
@@ -136,7 +133,7 @@ static HashTable mysqlx_exception_properties;
 
 /* {{{ mysqlx_register_exception_class */
 void
-mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_exception_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_exception_handlers = *mysqlx_std_object_handlers;
 
@@ -159,7 +156,7 @@ mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_st
 
 /* {{{ mysqlx_unregister_exception_class */
 void
-mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_exception_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_exception_properties);
 }
@@ -184,7 +181,7 @@ mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, c
 
 /* {{{ mysqlx_new_exception_ex */
 void
-mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING sql_state, const char * const format, ...)
+mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING /*sql_state*/, const char * const format, ...)
 {
 	va_list args;
 	char * msg;

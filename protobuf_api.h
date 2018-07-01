@@ -18,17 +18,10 @@
 #ifndef MYSQL_XDEVAPI_PROTOBUF_API_H
 #define MYSQL_XDEVAPI_PROTOBUF_API_H
 
-#ifdef PHP_WIN32
-#pragma warning( push )
-#pragma warning( disable : 4244 )
-#endif // PHP_WIN32
-
+MYSQLX_SUPPRESS_ALL_WARNINGS()
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/wire_format_lite.h>
-
-#ifdef PHP_WIN32
-#pragma warning( pop )
-#endif // PHP_WIN32
+MYSQLX_RESTORE_WARNINGS()
 
 #endif // MYSQL_XDEVAPI_PROTOBUF_API_H
 

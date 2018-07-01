@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_session.h"
@@ -35,11 +32,11 @@ namespace drv {
 /* {{{ xmysqlnd_rowset_fwd::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, init)(XMYSQLND_ROWSET_FWD * const result,
-										   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+										   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const /*factory*/,
 										   const size_t prefetch_rows,
 										   xmysqlnd_stmt * const stmt,
-										   MYSQLND_STATS * const stats,
-										   MYSQLND_ERROR_INFO * const error_info)
+										   MYSQLND_STATS * const /*stats*/,
+										   MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::init");
 	result->stmt = stmt->get_reference(stmt);
@@ -98,8 +95,8 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_one)(XMYSQLND_ROWSET_FWD * const result,
 												const size_t row_cursor,
 												zval * row,
-												MYSQLND_STATS * const stats,
-												MYSQLND_ERROR_INFO * const error_info)
+												MYSQLND_STATS * const /*stats*/,
+												MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
 	const size_t row_count = result->row_count;
@@ -196,8 +193,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, eof)(const XMYSQLND_ROWSET_FWD * const resu
 static zval *
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, create_row)(XMYSQLND_ROWSET_FWD * const result,
 												 const XMYSQLND_STMT_RESULT_META * const meta,
-												 MYSQLND_STATS * const stats,
-												 MYSQLND_ERROR_INFO * const error_info)
+												 MYSQLND_STATS * const /*stats*/,
+												 MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const unsigned int column_count = meta->m->get_field_count(meta);
 	zval * row = static_cast<zval*>(mnd_pecalloc(column_count, sizeof(zval), result->persistent));
@@ -212,8 +209,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, create_row)(XMYSQLND_ROWSET_FWD * const res
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, destroy_row)(XMYSQLND_ROWSET_FWD * const result,
 												  zval * row,
-												  MYSQLND_STATS * const stats,
-												  MYSQLND_ERROR_INFO * const error_info)
+												  MYSQLND_STATS * const /*stats*/,
+												  MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::destroy_row");
 	DBG_INF_FMT("row=%p", row);
@@ -227,7 +224,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, destroy_row)(XMYSQLND_ROWSET_FWD * const re
 
 /* {{{ xmysqlnd_rowset_fwd::add_row */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_rowset_fwd, add_row)(XMYSQLND_ROWSET_FWD * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, add_row)(XMYSQLND_ROWSET_FWD * const result, zval * row, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::add_row");
 	DBG_INF_FMT("row=%p", row);

@@ -41,7 +41,7 @@ static const zend_function_entry mysqlx_crud_operation_limitable_methods[] = {
 
 /* {{{ mysqlx_register_crud_operation_limitable_interface */
 void
-mysqlx_register_crud_operation_limitable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_crud_operation_limitable_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
 	zend_class_entry tmp_ce;
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "CrudOperationLimitable", mysqlx_crud_operation_limitable_methods);
@@ -52,7 +52,7 @@ mysqlx_register_crud_operation_limitable_interface(INIT_FUNC_ARGS, zend_object_h
 
 /* {{{ mysqlx_unregister_crud_operation_limitable_interface */
 void
-mysqlx_unregister_crud_operation_limitable_interface(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_crud_operation_limitable_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
 /* }}} */

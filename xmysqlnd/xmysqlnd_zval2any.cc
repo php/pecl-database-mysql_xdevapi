@@ -16,12 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysql_float_to_double.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 
 #include "proto_gen/mysqlx.pb.h"
@@ -81,7 +76,7 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 			DBG_INF("IS_ARRAY");
 			zval* entry{nullptr};
 			any.set_type(Any_Type_ARRAY);
-			ZEND_HASH_FOREACH_VAL(Z_ARR_P(zv), entry) {
+			MYSQLX_HASH_FOREACH_VAL(Z_ARR_P(zv), entry) {
 				DBG_INF("ENTRY");
 				Mysqlx::Datatypes::Any entry_any;
 				Mysqlx::Datatypes::Any * new_value = any.mutable_array()->add_value();
@@ -262,8 +257,8 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 				zend_hash_next_index_insert(Z_ARRVAL_P(zv), &entry);
 			}
 			break;
-#ifndef PHP_DEBUG
 		default:
+#ifndef PHP_DEBUG
 			php_error_docref(nullptr, E_WARNING, "Unknown type %s . Please report to the developers.", Any::Type_Name(any.type()).c_str());
 			DBG_RETURN(FAIL);
 #else
@@ -479,8 +474,8 @@ any2log(const Mysqlx::Datatypes::Any & any)
 				any2log(any.array().value(i));
 			}
 			break;
-#ifndef PHP_DEBUG
 		default:
+#ifndef PHP_DEBUG
 			DBG_INF_FMT("Unknown type %s . Please report to the developers.", Any::Type_Name(any.type()).c_str());
 			DBG_VOID_RETURN;
 #else

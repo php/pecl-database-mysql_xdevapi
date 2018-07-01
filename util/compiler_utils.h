@@ -15,39 +15,44 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#include "php_api.h"
-#include "mysqlnd_api.h"
-extern "C" {
-#include <zend_exceptions.h>
-}
-#include "mysqlx_class_properties.h"
-#include "object.h"
+#ifndef MYSQL_XDEVAPI_UTIL_COMPILER_UTILS_H
+#define MYSQL_XDEVAPI_UTIL_COMPILER_UTILS_H
 
-namespace mysqlx {
+#define UNUSED(x) (void)x
 
-namespace util {
+#define UNUSED_INTERNAL_FUNCTION_PARAMETERS() \
+	UNUSED(return_value); \
+	UNUSED(execute_data)
 
-/* {{{ mysqlx::util::safe_call_php_method */
-void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
-{
-	MYSQL_XDEVAPI_TRY {
-		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-	} MYSQL_XDEVAPI_CATCH
-}
-/* }}} */
+#define UNUSED_FUNC_ARGS() \
+	UNUSED(module_number); \
+	UNUSED(type)
 
-/* {{{ mysqlx::util::safe_call_php_function */
-void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS)
-{
-	MYSQL_XDEVAPI_TRY {
-		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-	} MYSQL_XDEVAPI_CATCH
-}
-/* }}} */
+#define UNUSED_INIT_FUNC_ARGS int /*type*/, int /*module_number*/
+#define UNUSED_SHUTDOWN_FUNC_ARGS int /*type*/, int /*module_number*/
 
-} // namespace util
 
-} // namespace mysqlx
+#ifdef PHP_WIN32
+
+#define MYSQLX_SUPPRESS_ALL_WARNINGS() \
+	__pragma(warning(push, 0))
+
+#define MYSQLX_SUPPRESS_MSVC_WARNINGS(...) \
+	__pragma(warning(push)) \
+	__pragma(warning(disable :  __VA_ARGS__))
+
+#define MYSQLX_RESTORE_WARNINGS() \
+	__pragma(warning(pop))
+
+#else
+
+#define MYSQLX_SUPPRESS_ALL_WARNINGS()
+#define MYSQLX_SUPPRESS_MSVC_WARNINGS(...)
+#define MYSQLX_RESTORE_WARNINGS()
+
+#endif
+
+#endif // MYSQL_XDEVAPI_UTIL_COMPILER_UTILS_H
 
 /*
  * Local variables:

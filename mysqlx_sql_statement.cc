@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_crud_collection_commands.h"
 #include "xmysqlnd/xmysqlnd_stmt.h"
@@ -83,6 +79,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_sql_statement::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -115,11 +112,11 @@ struct st_xmysqlnd_exec_with_cb_ctx
 /* {{{ exec_with_cb_handle_on_row */
 static const enum_hnd_func_status
 exec_with_cb_handle_on_row(void * context,
-						   xmysqlnd_stmt * const stmt,
+						   XMYSQLND_STMT * const /*stmt*/,
 						   const st_xmysqlnd_stmt_result_meta* const meta,
 						   const zval * const row,
-						   MYSQLND_STATS * const stats,
-						   MYSQLND_ERROR_INFO * const error_info)
+						   MYSQLND_STATS * const /*stats*/,
+						   MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	enum_hnd_func_status ret{HND_AGAIN};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -204,7 +201,12 @@ exec_with_cb_handle_on_row(void * context,
 
 /* {{{ exec_with_cb_handle_on_warning */
 static const enum_hnd_func_status
-exec_with_cb_handle_on_warning(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+exec_with_cb_handle_on_warning(
+	void * context,
+	XMYSQLND_STMT * const /*stmt*/,
+	const enum xmysqlnd_stmt_warning_level /*level*/,
+	const unsigned int code,
+	const MYSQLND_CSTRING message)
 {
 	enum_hnd_func_status ret{HND_AGAIN};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -244,7 +246,12 @@ exec_with_cb_handle_on_warning(void * context, xmysqlnd_stmt * const stmt, const
 
 /* {{{ exec_with_cb_handle_on_error */
 static const enum_hnd_func_status
-exec_with_cb_handle_on_error(void * context, xmysqlnd_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+exec_with_cb_handle_on_error(
+	void * context,
+	XMYSQLND_STMT * const /*stmt*/,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
 {
 	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -287,7 +294,7 @@ exec_with_cb_handle_on_error(void * context, xmysqlnd_stmt * const stmt, const u
 
 /* {{{ exec_with_cb_handle_on_resultset_end */
 static const enum_hnd_func_status
-exec_with_cb_handle_on_resultset_end(void * context, xmysqlnd_stmt * const stmt, const zend_bool has_more)
+exec_with_cb_handle_on_resultset_end(void * context, XMYSQLND_STMT * const /*stmt*/, const zend_bool has_more)
 {
 	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -324,7 +331,7 @@ exec_with_cb_handle_on_resultset_end(void * context, xmysqlnd_stmt * const stmt,
 /* {{{ exec_with_cb_handle_on_statement_ok */
 static const enum_hnd_func_status
 exec_with_cb_handle_on_statement_ok(void * context,
-									xmysqlnd_stmt * const stmt,
+									XMYSQLND_STMT * const /*stmt*/,
 									const st_xmysqlnd_stmt_execution_state* const exec_state)
 {
 	enum_hnd_func_status ret{HND_PASS};
@@ -459,7 +466,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 
 /* {{{ mysqlx_sql_stmt_on_warning */
 static const enum_hnd_func_status
-mysqlx_sql_stmt_on_warning(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+mysqlx_sql_stmt_on_warning(
+	void * /*context*/,
+	XMYSQLND_STMT * const /*stmt*/,
+	const enum xmysqlnd_stmt_warning_level /*level*/,
+	const unsigned int /*code*/,
+	const MYSQLND_CSTRING /*message*/)
 {
 	DBG_ENTER("mysqlx_sql_stmt_on_warning");
 	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
@@ -470,7 +482,12 @@ mysqlx_sql_stmt_on_warning(void * context, xmysqlnd_stmt * const stmt, const enu
 
 /* {{{ mysqlx_sql_stmt_on_error */
 static const enum_hnd_func_status
-mysqlx_sql_stmt_on_error(void * context, xmysqlnd_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_sql_stmt_on_error(
+	void * /*context*/,
+	XMYSQLND_STMT * const /*stmt*/,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_sql_stmt_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -733,7 +750,7 @@ php_mysqlx_sql_statement_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_sql_statement_class */
 void
-mysqlx_register_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_sql_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_sql_statement_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_sql_statement_handlers.free_obj = mysqlx_sql_statement_free_storage;
@@ -761,7 +778,7 @@ mysqlx_register_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysql
 
 /* {{{ mysqlx_unregister_sql_statement_class */
 void
-mysqlx_unregister_sql_statement_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_sql_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_sql_statement_properties);
 }
@@ -912,8 +929,10 @@ void execute_new_statement_read_response(
 	} else if (Z_TYPE(stmt_zv) == IS_OBJECT) {
 		zval zv;
 		ZVAL_UNDEF(&zv);
-		zend_long flags{0};
-		mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+		//TODO WARNINGS
+		//zend_long flags{0};
+		mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, result_type, &zv);
+//		mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 
 		ZVAL_COPY(return_value, &zv);
 		zval_dtor(&zv);
@@ -926,6 +945,7 @@ void execute_new_statement_read_response(
 /* {{{ mysqlx_statement::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -1012,7 +1032,7 @@ php_mysqlx_statement_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_sql_statement_class */
 void
-mysqlx_register_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_statement_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_statement_handlers.free_obj = mysqlx_statement_free_storage;
@@ -1037,7 +1057,7 @@ mysqlx_register_statement_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_st
 
 /* {{{ mysqlx_unregister_statement_class */
 void
-mysqlx_unregister_statement_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_statement_properties);
 }

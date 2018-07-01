@@ -16,12 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_wireprotocol.h"
@@ -114,7 +109,7 @@ php_mysqlx_message__data_fetch_done_object_allocator(zend_class_entry * class_ty
 
 /* {{{ mysqlx_register_message__data_fetch_done_class */
 void
-mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_message__data_fetch_done_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_message__data_fetch_done_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_message__data_fetch_done_handlers.free_obj = mysqlx_message__data_fetch_done_free_storage;
@@ -134,7 +129,7 @@ mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS, zend_object_handl
 
 /* {{{ mysqlx_unregister_message__data_fetch_done_class */
 void
-mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_message__data_fetch_done_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_message__data_fetch_done_properties);
 }

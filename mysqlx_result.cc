@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_stmt.h"
 #include "xmysqlnd/xmysqlnd_stmt_result.h"
@@ -78,6 +74,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_result::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -173,7 +170,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 		}
 		auto& ids = exec_state->generated_doc_ids;
 		const size_t num_of_docs = ids.size();
-		array_init_size(return_value, num_of_docs);
+		array_init_size(return_value, static_cast<uint32_t>(num_of_docs));
 		for( auto& elem : ids ) {
 			zval id;
 			ZVAL_STRINGL(&id,elem.c_str(),elem.size());
@@ -314,7 +311,7 @@ php_mysqlx_result_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_result_class */
 void
-mysqlx_register_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_result_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_result_handlers.free_obj = mysqlx_result_free_storage;
@@ -339,7 +336,7 @@ mysqlx_register_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_o
 
 /* {{{ mysqlx_unregister_result_class */
 void
-mysqlx_unregister_result_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_result_properties);
 }

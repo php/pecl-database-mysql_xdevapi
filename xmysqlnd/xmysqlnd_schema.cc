@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_crud_collection_commands.h"
@@ -160,11 +157,11 @@ static const enum_hnd_func_status
 schema_sql_op_on_row(
 	void * context,
 	XMYSQLND_SESSION session,
-	xmysqlnd_stmt * const stmt,
-	const XMYSQLND_STMT_RESULT_META * const meta,
+	xmysqlnd_stmt * const /*stmt*/,
+	const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 	const zval * const row,
-	MYSQLND_STATS * const stats,
-	MYSQLND_ERROR_INFO * const error_info)
+	MYSQLND_STATS * const /*stats*/,
+	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	st_schema_exists_in_database_ctx* ctx = (st_schema_exists_in_database_ctx*) context;
 	DBG_ENTER("schema_sql_op_on_row");
@@ -258,7 +255,7 @@ struct st_create_collection_handler_ctx
 static const enum_hnd_func_status
 collection_op_handler_on_error(void * context,
 							   XMYSQLND_SESSION session,
-							   xmysqlnd_stmt * const stmt,
+							   xmysqlnd_stmt * const /*stmt*/,
 							   const unsigned int code,
 							   const MYSQLND_CSTRING sql_state,
 							   const MYSQLND_CSTRING message)
@@ -461,11 +458,11 @@ bool match_object_type(
 static const enum_hnd_func_status
 get_db_objects_on_row(void * context,
 					  XMYSQLND_SESSION session,
-					  xmysqlnd_stmt * const stmt,
-					  const XMYSQLND_STMT_RESULT_META * const meta,
+					  xmysqlnd_stmt * const /*stmt*/,
+					  const XMYSQLND_STMT_RESULT_META * const /*meta*/,
 					  const zval * const row,
-					  MYSQLND_STATS * const stats,
-					  MYSQLND_ERROR_INFO * const error_info)
+					  MYSQLND_STATS * const /*stats*/,
+					  MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const xmysqlnd_schema_get_db_objects_ctx* ctx = static_cast<const xmysqlnd_schema_get_db_objects_ctx*>(context);
 	DBG_ENTER("get_db_objects_on_row");
@@ -535,7 +532,7 @@ collection_get_objects_var_binder(void * context, XMYSQLND_SESSION session, XMYS
 /* {{{ xmysqlnd_schema::get_db_objects */
 enum_func_status
 xmysqlnd_schema::get_db_objects(
-	const MYSQLND_CSTRING& collection_name,
+	const MYSQLND_CSTRING& /*collection_name*/,
 	const db_object_type_filter object_type_filter,
 	const struct st_xmysqlnd_schema_on_database_object_bind on_object,
 	const struct st_xmysqlnd_schema_on_error_bind handler_on_error)

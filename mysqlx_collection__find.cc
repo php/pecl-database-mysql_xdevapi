@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_schema.h"
@@ -168,7 +164,7 @@ void Collection_find::fields(
 		ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
 	} else if (Z_TYPE_P(fields) == IS_ARRAY) {
 		const zval* entry{nullptr};
-		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(fields), entry) {
+		MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(fields), entry) {
 			is_expression = false;
 			if (Z_TYPE_P(entry) == IS_OBJECT) {
 				if (is_a_mysqlx_expression(entry)) {
@@ -238,7 +234,7 @@ void Collection_find::add_operation(
 		case IS_ARRAY:
 			{
 				zval* entry{nullptr};
-				ZEND_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
+				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
 					enum_func_status ret{FAIL};
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
@@ -369,7 +365,7 @@ void Collection_find::bind(
 
 	zend_string* key{nullptr};
 	zval* val{nullptr};
-	ZEND_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
+	MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 		if (key) {
 			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
 			if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, variable, val)) {
@@ -490,6 +486,7 @@ Mysqlx::Crud::Find* Collection_find::get_stmt()
 /* {{{ mysqlx_collection__find::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -786,7 +783,7 @@ php_mysqlx_collection__find_object_allocator(zend_class_entry* class_type)
 
 /* {{{ mysqlx_register_collection__find_class */
 void
-mysqlx_register_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
+mysqlx_register_collection__find_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
 	MYSQL_XDEVAPI_REGISTER_CLASS(
 		collection_find_class_entry,
@@ -808,7 +805,7 @@ mysqlx_register_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers* mys
 
 /* {{{ mysqlx_unregister_collection__find_class */
 void
-mysqlx_unregister_collection__find_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_collection__find_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&collection_find_properties);
 }

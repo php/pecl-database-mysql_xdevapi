@@ -16,14 +16,10 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <zend_smart_str.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
 }
-#include <ext/mysqlnd/mysql_float_to_double.h>
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "php_mysqlx.h"
@@ -73,6 +69,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_data_row::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -105,8 +102,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 		}
 		util::vector<const st_mysqlx_column_metadata*> meta_ar(column_count, nullptr);
 		unsigned int i{0};
-		/* ZEND_HASH_FOREACH_PTR ?? */
-		ZEND_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
+		/* MYSQLX_HASH_FOREACH_PTR ?? */
+		MYSQLX_HASH_FOREACH_VAL(&metadata->resultset_metadata_ht, entry) {
 			if (Z_TYPE_P(entry) == IS_OBJECT && Z_OBJ_P(entry)->ce == mysqlx_column_metadata_class_entry) {
 				st_mysqlx_column_metadata* column_entry{nullptr};
 				MYSQLX_FETCH_MESSAGE__COLUMN_METADATA_FROM_ZVAL(column_entry, entry);
@@ -334,7 +331,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						break;
 					}
 					while (length_read_ok) {
-						if ((length_read_ok = util::pb::read_variant_64(input_stream, &gval))) {
+						if ((length_read_ok = util::pb::read_variant_64(input_stream, &gval)) != false) {
 							char* set_value{nullptr};
 							int rest_buffer_size{0};
 							if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
@@ -465,7 +462,7 @@ php_mysqlx_data_row_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_data_row_class */
 void
-mysqlx_register_data_row_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_data_row_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_data_row_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_data_row_handlers.free_obj = mysqlx_data_row_free_storage;
@@ -485,7 +482,7 @@ mysqlx_register_data_row_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std
 
 /* {{{ mysqlx_unregister_data_row_class */
 void
-mysqlx_unregister_data_row_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_data_row_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_data_row_properties);
 }

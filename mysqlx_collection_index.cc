@@ -16,11 +16,9 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
 #include <zend_exceptions.h>
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
 }
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
@@ -228,16 +226,14 @@ Index_definition parse_index_def(
 /* {{{ collection_index_on_error */
 static const enum_hnd_func_status
 collection_index_on_error(
-	void* context,
+	void* /*context*/,
 	XMYSQLND_SESSION session,
-	xmysqlnd_stmt* const stmt,
+	st_xmysqlnd_stmt* const /*stmt*/,
 	const unsigned int code,
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
 {
-	DBG_ENTER("collection_index_on_error");
 	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
-	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
 

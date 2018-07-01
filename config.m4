@@ -1,13 +1,32 @@
 dnl Note: see README for build details
 
-PHP_ARG_WITH(boost, for boost install dir,
-	[  --with-boost[=DIR]          Point out boost library])
+PHP_ARG_WITH(
+	boost,
+	for boost install dir,
+	[  --with-boost[=DIR]          Point out boost library],
+	no,
+	no)
 
-PHP_ARG_WITH(protobuf, for protobuf install dir,
-	[  --with-protobuf[=DIR]          Point out protobuf library])
+PHP_ARG_WITH(
+	protobuf,
+	for protobuf install dir,
+	[  --with-protobuf[=DIR]       Point out protobuf library],
+	no,
+	no)
 
-PHP_ARG_ENABLE(mysql-xdevapi, whether to enable mysql-xdevapi,
-	[  --enable-mysql-xdevapi       Enable mysql-xdevapi], no, yes)
+PHP_ARG_ENABLE(
+	[dev-mode],
+	[whether to enable developer mode],
+	[  --enable-dev-mode           Enable internal developer mode],
+	no,
+	no)
+
+PHP_ARG_ENABLE(
+	mysql-xdevapi,
+	[whether to enable mysql-xdevapi],
+	[  --enable-mysql-xdevapi      Enable mysql-xdevapi],
+	no,
+	yes)
 
 
 dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
@@ -159,8 +178,16 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		$xmysqlnd_crud_parsers \
 		"
 
+
+	if test "$PHP_DEV_MODE_ENABLED" = "yes"; then
+		AC_DEFINE([MYSQL_XDEVAPI_DEV_MODE], 1, [Enable developer mode])
+		DEV_MODE_CXXFLAGS="-Werror"
+	else
+		DEV_MODE_CXXFLAGS=""
+	fi
+
 	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14 \
-		-Wall -Wno-unused-function"
+		-Wall -Wno-unused-function $DEV_MODE_CXXFLAGS"
 
 	case $host_os in
 		*darwin*)
@@ -204,7 +231,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	dnl phpize/pecl build
 	if test "$PHP_PECL_EXTENSION"; then
-		AC_MSG_NOTICE(phpize/pecl build mode)
+		AC_MSG_NOTICE([phpize/pecl build mode])
 
 		case $host_os in
 			*solaris*)
@@ -237,17 +264,32 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	SEARCH_FOR="boost/version.hpp"
 	for i in $SEARCH_PATH ; do
 		if test -r "$i/$SEARCH_FOR"; then
-			BOOST_ROOT_FOUND=$i
+			BOOST_RESOLVED_ROOT=$i
 			break
 		fi
 	done
 
-	if test -d "$BOOST_ROOT_FOUND"; then
-		PHP_ADD_INCLUDE([$BOOST_ROOT_FOUND])
-		AC_MSG_RESULT(found in $BOOST_ROOT_FOUND)
+	if test -d "$BOOST_RESOLVED_ROOT"; then
+		PHP_ADD_INCLUDE([$BOOST_RESOLVED_ROOT])
+		AC_MSG_RESULT(found in $BOOST_RESOLVED_ROOT)
 	else
-		AC_MSG_WARN([not found, defaults applied (consider setting MYSQL_XDEVAPI_BOOST_ROOT)])
+		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_BOOST_ROOT])
 	fi
+
+	AC_MSG_CHECKING([if boost version is valid])
+	MINIMAL_BOOST_VER=105300
+	MINIMAL_BOOST_VER_LABEL="1.53.00"
+	AC_EGREP_CPP(
+		boost_version_ok,
+		[
+			#include "$BOOST_RESOLVED_ROOT/boost/version.hpp"
+			#if BOOST_VERSION >= $MINIMAL_BOOST_VER
+				boost_version_ok
+			#endif
+		],
+		[AC_MSG_RESULT([ok])],
+		[AC_MSG_ERROR([boost version is too old, required at least $MINIMAL_BOOST_VER_LABEL])]
+	)
 
 
 	dnl protobuf
@@ -256,30 +298,30 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	SEARCH_FOR="bin/protoc"
 	for i in $SEARCH_PATH ; do
 		if test -r "$i/$SEARCH_FOR"; then
-			PROTOBUF_ROOT_FOUND=$i
+			PROTOBUF_RESOLVED_ROOT=$i
 			break
 		fi
 	done
 
-	if test -z "$PROTOBUF_ROOT_FOUND"; then
+	if test -z "$PROTOBUF_RESOLVED_ROOT"; then
 		AC_PATH_PROG(PROTOC_PATH_RESOLVED, protoc)
 		if test -x "$PROTOC_PATH_RESOLVED"; then
 			PROTOBUF_BIN_DIR=$(dirname "$PROTOC_PATH_RESOLVED")
-			PROTOBUF_ROOT_FOUND=$(dirname "$PROTOBUF_BIN_DIR")
+			PROTOBUF_RESOLVED_ROOT=$(dirname "$PROTOBUF_BIN_DIR")
 		fi
 	fi
 
-	if test -d "$PROTOBUF_ROOT_FOUND"; then
-		MYSQL_XDEVAPI_PROTOC=$PROTOBUF_ROOT_FOUND/bin/protoc
+	if test -d "$PROTOBUF_RESOLVED_ROOT"; then
+		MYSQL_XDEVAPI_PROTOC=$PROTOBUF_RESOLVED_ROOT/bin/protoc
 		PHP_SUBST(MYSQL_XDEVAPI_PROTOC)
 
-		MYSQL_XDEVAPI_PROTOBUF_INCLUDES=$PROTOBUF_ROOT_FOUND/include
+		MYSQL_XDEVAPI_PROTOBUF_INCLUDES=$PROTOBUF_RESOLVED_ROOT/include
 		PHP_SUBST(MYSQL_XDEVAPI_PROTOBUF_INCLUDES)
 
 		PHP_ADD_INCLUDE([$MYSQL_XDEVAPI_PROTOBUF_INCLUDES])
-		PHP_ADD_LIBRARY_WITH_PATH(protobuf, [$PROTOBUF_ROOT_FOUND/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
+		PHP_ADD_LIBRARY_WITH_PATH(protobuf, [$PROTOBUF_RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
 
-		AC_MSG_RESULT([found in $PROTOBUF_ROOT_FOUND])
+		AC_MSG_RESULT([found in $PROTOBUF_RESOLVED_ROOT])
 	else
 		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi

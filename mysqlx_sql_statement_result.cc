@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_stmt.h"
 #include "xmysqlnd/xmysqlnd_stmt_result.h"
@@ -101,7 +97,12 @@ ZEND_END_ARG_INFO()
 
 /* {{{ mysqlx_sql_stmt_result_on_warning */
 static const enum_hnd_func_status
-mysqlx_sql_stmt_result_on_warning(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+mysqlx_sql_stmt_result_on_warning(
+	void * /*context*/,
+	XMYSQLND_STMT * const /*stmt*/,
+	const enum xmysqlnd_stmt_warning_level /*level*/,
+	const unsigned int /*code*/,
+	const MYSQLND_CSTRING /*message*/)
 {
 	DBG_ENTER("mysqlx_sql_stmt_result_on_warning");
 	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
@@ -112,7 +113,12 @@ mysqlx_sql_stmt_result_on_warning(void * context, xmysqlnd_stmt * const stmt, co
 
 /* {{{ mysqlx_sql_stmt_result_on_error */
 static const enum_hnd_func_status
-mysqlx_sql_stmt_result_on_error(void * context, xmysqlnd_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_sql_stmt_result_on_error(
+	void * /*context*/,
+	XMYSQLND_STMT * const /*stmt*/,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_sql_stmt_result_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -161,6 +167,7 @@ static int mysqlx_sql_statement_read_next_result(st_mysqlx_sql_statement_result*
 /* {{{ mysqlx_sql_statement_result::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -334,7 +341,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getGeneratedIds)
 		}
 		auto& ids = exec_state->generated_doc_ids;
 		const size_t num_of_docs = ids.size();
-		array_init_size(return_value, num_of_docs);
+		array_init_size(return_value, static_cast<uint32_t>(num_of_docs));
 		for( auto& elem : ids ) {
 			zval id;
 			ZVAL_STRINGL(&id,elem.c_str(),elem.size());
@@ -648,7 +655,7 @@ php_mysqlx_sql_statement_result_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_sql_statement_result_class */
 void
-mysqlx_register_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_sql_statement_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_sql_statement_result_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_sql_statement_result_handlers.free_obj = mysqlx_sql_statement_result_free_storage;
@@ -673,7 +680,7 @@ mysqlx_register_sql_statement_result_class(INIT_FUNC_ARGS, zend_object_handlers 
 
 /* {{{ mysqlx_unregister_sql_statement_result_class */
 void
-mysqlx_unregister_sql_statement_result_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_sql_statement_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_sql_statement_result_properties);
 }

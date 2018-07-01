@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_extension_plugin.h"
@@ -291,7 +287,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(const MYSQLND_CLASS_METHODS
 
 /* {{{ xmysqlnd_object_factory::get_stmt_result_meta */
 static XMYSQLND_STMT_RESULT_META *
-XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const /*factory*/,
 																	const zend_bool persistent,
 																	MYSQLND_STATS* stats,
 																	MYSQLND_ERROR_INFO* error_info)

@@ -16,12 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_zval2any.h"
@@ -71,7 +66,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 		Z_ADDREF_P(column_metadata_zv);
 	}
 	zend_hash_next_index_insert(&resultset_metadata->resultset_metadata_ht, column_metadata_zv);
+	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127)
 	RETVAL_ZVAL(resultset_metadata_zv, 1 /*copy*/, 0 /*dtor*/);
+	MYSQLX_RESTORE_WARNINGS()
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -143,7 +140,7 @@ php_mysqlx_resultset_metadata_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_resultset_metadata_class */
 void
-mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_resultset_metadata_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_resultset_metadata_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_resultset_metadata_handlers.free_obj = mysqlx_resultset_metadata_free_storage;
@@ -163,7 +160,7 @@ mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS, zend_object_handlers * 
 
 /* {{{ mysqlx_unregister_resultset_metadata_class */
 void
-mysqlx_unregister_resultset_metadata_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_resultset_metadata_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_resultset_metadata_properties);
 }

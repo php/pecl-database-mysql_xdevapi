@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_session.h"
@@ -35,10 +32,10 @@ namespace drv {
 /* {{{ xmysqlnd_rowset_buffered::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, init)(XMYSQLND_ROWSET_BUFFERED * const result,
-												const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
+												const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const /*factory*/,
 												xmysqlnd_stmt * const stmt,
-												MYSQLND_STATS * const stats,
-												MYSQLND_ERROR_INFO * const error_info)
+												MYSQLND_STATS * const /*stats*/,
+												MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_rowset_buffered::init");
 	result->stmt = stmt->get_reference(stmt);
@@ -50,8 +47,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, init)(XMYSQLND_ROWSET_BUFFERED * const
 /* {{{ xmysqlnd_rowset_buffered::next */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, next)(XMYSQLND_ROWSET_BUFFERED * const result,
-												MYSQLND_STATS * const stats,
-												MYSQLND_ERROR_INFO * const error_info)
+												MYSQLND_STATS * const /*stats*/,
+												MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_rowset_buffered::next");
 	if (result->row_cursor >= result->row_count) {
@@ -89,8 +86,8 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one)(XMYSQLND_ROWSET_BUFFERED * const result,
 													 const size_t row_cursor,
 													 zval * row,
-													 MYSQLND_STATS * const stats,
-													 MYSQLND_ERROR_INFO * const error_info)
+													 MYSQLND_STATS * const /*stats*/,
+													 MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
 	const size_t row_count = result->row_count;
@@ -125,8 +122,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one_c)(XMYSQLND_ROWSET_BUFFERED 
 													   const size_t row_cursor,
 													   zval ** row,
 													   const zend_bool duplicate,
-													   MYSQLND_STATS * const stats,
-													   MYSQLND_ERROR_INFO * const error_info)
+													   MYSQLND_STATS * const /*stats*/,
+													   MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
 	const size_t row_count = result->row_count;
@@ -134,17 +131,18 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one_c)(XMYSQLND_ROWSET_BUFFERED 
 	if (row_cursor >= row_count || !result->rows[row_cursor]) {
 		DBG_RETURN(FAIL);
 	}
-	if (field_count &&
-		(*row = static_cast<zval*>(mnd_ecalloc(field_count, sizeof(zval)))))
-	{
-		const zval * const row_cursor_zv = result->rows[row_cursor];
-		for (unsigned int col{0}; col < field_count; ++col) {
-			const zval * const from = &row_cursor_zv[col];
-			zval * to = &(*row)[col];
-			if (duplicate) {
-				ZVAL_DUP(to, from);
-			} else {
-				ZVAL_COPY_VALUE(to, from);
+	if (field_count) {
+		*row = static_cast<zval*>(mnd_ecalloc(field_count, sizeof(zval)));
+		if (*row) {
+			const zval * const row_cursor_zv = result->rows[row_cursor];
+			for (unsigned int col{0}; col < field_count; ++col) {
+				const zval * const from = &row_cursor_zv[col];
+				zval * to = &(*row)[col];
+				if (duplicate) {
+					ZVAL_DUP(to, from);
+				} else {
+					ZVAL_COPY_VALUE(to, from);
+				}
 			}
 		}
 	}
@@ -180,8 +178,8 @@ static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED * const result,
 													   zval ** set,
 													   const zend_bool duplicate,
-													   MYSQLND_STATS * const stats,
-													   MYSQLND_ERROR_INFO * const error_info)
+													   MYSQLND_STATS * const /*stats*/,
+													   MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
 	const unsigned int row_count = static_cast<unsigned int>(result->row_count);
@@ -189,7 +187,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED 
 	DBG_INF_FMT("dupli=%s", duplicate? "YES":"NO");
 	DBG_INF_FMT("rows =%u  cols=%u", (uint) row_count, (uint) field_count);
 	DBG_INF_FMT("cells=%u", (uint) (row_count * field_count));
-	if ((*set = static_cast<zval*>(mnd_ecalloc(row_count * field_count, sizeof(zval))))) {
+	if ((*set = static_cast<zval*>(mnd_ecalloc(row_count * field_count, sizeof(zval)))) != nullptr) {
 		for (size_t row{0}; row < row_count; ++row) {
 			const zval * const from_row_zv = result->rows[row];
 			const size_t offset = row * field_count;
@@ -235,8 +233,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, eof)(const XMYSQLND_ROWSET_BUFFERED * 
 static zval *
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, create_row)(XMYSQLND_ROWSET_BUFFERED * const result,
 													  const XMYSQLND_STMT_RESULT_META * const meta,
-													  MYSQLND_STATS * const stats,
-													  MYSQLND_ERROR_INFO * const error_info)
+													  MYSQLND_STATS * const /*stats*/,
+													  MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const unsigned int column_count = meta->m->get_field_count(meta);
 	zval * row = static_cast<zval*>(mnd_pecalloc(column_count, sizeof(zval), result->persistent));
@@ -250,8 +248,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, create_row)(XMYSQLND_ROWSET_BUFFERED *
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, destroy_row)(XMYSQLND_ROWSET_BUFFERED * const result,
 													   zval * row,
-													   MYSQLND_STATS * const stats,
-													   MYSQLND_ERROR_INFO * const error_info)
+													   MYSQLND_STATS * const /*stats*/,
+													   MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_rowset_buffered::destroy_row");
 	if (row) {
@@ -264,7 +262,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, destroy_row)(XMYSQLND_ROWSET_BUFFERED 
 
 /* {{{ xmysqlnd_rowset_buffered::add_row */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_rowset_buffered, add_row)(XMYSQLND_ROWSET_BUFFERED * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_buffered, add_row)(XMYSQLND_ROWSET_BUFFERED * const result, zval * row, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_rowset_buffered::add_row");
 	DBG_INF_FMT("row=%p", row);

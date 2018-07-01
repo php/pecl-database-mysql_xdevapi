@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "php_mysqlx.h"
@@ -33,7 +30,7 @@ using namespace drv;
 
 /* {{{ mysqlx_property_get_forbidden */
 static zval *
-mysqlx_property_get_forbidden(const st_mysqlx_object* not_used1, zval * not_used2)
+mysqlx_property_get_forbidden(const st_mysqlx_object* /*not_used1*/, zval* /*not_used2*/)
 {
 	php_error_docref(nullptr, E_ERROR, "Write-only property");
 	return nullptr;
@@ -43,7 +40,7 @@ mysqlx_property_get_forbidden(const st_mysqlx_object* not_used1, zval * not_used
 
 /* {{{ mysqlx_property_set_forbidden */
 static int
-mysqlx_property_set_forbidden(st_mysqlx_object* not_used1, zval * not_used2)
+mysqlx_property_set_forbidden(st_mysqlx_object* /*not_used1*/, zval* /*not_used2*/)
 {
 	php_error_docref(nullptr, E_ERROR, "Read-only property");
 	return FAILURE;

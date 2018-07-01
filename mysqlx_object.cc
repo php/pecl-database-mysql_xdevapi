@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "php_mysqlx.h"
 #include "mysqlx_object.h"
 #include "mysqlx_class_properties.h"
@@ -58,7 +55,7 @@ mysqlx_object_get_debug_info(zval *object, int *is_temp)
 	ZEND_INIT_SYMTABLE_EX(retval, zend_hash_num_elements(mysqlx_obj->properties) + 1, 0);
 
 	void* raw_property{nullptr};
-	ZEND_HASH_FOREACH_PTR(mysqlx_obj->properties, raw_property) {
+	MYSQLX_HASH_FOREACH_PTR(mysqlx_obj->properties, raw_property) {
 		st_mysqlx_property* property = static_cast<st_mysqlx_property*>(raw_property);
 		zval rv, member;
 		zval* value{nullptr};

@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_session.h"
@@ -284,7 +281,7 @@ handler_on_generated_doc_ids(void * context, const MYSQLND_STRING id)
 
 /* {{{ xmysqlnd_stmt::handler_on_trx_state_change */
 static const enum_hnd_func_status
-handler_on_trx_state_change(void * context, const enum xmysqlnd_transaction_state_type type)
+handler_on_trx_state_change(void* /*context*/, const enum xmysqlnd_transaction_state_type type)
 {
 #if 0
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
@@ -626,7 +623,7 @@ xmysqlnd_stmt::get_fwd_result(xmysqlnd_stmt * const stmt,
 		read_ctx.on_warning = handler_on_warning_bind;
 		read_ctx.on_error = handler_on_error_bind;
 
-		if (!(result = read_ctx.result)) {
+		if ((result = read_ctx.result) == nullptr) {
 			DBG_RETURN(nullptr);
 		}
 		result->m.attach_execution_state(result, read_ctx.exec_state);
@@ -775,7 +772,7 @@ xmysqlnd_stmt::free_reference(xmysqlnd_stmt * const stmt)
 
 /* {{{ xmysqlnd_stmt::free_contents */
 void
-xmysqlnd_stmt::free_contents(xmysqlnd_stmt * const stmt)
+xmysqlnd_stmt::free_contents(xmysqlnd_stmt * const /*stmt*/)
 {
 	DBG_ENTER("xmysqlnd_stmt::free_contents");
 	DBG_VOID_RETURN;

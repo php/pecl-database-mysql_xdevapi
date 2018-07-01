@@ -932,7 +932,7 @@ xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 enum_func_status
 xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj,
 										  const MYSQLND_CSTRING field,
-										  const zend_bool is_expression,
+										  const zend_bool /*is_expression*/,
 										  const zend_bool allow_alias)
 {
 	const bool is_document = (obj->message.data_model() == Mysqlx::Crud::DOCUMENT);

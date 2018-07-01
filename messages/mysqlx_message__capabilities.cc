@@ -16,12 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_zval2any.h"
@@ -69,7 +64,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities, add)
 		Z_ADDREF_P(capability_zv);
 	}
 	zend_hash_next_index_insert(&capabilities->capabilities_ht, capability_zv);
+	
+	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127)
 	RETVAL_ZVAL(capabilities_zv, 1 /*copy*/, 0 /*dtor*/);
+	MYSQLX_RESTORE_WARNINGS()
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -140,7 +138,7 @@ php_mysqlx_message__capabilities_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_message__capabilities_class */
 void
-mysqlx_register_message__capabilities_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_message__capabilities_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_message__capabilities_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_message__capabilities_handlers.free_obj = mysqlx_message__capabilities_free_storage;
@@ -160,7 +158,7 @@ mysqlx_register_message__capabilities_class(INIT_FUNC_ARGS, zend_object_handlers
 
 /* {{{ mysqlx_unregister_message__capabilities_class */
 void
-mysqlx_unregister_message__capabilities_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_message__capabilities_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_message__capabilities_properties);
 }

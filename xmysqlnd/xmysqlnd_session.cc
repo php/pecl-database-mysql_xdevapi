@@ -20,8 +20,6 @@
 #include "php_api.h"
 #include "mysqlnd_api.h"
 extern "C" {
-#include <ext/mysqlnd/mysqlnd_charset.h>
-#include <ext/mysqlnd/mysqlnd_auth.h> // php_mysqlnd_scramble
 #undef L64
 #include <ext/hash/php_hash.h>
 #include <ext/hash/php_hash_sha.h> // PHP_SHA256 functions
@@ -188,7 +186,7 @@ xmysqlnd_session_data::get_scheme(
 		const util::string& hostname,
 		unsigned int port)
 {
-	MYSQLND_STRING transport;
+	MYSQLND_STRING transport{nullptr, 0};
 	DBG_ENTER("xmysqlnd_session_data::get_scheme");
 	/* MY-305: Add support for windows pipe */
 	if( transport_type == transport_types::network ) {
@@ -225,7 +223,7 @@ xmysqlnd_session_data::get_scheme(
 
 /* {{{ xmysqlnd_session_data::connect_handshake */
 enum_func_status
-xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme,
+xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
 											const MYSQLND_CSTRING database,
 											const size_t set_capabilities)
 {
@@ -233,7 +231,7 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme,
 	DBG_ENTER("xmysqlnd_session_data::connect_handshake");
 
 	if (PASS == io.vio->data->m.connect(io.vio,
-										scheme,
+										scheme_name,
 										persistent,
 										stats,
 										error_info) &&
@@ -241,7 +239,7 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme,
 										  stats,
 										  error_info)) {
 		state.set(SESSION_NON_AUTHENTICATED);
-		ret = authenticate(scheme, database, set_capabilities);
+		ret = authenticate(scheme_name, database, set_capabilities);
 	}
 	DBG_RETURN(ret);
 }
@@ -249,12 +247,12 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme,
 
 /* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
-xmysqlnd_session_data::authenticate(const MYSQLND_CSTRING scheme,
+xmysqlnd_session_data::authenticate(const MYSQLND_CSTRING scheme_name,
 									   const MYSQLND_CSTRING database,
-									   const size_t set_capabilities)
+									   const size_t /*set_capabilities*/)
 {
 	DBG_ENTER("xmysqlnd_session_data::authenticate");
-	Authenticate authenticate(this, scheme, database);
+	Authenticate authenticate(this, scheme_name, database);
 	enum_func_status ret{FAIL};
 	if (authenticate.run()) {
 		DBG_INF("AUTHENTICATED. YAY!");
@@ -273,7 +271,7 @@ xmysqlnd_session_data::connect(
 		size_t set_capabilities)
 {
 	zend_bool reconnect{FALSE};
-	MYSQLND_STRING transport = { nullptr, 0 };
+	MYSQLND_STRING transport_name = { nullptr, 0 };
 	enum_func_status ret{PASS};
 
 	DBG_ENTER("xmysqlnd_session_data::connect");
@@ -304,18 +302,18 @@ xmysqlnd_session_data::connect(
 	current_db.s = mnd_pestrndup(database.s,
 								 current_db.l, persistent);
 
-	transport = get_scheme(auth->hostname,
+	transport_name = get_scheme(auth->hostname,
 						   port);
 
-	if( nullptr == transport.s || transport.l == 0 ) {
+	if( nullptr == transport_name.s || transport_name.l == 0 ) {
 		ret = FAIL;
 	} else {
-		scheme.s = mnd_pestrndup(transport.s, transport.l,
+		scheme.s = mnd_pestrndup(transport_name.s, transport_name.l,
 								 persistent);
-		scheme.l = transport.l;
+		scheme.l = transport_name.l;
 
-		mnd_sprintf_free(transport.s);
-		transport.s = nullptr;
+		mnd_sprintf_free(transport_name.s);
+		transport_name.s = nullptr;
 
 		if (!scheme.s || !current_db.s) {
 			SET_OOM_ERROR(error_info);
@@ -780,7 +778,7 @@ xmysqlnd_session_data_set_client_id(void * context, const size_t id)
 /* {{{ on_auth_warning */
 const enum_hnd_func_status
 on_auth_warning(
-		void* context,
+		void* /*context*/,
 		const xmysqlnd_stmt_warning_level level,
 		const unsigned int code,
 		const MYSQLND_CSTRING message)
@@ -795,7 +793,7 @@ on_auth_warning(
 /* {{{ on_auth_error */
 const enum_hnd_func_status
 on_auth_error(
-		void* context,
+		void* /*context*/,
 		const unsigned int code,
 		const MYSQLND_CSTRING sql_state,
 		const MYSQLND_CSTRING message)
@@ -884,7 +882,7 @@ void Mysql41_auth_scrambler::scramble(const MYSQLND_CSTRING& salt)
 
 // --------------------------
 
-const int SHA256_MAX_LENGTH = 32;
+const unsigned int SHA256_MAX_LENGTH = 32;
 
 class Sha256_mem_auth_scrambler : public Auth_scrambler
 {
@@ -896,15 +894,15 @@ protected:
 
 private:
 	void hash_data(
-			const unsigned char* salt,
-			const unsigned char* password,
-			const size_t password_len,
+		const unsigned char* salt,
+		const unsigned char* password,
+		const unsigned int password_len,
 			unsigned char* buffer);
 	void crypt_data(
-			const unsigned char* lhs,
-			const unsigned char* rhs,
-			const size_t length,
-			unsigned char* buffer);
+		const unsigned char* lhs,
+		const unsigned char* rhs,
+		const size_t length,
+		unsigned char* buffer);
 
 };
 
@@ -919,40 +917,40 @@ void Sha256_mem_auth_scrambler::scramble(const MYSQLND_CSTRING& salt)
 {
 	const util::string& password{ context.password };
 	hash_data(
-				reinterpret_cast<const unsigned char*>(salt.s),
-				reinterpret_cast<const unsigned char*>(password.c_str()),
-				password.length(),
-				hash.data());
+		reinterpret_cast<const unsigned char*>(salt.s),
+		reinterpret_cast<const unsigned char*>(password.c_str()),
+		static_cast<unsigned int>(password.length()),
+		hash.data());
 }
 
 void Sha256_mem_auth_scrambler::hash_data(
-		const unsigned char* salt,
-		const unsigned char* password,
-		const size_t password_len,
-		unsigned char* buffer)
+	const unsigned char* salt,
+	const unsigned char* password,
+	const unsigned int password_len,
+	unsigned char* buffer)
 {
 	/*
 		CLIENT_HASH=SHA256(SHA256(SHA256(PASSWORD)),NONCE) XOR SHA256(PASSWORD)
 	*/
-	PHP_SHA256_CTX context;
+	PHP_SHA256_CTX ctx;
 
 	// step 0: hash password - sha0=SHA256(PASSWORD)
 	unsigned char sha0[SHA256_MAX_LENGTH];
-	PHP_SHA256Init(&context);
-	PHP_SHA256Update(&context, password, password_len);
-	PHP_SHA256Final(sha0, &context);
+	PHP_SHA256Init(&ctx);
+	PHP_SHA256Update(&ctx, password, password_len);
+	PHP_SHA256Final(sha0, &ctx);
 
 	// step 1: hash sha0 - sha1=SHA256(sha0)
 	unsigned char sha1[SHA256_MAX_LENGTH];
-	PHP_SHA256Init(&context);
-	PHP_SHA256Update(&context, sha0, SHA256_MAX_LENGTH);
-	PHP_SHA256Final(sha1, &context);
+	PHP_SHA256Init(&ctx);
+	PHP_SHA256Update(&ctx, sha0, SHA256_MAX_LENGTH);
+	PHP_SHA256Final(sha1, &ctx);
 
 	// step 2: hash sha1 + NONCE = buffer=SHA256(sha1,NONCE)
-	PHP_SHA256Init(&context);
-	PHP_SHA256Update(&context, sha1, SHA256_MAX_LENGTH);
-	PHP_SHA256Update(&context, salt, Scramble_length);
-	PHP_SHA256Final(buffer, &context);
+	PHP_SHA256Init(&ctx);
+	PHP_SHA256Update(&ctx, sha1, SHA256_MAX_LENGTH);
+	PHP_SHA256Update(&ctx, salt, Scramble_length);
+	PHP_SHA256Final(buffer, &ctx);
 
 	// step 3: crypt buffer - buffer XOR sha0
 	crypt_data(buffer, sha0, SHA256_MAX_LENGTH, buffer);
@@ -991,7 +989,7 @@ util::string Auth_plugin_base::prepare_start_auth_data()
 	return util::string();
 }
 
-util::string Auth_plugin_base::prepare_continue_auth_data(const MYSQLND_CSTRING& salt)
+util::string Auth_plugin_base::prepare_continue_auth_data(const MYSQLND_CSTRING& /*salt*/)
 {
 	assert("call should never happen- method should be overriden!");
 	return util::string();
@@ -1152,7 +1150,7 @@ External_auth_plugin::External_auth_plugin(const Authentication_context& context
 {
 }
 
-util::string External_auth_plugin::prepare_continue_auth_data(const MYSQLND_CSTRING& salt)
+util::string External_auth_plugin::prepare_continue_auth_data(const MYSQLND_CSTRING& /*salt*/)
 {
 	return auth_data_to_string();
 }
@@ -1208,19 +1206,19 @@ util::strings to_auth_mech_names(const Auth_mechanisms& auth_mechanisms)
 {
 	util::strings auth_mech_names;
 	std::transform(
-				auth_mechanisms.begin(),
-				auth_mechanisms.end(),
-				std::back_inserter(auth_mech_names),
-				auth_mechanism_to_str);
+		auth_mechanisms.begin(),
+		auth_mechanisms.end(),
+		std::back_inserter(auth_mech_names),
+		auth_mechanism_to_str);
 	return auth_mech_names;
 }
 
 // ----------------------------------------------------------------------------
 
 Gather_auth_mechanisms::Gather_auth_mechanisms(
-		const XMYSQLND_SESSION_AUTH_DATA* auth,
-		const zval* capabilities,
-		Auth_mechanisms* auth_mechanisms)
+	const XMYSQLND_SESSION_AUTH_DATA* auth,
+	const zval* capabilities,
+	Auth_mechanisms* auth_mechanisms)
 	: auth(auth)
 	, capabilities(capabilities)
 	, auth_mechanisms(*auth_mechanisms)
@@ -1257,9 +1255,9 @@ bool Gather_auth_mechanisms::run()
 }
 
 Authenticate::Authenticate(
-		xmysqlnd_session_data* session,
-		const MYSQLND_CSTRING& scheme,
-		const MYSQLND_CSTRING& database)
+	xmysqlnd_session_data* session,
+	const MYSQLND_CSTRING& scheme,
+	const MYSQLND_CSTRING& database)
 	: session(session)
 	, scheme(scheme)
 	, database(database)
@@ -1292,7 +1290,7 @@ bool Authenticate::init_capabilities()
 	ZVAL_NULL(&capabilities);
 	const st_xmysqlnd_on_error_bind on_error{
 		xmysqlnd_session_data_handler_on_error,
-				session
+		session
 	};
 
 	caps_get.init_read(&caps_get, on_error);
@@ -1324,10 +1322,10 @@ bool Authenticate::authentication_loop()
 {
 	Authentication_context auth_ctx{
 		session,
-				scheme,
-				auth->username,
-				auth->password,
-				util::to_string(database)
+		scheme,
+		auth->username,
+		auth->password,
+		util::to_string(database)
 	};
 
 	for (Auth_mechanism auth_mechanism : auth_mechanisms) {
@@ -1353,40 +1351,40 @@ bool Authenticate::authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_p
 	const util::string& auth_data{ auth_plugin->prepare_start_auth_data() };
 	st_xmysqlnd_msg__auth_start auth_start_msg{ msg_factory.get__auth_start(&msg_factory) };
 	auto ret{ auth_start_msg.send_request(
-					&auth_start_msg,
-					util::to_mysqlnd_cstr(auth_mech_name),
-					util::to_mysqlnd_cstr(auth_data))
-			};
+		&auth_start_msg,
+		util::to_mysqlnd_cstr(auth_mech_name),
+		util::to_mysqlnd_cstr(auth_data))
+	};
 
 	if (ret != PASS) return false;
 
 	const st_xmysqlnd_on_auth_continue_bind on_auth_continue{
 		xmysqlnd_session_data_handler_on_auth_continue,
-				auth_plugin.get()
+		auth_plugin.get()
 	};
 	const st_xmysqlnd_on_warning_bind on_warning{
 		is_suppress_server_messages() ? on_auth_warning : nullptr,
-				session
+		session
 	};
 	const st_xmysqlnd_on_error_bind on_error{
 		is_suppress_server_messages() ? on_auth_error : xmysqlnd_session_data_handler_on_error,
-				session
+		session
 	};
 	const st_xmysqlnd_on_client_id_bind on_client_id{
 		xmysqlnd_session_data_set_client_id,
-				session
+		session
 	};
 	const st_xmysqlnd_on_session_var_change_bind on_session_var_change{
 		nullptr,
-				session
+		session
 	};
 
 	auth_start_msg.init_read(&auth_start_msg,
-							 on_auth_continue,
-							 on_warning,
-							 on_error,
-							 on_client_id,
-							 on_session_var_change);
+		on_auth_continue,
+		on_warning,
+		on_error,
+		on_client_id,
+		on_session_var_change);
 	return auth_start_msg.read_response(&auth_start_msg, nullptr) == PASS;
 }
 
@@ -1420,7 +1418,7 @@ bool Gather_auth_mechanisms::is_auth_mechanism_supported(Auth_mechanism auth_mec
 	}
 
 	const util::string& auth_mech_name{ auth_mechanism_to_str(auth_mechanism) };
-	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mechs), entry) {
+	MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mechs), entry) {
 		if (!strcasecmp(Z_STRVAL_P(entry), auth_mech_name.c_str())) {
 			return true;
 		}
@@ -1537,10 +1535,10 @@ enum_func_status setup_crypto_connection(
 									  capability_values))
 	{
 		DBG_INF_FMT("Cap. send request with tls=true success, reading response..!");
-		zval value;
+		zval zvalue;
 		caps_get.init_read(&caps_get, on_error);
 		ret = caps_get.read_response(&caps_get,
-									 &value);
+									 &zvalue);
 		if( ret == PASS ) {
 			DBG_INF_FMT("Cap. response OK, setting up TLS options.!");
 			php_stream_context * context = php_stream_context_alloc();
@@ -1563,7 +1561,7 @@ enum_func_status setup_crypto_connection(
 		} else {
 			DBG_ERR_FMT("Negative response from the server, not able to setup TLS.");
 		}
-
+		zval_ptr_dtor(&zvalue);
 	}
 
 	//Cleanup
@@ -2074,7 +2072,12 @@ xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 
 /* {{{ xmysqlnd_session_on_warning */
 const enum_hnd_func_status
-xmysqlnd_session_on_warning(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+xmysqlnd_session_on_warning(
+	void* /*context*/,
+	xmysqlnd_stmt* const /*stmt*/,
+	const enum xmysqlnd_stmt_warning_level /*level*/,
+	const unsigned int /*code*/,
+	const MYSQLND_CSTRING /*message*/)
 {
 	DBG_ENTER("xmysqlnd_session_on_warning");
 	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
@@ -2151,9 +2154,9 @@ zend_ulong
 xmysqlnd_session::get_server_version()
 {
 	zend_long major, minor, patch;
-	char *p;
 	DBG_ENTER("xmysqlnd_session::get_server_version");
-	if (!(p = server_version_string)) {
+	char* p{ server_version_string };
+	if (!p) {
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_sql, query);
         XMYSQLND_SESSION session_handle(this);
@@ -2190,7 +2193,7 @@ xmysqlnd_session::get_server_version()
 	} else {
 		DBG_INF_FMT("server_version_string=%s", server_version_string);
 	}
-	if (!(p = server_version_string)) {
+	if ((p = server_version_string) == nullptr) {
 		return 0;
 	}
 	major = ZEND_STRTOL(p, &p, 10);
@@ -2523,7 +2526,7 @@ std::pair<util::Url, transport_types> extract_uri_information(const char * uri_s
 	//Port required (If no alternative transport provided)
 	if( 0 == node_url.port && tr_path.empty() ) {
 		DBG_INF_FMT("Missing port number, trying to get from env or set default!");
-		node_url.port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
+		node_url.port = static_cast<unsigned short>(drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port));
 	}
 	//Password optional, but print a log
 	if( node_url.pass.empty() ) {

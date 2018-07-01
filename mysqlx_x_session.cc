@@ -16,13 +16,11 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
+#include "mysqlnd_api.h"
 extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-#include "xmysqlnd/xmysqlnd.h"
 #include <ext/standard/url.h>
 }
+#include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_schema.h"
 #include "xmysqlnd/xmysqlnd_stmt.h"
@@ -50,6 +48,7 @@ static zend_class_entry *mysqlx_x_session_class_entry;
 /* {{{ mysqlx_x_session::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -87,7 +86,7 @@ const struct st_mysqlx_property_entry mysqlx_x_session_property_entries[] =
 
 /* {{{ mysqlx_register_x_session_class */
 void
-mysqlx_register_x_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_x_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * /*mysqlx_std_object_handlers*/)
 {
 	{
 		zend_class_entry tmp_ce;
@@ -106,7 +105,7 @@ mysqlx_register_x_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_st
 
 /* {{{ mysqlx_unregister_x_session_class */
 void
-mysqlx_unregister_x_session_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_x_session_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_x_session_properties);
 }

@@ -16,12 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_statistics.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_connection.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_protocol_dumper.h"
@@ -106,6 +101,7 @@ xmysqlnd_dump_expr_doc_path_item(const Mysqlx::Expr::DocumentPathItem & item)
 
 
 /* {{{ xmysqlnd_dump_column */
+MYSQLX_SUPPRESS_MSVC_WARNINGS(4505)
 static void
 xmysqlnd_dump_column(const Mysqlx::Crud::Column & column)
 {
@@ -125,6 +121,7 @@ xmysqlnd_dump_column(const Mysqlx::Crud::Column & column)
 	}
 	DBG_VOID_RETURN;
 }
+MYSQLX_RESTORE_WARNINGS()
 /* }}} */
 
 static void xmysqlnd_dump_expr(const Mysqlx::Expr::Expr & expr);

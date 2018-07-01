@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_schema.h"
@@ -110,6 +106,7 @@ struct st_mysqlx_table : public util::custom_allocable
 /* {{{ mysqlx_table::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, __construct)
 {
+	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
@@ -171,7 +168,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 
 /* {{{ mysqlx_table_on_error */
 static const enum_hnd_func_status
-mysqlx_table_on_error(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_table_on_error(
+	void * /*context*/,
+	XMYSQLND_SESSION session,
+	st_xmysqlnd_stmt* const /*stmt*/,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
 {
 	DBG_ENTER("mysqlx_table_on_error");
 	const unsigned int UnknownDatabaseCode{1049};
@@ -555,7 +558,7 @@ php_mysqlx_table_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_table_class */
 void
-mysqlx_register_table_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_table_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_table_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_table_handlers.free_obj = mysqlx_table_free_storage;
@@ -581,7 +584,7 @@ mysqlx_register_table_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_ob
 
 /* {{{ mysqlx_unregister_table_class */
 void
-mysqlx_unregister_table_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_table_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table_properties);
 }

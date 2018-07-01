@@ -50,7 +50,7 @@ void free_error_list<zend_llist*>(
 template<>
 void free_error_list<zend_llist>(
 	zend_llist& error_list,
-	zend_bool persistent)
+	zend_bool /*persistent*/)
 {
 	zend_llist_clean(&error_list);
 }
@@ -267,7 +267,7 @@ Type_spec::Variadic Verify_call_parameters::resolve_variadic(const util::string&
 	}
 }
 
-void Verify_call_parameters::validate_type_spec(const Type_spec& type_spec)
+void Verify_call_parameters::validate_type_spec(const Type_spec& type_specification)
 {
 	/*
 		type_spec sscanf like typelist (though no %)
@@ -290,9 +290,9 @@ void Verify_call_parameters::validate_type_spec(const Type_spec& type_spec)
 	*/
 	const util::string allowed_types{ "ldbahoOsz" };
 
-	const std::size_t disallowed_type_idx{ type_spec.args.find_first_not_of(allowed_types) };
+	const std::size_t disallowed_type_idx{ type_specification.args.find_first_not_of(allowed_types) };
 	if (disallowed_type_idx != util::string::npos) {
-		throw verify_error("unknown type in type_spec");
+		throw verify_error("unknown type in type_specification");
 	}
 }
 
@@ -355,10 +355,10 @@ std::size_t Verify_call_parameters::calc_arglist_optional_args_count()
 }
 
 std::size_t Verify_call_parameters::calc_min_args_count(
-	const Type_spec& type_spec,
+	const Type_spec& type_specification,
 	bool required)
 {
-	std::size_t args_count{ type_spec.args.size() };
+	std::size_t args_count{ type_specification.args.size() };
 
 	if (is_method && required) {
 		if (args_count == 0) {
@@ -368,7 +368,7 @@ std::size_t Verify_call_parameters::calc_min_args_count(
 		--args_count;
 	}
 
-	if (type_spec.variadic == Type_spec::Variadic::One_or_more) {
+	if (type_specification.variadic == Type_spec::Variadic::One_or_more) {
 		++args_count;
 	}
 

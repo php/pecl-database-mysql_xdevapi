@@ -20,7 +20,7 @@
 
 #ifdef PHP_WIN32
 #pragma warning( push )
-#pragma warning( disable : 4018 )
+#pragma warning( disable : 4018 4244 4706)
 #endif // PHP_WIN32
 
 extern "C" {
@@ -34,6 +34,35 @@ extern "C" {
 #ifdef PHP_WIN32
 #pragma warning( pop )
 #endif // PHP_WIN32
+
+#include "util/compiler_utils.h"
+
+
+#ifdef PHP_WIN32
+
+#define MYSQLX_HASH_FOREACH_VAL(ht, _val) \
+	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127) \
+	ZEND_HASH_FOREACH_VAL(ht, _val) \
+	MYSQLX_RESTORE_WARNINGS()
+
+#define MYSQLX_HASH_FOREACH_PTR(ht, _ptr) \
+	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127) \
+	ZEND_HASH_FOREACH_PTR(ht, _ptr) \
+	MYSQLX_RESTORE_WARNINGS()
+
+#define MYSQLX_HASH_FOREACH_STR_KEY_VAL(ht, _key, _val) \
+	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127) \
+	ZEND_HASH_FOREACH_STR_KEY_VAL(ht, _key, _val) \
+	MYSQLX_RESTORE_WARNINGS()
+
+#else
+
+#define MYSQLX_HASH_FOREACH_VAL ZEND_HASH_FOREACH_VAL
+#define MYSQLX_HASH_FOREACH_PTR	ZEND_HASH_FOREACH_PTR
+#define MYSQLX_HASH_FOREACH_STR_KEY_VAL ZEND_HASH_FOREACH_STR_KEY_VAL
+
+#endif
+
 
 #endif // MYSQL_XDEVAPI_PHP_API_H
 

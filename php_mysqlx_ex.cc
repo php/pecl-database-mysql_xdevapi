@@ -16,9 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-}
+#include "mysqlnd_api.h"
 #include "php_mysqlx.h"
 #include "php_mysqlx_ex.h"
 #include "mysqlx_crud_operation_bindable.h"

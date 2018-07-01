@@ -16,11 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-#include <ext/mysqlnd/mysqlnd_alloc.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_crud_collection_commands.h"
 #include "php_mysqlx.h"
@@ -63,6 +59,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_expression::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
+	UNUSED(return_value);
 	zval* object_zv{nullptr};
 	MYSQLND_CSTRING expression = {nullptr, 0};
 
@@ -160,7 +157,7 @@ php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 
 /* {{{ mysqlx_register_expression_class */
 void
-mysqlx_register_expression_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_expression_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
 	mysqlx_object_expression_handlers = *mysqlx_std_object_handlers;
 	mysqlx_object_expression_handlers.free_obj = mysqlx_expression_free_storage;
@@ -185,7 +182,7 @@ mysqlx_register_expression_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_s
 
 /* {{{ mysqlx_unregister_expression_class */
 void
-mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS)
+mysqlx_unregister_expression_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_expression_properties);
 }

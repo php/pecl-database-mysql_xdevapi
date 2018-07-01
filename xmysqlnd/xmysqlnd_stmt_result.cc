@@ -16,10 +16,7 @@
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
-extern "C" {
-#include <ext/mysqlnd/mysqlnd.h>
-#include <ext/mysqlnd/mysqlnd_debug.h>
-}
+#include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_session.h"
@@ -38,10 +35,11 @@ namespace drv {
 
 /* {{{ xmysqlnd_stmt_result::init */
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_stmt_result, init)(XMYSQLND_STMT_RESULT * const result,
-												 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-												 MYSQLND_STATS * const stats,
-												 MYSQLND_ERROR_INFO * const error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result, init)(
+	XMYSQLND_STMT_RESULT* const /*result*/,
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const /*factory*/,
+	MYSQLND_STATS* const /*stats*/,
+	MYSQLND_ERROR_INFO* const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_stmt_result::init");
 	DBG_RETURN(PASS);

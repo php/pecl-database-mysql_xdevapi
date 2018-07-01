@@ -18,9 +18,6 @@
 #ifndef XMYSQLND_EXTENSION_PLUGIN_H
 #define XMYSQLND_EXTENSION_PLUGIN_H
 
-extern "C" {
-#include <ext/mysqlnd/mysqlnd_structs.h>
-}
 #include "php_mysql_xdevapi.h"
 
 namespace mysqlx {
@@ -28,7 +25,7 @@ namespace mysqlx {
 namespace drv {
 
 struct xmysqlnd_session;
-struct xmysqlnd_session_data;
+class xmysqlnd_session_data;
 struct xmysqlnd_schema;
 struct xmysqlnd_collection;
 struct xmysqlnd_stmt;
