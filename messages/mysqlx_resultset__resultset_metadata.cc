@@ -66,7 +66,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_resultset_metadata, add)
 		Z_ADDREF_P(column_metadata_zv);
 	}
 	zend_hash_next_index_insert(&resultset_metadata->resultset_metadata_ht, column_metadata_zv);
-	MYSQLX_SUPPRESS_WARNINGS(4127)
+	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127)
 	RETVAL_ZVAL(resultset_metadata_zv, 1 /*copy*/, 0 /*dtor*/);
 	MYSQLX_RESTORE_WARNINGS()
 	DBG_VOID_RETURN;

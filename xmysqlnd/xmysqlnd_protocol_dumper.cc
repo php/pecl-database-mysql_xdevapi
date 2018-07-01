@@ -101,6 +101,7 @@ xmysqlnd_dump_expr_doc_path_item(const Mysqlx::Expr::DocumentPathItem & item)
 
 
 /* {{{ xmysqlnd_dump_column */
+MYSQLX_SUPPRESS_MSVC_WARNINGS(4505)
 static void
 xmysqlnd_dump_column(const Mysqlx::Crud::Column & column)
 {
@@ -120,6 +121,7 @@ xmysqlnd_dump_column(const Mysqlx::Crud::Column & column)
 	}
 	DBG_VOID_RETURN;
 }
+MYSQLX_RESTORE_WARNINGS()
 /* }}} */
 
 static void xmysqlnd_dump_expr(const Mysqlx::Expr::Expr & expr);

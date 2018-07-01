@@ -15,56 +15,44 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHP_API_H
-#define MYSQL_XDEVAPI_PHP_API_H
+#ifndef MYSQL_XDEVAPI_UTIL_COMPILER_UTILS_H
+#define MYSQL_XDEVAPI_UTIL_COMPILER_UTILS_H
 
-#ifdef PHP_WIN32
-#pragma warning( push )
-#pragma warning( disable : 4018 4244 4706)
-#endif // PHP_WIN32
+#define UNUSED(x) (void)x
 
-extern "C" {
-#include <php.h>
-#undef ERROR
-#undef add_method
-#undef inline
-#undef max
-}
+#define UNUSED_INTERNAL_FUNCTION_PARAMETERS() \
+	UNUSED(return_value); \
+	UNUSED(execute_data)
 
-#ifdef PHP_WIN32
-#pragma warning( pop )
-#endif // PHP_WIN32
+#define UNUSED_FUNC_ARGS() \
+	UNUSED(module_number); \
+	UNUSED(type)
 
-#include "util/compiler_utils.h"
+#define UNUSED_INIT_FUNC_ARGS int /*type*/, int /*module_number*/
+#define UNUSED_SHUTDOWN_FUNC_ARGS int /*type*/, int /*module_number*/
 
 
 #ifdef PHP_WIN32
 
-#define MYSQLX_HASH_FOREACH_VAL(ht, _val) \
-	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127) \
-	ZEND_HASH_FOREACH_VAL(ht, _val) \
-	MYSQLX_RESTORE_WARNINGS()
+#define MYSQLX_SUPPRESS_ALL_WARNINGS() \
+	__pragma(warning(push, 0))
 
-#define MYSQLX_HASH_FOREACH_PTR(ht, _ptr) \
-	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127) \
-	ZEND_HASH_FOREACH_PTR(ht, _ptr) \
-	MYSQLX_RESTORE_WARNINGS()
+#define MYSQLX_SUPPRESS_MSVC_WARNINGS(...) \
+	__pragma(warning(push)) \
+	__pragma(warning(disable :  __VA_ARGS__))
 
-#define MYSQLX_HASH_FOREACH_STR_KEY_VAL(ht, _key, _val) \
-	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127) \
-	ZEND_HASH_FOREACH_STR_KEY_VAL(ht, _key, _val) \
-	MYSQLX_RESTORE_WARNINGS()
+#define MYSQLX_RESTORE_WARNINGS() \
+	__pragma(warning(pop))
 
 #else
 
-#define MYSQLX_HASH_FOREACH_VAL ZEND_HASH_FOREACH_VAL
-#define MYSQLX_HASH_FOREACH_PTR	ZEND_HASH_FOREACH_PTR
-#define MYSQLX_HASH_FOREACH_STR_KEY_VAL ZEND_HASH_FOREACH_STR_KEY_VAL
+#define MYSQLX_SUPPRESS_ALL_WARNINGS()
+#define MYSQLX_SUPPRESS_MSVC_WARNINGS(...)
+#define MYSQLX_RESTORE_WARNINGS()
 
 #endif
 
-
-#endif // MYSQL_XDEVAPI_PHP_API_H
+#endif // MYSQL_XDEVAPI_UTIL_COMPILER_UTILS_H
 
 /*
  * Local variables:

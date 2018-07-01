@@ -30,6 +30,8 @@ configure : function() {
 var Ext_label = "mysql-xdevapi";
 var Ext_name = "mysql_xdevapi";
 
+var Boost_version_header = "boost/version.hpp";
+
 // ----------------------------------------------------------------------------
 // sources
 
@@ -339,14 +341,14 @@ function resolve_boost_root() {
 		]
 	);
 
-	return search_base_path(dirs_to_search, "boost/version.hpp");
+	return search_base_path(dirs_to_search, Boost_version_header);
 }
 
 function resolve_boost_paths() {
 	this.boost_root = resolve_boost_root();
 	if (!this.boost_root) {
 		hint_3rd_party_lib_env('MYSQL_XDEVAPI_BOOST_ROOT');
-		ERROR("boost library not found")
+		ERROR("boost library not found");
 	}
 }
 
@@ -354,8 +356,8 @@ function validate_boost_version() {
 	print("Validating boost version... ");
 	var Minimal_boost_ver = "1.53.00";
 	// #define BOOST_VERSION 105300
-	var Min_booost_regex = /#define BOOST_VERSION (105[3-9]|10[6-9]|1[1-9]|[2-9])\d+\s*/
-	if (GREP_HEADER("boost/version.hpp", Min_booost_regex, this.boost_root)) {
+	var Min_booost_regex = /#define BOOST_VERSION (105[3-9]|10[6-9]|1[1-9]|[2-9])\d+\s*/;
+	if (GREP_HEADER(Boost_version_header, Min_booost_regex, this.boost_root)) {
 		println("ok");
 	} else {
 		ERROR("boost version is too old, required at least " + Minimal_boost_ver);
@@ -450,7 +452,7 @@ function resolve_protobuf_paths() {
 	this.protoc_path = resolve_protoc_path();
 	if (!this.protobuf_lib_path || !this.protobuf_include_dir || !this.protoc_path) {
 		hint_3rd_party_lib_env('MYSQL_XDEVAPI_PROTOBUF_ROOT');
-		ERROR("protobuf library not found")
+		ERROR("protobuf library not found");
 	}
 }
 

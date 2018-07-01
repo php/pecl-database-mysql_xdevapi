@@ -1656,7 +1656,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 		DBG_RETURN( ret );
 	}
 	while (length_read_ok) {
-		if ((length_read_ok = util::pb::read_variant_64(input_stream, &gval))) {
+		if ((length_read_ok = util::pb::read_variant_64(input_stream, &gval)) == true) {
 			char* set_value{nullptr};
 			int rest_buffer_size{0};
 			if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {

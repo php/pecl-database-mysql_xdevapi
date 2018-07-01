@@ -44,7 +44,7 @@ XMYSQLND_METHOD(xmysqlnd_table, init)(XMYSQLND_TABLE * const table,
 										   MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_table::init");
-	if (!((table->data->schema = schema->data->m.get_reference(schema)))) {
+	if (((table->data->schema = schema->data->m.get_reference(schema))) == nullptr) {
 		return FAIL;
 	}
 	table->data->table_name = mnd_dup_cstring(table_name, table->data->persistent);

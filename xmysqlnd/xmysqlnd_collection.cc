@@ -44,7 +44,7 @@ XMYSQLND_METHOD(xmysqlnd_collection, init)(XMYSQLND_COLLECTION * const collectio
 										  MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	DBG_ENTER("xmysqlnd_collection::init");
-	if (!(collection->data->schema = schema->data->m.get_reference(schema))) {
+	if ((collection->data->schema = schema->data->m.get_reference(schema)) == nullptr) {
 		return FAIL;
 	}
 	collection->data->collection_name = mnd_dup_cstring(collection_name, collection->data->persistent);

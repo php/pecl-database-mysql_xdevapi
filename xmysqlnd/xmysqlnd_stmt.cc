@@ -626,7 +626,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt, get_fwd_result)(XMYSQLND_STMT * const stmt,
 		stmt->data->read_ctx.on_warning = handler_on_warning;
 		stmt->data->read_ctx.on_error = handler_on_error;
 
-		if (!(result = stmt->data->read_ctx.result)) {
+		if ((result = stmt->data->read_ctx.result) == nullptr) {
 			DBG_RETURN(nullptr);
 		}
 		result->m.attach_execution_state(result, stmt->data->read_ctx.exec_state);

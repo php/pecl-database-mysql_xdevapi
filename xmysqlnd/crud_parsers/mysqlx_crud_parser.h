@@ -226,7 +226,8 @@ bool orderby(
 		std::string criteria = it->get_text();
 		std::transform( criteria.begin(),
 						criteria.end(),
-						criteria.begin(), ::toupper );
+						criteria.begin(),
+						[](char c) { return static_cast<char>(::toupper(c)); });
 		if( criteria == parser_asc_symbol ) {
 			break;
 		}
@@ -279,7 +280,8 @@ bool projection(
 		std::string item = it->get_text();
 		std::transform( item.begin(),
 						item.end(),
-						item.begin(), ::toupper );
+						item.begin(), 
+						[](char c) { return static_cast<char>(::toupper(c)); });
 		if( item == parser_as_symbol ) {
 			ident.clear();
 			break;

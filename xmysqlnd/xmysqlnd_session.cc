@@ -186,7 +186,7 @@ st_xmysqlnd_session_data::get_scheme(
 		const util::string& hostname,
 		unsigned int port)
 {
-	MYSQLND_STRING transport;
+	MYSQLND_STRING transport{nullptr, 0};
 	DBG_ENTER("xmysqlnd_session_data::get_scheme");
 	/* MY-305: Add support for windows pipe */
 	if( transport_type == transport_types::network ) {
@@ -2333,9 +2333,9 @@ XMYSQLND_METHOD(xmysqlnd_session, get_server_version)(XMYSQLND_SESSION session_h
 {
 	XMYSQLND_SESSION_DATA session = session_handle->data;
 	zend_long major, minor, patch;
-	char *p;
 	DBG_ENTER("xmysqlnd_session::get_server_version");
-	if (!(p = session_handle->server_version_string)) {
+	char* p{ session_handle->server_version_string };
+	if (p) {
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_sql, query);
 		XMYSQLND_STMT * stmt = session_handle->m->create_statement_object(session_handle);
@@ -2370,7 +2370,7 @@ XMYSQLND_METHOD(xmysqlnd_session, get_server_version)(XMYSQLND_SESSION session_h
 	} else {
 		DBG_INF_FMT("server_version_string=%s", session_handle->server_version_string);
 	}
-	if (!(p = session_handle->server_version_string)) {
+	if ((p = session_handle->server_version_string) == nullptr) {
 		return 0;
 	}
 	major = ZEND_STRTOL(p, &p, 10);
