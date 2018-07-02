@@ -2712,8 +2712,9 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 	XMYSQLND_SESSION_AUTH_DATA * auth = new XMYSQLND_SESSION_AUTH_DATA;
 
 	if( nullptr == auth ) {
-		php_error_docref(nullptr, E_WARNING, "Coulnd't allocate %lu bytes",
-						sizeof(XMYSQLND_SESSION_AUTH_DATA));
+		util::ostringstream os;
+		os << "Coulnd't allocate " << sizeof(XMYSQLND_SESSION_AUTH_DATA) << " bytes";
+		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
 		DBG_RETURN(nullptr);
 	}
 
