@@ -156,7 +156,7 @@ void raise_doc_ref_exception(const doc_ref_exception& e)
 	};
 	const int severity = severity_mapping.at(e.severity);
 	const char* what = e.what();
-	php_error_docref(nullptr, severity, what);
+	php_error_docref(nullptr, severity, "%s", what);
 }
 /* }}} */
 
@@ -181,7 +181,7 @@ void raise_unknown_exception()
 /* {{{ mysqlx::util::log_warning */
 void log_warning(const string& msg)
 {
-	php_error_docref(nullptr, E_WARNING, msg.c_str());
+	php_error_docref(nullptr, E_WARNING, "%s", msg.c_str());
 }
 /* }}} */
 

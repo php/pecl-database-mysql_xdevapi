@@ -86,6 +86,7 @@ lcov_html
 libs
 libtool
 ltmain.sh
+ltmain.sh.backup
 meta_cc
 meta_ccld
 missing

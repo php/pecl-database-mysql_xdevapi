@@ -180,7 +180,7 @@ xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_
 		case Mysqlx::Notice::SessionStateChanged::ROWS_MATCHED:			  state_type = EXEC_STATE_ROWS_MATCHED;			break;
 		default:
 			DBG_ERR_FMT("Unknown param name %d. Please add it to the switch", message.param());
-			php_error_docref("Unknown param name %d in %s::%d. Please add it to the switch", message.param(), __FILE__, __LINE__);
+			php_error_docref(nullptr, E_WARNING, "Unknown param name %d in %s::%d. Please add it to the switch", message.param(), __FILE__, __LINE__);
 			break;
 	}
 	if (state_type != EXEC_STATE_NONE) {
