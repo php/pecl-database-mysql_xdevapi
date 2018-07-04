@@ -1536,6 +1536,7 @@ enum_func_status setup_crypto_connection(
 	{
 		DBG_INF_FMT("Cap. send request with tls=true success, reading response..!");
 		zval zvalue;
+		ZVAL_NULL(&zvalue);
 		caps_get.init_read(&caps_get, on_error);
 		ret = caps_get.read_response(&caps_get,
 									 &zvalue);
