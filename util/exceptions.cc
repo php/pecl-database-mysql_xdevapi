@@ -35,7 +35,7 @@ const char* const general_sql_state = GENERAL_SQL_STATE;
 
 /* {{{ mysqlx::util::code_to_err_msg */
 const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
-	{ xdevapi_exception::Code::fetch_fail, "Coulnd't fetch data" },
+	{ xdevapi_exception::Code::fetch_fail, "Couldn't fetch data" },
 	{ xdevapi_exception::Code::meta_fail, "Unable to extract metadata" },
 	{ xdevapi_exception::Code::add_doc, "Error adding document" },
 	{ xdevapi_exception::Code::json_fail, "Error serializing document to JSON" },

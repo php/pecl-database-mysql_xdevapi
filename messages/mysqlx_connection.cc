@@ -193,7 +193,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, receive)
 	if (connection->vio && TRUE == connection->vio->data->m.has_valid_stream(connection->vio)) {
 		zend_uchar * read_buffer = static_cast<zend_uchar*>(mnd_emalloc(how_many + 1));
 		if (!read_buffer) {
-			php_error_docref(nullptr, E_WARNING, "Coulnd't allocate %u bytes", how_many);
+			php_error_docref(nullptr, E_WARNING, "Couldn't allocate %u bytes", how_many);
 			RETVAL_FALSE;
 		}
 		ret = connection->vio->data->m.network_read(connection->vio,
