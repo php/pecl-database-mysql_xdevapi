@@ -54,7 +54,7 @@ const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 PHP_MYSQL_XDEVAPI_API void
 _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FILE_LINE_DC)
 {
-#ifdef PHP_DEBUG
+#if ZEND_DEBUG
 	UNUSED(__zend_lineno);
 	UNUSED(__zend_filename);
 #endif

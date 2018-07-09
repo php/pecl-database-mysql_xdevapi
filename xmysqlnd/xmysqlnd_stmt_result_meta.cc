@@ -57,7 +57,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_type)(XMYSQLND_RESULT_FIELD_META
 static inline enum_func_status
 xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, const size_t value_len, const zend_bool persistent MYSQLND_MEM_D)
 {
-#ifdef PHP_DEBUG
+#if ZEND_DEBUG
 	UNUSED(__zend_lineno);
 	UNUSED(__zend_filename);
 #endif
