@@ -66,7 +66,7 @@ namespace mysqlx {
 
 namespace drv {
 
-const std::vector<std::string> st_xmysqlnd_session_auth_data::supported_ciphers = {
+const std::vector<std::string> xmysqlnd_session_auth_data::supported_ciphers = {
 	"AES128-GCM-SHA256",
 	"AES128-RMD",
 	"AES128-SHA",
@@ -173,7 +173,49 @@ xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 }
 /* }}} */
 
-st_xmysqlnd_session_auth_data::st_xmysqlnd_session_auth_data() :
+
+/* {{{ set_connection_timeout */
+bool set_connection_timeout(
+	const boost::optional<int>& connection_timeout,
+	MYSQLND_VIO* vio)
+{
+	const int Dont_set_connection_timeout{ 0 };
+	int timeout{ Dont_set_connection_timeout };
+	if (connection_timeout) {
+		timeout = connection_timeout.get();
+	} else {
+		timeout = drv::Environment::get_as_int(
+			drv::Environment::Variable::Mysqlx_connection_timeout);
+	}
+
+	if (timeout == Dont_set_connection_timeout) return true;
+
+	if (timeout < 0) {
+		php_error_docref(nullptr, E_WARNING, "connection timeout cannot be negative");
+		return false;
+	}
+
+	st_mysqlnd_vio_options& vio_options = vio->data->options;
+	vio_options.timeout_connect = static_cast<unsigned int>(timeout);
+	return true;
+}
+/* }}} */
+
+namespace {
+
+/* {{{ set_connection_options */
+bool set_connection_options(
+	const xmysqlnd_session_auth_data* auth_data, 
+	MYSQLND_VIO* vio)
+{
+	auto& connection_timeout = auth_data->connection_timeout;
+	return set_connection_timeout(connection_timeout, vio);
+}
+/* }}} */
+
+} // anonymous namespace
+
+xmysqlnd_session_auth_data::xmysqlnd_session_auth_data() :
 	port{ 0 },
 	ssl_mode{ SSL_mode::not_specified },
 	ssl_enabled{ false },
@@ -230,14 +272,15 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session_data::connect_handshake");
 
-	if (PASS == io.vio->data->m.connect(io.vio,
-										scheme_name,
-										persistent,
-										stats,
-										error_info) &&
-			PASS == io.pfc->data->m.reset(io.pfc,
+	if (set_connection_options(auth, io.vio)
+		&& (PASS == io.vio->data->m.connect(io.vio,
+											scheme_name,
+											persistent,
+											stats,
+											error_info))
+		&& (PASS == io.pfc->data->m.reset(io.pfc,
 										  stats,
-										  error_info)) {
+										  error_info))) {
 		state.set(SESSION_NON_AUTHENTICATED);
 		ret = authenticate(scheme_name, database, set_capabilities);
 	}
@@ -2637,6 +2680,74 @@ enum_func_status parse_auth_mechanism(
 }
 /* }}} */
 
+namespace {
+
+using integer_auth_option_to_data_member = std::map<
+	std::string,
+	boost::optional<int> xmysqlnd_session_auth_data::*,
+	util::iless
+>;
+
+const auto AUTH_OPTION_CONNECT_TIMEOUT{ "connect-timeout" };
+
+const integer_auth_option_to_data_member int_auth_option_to_data_member{
+	{ AUTH_OPTION_CONNECT_TIMEOUT, &xmysqlnd_session_auth_data::connection_timeout },
+};
+
+bool is_integer_auth_option(const util::string& auth_option_variable)
+{
+	return int_auth_option_to_data_member.count(auth_option_variable.c_str()) != 0;
+}
+
+bool verify_connection_timeout_option(const int auth_option_value)
+{
+	if (0 <= auth_option_value) return true;
+
+	php_error_docref(nullptr, E_WARNING, "connection timeout cannot be negative");
+	return false;
+}
+
+bool verify_integer_auth_option(
+	const util::string& auth_option_variable,
+	const int auth_option_value)
+{
+	if (auth_option_variable == AUTH_OPTION_CONNECT_TIMEOUT) {
+		return verify_connection_timeout_option(auth_option_value);
+	}
+	return true;
+}
+
+bool parse_integer_auth_option(
+	const util::string& auth_option_variable,
+	const util::string& auth_option_value,
+	xmysqlnd_session_auth_data* auth_data)
+{
+	if( auth_option_value.empty() ) {
+		util::ostringstream os;
+		os << "The argument to " << auth_option_variable << " shouldn't be empty!";
+		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
+		return false;
+	}
+	
+	int value{0};
+	if (!util::to_int(auth_option_value, &value)) {
+		util::ostringstream os;
+		os << "The argument to " << auth_option_variable 
+			<< " should be an integer, but it is '" << auth_option_value << "'.";
+		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
+		return false;
+	}
+
+	if (!verify_integer_auth_option(auth_option_variable, value)) return false;
+
+	auto int_auth_option_data_member{ int_auth_option_to_data_member.at(auth_option_variable.c_str()) };
+	(auth_data->*int_auth_option_data_member) = value;
+	return true;
+}
+
+} // anonymous namespace
+
+
 /* {{{ extract_ssl_information */
 enum_func_status extract_ssl_information(
 		const util::string& auth_option_variable,
@@ -2646,19 +2757,19 @@ enum_func_status extract_ssl_information(
 	DBG_ENTER("extract_ssl_information");
 	enum_func_status ret{PASS};
 	using ssl_option_to_data_member = std::map<std::string,
-	util::string st_xmysqlnd_session_auth_data::*,
-	util::iless>;
+		util::string xmysqlnd_session_auth_data::*,
+		util::iless>;
 	// Map the ssl option to the proper member, according to:
 	// https://dev.mysql.com/doc/refman/5.7/en/encrypted-connection-options.html
 	static const ssl_option_to_data_member ssl_option_to_data_members = {
-		{ "ssl-key", &st_xmysqlnd_session_auth_data::ssl_local_pk },
-		{ "ssl-cert",&st_xmysqlnd_session_auth_data::ssl_local_cert },
-		{ "ssl-ca", &st_xmysqlnd_session_auth_data::ssl_cafile },
-		{ "ssl-capath", &st_xmysqlnd_session_auth_data::ssl_capath },
-		{ "ssl-cipher", &st_xmysqlnd_session_auth_data::ssl_ciphers },
-		{ "ssl-crl", &st_xmysqlnd_session_auth_data::ssl_crl },
-		{ "ssl-crlpath", &st_xmysqlnd_session_auth_data::ssl_crlpath },
-		{ "tls-version", &st_xmysqlnd_session_auth_data::tls_version }
+		{ "ssl-key", &xmysqlnd_session_auth_data::ssl_local_pk },
+		{ "ssl-cert",&xmysqlnd_session_auth_data::ssl_local_cert },
+		{ "ssl-ca", &xmysqlnd_session_auth_data::ssl_cafile },
+		{ "ssl-capath", &xmysqlnd_session_auth_data::ssl_capath },
+		{ "ssl-cipher", &xmysqlnd_session_auth_data::ssl_ciphers },
+		{ "ssl-crl", &xmysqlnd_session_auth_data::ssl_crl },
+		{ "ssl-crlpath", &xmysqlnd_session_auth_data::ssl_crlpath },
+		{ "tls-version", &xmysqlnd_session_auth_data::tls_version }
 	};
 
 	auto it = ssl_option_to_data_members.find(auth_option_variable.c_str());
@@ -2696,6 +2807,10 @@ enum_func_status extract_ssl_information(
 			auth->ssl_no_defaults = true;
 		} else if (boost::iequals(auth_option_variable, "auth")) {
 			ret = parse_auth_mechanism(auth, auth_option_value);
+		} else if (is_integer_auth_option(auth_option_variable)) {
+			if (!parse_integer_auth_option(auth_option_variable, auth_option_value, auth)) {
+				ret = FAIL;
+			}
 		} else {
 			php_error_docref(nullptr,
 							 E_WARNING,

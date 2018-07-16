@@ -127,14 +127,16 @@ enum class Auth_mechanism
  * Information used to authenticate
  * the connection with the server
  */
-struct st_xmysqlnd_session_auth_data
+struct xmysqlnd_session_auth_data
 {
-	st_xmysqlnd_session_auth_data();
+	xmysqlnd_session_auth_data();
 
 	util::string hostname;
 	unsigned int port;
 	util::string username;
 	util::string password;
+	boost::optional<int> connection_timeout;
+
 	//SSL information
 	SSL_mode ssl_mode;
 	bool ssl_enabled;
@@ -163,7 +165,7 @@ struct st_xmysqlnd_session_auth_data
 
 typedef std::shared_ptr< xmysqlnd_session > XMYSQLND_SESSION;
 typedef std::shared_ptr<xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
-typedef struct st_xmysqlnd_session_auth_data XMYSQLND_SESSION_AUTH_DATA;
+typedef struct xmysqlnd_session_auth_data XMYSQLND_SESSION_AUTH_DATA;
 
 using vec_of_addresses = util::vector< std::pair<util::string,long> >;
 
@@ -350,6 +352,10 @@ private:
 	Auth_mechanisms& auth_mechanisms;
 
 };
+
+bool set_connection_timeout(
+	const boost::optional<int>& connection_timeout,
+	MYSQLND_VIO* vio);
 
 enum_func_status           setup_crypto_connection(xmysqlnd_session_data* session,st_xmysqlnd_msg__capabilities_get& caps_get,const st_xmysqlnd_message_factory& msg_factory);
 char*                      build_server_host_info(const util::string& format,const util::string& name,zend_bool session_persistent);

@@ -30,7 +30,8 @@ struct Environment
 	enum class Variable
 	{
 		Mysql_port,
-		Mysqlx_port
+		Mysqlx_port,
+		Mysqlx_connection_timeout,
 	};
 
 	static util::string get_as_string(Variable var);
