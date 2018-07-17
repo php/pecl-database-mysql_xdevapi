@@ -58,6 +58,7 @@ function test_connection($base_uri, $auth_method, $expect_success, $verbose = fa
 			test_step_failed($uri);
 		}
 	} catch(Exception $e) {
+		echo $e->getMessage(), PHP_EOL;
 		if ($expect_success) {
 			test_step_failed($uri);
 		} else {

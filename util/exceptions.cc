@@ -83,7 +83,12 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::invalid_auth_mechanism, "Invalid authentication mechanism" },
 	{ xdevapi_exception::Code::unknown_lock_waiting_option, "Unknown lock waiting option" },
 	{ xdevapi_exception::Code::schema_creation_failed, "Unable to create the schema object" },
-	{ xdevapi_exception::Code::table_creation_failed, "Unable to create the table object"}
+	{ xdevapi_exception::Code::table_creation_failed, "Unable to create the table object"},
+	{ xdevapi_exception::Code::invalid_timeout, 
+		"TypeError: The connection timeout value must be a positive integer (including 0)."},
+	{ xdevapi_exception::Code::timeout_exceeded, 
+		"TimeoutError: Connection attempt to the server was aborted. Timeout was exceeded."},
+	{ xdevapi_exception::Code::invalid_argument, "Invalid argument."},
 };
 /* }}} */
 
@@ -104,6 +109,14 @@ string prepare_reason_msg(const string& /*sql_state*/, const string& msg)
 /* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code)
 	: std::runtime_error(prepare_reason_msg(general_sql_state, code_to_err_msg.at(code)).c_str())
+	, code(static_cast<unsigned int>(code))
+{
+}
+/* }}} */
+
+/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
+xdevapi_exception::xdevapi_exception(Code code, const string& msg)
+	: std::runtime_error(prepare_reason_msg(general_sql_state, msg).c_str())
 	, code(static_cast<unsigned int>(code))
 {
 }

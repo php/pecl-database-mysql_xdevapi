@@ -83,10 +83,14 @@ struct xdevapi_exception : public std::runtime_error
 		invalid_auth_mechanism,
 		unknown_lock_waiting_option,
 		schema_creation_failed,
-		table_creation_failed
+		table_creation_failed,
+		invalid_timeout,
+		timeout_exceeded,
+		invalid_argument,
 	};
 
 	xdevapi_exception(Code code);
+	xdevapi_exception(Code code, const string& msg);
 	xdevapi_exception(unsigned int code, const string& sql_state, const string& msg);
 
 	unsigned int code;

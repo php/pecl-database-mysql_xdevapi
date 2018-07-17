@@ -158,6 +158,8 @@ const MYSQLND_CSTRING namespace_mysqlx{ "mysqlx", sizeof("mysqlx") - 1 };
 const MYSQLND_CSTRING namespace_sql{ "sql", sizeof("sql") - 1 };
 const MYSQLND_CSTRING namespace_xplugin{ "xplugin", sizeof("xplugin") - 1 };
 
+namespace {
+
 /* {{{ xmysqlnd_get_tls_capability */
 zend_bool
 xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
@@ -173,6 +175,7 @@ xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 }
 /* }}} */
 
+} // anonymous namespace
 
 /* {{{ set_connection_timeout */
 bool set_connection_timeout(
@@ -191,8 +194,7 @@ bool set_connection_timeout(
 	if (timeout == Dont_set_connection_timeout) return true;
 
 	if (timeout < 0) {
-		php_error_docref(nullptr, E_WARNING, "connection timeout cannot be negative");
-		return false;
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_timeout);
 	}
 
 	st_mysqlnd_vio_options& vio_options = vio->data->options;
@@ -2702,9 +2704,7 @@ bool is_integer_auth_option(const util::string& auth_option_variable)
 bool verify_connection_timeout_option(const int auth_option_value)
 {
 	if (0 <= auth_option_value) return true;
-
-	php_error_docref(nullptr, E_WARNING, "connection timeout cannot be negative");
-	return false;
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_timeout);
 }
 
 bool verify_integer_auth_option(
@@ -2714,7 +2714,8 @@ bool verify_integer_auth_option(
 	if (auth_option_variable == AUTH_OPTION_CONNECT_TIMEOUT) {
 		return verify_connection_timeout_option(auth_option_value);
 	}
-	return true;
+	assert(!"unknown integer auth option");
+	return false;
 }
 
 bool parse_integer_auth_option(
@@ -2724,9 +2725,8 @@ bool parse_integer_auth_option(
 {
 	if( auth_option_value.empty() ) {
 		util::ostringstream os;
-		os << "The argument to " << auth_option_variable << " shouldn't be empty!";
-		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
-		return false;
+		os << "The argument to " << auth_option_variable << " shouldn't be empty.";
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}
 	
 	int value{0};
@@ -2734,8 +2734,7 @@ bool parse_integer_auth_option(
 		util::ostringstream os;
 		os << "The argument to " << auth_option_variable 
 			<< " should be an integer, but it is '" << auth_option_value << "'.";
-		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
-		return false;
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}
 
 	if (!verify_integer_auth_option(auth_option_variable, value)) return false;
@@ -2828,7 +2827,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 {
 	DBG_ENTER("extract_auth_information");
 	enum_func_status ret{PASS};
-	XMYSQLND_SESSION_AUTH_DATA * auth = new XMYSQLND_SESSION_AUTH_DATA;
+	std::unique_ptr<XMYSQLND_SESSION_AUTH_DATA> auth(new XMYSQLND_SESSION_AUTH_DATA);
 
 	if( nullptr == auth ) {
 		util::ostringstream os;
@@ -2876,7 +2875,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 						value.c_str()
 						);
 
-			if( FAIL == extract_ssl_information(variable, value, auth) ) {
+			if( FAIL == extract_ssl_information(variable, value, auth.get()) ) {
 				ret = FAIL;
 				break;
 			}
@@ -2884,9 +2883,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 	}
 
 	if( ret != PASS ){
-		delete auth;
-		auth = nullptr;
-		DBG_RETURN(auth);
+		DBG_RETURN(nullptr);
 	}
 
 	/*
@@ -2895,7 +2892,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 	 */
 	if( auth->ssl_mode == SSL_mode::not_specified ) {
 		DBG_INF_FMT("Setting default SSL mode to REQUIRED");
-		ret = set_ssl_mode( auth, SSL_mode::required );
+		ret = set_ssl_mode( auth.get(), SSL_mode::required );
 	}
 
 
@@ -2908,7 +2905,7 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 	auth->username = node_url.user;
 	auth->password = node_url.pass;
 
-	DBG_RETURN(auth);
+	DBG_RETURN(auth.release());
 }
 /* }}} */
 
