@@ -35,6 +35,7 @@ mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@
 Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES) in %s
 ----------------------
 mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-key=%s&auth=unknown
+[HY000] Invalid authorization mechanism
 ----------------------
 mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-key=%s
 

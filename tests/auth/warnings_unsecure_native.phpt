@@ -43,6 +43,7 @@ mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@
 Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s on line 54
 ----------------------
 mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-mode=disabled&auth=unsupported
+[HY000] Invalid authorization mechanism
 ----------------------
 mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-mode=disabled
 

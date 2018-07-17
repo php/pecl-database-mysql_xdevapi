@@ -50,6 +50,7 @@ mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@loca
 Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s %A
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-key=%s&auth=UNKNOWN
+[HY000] Invalid authorization mechanism
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-key=%s&auth=SHA256_MEMORY
 ----------------------
