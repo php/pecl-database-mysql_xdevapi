@@ -8,8 +8,8 @@ error_reporting=1
 require_once(__DIR__."/../../connect.inc");
 require_once(__DIR__."/timeout_utils.inc");
 
-test_elapsed_timeout($Non_routable_host, 81, 3);
-test_elapsed_timeout($Non_routable_host1, null, 2);
+test_elapsed_timeout($Non_routable_host, null, 3);
+test_elapsed_timeout($Non_routable_host1, 81, 2);
 
 verify_expectations();
 print "done!\n";
@@ -20,11 +20,11 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://testuser:testpasswd@10.255.255.1:81/?connect-timeout=3
+mysqlx://testuser:testpasswd@10.255.255.1/?connect-timeout=3
 ----------------------
 connecting time %f
 ______________________
-mysqlx://testuser:testpasswd@192.168.0.0/?connect-timeout=2
+mysqlx://testuser:testpasswd@192.168.0.0:81/?connect-timeout=2
 ----------------------
 connecting time %f
 ______________________

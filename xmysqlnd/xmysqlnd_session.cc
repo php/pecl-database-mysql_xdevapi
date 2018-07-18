@@ -2725,7 +2725,7 @@ bool parse_integer_auth_option(
 {
 	if( auth_option_value.empty() ) {
 		util::ostringstream os;
-		os << "The argument to " << auth_option_variable << " shouldn't be empty.";
+		os << "The argument to " << auth_option_variable << " cannot be empty.";
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}
 
@@ -2733,7 +2733,7 @@ bool parse_integer_auth_option(
 	if (!util::to_int(auth_option_value, &value)) {
 		util::ostringstream os;
 		os << "The argument to " << auth_option_variable
-			<< " should be an integer, but it is '" << auth_option_value << "'.";
+			<< " must be an integer, but it is '" << auth_option_value << "'.";
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}
 
