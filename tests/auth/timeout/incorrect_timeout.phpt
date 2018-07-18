@@ -107,7 +107,7 @@ mysqlx://testuser:testpasswd@localhost/?connect-timeout= ,
 mysqlx://testuser:testpasswd@localhost/?connect-timeout=++--
 [HY000] The argument to connect-timeout should be an integer, but it is '++--'.
 ----------------------
-mysqlx://testuser:testpasswd@localhost:33160/?connect-timeout=
-[HY000] The argument to connect-timeout shouldn't be empty!
+mysqlx://testuser:testpasswd@localhost:%d/?connect-timeout=
+[HY000] The argument to connect-timeout shouldn't be empty.
 ----------------------
 done!%A
