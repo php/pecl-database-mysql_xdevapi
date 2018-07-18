@@ -4,11 +4,11 @@ require_once(__DIR__."/../../connect.inc");
 require_once(__DIR__."/../auth_utils.inc");
 
 $Default_connection_time_out = 10;
-$Non_routable_host = "10.255.255.1";
-$Non_routable_host1 = "192.168.0.0";
+$Non_routable_host = "10.255.255.255";
+$Non_routable_host1 = "192.0.2.255";
 $Non_routable_host2 = "192.168.255.255";
-$Non_routable_host3 = "172.16.0.0";
-$Non_routable_host4 = "172.31.255.255";
+$Non_routable_host3 = "198.51.100.255";
+$Non_routable_host4 = "203.0.113.255";
 
 function prepare_uri_with_timeout($host, $port, $timeout) {
 	global $scheme;

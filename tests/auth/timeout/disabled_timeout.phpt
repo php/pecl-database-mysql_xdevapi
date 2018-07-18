@@ -25,7 +25,7 @@ mysqlx://testuser:testpasswd@192.168.255.255:83
 ----------------------
 connecting time %f
 ______________________
-mysqlx://testuser:testpasswd@172.16.0.0
+mysqlx://testuser:testpasswd@198.51.100.255
 ----------------------
 connecting time %f
 ______________________
