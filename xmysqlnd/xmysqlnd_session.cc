@@ -207,7 +207,7 @@ namespace {
 
 /* {{{ set_connection_options */
 bool set_connection_options(
-	const xmysqlnd_session_auth_data* auth_data, 
+	const xmysqlnd_session_auth_data* auth_data,
 	MYSQLND_VIO* vio)
 {
 	auto& connection_timeout = auth_data->connection_timeout;
@@ -2728,11 +2728,11 @@ bool parse_integer_auth_option(
 		os << "The argument to " << auth_option_variable << " shouldn't be empty.";
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}
-	
+
 	int value{0};
 	if (!util::to_int(auth_option_value, &value)) {
 		util::ostringstream os;
-		os << "The argument to " << auth_option_variable 
+		os << "The argument to " << auth_option_variable
 			<< " should be an integer, but it is '" << auth_option_value << "'.";
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}

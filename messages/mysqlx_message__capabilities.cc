@@ -64,7 +64,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities, add)
 		Z_ADDREF_P(capability_zv);
 	}
 	zend_hash_next_index_insert(&capabilities->capabilities_ht, capability_zv);
-	
+
 	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127)
 	RETVAL_ZVAL(capabilities_zv, 1 /*copy*/, 0 /*dtor*/);
 	MYSQLX_RESTORE_WARNINGS()

@@ -96,7 +96,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 	MYSQLND_CSTRING hostname = {nullptr, 0};
 	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
-	zend_long connection_timeout{ 
+	zend_long connection_timeout{
 		drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_connection_timeout) };
 	enum_func_status ret{FAIL};
 
@@ -104,7 +104,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os|ll",
 		&connection_zv, mysqlx_connection_class_entry,
 		&(hostname.s), &(hostname.l),
-		&port, 
+		&port,
 		&connection_timeout))
 	{
 		DBG_VOID_RETURN;

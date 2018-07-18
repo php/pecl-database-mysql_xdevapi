@@ -84,9 +84,9 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::unknown_lock_waiting_option, "Unknown lock waiting option" },
 	{ xdevapi_exception::Code::schema_creation_failed, "Unable to create the schema object" },
 	{ xdevapi_exception::Code::table_creation_failed, "Unable to create the table object"},
-	{ xdevapi_exception::Code::invalid_timeout, 
+	{ xdevapi_exception::Code::invalid_timeout,
 		"TypeError: The connection timeout value must be a positive integer (including 0)."},
-	{ xdevapi_exception::Code::timeout_exceeded, 
+	{ xdevapi_exception::Code::timeout_exceeded,
 		"TimeoutError: Connection attempt to the server was aborted. Timeout was exceeded."},
 	{ xdevapi_exception::Code::invalid_argument, "Invalid argument."},
 };

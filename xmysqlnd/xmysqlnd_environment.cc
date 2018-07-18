@@ -35,7 +35,7 @@ util::string Environment::get_as_string(Variable var)
 	static const std::map<Environment::Variable, Variable_info> var_to_info = {
 		{ Variable::Mysql_port, {"MYSQL_TEST_PORT", "MYSQL_PORT", "3306"} },
 		{ Variable::Mysqlx_port, {"MYSQLX_TEST_PORT", "MYSQLX_PORT", "33060"} },
-		{ Variable::Mysqlx_connection_timeout, 
+		{ Variable::Mysqlx_connection_timeout,
 			{"MYSQLX_TEST_CONNECTION_TIMEOUT", "MYSQLX_CONNECTION_TIMEOUT", "10"} },
 	};
 
