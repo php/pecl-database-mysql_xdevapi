@@ -192,7 +192,9 @@ void
 mysqlx_register_result_iterator(zend_class_entry * ce)
 {
 	ce->get_iterator = mysqlx__result_create_iterator;
+#if PHP_VERSION_ID < 70300
 	ce->iterator_funcs.funcs = &mysqlx__result_iterator_funcs;
+#endif
 
 	zend_class_implements(ce, 1, zend_ce_traversable);
 }
