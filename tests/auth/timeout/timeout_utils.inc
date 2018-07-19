@@ -36,7 +36,7 @@ function verify_connecting_time($connecting_time, $timeout) {
 
 	expect_true(
 		is_in_range($connecting_time, $timeout - 1.0, $timeout + 1.0),
-		"expected: $timeout, actual: $connecting_time");
+		", timeout: $timeout, connecting time: $connecting_time");
 }
 
 function test_elapsed_timeout($host, $port, $timeout) {

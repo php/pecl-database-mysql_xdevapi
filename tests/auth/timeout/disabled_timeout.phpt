@@ -10,7 +10,7 @@ require_once(__DIR__."/../../connect.inc");
 require_once(__DIR__."/timeout_utils.inc");
 
 test_elapsed_timeout($Non_routable_host2, 83, 0);
-test_elapsed_timeout($Non_routable_host3, null, 0);
+test_elapsed_timeout($Non_routable_host3, 82, 0);
 
 verify_expectations();
 print "done!\n";
@@ -25,7 +25,7 @@ mysqlx://testuser:testpasswd@203.0.113.4:83/?connect-timeout=0
 ----------------------
 connecting time %f
 ______________________
-mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout=0
+mysqlx://testuser:testpasswd@198.51.100.255:82/?connect-timeout=0
 ----------------------
 connecting time %f
 ______________________
