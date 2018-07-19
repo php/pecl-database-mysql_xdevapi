@@ -30,12 +30,12 @@ mysqlx://testuser:testpasswd@127.0.0.1:%d/?connect-timeout=4
 ----------------------
 mysqlx://testuser:testpasswd@127.0.0.1:%d
 ----------------------
-mysqlx://testuser:testpasswd@127.0.0.1:%d
+mysqlx://testuser:testpasswd@127.0.0.1:%d/?connect-timeout=0
 ----------------------
 mysqlx://testuser:testpasswd@localhost:%d/?connect-timeout=7
 ----------------------
 mysqlx://testuser:testpasswd@localhost:%d
 ----------------------
-mysqlx://testuser:testpasswd@localhost:%d
+mysqlx://testuser:testpasswd@localhost:%d/?connect-timeout=0
 ----------------------
 done!%A
