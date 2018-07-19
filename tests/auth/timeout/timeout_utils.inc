@@ -27,11 +27,16 @@ function test_incorrect_timeout($host, $port, $timeout) {
 }
 
 function verify_connecting_time($connecting_time, $timeout) {
-	if (!$timeout) return true;
+	global $Default_connection_time_out;
+	if ($timeout === null) {
+		$timeout = $Default_connection_time_out;
+	} else if ($timeout === 0) {
+		$timeout = intval(ini_get('default_socket_timeout'));
+	}
 
-	if ($timeout == 0) $timeout = $Default_connection_time_out;
-
-	expect_true(($timeout - 1.0 < $connecting_time) && ($connecting_time < $timeout + 1.0));
+	expect_true(
+		is_in_range($connecting_time, $timeout - 1.0, $timeout + 1.0),
+		"expected: $timeout, actual: $connecting_time");
 }
 
 function test_elapsed_timeout($host, $port, $timeout) {

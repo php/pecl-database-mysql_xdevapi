@@ -37,6 +37,14 @@
 
 	// ----------------------------------------------------------------------
 
+	if (!function_exists('is_in_range')) {
+		function is_in_range($value, $min, $max) {
+			return ($min <= $value) && ($value <= $max);
+		}
+	}
+
+	// ----------------------------------------------------------------------
+
 	if (!function_exists('verify_os')) {
 		function verify_os($os_mask) {
 			return strtoupper(substr(PHP_OS, 0, 3)) === $os_mask;
