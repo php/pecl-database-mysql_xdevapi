@@ -59,28 +59,28 @@ mysqlx://testuser:testpasswd@127.0.0.1/?connect-timeout= ,
 mysqlx://testuser:testpasswd@127.0.0.1/?connect-timeout=++--
 [HY000] The argument to connect-timeout must be an integer, but it is '++--'.
 ----------------------
-mysqlx://testuser:testpasswd@198.51.100.23/?connect-timeout=-5
+mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout=-5
 [HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://testuser:testpasswd@198.51.100.23:81/?connect-timeout=-10
+mysqlx://testuser:testpasswd@198.51.100.255:81/?connect-timeout=-10
 [HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://testuser:testpasswd@198.51.100.23:80/?connect-timeout=this_is_incorrect_timeout
+mysqlx://testuser:testpasswd@198.51.100.255:80/?connect-timeout=this_is_incorrect_timeout
 [HY000] The argument to connect-timeout must be an integer, but it is 'this_is_incorrect_timeout'.
 ----------------------
-mysqlx://testuser:testpasswd@198.51.100.23:82/?connect-timeout=invalid-time-out
+mysqlx://testuser:testpasswd@198.51.100.255:82/?connect-timeout=invalid-time-out
 [HY000] The argument to connect-timeout must be an integer, but it is 'invalid-time-out'.
 ----------------------
-mysqlx://testuser:testpasswd@198.51.100.23/?connect-timeout=-1.1
+mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout=-1.1
 [HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://testuser:testpasswd@198.51.100.23:83/?connect-timeout=-10.101
+mysqlx://testuser:testpasswd@198.51.100.255:83/?connect-timeout=-10.101
 [HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://testuser:testpasswd@198.51.100.23/?connect-timeout= ,
+mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout= ,
 [HY000] The argument to connect-timeout must be an integer, but it is ','.
 ----------------------
-mysqlx://testuser:testpasswd@198.51.100.23/?connect-timeout=++--
+mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout=++--
 [HY000] The argument to connect-timeout must be an integer, but it is '++--'.
 ----------------------
 mysqlx://testuser:testpasswd@localhost/?connect-timeout=-5

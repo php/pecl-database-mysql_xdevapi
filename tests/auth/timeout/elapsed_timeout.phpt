@@ -20,11 +20,11 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://testuser:testpasswd@198.51.100.23:33060/?connect-timeout=3
+mysqlx://testuser:testpasswd@198.51.100.255:33060/?connect-timeout=3
 ----------------------
 connecting time %f
 ______________________
-mysqlx://testuser:testpasswd@192.0.2.254:3306/?connect-timeout=2
+mysqlx://testuser:testpasswd@192.0.2.255:3306/?connect-timeout=2
 ----------------------
 connecting time %f
 ______________________
