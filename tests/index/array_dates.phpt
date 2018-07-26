@@ -25,11 +25,11 @@ $session = create_test_db();
 $schema = $session->getSchema($db);
 $coll = $schema->getCollection($test_collection_name);
 
-expect_create_index_with_name(
-	'world_cup_champions_index',
-	'{"fields": [{"field": "$.country", "type": "TEXT(64)", "array": false}]}');
-expect_create_index(
-	'{"fields": [{"field": "$.world_cup_championships", "type": "DATE", "array": true}]}');
+// expect_create_index_with_name(
+// 	'world_cup_champions_index',
+// 	'{"fields": [{"field": "$.country", "type": "TEXT(64)", "array": false}]}');
+// expect_create_index(
+// 	'{"fields": [{"field": "$.world_cup_championships", "type": "DATE", "array": true}]}');
 
 add_world_cup_champion('Uruguay', '[ "1930-07-30", "1950-07-16"]');
 add_world_cup_champion('Italy', '[ "1934-06-10", "1938-06-19", "1982-07-11", "2006-07-09" ]');

@@ -26,9 +26,9 @@ $session = create_test_db();
 $schema = $session->getSchema($db);
 $coll = $schema->getCollection($test_collection_name);
 
-expect_create_index_with_name(
-	'lottery_draws_index',
-	'{"fields": [{"field": "$.draw", "type": "TEXT(64)", "array": false}]}');
+// expect_create_index_with_name(
+// 	'lottery_draws_index',
+// 	'{"fields": [{"field": "$.draw", "type": "TEXT(64)", "array": false}]}');
 // expect_create_index(
 // 	'{"fields": [{"field": "$.numbers", "type": "INTEGER", "array": true}]}');
 
