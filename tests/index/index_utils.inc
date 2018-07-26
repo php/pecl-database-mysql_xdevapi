@@ -73,4 +73,25 @@ function drop_index($exists) {
 	expect_eq($coll->dropIndex($Default_index_name), $exists, 'drop_index ' + $Default_index_name);
 }
 
+// -------
+
+function verify_value($result, $field_name, $expected_value, $hint) {
+	if ($expected_value != null) {
+		expect_eq_or_in($result[$field_name], $expected_value, $hint);
+	} else {
+		expect_null($result, $field_name . ' ' . $expected_value);
+	}
+}
+
+function verify_one_value($result, $field_name, $expected_value, $hint) {
+	verify_value($result->fetchOne(), $field_name, $expected_value, $hint);
+}
+
+function verify_all_values($result, $field_name, $expected_value, $hint) {
+	$data = $result->fetchAll();
+	for ($i = 0; $i < count($data); $i++) {
+		verify_value($data[$i], $field_name, $expected_value, $hint);
+	}
+}
+
 ?>

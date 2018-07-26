@@ -65,6 +65,7 @@ expect_create_index('{"fields": [{"field": "$.myField", "type": "Datetime"}]}');
 expect_create_index('{"fields": [{"field": "$.myField", "type": "Timestamp"}]}');
 expect_create_index('{"fields": [{"field": "$.myField", "type": "Time"}]}');
 expect_create_index('{"fields": [{"field": "$.myField", "type": "Date"}]}');
+expect_fail_index('{"fields": [{"field": "$.myField", "type": "incorrect-type"}]}');
 
 // FR5_8 Create an index specifiying geojson options for non geojson data type.
 // Create the index with text data type and geojson "options":
