@@ -87,10 +87,14 @@ struct xdevapi_exception : public std::runtime_error
 		invalid_timeout,
 		timeout_exceeded,
 		invalid_argument,
+		connection_failure,
+		authentication_failure,
 	};
 
 	xdevapi_exception(Code code);
 	xdevapi_exception(Code code, const string& msg);
+	xdevapi_exception(unsigned int code, const string& msg);
+	xdevapi_exception(unsigned int code, const char* sql_state, const char* msg);
 	xdevapi_exception(unsigned int code, const string& sql_state, const string& msg);
 
 	unsigned int code;
@@ -118,6 +122,8 @@ void raise_doc_ref_exception(const doc_ref_exception& e);
 void raise_common_exception(const std::exception& e);
 void raise_unknown_exception();
 
+string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what);
+string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what);
 void log_warning(const string& msg);
 
 } // namespace util

@@ -295,8 +295,8 @@ private:
 	bool gather_auth_mechanisms();
 	bool authentication_loop();
 	bool authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_plugin);
-	void log_custom_error_msg();
-	bool is_suppress_server_messages() const;
+	void raise_multiple_auth_mechanisms_algorithm_error();
+	bool is_multiple_auth_mechanisms_algorithm() const;
 
 private:
 	xmysqlnd_session_data* session;
@@ -381,6 +381,7 @@ public:
 	unsigned int      get_error_no();
 	const char*       get_error_str();
 	const char*       get_sqlstate();
+	const MYSQLND_ERROR_INFO* get_error_info() const;
 
 	enum_func_status  set_client_option(enum_xmysqlnd_client_option option, const char * const value);
 

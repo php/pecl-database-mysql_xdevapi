@@ -55,7 +55,14 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1251][HY000] Invalid authentication method EXTERNAL
 [HY000] Invalid authorization mechanism
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1251][HY000] Invalid authentication method EXTERNAL
 [HY000] Invalid authorization mechanism
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1251][HY000] Invalid authentication method EXTERNAL
 [HY000] Invalid authorization mechanism
 done!%A

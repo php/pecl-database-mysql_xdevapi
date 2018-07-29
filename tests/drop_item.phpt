@@ -33,9 +33,9 @@ mysqlx drop schema, table, collection, collection index, view
 	clean_test_db();
 ?>
 --EXPECTF--
-Warning: mysql_xdevapi\Collection::dropIndex(): [HY000] Can't DROP 'name_index'; check that column/key exists in%A
+Warning: mysql_xdevapi\Collection::dropIndex(): [1091][42000] Can't DROP 'name_index'; check that column/key exists in%A
 
-Warning: mysql_xdevapi\Schema::dropCollection(): [HY000] Unknown table '%s.test_collection' in%A
+Warning: mysql_xdevapi\Schema::dropCollection(): [1051][42S02] Unknown table '%s.test_collection' in%A
 
 Warning: mysql_xdevapi\Session::dropSchema(): cannot drop schema '%s' in%A
 done!%A

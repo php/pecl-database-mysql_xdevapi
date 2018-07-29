@@ -371,7 +371,7 @@ xmysqlnd_session_data::connect(
 		const MYSQLND_CSTRING local_scheme = { scheme.s, scheme.l };
 		ret = connect_handshake( local_scheme, database,
 								 set_capabilities);
-		if( ret != PASS ) {
+		if( (ret != PASS) && (error_info->error_no == 0)) {
 			SET_OOM_ERROR(error_info);
 		}
 	}
@@ -487,7 +487,7 @@ xmysqlnd_session_data::get_error_no()
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::error */
+/* {{{ xmysqlnd_session_data::get_error_str */
 const char *
 xmysqlnd_session_data::get_error_str()
 {
@@ -495,11 +495,19 @@ xmysqlnd_session_data::get_error_str()
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::sqlstate */
+/* {{{ xmysqlnd_session_data::get_sqlstate */
 const char *
 xmysqlnd_session_data::get_sqlstate()
 {
 	return error_info->sqlstate[0] ? error_info->sqlstate : MYSQLND_SQLSTATE_NULL;
+}
+/* }}} */
+
+/* {{{ xmysqlnd_session_data::get_error_info */
+const MYSQLND_ERROR_INFO*
+xmysqlnd_session_data::get_error_info() const
+{
+	return error_info;
 }
 /* }}} */
 
@@ -766,16 +774,29 @@ void xmysqlnd_session_data::free_contents()
 
 // ----------------------------------------------------------------------------
 
+/* {{{ raise_session_error */
+void raise_session_error(
+	xmysqlnd_session_data* session,
+	const unsigned int code,
+	const char* sql_state,
+	const char* message)
+{
+	if (session->error_info) {
+		SET_CLIENT_ERROR(session->error_info, code, sql_state, message);
+	}
+	const util::string& what{ util::prepare_reason_msg(code, sql_state, message) };
+	php_error_docref(nullptr, E_WARNING, "%s", what.c_str());
+}
+/* }}} */
+
+
 /* {{{ handler_on_error */
 const enum_hnd_func_status
 xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
 	xmysqlnd_session_data* session = static_cast<xmysqlnd_session_data*>(context);
 	DBG_ENTER("xmysqlnd_stmt::handler_on_error");
-	if (session->error_info) {
-		SET_CLIENT_ERROR(session->error_info, code, sql_state.s, message.s);
-	}
-	php_error_docref(nullptr, E_WARNING, "[%4u][%s] %s", code, sql_state.s? sql_state.s:"", message.s? message.s:"");
+	raise_session_error(session, code, sql_state.s, message.s);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
@@ -820,30 +841,30 @@ xmysqlnd_session_data_set_client_id(void * context, const size_t id)
 }
 /* }}} */
 
-/* {{{ on_auth_warning */
+/* {{{ on_muted_auth_warning */
 const enum_hnd_func_status
-on_auth_warning(
+on_muted_auth_warning(
 		void* /*context*/,
 		const xmysqlnd_stmt_warning_level level,
 		const unsigned int code,
 		const MYSQLND_CSTRING message)
 {
-	DBG_ENTER("on_auth_warning");
+	DBG_ENTER("on_muted_auth_warning");
 	DBG_INF_FMT("[%4u] %d %s", code, level, message.s ? message.s : "");
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 /* }}} */
 
 
-/* {{{ on_auth_error */
+/* {{{ on_muted_auth_error */
 const enum_hnd_func_status
-on_auth_error(
+on_muted_auth_error(
 		void* /*context*/,
 		const unsigned int code,
 		const MYSQLND_CSTRING sql_state,
 		const MYSQLND_CSTRING message)
 {
-	DBG_ENTER("on_auth_error");
+	DBG_ENTER("on_muted_auth_error");
 	DBG_INF_FMT("[%4u][%s] %s", code, sql_state.s ? sql_state.s : "", message.s ? message.s : "");
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
@@ -1383,8 +1404,8 @@ bool Authenticate::authentication_loop()
 		}
 	}
 
-	if (is_suppress_server_messages()) {
-		log_custom_error_msg();
+	if (is_multiple_auth_mechanisms_algorithm()) {
+		raise_multiple_auth_mechanisms_algorithm_error();
 	}
 
 	return false;
@@ -1408,11 +1429,11 @@ bool Authenticate::authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_p
 		auth_plugin.get()
 	};
 	const st_xmysqlnd_on_warning_bind on_warning{
-		is_suppress_server_messages() ? on_auth_warning : nullptr,
+		is_multiple_auth_mechanisms_algorithm() ? on_muted_auth_warning : nullptr,
 		session
 	};
 	const st_xmysqlnd_on_error_bind on_error{
-		is_suppress_server_messages() ? on_auth_error : xmysqlnd_session_data_handler_on_error,
+		is_multiple_auth_mechanisms_algorithm() ? on_muted_auth_error : xmysqlnd_session_data_handler_on_error,
 		session
 	};
 	const st_xmysqlnd_on_client_id_bind on_client_id{
@@ -1433,17 +1454,22 @@ bool Authenticate::authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_p
 	return auth_start_msg.read_response(&auth_start_msg, nullptr) == PASS;
 }
 
-void Authenticate::log_custom_error_msg()
+void Authenticate::raise_multiple_auth_mechanisms_algorithm_error()
 {
 	const util::strings& auth_mech_names{ to_auth_mech_names(auth_mechanisms) };
 	util::ostringstream os;
-	os << "[HY000] Authentication failed using "
+	os << "Authentication failed using "
 	   << boost::join(auth_mech_names, ", ")
 	   << ". Check username and password or try a secure connection";
-	php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
+
+	raise_session_error(
+		session,
+		static_cast<unsigned int>(util::xdevapi_exception::Code::authentication_failure),
+		GENERAL_SQL_STATE,
+		os.str().c_str());
 }
 
-bool Authenticate::is_suppress_server_messages() const
+bool Authenticate::is_multiple_auth_mechanisms_algorithm() const
 {
 	return 1 < auth_mechanisms.size();
 }
@@ -3209,6 +3235,7 @@ PHP_MYSQL_XDEVAPI_API
 	 * For each address attempt to perform a connection
 	 * (The addresses are sorted by priority)
 	 */
+	const MYSQLND_ERROR_INFO* last_error_info{nullptr};
 	for( auto&& current_uri : uris ) {
 		DBG_INF_FMT("Attempting to connect with: %s\n",
 					current_uri.first.c_str());
@@ -3236,6 +3263,9 @@ PHP_MYSQL_XDEVAPI_API
 					DBG_INF_FMT("Attempting to connect...");
 					ret = establish_connection(session,auth,
 											   url.first,url.second);
+					if (ret == FAIL) {
+						last_error_info = session->session->get_data()->get_error_info();
+					}
 				}
 			} else {
 				DBG_ERR_FMT("Connection aborted, not able to setup the 'auth' structure.");
@@ -3249,9 +3279,6 @@ PHP_MYSQL_XDEVAPI_API
 			break;
 		}
 	}
-	if( uris.size() > 1 && ret == FAIL ) {
-		devapi::RAISE_EXCEPTION( err_msg_all_routers_failed );
-	}
 	/*
 	 * Do not worry about the allocated auth if
 	 * the connection fails, the dtor of 'session'
@@ -3260,6 +3287,17 @@ PHP_MYSQL_XDEVAPI_API
 	if( FAIL == ret ) {
 		zval_dtor(return_value);
 		ZVAL_NULL(return_value);
+
+		if( uris.size() > 1) {
+			devapi::RAISE_EXCEPTION( err_msg_all_routers_failed );
+		} else if (last_error_info) {
+			throw util::xdevapi_exception(
+				last_error_info->error_no ? 
+					last_error_info->error_no : 
+					static_cast<unsigned int>(util::xdevapi_exception::Code::connection_failure), 
+				last_error_info->sqlstate, 
+				last_error_info->error);
+		}
 	}
 	DBG_RETURN(ret);
 }

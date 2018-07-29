@@ -7,7 +7,7 @@ $Default_connection_time_out = 10;
 //non-routable IP addresses basing on https://en.wikipedia.org/wiki/IPv4#Special_addresses
 $Non_routable_host = "198.51.100.255";
 $Non_routable_host1 = "192.0.2.255";
-$Non_routable_host2 = "10.255.255.251";
+$Non_routable_host2 = "10.255.255.1";
 $Non_routable_host3 = "203.0.113.255";
 $Non_routable_host4 = "192.168.255.255";
 

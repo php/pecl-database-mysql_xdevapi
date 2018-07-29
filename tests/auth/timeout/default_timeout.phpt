@@ -20,6 +20,8 @@ print "done!\n";
 ?>
 --EXPECTF--
 mysqlx://testuser:testpasswd@192.168.255.255:3306
+[2002][HY000] %s
+
 ----------------------
 connecting time %f
 ______________________
