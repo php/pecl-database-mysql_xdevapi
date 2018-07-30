@@ -44,9 +44,9 @@ function test_elapsed_timeout($host, $port, $timeout) {
 	$start =  microtime(true);
 	test_connection($uri, null, false, true);
 	$connecting_time = microtime(true) - $start;
-	echo "connecting time ", $connecting_time, "\n";
+	echo "connecting time ", $connecting_time, PHP_EOL;
 	verify_connecting_time($connecting_time, $timeout);
-	echo "______________________", "\n";
+	echo "______________________", PHP_EOL;
 }
 
 function test_successful_no_timeout($host, $timeout) {

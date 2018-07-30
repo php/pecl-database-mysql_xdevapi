@@ -21,14 +21,12 @@ print "done!\n";
 ?>
 --EXPECTF--
 mysqlx://testuser:testpasswd@198.51.100.255:33060/?connect-timeout=3
-[2002][HY000] %s
-
+[2002][HY000] %s %A
 ----------------------
 connecting time %f
 ______________________
 mysqlx://testuser:testpasswd@192.0.2.255:3306/?connect-timeout=2
-[2002][HY000] %s
-
+[2002][HY000] %s %A
 ----------------------
 connecting time %f
 ______________________

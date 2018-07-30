@@ -56,8 +56,7 @@ Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql
 ----------------------
 mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-key=%s&auth=external
 
-Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s
-%A
+Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s %A
 [1251][HY000] Invalid authentication method EXTERNAL
 ----------------------
 done!%A
