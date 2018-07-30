@@ -3235,7 +3235,7 @@ PHP_MYSQL_XDEVAPI_API
 	 * For each address attempt to perform a connection
 	 * (The addresses are sorted by priority)
 	 */
-	const MYSQLND_ERROR_INFO* last_error_info{nullptr};
+	MYSQLND_ERROR_INFO last_error_info{0};
 	for( auto&& current_uri : uris ) {
 		DBG_INF_FMT("Attempting to connect with: %s\n",
 					current_uri.first.c_str());
@@ -3264,7 +3264,11 @@ PHP_MYSQL_XDEVAPI_API
 					ret = establish_connection(session,auth,
 											   url.first,url.second);
 					if (ret == FAIL) {
-						last_error_info = session->session->get_data()->get_error_info();
+						const MYSQLND_ERROR_INFO* session_error_info{
+							session->session->get_data()->get_error_info() };
+						if (session_error_info) {
+							last_error_info = *session_error_info;
+						}
 					}
 				}
 			} else {
@@ -3290,13 +3294,11 @@ PHP_MYSQL_XDEVAPI_API
 
 		if( uris.size() > 1) {
 			devapi::RAISE_EXCEPTION( err_msg_all_routers_failed );
-		} else if (last_error_info) {
+		} else if (last_error_info.error_no) {
 			throw util::xdevapi_exception(
-				last_error_info->error_no ? 
-					last_error_info->error_no : 
-					static_cast<unsigned int>(util::xdevapi_exception::Code::connection_failure), 
-				last_error_info->sqlstate, 
-				last_error_info->error);
+				last_error_info.error_no,
+				last_error_info.sqlstate,
+				last_error_info.error);
 		}
 	}
 	DBG_RETURN(ret);
