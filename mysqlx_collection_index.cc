@@ -155,7 +155,8 @@ Index_field Index_definition_parser::parse_field(ptree& field_description)
 		field_description.get_optional<bool>("required"),
 		collation ? util::to_string(collation.get()) : boost::optional<util::string>(),
 		field_description.get_optional<unsigned int>("options"),
-		field_description.get_optional<unsigned int>("srid")
+		field_description.get_optional<unsigned int>("srid"),
+		field_description.get_optional<bool>("array"),
 	};
 	return field;
 }
@@ -176,7 +177,8 @@ void Index_definition_parser::verify_field_trait(const std::string& field_trait_
 		"required",
 		"collation",
 		"options",
-		"srid"
+		"srid",
+		"array",
 	};
 
 	if (!allowed_traits.count(field_trait_name)) {

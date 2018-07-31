@@ -39,6 +39,7 @@ struct Index_field
 	boost::optional<util::string> collation;
 	boost::optional<unsigned int> options;
 	boost::optional<unsigned int> srid;
+	boost::optional<bool> is_array;
 
 	bool is_geojson() const;
 	bool is_required() const;

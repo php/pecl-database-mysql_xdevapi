@@ -152,6 +152,7 @@ void Bind_create_index_args::bind_index_fields()
 			util::pb::add_optional_field_to_object("options", field.options, pb_obj);
 			util::pb::add_optional_field_to_object("srid", field.srid, pb_obj);
 		}
+		util::pb::add_optional_field_to_object("array", field.is_array, pb_obj);
 
 		util::pb::add_value_to_array(pb_obj.release(), fields);
 	}
