@@ -15,15 +15,15 @@ PHP_ARG_WITH(
 	no)
 
 PHP_ARG_ENABLE(
-	[dev-mode],
-	[whether to enable developer mode],
+	dev-mode,
+	whether to enable developer mode,
 	[  --enable-dev-mode           Enable internal developer mode],
 	no,
 	no)
 
 PHP_ARG_ENABLE(
 	mysql-xdevapi,
-	[whether to enable mysql-xdevapi],
+	whether to enable mysql-xdevapi,
 	[  --enable-mysql-xdevapi      Enable mysql-xdevapi],
 	no,
 	yes)
@@ -179,7 +179,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		"
 
 
-	if test "$PHP_DEV_MODE_ENABLED" = "yes"; then
+	if test "$PHP_DEV_MODE" = "yes" || test "$PHP_DEV_MODE_ENABLED" = "yes"; then
 		AC_DEFINE([MYSQL_XDEVAPI_DEV_MODE], 1, [Enable developer mode])
 		DEV_MODE_CXXFLAGS="-Werror"
 	else
