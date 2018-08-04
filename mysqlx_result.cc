@@ -34,6 +34,7 @@
 #include "mysqlx_base_result.h"
 #include "mysqlx_field_metadata.h"
 #include "util/object.h"
+#include "util/string_utils.h"
 #include "util/zend_utils.h"
 
 namespace mysqlx {
@@ -134,7 +135,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAutoIncrementValue)
 		if (exec_state) {
 			const uint64_t value = exec_state->m->get_last_insert_id(exec_state);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				const auto& value_str{ util::to_string(value) };
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", value_str.c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
 				ZVAL_LONG(return_value, static_cast<zend_long>(value));

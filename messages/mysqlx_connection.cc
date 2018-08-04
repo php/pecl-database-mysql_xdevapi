@@ -25,6 +25,7 @@
 #include "mysqlx_session.h"
 #include "mysqlx_connection.h"
 #include "util/object.h"
+#include "util/string_utils.h"
 #include "util/zend_utils.h"
 
 namespace mysqlx {
@@ -193,7 +194,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, receive)
 	if (connection->vio && TRUE == connection->vio->data->m.has_valid_stream(connection->vio)) {
 		zend_uchar * read_buffer = static_cast<zend_uchar*>(mnd_emalloc(how_many + 1));
 		if (!read_buffer) {
-			php_error_docref(nullptr, E_WARNING, "Couldn't allocate %u bytes", how_many);
+			const auto& how_many_str{ util::to_string(how_many) };
+			php_error_docref(nullptr, E_WARNING, "Couldn't allocate %s bytes", how_many_str.c_str());
 			RETVAL_FALSE;
 		}
 		ret = connection->vio->data->m.network_read(connection->vio,
@@ -204,7 +206,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, receive)
 			read_buffer[how_many] = '\0';
 			RETVAL_STRINGL((char*) read_buffer, how_many);
 		} else {
-			php_error_docref(nullptr, E_WARNING, "Error reading %u bytes", how_many);
+			const auto& how_many_str{ util::to_string(how_many) };
+			php_error_docref(nullptr, E_WARNING, "Error reading %s bytes", how_many_str.c_str());
 			RETVAL_FALSE;
 		}
 		mnd_efree(read_buffer);
