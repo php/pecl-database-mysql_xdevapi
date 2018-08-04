@@ -2,13 +2,13 @@
 mysqlx default connection timeout
 --SKIPIF--
 --INI--
-error_reporting=1
+error_reporting=E_ALL
 --FILE--
 <?php
 require_once(__DIR__."/../../connect.inc");
 require_once(__DIR__."/timeout_utils.inc");
 
-test_elapsed_timeout($Non_routable_host4, 3306, null);
+test_elapsed_timeout(null, __FILE__);
 
 verify_expectations();
 print "done!\n";
@@ -19,9 +19,4 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://testuser:testpasswd@192.168.255.255:3306
-[2002][HY000] %s %A
-----------------------
-connecting time %f
-______________________
 done!%A

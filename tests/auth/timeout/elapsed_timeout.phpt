@@ -2,14 +2,13 @@
 mysqlx elapsed connection timeout with explicit timeout given
 --SKIPIF--
 --INI--
-error_reporting=1
+error_reporting=E_ALL
 --FILE--
 <?php
 require_once(__DIR__."/../../connect.inc");
 require_once(__DIR__."/timeout_utils.inc");
 
-test_elapsed_timeout($Non_routable_host, 33060, 3);
-test_elapsed_timeout($Non_routable_host1, 3306, 2);
+test_elapsed_timeout(4, __FILE__);
 
 verify_expectations();
 print "done!\n";
@@ -20,14 +19,4 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://testuser:testpasswd@198.51.100.255:33060/?connect-timeout=3
-[2002][HY000] %s %A
-----------------------
-connecting time %f
-______________________
-mysqlx://testuser:testpasswd@192.0.2.255:3306/?connect-timeout=2
-[2002][HY000] %s %A
-----------------------
-connecting time %f
-______________________
 done!%A

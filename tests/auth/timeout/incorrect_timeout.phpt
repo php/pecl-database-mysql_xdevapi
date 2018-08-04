@@ -17,14 +17,12 @@ function test_incorrect_timeouts($host) {
 	test_incorrect_timeout($host, 83, -10.101);
 	test_incorrect_timeout($host, null, ' ,');
 	test_incorrect_timeout($host, null, '++--');
+	test_incorrect_timeout($host, null, '');
 }
 
 test_incorrect_timeouts("127.0.0.1");
-test_incorrect_timeouts($Non_routable_host);
+test_incorrect_timeouts($Non_routable_hosts[0]);
 test_incorrect_timeouts("localhost");
-
-$connection_uri = $base_uri . "/?connect-timeout=";
-test_connection($connection_uri, null, false, true);
 
 verify_expectations();
 print "done!\n";
@@ -59,6 +57,9 @@ mysqlx://testuser:testpasswd@127.0.0.1/?connect-timeout= ,
 mysqlx://testuser:testpasswd@127.0.0.1/?connect-timeout=++--
 [10052][HY000] The argument to connect-timeout must be an integer, but it is '++--'.
 ----------------------
+mysqlx://testuser:testpasswd@127.0.0.1/?connect-timeout=
+[10052][HY000] The argument to connect-timeout cannot be empty.
+----------------------
 mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout=-5
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
@@ -82,6 +83,9 @@ mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout= ,
 ----------------------
 mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout=++--
 [10052][HY000] The argument to connect-timeout must be an integer, but it is '++--'.
+----------------------
+mysqlx://testuser:testpasswd@198.51.100.255/?connect-timeout=
+[10052][HY000] The argument to connect-timeout cannot be empty.
 ----------------------
 mysqlx://testuser:testpasswd@localhost/?connect-timeout=-5
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
@@ -107,7 +111,7 @@ mysqlx://testuser:testpasswd@localhost/?connect-timeout= ,
 mysqlx://testuser:testpasswd@localhost/?connect-timeout=++--
 [10052][HY000] The argument to connect-timeout must be an integer, but it is '++--'.
 ----------------------
-mysqlx://testuser:testpasswd@localhost:%d/?connect-timeout=
+mysqlx://testuser:testpasswd@localhost/?connect-timeout=
 [10052][HY000] The argument to connect-timeout cannot be empty.
 ----------------------
 done!%A
