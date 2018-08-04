@@ -1216,7 +1216,7 @@ enum_func_status xmysqlnd_row_sint_field_to_zval( zval* zv,
 		int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
 #if SIZEOF_ZEND_LONG==4
 		if (UNEXPECTED(ival >= ZEND_LONG_MAX)) {
-			ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, ival));
+			ZVAL_NEW_STR(zv, strpprintf(0, "%s", util::to_string(ival).c_str()));
 			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(zv));
 		} else
 #endif
@@ -1250,7 +1250,7 @@ enum_func_status xmysqlnd_row_uint_field_to_zval( zval* zv,
 #elif SIZEOF_ZEND_LONG==4
 		if (gval > L64(2147483647)) {
 #endif
-			ZVAL_NEW_STR(zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
+			ZVAL_NEW_STR(zv, strpprintf(0, "%s", util::to_string(gval).c_str()));
 			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(zv));
 		} else {
 			ZVAL_LONG(zv, static_cast<zend_long>(gval));

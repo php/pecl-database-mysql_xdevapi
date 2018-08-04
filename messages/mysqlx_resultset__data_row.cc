@@ -31,6 +31,7 @@ extern "C" {
 
 #include "util/object.h"
 #include "util/pb_utils.h"
+#include "util/string_utils.h"
 #include "util/zend_utils.h"
 
 #include "protobuf_api.h"
@@ -163,7 +164,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
 #if SIZEOF_ZEND_LONG==4
 						if (UNEXPECTED(ival >= ZEND_LONG_MAX)) {
-							ZVAL_NEW_STR(&zv, strpprintf(0, MYSQLND_LLU_SPEC, ival));
+							ZVAL_NEW_STR(&zv, strpprintf(0, "%s", util::to_string(ival).c_str()));
 						} else
 #endif
 						{
@@ -186,7 +187,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 #elif SIZEOF_ZEND_LONG==4
 						if (gval > L64(2147483647)) {
 #endif
-							ZVAL_NEW_STR(&zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
+							ZVAL_NEW_STR(&zv, strpprintf(0, "%s", util::to_string(gval).c_str()));
 						} else {
 							ZVAL_LONG(&zv, static_cast<zend_long>(gval));
 						}
