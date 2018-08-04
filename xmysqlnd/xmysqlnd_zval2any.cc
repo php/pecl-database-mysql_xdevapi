@@ -116,7 +116,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 #if SIZEOF_ZEND_LONG==4
 			if (UNEXPECTED(scalar.v_signed_int() >= ZEND_LONG_MAX)) {
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, util::to_string(scalar.v_signed_int()).c_str());
+				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_signed_int()).c_str());
 				ZVAL_STRING(zv, tmp);
 			} else
 #endif
