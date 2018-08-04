@@ -512,7 +512,9 @@ mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const 
 	RETVAL_FALSE;
 
 	if ((flags | MYSQLX_EXECUTE_ALL_FLAGS) != MYSQLX_EXECUTE_ALL_FLAGS) {
-		php_error_docref(nullptr, E_WARNING, "Invalid flags. Unknown %lu", flags - (flags | MYSQLX_EXECUTE_ALL_FLAGS));
+		util::ostringstream os;
+		os << "Invalid flags. Unknown " << (flags - (flags | MYSQLX_EXECUTE_ALL_FLAGS));
+		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
 		DBG_VOID_RETURN;
 	}
 	DBG_INF_FMT("flags=%lu", flags);

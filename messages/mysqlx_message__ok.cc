@@ -171,7 +171,7 @@ mysqlx_new_message__ok(zval * return_value, const Mysqlx::Ok & message)
 void
 dump_mysqlx_ok(const Mysqlx::Ok & ok)
 {
-	php_error_docref(nullptr, E_WARNING, "[OK] ", ok.has_msg()? ok.msg().c_str(): "");
+	php_error_docref(nullptr, E_WARNING, "[OK] %s", ok.has_msg()? ok.msg().c_str(): "");
 }
 /* }}} */
 

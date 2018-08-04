@@ -3235,7 +3235,7 @@ PHP_MYSQL_XDEVAPI_API
 	 * For each address attempt to perform a connection
 	 * (The addresses are sorted by priority)
 	 */
-	MYSQLND_ERROR_INFO last_error_info{0};
+	MYSQLND_ERROR_INFO last_error_info{};
 	for( auto&& current_uri : uris ) {
 		DBG_INF_FMT("Attempting to connect with: %s\n",
 					current_uri.first.c_str());
