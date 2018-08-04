@@ -280,7 +280,7 @@ bool projection(
 		std::string item = it->get_text();
 		std::transform( item.begin(),
 						item.end(),
-						item.begin(), 
+						item.begin(),
 						[](char c) { return static_cast<char>(::toupper(c)); });
 		if( item == parser_as_symbol ) {
 			ident.clear();

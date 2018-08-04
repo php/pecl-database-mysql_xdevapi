@@ -144,6 +144,10 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 	return st_mysqlnd_const_string{ str.c_str(), str.length() };
 }
 
+//------------------------------------------------------------------------------
+
+bool to_int(const string& str, int* value);
+
 } // namespace util
 
 } // namespace mysqlx

@@ -48,7 +48,7 @@ function test_connection($base_uri, $auth_method, $expect_success, $verbose = fa
 			$uri .= '&auth=' . $auth_method;
 		}
 		if ($verbose) {
-			echo $uri, "\n";
+			echo $uri, PHP_EOL;
 		}
 
 		$session = mysql_xdevapi\getSession($uri);
@@ -58,6 +58,7 @@ function test_connection($base_uri, $auth_method, $expect_success, $verbose = fa
 			test_step_failed($uri);
 		}
 	} catch(Exception $e) {
+		echo $e->getMessage(), PHP_EOL;
 		if ($expect_success) {
 			test_step_failed($uri);
 		} else {
@@ -66,7 +67,7 @@ function test_connection($base_uri, $auth_method, $expect_success, $verbose = fa
 	}
 
 	if ($verbose) {
-		echo "----------------------", "\n";
+		echo "----------------------", PHP_EOL;
 	}
 }
 

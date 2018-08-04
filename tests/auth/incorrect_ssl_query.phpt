@@ -42,4 +42,7 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
+[HY000] Invalid authorization mechanism
+[HY000] Invalid authorization mechanism
+[HY000] Invalid authorization mechanism
 done!%A

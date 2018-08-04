@@ -3,14 +3,14 @@ mysqlx Client side failover
 --SKIPIF--
 --INI--
 error_reporting=0
-default_socket_timeout=5
+default_socket_timeout=1
 --FILE--
 <?php
 	require_once("connect.inc");
 
 	//[ URI, Expected code ]
 	$uri_string = [
-		[ $scheme.'://'.$user.':'.$passwd.'@[aa:bb:cc:dd]/db/?'.$disable_ssl_opt, 4001 ],
+		[ $scheme.'://'.$user.':'.$passwd.'@[aa:bb:cc:dd]/db/?'.$disable_ssl_opt, 2002 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@[aaa,bbb,ccc]/db/?'.$disable_ssl_opt, 4001 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@[ [aaa:bbb:ccc], [xxx:yyy:zzz]]/db/?'.$disable_ssl_opt, 4001 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@[ [aaa:bbb:ccc], [xxx:yyy:zzz]:10 ,coolhost:69 ]/?'.$disable_ssl_opt, 4001 ],

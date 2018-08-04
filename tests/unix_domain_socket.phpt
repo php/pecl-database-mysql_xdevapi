@@ -1,9 +1,27 @@
 --TEST--
 mysqlx Unix domain socket
 --SKIPIF--
+default_socket_timeout=1
 --FILE--
 <?php
+
+	function verify_uri($uri) {
+		try{
+			$session = mysql_xdevapi\getSession($uri);
+			test_step_ok();
+		} catch( Exception $e ) {
+			echo $uri, " ", $e->getCode(), " ",$e->getMessage(), "\n";
+			test_step_failed();
+		}
+	}
+
 	require("connect.inc");
+
+	if (is_running_on_windows()) {
+		print "done!\n";
+		return;
+	}
+
 	$session = mysql_xdevapi\getSession($connection_uri);
 	$session->executeSql("create database $db");
 
@@ -42,23 +60,13 @@ mysqlx Unix domain socket
 	    }
 	}
 
-	try{
-		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_1.'/?'.$disable_ssl_opt;
-		$session = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_2.')/'.$db.'?'.$disable_ssl_opt;
-		$session = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$valid_socket.')/?'.$disable_ssl_opt;
-		$session = mysql_xdevapi\getSession($uri);
-		$uri = $connection_uri;
-		$session = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@('.$socket_3.')/?'.$disable_ssl_opt;
-		$session = mysql_xdevapi\getSession($uri);
-		$uri = $scheme.'://'.$user.':'.$passwd.'@'.$socket_4.'/?'.$disable_ssl_opt;
-		$session = mysql_xdevapi\getSession($uri);
-		test_step_ok();
-	} catch( Exception $e ) {
-	        test_step_failed();
-	}
+	verify_uri($scheme.'://'.$user.':'.$passwd.'@'.$socket_1.'/?'.$disable_ssl_opt);
+	verify_uri($scheme.'://'.$user.':'.$passwd.'@('.$socket_2.')/'.$db.'?'.$disable_ssl_opt);
+	verify_uri($scheme.'://'.$user.':'.$passwd.'@('.$valid_socket.')/?'.$disable_ssl_opt);
+	verify_uri($connection_uri);
+	verify_uri($scheme.'://'.$user.':'.$passwd.'@('.$socket_3.')/?'.$disable_ssl_opt);
+	verify_uri($scheme.'://'.$user.':'.$passwd.'@'.$socket_4.'/?'.$disable_ssl_opt);
+
 	try{
 		$uri = $scheme.'://'.$user.':'.$passwd.'@/tmp%2Fmysqlx.sockk/'.$db;
 		$session = mysql_xdevapi\getSession($uri);

@@ -127,14 +127,16 @@ enum class Auth_mechanism
  * Information used to authenticate
  * the connection with the server
  */
-struct st_xmysqlnd_session_auth_data
+struct xmysqlnd_session_auth_data
 {
-	st_xmysqlnd_session_auth_data();
+	xmysqlnd_session_auth_data();
 
 	util::string hostname;
 	unsigned int port;
 	util::string username;
 	util::string password;
+	boost::optional<int> connection_timeout;
+
 	//SSL information
 	SSL_mode ssl_mode;
 	bool ssl_enabled;
@@ -163,7 +165,7 @@ struct st_xmysqlnd_session_auth_data
 
 typedef std::shared_ptr< xmysqlnd_session > XMYSQLND_SESSION;
 typedef std::shared_ptr<xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
-typedef struct st_xmysqlnd_session_auth_data XMYSQLND_SESSION_AUTH_DATA;
+typedef struct xmysqlnd_session_auth_data XMYSQLND_SESSION_AUTH_DATA;
 
 using vec_of_addresses = util::vector< std::pair<util::string,long> >;
 
@@ -293,8 +295,8 @@ private:
 	bool gather_auth_mechanisms();
 	bool authentication_loop();
 	bool authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_plugin);
-	void log_custom_error_msg();
-	bool is_suppress_server_messages() const;
+	void raise_multiple_auth_mechanisms_algorithm_error();
+	bool is_multiple_auth_mechanisms_algorithm() const;
 
 private:
 	xmysqlnd_session_data* session;
@@ -351,6 +353,10 @@ private:
 
 };
 
+bool set_connection_timeout(
+	const boost::optional<int>& connection_timeout,
+	MYSQLND_VIO* vio);
+
 enum_func_status           setup_crypto_connection(xmysqlnd_session_data* session,st_xmysqlnd_msg__capabilities_get& caps_get,const st_xmysqlnd_message_factory& msg_factory);
 char*                      build_server_host_info(const util::string& format,const util::string& name,zend_bool session_persistent);
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
@@ -375,6 +381,7 @@ public:
 	unsigned int      get_error_no();
 	const char*       get_error_str();
 	const char*       get_sqlstate();
+	const MYSQLND_ERROR_INFO* get_error_info() const;
 
 	enum_func_status  set_client_option(enum_xmysqlnd_client_option option, const char * const value);
 

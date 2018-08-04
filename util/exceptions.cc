@@ -31,7 +31,8 @@ namespace util {
 namespace
 {
 
-const char* const general_sql_state = GENERAL_SQL_STATE;
+const char* const General_sql_state{ GENERAL_SQL_STATE };
+const char* const Unknown_error_message{ "Unknown error" };
 
 /* {{{ mysqlx::util::code_to_err_msg */
 const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
@@ -83,17 +84,33 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::invalid_auth_mechanism, "Invalid authentication mechanism" },
 	{ xdevapi_exception::Code::unknown_lock_waiting_option, "Unknown lock waiting option" },
 	{ xdevapi_exception::Code::schema_creation_failed, "Unable to create the schema object" },
-	{ xdevapi_exception::Code::table_creation_failed, "Unable to create the table object"}
+	{ xdevapi_exception::Code::table_creation_failed, "Unable to create the table object"},
+	{ xdevapi_exception::Code::invalid_timeout,
+		"TypeError: The connection timeout value must be a positive integer (including 0)."},
+	{ xdevapi_exception::Code::timeout_exceeded,
+		"TimeoutError: Connection attempt to the server was aborted. Timeout was exceeded."},
+	{ xdevapi_exception::Code::invalid_argument, "Invalid argument."},
+	{ xdevapi_exception::Code::connection_failure, "Connection failure."},
+	{ xdevapi_exception::Code::authentication_failure, "Authentication failure."},
 };
 /* }}} */
 
-/* {{{ mysqlx::util::prepare_reason_msg */
-string prepare_reason_msg(const string& /*sql_state*/, const string& msg)
+/* {{{ to_sql_state */
+string to_sql_state(const char* sql_state)
 {
-	ostringstream os;
-	os << '[' << general_sql_state << "] " << msg;
-	const string& reason = os.str();
-	return reason;
+	return sql_state ? sql_state : General_sql_state;
+}
+/* }}} */
+
+/* {{{ to_error_msg */
+string to_error_msg(unsigned int code, const char* what)
+{
+	if (what) return what;
+
+	auto it{ code_to_err_msg.find(static_cast<xdevapi_exception::Code>(code)) };
+	if (it != code_to_err_msg.end()) return it->second;
+
+	return Unknown_error_message;
 }
 /* }}} */
 
@@ -103,15 +120,35 @@ string prepare_reason_msg(const string& /*sql_state*/, const string& msg)
 
 /* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code)
-	: std::runtime_error(prepare_reason_msg(general_sql_state, code_to_err_msg.at(code)).c_str())
-	, code(static_cast<unsigned int>(code))
+	: xdevapi_exception(code, code_to_err_msg.at(code))
+{
+}
+/* }}} */
+
+/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
+xdevapi_exception::xdevapi_exception(Code code, const string& msg)
+	: xdevapi_exception(static_cast<unsigned int>(code), msg)
+{
+}
+/* }}} */
+
+/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
+xdevapi_exception::xdevapi_exception(unsigned int code, const string& msg)
+	: xdevapi_exception(code, General_sql_state, msg)
+{
+}
+/* }}} */
+
+/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
+xdevapi_exception::xdevapi_exception(unsigned int code, const char* sql_state, const char* msg)
+	: xdevapi_exception(code, to_sql_state(sql_state), to_error_msg(code, msg))
 {
 }
 /* }}} */
 
 /* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
-	: std::runtime_error(prepare_reason_msg(sql_state, msg).c_str())
+	: std::runtime_error(prepare_reason_msg(code, sql_state, msg).c_str())
 	, code(code)
 {
 }
@@ -172,6 +209,25 @@ void raise_unknown_exception()
 	const char* what = "MySQL XDevAPI - unknown exception";
 	const int UnknownExceptionCode = 0; //TODO
 	zend_throw_exception(devapi::mysqlx_exception_class_entry, what, UnknownExceptionCode);
+}
+/* }}} */
+
+//------------------------------------------------------------------------------
+
+/* {{{ mysqlx::util::prepare_reason_msg */
+string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what)
+{
+	ostringstream os;
+	os << '[' << code << "][" << sql_state << "] " << what;
+	const string& reason = os.str();
+	return reason;
+}
+/* }}} */
+
+/* {{{ mysqlx::util::prepare_reason_msg */
+string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what)
+{
+	return prepare_reason_msg(code, to_sql_state(sql_state), to_error_msg(code, what));
 }
 /* }}} */
 

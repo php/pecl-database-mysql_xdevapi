@@ -38,9 +38,10 @@ using namespace drv;
 
 zend_class_entry *mysqlx_connection_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__connect, 0, ZEND_RETURN_VALUE, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__connect, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, connection_timeout, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__send, 0, ZEND_RETURN_VALUE, 1)
@@ -96,13 +97,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 	MYSQLND_CSTRING hostname = {nullptr, 0};
 	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
+	zend_long connection_timeout{
+		drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_connection_timeout) };
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_connection::connect");
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os|l",
-												&connection_zv, mysqlx_connection_class_entry,
-												&(hostname.s), &(hostname.l),
-												&port))
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os|ll",
+		&connection_zv, mysqlx_connection_class_entry,
+		&(hostname.s), &(hostname.l),
+		&port,
+		&connection_timeout))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -122,11 +126,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 			connection->vio->data->m.close_stream(connection->vio, connection->stats, connection->error_info);
 		}
 
-		ret = connection->vio->data->m.connect(connection->vio,
-											   scheme,
-											   connection->persistent,
-											   connection->stats,
-											   connection->error_info);
+		if (drv::set_connection_timeout(static_cast<int>(connection_timeout), connection->vio)) {
+			ret = connection->vio->data->m.connect(connection->vio,
+												   scheme,
+												   connection->persistent,
+												   connection->stats,
+												   connection->error_info);
+		} else {
+			ret = FAIL;
+		}
 		if (transport.s) {
 			mnd_sprintf_free(transport.s);
 			transport.s = nullptr;

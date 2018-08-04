@@ -25,6 +25,8 @@ namespace drv {
 #define XMYSQLND_MAX_PACKET_SIZE (1024L * 1024L)
 #define XMYSQLND_SESSION_CHARSET	"utf8mb4"
 
+// TODO: very suspicious - in code we still cast into enum_mysqlnd_collected_stats,
+// but the values are different than in mysqlnd! enums just don't match
 typedef enum xmysqlnd_collected_stats
 {
 	XMYSQLND_STAT_BYTES_SENT,
@@ -46,10 +48,10 @@ typedef enum xmysqlnd_collected_stats
 	XMYSQLND_STAT_LAST /* Should be always the last */
 } enum_xmysqlnd_collected_stats;
 
-
+// TODO: shall we remove it?
 typedef enum xmysqlnd_client_option
 {
-	XMYSQLND_OPT_READ_TIMEOUT,
+	XMYSQLND_OPT_READ_TIMEOUT = MYSQL_OPT_READ_TIMEOUT,
 } enum_xmysqlnd_client_option;
 
 } // namespace drv
