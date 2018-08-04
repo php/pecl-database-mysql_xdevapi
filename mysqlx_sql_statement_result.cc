@@ -37,6 +37,7 @@
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/string_utils.h"
 #include "util/zend_utils.h"
 
 namespace mysqlx {
@@ -271,7 +272,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getAffectedItemsCount)
 		if (exec_state) {
 			const size_t value = exec_state->m->get_affected_items_count(exec_state);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
 				ZVAL_LONG(return_value, value);
@@ -305,7 +306,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getLastInsertId)
 		if (exec_state) {
 			const uint64_t value = exec_state->m->get_last_insert_id(exec_state);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
 				ZVAL_LONG(return_value, static_cast<zend_long>(value));
@@ -374,7 +375,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarningsCount)
 		if (warnings) {
 			const size_t value = warnings->m->count(warnings);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
 				ZVAL_LONG(return_value, value);
@@ -472,7 +473,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnCount)
 		{
 			const size_t value = meta->m->get_field_count(meta);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
 				ZVAL_LONG(return_value, value);

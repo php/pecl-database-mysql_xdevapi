@@ -101,7 +101,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 		if (exec_state) {
 			const size_t value = exec_state->m->get_affected_items_count(exec_state);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
 				ZVAL_LONG(return_value, value);
@@ -205,7 +205,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 		if (warnings) {
 			const size_t value = warnings->m->count(warnings);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
 				ZVAL_LONG(return_value, value);
