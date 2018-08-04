@@ -19,6 +19,8 @@
 #include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 
+#include "util/string_utils.h"
+
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_datatypes.pb.h"
 
@@ -114,7 +116,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 #if SIZEOF_ZEND_LONG==4
 			if (UNEXPECTED(scalar.v_signed_int() >= ZEND_LONG_MAX)) {
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_signed_int());
+				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, util::to_string(scalar.v_signed_int()).c_str());
 				ZVAL_STRING(zv, tmp);
 			} else
 #endif
@@ -129,7 +131,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 			if (scalar.v_unsigned_int() > L64(2147483647)) {
 #endif
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
 				ZVAL_STRING(zv, tmp);
 			} else {
 				ZVAL_LONG(zv, static_cast<zend_long>(scalar.v_unsigned_int()));
@@ -179,7 +181,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 #if SIZEOF_ZEND_LONG==4
 					if (UNEXPECTED(any.scalar().v_signed_int() >= ZEND_LONG_MAX)) {
 						char tmp[22];
-						snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, any.scalar().v_signed_int());
+						snprintf(tmp, sizeof(tmp), "%s", util::to_string(any.scalar().v_signed_int()).c_str());
 						ZVAL_STRING(zv, tmp);
 					} else
 #endif
@@ -194,7 +196,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 					if (any.scalar().v_unsigned_int() > L64(2147483647)) {
 #endif
 						char tmp[22];
-						snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, any.scalar().v_unsigned_int());
+						snprintf(tmp, sizeof(tmp), "%s", util::to_string(any.scalar().v_unsigned_int()).c_str());
 						ZVAL_STRING(zv, tmp);
 					} else {
 						ZVAL_LONG(zv, any.scalar().v_unsigned_int());
@@ -407,7 +409,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 #if SIZEOF_ZEND_LONG==4
 			if (UNEXPECTED(scalar.v_signed_int() >= ZEND_LONG_MAX)) {
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
 				DBG_INF_FMT("value=%s", tmp);
 			} else
 #endif
@@ -422,7 +424,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 			if (scalar.v_unsigned_int() > L64(2147483647)) {
 #endif
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
 				DBG_INF_FMT("value=%s", tmp);
 			} else {
 				DBG_INF_FMT("value=" MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
