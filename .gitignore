@@ -193,6 +193,10 @@ xmysqlnd/proto_gen/*
 *.includes
 **/build
 
+# Documentation
+docbook/*entities*.xml
+docbook/mysql_xdevapi/*entities*.xml
+
 # directories
 Debug
 Debug_TS
