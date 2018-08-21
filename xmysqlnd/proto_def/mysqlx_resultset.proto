@@ -471,7 +471,7 @@ message ColumnMetaData {
   optional bytes schema = 6;
   optional bytes catalog = 7;
 
-  optional uint64 collation = 8;
+  optional uint64 collation = 8 /* ifdef PROTOBUF3 [jstype = JS_STRING] */;
 
   optional uint32 fractional_digits = 9;
 
