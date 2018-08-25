@@ -184,7 +184,7 @@ static zend_object *
 php_mysqlx_message__auth_start_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
 	st_mysqlx_message__auth_start* message = new (std::nothrow) struct st_mysqlx_message__auth_start();
 
 	DBG_ENTER("php_mysqlx_message__auth_start_object_allocator");
@@ -201,7 +201,7 @@ php_mysqlx_message__auth_start_object_allocator(zend_class_entry * class_type)
 		DBG_RETURN(&mysqlx_object->zo);
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	delete message;
 	DBG_RETURN(nullptr);

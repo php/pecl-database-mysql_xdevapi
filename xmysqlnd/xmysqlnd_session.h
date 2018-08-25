@@ -540,7 +540,7 @@ private:
 	Uuid_format::node_id_t session_node_id;
 };
 
-class xmysqlnd_session : public util::permanent_allocable, public std::enable_shared_from_this<xmysqlnd_session>
+class xmysqlnd_session : public util::custom_allocable, public std::enable_shared_from_this<xmysqlnd_session>
 {
 public:
 	xmysqlnd_session() = delete;

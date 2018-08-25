@@ -395,7 +395,7 @@ xmysqlnd_collection::free_contents()
 {
 	DBG_ENTER("xmysqlnd_collection::free_contents");
 	if (collection_name.s) {
-		mnd_pefree(get_name().s, persistent);
+		mnd_efree(get_name().s);
 		collection_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;

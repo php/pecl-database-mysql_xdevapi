@@ -66,7 +66,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state)
 	func_xmysqlnd_stmt_execution_state__dtor dtor;
 };
 
-struct st_xmysqlnd_stmt_execution_state : public util::permanent_allocable
+struct st_xmysqlnd_stmt_execution_state : public util::custom_allocable
 {
 	size_t items_affected;
 	size_t items_matched;

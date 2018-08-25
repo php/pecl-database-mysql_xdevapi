@@ -63,7 +63,7 @@ xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, cons
 #endif
 
 	if (value) {
-		str->s = value_len? mnd_pestrndup(value, value_len, persistent) : (char *) mysqlnd_empty_string;
+		str->s = value_len? mnd_pestrndup(value, value_len, 0) : (char *) mysqlnd_empty_string;
 		str->l = value_len;
 		return str->s? PASS:FAIL;
 	}
@@ -245,27 +245,27 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD
 	field->name.l = 0;
 
 	if (field->original_name.s && field->original_name.s != mysqlnd_empty_string) {
-		mnd_pefree(field->original_name.s, persistent);
+		mnd_efree(field->original_name.s);
 		field->original_name.s = nullptr;
 		field->original_name.l = 0;
 	}
 	if (field->table.s && field->table.s != mysqlnd_empty_string) {
-		mnd_pefree(field->table.s, persistent);
+		mnd_efree(field->table.s);
 		field->table.s = nullptr;
 		field->table.l = 0;
 	}
 	if (field->original_table.s && field->original_table.s != mysqlnd_empty_string) {
-		mnd_pefree(field->original_table.s, persistent);
+		mnd_efree(field->original_table.s);
 		field->original_table.s = nullptr;
 		field->original_table.l = 0;
 	}
 	if (field->schema.s && field->schema.s != mysqlnd_empty_string) {
-		mnd_pefree(field->schema.s, persistent);
+		mnd_efree(field->schema.s);
 		field->schema.s = nullptr;
 		field->schema.l = 0;
 	}
 	if (field->catalog.s && field->catalog.s != mysqlnd_empty_string) {
-		mnd_pefree(field->catalog.s, persistent);
+		mnd_efree(field->catalog.s);
 		field->catalog.s = nullptr;
 		field->catalog.l = 0;
 	}
@@ -296,7 +296,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(
 	DBG_ENTER("xmysqlnd_result_field_meta::dtor");
 	if (field) {
 		field->m->free_contents(field);
-		mnd_pefree(field, field->persistent);
+		mnd_efree(field);
 	}
 	DBG_VOID_RETURN;
 }
@@ -380,7 +380,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, add_field)(
 	DBG_ENTER("xmysqlnd_stmt_result_meta::add_field");
 	if (!meta->fields || meta->field_count == meta->fields_size) {
 		meta->fields_size += 8;
-		meta->fields = static_cast<XMYSQLND_RESULT_FIELD_META**>(mnd_perealloc(meta->fields, meta->fields_size * sizeof(field), meta->persistent));
+		meta->fields = static_cast<XMYSQLND_RESULT_FIELD_META**>(mnd_erealloc(meta->fields, meta->fields_size * sizeof(field)));
 		if (!meta->fields) {
 			SET_OOM_ERROR(error_info);
 			DBG_RETURN(FAIL);
@@ -420,7 +420,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, free_contents)(XMYSQLND_STMT_RESULT_M
 		for (unsigned int i{0}; i < meta->field_count; ++i) {
 			meta->fields[i]->m->dtor(meta->fields[i], stats, error_info);
 		}
-		mnd_pefree(meta->fields, meta->persistent);
+		mnd_efree(meta->fields);
 		meta->fields = nullptr;
 	}
 	DBG_VOID_RETURN;
@@ -435,7 +435,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, dtor)(XMYSQLND_STMT_RESULT_META * con
 	DBG_ENTER("xmysqlnd_stmt_result_meta::dtor");
 	if (meta) {
 		meta->m->free_contents(meta, stats, error_info);
-		mnd_pefree(meta, meta->persistent);
+		mnd_efree(meta);
 	}
 	DBG_VOID_RETURN;
 }

@@ -402,7 +402,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, dtor)(XMYSQLND_STMT_RESULT * const result,
 	if (result) {
 		result->m.free_contents(result, stats, error_info);
 
-		mnd_pefree(result, result->persistent);
+		mnd_efree(result);
 	}
 	DBG_VOID_RETURN;
 }

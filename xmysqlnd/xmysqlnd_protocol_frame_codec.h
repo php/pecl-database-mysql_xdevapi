@@ -50,7 +50,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec)
 	func_xmysqlnd_pfc__dtor dtor;
 };
 
-struct st_xmysqlnd_protocol_frame_codec_data : public util::permanent_allocable
+struct st_xmysqlnd_protocol_frame_codec_data : public util::custom_allocable
 {
 	php_stream		*stream;
 	size_t			max_packet_size;
@@ -61,7 +61,7 @@ struct st_xmysqlnd_protocol_frame_codec_data : public util::permanent_allocable
 };
 
 
-struct st_xmysqlnd_protocol_frame_codec : public util::permanent_allocable
+struct st_xmysqlnd_protocol_frame_codec : public util::custom_allocable
 {
 	MYSQLND_CMD_BUFFER	cmd_buffer;
 

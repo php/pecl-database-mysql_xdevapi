@@ -197,8 +197,8 @@ XMYSQLND_METHOD(xmysqlnd_pfc, dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * co
 	if (pfc) {
 		pfc->data->m.free_contents(pfc);
 
-		mnd_pefree(pfc->data, pfc->data->persistent);
-		mnd_pefree(pfc, pfc->persistent);
+		mnd_efree(pfc->data);
+		mnd_efree(pfc);
 	}
 	DBG_VOID_RETURN;
 }

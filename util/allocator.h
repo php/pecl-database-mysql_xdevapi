@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHP_ALLOCATOR_H
-#define MYSQL_XDEVAPI_PHP_ALLOCATOR_H
+#ifndef MYSQL_XDEVAPI_PHP_UTIL_ALLOCATOR_H
+#define MYSQL_XDEVAPI_PHP_UTIL_ALLOCATOR_H
 
 #include <cstddef>
 #include <memory>

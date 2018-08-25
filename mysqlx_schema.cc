@@ -591,7 +591,7 @@ mysqlx_schema_free_storage(zend_object* object)
 			xmysqlnd_schema_free(inner_obj->schema, nullptr, nullptr);
 			if( inner_obj->schema->get_counter() == 0 ) {
 				zend_bool persistent = inner_obj->schema->is_persistent();
-				mnd_pefree(inner_obj->schema, persistent);
+				mnd_efree(inner_obj->schema);
 			}
 			inner_obj->schema = nullptr;
 		}

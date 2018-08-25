@@ -50,13 +50,12 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * cons
 	DBG_ENTER("xmysqlnd_warning_list::add_warning");
 	if (!warn_list->warnings || warn_list->warnings_allocated == warn_list->warning_count) {
 		warn_list->warnings_allocated = ((warn_list->warnings_allocated + 1) * 5)/ 3;
-		warn_list->warnings = static_cast<st_xmysqlnd_warning*>(mnd_perealloc(warn_list->warnings,
-											warn_list->warnings_allocated * sizeof(struct st_xmysqlnd_warning),
-											warn_list->persistent));
+		warn_list->warnings = static_cast<st_xmysqlnd_warning*>(mnd_erealloc(warn_list->warnings,
+											warn_list->warnings_allocated * sizeof(struct st_xmysqlnd_warning)));
 	}
 
 	{
-		const struct st_xmysqlnd_warning warn = { mnd_dup_cstring(message, warn_list->persistent), code, level };
+		const struct st_xmysqlnd_warning warn = { mnd_dup_cstring(message, 0), code, level };
 		warn_list->warnings[warn_list->warning_count++] = warn;
 	}
 	DBG_VOID_RETURN;
@@ -101,10 +100,10 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * co
 		if (warn_list->warning_count) {
 			DBG_INF_FMT("Freeing %u warning(s)", warn_list->warning_count);
 			for (unsigned int i{0}; i < warn_list->warning_count; ++i) {
-				mnd_pefree(warn_list->warnings[i].message.s, pers);
+				mnd_efree(warn_list->warnings[i].message.s);
 			}
 		}
-		mnd_pefree(warn_list->warnings, pers);
+		mnd_efree(warn_list->warnings);
 		warn_list->warnings = nullptr;
 	}
 	DBG_VOID_RETURN;
@@ -119,7 +118,7 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_
 	DBG_ENTER("xmysqlnd_warning_list::dtor");
 	if (warn_list) {
 		warn_list->m->free_contents(warn_list);
-		mnd_pefree(warn_list, warn_list->persistent);
+		mnd_efree(warn_list);
 	}
 	DBG_VOID_RETURN;
 }

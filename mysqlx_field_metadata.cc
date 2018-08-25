@@ -34,7 +34,7 @@ using namespace drv;
 
 static zend_class_entry * mysqlx_field_metadata_class_entry;
 
-struct st_mysqlx_field_metadata : public util::permanent_allocable
+struct st_mysqlx_field_metadata : public util::custom_allocable
 {
 	XMYSQLND_RESULT_FIELD_META * field_meta;
 	zend_bool persistent;
@@ -268,7 +268,7 @@ mysqlx_field_metadata_free_storage(zend_object * object)
 		if (message->field_meta) {
 			xmysqlnd_result_field_meta_free(message->field_meta, nullptr, nullptr);
 		}
-		mnd_pefree(message, message->persistent);
+		mnd_efree(message);
 	}
 	mysqlx_object_free_storage(object);
 }
@@ -280,7 +280,7 @@ static zend_object *
 php_mysqlx_field_metadata_object_allocator(zend_class_entry * class_type)
 {
 	DBG_ENTER("php_mysqlx_field_metadata_object_allocator");
-	st_mysqlx_object* mysqlx_object = util::alloc_permanent_object<st_mysqlx_field_metadata>(
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_field_metadata>(
 		class_type,
 		&mysqlx_object_field_metadata_handlers,
 		&mysqlx_field_metadata_properties);

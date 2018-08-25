@@ -173,7 +173,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor)(XMYSQLND_STMT_EXECUTION_STA
 	DBG_ENTER("xmysqlnd_stmt_execution_state::dtor");
 	if (state) {
 		state->m->free_contents(state);
-		mnd_pefree(state, state->persistent);
+		mnd_efree(state);
 	}
 	DBG_VOID_RETURN;
 }

@@ -98,7 +98,7 @@ void xmysqlnd_schema::cleanup()
 	const zend_bool pers = persistent;
 	DBG_ENTER("xmysqlnd_schema::cleanup");
 	if (schema_name.s) {
-		mnd_pefree(schema_name.s, pers);
+		mnd_efree(schema_name.s);
 		schema_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;
@@ -603,7 +603,7 @@ xmysqlnd_schema::free_contents()
 	const zend_bool pers = persistent;
 	DBG_ENTER("xmysqlnd_schema::free_contents");
 	if (schema_name.s) {
-		mnd_pefree(schema_name.s, pers);
+		mnd_efree(schema_name.s);
 		schema_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;

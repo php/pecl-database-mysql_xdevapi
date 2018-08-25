@@ -344,8 +344,7 @@ xmysqlnd_session_data::connect(
 
 	/* Setup the relevant variables! */
 	current_db.l = database.l;
-	current_db.s = mnd_pestrndup(database.s,
-								 current_db.l, persistent);
+	current_db.s = mnd_pestrndup(database.s, current_db.l, 0);
 
 	transport_name = get_scheme(auth->hostname,
 						   port);
@@ -353,8 +352,7 @@ xmysqlnd_session_data::connect(
 	if( nullptr == transport_name.s || transport_name.l == 0 ) {
 		ret = FAIL;
 	} else {
-		scheme.s = mnd_pestrndup(transport_name.s, transport_name.l,
-								 persistent);
+		scheme.s = mnd_pestrndup(transport_name.s, transport_name.l, 0);
 		scheme.l = transport_name.l;
 
 		mnd_sprintf_free(transport_name.s);
@@ -386,12 +384,11 @@ xmysqlnd_session_data::connect(
 													  auth->hostname.c_str(),
 													  persistent);
 		} else if( transport == transport_types::unix_domain_socket ) {
-			server_host_info = mnd_pestrdup("Localhost via UNIX socket",
-											persistent);
+			server_host_info = mnd_pestrdup("Localhost via UNIX socket", 0);
 		} else if( transport == transport_types::windows_pipe) {
 			server_host_info = build_server_host_info("%s via named pipe",
 													  socket_path.c_str(),
-													  persistent);
+													  0);
 		}
 
 		if ( !server_host_info ) {
@@ -732,16 +729,16 @@ void xmysqlnd_session_data::cleanup()
 		auth = nullptr;
 	}
 	if (current_db.s) {
-		mnd_pefree(current_db.s, pers);
+		mnd_efree(current_db.s);
 		current_db.s = nullptr;
 	}
 
 	if (scheme.s) {
-		mnd_pefree(scheme.s, pers);
+		mnd_efree(scheme.s);
 		scheme.s = nullptr;
 	}
 	if (server_host_info) {
-		mnd_pefree(server_host_info, pers);
+		mnd_efree(server_host_info);
 		server_host_info = nullptr;
 	}
 	util::zend::free_error_info_list(error_info, pers);
@@ -1657,7 +1654,7 @@ char* build_server_host_info(const util::string& format,
 	char *hostname{ nullptr }, *host_info{ nullptr };
 	mnd_sprintf(&hostname, 0, format.c_str(), name.c_str());
 	if (hostname) {
-		host_info = mnd_pestrdup(hostname, session_persistent);
+		host_info = mnd_pestrdup(hostname, 0);
 		mnd_sprintf_free(hostname);
 	}
 	return host_info;
@@ -1684,7 +1681,7 @@ xmysqlnd_session::~xmysqlnd_session()
 {
 	DBG_ENTER("xmysqlnd_session::~xmysqlnd_session");
 	if (server_version_string) {
-		mnd_pefree(server_version_string, persistent);
+		mnd_efree(server_version_string);
 		server_version_string = nullptr;
 	}
 	if(session_uuid) {
@@ -2245,7 +2242,7 @@ xmysqlnd_session::get_server_version()
 							Z_TYPE(set[0 * 0]) == IS_STRING)
 					{
 						DBG_INF_FMT("Found %*s", Z_STRLEN(set[0 * 0]), Z_STRVAL(set[0 * 0]));
-						server_version_string = mnd_pestrndup(Z_STRVAL(set[0 * 0]), Z_STRLEN(set[0 * 0]), persistent);
+						server_version_string = mnd_pestrndup(Z_STRVAL(set[0 * 0]), Z_STRLEN(set[0 * 0]), 0);
 					}
 					if (set) {
 						mnd_efree(set);

@@ -197,7 +197,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, create_row)(XMYSQLND_ROWSET_FWD * const res
 												 MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const unsigned int column_count = meta->m->get_field_count(meta);
-	zval * row = static_cast<zval*>(mnd_pecalloc(column_count, sizeof(zval), result->persistent));
+	zval * row = static_cast<zval*>(mnd_ecalloc(column_count, sizeof(zval)));
 	DBG_ENTER("xmysqlnd_rowset_fwd::create_row");
 	DBG_INF_FMT("row=%p", row);
 	DBG_RETURN(row);
@@ -215,7 +215,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, destroy_row)(XMYSQLND_ROWSET_FWD * const re
 	DBG_ENTER("xmysqlnd_rowset_fwd::destroy_row");
 	DBG_INF_FMT("row=%p", row);
 	if (row) {
-		mnd_pefree(row, result->persistent);
+		mnd_efree(row);
 	}
 	DBG_VOID_RETURN;
 }
@@ -231,7 +231,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, add_row)(XMYSQLND_ROWSET_FWD * const result
 
 	if (!result->rows || result->rows_allocated == result->row_count) {
 		result->rows_allocated += result->prefetch_rows;
-		result->rows = static_cast<zval**>(mnd_perealloc(result->rows, result->rows_allocated * sizeof(zval*), result->persistent));
+		result->rows = static_cast<zval**>(mnd_erealloc(result->rows, result->rows_allocated * sizeof(zval*)));
 	}
 
 	if (row) {
@@ -313,7 +313,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows)(XMYSQLND_ROWSET_FWD * const resu
 
 		result->m.free_rows_contents(result, stats, error_info);
 
-		mnd_pefree(result->rows, pers);
+		mnd_efree(result->rows);
 		result->rows = nullptr;
 
 		result->rows_allocated = 0;
@@ -350,7 +350,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, dtor)(XMYSQLND_ROWSET_FWD * const result, M
 			result->stmt->free_reference(result->stmt);
 		}
 
-		mnd_pefree(result, result->persistent);
+		mnd_efree(result);
 	}
 	DBG_VOID_RETURN;
 }

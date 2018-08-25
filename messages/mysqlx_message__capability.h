@@ -29,7 +29,7 @@ namespace msg {
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_message__capability_class_entry;
 
-struct st_mysqlx_message__capability : util::permanent_allocable
+struct st_mysqlx_message__capability : util::custom_allocable
 {
 	zval capability_name;
 	zval capability_value;
