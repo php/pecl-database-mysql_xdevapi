@@ -309,8 +309,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows)(XMYSQLND_ROWSET_FWD * const resu
 	DBG_INF_FMT("rows=%p  meta=%p", result->rows, result->meta);
 
 	if (result->rows) {
-		const zend_bool pers = result->persistent;
-
 		result->m.free_rows_contents(result, stats, error_info);
 
 		mnd_efree(result->rows);

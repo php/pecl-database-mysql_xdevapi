@@ -237,7 +237,6 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, clone)(const XMYSQLND_RESULT_FIELD_M
 static void
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD_META * const field)
 {
-	const zend_bool persistent = field->persistent;
 	DBG_ENTER("xmysqlnd_result_field_meta::free_contents");
 
 	/* Don't free field->name.s as it is a pointer to field->zend_hash_key.sname */

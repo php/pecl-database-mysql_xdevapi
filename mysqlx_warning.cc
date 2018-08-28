@@ -138,7 +138,6 @@ mysqlx_warning_free_storage(zend_object * object)
 	st_mysqlx_warning* message = (st_mysqlx_warning*) mysqlx_object->ptr;
 
 	if (message) {
-		const zend_bool pers = message->persistent;
 		if (message->msg.s) {
 			mnd_efree(message->msg.s);
 			message->msg.s = nullptr;

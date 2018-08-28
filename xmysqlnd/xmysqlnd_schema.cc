@@ -95,7 +95,6 @@ xmysqlnd_schema::~xmysqlnd_schema()
 
 void xmysqlnd_schema::cleanup()
 {
-	const zend_bool pers = persistent;
 	DBG_ENTER("xmysqlnd_schema::cleanup");
 	if (schema_name.s) {
 		mnd_efree(schema_name.s);
@@ -600,7 +599,6 @@ xmysqlnd_schema::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * erro
 void
 xmysqlnd_schema::free_contents()
 {
-	const zend_bool pers = persistent;
 	DBG_ENTER("xmysqlnd_schema::free_contents");
 	if (schema_name.s) {
 		mnd_efree(schema_name.s);

@@ -93,8 +93,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST 
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * const warn_list)
 {
-	const zend_bool pers = warn_list->persistent;
-
 	DBG_ENTER("xmysqlnd_warning_list::free_contents");
 	if (warn_list->warnings) {
 		if (warn_list->warning_count) {

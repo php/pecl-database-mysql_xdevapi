@@ -475,7 +475,6 @@ xmysqlnd_table::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error
 void
 xmysqlnd_table::free_contents()
 {
-	const zend_bool pers = persistent;
 	DBG_ENTER("xmysqlnd_table::free_contents");
 	if (table_name.s) {
 		mnd_efree(table_name.s);
