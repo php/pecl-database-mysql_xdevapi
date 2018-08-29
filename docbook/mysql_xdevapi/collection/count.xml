@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- $Revision: 345561 $ -->
 
 <refentry xml:id="mysql-xdevapi-collection.count" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
@@ -31,6 +31,51 @@
   <para>
    The number of documents in the collection.
   </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <example>
+   <title><function>mysql_xdevapi\Collection::count</function> example</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$session = mysql_xdevapi\getSession("mysqlx://user:password@localhost");
+$session->sql("DROP DATABASE IF EXISTS addressbook")->execute();
+$session->sql("CREATE DATABASE addressbook")->execute();
+
+$schema = $session->getSchema("addressbook");
+$create = $schema->createCollection("people");
+
+$collection = $schema->getCollection("people");
+
+$result = $collection
+  ->add(
+  '{"name": "Bernie",
+    "jobs": [
+      {"title":"Cat Herder","Salary":42000}, 
+      {"title":"Father","Salary":0}
+    ],
+    "hobbies": ["Sports","Making cupcakes"]}',
+  '{"name": "Jane",
+    "jobs": [
+      {"title":"Scientist","Salary":18000}, 
+      {"title":"Mother","Salary":0}
+    ],
+    "hobbies": ["Walking","Making pies"]}')
+  ->execute();
+
+var_dump($collection->count());
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+int(2)
+]]>
+   </screen>
+  </example>
  </refsect1>
 
 </refentry>

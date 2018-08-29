@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- $Revision: 345514 $ -->
 
 <refentry xml:id="mysql-xdevapi-tableupdate.bind" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
@@ -26,7 +26,8 @@
     <term><parameter>placeholder_values</parameter></term>
     <listitem>
      <para>
-		 The name of the placeholder, and the value to bind.
+		 The name of the placeholder, and the value to bind, defined
+     as a JSON array.
      </para>
     </listitem>
    </varlistentry>
@@ -47,15 +48,22 @@
    <programlisting role="php">
 <![CDATA[
 <?php
+$session = mysql_xdevapi\getSession("mysqlx://user:password@localhost");
 
-$res = $table->update()->set('name', 'Alfonso')->where('name = :name and age > 2000')->bind(['name' => 'Oracila'])->execute();
+$schema = $session->getSchema("addressbook");
+$table  = $schema->getTable("names");
+
+$table->update()
+  ->set('status', 'admin')
+  ->where('name = :name and age > :age')
+  ->bind(['name' => 'Bernie', 'age' => 2000])
+  ->execute();
 
 ?>
 ]]>
    </programlisting>
   </example>
  </refsect1>
-
 
 </refentry>
 
