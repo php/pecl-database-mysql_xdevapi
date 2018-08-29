@@ -115,7 +115,9 @@ devapi::st_mysqlx_object* alloc_object(
 	const std::size_t bytes_count = sizeof(st_mysqlx_object) + zend_object_properties_size(class_type);
 	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, Allocation_tag()));
 
-	static_assert(std::is_base_of<util::internal::allocable<Allocation_tag>, Data_object>::value, "custom allocation should be applied");
+	static_assert(
+		std::is_base_of<util::internal::allocable<Allocation_tag>, Data_object>::value,
+		"proper kind of custom allocation should be applied");
 	mysqlx_object->ptr = new Data_object;
 
 	zend_object_std_init(&mysqlx_object->zo, class_type);
