@@ -36,6 +36,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	mysqlx_devapi_sources=" \
 		mysqlx_base_result.cc \
 		mysqlx_class_properties.cc \
+		mysqlx_client.cc \
 		mysqlx_collection.cc \
 		mysqlx_collection__add.cc \
 		mysqlx_collection__find.cc \

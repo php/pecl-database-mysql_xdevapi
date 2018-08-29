@@ -193,6 +193,8 @@ private:
 	vec_of_addresses list_of_addresses;
 };
 
+void verify_connection_string(const util::string& connection_string);
+
 using Auth_mechanisms = util::vector<Auth_mechanism>;
 
 

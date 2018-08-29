@@ -19,6 +19,7 @@
 #include "mysqlnd_api.h"
 #include "php_mysqlx.h"
 #include "php_mysqlx_ex.h"
+#include "mysqlx_client.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"
 #include "mysqlx_crud_operation_skippable.h"
@@ -115,6 +116,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	mysqlx_register_x_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_client_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_schema_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
@@ -260,8 +262,11 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_collection__remove_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_schema_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+
+	mysqlx_unregister_client_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_x_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+
 	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_field_metadata_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

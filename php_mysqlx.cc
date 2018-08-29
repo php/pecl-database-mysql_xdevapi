@@ -30,6 +30,7 @@ extern "C" {
 #include "xmysqlnd/xmysqlnd_priv.h"
 #include "php_mysqlx.h"
 #include "php_mysqlx_ex.h"
+#include "mysqlx_client.h"
 #include "mysqlx_expression.h"
 #include "mysqlx_session.h"
 #include "mysqlx_x_session.h"
@@ -134,6 +135,7 @@ static PHP_MINIT_FUNCTION(mysql_xdevapi)
 static PHP_MSHUTDOWN_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- mysqlx ---------------- */
+	mysqlx::devapi::cleanup_clients();
 	mysqlx::devapi::mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	/* ---------------- xmysqlnd ---------------- */
@@ -203,6 +205,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_x_session, 0, ZEND_RETURN_VALU
 	ZEND_ARG_TYPE_INFO(0, uri, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_client, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_TYPE_INFO(0, uri, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, client_options, IS_STRING, 1)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__expression, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, expression, IS_STRING, 0)
 ZEND_END_ARG_INFO()
@@ -216,6 +223,7 @@ ZEND_END_ARG_INFO()
 /* {{{ mysqlx_functions */
 static const zend_function_entry mysqlx_functions[] = {
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi__getXSession), arginfo_mysql_xdevapi__get_x_session)
+	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getClient, mysqlx::devapi::ZEND_FN(mysql_xdevapi_getClient), arginfo_mysql_xdevapi__get_client)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, expression, mysqlx::devapi::ZEND_FN(mysql_xdevapi__expression), arginfo_mysql_xdevapi__expression)
 	PHP_FE_END
 };

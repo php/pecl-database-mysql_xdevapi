@@ -3208,6 +3208,36 @@ vec_of_addresses extract_uri_addresses(const util::string& uri)
 }
 /* }}} */
 
+/* {{{ verify_uri_address */
+void verify_uri_address(const util::string& uri_address)
+{
+	php_url* raw_url{ php_url_parse(uri_address.c_str()) };
+	const bool uri_valid{ raw_url != nullptr };
+	php_url_free(raw_url);
+
+	if (uri_valid) return;
+
+	util::ostringstream os;
+	os << "invalid uri '" << uri_address << "'.";
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+}
+/* }}} */
+
+/* {{{ verify_connection_string */
+void verify_connection_string(const util::string& connection_string)
+{
+	const auto& uri_addresses{ extract_uri_addresses(connection_string) };
+	if (uri_addresses.empty()) {
+		util::ostringstream os;
+		os << "invalid connection_string '" << connection_string << "'.";
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+	}
+
+	for (const auto& uri_address : uri_addresses) {
+		verify_uri_address(uri_address.first);
+	}
+}
+/* }}} */
 
 /* {{{ xmysqlnd_new_session_connect */
 PHP_MYSQL_XDEVAPI_API
