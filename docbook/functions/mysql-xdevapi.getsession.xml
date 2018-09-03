@@ -56,12 +56,12 @@
       </listitem>
       <listitem>
         <para>
-          <literal>?attribute=value</literal>: this element is optional and specifies a data dictionary that contains options, 
+          <literal>?attribute=value</literal>: this element is optional and specifies a data dictionary that contains options,
           e.g. for encrypted connections or 'auth'. For additional information, see
           <link xlink:href="&url.mysql.docs.connect.encryption;">Command Options for Encrypted Connections</link>.
         </para>
         <para>
-          
+
         </para>
         <para>
           The following values for 'auth' attribute are supported (authentication mechanism):
@@ -106,6 +106,7 @@ mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled
   &reftitle.returnvalues;
   <para>
    A <classname>mysql_xdevap\Session</classname> object.
+   In case of failure an exception will be thrown.
   </para>
  </refsect1>
 
@@ -116,9 +117,10 @@ mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled
    <programlisting role="php">
 <![CDATA[
 <?php
-$session = mysql_xdevapi\getSession("mysqlx://user:password@host");
-if ($session === NULL) {
-    die("Connection could not be established");
+try {
+    $session = mysql_xdevapi\getSession("mysqlx://user:password@host");
+} catch(Exception $e) {
+    die("Connection could not be established: " . $e->getMessage());
 }
 
 var_dump($collection->find("name = 'Alfred'")->execute()->fetchOne());
