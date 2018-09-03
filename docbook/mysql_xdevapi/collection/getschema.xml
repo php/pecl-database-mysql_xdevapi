@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- $Revision: 345542 $ -->
 
 <refentry xml:id="mysql-xdevapi-collection.getschema" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
@@ -16,7 +16,6 @@
   <para>
    Retrieve the schema object that contains the collection.
   </para>
-
  </refsect1>
 
  <refsect1 role="parameters">
@@ -39,12 +38,27 @@
    <programlisting role="php">
 <![CDATA[
 <?php
+$session = mysql_xdevapi\getSession("mysqlx://user:password@localhost");
 
-$schema = $collection->getSchema();
+$session->sql("DROP DATABASE IF EXISTS addressbook")->execute();
+$session->sql("CREATE DATABASE addressbook")->execute();
 
+$schema     = $session->getSchema("addressbook");
+$collection = $schema->createCollection("people");
+
+var_dump($collection->getSchema());
 ?>
 ]]>
    </programlisting>
+   &example.outputs.similar;
+   <screen>
+<![CDATA[
+object(mysql_xdevapi\Schema)#9 (1) {
+  ["name"]=>
+  string(11) "addressbook"
+}
+]]>
+   </screen>
   </example>
  </refsect1>
 

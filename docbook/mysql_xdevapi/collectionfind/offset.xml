@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision: 345542 $ -->
+<!-- $Revision: 345561 $ -->
 
-<refentry xml:id="mysql-xdevapi-collection.dropindex" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+<refentry xml:id="mysql-xdevapi-collectionfind.offset" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>Collection::dropIndex</refname>
-  <refpurpose>Drop collection index</refpurpose>
+  <refname>CollectionFind::offset</refname>
+  <refpurpose>Skip given number of elements to be returned</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>bool</type><methodname>mysql_xdevapi\Collection::dropIndex</methodname>
-   <methodparam><type>string</type><parameter>index_name</parameter></methodparam>
+   <modifier>public</modifier> <type>mysql_xdevapi\CollectionFind</type><methodname>mysql_xdevapi\CollectionFind::offset</methodname>
+   <methodparam><type>integer</type><parameter>position</parameter></methodparam>
   </methodsynopsis>
   <para>
-   Drop a collection index.
+   Skip (offset) these number of elements that otherwise would be returned
+   by the find operation. Use with the limit() method.
   </para>
   <para>
-   This operation does not yield an error if the index does not exist, but
-   &false; is returned in that case.
- </para>
+   Defining an offset larger than the result set size results in an empty set.
+  </para>
  </refsect1>
 
  <refsect1 role="parameters">
   &reftitle.parameters;
   <variablelist>
    <varlistentry>
-    <term><parameter>index_name</parameter></term>
+    <term><parameter>position</parameter></term>
     <listitem>
      <para>
-      Name of collection index to drop.
+      Number of elements to skip for the limit() operation.
      </para>
     </listitem>
    </varlistentry>
@@ -39,46 +39,61 @@
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   &true; if the DROP INDEX operation succeeded, otherwise &false;.
+   A CollectionFind object that can be used for additional processing.
   </para>
  </refsect1>
 
  <refsect1 role="examples">
   &reftitle.examples;
   <example>
-   <title><function>mysql_xdevapi\Collection::dropIndex</function> example</title>
+   <title><function>mysql_xdevapi\CollectionFind::offset</function> example</title>
    <programlisting role="php">
 <![CDATA[
 <?php
 $session = mysql_xdevapi\getSession("mysqlx://user:password@localhost");
-
 $session->sql("DROP DATABASE IF EXISTS addressbook")->execute();
 $session->sql("CREATE DATABASE addressbook")->execute();
 
 $schema = $session->getSchema("addressbook");
 $create = $schema->createCollection("people");
+$create
+  ->add('{"name": "Alfred", "age": 18, "job": "Butler"}')
+  ->execute();
+$create
+  ->add('{"name": "Reginald", "age": 42, "job": "Butler"}')
+  ->execute();
 
 // ...
 
 $collection = $schema->getCollection("people");
 
-$collection->createIndex(
-  'myindex', 
-  '{"fields": [{"field": "$.name", "type": "TEXT(25)", "required": true}], "unique": false}'
-);
+$result = $collection
+  ->find()
+  ->sort('age asc')
+  ->offset(1)
+  ->limit(1)
+  ->execute();
 
-// ...
-
-if ($collection->dropIndex('myindex')) {
-    echo 'An index named 'myindex' was found, and dropped.';
-}
+var_dump($result->fetchAll());
 ?>
 ]]>
    </programlisting>
-   &example.outputs;
+   &example.outputs.similar;
    <screen>
 <![CDATA[
-An index named 'myindex' was found, and dropped.
+array(1) {
+  [0]=>
+  array(4) {
+    ["_id"]=>
+    string(28) "00005b6b536100000000000000f3"
+    ["age"]=>
+    int(42)
+    ["job"]=>
+    string(6) "Butler"
+    ["name"]=>
+    string(8) "Reginald"
+  }
+}
 ]]>
    </screen>
   </example>
