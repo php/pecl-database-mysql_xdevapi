@@ -250,7 +250,7 @@ mysqlx_connection_free_storage(zend_object * object)
 		util::zend::free_error_info_list(connection->error_info, pers);
 		mysqlnd_vio_free(connection->vio, connection->stats, connection->error_info);
 		mysqlnd_stats_end(connection->stats, pers);
-		mnd_pefree(connection, pers);
+		mnd_efree(connection);
 	}
 	mysqlx_object_free_storage(object);
 }
@@ -263,7 +263,7 @@ php_mysqlx_connection_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
 	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
-	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, util::permanent_tag));
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, util::alloc_tag));
 	st_mysqlx_connection * connection = new st_mysqlx_connection();
 
 	DBG_ENTER("php_mysqlx_connection_object_allocator");
@@ -294,10 +294,10 @@ php_mysqlx_connection_object_allocator(zend_class_entry * class_type)
 	}
 
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	if (connection) {
-		mnd_pefree(connection, persistent);
+		mnd_efree(connection);
 	}
 	DBG_RETURN(nullptr);
 }

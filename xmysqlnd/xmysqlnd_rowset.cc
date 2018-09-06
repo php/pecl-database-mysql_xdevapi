@@ -330,7 +330,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, dtor)(XMYSQLND_ROWSET * const result, MYSQLND_S
 	if (result) {
 		result->m.free_contents(result, stats, error_info);
 
-		mnd_pefree(result, result->persistent);
+		mnd_efree(result);
 	}
 	DBG_VOID_RETURN;
 }

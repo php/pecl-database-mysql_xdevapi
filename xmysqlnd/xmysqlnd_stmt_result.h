@@ -97,7 +97,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result)
 
 
 
-struct st_xmysqlnd_stmt_result : public util::permanent_allocable
+struct st_xmysqlnd_stmt_result : public util::custom_allocable
 {
 	st_xmysqlnd_rowset* rowset;
 	st_xmysqlnd_stmt_result_meta* meta;

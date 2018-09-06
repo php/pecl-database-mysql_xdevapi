@@ -86,7 +86,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta)
 	func_xmysqlnd_result_field_meta__dtor dtor;
 };
 
-struct st_xmysqlnd_result_field_meta : public util::permanent_allocable
+struct st_xmysqlnd_result_field_meta : public util::custom_allocable
 {
 	enum xmysqlnd_field_type type;
 	MYSQLND_STRING name;
@@ -145,7 +145,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta)
 	func_xmysqlnd_stmt_result_meta__dtor dtor;
 };
 
-struct st_xmysqlnd_stmt_result_meta : public util::permanent_allocable
+struct st_xmysqlnd_stmt_result_meta : public util::custom_allocable
 {
 	unsigned int field_count;
 	XMYSQLND_RESULT_FIELD_META ** fields;

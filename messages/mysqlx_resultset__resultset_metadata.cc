@@ -107,7 +107,7 @@ static zend_object *
 php_mysqlx_resultset_metadata_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
 	st_mysqlx_resultset_metadata* message = new struct st_mysqlx_resultset_metadata;
 
 	DBG_ENTER("php_mysqlx_resultset_metadata_object_allocator");
@@ -131,7 +131,7 @@ php_mysqlx_resultset_metadata_object_allocator(zend_class_entry * class_type)
 		delete message;
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	DBG_RETURN(nullptr);
 }

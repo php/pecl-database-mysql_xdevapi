@@ -53,7 +53,7 @@ void mem_free(void* ptr)
 /* {{{ mysqlx::util::internal::mem_permanent_alloc */
 void* mem_permanent_alloc(std::size_t bytes_count)
 {
-	void* ptr = mnd_pecalloc(1, bytes_count, false);
+	void* ptr = mnd_pecalloc(1, bytes_count, true);
 	if (ptr) {
 		return ptr;
 	} else {
@@ -65,7 +65,7 @@ void* mem_permanent_alloc(std::size_t bytes_count)
 /* {{{ mysqlx::util::internal::mem_permanent_free */
 void mem_permanent_free(void* ptr)
 {
-	mnd_pefree(ptr, false);
+	mnd_pefree(ptr, true);
 }
 /* }}} */
 

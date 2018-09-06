@@ -56,12 +56,12 @@
       </listitem>
       <listitem>
         <para>
-          <literal>?attribute=value</literal>: this element is optional and specifies a data dictionary that contains options, 
+          <literal>?attribute=value</literal>: this element is optional and specifies a data dictionary that contains options,
           e.g. for encrypted connections or 'auth'. For additional information, see
           <link xlink:href="&url.mysql.docs.connect.encryption;">Command Options for Encrypted Connections</link>.
         </para>
         <para>
-          
+
         </para>
         <para>
           The following values for 'auth' attribute are supported (authentication mechanism):
@@ -72,6 +72,31 @@
           <listitem><para>external</para></listitem>
           <listitem><para>sha256_mem</para></listitem>
          </itemizedlist>
+
+		<para>
+			The following values for 'connect-timeout' attribute are supported:
+		</para>
+        <itemizedlist>
+          <listitem><para>positive integer - timeout in seconds</para></listitem>
+          <listitem><para>0 - timeout is disabled / infinite timeout</para></listitem>
+          <listitem><para>none - default timeout applied</para></listitem>
+         </itemizedlist>
+		only 0 or positive integer numbers are accepted, else (negative value or
+		non-integer e.g. string) an exception with proper message will be thrown.
+		<para>
+		The default connection timeout may be set with following environment variables:
+        <itemizedlist>
+          <listitem><para>MYSQLX_CONNECTION_TIMEOUT - timeout in seconds</para></listitem>
+          <listitem><para>MYSQLX_TEST_CONNECTION_TIMEOUT - applied while running tests (overwrites MYSQLX_CONNECTION_TIMEOUT)</para></listitem>
+         </itemizedlist>
+		</para>
+
+		<para>
+		connect-timeout in uri is related to connection timeout only, none subsequent
+		operations are not affected.
+		connect-timeout is always set per each connection, despite it is
+		single- or multi-host
+		</para>
        </listitem>
       </itemizedlist>
 
@@ -89,6 +114,9 @@ mysqlx://foo:bar@(/path/to/socket)?auth=sha256_mem
 mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]
 mysqlx://foobar?ssl-ca=(/path/to/ca.pem)&amp;ssl-crl=(/path/to/crl.pem)
 mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled
+mysqlx://testuser:testpasswd@localhost:33160/?connect-timeout=3
+mysqlx://testuser:testpasswd@localhost:33160/?connect-timeout=0
+mysqlx://testuser:testpasswd@localhost:33160/?connect-timeout=10
   </programlisting>
 </example>
 
@@ -106,6 +134,7 @@ mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled
   &reftitle.returnvalues;
   <para>
    A <classname>mysql_xdevap\Session</classname> object.
+   In case of failure an exception will be thrown.
   </para>
  </refsect1>
 
@@ -116,9 +145,10 @@ mysqlx://foo:bar@[localhost:33060, 127.0.0.1:33061]?ssl-mode=disabled
    <programlisting role="php">
 <![CDATA[
 <?php
-$session = mysql_xdevapi\getSession("mysqlx://user:password@host");
-if ($session === NULL) {
-    die("Connection could not be established");
+try {
+    $session = mysql_xdevapi\getSession("mysqlx://user:password@host");
+} catch(Exception $e) {
+    die("Connection could not be established: " . $e->getMessage());
 }
 
 var_dump($collection->find("name = 'Alfred'")->execute()->fetchOne());

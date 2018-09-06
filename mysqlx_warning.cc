@@ -138,12 +138,11 @@ mysqlx_warning_free_storage(zend_object * object)
 	st_mysqlx_warning* message = (st_mysqlx_warning*) mysqlx_object->ptr;
 
 	if (message) {
-		const zend_bool pers = message->persistent;
 		if (message->msg.s) {
-			mnd_pefree(message->msg.s, pers);
+			mnd_efree(message->msg.s);
 			message->msg.s = nullptr;
 		}
-		mnd_pefree(message, message->persistent);
+		mnd_efree(message);
 	}
 	mysqlx_object_free_storage(object);
 }
@@ -155,8 +154,8 @@ static zend_object *
 php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	st_mysqlx_warning* message = (st_mysqlx_warning*)  mnd_pecalloc(1, sizeof(struct st_mysqlx_warning), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
+	st_mysqlx_warning* message = (st_mysqlx_warning*)  mnd_ecalloc(1, sizeof(struct st_mysqlx_warning));
 
 	DBG_ENTER("php_mysqlx_warning_object_allocator");
 	if ( mysqlx_object && message) {
@@ -173,10 +172,10 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 
 	}
 	if (message) {
-		mnd_pefree(message, persistent);
+		mnd_efree(message);
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	DBG_RETURN(nullptr);
 }

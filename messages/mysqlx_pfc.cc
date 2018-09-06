@@ -155,7 +155,7 @@ mysqlx_pfc_free_storage(zend_object * object)
 		util::zend::free_error_info_list(codec->error_info, pers);
 		xmysqlnd_pfc_free(codec->pfc, codec->stats, codec->error_info);
 		mysqlnd_stats_end(codec->stats, pers);
-		mnd_pefree(codec, pers);
+		mnd_efree(codec);
 	}
 	mysqlx_object_free_storage(object);
 }
@@ -168,8 +168,8 @@ php_mysqlx_pfc_object_allocator(zend_class_entry * class_type)
 {
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory = MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory);
 	const zend_bool persistent = FALSE;
-	st_mysqlx_object * mysqlx_object = static_cast<st_mysqlx_object*>(mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent));
-	st_mysqlx_pfc * codec = static_cast<st_mysqlx_pfc*>(mnd_pecalloc(1, sizeof(struct st_mysqlx_pfc), persistent));
+	st_mysqlx_object * mysqlx_object = static_cast<st_mysqlx_object*>(mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type)));
+	st_mysqlx_pfc * codec = static_cast<st_mysqlx_pfc*>(mnd_ecalloc(1, sizeof(struct st_mysqlx_pfc)));
 
 	DBG_ENTER("php_mysqlx_pfc_object_allocator");
 	if ( mysqlx_object && codec ) {
@@ -199,10 +199,10 @@ php_mysqlx_pfc_object_allocator(zend_class_entry * class_type)
 
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	if (codec) {
-		mnd_pefree(codec, persistent);
+		mnd_efree(codec);
 	}
 	DBG_RETURN(nullptr);
 }
