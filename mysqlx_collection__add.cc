@@ -54,6 +54,10 @@ zend_class_entry* collection_add_class_entry;
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add__add, 0, ZEND_RETURN_VALUE, 1)
+	ZEND_ARG_INFO(no_pass_by_ref, json)
+ZEND_END_ARG_INFO()
+
 
 //------------------------------------------------------------------------------
 
@@ -175,7 +179,7 @@ collection_add_array(
 
 
 /* {{{ Collection_add::init() */
-bool Collection_add::init(
+bool Collection_add::add_docs(
 	zval* obj_zv,
 	xmysqlnd_collection* coll,
 	zval* documents,
@@ -192,19 +196,23 @@ bool Collection_add::init(
 		}
 	}
 
-	object_zv = obj_zv;
-	collection = coll->get_reference();
-	add_op = xmysqlnd_crud_collection_add__create(
-		mnd_str2c(collection->get_schema()->get_name()),
-		mnd_str2c(collection->get_name()));
-
-	if (!add_op) return false;
-
-	docs = static_cast<zval*>(mnd_ecalloc( num_of_documents, sizeof(zval) ));
-	for (int i{0}; i < num_of_documents; ++i) {
-		ZVAL_DUP(&docs[i], &documents[i]);
+	if( !add_op ) {
+		if( !coll ) return false;
+		object_zv = obj_zv;
+		collection = coll->get_reference();
+		add_op = xmysqlnd_crud_collection_add__create(
+			mnd_str2c(collection->get_schema()->get_name()),
+			mnd_str2c(collection->get_name()));
+		if (!add_op) return false;
+	} else {
+		ZVAL_COPY(obj_zv, object_zv);
 	}
-	num_of_docs = num_of_documents;
+
+	zval doc;
+	for (int i{0}; i < num_of_documents; ++i) {
+		ZVAL_DUP(&doc, &documents[i]);
+		docs.push_back( doc );
+	}
 
 	return true;
 }
@@ -212,14 +220,14 @@ bool Collection_add::init(
 
 
 /* {{{ Collection_add::init() */
-bool Collection_add::init(
+bool Collection_add::add_docs(
 	zval* obj_zv,
 	xmysqlnd_collection* coll,
 	const util::string_view& /*doc_id*/,
 	zval* doc)
 {
 	const int num_of_documents = 1;
-	if (!init(obj_zv, coll, doc, num_of_documents)) return false;
+	if (!add_docs(obj_zv, coll, doc, num_of_documents)) return false;
 	return xmysqlnd_crud_collection_add__set_upsert(add_op) == PASS;
 }
 /* }}} */
@@ -228,12 +236,10 @@ bool Collection_add::init(
 /* {{{ Collection_add::~Collection_add() */
 Collection_add::~Collection_add()
 {
-	for (int i{0}; i < num_of_docs; ++i) {
+	for (size_t i{0}; i < docs.size(); ++i) {
 		zval_ptr_dtor(&docs[i]);
 		ZVAL_UNDEF(&docs[i]);
 	}
-
-	mnd_efree(docs);
 
 	if (add_op) {
 		xmysqlnd_crud_collection_add__destroy(add_op);
@@ -250,14 +256,14 @@ Collection_add::~Collection_add()
 void Collection_add::execute(zval* return_value)
 {
 	enum_func_status execute_ret_status{PASS};
-	int noop_cnt{0};
+	size_t noop_cnt{0};
 
 	DBG_ENTER("Collection_add::execute");
 
 	RETVAL_FALSE;
 
 	Add_op_status ret = Add_op_status::success;
-	for (int i{0}; i < num_of_docs && ret != Add_op_status::fail ; ++i) {
+	for (size_t i{0}; i < docs.size() && ret != Add_op_status::fail ; ++i) {
 		ret = Add_op_status::fail;
 		switch(Z_TYPE(docs[i])) {
 		case IS_STRING:
@@ -278,7 +284,7 @@ void Collection_add::execute(zval* return_value)
 		}
 	}
 
-	if ( execute_ret_status != FAIL && num_of_docs > noop_cnt ) {
+	if ( execute_ret_status != FAIL && docs.size() > noop_cnt ) {
 		xmysqlnd_stmt* stmt = collection->add(add_op);
 		if( nullptr != stmt ) {
 			execute_ret_status =  execute_statement(stmt,return_value);
@@ -327,11 +333,41 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 /* }}} */
 
 
+/* {{{ proto mixed mysqlx_collection__add::add() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
+{
+	zval* object_zv{nullptr};
+	zval* docs{nullptr};
+	int num_of_docs{0};
+
+	DBG_ENTER("mysqlx_collection::add");
+
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+												&object_zv,
+												collection_add_class_entry,
+												&docs,
+												&num_of_docs))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	/*
+	 * For subsequent calls to add_docs, the xmysqlnd_collection is set to NULL
+	 */
+	Collection_add& coll_add = util::fetch_data_object<Collection_add>(object_zv);
+	coll_add.add_docs(return_value, NULL, docs, num_of_docs);
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ mysqlx_collection__add_methods[] */
 static const zend_function_entry mysqlx_collection__add_methods[] = {
 	PHP_ME(mysqlx_collection__add, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_collection__add,	execute,		arginfo_mysqlx_collection__add__execute,	ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_collection__add,	add,			arginfo_mysqlx_collection__add__add,		ZEND_ACC_PUBLIC)
 
 	{nullptr, nullptr, nullptr}
 };
@@ -441,7 +477,7 @@ mysqlx_new_collection__add(
 	if (SUCCESS == object_init_ex(return_value, collection_add_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		Collection_add* const coll_add = static_cast<Collection_add*>(mysqlx_object->ptr);
-		if (!coll_add || !coll_add->init(return_value, collection, docs, num_of_docs)) {
+		if (!coll_add || !coll_add->add_docs(return_value, collection, docs, num_of_docs)) {
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
 			ZVAL_NULL(return_value);

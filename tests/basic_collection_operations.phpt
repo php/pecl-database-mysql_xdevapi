@@ -10,9 +10,10 @@ error_reporting=0
 	$session = mysql_xdevapi\getSession($connection_uri);
 
 	function verify_doc($doc, $name, $job, $age) {
-		$result = ($doc[0] = $name);
-		$result = ($result && ($doc[1] = $job));
-		$result = ($result && ($doc[2] = $age));
+	    if( $doc == null ) return false;
+		$result = ($doc["name"] == $name);
+		$result = ($result && ($doc["job"] == $job));
+		$result = ($result && ($doc["age"] == $age));
 		return $result;
 	}
 
@@ -26,30 +27,31 @@ error_reporting=0
 
 	$sakila = ["name" => "Sakila", "age" => 17, "job" => "Singer"];
 	$coll->add($sakila)->execute();
-	$coll->add(["name" => "Sakila", "age" => 18, "job" => "Student"])->execute();
-	$coll->add('{"name": "Susanne", "age": 24, "job": "Plumber"}')->execute();
-	$coll->add(["name" => "Mike", "age" => 39, "job" => "Manager"])->execute();
+	//Chained add
+	$coll->add('{"name": "Susanne", "age": 24, "job": "Plumber"}')->
+	    add(["name" => "Mike", "age" => 39, "job" => "Manager"])->
+		add(["name" => "Sakila", "age" => 18, "job" => "Student"])->execute();
 
 	$res = $coll->find('name like "Sakila"')->execute();
 	$data = $res->fetchAll();
 
 	$test = "0000";
 	for ($i = 0; $i < count($data); $i++) {
-		if (verify_doc($data[$i]["doc"], "Sakila", "Programmer", "15"))
+	    if (verify_doc($data[$i], "Sakila", "Programmer", "15"))
 			$test[0] = "1";
-		if (verify_doc($data[$i]["doc"], "Sakila", "Singer", "17"))
+		if (verify_doc($data[$i], "Sakila", "Singer", "17"))
 			$test[1] = "1";
-		if (verify_doc($data[$i]["doc"], "Sakila", "Student", "18"))
-			$test[2] = "1";
+		if (verify_doc($data[$i], "Sakila", "Student", "18"))
+		    $test[2] = "1";
 	}
 
-	$coll->remove('name like "Sakila"')->execute();
+    $coll->remove('name like "Sakila"')->execute();
 	$res = $coll->find('name like "Sakila"')->execute();
 	$data = $res->fetchAll();
 	if (is_bool($data) && $data == false)
-		$test[3] = "1";
+	    $test[3] = "1";
 
-	$schema->dropCollection($test_collection_name);
+    $schema->dropCollection($test_collection_name);
 	$session->dropSchema($test_schema_name);
 
 	var_dump($test);
