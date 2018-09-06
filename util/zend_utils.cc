@@ -42,7 +42,7 @@ void free_error_list<zend_llist*>(
 {
 	if (error_list) {
 		zend_llist_clean(error_list);
-		mnd_efree(error_list);
+		mnd_pefree(error_list, persistent);
 		error_list = nullptr;
 	}
 }
