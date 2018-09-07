@@ -52,7 +52,6 @@ private:
 	zval* object_zv{nullptr};
 	drv::xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
-	//zval* docs{nullptr};
 	std::vector<zval> docs;
 };
 /* }}} */

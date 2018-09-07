@@ -45,13 +45,13 @@ error_reporting=0
 		    $test[2] = "1";
 	}
 
-    $coll->remove('name like "Sakila"')->execute();
+	$coll->remove('name like "Sakila"')->execute();
 	$res = $coll->find('name like "Sakila"')->execute();
 	$data = $res->fetchAll();
 	if (is_bool($data) && $data == false)
 	    $test[3] = "1";
 
-    $schema->dropCollection($test_collection_name);
+	$schema->dropCollection($test_collection_name);
 	$session->dropSchema($test_schema_name);
 
 	var_dump($test);
