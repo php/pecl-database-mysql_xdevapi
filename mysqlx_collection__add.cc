@@ -355,7 +355,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 	 * For subsequent calls to add_docs, the xmysqlnd_collection is set to NULL
 	 */
 	Collection_add& coll_add = util::fetch_data_object<Collection_add>(object_zv);
-	coll_add.add_docs(return_value, NULL, docs, num_of_docs);
+	coll_add.add_docs(return_value, nullptr, docs, num_of_docs);
 
 	DBG_VOID_RETURN;
 }
