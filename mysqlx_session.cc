@@ -142,9 +142,9 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA sessio
 		sqlstate.l = strlen(sqlstate.s);
 		errmsg.l = strlen(errmsg.s);
 		mysqlx_new_exception(error_num, sqlstate, errmsg);
-		if(session->error_info->persistent == FALSE){
-			SET_EMPTY_ERROR(session->error_info);
-		}
+		//if(session->error_info->persistent == FALSE){
+		//	SET_EMPTY_ERROR(session->error_info);
+		//}
 		DBG_RETURN(TRUE);
 	}
 	DBG_RETURN(FALSE);

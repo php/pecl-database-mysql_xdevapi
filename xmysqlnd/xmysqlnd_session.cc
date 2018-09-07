@@ -726,7 +726,10 @@ void xmysqlnd_session_data::cleanup()
 		delete auth;
 		auth = nullptr;
 	}
-	util::zend::free_error_info_list(error_info, true);
+	current_db.clear();
+	scheme.clear();
+	server_host_info.clear();
+	util::zend::free_error_info_list(error_info, persistent);
 	charset = nullptr;
 
 	DBG_VOID_RETURN;
@@ -1652,6 +1655,7 @@ xmysqlnd_session::xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_obj
 xmysqlnd_session::~xmysqlnd_session()
 {
 	DBG_ENTER("xmysqlnd_session::~xmysqlnd_session");
+	server_version_string.clear();
 	if(session_uuid) {
 		delete session_uuid;
 	}
@@ -1846,7 +1850,6 @@ xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, con
 		ret = query( namespace_sql, select_query, noop__var_binder);
 	}
 	DBG_RETURN(ret);
-
 }
 /* }}} */
 
@@ -2296,7 +2299,6 @@ xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 		  if we are last, but that's not a problem.
 		*/
 	ret = data->send_close();
-
 
 	DBG_RETURN(ret);
 }
