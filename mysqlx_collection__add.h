@@ -33,12 +33,12 @@ namespace devapi {
 class Collection_add : public util::custom_allocable
 {
 public:
-	bool init(
+	bool add_docs(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		zval* docs,
 		int num_of_docs);
-	bool init(
+	bool add_docs(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& single_doc_id,
@@ -52,8 +52,7 @@ private:
 	zval* object_zv{nullptr};
 	drv::xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
-	zval* docs{nullptr};
-	int num_of_docs{0};
+	std::vector<zval> docs;
 };
 /* }}} */
 
