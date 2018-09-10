@@ -604,7 +604,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
  </dependencies>
  <providesextension>mysql_xdevapi</providesextension>
  <extsrcrelease>
-  <configureoption default="autodetect" name="enable-mysql-xdevapi" prompt="Enable MySQL X DevAPI" />
+  <configureoption default="yes" name="enable-mysql-xdevapi" prompt="Enable MySQL X DevAPI" />
   <configureoption default="autodetect" name="with-boost" prompt="Point out boost library install dir" />
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
