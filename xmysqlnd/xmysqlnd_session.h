@@ -46,7 +46,8 @@ enum xmysqlnd_session_state
 	SESSION_ALLOCATED = 0,
 	SESSION_NON_AUTHENTICATED = 1,
 	SESSION_READY = 2,
-	SESSION_CLOSE_SENT = 3
+	SESSION_CLOSE_SENT = 3,
+	SESSION_CLOSED = 4,
 };
 
 
@@ -370,13 +371,19 @@ const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_auth_continue(void* context,const MYSQLND_CSTRING input,MYSQLND_STRING* const output);
 enum_func_status           xmysqlnd_session_data_set_client_id(void * context, const size_t id);
 
+struct Connection_pool_callback
+{
+	virtual void on_close(XMYSQLND_SESSION& connection) = 0;
+};
+
 class xmysqlnd_session_data : public util::permanent_allocable
 {
 public:
 	xmysqlnd_session_data() = delete;
-	xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-							 MYSQLND_STATS * mysqlnd_stats,
-							 MYSQLND_ERROR_INFO * mysqlnd_error_info);
+	xmysqlnd_session_data(
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+		MYSQLND_STATS* mysqlnd_stats,
+		MYSQLND_ERROR_INFO* mysqlnd_error_info);
 	~xmysqlnd_session_data();
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
@@ -424,7 +431,8 @@ public:
 	MYSQLND_STATS*                     stats;
 	zend_bool		                   own_stats;
 	/* persistent connection */
-	zend_bool persistent{1};
+	zend_bool persistent{ TRUE };
+	Connection_pool_callback* pool_callback{nullptr};
 	/* Seed for the next transaction savepoint identifier */
 	unsigned int                       savepoint_name_seed;
 private:
@@ -551,9 +559,10 @@ class xmysqlnd_session : public util::permanent_allocable, public std::enable_sh
 {
 public:
 	xmysqlnd_session() = delete;
-	xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-						MYSQLND_STATS * stats,
-						MYSQLND_ERROR_INFO * error_info);
+	xmysqlnd_session(
+		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+		MYSQLND_STATS* stats,
+		MYSQLND_ERROR_INFO* error_info);
 	~xmysqlnd_session();
 
 	enum_func_status xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db);
@@ -586,13 +595,15 @@ public:
 
 
     const enum_func_status close(const enum_xmysqlnd_session_close_type close_type);
+	bool is_closed() const { return data->state.get() == SESSION_CLOSED; }
+	bool is_pooled() const { return data->pool_callback != nullptr; }
 
-	XMYSQLND_SESSION_DATA  get_data();
+	XMYSQLND_SESSION_DATA get_data();
 
-	XMYSQLND_SESSION_DATA   data;
+	XMYSQLND_SESSION_DATA data;
 	std::string server_version_string;
-	Uuid_generator::pointer session_uuid;
-	zend_bool persistent{ 1 };
+	std::unique_ptr<Uuid_generator> session_uuid;
+	zend_bool persistent{ TRUE };
 };
 
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION xmysqlnd_session_create(const size_t client_flags,
@@ -600,6 +611,8 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION xmysqlnd_session_create(const size_t clie
 															   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 															   MYSQLND_STATS * stats,
 															   MYSQLND_ERROR_INFO * error_info);
+
+PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION create_session(const zend_bool persistent);
 
 PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(const char* uri_string, zval * return_value);
 

@@ -655,9 +655,10 @@ st_xmysqlnd_session_state::st_xmysqlnd_session_state()
 
 
 /* {{{ xmysqlnd_session_data::xmysqlnd_session_data */
-xmysqlnd_session_data::xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-												   MYSQLND_STATS * mysqlnd_stats,
-												   MYSQLND_ERROR_INFO * mysqlnd_error_info)
+xmysqlnd_session_data::xmysqlnd_session_data(
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+	MYSQLND_STATS* mysqlnd_stats,
+	MYSQLND_ERROR_INFO* mysqlnd_error_info)
 {
 	DBG_ENTER("xmysqlnd_session_data::xmysqlnd_session_data");
 	object_factory = factory;
@@ -1636,13 +1637,14 @@ enum_func_status setup_crypto_connection(
 
 
 /* {{{ xmysqlnd_session::xmysqlnd_session */
-xmysqlnd_session::xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-										 MYSQLND_STATS * stats,
-										 MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_session::xmysqlnd_session(
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+	MYSQLND_STATS* stats,
+	MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_session::xmysqlnd_session");
 
-	session_uuid = new Uuid_generator();
+	session_uuid = std::make_unique<Uuid_generator>();
 	xmysqlnd_session_data * session_data = factory->get_session_data(factory, persistent, stats, error_info);
 	if (session_data) {
 		data = std::shared_ptr<xmysqlnd_session_data>(session_data);
@@ -1655,10 +1657,6 @@ xmysqlnd_session::xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_obj
 xmysqlnd_session::~xmysqlnd_session()
 {
 	DBG_ENTER("xmysqlnd_session::~xmysqlnd_session");
-	server_version_string.clear();
-	if(session_uuid) {
-		delete session_uuid;
-	}
 }
 /* }}} */
 
@@ -2257,7 +2255,7 @@ xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 {
 	xmysqlnd_stmt* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_session_data::create_statement_object");
-	stmt = xmysqlnd_stmt_create(session_handle, session_handle->persistent, data->object_factory, data->stats, data->error_info);
+	stmt = xmysqlnd_stmt_create(session_handle, false, data->object_factory, data->stats, data->error_info);
     DBG_RETURN(stmt);
 }
 /* }}} */
@@ -2270,7 +2268,7 @@ xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 	xmysqlnd_schema* schema{nullptr};
 	DBG_ENTER("xmysqlnd_session::create_schema_object");
 	DBG_INF_FMT("schema_name=%s", schema_name.s);
-	schema = xmysqlnd_schema_create(shared_from_this(), schema_name, persistent, data->object_factory, data->stats, data->error_info);
+	schema = xmysqlnd_schema_create(shared_from_this(), schema_name, false, data->object_factory, data->stats, data->error_info);
 
 	DBG_RETURN(schema);
 }
@@ -2317,6 +2315,23 @@ xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, c
 }
 /* }}} */
 
+
+/* {{{ create_session */
+PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
+create_session(const zend_bool persistent)
+{
+	DBG_ENTER("drv::create_session");
+	const size_t client_flags{ 0 };
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory{
+		MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory)
+	};
+	MYSQLND_STATS* stats{ nullptr };
+	MYSQLND_ERROR_INFO* error_info{ nullptr };
+	DBG_RETURN(xmysqlnd_session_create(client_flags, persistent, factory, stats, error_info));
+}
+/* }}} */
+
+
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
 xmysqlnd_session_connect(XMYSQLND_SESSION session,
 						 Session_auth_data * auth,
@@ -2340,7 +2355,7 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 
 	if (!session) {
 		if (!(session = xmysqlnd_session_create(client_api_flags,
-												FALSE, factory,
+												TRUE, factory,
 												stats, error_info))) {
 			/* OOM */
 			DBG_RETURN(nullptr);
@@ -2357,32 +2372,18 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 /* }}} */
 
 /* {{{ create_new_session */
-mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zval)
+mysqlx::devapi::Session_data * create_new_session(zval * session_zval)
 {
 	DBG_ENTER("create_new_session");
-	mysqlx::devapi::st_mysqlx_session * object{nullptr};
-	if (PASS == mysqlx::devapi::mysqlx_new_session(session_zval)) {
-		object = (struct mysqlx::devapi::st_mysqlx_session *) Z_MYSQLX_P(session_zval)->ptr;
-
-		if (!object && !object->session) {
-			if (object->closed) {
-				php_error_docref(nullptr, E_WARNING, "closed session");
-			} else {
-				php_error_docref(nullptr, E_WARNING, "invalid object of class %s",
-								 ZSTR_VAL(Z_MYSQLX_P(session_zval)->zo.ce->name)); \
-			}
-		}
-	} else {
-		zval_ptr_dtor(session_zval);
-		ZVAL_NULL(session_zval);
-	}
-	DBG_RETURN(object);
+	devapi::mysqlx_new_session(session_zval);
+	auto& data_object{ util::fetch_data_object<devapi::Session_data>(session_zval) };
+	DBG_RETURN(&data_object);
 }
 /* }}} */
 
 
 /* {{{ establish_connection */
-enum_func_status establish_connection(mysqlx::devapi::st_mysqlx_session * object,
+enum_func_status establish_connection(mysqlx::devapi::Session_data * object,
 									  Session_auth_data * auth,
 									  const util::Url& url,
 									  transport_types tr_type)
@@ -3242,7 +3243,7 @@ PHP_MYSQL_XDEVAPI_API
 					current_uri.first.c_str());
 		auto url = extract_uri_information( current_uri.first.c_str() );
 		if( !url.first.empty() ) {
-			mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
+			mysqlx::devapi::Session_data * session = create_new_session(return_value);
 			if( nullptr == session ) {
 				devapi::RAISE_EXCEPTION( err_msg_internal_error );
 				DBG_RETURN(ret);

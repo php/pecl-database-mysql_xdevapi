@@ -90,6 +90,7 @@ struct xdevapi_exception : public std::runtime_error
 		connection_failure,
 		authentication_failure,
 		runtime_error,
+		session_closed,
 	};
 
 	xdevapi_exception(Code code);
