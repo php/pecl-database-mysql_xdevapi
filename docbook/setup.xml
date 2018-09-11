@@ -12,7 +12,7 @@
   </para>
   <para>
    Prerequisite libraries for compiling this extension are:
-   Boost, OpenSSL, and Protobuf.
+   Boost (1.53.0 or higher), OpenSSL, and Protobuf.
   </para>
 
  </section>

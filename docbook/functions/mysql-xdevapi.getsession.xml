@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision$ -->
+<!-- $Revision: 345451 $ -->
 
 <refentry xml:id="function.mysql-xdevapi-getsession" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
@@ -151,6 +151,12 @@ try {
     die("Connection could not be established: " . $e->getMessage());
 }
 
+$schemas = $session->getSchemas();
+print_r($schemas);
+
+$mysql_version = $session->getServerVersion();
+print_r($mysql_version);
+
 var_dump($collection->find("name = 'Alfred'")->execute()->fetchOne());
 ?>
 ]]>
@@ -158,6 +164,32 @@ var_dump($collection->find("name = 'Alfred'")->execute()->fetchOne());
    &example.outputs.similar;
    <screen>
 <![CDATA[
+Array
+(
+    [0] => mysql_xdevapi\Schema Object
+        (
+            [name] => helloworld
+        )
+    [1] => mysql_xdevapi\Schema Object
+        (
+            [name] => information_schema
+        )
+    [2] => mysql_xdevapi\Schema Object
+        (
+            [name] => mysql
+        )
+    [3] => mysql_xdevapi\Schema Object
+        (
+            [name] => performance_schema
+        )
+    [4] => mysql_xdevapi\Schema Object
+        (
+            [name] => sys
+        )
+)
+
+80012
+
 array(4) {
   ["_id"]=>
   string(28) "00005ad66abf0001000400000003"
