@@ -35,14 +35,14 @@
         expect_eq($sql->getGeneratedIds(),[]);
         expect_false($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 3);
-	expect_eq($sql->getWarningsCount(), []);
+	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getColumnCount(), []);
 
 	$sql = $session->sql("select * from $db.test_table where age < ? order by age desc limit ?")->bind(14)->bind(2)->execute();
 	expect_false($sql->nextResult());
         expect_true($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 0);
-	expect_eq($sql->getWarningsCount(), []);
+	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getColumnCount(), 2);
         $col_name = $sql->getColumnNames();
         expect_eq($col_name[0],"name");
