@@ -56,47 +56,37 @@
       </listitem>
       <listitem>
         <para>
-          <literal>?attribute=value</literal>: this element is optional and specifies a data dictionary that contains options,
-          e.g. for encrypted connections or 'auth'. For additional information, see
-          <link xlink:href="&url.mysql.docs.connect.encryption;">Command Options for Encrypted Connections</link>.
+          <literal>?attribute=value</literal>: this element is optional and specifies a data dictionary 
+          that contains different options:
         </para>
         <para>
-
-        </para>
-        <para>
-          The following values for 'auth' attribute are supported (authentication mechanism):
+          The <literal>auth</literal> (authentication mechanism) attribute as it relates to encrypted connections. 
+          For additional information, see <link xlink:href="&url.mysql.docs.connect.encryption;">Command 
+          Options for Encrypted Connections</link>.
+          The following 'auth' values are supported :
         </para>
         <itemizedlist>
           <listitem><para>plain</para></listitem>
           <listitem><para>mysql41</para></listitem>
           <listitem><para>external</para></listitem>
           <listitem><para>sha256_mem</para></listitem>
-         </itemizedlist>
+        </itemizedlist>
 
-		<para>
-			The following values for 'connect-timeout' attribute are supported:
-		</para>
+        <para>
+         The <literal>connect-timeout</literal> attribute affects the connection
+         and not subsequent operations. It is set per connection whether on
+         a single or multiple hosts.
+         The following 'connect-timeout' values are supported:
+        </para>
         <itemizedlist>
-          <listitem><para>positive integer - timeout in seconds</para></listitem>
-          <listitem><para>0 - timeout is disabled / infinite timeout</para></listitem>
-          <listitem><para>none - default timeout applied</para></listitem>
-         </itemizedlist>
-		only 0 or positive integer numbers are accepted, else (negative value or
-		non-integer e.g. string) an exception with proper message will be thrown.
-		<para>
-		The default connection timeout may be set with following environment variables:
-        <itemizedlist>
-          <listitem><para>MYSQLX_CONNECTION_TIMEOUT - timeout in seconds</para></listitem>
-          <listitem><para>MYSQLX_TEST_CONNECTION_TIMEOUT - applied while running tests (overwrites MYSQLX_CONNECTION_TIMEOUT)</para></listitem>
-         </itemizedlist>
-		</para>
-
-		<para>
-		connect-timeout in uri is related to connection timeout only, none subsequent
-		operations are not affected.
-		connect-timeout is always set per each connection, despite it is
-		single- or multi-host
-		</para>
+          <listitem><para>A positive integer: a timeout value, in seconds</para></listitem>
+          <listitem><para>0: disables timeout (infinite)</para></listitem>
+          <listitem><para>none: the default timeout value is applied</para></listitem>
+        </itemizedlist>
+        <para>
+         Related, the MYSQLX_CONNECTION_TIMEOUT (timeout in seconds) and MYSQLX_TEST_CONNECTION_TIMEOUT (used while running tests)
+         can be set and used instead of connect-timeout.
+        </para>
        </listitem>
       </itemizedlist>
 
