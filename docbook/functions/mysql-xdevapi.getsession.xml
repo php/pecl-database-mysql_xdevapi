@@ -122,8 +122,14 @@ mysqlx://foo:bar@localhost:33160/?connect-timeout=10
  <refsect1 role="returnvalues">
   &reftitle.returnvalues;
   <para>
-   A <classname>mysql_xdevap\Session</classname> object.
-   In case of failure an exception will be thrown.
+   A <classname>Session</classname> object.
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   A connection failure throws an <classname>Exception</classname>.
   </para>
  </refsect1>
 
