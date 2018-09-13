@@ -881,11 +881,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 
 	auto& data_object{ fetch_session_data(object_zv) };
 	if (XMYSQLND_SESSION session = data_object.session) {
-		if (session->is_pooled()) {
-			session->get_data()->pool_callback->on_close(session);
-		} else {
-			session->close(SESSION_CLOSE_EXPLICIT);
-		}
+		session->close(SESSION_CLOSE_EXPLICIT);
 		RETVAL_TRUE;
 	} else {
 		RETVAL_FALSE;

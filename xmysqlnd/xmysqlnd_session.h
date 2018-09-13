@@ -371,11 +371,6 @@ const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_auth_continue(void* context,const MYSQLND_CSTRING input,MYSQLND_STRING* const output);
 enum_func_status           xmysqlnd_session_data_set_client_id(void * context, const size_t id);
 
-struct Connection_pool_callback
-{
-	virtual void on_close(XMYSQLND_SESSION& connection) = 0;
-};
-
 class xmysqlnd_session_data : public util::permanent_allocable
 {
 public:
@@ -432,7 +427,6 @@ public:
 	zend_bool		                   own_stats;
 	/* persistent connection */
 	zend_bool persistent{ TRUE };
-	Connection_pool_callback* pool_callback{nullptr};
 	/* Seed for the next transaction savepoint identifier */
 	unsigned int                       savepoint_name_seed;
 private:
@@ -555,6 +549,11 @@ private:
 	Uuid_format::node_id_t session_node_id;
 };
 
+struct Connection_pool_callback
+{
+	virtual void on_close(XMYSQLND_SESSION connection) = 0;
+};
+
 class xmysqlnd_session : public util::permanent_allocable, public std::enable_shared_from_this<xmysqlnd_session>
 {
 public:
@@ -596,13 +595,16 @@ public:
 
     const enum_func_status close(const enum_xmysqlnd_session_close_type close_type);
 	bool is_closed() const { return data->state.get() == SESSION_CLOSED; }
-	bool is_pooled() const { return data->pool_callback != nullptr; }
+
+	void set_pooled(Connection_pool_callback* conn_pool_callback) { pool_callback = conn_pool_callback; }
+	bool is_pooled() const { return pool_callback != nullptr; }
 
 	XMYSQLND_SESSION_DATA get_data();
 
 	XMYSQLND_SESSION_DATA data;
 	std::string server_version_string;
 	std::unique_ptr<Uuid_generator> session_uuid;
+	Connection_pool_callback* pool_callback{nullptr};
 	zend_bool persistent{ TRUE };
 };
 

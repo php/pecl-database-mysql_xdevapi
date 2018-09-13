@@ -2296,7 +2296,11 @@ xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 		  Close now, free_reference will try,
 		  if we are last, but that's not a problem.
 		*/
-	ret = data->send_close();
+	if (is_pooled()) {
+		pool_callback->on_close(shared_from_this());
+	} else {
+		ret = data->send_close();
+	}
 
 	DBG_RETURN(ret);
 }
