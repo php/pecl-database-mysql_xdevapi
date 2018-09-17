@@ -31,11 +31,11 @@
       URI format:
      </para>
      <para>
-      <code>scheme://[user[:[password]]@]target[:port][/schema][?attribute1=value1&amp;attribute2=value2...</code>
+      <code>scheme://[user[:[password]]@]target[:port][?attribute1=value1&amp;attribute2=value2...</code>
      </para>
      <itemizedlist>
       <listitem>
-        <para><literal>schema</literal>: required, the connection protocol</para>
+        <para><literal>scheme</literal>: required, the connection protocol</para>
         <para>In mysql_xdevapi it is always 'mysqlx' (for X Protocol)</para>
       </listitem>
       <listitem>
@@ -57,7 +57,7 @@
       <listitem>
         <para>
           <literal>?attribute=value</literal>: this element is optional and specifies a data dictionary 
-          that contains different options:
+          that contains different options, including:
         </para>
         <itemizedlist>
           <listitem>
