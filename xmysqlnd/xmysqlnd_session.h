@@ -43,10 +43,20 @@ constexpr int MAX_HOST_PRIORITY{ 100 };
 
 enum xmysqlnd_session_state
 {
+	// Allocated but not connected or there was failure when trying
+	// to connect with pre-allocated connection
 	SESSION_ALLOCATED = 0,
+
+	// connected, but not authenticated yet
 	SESSION_NON_AUTHENTICATED = 1,
+
+	// authenticated successfully, and ready to use
 	SESSION_READY = 2,
+
+	// request to close have been sent
 	SESSION_CLOSE_SENT = 3,
+
+	// connection is closed
 	SESSION_CLOSED = 4,
 };
 
@@ -394,6 +404,7 @@ public:
 
 	enum_func_status  set_client_option(enum_xmysqlnd_client_option option, const char * const value);
 
+	enum_func_status  send_reset();
 	enum_func_status  send_close();
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
@@ -551,7 +562,7 @@ private:
 
 struct Connection_pool_callback
 {
-	virtual void on_close(XMYSQLND_SESSION connection) = 0;
+	virtual void on_close(XMYSQLND_SESSION closing_connection) = 0;
 };
 
 class xmysqlnd_session : public util::permanent_allocable, public std::enable_shared_from_this<xmysqlnd_session>
@@ -567,6 +578,7 @@ public:
 	enum_func_status xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db);
 
 	const enum_func_status connect(MYSQLND_CSTRING database,const unsigned int port,const size_t set_capabilities);
+	const enum_func_status reset();
 	const enum_func_status	create_db(const MYSQLND_CSTRING db);
 	const enum_func_status	select_db(const MYSQLND_CSTRING db);
 	const enum_func_status	drop_db(const MYSQLND_CSTRING db);
@@ -603,8 +615,8 @@ public:
 
 	XMYSQLND_SESSION_DATA data;
 	std::string server_version_string;
-	std::unique_ptr<Uuid_generator> session_uuid;
-	Connection_pool_callback* pool_callback{nullptr};
+	Uuid_generator* session_uuid{ nullptr };
+	Connection_pool_callback* pool_callback{ nullptr };
 	zend_bool persistent{ TRUE };
 };
 
@@ -614,7 +626,7 @@ PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION xmysqlnd_session_create(const size_t clie
 															   MYSQLND_STATS * stats,
 															   MYSQLND_ERROR_INFO * error_info);
 
-PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION create_session(const zend_bool persistent);
+PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION create_session(const bool persistent);
 
 PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(const char* uri_string, zval * return_value);
 

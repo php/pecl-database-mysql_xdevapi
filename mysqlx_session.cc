@@ -114,9 +114,21 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__close, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+bool Session_data::close_connection()
+{
+	if (!session) return false;
+
+	if (session->is_pooled()) {
+		session->pool_callback->on_close(session);
+	} else {
+		session->close(SESSION_CLOSE_EXPLICIT);
+	}
+	return true;
+}
 
 /* {{{ fetch_session_data */
-Session_data& fetch_session_data(zval* from)
+template<typename T>
+Session_data& fetch_session_data(T* from)
 {
 	auto& data_object{ util::fetch_data_object<Session_data>(from) };
 	if (data_object.session->is_closed()) {
@@ -880,9 +892,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 	}
 
 	auto& data_object{ fetch_session_data(object_zv) };
-	if (XMYSQLND_SESSION session = data_object.session) {
-		session->close(SESSION_CLOSE_EXPLICIT);
-		RETVAL_TRUE;
+	if (data_object.close_connection()) {
+		RETVAL_TRUE; 
 	} else {
 		RETVAL_FALSE;
 	}
@@ -936,14 +947,11 @@ const struct st_mysqlx_property_entry mysqlx_session_property_entries[] =
 
 /* {{{ mysqlx_session_free_storage */
 static void
-mysqlx_session_free_storage(zend_object * object)
+mysqlx_session_free_storage(zend_object* object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	Session_data* inner_obj = (Session_data*) mysqlx_object->ptr;
-	delete inner_obj;
-	mysqlx_object->ptr = nullptr;
-
-	mysqlx_object_free_storage(object);
+	auto& data_object{ fetch_session_data(object) };
+	data_object.close_connection();
+	util::free_object<Session_data>(object);
 }
 /* }}} */
 

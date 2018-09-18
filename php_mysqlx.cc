@@ -135,7 +135,7 @@ static PHP_MINIT_FUNCTION(mysql_xdevapi)
 static PHP_MSHUTDOWN_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- mysqlx ---------------- */
-	mysqlx::devapi::cleanup_clients();
+	mysqlx::devapi::client::release_all_clients();
 	mysqlx::devapi::mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	/* ---------------- xmysqlnd ---------------- */
@@ -196,6 +196,7 @@ static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 		trace_alloc->m->free_handle(trace_alloc);
 		MYSQL_XDEVAPI_G(trace_alloc) = nullptr;
 	}
+	mysqlx::devapi::client::prune_expired_connections();
 	return SUCCESS;
 }
 /* }}} */

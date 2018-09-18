@@ -31,6 +31,7 @@ struct Session_data : public util::custom_allocable
 {
 	drv::XMYSQLND_SESSION session;
 	Session_data() = default;
+	bool close_connection();
 };
 
 void mysqlx_new_session(zval* return_value);

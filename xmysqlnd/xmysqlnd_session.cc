@@ -529,6 +529,48 @@ xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
 /* }}} */
 
 
+/* {{{ mysqlnd_send_reset */
+enum_func_status
+xmysqlnd_session_data::send_reset()
+{
+	DBG_ENTER("mysqlnd_send_reset");
+
+	enum_func_status ret{ PASS };
+	MYSQLND_VIO* vio{ io.vio };
+	php_stream* net_stream{ vio->data->m.get_stream(vio) };
+	const xmysqlnd_session_state state_val{ state.get() };
+
+	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", this, net_stream ? net_stream->abstract : nullptr);
+	DBG_INF_FMT("state=%u", state_val);
+
+	switch (state_val) {
+		case SESSION_ALLOCATED:
+			throw util::xdevapi_exception(
+				util::xdevapi_exception::Code::connection_failure,
+				"cannot reset, not connected");
+
+		case SESSION_NON_AUTHENTICATED:
+		case SESSION_READY:
+		case SESSION_CLOSE_SENT: {
+			const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+			st_xmysqlnd_msg__session_reset conn_reset_msg{ msg_factory.get__session_reset(&msg_factory) };
+			DBG_INF("Connection reset, sending SESS_RESET");
+			conn_reset_msg.send_request(&conn_reset_msg);
+			conn_reset_msg.read_response(&conn_reset_msg);
+
+			state.set(SESSION_NON_AUTHENTICATED);
+			break;
+		}
+
+		case SESSION_CLOSED:
+			throw util::xdevapi_exception(util::xdevapi_exception::Code::session_closed);
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ mysqlnd_send_close */
 enum_func_status
 xmysqlnd_session_data::send_close()
@@ -565,17 +607,14 @@ xmysqlnd_session_data::send_close()
 		break;
 	}
 	case SESSION_ALLOCATED:
-		/*
-			  Allocated but not connected or there was failure when trying
-			  to connect with pre-allocated connect.
-
-			  Fall-through
-			*/
 		state.set(SESSION_CLOSE_SENT);
 		/* Fall-through */
 	case SESSION_CLOSE_SENT:
 		/* The user has killed its own connection */
 		vio->data->m.close_stream(vio, stats, error_info);
+		break;
+	case SESSION_CLOSED:
+		// already closed, do nothing
 		break;
 	}
 
@@ -1644,8 +1683,8 @@ xmysqlnd_session::xmysqlnd_session(
 {
 	DBG_ENTER("xmysqlnd_session::xmysqlnd_session");
 
-	session_uuid = std::make_unique<Uuid_generator>();
-	xmysqlnd_session_data * session_data = factory->get_session_data(factory, persistent, stats, error_info);
+	session_uuid = new Uuid_generator();
+	xmysqlnd_session_data* session_data = factory->get_session_data(factory, persistent, stats, error_info);
 	if (session_data) {
 		data = std::shared_ptr<xmysqlnd_session_data>(session_data);
 	}
@@ -1657,6 +1696,8 @@ xmysqlnd_session::xmysqlnd_session(
 xmysqlnd_session::~xmysqlnd_session()
 {
 	DBG_ENTER("xmysqlnd_session::~xmysqlnd_session");
+	delete session_uuid;
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -1681,6 +1722,21 @@ xmysqlnd_session::connect(MYSQLND_CSTRING database,
 		ret = precache_uuids();
 	}
 #endif
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+/* {{{ xmysqlnd_session::reset */
+const enum_func_status
+xmysqlnd_session::reset()
+{
+	DBG_ENTER("xmysqlnd_session::reset");
+	enum_func_status ret{ get_data()->send_reset() };
+	if (ret == PASS) {
+		MYSQLND_CSTRING schema{ data->scheme.c_str(), data->scheme.length() };
+		MYSQLND_CSTRING dbase{ data->current_db.c_str(), data->current_db.length() };
+		ret = data->authenticate(schema, dbase, 0);
+	}
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -2296,11 +2352,7 @@ xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 		  Close now, free_reference will try,
 		  if we are last, but that's not a problem.
 		*/
-	if (is_pooled()) {
-		pool_callback->on_close(shared_from_this());
-	} else {
-		ret = data->send_close();
-	}
+	ret = data->send_close();
 
 	DBG_RETURN(ret);
 }
@@ -2322,7 +2374,7 @@ xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, c
 
 /* {{{ create_session */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
-create_session(const zend_bool persistent)
+create_session(const bool persistent)
 {
 	DBG_ENTER("drv::create_session");
 	const size_t client_flags{ 0 };
