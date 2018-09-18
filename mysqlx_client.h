@@ -18,9 +18,6 @@
 #ifndef MYSQLX_CLIENT_H
 #define MYSQLX_CLIENT_H
 
-//#include "xmysqlnd/xmysqlnd_client.h"
-//#include "util/allocator.h"
-
 namespace mysqlx {
 
 namespace devapi {
@@ -30,7 +27,12 @@ void mysqlx_unregister_client_class(SHUTDOWN_FUNC_ARGS);
 
 PHP_FUNCTION(mysql_xdevapi_getClient);
 
-void cleanup_clients();
+namespace client {
+
+void prune_expired_connections();
+void release_all_clients();
+
+} // namespace client
 
 } // namespace devapi
 

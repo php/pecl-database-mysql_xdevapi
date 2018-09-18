@@ -19,12 +19,14 @@
 #include "mysqlnd_api.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "mysqlx_class_properties.h"
+#include "mysqlx_session.h"
 #include "util/allocator.h"
 #include "util/exceptions.h"
 #include "util/json_utils.h"
 #include "util/object.h"
 #include "util/string_utils.h"
 #include "util/zend_utils.h"
+#include <chrono>
 #include <thread>
 #include <mutex>
 
@@ -32,9 +34,9 @@ namespace mysqlx {
 
 namespace devapi {
 
-//using namespace drv;
-
 namespace {
+
+using namespace std::chrono_literals;
 
 struct Connection_pool_options {
 	const int Default_size{ 25 };
@@ -162,25 +164,69 @@ Client_options parse_client_options(const util::string_view& options_json)
 
 //------------------------------------------------------------------------------
 
+using Time_point = std::chrono::system_clock::time_point;
+
+struct Idle_connection
+{
+	Idle_connection(
+		drv::XMYSQLND_SESSION connection, 
+		const std::chrono::milliseconds& max_idle_time)
+		: connection(connection)
+		, expiration_time(std::chrono::system_clock::now() + max_idle_time)
+	{
+	}
+	drv::XMYSQLND_SESSION connection;
+	Time_point expiration_time;
+};
+
+
 /* {{{ Connection_pool */
-class Connection_pool : public util::permanent_allocable
+class Connection_pool 
+	: public util::permanent_allocable
+	, private drv::Connection_pool_callback
 {
 public:
 	Connection_pool(
 		const std::string& uri,
-		const Client_options& client_options);
+		const Connection_pool_options& options);
 	~Connection_pool();
 
 public:
-	void get_session(zval* return_value);
+	drv::XMYSQLND_SESSION get_connection();
+	void prune_expired();
 	void close();
 
 private:
-	std::mutex mtx;
-	std::string connection_uri;
-	Connection_pool_options options;
-	//Connections connections;
+	//Connection_pool_callback
+	virtual void on_close(drv::XMYSQLND_SESSION closing_connection);
 
+private:
+	bool is_full() const;
+	bool has_idle_connection() const;
+	drv::XMYSQLND_SESSION create_non_pooled_connection();
+	drv::XMYSQLND_SESSION prepare_closed_connection();
+	drv::XMYSQLND_SESSION add_new_connection();
+	drv::XMYSQLND_SESSION pop_idle_connection();
+	drv::XMYSQLND_SESSION try_pop_idle_connection(std::unique_lock<std::mutex>& lck);
+	bool wait_for_idle_connection(std::unique_lock<std::mutex>& lck);
+
+private:
+	std::mutex mtx;
+	std::condition_variable on_idle_added;
+
+	std::string connection_uri;
+	const bool pooling_disabled;
+	const std::size_t max_size;
+	std::chrono::milliseconds max_idle_time;
+	std::chrono::milliseconds queue_timeout;
+
+	using Active_connections = std::set<drv::XMYSQLND_SESSION>;
+	Active_connections active_connections;
+
+	using Idle_connections = std::deque<Idle_connection>;
+	Idle_connections idle_connections;
+
+	Time_point next_prune_time;
 };
 /* }}} */
 
@@ -188,9 +234,12 @@ private:
 
 Connection_pool::Connection_pool(
 	const std::string& uri,
-	const Client_options& client_options)
+	const Connection_pool_options& options)
 	: connection_uri(uri)
-	, options(client_options.conn_pool_options)
+	, pooling_disabled(!options.enabled)
+	, max_size(static_cast<std::size_t>(options.max_size))
+	, max_idle_time(options.Default_idle_time)
+	, queue_timeout(options.queue_timeout)
 {
 }
 
@@ -199,15 +248,118 @@ Connection_pool::~Connection_pool()
 	close();
 }
 
-void Connection_pool::get_session(zval* return_value)
+drv::XMYSQLND_SESSION Connection_pool::get_connection()
 {
+	if (pooling_disabled) return create_non_pooled_connection();
+
 	std::unique_lock<std::mutex> lck(mtx);
-	drv::xmysqlnd_new_session_connect(connection_uri.c_str(), return_value);
+
+	if (has_idle_connection()) return pop_idle_connection();
+
+	if (is_full()) return try_pop_idle_connection(lck);
+
+	return add_new_connection();
+}
+
+void Connection_pool::prune_expired()
+{
+	if (max_idle_time == 0ms) return;
+
+	const Time_point now{ std::chrono::system_clock::now() };
+	if (now <= next_prune_time) return;
+
+	auto it{ 
+		std::find_if(
+			idle_connections.begin(),
+			idle_connections.end(), 
+			[=](const Idle_connection& conn) 
+				{ return now < conn.expiration_time; })
+	};
+
+	idle_connections.erase(idle_connections.begin(), it);
+
+	next_prune_time = now + max_idle_time;
 }
 
 void Connection_pool::close()
 {
-	std::unique_lock<std::mutex> lck(mtx);
+	std::lock_guard<std::mutex> lck(mtx);
+	active_connections.clear();
+	idle_connections.clear();
+}
+
+bool Connection_pool::is_full() const
+{
+	const std::size_t connections_count{ active_connections.size() + idle_connections.size() };
+	assert(connections_count <= max_size);
+	return connections_count == max_size;
+}
+
+bool Connection_pool::has_idle_connection() const
+{
+	return !idle_connections.empty();
+}
+
+drv::XMYSQLND_SESSION Connection_pool::create_non_pooled_connection()
+{
+	return drv::create_session(false);
+}
+
+drv::XMYSQLND_SESSION Connection_pool::prepare_closed_connection()
+{
+	drv::XMYSQLND_SESSION closed_connection{ drv::create_session(true) };
+	closed_connection->get_data()->state.set(drv::SESSION_CLOSED);
+	return closed_connection;
+}
+
+drv::XMYSQLND_SESSION Connection_pool::add_new_connection()
+{
+	drv::XMYSQLND_SESSION connection{ drv::create_session(true) };
+	active_connections.insert(connection);
+	connection->set_pooled(this);
+	return connection;
+}
+
+drv::XMYSQLND_SESSION Connection_pool::pop_idle_connection()
+{
+	assert(has_idle_connection());
+	drv::XMYSQLND_SESSION connection{ idle_connections.front().connection };
+	idle_connections.pop_front();
+	active_connections.insert(connection);
+	connection->reset();
+	return connection;
+}
+
+drv::XMYSQLND_SESSION Connection_pool::try_pop_idle_connection(std::unique_lock<std::mutex>& lck)
+{
+	if (wait_for_idle_connection(lck)) return pop_idle_connection();
+
+	util::ostringstream os;
+	os << "couldn't get connection from pool - queue timeout passed" << connection_uri.c_str();
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error, os.str());
+}
+
+bool Connection_pool::wait_for_idle_connection(std::unique_lock<std::mutex>& lck)
+{
+	if (queue_timeout != 0ms) {
+		return on_idle_added.wait_for(lck, queue_timeout, [this]{ return has_idle_connection(); });
+	} else {
+		on_idle_added.wait(lck, [this]{ return has_idle_connection(); });
+		return true;
+	}
+}
+
+void Connection_pool::on_close(drv::XMYSQLND_SESSION closing_connection)
+{
+	std::lock_guard<std::mutex> lck(mtx);
+	auto it{ active_connections.find(closing_connection) };
+	if (it != active_connections.end()) {
+		active_connections.erase(it);
+		drv::XMYSQLND_SESSION idle_connection{ prepare_closed_connection() };
+		std::swap(*idle_connection, *closing_connection);
+		idle_connections.push_back({ idle_connection, max_idle_time });
+		on_idle_added.notify_one();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -224,13 +376,13 @@ struct Client_state : public util::permanent_allocable
 Client_state::Client_state(
 	const std::string& uri,
 	const Client_options& client_options)
-	: conn_pool(uri, client_options)
+	: conn_pool(uri, client_options.conn_pool_options)
 {
 }
 
 using shared_client_state = std::shared_ptr<Client_state>;
 
-using uri_to_client_state = std::map<std::string, shared_client_state>;
+using Uri_to_client_state = std::map<std::string, shared_client_state>;
 
 class Client_state_manager : public util::permanent_allocable
 {
@@ -240,15 +392,13 @@ private:
 	Client_state_manager& operator=(const Client_state_manager&) = delete;
 
 public:
-//	~Client_state_manager() = default;
-
-public:
 	static Client_state_manager& get();
 
 	shared_client_state get_client_state(
 		const std::string& connection_uri,
-		const Client_options& client_options);
-	void release();
+		const util::string_view& client_options_desc);
+	void prune_expired_connections();
+	void release_all_clients();
 
 private:
 	shared_client_state add_client_state(
@@ -257,7 +407,7 @@ private:
 
 private:
 	std::mutex mtx;
-	uri_to_client_state client_states;
+	Uri_to_client_state client_states;
 };
 
 // ---------
@@ -270,12 +420,13 @@ Client_state_manager& Client_state_manager::get()
 
 shared_client_state Client_state_manager::get_client_state(
 	const std::string& connection_uri,
-	const Client_options& client_options)
+	const util::string_view& client_options_desc)
 {
-	std::unique_lock<std::mutex> lck(mtx);
+	std::lock_guard<std::mutex> lck(mtx);
 	auto it{ client_states.find(connection_uri) };
 	if (it != client_states.end()) return it->second;
 
+	const Client_options& client_options{ parse_client_options(client_options_desc) };
 	return add_client_state(connection_uri, client_options);
 }
 
@@ -294,14 +445,22 @@ shared_client_state Client_state_manager::add_client_state(
 	return client_state;
 }
 
-void Client_state_manager::release()
+void Client_state_manager::prune_expired_connections()
+{
+	for (auto& uri_to_client_state : client_states) {
+		auto& client_state{ uri_to_client_state.second };
+		client_state->conn_pool.prune_expired();
+	}
+}
+
+void Client_state_manager::release_all_clients()
 {
 	client_states.clear();
 }
 
 //------------------------------------------------------------------------------
 
-struct Client_object_data : public util::custom_allocable
+struct Client_data : public util::custom_allocable
 {
 	shared_client_state state;
 };
@@ -309,7 +468,7 @@ struct Client_object_data : public util::custom_allocable
 template<typename Data_object>
 Connection_pool& fetch_connection_pool(zval* from)
 {
-	auto& data_object{ util::fetch_data_object<Client_object_data>(from) };
+	auto& data_object{ util::fetch_data_object<Client_data>(from) };
 	return data_object.state->conn_pool;
 }
 
@@ -343,8 +502,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 		DBG_VOID_RETURN;
 	}
 
-	auto& conn_pool{ fetch_connection_pool<Client_object_data>(object_zv) };
-	conn_pool.get_session(return_value);
+	auto& conn_pool{ fetch_connection_pool<Client_data>(object_zv) };
+	drv::XMYSQLND_SESSION connection{ conn_pool.get_connection() };
+	mysqlx_new_session(return_value, connection);
 
 	DBG_VOID_RETURN;
 }
@@ -362,7 +522,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 		DBG_VOID_RETURN;
 	}
 
-	auto& conn_pool{ fetch_connection_pool<Client_object_data>(object_zv) };
+	auto& conn_pool{ fetch_connection_pool<Client_data>(object_zv) };
 	conn_pool.close();
 
 	DBG_VOID_RETURN;
@@ -391,7 +551,7 @@ const st_mysqlx_property_entry client_property_entries[] =
 void
 client_free_storage(zend_object* object)
 {
-	util::free_object<Client_object_data>(object);
+	util::free_object<Client_data>(object);
 }
 /* }}} */
 
@@ -401,10 +561,11 @@ zend_object*
 client_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("client_object_allocator");
-	st_mysqlx_object* mysqlx_object = util::alloc_object<Client_object_data>(
+	st_mysqlx_object* mysqlx_object{ util::alloc_object<Client_data>(
 		class_type,
 		&client_handlers,
-		&client_properties);
+		&client_properties)
+	};
 	DBG_RETURN(&mysqlx_object->zo);
 }
 /* }}} */
@@ -413,14 +574,14 @@ client_object_allocator(zend_class_entry* class_type)
 void
 mysqlx_new_client(
 	const util::string_view& connection_uri,
-	const Client_options& client_options,
+	const util::string_view& client_options_desc,
 	zval* return_value)
 {
 	DBG_ENTER("mysqlx_new_client");
 
-	Client_object_data& data_object{ util::init_object<Client_object_data>(client_class_entry, return_value) };
+	Client_data& data_object{ util::init_object<Client_data>(client_class_entry, return_value) };
 	Client_state_manager& csm{ Client_state_manager::get() };
-	data_object.state = csm.get_client_state(connection_uri.to_std_string(), client_options);
+	data_object.state = csm.get_client_state(connection_uri.to_std_string(), client_options_desc);
 
 	DBG_VOID_RETURN;
 }
@@ -471,20 +632,32 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 		DBG_VOID_RETURN;
 	}
 
+	#if PHP_DEBUG
 	drv::verify_connection_string(connection_uri.to_string());
-	const Client_options& client_options{ parse_client_options(client_options_desc) };
-	mysqlx_new_client(connection_uri.to_string(), client_options, return_value);
+	#endif
+	mysqlx_new_client(connection_uri.to_string(), client_options_desc, return_value);
 
 	DBG_VOID_RETURN;
 }
 /* }}} */
 
-/* {{{ cleanup_clients */
-void cleanup_clients()
+namespace client {
+
+/* {{{ prune_expired_connections */
+void prune_expired_connections()
 {
-	Client_state_manager::get().release();
+	Client_state_manager::get().prune_expired_connections();
 }
 /* }}} */
+
+/* {{{ release_all_clients */
+void release_all_clients()
+{
+	Client_state_manager::get().release_all_clients();
+}
+/* }}} */
+
+} // namespace client
 
 } // namespace devapi
 
