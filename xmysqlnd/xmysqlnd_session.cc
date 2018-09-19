@@ -2283,7 +2283,7 @@ xmysqlnd_session::get_server_version()
 		}
         session_handle.reset();
 	} else {
-		DBG_INF_FMT("server_version_string=%s", server_version_string);
+		DBG_INF_FMT("server_version_string=%s", server_version_string.c_str());
 	}
 	if (server_version_string.empty()) {
 		return 0;

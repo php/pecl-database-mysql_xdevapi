@@ -144,6 +144,7 @@ devapi::st_mysqlx_object* alloc_permanent_object(
 }
 /* }}} */
 
+/* {{{ mysqlx::util::fetch_data_object */
 template<typename Data_object>
 Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
 {
