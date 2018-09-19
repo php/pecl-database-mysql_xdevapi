@@ -150,7 +150,7 @@ Data_object& fetch_data_object(zval* from)
 {
 	using namespace devapi;
 
-	const st_mysqlx_object* mysqlx_object = Z_MYSQLX_P(from);
+	const st_mysqlx_object* mysqlx_object{ Z_MYSQLX_P(from) };
 	return fetch_data_object<Data_object>(mysqlx_object);
 }
 /* }}} */
@@ -161,7 +161,7 @@ Data_object& fetch_data_object(zend_object* from)
 {
 	using namespace devapi;
 
-	const st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(from);
+	const st_mysqlx_object* mysqlx_object{ mysqlx_fetch_object_from_zo(from) };
 	return fetch_data_object<Data_object>(mysqlx_object);
 }
 /* }}} */
@@ -171,7 +171,7 @@ Data_object& fetch_data_object(const devapi::st_mysqlx_object* mysqlx_object)
 {
 	using namespace devapi;
 
-	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
+	Data_object* data_object{ static_cast<Data_object*>(mysqlx_object->ptr) };
 	if (!data_object) {
 		throw util::doc_ref_exception(util::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
 	}

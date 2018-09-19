@@ -893,7 +893,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 
 	auto& data_object{ fetch_session_data(object_zv) };
 	if (data_object.close_connection()) {
-		RETVAL_TRUE; 
+		RETVAL_TRUE;
 	} else {
 		RETVAL_FALSE;
 	}
@@ -1011,7 +1011,7 @@ mysqlx_new_session(zval* return_value)
 	Session_data& data_object{
 		util::init_object<Session_data>(mysqlx_session_class_entry, return_value) };
 	data_object.session = drv::create_session(FALSE);
-	
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

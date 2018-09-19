@@ -27,8 +27,9 @@
 #include "util/string_utils.h"
 #include "util/zend_utils.h"
 #include <chrono>
-#include <thread>
+#include <condition_variable> 
 #include <mutex>
+#include <thread>
 
 namespace mysqlx {
 
@@ -169,7 +170,7 @@ using Time_point = std::chrono::system_clock::time_point;
 struct Idle_connection
 {
 	Idle_connection(
-		drv::XMYSQLND_SESSION connection, 
+		drv::XMYSQLND_SESSION connection,
 		const std::chrono::milliseconds& max_idle_time)
 		: connection(connection)
 		, expiration_time(std::chrono::system_clock::now() + max_idle_time)
@@ -181,7 +182,7 @@ struct Idle_connection
 
 
 /* {{{ Connection_pool */
-class Connection_pool 
+class Connection_pool
 	: public util::permanent_allocable
 	, private drv::Connection_pool_callback
 {
@@ -193,7 +194,7 @@ public:
 
 public:
 	drv::XMYSQLND_SESSION get_connection();
-	void prune_expired();
+	void prune_expired_connections();
 	void close();
 
 private:
@@ -212,13 +213,13 @@ private:
 
 private:
 	std::mutex mtx;
-	std::condition_variable on_idle_added;
+	std::condition_variable on_idle_connection_added;
 
 	std::string connection_uri;
 	const bool pooling_disabled;
 	const std::size_t max_size;
-	std::chrono::milliseconds max_idle_time;
-	std::chrono::milliseconds queue_timeout;
+	const std::chrono::milliseconds max_idle_time;
+	const std::chrono::milliseconds queue_timeout;
 
 	using Active_connections = std::set<drv::XMYSQLND_SESSION>;
 	Active_connections active_connections;
@@ -261,18 +262,20 @@ drv::XMYSQLND_SESSION Connection_pool::get_connection()
 	return add_new_connection();
 }
 
-void Connection_pool::prune_expired()
+void Connection_pool::prune_expired_connections()
 {
 	if (max_idle_time == 0ms) return;
+
+	std::lock_guard<std::mutex> lck(mtx);
 
 	const Time_point now{ std::chrono::system_clock::now() };
 	if (now <= next_prune_time) return;
 
-	auto it{ 
+	auto it{
 		std::find_if(
 			idle_connections.begin(),
-			idle_connections.end(), 
-			[=](const Idle_connection& conn) 
+			idle_connections.end(),
+			[=](const Idle_connection& conn)
 				{ return now < conn.expiration_time; })
 	};
 
@@ -335,16 +338,16 @@ drv::XMYSQLND_SESSION Connection_pool::try_pop_idle_connection(std::unique_lock<
 	if (wait_for_idle_connection(lck)) return pop_idle_connection();
 
 	util::ostringstream os;
-	os << "couldn't get connection from pool - queue timeout passed" << connection_uri.c_str();
+	os << "couldn't get connection from pool - queue timeout elapsed" << connection_uri.c_str();
 	throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error, os.str());
 }
 
 bool Connection_pool::wait_for_idle_connection(std::unique_lock<std::mutex>& lck)
 {
 	if (queue_timeout != 0ms) {
-		return on_idle_added.wait_for(lck, queue_timeout, [this]{ return has_idle_connection(); });
+		return on_idle_connection_added.wait_for(lck, queue_timeout, [this]{ return has_idle_connection(); });
 	} else {
-		on_idle_added.wait(lck, [this]{ return has_idle_connection(); });
+		on_idle_connection_added.wait(lck, [this]{ return has_idle_connection(); });
 		return true;
 	}
 }
@@ -358,7 +361,7 @@ void Connection_pool::on_close(drv::XMYSQLND_SESSION closing_connection)
 		drv::XMYSQLND_SESSION idle_connection{ prepare_closed_connection() };
 		std::swap(*idle_connection, *closing_connection);
 		idle_connections.push_back({ idle_connection, max_idle_time });
-		on_idle_added.notify_one();
+		on_idle_connection_added.notify_one();
 	}
 }
 
@@ -449,7 +452,7 @@ void Client_state_manager::prune_expired_connections()
 {
 	for (auto& uri_to_client_state : client_states) {
 		auto& client_state{ uri_to_client_state.second };
-		client_state->conn_pool.prune_expired();
+		client_state->conn_pool.prune_expired_connections();
 	}
 }
 
@@ -465,7 +468,6 @@ struct Client_data : public util::custom_allocable
 	shared_client_state state;
 };
 
-template<typename Data_object>
 Connection_pool& fetch_connection_pool(zval* from)
 {
 	auto& data_object{ util::fetch_data_object<Client_data>(from) };
@@ -502,7 +504,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 		DBG_VOID_RETURN;
 	}
 
-	auto& conn_pool{ fetch_connection_pool<Client_data>(object_zv) };
+	auto& conn_pool{ fetch_connection_pool(object_zv) };
 	drv::XMYSQLND_SESSION connection{ conn_pool.get_connection() };
 	mysqlx_new_session(return_value, connection);
 
@@ -522,7 +524,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 		DBG_VOID_RETURN;
 	}
 
-	auto& conn_pool{ fetch_connection_pool<Client_data>(object_zv) };
+	auto& conn_pool{ fetch_connection_pool(object_zv) };
 	conn_pool.close();
 
 	DBG_VOID_RETURN;
@@ -544,7 +546,7 @@ HashTable client_properties;
 
 const st_mysqlx_property_entry client_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{{nullptr, 0}, nullptr, nullptr}
 };
 
 /* {{{ client_free_storage */

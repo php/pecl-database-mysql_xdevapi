@@ -615,7 +615,7 @@ public:
 
 	XMYSQLND_SESSION_DATA data;
 	std::string server_version_string;
-	Uuid_generator* session_uuid{ nullptr };
+	Uuid_generator::pointer session_uuid{ nullptr };
 	Connection_pool_callback* pool_callback{ nullptr };
 	zend_bool persistent{ TRUE };
 };

@@ -2018,7 +2018,7 @@ enum_func_status
 xmysqlnd_sess_reset__read_response(st_xmysqlnd_msg__session_reset* msg)
 {
 	DBG_ENTER("xmysqlnd_sess_reset__read_response");
-	const enum_func_status ret{ 
+	const enum_func_status ret{
 		xmysqlnd_receive_message(
 			&sess_reset_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info) };
 	DBG_RETURN(ret);

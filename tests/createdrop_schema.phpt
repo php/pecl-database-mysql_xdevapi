@@ -46,7 +46,7 @@ error_reporting=0
 	}
 
 	try {
-		#This should fail as the empty name is incorrect
+		// This should fail as the empty name is incorrect
 		$session->createSchema("");
 	} catch(Exception $e) {
 		$test[3] = "1";
