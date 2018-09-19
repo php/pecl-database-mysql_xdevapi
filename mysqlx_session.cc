@@ -128,10 +128,10 @@ bool Session_data::close_connection()
 
 /* {{{ fetch_session_data */
 template<typename T>
-Session_data& fetch_session_data(T* from)
+Session_data& fetch_session_data(T* from, bool allow_closed = false)
 {
 	auto& data_object{ util::fetch_data_object<Session_data>(from) };
-	if (data_object.session->is_closed()) {
+	if (!allow_closed && data_object.session->is_closed()) {
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::session_closed);
 	}
 	return data_object;
@@ -949,7 +949,7 @@ const struct st_mysqlx_property_entry mysqlx_session_property_entries[] =
 static void
 mysqlx_session_free_storage(zend_object* object)
 {
-	auto& data_object{ fetch_session_data(object) };
+	auto& data_object{ fetch_session_data(object, true) };
 	data_object.close_connection();
 	util::free_object<Session_data>(object);
 }

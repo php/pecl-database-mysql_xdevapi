@@ -607,11 +607,10 @@ xmysqlnd_session_data::send_close()
 		break;
 	}
 	case SESSION_ALLOCATED:
-		state.set(SESSION_CLOSE_SENT);
-		/* Fall-through */
 	case SESSION_CLOSE_SENT:
 		/* The user has killed its own connection */
 		vio->data->m.close_stream(vio, stats, error_info);
+		state.set(SESSION_CLOSED);
 		break;
 	case SESSION_CLOSED:
 		// already closed, do nothing
