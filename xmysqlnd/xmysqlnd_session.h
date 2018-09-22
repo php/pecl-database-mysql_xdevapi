@@ -84,7 +84,7 @@ struct st_xmysqlnd_session_state : public util::permanent_allocable
 {
 public:
 	st_xmysqlnd_session_state();
-	xmysqlnd_session_state get();
+	xmysqlnd_session_state get() const;
 	void set(const xmysqlnd_session_state new_state);
 private:
 	xmysqlnd_session_state state;
@@ -104,9 +104,26 @@ typedef struct st_xmysqlnd_level3_io : public util::permanent_allocable
 		, pfc(pfc)
 	{
 	}
+	st_xmysqlnd_level3_io(st_xmysqlnd_level3_io&& rhs)
+		: vio(rhs.vio)
+		, pfc(rhs.pfc)
+	{
+		rhs.pfc = nullptr;
+		rhs.vio = nullptr;
+	}
+	st_xmysqlnd_level3_io& operator=(st_xmysqlnd_level3_io&& rhs)
+	{
+		vio = rhs.vio;
+		rhs.pfc = nullptr;
 
-	MYSQLND_VIO* vio = nullptr;
-	XMYSQLND_PFC* pfc = nullptr;
+		pfc = rhs.pfc;
+		rhs.vio = nullptr;
+
+		return *this;
+	}
+
+	MYSQLND_VIO* vio{ nullptr };
+	XMYSQLND_PFC* pfc{ nullptr };
 } XMYSQLND_L3_IO;
 
 /*
@@ -384,12 +401,17 @@ enum_func_status           xmysqlnd_session_data_set_client_id(void * context, c
 class xmysqlnd_session_data : public util::permanent_allocable
 {
 public:
-	xmysqlnd_session_data() = delete;
 	xmysqlnd_session_data(
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 		MYSQLND_STATS* mysqlnd_stats,
 		MYSQLND_ERROR_INFO* mysqlnd_error_info);
+	xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexcept;
 	~xmysqlnd_session_data();
+
+	xmysqlnd_session_data() = delete;
+	xmysqlnd_session_data(const xmysqlnd_session_data&) = delete;
+	xmysqlnd_session_data& operator=(const xmysqlnd_session_data&) = delete;
+
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
 	std::string get_scheme(const std::string& hostname, unsigned int port);
@@ -406,6 +428,7 @@ public:
 
 	enum_func_status  send_reset();
 	enum_func_status  send_close();
+	bool is_closed() const { return state.get() == SESSION_CLOSED; }
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
 	size_t            get_client_id();
@@ -414,7 +437,7 @@ public:
 	/* Operation related */
 	XMYSQLND_L3_IO	                   io;
 	/* Authentication info */
-	const Session_auth_data*  auth;
+	std::unique_ptr<Session_auth_data> auth;
 	/* Other connection info */
 	std::string scheme;
 	std::string current_db;
@@ -425,13 +448,10 @@ public:
 	size_t			                   client_id;
 	const MYSQLND_CHARSET*             charset;
 	/* If error packet, we use these */
-	MYSQLND_ERROR_INFO*                error_info;
-	MYSQLND_ERROR_INFO	               error_info_impl;
+	MYSQLND_ERROR_INFO*                error_info{nullptr};
+	MYSQLND_ERROR_INFO	               error_info_impl{};
 	/* Operation related */
 	XMYSQLND_SESSION_STATE             state;
-	/* options */
-	XMYSQLND_SESSION_OPTIONS*          options;
-	XMYSQLND_SESSION_OPTIONS	       options_impl;
 	size_t			                   client_api_capabilities;
 	/* stats */
 	MYSQLND_STATS*                     stats;
@@ -568,12 +588,16 @@ struct Connection_pool_callback
 class xmysqlnd_session : public util::permanent_allocable, public std::enable_shared_from_this<xmysqlnd_session>
 {
 public:
-	xmysqlnd_session() = delete;
 	xmysqlnd_session(
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 		MYSQLND_STATS* stats,
 		MYSQLND_ERROR_INFO* error_info);
+	xmysqlnd_session(xmysqlnd_session&& rhs) noexcept;
 	~xmysqlnd_session();
+
+	xmysqlnd_session() = delete;
+	xmysqlnd_session(const xmysqlnd_session& rhs) = delete;
+	xmysqlnd_session& operator=(const xmysqlnd_session& rhs) = delete;
 
 	enum_func_status xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db);
 
@@ -606,7 +630,7 @@ public:
 
 
     const enum_func_status close(const enum_xmysqlnd_session_close_type close_type);
-	bool is_closed() const { return data->state.get() == SESSION_CLOSED; }
+	bool is_closed() const { return data->is_closed(); }
 
 	void set_pooled(Connection_pool_callback* conn_pool_callback) { pool_callback = conn_pool_callback; }
 	bool is_pooled() const { return pool_callback != nullptr; }
@@ -615,7 +639,7 @@ public:
 
 	XMYSQLND_SESSION_DATA data;
 	std::string server_version_string;
-	Uuid_generator::pointer session_uuid{ nullptr };
+	std::unique_ptr<Uuid_generator> session_uuid;
 	Connection_pool_callback* pool_callback{ nullptr };
 	zend_bool persistent{ TRUE };
 };

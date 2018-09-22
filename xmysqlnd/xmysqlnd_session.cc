@@ -275,7 +275,7 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session_data::connect_handshake");
 
-	if (set_connection_options(auth, io.vio)
+	if (set_connection_options(auth.get(), io.vio)
 		&& (PASS == io.vio->data->m.connect(io.vio,
 											scheme_name,
 											persistent,
@@ -662,7 +662,7 @@ const st_xmysqlnd_session_on_statement_ok_bind noop__on_statement_ok = { nullptr
 
 /* {{{ xmysqlnd_session_state::get */
 enum xmysqlnd_session_state
-st_xmysqlnd_session_state::get()
+st_xmysqlnd_session_state::get() const
 {
 	DBG_ENTER("xmysqlnd_session_state::get");
 	DBG_INF_FMT("State=%u", state);
@@ -734,11 +734,44 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 /* }}} */
 
 
+/* {{{ xmysqlnd_session_data::xmysqlnd_session_data */
+xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexcept
+{
+	object_factory = rhs.object_factory;
+	io = std::move(rhs.io);
+	auth = std::move(rhs.auth);
+	scheme = std::move(rhs.scheme);
+	current_db = std::move(rhs.current_db);
+	transport_type = rhs.transport_type;
+	socket_path = std::move(rhs.socket_path);
+	server_host_info = std::move(rhs.server_host_info);
+	client_id = rhs.client_id;
+	rhs.client_id = 0;
+	charset = rhs.charset;
+	mysqlnd_error_info_init(&error_info_impl, persistent);
+	error_info = &error_info_impl;
+	state = rhs.state;
+	client_api_capabilities = rhs.client_api_capabilities;
+
+	stats = rhs.stats;
+	rhs.stats = nullptr;
+	own_stats = rhs.own_stats;
+	rhs.own_stats = false;
+
+	persistent = rhs.persistent;
+	savepoint_name_seed = rhs.savepoint_name_seed;
+	rhs.savepoint_name_seed = 0;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_session_data::~xmysqlnd_session_data */
 xmysqlnd_session_data::~xmysqlnd_session_data()
 {
 	DBG_ENTER("xmysqlnd_session_data::~xmysqlnd_session_data");
-	send_close();
+	if (!is_closed()) {
+		send_close();
+	}
 	cleanup();
 	free_contents();
 	DBG_VOID_RETURN;
@@ -761,10 +794,7 @@ void xmysqlnd_session_data::cleanup()
 
 	DBG_INF("Freeing memory of members");
 
-	if(auth) {
-		delete auth;
-		auth = nullptr;
-	}
+	auth.reset();
 	current_db.clear();
 	scheme.clear();
 	server_host_info.clear();
@@ -1352,7 +1382,7 @@ Authenticate::Authenticate(
 	, scheme(scheme)
 	, database(database)
 	, msg_factory(xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info))
-	, auth(session->auth)
+	, auth(session->auth.get())
 {
 }
 
@@ -1542,7 +1572,7 @@ void setup_crypto_options(
 		xmysqlnd_session_data* session)
 {
 	DBG_ENTER("setup_crypto_options");
-	const Session_auth_data * auth = session->auth;
+	const Session_auth_data* auth{ session->auth.get() };
 	zval string;
 
 	//Add client key
@@ -1682,11 +1712,24 @@ xmysqlnd_session::xmysqlnd_session(
 {
 	DBG_ENTER("xmysqlnd_session::xmysqlnd_session");
 
-	session_uuid = new Uuid_generator();
-	xmysqlnd_session_data* session_data = factory->get_session_data(factory, persistent, stats, error_info);
+	session_uuid = std::make_unique<Uuid_generator>();
+	xmysqlnd_session_data* session_data{ factory->get_session_data(factory, persistent, stats, error_info) };
 	if (session_data) {
 		data = std::shared_ptr<xmysqlnd_session_data>(session_data);
 	}
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_session::xmysqlnd_session */
+xmysqlnd_session::xmysqlnd_session(xmysqlnd_session&& rhs) noexcept
+{
+	data = std::make_shared<xmysqlnd_session_data>(std::move(*rhs.data));
+	server_version_string = std::move(rhs.server_version_string);
+	session_uuid = std::move(rhs.session_uuid);
+	pool_callback = rhs.pool_callback;
+	rhs.pool_callback = nullptr;
+	persistent = rhs.persistent;
 }
 /* }}} */
 
@@ -1695,7 +1738,6 @@ xmysqlnd_session::xmysqlnd_session(
 xmysqlnd_session::~xmysqlnd_session()
 {
 	DBG_ENTER("xmysqlnd_session::~xmysqlnd_session");
-	delete session_uuid;
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -2416,7 +2458,7 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 			DBG_RETURN(nullptr);
 		}
 	}
-	session->data->auth = auth;
+	session->data->auth.reset(auth);
 	ret = session->connect(database,port, set_capabilities);
 
 	if (ret == FAIL) {

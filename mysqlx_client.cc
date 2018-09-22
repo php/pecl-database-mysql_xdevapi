@@ -205,7 +205,7 @@ private:
 	bool is_full() const;
 	bool has_idle_connection() const;
 	drv::XMYSQLND_SESSION create_non_pooled_connection();
-	drv::XMYSQLND_SESSION prepare_closed_connection();
+	drv::XMYSQLND_SESSION create_idle_connection(drv::XMYSQLND_SESSION closing_connection);
 	drv::XMYSQLND_SESSION add_new_connection();
 	drv::XMYSQLND_SESSION pop_idle_connection();
 	drv::XMYSQLND_SESSION try_pop_idle_connection(std::unique_lock<std::mutex>& lck);
@@ -308,11 +308,13 @@ drv::XMYSQLND_SESSION Connection_pool::create_non_pooled_connection()
 	return drv::create_session(false);
 }
 
-drv::XMYSQLND_SESSION Connection_pool::prepare_closed_connection()
+drv::XMYSQLND_SESSION Connection_pool::create_idle_connection(
+	drv::XMYSQLND_SESSION closing_connection)
 {
-	drv::XMYSQLND_SESSION closed_connection{ drv::create_session(true) };
-	closed_connection->get_data()->state.set(drv::SESSION_CLOSED);
-	return closed_connection;
+	drv::XMYSQLND_SESSION idle_connection{ 
+		std::make_shared<drv::xmysqlnd_session>(std::move(*closing_connection)) };
+	closing_connection->get_data()->state.set(drv::SESSION_CLOSED);
+	return idle_connection;
 }
 
 drv::XMYSQLND_SESSION Connection_pool::add_new_connection()
@@ -358,8 +360,7 @@ void Connection_pool::on_close(drv::XMYSQLND_SESSION closing_connection)
 	auto it{ active_connections.find(closing_connection) };
 	if (it != active_connections.end()) {
 		active_connections.erase(it);
-		drv::XMYSQLND_SESSION idle_connection{ prepare_closed_connection() };
-		std::swap(*idle_connection, *closing_connection);
+		drv::XMYSQLND_SESSION idle_connection{ create_idle_connection(closing_connection) };
 		idle_connections.push_back({ idle_connection, max_idle_time });
 		on_idle_connection_added.notify_one();
 	}
