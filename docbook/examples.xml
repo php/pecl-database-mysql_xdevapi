@@ -13,7 +13,6 @@
   <programlisting role="php">
 <![CDATA[
 <?php
-$session = mysql_xdevapi\getSession("mysqlx://user:password@host");
 try {
     $session = mysql_xdevapi\getSession("mysqlx://user:password@host");
 } catch(Exception $e) {
