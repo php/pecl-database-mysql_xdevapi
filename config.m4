@@ -156,13 +156,15 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		"
 
 	xmysqlnd_protobuf_sources=" \
+		xmysqlnd/proto_gen/mysqlx.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_connection.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_crud.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_cursor.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_datatypes.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_expect.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_expr.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_notice.pb.cc \
-		xmysqlnd/proto_gen/mysqlx.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_prepare.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_resultset.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_session.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_sql.pb.cc \

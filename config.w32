@@ -163,13 +163,15 @@ var xmysqlnd_crud_parsers = [
 ];
 
 var xmysqlnd_protobuf_sources = [
+	"mysqlx.pb.cc",
 	"mysqlx_connection.pb.cc",
 	"mysqlx_crud.pb.cc",
+	"mysqlx_cursor.pb.cc",
 	"mysqlx_datatypes.pb.cc",
 	"mysqlx_expect.pb.cc",
 	"mysqlx_expr.pb.cc",
 	"mysqlx_notice.pb.cc",
-	"mysqlx.pb.cc",
+	"mysqlx_prepare.pb.cc",
 	"mysqlx_resultset.pb.cc",
 	"mysqlx_session.pb.cc",
 	"mysqlx_sql.pb.cc"
@@ -522,10 +524,12 @@ function get_protodef_paths() {
 		"mysqlx.proto",
 		"mysqlx_connection.proto",
 		"mysqlx_crud.proto",
+		"mysqlx_cursor.proto",
 		"mysqlx_datatypes.proto",
 		"mysqlx_expect.proto",
 		"mysqlx_expr.proto",
 		"mysqlx_notice.proto",
+		"mysqlx_prepare.proto",
 		"mysqlx_resultset.proto",
 		"mysqlx_session.proto",
 		"mysqlx_sql.proto"
