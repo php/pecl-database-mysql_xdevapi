@@ -274,7 +274,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		PHP_ADD_INCLUDE([$BOOST_RESOLVED_ROOT])
 		AC_MSG_RESULT(found in $BOOST_RESOLVED_ROOT)
 	else
-		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_BOOST_ROOT])
+		AC_MSG_ERROR([not found, consider use of --with-boost or setting MYSQL_XDEVAPI_BOOST_ROOT])
 	fi
 
 	AC_MSG_CHECKING([if boost version is valid])
@@ -324,7 +324,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 		AC_MSG_RESULT([found in $PROTOBUF_RESOLVED_ROOT])
 	else
-		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
+		AC_MSG_ERROR([not found, consider use of --with-protobuf or setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi
 
 	PHP_ADD_MAKEFILE_FRAGMENT()
@@ -343,4 +343,67 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	fi
 
 	AC_DEFINE(HAVE_MYSQL_XDEVAPI, 1, [mysql-xdevapi support enabled])
+
+	dnl expose metadata
+	CURRENT_TIME=`date -u`
+
+	dnl expose sources metadata
+	INFO_SRC_PATH=[$ext_builddir/INFO_SRC]
+
+	# var xdevapi_version = grep_xdevapi_version(] >> $INFO_BIN_PATH
+	MYSQL_XDEVAPI_VERSION=`$EGREP "define PHP_MYSQL_XDEVAPI_VERSION" $ext_srcdir/php_mysql_xdevapi.h | $SED -e 's/[[^0-9\.]]//g'`
+	echo [MySQL X DevAPI for PHP ${MYSQL_XDEVAPI_VERSION}] > $INFO_SRC_PATH
+
+	echo [build-date: ${CURRENT_TIME}] >> $INFO_SRC_PATH
+
+	BRANCH_NAME=`git symbolic-ref --short HEAD`
+	echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
+
+	COMMIT_INFO=`git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"`
+	echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
+
+	# expose binaries metadata
+	INFO_BIN_PATH=[$ext_builddir/INFO_BIN]
+
+	echo [===== Information about the build process: =====]] > $INFO_BIN_PATH
+	HOSTNAME=`hostname -a`
+	echo [Build was run at ${CURRENT_TIME} on host ${HOSTNAME}] >> $INFO_BIN_PATH
+	HOST_OS=`uname -a`
+	echo [Build was done on ${HOST_OS}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Compiler / generator used: =====] >> $INFO_BIN_PATH
+
+	COMPILER_VERSION=`${CXX} --version`
+	echo [Compiler: "${COMPILER_VERSION}"] >> $INFO_BIN_PATH
+
+	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
+	echo [Protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
+
+	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
+	echo [Boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
+	echo [PHP version: ${PHP_MAJOR_VERSION}] >> $INFO_BIN_PATH
+	echo [Architecture: ${AT}] >> $INFO_BIN_PATH
+	echo [Thread Safety: ${ZEND_ZTS}] >> $INFO_BIN_PATH
+	echo [Debug: ${PHP_DEBUG}] >> $INFO_BIN_PATH
+	echo [Developer mode: ${PHP_DEV_MODE}] >> $INFO_BIN_PATH
+	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
+	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
+
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Compiler flags used: =====] >> $INFO_BIN_PATH
+	echo [CC: ${CC}] >> $INFO_BIN_PATH
+	echo [CFLAGS: ${CFLAGS}] >> $INFO_BIN_PATH
+	echo [CXX: ${CXX}] >> $INFO_BIN_PATH
+	echo [CXXFLAGS: ${CXXFLAGS}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_CXXFLAGS: ${MYSQL_XDEVAPI_CXXFLAGS}] >> $INFO_BIN_PATH
+	echo [LDFLAGS: ${LDFLAGS}] >> $INFO_BIN_PATH
+	echo [PHP_LDFLAGS: ${PHP_LDFLAGS}] >> $INFO_BIN_PATH
+
+	echo [===== EOF =====] >> $INFO_BIN_PATH
+
 fi
