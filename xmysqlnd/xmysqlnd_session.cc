@@ -2480,14 +2480,14 @@ mysqlx::devapi::Session_data * create_new_session(zval * session_zval)
 
 
 /* {{{ establish_connection */
-enum_func_status establish_connection(mysqlx::devapi::Session_data * object,
+enum_func_status establish_connection(XMYSQLND_SESSION& session,
 									  Session_auth_data * auth,
 									  const util::Url& url,
 									  transport_types tr_type)
 {
 	DBG_ENTER("establish_connection");
 	enum_func_status ret{PASS};
-	mysqlx::drv::XMYSQLND_SESSION new_session;
+	XMYSQLND_SESSION new_session;
 	size_t set_capabilities{0};
 	if( tr_type != transport_types::network ) {
 		DBG_INF_FMT("Connecting with the provided socket/pipe: %s",
@@ -2497,14 +2497,14 @@ enum_func_status establish_connection(mysqlx::devapi::Session_data * object,
 			DBG_ERR_FMT("Expecting socket/pipe location, found nothing!");
 			ret = FAIL;
 		} else {
-			object->session->data->socket_path = util::to_std_string(url.host);
+			session->data->socket_path = util::to_std_string(url.host);
 		}
 	}
 
 	if( ret != FAIL ) {
 		const MYSQLND_CSTRING path = { url.path.c_str(), url.path.length() };
-		object->session->data->transport_type = tr_type;
-		new_session = xmysqlnd_session_connect(object->session,
+		session->data->transport_type = tr_type;
+		new_session = xmysqlnd_session_connect(session,
 											   auth,
 											   path,
 											   url.port,
@@ -2513,11 +2513,11 @@ enum_func_status establish_connection(mysqlx::devapi::Session_data * object,
 			ret = FAIL;
 		}
 
-		if (ret == PASS && object->session != new_session) {
+		if (ret == PASS && session != new_session) {
 			if (new_session) {
 				php_error_docref(nullptr, E_WARNING, "Different object returned");
 			}
-			object->session = new_session;
+			session = new_session;
 		}
 	}
 	DBG_RETURN(ret);
@@ -3311,12 +3311,13 @@ void verify_connection_string(const util::string& connection_string)
 }
 /* }}} */
 
-/* {{{ xmysqlnd_new_session_connect */
+/* {{{ connect_session */
 PHP_MYSQL_XDEVAPI_API
-		enum_func_status xmysqlnd_new_session_connect(const char* uri_string,
-													  zval * return_value)
+enum_func_status connect_session(
+	const char* uri_string,
+	XMYSQLND_SESSION& session)
 {
-	DBG_ENTER("xmysqlnd_new_session_connect");
+	DBG_ENTER("connect_session");
 	DBG_INF_FMT("URI: %s",uri_string);
 	enum_func_status ret{FAIL};
 	if( nullptr == uri_string ) {
@@ -3340,11 +3341,7 @@ PHP_MYSQL_XDEVAPI_API
 					current_uri.first.c_str());
 		auto url = extract_uri_information( current_uri.first.c_str() );
 		if( !url.first.empty() ) {
-			mysqlx::devapi::Session_data * session = create_new_session(return_value);
-			if( nullptr == session ) {
-				devapi::RAISE_EXCEPTION( err_msg_internal_error );
-				DBG_RETURN(ret);
-			}
+			
 			Session_auth_data * auth = extract_auth_information(url.first);
 			if( nullptr != auth ) {
 				/*
@@ -3364,7 +3361,7 @@ PHP_MYSQL_XDEVAPI_API
 											   url.first,url.second);
 					if (ret == FAIL) {
 						const MYSQLND_ERROR_INFO* session_error_info{
-							session->session->get_data()->get_error_info() };
+							session->get_data()->get_error_info() };
 						if (session_error_info) {
 							last_error_info = *session_error_info;
 						}
@@ -3388,9 +3385,6 @@ PHP_MYSQL_XDEVAPI_API
 	 * will clean it up
 	 */
 	if( FAIL == ret ) {
-		zval_dtor(return_value);
-		ZVAL_NULL(return_value);
-
 		if( uris.size() > 1) {
 			devapi::RAISE_EXCEPTION( err_msg_all_routers_failed );
 		} else if (last_error_info.error_no) {
@@ -3404,6 +3398,38 @@ PHP_MYSQL_XDEVAPI_API
 }
 /* }}} */
 
+/* {{{ xmysqlnd_new_session_connect */
+PHP_MYSQL_XDEVAPI_API
+enum_func_status xmysqlnd_new_session_connect(
+	const char* uri_string,
+	zval* return_value)
+{
+	DBG_ENTER("xmysqlnd_new_session_connect");
+
+	enum_func_status ret{ FAIL };
+	mysqlx::devapi::Session_data* session_data{ create_new_session(return_value) };
+	if (nullptr == session_data) {
+		devapi::RAISE_EXCEPTION( err_msg_internal_error );
+		DBG_RETURN(ret);
+	}
+
+	// TODO: clean it up after fully switch to exceptions / smart zvals
+	try {
+		ret = connect_session(uri_string, session_data->session);
+	} catch(std::exception&) {
+		zval_dtor(return_value);
+		ZVAL_NULL(return_value);
+		throw;
+	}
+
+	if( FAIL == ret ) {
+		zval_dtor(return_value);
+		ZVAL_NULL(return_value);
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
 
 } // namespace drv
 
