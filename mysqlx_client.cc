@@ -366,7 +366,7 @@ drv::XMYSQLND_SESSION Connection_pool::try_pop_idle_connection(std::unique_lock<
 	if (wait_for_idle_connection(lck)) return pop_idle_connection();
 
 	util::ostringstream os;
-	os << "couldn't get connection from pool - queue timeout elapsed" << connection_uri.c_str();
+	os << "couldn't get connection from pool - queue timeout elapsed " << connection_uri.c_str();
 	throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error, os.str());
 }
 

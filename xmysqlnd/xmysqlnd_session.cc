@@ -3301,7 +3301,7 @@ void verify_connection_string(const util::string& connection_string)
 	const auto& uri_addresses{ extract_uri_addresses(connection_string) };
 	if (uri_addresses.empty()) {
 		util::ostringstream os;
-		os << "invalid connection_string '" << connection_string << "'.";
+		os << "invalid connection string '" << connection_string << "'.";
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}
 

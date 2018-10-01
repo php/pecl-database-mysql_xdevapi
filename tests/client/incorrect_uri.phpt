@@ -18,7 +18,8 @@ $pooling_options = '{
 
 try {
 	$client = mysql_xdevapi\getClient("this_is_incorrect_uri&=mysql41&", $pooling_options);
-	test_step_failed("client shouldn't accept incorrect uri");
+	$session = $client->getSession();
+	test_step_failed("shouldn't retrieve session for incorrect uri");
 } catch (Exception $e) {
 	test_step_ok();
 }
