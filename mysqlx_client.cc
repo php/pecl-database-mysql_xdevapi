@@ -80,10 +80,15 @@ private:
 		const char* option_name,
 		T& client_option,
 		Value_checker value_checker = [](T) -> bool { return true; });
+	template<typename T>
+	util::string prepare_option_value_not_supported_msg(
+		const char* option_name,
+		const T& option_value) const;
 
 private:
 	ptree options_desc;
 	Client_options client_options;
+
 }; // Client_options_parser
 
 // ---------
@@ -141,16 +146,33 @@ void Client_options_parser::assign_option(
 	Value_checker value_checker)
 {
 	auto option_desc{ options_desc.get_optional<T>(option_name) };
-	if (!option_desc) return;
+	if (!option_desc) {
+		auto option_desc_as_str{ options_desc.get_optional<ptree_string>(option_name) };
+		if (!option_desc_as_str) return;
+
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::invalid_argument,
+			prepare_option_value_not_supported_msg(option_name, option_desc_as_str.get()));
+	}
 
 	auto option_value{ option_desc.get() };
 	if (!value_checker(option_value)) {
-		util::ostringstream os;
-		os << "Client option '" << option_name << "' does not support value '" << option_value << "'.";
-		throw std::invalid_argument(os.str().c_str());
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::invalid_argument,
+			prepare_option_value_not_supported_msg(option_name, option_value));
 	}
 
 	client_option = option_value;
+}
+
+template<typename T>
+util::string Client_options_parser::prepare_option_value_not_supported_msg(
+	const char* option_name,
+	const T& option_value) const
+{
+	util::ostringstream os;
+	os << "Client option '" << option_name << "' does not support value '" << option_value << "'.";
+	return os.str();
 }
 
 // ---------
@@ -320,6 +342,10 @@ drv::XMYSQLND_SESSION Connection_pool::create_idle_connection(
 drv::XMYSQLND_SESSION Connection_pool::add_new_connection()
 {
 	drv::XMYSQLND_SESSION connection{ drv::create_session(true) };
+	if (drv::connect_session(connection_uri.c_str(), connection) == FAIL) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::connection_failure);
+	}
+
 	active_connections.insert(connection);
 	connection->set_pooled(this);
 	return connection;
