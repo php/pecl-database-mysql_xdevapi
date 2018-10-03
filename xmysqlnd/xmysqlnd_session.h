@@ -114,10 +114,10 @@ typedef struct st_xmysqlnd_level3_io : public util::permanent_allocable
 	st_xmysqlnd_level3_io& operator=(st_xmysqlnd_level3_io&& rhs)
 	{
 		vio = rhs.vio;
-		rhs.pfc = nullptr;
+		rhs.vio = nullptr;
 
 		pfc = rhs.pfc;
-		rhs.vio = nullptr;
+		rhs.pfc = nullptr;
 
 		return *this;
 	}
@@ -323,9 +323,12 @@ public:
 			const MYSQLND_CSTRING& database);
 	~Authenticate();
 
-	bool run();
+	bool run(bool re_auth = false);
 
 private:
+	bool run_auth();
+	bool run_re_auth();
+
 	bool init_capabilities();
 	bool init_connection();
 	bool gather_auth_mechanisms();
@@ -416,7 +419,11 @@ public:
 
 	std::string get_scheme(const std::string& hostname, unsigned int port);
 	enum_func_status  connect_handshake(const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
-	enum_func_status  authenticate(const MYSQLND_CSTRING scheme,const MYSQLND_CSTRING database,const size_t set_capabilities);
+	enum_func_status authenticate(
+		const MYSQLND_CSTRING scheme,
+		const MYSQLND_CSTRING database,
+		const size_t set_capabilities,
+		const bool re_auth = false);
 	enum_func_status  connect(MYSQLND_CSTRING database,unsigned int port,size_t set_capabilities);
 	MYSQLND_STRING    quote_name(const MYSQLND_CSTRING name);
 	unsigned int      get_error_no();
@@ -438,6 +445,7 @@ public:
 	XMYSQLND_L3_IO	                   io;
 	/* Authentication info */
 	std::unique_ptr<Session_auth_data> auth;
+	Auth_mechanisms auth_mechanisms;
 	/* Other connection info */
 	std::string scheme;
 	std::string current_db;

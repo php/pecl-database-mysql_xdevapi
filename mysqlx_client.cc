@@ -27,7 +27,7 @@
 #include "util/string_utils.h"
 #include "util/zend_utils.h"
 #include <chrono>
-#include <condition_variable> 
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 
@@ -216,22 +216,28 @@ public:
 
 public:
 	drv::XMYSQLND_SESSION get_connection();
+
 	void prune_expired_connections();
 	void close();
 
 private:
-	//Connection_pool_callback
-	virtual void on_close(drv::XMYSQLND_SESSION closing_connection);
-
-private:
 	bool is_full() const;
 	bool has_idle_connection() const;
+	drv::XMYSQLND_SESSION create_new_connection(const bool persistent);
 	drv::XMYSQLND_SESSION create_non_pooled_connection();
 	drv::XMYSQLND_SESSION create_idle_connection(drv::XMYSQLND_SESSION closing_connection);
 	drv::XMYSQLND_SESSION add_new_connection();
 	drv::XMYSQLND_SESSION pop_idle_connection();
 	drv::XMYSQLND_SESSION try_pop_idle_connection(std::unique_lock<std::mutex>& lck);
 	bool wait_for_idle_connection(std::unique_lock<std::mutex>& lck);
+
+private:
+	void close_active_connections();
+	void close_idle_connections();
+
+private:
+	//Connection_pool_callback
+	virtual void on_close(drv::XMYSQLND_SESSION closing_connection);
 
 private:
 	std::mutex mtx;
@@ -261,7 +267,7 @@ Connection_pool::Connection_pool(
 	: connection_uri(uri)
 	, pooling_disabled(!options.enabled)
 	, max_size(static_cast<std::size_t>(options.max_size))
-	, max_idle_time(options.Default_idle_time)
+	, max_idle_time(options.max_idle_time)
 	, queue_timeout(options.queue_timeout)
 {
 }
@@ -270,6 +276,8 @@ Connection_pool::~Connection_pool()
 {
 	close();
 }
+
+// ---------
 
 drv::XMYSQLND_SESSION Connection_pool::get_connection()
 {
@@ -309,9 +317,11 @@ void Connection_pool::prune_expired_connections()
 void Connection_pool::close()
 {
 	std::lock_guard<std::mutex> lck(mtx);
-	active_connections.clear();
-	idle_connections.clear();
+	close_active_connections();
+	close_idle_connections();
 }
+
+// ---------
 
 bool Connection_pool::is_full() const
 {
@@ -325,15 +335,24 @@ bool Connection_pool::has_idle_connection() const
 	return !idle_connections.empty();
 }
 
+drv::XMYSQLND_SESSION Connection_pool::create_new_connection(const bool persistent)
+{
+	drv::XMYSQLND_SESSION connection{ drv::create_session(persistent) };
+	if (drv::connect_session(connection_uri.c_str(), connection) == FAIL) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::connection_failure);
+	}
+	return connection;
+}
+
 drv::XMYSQLND_SESSION Connection_pool::create_non_pooled_connection()
 {
-	return drv::create_session(false);
+	return create_new_connection(false);
 }
 
 drv::XMYSQLND_SESSION Connection_pool::create_idle_connection(
 	drv::XMYSQLND_SESSION closing_connection)
 {
-	drv::XMYSQLND_SESSION idle_connection{ 
+	drv::XMYSQLND_SESSION idle_connection{
 		std::make_shared<drv::xmysqlnd_session>(std::move(*closing_connection)) };
 	closing_connection->get_data()->state.set(drv::SESSION_CLOSED);
 	return idle_connection;
@@ -341,11 +360,7 @@ drv::XMYSQLND_SESSION Connection_pool::create_idle_connection(
 
 drv::XMYSQLND_SESSION Connection_pool::add_new_connection()
 {
-	drv::XMYSQLND_SESSION connection{ drv::create_session(true) };
-	if (drv::connect_session(connection_uri.c_str(), connection) == FAIL) {
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::connection_failure);
-	}
-
+	drv::XMYSQLND_SESSION connection{ create_new_connection(true) };
 	active_connections.insert(connection);
 	connection->set_pooled(this);
 	return connection;
@@ -378,6 +393,24 @@ bool Connection_pool::wait_for_idle_connection(std::unique_lock<std::mutex>& lck
 		on_idle_connection_added.wait(lck, [this]{ return has_idle_connection(); });
 		return true;
 	}
+}
+
+// ---------
+
+void Connection_pool::close_active_connections()
+{
+	for (auto& conn : active_connections) {
+		conn->close(drv::SESSION_CLOSE_EXPLICIT);
+	}
+	active_connections.clear();
+}
+
+void Connection_pool::close_idle_connections()
+{
+	for (auto& conn : idle_connections) {
+		conn.connection->close(drv::SESSION_CLOSE_EXPLICIT);
+	}
+	idle_connections.clear();
 }
 
 void Connection_pool::on_close(drv::XMYSQLND_SESSION closing_connection)

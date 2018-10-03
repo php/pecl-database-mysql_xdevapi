@@ -293,14 +293,16 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
 
 /* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
-xmysqlnd_session_data::authenticate(const MYSQLND_CSTRING scheme_name,
-									   const MYSQLND_CSTRING database,
-									   const size_t /*set_capabilities*/)
+xmysqlnd_session_data::authenticate(
+	const MYSQLND_CSTRING scheme_name,
+	const MYSQLND_CSTRING database,
+	const size_t /*set_capabilities*/,
+	const bool re_auth)
 {
 	DBG_ENTER("xmysqlnd_session_data::authenticate");
 	Authenticate authenticate(this, scheme_name, database);
 	enum_func_status ret{FAIL};
-	if (authenticate.run()) {
+	if (authenticate.run(re_auth)) {
 		DBG_INF("AUTHENTICATED. YAY!");
 		ret = PASS;
 	}
@@ -575,13 +577,12 @@ xmysqlnd_session_data::send_reset()
 enum_func_status
 xmysqlnd_session_data::send_close()
 {
-	enum_func_status ret{PASS};
-	MYSQLND_VIO * vio = io.vio;
-	php_stream * net_stream = vio->data->m.get_stream(vio);
-	const enum xmysqlnd_session_state state_val = state.get();
-
 	DBG_ENTER("mysqlnd_send_close");
-	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", this, net_stream? net_stream->abstract:nullptr);
+
+	enum_func_status ret{PASS};
+	MYSQLND_VIO* vio{ io.vio };
+	const xmysqlnd_session_state state_val{ state.get() };
+
 	DBG_INF_FMT("state=%u", state_val);
 
 	if (state_val >= SESSION_NON_AUTHENTICATED) {
@@ -599,11 +600,13 @@ xmysqlnd_session_data::send_close()
 		conn_close_msg.send_request(&conn_close_msg);
 		conn_close_msg.read_response(&conn_close_msg);
 
+		php_stream* net_stream{ vio->data->m.get_stream(vio) };
+		DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", this, net_stream? net_stream->abstract:nullptr);
 		if (net_stream) {
 			/* HANDLE COM_QUIT here */
 			vio->data->m.close_stream(vio, stats, error_info);
 		}
-		state.set(SESSION_CLOSE_SENT);
+		state.set(SESSION_CLOSED);
 		break;
 	}
 	case SESSION_ALLOCATED:
@@ -740,6 +743,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexce
 	object_factory = rhs.object_factory;
 	io = std::move(rhs.io);
 	auth = std::move(rhs.auth);
+	auth_mechanisms = std::move(rhs.auth_mechanisms);
 	scheme = std::move(rhs.scheme);
 	current_db = std::move(rhs.current_db);
 	transport_type = rhs.transport_type;
@@ -769,9 +773,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexce
 xmysqlnd_session_data::~xmysqlnd_session_data()
 {
 	DBG_ENTER("xmysqlnd_session_data::~xmysqlnd_session_data");
-	if (!is_closed()) {
-		send_close();
-	}
+	send_close();
 	cleanup();
 	free_contents();
 	DBG_VOID_RETURN;
@@ -1384,6 +1386,7 @@ Authenticate::Authenticate(
 	, msg_factory(xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info))
 	, auth(session->auth.get())
 {
+	ZVAL_NULL(&capabilities);
 }
 
 Authenticate::~Authenticate()
@@ -1391,7 +1394,12 @@ Authenticate::~Authenticate()
 	zval_dtor(&capabilities);
 }
 
-bool Authenticate::run()
+bool Authenticate::run(bool re_auth)
+{
+	return re_auth ? run_re_auth() : run_auth();
+}
+
+bool Authenticate::run_auth()
 {
 	if (!init_capabilities()) return false;
 
@@ -1399,6 +1407,14 @@ bool Authenticate::run()
 
 	if (!gather_auth_mechanisms()) return false;
 
+	session->auth_mechanisms = auth_mechanisms;
+
+	return authentication_loop();
+}
+
+bool Authenticate::run_re_auth()
+{
+	auth_mechanisms = session->auth_mechanisms;
 	return authentication_loop();
 }
 
@@ -1776,7 +1792,7 @@ xmysqlnd_session::reset()
 	if (ret == PASS) {
 		MYSQLND_CSTRING schema{ data->scheme.c_str(), data->scheme.length() };
 		MYSQLND_CSTRING dbase{ data->current_db.c_str(), data->current_db.length() };
-		ret = data->authenticate(schema, dbase, 0);
+		ret = data->authenticate(schema, dbase, 0, true);
 	}
 	DBG_RETURN(ret);
 }
@@ -2376,9 +2392,9 @@ xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 const enum_func_status
 xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 {
-	enum_func_status ret{FAIL};
-
 	DBG_ENTER("xmysqlnd_session::close");
+
+	enum_func_status ret{FAIL};
 
 	if (data->state.get() >= SESSION_READY) {
 		static enum_xmysqlnd_collected_stats close_type_to_stat_map[SESSION_CLOSE_LAST] = {
@@ -3341,7 +3357,6 @@ enum_func_status connect_session(
 					current_uri.first.c_str());
 		auto url = extract_uri_information( current_uri.first.c_str() );
 		if( !url.first.empty() ) {
-			
 			Session_auth_data * auth = extract_auth_information(url.first);
 			if( nullptr != auth ) {
 				/*
