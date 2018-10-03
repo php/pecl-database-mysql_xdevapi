@@ -6,6 +6,7 @@ error_reporting=E_ALL
 --FILE--
 <?php
 require_once(__DIR__."/../connect.inc");
+require_once(__DIR__."/session_utils.inc");
 
 function assert_test_schema($schema, $exists) {
 	global $test_schema_name;
@@ -45,16 +46,22 @@ assert_schema_ok($schema2);
 
 $session0->close();
 
-$schema3 = $session2->getSchema($db);
-assert_schema_fail($schema3);
+assert_session_invalid($session0);
+assert_session_invalid($session1);
+assert_session_invalid($session2);
 
-$session4 = $schema2->getSession();
-$schema4 = $session4->getSchema($db);
-assert_schema_fail($schema4);
+assert_schema_fail($schema0);
+assert_schema_fail($schema1);
+assert_schema_fail($schema2);
 
-$session5 = $schema3->getSession();
-$schema5 = $session5->getSchema($db);
-assert_schema_fail($schema5);
+$session4 = $schema0->getSession();
+assert_session_invalid($session4);
+
+$session5 = $schema1->getSession();
+assert_session_invalid($session5);
+
+$session6 = $schema2->getSession();
+assert_session_invalid($session6);
 
 verify_expectations();
 print "done!\n";
@@ -65,4 +72,10 @@ require_once(__DIR__."/../connect.inc");
 clean_test_db();
 ?>
 --EXPECTF--
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
 done!%A
