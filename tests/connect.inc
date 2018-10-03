@@ -37,6 +37,14 @@
 
 	// ----------------------------------------------------------------------
 
+	if (!function_exists('msleep')) {
+		function msleep($milliseconds) {
+			usleep($milliseconds * 1000);
+		}
+	}
+
+	// ----------------------------------------------------------------------
+
 	if (!function_exists('is_in_range')) {
 		function is_in_range($value, $min, $max) {
 			return ($min <= $value) && ($value <= $max);

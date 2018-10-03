@@ -37,9 +37,7 @@ assert_session_invalid($session1);
 $session2->close();
 assert_session_invalid($session2);
 
-// in usec
-$requestDelay = 2 * $maxIdleTime * 1000;
-usleep($requestDelay);
+msleep(2 * $maxIdleTime);
 
 verify_expectations();
 print "done!\n";

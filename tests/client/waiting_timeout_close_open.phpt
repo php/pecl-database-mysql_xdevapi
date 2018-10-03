@@ -22,13 +22,7 @@ assert_session_valid($session0);
 $session1 = $client->getSession();
 assert_session_valid($session1);
 
-try {
-	$session2 = $client->getSession();
-	test_step_failed("connection pool should be full");
-} catch (Exception $e) {
-	echo $e->getMessage(), PHP_EOL;
-	test_step_ok();
-}
+triggerQueueTimeoutAtGetSession($client);
 
 $session1->close();
 assert_session_invalid($session1);

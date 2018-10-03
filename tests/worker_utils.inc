@@ -83,6 +83,8 @@ function run_worker($master_path) {
 // ------------------------------------------------------------------------
 
 $Msg_worker_started = "worker started";
+$Msg_let_worker_block = "let worker block";
+$Msg_worker_unblocked = "worker unblocked";
 $Msg_let_worker_end = "let worker end";
 
 // -------
@@ -122,6 +124,31 @@ function recv_worker_started() {
 
 // -------
 
+function send_let_worker_block() {
+	global $Msg_let_worker_block;
+	send_msg_to_worker($Msg_let_worker_block);
+}
+
+function recv_let_worker_block() {
+	global $Msg_let_worker_block;
+	$msg = fgets(STDIN);
+	check_msg($msg, $Msg_let_worker_block);
+}
+
+// -------
+
+function notify_worker_unblocked() {
+	global $Msg_worker_unblocked;
+	echo $Msg_worker_unblocked, "\n";
+}
+
+function recv_worker_unblocked() {
+	global $Msg_worker_unblocked;
+	recv_msg_from_worker($Msg_worker_unblocked);
+}
+
+// -------
+
 function send_let_worker_end() {
 	global $Msg_let_worker_end;
 	send_msg_to_worker($Msg_let_worker_end);
@@ -142,6 +169,10 @@ function send_verification_status() {
 		$reply = 'fail: '.PHP_EOL.$expected.PHP_EOL.$test_result_string.PHP_EOL;
 	}
 	echo $reply.PHP_EOL;
+}
+
+function recv_verification_status() {
+	recv_msg_from_worker("ok");
 }
 
 ?>

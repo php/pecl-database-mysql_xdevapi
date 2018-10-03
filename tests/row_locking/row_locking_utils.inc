@@ -49,7 +49,6 @@
 
 	// ------------------------------------------------------------------------
 
-	$Msg_let_worker_block = "let worker block";
 	$Msg_let_worker_modify = "let worker modify";
 	$Msg_let_worker_run_cmd = "let worker run cmd";
 	$Msg_worker_ran_cmd = "worker ran cmd";
@@ -57,19 +56,6 @@
 	$Msg_worker_committed = "worker committed";
 	$Msg_let_worker_rollback = "let worker rollback";
 	$Msg_worker_rolled_back = "worker rolled back";
-
-	// -------
-
-	function send_let_worker_block() {
-		global $Msg_let_worker_block;
-		send_msg_to_worker($Msg_let_worker_block);
-	}
-
-	function recv_let_worker_block() {
-		global $Msg_let_worker_block;
-		$msg = fgets(STDIN);
-		check_msg($msg, $Msg_let_worker_block);
-	}
 
 	// -------
 
