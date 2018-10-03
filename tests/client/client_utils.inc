@@ -13,7 +13,7 @@ function assert_client_session_with_options($pooling_options) {
 	assert_session_valid($session);
 }
 
-function assert_client_session_fail_with_options($pooling_options) {
+function assert_client_fail_with_options($pooling_options) {
 	global $connection_uri;
 	try {
 		$client = mysql_xdevapi\getClient($connection_uri, $pooling_options);

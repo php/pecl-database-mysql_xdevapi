@@ -12,7 +12,7 @@ require_once(__DIR__."/client_utils.inc");
 $pooling_options = '{
 	"enabled": true,
   	"maxSize": 10,
-  	"maxIdleTime":  3600,
+  	"maxIdleTime": 3600,
   	"queueTimeOut": 1000
 }';
 

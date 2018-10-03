@@ -1,5 +1,5 @@
 --TEST--
-mysqlx client fail due to incorrect uri
+mysqlx get one common session, then check session from client
 --SKIPIF--
 --INI--
 error_reporting=E_ALL
@@ -9,20 +9,18 @@ default_socket_timeout=4
 require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/client_utils.inc");
 
+$common_session = mysql_xdevapi\getSession($connection_uri);
+create_test_db($common_session);
+assert_session_valid($common_session);
+
 $pooling_options = '{
 	"enabled": true,
-  	"maxSize": 10,
-  	"maxIdleTime": 3600,
-  	"queueTimeOut": 1000
+  	"maxSize": 5
 }';
 
-try {
-	$client = mysql_xdevapi\getClient("this_is_incorrect_uri&=mysql41&", $pooling_options);
-	$session = $client->getSession();
-	test_step_failed("shouldn't retrieve session for incorrect uri");
-} catch (Exception $e) {
-	test_step_ok();
-}
+$client = mysql_xdevapi\getClient($connection_uri, $pooling_options);
+$session = $client->getSession();
+assert_session_valid($session);
 
 verify_expectations();
 print "done!\n";

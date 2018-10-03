@@ -13,79 +13,79 @@ $pooling_options = '{
 	"enabled": "incorrect_boolen_value",
   	"maxSize": 10
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
 	"enabled": 1.5,
   	"queueTimeOut": 1000
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
   	"queueTimeOut": 1000,
 	"unknown_option": true
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
 	"non_existing_option": 12,
   	"maxSize": 20
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
   	"maxSize": -10,
-  	"maxIdleTime":  3600,
+  	"maxIdleTime": 3600,
   	"queueTimeOut": 1000
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
   	"maxSize": 0,
   	"queueTimeOut": 1000
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
   	"maxSize": "eleven",
   	"enabled": true
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
 	"enabled": false,
   	"maxIdleTime": "incorrect_idle_time",
   	"queueTimeOut": 1000
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
   	"maxIdleTime": -100
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
   	"maxIdleTime": true,
   	"queueTimeOut": 1000
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
   	"queueTimeOut": "non_default_queue_time"
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
 	"enabled": "false",
   	"queueTimeOut": -5000
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
   	"maxSize": 5,
   	"queueTimeOut": false
 }';
-assert_client_session_fail_with_options($pooling_options);
+assert_client_fail_with_options($pooling_options);
 
 verify_expectations();
 print "done!\n";
