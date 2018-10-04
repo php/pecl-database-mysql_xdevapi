@@ -725,10 +725,13 @@ function expose_binaries_metadata() {
 	var hostname = WshShell.ExpandEnvironmentStrings( "%COMPUTERNAME%" );
 	metafile.WriteLine("Build was run at " + get_now_string()
 		+ " on host '" + hostname + "'");
+
+	var os_info = trim(run_command('cmd /c ver'));
+	metafile.WriteLine("Build was done on " + os_info);
+
 	metafile.WriteBlankLines(1);
 
 	metafile.WriteLine("build-date: " + get_now_string());
-	var os_info = trim(run_command('cmd /c ver'));
 	metafile.WriteLine("os-info: " + os_info);
 	var build_type = PHP_DEBUG == "yes" ? "Debug" : "Release";
 	metafile.WriteLine("build-type: " + build_type);
@@ -750,15 +753,15 @@ function expose_binaries_metadata() {
 	metafile.WriteBlankLines(1);
 
 	metafile.WriteLine("===== Feature flags used: =====");
-	metafile.WriteLine("PHP version: " + PHP_VERSION_STRING);
+	metafile.WriteLine("php-version: " + PHP_VERSION_STRING);
 	metafile.WriteLine("architecture: " + (X64 ? '64bit' : '32bit'));
-	metafile.WriteLine("thread Safety: " + PHP_ZTS);
+	metafile.WriteLine("thread-safety: " + PHP_ZTS);
 	metafile.WriteLine("debug: " + PHP_DEBUG);
-	metafile.WriteLine("developer mode: " + PHP_DEV_MODE);
+	metafile.WriteLine("developer-mode: " + PHP_DEV_MODE);
 	metafile.WriteLine("--with-boost: " + PHP_BOOST);
 	metafile.WriteLine("--with-protobuf: " + PHP_PROTOBUF);
-	metafile.WriteLine("extra includes: " + PHP_EXTRA_INCLUDES);
-	metafile.WriteLine("extra libs: " + PHP_EXTRA_LIBS);
+	metafile.WriteLine("extra-includes: " + PHP_EXTRA_INCLUDES);
+	metafile.WriteLine("extra-libs: " + PHP_EXTRA_LIBS);
 
 	metafile.WriteBlankLines(1);
 

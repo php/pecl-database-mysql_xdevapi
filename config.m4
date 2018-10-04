@@ -345,22 +345,30 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	AC_DEFINE(HAVE_MYSQL_XDEVAPI, 1, [mysql-xdevapi support enabled])
 
 	dnl expose metadata
-	CURRENT_TIME=`date -u`
-
 	dnl expose sources metadata
 	INFO_SRC_PATH=[$ext_builddir/INFO_SRC]
+ 	AC_PATH_PROG(GIT_PATH, 'git')
 
 	# var xdevapi_version = grep_xdevapi_version(] >> $INFO_BIN_PATH
 	MYSQL_XDEVAPI_VERSION=`$EGREP "define PHP_MYSQL_XDEVAPI_VERSION" $ext_srcdir/php_mysql_xdevapi.h | $SED -e 's/[[^0-9\.]]//g'`
 	echo [MySQL X DevAPI for PHP ${MYSQL_XDEVAPI_VERSION}] > $INFO_SRC_PATH
+	echo [version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_SRC_PATH
 
-	echo [build-date: ${CURRENT_TIME}] >> $INFO_SRC_PATH
+	if test -x "$GIT_PATH"; then
+		BRANCH_NAME=`git symbolic-ref --short HEAD`
+		echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
 
-	BRANCH_NAME=`git symbolic-ref --short HEAD`
-	echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
+		COMMIT_INFO=`git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"`
+		echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
+	else
+		if [ test "$BRANCH_SOURCE" ]; then
+			echo [branch: ${BRANCH_SOURCE}] >> $INFO_SRC_PATH
+		fi
 
-	COMMIT_INFO=`git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"`
-	echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
+		if [ test "$PUSH_REVISION" ]; then
+			echo [commit: ${PUSH_REVISION}] >> $INFO_SRC_PATH
+		fi
+	fi
 
 	# expose binaries metadata
 	INFO_BIN_PATH=[$ext_builddir/INFO_BIN]
@@ -372,24 +380,41 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	echo [Build was done on ${HOST_OS}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
+	CURRENT_TIME=`date -u`
+	echo [build-date: ${CURRENT_TIME}] >> $INFO_BIN_PATH
+	echo [os-info: ${HOST_OS}] >> $INFO_BIN_PATH
+	if test -z "$PHP_DEBUG"; then
+		BUILD_TYPE="Release"
+	else
+		BUILD_TYPE="Debug"
+	fi
+	echo [build-type: ${BUILD_TYPE}] >> $INFO_BIN_PATH
+	echo [mysql-version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [host-cpu: ${host_cpu}] >> $INFO_BIN_PATH
+	echo [host-vendor: ${host_os}] >> $INFO_BIN_PATH
+	echo [host-os: ${host_os}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
 	echo [===== Compiler / generator used: =====] >> $INFO_BIN_PATH
 
-	COMPILER_VERSION=`${CXX} --version`
-	echo [Compiler: "${COMPILER_VERSION}"] >> $INFO_BIN_PATH
+	COMPILER_VERSION=`${CXX} --version | head -1`
+	echo [compiler: "${COMPILER_VERSION}"] >> $INFO_BIN_PATH
 
 	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
-	echo [Protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
+	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
 
 	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
-	echo [Boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
+	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
 	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
-	echo [PHP version: ${PHP_MAJOR_VERSION}] >> $INFO_BIN_PATH
-	echo [Architecture: ${AT}] >> $INFO_BIN_PATH
-	echo [Thread Safety: ${ZEND_ZTS}] >> $INFO_BIN_PATH
-	echo [Debug: ${PHP_DEBUG}] >> $INFO_BIN_PATH
-	echo [Developer mode: ${PHP_DEV_MODE}] >> $INFO_BIN_PATH
+	echo [php-version: ${PHP_MAJOR_VERSION}] >> $INFO_BIN_PATH
+	echo [architecture: ${AT}] >> $INFO_BIN_PATH
+	echo [thread-safety: ${ZEND_ZTS}] >> $INFO_BIN_PATH
+	echo [debug: ${PHP_DEBUG}] >> $INFO_BIN_PATH
+	echo [developer-mode: ${PHP_DEV_MODE}] >> $INFO_BIN_PATH
 	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
 	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
 
