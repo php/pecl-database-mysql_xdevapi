@@ -661,6 +661,8 @@ function add_dependency(dep_extension_name) {
 // ----------------------------------------------------------------------------
 // expose metadata about source and binaries
 
+var xdevapi_version;
+
 function get_now_string() {
 	var now = new Date();
 	return now.toUTCString();
@@ -675,22 +677,41 @@ function grep_xdevapi_version() {
 	}
 }
 
+function is_git_available() {
+	var git_path = PATH_PROG('git', get_env("PATH"));
+	return git_path ? true : false;
+}
+
+function writeMetadataFromEnv(env_var_name, label, metafile) {
+	var envar = get_env(env_var_name);
+	if (envar) metafile.WriteLine(label + envar);
+}
+
+function writeMetadataFromDefine(define_name, metafile) {
+	var define_value = get_define(define_name);
+	metafile.WriteLine(define_name + ": " + define_value);
+}
+
 function expose_sources_metadata() {
 	var metafile_path = get_src_path(Sources_metadata_filename);
 	var metafile = file_system.CreateTextFile(metafile_path, true);
 
-	var xdevapi_version = grep_xdevapi_version();
-	metafile.WriteLine("MySQL X DevAPI for PHP " + xdevapi_version);
+	metafile.WriteLine("MySQL X DevAPI for PHP " + this.xdevapi_version);
+	metafile.WriteLine("version: " + this.xdevapi_version);
 
-	metafile.WriteLine("build-date: " + get_now_string());
+	if (is_git_available()) {
+		var branch_name_cmd = 'git symbolic-ref --short HEAD';
+		var branch_name = run_command(branch_name_cmd);
+		metafile.WriteLine("branch: " + branch_name);
 
-	var branch_name_cmd = 'git symbolic-ref --short HEAD';
-	var branch_name = run_command(branch_name_cmd);
-	metafile.WriteLine("branch: " + branch_name);
-
-	var commit_info_cmd = 'git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"';
-	var commit_info = run_command(commit_info_cmd);
-	metafile.WriteLine(commit_info);
+		var commit_info_cmd = 'git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"';
+		var commit_info = run_command(commit_info_cmd);
+		metafile.WriteLine(commit_info);
+	} else {
+		// available on pb2 only
+		writeMetadataFromEnv("BRANCH_SOURCE", "branch: ", metafile);
+		writeMetadataFromEnv("PUSH_REVISION", "commit: ", metafile);
+	}
 
 	metafile.Close();
 }
@@ -706,37 +727,47 @@ function expose_binaries_metadata() {
 		+ " on host '" + hostname + "'");
 	metafile.WriteBlankLines(1);
 
+	metafile.WriteLine("build-date: " + get_now_string());
+	var os_info = trim(run_command('cmd /c ver'));
+	metafile.WriteLine("os-info: " + os_info);
+	var build_type = PHP_DEBUG == "yes" ? "Debug" : "Release";
+	metafile.WriteLine("build-type: " + build_type);
+	metafile.WriteLine("mysql-version: " + this.xdevapi_version);
+
+	metafile.WriteBlankLines(1);
+
 	metafile.WriteLine("===== Compiler / generator used: =====");
 
-	metafile.WriteLine("Toolset: " + PHP_TOOLSET);
-	metafile.WriteLine("Compiler: " + COMPILER_NAME + " " + COMPILER_NUMERIC_VERSION);
+	metafile.WriteLine("toolset: " + PHP_TOOLSET);
+	metafile.WriteLine("compiler: " + COMPILER_NAME + " " + COMPILER_NUMERIC_VERSION);
 
 	var protobuf_version_cmd = this.protoc_path + ' --version';
 	var protobuf_version = run_command(protobuf_version_cmd);
-	metafile.WriteLine("Protbuf: " + protobuf_version);
+	metafile.WriteLine("protbuf: " + protobuf_version);
 
-	metafile.WriteLine("Boost: " + this.boost_version);
+	metafile.WriteLine("boost: " + this.boost_version);
 
 	metafile.WriteBlankLines(1);
 
 	metafile.WriteLine("===== Feature flags used: =====");
 	metafile.WriteLine("PHP version: " + PHP_VERSION_STRING);
-	metafile.WriteLine("Architecture: " + (X64 ? '64bit' : '32bit'));
-	metafile.WriteLine("Thread Safety: " + PHP_ZTS);
-	metafile.WriteLine("Debug: " + PHP_DEBUG);
-	metafile.WriteLine("Developer mode: " + PHP_DEV_MODE);
+	metafile.WriteLine("architecture: " + (X64 ? '64bit' : '32bit'));
+	metafile.WriteLine("thread Safety: " + PHP_ZTS);
+	metafile.WriteLine("debug: " + PHP_DEBUG);
+	metafile.WriteLine("developer mode: " + PHP_DEV_MODE);
 	metafile.WriteLine("--with-boost: " + PHP_BOOST);
 	metafile.WriteLine("--with-protobuf: " + PHP_PROTOBUF);
-	metafile.WriteLine("Extra includes: " + PHP_EXTRA_INCLUDES);
-	metafile.WriteLine("Extra libs: " + PHP_EXTRA_LIBS);
+	metafile.WriteLine("extra includes: " + PHP_EXTRA_INCLUDES);
+	metafile.WriteLine("extra libs: " + PHP_EXTRA_LIBS);
 
 	metafile.WriteBlankLines(1);
 
 	metafile.WriteLine("===== Compiler flags used: =====");
-	metafile.WriteLine("CFLAGS: " + get_define("CFLAGS"));
-	metafile.WriteLine("CFLAGS_MYSQL_XDEVAPI: " + get_define("CFLAGS_MYSQL_XDEVAPI"));
-	metafile.WriteLine("LDFLAGS: " + get_define("LDFLAGS"));
-	metafile.WriteLine("PHP_LDFLAGS: " + get_define("PHP_LDFLAGS"));
+	writeMetadataFromDefine("BASE_INCLUDES", metafile);
+	writeMetadataFromDefine("CFLAGS", metafile);
+	writeMetadataFromDefine("CFLAGS_MYSQL_XDEVAPI", metafile);
+	writeMetadataFromDefine("LDFLAGS", metafile);
+	writeMetadataFromDefine("PHP_LDFLAGS", metafile);
 
 	metafile.WriteLine("===== EOF =====");
 
@@ -744,6 +775,7 @@ function expose_binaries_metadata() {
 }
 
 function expose_metadata() {
+	this.xdevapi_version = grep_xdevapi_version();
 	expose_sources_metadata();
 	expose_binaries_metadata();
 }
