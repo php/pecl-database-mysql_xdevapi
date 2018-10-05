@@ -682,6 +682,12 @@ function is_git_available() {
 	return git_path ? true : false;
 }
 
+function is_git_repo() {
+	var is_repo_available_cmd = 'git rev-parse --is-inside-work-tree';
+	var is_repo_available = run_command(is_repo_available_cmd);
+	return is_repo_available;
+}
+
 function extract_branch_name_from_pb2_envar() {
 	var branch_source_envar = get_env("BRANCH_SOURCE");
 	if (!branch_source_envar) return null;
@@ -708,7 +714,7 @@ function expose_sources_metadata() {
 	metafile.WriteLine("MySQL X DevAPI for PHP " + this.xdevapi_version);
 	metafile.WriteLine("version: " + this.xdevapi_version);
 
-	if (is_git_available()) {
+	if (is_git_available() && is_git_repo()) {
 		var branch_name_cmd = 'git symbolic-ref --short HEAD';
 		var branch_name = run_command(branch_name_cmd);
 		metafile.WriteLine("branch: " + branch_name);

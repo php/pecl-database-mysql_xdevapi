@@ -347,14 +347,17 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	dnl expose metadata
 	dnl expose sources metadata
 	INFO_SRC_PATH=[$ext_builddir/INFO_SRC]
- 	AC_PATH_PROG(GIT_PATH, 'git')
 
-	# var xdevapi_version = grep_xdevapi_version(] >> $INFO_BIN_PATH
 	MYSQL_XDEVAPI_VERSION=`$EGREP "define PHP_MYSQL_XDEVAPI_VERSION" $ext_srcdir/php_mysql_xdevapi.h | $SED -e 's/[[^0-9\.]]//g'`
 	echo [MySQL X DevAPI for PHP ${MYSQL_XDEVAPI_VERSION}] > $INFO_SRC_PATH
 	echo [version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_SRC_PATH
 
-	if test -x "${GIT_PATH}"; then
+ 	AC_PATH_PROG(GIT_PATH, 'git')
+	if [ test -x "${GIT_PATH}" ]; then
+		IS_GIT_REPO=`git rev-parse --is-inside-work-tree`
+	fi
+
+	if [ test "${IS_GIT_REPO}" ]; then
 		BRANCH_NAME=`git symbolic-ref --short HEAD`
 		echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
 
