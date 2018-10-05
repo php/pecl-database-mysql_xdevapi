@@ -37,6 +37,14 @@
 
 	// ----------------------------------------------------------------------
 
+	if (!function_exists('msleep')) {
+		function msleep($milliseconds) {
+			usleep($milliseconds * 1000);
+		}
+	}
+
+	// ----------------------------------------------------------------------
+
 	if (!function_exists('is_in_range')) {
 		function is_in_range($value, $min, $max) {
 			return ($min <= $value) && ($value <= $max);
@@ -91,7 +99,7 @@
 		of the DB and tables needed to run the tests.
 	*/
 	if (!function_exists('create_test_db')) {
-		function create_test_db() {
+		function create_test_db($session = null) {
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
@@ -105,7 +113,7 @@
 				For this reason, at least for now is better to expect from
 				the test script to call clean_test_db *after* the test
 			*/
-			$session = mysql_xdevapi\getSession($connection_uri);
+			if ($session == null) $session = mysql_xdevapi\getSession($connection_uri);
 			$session->executeSql("create database $db");
 			$schema = $session->getSchema($db);
 			$session->executeSql("create table $db.$test_table_name(name varchar(1024), age int)");

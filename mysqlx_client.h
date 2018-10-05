@@ -12,38 +12,33 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_SESSION_H
-#define MYSQLX_SESSION_H
-
-#include "xmysqlnd/xmysqlnd_session.h"
-#include "util/allocator.h"
+#ifndef MYSQLX_CLIENT_H
+#define MYSQLX_CLIENT_H
 
 namespace mysqlx {
 
 namespace devapi {
 
-extern zend_class_entry *mysqlx_session_class_entry;
+void mysqlx_register_client_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
+void mysqlx_unregister_client_class(SHUTDOWN_FUNC_ARGS);
 
-struct Session_data : public util::custom_allocable
-{
-	drv::XMYSQLND_SESSION session;
-	Session_data() = default;
-	bool close_connection();
-};
+PHP_FUNCTION(mysql_xdevapi_getClient);
 
-void mysqlx_new_session(zval* return_value);
-void mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session);
-void mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS);
+namespace client {
+
+void prune_expired_connections();
+void release_all_clients();
+
+} // namespace client
 
 } // namespace devapi
 
 } // namespace mysqlx
 
-#endif /* MYSQLX_SESSION_H */
+#endif /* MYSQLX_CLIENT_H */
 
 /*
  * Local variables:

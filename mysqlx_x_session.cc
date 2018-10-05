@@ -53,22 +53,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 /* }}} */
 
 
-#define MYSQLX_FETCH_X_SESSION_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_session*) mysqlx_object->ptr; \
-	if (!(_to) && !(_to)->session) { \
-		if ((_to)->closed) { \
-			php_error_docref(nullptr, E_WARNING, "closed session"); \
-		} else { \
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		} \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
-
 /* {{{ mysqlx_x_session_methods[] */
 static const zend_function_entry mysqlx_x_session_methods[] = {
 	PHP_ME(mysqlx_x_session, __construct, 		nullptr, ZEND_ACC_PRIVATE)

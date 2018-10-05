@@ -6,6 +6,7 @@ error_reporting=E_ALL
 --FILE--
 <?php
 require_once(__DIR__."/../connect.inc");
+require_once(__DIR__."/session_utils.inc");
 
 function assert_test_collection($coll, $exists, $expected_items_count) {
 	global $test_collection_name;
@@ -44,22 +45,22 @@ assert_collection_ok($coll2);
 
 $session0->close();
 
-$schema3 = $session2->getSchema($db);
-expect_false($schema3->existsInDatabase());
-$coll3 = $schema3->getCollection($test_collection_name);
-assert_collection_fail($coll3);
+assert_session_invalid($session0);
+assert_session_invalid($session1);
+assert_session_invalid($session2);
 
-$session4 = $coll2->getSession();
-$schema4 = $session4->getSchema($db);
-expect_false($schema4->existsInDatabase());
-$coll4 = $schema4->getCollection($test_collection_name);
-assert_collection_fail($coll4);
+assert_collection_fail($coll0);
+assert_collection_fail($coll1);
+assert_collection_fail($coll2);
 
-$session5 = $coll4->getSession();
-$schema5 = $session5->getSchema($db);
-expect_false($schema5->existsInDatabase());
-$coll5 = $schema5->getCollection($test_collection_name);
-assert_collection_fail($coll5);
+$session4 = $coll0->getSession();
+assert_session_invalid($session4);
+
+$session5 = $coll1->getSession();
+assert_session_invalid($session5);
+
+$session6 = $coll2->getSession();
+assert_session_invalid($session6);
 
 verify_expectations();
 print "done!\n";
@@ -70,4 +71,10 @@ require_once(__DIR__."/../connect.inc");
 clean_test_db();
 ?>
 --EXPECTF--
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
 done!%A
