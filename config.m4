@@ -275,7 +275,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		PHP_ADD_INCLUDE([$BOOST_RESOLVED_ROOT])
 		AC_MSG_RESULT(found in $BOOST_RESOLVED_ROOT)
 	else
-		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_BOOST_ROOT])
+		AC_MSG_ERROR([not found, consider use of --with-boost or setting MYSQL_XDEVAPI_BOOST_ROOT])
 	fi
 
 	AC_MSG_CHECKING([if boost version is valid])
@@ -325,7 +325,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 		AC_MSG_RESULT([found in $PROTOBUF_RESOLVED_ROOT])
 	else
-		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
+		AC_MSG_ERROR([not found, consider use of --with-protobuf or setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi
 
 	PHP_ADD_MAKEFILE_FRAGMENT()
@@ -344,4 +344,92 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	fi
 
 	AC_DEFINE(HAVE_MYSQL_XDEVAPI, 1, [mysql-xdevapi support enabled])
+
+	dnl expose metadata
+	dnl expose sources metadata
+	INFO_SRC_PATH=[$ext_builddir/INFO_SRC]
+ 	AC_PATH_PROG(GIT_PATH, 'git')
+
+	# var xdevapi_version = grep_xdevapi_version(] >> $INFO_BIN_PATH
+	MYSQL_XDEVAPI_VERSION=`$EGREP "define PHP_MYSQL_XDEVAPI_VERSION" $ext_srcdir/php_mysql_xdevapi.h | $SED -e 's/[[^0-9\.]]//g'`
+	echo [MySQL X DevAPI for PHP ${MYSQL_XDEVAPI_VERSION}] > $INFO_SRC_PATH
+	echo [version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_SRC_PATH
+
+	if test -x "$GIT_PATH"; then
+		BRANCH_NAME=`git symbolic-ref --short HEAD`
+		echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
+
+		COMMIT_INFO=`git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"`
+		echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
+	else
+		if [ test "$BRANCH_SOURCE" ]; then
+			echo [branch: ${BRANCH_SOURCE}] >> $INFO_SRC_PATH
+		fi
+
+		if [ test "$PUSH_REVISION" ]; then
+			echo [commit: ${PUSH_REVISION}] >> $INFO_SRC_PATH
+		fi
+	fi
+
+	# expose binaries metadata
+	INFO_BIN_PATH=[$ext_builddir/INFO_BIN]
+
+	echo [===== Information about the build process: =====]] > $INFO_BIN_PATH
+	HOSTNAME=`hostname -a`
+	echo [Build was run at ${CURRENT_TIME} on host ${HOSTNAME}] >> $INFO_BIN_PATH
+	HOST_OS=`uname -a`
+	echo [Build was done on ${HOST_OS}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	CURRENT_TIME=`date -u`
+	echo [build-date: ${CURRENT_TIME}] >> $INFO_BIN_PATH
+	echo [os-info: ${HOST_OS}] >> $INFO_BIN_PATH
+	if test -z "$PHP_DEBUG"; then
+		BUILD_TYPE="Release"
+	else
+		BUILD_TYPE="Debug"
+	fi
+	echo [build-type: ${BUILD_TYPE}] >> $INFO_BIN_PATH
+	echo [mysql-version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [host-cpu: ${host_cpu}] >> $INFO_BIN_PATH
+	echo [host-vendor: ${host_os}] >> $INFO_BIN_PATH
+	echo [host-os: ${host_os}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Compiler / generator used: =====] >> $INFO_BIN_PATH
+
+	COMPILER_VERSION=`${CXX} --version | head -1`
+	echo [compiler: "${COMPILER_VERSION}"] >> $INFO_BIN_PATH
+
+	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
+	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
+
+	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
+	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
+	echo [php-version: ${PHP_MAJOR_VERSION}] >> $INFO_BIN_PATH
+	echo [architecture: ${AT}] >> $INFO_BIN_PATH
+	echo [thread-safety: ${ZEND_ZTS}] >> $INFO_BIN_PATH
+	echo [debug: ${PHP_DEBUG}] >> $INFO_BIN_PATH
+	echo [developer-mode: ${PHP_DEV_MODE}] >> $INFO_BIN_PATH
+	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
+	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
+
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Compiler flags used: =====] >> $INFO_BIN_PATH
+	echo [CC: ${CC}] >> $INFO_BIN_PATH
+	echo [CFLAGS: ${CFLAGS}] >> $INFO_BIN_PATH
+	echo [CXX: ${CXX}] >> $INFO_BIN_PATH
+	echo [CXXFLAGS: ${CXXFLAGS}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_CXXFLAGS: ${MYSQL_XDEVAPI_CXXFLAGS}] >> $INFO_BIN_PATH
+	echo [LDFLAGS: ${LDFLAGS}] >> $INFO_BIN_PATH
+	echo [PHP_LDFLAGS: ${PHP_LDFLAGS}] >> $INFO_BIN_PATH
+
+	echo [===== EOF =====] >> $INFO_BIN_PATH
+
 fi

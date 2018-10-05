@@ -184,6 +184,8 @@ configure.in
 */acinclude.m4
 */config.sub
 xmysqlnd/proto_gen/*
+INFO_BIN
+INFO_SRC
 
 # Environment ignores
 *.creator
