@@ -479,6 +479,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnCount)
 				ZVAL_LONG(return_value, value);
 				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 			}
+		} else {
+			array_init_size(return_value, 0);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -518,6 +520,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumns)
 					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_zv);
 				}
 			}
+		} else {
+			array_init_size(return_value, 0);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -557,6 +561,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnNames)
 					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_name);
 				}
 			}
+		} else {
+			array_init_size(return_value, 0);
 		}
 	}
 	DBG_VOID_RETURN;
