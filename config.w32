@@ -682,12 +682,21 @@ function is_git_available() {
 	return git_path ? true : false;
 }
 
-function writeMetadataFromEnv(env_var_name, label, metafile) {
+function extract_branch_name_from_pb2_envar() {
+	var branch_source_envar = get_env("BRANCH_SOURCE");
+	if (!branch_source_envar) return null;
+
+	// e.g. set BRANCH_SOURCE=http://pb2.address.com/subdir/repo.git wl-12276-expose-metadata
+	var tokens = branch_source_envar.split(' ');
+	return tokens.pop();
+}
+
+function write_metadata_from_env(env_var_name, label, metafile) {
 	var envar = get_env(env_var_name);
 	if (envar) metafile.WriteLine(label + envar);
 }
 
-function writeMetadataFromDefine(define_name, metafile) {
+function write_metadata_from_define(define_name, metafile) {
 	var define_value = get_define(define_name);
 	metafile.WriteLine(define_name + ": " + define_value);
 }
@@ -709,8 +718,10 @@ function expose_sources_metadata() {
 		metafile.WriteLine(commit_info);
 	} else {
 		// internal use, below envars available only on pb2 hosts without git
-		writeMetadataFromEnv("BRANCH_SOURCE", "branch: ", metafile);
-		writeMetadataFromEnv("PUSH_REVISION", "commit: ", metafile);
+		var branch_name = extract_branch_name_from_pb2_envar();
+		if (branch_name) metafile.WriteLine("branch: " + branch_name);
+
+		write_metadata_from_env("PUSH_REVISION", "commit: ", metafile);
 	}
 
 	metafile.Close();
@@ -744,11 +755,14 @@ function expose_binaries_metadata() {
 	metafile.WriteLine("toolset: " + PHP_TOOLSET);
 	metafile.WriteLine("compiler: " + COMPILER_NAME + " " + COMPILER_NUMERIC_VERSION);
 
+	metafile.WriteLine("boost: " + this.boost_version);
+	metafile.WriteLine("boost-root: " + this.boost_root);
+
 	var protobuf_version_cmd = this.protoc_path + ' --version';
 	var protobuf_version = run_command(protobuf_version_cmd);
 	metafile.WriteLine("protbuf: " + protobuf_version);
-
-	metafile.WriteLine("boost: " + this.boost_version);
+	metafile.WriteLine("protobuf-include-dir: " + this.protobuf_include_dir);
+	metafile.WriteLine("protoc-path: " + this.protoc_path);
 
 	metafile.WriteBlankLines(1);
 
@@ -760,19 +774,19 @@ function expose_binaries_metadata() {
 	metafile.WriteLine("developer-mode: " + PHP_DEV_MODE);
 	metafile.WriteLine("--with-boost: " + PHP_BOOST);
 	metafile.WriteLine("--with-protobuf: " + PHP_PROTOBUF);
-	writeMetadataFromDefine("MYSQL_XDEVAPI_BOOST_ROOT", metafile);
-	writeMetadataFromDefine("MYSQL_XDEVAPI_PROTOBUF_ROOT", metafile);
+	write_metadata_from_define("MYSQL_XDEVAPI_BOOST_ROOT", metafile);
+	write_metadata_from_define("MYSQL_XDEVAPI_PROTOBUF_ROOT", metafile);
 	metafile.WriteLine("extra-includes: " + PHP_EXTRA_INCLUDES);
 	metafile.WriteLine("extra-libs: " + PHP_EXTRA_LIBS);
 
 	metafile.WriteBlankLines(1);
 
 	metafile.WriteLine("===== Compiler flags used: =====");
-	writeMetadataFromDefine("BASE_INCLUDES", metafile);
-	writeMetadataFromDefine("CFLAGS", metafile);
-	writeMetadataFromDefine("CFLAGS_MYSQL_XDEVAPI", metafile);
-	writeMetadataFromDefine("LDFLAGS", metafile);
-	writeMetadataFromDefine("PHP_LDFLAGS", metafile);
+	write_metadata_from_define("BASE_INCLUDES", metafile);
+	write_metadata_from_define("CFLAGS", metafile);
+	write_metadata_from_define("CFLAGS_MYSQL_XDEVAPI", metafile);
+	write_metadata_from_define("LDFLAGS", metafile);
+	write_metadata_from_define("PHP_LDFLAGS", metafile);
 
 	metafile.WriteLine("===== EOF =====");
 

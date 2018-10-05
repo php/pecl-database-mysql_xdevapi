@@ -354,7 +354,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	echo [MySQL X DevAPI for PHP ${MYSQL_XDEVAPI_VERSION}] > $INFO_SRC_PATH
 	echo [version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_SRC_PATH
 
-	if test -x "$GIT_PATH"; then
+	if test -x "${GIT_PATH}"; then
 		BRANCH_NAME=`git symbolic-ref --short HEAD`
 		echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
 
@@ -362,11 +362,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
 	else
 		# internal use, below envars available only on pb2 hosts without git
-		if [ test "$BRANCH_SOURCE" ]; then
-			echo [branch: ${BRANCH_SOURCE}] >> $INFO_SRC_PATH
+		if [ test "${BRANCH_SOURCE}" ]; then
+			# e.g. export BRANCH_SOURCE='http://myrepo.no.oracle.com/git/connector-php-devapi.git wl-12276-expose-metadata'
+			BRANCH_NAME=`echo ${BRANCH_SOURCE} | cut -d' ' -f2`
+			echo [branch: ${BRANCH_NAME}] >> $INFO_SRC_PATH
 		fi
 
-		if [ test "$PUSH_REVISION" ]; then
+		if [ test "${PUSH_REVISION}" ]; then
 			echo [commit: ${PUSH_REVISION}] >> $INFO_SRC_PATH
 		fi
 	fi
@@ -403,18 +405,24 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	COMPILER_VERSION=`${CXX} --version | head -1`
 	echo [compiler: "${COMPILER_VERSION}"] >> $INFO_BIN_PATH
 
-	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
-	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
-
 	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
 	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
+	echo [boost-root: ${BOOST_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+
+	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
+	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
+	echo [protbuf-root: ${PROTOBUF_RESOLVED_ROOT}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
 	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
-	echo [php-version: ${PHP_MAJOR_VERSION}] >> $INFO_BIN_PATH
-	echo [architecture: ${AT}] >> $INFO_BIN_PATH
-	echo [thread-safety: ${enable_maintainer_zts}] >> $INFO_BIN_PATH
-	echo [debug: ${PHP_DEBUG}] >> $INFO_BIN_PATH
+	echo [php-config: ${PHP_CONFIG}] >> $INFO_BIN_PATH
+    if [test "$enable_maintainer_zts" = "yes"]; then
+      THREAD_SAFETY="yes"
+    else
+      THREAD_SAFETY="no"
+    fi
+	echo [thread-safety: ${THREAD_SAFETY}] >> $INFO_BIN_PATH
+	echo [debug: ${ZEND_DEBUG}] >> $INFO_BIN_PATH
 	echo [developer-mode: ${PHP_DEV_MODE}] >> $INFO_BIN_PATH
 	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
 	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
