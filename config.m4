@@ -361,6 +361,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		COMMIT_INFO=`git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"`
 		echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
 	else
+		# internal use, below envars available only on pb2 hosts without git
 		if [ test "$BRANCH_SOURCE" ]; then
 			echo [branch: ${BRANCH_SOURCE}] >> $INFO_SRC_PATH
 		fi
@@ -412,11 +413,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
 	echo [php-version: ${PHP_MAJOR_VERSION}] >> $INFO_BIN_PATH
 	echo [architecture: ${AT}] >> $INFO_BIN_PATH
-	echo [thread-safety: ${ZEND_ZTS}] >> $INFO_BIN_PATH
+	echo [thread-safety: ${enable_maintainer_zts}] >> $INFO_BIN_PATH
 	echo [debug: ${PHP_DEBUG}] >> $INFO_BIN_PATH
 	echo [developer-mode: ${PHP_DEV_MODE}] >> $INFO_BIN_PATH
 	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
 	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_BOOST_ROOT: ${MYSQL_XDEVAPI_BOOST_ROOT}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_PROTOBUF_ROOT: ${MYSQL_XDEVAPI_PROTOBUF_ROOT}] >> $INFO_BIN_PATH
 
 	echo [] >> $INFO_BIN_PATH
 

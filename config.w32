@@ -708,7 +708,7 @@ function expose_sources_metadata() {
 		var commit_info = run_command(commit_info_cmd);
 		metafile.WriteLine(commit_info);
 	} else {
-		// available on pb2 only
+		// internal use, below envars available only on pb2 hosts without git
 		writeMetadataFromEnv("BRANCH_SOURCE", "branch: ", metafile);
 		writeMetadataFromEnv("PUSH_REVISION", "commit: ", metafile);
 	}
@@ -760,6 +760,8 @@ function expose_binaries_metadata() {
 	metafile.WriteLine("developer-mode: " + PHP_DEV_MODE);
 	metafile.WriteLine("--with-boost: " + PHP_BOOST);
 	metafile.WriteLine("--with-protobuf: " + PHP_PROTOBUF);
+	writeMetadataFromDefine("MYSQL_XDEVAPI_BOOST_ROOT", metafile);
+	writeMetadataFromDefine("MYSQL_XDEVAPI_PROTOBUF_ROOT", metafile);
 	metafile.WriteLine("extra-includes: " + PHP_EXTRA_INCLUDES);
 	metafile.WriteLine("extra-libs: " + PHP_EXTRA_LIBS);
 
