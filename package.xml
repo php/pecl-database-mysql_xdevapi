@@ -260,8 +260,19 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="warnings_secure_native.phpt" role="test" />
      <file name="warnings_unsecure_caching_sha2.phpt" role="test" />
      <file name="warnings_unsecure_native.phpt" role="test" />
+     <dir name="timeout">
+      <file name="default_timeout.phpt" role="test" />
+      <file name="disabled_timeout.phpt" role="test" />
+      <file name="elapsed_timeout.phpt" role="test" />
+      <file name="incorrect_timeout.phpt" role="test" />
+      <file name="successful_no_timeout.phpt" role="test" />
+      <file name="timeout_utils.inc" role="test" />
+     </dir>
     </dir>
     <dir name="index">
+     <file name="array_dates.phpt" role="test" />
+     <file name="array_integers.phpt" role="test" />
+     <file name="array_strings.phpt" role="test" />
      <file name="common.phpt" role="test" />
      <file name="create.phpt" role="test" />
      <file name="drop.phpt" role="test" />
@@ -398,6 +409,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <dir name="util">
     <file name="allocator.cc" role="src" />
     <file name="allocator.h" role="src" />
+    <file name="compiler_utils.h" role="src" />
     <file name="exceptions.cc" role="src" />
     <file name="exceptions.h" role="src" />
     <file name="hash_table.cc" role="src" />
@@ -604,7 +616,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
  </dependencies>
  <providesextension>mysql_xdevapi</providesextension>
  <extsrcrelease>
-  <configureoption default="autodetect" name="enable-mysql-xdevapi" prompt="Enable MySQL X DevAPI" />
   <configureoption default="autodetect" name="with-boost" prompt="Point out boost library install dir" />
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
