@@ -36,7 +36,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	mysqlx_devapi_sources=" \
 		mysqlx_base_result.cc \
 		mysqlx_class_properties.cc \
-		mysqlx_client.cc \
 		mysqlx_collection.cc \
 		mysqlx_collection__add.cc \
 		mysqlx_collection__find.cc \
@@ -381,13 +380,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	INFO_BIN_PATH=[$ext_builddir/INFO_BIN]
 
 	echo [===== Information about the build process: =====]] > $INFO_BIN_PATH
-	HOSTNAME=`hostname -a`
+	CURRENT_TIME=`date -u`
+	HOSTNAME=`hostname`
 	echo [Build was run at ${CURRENT_TIME} on host ${HOSTNAME}] >> $INFO_BIN_PATH
 	HOST_OS=`uname -a`
 	echo [Build was done on ${HOST_OS}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
-	CURRENT_TIME=`date -u`
 	echo [build-date: ${CURRENT_TIME}] >> $INFO_BIN_PATH
 	echo [os-info: ${HOST_OS}] >> $INFO_BIN_PATH
 	if test -z "$PHP_DEBUG"; then
