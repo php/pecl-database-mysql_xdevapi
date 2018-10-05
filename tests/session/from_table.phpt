@@ -6,6 +6,7 @@ error_reporting=E_ALL
 --FILE--
 <?php
 require_once(__DIR__."/../connect.inc");
+require_once(__DIR__."/session_utils.inc");
 
 function assert_test_table($table, $exists, $expected_items_count) {
 	global $test_table_name;
@@ -44,22 +45,22 @@ assert_table_ok($table2);
 
 $session0->close();
 
-$schema3 = $session2->getSchema($db);
-expect_false($schema3->existsInDatabase());
-$table3 = $schema3->getTable($test_table_name);
-assert_table_fail($table3);
+assert_session_invalid($session0);
+assert_session_invalid($session1);
+assert_session_invalid($session2);
 
-$session4 = $table2->getSession();
-$schema4 = $session4->getSchema($db);
-expect_false($schema4->existsInDatabase());
-$table4 = $schema4->getTable($test_table_name);
-assert_table_fail($table4);
+assert_table_fail($table0);
+assert_table_fail($table1);
+assert_table_fail($table2);
 
-$session5 = $table4->getSession();
-$schema5 = $session5->getSchema($db);
-expect_false($schema5->existsInDatabase());
-$table5 = $schema5->getTable($test_table_name);
-assert_table_fail($table5);
+$session4 = $table0->getSession();
+assert_session_invalid($session4);
+
+$session5 = $table1->getSession();
+assert_session_invalid($session5);
+
+$session6 = $table2->getSession();
+assert_session_invalid($session6);
 
 verify_expectations();
 print "done!\n";
@@ -70,4 +71,10 @@ require_once(__DIR__."/../connect.inc");
 clean_test_db();
 ?>
 --EXPECTF--
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
+[10056][HY000] Session closed.
 done!%A

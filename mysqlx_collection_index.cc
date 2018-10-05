@@ -37,9 +37,8 @@ extern "C" {
 #include "util/allocator.h"
 #include "util/exceptions.h"
 #include "util/object.h"
+#include "util/json_utils.h"
 #include "util/string_utils.h"
-#include <boost/version.hpp>
-#include <boost/property_tree/json_parser.hpp>
 
 namespace mysqlx {
 
@@ -50,22 +49,7 @@ using namespace drv;
 namespace
 {
 
-/*
-	in older versions of boost (e.g. 1.53.0 which is at the moment still officially
-	delivered as the newest one package for CentOS7) there is bug in boost::property_tree
-	it doesn't support strings with custom allocator - somewhere deep in code there is
-	applied std::string directly with standard allocator
-	compiler fails at conversion std::string <=> util::string (custom allocator)
-	in newer versions it is fixed
-	the oldest version we've successfully tried is 1.59.0
-	and beginning with that version we apply util::string, while for older one std::string
-*/
-#if 105900 <= BOOST_VERSION
-using ptree_string = util::string;
-#else
-using ptree_string = std::string;
-#endif
-
+using ptree_string = util::json::ptree_string;
 using ptree = boost::property_tree::basic_ptree<ptree_string, ptree_string>;
 
 class Index_definition_parser

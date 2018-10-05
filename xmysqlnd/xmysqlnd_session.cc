@@ -66,7 +66,7 @@ namespace mysqlx {
 
 namespace drv {
 
-const std::vector<std::string> xmysqlnd_session_auth_data::supported_ciphers = {
+const std::vector<std::string> Session_auth_data::supported_ciphers = {
 	"AES128-GCM-SHA256",
 	"AES128-RMD",
 	"AES128-SHA",
@@ -207,7 +207,7 @@ namespace {
 
 /* {{{ set_connection_options */
 bool set_connection_options(
-	const xmysqlnd_session_auth_data* auth_data,
+	const Session_auth_data* auth_data,
 	MYSQLND_VIO* vio)
 {
 	auto& connection_timeout = auth_data->connection_timeout;
@@ -217,7 +217,7 @@ bool set_connection_options(
 
 } // anonymous namespace
 
-xmysqlnd_session_auth_data::xmysqlnd_session_auth_data() :
+Session_auth_data::Session_auth_data() :
 	port{ 0 },
 	ssl_mode{ SSL_mode::not_specified },
 	ssl_enabled{ false },
@@ -225,22 +225,23 @@ xmysqlnd_session_auth_data::xmysqlnd_session_auth_data() :
 }
 
 /* {{{ xmysqlnd_session_data::get_scheme */
-MYSQLND_STRING
+std::string
 xmysqlnd_session_data::get_scheme(
-		const util::string& hostname,
-		unsigned int port)
+	const std::string& hostname,
+	unsigned int port)
 {
-	MYSQLND_STRING transport{nullptr, 0};
+	std::string transport;
 	DBG_ENTER("xmysqlnd_session_data::get_scheme");
 	/* MY-305: Add support for windows pipe */
 	if( transport_type == transport_types::network ) {
 		if (!port) {
 			port = drv::Environment::get_as_int(drv::Environment::Variable::Mysql_port);
 		}
-		transport.l = mnd_sprintf(&transport.s, 0, "tcp://%s:%u", hostname.c_str(), port);
-	} else if( transport_type == transport_types::unix_domain_socket ){
-		transport.l = mnd_sprintf(&transport.s, 0, "unix://%s",
-								  socket_path.c_str());
+		std::ostringstream os;
+		os << "tcp://" << hostname << ':' << port;
+		transport = os.str();
+	} else if( transport_type == transport_types::unix_domain_socket ) {
+		transport = "unix://" + socket_path;
 	} else if( transport_type == transport_types::windows_pipe ) {
 #ifdef PHP_WIN32
 		/* Somewhere here?! (This is old code) */
@@ -248,7 +249,7 @@ xmysqlnd_session_data::get_scheme(
 			/* named pipe in socket */
 			socket_path = "\\\\.\\pipe\\MySQL";
 		}
-		transport.l = mnd_sprintf(&transport.s, 0, "pipe://%s", socket_path.c_str());
+		transport = "pipe://" + socket_path;
 #else
 		DBG_ERR_FMT("Windows pipe not supported!.");
 		devapi::RAISE_EXCEPTION( err_msg_internal_error );
@@ -260,7 +261,7 @@ xmysqlnd_session_data::get_scheme(
 		DBG_ERR_FMT("Transport type invalid.");
 		devapi::RAISE_EXCEPTION( err_msg_internal_error );
 	}
-	DBG_INF_FMT("transport=%s", transport.s? transport.s:"OOM");
+	DBG_INF_FMT("transport=%s", transport.empty() ? "OOM" : transport.c_str());
 	DBG_RETURN(transport);
 }
 /* }}} */
@@ -274,7 +275,7 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session_data::connect_handshake");
 
-	if (set_connection_options(auth, io.vio)
+	if (set_connection_options(auth.get(), io.vio)
 		&& (PASS == io.vio->data->m.connect(io.vio,
 											scheme_name,
 											persistent,
@@ -292,14 +293,16 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
 
 /* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
-xmysqlnd_session_data::authenticate(const MYSQLND_CSTRING scheme_name,
-									   const MYSQLND_CSTRING database,
-									   const size_t /*set_capabilities*/)
+xmysqlnd_session_data::authenticate(
+	const MYSQLND_CSTRING scheme_name,
+	const MYSQLND_CSTRING database,
+	const size_t /*set_capabilities*/,
+	const bool re_auth)
 {
 	DBG_ENTER("xmysqlnd_session_data::authenticate");
 	Authenticate authenticate(this, scheme_name, database);
 	enum_func_status ret{FAIL};
-	if (authenticate.run()) {
+	if (authenticate.run(re_auth)) {
 		DBG_INF("AUTHENTICATED. YAY!");
 		ret = PASS;
 	}
@@ -316,7 +319,6 @@ xmysqlnd_session_data::connect(
 		size_t set_capabilities)
 {
 	zend_bool reconnect{FALSE};
-	MYSQLND_STRING transport_name = { nullptr, 0 };
 	enum_func_status ret{PASS};
 
 	DBG_ENTER("xmysqlnd_session_data::connect");
@@ -324,8 +326,8 @@ xmysqlnd_session_data::connect(
 	SET_EMPTY_ERROR(error_info);
 
 	DBG_INF_FMT("host=%s user=%s db=%s port=%u flags=%u persistent=%u state=%u",
-				!auth->hostname.empty()?auth->hostname.c_str():"",
-				!auth->username.empty()?auth->username.c_str():"",
+				auth->hostname.c_str(),
+				auth->username.c_str(),
 				database.s?database.s:"", port, (uint) set_capabilities,
 				persistent,
 				state.get());
@@ -343,22 +345,16 @@ xmysqlnd_session_data::connect(
 	}
 
 	/* Setup the relevant variables! */
-	current_db.l = database.l;
-	current_db.s = mnd_pestrndup(database.s, current_db.l, 0);
+	current_db.assign(database.s, database.l);
 
-	transport_name = get_scheme(auth->hostname,
-						   port);
+	std::string transport_name{ get_scheme(auth->hostname, port) };
 
-	if( nullptr == transport_name.s || transport_name.l == 0 ) {
+	if( transport_name.empty()) {
 		ret = FAIL;
 	} else {
-		scheme.s = mnd_pestrndup(transport_name.s, transport_name.l, 0);
-		scheme.l = transport_name.l;
+		scheme = transport_name;
 
-		mnd_sprintf_free(transport_name.s);
-		transport_name.s = nullptr;
-
-		if (!scheme.s || !current_db.s) {
+		if (scheme.empty()) {
 			SET_OOM_ERROR(error_info);
 			ret = FAIL;
 		}
@@ -366,7 +362,7 @@ xmysqlnd_session_data::connect(
 
 	/* Attempt to connect */
 	if( ret == PASS ) {
-		const MYSQLND_CSTRING local_scheme = { scheme.s, scheme.l };
+		const MYSQLND_CSTRING local_scheme = { scheme.c_str(), scheme.length() };
 		ret = connect_handshake( local_scheme, database,
 								 set_capabilities);
 		if( (ret != PASS) && (error_info->error_no == 0)) {
@@ -379,19 +375,24 @@ xmysqlnd_session_data::connect(
 		state.set(SESSION_READY);
 		transport_types transport = transport_type;
 
-		if ( transport == transport_types::network ) {
-			server_host_info = build_server_host_info("%s via TCP/IP",
-													  auth->hostname.c_str(),
-													  persistent);
-		} else if( transport == transport_types::unix_domain_socket ) {
-			server_host_info = mnd_pestrdup("Localhost via UNIX socket", 0);
-		} else if( transport == transport_types::windows_pipe) {
-			server_host_info = build_server_host_info("%s via named pipe",
-													  socket_path.c_str(),
-													  0);
+		switch(transport) {
+			case transport_types::network:
+				server_host_info = auth->hostname + " via TCP/IP";
+				break;
+
+			case transport_types::unix_domain_socket:
+				server_host_info = "Localhost via UNIX socket";
+				break;
+
+			case transport_types::windows_pipe:
+				server_host_info = socket_path + " via named pipe";
+				break;
+
+			default:
+				assert(!"unknown transport!");
 		}
 
-		if ( !server_host_info ) {
+		if ( server_host_info.empty() ) {
 			SET_OOM_ERROR(error_info);
 			ret = FAIL;
 		}
@@ -421,7 +422,7 @@ xmysqlnd_session_data::connect(
 		DBG_ERR_FMT("[%u] %.128s (trying to connect via %s)",
 					error_info->error_no,
 					error_info->error,
-					scheme.s);
+					scheme.c_str());
 
 		if (!error_info->error_no) {
 			SET_CLIENT_ERROR(error_info,
@@ -429,7 +430,7 @@ xmysqlnd_session_data::connect(
 							 UNKNOWN_SQLSTATE,
 							 error_info->error[0] ? error_info->error:"Unknown error");
 			php_error_docref(nullptr, E_WARNING, "[%u] %.128s (trying to connect via %s)",
-							 error_info->error_no, error_info->error, scheme.s);
+							 error_info->error_no, error_info->error, scheme.c_str());
 		}
 		cleanup();
 		XMYSQLND_INC_SESSION_STATISTIC(stats, XMYSQLND_STAT_CONNECT_FAILURE);
@@ -530,17 +531,58 @@ xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
 /* }}} */
 
 
+/* {{{ mysqlnd_send_reset */
+enum_func_status
+xmysqlnd_session_data::send_reset()
+{
+	DBG_ENTER("mysqlnd_send_reset");
+
+	enum_func_status ret{ PASS };
+	MYSQLND_VIO* vio{ io.vio };
+	php_stream* net_stream{ vio->data->m.get_stream(vio) };
+	const xmysqlnd_session_state state_val{ state.get() };
+
+	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", this, net_stream ? net_stream->abstract : nullptr);
+	DBG_INF_FMT("state=%u", state_val);
+
+	switch (state_val) {
+		case SESSION_ALLOCATED:
+			throw util::xdevapi_exception(
+				util::xdevapi_exception::Code::connection_failure,
+				"cannot reset, not connected");
+
+		case SESSION_NON_AUTHENTICATED:
+		case SESSION_READY:
+		case SESSION_CLOSE_SENT: {
+			const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+			st_xmysqlnd_msg__session_reset conn_reset_msg{ msg_factory.get__session_reset(&msg_factory) };
+			DBG_INF("Connection reset, sending SESS_RESET");
+			conn_reset_msg.send_request(&conn_reset_msg);
+			conn_reset_msg.read_response(&conn_reset_msg);
+
+			state.set(SESSION_NON_AUTHENTICATED);
+			break;
+		}
+
+		case SESSION_CLOSED:
+			throw util::xdevapi_exception(util::xdevapi_exception::Code::session_closed);
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ mysqlnd_send_close */
 enum_func_status
 xmysqlnd_session_data::send_close()
 {
-	enum_func_status ret{PASS};
-	MYSQLND_VIO * vio = io.vio;
-	php_stream * net_stream = vio->data->m.get_stream(vio);
-	const enum xmysqlnd_session_state state_val = state.get();
-
 	DBG_ENTER("mysqlnd_send_close");
-	DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", this, net_stream? net_stream->abstract:nullptr);
+
+	enum_func_status ret{PASS};
+	MYSQLND_VIO* vio{ io.vio };
+	const xmysqlnd_session_state state_val{ state.get() };
+
 	DBG_INF_FMT("state=%u", state_val);
 
 	if (state_val >= SESSION_NON_AUTHENTICATED) {
@@ -558,25 +600,23 @@ xmysqlnd_session_data::send_close()
 		conn_close_msg.send_request(&conn_close_msg);
 		conn_close_msg.read_response(&conn_close_msg);
 
+		php_stream* net_stream{ vio->data->m.get_stream(vio) };
+		DBG_INF_FMT("session=%p vio->data->stream->abstract=%p", this, net_stream? net_stream->abstract:nullptr);
 		if (net_stream) {
 			/* HANDLE COM_QUIT here */
 			vio->data->m.close_stream(vio, stats, error_info);
 		}
-		state.set(SESSION_CLOSE_SENT);
+		state.set(SESSION_CLOSED);
 		break;
 	}
 	case SESSION_ALLOCATED:
-		/*
-			  Allocated but not connected or there was failure when trying
-			  to connect with pre-allocated connect.
-
-			  Fall-through
-			*/
-		state.set(SESSION_CLOSE_SENT);
-		/* Fall-through */
 	case SESSION_CLOSE_SENT:
 		/* The user has killed its own connection */
 		vio->data->m.close_stream(vio, stats, error_info);
+		state.set(SESSION_CLOSED);
+		break;
+	case SESSION_CLOSED:
+		// already closed, do nothing
 		break;
 	}
 
@@ -625,7 +665,7 @@ const st_xmysqlnd_session_on_statement_ok_bind noop__on_statement_ok = { nullptr
 
 /* {{{ xmysqlnd_session_state::get */
 enum xmysqlnd_session_state
-st_xmysqlnd_session_state::get()
+st_xmysqlnd_session_state::get() const
 {
 	DBG_ENTER("xmysqlnd_session_state::get");
 	DBG_INF_FMT("State=%u", state);
@@ -656,9 +696,10 @@ st_xmysqlnd_session_state::st_xmysqlnd_session_state()
 
 
 /* {{{ xmysqlnd_session_data::xmysqlnd_session_data */
-xmysqlnd_session_data::xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-												   MYSQLND_STATS * mysqlnd_stats,
-												   MYSQLND_ERROR_INFO * mysqlnd_error_info)
+xmysqlnd_session_data::xmysqlnd_session_data(
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+	MYSQLND_STATS* mysqlnd_stats,
+	MYSQLND_ERROR_INFO* mysqlnd_error_info)
 {
 	DBG_ENTER("xmysqlnd_session_data::xmysqlnd_session_data");
 	object_factory = factory;
@@ -696,6 +737,38 @@ xmysqlnd_session_data::xmysqlnd_session_data(const MYSQLND_CLASS_METHODS_TYPE(xm
 /* }}} */
 
 
+/* {{{ xmysqlnd_session_data::xmysqlnd_session_data */
+xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexcept
+{
+	object_factory = rhs.object_factory;
+	io = std::move(rhs.io);
+	auth = std::move(rhs.auth);
+	auth_mechanisms = std::move(rhs.auth_mechanisms);
+	scheme = std::move(rhs.scheme);
+	current_db = std::move(rhs.current_db);
+	transport_type = rhs.transport_type;
+	socket_path = std::move(rhs.socket_path);
+	server_host_info = std::move(rhs.server_host_info);
+	client_id = rhs.client_id;
+	rhs.client_id = 0;
+	charset = rhs.charset;
+	mysqlnd_error_info_init(&error_info_impl, persistent);
+	error_info = &error_info_impl;
+	state = rhs.state;
+	client_api_capabilities = rhs.client_api_capabilities;
+
+	stats = rhs.stats;
+	rhs.stats = nullptr;
+	own_stats = rhs.own_stats;
+	rhs.own_stats = false;
+
+	persistent = rhs.persistent;
+	savepoint_name_seed = rhs.savepoint_name_seed;
+	rhs.savepoint_name_seed = 0;
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_session_data::~xmysqlnd_session_data */
 xmysqlnd_session_data::~xmysqlnd_session_data()
 {
@@ -712,7 +785,6 @@ xmysqlnd_session_data::~xmysqlnd_session_data()
 void xmysqlnd_session_data::cleanup()
 {
 	DBG_ENTER("xmysqlnd_session_data::reset");
-	zend_bool pers = persistent;
 
 	if (io.pfc) {
 		io.pfc->data->m.free_contents(io.pfc);
@@ -724,24 +796,11 @@ void xmysqlnd_session_data::cleanup()
 
 	DBG_INF("Freeing memory of members");
 
-	if(auth) {
-		delete auth;
-		auth = nullptr;
-	}
-	if (current_db.s) {
-		mnd_efree(current_db.s);
-		current_db.s = nullptr;
-	}
-
-	if (scheme.s) {
-		mnd_efree(scheme.s);
-		scheme.s = nullptr;
-	}
-	if (server_host_info) {
-		mnd_efree(server_host_info);
-		server_host_info = nullptr;
-	}
-	util::zend::free_error_info_list(error_info, pers);
+	auth.reset();
+	current_db.clear();
+	scheme.clear();
+	server_host_info.clear();
+	util::zend::free_error_info_list(error_info, persistent);
 	charset = nullptr;
 
 	DBG_VOID_RETURN;
@@ -1279,7 +1338,7 @@ util::strings to_auth_mech_names(const Auth_mechanisms& auth_mechanisms)
 // ----------------------------------------------------------------------------
 
 Gather_auth_mechanisms::Gather_auth_mechanisms(
-	const XMYSQLND_SESSION_AUTH_DATA* auth,
+	const Session_auth_data* auth,
 	const zval* capabilities,
 	Auth_mechanisms* auth_mechanisms)
 	: auth(auth)
@@ -1325,8 +1384,9 @@ Authenticate::Authenticate(
 	, scheme(scheme)
 	, database(database)
 	, msg_factory(xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info))
-	, auth(session->auth)
+	, auth(session->auth.get())
 {
+	ZVAL_NULL(&capabilities);
 }
 
 Authenticate::~Authenticate()
@@ -1334,7 +1394,12 @@ Authenticate::~Authenticate()
 	zval_dtor(&capabilities);
 }
 
-bool Authenticate::run()
+bool Authenticate::run(bool re_auth)
+{
+	return re_auth ? run_re_auth() : run_auth();
+}
+
+bool Authenticate::run_auth()
 {
 	if (!init_capabilities()) return false;
 
@@ -1342,6 +1407,14 @@ bool Authenticate::run()
 
 	if (!gather_auth_mechanisms()) return false;
 
+	session->auth_mechanisms = auth_mechanisms;
+
+	return authentication_loop();
+}
+
+bool Authenticate::run_re_auth()
+{
+	auth_mechanisms = session->auth_mechanisms;
 	return authentication_loop();
 }
 
@@ -1386,8 +1459,8 @@ bool Authenticate::authentication_loop()
 	Authentication_context auth_ctx{
 		session,
 		scheme,
-		auth->username,
-		auth->password,
+		util::to_string(auth->username),
+		util::to_string(auth->password),
 		util::to_string(database)
 	};
 
@@ -1515,7 +1588,7 @@ void setup_crypto_options(
 		xmysqlnd_session_data* session)
 {
 	DBG_ENTER("setup_crypto_options");
-	const XMYSQLND_SESSION_AUTH_DATA * auth = session->auth;
+	const Session_auth_data* auth{ session->auth.get() };
 	zval string;
 
 	//Add client key
@@ -1647,31 +1720,32 @@ enum_func_status setup_crypto_connection(
 /* }}} */
 
 
-char* build_server_host_info(const util::string& format,
-							 const util::string& name,
-							 zend_bool session_persistent)
-{
-	char *hostname{ nullptr }, *host_info{ nullptr };
-	mnd_sprintf(&hostname, 0, format.c_str(), name.c_str());
-	if (hostname) {
-		host_info = mnd_pestrdup(hostname, 0);
-		mnd_sprintf_free(hostname);
-	}
-	return host_info;
-}
-
 /* {{{ xmysqlnd_session::xmysqlnd_session */
-xmysqlnd_session::xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-										 MYSQLND_STATS * stats,
-										 MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_session::xmysqlnd_session(
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
+	MYSQLND_STATS* stats,
+	MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_session::xmysqlnd_session");
 
-	session_uuid = new Uuid_generator();
-	xmysqlnd_session_data * session_data = factory->get_session_data(factory, persistent, stats, error_info);
+	session_uuid = std::make_unique<Uuid_generator>();
+	xmysqlnd_session_data* session_data{ factory->get_session_data(factory, persistent, stats, error_info) };
 	if (session_data) {
 		data = std::shared_ptr<xmysqlnd_session_data>(session_data);
 	}
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_session::xmysqlnd_session */
+xmysqlnd_session::xmysqlnd_session(xmysqlnd_session&& rhs) noexcept
+{
+	data = std::make_shared<xmysqlnd_session_data>(std::move(*rhs.data));
+	server_version_string = std::move(rhs.server_version_string);
+	session_uuid = std::move(rhs.session_uuid);
+	pool_callback = rhs.pool_callback;
+	rhs.pool_callback = nullptr;
+	persistent = rhs.persistent;
 }
 /* }}} */
 
@@ -1680,13 +1754,7 @@ xmysqlnd_session::xmysqlnd_session(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_obj
 xmysqlnd_session::~xmysqlnd_session()
 {
 	DBG_ENTER("xmysqlnd_session::~xmysqlnd_session");
-	if (server_version_string) {
-		mnd_efree(server_version_string);
-		server_version_string = nullptr;
-	}
-	if(session_uuid) {
-		delete session_uuid;
-	}
+	DBG_VOID_RETURN;
 }
 /* }}} */
 
@@ -1711,6 +1779,21 @@ xmysqlnd_session::connect(MYSQLND_CSTRING database,
 		ret = precache_uuids();
 	}
 #endif
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+/* {{{ xmysqlnd_session::reset */
+const enum_func_status
+xmysqlnd_session::reset()
+{
+	DBG_ENTER("xmysqlnd_session::reset");
+	enum_func_status ret{ get_data()->send_reset() };
+	if (ret == PASS) {
+		MYSQLND_CSTRING schema{ data->scheme.c_str(), data->scheme.length() };
+		MYSQLND_CSTRING dbase{ data->current_db.c_str(), data->current_db.length() };
+		ret = data->authenticate(schema, dbase, 0, true);
+	}
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -1878,7 +1961,6 @@ xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, con
 		ret = query( namespace_sql, select_query, noop__var_binder);
 	}
 	DBG_RETURN(ret);
-
 }
 /* }}} */
 
@@ -2222,10 +2304,8 @@ xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 zend_ulong
 xmysqlnd_session::get_server_version()
 {
-	zend_long major, minor, patch;
 	DBG_ENTER("xmysqlnd_session::get_server_version");
-	char* p{ server_version_string };
-	if (!p) {
+	if (server_version_string.empty()) {
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_sql, query);
         XMYSQLND_SESSION session_handle(this);
@@ -2242,7 +2322,7 @@ xmysqlnd_session::get_server_version()
 							Z_TYPE(set[0 * 0]) == IS_STRING)
 					{
 						DBG_INF_FMT("Found %*s", Z_STRLEN(set[0 * 0]), Z_STRVAL(set[0 * 0]));
-						server_version_string = mnd_pestrndup(Z_STRVAL(set[0 * 0]), Z_STRLEN(set[0 * 0]), 0);
+						server_version_string.assign(Z_STRVAL(set[0 * 0]), Z_STRLEN(set[0 * 0]));
 					}
 					if (set) {
 						mnd_efree(set);
@@ -2260,16 +2340,23 @@ xmysqlnd_session::get_server_version()
 		}
         session_handle.reset();
 	} else {
-		DBG_INF_FMT("server_version_string=%s", server_version_string);
+		DBG_INF_FMT("server_version_string=%s", server_version_string.c_str());
 	}
-	if ((p = server_version_string) == nullptr) {
+	if (server_version_string.empty()) {
 		return 0;
 	}
-	major = ZEND_STRTOL(p, &p, 10);
-	p += 1; /* consume the dot */
-	minor = ZEND_STRTOL(p, &p, 10);
-	p += 1; /* consume the dot */
-	patch = ZEND_STRTOL(p, &p, 10);
+
+	std::vector<std::string> server_version_fragments;
+	const char* Version_separator{ "." };
+	boost::split(server_version_fragments, server_version_string, boost::is_any_of(Version_separator));
+
+	if (server_version_fragments.size() != 3) {
+		return 0;
+	}
+
+	zend_long major{ std::stol(server_version_fragments[0])};
+	zend_long minor{ std::stol(server_version_fragments[1])};
+	zend_long patch{ std::stol(server_version_fragments[2])};
 
 	DBG_RETURN( (zend_ulong)(major * Z_L(10000) + (zend_ulong)(minor * Z_L(100) + patch)) );
 }
@@ -2281,7 +2368,7 @@ xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 {
 	xmysqlnd_stmt* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_session_data::create_statement_object");
-	stmt = xmysqlnd_stmt_create(session_handle, session_handle->persistent, data->object_factory, data->stats, data->error_info);
+	stmt = xmysqlnd_stmt_create(session_handle, false, data->object_factory, data->stats, data->error_info);
     DBG_RETURN(stmt);
 }
 /* }}} */
@@ -2294,7 +2381,7 @@ xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 	xmysqlnd_schema* schema{nullptr};
 	DBG_ENTER("xmysqlnd_session::create_schema_object");
 	DBG_INF_FMT("schema_name=%s", schema_name.s);
-	schema = xmysqlnd_schema_create(shared_from_this(), schema_name, persistent, data->object_factory, data->stats, data->error_info);
+	schema = xmysqlnd_schema_create(shared_from_this(), schema_name, false, data->object_factory, data->stats, data->error_info);
 
 	DBG_RETURN(schema);
 }
@@ -2305,9 +2392,9 @@ xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 const enum_func_status
 xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 {
-	enum_func_status ret{FAIL};
-
 	DBG_ENTER("xmysqlnd_session::close");
+
+	enum_func_status ret{FAIL};
 
 	if (data->state.get() >= SESSION_READY) {
 		static enum_xmysqlnd_collected_stats close_type_to_stat_map[SESSION_CLOSE_LAST] = {
@@ -2323,7 +2410,6 @@ xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 		  if we are last, but that's not a problem.
 		*/
 	ret = data->send_close();
-
 
 	DBG_RETURN(ret);
 }
@@ -2342,9 +2428,26 @@ xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, c
 }
 /* }}} */
 
+
+/* {{{ create_session */
+PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
+create_session(const bool persistent)
+{
+	DBG_ENTER("drv::create_session");
+	const size_t client_flags{ 0 };
+	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory{
+		MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_object_factory)
+	};
+	MYSQLND_STATS* stats{ nullptr };
+	MYSQLND_ERROR_INFO* error_info{ nullptr };
+	DBG_RETURN(xmysqlnd_session_create(client_flags, persistent, factory, stats, error_info));
+}
+/* }}} */
+
+
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
 xmysqlnd_session_connect(XMYSQLND_SESSION session,
-						 XMYSQLND_SESSION_AUTH_DATA * auth,
+						 Session_auth_data * auth,
 						 const MYSQLND_CSTRING database,
 						 unsigned int port,
 						 const size_t set_capabilities)
@@ -2365,13 +2468,13 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 
 	if (!session) {
 		if (!(session = xmysqlnd_session_create(client_api_flags,
-												FALSE, factory,
+												TRUE, factory,
 												stats, error_info))) {
 			/* OOM */
 			DBG_RETURN(nullptr);
 		}
 	}
-	session->data->auth = auth;
+	session->data->auth.reset(auth);
 	ret = session->connect(database,port, set_capabilities);
 
 	if (ret == FAIL) {
@@ -2382,39 +2485,25 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 /* }}} */
 
 /* {{{ create_new_session */
-mysqlx::devapi::st_mysqlx_session * create_new_session(zval * session_zval)
+mysqlx::devapi::Session_data * create_new_session(zval * session_zval)
 {
 	DBG_ENTER("create_new_session");
-	mysqlx::devapi::st_mysqlx_session * object{nullptr};
-	if (PASS == mysqlx::devapi::mysqlx_new_session(session_zval)) {
-		object = (struct mysqlx::devapi::st_mysqlx_session *) Z_MYSQLX_P(session_zval)->ptr;
-
-		if (!object && !object->session) {
-			if (object->closed) {
-				php_error_docref(nullptr, E_WARNING, "closed session");
-			} else {
-				php_error_docref(nullptr, E_WARNING, "invalid object of class %s",
-								 ZSTR_VAL(Z_MYSQLX_P(session_zval)->zo.ce->name)); \
-			}
-		}
-	} else {
-		zval_ptr_dtor(session_zval);
-		ZVAL_NULL(session_zval);
-	}
-	DBG_RETURN(object);
+	devapi::mysqlx_new_session(session_zval);
+	auto& data_object{ util::fetch_data_object<devapi::Session_data>(session_zval) };
+	DBG_RETURN(&data_object);
 }
 /* }}} */
 
 
 /* {{{ establish_connection */
-enum_func_status establish_connection(mysqlx::devapi::st_mysqlx_session * object,
-									  XMYSQLND_SESSION_AUTH_DATA * auth,
+enum_func_status establish_connection(XMYSQLND_SESSION& session,
+									  Session_auth_data * auth,
 									  const util::Url& url,
 									  transport_types tr_type)
 {
 	DBG_ENTER("establish_connection");
 	enum_func_status ret{PASS};
-	mysqlx::drv::XMYSQLND_SESSION new_session;
+	XMYSQLND_SESSION new_session;
 	size_t set_capabilities{0};
 	if( tr_type != transport_types::network ) {
 		DBG_INF_FMT("Connecting with the provided socket/pipe: %s",
@@ -2424,14 +2513,14 @@ enum_func_status establish_connection(mysqlx::devapi::st_mysqlx_session * object
 			DBG_ERR_FMT("Expecting socket/pipe location, found nothing!");
 			ret = FAIL;
 		} else {
-			object->session->data->socket_path = url.host;
+			session->data->socket_path = util::to_std_string(url.host);
 		}
 	}
 
 	if( ret != FAIL ) {
 		const MYSQLND_CSTRING path = { url.path.c_str(), url.path.length() };
-		object->session->data->transport_type = tr_type;
-		new_session = xmysqlnd_session_connect(object->session,
+		session->data->transport_type = tr_type;
+		new_session = xmysqlnd_session_connect(session,
 											   auth,
 											   path,
 											   url.port,
@@ -2440,11 +2529,11 @@ enum_func_status establish_connection(mysqlx::devapi::st_mysqlx_session * object
 			ret = FAIL;
 		}
 
-		if (ret == PASS && object->session != new_session) {
+		if (ret == PASS && session != new_session) {
 			if (new_session) {
 				php_error_docref(nullptr, E_WARNING, "Different object returned");
 			}
-			object->session = new_session;
+			session = new_session;
 		}
 	}
 	DBG_RETURN(ret);
@@ -2614,7 +2703,7 @@ std::pair<util::Url, transport_types> extract_uri_information(const char * uri_s
 }
 /* }}} */
 
-enum_func_status set_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
+enum_func_status set_ssl_mode( Session_auth_data* auth,
 							   SSL_mode mode )
 {
 	DBG_ENTER("set_ssl_mode");
@@ -2634,7 +2723,7 @@ enum_func_status set_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
 }
 
 /* {{{ parse_ssl_mode */
-enum_func_status parse_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
+enum_func_status parse_ssl_mode( Session_auth_data* auth,
 								 const util::string& mode )
 {
 	DBG_ENTER("parse_ssl_mode");
@@ -2660,7 +2749,7 @@ enum_func_status parse_ssl_mode( XMYSQLND_SESSION_AUTH_DATA* auth,
 
 /* {{{ set_auth_mechanism */
 enum_func_status set_auth_mechanism(
-		XMYSQLND_SESSION_AUTH_DATA* auth,
+		Session_auth_data* auth,
 		Auth_mechanism auth_mechanism)
 {
 	DBG_ENTER("set_auth_mechanism");
@@ -2681,7 +2770,7 @@ enum_func_status set_auth_mechanism(
 
 /* {{{ parse_auth_mechanism */
 enum_func_status parse_auth_mechanism(
-		XMYSQLND_SESSION_AUTH_DATA* auth,
+		Session_auth_data* auth,
 		const util::string& auth_mechanism)
 {
 	DBG_ENTER("parse_auth_mechanism");
@@ -2709,14 +2798,14 @@ namespace {
 
 using integer_auth_option_to_data_member = std::map<
 	std::string,
-	boost::optional<int> xmysqlnd_session_auth_data::*,
+	boost::optional<int> Session_auth_data::*,
 	util::iless
 >;
 
 const auto AUTH_OPTION_CONNECT_TIMEOUT{ "connect-timeout" };
 
 const integer_auth_option_to_data_member int_auth_option_to_data_member{
-	{ AUTH_OPTION_CONNECT_TIMEOUT, &xmysqlnd_session_auth_data::connection_timeout },
+	{ AUTH_OPTION_CONNECT_TIMEOUT, &Session_auth_data::connection_timeout },
 };
 
 bool is_integer_auth_option(const util::string& auth_option_variable)
@@ -2744,7 +2833,7 @@ bool verify_integer_auth_option(
 bool parse_integer_auth_option(
 	const util::string& auth_option_variable,
 	const util::string& auth_option_value,
-	xmysqlnd_session_auth_data* auth_data)
+	Session_auth_data* auth_data)
 {
 	if( auth_option_value.empty() ) {
 		util::ostringstream os;
@@ -2774,24 +2863,23 @@ bool parse_integer_auth_option(
 enum_func_status extract_ssl_information(
 		const util::string& auth_option_variable,
 		const util::string& auth_option_value,
-		XMYSQLND_SESSION_AUTH_DATA* auth)
+		Session_auth_data* auth)
 {
 	DBG_ENTER("extract_ssl_information");
 	enum_func_status ret{PASS};
 	using ssl_option_to_data_member = std::map<std::string,
-		util::string xmysqlnd_session_auth_data::*,
-		util::iless>;
+		std::string Session_auth_data::*>;
 	// Map the ssl option to the proper member, according to:
 	// https://dev.mysql.com/doc/refman/5.7/en/encrypted-connection-options.html
 	static const ssl_option_to_data_member ssl_option_to_data_members = {
-		{ "ssl-key", &xmysqlnd_session_auth_data::ssl_local_pk },
-		{ "ssl-cert",&xmysqlnd_session_auth_data::ssl_local_cert },
-		{ "ssl-ca", &xmysqlnd_session_auth_data::ssl_cafile },
-		{ "ssl-capath", &xmysqlnd_session_auth_data::ssl_capath },
-		{ "ssl-cipher", &xmysqlnd_session_auth_data::ssl_ciphers },
-		{ "ssl-crl", &xmysqlnd_session_auth_data::ssl_crl },
-		{ "ssl-crlpath", &xmysqlnd_session_auth_data::ssl_crlpath },
-		{ "tls-version", &xmysqlnd_session_auth_data::tls_version }
+		{ "ssl-key", &Session_auth_data::ssl_local_pk },
+		{ "ssl-cert",&Session_auth_data::ssl_local_cert },
+		{ "ssl-ca", &Session_auth_data::ssl_cafile },
+		{ "ssl-capath", &Session_auth_data::ssl_capath },
+		{ "ssl-cipher", &Session_auth_data::ssl_ciphers },
+		{ "ssl-crl", &Session_auth_data::ssl_crl },
+		{ "ssl-crlpath", &Session_auth_data::ssl_crlpath },
+		{ "tls-version", &Session_auth_data::tls_version }
 	};
 
 	auto it = ssl_option_to_data_members.find(auth_option_variable.c_str());
@@ -2803,7 +2891,7 @@ enum_func_status extract_ssl_information(
 							 auth_option_variable.c_str() );
 			ret = FAIL;
 		} else {
-			auth->*(it->second) = auth_option_value;
+			auth->*(it->second) = util::to_std_string(auth_option_value);
 			/*
 				* some SSL options provided, assuming
 				* 'required' mode if not specified yet.
@@ -2846,15 +2934,15 @@ enum_func_status extract_ssl_information(
 /* }}} */
 
 /* {{{ extract_auth_information */
-XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
+Session_auth_data * extract_auth_information(const util::Url& node_url)
 {
 	DBG_ENTER("extract_auth_information");
 	enum_func_status ret{PASS};
-	std::unique_ptr<XMYSQLND_SESSION_AUTH_DATA> auth(new XMYSQLND_SESSION_AUTH_DATA);
+	std::unique_ptr<Session_auth_data> auth(new Session_auth_data);
 
 	if( nullptr == auth ) {
 		util::ostringstream os;
-		os << "Couldn't allocate " << sizeof(XMYSQLND_SESSION_AUTH_DATA) << " bytes";
+		os << "Couldn't allocate " << sizeof(Session_auth_data) << " bytes";
 		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
 		DBG_RETURN(nullptr);
 	}
@@ -2923,10 +3011,10 @@ XMYSQLND_SESSION_AUTH_DATA * extract_auth_information(const util::Url& node_url)
 		//If is 0, then we're using win pipe
 		//or unix sockets.
 		auth->port = node_url.port;
-		auth->hostname = node_url.host;
+		auth->hostname = util::to_std_string(node_url.host);
 	}
-	auth->username = node_url.user;
-	auth->password = node_url.pass;
+	auth->username = util::to_std_string(node_url.user);
+	auth->password = util::to_std_string(node_url.pass);
 
 	DBG_RETURN(auth.release());
 }
@@ -3208,13 +3296,44 @@ vec_of_addresses extract_uri_addresses(const util::string& uri)
 }
 /* }}} */
 
-
-/* {{{ xmysqlnd_new_session_connect */
-PHP_MYSQL_XDEVAPI_API
-		enum_func_status xmysqlnd_new_session_connect(const char* uri_string,
-													  zval * return_value)
+/* {{{ verify_uri_address */
+void verify_uri_address(const util::string& uri_address)
 {
-	DBG_ENTER("xmysqlnd_new_session_connect");
+	php_url* raw_url{ php_url_parse(uri_address.c_str()) };
+	const bool uri_valid{ raw_url != nullptr };
+	php_url_free(raw_url);
+
+	if (uri_valid) return;
+
+	util::ostringstream os;
+	os << "invalid uri '" << uri_address << "'.";
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+}
+/* }}} */
+
+/* {{{ verify_connection_string */
+void verify_connection_string(const util::string& connection_string)
+{
+	const auto& uri_addresses{ extract_uri_addresses(connection_string) };
+	if (uri_addresses.empty()) {
+		util::ostringstream os;
+		os << "invalid connection string '" << connection_string << "'.";
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+	}
+
+	for (const auto& uri_address : uri_addresses) {
+		verify_uri_address(uri_address.first);
+	}
+}
+/* }}} */
+
+/* {{{ connect_session */
+PHP_MYSQL_XDEVAPI_API
+enum_func_status connect_session(
+	const char* uri_string,
+	XMYSQLND_SESSION& session)
+{
+	DBG_ENTER("connect_session");
 	DBG_INF_FMT("URI: %s",uri_string);
 	enum_func_status ret{FAIL};
 	if( nullptr == uri_string ) {
@@ -3238,12 +3357,7 @@ PHP_MYSQL_XDEVAPI_API
 					current_uri.first.c_str());
 		auto url = extract_uri_information( current_uri.first.c_str() );
 		if( !url.first.empty() ) {
-			mysqlx::devapi::st_mysqlx_session * session = create_new_session(return_value);
-			if( nullptr == session ) {
-				devapi::RAISE_EXCEPTION( err_msg_internal_error );
-				DBG_RETURN(ret);
-			}
-			XMYSQLND_SESSION_AUTH_DATA * auth = extract_auth_information(url.first);
+			Session_auth_data * auth = extract_auth_information(url.first);
 			if( nullptr != auth ) {
 				/*
 				 * If Unix sockets are used then TLS connections
@@ -3262,7 +3376,7 @@ PHP_MYSQL_XDEVAPI_API
 											   url.first,url.second);
 					if (ret == FAIL) {
 						const MYSQLND_ERROR_INFO* session_error_info{
-							session->session->get_data()->get_error_info() };
+							session->get_data()->get_error_info() };
 						if (session_error_info) {
 							last_error_info = *session_error_info;
 						}
@@ -3286,9 +3400,6 @@ PHP_MYSQL_XDEVAPI_API
 	 * will clean it up
 	 */
 	if( FAIL == ret ) {
-		zval_dtor(return_value);
-		ZVAL_NULL(return_value);
-
 		if( uris.size() > 1) {
 			devapi::RAISE_EXCEPTION( err_msg_all_routers_failed );
 		} else if (last_error_info.error_no) {
@@ -3302,6 +3413,38 @@ PHP_MYSQL_XDEVAPI_API
 }
 /* }}} */
 
+/* {{{ xmysqlnd_new_session_connect */
+PHP_MYSQL_XDEVAPI_API
+enum_func_status xmysqlnd_new_session_connect(
+	const char* uri_string,
+	zval* return_value)
+{
+	DBG_ENTER("xmysqlnd_new_session_connect");
+
+	enum_func_status ret{ FAIL };
+	mysqlx::devapi::Session_data* session_data{ create_new_session(return_value) };
+	if (nullptr == session_data) {
+		devapi::RAISE_EXCEPTION( err_msg_internal_error );
+		DBG_RETURN(ret);
+	}
+
+	// TODO: clean it up after fully switch to exceptions / smart zvals
+	try {
+		ret = connect_session(uri_string, session_data->session);
+	} catch(std::exception&) {
+		zval_dtor(return_value);
+		ZVAL_NULL(return_value);
+		throw;
+	}
+
+	if( FAIL == ret ) {
+		zval_dtor(return_value);
+		ZVAL_NULL(return_value);
+	}
+
+	DBG_RETURN(ret);
+}
+/* }}} */
 
 } // namespace drv
 

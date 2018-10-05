@@ -92,6 +92,8 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::invalid_argument, "Invalid argument."},
 	{ xdevapi_exception::Code::connection_failure, "Connection failure."},
 	{ xdevapi_exception::Code::authentication_failure, "Authentication failure."},
+	{ xdevapi_exception::Code::runtime_error, "Run-time error."},
+	{ xdevapi_exception::Code::session_closed, "Session closed."},
 };
 /* }}} */
 

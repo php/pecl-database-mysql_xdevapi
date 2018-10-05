@@ -89,6 +89,8 @@ struct xdevapi_exception : public std::runtime_error
 		invalid_argument,
 		connection_failure,
 		authentication_failure,
+		runtime_error,
+		session_closed,
 	};
 
 	xdevapi_exception(Code code);

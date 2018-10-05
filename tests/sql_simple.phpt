@@ -36,7 +36,7 @@
         expect_false($sql->hasData());
 	expect_eq($sql->getAffectedItemsCount(), 3);
 	expect_eq($sql->getWarningsCount(), 0);
-	expect_eq($sql->getColumnCount(), 0);
+	expect_eq($sql->getColumnCount(), []);
 
 	$sql = $session->sql("select * from $db.test_table where age < ? order by age desc limit ?")->bind(14)->bind(2)->execute();
 	expect_false($sql->nextResult());

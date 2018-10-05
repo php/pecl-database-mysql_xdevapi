@@ -349,7 +349,23 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 	st_xmysqlnd_result_set_reader_ctx reader_ctx;
 };
 
+struct st_xmysqlnd_msg__session_reset
+{
+	enum_func_status (*send_request)(st_xmysqlnd_msg__session_reset* msg);
 
+	enum_func_status (*read_response)(st_xmysqlnd_msg__session_reset* msg);
+
+	enum_func_status (*init_read)(
+		st_xmysqlnd_msg__session_reset* const msg,
+		const st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO* vio;
+	XMYSQLND_PFC* pfc;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
+
+	st_xmysqlnd_on_error_bind on_error;
+};
 
 struct st_xmysqlnd_msg__connection_close
 {
@@ -500,6 +516,7 @@ struct st_xmysqlnd_message_factory
 	struct st_xmysqlnd_msg__auth_continue		(*get__auth_continue)(const st_xmysqlnd_message_factory* const factory);
 #endif
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__sql_stmt_execute)(const st_xmysqlnd_message_factory* const factory);
+	st_xmysqlnd_msg__session_reset (*get__session_reset)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__collection_add	    (*get__collection_add)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__collection_ud		(*get__collection_ud)(const st_xmysqlnd_message_factory* const factory);
