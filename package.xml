@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2018-06-26</date>
+	<date>2018-10-05</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.12</release>
+		<release>8.0.13</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,9 +61,14 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#11957: DevAPI, Core v1 Alignment
-		WL#11955: Increase coverage
-		refactorings: WL#11960, WL#11945,  WL#11949, WL#11947, WL#11854
+		WL#11956: Implement connection pooling for xprotocol
+		WL#12189: Implement connect timeout
+		WL#12428: Adding support for chained adds
+		WL#12435: Returning the proper values
+		WL#12280: connection error handling - throw an exception
+		WL#11851: enable treat warning as error
+		WL#11853: check available boost version
+		WL#12276: Expose metadata about source and binaries in unified way
 	</notes>
  <contents>
   <dir name="/">
@@ -81,6 +86,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_base_result.h" role="src" />
    <file name="mysqlx_class_properties.cc" role="src" />
    <file name="mysqlx_class_properties.h" role="src" />
+   <file name="mysqlx_client.cc" role="src" />
+   <file name="mysqlx_client.h" role="src" />
    <file name="mysqlx_collection.cc" role="src" />
    <file name="mysqlx_collection.h" role="src" />
    <file name="mysqlx_collection__add.cc" role="src" />
@@ -248,6 +255,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="unix_domain_socket.phpt" role="test" />
     <file name="update.phpt" role="test" />
     <file name="warnings.phpt" role="test" />
+    <file name="worker_utils.inc" role="test" />
     <dir name="auth">
      <file name="auth_utils.inc" role="test" />
      <file name="incorrect_ssl_query.phpt" role="test" />
@@ -268,6 +276,31 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
       <file name="successful_no_timeout.phpt" role="test" />
       <file name="timeout_utils.inc" role="test" />
      </dir>
+    </dir>
+    <dir name="client">
+     <file name="client_disabled.phpt" role="test" />
+     <file name="client_utils.inc" role="test" />
+     <file name="close_client.phpt" role="test" />
+     <file name="close_client_open_session.phpt" role="test" />
+     <file name="close_open.phpt" role="test" />
+     <file name="common_vs_simple.phpt" role="test" />
+     <file name="default_options.phpt" role="test" />
+     <file name="default_options_as_null.phpt" role="test" />
+     <file name="default_options_with_enabled.phpt" role="test" />
+     <file name="default_options_with_max_idle_time.phpt" role="test" />
+     <file name="default_options_with_max_size.phpt" role="test" />
+     <file name="default_options_with_queue_timeout.phpt" role="test" />
+     <file name="incorrect_options.phpt" role="test" />
+     <file name="incorrect_options_case_sensitive.phpt" role="test" />
+     <file name="incorrect_uri.phpt" role="test" />
+     <file name="session_multiple_close.phpt" role="test" />
+     <file name="simple.phpt" role="test" />
+     <file name="simple_close.phpt" role="test" />
+     <file name="simple_close_client.phpt" role="test" />
+     <file name="simple_prune_expired.phpt" role="test" />
+     <file name="simple_vs_common.phpt" role="test" />
+     <file name="waiting_timeout.phpt" role="test" />
+     <file name="waiting_timeout_close_open.phpt" role="test" />
     </dir>
     <dir name="index">
      <file name="array_dates.phpt" role="test" />
@@ -388,6 +421,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="from_collection.phpt" role="test" />
      <file name="from_schema.phpt" role="test" />
      <file name="from_table.phpt" role="test" />
+     <file name="multiple_close.phpt" role="test" />
+     <file name="session_utils.inc" role="test" />
     </dir>
     <dir name="single_doc_ops">
      <file name="add_or_replace_one.phpt" role="test" />
@@ -620,6 +655,24 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2018-06-26</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.12</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#11957: DevAPI, Core v1 Alignment
+			WL#11955: Increase coverage
+			refactorings: WL#11960, WL#11945,  WL#11949, WL#11947, WL#11854
+		</notes>
+	</release>
 	<release>
 		<date>2018-04-12</date>
 		<time>20:00:00</time>

@@ -614,7 +614,7 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 	zval* object_zv{nullptr};
 	zend_bool use_callbacks{FALSE};
 	st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx{};
-	
+
 	DBG_ENTER("mysqlx_sql_statement_read_result");
 	if (ZEND_NUM_ARGS() == 0) {
 		if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
