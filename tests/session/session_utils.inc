@@ -10,6 +10,12 @@ function assert_session_valid($session) {
 	expect_true($schema->existsInDatabase());
 }
 
+function assert_session_valid_server_ver($session) {
+	global $test_schema_name;
+	$server_ver = $session->getServerVersion();
+	expect_true(is_int($server_ver) && ($server_ver != 0));
+}
+
 function assert_session_invalid($session) {
 	try {
 		$serverVersion = $session->getServerVersion();
