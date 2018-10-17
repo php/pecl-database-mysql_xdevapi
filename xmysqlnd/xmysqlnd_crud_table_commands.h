@@ -40,7 +40,6 @@ XMYSQLND_CRUD_TABLE_OP__DELETE * xmysqlnd_crud_table_delete__create(const MYSQLN
 void xmysqlnd_crud_table_delete__destroy(XMYSQLND_CRUD_TABLE_OP__DELETE * obj);
 enum_func_status xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING criteria);
 enum_func_status xmysqlnd_crud_table_delete__set_limit(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const size_t limit);
-enum_func_status xmysqlnd_crud_table_delete__set_offset(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const size_t offset);
 enum_func_status xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING name, zval * value);
 enum_func_status xmysqlnd_crud_table_delete__add_orderby(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING orderby);
 enum_func_status xmysqlnd_crud_table_delete__finalize_bind(XMYSQLND_CRUD_TABLE_OP__DELETE * obj);

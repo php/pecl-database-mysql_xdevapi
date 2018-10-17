@@ -56,10 +56,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__delete__limit, 0, ZEND_RETURN_VALUE
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__delete__offset, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, position, IS_LONG, dont_allow_null)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__delete__bind, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, placeholder_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
@@ -241,43 +237,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__delete::offset() */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, offset)
-{
-	st_mysqlx_table__delete* object{nullptr};
-	zval* object_zv{nullptr};
-	zend_long position;
-
-	DBG_ENTER("mysqlx_table__delete::offset");
-
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
-		&object_zv, mysqlx_table__delete_class_entry,
-		&position))
-	{
-		DBG_VOID_RETURN;
-	}
-	if (position < 0)
-	{
-		RAISE_EXCEPTION(err_msg_wrong_param_2);
-		DBG_VOID_RETURN;
-	}
-
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
-
-	if (object->crud_op)
-	{
-		if (PASS == xmysqlnd_crud_table_delete__set_offset(object->crud_op, position)) {
-			ZVAL_COPY(return_value, object_zv);
-		}
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ proto mixed mysqlx_table__delete::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 {
@@ -377,7 +336,6 @@ static const zend_function_entry mysqlx_table__delete_methods[] = {
 	PHP_ME(mysqlx_table__delete, where,	arginfo_mysqlx_table__delete__where,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table__delete, orderby,	arginfo_mysqlx_table__delete__orderby,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table__delete, limit,	arginfo_mysqlx_table__delete__limit,	ZEND_ACC_PUBLIC)
-	PHP_ME(mysqlx_table__delete, offset,	arginfo_mysqlx_table__delete__offset,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table__delete, bind,		arginfo_mysqlx_table__delete__bind,	ZEND_ACC_PUBLIC)
 
 	PHP_ME(mysqlx_table__delete, execute,	arginfo_mysqlx_table__delete__execute,	ZEND_ACC_PUBLIC)

@@ -46,8 +46,7 @@ mysqlx table delete/limit/orderBy
 	expect_eq($res[1]['age'],25);
 
 
-	//TODO: Only zero value offset allowed for this operation
-	$table->delete()->where('age = 17')->orderby('name desc')->limit(3)->offset(0)->execute();
+	$table->delete()->where('age = 17')->orderby('name desc')->limit(3)->execute();
 	$res = $table->select('name','age')->where('age = 17')->execute()->fetchAll();
 	expect_eq(count($res), 2);
 	expect_eq($res[0]['name'],'ARomy');

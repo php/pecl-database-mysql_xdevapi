@@ -464,17 +464,6 @@ xmysqlnd_crud_table_delete__set_limit(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_crud_table_delete__set_offset */
-enum_func_status
-xmysqlnd_crud_table_delete__set_offset(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const size_t offset)
-{
-	DBG_ENTER("xmysqlnd_crud_table_delete__set_offset");
-	obj->message.mutable_limit()->set_offset(offset);
-	DBG_RETURN(PASS);
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_crud_table_delete__bind_value */
 enum_func_status
 xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING name, zval * value)
