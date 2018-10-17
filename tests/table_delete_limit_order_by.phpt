@@ -54,9 +54,9 @@ mysqlx table delete/limit/orderBy
 	expect_eq($res[1]['name'],'BRomy');
 	expect_eq($res[1]['age'],17);
 
-	$session->executeSql("insert into $db.test_table values ('Zillon', 29)");
-	$session->executeSql("insert into $db.test_table values ('Zillon', 21)");
-	$session->executeSql("insert into $db.test_table values ('Zillon', 34)");
+	$session->sql("insert into $db.test_table values ('Zillon', 29)")->execute();
+	$session->sql("insert into $db.test_table values ('Zillon', 21)")->execute();
+	$session->sql("insert into $db.test_table values ('Zillon', 34)")->execute();
 
 	$table->delete()->orderby(['name desc','age desc'])->limit(2)->execute();
 	$res = $table->select('name','age')->where('name = \'Zillon\'')->execute()->fetchAll();

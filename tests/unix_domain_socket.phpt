@@ -23,7 +23,7 @@ default_socket_timeout=1
 	}
 
 	$session = mysql_xdevapi\getSession($connection_uri);
-	$session->executeSql("create database $db");
+	$session->sql("create database $db")->execute();
 
 	$valid_socket = $socket;
 	if( $valid_socket == null ) {
@@ -32,7 +32,7 @@ default_socket_timeout=1
 	     * from the server
 	     */
 	    $session = mysql_xdevapi\getSession($connection_uri);
-	    $res = $session->executeSql("show variables like 'mysqlx_socket'");
+	    $res = $session->sql("show variables like 'mysqlx_socket'")->execute();
 	    $var = $res->fetchAll();
 	    if( count( $var ) == 1 ) {
 	        $valid_socket = $var[0]["Value"];

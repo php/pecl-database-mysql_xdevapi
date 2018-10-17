@@ -8,8 +8,8 @@ error_reporting=0
 	require_once("connect.inc");
 
         $session = mysql_xdevapi\getSession($connection_uri);
-	$session->executeSql("create database $db");
-	$session->executeSql("create table $db.test_table(id int not null auto_increment,name char(30), primary key (id))");
+	$session->sql("create database $db")->execute();
+	$session->sql("create table $db.test_table(id int not null auto_increment,name char(30), primary key (id))")->execute();
 
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");

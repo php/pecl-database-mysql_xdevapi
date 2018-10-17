@@ -31,9 +31,9 @@
 		$session->createSchema($test_schema_name);
 		$schema = $session->getSchema($test_schema_name);
 
-		$session->executeSql(
+		$session->sql(
 			"create table $db.$test_table_name(".
-				"_id varchar(8), n int, PRIMARY KEY(_id))");
+				"_id varchar(8), n int, PRIMARY KEY(_id))")->execute();
 
 		$tab = $schema->getTable($test_table_name);
 

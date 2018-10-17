@@ -5,7 +5,7 @@ mysqlx Field Metadata, empty rowset
 <?php
 	require("connect.inc");
 	$session = mysql_xdevapi\getSession($connection_uri);
-	$session->executeSql("create database $db");
+	$session->sql("create database $db")->execute();
 	$schema = $session->getSchema($db);
 
 	$schema->createCollection("test_collection");

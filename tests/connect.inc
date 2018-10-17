@@ -106,7 +106,7 @@
 			global $test_collection_name;
 			/*
 				Would make sense to clean the database here, before attempting
-				to create it. BUT, the code raise a warning during executeSql
+				to create it. BUT, the code raise a warning during execute SQL
 				if the script attempt to remove a DB which is not existing,
 				(error 1008) which in turns cause the test to fail.
 
@@ -114,9 +114,9 @@
 				the test script to call clean_test_db *after* the test
 			*/
 			if ($session == null) $session = mysql_xdevapi\getSession($connection_uri);
-			$session->executeSql("create database $db");
+			$session->sql("create database $db")->execute();
 			$schema = $session->getSchema($db);
-			$session->executeSql("create table $db.$test_table_name(name varchar(1024), age int)");
+			$session->sql("create table $db.$test_table_name(name varchar(1024), age int)")->execute();
 			$schema->createCollection($test_collection_name);
 			return $session;
 		}
@@ -131,7 +131,7 @@
 			global $db;
 			if ($db_name == null) $db_name = $db;
 			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->executeSql("drop database if exists $db_name");
+			$session->sql("drop database if exists $db_name")->execute();
 		}
 	}
 
@@ -144,18 +144,18 @@
 			global $db;
 			global $test_table_name;
 			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 11)");
-			$session->executeSql("insert into $db.$test_table_name values ('Eulalia', 11)");
-			$session->executeSql("insert into $db.$test_table_name values ('Polly', 12)");
-			$session->executeSql("insert into $db.$test_table_name values ('Rufus', 12)");
-			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 13)");
-			$session->executeSql("insert into $db.$test_table_name values ('Olympia', 14)");
-			$session->executeSql("insert into $db.$test_table_name values ('Lev', 14)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 15)");
-			$session->executeSql("insert into $db.$test_table_name values ('Octavia', 15)");
-			$session->executeSql("insert into $db.$test_table_name values ('Vesper', 16)");
-			$session->executeSql("insert into $db.$test_table_name values ('Caspian', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('Romy', 17)");
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 11)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Eulalia', 11)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 12)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Rufus', 12)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 13)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Olympia', 14)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Lev', 14)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 15)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Octavia', 15)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Vesper', 16)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Caspian', 17)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Romy', 17)")->execute();
 		}
 	}
 
@@ -168,22 +168,22 @@
 			global $db;
 			global $test_table_name;
 			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 29)");
-			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 21)");
-			$session->executeSql("insert into $db.$test_table_name values ('Polly', 34)");
-			$session->executeSql("insert into $db.$test_table_name values ('Polly', 27)");
-			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 33)");
-			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 34)");
-			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 20)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 46)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 34)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 25)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 39)");
-			$session->executeSql("insert into $db.$test_table_name values ('ARomy', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('BRomy', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('CRomy', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('DRomy', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('ERomy', 17)");
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 29)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 21)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 34)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 27)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 33)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 34)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 20)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 46)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 34)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 25)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 39)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('ARomy', 17)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('BRomy', 17)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('CRomy', 17)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('DRomy', 17)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('ERomy', 17)")->execute();
 		}
 	}
 
@@ -255,9 +255,9 @@
 			global $db;
 			global $test_table_name;
 			global $test_view_name;
-			$session->executeSql(
+			$session->sql(
 				"CREATE VIEW $db.$test_view_name ".
-				"AS SELECT name, age FROM $db.$test_table_name");
+				"AS SELECT name, age FROM $db.$test_table_name")->execute();
 			$schema = $session->getSchema($db);
 			$view = $schema->getTable($test_view_name);
 			return $view;
@@ -267,7 +267,7 @@
 
 	if (!function_exists('get_mysql_variable')) {
 		function get_mysql_variable($session, $varname) {
-			$res = $session->executeSql("SHOW VARIABLES LIKE '$varname'");
+			$res = $session->sql("SHOW VARIABLES LIKE '$varname'")->execute();
 			$vardata = $res->fetchOne();
 			return $vardata["Value"];
 		}
@@ -275,7 +275,7 @@
 
 	if (!function_exists('get_mysql_variables')) {
 		function get_mysql_variables($session, $pattern) {
-			$res = $session->executeSql("SHOW VARIABLES LIKE '$pattern'");
+			$res = $session->sql("SHOW VARIABLES LIKE '$pattern'")->execute();
 			return $res->fetchAll();
 		}
 	}

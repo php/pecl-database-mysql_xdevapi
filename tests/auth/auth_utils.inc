@@ -14,7 +14,7 @@ function drop_test_user($user) {
 	global $host;
 	$session = create_test_session();
 	$query = "DROP USER IF EXISTS '$user'@'$host'";
-	$session->executeSql($query);
+	$session->sql($query)->execute();
 }
 
 function create_test_user($user, $auth_plugin) {
@@ -22,7 +22,7 @@ function create_test_user($user, $auth_plugin) {
 	$session = create_test_session();
 	$password = get_test_user_passwd($user);
 	$query = "CREATE USER '$user'@'$host' IDENTIFIED WITH '$auth_plugin' BY '$password'";
-	$session->executeSql($query);
+	$session->sql($query)->execute();
 }
 
 function reset_test_user($user, $auth_plugin) {

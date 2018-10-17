@@ -6,7 +6,7 @@ mysqlx simple SSL connection
 	require(__DIR__."/connect.inc");
 	$session = mysql_xdevapi\getSession($connection_uri);
 
-	$ssl_info_query = $session->executeSql("show variables like '%ssl%'");
+	$ssl_info_query = $session->sql("show variables like '%ssl%'")->execute();
 	$ssl_info = $ssl_info_query->fetchAll();
 
 	$mysql_datadir = get_mysql_variable($session, 'datadir');
@@ -25,7 +25,7 @@ mysqlx simple SSL connection
 	$new_uri .= 'ssl-ca=' . $rsa_key_path . 'ca.pem';
 
 	$session = mysql_xdevapi\getSession($new_uri);
-	$res = $session->executeSql('SELECT USER()');
+	$res = $session->sql('SELECT USER()')->execute();
 	$userdata = $res->fetchOne();
 
 	expect_eq($userdata['USER()'], $user.'@'.$host);

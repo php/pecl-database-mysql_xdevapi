@@ -8,20 +8,20 @@ error_reporting=0
 
 	require("connect.inc");
 	$session = mysql_xdevapi\getSession($connection_uri);
-	$session->executeSql("create database $db");
+	$session->sql("create database $db")->execute();
 
 function test_numeric_types() {
 	global $session;
 	global $db;
-	$session->executeSql("create table $db.table1(a int, b tinyint, c smallint, d mediumint,
+	$session->sql("create table $db.table1(a int, b tinyint, c smallint, d mediumint,
 	e int unsigned, f tinyint unsigned,g smallint unsigned,h mediumint unsigned,
 	i float,j double,k decimal,l float unsigned,m double unsigned,n decimal unsigned,
-	o bit,p bigint,q bigint unsigned)");
+	o bit,p bigint,q bigint unsigned)")->execute();
 
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable("table1");
 
-	$session->executeSql("insert into $db.table1 values (1,1,1,1,1,1,1,1,1.1,1.1,1,1.1,1.1,1,1,1,1)");
+	$session->sql("insert into $db.table1 values (1,1,1,1,1,1,1,1,1.1,1.1,1,1.1,1.1,1,1,1,1)")->execute();
 
 	$res = $table->select(['a as aa','b as bb','c as cc','d as dd',
 	'e as ee','f as ff','g as gg','h as hh',
@@ -108,10 +108,10 @@ function test_other_types() {
 	global $session;
 	global $db;
 
-	$session->executeSql("create table $db.table2 (a bit, b char(20) not null, c tinyint unsigned primary key, d decimal(20, 3),
-e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))");
-	$session->executeSql("insert into $db.table2 values (1,'test',1,22,'3:33:22',
-'1900-01-22 22:22:22','1971-01-01 00:00:01','9000-12-31','1','2')");
+	$session->sql("create table $db.table2 (a bit, b char(20) not null, c tinyint unsigned primary key, d decimal(20, 3),
+e time,f datetime, g timestamp,h date,i set('1','2'),j enum('1','2'))")->execute();
+	$session->sql("insert into $db.table2 values (1,'test',1,22,'3:33:22',
+'1900-01-22 22:22:22','1971-01-01 00:00:01','9000-12-31','1','2')")->execute();
 
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable("table2");
@@ -155,10 +155,10 @@ function test_geometries() {
 	global $session;
 	global $db;
 
-	$session->executeSql("create table $db.table3 (name int not null primary key, b geometry)");
-	$session->executeSql("insert into $db.table3 values (1, ST_GeomFromText(\"POINT(1 1)\"))");
-	$session->executeSql("insert into $db.table3 values (2, ST_GeomFromText(\"MULTIPOLYGON(((5 0,15 25,25 0,15 5,5 0)),
-((25 0,0 15,30 15,22 10,25 0)))\"))");
+	$session->sql("create table $db.table3 (name int not null primary key, b geometry)")->execute();
+	$session->sql("insert into $db.table3 values (1, ST_GeomFromText(\"POINT(1 1)\"))")->execute();
+	$session->sql("insert into $db.table3 values (2, ST_GeomFromText(\"MULTIPOLYGON(((5 0,15 25,25 0,15 5,5 0)),
+((25 0,0 15,30 15,22 10,25 0)))\"))")->execute();
 
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable("table3");

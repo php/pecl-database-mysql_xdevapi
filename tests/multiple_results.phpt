@@ -25,12 +25,12 @@ mysqlx support for multiple resultsets
 		global $session;
 		global $db;
 		echo "---- ", $counter, " ----", PHP_EOL;
-		$session->executeSql($create_test_proc);
+		$session->sql($create_test_proc)->execute();
 
-		$res = $session->executeSql("CALL $db.test_proc()");
+		$res = $session->sql("CALL $db.test_proc()")->execute();
 		dump_multi_result($res);
 
-		$session->executeSql("DROP PROCEDURE $db.test_proc");
+		$session->sql("DROP PROCEDURE $db.test_proc")->execute();
 	}
 
 

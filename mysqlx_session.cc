@@ -62,11 +62,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__generate_uuid, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session_execute_sql, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, query, IS_STRING, dont_allow_null)
-	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, args)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__sql, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, query, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
@@ -481,39 +476,6 @@ mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_session::executeSql(string query [[, mixed param]]) */
-MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, executeSql)
-{
-	DBG_ENTER("mysqlx_session::executeSql");
-
-	zval* object_zv{nullptr};
-	MYSQLND_CSTRING query{nullptr, 0};
-	zval* args{nullptr};
-	int argc{0};
-
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os*", &object_zv, mysqlx_session_class_entry,
-																	   &(query.s), &(query.l),
-																	   &args, &argc) == FAILURE)
-	{
-		DBG_VOID_RETURN;
-	}
-
-	RETVAL_FALSE;
-	if (!query.l) {
-		php_error_docref(nullptr, E_WARNING, "Empty query");
-		DBG_VOID_RETURN;
-	}
-
-	auto& data_object{ fetch_session_data(object_zv) };
-	if (data_object.session) {
-		mysqlx_execute_session_query(data_object.session, namespace_sql, query, MYSQLX_EXECUTE_FLAG_BUFFERED, return_value, argc, args);
-	}
-
-	DBG_VOID_RETURN;
-}
-/* }}} */
-
-
 /* {{{ proto mixed mysqlx_session::sql(string query) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 {
@@ -914,7 +876,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 /* {{{ mysqlx_session_methods[] */
 static const zend_function_entry mysqlx_session_methods[] = {
 	PHP_ME(mysqlx_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
-	PHP_ME(mysqlx_session, executeSql,		arginfo_mysqlx_session_execute_sql, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_session__sql, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, quoteName,		arginfo_mysqlx_session__quote_name, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, getServerVersion, arginfo_mysqlx_session__get_server_version, ZEND_ACC_PUBLIC)

@@ -1,5 +1,5 @@
 --TEST--
-mysqlx basic executeSql
+mysqlx basic execute SQL
 --SKIPIF--
 --FILE--
 <?php
@@ -8,11 +8,11 @@ mysqlx basic executeSql
 	$session = create_test_db();
 	$schema = $session->getSchema($db);
 
-	$session->executeSql("drop table if exists $db.test_table");
+	$session->sql("drop table if exists $db.test_table")->execute();
 
-	$session->executeSql("create table if not exists $db.test_table (name text, age int , job text)");
+	$session->sql("create table if not exists $db.test_table (name text, age int , job text)")->execute();
 	try {
-		$session->executeSql("create table $db.test_table (name text, age int, job text)");
+		$session->sql("create table $db.test_table (name text, age int, job text)")->execute();
 	} catch(Exception $e) {
 		expect_eq($e->getMessage(),
 			'[HY000] Couldn\'t fetch data');
@@ -20,9 +20,9 @@ mysqlx basic executeSql
 		print "Exception!".PHP_EOL;
 	}
 
-	$session->executeSql("insert into $db.test_table values ('Marco', 25, 'Programmer')");
-	$session->executeSql("insert into $db.test_table values ('Luca', 39, 'Student')");
-	$sql = $session->executeSql("insert into $db.test_table values ('Antonio', 66, 'Dentist'),('Marcello',19,'Studente')");
+	$session->sql("insert into $db.test_table values ('Marco', 25, 'Programmer')")->execute();
+	$session->sql("insert into $db.test_table values ('Luca', 39, 'Student')")->execute();
+	$sql = $session->sql("insert into $db.test_table values ('Antonio', 66, 'Dentist'),('Marcello',19,'Studente')")->execute();
 
 	expect_eq($sql->getAffectedItemsCount(), 2);
 	expect_eq($sql->hasData(), false);
@@ -34,7 +34,7 @@ mysqlx basic executeSql
 	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getWarnings(), false);
 
-	$sql = $session->executeSql("select * from $db.test_table");
+	$sql = $session->sql("select * from $db.test_table")->execute();
 
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->hasData(), true);

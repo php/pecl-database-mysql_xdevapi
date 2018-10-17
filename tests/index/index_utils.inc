@@ -11,7 +11,7 @@ function expect_index($index_name, $exists) {
 	global $session;
 
 	$query = "SHOW INDEX FROM test_collection FROM $db WHERE Key_name='$index_name'";
-	$res = $session->executeSql($query);
+	$res = $session->sql($query)->execute();
 	expect_eq($res->hasData(), $exists, 'exists index '.$index_name);
 }
 

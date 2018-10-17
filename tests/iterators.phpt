@@ -62,9 +62,9 @@ mysqlx iterators
 	    test_step_failed();
 	}
 
-        $session->executeSql("create database testx2");
-        $session->executeSql("create database testx3");
-        $session->executeSql("create database testx4");
+        $session->sql("create database testx2")->execute();
+        $session->sql("create database testx3")->execute();
+        $session->sql("create database testx4")->execute();
 
         $expected_db = [$db, 'testx2','testx3','testx4'];
 
@@ -73,7 +73,7 @@ mysqlx iterators
         foreach( $sql as $it ) {
             if( strlen($it["Database"]) <= 6 and substr($it["Database"], 0, 4) == "test") {
                 expect_eq($it["Database"],$expected_db[$idx]);
-                $session->executeSql("drop database $expected_db[$idx]");
+                $session->sql("drop database $expected_db[$idx]")->execute();
                 $idx++;
             }
         }

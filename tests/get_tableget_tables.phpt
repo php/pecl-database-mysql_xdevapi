@@ -27,8 +27,8 @@ mysqlx getTable/getTables
 	}
 	expect_false($schema->getTable(""));
 
-	$session->executeSql("create table $db.test_table2(job text, experience int, uuid int)");
-	$session->executeSql("create table $db.test_table3(name text, surname text)");
+	$session->sql("create table $db.test_table2(job text, experience int, uuid int)")->execute();
+	$session->sql("create table $db.test_table3(name text, surname text)")->execute();
 	create_test_view($session);
 
 	$tables = $schema->getTables();

@@ -6,8 +6,8 @@ mysqlx warnings
 	require("connect.inc");
 
         $session = mysql_xdevapi\getSession($connection_uri);
-	$session->executeSql("create database $db");
-	$session->executeSql("create table $db.test_table(x int)");
+	$session->sql("create database $db")->execute();
+	$session->sql("create table $db.test_table(x int)")->execute();
 
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
