@@ -22,13 +22,14 @@
 	$user = get_mysqlx_env("MYSQLX_TEST_USER", "MYSQLX_USER", "root");
 	$passwd = get_mysqlx_env("MYSQLX_TEST_PASSWD", "MYSQLX_PASSWD", "");
 	$db = get_mysqlx_env("MYSQLX_TEST_DB", "MYSQLX_DB", "testx");
+	$default_schema = get_mysqlx_env("MYSQLX_TEST_DEFAULT_SCHEMA", "MYSQLX_DEFAULT_SCHEMA", "");
 	$engine = get_mysqlx_env("MYSQLX_TEST_ENGINE", "MYSQLX_ENGINE", "MyISAM");
 	$socket = get_mysqlx_env("MYSQLX_TEST_SOCKET", "MYSQLX_SOCKET", "");
 	$skip_on_connect_failure = get_mysqlx_env("MYSQLX_TEST_SKIP_CONNECT_FAILURE", "MYSQLX_SKIP_CONNECT_FAILURE", true);
 	$connect_flags = (int)get_mysqlx_env("MYSQLX_TEST_CONNECT_FLAGS", "MYSQLX_CONNECT_FLAGS", 0);
 	$disable_ssl_opt = 'ssl-mode=disabled';
 	$base_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
-	$connection_uri = $base_uri.'/?'.$disable_ssl_opt;
+	$connection_uri = $base_uri.'/'.$default_schema.'?'.$disable_ssl_opt;
 
 	$test_schema_name = $db;
 	$test_table_name = "test_table";

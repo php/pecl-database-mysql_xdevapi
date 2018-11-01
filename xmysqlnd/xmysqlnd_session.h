@@ -238,7 +238,7 @@ struct Authentication_context
 	MYSQLND_CSTRING scheme;
 	util::string username;
 	util::string password;
-	util::string database;
+	util::string default_schema;
 };
 
 
@@ -318,9 +318,9 @@ class Authenticate
 {
 public:
 	Authenticate(
-			xmysqlnd_session_data* session,
-			const MYSQLND_CSTRING& scheme,
-			const MYSQLND_CSTRING& database);
+		xmysqlnd_session_data* session,
+		const MYSQLND_CSTRING& scheme,
+		const util::string& default_schema);
 	~Authenticate();
 
 	bool run(bool re_auth = false);
@@ -340,7 +340,7 @@ private:
 private:
 	xmysqlnd_session_data* session;
 	const MYSQLND_CSTRING& scheme;
-	const MYSQLND_CSTRING& database;
+	const util::string& default_schema;
 
 	const st_xmysqlnd_message_factory msg_factory;
 	st_xmysqlnd_msg__capabilities_get caps_get;
@@ -418,13 +418,19 @@ public:
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
 	std::string get_scheme(const std::string& hostname, unsigned int port);
-	enum_func_status  connect_handshake(const MYSQLND_CSTRING scheme, const MYSQLND_CSTRING database, const size_t set_capabilities);
+	enum_func_status  connect_handshake(
+		const MYSQLND_CSTRING scheme,
+		const util::string& default_schema,
+		const size_t set_capabilities);
 	enum_func_status authenticate(
 		const MYSQLND_CSTRING scheme,
-		const MYSQLND_CSTRING database,
+		const util::string& default_schema,
 		const size_t set_capabilities,
 		const bool re_auth = false);
-	enum_func_status  connect(MYSQLND_CSTRING database,unsigned int port,size_t set_capabilities);
+	enum_func_status  connect(
+		const util::string& default_schema,
+		unsigned int port,
+		size_t set_capabilities);
 	MYSQLND_STRING    quote_name(const MYSQLND_CSTRING name);
 	unsigned int      get_error_no();
 	const char*       get_error_str();
@@ -448,7 +454,7 @@ public:
 	Auth_mechanisms auth_mechanisms;
 	/* Other connection info */
 	std::string scheme;
-	std::string current_db;
+	std::string default_schema;
 	transport_types                    transport_type;
 	/* Used only in case of non network transports */
 	std::string socket_path;
@@ -609,7 +615,10 @@ public:
 
 	enum_func_status xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db);
 
-	const enum_func_status connect(MYSQLND_CSTRING database,const unsigned int port,const size_t set_capabilities);
+	const enum_func_status connect(
+		const util::string& default_schema,
+		const unsigned int port,
+		const size_t set_capabilities);
 	const enum_func_status reset();
 	const enum_func_status	create_db(const MYSQLND_CSTRING db);
 	const enum_func_status	select_db(const MYSQLND_CSTRING db);

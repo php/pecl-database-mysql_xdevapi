@@ -70,6 +70,9 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_schemas, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_default_schema, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__get_schema, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
@@ -277,6 +280,38 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 			mysqlx_throw_exception_from_session_if_needed(session->data);
 		}
 	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
+/* {{{ mysqlx_session::getDefaultSchema() */
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
+{
+	DBG_ENTER("mysqlx_session::getDefaultSchema");
+
+	zval* object_zv{nullptr};
+	if (util::zend::parse_method_parameters(
+		execute_data,
+		getThis(),
+		"O", &object_zv,
+		mysqlx_session_class_entry) == FAILURE) {
+		DBG_VOID_RETURN;
+	}
+
+	auto& data_object{ fetch_session_data(object_zv) };
+	if (XMYSQLND_SESSION session = data_object.session) {
+		util::string_view schema_name( session->get_data()->default_schema );
+		xmysqlnd_schema* schema = session->create_schema_object(schema_name.to_nd_cstr());
+		if (schema) {
+			mysqlx_new_schema(return_value, schema);
+		} else {
+			mysqlx_throw_exception_from_session_if_needed(session->data);
+		}
+	} else {
+		RETVAL_FALSE;
+	}
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -744,6 +779,7 @@ static const zend_function_entry mysqlx_session_methods[] = {
 	PHP_ME(mysqlx_session, createSchema, arginfo_mysqlx_session__create_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, dropSchema, arginfo_mysqlx_session__drop_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, getSchemas, arginfo_mysqlx_session__get_schemas, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_session, getDefaultSchema, arginfo_mysqlx_session__get_default_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, getSchema, arginfo_mysqlx_session__get_schema, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, startTransaction, arginfo_mysqlx_session__start_transaction, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, commit, arginfo_mysqlx_session__commit, ZEND_ACC_PUBLIC)
