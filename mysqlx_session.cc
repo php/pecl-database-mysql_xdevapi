@@ -290,7 +290,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 {
 	DBG_ENTER("mysqlx_session::getDefaultSchema");
 
-	RETVAL_NULL;
+	RETVAL_NULL();
 
 	zval* object_zv{nullptr};
 	if (util::zend::parse_method_parameters(
