@@ -290,6 +290,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 {
 	DBG_ENTER("mysqlx_session::getDefaultSchema");
 
+	RETVAL_NULL;
+
 	zval* object_zv{nullptr};
 	if (util::zend::parse_method_parameters(
 		execute_data,
@@ -301,15 +303,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 
 	auto& data_object{ fetch_session_data(object_zv) };
 	if (XMYSQLND_SESSION session = data_object.session) {
-		util::string_view schema_name( session->get_data()->default_schema );
-		xmysqlnd_schema* schema = session->create_schema_object(schema_name.to_nd_cstr());
-		if (schema) {
-			mysqlx_new_schema(return_value, schema);
-		} else {
-			mysqlx_throw_exception_from_session_if_needed(session->data);
+		util::string_view schema_name{ session->get_data()->default_schema };
+		if (!schema_name.empty()) {
+			xmysqlnd_schema* schema = session->create_schema_object(schema_name.to_nd_cstr());
+			if (schema) {
+				mysqlx_new_schema(return_value, schema);
+			} else {
+				mysqlx_throw_exception_from_session_if_needed(session->data);
+			}
 		}
-	} else {
-		RETVAL_FALSE;
 	}
 
 	DBG_VOID_RETURN;
