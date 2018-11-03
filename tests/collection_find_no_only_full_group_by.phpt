@@ -27,9 +27,9 @@ mysqlx Collection find, no 'only full group by'
 		$res = $coll->find()->fields(['COUNT(name) as cn', 'MAX(age) as ma', 'job as j'])->having('MAX(age) > 50')->groupBy('j')->execute();
 		$data = $res->fetchAll();
 		expect_eq(count($data),1);
-		expect_eq($data[0]['ma'],59);
+		expect_eq($data[0]['ma'],'59');
 		expect_eq($data[0]['j'],'Paninaro');
-		expect_eq($data[0]['cn'],'1');
+		expect_eq($data[0]['cn'],1);
 	} catch( Exception $ex ) {
 		test_step_failed();
 	}

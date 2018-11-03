@@ -48,7 +48,7 @@ error_reporting=0
 	$coll->remove('name like "Sakila"')->execute();
 	$res = $coll->find('name like "Sakila"')->execute();
 	$data = $res->fetchAll();
-	if (is_bool($data) && $data == false)
+	if (is_null($data))
 	    $test[3] = "1";
 
 	$schema->dropCollection($test_collection_name);

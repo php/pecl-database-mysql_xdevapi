@@ -17,7 +17,7 @@ $doc = $coll->getOne(0);
 expect_null($doc);
 
 $doc = $coll->getOne(5);
-verify_doc($doc, 5, "Carlo", '25', "Programmatore");
+verify_doc($doc, 5, "Carlo", 25, "Programmatore");
 
 $doc = $coll->getOne('31');
 expect_null($doc);

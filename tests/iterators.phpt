@@ -22,7 +22,7 @@ mysqlx iterators
 	expect_eq(count($res->fetchAll()), 4);
     	$idx = 0;
 	foreach( $res as $it ) {
-	    expect_eq($it["_id"],$expected_docs[$idx][0]);
+	    expect_eq_id($it["_id"],$expected_docs[$idx][0]);
 	    expect_eq($it["job"],$expected_docs[$idx][1]);
 	    expect_eq($it["name"],$expected_docs[$idx][2]);
 	    $idx++;
