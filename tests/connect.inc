@@ -351,14 +351,56 @@
 
 			$number_of_expectations++;
 
-			if( $target == $expectation ){
+			if( $target === $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_backtrace().': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
+				print get_backtrace().': \''.$target.'\' !== \''.$expectation.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
 	}
+
+	/*
+		used to compare id expected values with actual values
+	*/
+	if( !function_exists('expect_eq_id')) {
+		function expect_eq_id($raw_target, $raw_expectation, $hint = '') {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			$target = is_int($raw_target) ? strval($target) : $raw_target;
+			$expectation = is_int($raw_expectation) ? strval($target) : $raw_expectation;
+
+			if( $target === $expectation ){
+				$test_result_string .= '1';
+			} else {
+				print get_backtrace().': _id \''.$raw_target.'\' !== \''.$raw_expectation.'\' '.$hint.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+
+	/*
+		Used to check actual value differs from expected value
+	*/
+	if( !function_exists('expect_neq')) {
+		function expect_neq($target, $expectation, $hint = '') {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			if( $target !== $expectation ){
+				$test_result_string .= '1';
+			} else {
+				print get_backtrace().': \''.$target.'\' === \''.$expectation.'\' '.$hint.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+
 	/*
 		Used to compare expected a boolean value being true
 	*/
@@ -369,7 +411,7 @@
 
 			$number_of_expectations++;
 
-			if( true == $expectation ){
+			if( true === $expectation ){
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().': true expected '.$hint.PHP_EOL;
@@ -387,7 +429,7 @@
 
 			$number_of_expectations++;
 
-			if( false == $expectation ){
+			if( false === $expectation ){
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().': false expected '.$hint.PHP_EOL;
@@ -405,7 +447,7 @@
 
 			$number_of_expectations++;
 
-			if( null == $expectation ){
+			if( null === $expectation ){
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().
@@ -426,7 +468,7 @@
 
 			$number_of_expectations++;
 
-			if( null != $expectation ){
+			if( null !== $expectation ){
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().
@@ -448,11 +490,11 @@
 			$number_of_expectations++;
 
 			$is_equal = is_array($expectation) ?
-				in_array($target, $expectation) : ($target == $expectation);
+				in_array($target, $expectation) : ($target === $expectation);
 			if ($is_equal) {
 				$test_result_string .= '1';
 			} else {
-				print get_backtrace().': \''.$target.'\' != \''.to_string($expectation).'\' '.$hint.PHP_EOL;
+				print get_backtrace().': \''.$target.'\' !== \''.to_string($expectation).'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}

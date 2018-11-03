@@ -15,7 +15,7 @@ $coll = fill_test_collection(true);
 // replaceOne
 $doc = $coll->getOne(16);
 verify_doc($doc, '16', "Leonardo", 23, "Programmatore");
-$doc["age"] = "55";
+$doc["age"] = 55;
 $doc["job"] = "SeniorProgrammatore";
 $res = $coll->replaceOne(16, $doc);
 verify_result($res, 16, 1);

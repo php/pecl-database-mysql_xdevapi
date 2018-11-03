@@ -17,7 +17,7 @@ $coll = fill_test_collection(true);
 $doc = $coll->getOne(13);
 verify_doc($doc, 13, "Alessandra", 15, "Barista");
 $doc["name"] = "Alessandro";
-$doc["age"] = "86";
+$doc["age"] = 86;
 
 expect_null_doc('87');
 $res = $coll->addOrReplaceOne(87, $doc);
@@ -25,7 +25,7 @@ verify_result($res, 87, 1);
 expect_doc('87', "Alessandro", 86, "Barista");
 expect_doc(13, "Alessandra", 15, "Barista");
 
-$doc["age"] = "76";
+$doc["age"] = 76;
 $res = $coll->addOrReplaceOne(13, $doc);
 verify_result($res, 13, 2);
 expect_doc('13', "Alessandro", 76, "Barista");

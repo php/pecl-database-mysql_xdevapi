@@ -12,7 +12,7 @@ function verify_result($result, $id, $items_count) {
 // ----------------------------------------------------------------------
 
 function verify_doc($doc, $id, $name, $age, $job) {
-	expect_eq($doc["_id"], $id, $id);
+	expect_eq_id($doc["_id"], $id, $id);
 	expect_eq($doc["name"], $name, $id);
 	expect_eq($doc["age"], $age, $id);
 	expect_eq($doc["job"], $job, $id);
@@ -26,7 +26,7 @@ function expect_doc($id, $name, $age, $job) {
 
 
 function verify_modified_doc($doc, $id, $name, $surname, $info) {
-	expect_eq($doc["_id"], $id, $id);
+	expect_eq_id($doc["_id"], $id, $id);
 	expect_eq($doc["name"], $name, $id);
 	expect_eq($doc["surname"], $surname, $id);
 	expect_eq($doc["info"], $info, $id);
@@ -42,7 +42,7 @@ function expect_modified_doc($id, $name, $surname, $info) {
 
 
 function verify_empty_doc($doc, $id) {
-	expect_eq($doc["_id"], $id);
+	expect_eq_id($doc["_id"], $id);
 	expect_false(array_key_exists("name", $doc), $id);
 	expect_false(array_key_exists("age", $doc), $id);
 	expect_false(array_key_exists("job", $doc), $id);
@@ -58,7 +58,7 @@ function expect_empty_doc($id) {
 
 
 function verify_non_empty_doc($doc, $id) {
-	expect_eq($doc["_id"], $id, $id." non-empty id");
+	expect_eq_id($doc["_id"], $id, $id." non-empty id");
 	expect_true(array_key_exists("name", $doc), $id." non-empty name");
 	expect_true(array_key_exists("age", $doc), $id." non-empty age");
 	expect_true(array_key_exists("job", $doc), $id." non-empty job");
