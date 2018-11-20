@@ -946,7 +946,6 @@ auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue&
 			/* send */
 			mnd_efree(handler_output.s);
 		}
-
 	}
 	DBG_RETURN(ret);
 }

@@ -83,6 +83,7 @@ struct string_view
 	string_view(const char* s) : string_view(s, s ? std::strlen(s) : 0) {}
 	string_view(const char* s, const size_t l) : str(s), len(l) {}
 	string_view(const string& s) : string_view(s.c_str(), s.length()) {}
+	string_view(const std::string& s) : string_view(s.c_str(), s.length()) {}
 	string_view(zval* zv);
 
 	string_view(const st_mysqlnd_string& s); // MYSQLND_STRING

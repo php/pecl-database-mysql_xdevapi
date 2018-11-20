@@ -268,9 +268,10 @@ xmysqlnd_session_data::get_scheme(
 
 /* {{{ xmysqlnd_session_data::connect_handshake */
 enum_func_status
-xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
-											const MYSQLND_CSTRING database,
-											const size_t set_capabilities)
+xmysqlnd_session_data::connect_handshake(
+	const MYSQLND_CSTRING scheme_name,
+	const util::string& default_schema,
+	const size_t set_capabilities)
 {
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session_data::connect_handshake");
@@ -285,7 +286,7 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
 										  stats,
 										  error_info))) {
 		state.set(SESSION_NON_AUTHENTICATED);
-		ret = authenticate(scheme_name, database, set_capabilities);
+		ret = authenticate(scheme_name, default_schema, set_capabilities);
 	}
 	DBG_RETURN(ret);
 }
@@ -295,12 +296,12 @@ xmysqlnd_session_data::connect_handshake(const MYSQLND_CSTRING scheme_name,
 enum_func_status
 xmysqlnd_session_data::authenticate(
 	const MYSQLND_CSTRING scheme_name,
-	const MYSQLND_CSTRING database,
+	const util::string& default_schema,
 	const size_t /*set_capabilities*/,
 	const bool re_auth)
 {
 	DBG_ENTER("xmysqlnd_session_data::authenticate");
-	Authenticate authenticate(this, scheme_name, database);
+	Authenticate authenticate(this, scheme_name, default_schema);
 	enum_func_status ret{FAIL};
 	if (authenticate.run(re_auth)) {
 		DBG_INF("AUTHENTICATED. YAY!");
@@ -314,9 +315,9 @@ xmysqlnd_session_data::authenticate(
 /* {{{ xmysqlnd_session_data::connect */
 enum_func_status
 xmysqlnd_session_data::connect(
-		MYSQLND_CSTRING database,
-		unsigned int port,
-		size_t set_capabilities)
+	const util::string& def_schema,
+	unsigned int port,
+	size_t set_capabilities)
 {
 	zend_bool reconnect{FALSE};
 	enum_func_status ret{PASS};
@@ -325,12 +326,15 @@ xmysqlnd_session_data::connect(
 
 	SET_EMPTY_ERROR(error_info);
 
-	DBG_INF_FMT("host=%s user=%s db=%s port=%u flags=%u persistent=%u state=%u",
-				auth->hostname.c_str(),
-				auth->username.c_str(),
-				database.s?database.s:"", port, (uint) set_capabilities,
-				persistent,
-				state.get());
+	DBG_INF_FMT(
+		"host=%s user=%s db=%s port=%u flags=%u persistent=%u state=%u",
+		auth->hostname.c_str(),
+		auth->username.c_str(),
+		def_schema.c_str(),
+		port,
+		static_cast<uint>(set_capabilities),
+		persistent,
+		state.get());
 
 	if (state.get() > SESSION_ALLOCATED) {
 		DBG_INF("Connecting on a connected handle.");
@@ -345,7 +349,7 @@ xmysqlnd_session_data::connect(
 	}
 
 	/* Setup the relevant variables! */
-	current_db.assign(database.s, database.l);
+	default_schema = util::to_std_string(def_schema);
 
 	std::string transport_name{ get_scheme(auth->hostname, port) };
 
@@ -363,7 +367,7 @@ xmysqlnd_session_data::connect(
 	/* Attempt to connect */
 	if( ret == PASS ) {
 		const MYSQLND_CSTRING local_scheme = { scheme.c_str(), scheme.length() };
-		ret = connect_handshake( local_scheme, database,
+		ret = connect_handshake( local_scheme, def_schema,
 								 set_capabilities);
 		if( (ret != PASS) && (error_info->error_no == 0)) {
 			SET_OOM_ERROR(error_info);
@@ -745,7 +749,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexce
 	auth = std::move(rhs.auth);
 	auth_mechanisms = std::move(rhs.auth_mechanisms);
 	scheme = std::move(rhs.scheme);
-	current_db = std::move(rhs.current_db);
+	default_schema = std::move(rhs.default_schema);
 	transport_type = rhs.transport_type;
 	socket_path = std::move(rhs.socket_path);
 	server_host_info = std::move(rhs.server_host_info);
@@ -797,7 +801,7 @@ void xmysqlnd_session_data::cleanup()
 	DBG_INF("Freeing memory of members");
 
 	auth.reset();
-	current_db.clear();
+	default_schema.clear();
 	scheme.clear();
 	server_host_info.clear();
 	util::zend::free_error_info_list(error_info, persistent);
@@ -1121,7 +1125,7 @@ void Auth_plugin_base::add_prefix_to_auth_data()
 {
 	// auth_data = "SCHEMA\0USER\0{custom_scramble_ending}"
 	// prefix    = "SCHEMA\0USER\0"
-	add_to_auth_data(context.database);
+	add_to_auth_data(context.default_schema);
 	add_to_auth_data('\0');
 	add_to_auth_data(context.username);
 	add_to_auth_data('\0');
@@ -1379,10 +1383,10 @@ bool Gather_auth_mechanisms::run()
 Authenticate::Authenticate(
 	xmysqlnd_session_data* session,
 	const MYSQLND_CSTRING& scheme,
-	const MYSQLND_CSTRING& database)
+	const util::string& def_schema)
 	: session(session)
 	, scheme(scheme)
-	, database(database)
+	, default_schema(def_schema)
 	, msg_factory(xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info))
 	, auth(session->auth.get())
 {
@@ -1461,7 +1465,7 @@ bool Authenticate::authentication_loop()
 		scheme,
 		util::to_string(auth->username),
 		util::to_string(auth->password),
-		util::to_string(database)
+		default_schema
 	};
 
 	for (Auth_mechanism auth_mechanism : auth_mechanisms) {
@@ -1766,14 +1770,15 @@ xmysqlnd_session::get_data()
 
 /* {{{ xmysqlnd_session::connect */
 const enum_func_status
-xmysqlnd_session::connect(MYSQLND_CSTRING database,
-							const unsigned int port,
-							const size_t set_capabilities)
+xmysqlnd_session::connect(
+	const util::string& default_schema,
+	const unsigned int port,
+	const size_t set_capabilities)
 {
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("xmysqlnd_session::connect");
-	ret = data->connect(database,port, set_capabilities);
+	ret = data->connect(default_schema, port, set_capabilities);
 #ifdef WANTED_TO_PRECACHE_UUIDS_AT_CONNECT
 	if (PASS == ret) {
 		ret = precache_uuids();
@@ -1791,8 +1796,8 @@ xmysqlnd_session::reset()
 	enum_func_status ret{ get_data()->send_reset() };
 	if (ret == PASS) {
 		MYSQLND_CSTRING schema{ data->scheme.c_str(), data->scheme.length() };
-		MYSQLND_CSTRING dbase{ data->current_db.c_str(), data->current_db.length() };
-		ret = data->authenticate(schema, dbase, 0, true);
+		const util::string default_schema{ util::to_string(data->default_schema) };
+		ret = data->authenticate(schema, default_schema, 0, true);
 	}
 	DBG_RETURN(ret);
 }
@@ -2448,7 +2453,7 @@ create_session(const bool persistent)
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
 xmysqlnd_session_connect(XMYSQLND_SESSION session,
 						 Session_auth_data * auth,
-						 const MYSQLND_CSTRING database,
+						 const util::string& default_schema,
 						 unsigned int port,
 						 const size_t set_capabilities)
 {
@@ -2463,7 +2468,7 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 
 	DBG_ENTER("xmysqlnd_session_connect");
 	DBG_INF_FMT("host=%s user=%s db=%s port=%u flags=%llu",
-				auth->hostname.c_str(), auth->username.c_str(), database.s,
+				auth->hostname.c_str(), auth->username.c_str(), default_schema.c_str(),
 				port, static_cast<unsigned long long>(set_capabilities));
 
 	if (!session) {
@@ -2475,7 +2480,7 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 		}
 	}
 	session->data->auth.reset(auth);
-	ret = session->connect(database,port, set_capabilities);
+	ret = session->connect(default_schema, port, set_capabilities);
 
 	if (ret == FAIL) {
 		DBG_RETURN(nullptr);
@@ -2518,11 +2523,11 @@ enum_func_status establish_connection(XMYSQLND_SESSION& session,
 	}
 
 	if( ret != FAIL ) {
-		const MYSQLND_CSTRING path = { url.path.c_str(), url.path.length() };
+		const util::string& default_schema{ url.path };
 		session->data->transport_type = tr_type;
 		new_session = xmysqlnd_session_connect(session,
 											   auth,
-											   path,
+											   default_schema,
 											   url.port,
 											   set_capabilities);
 		if(new_session == nullptr) {
