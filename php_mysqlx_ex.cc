@@ -33,7 +33,6 @@
 #include "mysqlx_exception.h"
 #include "mysqlx_execution_status.h"
 #include "mysqlx_expression.h"
-#include "mysqlx_field_metadata.h"
 #include "mysqlx_x_session.h"
 #include "mysqlx_schema.h"
 #include "mysqlx_collection.h"
@@ -110,7 +109,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_exception_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_execution_status_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_expression_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-	mysqlx_register_field_metadata_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_driver_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
@@ -268,7 +266,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_x_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-	mysqlx_unregister_field_metadata_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_execution_status_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

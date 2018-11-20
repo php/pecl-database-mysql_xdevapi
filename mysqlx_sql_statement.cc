@@ -27,8 +27,8 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
 #include "mysqlx_exception.h"
-#include "mysqlx_field_metadata.h"
 #include "mysqlx_result.h"
+#include "mysqlx_column_result.h"
 #include "mysqlx_doc_result.h"
 #include "mysqlx_row_result.h"
 #include "mysqlx_sql_statement_result.h"
@@ -135,7 +135,7 @@ exec_with_cb_handle_on_row(void * context,
 			const XMYSQLND_RESULT_FIELD_META * field_meta = meta->m->get_field(meta, i);
 			zval meta_field_zv;
 			ZVAL_UNDEF(&meta_field_zv);
-			mysqlx_new_field_metadata(&meta_field_zv, meta->m->get_field(meta, i));
+			mysqlx_new_column_result(&meta_field_zv, meta->m->get_field(meta, i));
 			zend_hash_next_index_insert(Z_ARRVAL_P(meta_container), &meta_field_zv);
 
 			if (field_meta->zend_hash_key.is_numeric == FALSE) {

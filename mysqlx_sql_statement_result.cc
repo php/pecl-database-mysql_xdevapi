@@ -33,7 +33,7 @@
 #include "mysqlx_sql_statement_result_iterator.h"
 #include "mysqlx_sql_statement_result.h"
 #include "mysqlx_base_result.h"
-#include "mysqlx_field_metadata.h"
+#include "mysqlx_column_result.h"
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
 #include "util/object.h"
@@ -514,7 +514,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumns)
 				zval column_zv;
 
 				ZVAL_UNDEF(&column_zv);
-				mysqlx_new_field_metadata(&column_zv, column);
+				mysqlx_new_column_result(&column_zv, column);
 
 				if (Z_TYPE(column_zv) != IS_UNDEF) {
 					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_zv);

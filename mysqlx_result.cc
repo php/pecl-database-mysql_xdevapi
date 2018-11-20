@@ -32,7 +32,6 @@
 #include "mysqlx_result_iterator.h"
 #include "mysqlx_result.h"
 #include "mysqlx_base_result.h"
-#include "mysqlx_field_metadata.h"
 #include "util/object.h"
 #include "util/string_utils.h"
 #include "util/zend_utils.h"

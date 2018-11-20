@@ -56,7 +56,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_executable.cc \
 		mysqlx_execution_status.cc \
 		mysqlx_expression.cc \
-		mysqlx_field_metadata.cc \
 		mysqlx_object.cc \
 		mysqlx_result.cc \
 		mysqlx_result_iterator.cc \

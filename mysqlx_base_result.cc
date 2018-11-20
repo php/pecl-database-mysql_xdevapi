@@ -30,7 +30,6 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
 #include "mysqlx_base_result.h"
-#include "mysqlx_field_metadata.h"
 
 namespace mysqlx {
 

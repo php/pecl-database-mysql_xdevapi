@@ -8,11 +8,11 @@ mysqlx basic execute SQL
 	$session = create_test_db();
 	$schema = $session->getSchema($db);
 
-	$session->sql("drop table if exists $db.test_table")->execute();
+	$session->sql("drop table if exists $db.$test_table_name")->execute();
 
-	$session->sql("create table if not exists $db.test_table (name text, age int , job text)")->execute();
+	$session->sql("create table if not exists $db.$test_table_name (name text, age int , job text)")->execute();
 	try {
-		$session->sql("create table $db.test_table (name text, age int, job text)")->execute();
+		$session->sql("create table $db.$test_table_name (name text, age int, job text)")->execute();
 	} catch(Exception $e) {
 		expect_eq($e->getMessage(),
 			'[HY000] Couldn\'t fetch data');
@@ -20,9 +20,9 @@ mysqlx basic execute SQL
 		print "Exception!".PHP_EOL;
 	}
 
-	$session->sql("insert into $db.test_table values ('Marco', 25, 'Programmer')")->execute();
-	$session->sql("insert into $db.test_table values ('Luca', 39, 'Student')")->execute();
-	$sql = $session->sql("insert into $db.test_table values ('Antonio', 66, 'Dentist'),('Marcello',19,'Studente')")->execute();
+	$session->sql("insert into $db.$test_table_name values ('Marco', 25, 'Programmer')")->execute();
+	$session->sql("insert into $db.$test_table_name values ('Luca', 39, 'Student')")->execute();
+	$sql = $session->sql("insert into $db.$test_table_name values ('Antonio', 66, 'Dentist'),('Marcello',19,'Studente')")->execute();
 
 	expect_eq($sql->getAffectedItemsCount(), 2);
 	expect_eq($sql->hasData(), false);
@@ -34,7 +34,7 @@ mysqlx basic execute SQL
 	expect_eq($sql->getWarningsCount(), 0);
 	expect_eq($sql->getWarnings(), false);
 
-	$sql = $session->sql("select * from $db.test_table")->execute();
+	$sql = $session->sql("select * from $db.$test_table_name")->execute();
 
 	expect_eq($sql->getAffectedItemsCount(), 0);
 	expect_eq($sql->hasData(), true);
@@ -47,22 +47,24 @@ mysqlx basic execute SQL
 	expect_eq($sql->getWarnings(), false);
 
 	$expected_names = array('name','age','job');
+	$expected_is_signed = array(false, true, false);
+	$expected_types = array( MYSQLX_TYPE_BYTES, MYSQLX_TYPE_INT, MYSQLX_TYPE_BYTES );
 	$expected_lengths = array( 65535, 11, 65535 );
-	$expected_collations = array( 255, 0, 255 );
+	$expected_collations = array( 'utf8mb4_0900_ai_ci', 0, 'utf8mb4_0900_ai_ci' );
 
 	// I know, I shall probably check all those fields..
 	for($i = 0 ; $i < 3 ; $i++ ) {
-		expect_eq($sql->getColumns()[$i]->name, $expected_names[$i]);
-		expect_eq($sql->getColumns()[$i]->original_name, $expected_names[$i]);
-		expect_eq($sql->getColumns()[$i]->table, 'test_table');
-		expect_eq($sql->getColumns()[$i]->original_table, 'test_table');
-		expect_eq($sql->getColumns()[$i]->schema, $db);
-		expect_eq($sql->getColumns()[$i]->catalog, "def");
-		expect_eq($sql->getColumns()[$i]->content_type, 0);
-		expect_eq($sql->getColumns()[$i]->flags, 0);
-		expect_eq($sql->getColumns()[$i]->length, $expected_lengths[$i]);
-		expect_eq($sql->getColumns()[$i]->fractional_digits, 0);
-		expect_eq($sql->getColumns()[$i]->collation, $expected_collations[$i]);
+		expect_eq($sql->getColumns()[$i]->getColumnLabel(), $expected_names[$i]);
+		expect_eq($sql->getColumns()[$i]->getColumnName(), $expected_names[$i]);
+		expect_eq($sql->getColumns()[$i]->getTableLabel(), $test_table_name);
+		expect_eq($sql->getColumns()[$i]->getTableName(), $test_table_name);
+		expect_eq($sql->getColumns()[$i]->getSchemaName(), $db);
+		expect_eq($sql->getColumns()[$i]->isNumberSigned(), $expected_is_signed[$i], 'isNumberSigned');
+		expect_eq($sql->getColumns()[$i]->getType(), $expected_types[$i], 'getType');
+		expect_eq($sql->getColumns()[$i]->isPadded(), 0, 'isPadded');
+		expect_eq($sql->getColumns()[$i]->getLength(), $expected_lengths[$i]);
+		expect_eq($sql->getColumns()[$i]->getFractionalDigits(), 0);
+		expect_eq($sql->getColumns()[$i]->getCollationName(), $expected_collations[$i]);
 
 	}
 

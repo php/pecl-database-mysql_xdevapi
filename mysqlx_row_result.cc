@@ -33,7 +33,6 @@
 #include "mysqlx_row_result_iterator.h"
 #include "mysqlx_row_result.h"
 #include "mysqlx_base_result.h"
-#include "mysqlx_field_metadata.h"
 #include "mysqlx_column_result.h"
 #include "mysqlx_exception.h"
 

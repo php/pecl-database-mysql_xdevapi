@@ -127,8 +127,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_execution_status.h" role="src" />
    <file name="mysqlx_expression.cc" role="src" />
    <file name="mysqlx_expression.h" role="src" />
-   <file name="mysqlx_field_metadata.cc" role="src" />
-   <file name="mysqlx_field_metadata.h" role="src" />
    <file name="mysqlx_object.cc" role="src" />
    <file name="mysqlx_object.h" role="src" />
    <file name="mysqlx_result.cc" role="src" />
