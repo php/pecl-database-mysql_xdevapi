@@ -95,6 +95,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchOne)
 	zval* object_zv{nullptr};
 	st_mysqlx_row_result* object{nullptr};
 
+	RETVAL_NULL();
+
 	DBG_ENTER("mysqlx_row_result::fetchOne");
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
@@ -103,8 +105,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchOne)
 	}
 
 	MYSQLX_FETCH_ROW_RESULT_FROM_ZVAL(object, object_zv);
-
-	RETVAL_FALSE;
 
 	if (object && object->result && FALSE == object->result->m.eof(object->result)) {
 		zval row;
@@ -125,6 +125,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 	zval* object_zv{nullptr};
 	st_mysqlx_row_result* object{nullptr};
 
+	RETVAL_NULL();
+
 	DBG_ENTER("mysqlx_row_result::fetchAll");
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
@@ -133,7 +135,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 	}
 	MYSQLX_FETCH_ROW_RESULT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_FALSE;
 	if (object && object->result) {
 		zval set;
 		ZVAL_UNDEF(&set);

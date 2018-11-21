@@ -322,7 +322,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 			ZVAL_LONG(return_value,object->meta->fractional_digits);
 			break;
 		case is_number_signed:
-			ZVAL_LONG(return_value,is_type_signed(object->meta));
+			ZVAL_BOOL(return_value,is_type_signed(object->meta));
 			break;
 		case collation_name:
 		case characterset_name:
@@ -353,7 +353,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					(object->meta->flags_set && object->meta->flags & BYTES_RIGHTPAD)) {
 					is_padded = TRUE;
 				}
-				ZVAL_LONG(return_value,is_padded);
+				ZVAL_BOOL(return_value,is_padded);
 			}
 			break;
 		default:

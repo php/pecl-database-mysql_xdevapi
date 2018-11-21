@@ -20,7 +20,7 @@ error_reporting=0
 		expect_false($result);
 
 		$res = $coll->find()->execute()->fetchAll();
-		expect_false($res);
+		expect_null($res);
 
 		$result = $coll->add(
 				[],

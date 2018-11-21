@@ -71,7 +71,7 @@ error_reporting=0
 	expect_eq($data[0]['age'],77);
 	expect_eq($data[0]['job'],'a');
 	expect_eq($data[0]['name'],'x');
-	expect_eq($data[7]['_id'],3);
+	expect_eq_id($data[7]['_id'],3);
 	expect_eq($data[7]['num'],2);
 	expect_eq($data[7]['name'],'Riccardo');
 
