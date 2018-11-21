@@ -27,12 +27,12 @@ mysqlx basic execute SQL
 	expect_eq($sql->getAffectedItemsCount(), 2);
 	expect_eq($sql->hasData(), false);
 
-	expect_eq($sql->getColumnCount(), false);
-	expect_eq($sql->getColumnNames(), false);
-	expect_eq($sql->getColumns(), false);
+	expect_eq($sql->getColumnsCount(), 0);
+	expect_eq($sql->getColumnNames(), []);
+	expect_eq($sql->getColumns(), []);
 
 	expect_eq($sql->getWarningsCount(), 0);
-	expect_eq($sql->getWarnings(), false);
+	expect_eq($sql->getWarnings(), []);
 
 	$sql = $session->sql("select * from $db.$test_table_name")->execute();
 
@@ -44,13 +44,13 @@ mysqlx basic execute SQL
 	expect_eq($sql->getColumnNames()[2], 'job');
 
 	expect_eq($sql->getWarningsCount(), 0);
-	expect_eq($sql->getWarnings(), false);
+	expect_eq($sql->getWarnings(), []);
 
 	$expected_names = array('name','age','job');
 	$expected_is_signed = array(false, true, false);
 	$expected_types = array( MYSQLX_TYPE_BYTES, MYSQLX_TYPE_INT, MYSQLX_TYPE_BYTES );
 	$expected_lengths = array( 65535, 11, 65535 );
-	$expected_collations = array( 'utf8mb4_0900_ai_ci', 0, 'utf8mb4_0900_ai_ci' );
+	$expected_collations = array( 'utf8mb4_0900_ai_ci', null, 'utf8mb4_0900_ai_ci' );
 
 	// I know, I shall probably check all those fields..
 	for($i = 0 ; $i < 3 ; $i++ ) {
@@ -61,11 +61,10 @@ mysqlx basic execute SQL
 		expect_eq($sql->getColumns()[$i]->getSchemaName(), $db);
 		expect_eq($sql->getColumns()[$i]->isNumberSigned(), $expected_is_signed[$i], 'isNumberSigned');
 		expect_eq($sql->getColumns()[$i]->getType(), $expected_types[$i], 'getType');
-		expect_eq($sql->getColumns()[$i]->isPadded(), 0, 'isPadded');
+		expect_eq($sql->getColumns()[$i]->isPadded(), false, 'isPadded');
 		expect_eq($sql->getColumns()[$i]->getLength(), $expected_lengths[$i]);
 		expect_eq($sql->getColumns()[$i]->getFractionalDigits(), 0);
 		expect_eq($sql->getColumns()[$i]->getCollationName(), $expected_collations[$i]);
-
 	}
 
 	verify_expectations();

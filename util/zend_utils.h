@@ -26,6 +26,8 @@ namespace util {
 
 namespace zend {
 
+void ensure_is_array(zval* zv);
+
 void free_error_info_list(
 	MYSQLND_ERROR_INFO* error_info,
 	zend_bool persistent);

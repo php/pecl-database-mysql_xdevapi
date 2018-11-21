@@ -28,6 +28,16 @@ namespace util {
 
 namespace zend {
 
+void ensure_is_array(zval* zv)
+{
+	if (Z_TYPE_P(zv) == IS_ARRAY) return;
+
+	zval_ptr_dtor(zv);
+	array_init_size(zv, 0);
+}
+
+// ----------------
+
 namespace {
 
 template<typename T>

@@ -258,23 +258,21 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 /* {{{ proto mixed mysqlx_table::count() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 {
-	st_mysqlx_table* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table::count");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	RETVAL_LONG(0);
 
-	RETVAL_FALSE;
-
-	xmysqlnd_table * table = object->table;
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
+	xmysqlnd_table* table{ data_object.table };
 	if (table) {
-		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
+		const st_xmysqlnd_session_on_error_bind on_error{ mysqlx_table_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
 		if (PASS == table->count(on_error, &counter)) {

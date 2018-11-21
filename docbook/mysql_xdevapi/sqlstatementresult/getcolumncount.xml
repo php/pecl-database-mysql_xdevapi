@@ -3,14 +3,14 @@
 
 <refentry xml:id="mysql-xdevapi-sqlstatementresult.getcolumncount" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>SqlStatementResult::getColumnCount</refname>
+  <refname>SqlStatementResult::getColumnsCount</refname>
   <refpurpose>Get column count</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <methodsynopsis>
-   <modifier>public</modifier> <type>integer</type><methodname>mysql_xdevapi\SqlStatementResult::getColumnCount</methodname>
+   <modifier>public</modifier> <type>integer</type><methodname>mysql_xdevapi\SqlStatementResult::getColumnsCount</methodname>
    <void />
   </methodsynopsis>
   <para>
@@ -36,7 +36,7 @@
  <refsect1 role="examples">
   &reftitle.examples;
   <example>
-   <title><function>mysql_xdevapi\SqlStatementResult::getColumnCount</function> example</title>
+   <title><function>mysql_xdevapi\SqlStatementResult::getColumnsCount</function> example</title>
    <programlisting role="php">
 <![CDATA[
 <?php

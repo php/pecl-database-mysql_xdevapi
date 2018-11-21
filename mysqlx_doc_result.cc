@@ -154,8 +154,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 	}
 	MYSQLX_FETCH_DOC_RESULT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_FALSE;
-	size_t warning_count = 0;
+	RETVAL_LONG(0);
+	size_t warning_count{ 0 };
 	if (object->result) {
 		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
@@ -167,7 +167,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 		ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(warning_count).c_str()));
 		DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 	} else {
-		ZVAL_LONG(return_value, warning_count);
+		RETVAL_LONG(warning_count);
 		DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 	}
 	DBG_VOID_RETURN;
@@ -189,7 +189,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 	}
 	MYSQLX_FETCH_DOC_RESULT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_FALSE;
 	if (object->result) {
 		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
@@ -207,10 +206,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &warning_zv);
 				}
 			}
-		} else {
-			array_init_size(return_value, 0);
 		}
 	}
+
+	util::zend::ensure_is_array(return_value);
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

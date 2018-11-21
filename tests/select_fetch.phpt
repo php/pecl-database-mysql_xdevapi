@@ -28,12 +28,12 @@ mysqlx select / fetch
 	$res = $table->select(['name','age'])->where('name in (\'Cassidy\',\'Polly\')')
 		->orderBy(['age desc','name asc'])->execute();
 
-	expect_eq($res->getColumnCount(), 2);
+	expect_eq($res->getColumnsCount(), 2);
 	$columns = $res->getColumnNames();
 	expect_eq($columns[0], 'name');
 	expect_eq($columns[1], 'age');
 
-        $res = $res->fetchAll();
+	$res = $res->fetchAll();
 
 	expect_eq(count($res), 5);
 	expect_eq($res[0]['name'], 'Cassidy');
