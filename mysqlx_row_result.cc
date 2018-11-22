@@ -122,26 +122,25 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchOne)
 /* {{{ proto mixed mysqlx_row_result::fetchAll(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_row_result* object{nullptr};
-
-	RETVAL_NULL();
-
 	DBG_ENTER("mysqlx_row_result::fetchAll");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_ROW_RESULT_FROM_ZVAL(object, object_zv);
 
-	if (object && object->result) {
+	auto& data_object{ util::fetch_data_object<st_mysqlx_row_result>(object_zv) };
+	if (data_object.result) {
 		zval set;
 		ZVAL_UNDEF(&set);
-		if (PASS == object->result->m.fetch_all(object->result, &set, nullptr, nullptr)) {
+		if (PASS == data_object.result->m.fetch_all(data_object.result, &set, nullptr, nullptr)) {
 			ZVAL_COPY_VALUE(return_value, &set);
 		}
 	}
+	util::zend::ensure_is_array(return_value);
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

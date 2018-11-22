@@ -23,7 +23,7 @@ function fetch_and_verify( $num_of_docs ) {
 			}
 		}
 	} else {
-		expect_null( $data );
+		expect_empty_array( $data );
 	}
 }
 

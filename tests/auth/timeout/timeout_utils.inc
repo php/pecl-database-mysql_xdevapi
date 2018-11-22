@@ -65,7 +65,7 @@ function test_successful_not_elapsed_timeout($host, $timeout) {
 
 function init_log($master_file_path) {
 	global $log_filepath;
-	$log_filepath = $master_file_path . ".info";
+	$log_filepath = $master_file_path . ".stdout";
 	if (file_exists($log_filepath)) unlink($log_filepath);
 }
 

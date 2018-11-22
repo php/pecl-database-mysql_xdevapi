@@ -502,6 +502,24 @@
 	}
 
 	/*
+		used to ensure expected value is an empty array
+	*/
+	if (!function_exists('expect_empty_array')) {
+		function expect_empty_array($expectation, $hint = '') {
+			expect_eq($expectation, [], $hint);
+		}
+	}
+
+	/*
+		used to check whether expected value is an empty array
+	*/
+	if (!function_exists('is_empty_array')) {
+		function is_empty_array($variable) {
+			return is_array($variable) && empty($variable);
+		}
+	}
+
+	/*
 		Call this function to add a failing point
 		to the test
 	*/
