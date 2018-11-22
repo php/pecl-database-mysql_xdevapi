@@ -459,23 +459,23 @@ static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_stmt_resul
 /* {{{ proto mixed mysqlx_sql_statement_result::getColumnsCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnsCount)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_sql_statement_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_sql_statement_result::getColumnsCount");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_LONG(0);
-	if (object->result) {
-		st_xmysqlnd_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+
+	auto& data_object{ util::fetch_data_object<st_mysqlx_sql_statement_result>(object_zv) };
+	if (data_object.result) {
+		st_xmysqlnd_stmt_result_meta* meta{ get_stmt_result_meta(data_object.result) };
 		if (meta)
 		{
-			const size_t value = meta->m->get_field_count(meta);
+			const size_t value{ meta->m->get_field_count(meta) };
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
 				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
@@ -493,19 +493,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnsCount)
 /* {{{ proto mixed mysqlx_sql_statement_result::getColumns(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumns)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_sql_statement_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_sql_statement_result::getColumns");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
-	if (object->result) {
-		st_xmysqlnd_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_sql_statement_result>(object_zv) };
+	if (data_object.result) {
+		st_xmysqlnd_stmt_result_meta* meta{ get_stmt_result_meta(data_object.result) };
 		/* Maybe check here if there was an error and throw an Exception or return a column */
 		if (meta) {
 			const unsigned int count{meta->m->get_field_count(meta)};
@@ -521,8 +520,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumns)
 					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_zv);
 				}
 			}
-		} else {
-			array_init_size(return_value, 0);
 		}
 	}
 
@@ -536,26 +533,24 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumns)
 /* {{{ proto mixed mysqlx_sql_statement_result::getColumnNames(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnNames)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_sql_statement_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_sql_statement_result::getColumns");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_SQL_STATEMENT_RESULT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_FALSE;
-	if (object->result) {
-		st_xmysqlnd_stmt_result_meta* meta = get_stmt_result_meta(object->result);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_sql_statement_result>(object_zv) };
+	if (data_object.result) {
+		st_xmysqlnd_stmt_result_meta* meta{ get_stmt_result_meta(data_object.result) };
 		/* Maybe check here if there was an error and throw an Exception or return a column */
 		if (meta) {
 			const unsigned int count{meta->m->get_field_count(meta)};
 			array_init_size(return_value, count);
 			for (unsigned int i{0}; i < count; ++i) {
-				const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
+				const XMYSQLND_RESULT_FIELD_META* column{ meta->m->get_field(meta, i) };
 				zval column_name;
 
 				ZVAL_UNDEF(&column_name);
@@ -565,10 +560,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnNames)
 					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_name);
 				}
 			}
-		} else {
-			array_init_size(return_value, 0);
 		}
 	}
+
+	util::zend::ensure_is_array(return_value);
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

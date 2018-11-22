@@ -324,9 +324,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumns)
 /* {{{ proto mixed mysqlx_row_result::getColumnNames(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnNames)
 {
-	st_xmysqlnd_stmt_result_meta* meta;
 	DBG_ENTER("mysqlx_row_result::getColumnNames");
-	meta = get_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	st_xmysqlnd_stmt_result_meta* meta{ get_stmt_result_meta(INTERNAL_FUNCTION_PARAM_PASSTHRU) };
 
 	if (meta) {
 		const unsigned int count{meta->m->get_field_count(meta)};
@@ -343,6 +342,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnNames)
 			}
 		}
 	}
+
+	util::zend::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
