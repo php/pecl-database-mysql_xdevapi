@@ -75,6 +75,14 @@ expect_fail_index('{"fields": [{"field": "$.myField", "type": "TEXT(13)", "optio
 // TODO: it should fail in future version of server
 expect_create_index('{"fields": [{"field": "$.myField", "type": "DATETIME", "collation": "utf8_general_ci"}]}');
 
+// creation of index should fail with required field, which is not available in filled collection
+fill_db_collection($coll);
+expect_fail_index(
+	'{"fields":'.
+	'[{"field": "$.myField", "type": "TEXT(13)", "required": true},'.
+	' {"field": "$.myField2", "type": "INTEGER", "required": false}]}'
+);
+
 verify_expectations();
 print "done!\n";
 ?>
