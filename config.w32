@@ -31,6 +31,12 @@ var Ext_name = "mysql_xdevapi";
 
 var Boost_version_header = "boost/version.hpp";
 
+var Minimal_boost_ver = 105300;
+var Minimal_boost_ver_label = "1.53.00";
+
+var Preferred_boost_ver_subdir = "boost_1_68_0";
+var Preferred_boost_ver_label = "1.68.00";
+
 var Sources_metadata_filename = "INFO_SRC";
 var Binaries_metadata_filename = "INFO_BIN";
 
@@ -319,19 +325,18 @@ var protoc_path;
 
 // ------
 
-function resolve_extra_dirs(php_extra_dirs) {
+function resolve_extra_dirs(php_extra_dirs, php_extra_dirs_label) {
 	if (!php_extra_dirs || !php_extra_dirs.length) return [];
-	print('extra_dirs ');
-	println(php_extra_dirs);
+	println(php_extra_dirs_label + ': ' + php_extra_dirs);
 	return php_extra_dirs.split(';');
 }
 
 function resolve_extra_includes() {
-	this.extra_includes = resolve_extra_dirs(PHP_EXTRA_INCLUDES);
+	this.extra_includes = resolve_extra_dirs(PHP_EXTRA_INCLUDES, 'PHP_EXTRA_INCLUDES');
 }
 
 function resolve_extra_libs() {
-	this.extra_libs = resolve_extra_dirs(PHP_EXTRA_LIBS);
+	this.extra_libs = resolve_extra_dirs(PHP_EXTRA_LIBS, 'PHP_EXTRA_LIBS');
 }
 
 // ------
@@ -346,6 +351,7 @@ function resolve_boost_root() {
 	var dirs_to_search =
 		[PHP_BOOST]
 		.concat(this.extra_includes)
+		.concat([get_env_path('WITH_BOOST', Preferred_boost_ver_subdir)])
 		.concat([
 			get_env_path('MYSQL_XDEVAPI_BOOST_ROOT'),
 			get_env_path('BOOST_ROOT'),
@@ -364,16 +370,28 @@ function resolve_boost_paths() {
 	}
 }
 
+function resolve_boost_version() {
+	// #define BOOST_VERSION 105300
+	var Min_booost_regex = /\s*#define\s+BOOST_VERSION\s+(\d+)\s*/;
+	if (GREP_HEADER(Boost_version_header, Min_booost_regex, this.boost_root)) {
+		return RegExp.$1;
+	} else {
+		return 0;
+	}
+}
+
 function validate_boost_version() {
 	print("Validating boost version... ");
-	var Minimal_boost_ver = "1.53.00";
-	// #define BOOST_VERSION 105300
-	var Min_booost_regex = /#define BOOST_VERSION (105[3-9]|10[6-9]|1[1-9]|[2-9])(\d+)\s*/;
-	if (GREP_HEADER(Boost_version_header, Min_booost_regex, this.boost_root)) {
-		this.boost_version = RegExp.$1 + RegExp.$2;
-		println("ok");
+	var resolved_boost_version = resolve_boost_version();
+	if (Minimal_boost_ver <= resolved_boost_version) {
+		this.boost_version = resolved_boost_version;
+		var success_msg = "ok (" + this.boost_version + ")";
+		println(success_msg);
 	} else {
-		ERROR("boost version is too old, required at least " + Minimal_boost_ver);
+		var error_msg
+			= "boost version is too old, required at least " + Minimal_boost_ver_label
+			+ " (preferred is " + Preferred_boost_ver_label + ")";
+		ERROR(error_msg);
 	}
 }
 
