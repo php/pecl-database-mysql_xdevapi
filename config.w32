@@ -372,8 +372,8 @@ function resolve_boost_paths() {
 
 function resolve_boost_version() {
 	// #define BOOST_VERSION 105300
-	var Min_booost_regex = /\s*#define\s+BOOST_VERSION\s+(\d+)\s*/;
-	if (GREP_HEADER(Boost_version_header, Min_booost_regex, this.boost_root)) {
+	var Boost_regex = /\s*#define\s+BOOST_VERSION\s+(\d+)\s*/;
+	if (GREP_HEADER(Boost_version_header, Boost_regex, this.boost_root)) {
 		return RegExp.$1;
 	} else {
 		return 0;
