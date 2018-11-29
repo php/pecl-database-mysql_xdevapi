@@ -434,29 +434,25 @@ void Collection_find::execute(
 
 	RETVAL_FALSE;
 
-	if (FALSE == xmysqlnd_crud_collection_find__is_initialized(find_op)) {
-		RAISE_EXCEPTION(err_msg_find_fail);
-	} else {
-		xmysqlnd_stmt* stmt = collection->find(find_op);
-		{
-			if (stmt) {
-				zval stmt_zv;
-				ZVAL_UNDEF(&stmt_zv);
-				mysqlx_new_stmt(&stmt_zv, stmt);
-				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-				}
-				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-					zval zv;
-					ZVAL_UNDEF(&zv);
-					mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_DOC, &zv);
+	xmysqlnd_crud_collection_find_verify_is_initialized(find_op);
 
-					ZVAL_COPY(return_value, &zv);
-					zval_dtor(&zv);
-				}
-				zval_ptr_dtor(&stmt_zv);
-			}
+	xmysqlnd_stmt* stmt{ collection->find(find_op) };
+	if (stmt) {
+		zval stmt_zv;
+		ZVAL_UNDEF(&stmt_zv);
+		mysqlx_new_stmt(&stmt_zv, stmt);
+		if (Z_TYPE(stmt_zv) == IS_NULL) {
+			xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 		}
+		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+			zval zv;
+			ZVAL_UNDEF(&zv);
+			mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_DOC, &zv);
+
+			ZVAL_COPY(return_value, &zv);
+			zval_dtor(&zv);
+		}
+		zval_ptr_dtor(&stmt_zv);
 	}
 
 	DBG_VOID_RETURN;

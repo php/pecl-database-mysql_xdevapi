@@ -36,6 +36,7 @@
 #include "xmysqlnd/crud_parsers/expression_parser.h"
 
 #include "util/exceptions.h"
+#include "util/pb_utils.h"
 
 namespace mysqlx {
 
@@ -1081,6 +1082,19 @@ xmysqlnd_crud_table_select__is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 	DBG_ENTER("xmysqlnd_crud_table_select__is_initialized");
 	DBG_INF_FMT("is_initialized=%u", ret);
 	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_table_select_verify_is_initialized */
+void
+xmysqlnd_crud_table_select_verify_is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT* obj)
+{
+	if (xmysqlnd_crud_table_select__is_initialized(obj)) return;
+
+	util::pb::verify_limit_offset(obj->message);
+
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::find_fail);
 }
 /* }}} */
 

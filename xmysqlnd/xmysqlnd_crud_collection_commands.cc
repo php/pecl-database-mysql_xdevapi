@@ -35,6 +35,7 @@
 #include "xmysqlnd/crud_parsers/expression_parser.h"
 
 #include "util/exceptions.h"
+#include "util/pb_utils.h"
 
 namespace mysqlx {
 
@@ -1025,6 +1026,19 @@ xmysqlnd_crud_collection_find__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__FIND 
 	DBG_ENTER("xmysqlnd_crud_collection_find__is_initialized");
 	DBG_INF_FMT("is_initialized=%u", ret);
 	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find_verify_is_initialized */
+void
+xmysqlnd_crud_collection_find_verify_is_initialized(XMYSQLND_CRUD_COLLECTION_OP__FIND* obj)
+{
+	if (xmysqlnd_crud_collection_find__is_initialized(obj)) return;
+
+	util::pb::verify_limit_offset(obj->message);
+
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::find_fail);
 }
 /* }}} */
 
