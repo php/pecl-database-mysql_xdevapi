@@ -262,8 +262,23 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 
 	dnl boost
+	MINIMAL_BOOST_VER=105300
+	MINIMAL_BOOST_VER_LABEL="1.53.00"
+
+	PREFERRED_BOOST_VER_SUBDIR="boost_1_68_0"
+	PREFERRED_BOOST_VER_LABEL="1.68.00"
+
+	REQUIRED_BOOST_VER_MSG="required at least $MINIMAL_BOOST_VER_LABEL"
+	REQUIRED_BOOST_VER_MSG+=" (preferred is $PREFERRED_BOOST_VER_LABEL)"
+
+	if [ test -d "$WITH_BOOST" ]; then
+		PREFERRED_BOOST_LOCATION=[$WITH_BOOST/$PREFERRED_BOOST_VER_SUBDIR]
+	else
+		PREFERRED_BOOST_LOCATION=""
+	fi
+
 	AC_MSG_CHECKING([for boost])
-	SEARCH_PATH="$PHP_BOOST $MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH /usr/local/include /usr/include"
+	SEARCH_PATH="$PHP_BOOST $PREFERRED_BOOST_LOCATION $MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH /usr/local/include /usr/include"
 	SEARCH_FOR="boost/version.hpp"
 	for i in $SEARCH_PATH ; do
 		if test -r "$i/$SEARCH_FOR"; then
@@ -276,12 +291,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		PHP_ADD_INCLUDE([$BOOST_RESOLVED_ROOT])
 		AC_MSG_RESULT(found in $BOOST_RESOLVED_ROOT)
 	else
-		AC_MSG_ERROR([not found, consider use of --with-boost or setting MYSQL_XDEVAPI_BOOST_ROOT])
+		AC_MSG_ERROR([not found, consider use of --with-boost or setting MYSQL_XDEVAPI_BOOST_ROOT; $REQUIRED_BOOST_VER_MSG])
 	fi
 
 	AC_MSG_CHECKING([if boost version is valid])
-	MINIMAL_BOOST_VER=105300
-	MINIMAL_BOOST_VER_LABEL="1.53.00"
 	AC_EGREP_CPP(
 		boost_version_ok,
 		[
@@ -291,7 +304,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 			#endif
 		],
 		[AC_MSG_RESULT([ok])],
-		[AC_MSG_ERROR([boost version is too old, required at least $MINIMAL_BOOST_VER_LABEL])]
+		[AC_MSG_ERROR([boost version is too old, $REQUIRED_BOOST_VER_MSG])]
 	)
 
 
