@@ -35,11 +35,15 @@ namespace devapi {
 class Collection_find : public util::custom_allocable
 {
 public:
+	Collection_find() = default;
+	Collection_find(const Collection_find& rhs) = delete;
+	Collection_find& operator=(const Collection_find& rhs) = delete;
+	~Collection_find();
+
 	bool init(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
-	~Collection_find();
 
 public:
 	void fields(
