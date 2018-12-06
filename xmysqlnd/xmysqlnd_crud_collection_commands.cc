@@ -442,7 +442,7 @@ struct st_xmysqlnd_crud_collection_op__modify
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	~st_xmysqlnd_crud_collection_op__modify() 
+	~st_xmysqlnd_crud_collection_op__modify()
 	{
 		for (auto& bound_value : bound_values) {
 			delete bound_value;
@@ -809,7 +809,7 @@ struct st_xmysqlnd_crud_collection_op__find
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	~st_xmysqlnd_crud_collection_op__find() 
+	~st_xmysqlnd_crud_collection_op__find()
 	{
 		for (auto& bound_value : bound_values) {
 			delete bound_value;
