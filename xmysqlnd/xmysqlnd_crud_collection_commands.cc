@@ -35,6 +35,7 @@
 #include "xmysqlnd/crud_parsers/expression_parser.h"
 
 #include "util/exceptions.h"
+#include "util/pb_utils.h"
 
 namespace mysqlx {
 
@@ -121,13 +122,16 @@ xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::My
 	DBG_ENTER("xmysqlnd_crud_collection__finalize_bind");
 
 	const Mysqlx::Datatypes::Scalar* null_value{nullptr};
-	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin = bound_values.begin();
-	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end = bound_values.end();
-	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index = std::find(begin, end, null_value);
+	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin{ bound_values.begin() };
+	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end{ bound_values.end() };
+	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index{ std::find(begin, end, null_value) };
 	if (index == end) {
-		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it = begin;
+		mutable_args->Clear();
+
+		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it{ begin };
 		for (; it != end; ++it) {
-			mutable_args->AddAllocated(*it);
+			Mysqlx::Datatypes::Scalar* arg{ new Mysqlx::Datatypes::Scalar(**it) };
+			mutable_args->AddAllocated(arg);
 		}
 	}
 	DBG_RETURN(index == end? PASS : FAIL);
@@ -278,7 +282,12 @@ struct st_xmysqlnd_crud_collection_op__remove
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	~st_xmysqlnd_crud_collection_op__remove() {}
+	~st_xmysqlnd_crud_collection_op__remove()
+	{
+		for (auto& bound_value : bound_values) {
+			delete bound_value;
+		}
+	}
 };
 
 
@@ -434,7 +443,12 @@ struct st_xmysqlnd_crud_collection_op__modify
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	~st_xmysqlnd_crud_collection_op__modify() {}
+	~st_xmysqlnd_crud_collection_op__modify() 
+	{
+		for (auto& bound_value : bound_values) {
+			delete bound_value;
+		}
+	}
 };
 
 
@@ -796,7 +810,12 @@ struct st_xmysqlnd_crud_collection_op__find
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	~st_xmysqlnd_crud_collection_op__find() {}
+	~st_xmysqlnd_crud_collection_op__find() 
+	{
+		for (auto& bound_value : bound_values) {
+			delete bound_value;
+		}
+	}
 };
 
 
@@ -1025,6 +1044,19 @@ xmysqlnd_crud_collection_find__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__FIND 
 	DBG_ENTER("xmysqlnd_crud_collection_find__is_initialized");
 	DBG_INF_FMT("is_initialized=%u", ret);
 	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_collection_find_verify_is_initialized */
+void
+xmysqlnd_crud_collection_find_verify_is_initialized(XMYSQLND_CRUD_COLLECTION_OP__FIND* obj)
+{
+	if (xmysqlnd_crud_collection_find__is_initialized(obj)) return;
+
+	util::pb::verify_limit_offset(obj->message);
+
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::find_fail);
 }
 /* }}} */
 

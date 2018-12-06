@@ -33,6 +33,11 @@ namespace devapi {
 class Collection_add : public util::custom_allocable
 {
 public:
+	Collection_add() = default;
+	Collection_add(const Collection_add& rhs) = delete;
+	Collection_add& operator=(const Collection_add& rhs) = delete;
+	~Collection_add();
+
 	bool add_docs(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
@@ -43,7 +48,6 @@ public:
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& single_doc_id,
 		zval* doc);
-	~Collection_add();
 
 public:
 	void execute(zval* return_value);

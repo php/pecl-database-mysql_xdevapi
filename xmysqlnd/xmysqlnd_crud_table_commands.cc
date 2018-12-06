@@ -36,6 +36,7 @@
 #include "xmysqlnd/crud_parsers/expression_parser.h"
 
 #include "util/exceptions.h"
+#include "util/pb_utils.h"
 
 namespace mysqlx {
 
@@ -119,13 +120,16 @@ xmysqlnd_crud_table__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx:
 	DBG_ENTER("xmysqlnd_crud_table__finalize_bind");
 
 	const Mysqlx::Datatypes::Scalar* null_value{nullptr};
-	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin = bound_values.begin();
-	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end = bound_values.end();
-	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index = std::find(begin, end, null_value);
+	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin{ bound_values.begin() };
+	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end{ bound_values.end() };
+	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index{ std::find(begin, end, null_value) };
 	if (index == end) {
-		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it = begin;
+		mutable_args->Clear();
+
+		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it{ begin };
 		for (; it != end; ++it) {
-			mutable_args->AddAllocated(*it);
+			Mysqlx::Datatypes::Scalar* arg{ new Mysqlx::Datatypes::Scalar(**it) };
+			mutable_args->AddAllocated(arg);
 		}
 	}
 	DBG_RETURN(index == end? PASS : FAIL);
@@ -155,7 +159,12 @@ struct st_xmysqlnd_crud_table_op__insert
 		add_columns(columns_zv,num_of_columns);
 	}
 
-	~st_xmysqlnd_crud_table_op__insert() {}
+	~st_xmysqlnd_crud_table_op__insert() 
+	{
+		for (auto& bound_value : bound_values) {
+			delete bound_value;
+		}
+	}
 
 	void add_columns(zval * columns_zv, const int num_of_columns);
 	void add_column(zval * column_zv);
@@ -398,7 +407,12 @@ struct st_xmysqlnd_crud_table_op__delete
 		message.set_data_model(Mysqlx::Crud::TABLE);
 	}
 
-	~st_xmysqlnd_crud_table_op__delete() {}
+	~st_xmysqlnd_crud_table_op__delete() 
+	{
+		for (auto& bound_value : bound_values) {
+			delete bound_value;
+		}
+	}
 };
 
 
@@ -544,7 +558,12 @@ struct st_xmysqlnd_crud_table_op__update
 		message.set_data_model(Mysqlx::Crud::TABLE);
 	}
 
-	~st_xmysqlnd_crud_table_op__update() {}
+	~st_xmysqlnd_crud_table_op__update() 
+	{
+		for (auto& bound_value : bound_values) {
+			delete bound_value;
+		}
+	}
 };
 
 
@@ -809,7 +828,12 @@ struct st_xmysqlnd_crud_table_op__select
 		add_columns(columns,num_of_columns);
 	}
 
-	~st_xmysqlnd_crud_table_op__select() {}
+	~st_xmysqlnd_crud_table_op__select() 
+	{
+		for (auto& bound_value : bound_values) {
+			delete bound_value;
+		}
+	}
 
 	void add_columns(const zval * columns, const int num_of_columns);
 };
@@ -1081,6 +1105,19 @@ xmysqlnd_crud_table_select__is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 	DBG_ENTER("xmysqlnd_crud_table_select__is_initialized");
 	DBG_INF_FMT("is_initialized=%u", ret);
 	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_crud_table_select_verify_is_initialized */
+void
+xmysqlnd_crud_table_select_verify_is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT* obj)
+{
+	if (xmysqlnd_crud_table_select__is_initialized(obj)) return;
+
+	util::pb::verify_limit_offset(obj->message);
+
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::find_fail);
 }
 /* }}} */
 

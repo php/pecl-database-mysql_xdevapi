@@ -26,6 +26,8 @@ namespace google { namespace protobuf { namespace io { class CodedInputStream; }
 
 namespace Mysqlx { namespace Sql { class StmtExecute; } }
 
+namespace Mysqlx { namespace Crud { class Find; } }
+
 namespace mysqlx {
 
 namespace util {
@@ -137,6 +139,10 @@ void add_value_to_array(T value, std::unique_ptr<Array>& pb_array)
 
 Object* add_object_arg(Mysqlx::Sql::StmtExecute& stmt_message);
 Array* add_array_arg(Mysqlx::Sql::StmtExecute& stmt_message);
+
+// -----------------------------------------------------------------------------
+
+void verify_limit_offset(const Mysqlx::Crud::Find& message);
 
 } // namespace pb
 

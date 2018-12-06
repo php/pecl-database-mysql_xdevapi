@@ -465,11 +465,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 /* {{{ proto mixed mysqlx_table__select::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 {
-	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
-	st_mysqlx_table__select* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table__select::execute");
+
+	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
+	zval* object_zv{nullptr};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__select_class_entry))
@@ -477,35 +476,29 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table__select>(object_zv) };
 
 	RETVAL_FALSE;
 
-	if (object->crud_op && object->table) {
-		if (FALSE == xmysqlnd_crud_table_select__is_initialized(object->crud_op)) {
-			RAISE_EXCEPTION(err_msg_find_fail);
-		} else {
-			xmysqlnd_stmt * stmt = object->table->select(object->crud_op);
-			{
-				if (stmt) {
-					zval stmt_zv;
-					ZVAL_UNDEF(&stmt_zv);
-					mysqlx_new_stmt(&stmt_zv, stmt);
-					if (Z_TYPE(stmt_zv) == IS_NULL) {
-						xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-					}
-					if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-						zval zv;
-						ZVAL_UNDEF(&zv);
-						mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_ROW, &zv);
+	xmysqlnd_crud_table_select_verify_is_initialized(data_object.crud_op);
 
-						ZVAL_COPY(return_value, &zv);
-						zval_dtor(&zv);
-					}
-					zval_ptr_dtor(&stmt_zv);
-				}
-			}
+	xmysqlnd_stmt* stmt{ data_object.table->select(data_object.crud_op) };
+	if (stmt) {
+		zval stmt_zv;
+		ZVAL_UNDEF(&stmt_zv);
+		mysqlx_new_stmt(&stmt_zv, stmt);
+		if (Z_TYPE(stmt_zv) == IS_NULL) {
+			xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 		}
+		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+			zval zv;
+			ZVAL_UNDEF(&zv);
+			mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_ROW, &zv);
+
+			ZVAL_COPY(return_value, &zv);
+			zval_dtor(&zv);
+		}
+		zval_ptr_dtor(&stmt_zv);
 	}
 
 	DBG_VOID_RETURN;

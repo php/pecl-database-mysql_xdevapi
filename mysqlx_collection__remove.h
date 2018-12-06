@@ -33,11 +33,15 @@ namespace devapi {
 class Collection_remove : public util::custom_allocable
 {
 public:
+	Collection_remove() = default;
+	Collection_remove(const Collection_remove& rhs) = delete;
+	Collection_remove& operator=(const Collection_remove& rhs) = delete;
+	~Collection_remove();
+
 	bool init(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
-	~Collection_remove();
 
 public:
 	void sort(
