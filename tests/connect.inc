@@ -283,6 +283,40 @@
 
 	// ----------------------------------------------------------------------
 
+	if (!function_exists('get_sql_modes')) {
+		function get_sql_modes($session) {
+			$res = $session->sql('SELECT @@SESSION.sql_mode')->execute();
+			$sql_modes_str = $res->fetchAll()[0]['@@SESSION.sql_mode'];
+			$sql_modes = explode(',', $sql_modes_str);
+			return $sql_modes;
+		}
+	}
+
+	if (!function_exists('set_sql_modes')) {
+		function set_sql_modes($session, $sql_modes) {
+			$sql_modes_str = implode(',', $sql_modes);
+			$session->sql('SET SESSION sql_mode = \'' . $sql_modes_str . '\'')->execute();
+		}
+	}
+
+	if (!function_exists('disable_sql_mode')) {
+		function disable_sql_mode($session, $sql_mode) {
+			$sql_modes = get_sql_modes($session);
+			$new_sql_modes = array_diff($sql_modes, array($sql_mode));
+			set_sql_modes($session, $new_sql_modes);
+		}
+	}
+
+	if (!function_exists('enable_sql_mode')) {
+		function enable_sql_mode($session, $sql_mode) {
+			$sql_modes = get_sql_modes($session);
+			array_push($sql_modes, $sql_mode);
+			set_sql_modes($session, $sql_modes);
+		}
+	}
+
+	// ----------------------------------------------------------------------
+
 	/*
 		Used to get backtrace in easy to read form (filename / line number)
 	*/
