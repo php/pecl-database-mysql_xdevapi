@@ -54,15 +54,16 @@ mysqlx table delete/limit/orderBy
 	expect_eq($res[1]['name'],'BRomy');
 	expect_eq($res[1]['age'],17);
 
-	$session->sql("insert into $db.test_table values ('Zillon', 29)")->execute();
-	$session->sql("insert into $db.test_table values ('Zillon', 21)")->execute();
-	$session->sql("insert into $db.test_table values ('Zillon', 34)")->execute();
+	$session->sql("insert into $db.test_table values ('Zillon', 29, 'mechanic')")->execute();
+	$session->sql("insert into $db.test_table values ('Zillon', 21, 'player')")->execute();
+	$session->sql("insert into $db.test_table values ('Zillon', 34, 'pilot')")->execute();
 
 	$table->delete()->orderby(['name desc','age desc'])->limit(2)->execute();
-	$res = $table->select('name','age')->where('name = \'Zillon\'')->execute()->fetchAll();
+	$res = $table->select('name','age','job')->where('name = \'Zillon\'')->execute()->fetchAll();
 	expect_eq(count($res), 1);
 	expect_eq($res[0]['name'],'Zillon');
 	expect_eq($res[0]['age'],21);
+	expect_eq($res[0]['job'],'player');
 
 	verify_expectations();
 	print "done!\n";

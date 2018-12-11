@@ -117,7 +117,7 @@
 			if ($session == null) $session = mysql_xdevapi\getSession($connection_uri);
 			$session->sql("create database $db")->execute();
 			$schema = $session->getSchema($db);
-			$session->sql("create table $db.$test_table_name(name varchar(1024), age int)")->execute();
+			$session->sql("create table $db.$test_table_name(name varchar(1024), age int, job varchar(1024))")->execute();
 			$schema->createCollection($test_collection_name);
 			return $session;
 		}
@@ -145,18 +145,18 @@
 			global $db;
 			global $test_table_name;
 			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->sql("insert into $db.$test_table_name values ('Mamie', 11)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Eulalia', 11)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Polly', 12)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Rufus', 12)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Cassidy', 13)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Olympia', 14)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Lev', 14)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Tierney', 15)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Octavia', 15)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Vesper', 16)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Caspian', 17)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Romy', 17)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 11, 'hostess')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Eulalia', 11, 'teacher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 12, 'tailor')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Rufus', 12, 'butcher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 13, 'student')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Olympia', 14, 'teacher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Lev', 14, 'builder')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 15, 'driver')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Octavia', 15, 'cook')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Vesper', 16, 'builder')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Caspian', 17, 'tailor')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Romy', 17, 'teacher')")->execute();
 		}
 	}
 
@@ -169,22 +169,22 @@
 			global $db;
 			global $test_table_name;
 			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->sql("insert into $db.$test_table_name values ('Mamie', 29)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Mamie', 21)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Polly', 34)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Polly', 27)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Cassidy', 33)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Cassidy', 34)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Cassidy', 20)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Tierney', 46)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Tierney', 34)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Tierney', 25)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('Tierney', 39)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('ARomy', 17)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('BRomy', 17)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('CRomy', 17)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('DRomy', 17)")->execute();
-			$session->sql("insert into $db.$test_table_name values ('ERomy', 17)")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 29, 'hostess')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 21, 'teacher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 34, 'cook')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 27, 'tailor')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 33, 'cook')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 34, 'singer')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 20, 'cook')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 46, 'plunger')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 34, 'driver')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 25, 'plunger')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 39, 'driver')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('ARomy', 17, 'actor')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('BRomy', 17, 'driver')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('CRomy', 17, 'seller')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('DRomy', 17, 'butcher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('ERomy', 17, 'builder')")->execute();
 		}
 	}
 
