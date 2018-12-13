@@ -46,6 +46,18 @@
 
 	// ----------------------------------------------------------------------
 
+	if (!function_exists('is_odd')) {
+		function is_odd($value) {
+			return ($value & 1) == 1;
+		}
+	}
+
+	if (!function_exists('is_even')) {
+		function is_even($value) {
+			return !is_odd($value);
+		}
+	}
+
 	if (!function_exists('is_in_range')) {
 		function is_in_range($value, $min, $max) {
 			return ($min <= $value) && ($value <= $max);
