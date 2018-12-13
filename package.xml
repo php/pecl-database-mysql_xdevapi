@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2018-10-05</date>
+	<date>2018-12-13</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.13</release>
+		<release>8.0.14</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,14 +61,21 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#11956: Implement connection pooling for xprotocol
-		WL#12189: Implement connect timeout
-		WL#12428: Adding support for chained adds
-		WL#12435: Returning the proper values
-		WL#12280: connection error handling - throw an exception
-		WL#11851: enable treat warning as error
-		WL#11853: check available boost version
-		WL#12276: Expose metadata about source and binaries in unified way
+		WL#12593: DevAPI: Handling of Default Schema
+		WL#12457: Be prepared for initial notice on connection
+		WL#12291: automagically resolve path to preferred version of boost on pb2
+		orabug #28803092 the offset() method requires limit()
+		orabug #28802524 always use sql()->execute() instead of executeSql()
+		orabug #27441854 fetchAll should return an empty array when the result is empty, not (bool)false
+		orabug #28804413 containers methods
+		orabug #28802453 TableDelete: offset does not seem useful
+		orabug #29011588 execute more than once for crud ops with bind causes crash at releasing
+		orabug #28605347 CollectionFind::offset() without limit() error is unclear
+		orabug #28803201 FieldMetadata and ColumnResult are returning different information about columns
+		orabug #28804447 remove client functions
+		orabug #28802551 Collection::createIndex() create an index on multiple fields
+		orabug #28804461 ensure groupBy() functionality
+		orabug #28838435 PHPT tests - make checking results more precise
 	</notes>
  <contents>
   <dir name="/">
@@ -217,6 +224,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="collection.phpt" role="test" />
     <file name="collection_find.phpt" role="test" />
     <file name="collection_find_no_only_full_group_by.phpt" role="test" />
+    <file name="collection_group_by.phpt" role="test" />
+    <file name="collection_limit_offset.phpt" role="test" />
     <file name="collection_modify_array_delete.phpt" role="test" />
     <file name="collection_modify_sortreplacemerge.phpt" role="test" />
     <file name="collection_modifysetunset.phpt" role="test" />
@@ -250,6 +259,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="table.phpt" role="test" />
     <file name="table_delete_limit_order_by.phpt" role="test" />
     <file name="table_delete_where.phpt" role="test" />
+    <file name="table_group_by.phpt" role="test" />
+    <file name="table_limit_offset.phpt" role="test" />
     <file name="unix_domain_socket.phpt" role="test" />
     <file name="update.phpt" role="test" />
     <file name="warnings.phpt" role="test" />
@@ -310,6 +321,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="extra.phpt" role="test" />
      <file name="fail.phpt" role="test" />
      <file name="index_utils.inc" role="test" />
+     <file name="multi.phpt" role="test" />
     </dir>
     <dir name="row_locking">
      <file name="collection_misc.phpt" role="test" />
@@ -415,12 +427,23 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
       <file name="tab_without_shared_shared_worker.php" role="test" />
      </dir>
     </dir>
+    <dir name="schema">
+     <file name="common_default_schema.phpt" role="test" />
+     <file name="empty_default_schema.phpt" role="test" />
+     <file name="get_default_schema.phpt" role="test" />
+     <file name="get_empty_default_schema.phpt" role="test" />
+     <file name="incorrect_default_schema.phpt" role="test" />
+     <file name="schema_utils.inc" role="test" />
+    </dir>
     <dir name="session">
      <file name="from_collection.phpt" role="test" />
      <file name="from_schema.phpt" role="test" />
      <file name="from_table.phpt" role="test" />
      <file name="multiple_close.phpt" role="test" />
      <file name="session_utils.inc" role="test" />
+     <file name="simple_session_open.phpt" role="test" />
+     <file name="simple_session_open_close.phpt" role="test" />
+     <file name="simple_session_open_verify_close.phpt" role="test" />
     </dir>
     <dir name="single_doc_ops">
      <file name="add_or_replace_one.phpt" role="test" />
@@ -623,10 +646,12 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="mysqlx.proto" role="src" />
      <file name="mysqlx_connection.proto" role="src" />
      <file name="mysqlx_crud.proto" role="src" />
+     <file name="mysqlx_cursor.proto" role="src" />
      <file name="mysqlx_datatypes.proto" role="src" />
      <file name="mysqlx_expect.proto" role="src" />
      <file name="mysqlx_expr.proto" role="src" />
      <file name="mysqlx_notice.proto" role="src" />
+     <file name="mysqlx_prepare.proto" role="src" />
      <file name="mysqlx_resultset.proto" role="src" />
      <file name="mysqlx_session.proto" role="src" />
      <file name="mysqlx_sql.proto" role="src" />
@@ -653,6 +678,29 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2018-10-05</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.13</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#11956: Implement connection pooling for xprotocol
+			WL#12189: Implement connect timeout
+			WL#12428: Adding support for chained adds
+			WL#12435: Returning the proper values
+			WL#12280: connection error handling - throw an exception
+			WL#11851: enable treat warning as error
+			WL#11853: check available boost version
+			WL#12276: Expose metadata about source and binaries in unified way
+		</notes>
+	</release>
 	<release>
 		<date>2018-06-26</date>
 		<time>20:00:00</time>
