@@ -159,7 +159,7 @@ struct st_xmysqlnd_crud_table_op__insert
 		add_columns(columns_zv,num_of_columns);
 	}
 
-	~st_xmysqlnd_crud_table_op__insert() 
+	~st_xmysqlnd_crud_table_op__insert()
 	{
 		for (auto& bound_value : bound_values) {
 			delete bound_value;
@@ -407,7 +407,7 @@ struct st_xmysqlnd_crud_table_op__delete
 		message.set_data_model(Mysqlx::Crud::TABLE);
 	}
 
-	~st_xmysqlnd_crud_table_op__delete() 
+	~st_xmysqlnd_crud_table_op__delete()
 	{
 		for (auto& bound_value : bound_values) {
 			delete bound_value;
@@ -558,7 +558,7 @@ struct st_xmysqlnd_crud_table_op__update
 		message.set_data_model(Mysqlx::Crud::TABLE);
 	}
 
-	~st_xmysqlnd_crud_table_op__update() 
+	~st_xmysqlnd_crud_table_op__update()
 	{
 		for (auto& bound_value : bound_values) {
 			delete bound_value;
@@ -828,7 +828,7 @@ struct st_xmysqlnd_crud_table_op__select
 		add_columns(columns,num_of_columns);
 	}
 
-	~st_xmysqlnd_crud_table_op__select() 
+	~st_xmysqlnd_crud_table_op__select()
 	{
 		for (auto& bound_value : bound_values) {
 			delete bound_value;
