@@ -26,7 +26,6 @@
 #include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_database_object.h"
 #include "mysqlx_schema_object.h"
-#include "mysqlx_driver.h"
 #include "mysqlx_enum_n_def.h"
 #include "mysqlx_session.h"
 #include "mysqlx_executable.h"
@@ -110,8 +109,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_execution_status_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_expression_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
-	mysqlx_register_driver_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-
 	mysqlx_register_x_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_client_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
@@ -163,6 +160,9 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_data_row_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
+	// extension consts
+	REGISTER_STRING_CONSTANT("MYSQLX_VERSION", PHP_MYSQL_XDEVAPI_VERSION, CONST_CS | CONST_PERSISTENT);
 
 	/* xmysqlnd_real_connect flags */
 	REGISTER_LONG_CONSTANT("MYSQLX_CLIENT_SSL", CLIENT_SSL, CONST_CS | CONST_PERSISTENT);
@@ -265,7 +265,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_x_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
-	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_execution_status_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

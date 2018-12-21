@@ -123,8 +123,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_doc_result.h" role="src" />
    <file name="mysqlx_doc_result_iterator.cc" role="src" />
    <file name="mysqlx_doc_result_iterator.h" role="src" />
-   <file name="mysqlx_driver.cc" role="src" />
-   <file name="mysqlx_driver.h" role="src" />
    <file name="mysqlx_enum_n_def.h" role="src" />
    <file name="mysqlx_exception.cc" role="src" />
    <file name="mysqlx_exception.h" role="src" />
