@@ -162,7 +162,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	// extension consts
-	REGISTER_STRING_CONSTANT("MYSQLX_VERSION", PHP_MYSQL_XDEVAPI_VERSION, CONST_CS | CONST_PERSISTENT);
+	REGISTER_STRING_CONSTANT("MYSQLX_VERSION", const_cast<char*>(PHP_MYSQL_XDEVAPI_VERSION), CONST_CS | CONST_PERSISTENT);
 
 	/* xmysqlnd_real_connect flags */
 	REGISTER_LONG_CONSTANT("MYSQLX_CLIENT_SSL", CLIENT_SSL, CONST_CS | CONST_PERSISTENT);
