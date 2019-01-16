@@ -27,6 +27,8 @@
   &reftitle.returnvalues;
   <para>
    A numerical array of results, with each row as an array.
+   In case there aren't any rows an empty array will be
+   returned.
   </para>
  </refsect1>
 
@@ -50,6 +52,7 @@ $table  = $schema->getTable("names");
 $row = $table->select('name', 'age')->execute()->fetchAll();
 
 print_r($row);
+?>
 ]]>
    </programlisting>
    &example.outputs.similar;
