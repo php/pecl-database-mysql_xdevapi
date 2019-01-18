@@ -28,6 +28,8 @@
   <para>
    An array with all results from the query; each result is
    an associative array.
+   In case there aren't any results an empty array will be
+   returned.
   </para>
  </refsect1>
 
