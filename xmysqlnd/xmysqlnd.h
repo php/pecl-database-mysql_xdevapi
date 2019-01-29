@@ -19,7 +19,7 @@
 #define XMYSQLND_H
 
 
-#define PHP_XMYSQLND_VERSION "mysql_xdevapi 8.0.14"
+#define PHP_XMYSQLND_VERSION "mysql_xdevapi 8.0.15"
 #define XMYSQLND_VERSION_ID 10000
 
 #if PHP_DEBUG
