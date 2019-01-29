@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2018-12-13</date>
+	<date>2019-01-29</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.14</release>
+		<release>8.0.15</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,21 +61,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#12593: DevAPI: Handling of Default Schema
-		WL#12457: Be prepared for initial notice on connection
-		WL#12291: automagically resolve path to preferred version of boost on pb2
-		orabug #28803092 the offset() method requires limit()
-		orabug #28802524 always use sql()->execute() instead of executeSql()
-		orabug #27441854 fetchAll should return an empty array when the result is empty, not (bool)false
-		orabug #28804413 containers methods
-		orabug #28802453 TableDelete: offset does not seem useful
-		orabug #29011588 execute more than once for crud ops with bind causes crash at releasing
-		orabug #28605347 CollectionFind::offset() without limit() error is unclear
-		orabug #28803201 FieldMetadata and ColumnResult are returning different information about columns
-		orabug #28804447 remove client functions
-		orabug #28802551 Collection::createIndex() create an index on multiple fields
-		orabug #28804461 ensure groupBy() functionality
-		orabug #28838435 PHPT tests - make checking results more precise
 	</notes>
  <contents>
   <dir name="/">
@@ -676,6 +661,36 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2018-12-13</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.14</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#12593: DevAPI: Handling of Default Schema
+			WL#12457: Be prepared for initial notice on connection
+			WL#12291: automagically resolve path to preferred version of boost on pb2
+			orabug #28803092 the offset() method requires limit()
+			orabug #28802524 always use sql()->execute() instead of executeSql()
+			orabug #27441854 fetchAll should return an empty array when the result is empty, not (bool)false
+			orabug #28804413 containers methods
+			orabug #28802453 TableDelete: offset does not seem useful
+			orabug #29011588 execute more than once for crud ops with bind causes crash at releasing
+			orabug #28605347 CollectionFind::offset() without limit() error is unclear
+			orabug #28803201 FieldMetadata and ColumnResult are returning different information about columns
+			orabug #28804447 remove client functions
+			orabug #28802551 Collection::createIndex() create an index on multiple fields
+			orabug #28804461 ensure groupBy() functionality
+			orabug #28838435 PHPT tests - make checking results more precise
+		</notes>
+	</release>
 	<release>
 		<date>2018-10-05</date>
 		<time>20:00:00</time>
