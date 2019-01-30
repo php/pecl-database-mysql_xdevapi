@@ -61,7 +61,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		align version number
+		This release contains no functional changes and is published to align
+		version number with the MySQL Server 8.0.15 release.
 	</notes>
  <contents>
   <dir name="/">
