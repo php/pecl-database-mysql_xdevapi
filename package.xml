@@ -60,6 +60,9 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 		<api>stable</api>
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
+	<notes>
+		align version number
+	</notes>
  <contents>
   <dir name="/">
    <file name="CREDITS" role="doc" />
