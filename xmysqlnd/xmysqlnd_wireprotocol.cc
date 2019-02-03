@@ -2031,7 +2031,9 @@ xmysqlnd_sess_reset__send_request(st_xmysqlnd_msg__session_reset* msg)
 {
 	size_t bytes_sent;
 	Mysqlx::Session::Reset message;
-	if (msg->keep_open) message.set_keep_open(*msg->keep_open);
+	if (msg->keep_open) {
+		message.set_keep_open(*msg->keep_open);
+	}
 	return xmysqlnd_send_message(
 		COM_SESSION_RESET, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
@@ -2252,7 +2254,7 @@ enum_func_status
 xmysqlnd_con_close__send_request(st_xmysqlnd_msg__connection_close* msg)
 {
 	size_t bytes_sent;
-	Mysqlx::Session::Close message;
+	Mysqlx::Connection::Close message;
 
 	return xmysqlnd_send_message(COM_CONN_CLOSE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
@@ -2385,7 +2387,7 @@ xmysqlnd_expectations_open__get_message(
 	MYSQLND_STATS* stats,
 	MYSQLND_ERROR_INFO* error_info)
 {
-	const st_xmysqlnd_msg__expectations_open ctx
+	st_xmysqlnd_msg__expectations_open ctx
 	{
 		xmysqlnd_expectations_open__send_request,
 		xmysqlnd_expectations_open__read_response,
@@ -2394,7 +2396,11 @@ xmysqlnd_expectations_open__get_message(
 		pfc,
 		stats,
 		error_info,
-		{ nullptr, nullptr } /* on_error */
+		{ nullptr, nullptr }, /* on_error */
+		Mysqlx::Expect::Open_Condition::EXPECT_NO_ERROR,
+		{},
+		Mysqlx::Expect::Open_Condition::EXPECT_OP_SET,
+		st_xmysqlnd_msg__expectations_open::Result::unknown
 	};
 	return ctx;
 }
@@ -2497,7 +2503,7 @@ xmysqlnd_expectations_close__get_message(
 	MYSQLND_STATS* stats,
 	MYSQLND_ERROR_INFO* error_info)
 {
-	const st_xmysqlnd_msg__expectations_close ctx
+	st_xmysqlnd_msg__expectations_close ctx
 	{
 		xmysqlnd_expectations_close__send_request,
 		xmysqlnd_expectations_close__read_response,

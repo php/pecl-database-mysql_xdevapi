@@ -560,7 +560,9 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 		case SESSION_CLOSE_SENT: {
 			const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
 			st_xmysqlnd_msg__session_reset conn_reset_msg{ msg_factory.get__session_reset(&msg_factory) };
-			if (keep_open) conn_reset_msg.keep_open.reset(keep_open);
+			if (keep_open) {
+				conn_reset_msg.keep_open.reset(keep_open);
+			}
 			DBG_INF("Connection reset, sending SESS_RESET");
 			if ((conn_reset_msg.send_request(&conn_reset_msg) != PASS) 
 				|| (conn_reset_msg.read_response(&conn_reset_msg) != PASS)) {
@@ -652,9 +654,6 @@ xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 bool xmysqlnd_session_data::can_keep_session_open() const
 {
 	if (is_keep_session_open_supported) return *is_keep_session_open_supported;
-
-	MYSQLND_VIO* vio{ io.vio };
-	php_stream* net_stream{ vio->data->m.get_stream(vio) };
 
 	const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
 	st_xmysqlnd_msg__expectations_open conn_expectations_open{ msg_factory.get__expectations_open(&msg_factory) };

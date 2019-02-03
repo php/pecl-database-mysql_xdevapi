@@ -433,7 +433,7 @@ struct st_xmysqlnd_msg__expectations_open
 		ok,
 	};
 
-	Result result{ Result::unknown };
+	Result result;
 
 };
 
