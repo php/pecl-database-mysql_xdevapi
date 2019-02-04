@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -40,6 +40,7 @@ protected:
 
   mysqlx::Session* m_session;
   Diagnostic_arena m_da;
+  std::vector<std::string> m_generated_ids;
   bool             m_error;
 
   Session& get_session()
@@ -75,6 +76,11 @@ public:
   const Error& get_error()
   { return m_da.get_error(); }
 
+  void error()
+  {
+    m_error = true;
+  }
+
 
   /*
       Async (cdk::api::Async_op)
@@ -103,6 +109,11 @@ public:
     if (!m_session || has_results() || !m_session->m_executed)
       throw_error("Only available after end of query execute");
     return m_session->m_stmt_stats.last_insert_id;
+  }
+
+  const std::vector<std::string>& generated_ids() const
+  {
+    return m_generated_ids;
   }
 
   virtual void discard();
@@ -228,8 +239,9 @@ private:
     m_session.error(code, severity, sql_state, msg);
   }
 
-  void notice(unsigned int /*type*/, short int /*scope*/, bytes /*payload*/)
-  { //TODO: Finish notice here
+  void notice(unsigned int type, short int scope, bytes payload)
+  {
+    m_session.notice(type, scope, payload);
   }
 
 };

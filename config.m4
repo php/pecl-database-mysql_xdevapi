@@ -142,7 +142,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	xmysqlnd_cdkbase_parser=" \
 		xmysqlnd/cdkbase/core/codec.cc \
 		xmysqlnd/cdkbase/foundation/error.cc \
-		xmysqlnd/cdkbase/foundation/string.cc \
+		xmysqlnd/cdkbase/foundation/stream.cc \
 		xmysqlnd/cdkbase/parser/expr_parser.cc \
 		xmysqlnd/cdkbase/parser/json_parser.cc \
 		xmysqlnd/cdkbase/parser/tokenizer.cc \

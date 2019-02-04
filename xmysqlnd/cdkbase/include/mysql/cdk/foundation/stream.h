@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -183,10 +183,12 @@ protected:
 
   // Async_op interface (trivial implementation)
 
+  // LCOV_EXCL_START
   bool is_completed() const { return true; }
   bool do_cont() { return true; }
   void do_cancel() { THROW("not implemented"); }
   void do_wait() {}
+  // LCOV_EXCL_STOP
 
   const api::Event_info* get_event_info() const { return  NULL; }
 };

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -91,6 +91,23 @@ public:
 
 };
 
+
+class Server_prepare_error
+    : public Error_class<Server_prepare_error>
+{
+public:
+
+  typedef protocol::mysqlx::sql_state_t sql_state_t;
+
+  Server_prepare_error(unsigned num, sql_state_t, const string& desc = string()) throw()
+    : Error_base(NULL, server_error(static_cast<int>(num)), desc)
+  {
+    assert(num < (unsigned)std::numeric_limits<int>::max());
+  }
+
+  virtual ~Server_prepare_error() throw() {}
+
+};
 
 
 }}  // cdk::mysql

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -23,6 +23,20 @@
 #include "cdk/reply.h"
 #include "cdk/cursor.h"
 #include "cdk/codec.h"
+
+/*
+  On Windows, external dependencies can be declared using
+  #pragma comment directive.
+*/
+
+#ifdef _WIN32
+#pragma comment(lib,"ws2_32")
+#if defined(WITH_SSL) && !defined(WITH_SSL_WOLFSSL)
+  #pragma comment(lib,"ssleay32")
+  #pragma comment(lib,"libeay32")
+#endif
+#endif
+
 
 namespace cdk {
 

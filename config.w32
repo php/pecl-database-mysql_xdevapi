@@ -155,7 +155,7 @@ var xmysqlnd_cdkbase_core = [
 
 var xmysqlnd_cdkbase_foundation = [
 	"error.cc",
-	"string.cc"
+	"stream.cc"
 ];
 
 var xmysqlnd_cdkbase_parser = [

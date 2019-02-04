@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -109,7 +109,7 @@ class Format<TYPE_BYTES> : public Format_base
 public:
 
   Format(const Format_info &fi)
-    : Format_base(TYPE_STRING, fi)
+    : Format_base(TYPE_BYTES, fi)
     , m_width(0)
   {
     fi.get_info(*this);
@@ -284,7 +284,7 @@ public:
   {}
 
   /// Return number of bytes required to encode given string.
-  size_t measure(const string&);
+  //size_t measure(const string&);
 
   size_t from_bytes(bytes raw, string& str);
   size_t to_bytes(const string&, bytes);

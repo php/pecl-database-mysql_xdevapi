@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -25,10 +25,12 @@
 
 #include "common.h"
 
-PUSH_SYS_WARNINGS
+PUSH_SYS_WARNINGS_CDK
 #include <type_traits> // std::aligned_storage
 #include <typeinfo>
-POP_SYS_WARNINGS
+#include <new>
+POP_SYS_WARNINGS_CDK
+
 
 /*
   Note: MSVC 14 does not have certain C++11 constructs that are needed
@@ -82,60 +84,72 @@ class variant_base<Size, Align, First, Rest...>
     Rest...
   >  Base;
 
-  bool m_owns;
+  bool m_owns = false;
 
 protected:
 
   using Base::m_storage;
 
+  /*
+    Default ctor. It constructs an instance which does not hold any value.
+  */
 
-  variant_base() : m_owns(false)
-  {}
-
-  variant_base(const First &val)
-    : m_owns(true)
-  {
-    new (&m_storage) First(val);
-  }
-
-  variant_base(First &&val)
-    : m_owns(true)
-  {
-    new (&m_storage) First(std::move(val));
-  }
-
-  template<typename T>
-  variant_base(T &&val)
-    : Base(std::move(val))
-    , m_owns(false)
-  {}
-
-  template<typename T>
-  variant_base(const T &val)
-    : Base(val)
-    , m_owns(false)
-  {}
-
+  variant_base() = default;
 
   // Copy/move semantics
 
   variant_base(const variant_base &other)
-    : Base(other)
+    : Base(static_cast<const Base&>(other))
   {
-    if (!other.m_owns)
-      return;
-    *reinterpret_cast<First*>(&m_storage)
-      = *other.get((First*)nullptr);
+    if (other.m_owns)
+      set(*other.get((First*)nullptr));
   }
 
   variant_base(variant_base &&other)
-    : Base(std::move(other))
+    : Base(static_cast<Base&&>(other))
   {
-    if (!other.m_owns)
-      return;
-    *reinterpret_cast<First*>(&m_storage)
-      = std::move(*other.get((First*)nullptr));
+    if (other.m_owns)
+    {
+      /*
+        Note: Method other.get() returns const First* pointer. Without
+        casting away constness, method set() would be called with argument
+        of type const First&& and would not correctly assign the value.
+        After casting away the constness, the value passed to set() has
+        the expected type First&&.
+      */
+      set(std::move(*const_cast<First*>(other.get((First*)nullptr))));
+    }
+    other.m_owns = false;
   }
+
+
+  /*
+    Construct variant from a value of one of the compatible types.
+
+    The logic is handled by set() method.
+  */
+
+  template<typename T>
+  variant_base(T &&val)
+  {
+    set(std::forward<T>(val));
+  }
+
+  // Copy assignment.
+
+  variant_base& operator=(const variant_base &other)
+  {
+    if (other.m_owns)
+      set(*other.get((First*)nullptr));
+    else
+      Base::operator=(static_cast<const Base&>(other));
+    return *this;
+  }
+
+  /*
+    Method set(), depending on the type of the value, either stores it
+    in this instance or in the base class.
+  */
 
   void set(const First &val)
   {
@@ -143,40 +157,17 @@ protected:
     new (&m_storage) First(val);
   }
 
-  void set(First &&val)
+  void set(First&& val)
   {
     m_owns = true;
     new (&m_storage) First(std::move(val));
   }
 
-  template <
-    typename T,
-    typename std::enable_if<
-      !std::is_same<
-        typename std::remove_reference<T>::type,
-        typename std::remove_reference<First>::type
-      >::value
-    >::type * = nullptr
-  >
-  void set(const T &val)
+  template <typename T>
+  void set(T&& val)
   {
     m_owns = false;
-    Base::set(val);
-  }
-
-  template <
-    typename T,
-    typename std::enable_if<
-      !std::is_same<
-        typename std::remove_reference<T>::type,
-        typename std::remove_reference<First>::type
-      >::value
-    >::type * = nullptr
-  >
-  void set(T &&val)
-  {
-    m_owns = false;
-    Base::set(std::move(val));
+    Base::set(std::forward<T>(val));
   }
 
 
@@ -248,14 +239,46 @@ protected:
   template <class Visitor>
   void visit(Visitor&) const
   {
+    /*
+      Note: This assertion is hit when visit() method is called on
+      a variant object which does not store any data.
+    */
     assert(false);
   }
+
+  void operator=(const variant_base&)
+  {}
+
+#if defined _MSC_VER
+
+  /*
+    The static asserts below are handy for debugging compile-time issues
+    with variant<> template usage. But they work only for MSVC which apparently
+    does not look at methods which are not needed in the final code. Gcc works
+    differently and triggers the asserts even though methods are not actually
+    instantiated. So, for GCC we simply do not include these method definitions
+    so that compilation would fail (with a more criptic error message) if wrong
+    variant usage would require them to exist.
+  */
 
   template<typename T>
   void set(T &&)
   {
-    assert(false);
+    static_assert(false,
+      "Trying to set a variant object to an incompatible type"
+    );
   }
+
+  template<typename T>
+  void operator=(const T&)
+  {
+    static_assert(false,
+      "Trying to set a variant object to an incompatible type"
+    );
+  }
+
+#endif
+
 };
 
 }  // detail
@@ -268,6 +291,14 @@ class variant
   : private detail::variant_base<0,0,Types...>
 {
   typedef detail::variant_base<0,0,Types...> Base;
+
+protected:
+
+  template <typename T>
+  const T* get_ptr() const
+  {
+    return Base::get((const T*)nullptr);
+  }
 
 public:
 
@@ -290,6 +321,12 @@ public:
   variant(T &&val)
     : Base(std::move(val))
   {}
+
+  variant& operator=(const variant &other)
+  {
+    Base::operator=(static_cast<const Base&>(other));
+    return *this;
+  }
 
   template <typename T>
   variant& operator=(T&& val)
@@ -325,6 +362,60 @@ public:
   const T& get() const
   {
     return *Base::get((const T*)nullptr);
+  }
+
+  template <typename T>
+  const T* operator->() const
+  {
+    return get_ptr<T>();
+  }
+};
+
+
+/*
+  Object x of type opt<T> can be either empty or hold value of type T. In
+  the latter case reference to stored object can be obtained with x.get()
+  and stored object's methods can be called via operator->: x->method().
+*/
+
+template < typename Type >
+class opt
+  : private variant<Type>
+{
+  typedef variant<Type> Base;
+
+public:
+
+  opt()
+  {}
+
+  opt(const opt &other)
+    : Base(static_cast<const Base&>(other))
+  {}
+
+  template <typename... T>
+  opt(T... args)
+    : Base(Type(args...))
+  {}
+
+  opt& operator=(const opt &other)
+  {
+    Base::operator=(static_cast<const Base&>(other));
+    return *this;
+  }
+
+  opt& operator=(const Type& val)
+  {
+    Base::operator=(val);
+    return *this;
+  }
+
+  using Base::operator bool;
+  using Base::get;
+
+  const Type* operator->() const
+  {
+    return Base::template get_ptr<Type>();
   }
 };
 

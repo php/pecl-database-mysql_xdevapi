@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -47,7 +47,10 @@ public:
   void get_rows(Row_processor& rp, row_count_t limit)
   { m_impl.get_rows(rp, limit); }
   bool get_row(Row_processor& rp) { return m_impl.get_row(rp); }
-  void close() { m_impl.close(); }
+  void close()
+  {
+    m_impl.close();
+  }
 
   // Meta_data interface
 

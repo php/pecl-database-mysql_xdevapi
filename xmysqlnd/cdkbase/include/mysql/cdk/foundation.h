@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -23,9 +23,9 @@
 #include "foundation/async.h"
 #include "foundation/stream.h"
 #include "foundation/connection_tcpip.h"
-#ifdef WITH_SSL_YASSL
-#include "foundation/connection_yassl.h"
-#endif // WITH_SSL_YASSL
+#ifdef WITH_SSL
+#include "foundation/connection_openssl.h"
+#endif
 #include "foundation/diagnostics.h"
 #include "foundation/codec.h"
 //#include "foundation/socket.h"
@@ -33,11 +33,14 @@
 namespace cdk {
 
   using foundation::char_t;
+  using foundation::invalid_char;
   using foundation::byte;
   using foundation::option_t;
   using foundation::string;
   using foundation::scoped_ptr;
   using foundation::shared_ptr;
+  using foundation::variant;
+  using foundation::opt;
 
   using foundation::bytes;
   using foundation::buffers;

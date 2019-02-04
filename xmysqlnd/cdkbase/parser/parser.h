@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -27,12 +27,12 @@
  4061 = enum constant not explicitly handled by switch() case.
 
  We have a lot of token type constants and we commonly use default:
- clause to catch all otherwise unhandled token types. Thus this
+ clause to catch all otherwise not handled token types. Thus this
  warning must be disabled.
 
  */
 
-DISABLE_WARNING(4061)
+DISABLE_WARNING_CDK(4061)
 
 #endif
 
@@ -44,7 +44,7 @@ DISABLE_WARNING(4061)
 namespace parser {
 
 typedef Tokenizer::iterator  It;
-using cdk::string;
+using std::string;
 using cdk::throw_error;
 
 
@@ -58,19 +58,25 @@ protected:
 
   It  *m_first;
   It  m_last;
+  Token m_last_tok;
 
   const Token* consume_token()
   {
     const Token *t = peek_token();
     if (!t)
       return NULL;
+    m_last_tok = *t;
+    assert(m_first);
     ++(*m_first);
-    return t;
+    return &m_last_tok;
   }
+
+
+  // return null if no more tokens available
 
   const Token* consume_token(Token::Type type)
   {
-    if (!cur_token_type_is(type))
+    if (!tokens_available() || !cur_token_type_is(type))
       return NULL;
     return consume_token();
   }
@@ -88,6 +94,7 @@ protected:
   {
     if (!tokens_available())
       return NULL;
+    assert(m_first);
     return &(**m_first);
   }
 
@@ -159,7 +166,7 @@ inline
 void Token_base::unsupported(const string &what) const
 {
   string msg(what);
-  msg.append(L" not supported yet");
+  msg.append(" not supported yet");
   parse_error(msg);
 }
 
@@ -231,7 +238,7 @@ public:
   void process(PRC &prc) const
   {
     if (!const_cast<Expr_parser*>(this)->parse(prc))
-      parse_error(L"Failed to parse the string");
+      parse_error("Failed to parse the string");
   }
 
   /*
@@ -250,7 +257,7 @@ public:
     error.
 
     Note: this method is implemented in terms of do_parse() which
-    should be overriden by derived classes.
+    should be overridden by derived classes.
   */
 
   bool parse(PRC &prc)
@@ -272,7 +279,7 @@ public:
     move the first iterator.
 
     Note: this method is implemented in terms of do_consume() which
-    can be overriden by derived classes to provide more efficient
+    can be overridden by derived classes to provide more efficient
     implementation.
   */
 
@@ -304,8 +311,8 @@ protected:
   bool m_consumed;
 
   /*
-    Internal method that implements parse() method - to be overriden
-    by derived calss.
+    Internal method that implements parse() method - to be overridden
+    by derived class.
 
     See documentation of parse() for return value specification and
     information how first iterator should be updated.
@@ -315,14 +322,14 @@ protected:
 
   /*
     Internal method that implements consume() method. By default it
-    calls parse() with NULL processor but dervied classes can override
+    calls parse() with NULL processor but derived classes can override
     to provide more efficient implementation.
   */
 
   virtual void do_consume()
   {
     if (!do_parse(NULL))
-      throw Error(cur_pos(), L"Failed to parse the string");
+      throw Error(cur_pos(), "Failed to parse the string");
   }
 };
 
@@ -386,7 +393,7 @@ struct List_parser
         if (first_element)
           return false;
         else
-          parse_error(L"Expected next list element");
+          parse_error("Expected next list element");
       }
 
       if (!consume_token(m_list_sep))
@@ -429,7 +436,7 @@ using cdk::api::Any_processor;
   Any_parser<Base> reports parsed expression to a processor of type
   Any_processor<SPRC>, where SPRC is a processor type for base (scalar)
   values. Normally SPRC is the processor type of the base parser, but
-  a different SPRC type can be specified when instantiationg Any_parser<>
+  a different SPRC type can be specified when instantiating Any_parser<>
   template.
 
   The Base class must define static method for converting processor
@@ -523,11 +530,11 @@ struct Any_parser
         List_parser<Any_parser> list(cur_pos(), end_pos());
         bool ok = list.process_if(prc);
         if (!ok)
-          parse_error(L"Expected array element");
+          parse_error("Expected array element");
       }
 
       if (!consume_token(Token::RSQBRACKET))
-        parse_error(L"Expected ']' to close array");
+        parse_error("Expected ']' to close array");
 
       if (prc)
         prc->list_end();
@@ -609,11 +616,11 @@ struct Any_parser
         LPrc kv_prc(prc);
         bool ok = kv_list.parse(kv_prc);
         if (!ok)
-          parse_error(L"Expected a key-value pair in a document");
+          parse_error("Expected a key-value pair in a document");
       }
 
       if (!consume_token(Token::RCURLY))
-        parse_error(L"Expected '}' closing a document");
+        parse_error("Expected '}' closing a document");
 
       if (prc)
         prc->doc_end();
@@ -655,12 +662,12 @@ struct Any_parser
         m_key = consume_token()->get_text();
 
         if (!consume_token(Token::COLON))
-          parse_error(L"Expected ':' after key name in a document");
+          parse_error("Expected ':' after key name in a document");
 
         Any_parser val_parser(cur_pos(), end_pos());
         bool ok = val_parser.process_if(prc ? prc->key_val(m_key) : NULL);
         if (!ok)
-          parse_error(L"Expected key value after ':' in a document");
+          parse_error("Expected key value after ':' in a document");
 
         return true;
       }

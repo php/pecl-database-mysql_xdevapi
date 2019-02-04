@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -16,6 +16,10 @@
 
 #ifndef CDK_FOUNDATION_CONNECTION_TCPIP_H
 #define CDK_FOUNDATION_CONNECTION_TCPIP_H
+
+// 10 seconds
+#define DEFAULT_CN_TIMEOUT_MS 10000
+#define DEFAULT_CN_TIMEOUT_US 10000*1000
 
 #include "async.h"
 #include "stream.h"
@@ -85,13 +89,34 @@ public:
 };
 
 
-class TCPIP_base
-  : public Connection_class<TCPIP_base>
+class Connect_timeout_error :
+  public Error_class<Connect_timeout_error, Error_timeout>
+{
+  uint64_t m_msec = 0;
+public:
+  Connect_timeout_error(uint64_t msec) :
+    m_msec(msec)
+  {}
+
+  void do_describe(std::ostream &out) const override
+  {
+    out << "Connection attempt to the server was aborted. Timeout of " <<
+      m_msec << " milliseconds was exceeded";
+  }
+};
+
+class Socket_base
+  : public Connection_class<Socket_base>
 {
 public:
 
   class Impl;
   class IO_op;
+  class Options;
+  class Read_op;
+  class Read_some_op;
+  class Write_op;
+  class Write_some_op;
 
   // Connection interface
 
@@ -116,7 +141,7 @@ protected:
   virtual Impl& get_base_impl() =0;
   const Impl& get_base_impl() const
   {
-    return const_cast<TCPIP_base*>(this)->get_base_impl();
+    return const_cast<Socket_base*>(this)->get_base_impl();
   }
 
   friend class IO_op;
@@ -125,31 +150,80 @@ protected:
 };
 
 
+class Socket_base::Options
+{
+  private:
+
+    // By default the timeout is 10 seconds
+    uint64_t m_timeout_usec = DEFAULT_CN_TIMEOUT_US;
+
+  public:
+
+    Options()
+    {}
+
+    Options(uint64_t timeout_usec) : m_timeout_usec(timeout_usec)
+    {}
+
+    uint64_t get_connection_timeout() const
+    { return m_timeout_usec; }
+
+    void set_connection_timeout(uint64_t timeout_usec)
+    {
+      m_timeout_usec = timeout_usec;
+    }
+};
+
 class TCPIP
-  : public TCPIP_base
+  : public Socket_base
   , opaque_impl<TCPIP>
 {
 public:
-  class Read_op;
-  class Read_some_op;
-  class Write_op;
-  class Write_some_op;
 
-  TCPIP(const std::string& host, unsigned short port);
+  TCPIP(const std::string& host, unsigned short port,
+        const Options& opts = Options());
+
+  bool is_secure() const
+  {
+    return false;
+  }
 
 private:
 
-  TCPIP_base::Impl& get_base_impl();
+  Socket_base::Impl& get_base_impl();
 };
 
 
-class TCPIP_base::IO_op : public Base::IO_op
+#ifndef _WIN32
+class Unix_socket
+  : public Socket_base
+  , opaque_impl<Unix_socket>
+{
+public:
+
+  Unix_socket(const std::string& path, const Options& opts);
+
+  bool is_secure() const
+  {
+    return true;
+  }
+
+private:
+
+  Socket_base::Impl& get_base_impl();
+};
+#endif //_WIN32
+
+
+// Socket_base
+
+class Socket_base::IO_op : public Base::IO_op
 {
 protected:
 
-  typedef TCPIP_base::Impl Impl;
+  typedef Socket_base::Impl Impl;
 
-  IO_op(TCPIP_base &str, const buffers &bufs, time_t deadline =0)
+  IO_op(Socket_base &str, const buffers &bufs, time_t deadline =0)
     :  Base::IO_op(str, bufs, deadline)
   {}
 
@@ -165,10 +239,10 @@ protected:
 };
 
 
-class TCPIP::Read_op : public IO_op
+class Socket_base::Read_op : public IO_op
 {
 public:
-  Read_op(TCPIP &conn, const buffers &bufs, time_t deadline = 0);
+  Read_op(Socket_base &conn, const buffers &bufs, time_t deadline = 0);
 
   virtual bool do_cont();
   virtual void do_wait();
@@ -179,10 +253,10 @@ private:
 };
 
 
-class TCPIP::Read_some_op : public IO_op
+class Socket_base::Read_some_op : public IO_op
 {
 public:
-  Read_some_op(TCPIP &conn, const buffers &bufs, time_t deadline = 0);
+  Read_some_op(Socket_base &conn, const buffers &bufs, time_t deadline = 0);
 
   virtual bool do_cont();
   virtual void do_wait();
@@ -192,10 +266,10 @@ private:
 };
 
 
-class TCPIP::Write_op : public IO_op
+class Socket_base::Write_op : public IO_op
 {
 public:
-  Write_op(TCPIP &conn, const buffers &bufs, time_t deadline = 0);
+  Write_op(Socket_base &conn, const buffers &bufs, time_t deadline = 0);
 
   virtual bool do_cont();
   virtual void do_wait();
@@ -206,10 +280,10 @@ private:
 };
 
 
-class TCPIP::Write_some_op : public IO_op
+class Socket_base::Write_some_op : public IO_op
 {
 public:
-  Write_some_op(TCPIP &conn, const buffers &bufs, time_t deadline = 0);
+  Write_some_op(Socket_base &conn, const buffers &bufs, time_t deadline = 0);
 
   virtual bool do_cont();
   virtual void do_wait();

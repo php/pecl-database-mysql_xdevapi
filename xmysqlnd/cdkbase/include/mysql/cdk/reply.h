@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -57,6 +57,8 @@ public:
   void skip_result() { m_impl.skip_result(); }
   row_count_t affected_rows() { return m_impl.affected_rows(); }
   row_count_t last_insert_id() { return m_impl.last_insert_id(); }
+  const std::vector<std::string>& generated_ids() const
+  { return m_impl.generated_ids(); }
   void discard() { m_impl.discard(); }
 
   // Diagnostics interface

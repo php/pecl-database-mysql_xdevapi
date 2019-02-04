@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -21,22 +21,23 @@
 
 #include <mysql/cdk/foundation/error.h>
 
-PUSH_SYS_WARNINGS
+PUSH_SYS_WARNINGS_CDK
 #include <stdexcept>
 #include <sstream>
-POP_SYS_WARNINGS
+POP_SYS_WARNINGS_CDK
 
 
 namespace cdk {
 namespace foundation {
 
+using std::string;
 
 /*
   Default prefix added to error description in the string returned by
   what().
 */
 
-const string Error::m_default_prefix = L"CDK Error: ";
+const string Error::m_default_prefix = "CDK Error: ";
 
 
 void Error::description_materialize() const

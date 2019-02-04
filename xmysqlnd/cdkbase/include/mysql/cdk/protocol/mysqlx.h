@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -71,7 +71,13 @@ enum ClientMessages_Type {
   ClientMessages_Type_EXPECT_CLOSE = 25,
   ClientMessages_Type_CRUD_CREATE_VIEW = 30,
   ClientMessages_Type_CRUD_MODIFY_VIEW = 31,
-  ClientMessages_Type_CRUD_DROP_VIEW = 32
+  ClientMessages_Type_CRUD_DROP_VIEW = 32,
+  ClientMessages_Type_PREPARE_PREPARE = 40,
+  ClientMessages_Type_PREPARE_EXECUTE = 41,
+  ClientMessages_Type_PREPARE_DEALLOCATE = 42,
+  ClientMessages_Type_CURSOR_OPEN = 43,
+  ClientMessages_Type_CURSOR_CLOSE = 44,
+  ClientMessages_Type_CURSOR_FETCH = 45
 };
 
 enum ServerMessages_Type {
@@ -145,6 +151,12 @@ enum ServerMessages_Type {
     MSG_CLIENT(X, Mysqlx::Crud::CreateView, CreateView, CRUD_CREATE_VIEW) \
     MSG_CLIENT(X, Mysqlx::Crud::ModifyView, ModifyView, CRUD_MODIFY_VIEW) \
     MSG_CLIENT(X, Mysqlx::Crud::DropView, DropView, CRUD_DROP_VIEW) \
+    MSG_CLIENT(X, Mysqlx::Prepare::Prepare, PreparePrepare, PREPARE_PREPARE)\
+    MSG_CLIENT(X, Mysqlx::Prepare::Execute, PrepareExecute, PREPARE_EXECUTE)\
+    MSG_CLIENT(X, Mysqlx::Prepare::Deallocate, PrepareDealocate, PREPARE_DEALLOCATE)\
+    MSG_CLIENT(X, Mysqlx::Cursor::Open, CursorOpen, CURSOR_OPEN)\
+    MSG_CLIENT(X, Mysqlx::Cursor::Close, CursorClose, CURSOR_CLOSE)\
+    MSG_CLIENT(X, Mysqlx::Cursor::Fetch, CursorFetch, CURSOR_FETCH)\
 \
     MSG_SERVER(X, Mysqlx::Ok, \
                Ok, OK) \
@@ -311,7 +323,6 @@ struct notice_scope
 };
 
 
-
 /*
   A class to store SQL state values.
 */
@@ -407,6 +418,7 @@ typedef cdk::api::Sort_direction Sort_direction;
 typedef cdk::api::Projection<Expression> Projection;
 typedef cdk::api::Columns Columns;
 typedef cdk::api::Lock_mode::value Lock_mode_value;
+typedef cdk::api::Lock_contention::value Lock_contention_value;
 
 typedef cdk::api::View_options  View_options;
 
@@ -434,7 +446,7 @@ struct Protocol_fields
     Enum values will be used as binary flags,
     so they must be as 2^N
   */
-  enum value { ROW_LOCKING = 1 , UPSERT = 2 , MERGE_PATCH = 4};
+  enum value { ROW_LOCKING = 1 , UPSERT = 2, PREPARED_STATEMENTS = 4 };
 };
 
 }  // api namespace
@@ -471,11 +483,13 @@ public:
   typedef api::Projection  Projection;
   typedef api::Expr_list   Expr_list;
   typedef api::Lock_mode_value Lock_mode_value;
+  typedef api::Lock_contention_value Lock_contention_value;
 
   virtual const Projection* project() const = 0;
   virtual const Expr_list*  group_by() const = 0;
   virtual const Expression* having() const = 0;
   virtual Lock_mode_value locking() const = 0;
+  virtual Lock_contention_value contention() const = 0;
 };
 
 
@@ -498,11 +512,15 @@ public:
 
   template <class C> Protocol(C &conn);
 
+  void start_Pipeline();
+  Op&  snd_Pipeline();
+  void clear_Pipeline();
+
   Op& snd_CapabilitiesSet(const api::Any::Document& caps);
   Op& snd_AuthenticateStart(const char* mechanism, bytes data, bytes response);
   Op& snd_AuthenticateContinue(bytes data);
+  Op& snd_SessionReset();
   Op& snd_Close();
-
 
   /**
     Send protocol command which executes a statement.
@@ -512,12 +530,13 @@ public:
     statements and commands in "admin" namespace for other operations
     and queries.
 
+    @param stmt_id specifies id to be used for prepared statments.
     @param ns   namespace used to interpret the statement
     @param stmt the statement to be eecuted
     @param args optional parameters of the statement
   */
 
-  Op& snd_StmtExecute(const char *ns, const string &stmt,
+  Op& snd_StmtExecute(uint32_t stmt_id, const char *ns, const string &stmt,
                       const api::Any_list *args);
 
 
@@ -530,6 +549,8 @@ public:
 
     @param dm   determines whether this command fetches rows or documents
 
+    @param stmt_id specifies id to be used for prepared statments.
+
     @param spec  specifies source of the data, criteria selecting
       rows/documents to be returned, optional projection and other parameters
       of the commnad (@see Find_spec)
@@ -538,15 +559,17 @@ public:
       this argument map provides values of these parameters
   */
 
-  Op& snd_Find(Data_model dm, const Find_spec &spec,
-               const api::Args_map *args = NULL);
+  Op& snd_Find(Data_model dm, uint32_t stmt_id, const Find_spec &spec,
+               const api::Args_map *args = nullptr);
 
   /**
     Send CRUD Insert command.
 
-    This command inserts rows into a table or documents into a collection
+    This command inserts rows into a table or documents into a collection.
 
     @param dm   determines whether this command inserts rows or documents
+
+    @param stmt_id specifies id to be used for prepared statments.
 
     @param obj  target table or collection
 
@@ -568,10 +591,12 @@ public:
       flag such situation leads to error.
   */
 
-  Op& snd_Insert(Data_model dm, api::Db_obj &obj,
+  Op& snd_Insert(Data_model dm,
+                 uint32_t stmt_id,
+                 api::Db_obj &obj,
                  const api::Columns *columns,
                  Row_source &data,
-                 const api::Args_map *args = NULL,
+                 const api::Args_map *args = nullptr,
                  bool upsert = false);
 
   /**
@@ -581,6 +606,8 @@ public:
     In can work on a subset of rows or document defined by a select criteria.
 
     @param dm   determines whether this command updates rows or documents
+
+    @param stmt_id specifies id to be used for prepared statments.
 
     @param select  defines target table or collection whose data should be
       modified and a subset of rows/documents that is affected by the command
@@ -593,9 +620,11 @@ public:
   */
 
   Op& snd_Update(Data_model dm,
+                 uint32_t stmt_id,
                  const Select_spec &select,
                  Update_spec &update,
-                 const api::Args_map *args = NULL);
+                 const api::Args_map *args = nullptr);
+
 
   /**
     Send CRUD Delete command.
@@ -605,6 +634,8 @@ public:
 
     @param dm   determines whether this command removes rows or documents
 
+    @param stmt_id specifies id to be used for prepared statments.
+
     @param select  defines target table or collection whose data should be
       modified and a subset of rows/documents to be deleted
 
@@ -612,19 +643,49 @@ public:
       selection criteria
   */
 
-  Op& snd_Delete(Data_model dm, const Select_spec &select,
-                 const api::Args_map *args = NULL);
+  Op& snd_Delete(Data_model dm,
+                 uint32_t stmt_id,
+                 const Select_spec &select,
+                 const api::Args_map *args = nullptr);
+
+  /**
+    Send PrepareExecute command.
+
+    We have 2 possibilities here:
+    1. Executing prepared StmtExecute (like SQL) with parameters given as list
+       of values.
+    2. Executing prepared CRUD statement with parameters given by name-value map
+       and with possibility to set limits.
+  */
+
+  Op& snd_PrepareExecute(uint32_t stmt_id,
+                         const api::Limit *limit = nullptr,
+                         const api::Args_map *args = nullptr);
+
+  Op& snd_PrepareExecute(uint32_t stmt_id,
+                         const api::Any_list *args = nullptr);
+
+  /**
+    Send PrepareDeallocate command.
+
+    This command deallocates a previously prepared statment. Prepare is done
+    calling the snd_XXX method with the correspondant stmt_id.
+
+    @param stmt_id prepare id to be deallocated.
+  */
+
+  Op& snd_PrepareDeallocate(uint32_t id);
 
 
   Op& snd_CreateView(Data_model dm, const api::Db_obj &obj,
                      const Find_spec &query, const api::Columns *columns,
                      bool replace = false,
-                     api::View_options* = NULL,
-                     const api::Args_map *args = NULL);
+                     api::View_options* = nullptr,
+                     const api::Args_map *args = nullptr);
   Op& snd_ModifyView(Data_model dm, const api::Db_obj &obj,
                      const Find_spec &query, const api::Columns *columns,
-                     api::View_options* = NULL,
-                     const api::Args_map *args = NULL);
+                     api::View_options* = nullptr,
+                     const api::Args_map *args = nullptr);
   Op& snd_DropView(const api::Db_obj &obj, bool if_exists);
 
   Op& snd_Expect_Open(api::Expectations &exp, bool reset = false);
@@ -756,14 +817,14 @@ class Protocol::Stream::Impl : public Stream
 
 template <class C>
 Protocol::Protocol(C &conn)
-  : foundation::opaque_impl<Protocol>(NULL,
+  : foundation::opaque_impl<Protocol>(nullptr,
       static_cast<Protocol::Stream*>(new Protocol::Stream::Impl<C>(conn)))
 {}
 
 
 template <class C>
 Protocol_server::Protocol_server(C &conn)
-  : foundation::opaque_impl<Protocol_server>(NULL,
+  : foundation::opaque_impl<Protocol_server>(nullptr,
       static_cast<Protocol::Stream*>(new Protocol::Stream::Impl<C>(conn)))
 {}
 
@@ -824,9 +885,13 @@ class Processor_base
 {
 public:
 
+  virtual ~Processor_base(){}
+
   typedef protocol::mysqlx::byte        byte;
   typedef protocol::mysqlx::string      string;
   typedef protocol::mysqlx::msg_type_t  msg_type_t;
+
+  // LCOV_EXCL_START
 
   /*
     Called when message header is received. The type of the message stored
@@ -907,6 +972,8 @@ public:
 
   virtual bool message_end() { return true; }
 
+  // LCOV_EXCL_STOP
+
 protected:
 
   size_t message_begin_internal(msg_type_t type, bool &flag);
@@ -929,7 +996,7 @@ class Error_processor : public Processor_base
 public:
 
   typedef protocol::mysqlx::sql_state_t sql_state_t;
-
+// LCOV_EXCL_START
   virtual void error(unsigned int /*code*/, short int /*severity*/,
                      sql_state_t /*sql_state*/, const string &/*msg*/)
   {}
@@ -938,6 +1005,7 @@ public:
                       short int /*scope*/,
                       bytes /*payload*/)
   {}
+// LCOV_EXCL_STOP
 };
 
 
@@ -953,16 +1021,20 @@ public:
 class Reply_processor : public Error_processor
 {
 public:
+// LCOV_EXCL_START
   virtual void ok(string /*msg*/) {}
+// LCOV_EXCL_STOP
 };
 
 class Stmt_processor : public Error_processor
 {
 public:
+// LCOV_EXCL_START
   virtual void prepare_ok() {}
   virtual void execute_ok() {}
   virtual void cursor_close_ok() {}
   virtual void stmt_close_ok() {}
+// LCOV_EXCL_STOP
 };
 
 class Row_processor : public Error_processor
@@ -972,6 +1044,7 @@ public:
   typedef protocol::mysqlx::row_count_t row_count_t;
   typedef protocol::mysqlx::col_count_t col_count_t;
 
+// LCOV_EXCL_START
   virtual bool row_begin(row_count_t /*row*/) { return true; }
   virtual void row_end(row_count_t /*row*/) {}
 
@@ -980,6 +1053,7 @@ public:
   virtual size_t col_begin(col_count_t /*pos*/, size_t /*data_len*/) { return 0; }
   virtual size_t col_data(col_count_t /*pos*/, bytes /*data*/) { return 0;}
   virtual void col_end(col_count_t /*pos*/, size_t /*data_len*/) {}
+// LCOV_EXCL_STOP
 
   /*
     Note:
@@ -999,6 +1073,7 @@ public:
   typedef protocol::mysqlx::col_count_t     col_count_t;
   typedef protocol::mysqlx::collation_id_t  collation_id_t;
 
+// LCOV_EXCL_START
   virtual void col_count(col_count_t) {}
   virtual void col_type(col_count_t /*pos*/, unsigned short /*type*/) {}
   virtual void col_name(col_count_t /*pos*/,
@@ -1012,6 +1087,7 @@ public:
   virtual void col_decimals(col_count_t /*pos*/, unsigned short /*decimals*/) {}
   virtual void col_content_type(col_count_t /*pos*/, unsigned short /*type*/) {}
   virtual void col_flags(col_count_t /*pos*/, uint32_t /*flags*/) {}
+// LCOV_EXCL_STOP
 
   size_t message_begin(msg_type_t type, bool &flag)
   {
@@ -1039,7 +1115,9 @@ class Result_processor
   , public Row_processor
 {
 public:
+  // LCOV_EXCL_START
   virtual void execute_ok() {}
+  // LCOV_EXCL_STOP
 };
 
 
@@ -1053,12 +1131,15 @@ public:
   enum row_stats_t { ROWS_AFFECTED, ROWS_FOUND, ROWS_MATCHED };
   enum trx_event_t { COMMIT, ROLLBACK };
 
+// LCOV_EXCL_START
   virtual void client_id(unsigned long) {}
   virtual void account_expired() {}
   virtual void current_schema(const string&) {}
   virtual void row_stats(row_stats_t, row_count_t) {}
   virtual void last_insert_id(insert_id_t) {}
   virtual void trx_event(trx_event_t) {}
+  virtual void generated_document_id(const std::string&) {}
+// LCOV_EXCL_STOP
 };
 
 template<>
@@ -1133,7 +1214,7 @@ public:
 class Cmd_processor : public Processor_base
 {
 public:
-  virtual void close() {}
+  virtual void close() {} // GCOV_EXCL_LINE
 };
 
 /*
@@ -1169,7 +1250,7 @@ public:
 
   virtual const string* get_schema() const
   {
-    return (m_schema_set ? &m_schema : NULL);
+    return (m_schema_set ? &m_schema : nullptr);
   };
 };
 
@@ -1232,7 +1313,7 @@ public:
   {
     if(m_offset_set)
       return &m_offset;
-    return NULL;
+    return nullptr;
   };
 };
 
@@ -1266,10 +1347,10 @@ class Columns : public api::Columns
       }
 
       const string *get_name() const
-      { return m_name_set ? &m_name : NULL; }
+      { return m_name_set ? &m_name : nullptr; }
 
       const string *get_alias() const
-      { return m_alias_set ? &m_alias : NULL; }
+      { return m_alias_set ? &m_alias : nullptr; }
   };
 
   std::vector<Columns_data> m_col_list;

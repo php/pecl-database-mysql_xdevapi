@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -157,6 +157,7 @@ struct Traits
   typedef cdk::row_count_t row_count_t;
   typedef cdk::col_count_t col_count_t;
   typedef void transaction_id_t;
+  typedef const string& savepoint_id_t;
 
   typedef cdk::Type_info   Type_info;
   typedef const cdk::Format_info& Format_info;
@@ -514,6 +515,7 @@ typedef cdk::api::Order_by<Expression>       Order_by;
 typedef cdk::api::Sort_direction             Sort_direction;
 typedef cdk::api::Doc_base<Value_processor>  Param_source;
 typedef cdk::api::Lock_mode::value           Lock_mode_value;
+typedef cdk::api::Lock_contention::value     Lock_contention_value;
 
 using   cdk::api::View_security;
 using   cdk::api::View_algorithm;
@@ -654,6 +656,9 @@ struct Safe_prc<Update_processor>
 
   Safe_prc<Expr_prc> array_append(const Doc_path *path)
   { return m_prc ? m_prc->array_append(path) : NULL; }
+
+  Safe_prc<Expr_prc> patch()
+  { return m_prc ? m_prc->patch() : NULL; }
 };
 
 }  // cdk

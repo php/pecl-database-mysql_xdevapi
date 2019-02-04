@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -42,7 +42,6 @@ protected:
   mysqlx::Session      *m_session;
   const mysqlx::string *m_database;
   api::Connection      *m_connection;
-  bool                  m_trans;
 
   typedef Reply::Initializer Reply_init;
 
@@ -69,9 +68,19 @@ public:
   option_t is_valid() { return m_session->is_valid(); }
   option_t check_valid() { return m_session->check_valid(); }
 
+  option_t has_prepared_statements() {
+    return m_session->has_prepared_statements();
+  }
+
+  void set_has_prepared_statements(bool x) {
+    return m_session->set_has_prepared_statements(x);
+  }
+
+  void reset() {
+    m_session->reset();
+  }
+
   void close() {
-    if (m_trans)
-      rollback();
     m_session->close();
     m_connection->close();
   }
@@ -89,9 +98,6 @@ public:
   */
 
   void begin() {
-    if (m_trans)
-      throw_error(cdkerrc::in_transaction, "While starting new transaction");
-    m_trans = true;
     m_session->begin();
   }
 
@@ -104,9 +110,7 @@ public:
   */
 
   void commit() {
-    if (m_trans)
       m_session->commit();
-    m_trans = false;
   }
 
   /*
@@ -117,12 +121,31 @@ public:
     open.
   */
 
-  void rollback() {
-    if (m_trans)
-      m_session->rollback();
-    m_trans = false;
+  void rollback(const string &savepoint = string()) {
+      m_session->rollback(savepoint);
   }
 
+  /*
+    SavePoints are created inside transaction! And later, you can rollback the
+    transaction to a specific SavePoint.
+  */
+
+  void savepoint_set(const string &savepoint)
+  {
+    if (savepoint.empty())
+      throw_error(cdkerrc::bad_savepoint, "Invalid (empty) savepoint name");
+    m_session->savepoint_set(savepoint);
+  }
+
+  /*
+     Simply removes previously added SavePoint. No changes to transaction.
+  */
+  void savepoint_remove(const string &savepoint)
+  {
+    if (savepoint.empty())
+      throw_error(cdkerrc::bad_savepoint, "Invalid (empty) savepoint name");
+    m_session->savepoint_remove(savepoint);
+  }
 
   /*
     Diagnostics
@@ -159,6 +182,10 @@ public:
     A Reply object is then used to examine server's reply to a given
     operation, including retreiving and processing result sets
     if any.
+
+    If stmt_id = 0 the statement is executed directly. Otherwise it is first
+    prepared (under the given id) and then executed. In that case it can be
+    re-executed later using the prepared statement.
   */
 
   // Statements
@@ -170,9 +197,9 @@ public:
     `args` list.
   */
 
-  Reply_init sql(const string &query, Any_list *args =NULL)
+  Reply_init sql(uint32_t stmt_id,const string &query, Any_list *args =nullptr)
   {
-    return m_session->sql(query, args);
+    return m_session->sql(stmt_id, query, args);
   }
 
   /**
@@ -185,7 +212,7 @@ public:
     TODO: Find documentation for supported admin commands.
   */
 
-  Reply_init admin(const char *cmd, Any_list &args)
+  Reply_init admin(const char *cmd, const cdk::Any::Document &args)
   {
     return m_session->admin(cmd, args);
   }
@@ -210,6 +237,7 @@ public:
 
   // CRUD for Collections
   // --------------------
+
 
   /**
     Add documents to a collection.
@@ -243,24 +271,25 @@ public:
     Remove documents from a collection.
 
     Remove documents which match condition given by expression `expr` (all
-    documents if `expr` is NULL). The range of removed documents can be
+    documents if `expr` is nullptr). The range of removed documents can be
     limited by Limit/Order_by specifications.
   */
 
-  Reply_init coll_remove(const api::Object_ref &coll,
-                         const Expression *expr = NULL,
-                         const Order_by *order_by = NULL,
-                         const Limit *lim = NULL,
-                         const Param_source *param = NULL)
+  Reply_init coll_remove(uint32_t stmt_id,
+                         const api::Object_ref &coll,
+                         const Expression *expr = nullptr,
+                         const Order_by *order_by = nullptr,
+                         const Limit *lim = nullptr,
+                         const Param_source *param = nullptr)
   {
-    return m_session->coll_remove(coll, expr, order_by, lim, param);
+    return m_session->coll_remove(stmt_id, coll, expr, order_by, lim, param);
   }
 
   /**
     Find documents in a collection.
 
     Return all documents which match selection criteria given by expression
-    `expr` (all documents if `expr` is NULL). Documents are returned as rows
+    `expr` (all documents if `expr` is nullptr). Documents are returned as rows
     with 2 columns
 
     - column `doc` of type JSON containing the document,
@@ -273,45 +302,50 @@ public:
     document expression `proj`. This document expression describes a document
     in which values of fields are given by expressions that can use fields
     extracted from the source document. This way the source doucment can be
-    transformed into a document with different structure. If `proj` is NULL
+    transformed into a document with different structure. If `proj` is nullptr
     then documents are returned as-is.
   */
 
-  Reply_init coll_find(const api::Object_ref &coll,
-                       const View_spec *view = NULL,
-                       const Expression *expr = NULL,
-                       const Expression::Document *proj = NULL,
-                       const Order_by *order_by = NULL,
-                       const Expr_list *group_by = NULL,
-                       const Expression *having = NULL,
-                       const Limit *lim = NULL,
-                       const Param_source *param = NULL,
-                       const Lock_mode_value lock_mode = Lock_mode_value::NONE
+  Reply_init coll_find(uint32_t stmt_id,
+                       const api::Object_ref &coll,
+                       const View_spec *view = nullptr,
+                       const Expression *expr = nullptr,
+                       const Expression::Document *proj = nullptr,
+                       const Order_by *order_by = nullptr,
+                       const Expr_list *group_by = nullptr,
+                       const Expression *having = nullptr,
+                       const Limit *lim = nullptr,
+                       const Param_source *param = nullptr,
+                       const Lock_mode_value lock_mode = Lock_mode_value::NONE,
+                       const Lock_contention_value lock_contention = Lock_contention_value::DEFAULT
                        )
   {
-    return m_session->coll_find(coll, view, expr, proj, order_by,
-                                group_by, having, lim, param, lock_mode);
+    return m_session->coll_find(stmt_id,coll, view, expr, proj,
+                                order_by,group_by, having, lim, param,
+                                lock_mode, lock_contention);
   }
 
   /**
     Update documents in a collection.
 
     Update documents that match given expression (all documents if `expr` is
-    NULL) according to specification given by `us`. The range of updated
+    nullptr) according to specification given by `us`. The range of updated
     documents can be limited by Limit/Order_by specifications.
 
     @see `Update_processor` for information how to specify updates that should
     be applied to each document in the collection.
   */
 
-  Reply_init coll_update(const api::Object_ref &table,
+  Reply_init coll_update(uint32_t stmt_id,
+                         const api::Object_ref &table,
                          const Expression *expr,
                          const Update_spec &us,
-                         const Order_by *order_by = NULL,
-                         const Limit *lim = NULL,
-                         const Param_source *param = NULL)
+                         const Order_by *order_by = nullptr,
+                         const Limit *lim = nullptr,
+                         const Param_source *param = nullptr)
   {
-    return m_session->coll_update(table, expr, us, order_by, lim, param);
+    return m_session->coll_update(stmt_id,
+                                  table, expr, us, order_by, lim, param);
   }
 
   // Table CRUD
@@ -321,7 +355,7 @@ public:
     Select rows from a table.
 
     Select rows which satisfy criteria given by expression `expr` (or all rows
-    if `expr` is NULL).
+    if `expr` is nullptr).
 
     Returned rows can be transformed as specified by `proj` argument.
     Projection specification is a list of expressions, each possibly with an
@@ -331,19 +365,23 @@ public:
     @see `api::Projection_processor`
   */
 
-  Reply_init table_select(const api::Table_ref &tab,
-                          const View_spec *view = NULL,
-                          const Expression *expr = NULL,
-                          const Projection *proj = NULL,
-                          const Order_by *order_by = NULL,
-                          const Expr_list *group_by = NULL,
-                          const Expression *having = NULL,
-                          const Limit* lim = NULL,
-                          const Param_source *param = NULL,
-                          const Lock_mode_value lock_mode = Lock_mode_value::NONE)
+  Reply_init table_select(uint32_t stmt_id,
+                          const api::Table_ref &tab,
+                          const View_spec *view = nullptr,
+                          const Expression *expr = nullptr,
+                          const Projection *proj = nullptr,
+                          const Order_by *order_by = nullptr,
+                          const Expr_list *group_by = nullptr,
+                          const Expression *having = nullptr,
+                          const Limit* lim = nullptr,
+                          const Param_source *param = nullptr,
+                          const Lock_mode_value lock_mode = Lock_mode_value::NONE,
+                          const Lock_contention_value lock_contention = Lock_contention_value::DEFAULT)
   {
-    return m_session->table_select(tab, view, expr, proj, order_by,
-                                   group_by, having, lim, param, lock_mode);
+    return m_session->table_select(stmt_id,
+                                   tab, view, expr, proj, order_by,
+                                   group_by, having, lim, param,
+                                   lock_mode, lock_contention);
   }
 
   /**
@@ -354,51 +392,57 @@ public:
     expression per one column in the row.
   */
 
-  Reply_init table_insert(const api::Table_ref &tab,
+  Reply_init table_insert(uint32_t stmt_id,
+                          const api::Table_ref &tab,
                           Row_source &rows,
                           const api::Columns *cols,
                           const Param_source *param)
   {
-    return m_session->table_insert(tab, rows, cols, param);
+    return m_session->table_insert(stmt_id,
+                                   tab, rows, cols, param);
   }
 
   /**
     Delete rows from a table.
 
     Delete rows which match condition given by expression `expr`. If `expr`
-    is NULL, deletes all rows in the table. The range of removed rows
+    is nullptr, deletes all rows in the table. The range of removed rows
     can be limited by Limit/Order_by specifications.
   */
 
-  Reply_init table_delete(const api::Table_ref &tab,
+  Reply_init table_delete(uint32_t stmt_id,
+                          const api::Table_ref &tab,
                           const Expression *expr,
                           const Order_by *order_by,
-                          const Limit* lim = NULL,
-                          const Param_source *param = NULL)
+                          const Limit* lim = nullptr,
+                          const Param_source *param = nullptr)
   {
-    return m_session->table_delete(tab, expr, order_by, lim, param);
+    return m_session->table_delete(stmt_id, tab, expr, order_by, lim, param);
   }
 
 
   /**
     Update rows in a table.
 
-    Update rows that match given expression (all rows if `expr` is NULL)
+    Update rows that match given expression (all rows if `expr` is nullptr)
     according to specification given by `us`. The range of updated rows
     can be limited by Limit/Order_by specifications.
+
 
     @see `Update_processor` for information how to specify updates that should
     be applied to each row.
   */
 
-  Reply_init table_update(const api::Table_ref &tab,
+  Reply_init table_update(uint32_t stmt_id,
+                          const api::Table_ref &tab,
                           const Expression *expr,
                           const Update_spec &us,
                           const Order_by *order_by,
-                          const Limit *lim = NULL,
-                          const Param_source *param = NULL)
+                          const Limit *lim = nullptr,
+                          const Param_source *param = nullptr)
   {
-    return m_session->table_update(tab, expr, us, order_by, lim, param);
+    return m_session->table_update(stmt_id,
+                                   tab, expr, us, order_by, lim, param);
   }
 
 
@@ -411,6 +455,28 @@ public:
   }
 
 
+  // Prepared Statments methods
+  // --------------------------
+
+  Reply_init prepared_execute(uint32_t stmt_id,
+                              const Limit* lim = nullptr,
+                              const Param_source *param = nullptr)
+  {
+    return m_session->prepared_execute(stmt_id, lim, param);
+  }
+
+  Reply_init prepared_execute(uint32_t stmt_id,
+                              const cdk::Any_list *list = nullptr)
+  {
+    return m_session->prepared_execute(stmt_id, list);
+  }
+
+  Reply_init prepared_deallocate(uint32_t stmt_id)
+  {
+    return m_session->prepared_deallocate(stmt_id);
+  }
+
+
   // Async_op interface
 
 public:
@@ -419,7 +485,7 @@ public:
 
   /*
     Reports default schema
-    returns NULL if not defined
+    returns nullptr if not defined
   */
   const mysqlx::string *get_default_schema()
   {
