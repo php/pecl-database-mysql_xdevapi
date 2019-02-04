@@ -605,7 +605,7 @@ xmysqlnd_session_data::send_close()
 	case SESSION_NON_AUTHENTICATED:
 	case SESSION_READY: {
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
-		if (state_val == SESSION_READY) {
+		if ((state_val == SESSION_READY) && is_session_properly_supported()) {
 			DBG_INF("Session clean, sending SESS_CLOSE");
 			st_xmysqlnd_msg__session_close session_close_msg = msg_factory.get__session_close(&msg_factory);
 			session_close_msg.send_request(&session_close_msg);
@@ -657,10 +657,10 @@ xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::can_keep_session_open */
-bool xmysqlnd_session_data::can_keep_session_open() const
+/* {{{ xmysqlnd_session_data::is_session_properly_supported */
+bool xmysqlnd_session_data::is_session_properly_supported() const
 {
-	if (is_keep_session_open_supported) return *is_keep_session_open_supported;
+	if (session_properly_supported) return *session_properly_supported;
 
 	const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
 	st_xmysqlnd_msg__expectations_open conn_expectations_open{ msg_factory.get__expectations_open(&msg_factory) };
@@ -675,8 +675,8 @@ bool xmysqlnd_session_data::can_keep_session_open() const
 	conn_expectations_close.send_request(&conn_expectations_close);
 	conn_expectations_close.read_response(&conn_expectations_close);
 
-	is_keep_session_open_supported.reset(conn_expectations_open.result == st_xmysqlnd_msg__expectations_open::Result::ok);
-	return *is_keep_session_open_supported;
+	session_properly_supported.reset(conn_expectations_open.result == st_xmysqlnd_msg__expectations_open::Result::ok);
+	return *session_properly_supported;
 }
 /* }}} */
 
@@ -1830,7 +1830,7 @@ const enum_func_status
 xmysqlnd_session::reset()
 {
 	DBG_ENTER("xmysqlnd_session::reset");
-	bool keep_session_open{ get_data()->can_keep_session_open() };
+	bool keep_session_open{ get_data()->is_session_properly_supported() };
 	enum_func_status ret{ get_data()->send_reset(keep_session_open) };
 	bool need_reauth_after_reset{ !keep_session_open };
 	if ((ret == PASS) && need_reauth_after_reset) {

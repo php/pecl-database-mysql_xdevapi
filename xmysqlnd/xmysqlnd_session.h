@@ -444,7 +444,7 @@ public:
 	bool is_closed() const { return state.get() == SESSION_CLOSED; }
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
-	bool can_keep_session_open() const;
+	bool is_session_properly_supported() const;
 	size_t            get_client_id();
 	void              cleanup();
 public:
@@ -468,7 +468,13 @@ public:
 	/* Operation related */
 	XMYSQLND_SESSION_STATE             state;
 	size_t			                   client_api_capabilities;
-	mutable boost::optional<bool> is_keep_session_open_supported;
+	/*
+		before 8.0.16 session wasn't properly supported:
+		- it wasn't possible to reset session without reauthentication
+		- Session::Close meant Connection::Close
+		more details: WL#12375 WL#12396
+	*/ 
+	mutable boost::optional<bool> session_properly_supported;
 	/* stats */
 	MYSQLND_STATS*                     stats;
 	zend_bool		                   own_stats;
