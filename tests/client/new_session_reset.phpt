@@ -34,7 +34,7 @@ $session1 = $client->getSession();
 assert_session_valid($session1);
 $session_id1 = get_session_id($session1);
 
-const SERVER_SUPPORTING_NEW_SESSION_RESET = 80015;
+const SERVER_SUPPORTING_NEW_SESSION_RESET = 80016;
 $svr_version = $session1->getServerVersion();
 if (SERVER_SUPPORTING_NEW_SESSION_RESET <= $svr_version) {
 	expect_true($session_id0 == $session_id1);
