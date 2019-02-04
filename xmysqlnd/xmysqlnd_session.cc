@@ -605,8 +605,15 @@ xmysqlnd_session_data::send_close()
 	case SESSION_NON_AUTHENTICATED:
 	case SESSION_READY: {
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
-		struct st_xmysqlnd_msg__connection_close conn_close_msg = msg_factory.get__connection_close(&msg_factory);
+		if (state_val == SESSION_READY) {
+			DBG_INF("Session clean, sending SESS_CLOSE");
+			st_xmysqlnd_msg__session_close session_close_msg = msg_factory.get__session_close(&msg_factory);
+			session_close_msg.send_request(&session_close_msg);
+			session_close_msg.read_response(&session_close_msg);
+		}
+
 		DBG_INF("Connection clean, sending CON_CLOSE");
+		st_xmysqlnd_msg__connection_close conn_close_msg = msg_factory.get__connection_close(&msg_factory);
 		conn_close_msg.send_request(&conn_close_msg);
 		conn_close_msg.read_response(&conn_close_msg);
 
