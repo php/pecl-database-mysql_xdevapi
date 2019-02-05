@@ -91,7 +91,8 @@ struct xdevapi_exception : public std::runtime_error
 		authentication_failure,
 		runtime_error,
 		session_closed,
-		offset_without_limit_not_allowed
+		offset_without_limit_not_allowed,
+		session_reset_failure,
 	};
 
 	xdevapi_exception(Code code);

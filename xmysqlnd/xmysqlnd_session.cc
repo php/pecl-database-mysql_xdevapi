@@ -537,7 +537,7 @@ xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
 
 /* {{{ mysqlnd_send_reset */
 enum_func_status
-xmysqlnd_session_data::send_reset()
+xmysqlnd_session_data::send_reset(bool keep_open)
 {
 	DBG_ENTER("mysqlnd_send_reset");
 
@@ -560,11 +560,17 @@ xmysqlnd_session_data::send_reset()
 		case SESSION_CLOSE_SENT: {
 			const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
 			st_xmysqlnd_msg__session_reset conn_reset_msg{ msg_factory.get__session_reset(&msg_factory) };
+			if (keep_open) {
+				conn_reset_msg.keep_open.reset(keep_open);
+			}
 			DBG_INF("Connection reset, sending SESS_RESET");
-			conn_reset_msg.send_request(&conn_reset_msg);
-			conn_reset_msg.read_response(&conn_reset_msg);
+			if ((conn_reset_msg.send_request(&conn_reset_msg) != PASS) 
+				|| (conn_reset_msg.read_response(&conn_reset_msg) != PASS)) {
+				throw util::xdevapi_exception(util::xdevapi_exception::Code::session_reset_failure);
+			}
 
-			state.set(SESSION_NON_AUTHENTICATED);
+			bool session_still_opened{ (state_val == SESSION_READY) && keep_open };
+			state.set(session_still_opened ? SESSION_READY : SESSION_NON_AUTHENTICATED);
 			break;
 		}
 
@@ -599,8 +605,15 @@ xmysqlnd_session_data::send_close()
 	case SESSION_NON_AUTHENTICATED:
 	case SESSION_READY: {
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
-		struct st_xmysqlnd_msg__connection_close conn_close_msg = msg_factory.get__connection_close(&msg_factory);
+		if ((state_val == SESSION_READY) && is_session_properly_supported()) {
+			DBG_INF("Session clean, sending SESS_CLOSE");
+			st_xmysqlnd_msg__session_close session_close_msg = msg_factory.get__session_close(&msg_factory);
+			session_close_msg.send_request(&session_close_msg);
+			session_close_msg.read_response(&session_close_msg);
+		}
+
 		DBG_INF("Connection clean, sending CON_CLOSE");
+		st_xmysqlnd_msg__connection_close conn_close_msg = msg_factory.get__connection_close(&msg_factory);
 		conn_close_msg.send_request(&conn_close_msg);
 		conn_close_msg.read_response(&conn_close_msg);
 
@@ -640,6 +653,30 @@ xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 	client_api_capabilities = flags;
 
 	DBG_RETURN(ret);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_session_data::is_session_properly_supported */
+bool xmysqlnd_session_data::is_session_properly_supported() const
+{
+	if (session_properly_supported) return *session_properly_supported;
+
+	const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+	st_xmysqlnd_msg__expectations_open conn_expectations_open{ msg_factory.get__expectations_open(&msg_factory) };
+	conn_expectations_open.condition_key = Mysqlx::Expect::Open_Condition::EXPECT_FIELD_EXIST;
+	const char* field_keep_session_open{ "6.1" };
+	conn_expectations_open.condition_value = field_keep_session_open;
+	conn_expectations_open.condition_op = Mysqlx::Expect::Open_Condition::EXPECT_OP_SET;
+	conn_expectations_open.send_request(&conn_expectations_open);
+	conn_expectations_open.read_response(&conn_expectations_open);
+
+	st_xmysqlnd_msg__expectations_close conn_expectations_close{ msg_factory.get__expectations_close(&msg_factory) };
+	conn_expectations_close.send_request(&conn_expectations_close);
+	conn_expectations_close.read_response(&conn_expectations_close);
+
+	session_properly_supported.reset(conn_expectations_open.result == st_xmysqlnd_msg__expectations_open::Result::ok);
+	return *session_properly_supported;
 }
 /* }}} */
 
@@ -1793,8 +1830,10 @@ const enum_func_status
 xmysqlnd_session::reset()
 {
 	DBG_ENTER("xmysqlnd_session::reset");
-	enum_func_status ret{ get_data()->send_reset() };
-	if (ret == PASS) {
+	bool keep_session_open{ get_data()->is_session_properly_supported() };
+	enum_func_status ret{ get_data()->send_reset(keep_session_open) };
+	bool need_reauth_after_reset{ !keep_session_open };
+	if ((ret == PASS) && need_reauth_after_reset) {
 		MYSQLND_CSTRING schema{ data->scheme.c_str(), data->scheme.length() };
 		const util::string default_schema{ util::to_string(data->default_schema) };
 		ret = data->authenticate(schema, default_schema, 0, true);
@@ -1802,6 +1841,7 @@ xmysqlnd_session::reset()
 	DBG_RETURN(ret);
 }
 /* }}} */
+
 
 /* {{{ Uuid_format::Uuid_format */
 Uuid_format::Uuid_format() :
@@ -2372,7 +2412,7 @@ xmysqlnd_stmt *
 xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 {
 	xmysqlnd_stmt* stmt{nullptr};
-	DBG_ENTER("xmysqlnd_session_data::create_statement_object");
+	DBG_ENTER("xmysqlnd_session::create_statement_object");
 	stmt = xmysqlnd_stmt_create(session_handle, false, data->object_factory, data->stats, data->error_info);
     DBG_RETURN(stmt);
 }

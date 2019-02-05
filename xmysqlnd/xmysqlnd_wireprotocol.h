@@ -22,7 +22,10 @@
 #include "xmysqlnd/xmysqlnd_protocol_frame_codec.h"
 
 #include "proto_gen/mysqlx.pb.h"
+#include "proto_gen/mysqlx_expect.pb.h"
 #include "proto_gen/mysqlx_notice.pb.h"
+
+#include "util/strings.h"
 
 namespace mysqlx {
 
@@ -365,6 +368,26 @@ struct st_xmysqlnd_msg__session_reset
 	MYSQLND_ERROR_INFO* error_info;
 
 	st_xmysqlnd_on_error_bind on_error;
+
+	boost::optional<bool> keep_open;
+};
+
+struct st_xmysqlnd_msg__session_close
+{
+	enum_func_status (*send_request)(st_xmysqlnd_msg__session_close* msg);
+
+	enum_func_status (*read_response)(st_xmysqlnd_msg__session_close* msg);
+
+	enum_func_status (*init_read)(
+		st_xmysqlnd_msg__session_close* const msg,
+		const st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO* vio;
+	XMYSQLND_PFC* pfc;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
+
+	st_xmysqlnd_on_error_bind on_error;
 };
 
 struct st_xmysqlnd_msg__connection_close
@@ -380,6 +403,53 @@ struct st_xmysqlnd_msg__connection_close
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
+
+	st_xmysqlnd_on_error_bind on_error;
+};
+
+struct st_xmysqlnd_msg__expectations_open
+{
+	enum_func_status (*send_request)(st_xmysqlnd_msg__expectations_open* msg);
+
+	enum_func_status (*read_response)(st_xmysqlnd_msg__expectations_open* msg);
+
+	enum_func_status (*init_read)(st_xmysqlnd_msg__expectations_open* const msg,
+		const st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO* vio;
+	XMYSQLND_PFC* pfc;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
+
+	st_xmysqlnd_on_error_bind on_error;
+
+	Mysqlx::Expect::Open_Condition::Key condition_key;
+	util::string condition_value;
+	Mysqlx::Expect::Open_Condition::ConditionOperation condition_op;
+
+	enum class Result {
+		unknown,
+		error,
+		ok,
+	};
+
+	Result result;
+
+};
+
+struct st_xmysqlnd_msg__expectations_close
+{
+	enum_func_status (*send_request)(st_xmysqlnd_msg__expectations_close* msg);
+
+	enum_func_status (*read_response)(st_xmysqlnd_msg__expectations_close* msg);
+
+	enum_func_status (*init_read)(st_xmysqlnd_msg__expectations_close* const msg,
+		const st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO* vio;
+	XMYSQLND_PFC* pfc;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
 
 	st_xmysqlnd_on_error_bind on_error;
 };
@@ -517,7 +587,10 @@ struct st_xmysqlnd_message_factory
 #endif
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__sql_stmt_execute)(const st_xmysqlnd_message_factory* const factory);
 	st_xmysqlnd_msg__session_reset (*get__session_reset)(const st_xmysqlnd_message_factory* const factory);
+	st_xmysqlnd_msg__session_close (*get__session_close)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const st_xmysqlnd_message_factory* const factory);
+	st_xmysqlnd_msg__expectations_open (*get__expectations_open)(const st_xmysqlnd_message_factory* const factory);
+	st_xmysqlnd_msg__expectations_close (*get__expectations_close)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__collection_add	    (*get__collection_add)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__collection_ud		(*get__collection_ud)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__collection_read)(const st_xmysqlnd_message_factory* const factory);

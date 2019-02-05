@@ -439,11 +439,12 @@ public:
 
 	enum_func_status  set_client_option(enum_xmysqlnd_client_option option, const char * const value);
 
-	enum_func_status  send_reset();
+	enum_func_status  send_reset(bool keep_open);
 	enum_func_status  send_close();
 	bool is_closed() const { return state.get() == SESSION_CLOSED; }
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
+	bool is_session_properly_supported() const;
 	size_t            get_client_id();
 	void              cleanup();
 public:
@@ -467,6 +468,13 @@ public:
 	/* Operation related */
 	XMYSQLND_SESSION_STATE             state;
 	size_t			                   client_api_capabilities;
+	/*
+		before 8.0.16 session wasn't properly supported:
+		- it wasn't possible to reset session without reauthentication
+		- Session::Close meant Connection::Close
+		more details: WL#12375 WL#12396
+	*/ 
+	mutable boost::optional<bool> session_properly_supported;
 	/* stats */
 	MYSQLND_STATS*                     stats;
 	zend_bool		                   own_stats;
@@ -644,7 +652,6 @@ public:
     xmysqlnd_stmt* create_statement_object(XMYSQLND_SESSION session_handle);
 
 	xmysqlnd_schema* create_schema_object(const MYSQLND_CSTRING schema_name);
-
 
     const enum_func_status close(const enum_xmysqlnd_session_close_type close_type);
 	bool is_closed() const { return data->is_closed(); }
