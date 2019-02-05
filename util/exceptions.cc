@@ -96,6 +96,7 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::session_closed, "Session closed."},
 	{ xdevapi_exception::Code::offset_without_limit_not_allowed,
 		"The use of 'offset' without 'limit' is not allowed"},
+	{ xdevapi_exception::Code::session_reset_failure, "Session reset failure."},
 };
 /* }}} */
 
