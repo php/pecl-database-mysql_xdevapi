@@ -1330,15 +1330,6 @@ Expression* Expr_parser_base::parse_atomic(Processor *prc)
     return stored.release();
   }
 
-  /*
-    Here we know that we are in DOCUMENT mode and we are expecting a document
-    path. If parse_schema_ident() called above consumed some tokens, we check
-    if they were not quoted identifiers. Such identifiers are allowed when
-    referring to tables or columns but are invalid in a document path.
-  */
-
-  if (Token::QWORD == types[0] || Token::QWORD == types[1])
-    parse_error("Expected atomic expression");
 
   /*
     Now we treat the identifiers "A.B" parsed by parse_schema_ident() and
