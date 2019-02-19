@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2018 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -228,21 +228,23 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 		case Any_Type_OBJECT: {
 			zval properties;
 			ZVAL_UNDEF(&properties);
-			array_init_size(&properties, any.obj().fld_size());
+			const int fields_count{ any.obj().fld_size() };
+			array_init_size(&properties, fields_count);
 
-			object_init(zv);
-			for (int i{0}; i < any.obj().fld_size(); ++i) {
+			for (int i{0}; i < fields_count; ++i) {
 				zval entry;
 				ZVAL_UNDEF(&entry);
-				any2zval(any.obj().fld(i).value(), &entry);
+				const auto& field{ any.obj().fld(i) };
+				any2zval(field.value(), &entry);
 				if (Z_REFCOUNTED(entry)) {
 					Z_ADDREF(entry);
 				}
-				add_assoc_zval_ex(zv, any.obj().fld(i).key().c_str(), any.obj().fld(i).key().size(), &entry);
-				zend_hash_next_index_insert(Z_ARRVAL_P(zv), &entry);
-				zval_ptr_dtor(zv);
+				add_assoc_zval_ex(&properties, field.key().c_str(), field.key().size(), &entry);
+				zend_hash_next_index_insert(Z_ARRVAL(properties), &entry);
+				zval_ptr_dtor(&entry);
 			}
 
+			object_init(zv);
 			if (!zend_standard_class_def->default_properties_count && !zend_standard_class_def->__set) {
 				Z_OBJ_P(zv)->properties = Z_ARR(properties);
 			} else {
