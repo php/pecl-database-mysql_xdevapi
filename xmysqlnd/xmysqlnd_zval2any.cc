@@ -18,6 +18,7 @@
 #include "php_api.h"
 #include "mysqlnd_api.h"
 #include "xmysqlnd.h"
+#include "xmysqlnd_zval2any.h"
 
 #include "util/string_utils.h"
 
@@ -29,6 +30,27 @@ namespace mysqlx {
 namespace drv {
 
 using namespace Mysqlx::Datatypes;
+
+namespace {
+
+void zval2object(zval* zv, Mysqlx::Datatypes::Any& any)
+{
+	any.set_type(Any_Type_OBJECT);
+	Mysqlx::Datatypes::Object* obj{ any.mutable_obj() };
+	HashTable* properties{ zend_std_get_properties(zv) };
+	zend_string* property_name{nullptr};
+	zval* property_value{nullptr};
+	MYSQLX_HASH_FOREACH_STR_KEY_VAL(properties, property_name, property_value) {
+		if (property_name && property_value) {
+			Mysqlx::Datatypes::Object_ObjectField* field{ obj->add_fld() };
+			field->set_key(ZSTR_VAL(property_name), ZSTR_LEN(property_name));
+			Mysqlx::Datatypes::Any* field_value{ field->mutable_value() };
+			zval2any(property_value, *field_value);
+		}
+	} ZEND_HASH_FOREACH_END();
+}
+
+} // anonymous namespace
 
 /* {{{ zval2any */
 PHP_MYSQL_XDEVAPI_API enum_func_status
@@ -90,7 +112,7 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 		}
 		case IS_OBJECT: {
 			DBG_INF("IS_OBJECT");
-			any.set_type(Any_Type_OBJECT);
+			zval2object(const_cast<zval*>(zv), any);
 			break;
 		}
 		default:
