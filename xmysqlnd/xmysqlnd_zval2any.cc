@@ -267,11 +267,8 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 			}
 
 			object_init(zv);
-			if (!zend_standard_class_def->default_properties_count && !zend_standard_class_def->__set) {
-				Z_OBJ_P(zv)->properties = Z_ARR(properties);
-			} else {
-				zend_merge_properties(zv, Z_ARRVAL(properties));
-			}
+			zend_merge_properties(zv, Z_ARRVAL(properties));
+			zval_ptr_dtor(&properties);
 			break;
 		}
 		case Any_Type_ARRAY:
