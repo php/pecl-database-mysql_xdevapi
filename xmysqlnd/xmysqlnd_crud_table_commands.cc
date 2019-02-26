@@ -32,9 +32,6 @@
 #include "mysqlx_expression.h"
 #include "mysqlx_exception.h"
 
-#include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
-#include "xmysqlnd/crud_parsers/expression_parser.h"
-
 #include "util/exceptions.h"
 #include "util/pb_utils.h"
 
@@ -138,47 +135,7 @@ xmysqlnd_crud_table__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx:
 
 
 /****************************** TABLE.INSERT() *******************************************************/
-struct st_xmysqlnd_crud_table_op__insert
-{
-	Mysqlx::Crud::Insert message;
 
-	std::vector<std::string> column_names;
-	std::vector<zval > rows_zv;
-	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
-
-	st_xmysqlnd_crud_table_op__insert(
-		const MYSQLND_CSTRING & schema,
-		const MYSQLND_CSTRING & object_name,
-		zval * columns_zv,
-		const int num_of_columns)
-	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(Mysqlx::Crud::TABLE);
-
-		add_columns(columns_zv,num_of_columns);
-	}
-
-	~st_xmysqlnd_crud_table_op__insert()
-	{
-		for (auto& bound_value : bound_values) {
-			delete bound_value;
-		}
-	}
-
-	void add_columns(zval * columns_zv, const int num_of_columns);
-	void add_column(zval * column_zv);
-
-	void add_row(zval* row_zv);
-
-	void bind_columns();
-	void bind_column(const std::string& column_name);
-
-	void bind_rows();
-	void bind_row(zval* values_zv, ::Mysqlx::Crud::Insert_TypedRow* row);
-	void bind_row_field(zval* value_zv, ::Mysqlx::Crud::Insert_TypedRow* row);
-
-};
 
 /* {{{ st_xmysqlnd_crud_table_op__insert::add_columns */
 void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
@@ -392,28 +349,6 @@ xmysqlnd_crud_table_insert__is_initialized(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 
 
 /****************************** TABLE.DELETE() *******************************************************/
-struct st_xmysqlnd_crud_table_op__delete
-{
-	Mysqlx::Crud::Delete message;
-
-	std::vector<std::string> placeholders;
-	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
-
-	st_xmysqlnd_crud_table_op__delete(const MYSQLND_CSTRING & schema,
-										   const MYSQLND_CSTRING & object_name)
-	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(Mysqlx::Crud::TABLE);
-	}
-
-	~st_xmysqlnd_crud_table_op__delete()
-	{
-		for (auto& bound_value : bound_values) {
-			delete bound_value;
-		}
-	}
-};
 
 
 /* {{{ xmysqlnd_crud_table_delete__create */
@@ -543,29 +478,6 @@ xmysqlnd_crud_table_delete__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__DELETE 
 
 
 /****************************** TABLE.UPDATE() *******************************************************/
-
-struct st_xmysqlnd_crud_table_op__update
-{
-	Mysqlx::Crud::Update message;
-	std::vector<std::string> placeholders;
-	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
-
-	st_xmysqlnd_crud_table_op__update(const MYSQLND_CSTRING & schema,
-										   const MYSQLND_CSTRING & object_name)
-	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(Mysqlx::Crud::TABLE);
-	}
-
-	~st_xmysqlnd_crud_table_op__update()
-	{
-		for (auto& bound_value : bound_values) {
-			delete bound_value;
-		}
-	}
-};
-
 
 /* {{{ xmysqlnd_crud_table_update__create */
 XMYSQLND_CRUD_TABLE_OP__UPDATE *
@@ -808,36 +720,6 @@ xmysqlnd_crud_table_update__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__UPDATE 
 /* }}} */
 
 /****************************** TABLE.SELECT() *******************************************************/
-
-struct st_xmysqlnd_crud_table_op__select
-{
-	Mysqlx::Crud::Find message;
-	std::vector<std::string> placeholders;
-	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
-
-	st_xmysqlnd_crud_table_op__select(
-		const MYSQLND_CSTRING & schema,
-		const MYSQLND_CSTRING & object_name,
-		zval * columns,
-		const int num_of_columns)
-	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(Mysqlx::Crud::TABLE);
-
-		add_columns(columns,num_of_columns);
-	}
-
-	~st_xmysqlnd_crud_table_op__select()
-	{
-		for (auto& bound_value : bound_values) {
-			delete bound_value;
-		}
-	}
-
-	void add_columns(const zval * columns, const int num_of_columns);
-};
-
 
 /* {{{ st_xmysqlnd_crud_table_op__select::add_columns */
 void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,

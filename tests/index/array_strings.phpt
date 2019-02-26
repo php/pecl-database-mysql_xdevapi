@@ -69,5 +69,7 @@ print "done!\n";
 	require_once(__DIR__."/../connect.inc");
 	clean_test_db();
 ?>
+--XFAIL--
+This test should be fail until the servers team fix the bug #29259501
 --EXPECTF--
 done!%A

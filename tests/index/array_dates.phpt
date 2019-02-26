@@ -16,7 +16,7 @@ function add_world_cup_champion($country, $world_cup_championships) {
 function find_world_cup_champion($world_cup_final_date, $expected_country) {
 	global $coll;
 	$res = $coll->find(":world_cup_final IN $.world_cup_championships")
-		->bind(['world_cup_final' => $world_cup_final_date])
+	    ->bind(['world_cup_final' => $world_cup_final_date])
 		->execute();
 	verify_one_value($res, "country", $expected_country, $world_cup_final_date);
 }
@@ -61,5 +61,7 @@ print "done!\n";
 	require_once(__DIR__."/../connect.inc");
 	clean_test_db();
 ?>
+--XFAIL--
+This test should be fail until the servers team fix the bug #29259501
 --EXPECTF--
 done!%A

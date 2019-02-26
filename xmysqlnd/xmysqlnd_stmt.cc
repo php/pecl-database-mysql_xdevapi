@@ -28,6 +28,11 @@
 #include "xmysqlnd_rowset.h"
 #include "xmysqlnd_crud_collection_commands.h"
 #include "xmysqlnd_wireprotocol.h"
+#include "mysqlx_sql_statement.h"
+#include "mysqlx_object.h"
+#include "mysqlx_sql_statement.h"
+#include "mysqlx_exception.h"
+#include "xmysqlnd_zval2any.h"
 
 namespace mysqlx {
 
@@ -40,7 +45,6 @@ xmysqlnd_stmt::xmysqlnd_stmt(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_fa
 	DBG_ENTER("xmysqlnd_stmt::init");
 	session = cur_session;
 	object_factory = obj_factory;
-
 }
 /* }}} */
 
@@ -818,6 +822,492 @@ xmysqlnd_stmt_free(xmysqlnd_stmt * const stmt, MYSQLND_STATS * stats, MYSQLND_ER
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+
+/* {{{ Prepare_stmt_data::Prepare_stmt_data */
+Prepare_stmt_data::Prepare_stmt_data() :
+	next_ps_id{ DEFAULT_PS_ID },
+    ps_supported{ true }
+{
+
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::get_ps_entry */
+size_t
+Prepare_stmt_data::get_ps_entry( const google::protobuf::Message& msg )
+{
+	const auto serialized_msg = msg.SerializeAsString();
+	size_t idx{ 0 };
+	for( const auto& elem : ps_db )
+	{
+		if( elem.serialized_message == serialized_msg )
+		{
+			return idx;
+		}
+		++idx;
+	}
+	return ps_db.size() + 1;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::get_ps_entry */
+size_t
+Prepare_stmt_data::get_ps_entry( const uint32_t msg_id )
+{
+	size_t idx{ 0 };
+	for( const auto& elem : ps_db )
+	{
+		if( elem.msg_id == msg_id )
+		{
+			return idx;
+		}
+		++idx;
+	}
+	return ps_db.size() + 1;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::set_allocated_type */
+template<>
+void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
+											Mysqlx::Crud::Insert* msg )
+{
+	one_msg->set_allocated_insert( msg );
+	one_msg->set_type( Mysqlx::Prepare::Prepare_OneOfMessage_Type::Prepare_OneOfMessage_Type_INSERT );
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::set_allocated_type */
+template<>
+void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
+											Mysqlx::Crud::Find* msg )
+{
+	one_msg->set_allocated_find( msg );
+	one_msg->set_type( Mysqlx::Prepare::Prepare_OneOfMessage_Type::Prepare_OneOfMessage_Type_FIND );
+
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::set_allocated_type */
+template<>
+void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
+											Mysqlx::Crud::Update* msg )
+{
+	one_msg->set_allocated_update( msg );
+	one_msg->set_type( Mysqlx::Prepare::Prepare_OneOfMessage_Type::Prepare_OneOfMessage_Type_UPDATE );
+
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::set_allocated_type */
+template<>
+void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
+											Mysqlx::Crud::Delete* msg )
+{
+	one_msg->set_allocated_delete_( msg );
+	one_msg->set_type( Mysqlx::Prepare::Prepare_OneOfMessage_Type::Prepare_OneOfMessage_Type_DELETE );
+
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::set_allocated_type */
+template<>
+void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
+                                            Mysqlx::Sql::StmtExecute* msg )
+{
+    one_msg->set_allocated_stmt_execute( msg );
+    one_msg->set_type( Mysqlx::Prepare::Prepare_OneOfMessage_Type::Prepare_OneOfMessage_Type_STMT );
+
+}
+/* }}} */
+
+/* {{{ Prepare_stmt_data::assign_session */
+void
+Prepare_stmt_data::assign_session( XMYSQLND_SESSION session_obj )
+{
+	session = session_obj;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::send_prepare_msg */
+bool
+Prepare_stmt_data::send_prepare_msg( uint32_t message_id )
+{
+	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
+										session->data->stats,
+										session->data->error_info);
+	Mysqlx::Prepare::Prepare prep_msg;
+	size_t                   db_idx = get_ps_entry(message_id);
+	bool                     res{ true };
+	if( db_idx < ps_db.size() ) {
+        ps_deliver_message_code = 0;
+		prep_msg = ps_db[ db_idx ].prepare_msg;
+		st_xmysqlnd_msg__prepare_prepare prepare_prepare = msg_factory.get__prepare_prepare(&msg_factory);
+		enum_func_status request_ret = prepare_prepare.send_prepare_request(&prepare_prepare,
+											get_protobuf_msg(&prep_msg, COM_PREPARE_PREPARE));
+		if( PASS == request_ret ) {
+			drv::xmysqlnd_stmt * stmt = session->create_statement_object(session);
+			stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
+			if( get_prepare_resp( stmt ) ) {
+				ps_db[ db_idx ].delivered_ps = true;
+                if( ps_deliver_message_code != 0 ) {
+                    ps_db.erase( ps_db.begin() + db_idx );
+                    res = false;
+                }
+			} else {
+				res = false;
+			}
+		}
+	} else {
+		res = false;
+	}
+	return res;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::set_ps_server_error */
+void
+Prepare_stmt_data::set_ps_server_error( const uint32_t message_code )
+{
+    ps_deliver_message_code = message_code;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::get_prepare_resp */
+bool
+Prepare_stmt_data::get_prepare_resp( drv::xmysqlnd_stmt * stmt )
+{
+	st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
+										session->data->stats,
+										session->data->error_info);
+	st_xmysqlnd_msg__prepare_prepare prepare_prepare = msg_factory.get__prepare_prepare(&msg_factory);
+	st_xmysqlnd_on_error_bind on_error = {
+		prepare_st_on_error_handler,
+		static_cast<void*>(this)
+	};
+	prepare_prepare.init_read(&prepare_prepare, on_error);
+	prepare_prepare.read_response(&prepare_prepare);
+	return ps_supported;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::add_limit_expr_mutable_arg */
+void Prepare_stmt_data::add_limit_expr_mutable_arg(
+			Mysqlx::Prepare::Execute& execute_msg,
+			const int32_t value
+)
+{
+	Mysqlx::Datatypes::Scalar * scalar;
+	Mysqlx::Datatypes::Any * any;
+
+	scalar = new Mysqlx::Datatypes::Scalar;
+	any = new Mysqlx::Datatypes::Any;
+
+	any->set_type( Mysqlx::Datatypes::Any_Type::Any_Type_SCALAR );
+	scalar->set_type( Mysqlx::Datatypes::Scalar_Type::Scalar_Type_V_SINT );
+	scalar->set_v_signed_int( value );
+	any->set_allocated_scalar(scalar);
+	execute_msg.mutable_args()->AddAllocated(any);
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::send_execute_msg */
+xmysqlnd_stmt *
+Prepare_stmt_data::send_execute_msg(
+			uint32_t message_id
+)
+{
+	size_t db_idx = get_ps_entry( message_id );
+	if( db_idx > ps_db.size() || ps_db[ db_idx ].delivered_ps == false ) {
+		return nullptr;
+	}
+	xmysqlnd_stmt * stmt{ nullptr };
+	Mysqlx::Prepare::Execute execute_msg;
+	execute_msg.set_stmt_id( message_id );
+	auto& ps_entry = ps_db[ db_idx ];
+
+	const Mysqlx::Datatypes::Scalar* null_value{nullptr};
+	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin = ps_entry.bound_values.begin();
+	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end = ps_entry.bound_values.end();
+	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index = std::find(begin, end, null_value);
+	execute_msg.clear_args();
+	if (index == end) {
+		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it = begin;
+		for (; it != end; ++it) {
+            Mysqlx::Datatypes::Any*  any = new Mysqlx::Datatypes::Any;
+            Mysqlx::Datatypes::Scalar* scalar = new Mysqlx::Datatypes::Scalar;
+			scalar->CopyFrom(**it);
+            any->set_type( Mysqlx::Datatypes::Any_Type::Any_Type_SCALAR );
+            any->set_allocated_scalar( scalar );
+            execute_msg.mutable_args()->AddAllocated(any);
+		}
+	}
+
+	if( ps_entry.has_row_count ) {
+		add_limit_expr_mutable_arg( execute_msg, static_cast<int32_t>(ps_entry.row_count) );
+	}
+	if( ps_entry.has_offset ) {
+		add_limit_expr_mutable_arg( execute_msg, static_cast<int32_t>(ps_entry.offset) );
+	}
+
+	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
+										session->data->stats,
+										session->data->error_info);
+	st_xmysqlnd_msg__prepare_execute prepare_execute = msg_factory.get__prepare_execute(&msg_factory);
+	enum_func_status request_ret = prepare_execute.send_execute_request(&prepare_execute,
+										get_protobuf_msg(&execute_msg,COM_PREPARE_EXECUTE));
+	if( PASS == request_ret ) {
+		stmt = session->create_statement_object(session);
+		stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
+	}
+	return stmt;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::bind_values */
+bool Prepare_stmt_data::bind_values(
+			uint32_t message_id,
+			std::vector<Mysqlx::Datatypes::Scalar*> & bound_values
+)
+{
+	size_t db_idx = get_ps_entry( message_id );
+	if( db_idx > ps_db.size() ) {
+		return false;
+	}
+	ps_db[ db_idx ].bound_values = bound_values;
+	return true;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::bind_values */
+bool Prepare_stmt_data::bind_values(
+			uint32_t message_id,
+			zval* params,
+			unsigned int params_allocated
+)
+{
+	enum_func_status ret{PASS};
+	std::vector<Mysqlx::Datatypes::Scalar*> converted_params;
+	for( unsigned int i{0}; i < params_allocated; ++i ) {
+		Mysqlx::Datatypes::Any arg;
+		ret = zval2any(&(params[i]), arg);
+		if( FAIL == ret ) {
+			break;
+		}
+		Mysqlx::Datatypes::Scalar * new_param = new Mysqlx::Datatypes::Scalar;
+		new_param->CopyFrom(arg.scalar());
+		converted_params.push_back( new_param );
+	}
+	return ret == PASS;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::prepare_msg_delivered */
+bool Prepare_stmt_data::prepare_msg_delivered( const uint32_t message_id )
+{
+	size_t db_idx = get_ps_entry( message_id );
+	if( db_idx > ps_db.size() ) {
+		return false;
+	}
+	return ps_db[ db_idx ].delivered_ps;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::set_supported_ps */
+void Prepare_stmt_data::set_supported_ps( bool supported )
+{
+	ps_supported = supported;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::prepare_msg_delivered */
+bool Prepare_stmt_data::is_ps_supported() const
+{
+	return ps_supported;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::is_bind_finalized */
+bool Prepare_stmt_data::is_bind_finalized( const uint32_t message_id )
+{
+	auto idx = get_ps_entry( message_id );
+	if( idx > ps_db.size() ) {
+		return false;
+	}
+	return ps_db[ idx ].is_bind_finalized;
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::set_finalized_bind */
+void Prepare_stmt_data::set_finalized_bind(
+			const uint32_t message_id,
+			const bool finalized
+)
+{
+	const auto idx = get_ps_entry( message_id );
+	if( idx > ps_db.size() ) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error);
+	}
+	ps_db[ idx ].is_bind_finalized = finalized;
+}
+/* }}} */
+
+
+/* {{{ prepare_st_on_error_handler */
+const enum_hnd_func_status prepare_st_on_error_handler(void * context,
+												 const unsigned int code,
+												 const MYSQLND_CSTRING sql_state,
+												 const MYSQLND_CSTRING message)
+{
+	DBG_ENTER("prepare_st_on_error_handler");
+	static const uint32_t unknown_message_code { 1047 };
+	Prepare_stmt_data* const ctx = static_cast< Prepare_stmt_data* >(context);
+    ctx->set_ps_server_error( code );
+	if( code == unknown_message_code ) {
+		DBG_INF_FMT("Disabling support for prepare statement, not supported by server.");
+		ctx->set_supported_ps( false );
+	} else {
+		mysqlx::devapi::mysqlx_new_exception(code, sql_state, message);
+		DBG_RETURN(HND_PASS_RETURN_FAIL);
+	}
+
+	DBG_RETURN(HND_PASS);
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::handle_limit_expr */
+template<>
+void Prepare_stmt_data::handle_limit_expr(
+			Prepare_statement_entry& prepare,
+			Mysqlx::Crud::Insert* msg,
+			uint32_t bound_values_count
+)
+{
+	//Nothing to do here
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::common_handle_limit_expr */
+template< typename MSG_T >
+void common_handle_limit_expr(
+			Prepare_statement_entry& prepare,
+			MSG_T * msg,
+			uint32_t bound_values_count
+)
+{
+	if( msg->has_limit() ) {
+		Mysqlx::Expr::Expr *      row_count_expr;
+		Mysqlx::Expr::Expr *      offset_expr;
+		Mysqlx::Crud::LimitExpr * limit_expr;
+		try{
+			limit_expr = new Mysqlx::Crud::LimitExpr;
+		} catch( std::bad_alloc& /*xa*/ ) {
+			throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error);
+		}
+		if( msg->limit().has_row_count() ) {
+			prepare.row_count = msg->limit().row_count();
+			prepare.has_row_count = true;
+			try{
+				row_count_expr = new Mysqlx::Expr::Expr;
+			} catch( std::bad_alloc& /*xa*/ ) {
+				throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error);
+			}
+			row_count_expr->set_type( Mysqlx::Expr::Expr_Type::Expr_Type_PLACEHOLDER );
+			row_count_expr->set_position( bound_values_count++ );
+			limit_expr->set_allocated_row_count( row_count_expr );
+		}
+		if( msg->limit().has_offset()) {
+			prepare.offset = msg->limit().offset();
+			prepare.has_offset = true;
+			try{
+				offset_expr = new Mysqlx::Expr::Expr;
+			} catch( std::bad_alloc& /*xa*/ ) {
+				throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error);
+			}
+			offset_expr->set_type( Mysqlx::Expr::Expr_Type::Expr_Type_PLACEHOLDER );
+			offset_expr->set_position( bound_values_count );
+			limit_expr->set_allocated_offset( offset_expr );
+		}
+		msg->clear_limit();
+		msg->set_allocated_limit_expr( limit_expr );
+	}
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::handle_limit_expr */
+template<>
+void Prepare_stmt_data::handle_limit_expr(
+			Prepare_statement_entry& prepare,
+			Mysqlx::Crud::Update* msg,
+			uint32_t bound_values_count
+)
+{
+	common_handle_limit_expr( prepare, msg, bound_values_count );
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::handle_limit_expr */
+template<>
+void Prepare_stmt_data::handle_limit_expr(
+			Prepare_statement_entry& prepare,
+			Mysqlx::Crud::Find* msg,
+			uint32_t bound_values_count
+)
+{
+	common_handle_limit_expr( prepare, msg, bound_values_count );
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::handle_limit_expr */
+template<>
+void Prepare_stmt_data::handle_limit_expr(
+			Prepare_statement_entry& prepare,
+			Mysqlx::Crud::Delete* msg,
+			uint32_t bound_values_count
+)
+{
+	common_handle_limit_expr( prepare, msg, bound_values_count );
+}
+/* }}} */
+
+
+/* {{{ Prepare_stmt_data::handle_limit_expr */
+template<>
+void Prepare_stmt_data::handle_limit_expr(
+            Prepare_statement_entry& prepare,
+            Mysqlx::Sql::StmtExecute* msg,
+            uint32_t bound_values_count
+)
+{
+    //Nothing to do here.
+}
+/* }}} */
+
 
 } // namespace drv
 

@@ -19,6 +19,8 @@
 #define XMYSQLND_CRUD_TABLE_COMMANDS_H
 
 #include "xmysqlnd_crud_commands.h"
+#include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
+#include "xmysqlnd/crud_parsers/expression_parser.h"
 
 namespace mysqlx {
 
@@ -99,6 +101,110 @@ enum_func_status xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE * o
 enum_func_status xmysqlnd_stmt_execute__finalize_bind(XMYSQLND_STMT_OP__EXECUTE * obj);
 
 struct st_xmysqlnd_pb_message_shell xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE * obj);
+
+struct st_xmysqlnd_crud_table_op__insert
+{
+	Mysqlx::Crud::Insert message;
+
+	std::vector<std::string> column_names;
+	std::vector<zval > rows_zv;
+	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
+	uint32_t ps_message_id;
+
+	st_xmysqlnd_crud_table_op__insert(
+		const MYSQLND_CSTRING & schema,
+		const MYSQLND_CSTRING & object_name,
+		zval * columns_zv,
+		const int num_of_columns) :
+		ps_message_id{ 0 }
+	{
+		message.mutable_collection()->set_schema(schema.s, schema.l);
+		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.set_data_model(Mysqlx::Crud::TABLE);
+
+		add_columns(columns_zv,num_of_columns);
+	}
+
+	~st_xmysqlnd_crud_table_op__insert() {}
+
+	void add_columns(zval * columns_zv, const int num_of_columns);
+	void add_column(zval * column_zv);
+
+	void add_row(zval* row_zv);
+
+	void bind_columns();
+	void bind_column(const std::string& column_name);
+
+	void bind_rows();
+	void bind_row(zval* values_zv, ::Mysqlx::Crud::Insert_TypedRow* row);
+	void bind_row_field(zval* value_zv, ::Mysqlx::Crud::Insert_TypedRow* row);
+
+};
+
+struct st_xmysqlnd_crud_table_op__select
+{
+	Mysqlx::Crud::Find message;
+	std::vector<std::string> placeholders;
+	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
+	uint32_t ps_message_id;
+
+	st_xmysqlnd_crud_table_op__select(
+		const MYSQLND_CSTRING & schema,
+		const MYSQLND_CSTRING & object_name,
+		zval * columns,
+		const int num_of_columns) :
+		ps_message_id{ 0 }
+	{
+		message.mutable_collection()->set_schema(schema.s, schema.l);
+		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.set_data_model(Mysqlx::Crud::TABLE);
+
+		add_columns(columns,num_of_columns);
+	}
+
+	~st_xmysqlnd_crud_table_op__select() {}
+
+	void add_columns(const zval * columns, const int num_of_columns);
+};
+
+struct st_xmysqlnd_crud_table_op__update
+{
+	Mysqlx::Crud::Update message;
+	std::vector<std::string> placeholders;
+	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
+	uint32_t ps_message_id;
+
+	st_xmysqlnd_crud_table_op__update(const MYSQLND_CSTRING & schema,
+										   const MYSQLND_CSTRING & object_name) :
+		ps_message_id{ 0 }
+	{
+		message.mutable_collection()->set_schema(schema.s, schema.l);
+		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.set_data_model(Mysqlx::Crud::TABLE);
+	}
+
+	~st_xmysqlnd_crud_table_op__update() {}
+};
+
+struct st_xmysqlnd_crud_table_op__delete
+{
+	Mysqlx::Crud::Delete message;
+
+	std::vector<std::string> placeholders;
+	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
+	uint32_t ps_message_id;
+
+	st_xmysqlnd_crud_table_op__delete(const MYSQLND_CSTRING & schema,
+								const MYSQLND_CSTRING & object_name) :
+		ps_message_id{ 0 }
+	{
+		message.mutable_collection()->set_schema(schema.s, schema.l);
+		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.set_data_model(Mysqlx::Crud::TABLE);
+	}
+
+	~st_xmysqlnd_crud_table_op__delete() {}
+};
 
 } // namespace drv
 

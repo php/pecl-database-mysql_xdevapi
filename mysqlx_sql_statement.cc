@@ -496,9 +496,54 @@ mysqlx_sql_stmt_on_error(
 /* }}} */
 
 
+/* {{{ myselx_sql_statemet_get_response */
+void
+mysqlx_sql_statement_get_results(
+		st_mysqlx_statement* object,
+		zval * return_value
+)
+{
+	DBG_ENTER("mysqlx_sql_statement_get_results");
+	xmysqlnd_stmt * stmt = object->stmt;
+	if (PASS == object->send_query_status) {
+		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
+			DBG_INF("ASYNC");
+			RETVAL_BOOL(PASS == object->send_query_status);
+		} else {
+			const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
+			const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
+			XMYSQLND_STMT_RESULT * result;
+			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
+				result = stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+			} else {
+				result = stmt->get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+			}
+
+			DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
+						object->has_more_results? "TRUE":"FALSE",
+						object->has_more_rows_in_set? "TRUE":"FALSE");
+
+			if (result) {
+				mysqlx_new_sql_stmt_result(return_value, result, object);
+			} else {
+				RAISE_EXCEPTION_FETCH_FAIL();
+				/* Or we should close the connection, rendering it unusable at this point ?*/
+				object->send_query_status = FAIL;
+			}
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ mysqlx_sql_statement_execute */
 void
-mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const zend_long flags, zval * return_value)
+mysqlx_sql_statement_execute(
+		const st_mysqlx_object* const mysqlx_object,
+		const zend_long flags,
+		zval * return_value
+)
 {
 	st_mysqlx_statement* object = (st_mysqlx_statement*) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_sql_statement_execute");
@@ -523,40 +568,16 @@ mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const 
 
 	if (TRUE == object->in_execution) {
 		php_error_docref(nullptr, E_WARNING, "Statement in execution. Please fetch all data first.");
-	} else if (PASS == xmysqlnd_stmt_execute__finalize_bind(object->stmt_execute)) {
-		xmysqlnd_stmt * stmt = object->stmt;
-		object->execute_flags = flags;
-		object->has_more_rows_in_set = FALSE;
-		object->has_more_results = FALSE;
-		object->send_query_status = stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(object->stmt_execute), nullptr, nullptr);
+	} else {
+		if (PASS == xmysqlnd_stmt_execute__finalize_bind(object->stmt_execute)) {
+			xmysqlnd_stmt * stmt = object->stmt;
+			object->execute_flags = flags;
+			object->has_more_rows_in_set = FALSE;
+			object->has_more_results = FALSE;
+			object->send_query_status = stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(object->stmt_execute), nullptr, nullptr);
 
-		if (PASS == object->send_query_status) {
-			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
-				DBG_INF("ASYNC");
-				RETVAL_BOOL(PASS == object->send_query_status);
-			} else {
-				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
-				const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
-				XMYSQLND_STMT_RESULT * result;
-				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-					result = stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
-				} else {
-					result = stmt->get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
-				}
-
-				DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
-							object->has_more_results? "TRUE":"FALSE",
-							object->has_more_rows_in_set? "TRUE":"FALSE");
-
-				if (result) {
-					mysqlx_new_sql_stmt_result(return_value, result, object);
-				} else {
-					RAISE_EXCEPTION_FETCH_FAIL();
-					/* Or we should close the connection, rendering it unusable at this point ?*/
-					object->send_query_status = FAIL;
-				}
-			}
-		}
+			mysqlx_sql_statement_get_results(object, return_value);
+        }
 	}
 	DBG_VOID_RETURN;
 }

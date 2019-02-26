@@ -2469,7 +2469,9 @@ xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, c
 	if (session && session->data) {
 		session->data->negotiate_client_api_capabilities( client_flags);
 	}
-	DBG_RETURN(std::shared_ptr<xmysqlnd_session>(session));
+	XMYSQLND_SESSION session_ptr = std::shared_ptr<xmysqlnd_session>(session);
+	session->data->ps_data.assign_session(session_ptr);
+	DBG_RETURN(session_ptr);
 }
 /* }}} */
 
@@ -3436,6 +3438,7 @@ enum_func_status connect_session(
 		}
 		if( ret == PASS ) {
 			//Ok, connection accepted with this host.
+			session->get_data()->ps_data.set_supported_ps( true );
 			break;
 		}
 	}

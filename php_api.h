@@ -25,6 +25,7 @@
 
 extern "C" {
 #include <php.h>
+#undef DELETE
 #undef ERROR
 #undef add_method
 #undef inline

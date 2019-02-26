@@ -184,6 +184,16 @@ decode_pct_path(const util::string& encoded_path)
 }
 /* }}} */
 
+
+/* {{{ operator== */
+bool operator==(const google::protobuf::Message& msg_a,
+				const google::protobuf::Message& msg_b) {
+  return (msg_a.GetTypeName() == msg_b.GetTypeName()) &&
+	  (msg_a.SerializeAsString() == msg_b.SerializeAsString());
+}
+/* }}} */
+
+
 } // namespace drv
 
 } // namespace mysqlx

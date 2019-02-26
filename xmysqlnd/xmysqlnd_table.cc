@@ -334,29 +334,29 @@ xmysqlnd_table::count(
 xmysqlnd_stmt *
 xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 {
-	xmysqlnd_stmt* ret{nullptr};
 	DBG_ENTER("xmysqlnd_table::opinsert");
-	if (!op || FAIL == xmysqlnd_crud_table_insert__finalize_bind(op))
-	{
-		DBG_RETURN(ret);
+	xmysqlnd_stmt *         stmt{nullptr};
+	auto                    session = get_schema()->get_session();
+	if (!op) {
+		DBG_RETURN(stmt);
 	}
-	if (xmysqlnd_crud_table_insert__is_initialized(op))
-	{
-		auto session = get_schema()->get_session();
+	if ( FAIL == xmysqlnd_crud_table_insert__finalize_bind(op)) {
+		DBG_RETURN(stmt);
+	}
+	if (xmysqlnd_crud_table_insert__is_initialized(op)) {
 		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
 																							session->data->stats,
 																							session->data->error_info);
 		struct st_xmysqlnd_msg__table_insert table_insert = msg_factory.get__table_insert(&msg_factory);
 		if (PASS == table_insert.send_insert_request(&table_insert, xmysqlnd_crud_table_insert__get_protobuf_message(op)))
 		{
-			xmysqlnd_stmt * stmt = session->create_statement_object(session);
+			stmt = session->create_statement_object(session);
 			stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
-			ret = stmt;
 		}
-		DBG_INF(ret != nullptr ? "PASS" : "FAIL");
+		DBG_INF(stmt != nullptr ? "PASS" : "FAIL");
 	}
 
-	DBG_RETURN(ret);
+	DBG_RETURN(stmt);
 }
 /* }}} */
 
@@ -365,27 +365,62 @@ xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 xmysqlnd_stmt *
 xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 {
-	xmysqlnd_stmt* ret{nullptr};
 	DBG_ENTER("xmysqlnd_table::opdelete");
-	if (!op || FAIL == xmysqlnd_crud_table_delete__finalize_bind(op))
-	{
-		DBG_RETURN(ret);
+	xmysqlnd_stmt *         stmt{nullptr};
+	auto                    session = get_schema()->get_session();
+	drv::Prepare_stmt_data* ps_data = &session->get_data()->ps_data;
+	if (!op) {
+		DBG_RETURN(stmt);
 	}
-	if (xmysqlnd_crud_table_delete__is_initialized(op))
+	if( false == ps_data->is_ps_supported() )
 	{
-		auto session = get_schema()->get_session();
-		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
-		struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
-		if (PASS == table_ud.send_delete_request(&table_ud, xmysqlnd_crud_table_delete__get_protobuf_message(op)))
+		if ( !ps_data->is_bind_finalized( op->ps_message_id ) &&
+			 FAIL == xmysqlnd_crud_table_delete__finalize_bind(op))
 		{
-			xmysqlnd_stmt * stmt = session->create_statement_object(session);
-			stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
-			ret = stmt;
+			DBG_RETURN(stmt);
 		}
-		DBG_INF(ret != nullptr ? "PASS" : "FAIL");
+		if (xmysqlnd_crud_table_delete__is_initialized(op))
+		{
+			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+			struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
+			if (PASS == table_ud.send_delete_request(&table_ud, xmysqlnd_crud_table_delete__get_protobuf_message(op)))
+			{
+				stmt = session->create_statement_object(session);
+				stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
+			}
+			DBG_INF(stmt != nullptr ? "PASS" : "FAIL");
+		}
+	}
+	else
+	{
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()) );
+
+		if (FAIL == xmysqlnd_crud_table_delete__finalize_bind(op)){
+			DBG_RETURN(stmt);
+		}
+
+		op->ps_message_id = res.second;
+		ps_data->set_finalized_bind( res.second, true );
+
+		if( res.first ) {
+			if( !ps_data->send_prepare_msg( res.second ) ) {
+				if( ps_data->is_ps_supported() == false ) {
+					return opdelete(op);
+				}
+				DBG_RETURN(stmt);
+			}
+		}
+		if (!xmysqlnd_crud_table_delete__is_initialized(op))
+		{
+			DBG_RETURN(stmt);
+		}
+		if( ps_data->prepare_msg_delivered( res.second ) &&
+			ps_data->bind_values( res.second, op->bound_values ) ) {
+			stmt = ps_data->send_execute_msg( res.second );
+		}
 	}
 
-	DBG_RETURN(ret);
+	DBG_RETURN(stmt);
 }
 /* }}} */
 
@@ -394,27 +429,60 @@ xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 xmysqlnd_stmt *
 xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 {
-	xmysqlnd_stmt* ret{nullptr};
 	DBG_ENTER("xmysqlnd_table::update");
-	if (!op || FAIL == xmysqlnd_crud_table_update__finalize_bind(op))
-	{
-		DBG_RETURN(ret);
+	xmysqlnd_stmt *         stmt{nullptr};
+	auto                    session = get_schema()->get_session();
+	drv::Prepare_stmt_data* ps_data = &session->get_data()->ps_data;
+	if (!op) {
+		DBG_RETURN(stmt);
 	}
-	if (xmysqlnd_crud_table_update__is_initialized(op))
-	{
-		auto session = get_schema()->get_session();
-		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
-		struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
-		if (PASS == table_ud.send_update_request(&table_ud, xmysqlnd_crud_table_update__get_protobuf_message(op)))
+	if( false == ps_data->is_ps_supported() ) {
+		if ( !ps_data->is_bind_finalized( op->ps_message_id ) &&
+			 FAIL == xmysqlnd_crud_table_update__finalize_bind(op))
 		{
-			xmysqlnd_stmt * stmt = session->create_statement_object(session);
-			stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
-			ret = stmt;
+			DBG_RETURN(stmt);
 		}
-		DBG_INF(ret != nullptr ? "PASS" : "FAIL");
+		if (xmysqlnd_crud_table_update__is_initialized(op))
+		{
+			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+			struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
+			if (PASS == table_ud.send_update_request(&table_ud, xmysqlnd_crud_table_update__get_protobuf_message(op)))
+			{
+				stmt = session->create_statement_object(session);
+				stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
+			}
+			DBG_INF(stmt != nullptr ? "PASS" : "FAIL");
+		}
+	}
+	else
+	{
+		auto res = ps_data->add_message( op->message,  static_cast<uint32_t>(op->bound_values.size()));
+		if (FAIL == xmysqlnd_crud_table_update__finalize_bind(op)){
+			DBG_RETURN(stmt);
+		}
+
+		op->ps_message_id = res.second;
+		ps_data->set_finalized_bind( res.second, true );
+		if( res.first ) {
+			if( !ps_data->send_prepare_msg( res.second ) ) {
+				if( ps_data->is_ps_supported() == false ) {
+					return update(op);
+				}
+				DBG_RETURN(stmt);
+			}
+		}
+		if (!xmysqlnd_crud_table_update__is_initialized(op))
+		{
+			DBG_RETURN(stmt);
+		}
+
+		if( ps_data->prepare_msg_delivered( res.second ) &&
+			ps_data->bind_values( res.second, op->bound_values ) ) {
+			stmt = ps_data->send_execute_msg( res.second );
+		}
 	}
 
-	DBG_RETURN(ret);
+	DBG_RETURN(stmt);
 }
 /* }}} */
 
@@ -423,26 +491,59 @@ xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 xmysqlnd_stmt *
 xmysqlnd_table::select(XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 {
-	xmysqlnd_stmt* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_table::select");
-	if (!op || FAIL == xmysqlnd_crud_table_select__finalize_bind(op))
-	{
+	xmysqlnd_stmt *         stmt{nullptr};
+	auto                    session = get_schema()->get_session();
+	drv::Prepare_stmt_data* ps_data = &session->get_data()->ps_data;
+	if (!op) {
 		DBG_RETURN(stmt);
 	}
-	if (xmysqlnd_crud_table_select__is_initialized(op))
+	if( false == ps_data->is_ps_supported() )
 	{
-		auto session = get_schema()->get_session();
-		stmt = session->create_statement_object(session);
-		if (FAIL == stmt->send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op),
-                session->get_data()->stats, session->get_data()->error_info))
+		if ( !ps_data->is_bind_finalized( op->ps_message_id ) &&
+			 FAIL == xmysqlnd_crud_table_select__finalize_bind(op))
 		{
-			xmysqlnd_stmt_free(stmt, session->get_data()->stats, session->get_data()->error_info);
-			stmt = nullptr;
+			DBG_RETURN(stmt);
+		}
+		if (xmysqlnd_crud_table_select__is_initialized(op))
+		{
+			stmt = session->create_statement_object(session);
+			if (FAIL == stmt->send_raw_message(stmt, xmysqlnd_crud_table_select__get_protobuf_message(op),
+					session->get_data()->stats, session->get_data()->error_info))
+			{
+				xmysqlnd_stmt_free(stmt, session->get_data()->stats, session->get_data()->error_info);
+				stmt = nullptr;
+			}
+		}
+	}
+	else {
+		auto res = ps_data->add_message( op->message,  static_cast<uint32_t>(op->bound_values.size()) );
+		if (FAIL == xmysqlnd_crud_table_select__finalize_bind(op))
+		{
+			DBG_RETURN(stmt);
+		}
+		if( res.first ) {
+			if( !ps_data->send_prepare_msg( res.second ) ) {
+				if( ps_data->is_ps_supported() == false ) {
+					return select(op);
+				}
+				DBG_RETURN(stmt);
+			}
+		}
+		if (!xmysqlnd_crud_table_select__is_initialized(op))
+		{
+			DBG_RETURN(stmt);
+		}
+
+		if( ps_data->prepare_msg_delivered( res.second ) &&
+			ps_data->bind_values( res.second, op->bound_values ) ) {
+			stmt = ps_data->send_execute_msg( res.second );
 		}
 	}
 	DBG_RETURN(stmt);
 }
 /* }}} */
+
 
 /* {{{ xmysqlnd_table::get_reference */
 xmysqlnd_table *

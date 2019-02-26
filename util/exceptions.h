@@ -92,6 +92,8 @@ struct xdevapi_exception : public std::runtime_error
 		runtime_error,
 		session_closed,
 		offset_without_limit_not_allowed,
+		ps_unknown_message,
+		ps_limit_not_supported,
 		session_reset_failure,
 	};
 

@@ -452,14 +452,14 @@ public:
 	XMYSQLND_L3_IO	                   io;
 	/* Authentication info */
 	std::unique_ptr<Session_auth_data> auth;
-	Auth_mechanisms auth_mechanisms;
+	Auth_mechanisms                    auth_mechanisms;
 	/* Other connection info */
 	std::string scheme;
 	std::string default_schema;
 	transport_types                    transport_type;
 	/* Used only in case of non network transports */
-	std::string socket_path;
-	std::string server_host_info;
+	std::string                        socket_path;
+	std::string                        server_host_info;
 	size_t			                   client_id;
 	const MYSQLND_CHARSET*             charset;
 	/* If error packet, we use these */
@@ -482,6 +482,7 @@ public:
 	zend_bool persistent{ TRUE };
 	/* Seed for the next transaction savepoint identifier */
 	unsigned int                       savepoint_name_seed;
+	drv::Prepare_stmt_data             ps_data;
 private:
 	void free_contents();
 };

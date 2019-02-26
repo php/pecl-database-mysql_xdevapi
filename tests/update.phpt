@@ -16,7 +16,7 @@ mysqlx update
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
-        $table->insert("name", "age")->values(["Sakila", 128],["Sakila", 512])->execute();
+    $table->insert("name", "age")->values(["Sakila", 128],["Sakila", 512])->execute();
 	$table->insert("name", "age")->values(["Oracila", 1024],["Sakila", 2048])->execute();
 	$table->insert("name", "age")->values(["SuperSakila", 4096],["SuperOracila", 8192])->execute();
 	$table->insert("name", "age")->values(["Oracila", 2000])->values(["Oracila", 3000])->execute();

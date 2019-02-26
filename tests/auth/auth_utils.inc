@@ -1,7 +1,5 @@
 <?php
 
-require_once(__DIR__."/../connect.inc");
-
 $Test_user_unknown = DEVAPI_EXT_NAME.'_test_user_unknown';
 $Test_user_native = DEVAPI_EXT_NAME.'_test_user_native';
 $Test_user_sha2 = DEVAPI_EXT_NAME.'_test_user_sha2';

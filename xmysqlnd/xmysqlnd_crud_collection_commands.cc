@@ -21,20 +21,9 @@
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_wireprotocol.h"
-
 #include "mysqlx_enum_n_def.h"
-
-#include <vector>
-#include <string>
-
-#include "xmysqlnd_crud_collection_commands.h"
-#include "proto_gen/mysqlx_sql.pb.h"
-
-#include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
-
-#include "xmysqlnd/crud_parsers/expression_parser.h"
-
 #include "util/exceptions.h"
+#include "xmysqlnd_crud_collection_commands.h"
 #include "util/pb_utils.h"
 
 namespace mysqlx {
@@ -140,32 +129,6 @@ xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::My
 
 
 /****************************** COLLECTION.ADD() *******************************************************/
-struct st_xmysqlnd_crud_collection_op__add
-{
-	Mysqlx::Crud::Insert message;
-
-	std::vector<zval> docs_zv;
-
-	st_xmysqlnd_crud_collection_op__add(
-		const MYSQLND_CSTRING& schema,
-		const MYSQLND_CSTRING& object_name)
-	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(Mysqlx::Crud::DOCUMENT);
-	}
-
-	void add_document(zval* doc);
-	void bind_docs();
-
-	~st_xmysqlnd_crud_collection_op__add() {
-		for( auto& values_zv : docs_zv ) {
-			zval_dtor(&values_zv);
-		}
-		docs_zv.clear();
-	}
-};
-
 
 /* {{{ xmysqlnd_crud_collection_add__create */
 XMYSQLND_CRUD_COLLECTION_OP__ADD *
@@ -267,29 +230,6 @@ void st_xmysqlnd_crud_collection_op__add::bind_docs()
 /* }}} */
 
 /****************************** COLLECTION.REMOVE() *******************************************************/
-struct st_xmysqlnd_crud_collection_op__remove
-{
-	Mysqlx::Crud::Delete message;
-
-	std::vector<std::string> placeholders;
-	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
-
-	st_xmysqlnd_crud_collection_op__remove(const MYSQLND_CSTRING & schema,
-										   const MYSQLND_CSTRING & object_name)
-	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(Mysqlx::Crud::DOCUMENT);
-	}
-
-	~st_xmysqlnd_crud_collection_op__remove()
-	{
-		for (auto& bound_value : bound_values) {
-			delete bound_value;
-		}
-	}
-};
-
 
 /* {{{ xmysqlnd_crud_collection_remove__create */
 XMYSQLND_CRUD_COLLECTION_OP__REMOVE *
@@ -428,29 +368,6 @@ struct st_xmysqlnd_pb_message_shell
 
 
 /****************************** COLLECTION.MODIFY() *******************************************************/
-
-struct st_xmysqlnd_crud_collection_op__modify
-{
-	Mysqlx::Crud::Update message;
-	std::vector<std::string> placeholders;
-	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
-
-	st_xmysqlnd_crud_collection_op__modify(const MYSQLND_CSTRING & schema,
-										   const MYSQLND_CSTRING & object_name)
-	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(Mysqlx::Crud::DOCUMENT);
-	}
-
-	~st_xmysqlnd_crud_collection_op__modify()
-	{
-		for (auto& bound_value : bound_values) {
-			delete bound_value;
-		}
-	}
-};
-
 
 /* {{{ xmysqlnd_crud_collection_modify__create */
 XMYSQLND_CRUD_COLLECTION_OP__MODIFY *
@@ -795,7 +712,7 @@ struct st_xmysqlnd_pb_message_shell
 /* }}} */
 
 /****************************** COLLECTION.FIND() *******************************************************/
-
+/*
 struct st_xmysqlnd_crud_collection_op__find
 {
 	Mysqlx::Crud::Find message;
@@ -817,7 +734,7 @@ struct st_xmysqlnd_crud_collection_op__find
 		}
 	}
 };
-
+*/
 
 /* {{{ xmysqlnd_crud_collection_find__create */
 XMYSQLND_CRUD_COLLECTION_OP__FIND *
@@ -1139,38 +1056,6 @@ struct st_xmysqlnd_pb_message_shell
 
 
 /****************************** SQL EXECUTE *******************************************************/
-struct st_xmysqlnd_stmt_op__execute
-{
-	zval* params{nullptr};
-	unsigned int params_allocated;
-
-	Mysqlx::Sql::StmtExecute message;
-
-	st_xmysqlnd_stmt_op__execute(const MYSQLND_CSTRING & namespace_,
-								 const MYSQLND_CSTRING & stmt,
-								 const bool compact_meta)
-		: params(nullptr), params_allocated(0)
-	{
-		message.set_namespace_(namespace_.s, namespace_.l);
-		message.set_stmt(stmt.s, stmt.l);
-		message.set_compact_metadata(compact_meta);
-	}
-
-	enum_func_status bind_one_param(const zval * param_zv);
-	enum_func_status bind_one_param(const unsigned int param_no, const zval * param_zv);
-	enum_func_status finalize_bind();
-
-	~st_xmysqlnd_stmt_op__execute()
-	{
-		if (params) {
-			for(unsigned int i{0}; i < params_allocated; ++i ) {
-				zval_ptr_dtor(&params[i]);
-			}
-			mnd_efree(params);
-		}
-	}
-};
-
 
 /* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
 enum_func_status

@@ -39,7 +39,7 @@
 #include "util/allocator.h"
 #include "util/object.h"
 #include "util/zend_utils.h"
-
+#include "xmysqlnd/xmysqlnd_utils.h"
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 
 namespace mysqlx {
