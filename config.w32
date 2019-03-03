@@ -308,6 +308,10 @@ function is_dev_mode() {
 	return PHP_DEV_MODE == "yes";
 }
 
+function is_makefile_frag_supported() {
+	return typeof PHP_MAKEFILE_FRAGMENTS !== typeof undefined;
+}
+
 // ----------------------------------------------------------------------------
 // prerequisites
 
@@ -589,6 +593,23 @@ function generate_protobufs() {
 	exec_command(protobuf_generation_cmd, "generate mysql_xdevapi protobufs");
 }
 
+function add_makefile_frag() {
+	var protoc_path = get_protoc_path();
+	AC_DEFINE("MYSQL_XDEVAPI_PROTOC", protoc_path);
+	if (this.protobuf_include_dir) {
+		AC_DEFINE("MYSQL_XDEVAPI_PROTOBUF_INCLUDES", this.protobuf_include_dir);
+	}
+	ADD_MAKEFILE_FRAGMENT();
+}
+
+function process_protobufs() {
+	if (is_makefile_frag_supported()) {
+		add_makefile_frag();
+	} else {
+		generate_protobufs();
+	}
+}
+
 // ----------------------------------------------------------------------------
 // compiler options
 
@@ -841,7 +862,7 @@ if (!verify_requirements()) {
 	return;
 }
 
-generate_protobufs();
+process_protobufs();
 
 init_extension(mysqlx_devapi_sources);
 add_sources("messages", mysqlx_messages);
