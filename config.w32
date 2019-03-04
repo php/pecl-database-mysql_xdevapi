@@ -595,9 +595,9 @@ function generate_protobufs() {
 
 function add_makefile_frag() {
 	var protoc_path = get_protoc_path();
-	AC_DEFINE("MYSQL_XDEVAPI_PROTOC", protoc_path);
+	DEFINE("MYSQL_XDEVAPI_PROTOC", protoc_path);
 	if (this.protobuf_include_dir) {
-		AC_DEFINE("MYSQL_XDEVAPI_PROTOBUF_INCLUDES", this.protobuf_include_dir);
+		DEFINE("MYSQL_XDEVAPI_PROTOBUF_INCLUDES", this.protobuf_include_dir);
 	}
 	ADD_MAKEFILE_FRAGMENT();
 }
