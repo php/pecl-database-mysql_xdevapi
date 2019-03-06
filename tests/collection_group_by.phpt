@@ -126,6 +126,7 @@ expect_eq($data[0]['name'], 'Monica');
 expect_eq($data[0]['job'], 'Ballerino');
 expect_eq($data[0]['ma'], '35');
 
+print "verifying";
 verify_expectations();
 print "done!\n";
 ?>
@@ -135,4 +136,4 @@ require("connect.inc");
 clean_test_db();
 ?>
 --EXPECTF--
-done!%A
+%Averifyingdone!%A

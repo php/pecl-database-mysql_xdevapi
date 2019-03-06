@@ -554,6 +554,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, sort)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, groupBy)
 {
 	DBG_ENTER("mysqlx_collection__find::groupBy");
+	php_error_docref(nullptr, E_WARNING, "find.groupBy is a deprecated function since MySQL 8.0.16");
 	mysqlx_collection__find__add_sort_or_grouping(
 		INTERNAL_FUNCTION_PARAM_PASSTHRU,
 		Collection_find::Operation::Group_by);
@@ -569,6 +570,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 	MYSQLND_CSTRING search_condition = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_collection__find::having");
+	php_error_docref(nullptr, E_WARNING, "find.having is a deprecated function since MySQL 8.0.16");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, collection_find_class_entry,

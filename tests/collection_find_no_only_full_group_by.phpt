@@ -40,6 +40,7 @@ mysqlx Collection find, no 'only full group by'
 		$res = $coll->find()->fields(['name as n','age as a','job as j'])->groupBy('j')->execute();
 		test_step_failed();
 	} catch(Exception $ex) {}
+	print "verifying";
 	verify_expectations();
 	print "done!\n";
 ?>
@@ -49,4 +50,4 @@ mysqlx Collection find, no 'only full group by'
 	clean_test_db();
 ?>
 --EXPECTF--
-done!%A
+%Averifyingdone!%A
