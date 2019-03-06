@@ -40,6 +40,7 @@ extern "C" {
 #include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_session.h"
 #include "xmysqlnd_structs.h"
+#include "xmysqlnd_zval2any.h"
 #include "php_mysqlx.h"
 #include "xmysqlnd_utils.h"
 #include "mysqlx_class_properties.h"
@@ -266,6 +267,130 @@ xmysqlnd_session_data::get_scheme(
 }
 /* }}} */
 
+
+/* {{{ xmysqlnd_session_data::send_client_attributes */
+Mysqlx::Datatypes::Object*
+xmysqlnd_session_data::prepare_client_attr_object()
+{
+	const std::size_t capa_count{ connection_attribs.size()};
+	Mysqlx::Datatypes::Object*        values = new (std::nothrow) Mysqlx::Datatypes::Object;
+	if(values){
+		std::size_t idx{ 0 };
+		for( ; idx < capa_count; ++idx) {
+			std::unique_ptr<Mysqlx::Datatypes::Scalar>        scalar{nullptr};
+			std::unique_ptr<Mysqlx::Datatypes::Scalar_String> string_value{nullptr};
+			std::unique_ptr<Mysqlx::Datatypes::Any>           any{nullptr};
+
+			Mysqlx::Datatypes::Object_ObjectField* field = values->add_fld();
+			field->set_key(connection_attribs[idx].first.c_str());
+
+			try{
+				scalar.reset(new Mysqlx::Datatypes::Scalar);
+				string_value.reset(new Mysqlx::Datatypes::Scalar_String);
+				any.reset(new Mysqlx::Datatypes::Any);
+			}catch(std::exception&){
+				break;
+			}
+
+			string_value->set_value(connection_attribs[idx].second.c_str());
+			scalar->set_type(Mysqlx::Datatypes::Scalar_Type_V_STRING);
+			scalar->set_allocated_v_string(string_value.release());
+
+			any->set_allocated_scalar(scalar.release());
+			any->set_type( Mysqlx::Datatypes::Any_Type::Any_Type_SCALAR );
+			field->set_allocated_value(any.release());
+		}
+
+		if( idx < capa_count ) {
+			delete values;
+		}
+	}
+	return values;
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_session_data::send_client_attributes */
+enum_func_status
+xmysqlnd_session_data::send_client_attributes()
+{
+	DBG_ENTER("send_client_attributes");
+	const std::size_t capa_count{ connection_attribs.size()};
+	enum_func_status  ret{ PASS };
+	if( capa_count > 0 ) {
+		ret = FAIL;
+		st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+
+		st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
+		st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
+
+		zval ** capability_names = static_cast<zval**>( mnd_ecalloc(1 , sizeof(zval*)));
+		zval ** capability_values = static_cast<zval**>( mnd_ecalloc(1, sizeof(zval*)));
+
+		if(  capability_names && capability_values ) {
+			Mysqlx::Datatypes::Object* values = prepare_client_attr_object();
+
+			if( values ) {
+				Mysqlx::Datatypes::Any final_any;
+				final_any.set_allocated_obj(values);
+				final_any.set_type( Mysqlx::Datatypes::Any_Type::Any_Type_OBJECT );
+
+				zval name;
+				ZVAL_NULL(&name);
+
+				zval value;
+				ZVAL_NULL(&value);
+
+				ZVAL_STRINGL(&name,
+							 "session_connect_attrs",
+							 strlen("session_connect_attrs"));
+				capability_names[0] = &name;
+
+				any2zval(final_any,&value);
+				capability_values[0] = &value;
+
+				const struct st_xmysqlnd_on_error_bind on_error =
+				{ xmysqlnd_session_data_handler_on_error, (void*) this };
+
+				if( PASS == caps_set.send_request(&caps_set,
+												  1, //session_connect_attrs
+												  capability_names,
+												  capability_values) ) {
+					DBG_INF_FMT("Successfully submitted the connection attributes to the server.");
+					zval zvalue;
+					ZVAL_NULL(&zvalue);
+					caps_get.init_read(&caps_get, on_error);
+					ret = caps_get.read_response(&caps_get,
+												 &zvalue);
+					if( ret == PASS ) {
+						DBG_INF_FMT("Server response OK for the submitted connection attributes.");
+					} else {
+						DBG_ERR_FMT("Negative response from the server for the submitted connection attributes");
+					}
+
+					zval_ptr_dtor(&zvalue);
+				}
+
+				zval_ptr_dtor(&name);
+				zval_ptr_dtor(&value);
+			} else{
+				if( values ) {
+					delete values;
+				}
+			}
+		}
+		else {
+			DBG_ERR_FMT("Unable to allocate the memory for the capability objects");
+		}
+
+		mnd_efree(capability_names);
+		mnd_efree(capability_values);
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+
 /* {{{ xmysqlnd_session_data::connect_handshake */
 enum_func_status
 xmysqlnd_session_data::connect_handshake(
@@ -286,7 +411,10 @@ xmysqlnd_session_data::connect_handshake(
 										  stats,
 										  error_info))) {
 		state.set(SESSION_NON_AUTHENTICATED);
-		ret = authenticate(scheme_name, default_schema, set_capabilities);
+		ret = send_client_attributes();
+		if( ret == PASS ) {
+			ret = authenticate(scheme_name, default_schema, set_capabilities);
+		}
 	}
 	DBG_RETURN(ret);
 }
@@ -3021,6 +3149,13 @@ Session_auth_data * extract_auth_information(const util::Url& node_url)
 				break;
 			}
 
+			/*
+			 * Connection attributes are handled separately, in this
+			 * function we're focusing on authentication stuff.
+			 */
+			if( boost::iequals(variable, "connection-attributes" ) ) {
+					continue;
+			}
 
 			const util::string value{
 				separator_pos == util::string::npos
@@ -3343,6 +3478,231 @@ vec_of_addresses extract_uri_addresses(const util::string& uri)
 }
 /* }}} */
 
+
+namespace {
+/* {{{ get_os_name */
+util::string
+get_os_name()
+{
+#ifdef __linux__
+	return "Linux";
+#endif
+#ifdef __APPLE__
+	return "Mac OS X";
+#endif
+#ifdef _WIN64
+	return "Windows 64 bit";
+#endif
+#ifdef _WIN32
+	return "Windows 32 bit";
+#endif
+
+#ifdef _AIX
+	return "Solaris";
+#endif
+	return "Unknown";
+}
+/* }}} */
+
+
+/* {{{ get_platform */
+static util::string
+get_platform()
+{
+#ifdef __i386__
+	return "i386";
+#endif
+#ifdef __x86_64__
+	return "x86_64";
+#endif
+#ifdef __arm__
+	return "arm";
+#endif
+#ifdef __powerpc64__
+	return "powerpc64";
+#endif
+#ifdef __aarch64__
+	return "aarch64";
+#endif
+	return "Unknown";
+}
+/* }}} */
+}
+
+/* {{{ get_def_client_attribs */
+enum_func_status get_def_client_attribs( vec_of_attribs& attribs )
+{
+	util::ostringstream ss;
+	attribs.push_back( {"_client_name", PHP_MYSQL_XDEVAPI_NAME} );
+	pid_t proc_pid = getpid();
+	ss << proc_pid;
+	attribs.push_back( {"_pid", ss.str() } );
+	attribs.push_back( {"_os" , get_os_name() } );
+	attribs.push_back( {"_client_version" , PHP_MYSQL_XDEVAPI_VERSION } );
+	attribs.push_back( {"_client_license" , PHP_MYSQL_XDEVAPI_LICENSE } );
+	attribs.push_back( {"_platform" , get_platform() } );
+
+	static const int hostname_len{ 128 };
+	char hostname[hostname_len];
+	if(!gethostname(hostname,hostname_len) ){
+		attribs.push_back( {"_source_host" , hostname } );
+	}
+
+	return PASS;
+}
+/* }}} */
+
+
+/* {{{ parse_attribute */
+std::pair<util::string,util::string>
+parse_attribute( const util::string& attribute )
+{
+	static const size_t max_attrib_key_size{ 32 };
+	static const size_t max_attrib_val_size{ 1024 };
+	util::vector<util::string> key_value;
+	boost::split( key_value,
+				  attribute,
+				  boost::is_any_of("="));
+	if( key_value.empty() ) {
+		return { "", "" };
+	}
+	if( key_value[0].size() > max_attrib_key_size ) {
+		devapi::RAISE_EXCEPTION( err_msg_invalid_attrib_key_size );
+		return { "" , "" };
+	}
+	if( key_value.size() > 1 && key_value[1].size() > max_attrib_val_size ) {
+		devapi::RAISE_EXCEPTION( err_msg_invalid_attrib_value_size );
+		return { "" , "" };
+	}
+	if( key_value[0].size() > 0 &&
+			key_value[0][0] == '_' ) {
+		devapi::RAISE_EXCEPTION( err_msg_invalid_attrib_key );
+		return { "" , "" };
+	}
+	if( key_value.size() == 2 ) {
+		return { key_value[0], key_value[1] };
+	}
+	return { key_value[0], "" };
+}
+/* }}} */
+
+
+/* {{{ parse_conn_attrib_values */
+enum_func_status parse_conn_attrib(
+			vec_of_attribs& attrib_container,
+			util::string    user_attribs,
+			bool            is_a_list = false
+)
+{
+	static const std::string attrib_disable{ "false" };
+	static const std::string attrib_enabled{ "true" };
+	enum_func_status ret = PASS;
+	if( boost::iequals( user_attribs, attrib_disable ) ) {
+		return PASS;
+	}
+	if( false ==  boost::iequals( user_attribs, attrib_enabled ) &&
+			false == user_attribs.empty() ) {
+		if( is_a_list ) {
+			if( user_attribs.size() ) {
+				util::vector<util::string> attributes;
+				boost::split( attributes,
+							  user_attribs,
+							  boost::is_any_of(","));
+				for( const auto& cur_attrib : attributes ) {
+					if( !cur_attrib.empty() ) {
+						auto result = parse_attribute( cur_attrib );
+						auto it = std::find_if( attrib_container.begin(), attrib_container.end(),
+							[&result](const std::pair<util::string, util::string>& element){
+									return element.first == result.first;
+						} );
+						if( it != attrib_container.end()){
+							throw util::xdevapi_exception(util::xdevapi_exception::Code::conn_attrib_dup_key);
+						}
+						if( !result.first.empty() ) {
+							attrib_container.push_back( result );
+						} else {
+							ret = FAIL;
+							break;
+						}
+					}
+				}
+			}
+		} else {
+			throw util::xdevapi_exception(util::xdevapi_exception::Code::conn_attrib_wrong_type);
+		}
+	}
+	if( ret == FAIL ) {
+		attrib_container.clear();
+		return ret;
+	}
+	return get_def_client_attribs( attrib_container );
+}
+
+/* {{{ extract_connection_attributes */
+enum_func_status extract_connection_attributes(
+			drv::XMYSQLND_SESSION session,
+			const util::string& uri )
+{
+	static const std::string conn_attrib{ "connection-attributes" };
+	static const size_t      max_attrib_len{ 1024 * 64 };
+	enum_func_status ret = PASS;
+	if( session == nullptr || uri.empty() ) {
+		return FAIL;
+	}
+	std::size_t pos = uri.find(conn_attrib.c_str());
+	std::size_t end_pos{ 0 };
+	if( pos != std::string::npos ) {
+		pos += conn_attrib.size();
+		/*
+		 * We have different possible scenarios:
+		 *	1) a list of attributes is provided: connection-attributes=[a:b,c:d,...,] (The list might be empty!)
+		 *	2) the attributes are disabled or anabled: connection-attributes=false/true
+		 *  3) empty attributes (use only the default one): connection-attributes
+		 *  4) attribute key with no value: connection-attributes=foo
+		 */
+		bool is_attrib_list = false;
+		if( uri[ pos ] == '=' ) {
+			//Handle 1,2,4
+			++pos;
+			if( uri[ pos ] == '[' ) {
+				//List of attributes
+				end_pos = uri.find_first_of( ']', pos );
+				if( end_pos == std::string::npos ) {
+					ret = FAIL;
+				} else {
+					is_attrib_list = true;
+				}
+				++pos;
+			} else {
+				end_pos = uri.find_first_of( ',' , pos );
+			}
+		} else {
+			//Handle 3
+			end_pos = pos;
+		}
+		if( ret != FAIL ) {
+			ret = parse_conn_attrib( session->get_data()->connection_attribs,
+						uri.substr( pos, end_pos - pos ),
+						is_attrib_list );
+			std::size_t attribs_len{ 0 };
+			for( const auto& item : session->get_data()->connection_attribs ) {
+				attribs_len += ( item.first.size() + item.second.size() );
+			}
+			if( attribs_len > max_attrib_len ) {
+				devapi::RAISE_EXCEPTION( err_msg_invalid_attrib_size );
+				ret = FAIL;
+			}
+		}
+	}
+	else
+	{
+		get_def_client_attribs(session->get_data()->connection_attribs);
+	}
+	return ret;
+}
+/* }}} */
+
+
 /* {{{ verify_uri_address */
 void verify_uri_address(const util::string& uri_address)
 {
@@ -3404,6 +3764,12 @@ enum_func_status connect_session(
 					current_uri.first.c_str());
 		auto url = extract_uri_information( current_uri.first.c_str() );
 		if( !url.first.empty() ) {
+			//Extract connection attributes
+			if( FAIL == extract_connection_attributes( session,
+													   current_uri.first ) ) {
+				devapi::RAISE_EXCEPTION( err_msg_internal_error );
+				DBG_RETURN(ret);
+			}
 			Session_auth_data * auth = extract_auth_information(url.first);
 			if( nullptr != auth ) {
 				/*

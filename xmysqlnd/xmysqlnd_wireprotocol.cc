@@ -827,13 +827,16 @@ xmysqlnd_capabilities_set__read_response(st_xmysqlnd_msg__capabilities_set* msg,
 /* {{{ xmysqlnd_send__capabilities_set */
 enum_func_status
 xmysqlnd_capabilities_set__send_request(st_xmysqlnd_msg__capabilities_set* msg,
-										const size_t cap_count, zval ** capabilities_names, zval ** capabilities_values)
+										const size_t cap_count,
+										zval ** capabilities_names,
+										zval ** capabilities_values)
 {
 	size_t bytes_sent;
 	Mysqlx::Connection::CapabilitiesSet message;
 	for (unsigned i{0}; i < cap_count; ++i) {
 		Mysqlx::Connection::Capability * capability = message.mutable_capabilities()->add_capabilities();
-		capability->set_name(Z_STRVAL_P(capabilities_names[i]), Z_STRLEN_P(capabilities_names[i]));
+		capability->set_name(Z_STRVAL_P(capabilities_names[i]),
+							 Z_STRLEN_P(capabilities_names[i]));
 		Mysqlx::Datatypes::Any any_entry;
 		zval2any(capabilities_values[i], any_entry);
 		capability->mutable_value()->CopyFrom(any_entry);

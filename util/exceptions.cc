@@ -101,6 +101,10 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::ps_limit_not_supported,
 		"Limit not supported for this message, prepared statement failed!"},
 	{ xdevapi_exception::Code::session_reset_failure, "Session reset failure."},
+	{ xdevapi_exception::Code::conn_attrib_wrong_type,
+		"The value of \"connection-attributes\" must be either a boolean or a list of key-value pairs"},
+	{ xdevapi_exception::Code::conn_attrib_dup_key,
+		"Duplicate key used in the \"connection-attributes\" option." }
 };
 /* }}} */
 

@@ -202,6 +202,7 @@ typedef std::shared_ptr< xmysqlnd_session > XMYSQLND_SESSION;
 typedef std::shared_ptr<xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
 
 using vec_of_addresses = util::vector< std::pair<util::string,long> >;
+using vec_of_attribs = util::vector< std::pair<util::string,util::string > >;
 
 /* {{{ list_of_addresses_parser */
 class list_of_addresses_parser
@@ -438,6 +439,7 @@ public:
 	const MYSQLND_ERROR_INFO* get_error_info() const;
 
 	enum_func_status  set_client_option(enum_xmysqlnd_client_option option, const char * const value);
+	enum_func_status  send_client_attributes();
 
 	enum_func_status  send_reset(bool keep_open);
 	enum_func_status  send_close();
@@ -482,9 +484,11 @@ public:
 	zend_bool persistent{ TRUE };
 	/* Seed for the next transaction savepoint identifier */
 	unsigned int                       savepoint_name_seed;
+	vec_of_attribs                     connection_attribs;
 	drv::Prepare_stmt_data             ps_data;
 private:
 	void free_contents();
+	Mysqlx::Datatypes::Object*  prepare_client_attr_object();
 };
 
 

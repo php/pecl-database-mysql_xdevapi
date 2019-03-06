@@ -95,6 +95,8 @@ struct xdevapi_exception : public std::runtime_error
 		ps_unknown_message,
 		ps_limit_not_supported,
 		session_reset_failure,
+		conn_attrib_wrong_type,
+		conn_attrib_dup_key
 	};
 
 	xdevapi_exception(Code code);

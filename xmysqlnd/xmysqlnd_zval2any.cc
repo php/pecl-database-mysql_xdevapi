@@ -263,7 +263,6 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 				}
 				add_assoc_zval_ex(&properties, field.key().c_str(), field.key().size(), &entry);
 				zend_hash_next_index_insert(Z_ARRVAL(properties), &entry);
-				zval_ptr_dtor(&entry);
 			}
 
 			object_init(zv);

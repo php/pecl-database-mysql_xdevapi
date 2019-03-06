@@ -20,6 +20,8 @@
 
 #define PHP_MYSQL_XDEVAPI_VERSION "8.0.15"
 #define MYSQL_XDEVAPI_VERSION_ID 10000
+#define PHP_MYSQL_XDEVAPI_LICENSE "PHP License, version 3.01"
+#define PHP_MYSQL_XDEVAPI_NAME   "mysql-connector-php"
 
 #ifdef PHP_WIN32
 #	ifdef PHP_MYSQL_XDEVAPI_EXPORTS
