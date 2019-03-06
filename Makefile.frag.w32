@@ -15,7 +15,7 @@ PROTO_INPUT_FILES=\
 	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_sql.proto"
 
 $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx.proto
-	@echo "Compiler version"
+	@echo "compiler version"
 	$(CC)
 	@echo "generate protobufs"
 	"$(MYSQL_XDEVAPI_PROTOC)" --version

@@ -1,7 +1,9 @@
 # INFO: we generate protobufs into srcdir, not builddir!
 
 $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc: $(srcdir)/xmysqlnd/proto_def/mysqlx.proto
+	@echo "compiler version"
 	$(CXX) --version
+	@echo generate protobufs
 	$(MYSQL_XDEVAPI_PROTOC) --version
 ifdef MYSQL_XDEVAPI_PROTOBUF_INCLUDES
 	$(MYSQL_XDEVAPI_PROTOC) -I$(MYSQL_XDEVAPI_PROTOBUF_INCLUDES) --cpp_out $(srcdir)/xmysqlnd/proto_gen/ --proto_path $(srcdir)/xmysqlnd/proto_def/ $(srcdir)/xmysqlnd/proto_def/mysql*.proto
@@ -62,9 +64,8 @@ BUILT_SOURCES = $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc \
 
 
 clean-protobufs:
-	@echo Cleaning generated protobuf files
+	@echo clean up generated protobufs
 	rm -f $(srcdir)/xmysqlnd/proto_gen/*.pb.cc
 	rm -f $(srcdir)/xmysqlnd/proto_gen/*.pb.h
 
 protobufs: $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc
-	@echo Generate protobuf files
