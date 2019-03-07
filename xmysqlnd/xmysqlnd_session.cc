@@ -3538,7 +3538,7 @@ enum_func_status get_def_client_attribs( vec_of_attribs& attribs )
 	ss << proc_pid;
 	attribs.push_back( {"_pid", ss.str() } );
 	attribs.push_back( {"_os" , get_os_name() } );
-	attribs.push_back( {"_client_version" , PHP_MYSQL_XDEVAPI_VERSION } );
+	attribs.push_back( {"_client_version" , MYSQL_XDEVAPI_VERSION } );
 	attribs.push_back( {"_client_license" , PHP_MYSQL_XDEVAPI_LICENSE } );
 	attribs.push_back( {"_platform" , get_platform() } );
 

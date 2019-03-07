@@ -15,11 +15,11 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef PHP_PHP_MYSQL_XDEVAPI_H
-#define PHP_PHP_MYSQL_XDEVAPI_H
+#ifndef PHP_MYSQL_XDEVAPI_H
+#define PHP_MYSQL_XDEVAPI_H
 
-#define PHP_MYSQL_XDEVAPI_VERSION "8.0.15"
-#define MYSQL_XDEVAPI_VERSION_ID 10000
+#define MYSQL_XDEVAPI_VERSION "8.0.16"
+#define MYSQL_XDEVAPI_VERSION_ID 80016
 #define PHP_MYSQL_XDEVAPI_LICENSE "PHP License, version 3.01"
 #define PHP_MYSQL_XDEVAPI_NAME   "mysql-connector-php"
 
@@ -37,7 +37,7 @@
 #	define PHP_MYSQL_XDEVAPI_API PHPAPI
 #endif
 
-#endif /*PHP_PHP_MYSQL_XDEVAPI_H*/
+#endif /*PHP_MYSQL_XDEVAPI_H*/
 
 /*
  * Local variables:

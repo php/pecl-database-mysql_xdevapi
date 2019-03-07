@@ -211,7 +211,7 @@ static struct st_mysqlnd_plugin_core xmysqlnd_plugin_core =
 		MYSQLND_PLUGIN_API_VERSION,
 		"mysql_xdevapi",
 		MYSQL_XDEVAPI_VERSION_ID,
-		PHP_MYSQL_XDEVAPI_VERSION,
+		MYSQL_XDEVAPI_VERSION,
 		"PHP License 3.01",
 		"Andrey Hristov <andrey@mysql.com>",
 		{

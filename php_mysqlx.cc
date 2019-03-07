@@ -262,7 +262,7 @@ zend_module_entry mysql_xdevapi_module_entry = {
 	nullptr,
 #endif
 	PHP_MINFO(mysql_xdevapi),
-	PHP_MYSQL_XDEVAPI_VERSION,
+	MYSQL_XDEVAPI_VERSION,
 	PHP_MODULE_GLOBALS(mysql_xdevapi),
 	PHP_GINIT(mysql_xdevapi),
 	nullptr,
