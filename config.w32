@@ -690,7 +690,7 @@ function get_now_string() {
 }
 
 function grep_xdevapi_version() {
-	var Version_regex = /#define\s+MYSQL_XDEVAPI_VERSION\s+"(\S+)"\s*/;
+	var Version_regex = /#define\s+PHP_MYSQL_XDEVAPI_VERSION\s+"(\S+)"\s*/;
 	if (GREP_HEADER('php_mysql_xdevapi.h', Version_regex, get_src_path())) {
 		return RegExp.$1;
 	} else {
