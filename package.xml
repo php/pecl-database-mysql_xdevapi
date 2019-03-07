@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2019-01-29</date>
+	<date>2019-03-07</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.15</release>
+		<release>8.0.16</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,8 +61,13 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		This release contains no functional changes and is published to align
-		version number with the MySQL Server 8.0.15 release.
+		WL#9879: Prepared statement support
+		WL#11983: Support session-connect-attributes
+		WL#12396: Support new session reset functionality
+		orabug #28802543: classes: Driver, ExecutionStatus, Expression, and Statement
+		orabug #28803208: the DocResult prototype appear wrong
+		orabug #28803039: the fields() method seems odd
+		orabug #28805757: how exactly are set() and replace() different?
 	</notes>
  <contents>
   <dir name="/">
@@ -207,11 +212,13 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="client_side_failover.phpt" role="test" />
     <file name="coll_multiple_affected_items_count.phpt" role="test" />
     <file name="collection.phpt" role="test" />
+    <file name="collection_fields.phpt" role="test" />
     <file name="collection_find.phpt" role="test" />
     <file name="collection_find_no_only_full_group_by.phpt" role="test" />
     <file name="collection_group_by.phpt" role="test" />
     <file name="collection_limit_offset.phpt" role="test" />
     <file name="collection_modify_array_delete.phpt" role="test" />
+    <file name="collection_modify_set_replace.phpt" role="test" />
     <file name="collection_modify_sortreplacemerge.phpt" role="test" />
     <file name="collection_modifysetunset.phpt" role="test" />
     <file name="collection_remove.phpt" role="test" />
@@ -237,6 +244,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="savepoint.phpt" role="test" />
     <file name="schema.phpt" role="test" />
     <file name="select_fetch.phpt" role="test" />
+    <file name="session_attributes.phpt" role="test" />
     <file name="session_minor_tc.phpt" role="test" />
     <file name="simple_expression.phpt" role="test" />
     <file name="simple_ssl.phpt" role="test" />
@@ -287,6 +295,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="incorrect_options.phpt" role="test" />
      <file name="incorrect_options_case_sensitive.phpt" role="test" />
      <file name="incorrect_uri.phpt" role="test" />
+     <file name="new_session_reset.phpt" role="test" />
      <file name="session_multiple_close.phpt" role="test" />
      <file name="simple.phpt" role="test" />
      <file name="simple_close.phpt" role="test" />
@@ -307,6 +316,15 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="fail.phpt" role="test" />
      <file name="index_utils.inc" role="test" />
      <file name="multi.phpt" role="test" />
+    </dir>
+    <dir name="prepared_statement">
+     <file name="ps_collection_find.phpt" role="test" />
+     <file name="ps_collection_modify.phpt" role="test" />
+     <file name="ps_collection_remove.phpt" role="test" />
+     <file name="ps_table_delete.phpt" role="test" />
+     <file name="ps_table_select.phpt" role="test" />
+     <file name="ps_table_update.phpt" role="test" />
+     <file name="ps_utils.inc" role="test" />
     </dir>
     <dir name="row_locking">
      <file name="collection_misc.phpt" role="test" />
@@ -663,6 +681,23 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2019-01-29</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.15</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			This release contains no functional changes and is published to align
+			version number with the MySQL Server 8.0.15 release.
+		</notes>
+	</release>
 	<release>
 		<date>2018-12-13</date>
 		<time>20:00:00</time>
