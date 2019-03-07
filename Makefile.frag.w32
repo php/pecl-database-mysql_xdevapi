@@ -1,0 +1,70 @@
+# INFO: we generate protobufs into srcdir, not builddir!
+
+PROTO_INPUT_FILES=\
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_connection.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_crud.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_cursor.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_datatypes.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_expect.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_expr.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_notice.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_prepare.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_resultset.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_session.proto" \
+	"$(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_sql.proto"
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx.proto
+	@echo compiler version...
+	$(CC)
+	@echo generate protobufs...
+	"$(MYSQL_XDEVAPI_PROTOC)" --version
+!ifdef MYSQL_XDEVAPI_PROTOBUF_INCLUDES
+	"$(MYSQL_XDEVAPI_PROTOC)" -I"$(MYSQL_XDEVAPI_PROTOBUF_INCLUDES)" --cpp_out "$(PHP_SRC_DIR)\xmysqlnd\proto_gen" --proto_path "$(PHP_SRC_DIR)\xmysqlnd\proto_def" $(PROTO_INPUT_FILES)
+!else
+	"$(MYSQL_XDEVAPI_PROTOC)" --cpp_out "$(PHP_SRC_DIR)\xmysqlnd\proto_gen" --proto_path "$(PHP_SRC_DIR)\xmysqlnd\proto_def" $(PROTO_INPUT_FILES)
+!endif
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_connection.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_connection.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_crud.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_crud.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_cursor.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_cursor.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_datatypes.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_datatypes.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_expect.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_expect.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_expr.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_expr.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_notice.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_notice.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_prepare.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_prepare.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_resultset.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_resultset.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_session.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_session.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx_sql.pb.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_def\mysqlx_sql.proto $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+
+# set dependencies on protobuf generated sources, to avoid build
+# errors due to lack of *.pb.h headers (caused by parallel compilation race)
+# all sources which include any generated *.pb.h should be mentioned here
+$(PHP_SRC_DIR)\*.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\messages\*.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\util\*.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\*.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+$(PHP_SRC_DIR)\xmysqlnd\crud_parsers\*.cc: $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
+
+
+clean-protobufs:
+	@echo clean up generated protobufs...
+	-@del /f /q $(PHP_SRC_DIR)\xmysqlnd\proto_gen\*.pb.cc
+	-@del /f /q $(PHP_SRC_DIR)\xmysqlnd\proto_gen\*.pb.h
+
+protobufs: $(PHP_SRC_DIR)\xmysqlnd\proto_gen\mysqlx.pb.cc
