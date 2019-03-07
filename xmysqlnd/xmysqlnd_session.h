@@ -475,7 +475,7 @@ public:
 		- it wasn't possible to reset session without reauthentication
 		- Session::Close meant Connection::Close
 		more details: WL#12375 WL#12396
-	*/ 
+	*/
 	mutable boost::optional<bool> session_properly_supported;
 	/* stats */
 	MYSQLND_STATS*                     stats;

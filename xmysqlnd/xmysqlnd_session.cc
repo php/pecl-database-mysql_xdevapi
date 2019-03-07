@@ -692,7 +692,7 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 				conn_reset_msg.keep_open.reset(keep_open);
 			}
 			DBG_INF("Connection reset, sending SESS_RESET");
-			if ((conn_reset_msg.send_request(&conn_reset_msg) != PASS) 
+			if ((conn_reset_msg.send_request(&conn_reset_msg) != PASS)
 				|| (conn_reset_msg.read_response(&conn_reset_msg) != PASS)) {
 				throw util::xdevapi_exception(util::xdevapi_exception::Code::session_reset_failure);
 			}
