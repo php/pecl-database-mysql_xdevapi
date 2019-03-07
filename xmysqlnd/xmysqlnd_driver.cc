@@ -256,7 +256,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void)
 /* {{{ xmysqlnd_get_client_info */
 PHP_MYSQL_XDEVAPI_API const char * xmysqlnd_get_client_info()
 {
-	return PHP_XMYSQLND_VERSION;
+	return XMYSQLND_VERSION;
 }
 /* }}} */
 
