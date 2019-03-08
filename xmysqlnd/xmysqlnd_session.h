@@ -180,11 +180,9 @@ struct Session_auth_data
 	std::string ssl_local_cert;
 	std::string ssl_cafile;
 	std::string ssl_capath;
-	std::string ssl_passphrase;
 	std::string ssl_ciphers;
-	std::string ssl_crl;
-	std::string ssl_crlpath;
 	std::string tls_version;
+	bool ssl_allow_self_signed_cert{ true };
 	Auth_mechanism auth_mechanism = Auth_mechanism::unspecified;
 
 	/*

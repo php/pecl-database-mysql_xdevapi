@@ -1756,6 +1756,7 @@ void setup_crypto_options(
 		php_stream_context* stream_context,
 		xmysqlnd_session_data* session)
 {
+	// SSL context options: http://php.net/manual/en/context.ssl.php
 	DBG_ENTER("setup_crypto_options");
 	const Session_auth_data* auth{ session->auth.get() };
 	zval string;
@@ -1778,13 +1779,20 @@ void setup_crypto_options(
 		zval_ptr_dtor(&string);
 	}
 
-
 	//Set CA
 	if( false == auth->ssl_cafile.empty() ) {
 		DBG_INF_FMT("Setting CA %s",
 					auth->ssl_cafile.c_str());
 		ZVAL_STRING(&string, auth->ssl_cafile.c_str());
 		php_stream_context_set_option(stream_context,"ssl","cafile",&string);
+		zval_ptr_dtor(&string);
+	}
+
+	// capath
+	if (!auth->ssl_capath.empty()) {
+		DBG_INF_FMT("Setting CA path %s", auth->ssl_capath.c_str());
+		ZVAL_STRING(&string, auth->ssl_capath.c_str());
+		php_stream_context_set_option(stream_context, "ssl", "capath", &string);
 		zval_ptr_dtor(&string);
 	}
 
@@ -1799,15 +1807,28 @@ void setup_crypto_options(
 	php_stream_context_set_option(stream_context,"ssl","ciphers",&string);
 	zval_ptr_dtor(&string);
 
-	//Self certification accepted
-	DBG_INF_FMT("Accepting self-certified CA!");
-	zval verify_peer_zval;
-	ZVAL_TRUE(&verify_peer_zval);
-	php_stream_context_set_option(stream_context,"ssl","allow_self_signed",&verify_peer_zval);
+	// is verification of SSL certificate required
+	const SSL_mode ssl_mode{ auth->ssl_mode };
+	const bool is_verify_peer_required{ 
+		(ssl_mode == SSL_mode::verify_ca) || (ssl_mode == SSL_mode::verify_identity) };
+	zval verify_peer;
+	ZVAL_BOOL(&verify_peer, is_verify_peer_required);
+	php_stream_context_set_option(stream_context, "ssl", "verify_peer", &verify_peer);
+	DBG_INF_FMT("verify SSL certificate %d", static_cast<int>(is_verify_peer_required));
 
-	ZVAL_FALSE(&verify_peer_zval);
-	php_stream_context_set_option(stream_context,"ssl","verify_peer",&verify_peer_zval);
-	php_stream_context_set_option(stream_context,"ssl","verify_peer_name",&verify_peer_zval);
+	// is verification of peer name required
+	zval verify_peer_name;
+	const bool is_verify_peer_name_required{ ssl_mode == SSL_mode::verify_identity };
+	ZVAL_BOOL(&verify_peer, is_verify_peer_name_required);
+	php_stream_context_set_option(stream_context, "ssl", "verify_peer_name", &verify_peer_name);
+	DBG_INF_FMT("verify peer name %d", static_cast<int>(is_verify_peer_name_required));
+
+	// allow self-signed certificates
+	zval allow_self_signed;
+	ZVAL_BOOL(&allow_self_signed, auth->ssl_allow_self_signed_cert);
+	php_stream_context_set_option(stream_context, "ssl", "allow_self_signed", &allow_self_signed);
+	DBG_INF_FMT("allow self-signed CA allow %d", static_cast<int>(auth->ssl_allow_self_signed_cert));
+
 	DBG_VOID_RETURN;
 }
 
@@ -3045,15 +3066,13 @@ enum_func_status extract_ssl_information(
 	using ssl_option_to_data_member = std::map<std::string,
 		std::string Session_auth_data::*>;
 	// Map the ssl option to the proper member, according to:
-	// https://dev.mysql.com/doc/refman/5.7/en/encrypted-connection-options.html
+	// https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-options.html
 	static const ssl_option_to_data_member ssl_option_to_data_members = {
 		{ "ssl-key", &Session_auth_data::ssl_local_pk },
 		{ "ssl-cert",&Session_auth_data::ssl_local_cert },
 		{ "ssl-ca", &Session_auth_data::ssl_cafile },
 		{ "ssl-capath", &Session_auth_data::ssl_capath },
 		{ "ssl-cipher", &Session_auth_data::ssl_ciphers },
-		{ "ssl-crl", &Session_auth_data::ssl_crl },
-		{ "ssl-crlpath", &Session_auth_data::ssl_crlpath },
 		{ "tls-version", &Session_auth_data::tls_version }
 	};
 
