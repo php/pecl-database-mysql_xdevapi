@@ -1819,7 +1819,7 @@ void setup_crypto_options(
 	// is verification of peer name required
 	zval verify_peer_name;
 	const bool is_verify_peer_name_required{ ssl_mode == SSL_mode::verify_identity };
-	ZVAL_BOOL(&verify_peer, is_verify_peer_name_required);
+	ZVAL_BOOL(&verify_peer_name, is_verify_peer_name_required);
 	php_stream_context_set_option(stream_context, "ssl", "verify_peer_name", &verify_peer_name);
 	DBG_INF_FMT("verify peer name %d", static_cast<int>(is_verify_peer_name_required));
 
