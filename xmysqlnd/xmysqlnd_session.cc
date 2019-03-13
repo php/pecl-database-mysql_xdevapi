@@ -161,11 +161,16 @@ const MYSQLND_CSTRING namespace_xplugin{ "xplugin", sizeof("xplugin") - 1 };
 
 namespace {
 
-/* {{{ xmysqlnd_get_tls_capability */
+/* {{{ xmysqlnd_is_capability_present */
 zend_bool
-xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
+xmysqlnd_is_capability_present(
+		const zval * capabilities,
+		const char * name,
+		zend_bool * found
+)
 {
-	zval * zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), "tls", sizeof("tls") - 1);
+	zval * zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), name,
+								   strlen(name));
 	if (!zv || Z_TYPE_P(zv) == IS_UNDEF) {
 		*found = FALSE;
 		return FALSE;
@@ -435,6 +440,7 @@ xmysqlnd_session_data::authenticate(
 		DBG_INF("AUTHENTICATED. YAY!");
 		ret = PASS;
 	}
+	capabilities = authenticate.get_capabilities();
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -993,6 +999,7 @@ void xmysqlnd_session_data::free_contents()
 		mysqlnd_stats_end(stats, persistent);
 		stats = nullptr;
 	}
+	zval_dtor(&capabilities);
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -1560,7 +1567,6 @@ Authenticate::Authenticate(
 
 Authenticate::~Authenticate()
 {
-	zval_dtor(&capabilities);
 }
 
 bool Authenticate::run(bool re_auth)
@@ -1605,7 +1611,7 @@ bool Authenticate::init_capabilities()
 bool Authenticate::init_connection()
 {
 	zend_bool tls_set{FALSE};
-	xmysqlnd_get_tls_capability(&capabilities, &tls_set);
+	xmysqlnd_is_capability_present(&capabilities, "tls", &tls_set);
 
 	if (auth->ssl_mode == SSL_mode::disabled) return true;
 
@@ -1615,6 +1621,11 @@ bool Authenticate::init_connection()
 		php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL, unsupported by the server");
 		return false;
 	}
+}
+
+zval Authenticate::get_capabilities()
+{
+	return capabilities;
 }
 
 bool Authenticate::gather_auth_mechanisms()
@@ -1952,6 +1963,35 @@ xmysqlnd_session::connect(
 	DBG_RETURN(ret);
 }
 /* }}} */
+
+
+enum_func_status
+xmysqlnd_session_data::query_compression_algorithms()
+{
+	DBG_ENTER("query_compression_algorithms");
+	enum_func_status ret{FAIL};
+	st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+	st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
+	zval                              capabilities;
+	if (caps_get.send_request(&caps_get) != PASS) {
+		DBG_ERR_FMT("Failed to send capability get to the server");
+		DBG_RETURN(ret);
+	}
+
+	ZVAL_NULL(&capabilities);
+	const st_xmysqlnd_on_error_bind on_error{
+		xmysqlnd_session_data_handler_on_error,
+		(void*)this
+	};
+
+	caps_get.init_read(&caps_get, on_error);
+	if( caps_get.read_response(&caps_get, &capabilities) == FAIL) {
+		DBG_ERR_FMT("Failed when receiving the capability response from the server");
+		DBG_RETURN(ret);
+	}
+
+	DBG_RETURN(ret);
+}
 
 /* {{{ xmysqlnd_session::reset */
 const enum_func_status
@@ -3805,6 +3845,7 @@ enum_func_status connect_session(
 		if( ret == PASS ) {
 			//Ok, connection accepted with this host.
 			session->get_data()->ps_data.set_supported_ps( true );
+			session->get_data()->query_compression_algorithms();
 			break;
 		}
 	}

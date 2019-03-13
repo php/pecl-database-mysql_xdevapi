@@ -325,7 +325,7 @@ public:
 	~Authenticate();
 
 	bool run(bool re_auth = false);
-
+	zval get_capabilities();
 private:
 	bool run_auth();
 	bool run_re_auth();
@@ -337,7 +337,6 @@ private:
 	bool authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_plugin);
 	void raise_multiple_auth_mechanisms_algorithm_error();
 	bool is_multiple_auth_mechanisms_algorithm() const;
-
 private:
 	xmysqlnd_session_data* session;
 	const MYSQLND_CSTRING& scheme;
@@ -432,6 +431,7 @@ public:
 		const util::string& default_schema,
 		unsigned int port,
 		size_t set_capabilities);
+	enum_func_status           query_compression_algorithms();
 	MYSQLND_STRING    quote_name(const MYSQLND_CSTRING name);
 	unsigned int      get_error_no();
 	const char*       get_error_str();
@@ -456,8 +456,8 @@ public:
 	std::unique_ptr<Session_auth_data> auth;
 	Auth_mechanisms                    auth_mechanisms;
 	/* Other connection info */
-	std::string scheme;
-	std::string default_schema;
+	std::string                        scheme;
+	std::string                        default_schema;
 	transport_types                    transport_type;
 	/* Used only in case of non network transports */
 	std::string                        socket_path;
@@ -476,7 +476,7 @@ public:
 		- Session::Close meant Connection::Close
 		more details: WL#12375 WL#12396
 	*/
-	mutable boost::optional<bool> session_properly_supported;
+	mutable boost::optional<bool>      session_properly_supported;
 	/* stats */
 	MYSQLND_STATS*                     stats;
 	zend_bool		                   own_stats;
@@ -486,6 +486,8 @@ public:
 	unsigned int                       savepoint_name_seed;
 	vec_of_attribs                     connection_attribs;
 	drv::Prepare_stmt_data             ps_data;
+	std::vector<util::string>          supported_compression_algo;
+	zval                               capabilities;
 private:
 	void free_contents();
 	Mysqlx::Datatypes::Object*  prepare_client_attr_object();
