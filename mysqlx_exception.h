@@ -79,7 +79,7 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 #define err_msg_invalid_attrib_key_size    10039, "Connection attribute keys cannot be longer than 32 characters"
 #define err_msg_invalid_attrib_value_size  10039, "Connection attribute keys cannot be longer than 1024 characters"
 #define err_msg_invalid_attrib_size        10040, "The connection attribute string is too long."
-
+#define err_msg_invalid_compression_opt    10041, "The provided compression option is not recognized."
 
 extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 

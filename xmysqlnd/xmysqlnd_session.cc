@@ -63,6 +63,7 @@ extern "C" {
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+
 namespace mysqlx {
 
 namespace drv {
@@ -416,7 +417,7 @@ xmysqlnd_session_data::connect_handshake(
 										  stats,
 										  error_info))) {
 		state.set(SESSION_NON_AUTHENTICATED);
-		ret = send_client_attributes();
+		ret = PASS; //send_client_attributes(); FILIP
 		if( ret == PASS ) {
 			ret = authenticate(scheme_name, default_schema, set_capabilities);
 		}
@@ -907,6 +908,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 	}
 
 	savepoint_name_seed = 1;
+	compression_enabled = false;
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -1964,34 +1966,6 @@ xmysqlnd_session::connect(
 }
 /* }}} */
 
-
-enum_func_status
-xmysqlnd_session_data::query_compression_algorithms()
-{
-	DBG_ENTER("query_compression_algorithms");
-	enum_func_status ret{FAIL};
-	st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
-	st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
-	zval                              capabilities;
-	if (caps_get.send_request(&caps_get) != PASS) {
-		DBG_ERR_FMT("Failed to send capability get to the server");
-		DBG_RETURN(ret);
-	}
-
-	ZVAL_NULL(&capabilities);
-	const st_xmysqlnd_on_error_bind on_error{
-		xmysqlnd_session_data_handler_on_error,
-		(void*)this
-	};
-
-	caps_get.init_read(&caps_get, on_error);
-	if( caps_get.read_response(&caps_get, &capabilities) == FAIL) {
-		DBG_ERR_FMT("Failed when receiving the capability response from the server");
-		DBG_RETURN(ret);
-	}
-
-	DBG_RETURN(ret);
-}
 
 /* {{{ xmysqlnd_session::reset */
 const enum_func_status
@@ -3190,10 +3164,12 @@ Session_auth_data * extract_auth_information(const util::Url& node_url)
 			}
 
 			/*
-			 * Connection attributes are handled separately, in this
-			 * function we're focusing on authentication stuff.
+			 * Connection attributes and the compression option
+			 * are handled separately, in this function we're
+			 * focusing on authentication stuff.
 			 */
-			if( boost::iequals(variable, "connection-attributes" ) ) {
+			if( boost::iequals(variable, "connection-attributes" ) ||
+				boost::iequals(variable, "compression" ) ) {
 					continue;
 			}
 
@@ -3677,6 +3653,52 @@ enum_func_status parse_conn_attrib(
 	}
 	return get_def_client_attribs( attrib_container );
 }
+/* }}} */
+
+
+/* {{{ extract_compression_options */
+enum_func_status extract_compression_options(
+			drv::XMYSQLND_SESSION session,
+			const util::string& uri )
+{
+	static const std::string                   compression_opt{ "compression=" };
+	static const std::pair<util::string, bool> valid_options[] = {
+		{"TRUE", true},
+		{"ON",   true},
+		{"FALSE",false},
+		{"OFF",  false},
+		{"",     false} //sentinel
+	};
+	enum_func_status ret{ PASS };
+	if( session == nullptr || uri.empty() ) {
+		return FAIL;
+	}
+	std::size_t pos = uri.find(compression_opt.c_str());
+	std::size_t end_pos{ 0 };
+	if( pos != std::string::npos ) {
+		pos += compression_opt.size();
+		end_pos = pos;
+		for(;end_pos < uri.size() && uri[end_pos] != ',';++end_pos);
+		util::string value = uri.substr( pos, end_pos - pos );
+		std::transform(value.begin(),value.end(),value.begin(),
+					   [](unsigned char c) -> unsigned char { return std::toupper(c); });
+		for( int i{ 0 } ; valid_options[i].first.size() ; ++i ){
+			if( valid_options[i].first == value ) {
+				session->get_data()->compression_enabled = valid_options[i].second;
+				DBG_INF_FMT("The compression has been explicitly set to %s and it's %s",
+							value.c_str(),
+							valid_options[i].second ? "enabled" : "disabled" );
+				return ret;
+			}
+		}
+		DBG_ERR_FMT("The provided compression option is not recognized: %s",
+					value.c_str());
+		ret = FAIL;
+	}
+	return ret;
+}
+/* }}} */
+
 
 /* {{{ extract_connection_attributes */
 enum_func_status extract_connection_attributes(
@@ -3685,7 +3707,7 @@ enum_func_status extract_connection_attributes(
 {
 	static const std::string conn_attrib{ "connection-attributes" };
 	static const size_t      max_attrib_len{ 1024 * 64 };
-	enum_func_status ret = PASS;
+	enum_func_status         ret{ PASS };
 	if( session == nullptr || uri.empty() ) {
 		return FAIL;
 	}
@@ -3810,6 +3832,11 @@ enum_func_status connect_session(
 				devapi::RAISE_EXCEPTION( err_msg_internal_error );
 				DBG_RETURN(ret);
 			}
+			if( FAIL == extract_compression_options( session,
+													 current_uri.first ) ) {
+				devapi::RAISE_EXCEPTION( err_msg_invalid_compression_opt );
+				DBG_RETURN(ret);
+			}
 			Session_auth_data * auth = extract_auth_information(url.first);
 			if( nullptr != auth ) {
 				/*
@@ -3845,7 +3872,6 @@ enum_func_status connect_session(
 		if( ret == PASS ) {
 			//Ok, connection accepted with this host.
 			session->get_data()->ps_data.set_supported_ps( true );
-			session->get_data()->query_compression_algorithms();
 			break;
 		}
 	}

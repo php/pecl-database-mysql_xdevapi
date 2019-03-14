@@ -431,7 +431,6 @@ public:
 		const util::string& default_schema,
 		unsigned int port,
 		size_t set_capabilities);
-	enum_func_status           query_compression_algorithms();
 	MYSQLND_STRING    quote_name(const MYSQLND_CSTRING name);
 	unsigned int      get_error_no();
 	const char*       get_error_str();
@@ -488,6 +487,7 @@ public:
 	drv::Prepare_stmt_data             ps_data;
 	std::vector<util::string>          supported_compression_algo;
 	zval                               capabilities;
+	bool                               compression_enabled;
 private:
 	void free_contents();
 	Mysqlx::Datatypes::Object*  prepare_client_attr_object();
