@@ -444,6 +444,7 @@ public:
 	enum_func_status  send_close();
 	bool is_closed() const { return state.get() == SESSION_CLOSED; }
 	size_t            negotiate_client_api_capabilities(const size_t flags);
+	std::string      xmysqlnd_select_compression_algorithm();
 
 	bool is_session_properly_supported() const;
 	size_t            get_client_id();

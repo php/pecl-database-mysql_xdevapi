@@ -398,6 +398,41 @@ xmysqlnd_session_data::send_client_attributes()
 
 
 /* {{{ xmysqlnd_session_data::connect_handshake */
+std::string
+xmysqlnd_session_data::xmysqlnd_select_compression_algorithm()
+{
+	static const std::string comp_alg_attr{"compression_algorithm"};
+	static const std::string default_algorithm{"deflate"};
+	DBG_ENTER("xmysqlnd_session_data::xmysqlnd_select_compression_algorithm");
+	std::string algorithm;
+	zend_bool   compression_set{ FALSE };
+
+	xmysqlnd_is_capability_present(&capabilities, comp_alg_attr.c_str(),
+								   &compression_set);
+	if( compression_set ) {
+		zval*       entry{nullptr};
+		const zval* algorithms = zend_hash_str_find(Z_ARRVAL(capabilities),
+													comp_alg_attr.c_str(),
+													comp_alg_attr.size());
+
+		MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(algorithms), entry) {
+			if (!strcasecmp(Z_STRVAL_P(entry), default_algorithm.c_str())) {
+				algorithm = default_algorithm;
+				break;
+			}
+		} ZEND_HASH_FOREACH_END();
+		if( algorithm.empty()){
+			devapi::RAISE_EXCEPTION( err_msg_compres_negotiation_failed );
+		}
+	} else {
+		devapi::RAISE_EXCEPTION( err_msg_compression_not_supported );
+	}
+	DBG_RETURN(algorithm);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_session_data::connect_handshake */
 enum_func_status
 xmysqlnd_session_data::connect_handshake(
 	const MYSQLND_CSTRING scheme_name,
@@ -420,6 +455,9 @@ xmysqlnd_session_data::connect_handshake(
 		ret = PASS; //send_client_attributes(); FILIP
 		if( ret == PASS ) {
 			ret = authenticate(scheme_name, default_schema, set_capabilities);
+		}
+		if( ret == PASS && compression_enabled == true ) {
+			std::string comp_algorithm = xmysqlnd_select_compression_algorithm();
 		}
 	}
 	DBG_RETURN(ret);
@@ -1612,17 +1650,22 @@ bool Authenticate::init_capabilities()
 
 bool Authenticate::init_connection()
 {
-	zend_bool tls_set{FALSE};
+	enum_func_status ret{FAIL};
+	zend_bool        tls_set{FALSE};
+
 	xmysqlnd_is_capability_present(&capabilities, "tls", &tls_set);
 
-	if (auth->ssl_mode == SSL_mode::disabled) return true;
+	if (auth->ssl_mode == SSL_mode::disabled) {
+		return true;
+	}
 
 	if (tls_set) {
-		return setup_crypto_connection(session, caps_get, msg_factory) == PASS;
+		ret = setup_crypto_connection(session, caps_get, msg_factory);
 	} else {
 		php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL, unsupported by the server");
-		return false;
 	}
+
+	return ret == PASS;
 }
 
 zval Authenticate::get_capabilities()
@@ -3661,15 +3704,15 @@ enum_func_status extract_compression_options(
 			drv::XMYSQLND_SESSION session,
 			const util::string& uri )
 {
-	static const std::string                   compression_opt{ "compression=" };
-	static const std::pair<util::string, bool> valid_options[] = {
+	enum_func_status ret{ PASS };
+	static const std::string                  compression_opt{ "compression=" };
+	static const std::pair<std::string, bool> valid_options[] = {
 		{"TRUE", true},
 		{"ON",   true},
 		{"FALSE",false},
 		{"OFF",  false},
 		{"",     false} //sentinel
 	};
-	enum_func_status ret{ PASS };
 	if( session == nullptr || uri.empty() ) {
 		return FAIL;
 	}
@@ -3679,7 +3722,7 @@ enum_func_status extract_compression_options(
 		pos += compression_opt.size();
 		end_pos = pos;
 		for(;end_pos < uri.size() && uri[end_pos] != ',';++end_pos);
-		util::string value = uri.substr( pos, end_pos - pos );
+		std::string value{ uri.substr( pos, end_pos - pos ).c_str() };
 		std::transform(value.begin(),value.end(),value.begin(),
 					   [](unsigned char c) -> unsigned char { return std::toupper(c); });
 		for( int i{ 0 } ; valid_options[i].first.size() ; ++i ){
