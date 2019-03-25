@@ -30,6 +30,15 @@ namespace util {
 /* {{{ iless */
 struct iless
 {
+	bool operator()(const char* lhs, const char* rhs) const
+	{
+		return std::lexicographical_compare(
+			lhs, lhs + std::strlen(lhs),
+			rhs, rhs + std::strlen(rhs),
+			boost::algorithm::is_iless()
+		);
+	}
+
 	bool operator()(const std::string& lhs, const std::string& rhs) const
 	{
 		return std::lexicographical_compare(
@@ -147,6 +156,7 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 //------------------------------------------------------------------------------
 
 bool to_int(const string& str, int* value);
+bool to_int(const std::string& str, int* value);
 
 } // namespace util
 

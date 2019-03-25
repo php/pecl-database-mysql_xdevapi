@@ -119,6 +119,18 @@ bool to_int(const string& str, int* value)
 }
 /* }}} */
 
+/* {{{ to_int */
+bool to_int(const std::string& str, int* value)
+{
+	try {
+		*value = std::stoi(str);
+		return true;
+	} catch(std::exception& /*e*/) {
+		return false;
+	}
+}
+/* }}} */
+
 } // namespace util
 
 } // namespace mysqlx

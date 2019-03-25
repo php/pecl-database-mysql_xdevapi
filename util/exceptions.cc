@@ -23,6 +23,7 @@ extern "C" {
 #include "exceptions.h"
 #include "mysqlx_exception.h"
 #include "types.h"
+#include "string_utils.h"
 
 namespace mysqlx {
 
@@ -104,26 +105,36 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::conn_attrib_wrong_type,
 		"The value of \"connection-attributes\" must be either a boolean or a list of key-value pairs"},
 	{ xdevapi_exception::Code::conn_attrib_dup_key,
-		"Duplicate key used in the \"connection-attributes\" option." }
+		"Duplicate key used in the \"connection-attributes\" option." },
+	{ xdevapi_exception::Code::unknown_client_conn_option,
+		"Unknown client connection option in Uri." },
+	{ xdevapi_exception::Code::unknown_ssl_mode, "Unknown SSL mode: " },
+	{ xdevapi_exception::Code::unknown_tls_version, "Unknown TLS version." },
 };
 /* }}} */
 
 /* {{{ to_sql_state */
-string to_sql_state(const char* sql_state)
+string to_sql_state(const string& sql_state)
 {
-	return sql_state ? sql_state : General_sql_state;
+	return sql_state.empty() ? General_sql_state : sql_state;
 }
 /* }}} */
 
 /* {{{ to_error_msg */
-string to_error_msg(unsigned int code, const char* what)
+string to_error_msg(unsigned int code, const string& what)
 {
-	if (what) return what;
-
+	string msg;
 	auto it{ code_to_err_msg.find(static_cast<xdevapi_exception::Code>(code)) };
-	if (it != code_to_err_msg.end()) return it->second;
+	if (it != code_to_err_msg.end()) {
+		msg = it->second;
+	}
 
-	return Unknown_error_message;
+	if (!what.empty()) {
+		if (!msg.empty()) msg += ' ';
+		msg += what;
+	}
+
+	return msg.empty() ? Unknown_error_message : msg;
 }
 /* }}} */
 
@@ -133,7 +144,7 @@ string to_error_msg(unsigned int code, const char* what)
 
 /* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code)
-	: xdevapi_exception(code, code_to_err_msg.at(code))
+	: xdevapi_exception(code, nullptr)
 {
 }
 /* }}} */
@@ -141,6 +152,20 @@ xdevapi_exception::xdevapi_exception(Code code)
 /* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code, const string& msg)
 	: xdevapi_exception(static_cast<unsigned int>(code), msg)
+{
+}
+/* }}} */
+
+/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
+xdevapi_exception::xdevapi_exception(Code code, const char* msg)
+	: xdevapi_exception(static_cast<unsigned int>(code), General_sql_state, msg)
+{
+}
+/* }}} */
+
+/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
+xdevapi_exception::xdevapi_exception(Code code, const std::string& msg)
+	: xdevapi_exception(code, util::to_string(msg))
 {
 }
 /* }}} */
@@ -154,7 +179,7 @@ xdevapi_exception::xdevapi_exception(unsigned int code, const string& msg)
 
 /* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const char* sql_state, const char* msg)
-	: xdevapi_exception(code, to_sql_state(sql_state), to_error_msg(code, msg))
+	: xdevapi_exception(code, to_string(sql_state), to_string(msg))
 {
 }
 /* }}} */
@@ -231,7 +256,7 @@ void raise_unknown_exception()
 string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what)
 {
 	ostringstream os;
-	os << '[' << code << "][" << sql_state << "] " << what;
+	os << '[' << code << "][" << to_sql_state(sql_state) << "] " << to_error_msg(code, what);
 	const string& reason = os.str();
 	return reason;
 }
@@ -240,7 +265,7 @@ string prepare_reason_msg(unsigned int code, const string& sql_state, const stri
 /* {{{ mysqlx::util::prepare_reason_msg */
 string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what)
 {
-	return prepare_reason_msg(code, to_sql_state(sql_state), to_error_msg(code, what));
+	return prepare_reason_msg(code, to_string(sql_state), to_string(what));
 }
 /* }}} */
 
