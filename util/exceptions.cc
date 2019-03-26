@@ -107,9 +107,9 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::conn_attrib_dup_key,
 		"Duplicate key used in the \"connection-attributes\" option." },
 	{ xdevapi_exception::Code::unknown_client_conn_option,
-		"Unknown client connection option in Uri." },
-	{ xdevapi_exception::Code::unknown_ssl_mode, "Unknown SSL mode: " },
-	{ xdevapi_exception::Code::unknown_tls_version, "Unknown TLS version." },
+		"Unknown client connection option in Uri:" },
+	{ xdevapi_exception::Code::unknown_ssl_mode, "Unknown SSL mode:" },
+	{ xdevapi_exception::Code::unknown_tls_version, "Unknown TLS version:" },
 };
 /* }}} */
 

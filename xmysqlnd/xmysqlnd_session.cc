@@ -1064,7 +1064,7 @@ void setup_crypto_options(
 
 	// is verification of SSL certificate required
 	const SSL_mode ssl_mode{ auth->ssl_mode };
-	const bool is_verify_peer_required{ 
+	const bool is_verify_peer_required{
 		(ssl_mode == SSL_mode::verify_ca) || (ssl_mode == SSL_mode::verify_identity) };
 	zval verify_peer;
 	ZVAL_BOOL(&verify_peer, is_verify_peer_required);
@@ -3033,25 +3033,26 @@ void Extract_client_option::run()
 		{ "ssl-cert", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_client_cert }},
 		{ "ssl-ca", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_cafile }},
 		{ "ssl-capath", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_capath }},
+		{ "ssl-cipher", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_ciphers }},
+		{ "ssl-ciphers", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_ciphers }},
 		{ "tls-version", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_versions }},
 		{ "tls-versions", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_versions }},
 		{ "tls-ciphersuite", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
 		{ "tls-ciphersuites", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
-		{ "ssl-cipher", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_ciphers }},
-		{ "ssl-ciphers", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_ciphers }},
 		{ "connect-timeout", {Option_trait::Is_integer | Option_trait::Requires_value, &Extract_client_option::set_connect_timeout }},
 	};
 
 	auto it{ option_to_info.find(option_name.c_str()) };
 	if (it == option_to_info.end()) {
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::unknown_client_conn_option,
-			"Unknown client connection option '" + option_name + "'.");
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::unknown_client_conn_option,
+			option_name);
 	}
 
 	const Client_option_info& coi{it->second};
 	if ((coi.requires_value()) && option_value.empty()) {
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument,
-			"The argument to " + option_name + " shouldn't be empty!");
+			"The argument to " + option_name + " cannot be empty.");
 	}
 
 	auto setter{coi.setter};
@@ -3081,7 +3082,7 @@ enum_func_status Extract_client_option::assign_ssl_mode(Session_auth_data& auth,
 		DBG_RETURN(PASS);
 	}
 
-	const char* error_reason{ "Selected two incompatible ssl modes" };
+	const char* error_reason{ "Only one ssl mode is allowed." };
 	DBG_ERR_FMT(error_reason);
 	throw util::xdevapi_exception(
 		util::xdevapi_exception::Code::inconsistent_ssl_options,
@@ -3104,7 +3105,7 @@ void Extract_client_option::ensure_ssl_mode()
 		*/
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::inconsistent_ssl_options,
-			"secure option '" + option_name + "' cannot be used together with ssl-mode disabled");
+			"secure option '" + option_name + "'  can not be specified when SSL connections are disabled");
 	}
 }
 
@@ -3170,14 +3171,11 @@ void Extract_client_option::assign_auth_mechanism(const Auth_mechanism auth_mech
 		DBG_INF_FMT("Selected authentication mechanism: %d", static_cast<int>(auth_mechanism));
 		auth.auth_mechanism = auth_mechanism;
 	} else if (auth.auth_mechanism != auth_mechanism) {
-		util::stringstream os;
-		os << "Selected two incompatible authentication mechanisms "
-			<< static_cast<int>(auth.auth_mechanism)
-			<< " vs "
-			<< static_cast<int>(auth_mechanism);
-		const auto& msg{ os.str() };
-		DBG_ERR_FMT("%s", msg.c_str());
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_auth_mechanism, msg);
+		const char* error_reason{ "only one authentication mechanism is allowed" };
+		DBG_ERR_FMT("%s", error_reason);
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::invalid_auth_mechanism,
+			error_reason);
 	}
 	DBG_VOID_RETURN;
 }
@@ -3213,21 +3211,33 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 
 Tls_version Extract_client_option::parse_tls_version(const std::string& tls_version_str) const
 {
-	using str_to_protocol = std::map<std::string, Tls_version, util::iless>;
-	static const str_to_protocol str_to_protocols{
+	using name_to_protocol = std::map<std::string, Tls_version, util::iless>;
+	static const name_to_protocol name_to_protocols{
 		{ Tls_version_v1, Tls_version::tls_v1_0 },
 		{ Tls_version_v10, Tls_version::tls_v1_0 },
 		{ Tls_version_v11, Tls_version::tls_v1_1 },
 		{ Tls_version_v12, Tls_version::tls_v1_2 },
 		{ Tls_version_v13, Tls_version::tls_v1_3 },
 	};
-	auto it{ str_to_protocols.find(tls_version_str) };
-	if (it == str_to_protocols.end()) {
-		throw util::xdevapi_exception(
-			util::xdevapi_exception::Code::unknown_tls_version,
-			"Unknown TLS version: " + tls_version_str);
-	}
-	return it->second;
+	auto it{ name_to_protocols.find(tls_version_str) };
+	if (it != name_to_protocols.end()) return it->second;
+
+	util::strings supported_protocols;
+	std::transform(
+		name_to_protocols.begin(),
+		name_to_protocols.end(),
+		std::back_inserter(supported_protocols),
+		[](const auto& name_protocol) { return util::to_string(name_protocol.first); }
+	);
+
+	util::ostringstream os;
+	os << tls_version_str
+		<< " not recognized as a valid TLS protocol version (should be one of "
+		<< boost::join(supported_protocols, ", ")
+		<< ')';
+	throw util::xdevapi_exception(
+		util::xdevapi_exception::Code::unknown_tls_version,
+		os.str());
 }
 
 void Extract_client_option::set_tls_ciphersuites(const std::string& raw_tls_ciphersuites)
@@ -3298,93 +3308,14 @@ enum_func_status extract_client_option(
 	const util::string& option_value,
 	Session_auth_data* auth)
 {
-	//try {
-		Extract_client_option extract_client_option(option_name, option_value, auth);
-		extract_client_option.run();
-		return PASS;
-	//} catch(std::exception& e) {
-	//	util::log_warning(e.what());
-	//	return FAIL;
-	//}
+	Extract_client_option extract_client_option(option_name, option_value, auth);
+	extract_client_option.run();
+	return PASS;
 }
 
 } // anonymous namespace
 
 // ------------------------------------------------------------------------------
-
-///* {{{ extract_ssl_information */
-//enum_func_status extract_ssl_information(
-//		const util::string& option_name,
-//		const util::string& option_value,
-//		Session_auth_data* auth)
-//{
-//	DBG_ENTER("extract_ssl_information");
-//	enum_func_status ret{PASS};
-//	////using std::function<void(const std::string&, Session_auth_data&)>
-//	//using ssl_option_to_data_member = std::map<std::string,
-//	//	std::function<void(const std::string&, Session_auth_data&)>>;
-//	//// Map the ssl option to the proper member, according to:
-//	//// https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-options.html
-//	//static const ssl_option_to_data_member ssl_option_to_data_members{
-//	//	{ "ssl-key", &Session_auth_data::ssl_local_pk },
-//	//	{ "ssl-cert",&Session_auth_data::ssl_local_cert },
-//	//	{ "ssl-ca", &Session_auth_data::ssl_cafile },
-//	//	{ "ssl-capath", &Session_auth_data::ssl_capath },
-//	//	{ "ssl-cipher", &Session_auth_data::ssl_ciphers },
-//	//	{ "tls-versions", &Session_auth_data::tls_version },
-//	//	{ "tls-ciphersuites", &Session_auth_data::tls_version }
-//	//};
-//
-//	//auto it = ssl_option_to_data_members.find(option_name.c_str());
-//	//if (it != ssl_option_to_data_members.end()) {
-//	//	if( option_value.empty() ) {
-//	//		DBG_ERR_FMT("The argument to %s shouldn't be empty!",
-//	//					option_name.c_str() );
-//	//		php_error_docref(nullptr, E_WARNING, "The argument to %s shouldn't be empty!",
-//	//						 option_name.c_str() );
-//	//		ret = FAIL;
-//	//	} else {
-//	//		auth->*(it->second) = util::to_std_string(option_value);
-//	//		/*
-//	//			* some SSL options provided, assuming
-//	//			* 'required' mode if not specified yet.
-//	//			*/
-//	//		if( auth->ssl_mode == SSL_mode::not_specified ) {
-//	//			ret = set_ssl_mode( auth, SSL_mode::required );
-//	//		} else if (auth->ssl_mode == SSL_mode::disabled) {
-//	//			/*
-//	//				WL#10400 DevAPI: Ensure all Session connections are secure by default
-//	//				- if ssl-mode=disabled is used appearance of any ssl option
-//	//				such as ssl-ca would result in an error
-//	//				- inconsistent options such as  ssl-mode=disabled&ssl-ca=xxxx
-//	//				would result in an error returned to the user
-//	//			*/
-//	//			devapi::RAISE_EXCEPTION(err_msg_inconsistent_ssl_options);
-//	//			ret = FAIL;
-//	//		}
-//	//	}
-//	//} else {
-//	//	if (boost::iequals(option_name, "ssl-mode")) {
-//	//		ret = parse_ssl_mode(auth, option_value);
-//	//	} else if (boost::iequals(option_name, "ssl-no-defaults")) {
-//	//		auth->ssl_no_defaults = true;
-//	//	} else if (boost::iequals(option_name, "auth")) {
-//	//		ret = parse_auth_mechanism(auth, option_value);
-//	//	} else if (is_integer_auth_option(option_name)) {
-//	//		if (!parse_integer_auth_option(option_name, option_value, auth)) {
-//	//			ret = FAIL;
-//	//		}
-//	//	} else {
-//	//		php_error_docref(nullptr,
-//	//						 E_WARNING,
-//	//						 "Unknown secure connection option %s.",
-//	//						 option_name.c_str());
-//	//		ret = FAIL;
-//	//	}
-//	//}
-//	DBG_RETURN(ret);
-//}
-///* }}} */
 
 /* {{{ extract_auth_information */
 Session_auth_data* extract_auth_information(const util::Url& node_url)

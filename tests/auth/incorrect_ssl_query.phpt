@@ -42,7 +42,8 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-[HY000] Invalid authorization mechanism
-[HY000] Invalid authorization mechanism
-[HY000] Invalid authorization mechanism
+[10052][HY000] Invalid argument. The argument to auth cannot be empty.
+[10046][HY000] Invalid authentication mechanism =
+[10046][HY000] Invalid authentication mechanism plajn
+[10064][HY000] Unknown SSL mode: disabledauth=
 done!%A

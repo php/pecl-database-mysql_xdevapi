@@ -58,11 +58,11 @@ print "done!\n";
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
-[HY000] Invalid authorization mechanism
+[10046][HY000] Invalid authentication mechanism UNSUPPORTED
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
-[HY000] Invalid authorization mechanism
+[10046][HY000] Invalid authentication mechanism nonworking
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
-[HY000] Invalid authorization mechanism
+[10046][HY000] Invalid authentication mechanism NonSupporteD
 done!%A

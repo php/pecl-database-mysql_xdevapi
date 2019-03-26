@@ -126,7 +126,9 @@ void Client_options_parser::verify_option(const std::string& option_name)
 	if (!allowed_options.count(option_name)) {
 		util::ostringstream os;
 		os << "Client option '" << option_name << "' is not recognized as valid.";
-		throw std::invalid_argument(os.str().c_str());
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::invalid_argument,
+			os.str());
 	}
 }
 
@@ -381,7 +383,7 @@ drv::XMYSQLND_SESSION Connection_pool::try_pop_idle_connection(std::unique_lock<
 	if (wait_for_idle_connection(lck)) return pop_idle_connection();
 
 	util::ostringstream os;
-	os << "couldn't get connection from pool - queue timeout elapsed " << connection_uri.c_str();
+	os << "Couldn't get connection from pool - queue timeout elapsed " << connection_uri.c_str();
 	throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error, os.str());
 }
 
@@ -501,7 +503,7 @@ shared_client_state Client_state_manager::add_client_state(
 	auto result{ client_states.insert(std::make_pair(connection_uri, client_state)) };
 	if (!result.second) {
 		util::ostringstream os;
-		os << "cannot add client for " << connection_uri.c_str();
+		os << "Cannot add client for " << connection_uri.c_str();
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::runtime_error, os.str());
 	}
 

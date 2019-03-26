@@ -68,12 +68,12 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-Client option 'ENABLED' is not recognized as valid.
-Client option 'eNaBlEd' is not recognized as valid.
-Client option 'MaxSize' is not recognized as valid.
-Client option 'maxsize' is not recognized as valid.
-Client option 'mAXiDLEtIME' is not recognized as valid.
-Client option 'maXidlEtimE' is not recognized as valid.
-Client option 'QUEUETIMEOUT' is not recognized as valid.
-Client option 'Queuetimeout' is not recognized as valid.
+[10052][HY000] Invalid argument. Client option 'ENABLED' is not recognized as valid.
+[10052][HY000] Invalid argument. Client option 'eNaBlEd' is not recognized as valid.
+[10052][HY000] Invalid argument. Client option 'MaxSize' is not recognized as valid.
+[10052][HY000] Invalid argument. Client option 'maxsize' is not recognized as valid.
+[10052][HY000] Invalid argument. Client option 'mAXiDLEtIME' is not recognized as valid.
+[10052][HY000] Invalid argument. Client option 'maXidlEtimE' is not recognized as valid.
+[10052][HY000] Invalid argument. Client option 'QUEUETIMEOUT' is not recognized as valid.
+[10052][HY000] Invalid argument. Client option 'Queuetimeout' is not recognized as valid.
 done!%A
