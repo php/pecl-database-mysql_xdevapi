@@ -1102,12 +1102,25 @@ php_stream_xport_crypt_method_t to_stream_crypt_method(Tls_version tls_version)
 	return tls_version_to_crypt_method.at(tls_version);
 }
 
+using Crypt_methods = util::vector<php_stream_xport_crypt_method_t>;
+
+Crypt_methods prepare_crypt_methods(const Tls_versions& tls_versions)
+{
+	int tls_crypt_methods{ 0 };
+	for (Tls_version tls_version : tls_versions) {
+		php_stream_xport_crypt_method_t tls_crypt_method{ to_stream_crypt_method(tls_version) };
+		tls_crypt_methods |= tls_crypt_method;
+	}
+
+	return { static_cast<php_stream_xport_crypt_method_t>(tls_crypt_methods) };
+}
+
 /* {{{ try_setup_crypto_connection */
 enum_func_status try_setup_crypto_connection(
 	xmysqlnd_session_data* session,
 	st_xmysqlnd_msg__capabilities_get& caps_get,
 	const st_xmysqlnd_message_factory& msg_factory,
-	const Tls_version tls_version)
+	php_stream_xport_crypt_method_t crypt_method)
 {
 	DBG_ENTER("try_setup_crypto_connection");
 	enum_func_status ret{FAIL};
@@ -1150,7 +1163,6 @@ enum_func_status try_setup_crypto_connection(
 			//Attempt to enable the stream with the crypto
 			//settings.
 			php_stream_context_set(net_stream, context);
-			php_stream_xport_crypt_method_t crypt_method{ to_stream_crypt_method(tls_version) };
 			if (php_stream_xport_crypto_setup(net_stream, crypt_method, nullptr) < 0 ||
 					php_stream_xport_crypto_enable(net_stream, 1) < 0)
 			{
@@ -1191,9 +1203,10 @@ enum_func_status setup_crypto_connection(
 	}
 
 	enum_func_status result{ FAIL };
-	for (Tls_version tls_version : tls_versions) {
-		DBG_INF_FMT("setup_crypto_connection %d", static_cast<int>(tls_version));
-		result = try_setup_crypto_connection(session, caps_get, msg_factory, tls_version);
+	const Crypt_methods& crypt_methods{ prepare_crypt_methods(tls_versions) };
+	for (php_stream_xport_crypt_method_t crypt_method : crypt_methods) {
+		DBG_INF_FMT("setup_crypto_connection %d", static_cast<int>(crypt_method));
+		result = try_setup_crypto_connection(session, caps_get, msg_factory, crypt_method);
 		if (result == PASS) {
 			break;
 		}
