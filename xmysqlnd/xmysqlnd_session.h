@@ -188,13 +188,13 @@ struct Session_auth_data
 	SSL_mode ssl_mode;
 	bool ssl_enabled;
 	bool ssl_no_defaults;
+	Tls_versions tls_versions;
+	util::std_strings tls_ciphersuites;
 	std::string ssl_local_pk;
 	std::string ssl_local_cert;
 	std::string ssl_cafile;
 	std::string ssl_capath;
-	std::string ssl_ciphers;
-	Tls_versions tls_versions;
-	std::string tls_ciphersuites;
+	util::std_strings ssl_ciphers;
 	bool ssl_allow_self_signed_cert{ true };
 	Auth_mechanism auth_mechanism{ Auth_mechanism::unspecified };
 

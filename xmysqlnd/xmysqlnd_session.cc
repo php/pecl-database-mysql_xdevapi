@@ -1052,15 +1052,12 @@ void setup_crypto_options(
 	}
 
 	//Provide the list of supported/unsupported ciphers
-	util::string cipher_list;
-	for( auto& cipher : auth->supported_ciphers ) {
-		cipher_list += cipher.c_str();
-		cipher_list += ':';
+	if (!auth->ssl_ciphers.empty()) {
+		const std::string& cipher_list{ boost::join(auth->ssl_ciphers, ":") };
+		ZVAL_STRING(&string, cipher_list.c_str());
+		php_stream_context_set_option(stream_context,"ssl","ciphers",&string);
+		zval_ptr_dtor(&string);
 	}
-
-	ZVAL_STRING(&string, cipher_list.c_str());
-	php_stream_context_set_option(stream_context,"ssl","ciphers",&string);
-	zval_ptr_dtor(&string);
 
 	// is verification of SSL certificate required
 	const SSL_mode ssl_mode{ auth->ssl_mode };
@@ -1096,7 +1093,8 @@ php_stream_xport_crypt_method_t to_stream_crypt_method(Tls_version tls_version)
 		{ Tls_version::tls_v1_0, STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT },
 		{ Tls_version::tls_v1_1, STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT },
 		{ Tls_version::tls_v1_2, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
-		{ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT }
+		//TODO: wait for patch in PHP
+		//{ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT }
 	};
 
 	return tls_version_to_crypt_method.at(tls_version);
@@ -3255,14 +3253,12 @@ Tls_version Extract_client_option::parse_tls_version(const std::string& tls_vers
 
 void Extract_client_option::set_tls_ciphersuites(const std::string& raw_tls_ciphersuites)
 {
-	const util::std_strings& tls_ciphersuites_str{ parse_single_or_array(raw_tls_ciphersuites) };
-	auth.tls_ciphersuites = boost::join(tls_ciphersuites_str, ": ");
+	auth.tls_ciphersuites = parse_single_or_array(raw_tls_ciphersuites);
 }
 
 void Extract_client_option::set_ssl_ciphers(const std::string& raw_ssl_ciphers)
 {
-	const util::std_strings& ssl_ciphers_str{ parse_single_or_array(raw_ssl_ciphers) };
-	auth.ssl_ciphers = boost::join(ssl_ciphers_str, ": ");
+	auth.ssl_ciphers = parse_single_or_array(raw_ssl_ciphers);
 }
 
 void Extract_client_option::set_connect_timeout(const std::string& timeout_str)
@@ -3324,6 +3320,273 @@ enum_func_status extract_client_option(
 	Extract_client_option extract_client_option(option_name, option_value, auth);
 	extract_client_option.run();
 	return PASS;
+}
+
+// ------------------------------------------------------------------------------
+
+using Ciphersuites_to_ciphers = std::map<std::string, std::string>;
+
+class Map_ciphersuites_to_ciphers
+{
+public:
+	Map_ciphersuites_to_ciphers(Session_auth_data* auth_data);
+	void run();
+
+private:
+	bool need_mapping() const;
+
+private:
+	static const Ciphersuites_to_ciphers ciphersuites_to_ciphers;
+	const Tls_versions& tls_versions;
+	const util::std_strings& tls_ciphersuites;
+	util::std_strings& ssl_ciphers;
+};
+
+// source: https://www.openssl.org/docs/man1.0.2/man1/ciphers.html
+const Ciphersuites_to_ciphers Map_ciphersuites_to_ciphers::ciphersuites_to_ciphers{
+	// SSL v3.0 cipher suites.
+	{ "SSL_RSA_WITH_NULL_MD5", "NULL-MD5" },
+	{ "SSL_RSA_WITH_NULL_SHA", "NULL-SHA" },
+	{ "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "EXP-RC4-MD5" },
+	{ "SSL_RSA_WITH_RC4_128_MD5", "RC4-MD5" },
+	{ "SSL_RSA_WITH_RC4_128_SHA", "RC4-SHA" },
+	{ "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5", "EXP-RC2-CBC-MD5" },
+	{ "SSL_RSA_WITH_IDEA_CBC_SHA", "IDEA-CBC-SHA" },
+	{ "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA", "EXP-DES-CBC-SHA" },
+	{ "SSL_RSA_WITH_DES_CBC_SHA", "DES-CBC-SHA" },
+	{ "SSL_RSA_WITH_3DES_EDE_CBC_SHA", "DES-CBC3-SHA" },
+	{ "SSL_DH_DSS_WITH_DES_CBC_SHA", "DH-DSS-DES-CBC-SHA" },
+	{ "SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA", "DH-DSS-DES-CBC3-SHA" },
+	{ "SSL_DH_RSA_WITH_DES_CBC_SHA", "DH-RSA-DES-CBC-SHA" },
+	{ "SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA", "DH-RSA-DES-CBC3-SHA" },
+	{ "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA", "EXP-EDH-DSS-DES-CBC-SHA" },
+	{ "SSL_DHE_DSS_WITH_DES_CBC_SHA", "EDH-DSS-CBC-SHA" },
+	{ "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "EDH-DSS-DES-CBC3-SHA" },
+	{ "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "EXP-EDH-RSA-DES-CBC-SHA" },
+	{ "SSL_DHE_RSA_WITH_DES_CBC_SHA", "EDH-RSA-DES-CBC-SHA" },
+	{ "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "EDH-RSA-DES-CBC3-SHA" },
+	{ "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5", "EXP-ADH-RC4-MD5" },
+	{ "SSL_DH_anon_WITH_RC4_128_MD5", "ADH-RC4-MD5" },
+	{ "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA", "EXP-ADH-DES-CBC-SHA" },
+	{ "SSL_DH_anon_WITH_DES_CBC_SHA", "ADH-DES-CBC-SHA" },
+	{ "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA", "ADH-DES-CBC3-SHA" },
+	//SSL_FORTEZZA_KEA_WITH_NULL_SHA          Not implemented.
+	//SSL_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA  Not implemented.
+	//SSL_FORTEZZA_KEA_WITH_RC4_128_SHA       Not implemented.
+
+	// TLS v1.0 cipher suites.
+	{ "TLS_RSA_WITH_NULL_MD5", "NULL-MD5" },
+	{ "TLS_RSA_WITH_NULL_SHA", "NULL-SHA" },
+	{ "TLS_RSA_EXPORT_WITH_RC4_40_MD5", "EXP-RC4-MD5" },
+	{ "TLS_RSA_WITH_RC4_128_MD5", "RC4-MD5" },
+	{ "TLS_RSA_WITH_RC4_128_SHA", "RC4-SHA" },
+	{ "TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5", "EXP-RC2-CBC-MD5" },
+	{ "TLS_RSA_WITH_IDEA_CBC_SHA", "IDEA-CBC-SHA" },
+	{ "TLS_RSA_EXPORT_WITH_DES40_CBC_SHA", "EXP-DES-CBC-SHA" },
+	{ "TLS_RSA_WITH_DES_CBC_SHA", "DES-CBC-SHA" },
+	{ "TLS_RSA_WITH_3DES_EDE_CBC_SHA", "DES-CBC3-SHA" },
+	//TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA    Not implemented.
+	//TLS_DH_DSS_WITH_DES_CBC_SHA             Not implemented.
+	//TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA        Not implemented.
+	//TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA    Not implemented.
+	//TLS_DH_RSA_WITH_DES_CBC_SHA             Not implemented.
+	//TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA        Not implemented.
+	{ "TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA", "EXP-EDH-DSS-DES-CBC-SHA" },
+	{ "TLS_DHE_DSS_WITH_DES_CBC_SHA", "EDH-DSS-CBC-SHA" },
+	{ "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "EDH-DSS-DES-CBC3-SHA" },
+	{ "TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "EXP-EDH-RSA-DES-CBC-SHA" },
+	{ "TLS_DHE_RSA_WITH_DES_CBC_SHA", "EDH-RSA-DES-CBC-SHA" },
+	{ "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "EDH-RSA-DES-CBC3-SHA" },
+	{ "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5", "EXP-ADH-RC4-MD5" },
+	{ "TLS_DH_anon_WITH_RC4_128_MD5", "ADH-RC4-MD5" },
+	{ "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA", "EXP-ADH-DES-CBC-SHA" },
+	{ "TLS_DH_anon_WITH_DES_CBC_SHA", "ADH-DES-CBC-SHA" },
+	{ "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA", "ADH-DES-CBC3-SHA" },
+
+	// AES ciphersuites from RFC3268, extending TLS v1.0
+	{ "TLS_RSA_WITH_AES_128_CBC_SHA", "AES128-SHA" },
+	{ "TLS_RSA_WITH_AES_256_CBC_SHA", "AES256-SHA" },
+	{ "TLS_DH_DSS_WITH_AES_128_CBC_SHA", "DH-DSS-AES128-SHA" },
+	{ "TLS_DH_DSS_WITH_AES_256_CBC_SHA", "DH-DSS-AES256-SHA" },
+	{ "TLS_DH_RSA_WITH_AES_128_CBC_SHA", "DH-RSA-AES128-SHA" },
+	{ "TLS_DH_RSA_WITH_AES_256_CBC_SHA", "DH-RSA-AES256-SHA" },
+	{ "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "DHE-DSS-AES128-SHA" },
+	{ "TLS_DHE_DSS_WITH_AES_256_CBC_SHA", "DHE-DSS-AES256-SHA" },
+	{ "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "DHE-RSA-AES128-SHA" },
+	{ "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "DHE-RSA-AES256-SHA" },
+	{ "TLS_DH_anon_WITH_AES_128_CBC_SHA", "ADH-AES128-SHA" },
+	{ "TLS_DH_anon_WITH_AES_256_CBC_SHA", "ADH-AES256-SHA" },
+
+	// Camellia ciphersuites from RFC4132, extending TLS v1.0
+	{ "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA", "CAMELLIA128-SHA" },
+	{ "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA", "CAMELLIA256-SHA" },
+	{ "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA", "DH-DSS-CAMELLIA128-SHA" },
+	{ "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA", "DH-DSS-CAMELLIA256-SHA" },
+	{ "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA", "DH-RSA-CAMELLIA128-SHA" },
+	{ "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA", "DH-RSA-CAMELLIA256-SHA" },
+	{ "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA", "DHE-DSS-CAMELLIA128-SHA" },
+	{ "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA", "DHE-DSS-CAMELLIA256-SHA" },
+	{ "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA", "DHE-RSA-CAMELLIA128-SHA" },
+	{ "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA", "DHE-RSA-CAMELLIA256-SHA" },
+	{ "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA", "ADH-CAMELLIA128-SHA" },
+	{ "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA", "ADH-CAMELLIA256-SHA" },
+
+	// SEED ciphersuites from RFC4162, extending TLS v1.0
+	{ "TLS_RSA_WITH_SEED_CBC_SHA", "SEED-SHA" },
+	{ "TLS_DH_DSS_WITH_SEED_CBC_SHA", "DH-DSS-SEED-SHA" },
+	{ "TLS_DH_RSA_WITH_SEED_CBC_SHA", "DH-RSA-SEED-SHA" },
+	{ "TLS_DHE_DSS_WITH_SEED_CBC_SHA", "DHE-DSS-SEED-SHA" },
+	{ "TLS_DHE_RSA_WITH_SEED_CBC_SHA", "DHE-RSA-SEED-SHA" },
+	{ "TLS_DH_anon_WITH_SEED_CBC_SHA", "ADH-SEED-SHA" },
+
+	// GOST ciphersuites from draft-chudov-cryptopro-cptls, extending TLS v1.0
+	// Note: these ciphers require an engine which including GOST cryptographic algorithms, such as the ccgost engine, included in the OpenSSL distribution.
+	{ "TLS_GOSTR341094_WITH_28147_CNT_IMIT", "GOST94-GOST89-GOST89" },
+	{ "TLS_GOSTR341001_WITH_28147_CNT_IMIT", "GOST2001-GOST89-GOST89" },
+	{ "TLS_GOSTR341094_WITH_NULL_GOSTR3411", "GOST94-NULL-GOST94" },
+	{ "TLS_GOSTR341001_WITH_NULL_GOSTR3411", "GOST2001-NULL-GOST94" },
+
+	// Additional Export 1024 and other cipher suites
+	// Note: these ciphers can also be used in SSL v3.
+	{ "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA", "EXP1024-DES-CBC-SHA" },
+	{ "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA", "EXP1024-RC4-SHA" },
+	{ "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA", "EXP1024-DHE-DSS-DES-CBC-SHA" },
+	{ "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA", "EXP1024-DHE-DSS-RC4-SHA" },
+	{ "TLS_DHE_DSS_WITH_RC4_128_SHA", "DHE-DSS-RC4-SHA" },
+
+	// Elliptic curve cipher suites.
+	{ "TLS_ECDH_RSA_WITH_NULL_SHA", "ECDH-RSA-NULL-SHA" },
+	{ "TLS_ECDH_RSA_WITH_RC4_128_SHA", "ECDH-RSA-RC4-SHA" },
+	{ "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA", "ECDH-RSA-DES-CBC3-SHA" },
+	{ "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "ECDH-RSA-AES128-SHA" },
+	{ "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "ECDH-RSA-AES256-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_NULL_SHA", "ECDH-ECDSA-NULL-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_RC4_128_SHA", "ECDH-ECDSA-RC4-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "ECDH-ECDSA-DES-CBC3-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA", "ECDH-ECDSA-AES128-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA", "ECDH-ECDSA-AES256-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_NULL_SHA", "ECDHE-RSA-NULL-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_RC4_128_SHA", "ECDHE-RSA-RC4-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "ECDHE-RSA-DES-CBC3-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "ECDHE-RSA-AES128-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "ECDHE-RSA-AES256-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_NULL_SHA", "ECDHE-ECDSA-NULL-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "ECDHE-ECDSA-RC4-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA", "ECDHE-ECDSA-DES-CBC3-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "ECDHE-ECDSA-AES128-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA", "ECDHE-ECDSA-AES256-SHA" },
+	{ "TLS_ECDH_anon_WITH_NULL_SHA", "AECDH-NULL-SHA" },
+	{ "TLS_ECDH_anon_WITH_RC4_128_SHA", "AECDH-RC4-SHA" },
+	{ "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA", "AECDH-DES-CBC3-SHA" },
+	{ "TLS_ECDH_anon_WITH_AES_128_CBC_SHA", "AECDH-AES128-SHA" },
+	{ "TLS_ECDH_anon_WITH_AES_256_CBC_SHA", "AECDH-AES256-SHA" },
+
+	//TLS v1.2 cipher suites
+	{ "TLS_RSA_WITH_NULL_SHA256", "NULL-SHA256" },
+	{ "TLS_RSA_WITH_AES_128_CBC_SHA256", "AES128-SHA256" },
+	{ "TLS_RSA_WITH_AES_256_CBC_SHA256", "AES256-SHA256" },
+	{ "TLS_RSA_WITH_AES_128_GCM_SHA256", "AES128-GCM-SHA256" },
+	{ "TLS_RSA_WITH_AES_256_GCM_SHA384", "AES256-GCM-SHA384" },
+	{ "TLS_DH_RSA_WITH_AES_128_CBC_SHA256", "DH-RSA-AES128-SHA256" },
+	{ "TLS_DH_RSA_WITH_AES_256_CBC_SHA256", "DH-RSA-AES256-SHA256" },
+	{ "TLS_DH_RSA_WITH_AES_128_GCM_SHA256", "DH-RSA-AES128-GCM-SHA256" },
+	{ "TLS_DH_RSA_WITH_AES_256_GCM_SHA384", "DH-RSA-AES256-GCM-SHA384" },
+	{ "TLS_DH_DSS_WITH_AES_128_CBC_SHA256", "DH-DSS-AES128-SHA256" },
+	{ "TLS_DH_DSS_WITH_AES_256_CBC_SHA256", "DH-DSS-AES256-SHA256" },
+	{ "TLS_DH_DSS_WITH_AES_128_GCM_SHA256", "DH-DSS-AES128-GCM-SHA256" },
+	{ "TLS_DH_DSS_WITH_AES_256_GCM_SHA384", "DH-DSS-AES256-GCM-SHA384" },
+	{ "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256", "DHE-RSA-AES128-SHA256" },
+	{ "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256", "DHE-RSA-AES256-SHA256" },
+	{ "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256", "DHE-RSA-AES128-GCM-SHA256" },
+	{ "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "DHE-RSA-AES256-GCM-SHA384" },
+	{ "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256", "DHE-DSS-AES128-SHA256" },
+	{ "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256", "DHE-DSS-AES256-SHA256" },
+	{ "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "DHE-DSS-AES128-GCM-SHA256" },
+	{ "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384", "DHE-DSS-AES256-GCM-SHA384" },
+	{ "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "ECDH-RSA-AES128-SHA256" },
+	{ "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384", "ECDH-RSA-AES256-SHA384" },
+	{ "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256", "ECDH-RSA-AES128-GCM-SHA256" },
+	{ "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384", "ECDH-RSA-AES256-GCM-SHA384" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256", "ECDH-ECDSA-AES128-SHA256" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384", "ECDH-ECDSA-AES256-SHA384" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "ECDH-ECDSA-AES128-GCM-SHA256" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384", "ECDH-ECDSA-AES256-GCM-SHA384" },
+	{ "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "ECDHE-RSA-AES128-SHA256" },
+	{ "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "ECDHE-RSA-AES256-SHA384" },
+	{ "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "ECDHE-RSA-AES128-GCM-SHA256" },
+	{ "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "ECDHE-RSA-AES256-GCM-SHA384" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "ECDHE-ECDSA-AES128-SHA256" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384", "ECDHE-ECDSA-AES256-SHA384" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "ECDHE-ECDSA-AES128-GCM-SHA256" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "ECDHE-ECDSA-AES256-GCM-SHA384" },
+	{ "TLS_DH_anon_WITH_AES_128_CBC_SHA256", "ADH-AES128-SHA256" },
+	{ "TLS_DH_anon_WITH_AES_256_CBC_SHA256", "ADH-AES256-SHA256" },
+	{ "TLS_DH_anon_WITH_AES_128_GCM_SHA256", "ADH-AES128-GCM-SHA256" },
+	{ "TLS_DH_anon_WITH_AES_256_GCM_SHA384", "ADH-AES256-GCM-SHA384" },
+
+	// Pre shared keying (PSK) cipheruites
+	{ "TLS_PSK_WITH_RC4_128_SHA", "PSK-RC4-SHA" },
+	{ "TLS_PSK_WITH_3DES_EDE_CBC_SHA", "PSK-3DES-EDE-CBC-SHA" },
+	{ "TLS_PSK_WITH_AES_128_CBC_SHA", "PSK-AES128-CBC-SHA" },
+	{ "TLS_PSK_WITH_AES_256_CBC_SHA", "PSK-AES256-CBC-SHA" },
+
+	// Deprecated SSL v2.0 cipher suites.
+	{ "SSL_CK_RC4_128_WITH_MD5", "RC4-MD5" },
+	//SSL_CK_RC4_128_EXPORT40_WITH_MD5        Not implemented.
+	{ "SSL_CK_RC2_128_CBC_WITH_MD5", "RC2-CBC-MD5" },
+	//SSL_CK_RC2_128_CBC_EXPORT40_WITH_MD5    Not implemented.
+	{ "SSL_CK_IDEA_128_CBC_WITH_MD5", "IDEA-CBC-MD5" },
+	//SSL_CK_DES_64_CBC_WITH_MD5              Not implemented.
+	{ "SSL_CK_DES_192_EDE3_CBC_WITH_MD5", "DES-CBC3-MD5" },
+};
+
+Map_ciphersuites_to_ciphers::Map_ciphersuites_to_ciphers(Session_auth_data* auth_data)
+	: tls_versions(auth_data->tls_versions)
+	, tls_ciphersuites(auth_data->tls_ciphersuites)
+	, ssl_ciphers(auth_data->ssl_ciphers)
+{
+}
+
+void Map_ciphersuites_to_ciphers::run()
+{
+	if (!need_mapping()) return;
+
+	for (const std::string& tls_ciphersuite : tls_ciphersuites) {
+		auto it{ciphersuites_to_ciphers.find(tls_ciphersuite)};
+		if (it == ciphersuites_to_ciphers.end()) continue;
+		const std::string& aligned_cipher{ it->second };
+		ssl_ciphers.push_back(aligned_cipher);
+	}
+}
+
+bool Map_ciphersuites_to_ciphers::need_mapping() const
+{
+	if (tls_ciphersuites.empty()) return false;
+
+	// if user passes ciphers explicitly, then don't add/overwrite anything
+	if (!ssl_ciphers.empty()) return false;
+
+	/*
+		OpenSSL for TLS earlier than v1.3 doesn't support ciphersuites, so in 
+		case user allows also older TLS versions (including v1.2 or earlier) the 
+		ciphersuites have to be mapped to ciphers
+	*/
+	return std::any_of(
+		tls_versions.begin(),
+		tls_versions.end(),
+		[](const Tls_version& tls_ver){ 
+			return (tls_ver == Tls_version::unspecified)
+				|| (tls_ver == Tls_version::tls_v1_0)
+				|| (tls_ver == Tls_version::tls_v1_1)
+				|| (tls_ver == Tls_version::tls_v1_2);
+		}
+	);
+}
+
+void map_ciphersuites_to_ciphers(Session_auth_data* auth_data)
+{
+	Map_ciphersuites_to_ciphers map_ciphers(auth_data);
+	map_ciphers.run();
 }
 
 } // anonymous namespace
@@ -3419,6 +3682,8 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 	}
 	auth->username = util::to_std_string(node_url.user);
 	auth->password = util::to_std_string(node_url.pass);
+
+	map_ciphersuites_to_ciphers(auth.get());
 
 	DBG_RETURN(auth.release());
 }
