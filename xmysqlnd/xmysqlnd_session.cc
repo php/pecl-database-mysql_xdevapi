@@ -397,13 +397,13 @@ xmysqlnd_session_data::send_client_attributes()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::connect_handshake */
+/* {{{ xmysqlnd_session_data::select_compression_algorithm */
 std::string
-xmysqlnd_session_data::xmysqlnd_select_compression_algorithm()
+xmysqlnd_session_data::select_compression_algorithm()
 {
 	static const std::string comp_alg_attr{"compression_algorithm"};
 	static const std::string default_algorithm{"deflate"};
-	DBG_ENTER("xmysqlnd_session_data::xmysqlnd_select_compression_algorithm");
+	DBG_ENTER("xmysqlnd_session_data::select_compression_algorithm");
 	std::string algorithm;
 	zend_bool   compression_set{ FALSE };
 
@@ -428,6 +428,60 @@ xmysqlnd_session_data::xmysqlnd_select_compression_algorithm()
 		devapi::RAISE_EXCEPTION( err_msg_compression_not_supported );
 	}
 	DBG_RETURN(algorithm);
+}
+/* }}} */
+
+
+/* {{{ xmysqlnd_session_data::request_compression_algorithm */
+enum_func_status
+xmysqlnd_session_data::request_compression_algorithm( const std::string& algorithm )
+{
+	return PASS;
+	DBG_ENTER("xmysqlnd_session_data::request_compression_algorithm");
+	enum_func_status  ret{ FAIL };
+
+	st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+
+	st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
+	st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
+
+	zval ** capability_names = static_cast<zval**>( mnd_ecalloc(1 , sizeof(zval*)));
+	zval ** capability_values = static_cast<zval**>( mnd_ecalloc(1, sizeof(zval*)));
+
+	if( capability_names && capability_values ) {
+		const std::string capa_name{"compression_algorithm"};
+		const struct st_xmysqlnd_on_error_bind on_error =
+		{ xmysqlnd_session_data_handler_on_error, (void*) this };
+		zval zv_capa_name;
+		zval zv_algo_name;
+		ZVAL_STRINGL(&zv_capa_name,capa_name.c_str(),capa_name.size());
+		ZVAL_STRINGL(&zv_algo_name,algorithm.c_str(),algorithm.size());
+		capability_names[0] = &zv_capa_name;
+		capability_values[0] = &zv_algo_name;
+		if( PASS == caps_set.send_request(&caps_set,
+										  1,
+										  capability_names,
+										  capability_values))
+		{
+			DBG_INF_FMT("Cap. send request with compression_algorithm=%s success, reading response..!",
+						algorithm.c_str());
+			zval zvalue;
+			ZVAL_NULL(&zvalue);
+			caps_get.init_read(&caps_get, on_error);
+			ret = caps_get.read_response(&caps_get,
+										 &zvalue);
+			if( ret == PASS ) {
+				DBG_INF_FMT("Cap. response OK, enabled compression with %s",
+							algorithm.c_str());
+			} else {
+				DBG_ERR_FMT("Negative response from the server, is not possible to enable the compression.");
+				devapi::RAISE_EXCEPTION( err_msg_compres_negotiation_failed );
+			}
+			zval_ptr_dtor(&zvalue);
+		}
+	}
+
+	DBG_RETURN(ret);
 }
 /* }}} */
 
@@ -457,7 +511,10 @@ xmysqlnd_session_data::connect_handshake(
 			ret = authenticate(scheme_name, default_schema, set_capabilities);
 		}
 		if( ret == PASS && compression_enabled == true ) {
-			std::string comp_algorithm = xmysqlnd_select_compression_algorithm();
+			std::string comp_algorithm = select_compression_algorithm();
+			if( !comp_algorithm.empty() ){
+				ret = request_compression_algorithm(comp_algorithm);
+			}
 		}
 	}
 	DBG_RETURN(ret);
@@ -1883,8 +1940,8 @@ enum_func_status setup_crypto_connection(
 	st_xmysqlnd_msg__capabilities_set caps_set;
 	caps_set = msg_factory.get__capabilities_set(&msg_factory);
 
-	zval ** capability_names = (zval **) mnd_ecalloc(1, sizeof(zval*));
-	zval ** capability_values = (zval **) mnd_ecalloc(1, sizeof(zval*));
+	zval ** capability_names = (zval **) mnd_ecalloc(2, sizeof(zval*));
+	zval ** capability_values = (zval **) mnd_ecalloc(2, sizeof(zval*));
 	zval  name, value;
 
 	const MYSQLND_CSTRING cstr_name = { "tls", 3 };
@@ -1894,7 +1951,18 @@ enum_func_status setup_crypto_connection(
 	capability_names[0] = &name;
 	ZVAL_TRUE(&value);
 	capability_values[0] = &value;
+/*
+	const std::string capa_name{"compression_algorithm"};
+	const std::string algorithm{"deflate"};
 
+	zval zv_capa_name;
+	zval zv_algo_name;
+	ZVAL_STRINGL(&zv_capa_name,capa_name.c_str(),capa_name.size());
+	ZVAL_STRINGL(&zv_algo_name,algorithm.c_str(),algorithm.size());
+
+	capability_names[1] = &zv_capa_name;
+	capability_values[1] = &zv_algo_name;
+*/
 	if( PASS == caps_set.send_request(&caps_set,
 									  1,
 									  capability_names,
