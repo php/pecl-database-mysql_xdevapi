@@ -133,6 +133,8 @@ strings to_strings(zval* zvals, int count, Pred pred)
 /* }}} */
 
 
+zend_string* to_zend_string(const char* str);
+zend_string* to_zend_string(const string& str);
 zend_string* to_zend_string(formatter& fmt);
 
 //------------------------------------------------------------------------------

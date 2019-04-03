@@ -19,6 +19,7 @@
 #include "mysqlnd_api.h"
 #include "zend_utils.h"
 #include "strings.h"
+#include "string_utils.h"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
@@ -401,6 +402,22 @@ void verify_call_parameters(
 {
 	Verify_call_parameters verify_parameters(is_method, execute_data, type_spec);
 	verify_parameters.run();
+}
+
+// ------------
+
+bool is_module_loaded(const char* module_name)
+{
+	zend_string* module_zname{ to_zend_string(module_name) };
+	const bool is_loaded{ zend_hash_exists(&module_registry, module_zname) ? true : false };
+	zend_string_release(module_zname);
+	return is_loaded;
+}
+
+bool is_openssl_loaded()
+{
+	const char* Openssl_module_name{ "openssl" };
+	return is_module_loaded(Openssl_module_name);
 }
 
 } // namespace zend

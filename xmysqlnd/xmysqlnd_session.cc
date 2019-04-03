@@ -69,94 +69,6 @@ namespace mysqlx {
 
 namespace drv {
 
-const std::vector<std::string> Session_auth_data::supported_ciphers = {
-	"AES128-GCM-SHA256",
-	"AES128-RMD",
-	"AES128-SHA",
-	"AES128-SHA256",
-	"AES256-GCM-SHA384",
-	"AES256-RMD",
-	"AES256-SHA",
-	"AES256-SHA256",
-	"DES-CBC3-RMD",
-	"DES-CBC3-SHA",
-	"DES-CBC-SHA",
-	"DH-DSS-AES128-GCM-SHA256",
-	"DH-DSS-AES128-SHA",
-	"DH-DSS-AES128-SHA256",
-	"DH-DSS-AES256-GCM-SHA384",
-	"DH-DSS-AES256-SHA",
-	"DH-DSS-AES256-SHA256",
-	"DHE-DSS-AES128-GCM-SHA256",
-	"DHE-DSS-AES128-SHA",
-	"DHE-DSS-AES128-SHA256",
-	"DHE-DSS-AES256-GCM-SHA384",
-	"DHE-DSS-AES256-SHA256",
-	"DHE-ECDSA-AES128-GCM-SHA256",
-	"DHE-RSA-AES128-GCM-SHA256",
-	"DHE-RSA-AES128-RMD",
-	"DHE-RSA-AES128-SHA",
-	"DHE-RSA-AES128-SHA256",
-	"DHE-RSA-AES256-GCM-SHA384",
-	"DHE-RSA-AES256-RMD",
-	"DHE-RSA-AES256-SHA",
-	"DHE-RSA-AES256-SHA256",
-	"DHE-RSA-DES-CBC3-RMD",
-	"DH-RSA-AES128-GCM-SHA256",
-	"DH-RSA-AES128-SHA",
-	"DH-RSA-AES128-SHA256",
-	"DH-RSA-AES256-GCM-SHA384",
-	"DH-RSA-AES256-SHA",
-	"DH-RSA-AES256-SHA256",
-	"ECDH-ECDSA-AES128-GCM-SHA256",
-	"ECDH-ECDSA-AES128-SHA",
-	"ECDH-ECDSA-AES128-SHA256",
-	"ECDH-ECDSA-AES256-GCM-SHA384",
-	"ECDH-ECDSA-AES256-SHA",
-	"ECDH-ECDSA-AES256-SHA384",
-	"ECDHE-ECDSA-AES128-SHA",
-	"ECDHE-ECDSA-AES128-SHA256",
-	"ECDHE-ECDSA-AES256-GCM-SHA384",
-	"ECDHE-ECDSA-AES256-SHA",
-	"ECDHE-ECDSA-AES256-SHA384",
-	"ECDHE-RSA-AES128-GCM-SHA256",
-	"ECDHE-RSA-AES128-SHA",
-	"ECDHE-RSA-AES128-SHA256",
-	"ECDHE-RSA-AES256-GCM-SHA384",
-	"ECDHE-RSA-AES256-SHA",
-	"ECDHE-RSA-AES256-SHA384",
-	"ECDH-RSA-AES128-GCM-SHA256",
-	"ECDH-RSA-AES128-SHA",
-	"ECDH-RSA-AES128-SHA256",
-	"ECDH-RSA-AES256-GCM-SHA384",
-	"ECDH-RSA-AES256-SHA",
-	"ECDH-RSA-AES256-SHA384",
-	"EDH-RSA-DES-CBC3-SHA",
-	"EDH-RSA-DES-CBC-SHA",
-	"RC4-MD5",
-	"RC4-SHA",
-	//What follows is the list of deprecated
-	//TLS ciphers
-	"!DHE-DSS-DES-CBC3-SHA",
-	"!DHE-RSA-DES-CBC3-SHA",
-	"!ECDH-RSA-DES-CBC3-SHA",
-	"!ECDH-ECDSA-DES-CBC3-SHA",
-	"!ECDHE-RSA-DES-CBC3-SHA",
-	"!ECDHE-ECDSA-DES-CBC3-SHA",
-	//What follows is the list of unacceptables
-	//TLS ciphers
-	"!aNULL",
-	"!eNULL",
-	"!DES",
-	"!EXPORT",
-	"!LOW",
-	"!MD5",
-	"!PSK",
-	"!RC2",
-	"!RC4",
-	//	"!SSLv3" This is not acceptable, but required by the server!!! BAD
-};
-
 const MYSQLND_CSTRING namespace_mysqlx{ "mysqlx", sizeof("mysqlx") - 1 };
 const MYSQLND_CSTRING namespace_sql{ "sql", sizeof("sql") - 1 };
 const MYSQLND_CSTRING namespace_xplugin{ "xplugin", sizeof("xplugin") - 1 };
@@ -4221,6 +4133,37 @@ void verify_connection_string(const util::string& connection_string)
 }
 /* }}} */
 
+/* {{{ prepare_connect_error_msg */
+util::string prepare_connect_error_aux_msg(Session_auth_data* auth)
+{
+	util::string aux_msg;
+	if ((auth->ssl_mode != SSL_mode::disabled) && !util::zend::is_openssl_loaded()) {
+		aux_msg = "trying to setup secure connection while OpenSSL is not available";
+	}
+	return aux_msg;
+}
+/* }}} */
+
+/* {{{ prepare_connect_error_msg */
+util::string prepare_connect_error_msg(
+	const char* last_error_msg,
+	const util::string& aux_msg)
+{
+	util::ostringstream errmsg;
+
+	if (last_error_msg) {
+		errmsg << last_error_msg;
+	}
+
+	if (!aux_msg.empty()) {
+		if (last_error_msg) errmsg << ", ";
+		errmsg << aux_msg;
+	}
+
+	return errmsg.str();
+}
+/* }}} */
+
 /* {{{ connect_session */
 PHP_MYSQL_XDEVAPI_API
 enum_func_status connect_session(
@@ -4246,6 +4189,7 @@ enum_func_status connect_session(
 	 * (The addresses are sorted by priority)
 	 */
 	MYSQLND_ERROR_INFO last_error_info{};
+	util::string last_error_aux_msg;
 	for( auto&& current_uri : uris ) {
 		DBG_INF_FMT("Attempting to connect with: %s\n",
 					current_uri.first.c_str());
@@ -4280,6 +4224,7 @@ enum_func_status connect_session(
 						if (session_error_info) {
 							last_error_info = *session_error_info;
 						}
+						last_error_aux_msg = prepare_connect_error_aux_msg(auth);
 					}
 				}
 			} else {
@@ -4307,7 +4252,7 @@ enum_func_status connect_session(
 			throw util::xdevapi_exception(
 				last_error_info.error_no,
 				last_error_info.sqlstate,
-				last_error_info.error);
+				prepare_connect_error_msg(last_error_info.error, last_error_aux_msg));
 		}
 	}
 	DBG_RETURN(ret);
