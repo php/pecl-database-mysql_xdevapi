@@ -100,6 +100,7 @@ struct xdevapi_exception : public std::runtime_error
 		unknown_client_conn_option,
 		unknown_ssl_mode,
 		unknown_tls_version,
+		openssl_unavailable
 	};
 
 	xdevapi_exception(Code code);

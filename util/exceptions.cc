@@ -110,6 +110,8 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 		"Unknown client connection option in Uri:" },
 	{ xdevapi_exception::Code::unknown_ssl_mode, "Unknown SSL mode:" },
 	{ xdevapi_exception::Code::unknown_tls_version, "Unknown TLS version:" },
+	{ xdevapi_exception::Code::openssl_unavailable,
+		"trying to setup secure connection while OpenSSL is not available" },
 };
 /* }}} */
 

@@ -3479,14 +3479,14 @@ bool Map_ciphersuites_to_ciphers::need_mapping() const
 	if (!ssl_ciphers.empty()) return false;
 
 	/*
-		OpenSSL for TLS earlier than v1.3 doesn't support ciphersuites, so in 
-		case user allows also older TLS versions (including v1.2 or earlier) the 
+		OpenSSL for TLS earlier than v1.3 doesn't support ciphersuites, so in
+		case user allows also older TLS versions (including v1.2 or earlier) the
 		ciphersuites have to be mapped to ciphers
 	*/
 	return std::any_of(
 		tls_versions.begin(),
 		tls_versions.end(),
-		[](const Tls_version& tls_ver){ 
+		[](const Tls_version& tls_ver){
 			return (tls_ver == Tls_version::unspecified)
 				|| (tls_ver == Tls_version::tls_v1_0)
 				|| (tls_ver == Tls_version::tls_v1_1)
@@ -4134,17 +4134,6 @@ void verify_connection_string(const util::string& connection_string)
 /* }}} */
 
 /* {{{ prepare_connect_error_msg */
-util::string prepare_connect_error_aux_msg(Session_auth_data* auth)
-{
-	util::string aux_msg;
-	if ((auth->ssl_mode != SSL_mode::disabled) && !util::zend::is_openssl_loaded()) {
-		aux_msg = "trying to setup secure connection while OpenSSL is not available";
-	}
-	return aux_msg;
-}
-/* }}} */
-
-/* {{{ prepare_connect_error_msg */
 util::string prepare_connect_error_msg(
 	const char* last_error_msg,
 	const util::string& aux_msg)
@@ -4189,7 +4178,6 @@ enum_func_status connect_session(
 	 * (The addresses are sorted by priority)
 	 */
 	MYSQLND_ERROR_INFO last_error_info{};
-	util::string last_error_aux_msg;
 	for( auto&& current_uri : uris ) {
 		DBG_INF_FMT("Attempting to connect with: %s\n",
 					current_uri.first.c_str());
@@ -4203,28 +4191,30 @@ enum_func_status connect_session(
 			}
 			Session_auth_data * auth = extract_auth_information(url.first);
 			if( nullptr != auth ) {
-				/*
-				 * If Unix sockets are used then TLS connections
-				 * are not allowed either implicitly nor explicitly
-				 */
-				if( auth->ssl_mode != SSL_mode::disabled &&
-						url.second == transport_types::unix_domain_socket ) {
-					DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
-					devapi::RAISE_EXCEPTION( err_msg_tls_not_supported_1 );
-					DBG_RETURN(FAIL);
+				if( auth->ssl_mode != SSL_mode::disabled) {
+					/*
+					 * If Unix sockets are used then TLS connections
+					 * are not allowed either implicitly nor explicitly
+					 */
+					if (url.second == transport_types::unix_domain_socket) {
+						DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
+						devapi::RAISE_EXCEPTION( err_msg_tls_not_supported_1 );
+						DBG_RETURN(FAIL);
+					} else if (!util::zend::is_openssl_loaded()) {
+						// cannot setup secure connection when openssl is not loaded
+						throw util::xdevapi_exception(
+							util::xdevapi_exception::Code::openssl_unavailable);
+					}
 				}
-				else
-				{
-					DBG_INF_FMT("Attempting to connect...");
-					ret = establish_connection(session,auth,
-											   url.first,url.second);
-					if (ret == FAIL) {
-						const MYSQLND_ERROR_INFO* session_error_info{
-							session->get_data()->get_error_info() };
-						if (session_error_info) {
-							last_error_info = *session_error_info;
-						}
-						last_error_aux_msg = prepare_connect_error_aux_msg(auth);
+
+				DBG_INF_FMT("Attempting to connect...");
+				ret = establish_connection(session,auth,
+											url.first,url.second);
+				if (ret == FAIL) {
+					const MYSQLND_ERROR_INFO* session_error_info{
+						session->get_data()->get_error_info() };
+					if (session_error_info) {
+						last_error_info = *session_error_info;
 					}
 				}
 			} else {
@@ -4252,7 +4242,7 @@ enum_func_status connect_session(
 			throw util::xdevapi_exception(
 				last_error_info.error_no,
 				last_error_info.sqlstate,
-				prepare_connect_error_msg(last_error_info.error, last_error_aux_msg));
+				last_error_info.error);
 		}
 	}
 	DBG_RETURN(ret);
