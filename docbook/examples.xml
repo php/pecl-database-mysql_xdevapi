@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision: 344775 $ -->
+<!-- $Revision: 347152 $ -->
 
 <chapter xml:id="mysql-xdevapi.examples" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  &reftitle.examples;
@@ -18,7 +18,7 @@ try {
 } catch(Exception $e) {
     die("Connection could not be established: " . $e->getMessage());
 }
-
+ 
 // ... use $session
 ?>
 ]]>
@@ -26,7 +26,7 @@ try {
  </example>
  <para>
   The session provides full access to the API. For a new MySQL Server installation,
-  the first step is to create a database schema with a collection
+  the first step is to create a database schema with a collection 
   to store data:
  </para>
  <example>
@@ -45,7 +45,7 @@ $collection = $schema->createCollection("example");
   the data into JSON, which can then be stored inside a collection.
  </para>
  <para>
-  The following example stores data into the collection we created earlier,
+  The following example stores data into the collection we created earlier, 
   and then retrieve parts of it again.
  </para>
  <example>
@@ -106,7 +106,7 @@ array(4) {
   <programlisting role="php">
 <![CDATA[
 <?php
-$result = $collection->find()->execute());
+$result = $collection->find()->execute();
 foreach ($result as $doc) {
   echo "${doc["name"]} is a ${doc["job"]}.\n";
 }
