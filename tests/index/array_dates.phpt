@@ -16,7 +16,7 @@ function add_world_cup_champion($country, $world_cup_championships) {
 function find_world_cup_champion($world_cup_final_date, $expected_country) {
 	global $coll;
 	$res = $coll->find(":world_cup_final IN $.world_cup_championships")
-		->bind(['world_cup_final' => $world_cup_final_date])
+	    ->bind(['world_cup_final' => $world_cup_final_date])
 		->execute();
 	verify_one_value($res, "country", $expected_country, $world_cup_final_date);
 }

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -30,7 +30,6 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
 #include "mysqlx_base_result.h"
-#include "mysqlx_field_metadata.h"
 
 namespace mysqlx {
 

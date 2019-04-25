@@ -3,6 +3,7 @@ mysqlx connection test / URI string
 --SKIPIF--
 --INI--
 error_reporting=0
+default_socket_timeout=1
 --FILE--
 <?php
 	require_once("connect.inc");
@@ -12,12 +13,12 @@ error_reporting=0
 
 	//[ URI, Expected code ]
 	$uri_string = [
-		[ $scheme.'://user:password@localhost/?'.$disable_ssl_opt       ,1045 ],
-		[ $scheme.'://'.$user.':password@localhost/?'.$disable_ssl_opt  ,1045 ],
+		[ $scheme.'://user:password@localhost/?'.$disable_ssl_opt       ,10054 ],
+		[ $scheme.'://'.$user.':password@localhost/?'.$disable_ssl_opt  ,10054 ],
 		[ $scheme.'://'.$user.':'.$passwd.'@fakehost/?'.$disable_ssl_opt,2002 ],
 		[ $scheme.'://:'.$passwd.'@fakehost/?'.$disable_ssl_opt         ,2002 ],
 		[ '//'.$user.':'.$passwd.'@'.$host.':19999/?'.$disable_ssl_opt  ,2002 ],
-		[ '//user:password@localhost/?'.$disable_ssl_opt                ,1045]
+		[ '//user:password@localhost/?'.$disable_ssl_opt                ,10054]
 	];
 
 	for( $i = 0 ; $i < count($uri_string) ; $i++ ) {

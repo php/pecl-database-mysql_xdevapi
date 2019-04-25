@@ -43,57 +43,14 @@ are required. On any Linux-based systems a package called libprotobuf-dev or
 similar is required.
 
 Further hints for installing this module:
+http://php.net/manual/en/mysql-xdevapi.setup.php
 
-0) configure/build
-The extension name is "mysql-xdevapi", you enable it with
-"--enable-mysql-xdevapi", for the moment only phpize/pecl build mode
-is officially supported.
 
-Required 3rdParty libs (boost, protobuf) may be configured with following options:
---with-boost[=DIR]
---with-protobuf[=DIR]
+Documentation
+------------
 
-They may be pointed out with below environment variables too:
-- MYSQL_XDEVAPI_PROTOBUF_ROOT to point out google protobuf root
-- MYSQL_XDEVAPI_BOOST_ROOT to point out boost libraries
-
-And on Windows also with configure options: --with-extra-includes --with-extra-libs
-
-1) Build on Windows
-It is recommended to prepare environment and build mysql_xdevapi extension according to:
-https://wiki.php.net/internals/windows/stepbystepbuild (older SDK, PHP-7.1 only)
-https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2 (PHP-7.1 or newer)
-
-It is also strongly recommended to use backslash '\\' instead of slash '/' for all paths.
-
-2) Boost
-Only headers are needed, no boost binaries required.
-
-3) Google Protocol Buffers on Windows
-On Windows depending on used run-times the static library with Multi-Threaded DLL
-runtime may be needed. To prepare such library on your own following options should
-be applied:
--Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF
-
-4) Google Protocol Buffers / protocol compiler (protoc)
-In configuration of build there is no extra option to set additional dir with binaries,
-so ensure that proper 'protoc' is available on PATH while building. It is especially
-important in case of usage PHP SDK on Windows - its batch scripts may overwrite
-environment.
-
-5) Bison
-Ensure that proper version of Bison is on path while building.
-
-If you build on Windows (especially with older SDK - see point 1.) it is strongly
-recommended to use the one delivered with chosen PHP SDK, else (in case of improper
-bison.exe version) following error may be met:
-
-c:\php-sdk\phpdev\vc14\x86\connector-php-7.1.0\zend\zend_globals_macros.h(39):
-	error C2375: 'zendparse': redefinition; different linkage
-Zend/zend_language_parser.h(214): note: see declaration of 'zendparse'
-
-Besides, batch scripts from PHP SDK on Windows may overwrite environment.
-
+Documentation is available at:
+http://php.net/manual/en/book.mysql-xdevapi.php
 
 
 Supported X DevAPI features
@@ -109,12 +66,13 @@ Supported X DevAPI features
 - resultsets / multi-resultsets
 - getCollection(s) / getTable(s) / getCollectionAsTable
 - drop schema / collection
+- connection pooling
 
 For a simple use cases see examples.php or tests/*.phpt
 
 License
 -------
-Copyright (c) 2006-2018 The PHP Group
+Copyright (c) 2006-2019 The PHP Group
 
 This source file is subject to version 3.01 of the PHP license,
 that is bundled with this package in the file LICENSE, and is

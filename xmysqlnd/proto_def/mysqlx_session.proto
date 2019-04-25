@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -82,9 +82,13 @@ message AuthenticateOk {
 }
 
 // reset the current session
+// param keep_open: if is true the session will be reset, but stays authenticated.
+//       otherwise, the session will be closed and needs to be authenticated again.
 //
 // :Returns: :protobuf:msg:`Mysqlx::Ok`
 message Reset {
+  optional bool keep_open = 1 [ default = false ];
+
   option (client_message_id) = SESS_RESET; // comment_out_if PROTOBUF_LITE
 }
 

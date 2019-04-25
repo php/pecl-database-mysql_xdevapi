@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -167,7 +167,7 @@ mysqlx_message__capabilities_get_free_storage(zend_object * object)
 	st_mysqlx_message__capabilities_get* message = (st_mysqlx_message__capabilities_get*) mysqlx_object->ptr;
 
 	if (message) {
-		mnd_pefree(message, message->persistent);
+		mnd_efree(message);
 	}
 	mysqlx_object_free_storage(object);
 }
@@ -179,8 +179,8 @@ static zend_object *
 php_mysqlx_message__capabilities_get_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
-	st_mysqlx_message__capabilities_get* message = (st_mysqlx_message__capabilities_get*) mnd_pecalloc(1, sizeof(struct st_mysqlx_message__capabilities_get), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
+	st_mysqlx_message__capabilities_get* message = (st_mysqlx_message__capabilities_get*) mnd_ecalloc(1, sizeof(struct st_mysqlx_message__capabilities_get));
 
 	DBG_ENTER("php_mysqlx_message__capabilities_get_object_allocator");
 	if ( mysqlx_object && message ) {
@@ -196,10 +196,10 @@ php_mysqlx_message__capabilities_get_object_allocator(zend_class_entry * class_t
 		DBG_RETURN(&mysqlx_object->zo);
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	if (message) {
-		mnd_pefree(message, persistent);
+		mnd_efree(message);
 	}
 	DBG_RETURN(nullptr);
 }

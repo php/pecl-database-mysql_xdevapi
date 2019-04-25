@@ -41,36 +41,44 @@ print "done!\n";
 --EXPECTF--
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-mode=disabled
 
-Warning: mysql_xdevapi\getSession(): [HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection in %s on line 54
+Warning: mysql_xdevapi\getSession(): [10054][HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection in %s on line %d
+[10054][HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-mode=disabled&auth=MYSQL41
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES) in %s on line 54
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES) in %s on line %d
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-mode=disabled&auth=SHA256_MEMORY
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES) in %s on line 54
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES) in %s on line %d
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-mode=disabled&auth=PLAIN
 
-Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method PLAIN in %s on line 54
+Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method PLAIN in %s on line %d
+[1251][HY000] Invalid authentication method PLAIN
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-mode=disabled&auth=EXTERNAL
 
-Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s on line 54
+Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s on line %d
+[1251][HY000] Invalid authentication method EXTERNAL
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-mode=disabled&auth=UNSUPPORTED
+[HY000] Invalid authorization mechanism
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-mode=disabled&auth=SHA256_MEMORY
 ----------------------
 mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-mode=disabled&auth=SHA256_MEMORY
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES) in %s on line 54
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES) in %s on line %d
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES)
 ----------------------
 mysqlx://mysql_xdevapi_test_user_sha2:mysql_xdevapi_test_user_sha2_password@localhost:%s/?ssl-mode=disabled&auth=sha256_memory
 ----------------------
 mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-mode=disabled&auth=sha256_memory
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES) in %s on line 54
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES) in %s on line %d
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES)
 ----------------------
 done!%A

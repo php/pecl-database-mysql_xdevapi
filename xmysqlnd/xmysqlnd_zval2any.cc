@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,6 +18,9 @@
 #include "php_api.h"
 #include "mysqlnd_api.h"
 #include "xmysqlnd.h"
+#include "xmysqlnd_zval2any.h"
+
+#include "util/string_utils.h"
 
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_datatypes.pb.h"
@@ -27,6 +30,27 @@ namespace mysqlx {
 namespace drv {
 
 using namespace Mysqlx::Datatypes;
+
+namespace {
+
+void zval2object(zval* zv, Mysqlx::Datatypes::Any& any)
+{
+	any.set_type(Any_Type_OBJECT);
+	Mysqlx::Datatypes::Object* obj{ any.mutable_obj() };
+	HashTable* properties{ zend_std_get_properties(zv) };
+	zend_string* property_name{nullptr};
+	zval* property_value{nullptr};
+	MYSQLX_HASH_FOREACH_STR_KEY_VAL(properties, property_name, property_value) {
+		if (property_name && property_value) {
+			Mysqlx::Datatypes::Object_ObjectField* field{ obj->add_fld() };
+			field->set_key(ZSTR_VAL(property_name), ZSTR_LEN(property_name));
+			Mysqlx::Datatypes::Any* field_value{ field->mutable_value() };
+			zval2any(property_value, *field_value);
+		}
+	} ZEND_HASH_FOREACH_END();
+}
+
+} // anonymous namespace
 
 /* {{{ zval2any */
 PHP_MYSQL_XDEVAPI_API enum_func_status
@@ -88,7 +112,7 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 		}
 		case IS_OBJECT: {
 			DBG_INF("IS_OBJECT");
-			any.set_type(Any_Type_OBJECT);
+			zval2object(const_cast<zval*>(zv), any);
 			break;
 		}
 		default:
@@ -114,7 +138,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 #if SIZEOF_ZEND_LONG==4
 			if (UNEXPECTED(scalar.v_signed_int() >= ZEND_LONG_MAX)) {
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_signed_int());
+				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_signed_int()).c_str());
 				ZVAL_STRING(zv, tmp);
 			} else
 #endif
@@ -129,7 +153,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 			if (scalar.v_unsigned_int() > L64(2147483647)) {
 #endif
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
 				ZVAL_STRING(zv, tmp);
 			} else {
 				ZVAL_LONG(zv, static_cast<zend_long>(scalar.v_unsigned_int()));
@@ -179,7 +203,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 #if SIZEOF_ZEND_LONG==4
 					if (UNEXPECTED(any.scalar().v_signed_int() >= ZEND_LONG_MAX)) {
 						char tmp[22];
-						snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, any.scalar().v_signed_int());
+						snprintf(tmp, sizeof(tmp), "%s", util::to_string(any.scalar().v_signed_int()).c_str());
 						ZVAL_STRING(zv, tmp);
 					} else
 #endif
@@ -194,7 +218,7 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 					if (any.scalar().v_unsigned_int() > L64(2147483647)) {
 #endif
 						char tmp[22];
-						snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, any.scalar().v_unsigned_int());
+						snprintf(tmp, sizeof(tmp), "%s", util::to_string(any.scalar().v_unsigned_int()).c_str());
 						ZVAL_STRING(zv, tmp);
 					} else {
 						ZVAL_LONG(zv, any.scalar().v_unsigned_int());
@@ -226,26 +250,24 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 		case Any_Type_OBJECT: {
 			zval properties;
 			ZVAL_UNDEF(&properties);
-			array_init_size(&properties, any.obj().fld_size());
+			const int fields_count{ any.obj().fld_size() };
+			array_init_size(&properties, fields_count);
 
-			object_init(zv);
-			for (int i{0}; i < any.obj().fld_size(); ++i) {
+			for (int i{0}; i < fields_count; ++i) {
 				zval entry;
 				ZVAL_UNDEF(&entry);
-				any2zval(any.obj().fld(i).value(), &entry);
+				const auto& field{ any.obj().fld(i) };
+				any2zval(field.value(), &entry);
 				if (Z_REFCOUNTED(entry)) {
 					Z_ADDREF(entry);
 				}
-				add_assoc_zval_ex(zv, any.obj().fld(i).key().c_str(), any.obj().fld(i).key().size(), &entry);
-				zend_hash_next_index_insert(Z_ARRVAL_P(zv), &entry);
-				zval_ptr_dtor(zv);
+				add_assoc_zval_ex(&properties, field.key().c_str(), field.key().size(), &entry);
+				zend_hash_next_index_insert(Z_ARRVAL(properties), &entry);
 			}
 
-			if (!zend_standard_class_def->default_properties_count && !zend_standard_class_def->__set) {
-				Z_OBJ_P(zv)->properties = Z_ARR(properties);
-			} else {
-				zend_merge_properties(zv, Z_ARRVAL(properties));
-			}
+			object_init(zv);
+			zend_merge_properties(zv, Z_ARRVAL(properties));
+			zval_ptr_dtor(&properties);
 			break;
 		}
 		case Any_Type_ARRAY:
@@ -407,7 +429,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 #if SIZEOF_ZEND_LONG==4
 			if (UNEXPECTED(scalar.v_signed_int() >= ZEND_LONG_MAX)) {
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
 				DBG_INF_FMT("value=%s", tmp);
 			} else
 #endif
@@ -422,7 +444,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 			if (scalar.v_unsigned_int() > L64(2147483647)) {
 #endif
 				char tmp[22];
-				snprintf(tmp, sizeof(tmp), MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
 				DBG_INF_FMT("value=%s", tmp);
 			} else {
 				DBG_INF_FMT("value=" MYSQLND_LLU_SPEC, scalar.v_unsigned_int());

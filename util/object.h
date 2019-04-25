@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -115,7 +115,9 @@ devapi::st_mysqlx_object* alloc_object(
 	const std::size_t bytes_count = sizeof(st_mysqlx_object) + zend_object_properties_size(class_type);
 	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, Allocation_tag()));
 
-	static_assert(std::is_base_of<util::internal::allocable<Allocation_tag>, Data_object>::value, "custom allocation should be applied");
+	static_assert(
+		std::is_base_of<util::internal::allocable<Allocation_tag>, Data_object>::value,
+		"proper kind of custom allocation should be applied");
 	mysqlx_object->ptr = new Data_object;
 
 	zend_object_std_init(&mysqlx_object->zo, class_type);
@@ -144,16 +146,37 @@ devapi::st_mysqlx_object* alloc_permanent_object(
 
 /* {{{ mysqlx::util::fetch_data_object */
 template<typename Data_object>
-Data_object& fetch_data_object(zval* from)
+Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
 {
 	using namespace devapi;
 
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(from);
-	Data_object* data_object = static_cast<Data_object*>(mysqlx_object->ptr);
+	Data_object* data_object{ static_cast<Data_object*>(mysqlx_object->ptr) };
 	if (!data_object) {
 		throw util::doc_ref_exception(util::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
 	}
 	return *data_object;
+}
+/* }}} */
+
+/* {{{ mysqlx::util::fetch_data_object */
+template<typename Data_object>
+Data_object& fetch_data_object(zval* from)
+{
+	using namespace devapi;
+
+	st_mysqlx_object* mysqlx_object{ Z_MYSQLX_P(from) };
+	return fetch_data_object<Data_object>(mysqlx_object);
+}
+/* }}} */
+
+/* {{{ mysqlx::util::fetch_data_object */
+template<typename Data_object>
+Data_object& fetch_data_object(zend_object* from)
+{
+	using namespace devapi;
+
+	st_mysqlx_object* mysqlx_object{ mysqlx_fetch_object_from_zo(from) };
+	return fetch_data_object<Data_object>(mysqlx_object);
 }
 /* }}} */
 

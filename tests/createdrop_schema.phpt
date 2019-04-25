@@ -11,7 +11,7 @@ error_reporting=0
 
 	function database_exist($name) {
 		global $session;
-		$db_exist = $session->executeSql("show databases like '$name'");
+		$db_exist = $session->sql("show databases like '$name'")->execute();
 		$res = $db_exist->fetchAll();
 		try {
 			if ($res[0]["Database ($name)"]==$name) {
@@ -45,7 +45,10 @@ error_reporting=0
 		}
 	}
 
-	if ($session->createSchema("") == NULL) {
+	try {
+		// This should fail as the empty name is incorrect
+		$session->createSchema("");
+	} catch(Exception $e) {
 		$test[3] = "1";
 	}
 

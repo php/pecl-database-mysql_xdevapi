@@ -8,8 +8,8 @@ error_reporting=0
 	require("connect.inc");
 
 	$session = mysql_xdevapi\getSession($connection_uri);
-	$session->executeSql("create database $db");
-	$session->executeSql("create table $db.test_table(a text, b int, c text)");
+	$session->sql("create database $db")->execute();
+	$session->sql("create table $db.test_table(a text, b int, c text)")->execute();
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable("test_table");
 
@@ -71,7 +71,7 @@ error_reporting=0
 	expect_eq($data[0]['age'],77);
 	expect_eq($data[0]['job'],'a');
 	expect_eq($data[0]['name'],'x');
-	expect_eq($data[7]['_id'],3);
+	expect_eq_id($data[7]['_id'],3);
 	expect_eq($data[7]['num'],2);
 	expect_eq($data[7]['name'],'Riccardo');
 

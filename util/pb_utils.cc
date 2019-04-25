@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -16,7 +16,9 @@
   +----------------------------------------------------------------------+
 */
 #include "pb_utils.h"
+#include "exceptions.h"
 #include "protobuf_api.h"
+#include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
 #include "xmysqlnd/proto_gen/mysqlx_sql.pb.h"
 
 namespace mysqlx {
@@ -212,6 +214,18 @@ Array* add_array_arg(Mysqlx::Sql::StmtExecute& stmt_message)
 	Any* stmt_arg{stmt_message.add_args()};
 	stmt_arg->set_type(Any_Type_ARRAY);
 	return stmt_arg->mutable_array();
+}
+
+// -----------------------------------------------------------------------------
+
+void verify_limit_offset(const Mysqlx::Crud::Find& message)
+{
+	if (!message.has_limit()) return;
+
+	const Mysqlx::Crud::Limit& limit{ message.limit() };
+	if (!limit.has_row_count() && limit.has_offset()) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::offset_without_limit_not_allowed);
+	}
 }
 
 } // namespace pb

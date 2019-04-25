@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -86,7 +86,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset)
 	func_xmysqlnd_rowset__dtor dtor;
 };
 
-struct st_xmysqlnd_rowset : public util::permanent_allocable
+struct st_xmysqlnd_rowset : public util::custom_allocable
 {
 	st_xmysqlnd_rowset_buffered* buffered;
 	st_xmysqlnd_rowset_fwd* fwd;

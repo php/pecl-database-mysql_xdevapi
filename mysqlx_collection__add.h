@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -33,17 +33,21 @@ namespace devapi {
 class Collection_add : public util::custom_allocable
 {
 public:
-	bool init(
+	Collection_add() = default;
+	Collection_add(const Collection_add& rhs) = delete;
+	Collection_add& operator=(const Collection_add& rhs) = delete;
+	~Collection_add();
+
+	bool add_docs(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		zval* docs,
 		int num_of_docs);
-	bool init(
+	bool add_docs(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& single_doc_id,
 		zval* doc);
-	~Collection_add();
 
 public:
 	void execute(zval* return_value);
@@ -52,8 +56,7 @@ private:
 	zval* object_zv{nullptr};
 	drv::xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
-	zval* docs{nullptr};
-	int num_of_docs{0};
+	std::vector<zval> docs;
 };
 /* }}} */
 

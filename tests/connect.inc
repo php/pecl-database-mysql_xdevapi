@@ -22,18 +22,47 @@
 	$user = get_mysqlx_env("MYSQLX_TEST_USER", "MYSQLX_USER", "root");
 	$passwd = get_mysqlx_env("MYSQLX_TEST_PASSWD", "MYSQLX_PASSWD", "");
 	$db = get_mysqlx_env("MYSQLX_TEST_DB", "MYSQLX_DB", "testx");
+	$default_schema = get_mysqlx_env("MYSQLX_TEST_DEFAULT_SCHEMA", "MYSQLX_DEFAULT_SCHEMA", "");
 	$engine = get_mysqlx_env("MYSQLX_TEST_ENGINE", "MYSQLX_ENGINE", "MyISAM");
 	$socket = get_mysqlx_env("MYSQLX_TEST_SOCKET", "MYSQLX_SOCKET", "");
 	$skip_on_connect_failure = get_mysqlx_env("MYSQLX_TEST_SKIP_CONNECT_FAILURE", "MYSQLX_SKIP_CONNECT_FAILURE", true);
 	$connect_flags = (int)get_mysqlx_env("MYSQLX_TEST_CONNECT_FLAGS", "MYSQLX_CONNECT_FLAGS", 0);
 	$disable_ssl_opt = 'ssl-mode=disabled';
 	$base_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
-	$connection_uri = $base_uri.'/?'.$disable_ssl_opt;
+	$connection_uri = $base_uri.'/'.$default_schema.'?'.$disable_ssl_opt;
 
 	$test_schema_name = $db;
 	$test_table_name = "test_table";
 	$test_collection_name = "test_collection";
 	$test_view_name = "test_view";
+
+	// ----------------------------------------------------------------------
+
+	if (!function_exists('msleep')) {
+		function msleep($milliseconds) {
+			usleep($milliseconds * 1000);
+		}
+	}
+
+	// ----------------------------------------------------------------------
+
+	if (!function_exists('is_odd')) {
+		function is_odd($value) {
+			return ($value & 1) == 1;
+		}
+	}
+
+	if (!function_exists('is_even')) {
+		function is_even($value) {
+			return !is_odd($value);
+		}
+	}
+
+	if (!function_exists('is_in_range')) {
+		function is_in_range($value, $min, $max) {
+			return ($min <= $value) && ($value <= $max);
+		}
+	}
 
 	// ----------------------------------------------------------------------
 
@@ -83,24 +112,24 @@
 		of the DB and tables needed to run the tests.
 	*/
 	if (!function_exists('create_test_db')) {
-		function create_test_db() {
+		function create_test_db($session = null) {
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
 			global $test_collection_name;
 			/*
 				Would make sense to clean the database here, before attempting
-				to create it. BUT, the code raise a warning during executeSql
+				to create it. BUT, the code raise a warning during execute SQL
 				if the script attempt to remove a DB which is not existing,
 				(error 1008) which in turns cause the test to fail.
 
 				For this reason, at least for now is better to expect from
 				the test script to call clean_test_db *after* the test
 			*/
-			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->executeSql("create database $db");
+			if ($session == null) $session = mysql_xdevapi\getSession($connection_uri);
+			$session->sql("create database $db")->execute();
 			$schema = $session->getSchema($db);
-			$session->executeSql("create table $db.$test_table_name(name varchar(1024), age int)");
+			$session->sql("create table $db.$test_table_name(name varchar(1024), age int, job varchar(1024))")->execute();
 			$schema->createCollection($test_collection_name);
 			return $session;
 		}
@@ -115,7 +144,7 @@
 			global $db;
 			if ($db_name == null) $db_name = $db;
 			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->executeSql("drop database if exists $db_name");
+			$session->sql("drop database if exists $db_name")->execute();
 		}
 	}
 
@@ -128,18 +157,18 @@
 			global $db;
 			global $test_table_name;
 			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 11)");
-			$session->executeSql("insert into $db.$test_table_name values ('Eulalia', 11)");
-			$session->executeSql("insert into $db.$test_table_name values ('Polly', 12)");
-			$session->executeSql("insert into $db.$test_table_name values ('Rufus', 12)");
-			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 13)");
-			$session->executeSql("insert into $db.$test_table_name values ('Olympia', 14)");
-			$session->executeSql("insert into $db.$test_table_name values ('Lev', 14)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 15)");
-			$session->executeSql("insert into $db.$test_table_name values ('Octavia', 15)");
-			$session->executeSql("insert into $db.$test_table_name values ('Vesper', 16)");
-			$session->executeSql("insert into $db.$test_table_name values ('Caspian', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('Romy', 17)");
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 11, 'hostess')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Eulalia', 11, 'teacher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 12, 'tailor')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Rufus', 12, 'butcher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 13, 'student')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Olympia', 14, 'teacher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Lev', 14, 'builder')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 15, 'driver')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Octavia', 15, 'cook')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Vesper', 16, 'builder')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Caspian', 17, 'tailor')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Romy', 17, 'teacher')")->execute();
 		}
 	}
 
@@ -152,22 +181,22 @@
 			global $db;
 			global $test_table_name;
 			$session = mysql_xdevapi\getSession($connection_uri);
-			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 29)");
-			$session->executeSql("insert into $db.$test_table_name values ('Mamie', 21)");
-			$session->executeSql("insert into $db.$test_table_name values ('Polly', 34)");
-			$session->executeSql("insert into $db.$test_table_name values ('Polly', 27)");
-			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 33)");
-			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 34)");
-			$session->executeSql("insert into $db.$test_table_name values ('Cassidy', 20)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 46)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 34)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 25)");
-			$session->executeSql("insert into $db.$test_table_name values ('Tierney', 39)");
-			$session->executeSql("insert into $db.$test_table_name values ('ARomy', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('BRomy', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('CRomy', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('DRomy', 17)");
-			$session->executeSql("insert into $db.$test_table_name values ('ERomy', 17)");
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 29, 'hostess')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Mamie', 21, 'teacher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 34, 'cook')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Polly', 27, 'tailor')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 33, 'cook')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 34, 'singer')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Cassidy', 20, 'cook')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 46, 'plunger')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 34, 'driver')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 25, 'plunger')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('Tierney', 39, 'driver')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('ARomy', 17, 'actor')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('BRomy', 17, 'driver')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('CRomy', 17, 'seller')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('DRomy', 17, 'butcher')")->execute();
+			$session->sql("insert into $db.$test_table_name values ('ERomy', 17, 'builder')")->execute();
 		}
 	}
 
@@ -239,9 +268,9 @@
 			global $db;
 			global $test_table_name;
 			global $test_view_name;
-			$session->executeSql(
+			$session->sql(
 				"CREATE VIEW $db.$test_view_name ".
-				"AS SELECT name, age FROM $db.$test_table_name");
+				"AS SELECT name, age FROM $db.$test_table_name")->execute();
 			$schema = $session->getSchema($db);
 			$view = $schema->getTable($test_view_name);
 			return $view;
@@ -251,7 +280,7 @@
 
 	if (!function_exists('get_mysql_variable')) {
 		function get_mysql_variable($session, $varname) {
-			$res = $session->executeSql("SHOW VARIABLES LIKE '$varname'");
+			$res = $session->sql("SHOW VARIABLES LIKE '$varname'")->execute();
 			$vardata = $res->fetchOne();
 			return $vardata["Value"];
 		}
@@ -259,8 +288,42 @@
 
 	if (!function_exists('get_mysql_variables')) {
 		function get_mysql_variables($session, $pattern) {
-			$res = $session->executeSql("SHOW VARIABLES LIKE '$pattern'");
+			$res = $session->sql("SHOW VARIABLES LIKE '$pattern'")->execute();
 			return $res->fetchAll();
+		}
+	}
+
+	// ----------------------------------------------------------------------
+
+	if (!function_exists('get_sql_modes')) {
+		function get_sql_modes($session) {
+			$res = $session->sql('SELECT @@SESSION.sql_mode')->execute();
+			$sql_modes_str = $res->fetchAll()[0]['@@SESSION.sql_mode'];
+			$sql_modes = explode(',', $sql_modes_str);
+			return $sql_modes;
+		}
+	}
+
+	if (!function_exists('set_sql_modes')) {
+		function set_sql_modes($session, $sql_modes) {
+			$sql_modes_str = implode(',', $sql_modes);
+			$session->sql('SET SESSION sql_mode = \'' . $sql_modes_str . '\'')->execute();
+		}
+	}
+
+	if (!function_exists('disable_sql_mode')) {
+		function disable_sql_mode($session, $sql_mode) {
+			$sql_modes = get_sql_modes($session);
+			$new_sql_modes = array_diff($sql_modes, array($sql_mode));
+			set_sql_modes($session, $new_sql_modes);
+		}
+	}
+
+	if (!function_exists('enable_sql_mode')) {
+		function enable_sql_mode($session, $sql_mode) {
+			$sql_modes = get_sql_modes($session);
+			array_push($sql_modes, $sql_mode);
+			set_sql_modes($session, $sql_modes);
 		}
 	}
 
@@ -335,14 +398,56 @@
 
 			$number_of_expectations++;
 
-			if( $target == $expectation ){
+			if( $target === $expectation ){
 				$test_result_string .= '1';
 			} else {
-				print get_backtrace().': \''.$target.'\' != \''.$expectation.'\' '.$hint.PHP_EOL;
+				print get_backtrace().': \''.$target.'\' !== \''.$expectation.'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
 		}
 	}
+
+	/*
+		used to compare id expected values with actual values
+	*/
+	if( !function_exists('expect_eq_id')) {
+		function expect_eq_id($raw_target, $raw_expectation, $hint = '') {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			$target = is_int($raw_target) ? strval($target) : $raw_target;
+			$expectation = is_int($raw_expectation) ? strval($target) : $raw_expectation;
+
+			if( $target === $expectation ){
+				$test_result_string .= '1';
+			} else {
+				print get_backtrace().': _id \''.$raw_target.'\' !== \''.$raw_expectation.'\' '.$hint.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+
+	/*
+		Used to check actual value differs from expected value
+	*/
+	if( !function_exists('expect_neq')) {
+		function expect_neq($target, $expectation, $hint = '') {
+			global $number_of_expectations;
+			global $test_result_string;
+
+			$number_of_expectations++;
+
+			if( $target !== $expectation ){
+				$test_result_string .= '1';
+			} else {
+				print get_backtrace().': \''.$target.'\' === \''.$expectation.'\' '.$hint.PHP_EOL;
+				$test_result_string .= '0';
+			}
+		}
+	}
+
 	/*
 		Used to compare expected a boolean value being true
 	*/
@@ -353,7 +458,7 @@
 
 			$number_of_expectations++;
 
-			if( true == $expectation ){
+			if( true === $expectation ){
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().': true expected '.$hint.PHP_EOL;
@@ -371,7 +476,7 @@
 
 			$number_of_expectations++;
 
-			if( false == $expectation ){
+			if( false === $expectation ){
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().': false expected '.$hint.PHP_EOL;
@@ -389,7 +494,7 @@
 
 			$number_of_expectations++;
 
-			if( null == $expectation ){
+			if( null === $expectation ){
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().
@@ -410,7 +515,7 @@
 
 			$number_of_expectations++;
 
-			if( null != $expectation ){
+			if( null !== $expectation ){
 				$test_result_string .= '1';
 			} else {
 				print get_backtrace().
@@ -432,13 +537,31 @@
 			$number_of_expectations++;
 
 			$is_equal = is_array($expectation) ?
-				in_array($target, $expectation) : ($target == $expectation);
+				in_array($target, $expectation) : ($target === $expectation);
 			if ($is_equal) {
 				$test_result_string .= '1';
 			} else {
-				print get_backtrace().': \''.$target.'\' != \''.to_string($expectation).'\' '.$hint.PHP_EOL;
+				print get_backtrace().': \''.$target.'\' !== \''.to_string($expectation).'\' '.$hint.PHP_EOL;
 				$test_result_string .= '0';
 			}
+		}
+	}
+
+	/*
+		used to ensure expected value is an empty array
+	*/
+	if (!function_exists('expect_empty_array')) {
+		function expect_empty_array($expectation, $hint = '') {
+			expect_eq($expectation, [], $hint);
+		}
+	}
+
+	/*
+		used to check whether expected value is an empty array
+	*/
+	if (!function_exists('is_empty_array')) {
+		function is_empty_array($variable) {
+			return is_array($variable) && empty($variable);
 		}
 	}
 

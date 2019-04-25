@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -29,7 +29,7 @@ namespace msg {
 /* This typically should be static, but we have coupling */
 extern zend_class_entry *mysqlx_connection_class_entry;
 
-struct st_mysqlx_connection : util::permanent_allocable
+struct st_mysqlx_connection : util::custom_allocable
 {
 	MYSQLND_VIO		* vio;
 	MYSQLND_STATS	* stats;

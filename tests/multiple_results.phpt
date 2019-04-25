@@ -25,12 +25,12 @@ mysqlx support for multiple resultsets
 		global $session;
 		global $db;
 		echo "---- ", $counter, " ----", PHP_EOL;
-		$session->executeSql($create_test_proc);
+		$session->sql($create_test_proc)->execute();
 
-		$res = $session->executeSql("CALL $db.test_proc()");
+		$res = $session->sql("CALL $db.test_proc()")->execute();
 		dump_multi_result($res);
 
-		$session->executeSql("DROP PROCEDURE $db.test_proc");
+		$session->sql("DROP PROCEDURE $db.test_proc")->execute();
 	}
 
 
@@ -90,18 +90,22 @@ mysqlx support for multiple resultsets
 ---- 0 ----
 array(2) {
   [0]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(5) "Polly"
     ["age"]=>
     int(12)
+    ["job"]=>
+    string(6) "tailor"
   }
   [1]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(5) "Rufus"
     ["age"]=>
     int(12)
+    ["job"]=>
+    string(7) "butcher"
   }
 }
 ---- 1 ----
@@ -110,63 +114,77 @@ array(2) {
 <empty rowset>
 array(1) {
   [0]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(7) "Cassidy"
     ["age"]=>
     int(13)
+    ["job"]=>
+    string(7) "student"
   }
 }
 <empty rowset>
 ---- 3 ----
 array(2) {
   [0]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(5) "Mamie"
     ["age"]=>
     int(11)
+    ["job"]=>
+    string(7) "hostess"
   }
   [1]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(7) "Eulalia"
     ["age"]=>
     int(11)
+    ["job"]=>
+    string(7) "teacher"
   }
 }
 array(2) {
   [0]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(7) "Olympia"
     ["age"]=>
     int(14)
+    ["job"]=>
+    string(7) "teacher"
   }
   [1]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(7) "Octavia"
     ["age"]=>
     int(15)
+    ["job"]=>
+    string(4) "cook"
   }
 }
 array(1) {
   [0]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(6) "Vesper"
     ["age"]=>
     int(16)
+    ["job"]=>
+    string(7) "builder"
   }
 }
 array(1) {
   [0]=>
-  array(2) {
+  array(3) {
     ["name"]=>
     string(4) "Romy"
     ["age"]=>
     int(17)
+    ["job"]=>
+    string(7) "teacher"
   }
 }
 done!%A

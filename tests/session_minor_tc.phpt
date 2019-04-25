@@ -5,7 +5,7 @@ mysqlx session minor TC's
 <?php
 	require("connect.inc");
 
-	$test = "000";
+	$test = "00";
 
 	$session = create_test_db();
 
@@ -17,13 +17,9 @@ mysqlx session minor TC's
 	if(is_int($svr_version) && $svr_version != 0)
 		$test[0] = "1";
 
-	$cli_id = $session->getClientId();
-	if(is_int($cli_id) && $cli_id != 0)
-		$test[1] = "1";
-
 	$uuid = $session->generateUUID();
 	if(is_string($uuid) && !empty($uuid) != 0)
-		$test[2] = "1";
+		$test[1] = "1";
 
 	var_dump($session->quoteName("test test test"));
 	var_dump($session->quoteName("x'y'z' test"));
@@ -54,5 +50,5 @@ string(16) "`test test test`"
 string(13) "`x'y'z' test`"
 string(0) ""
 string(21) "`test ``test`` ``2```"
-string(3) "111"
+string(2) "11"
 done!%A

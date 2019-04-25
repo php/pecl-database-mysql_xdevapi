@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -83,10 +83,26 @@ struct xdevapi_exception : public std::runtime_error
 		invalid_auth_mechanism,
 		unknown_lock_waiting_option,
 		schema_creation_failed,
-		table_creation_failed
+		table_creation_failed,
+		invalid_timeout,
+		timeout_exceeded,
+		invalid_argument,
+		connection_failure,
+		authentication_failure,
+		runtime_error,
+		session_closed,
+		offset_without_limit_not_allowed,
+		ps_unknown_message,
+		ps_limit_not_supported,
+		session_reset_failure,
+		conn_attrib_wrong_type,
+		conn_attrib_dup_key
 	};
 
 	xdevapi_exception(Code code);
+	xdevapi_exception(Code code, const string& msg);
+	xdevapi_exception(unsigned int code, const string& msg);
+	xdevapi_exception(unsigned int code, const char* sql_state, const char* msg);
 	xdevapi_exception(unsigned int code, const string& sql_state, const string& msg);
 
 	unsigned int code;
@@ -114,6 +130,8 @@ void raise_doc_ref_exception(const doc_ref_exception& e);
 void raise_common_exception(const std::exception& e);
 void raise_unknown_exception();
 
+string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what);
+string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what);
 void log_warning(const string& msg);
 
 } // namespace util

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -33,7 +33,6 @@
 #include "mysqlx_row_result_iterator.h"
 #include "mysqlx_row_result.h"
 #include "mysqlx_base_result.h"
-#include "mysqlx_field_metadata.h"
 #include "mysqlx_column_result.h"
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
@@ -323,7 +322,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 			ZVAL_LONG(return_value,object->meta->fractional_digits);
 			break;
 		case is_number_signed:
-			ZVAL_LONG(return_value,is_type_signed(object->meta));
+			ZVAL_BOOL(return_value,is_type_signed(object->meta));
 			break;
 		case collation_name:
 		case characterset_name:
@@ -354,7 +353,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					(object->meta->flags_set && object->meta->flags & BYTES_RIGHTPAD)) {
 					is_padded = TRUE;
 				}
-				ZVAL_LONG(return_value,is_padded);
+				ZVAL_BOOL(return_value,is_padded);
 			}
 			break;
 		default:

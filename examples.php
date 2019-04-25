@@ -217,8 +217,8 @@ Array
     */
 
     $session = mysql_xdevapi\getSession("localhost", "root", "");
-    $session->executeSql("create table products.new_products_table(name text,price float,description text)");
-    $session->executeSql("create table products.new_cheap_products_table(name text,price float,description text)");
+    $session->sql("create table products.new_products_table(name text,price float,description text)")->execute();
+    $session->sql("create table products.new_cheap_products_table(name text,price float,description text)")->execute();
 
     /*
                 Is possible to extract an array containing all the tables

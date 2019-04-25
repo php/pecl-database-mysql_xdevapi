@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -19,20 +19,19 @@
 #include "mysqlnd_api.h"
 #include "php_mysqlx.h"
 #include "php_mysqlx_ex.h"
+#include "mysqlx_client.h"
 #include "mysqlx_crud_operation_bindable.h"
 #include "mysqlx_crud_operation_limitable.h"
 #include "mysqlx_crud_operation_skippable.h"
 #include "mysqlx_crud_operation_sortable.h"
 #include "mysqlx_database_object.h"
 #include "mysqlx_schema_object.h"
-#include "mysqlx_driver.h"
 #include "mysqlx_enum_n_def.h"
 #include "mysqlx_session.h"
 #include "mysqlx_executable.h"
 #include "mysqlx_exception.h"
 #include "mysqlx_execution_status.h"
 #include "mysqlx_expression.h"
-#include "mysqlx_field_metadata.h"
 #include "mysqlx_x_session.h"
 #include "mysqlx_schema.h"
 #include "mysqlx_collection.h"
@@ -109,12 +108,10 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_exception_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_execution_status_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_expression_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-	mysqlx_register_field_metadata_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
-
-	mysqlx_register_driver_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_x_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_session_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+	mysqlx_register_client_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
 	mysqlx_register_schema_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 
@@ -163,6 +160,10 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 	mysqlx_register_resultset_metadata_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_data_row_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
 	mysqlx_register_message__data_fetch_done_class(INIT_FUNC_ARGS_PASSTHRU, &mysqlx_std_object_handlers);
+
+	// extension consts
+	REGISTER_STRING_CONSTANT("MYSQLX_VERSION", const_cast<char*>(PHP_MYSQL_XDEVAPI_VERSION), CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("MYSQLX_VERSION_ID", MYSQL_XDEVAPI_VERSION_ID, CONST_CS | CONST_PERSISTENT);
 
 	/* xmysqlnd_real_connect flags */
 	REGISTER_LONG_CONSTANT("MYSQLX_CLIENT_SSL", CLIENT_SSL, CONST_CS | CONST_PERSISTENT);
@@ -260,10 +261,11 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	mysqlx_unregister_collection__remove_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 
 	mysqlx_unregister_schema_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+
+	mysqlx_unregister_client_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_x_session_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-	mysqlx_unregister_driver_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
-	mysqlx_unregister_field_metadata_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
+
 	mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_execution_status_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 	mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS_PASSTHRU);

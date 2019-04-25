@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -32,8 +32,8 @@
 #include "mysqlx_result_iterator.h"
 #include "mysqlx_result.h"
 #include "mysqlx_base_result.h"
-#include "mysqlx_field_metadata.h"
 #include "util/object.h"
+#include "util/string_utils.h"
 #include "util/zend_utils.h"
 
 namespace mysqlx {
@@ -93,17 +93,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 	}
 	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_FALSE;
+	RETVAL_LONG(0);
 	if (object->result) {
 		const XMYSQLND_STMT_EXECUTION_STATE * exec_state = object->result->exec_state;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (exec_state) {
 			const size_t value = exec_state->m->get_affected_items_count(exec_state);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
-				ZVAL_LONG(return_value, value);
+				RETVAL_LONG(value);
 				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 			}
 		}
@@ -134,7 +134,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAutoIncrementValue)
 		if (exec_state) {
 			const uint64_t value = exec_state->m->get_last_insert_id(exec_state);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				const auto& value_str{ util::to_string(value) };
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", value_str.c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
 				ZVAL_LONG(return_value, static_cast<zend_long>(value));
@@ -160,7 +161,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 		DBG_VOID_RETURN;
 	}
 	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
+
 	if (object->result && object->result->exec_state) {
 		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
 		if ( exec_state == nullptr ) {
@@ -177,6 +178,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 			zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &id);
 		}
 	}
+
+	util::zend::ensure_is_array(return_value);
+
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -196,17 +200,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 	}
 	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_FALSE;
+	RETVAL_LONG(0);
 	if (object->result) {
 		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
 		if (warnings) {
 			const size_t value = warnings->m->count(warnings);
 			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, MYSQLND_LLU_SPEC, value));
+				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 			} else {
-				ZVAL_LONG(return_value, value);
+				RETVAL_LONG(value);
 				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 			}
 		}
@@ -230,7 +234,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 	}
 	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
-	RETVAL_FALSE;
 	if (object->result) {
 		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
 		/* Maybe check here if there was an error and throw an Exception or return a warning */
@@ -250,6 +253,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 			}
 		}
 	}
+
+	util::zend::ensure_is_array(return_value);
+
 	DBG_VOID_RETURN;
 }
 /* }}} */

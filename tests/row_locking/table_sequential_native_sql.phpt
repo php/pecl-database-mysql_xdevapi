@@ -20,16 +20,16 @@ error_reporting=0
 	$session1->startTransaction();
 	$session2->startTransaction();
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '1' lock in share mode");
+	$res1 = $session1->sql("select * from $db.$test_table_name where _id like '1' lock in share mode")->execute();
 	check_one($res1, '1', 1);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '2' lock in share mode");
+	$res2 = $session2->sql("select * from $db.$test_table_name where _id like '2' lock in share mode")->execute();
 	check_one($res2, '2', 2);
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '3' lock in share mode");
+	$res1 = $session1->sql("select * from $db.$test_table_name where _id like '3' lock in share mode")->execute();
 	check_one($res1, '3', 3);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '4' lock in share mode");
+	$res2 = $session2->sql("select * from $db.$test_table_name where _id like '4' lock in share mode")->execute();
 	check_one($res2, '4', 4);
 
 	$session1->rollback();
@@ -40,16 +40,16 @@ error_reporting=0
 	$session1->startTransaction();
 	$session2->startTransaction();
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '1' for update");
+	$res1 = $session1->sql("select * from $db.$test_table_name where _id like '1' for update")->execute();
 	check_one($res1, '1', 1);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '3' lock in share mode");
+	$res2 = $session2->sql("select * from $db.$test_table_name where _id like '3' lock in share mode")->execute();
 	check_one($res2, '3', 3);
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '2' for update");
+	$res1 = $session1->sql("select * from $db.$test_table_name where _id like '2' for update")->execute();
 	check_one($res1, '2', 2);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '4' lock in share mode");
+	$res2 = $session2->sql("select * from $db.$test_table_name where _id like '4' lock in share mode")->execute();
 	check_one($res2, '4', 4);
 
 	$session1->rollback();
@@ -60,16 +60,16 @@ error_reporting=0
 	$session1->startTransaction();
 	$session2->startTransaction();
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '2' lock in share mode");
+	$res1 = $session1->sql("select * from $db.$test_table_name where _id like '2' lock in share mode")->execute();
 	check_one($res1, '2', 2);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '3' for update");
+	$res2 = $session2->sql("select * from $db.$test_table_name where _id like '3' for update")->execute();
 	check_one($res2, '3', 3);
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '5' lock in share mode");
+	$res1 = $session1->sql("select * from $db.$test_table_name where _id like '5' lock in share mode")->execute();
 	check_one($res1, '5', 5);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '6' for update");
+	$res2 = $session2->sql("select * from $db.$test_table_name where _id like '6' for update")->execute();
 	check_one($res2, '6', 6);
 
 	$session1->rollback();
@@ -80,16 +80,16 @@ error_reporting=0
 	$session1->startTransaction();
 	$session2->startTransaction();
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '1' for update");
+	$res1 = $session1->sql("select * from $db.$test_table_name where _id like '1' for update")->execute();
 	check_one($res1, '1', 1);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '2' for update");
+	$res2 = $session2->sql("select * from $db.$test_table_name where _id like '2' for update")->execute();
 	check_one($res2, '2', 2);
 
-	$res1 = $session1->executeSql("select * from $db.$test_table_name where _id like '5' for update");
+	$res1 = $session1->sql("select * from $db.$test_table_name where _id like '5' for update")->execute();
 	check_one($res1, '5', 5);
 
-	$res2 = $session2->executeSql("select * from $db.$test_table_name where _id like '6' for update");
+	$res2 = $session2->sql("select * from $db.$test_table_name where _id like '6' for update")->execute();
 	check_one($res2, '6', 6);
 
 	$session1->rollback();

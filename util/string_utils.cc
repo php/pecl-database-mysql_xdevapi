@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -89,7 +89,7 @@ zend_string* to_zend_string(formatter& fmt)
 /* }}} */
 
 
-/* {{{ escape_identifier( string id ) */
+/* {{{ escape_identifier */
 string
 escape_identifier( const string& identifier ) {
 	std::stringstream result;
@@ -103,6 +103,19 @@ escape_identifier( const string& identifier ) {
 	}
 	result << '`';
 	return result.str().c_str();
+}
+/* }}} */
+
+
+/* {{{ to_int */
+bool to_int(const string& str, int* value)
+{
+	try {
+		*value = std::stoi(str.c_str());
+		return true;
+	} catch(std::exception& /*e*/) {
+		return false;
+	}
 }
 /* }}} */
 

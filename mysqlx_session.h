@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -27,19 +27,17 @@ namespace devapi {
 
 extern zend_class_entry *mysqlx_session_class_entry;
 
-struct st_mysqlx_session : public util::custom_allocable
+struct Session_data : public util::custom_allocable
 {
 	drv::XMYSQLND_SESSION session;
-	zend_bool closed;
-	st_mysqlx_session() = default;
+	Session_data() = default;
+	bool close_connection();
 };
 
-
-enum_func_status mysqlx_new_session(zval * return_value);
+void mysqlx_new_session(zval* return_value);
 void mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session);
 void mysqlx_register_session_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_session_class(SHUTDOWN_FUNC_ARGS);
-
 
 } // namespace devapi
 

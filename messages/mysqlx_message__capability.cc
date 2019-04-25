@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -116,7 +116,7 @@ mysqlx_message__capability_free_storage(zend_object * object)
 		if (!Z_ISUNDEF(message->capability_value)) {
 			zval_dtor(&(message->capability_value));
 		}
-		mnd_pefree(message, message->persistent);
+		mnd_efree(message);
 	}
 	mysqlx_object_free_storage(object);
 }
@@ -129,7 +129,7 @@ php_mysqlx_message__capability_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
 	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
-	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, util::permanent_tag));
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, util::alloc_tag));
 	st_mysqlx_message__capability* message = new st_mysqlx_message__capability();
 
 	DBG_ENTER("php_mysqlx_message__capability_object_allocator");
@@ -150,10 +150,10 @@ php_mysqlx_message__capability_object_allocator(zend_class_entry * class_type)
 
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	if (message) {
-		mnd_pefree(message, persistent);
+		mnd_efree(message);
 	}
 	DBG_RETURN(nullptr);
 }

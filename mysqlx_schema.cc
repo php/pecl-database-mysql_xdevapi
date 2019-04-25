@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -590,8 +590,7 @@ mysqlx_schema_free_storage(zend_object* object)
 		if (inner_obj->schema) {
 			xmysqlnd_schema_free(inner_obj->schema, nullptr, nullptr);
 			if( inner_obj->schema->get_counter() == 0 ) {
-				zend_bool persistent = inner_obj->schema->is_persistent();
-				mnd_pefree(inner_obj->schema, persistent);
+				mnd_efree(inner_obj->schema);
 			}
 			inner_obj->schema = nullptr;
 		}

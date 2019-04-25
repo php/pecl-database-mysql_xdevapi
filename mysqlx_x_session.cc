@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -51,22 +51,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_x_session, __construct)
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
-
-
-#define MYSQLX_FETCH_X_SESSION_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_session*) mysqlx_object->ptr; \
-	if (!(_to) && !(_to)->session) { \
-		if ((_to)->closed) { \
-			php_error_docref(nullptr, E_WARNING, "closed session"); \
-		} else { \
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		} \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-} \
 
 
 /* {{{ mysqlx_x_session_methods[] */

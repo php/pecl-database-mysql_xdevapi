@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -95,10 +95,9 @@ xmysqlnd_schema::~xmysqlnd_schema()
 
 void xmysqlnd_schema::cleanup()
 {
-	const zend_bool pers = persistent;
 	DBG_ENTER("xmysqlnd_schema::cleanup");
 	if (schema_name.s) {
-		mnd_pefree(schema_name.s, pers);
+		mnd_efree(schema_name.s);
 		schema_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;
@@ -600,10 +599,9 @@ xmysqlnd_schema::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * erro
 void
 xmysqlnd_schema::free_contents()
 {
-	const zend_bool pers = persistent;
 	DBG_ENTER("xmysqlnd_schema::free_contents");
 	if (schema_name.s) {
-		mnd_pefree(schema_name.s, pers);
+		mnd_efree(schema_name.s);
 		schema_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;

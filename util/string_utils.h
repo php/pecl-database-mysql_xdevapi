@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -143,6 +143,10 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 {
 	return st_mysqlnd_const_string{ str.c_str(), str.length() };
 }
+
+//------------------------------------------------------------------------------
+
+bool to_int(const string& str, int* value);
 
 } // namespace util
 

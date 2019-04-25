@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -280,7 +280,7 @@ bool projection(
 		std::string item = it->get_text();
 		std::transform( item.begin(),
 						item.end(),
-						item.begin(), 
+						item.begin(),
 						[](char c) { return static_cast<char>(::toupper(c)); });
 		if( item == parser_as_symbol ) {
 			ident.clear();

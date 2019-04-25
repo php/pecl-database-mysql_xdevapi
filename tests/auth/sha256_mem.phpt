@@ -52,4 +52,13 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
+[10054][HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
+[1251][HY000] Invalid authentication method PLAIN
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[10054][HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 done!%A

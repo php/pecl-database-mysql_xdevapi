@@ -11,8 +11,8 @@ error_reporting=E_ALL
 	create_test_db();
 	$test_table = 'test_date_time_table';
 
-	$session->executeSql("create table $db.$test_table ("
-		."dt datetime, ts timestamp, dd date, tt time)");
+	$session->sql("create table $db.$test_table ("
+		."dt datetime, ts timestamp, dd date, tt time)")->execute();
 
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable($test_table);

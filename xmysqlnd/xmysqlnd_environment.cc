@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -35,6 +35,8 @@ util::string Environment::get_as_string(Variable var)
 	static const std::map<Environment::Variable, Variable_info> var_to_info = {
 		{ Variable::Mysql_port, {"MYSQL_TEST_PORT", "MYSQL_PORT", "3306"} },
 		{ Variable::Mysqlx_port, {"MYSQLX_TEST_PORT", "MYSQLX_PORT", "33060"} },
+		{ Variable::Mysqlx_connection_timeout,
+			{"MYSQLX_TEST_CONNECTION_TIMEOUT", "MYSQLX_CONNECTION_TIMEOUT", "10"} },
 	};
 
 	const Variable_info& var_info = var_to_info.at(var);

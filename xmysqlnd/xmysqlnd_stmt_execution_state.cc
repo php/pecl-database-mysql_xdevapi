@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -173,7 +173,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor)(XMYSQLND_STMT_EXECUTION_STA
 	DBG_ENTER("xmysqlnd_stmt_execution_state::dtor");
 	if (state) {
 		state->m->free_contents(state);
-		mnd_pefree(state, state->persistent);
+		mnd_efree(state);
 	}
 	DBG_VOID_RETURN;
 }

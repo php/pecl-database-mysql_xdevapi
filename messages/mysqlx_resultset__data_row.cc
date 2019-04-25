@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -31,6 +31,7 @@ extern "C" {
 
 #include "util/object.h"
 #include "util/pb_utils.h"
+#include "util/string_utils.h"
 #include "util/zend_utils.h"
 
 #include "protobuf_api.h"
@@ -163,7 +164,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 						int64_t ival = ::google::protobuf::internal::WireFormatLite::ZigZagDecode64(gval);
 #if SIZEOF_ZEND_LONG==4
 						if (UNEXPECTED(ival >= ZEND_LONG_MAX)) {
-							ZVAL_NEW_STR(&zv, strpprintf(0, MYSQLND_LLU_SPEC, ival));
+							ZVAL_NEW_STR(&zv, strpprintf(0, "%s", util::to_string(ival).c_str()));
 						} else
 #endif
 						{
@@ -186,7 +187,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 #elif SIZEOF_ZEND_LONG==4
 						if (gval > L64(2147483647)) {
 #endif
-							ZVAL_NEW_STR(&zv, strpprintf(0, MYSQLND_LLU_SPEC, gval));
+							ZVAL_NEW_STR(&zv, strpprintf(0, "%s", util::to_string(gval).c_str()));
 						} else {
 							ZVAL_LONG(&zv, static_cast<zend_long>(gval));
 						}
@@ -433,7 +434,7 @@ static zend_object *
 php_mysqlx_data_row_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
 	st_mysqlx_data_row* message = new (std::nothrow) struct st_mysqlx_data_row();
 
 	DBG_ENTER("php_mysqlx_data_row_object_allocator");
@@ -451,7 +452,7 @@ php_mysqlx_data_row_object_allocator(zend_class_entry * class_type)
 
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	delete message;
 	DBG_RETURN(nullptr);

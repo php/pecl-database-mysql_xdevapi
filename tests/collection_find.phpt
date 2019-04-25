@@ -31,7 +31,7 @@ error_reporting=0
 	$data = $res->fetchAll();
 
 	expect_eq(count($data),1);
-	expect_eq($data[0]['_id'],5);
+	expect_eq_id($data[0]['_id'],5);
 	expect_eq($data[0]['age'],25);
 	expect_eq($data[0]['job'],'Programmatore');
 	expect_eq($data[0]['name'],'Carlo');

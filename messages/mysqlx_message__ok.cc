@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -98,7 +98,7 @@ static zend_object *
 php_mysqlx_message__ok_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
 	st_mysqlx_message__ok* message = new (std::nothrow) struct st_mysqlx_message__ok;
 
 	DBG_ENTER("php_mysqlx_message__ok_object_allocator");
@@ -116,7 +116,7 @@ php_mysqlx_message__ok_object_allocator(zend_class_entry * class_type)
 
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	delete message;
 	DBG_RETURN(nullptr);
@@ -171,7 +171,7 @@ mysqlx_new_message__ok(zval * return_value, const Mysqlx::Ok & message)
 void
 dump_mysqlx_ok(const Mysqlx::Ok & ok)
 {
-	php_error_docref(nullptr, E_WARNING, "[OK] ", ok.has_msg()? ok.msg().c_str(): "");
+	php_error_docref(nullptr, E_WARNING, "[OK] %s", ok.has_msg()? ok.msg().c_str(): "");
 }
 /* }}} */
 

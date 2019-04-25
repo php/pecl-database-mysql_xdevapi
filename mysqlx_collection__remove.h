@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -33,11 +33,15 @@ namespace devapi {
 class Collection_remove : public util::custom_allocable
 {
 public:
+	Collection_remove() = default;
+	Collection_remove(const Collection_remove& rhs) = delete;
+	Collection_remove& operator=(const Collection_remove& rhs) = delete;
+	~Collection_remove();
+
 	bool init(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
-	~Collection_remove();
 
 public:
 	void sort(

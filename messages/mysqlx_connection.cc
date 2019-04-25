@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -25,6 +25,7 @@
 #include "mysqlx_session.h"
 #include "mysqlx_connection.h"
 #include "util/object.h"
+#include "util/string_utils.h"
 #include "util/zend_utils.h"
 
 namespace mysqlx {
@@ -37,9 +38,10 @@ using namespace drv;
 
 zend_class_entry *mysqlx_connection_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__connect, 0, ZEND_RETURN_VALUE, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__connect, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, hostname, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, port, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, connection_timeout, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_connection__send, 0, ZEND_RETURN_VALUE, 1)
@@ -95,13 +97,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 	MYSQLND_CSTRING hostname = {nullptr, 0};
 	MYSQLND_CSTRING socket_or_pipe = {nullptr, 0};
 	zend_long port = drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_port);
+	zend_long connection_timeout{
+		drv::Environment::get_as_int(drv::Environment::Variable::Mysqlx_connection_timeout) };
 	enum_func_status ret{FAIL};
 
 	DBG_ENTER("mysqlx_connection::connect");
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os|l",
-												&connection_zv, mysqlx_connection_class_entry,
-												&(hostname.s), &(hostname.l),
-												&port))
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os|ll",
+		&connection_zv, mysqlx_connection_class_entry,
+		&(hostname.s), &(hostname.l),
+		&port,
+		&connection_timeout))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -121,11 +126,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, connect)
 			connection->vio->data->m.close_stream(connection->vio, connection->stats, connection->error_info);
 		}
 
-		ret = connection->vio->data->m.connect(connection->vio,
-											   scheme,
-											   connection->persistent,
-											   connection->stats,
-											   connection->error_info);
+		if (drv::set_connection_timeout(static_cast<int>(connection_timeout), connection->vio)) {
+			ret = connection->vio->data->m.connect(connection->vio,
+												   scheme,
+												   connection->persistent,
+												   connection->stats,
+												   connection->error_info);
+		} else {
+			ret = FAIL;
+		}
 		if (transport.s) {
 			mnd_sprintf_free(transport.s);
 			transport.s = nullptr;
@@ -193,7 +202,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, receive)
 	if (connection->vio && TRUE == connection->vio->data->m.has_valid_stream(connection->vio)) {
 		zend_uchar * read_buffer = static_cast<zend_uchar*>(mnd_emalloc(how_many + 1));
 		if (!read_buffer) {
-			php_error_docref(nullptr, E_WARNING, "Couldn't allocate %u bytes", how_many);
+			const auto& how_many_str{ util::to_string(how_many) };
+			php_error_docref(nullptr, E_WARNING, "Couldn't allocate %s bytes", how_many_str.c_str());
 			RETVAL_FALSE;
 		}
 		ret = connection->vio->data->m.network_read(connection->vio,
@@ -204,7 +214,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_connection, receive)
 			read_buffer[how_many] = '\0';
 			RETVAL_STRINGL((char*) read_buffer, how_many);
 		} else {
-			php_error_docref(nullptr, E_WARNING, "Error reading %u bytes", how_many);
+			const auto& how_many_str{ util::to_string(how_many) };
+			php_error_docref(nullptr, E_WARNING, "Error reading %s bytes", how_many_str.c_str());
 			RETVAL_FALSE;
 		}
 		mnd_efree(read_buffer);
@@ -239,7 +250,7 @@ mysqlx_connection_free_storage(zend_object * object)
 		util::zend::free_error_info_list(connection->error_info, pers);
 		mysqlnd_vio_free(connection->vio, connection->stats, connection->error_info);
 		mysqlnd_stats_end(connection->stats, pers);
-		mnd_pefree(connection, pers);
+		mnd_efree(connection);
 	}
 	mysqlx_object_free_storage(object);
 }
@@ -252,7 +263,7 @@ php_mysqlx_connection_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
 	const std::size_t bytes_count = sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type);
-	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, util::permanent_tag));
+	st_mysqlx_object* mysqlx_object = static_cast<st_mysqlx_object*>(::operator new(bytes_count, util::alloc_tag));
 	st_mysqlx_connection * connection = new st_mysqlx_connection();
 
 	DBG_ENTER("php_mysqlx_connection_object_allocator");
@@ -283,10 +294,10 @@ php_mysqlx_connection_object_allocator(zend_class_entry * class_type)
 	}
 
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	if (connection) {
-		mnd_pefree(connection, persistent);
+		mnd_efree(connection);
 	}
 	DBG_RETURN(nullptr);
 }

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,11 +15,13 @@
   | Authors: Andrey Hristov <andrey@php.net>                             |
   +----------------------------------------------------------------------+
 */
-#ifndef PHP_PHP_MYSQL_XDEVAPI_H
-#define PHP_PHP_MYSQL_XDEVAPI_H
+#ifndef PHP_MYSQL_XDEVAPI_H
+#define PHP_MYSQL_XDEVAPI_H
 
-#define PHP_MYSQL_XDEVAPI_VERSION "8.0.12"
-#define MYSQL_XDEVAPI_VERSION_ID 10000
+#define PHP_MYSQL_XDEVAPI_VERSION "8.0.16"
+#define MYSQL_XDEVAPI_VERSION_ID 80016
+#define PHP_MYSQL_XDEVAPI_LICENSE "PHP License, version 3.01"
+#define PHP_MYSQL_XDEVAPI_NAME   "mysql-connector-php"
 
 #ifdef PHP_WIN32
 #	ifdef PHP_MYSQL_XDEVAPI_EXPORTS
@@ -35,7 +37,7 @@
 #	define PHP_MYSQL_XDEVAPI_API PHPAPI
 #endif
 
-#endif /*PHP_PHP_MYSQL_XDEVAPI_H*/
+#endif /*PHP_MYSQL_XDEVAPI_H*/
 
 /*
  * Local variables:

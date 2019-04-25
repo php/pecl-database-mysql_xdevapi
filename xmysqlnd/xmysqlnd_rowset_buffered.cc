@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -237,7 +237,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, create_row)(XMYSQLND_ROWSET_BUFFERED *
 													  MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	const unsigned int column_count = meta->m->get_field_count(meta);
-	zval * row = static_cast<zval*>(mnd_pecalloc(column_count, sizeof(zval), result->persistent));
+	zval * row = static_cast<zval*>(mnd_ecalloc(column_count, sizeof(zval)));
 	DBG_ENTER("xmysqlnd_rowset_buffered::create_row");
 	DBG_RETURN(row);
 }
@@ -253,7 +253,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, destroy_row)(XMYSQLND_ROWSET_BUFFERED 
 {
 	DBG_ENTER("xmysqlnd_rowset_buffered::destroy_row");
 	if (row) {
-		mnd_pefree(row, result->persistent);
+		mnd_efree(row);
 	}
 	DBG_VOID_RETURN;
 }
@@ -269,7 +269,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, add_row)(XMYSQLND_ROWSET_BUFFERED * co
 
 	if (!result->rows || result->rows_allocated == result->row_count) {
 		result->rows_allocated = ((result->rows_allocated + 2) * 5)/ 3;
-		result->rows = static_cast<zval**>(mnd_perealloc(result->rows, result->rows_allocated * sizeof(zval*), result->persistent));
+		result->rows = static_cast<zval**>(mnd_erealloc(result->rows, result->rows_allocated * sizeof(zval*)));
 	}
 	if (row) {
 		result->rows[result->row_count++] = row;
@@ -348,11 +348,9 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows)(XMYSQLND_ROWSET_BUFFERED * 
 	DBG_INF_FMT("rows=%p  meta=%p", result->rows, result->meta);
 
 	if (result->rows) {
-		const zend_bool pers = result->persistent;
-
 		result->m.free_rows_contents(result, stats, error_info);
 
-		mnd_pefree(result->rows, pers);
+		mnd_efree(result->rows);
 		result->rows = nullptr;
 
 		result->rows_allocated = 0;
@@ -392,7 +390,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, dtor)(XMYSQLND_ROWSET_BUFFERED * const
 			result->stmt->free_reference(result->stmt);
 		}
 
-		mnd_pefree(result, result->persistent);
+		mnd_efree(result);
 	}
 	DBG_VOID_RETURN;
 }

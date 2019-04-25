@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,8 +15,8 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PHP_ALLOCATOR_H
-#define MYSQL_XDEVAPI_PHP_ALLOCATOR_H
+#ifndef MYSQL_XDEVAPI_PHP_UTIL_ALLOCATOR_H
+#define MYSQL_XDEVAPI_PHP_UTIL_ALLOCATOR_H
 
 #include <cstddef>
 #include <memory>
@@ -113,7 +113,7 @@ namespace mysqlx {
 namespace util {
 
 /* {{{ mysqlx::util::allocator */
-template<typename T>
+template<typename T, typename allocation_tag = alloc_tag_t>
 class allocator
 {
 	public:
@@ -158,13 +158,13 @@ class allocator
 			}
 
 			const size_t bytes_count = elem_count * sizeof(T);
-			void* ptr = ::operator new(bytes_count, util::alloc_tag);
+			void* ptr = ::operator new(bytes_count, allocation_tag{});
 			return static_cast<T*>(ptr);
 		}
 
 		void deallocate(T* const ptr, size_t) const noexcept
 		{
-			::operator delete(ptr, util::alloc_tag);
+			::operator delete(ptr, allocation_tag{});
 		}
 
 		void destroy(T* const ptr) const noexcept
@@ -173,6 +173,9 @@ class allocator
 		}
 };
 /* }}} */
+
+template<typename T>
+using permanent_allocator = allocator<T, permanent_tag_t>;
 
 //------------------------------------------------------------------------------
 

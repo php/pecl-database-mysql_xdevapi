@@ -11,12 +11,12 @@ mysqlx Collection find, no 'only full group by'
 	$coll = $schema->getCollection("test_collection");
 	fill_db_collection($coll);
 
-	$res = $session->executeSql('SELECT @@SESSION.sql_mode');
+	$res = $session->sql('SELECT @@SESSION.sql_mode')->execute();
 	$saved_sql_modes = $res->fetchAll()[0]['@@SESSION.sql_mode'];
 
 	//This will disable 'only full group by'
 	$new_sql_modes = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-	$session->executeSql('SET SESSION sql_mode = \''.$new_sql_modes.'\'');
+	$session->sql('SET SESSION sql_mode = \''.$new_sql_modes.'\'')->execute();
 
 	try {
 		//This is going to work now but the representant of each group is indeterminate (probably the first available entry)
@@ -27,19 +27,20 @@ mysqlx Collection find, no 'only full group by'
 		$res = $coll->find()->fields(['COUNT(name) as cn', 'MAX(age) as ma', 'job as j'])->having('MAX(age) > 50')->groupBy('j')->execute();
 		$data = $res->fetchAll();
 		expect_eq(count($data),1);
-		expect_eq($data[0]['ma'],59);
+		expect_eq($data[0]['ma'],'59');
 		expect_eq($data[0]['j'],'Paninaro');
-		expect_eq($data[0]['cn'],'1');
+		expect_eq($data[0]['cn'],1);
 	} catch( Exception $ex ) {
 		test_step_failed();
 	}
 
-	$session->executeSql('SET SESSION sql_mode = \''.$saved_sql_modes.'\'');
+	$session->sql('SET SESSION sql_mode = \''.$saved_sql_modes.'\'')->execute();
 	//This shall fail now
 	try {
 		$res = $coll->find()->fields(['name as n','age as a','job as j'])->groupBy('j')->execute();
 		test_step_failed();
 	} catch(Exception $ex) {}
+	print "verifying";
 	verify_expectations();
 	print "done!\n";
 ?>
@@ -49,4 +50,4 @@ mysqlx Collection find, no 'only full group by'
 	clean_test_db();
 ?>
 --EXPECTF--
-done!%A
+%Averifyingdone!%A

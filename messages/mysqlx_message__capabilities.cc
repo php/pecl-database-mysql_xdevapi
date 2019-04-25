@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -64,7 +64,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_message__capabilities, add)
 		Z_ADDREF_P(capability_zv);
 	}
 	zend_hash_next_index_insert(&capabilities->capabilities_ht, capability_zv);
-	
+
 	MYSQLX_SUPPRESS_MSVC_WARNINGS(4127)
 	RETVAL_ZVAL(capabilities_zv, 1 /*copy*/, 0 /*dtor*/);
 	MYSQLX_RESTORE_WARNINGS()
@@ -106,7 +106,7 @@ static zend_object *
 php_mysqlx_message__capabilities_object_allocator(zend_class_entry * class_type)
 {
 	const zend_bool persistent = FALSE;
-	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_pecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type), persistent);
+	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
 	st_mysqlx_message__capabilities* message = new struct st_mysqlx_message__capabilities;
 
 	DBG_ENTER("php_mysqlx_message__capabilities_object_allocator");
@@ -129,7 +129,7 @@ php_mysqlx_message__capabilities_object_allocator(zend_class_entry * class_type)
 		delete message;
 	}
 	if (mysqlx_object) {
-		mnd_pefree(mysqlx_object, persistent);
+		mnd_efree(mysqlx_object);
 	}
 	DBG_RETURN(nullptr);
 }

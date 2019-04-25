@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -22,7 +22,10 @@
 #include "xmysqlnd/xmysqlnd_protocol_frame_codec.h"
 
 #include "proto_gen/mysqlx.pb.h"
+#include "proto_gen/mysqlx_expect.pb.h"
 #include "proto_gen/mysqlx_notice.pb.h"
+
+#include "util/strings.h"
 
 namespace mysqlx {
 
@@ -54,27 +57,29 @@ enum xmysqlnd_client_message_type
 	COM_CRUD_DELETE			= Mysqlx::ClientMessages_Type_CRUD_DELETE,
 	COM_EXPECTATIONS_OPEN	= Mysqlx::ClientMessages_Type_EXPECT_OPEN,
 	COM_EXPECTATIONS_CLOSE	= Mysqlx::ClientMessages_Type_EXPECT_CLOSE,
-	COM_CRUD_CREATE_VIEW = Mysqlx::ClientMessages_Type_CRUD_CREATE_VIEW,
-	COM_CRUD_MODIFY_VIEW = Mysqlx::ClientMessages_Type_CRUD_MODIFY_VIEW,
-	COM_CRUD_DROP_VIEW = Mysqlx::ClientMessages_Type_CRUD_DROP_VIEW,
-	COM_NONE = 255
+	COM_CRUD_CREATE_VIEW    = Mysqlx::ClientMessages_Type_CRUD_CREATE_VIEW,
+	COM_CRUD_MODIFY_VIEW    = Mysqlx::ClientMessages_Type_CRUD_MODIFY_VIEW,
+	COM_CRUD_DROP_VIEW      = Mysqlx::ClientMessages_Type_CRUD_DROP_VIEW,
+	COM_PREPARE_PREPARE     = Mysqlx::ClientMessages_Type_PREPARE_PREPARE,
+	COM_PREPARE_EXECUTE     = Mysqlx::ClientMessages_Type_PREPARE_EXECUTE,
+	COM_NONE                = 255
 };
 
 enum xmysqlnd_server_message_type
 {
-	XMSG_OK						= Mysqlx::ServerMessages_Type_OK,
-	XMSG_ERROR					= Mysqlx::ServerMessages_Type_ERROR,
-	XMSG_CAPABILITIES			= Mysqlx::ServerMessages_Type_CONN_CAPABILITIES,
-	XMSG_AUTH_CONTINUE			= Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_CONTINUE,
-	XMSG_AUTH_OK				= Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_OK,
-	XMSG_NOTICE					= Mysqlx::ServerMessages_Type_NOTICE,
-	XMSG_COLUMN_METADATA		= Mysqlx::ServerMessages_Type_RESULTSET_COLUMN_META_DATA,
-	XMSG_RSET_ROW				= Mysqlx::ServerMessages_Type_RESULTSET_ROW,
-	XMSG_RSET_FETCH_DONE		= Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE,
-	XMGS_RSET_FETCH_SUSPENDED	= Mysqlx::ServerMessages_Type_RESULTSET_FETCH_SUSPENDED,
+	XMSG_OK						    = Mysqlx::ServerMessages_Type_OK,
+	XMSG_ERROR					    = Mysqlx::ServerMessages_Type_ERROR,
+	XMSG_CAPABILITIES			    = Mysqlx::ServerMessages_Type_CONN_CAPABILITIES,
+	XMSG_AUTH_CONTINUE			    = Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_CONTINUE,
+	XMSG_AUTH_OK				    = Mysqlx::ServerMessages_Type_SESS_AUTHENTICATE_OK,
+	XMSG_NOTICE					    = Mysqlx::ServerMessages_Type_NOTICE,
+	XMSG_COLUMN_METADATA		    = Mysqlx::ServerMessages_Type_RESULTSET_COLUMN_META_DATA,
+	XMSG_RSET_ROW				    = Mysqlx::ServerMessages_Type_RESULTSET_ROW,
+	XMSG_RSET_FETCH_DONE		    = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE,
+	XMGS_RSET_FETCH_SUSPENDED	    = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_SUSPENDED,
 	XMSG_RSET_FETCH_DONE_MORE_RSETS = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_RESULTSETS,
-	XMSG_STMT_EXECUTE_OK		= Mysqlx::ServerMessages_Type_SQL_STMT_EXECUTE_OK,
-	XMSG_RSET_FETCH_DONE_MORE_OUT = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS,
+	XMSG_STMT_EXECUTE_OK		    = Mysqlx::ServerMessages_Type_SQL_STMT_EXECUTE_OK,
+	XMSG_RSET_FETCH_DONE_MORE_OUT   = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS,
 	XMSG_NONE = 255
 };
 
@@ -349,7 +354,43 @@ struct st_xmysqlnd_msg__sql_stmt_execute
 	st_xmysqlnd_result_set_reader_ctx reader_ctx;
 };
 
+struct st_xmysqlnd_msg__session_reset
+{
+	enum_func_status (*send_request)(st_xmysqlnd_msg__session_reset* msg);
 
+	enum_func_status (*read_response)(st_xmysqlnd_msg__session_reset* msg);
+
+	enum_func_status (*init_read)(
+		st_xmysqlnd_msg__session_reset* const msg,
+		const st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO* vio;
+	XMYSQLND_PFC* pfc;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
+
+	st_xmysqlnd_on_error_bind on_error;
+
+	boost::optional<bool> keep_open;
+};
+
+struct st_xmysqlnd_msg__session_close
+{
+	enum_func_status (*send_request)(st_xmysqlnd_msg__session_close* msg);
+
+	enum_func_status (*read_response)(st_xmysqlnd_msg__session_close* msg);
+
+	enum_func_status (*init_read)(
+		st_xmysqlnd_msg__session_close* const msg,
+		const st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO* vio;
+	XMYSQLND_PFC* pfc;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
+
+	st_xmysqlnd_on_error_bind on_error;
+};
 
 struct st_xmysqlnd_msg__connection_close
 {
@@ -364,6 +405,53 @@ struct st_xmysqlnd_msg__connection_close
 	XMYSQLND_PFC * pfc;
 	MYSQLND_STATS * stats;
 	MYSQLND_ERROR_INFO * error_info;
+
+	st_xmysqlnd_on_error_bind on_error;
+};
+
+struct st_xmysqlnd_msg__expectations_open
+{
+	enum_func_status (*send_request)(st_xmysqlnd_msg__expectations_open* msg);
+
+	enum_func_status (*read_response)(st_xmysqlnd_msg__expectations_open* msg);
+
+	enum_func_status (*init_read)(st_xmysqlnd_msg__expectations_open* const msg,
+		const st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO* vio;
+	XMYSQLND_PFC* pfc;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
+
+	st_xmysqlnd_on_error_bind on_error;
+
+	Mysqlx::Expect::Open_Condition::Key condition_key;
+	util::string condition_value;
+	Mysqlx::Expect::Open_Condition::ConditionOperation condition_op;
+
+	enum class Result {
+		unknown,
+		error,
+		ok,
+	};
+
+	Result result;
+
+};
+
+struct st_xmysqlnd_msg__expectations_close
+{
+	enum_func_status (*send_request)(st_xmysqlnd_msg__expectations_close* msg);
+
+	enum_func_status (*read_response)(st_xmysqlnd_msg__expectations_close* msg);
+
+	enum_func_status (*init_read)(st_xmysqlnd_msg__expectations_close* const msg,
+		const st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO* vio;
+	XMYSQLND_PFC* pfc;
+	MYSQLND_STATS* stats;
+	MYSQLND_ERROR_INFO* error_info;
 
 	st_xmysqlnd_on_error_bind on_error;
 };
@@ -384,7 +472,6 @@ struct st_xmysqlnd_result_ctx
 	zval* response_zval;
 };
 
-/* User for Create */
 struct st_xmysqlnd_msg__collection_add
 {
 	enum_func_status(*send_request)(st_xmysqlnd_msg__collection_add* msg,
@@ -403,7 +490,6 @@ struct st_xmysqlnd_msg__collection_add
 	struct st_xmysqlnd_on_error_bind on_error;
 };
 
-/* User for Create */
 struct st_xmysqlnd_msg__table_insert
 {
 	enum_func_status(*send_insert_request)(st_xmysqlnd_msg__table_insert* msg,
@@ -419,6 +505,42 @@ struct st_xmysqlnd_msg__table_insert
 		const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change);
 
 	struct st_xmysqlnd_result_ctx result_ctx;
+};
+
+struct st_xmysqlnd_msg__prepare_prepare
+{
+	enum_func_status(*send_prepare_request)(st_xmysqlnd_msg__prepare_prepare* msg,
+											const struct st_xmysqlnd_pb_message_shell pb_message_shell);
+
+	enum_func_status(*read_response)(st_xmysqlnd_msg__prepare_prepare* msg);
+
+	enum_func_status(*init_read)(st_xmysqlnd_msg__prepare_prepare* const msg,
+		const struct st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
+};
+
+struct st_xmysqlnd_msg__prepare_execute
+{
+	enum_func_status(*send_execute_request)(st_xmysqlnd_msg__prepare_execute* msg,
+											const struct st_xmysqlnd_pb_message_shell pb_message_shell);
+
+	enum_func_status(*read_response)(st_xmysqlnd_msg__prepare_execute* msg);
+
+	enum_func_status(*init_read)(st_xmysqlnd_msg__prepare_execute* const msg,
+		const struct st_xmysqlnd_on_error_bind on_error);
+
+	MYSQLND_VIO * vio;
+	XMYSQLND_PFC * pfc;
+	MYSQLND_STATS * stats;
+	MYSQLND_ERROR_INFO * error_info;
+
+	struct st_xmysqlnd_on_error_bind on_error;
 };
 
 /* user for Remove, Update, Delete */
@@ -500,14 +622,21 @@ struct st_xmysqlnd_message_factory
 	struct st_xmysqlnd_msg__auth_continue		(*get__auth_continue)(const st_xmysqlnd_message_factory* const factory);
 #endif
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__sql_stmt_execute)(const st_xmysqlnd_message_factory* const factory);
+
+	st_xmysqlnd_msg__session_reset (*get__session_reset)(const st_xmysqlnd_message_factory* const factory);
+	st_xmysqlnd_msg__session_close (*get__session_close)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__connection_close	(*get__connection_close)(const st_xmysqlnd_message_factory* const factory);
+	st_xmysqlnd_msg__expectations_open (*get__expectations_open)(const st_xmysqlnd_message_factory* const factory);
+	st_xmysqlnd_msg__expectations_close (*get__expectations_close)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__collection_add	    (*get__collection_add)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__collection_ud		(*get__collection_ud)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__sql_stmt_execute	(*get__collection_read)(const st_xmysqlnd_message_factory* const factory);
 	struct st_xmysqlnd_msg__table_insert		(*get__table_insert)(const st_xmysqlnd_message_factory* const factory);
-	st_xmysqlnd_msg__view_cmd (*get__view_create)(const st_xmysqlnd_message_factory * const factory);
-	st_xmysqlnd_msg__view_cmd (*get__view_alter)(const st_xmysqlnd_message_factory * const factory);
-	st_xmysqlnd_msg__view_cmd (*get__view_drop)(const st_xmysqlnd_message_factory * const factory);
+	st_xmysqlnd_msg__view_cmd                   (*get__view_create)(const st_xmysqlnd_message_factory * const factory);
+	st_xmysqlnd_msg__view_cmd                   (*get__view_alter)(const st_xmysqlnd_message_factory * const factory);
+	st_xmysqlnd_msg__view_cmd                   (*get__view_drop)(const st_xmysqlnd_message_factory * const factory);
+	st_xmysqlnd_msg__prepare_prepare            (*get__prepare_prepare)(const st_xmysqlnd_message_factory* const factory);
+	st_xmysqlnd_msg__prepare_execute            (*get__prepare_execute)(const st_xmysqlnd_message_factory* const factory);
 };
 
 struct st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const st_xmysqlnd_level3_io* const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);

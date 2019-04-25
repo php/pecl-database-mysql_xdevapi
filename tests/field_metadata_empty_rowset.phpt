@@ -5,7 +5,7 @@ mysqlx Field Metadata, empty rowset
 <?php
 	require("connect.inc");
 	$session = mysql_xdevapi\getSession($connection_uri);
-	$session->executeSql("create database $db");
+	$session->sql("create database $db")->execute();
 	$schema = $session->getSchema($db);
 
 	$schema->createCollection("test_collection");
@@ -30,11 +30,11 @@ mysqlx Field Metadata, empty rowset
 			expect_eq($cols[$i]->getTableName(),'test_collection');
 			expect_eq($cols[$i]->getTableLabel(),'test_collection');
 			expect_eq($cols[$i]->getLength(),     $expected_data[$i][3]);
-			expect_eq($cols[$i]->isNumberSigned(),false);
+			expect_eq($cols[$i]->isNumberSigned(),false, $i);
 			expect_eq($cols[$i]->getFractionalDigits(),0);
 			expect_eq_or_in($cols[$i]->getCollationName(),$expected_data[$i][4]);
 			expect_eq($cols[$i]->getCharacterSetName(),$expected_data[$i][5]);
-			expect_eq($cols[$i]->isPadded(),false);
+			expect_eq($cols[$i]->isPadded(),false, $i);
 	    }
 	}
 

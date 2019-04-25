@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -259,18 +259,14 @@ xmysqlnd_stmt *
 xmysqlnd_collection::add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 {
 	DBG_ENTER("xmysqlnd_collection::add");
-	xmysqlnd_stmt* ret{nullptr};
-	XMYSQLND_SESSION session;
-	struct st_xmysqlnd_message_factory msg_factory;
-	struct st_xmysqlnd_msg__collection_add collection_add;
-
+	xmysqlnd_stmt*                         ret{nullptr};
+	XMYSQLND_SESSION                       session{ get_schema()->get_session() };
+	struct st_xmysqlnd_message_factory     msg_factory;
 	if( xmysqlnd_crud_collection_add__finalize_bind(crud_op) == PASS ) {
-		session = get_schema()->get_session();
-
 		msg_factory = xmysqlnd_get_message_factory(&session->data->io,
 											session->data->stats,
 											session->data->error_info);
-		collection_add = msg_factory.get__collection_add(&msg_factory);
+		st_xmysqlnd_msg__collection_add collection_add = msg_factory.get__collection_add(&msg_factory);
 		enum_func_status request_ret = collection_add.send_request(&collection_add,
 											xmysqlnd_crud_collection_add__get_protobuf_message(crud_op));
 		if (PASS == request_ret) {
@@ -291,25 +287,57 @@ xmysqlnd_collection::add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 xmysqlnd_stmt *
 xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
-	xmysqlnd_stmt* ret{nullptr};
 	DBG_ENTER("xmysqlnd_collection::remove");
-	if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
-		DBG_RETURN(ret);
+	xmysqlnd_stmt *         stmt{nullptr};
+	auto                    session = get_schema()->get_session();
+	drv::Prepare_stmt_data* ps_data{ &session->get_data()->ps_data };
+	if (!op) {
+		DBG_RETURN(stmt);
 	}
-	if (xmysqlnd_crud_collection_remove__is_initialized(op)) {
-		auto session = get_schema()->get_session();
-		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
-																			session->data->stats, session->data->error_info);
-		struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
-		if (PASS == collection_ud.send_delete_request(&collection_ud, xmysqlnd_crud_collection_remove__get_protobuf_message(op))) {
-			xmysqlnd_stmt * stmt = session->create_statement_object(session);
-			stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
-			ret = stmt;
+	if( false == ps_data->is_ps_supported() ) {
+		if ( !ps_data->is_bind_finalized( op->ps_message_id ) &&
+			 FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
+			DBG_RETURN(stmt);
 		}
-		DBG_INF(ret != nullptr? "PASS":"FAIL");
+		if (xmysqlnd_crud_collection_remove__is_initialized(op)) {
+			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
+																				session->data->stats, session->data->error_info);
+			struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
+			if (PASS == collection_ud.send_delete_request(&collection_ud, xmysqlnd_crud_collection_remove__get_protobuf_message(op))) {
+				stmt = session->create_statement_object(session);
+				stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
+			}
+			DBG_INF(stmt != nullptr? "PASS":"FAIL");
+		}
+	}else{
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()));
+		if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
+			DBG_RETURN(stmt);
+		}
+
+		op->ps_message_id = res.second;
+		ps_data->set_finalized_bind( res.second, true );
+
+		if( res.first ) {
+			if( !ps_data->send_prepare_msg( res.second ) ) {
+				if( ps_data->is_ps_supported() == false ) {
+					return remove(op);
+				}
+				DBG_RETURN(stmt);
+			}
+		}
+
+		if (!xmysqlnd_crud_collection_remove__is_initialized(op)) {
+			DBG_RETURN(stmt);
+		}
+
+		if( ps_data->prepare_msg_delivered( res.second ) &&
+			ps_data->bind_values( res.second, op->bound_values ) ) {
+			stmt = ps_data->send_execute_msg( res.second );
+		}
 	}
 
-	DBG_RETURN(ret);
+	DBG_RETURN(stmt);
 }
 /* }}} */
 
@@ -318,24 +346,56 @@ xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 xmysqlnd_stmt *
 xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 {
-	xmysqlnd_stmt* ret{nullptr};
 	DBG_ENTER("xmysqlnd_collection::modify");
-	if (!op || FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
-		DBG_RETURN(ret);
+	auto                    session = get_schema()->get_session();
+	drv::Prepare_stmt_data* ps_data = &session->get_data()->ps_data;
+	xmysqlnd_stmt *         stmt{nullptr};
+
+	if (!op) {
+		DBG_RETURN(stmt);
 	}
-	if (xmysqlnd_crud_collection_modify__is_initialized(op)) {
-		auto session = get_schema()->get_session();
-		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
-		struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
-		if (PASS == collection_ud.send_update_request(&collection_ud, xmysqlnd_crud_collection_modify__get_protobuf_message(op))) {
-			xmysqlnd_stmt * stmt = session->create_statement_object(session);
-			stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
-			ret = stmt;
+	if( false == ps_data->is_ps_supported() ) {
+		if ( !ps_data->is_bind_finalized( op->ps_message_id ) &&
+			 FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
+			DBG_RETURN(stmt);
 		}
-		DBG_INF(ret != nullptr? "PASS":"FAIL");
+		if (xmysqlnd_crud_collection_modify__is_initialized(op)) {
+			const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+			struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
+			if (PASS == collection_ud.send_update_request(&collection_ud, xmysqlnd_crud_collection_modify__get_protobuf_message(op))) {
+				stmt = session->create_statement_object(session);
+				stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
+			}
+		}
+		DBG_INF(stmt != nullptr? "PASS":"FAIL");
+	} else {
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()) );
+		if ( FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
+			DBG_RETURN(stmt);
+		}
+		op->ps_message_id = res.second;
+		ps_data->set_finalized_bind( res.second, true );
+
+		if( res.first ) {
+			if( !ps_data->send_prepare_msg( res.second ) ) {
+				if( ps_data->is_ps_supported() == false ) {
+					return modify(op);
+				}
+				DBG_RETURN(stmt);
+			}
+		}
+
+		if ( !xmysqlnd_crud_collection_modify__is_initialized(op) ) {
+			DBG_RETURN(stmt);
+		}
+
+		if( ps_data->prepare_msg_delivered( res.second ) &&
+			ps_data->bind_values( res.second, op->bound_values ) ) {
+			stmt = ps_data->send_execute_msg( res.second );
+		}
 	}
 
-	DBG_RETURN(ret);
+	DBG_RETURN(stmt);
 }
 /* }}} */
 
@@ -344,17 +404,46 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 xmysqlnd_stmt*
 xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 {
-	xmysqlnd_stmt* stmt{nullptr};
+	xmysqlnd_stmt*          stmt{nullptr};
 	DBG_ENTER("xmysqlnd_collection::find");
-	if (!op || FAIL == xmysqlnd_crud_collection_find__finalize_bind(op)) {
+	auto                    session = get_schema()->get_session();
+	drv::Prepare_stmt_data* ps_data = &session->get_data()->ps_data;
+	if (!op) {
 		DBG_RETURN(stmt);
 	}
-	if (xmysqlnd_crud_collection_find__is_initialized(op)) {
-		auto session = get_schema()->get_session();
-		stmt = session->create_statement_object(session);
-		if (FAIL == stmt->send_raw_message(stmt, xmysqlnd_crud_collection_find__get_protobuf_message(op), session->data->stats, session->data->error_info)) {
-			xmysqlnd_stmt_free(stmt, session->data->stats, session->data->error_info);
-			stmt = nullptr;
+	if( false == ps_data->is_ps_supported() ) {
+		if ( !ps_data->is_bind_finalized( op->ps_message_id ) &&
+			  FAIL == xmysqlnd_crud_collection_find__finalize_bind(op)) {
+			DBG_RETURN(stmt);
+		}
+		if (xmysqlnd_crud_collection_find__is_initialized(op)) {
+			auto session = get_schema()->get_session();
+			stmt = session->create_statement_object(session);
+			if (FAIL == stmt->send_raw_message(stmt,
+											   xmysqlnd_crud_collection_find__get_protobuf_message(op),
+											   session->data->stats, session->data->error_info)) {
+				xmysqlnd_stmt_free(stmt, session->data->stats, session->data->error_info);
+				stmt = nullptr;
+			}
+		}
+	} else {
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()) );
+		if ( FAIL == xmysqlnd_crud_collection_find__finalize_bind(op) ) {
+			DBG_RETURN(stmt);
+		}
+		op->ps_message_id = res.second;
+		ps_data->set_finalized_bind( res.second, true );
+		if( res.first ) {
+			if( !ps_data->send_prepare_msg( res.second ) ) {
+				if( ps_data->is_ps_supported() == false ) {
+					return find(op);
+				}
+				DBG_RETURN(stmt);
+			}
+		}
+		if( ps_data->prepare_msg_delivered( res.second ) &&
+			ps_data->bind_values( res.second, op->bound_values ) ) {
+			stmt = ps_data->send_execute_msg( res.second );
 		}
 	}
 	DBG_RETURN(stmt);
@@ -395,7 +484,7 @@ xmysqlnd_collection::free_contents()
 {
 	DBG_ENTER("xmysqlnd_collection::free_contents");
 	if (collection_name.s) {
-		mnd_pefree(get_name().s, persistent);
+		mnd_efree(get_name().s);
 		collection_name.s = nullptr;
 	}
 	DBG_VOID_RETURN;

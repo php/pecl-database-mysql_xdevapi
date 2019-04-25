@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -35,11 +35,15 @@ namespace devapi {
 class Collection_find : public util::custom_allocable
 {
 public:
+	Collection_find() = default;
+	Collection_find(const Collection_find& rhs) = delete;
+	Collection_find& operator=(const Collection_find& rhs) = delete;
+	~Collection_find();
+
 	bool init(
 		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
-	~Collection_find();
 
 public:
 	void fields(
@@ -94,10 +98,9 @@ public:
 	Mysqlx::Crud::Find* get_stmt();
 
 private:
-	zval* object_zv{nullptr};
-	drv::xmysqlnd_collection* collection{nullptr};
+	zval*                                      object_zv{nullptr};
+	drv::xmysqlnd_collection*                  collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__find* find_op{nullptr};
-
 };
 /* }}} */
 

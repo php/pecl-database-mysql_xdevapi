@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -39,7 +39,7 @@
 #include "util/allocator.h"
 #include "util/object.h"
 #include "util/zend_utils.h"
-
+#include "xmysqlnd/xmysqlnd_utils.h"
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 
 namespace mysqlx {
@@ -434,29 +434,25 @@ void Collection_find::execute(
 
 	RETVAL_FALSE;
 
-	if (FALSE == xmysqlnd_crud_collection_find__is_initialized(find_op)) {
-		RAISE_EXCEPTION(err_msg_find_fail);
-	} else {
-		xmysqlnd_stmt* stmt = collection->find(find_op);
-		{
-			if (stmt) {
-				zval stmt_zv;
-				ZVAL_UNDEF(&stmt_zv);
-				mysqlx_new_stmt(&stmt_zv, stmt);
-				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-				}
-				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-					zval zv;
-					ZVAL_UNDEF(&zv);
-					mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_DOC, &zv);
+	xmysqlnd_crud_collection_find_verify_is_initialized(find_op);
 
-					ZVAL_COPY(return_value, &zv);
-					zval_dtor(&zv);
-				}
-				zval_ptr_dtor(&stmt_zv);
-			}
+	xmysqlnd_stmt* stmt{ collection->find(find_op) };
+	if (stmt) {
+		zval stmt_zv;
+		ZVAL_UNDEF(&stmt_zv);
+		mysqlx_new_stmt(&stmt_zv, stmt);
+		if (Z_TYPE(stmt_zv) == IS_NULL) {
+			xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 		}
+		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
+			zval zv;
+			ZVAL_UNDEF(&zv);
+			mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_DOC, &zv);
+
+			ZVAL_COPY(return_value, &zv);
+			zval_dtor(&zv);
+		}
+		zval_ptr_dtor(&stmt_zv);
 	}
 
 	DBG_VOID_RETURN;
@@ -558,6 +554,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, sort)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, groupBy)
 {
 	DBG_ENTER("mysqlx_collection__find::groupBy");
+	php_error_docref(nullptr, E_WARNING, "find.groupBy is a deprecated function since MySQL 8.0.16");
 	mysqlx_collection__find__add_sort_or_grouping(
 		INTERNAL_FUNCTION_PARAM_PASSTHRU,
 		Collection_find::Operation::Group_by);
@@ -573,6 +570,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 	MYSQLND_CSTRING search_condition = {nullptr, 0};
 
 	DBG_ENTER("mysqlx_collection__find::having");
+	php_error_docref(nullptr, E_WARNING, "find.having is a deprecated function since MySQL 8.0.16");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, collection_find_class_entry,

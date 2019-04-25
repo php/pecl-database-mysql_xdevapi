@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -73,8 +73,13 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 #define err_msg_invalid_ssl_mode    10033, "Provided two different ssl-modes"
 #define err_msg_tls_not_supported_1 10034, "TLS not supported with unix domain sockets."
 #define err_msg_unexpected_doc_id   10035, "Unexpected document ID provided."
-#define err_msg_inconsistent_ssl_options 10036, "Inconsistent ssl options."
-#define err_msg_invalid_auth_mechanism 10037, "Invalid authorization mechanism"
+#define err_msg_inconsistent_ssl_options   10036, "Inconsistent ssl options."
+#define err_msg_invalid_auth_mechanism     10037, "Invalid authorization mechanism"
+#define err_msg_invalid_attrib_key         10038, "Connection attribute keys cannot start with '_'."
+#define err_msg_invalid_attrib_key_size    10039, "Connection attribute keys cannot be longer than 32 characters"
+#define err_msg_invalid_attrib_value_size  10039, "Connection attribute keys cannot be longer than 1024 characters"
+#define err_msg_invalid_attrib_size        10040, "The connection attribute string is too long."
+
 
 extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
 

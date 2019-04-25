@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | rhs is bundled with this package in the file LICENSE, and is        |
@@ -27,6 +27,16 @@ namespace mysqlx {
 namespace util {
 
 namespace zend {
+
+void ensure_is_array(zval* zv)
+{
+	if (Z_TYPE_P(zv) == IS_ARRAY) return;
+
+	zval_ptr_dtor(zv);
+	array_init_size(zv, 0);
+}
+
+// ----------------
 
 namespace {
 

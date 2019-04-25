@@ -29,7 +29,16 @@ configure : function() {
 var Ext_label = "mysql-xdevapi";
 var Ext_name = "mysql_xdevapi";
 
-var Boost_version_header = "boost/version.hpp";
+var Boost_version_header = "boost\\version.hpp";
+
+var Minimal_boost_ver = 105300;
+var Minimal_boost_ver_label = "1.53.00";
+
+var Preferred_boost_ver_subdir = "boost_1_69_0";
+var Preferred_boost_ver_label = "1.69.00";
+
+var Sources_metadata_filename = "INFO_SRC";
+var Binaries_metadata_filename = "INFO_BIN";
 
 // ----------------------------------------------------------------------------
 // sources
@@ -37,6 +46,7 @@ var Boost_version_header = "boost/version.hpp";
 var mysqlx_devapi_sources = [
 	"mysqlx_base_result.cc",
 	"mysqlx_class_properties.cc",
+	"mysqlx_client.cc",
 	"mysqlx_collection.cc",
 	"mysqlx_collection__add.cc",
 	"mysqlx_collection__find.cc",
@@ -51,12 +61,10 @@ var mysqlx_devapi_sources = [
 	"mysqlx_database_object.cc",
 	"mysqlx_doc_result.cc",
 	"mysqlx_doc_result_iterator.cc",
-	"mysqlx_driver.cc",
 	"mysqlx_exception.cc",
 	"mysqlx_executable.cc",
 	"mysqlx_execution_status.cc",
 	"mysqlx_expression.cc",
-	"mysqlx_field_metadata.cc",
 	"mysqlx_object.cc",
 	"mysqlx_result.cc",
 	"mysqlx_result_iterator.cc",
@@ -163,20 +171,29 @@ var xmysqlnd_crud_parsers = [
 ];
 
 var xmysqlnd_protobuf_sources = [
+	"mysqlx.pb.cc",
 	"mysqlx_connection.pb.cc",
 	"mysqlx_crud.pb.cc",
+	"mysqlx_cursor.pb.cc",
 	"mysqlx_datatypes.pb.cc",
 	"mysqlx_expect.pb.cc",
 	"mysqlx_expr.pb.cc",
 	"mysqlx_notice.pb.cc",
-	"mysqlx.pb.cc",
+	"mysqlx_prepare.pb.cc",
 	"mysqlx_resultset.pb.cc",
 	"mysqlx_session.pb.cc",
 	"mysqlx_sql.pb.cc"
 ];
 
-function get_src_dir(subdir) {
-	return configure_module_dirname + '\\' + subdir;
+function escape_path(path) {
+	if (path.indexOf(" ") == -1) return path;
+	return '"' + path + '"';
+}
+
+function get_src_path(subpath, escape) {
+	var src_dir = configure_module_dirname;
+	if (subpath) src_dir += '\\' + subpath;
+	return escape ? escape_path(src_dir) : src_dir;
 }
 
 function concatenate(items, decorator) {
@@ -218,6 +235,12 @@ function exec_command(command, description) {
 	print(exec.StdOut.ReadAll());
 	print(exec.StdErr.ReadAll());
 	return exec.Status;
+}
+
+function run_command(command) {
+	var exec = WshShell.Exec(command);
+	print(exec.StdErr.ReadAll());
+	return trim(exec.StdOut.ReadAll());
 }
 
 // ------
@@ -290,6 +313,10 @@ function is_dev_mode() {
 	return PHP_DEV_MODE == "yes";
 }
 
+function is_makefile_frag_supported() {
+	return typeof PHP_MAKEFILE_FRAGMENTS !== typeof undefined;
+}
+
 // ----------------------------------------------------------------------------
 // prerequisites
 
@@ -297,6 +324,7 @@ var extra_includes;
 var extra_libs;
 
 var boost_root;
+var boost_version;
 
 var protobuf_lib_path;
 var protobuf_include_dir;
@@ -304,25 +332,24 @@ var protoc_path;
 
 // ------
 
-function resolve_extra_dirs(php_extra_dirs) {
+function resolve_extra_dirs(php_extra_dirs, php_extra_dirs_label) {
 	if (!php_extra_dirs || !php_extra_dirs.length) return [];
-	print('extra_dirs ');
-	println(php_extra_dirs);
+	println(php_extra_dirs_label + ': ' + php_extra_dirs);
 	return php_extra_dirs.split(';');
 }
 
 function resolve_extra_includes() {
-	this.extra_includes = resolve_extra_dirs(PHP_EXTRA_INCLUDES);
+	this.extra_includes = resolve_extra_dirs(PHP_EXTRA_INCLUDES, 'PHP_EXTRA_INCLUDES');
 }
 
 function resolve_extra_libs() {
-	this.extra_libs = resolve_extra_dirs(PHP_EXTRA_LIBS);
+	this.extra_libs = resolve_extra_dirs(PHP_EXTRA_LIBS, 'PHP_EXTRA_LIBS');
 }
 
 // ------
 
-function hint_3rd_party_lib_env(env_var_name) {
-	println('    consider setting ' + env_var_name);
+function hint_3rd_party_lib_env(option_name, env_var_name) {
+	println('    consider use of ' + option_name + ' or setting ' + env_var_name);
 }
 
 // ------
@@ -331,6 +358,7 @@ function resolve_boost_root() {
 	var dirs_to_search =
 		[PHP_BOOST]
 		.concat(this.extra_includes)
+		.concat([get_env_path('WITH_BOOST', Preferred_boost_ver_subdir)])
 		.concat([
 			get_env_path('MYSQL_XDEVAPI_BOOST_ROOT'),
 			get_env_path('BOOST_ROOT'),
@@ -344,20 +372,33 @@ function resolve_boost_root() {
 function resolve_boost_paths() {
 	this.boost_root = resolve_boost_root();
 	if (!this.boost_root) {
-		hint_3rd_party_lib_env('MYSQL_XDEVAPI_BOOST_ROOT');
+		hint_3rd_party_lib_env('--with-boost', 'MYSQL_XDEVAPI_BOOST_ROOT');
 		ERROR("boost library not found");
+	}
+}
+
+function resolve_boost_version() {
+	// #define BOOST_VERSION 105300
+	var Boost_regex = /\s*#define\s+BOOST_VERSION\s+(\d+)\s*/;
+	if (GREP_HEADER(Boost_version_header, Boost_regex, this.boost_root)) {
+		return RegExp.$1;
+	} else {
+		return 0;
 	}
 }
 
 function validate_boost_version() {
 	print("Validating boost version... ");
-	var Minimal_boost_ver = "1.53.00";
-	// #define BOOST_VERSION 105300
-	var Min_booost_regex = /#define BOOST_VERSION (105[3-9]|10[6-9]|1[1-9]|[2-9])\d+\s*/;
-	if (GREP_HEADER(Boost_version_header, Min_booost_regex, this.boost_root)) {
-		println("ok");
+	var resolved_boost_version = resolve_boost_version();
+	if (Minimal_boost_ver <= resolved_boost_version) {
+		this.boost_version = resolved_boost_version;
+		var success_msg = "ok (" + this.boost_version + ")";
+		println(success_msg);
 	} else {
-		ERROR("boost version is too old, required at least " + Minimal_boost_ver);
+		var error_msg
+			= "boost version is too old, required at least " + Minimal_boost_ver_label
+			+ " (preferred is " + Preferred_boost_ver_label + ")";
+		ERROR(error_msg);
 	}
 }
 
@@ -426,7 +467,7 @@ function resolve_protobuf_include_dir(default_protobuf_root) {
 			prepare_optional_path(default_protobuf_root, 'include')
 		]);
 
-	return search_base_path(dirs_to_search, "google/protobuf");
+	return search_base_path(dirs_to_search, "google\\protobuf");
 }
 
 function resolve_protoc_path() {
@@ -439,7 +480,7 @@ function resolve_protoc_path() {
 		get_env_path('PROTOBUF_PATH')
 	];
 
-	return search_full_path(dirs_to_search, "bin/protoc.exe");
+	return search_full_path(dirs_to_search, "bin\\protoc.exe");
 }
 
 function resolve_protobuf_paths() {
@@ -448,7 +489,7 @@ function resolve_protobuf_paths() {
 	this.protobuf_include_dir = resolve_protobuf_include_dir(default_protobuf_root);
 	this.protoc_path = resolve_protoc_path();
 	if (!this.protobuf_lib_path || !this.protobuf_include_dir || !this.protoc_path) {
-		hint_3rd_party_lib_env('MYSQL_XDEVAPI_PROTOBUF_ROOT');
+		hint_3rd_party_lib_env('--with-protobuf', 'MYSQL_XDEVAPI_PROTOBUF_ROOT');
 		ERROR("protobuf library not found");
 	}
 }
@@ -513,8 +554,8 @@ function get_protoc_path() {
 }
 
 function protodef_full_path(protobuf_file) {
-	var protobuf_dir = get_src_dir('xmysqlnd\\proto_def');
-	return protobuf_dir + '\\' + protobuf_file;
+	var protobuf_dir = get_src_path('xmysqlnd\\proto_def');
+	return escape_path(protobuf_dir + '\\' + protobuf_file);
 }
 
 function get_protodef_paths() {
@@ -522,10 +563,12 @@ function get_protodef_paths() {
 		"mysqlx.proto",
 		"mysqlx_connection.proto",
 		"mysqlx_crud.proto",
+		"mysqlx_cursor.proto",
 		"mysqlx_datatypes.proto",
 		"mysqlx_expect.proto",
 		"mysqlx_expr.proto",
 		"mysqlx_notice.proto",
+		"mysqlx_prepare.proto",
 		"mysqlx_resultset.proto",
 		"mysqlx_session.proto",
 		"mysqlx_sql.proto"
@@ -548,11 +591,28 @@ function generate_protobufs() {
 	var protobuf_generation_cmd = [
 		protoc_path,
 		get_protoc_includes(),
-		'--proto_path', get_src_dir('xmysqlnd\\proto_def'),
-		'--cpp_out', get_src_dir('xmysqlnd\\proto_gen'),
+		'--proto_path', get_src_path('xmysqlnd\\proto_def', true),
+		'--cpp_out', get_src_path('xmysqlnd\\proto_gen', true),
 		get_protodef_paths()
 	].join(' ');
 	exec_command(protobuf_generation_cmd, "generate mysql_xdevapi protobufs");
+}
+
+function add_makefile_frag() {
+	var protoc_path = get_protoc_path();
+	DEFINE("MYSQL_XDEVAPI_PROTOC", protoc_path);
+	if (this.protobuf_include_dir) {
+		DEFINE("MYSQL_XDEVAPI_PROTOBUF_INCLUDES", this.protobuf_include_dir);
+	}
+	ADD_MAKEFILE_FRAGMENT();
+}
+
+function process_protobufs() {
+	if (is_makefile_frag_supported()) {
+		add_makefile_frag();
+	} else {
+		generate_protobufs();
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -560,14 +620,14 @@ function generate_protobufs() {
 
 function prepare_include(dir) {
 	if (!dir) return null;
-	return "/I " + dir;
+	return "/I " + escape_path(dir);
 }
 
 function get_includes() {
 	var includes = [
-		get_src_dir(""),
-		get_src_dir("xmysqlnd\\cdkbase"),
-		get_src_dir("xmysqlnd\\cdkbase\\include"),
+		get_src_path(""),
+		get_src_path("xmysqlnd\\cdkbase"),
+		get_src_path("xmysqlnd\\cdkbase\\include"),
 		this.protobuf_dir_include,
 		this.boost_root
 	];
@@ -637,12 +697,159 @@ function add_sources_cflags(subdir, cflags) {
 }
 
 function add_sources(subdir, sources, cflags) {
-	ADD_SOURCES(get_src_dir(subdir), sources.join(' '), Ext_name, subdir);
+	ADD_SOURCES(get_src_path(subdir), sources.join(' '), Ext_name, subdir);
 	if (cflags) add_sources_cflags(subdir, cflags);
 }
 
 function add_dependency(dep_extension_name) {
 	ADD_EXTENSION_DEP(Ext_name, dep_extension_name, false);
+}
+
+// ----------------------------------------------------------------------------
+// expose metadata about source and binaries
+
+var xdevapi_version;
+
+function get_now_string() {
+	var now = new Date();
+	return now.toUTCString();
+}
+
+function grep_xdevapi_version() {
+	var Version_regex = /#define\s+PHP_MYSQL_XDEVAPI_VERSION\s+"(\S+)"\s*/;
+	if (GREP_HEADER('php_mysql_xdevapi.h', Version_regex, get_src_path())) {
+		return RegExp.$1;
+	} else {
+		ERROR("cannot find xdevapi version");
+	}
+}
+
+function is_git_available() {
+	var git_path = PATH_PROG('git', get_env("PATH"));
+	return git_path ? true : false;
+}
+
+function is_git_repo() {
+	var is_repo_available_cmd = 'git rev-parse --is-inside-work-tree';
+	var is_repo_available = run_command(is_repo_available_cmd);
+	return is_repo_available;
+}
+
+function extract_branch_name_from_pb2_envar() {
+	var branch_source_envar = get_env("BRANCH_SOURCE");
+	if (!branch_source_envar) return null;
+
+	// e.g. set BRANCH_SOURCE=http://pb2.address.com/subdir/repo.git wl-12276-expose-metadata
+	var tokens = branch_source_envar.split(' ');
+	return tokens.pop();
+}
+
+function write_metadata_from_env(env_var_name, label, metafile) {
+	var envar = get_env(env_var_name);
+	if (envar) metafile.WriteLine(label + envar);
+}
+
+function write_metadata_from_define(define_name, metafile) {
+	var define_value = get_define(define_name);
+	metafile.WriteLine(define_name + ": " + define_value);
+}
+
+function expose_sources_metadata() {
+	var metafile_path = get_src_path(Sources_metadata_filename);
+	var metafile = file_system.CreateTextFile(metafile_path, true);
+
+	metafile.WriteLine("MySQL X DevAPI for PHP " + this.xdevapi_version);
+	metafile.WriteLine("version: " + this.xdevapi_version);
+
+	if (is_git_available() && is_git_repo()) {
+		var branch_name_cmd = 'git symbolic-ref --short HEAD';
+		var branch_name = run_command(branch_name_cmd);
+		metafile.WriteLine("branch: " + branch_name);
+
+		var commit_info_cmd = 'git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"';
+		var commit_info = run_command(commit_info_cmd);
+		metafile.WriteLine(commit_info);
+	} else {
+		// internal use, below envars available only on pb2 hosts without git
+		var branch_name = extract_branch_name_from_pb2_envar();
+		if (branch_name) metafile.WriteLine("branch: " + branch_name);
+
+		write_metadata_from_env("PUSH_REVISION", "commit: ", metafile);
+	}
+
+	metafile.Close();
+}
+
+function expose_binaries_metadata() {
+	var metafile_path = get_src_path(Binaries_metadata_filename);
+	var metafile = file_system.CreateTextFile(metafile_path, true);
+
+	metafile.WriteLine("===== Information about the build process: =====");
+
+	var hostname = WshShell.ExpandEnvironmentStrings( "%COMPUTERNAME%" );
+	metafile.WriteLine("Build was run at " + get_now_string()
+		+ " on host '" + hostname + "'");
+
+	var os_info = trim(run_command('cmd /c ver'));
+	metafile.WriteLine("Build was done on " + os_info);
+
+	metafile.WriteBlankLines(1);
+
+	metafile.WriteLine("build-date: " + get_now_string());
+	metafile.WriteLine("os-info: " + os_info);
+	var build_type = PHP_DEBUG == "yes" ? "Debug" : "Release";
+	metafile.WriteLine("build-type: " + build_type);
+	metafile.WriteLine("mysql-version: " + this.xdevapi_version);
+
+	metafile.WriteBlankLines(1);
+
+	metafile.WriteLine("===== Compiler / generator used: =====");
+
+	metafile.WriteLine("toolset: " + PHP_TOOLSET);
+	metafile.WriteLine("compiler: " + COMPILER_NAME + " " + COMPILER_NUMERIC_VERSION);
+
+	metafile.WriteLine("boost: " + this.boost_version);
+	metafile.WriteLine("boost-root: " + this.boost_root);
+
+	var protobuf_version_cmd = this.protoc_path + ' --version';
+	var protobuf_version = run_command(protobuf_version_cmd);
+	metafile.WriteLine("protbuf: " + protobuf_version);
+	metafile.WriteLine("protobuf-include-dir: " + this.protobuf_include_dir);
+	metafile.WriteLine("protoc-path: " + this.protoc_path);
+
+	metafile.WriteBlankLines(1);
+
+	metafile.WriteLine("===== Feature flags used: =====");
+	metafile.WriteLine("php-version: " + PHP_VERSION_STRING);
+	metafile.WriteLine("architecture: " + (X64 ? '64bit' : '32bit'));
+	metafile.WriteLine("thread-safety: " + PHP_ZTS);
+	metafile.WriteLine("debug: " + PHP_DEBUG);
+	metafile.WriteLine("developer-mode: " + PHP_DEV_MODE);
+	metafile.WriteLine("--with-boost: " + PHP_BOOST);
+	metafile.WriteLine("--with-protobuf: " + PHP_PROTOBUF);
+	write_metadata_from_define("MYSQL_XDEVAPI_BOOST_ROOT", metafile);
+	write_metadata_from_define("MYSQL_XDEVAPI_PROTOBUF_ROOT", metafile);
+	metafile.WriteLine("extra-includes: " + PHP_EXTRA_INCLUDES);
+	metafile.WriteLine("extra-libs: " + PHP_EXTRA_LIBS);
+
+	metafile.WriteBlankLines(1);
+
+	metafile.WriteLine("===== Compiler flags used: =====");
+	write_metadata_from_define("BASE_INCLUDES", metafile);
+	write_metadata_from_define("CFLAGS", metafile);
+	write_metadata_from_define("CFLAGS_MYSQL_XDEVAPI", metafile);
+	write_metadata_from_define("LDFLAGS", metafile);
+	write_metadata_from_define("PHP_LDFLAGS", metafile);
+
+	metafile.WriteLine("===== EOF =====");
+
+	metafile.Close();
+}
+
+function expose_metadata() {
+	this.xdevapi_version = grep_xdevapi_version();
+	expose_sources_metadata();
+	expose_binaries_metadata();
 }
 
 // ----------------------------------------------------------------------------
@@ -660,7 +867,7 @@ if (!verify_requirements()) {
 	return;
 }
 
-generate_protobufs();
+process_protobufs();
 
 init_extension(mysqlx_devapi_sources);
 add_sources("messages", mysqlx_messages);
@@ -687,6 +894,8 @@ if (!MODE_PHPIZE && (PHP_MYSQLND == "no")) {
 }
 
 AC_DEFINE('HAVE_MYSQL_XDEVAPI', 1, 'mysql-xdevapi support enabled');
+
+expose_metadata();
 
 } // configure
 

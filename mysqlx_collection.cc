@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -261,23 +261,21 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 /* {{{ proto mixed mysqlx_collection::count() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 {
-	st_mysqlx_collection* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_collection::count");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
+	RETVAL_LONG(0);
 
-	RETVAL_FALSE;
-
-	xmysqlnd_collection * collection = object->collection;
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
+	xmysqlnd_collection* collection{ data_object.collection };
 	if (collection) {
-		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_collection_on_error, nullptr };
+		const st_xmysqlnd_session_on_error_bind on_error{ mysqlx_collection_on_error, nullptr };
 		zval counter;
 		ZVAL_UNDEF(&counter);
 		if (PASS == collection->count(on_error, &counter)) {
@@ -564,7 +562,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 	Collection_add coll_add;
 	zval doc_with_id;
 	util::json::ensure_doc_id(doc, id, &doc_with_id);
-	if (!coll_add.init(object_zv, data_object.collection, id, &doc_with_id)) {
+	if (!coll_add.add_docs(object_zv, data_object.collection, id, &doc_with_id)) {
 		DBG_VOID_RETURN;
 	}
 

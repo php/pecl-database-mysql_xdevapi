@@ -15,15 +15,15 @@ PHP_ARG_WITH(
 	no)
 
 PHP_ARG_ENABLE(
-	[dev-mode],
-	[whether to enable developer mode],
+	dev-mode,
+	whether to enable developer mode,
 	[  --enable-dev-mode           Enable internal developer mode],
 	no,
 	no)
 
 PHP_ARG_ENABLE(
 	mysql-xdevapi,
-	[whether to enable mysql-xdevapi],
+	whether to enable mysql-xdevapi,
 	[  --enable-mysql-xdevapi      Enable mysql-xdevapi],
 	no,
 	yes)
@@ -36,6 +36,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	mysqlx_devapi_sources=" \
 		mysqlx_base_result.cc \
 		mysqlx_class_properties.cc \
+		mysqlx_client.cc \
 		mysqlx_collection.cc \
 		mysqlx_collection__add.cc \
 		mysqlx_collection__find.cc \
@@ -50,12 +51,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_database_object.cc \
 		mysqlx_doc_result.cc \
 		mysqlx_doc_result_iterator.cc \
-		mysqlx_driver.cc \
 		mysqlx_exception.cc \
 		mysqlx_executable.cc \
 		mysqlx_execution_status.cc \
 		mysqlx_expression.cc \
-		mysqlx_field_metadata.cc \
 		mysqlx_object.cc \
 		mysqlx_result.cc \
 		mysqlx_result_iterator.cc \
@@ -156,13 +155,15 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		"
 
 	xmysqlnd_protobuf_sources=" \
+		xmysqlnd/proto_gen/mysqlx.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_connection.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_crud.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_cursor.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_datatypes.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_expect.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_expr.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_notice.pb.cc \
-		xmysqlnd/proto_gen/mysqlx.pb.cc \
+		xmysqlnd/proto_gen/mysqlx_prepare.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_resultset.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_session.pb.cc \
 		xmysqlnd/proto_gen/mysqlx_sql.pb.cc \
@@ -179,7 +180,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		"
 
 
-	if test "$PHP_DEV_MODE_ENABLED" = "yes"; then
+	if test "$PHP_DEV_MODE" = "yes" || test "$PHP_DEV_MODE_ENABLED" = "yes"; then
 		AC_DEFINE([MYSQL_XDEVAPI_DEV_MODE], 1, [Enable developer mode])
 		DEV_MODE_CXXFLAGS="-Werror"
 	else
@@ -260,8 +261,23 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 
 	dnl boost
+	MINIMAL_BOOST_VER=105300
+	MINIMAL_BOOST_VER_LABEL="1.53.00"
+
+	PREFERRED_BOOST_VER_SUBDIR="boost_1_69_0"
+	PREFERRED_BOOST_VER_LABEL="1.69.00"
+
+	REQUIRED_BOOST_VER_MSG="required at least $MINIMAL_BOOST_VER_LABEL"
+	REQUIRED_BOOST_VER_MSG+=" (preferred is $PREFERRED_BOOST_VER_LABEL)"
+
+	if [ test -d "$WITH_BOOST" ]; then
+		PREFERRED_BOOST_LOCATION=[$WITH_BOOST/$PREFERRED_BOOST_VER_SUBDIR]
+	else
+		PREFERRED_BOOST_LOCATION=""
+	fi
+
 	AC_MSG_CHECKING([for boost])
-	SEARCH_PATH="$PHP_BOOST $MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH /usr/local/include /usr/include"
+	SEARCH_PATH="$PHP_BOOST $PREFERRED_BOOST_LOCATION $MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH /usr/local/include /usr/include"
 	SEARCH_FOR="boost/version.hpp"
 	for i in $SEARCH_PATH ; do
 		if test -r "$i/$SEARCH_FOR"; then
@@ -274,12 +290,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		PHP_ADD_INCLUDE([$BOOST_RESOLVED_ROOT])
 		AC_MSG_RESULT(found in $BOOST_RESOLVED_ROOT)
 	else
-		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_BOOST_ROOT])
+		AC_MSG_ERROR([not found, consider use of --with-boost or setting MYSQL_XDEVAPI_BOOST_ROOT; $REQUIRED_BOOST_VER_MSG])
 	fi
 
 	AC_MSG_CHECKING([if boost version is valid])
-	MINIMAL_BOOST_VER=105300
-	MINIMAL_BOOST_VER_LABEL="1.53.00"
 	AC_EGREP_CPP(
 		boost_version_ok,
 		[
@@ -289,7 +303,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 			#endif
 		],
 		[AC_MSG_RESULT([ok])],
-		[AC_MSG_ERROR([boost version is too old, required at least $MINIMAL_BOOST_VER_LABEL])]
+		[AC_MSG_ERROR([boost version is too old, $REQUIRED_BOOST_VER_MSG])]
 	)
 
 
@@ -324,7 +338,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 		AC_MSG_RESULT([found in $PROTOBUF_RESOLVED_ROOT])
 	else
-		AC_MSG_ERROR([not found, consider setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
+		AC_MSG_ERROR([not found, consider use of --with-protobuf or setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi
 
 	PHP_ADD_MAKEFILE_FRAGMENT()
@@ -343,4 +357,106 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	fi
 
 	AC_DEFINE(HAVE_MYSQL_XDEVAPI, 1, [mysql-xdevapi support enabled])
+
+	dnl expose metadata
+	dnl expose sources metadata
+	INFO_SRC_PATH=[$ext_builddir/INFO_SRC]
+
+	MYSQL_XDEVAPI_VERSION=`$EGREP "define PHP_MYSQL_XDEVAPI_VERSION" $ext_srcdir/php_mysql_xdevapi.h | $SED -e 's/[[^0-9\.]]//g'`
+	echo [MySQL X DevAPI for PHP ${MYSQL_XDEVAPI_VERSION}] > $INFO_SRC_PATH
+	echo [version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_SRC_PATH
+
+ 	AC_PATH_PROG(GIT_PATH, 'git')
+	if [ test -x "${GIT_PATH}" ]; then
+		IS_GIT_REPO=`git rev-parse --is-inside-work-tree`
+	fi
+
+	if [ test "${IS_GIT_REPO}" ]; then
+		BRANCH_NAME=`git symbolic-ref --short HEAD`
+		echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
+
+		COMMIT_INFO=`git log -1 --pretty=format:"commit: %H%ndate: %aD%nshort: %h"`
+		echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
+	else
+		# internal use, below envars available only on pb2 hosts without git
+		if [ test "${BRANCH_SOURCE}" ]; then
+			# e.g. export BRANCH_SOURCE='http://myrepo.no.oracle.com/git/connector-php-devapi.git wl-12276-expose-metadata'
+			BRANCH_NAME=`echo ${BRANCH_SOURCE} | cut -d' ' -f2`
+			echo [branch: ${BRANCH_NAME}] >> $INFO_SRC_PATH
+		fi
+
+		if [ test "${PUSH_REVISION}" ]; then
+			echo [commit: ${PUSH_REVISION}] >> $INFO_SRC_PATH
+		fi
+	fi
+
+	# expose binaries metadata
+	INFO_BIN_PATH=[$ext_builddir/INFO_BIN]
+
+	echo [===== Information about the build process: =====]] > $INFO_BIN_PATH
+	CURRENT_TIME=`date -u`
+	HOSTNAME=`hostname`
+	echo [Build was run at ${CURRENT_TIME} on host ${HOSTNAME}] >> $INFO_BIN_PATH
+	HOST_OS=`uname -a`
+	echo [Build was done on ${HOST_OS}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [build-date: ${CURRENT_TIME}] >> $INFO_BIN_PATH
+	echo [os-info: ${HOST_OS}] >> $INFO_BIN_PATH
+	if test -z "$PHP_DEBUG"; then
+		BUILD_TYPE="Release"
+	else
+		BUILD_TYPE="Debug"
+	fi
+	echo [build-type: ${BUILD_TYPE}] >> $INFO_BIN_PATH
+	echo [mysql-version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [host-cpu: ${host_cpu}] >> $INFO_BIN_PATH
+	echo [host-vendor: ${host_os}] >> $INFO_BIN_PATH
+	echo [host-os: ${host_os}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Compiler / generator used: =====] >> $INFO_BIN_PATH
+
+	COMPILER_VERSION=`${CXX} --version | head -1`
+	echo [compiler: "${COMPILER_VERSION}"] >> $INFO_BIN_PATH
+
+	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
+	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
+	echo [boost-root: ${BOOST_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+
+	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
+	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
+	echo [protbuf-root: ${PROTOBUF_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
+	echo [php-config: ${PHP_CONFIG}] >> $INFO_BIN_PATH
+    if [test "$enable_maintainer_zts" = "yes"]; then
+      THREAD_SAFETY="yes"
+    else
+      THREAD_SAFETY="no"
+    fi
+	echo [thread-safety: ${THREAD_SAFETY}] >> $INFO_BIN_PATH
+	echo [debug: ${ZEND_DEBUG}] >> $INFO_BIN_PATH
+	echo [developer-mode: ${PHP_DEV_MODE}] >> $INFO_BIN_PATH
+	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
+	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_BOOST_ROOT: ${MYSQL_XDEVAPI_BOOST_ROOT}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_PROTOBUF_ROOT: ${MYSQL_XDEVAPI_PROTOBUF_ROOT}] >> $INFO_BIN_PATH
+
+	echo [] >> $INFO_BIN_PATH
+
+	echo [===== Compiler flags used: =====] >> $INFO_BIN_PATH
+	echo [CC: ${CC}] >> $INFO_BIN_PATH
+	echo [CFLAGS: ${CFLAGS}] >> $INFO_BIN_PATH
+	echo [CXX: ${CXX}] >> $INFO_BIN_PATH
+	echo [CXXFLAGS: ${CXXFLAGS}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_CXXFLAGS: ${MYSQL_XDEVAPI_CXXFLAGS}] >> $INFO_BIN_PATH
+	echo [LDFLAGS: ${LDFLAGS}] >> $INFO_BIN_PATH
+	echo [PHP_LDFLAGS: ${PHP_LDFLAGS}] >> $INFO_BIN_PATH
+
+	echo [===== EOF =====] >> $INFO_BIN_PATH
+
 fi

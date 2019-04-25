@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -86,7 +86,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta)
 	func_xmysqlnd_result_field_meta__dtor dtor;
 };
 
-struct st_xmysqlnd_result_field_meta : public util::permanent_allocable
+struct st_xmysqlnd_result_field_meta : public util::custom_allocable
 {
 	enum xmysqlnd_field_type type;
 	MYSQLND_STRING name;
@@ -145,7 +145,7 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta)
 	func_xmysqlnd_stmt_result_meta__dtor dtor;
 };
 
-struct st_xmysqlnd_stmt_result_meta : public util::permanent_allocable
+struct st_xmysqlnd_stmt_result_meta : public util::custom_allocable
 {
 	unsigned int field_count;
 	XMYSQLND_RESULT_FIELD_META ** fields;

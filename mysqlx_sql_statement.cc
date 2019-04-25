@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) 2006-2019 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -27,8 +27,8 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
 #include "mysqlx_exception.h"
-#include "mysqlx_field_metadata.h"
 #include "mysqlx_result.h"
+#include "mysqlx_column_result.h"
 #include "mysqlx_doc_result.h"
 #include "mysqlx_row_result.h"
 #include "mysqlx_sql_statement_result.h"
@@ -135,7 +135,7 @@ exec_with_cb_handle_on_row(void * context,
 			const XMYSQLND_RESULT_FIELD_META * field_meta = meta->m->get_field(meta, i);
 			zval meta_field_zv;
 			ZVAL_UNDEF(&meta_field_zv);
-			mysqlx_new_field_metadata(&meta_field_zv, meta->m->get_field(meta, i));
+			mysqlx_new_column_result(&meta_field_zv, meta->m->get_field(meta, i));
 			zend_hash_next_index_insert(Z_ARRVAL_P(meta_container), &meta_field_zv);
 
 			if (field_meta->zend_hash_key.is_numeric == FALSE) {
@@ -496,9 +496,54 @@ mysqlx_sql_stmt_on_error(
 /* }}} */
 
 
+/* {{{ myselx_sql_statemet_get_response */
+void
+mysqlx_sql_statement_get_results(
+		st_mysqlx_statement* object,
+		zval * return_value
+)
+{
+	DBG_ENTER("mysqlx_sql_statement_get_results");
+	xmysqlnd_stmt * stmt = object->stmt;
+	if (PASS == object->send_query_status) {
+		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
+			DBG_INF("ASYNC");
+			RETVAL_BOOL(PASS == object->send_query_status);
+		} else {
+			const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
+			const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
+			XMYSQLND_STMT_RESULT * result;
+			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
+				result = stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+			} else {
+				result = stmt->get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+			}
+
+			DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
+						object->has_more_results? "TRUE":"FALSE",
+						object->has_more_rows_in_set? "TRUE":"FALSE");
+
+			if (result) {
+				mysqlx_new_sql_stmt_result(return_value, result, object);
+			} else {
+				RAISE_EXCEPTION_FETCH_FAIL();
+				/* Or we should close the connection, rendering it unusable at this point ?*/
+				object->send_query_status = FAIL;
+			}
+		}
+	}
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+
 /* {{{ mysqlx_sql_statement_execute */
 void
-mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const zend_long flags, zval * return_value)
+mysqlx_sql_statement_execute(
+		const st_mysqlx_object* const mysqlx_object,
+		const zend_long flags,
+		zval * return_value
+)
 {
 	st_mysqlx_statement* object = (st_mysqlx_statement*) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_sql_statement_execute");
@@ -512,7 +557,9 @@ mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const 
 	RETVAL_FALSE;
 
 	if ((flags | MYSQLX_EXECUTE_ALL_FLAGS) != MYSQLX_EXECUTE_ALL_FLAGS) {
-		php_error_docref(nullptr, E_WARNING, "Invalid flags. Unknown %lu", flags - (flags | MYSQLX_EXECUTE_ALL_FLAGS));
+		util::ostringstream os;
+		os << "Invalid flags. Unknown " << (flags - (flags | MYSQLX_EXECUTE_ALL_FLAGS));
+		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
 		DBG_VOID_RETURN;
 	}
 	DBG_INF_FMT("flags=%lu", flags);
@@ -521,40 +568,16 @@ mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const 
 
 	if (TRUE == object->in_execution) {
 		php_error_docref(nullptr, E_WARNING, "Statement in execution. Please fetch all data first.");
-	} else if (PASS == xmysqlnd_stmt_execute__finalize_bind(object->stmt_execute)) {
-		xmysqlnd_stmt * stmt = object->stmt;
-		object->execute_flags = flags;
-		object->has_more_rows_in_set = FALSE;
-		object->has_more_results = FALSE;
-		object->send_query_status = stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(object->stmt_execute), nullptr, nullptr);
+	} else {
+		if (PASS == xmysqlnd_stmt_execute__finalize_bind(object->stmt_execute)) {
+			xmysqlnd_stmt * stmt = object->stmt;
+			object->execute_flags = flags;
+			object->has_more_rows_in_set = FALSE;
+			object->has_more_results = FALSE;
+			object->send_query_status = stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(object->stmt_execute), nullptr, nullptr);
 
-		if (PASS == object->send_query_status) {
-			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
-				DBG_INF("ASYNC");
-				RETVAL_BOOL(PASS == object->send_query_status);
-			} else {
-				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
-				const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
-				XMYSQLND_STMT_RESULT * result;
-				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-					result = stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
-				} else {
-					result = stmt->get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
-				}
-
-				DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
-							object->has_more_results? "TRUE":"FALSE",
-							object->has_more_rows_in_set? "TRUE":"FALSE");
-
-				if (result) {
-					mysqlx_new_sql_stmt_result(return_value, result, object);
-				} else {
-					RAISE_EXCEPTION_FETCH_FAIL();
-					/* Or we should close the connection, rendering it unusable at this point ?*/
-					object->send_query_status = FAIL;
-				}
-			}
-		}
+			mysqlx_sql_statement_get_results(object, return_value);
+        }
 	}
 	DBG_VOID_RETURN;
 }
@@ -611,8 +634,7 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 	st_mysqlx_statement* object{nullptr};
 	zval* object_zv{nullptr};
 	zend_bool use_callbacks{FALSE};
-	struct st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx;
-	memset(&xmysqlnd_exec_with_cb_ctx, 0, sizeof(struct st_xmysqlnd_exec_with_cb_ctx));
+	st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx{};
 
 	DBG_ENTER("mysqlx_sql_statement_read_result");
 	if (ZEND_NUM_ARGS() == 0) {
@@ -838,7 +860,10 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 	RETVAL_FALSE;
 
 	if ((flags | MYSQLX_EXECUTE_ALL_FLAGS) != MYSQLX_EXECUTE_ALL_FLAGS) {
-		php_error_docref(nullptr, E_WARNING, "Invalid flags. Unknown %lu", flags - (flags | MYSQLX_EXECUTE_ALL_FLAGS));
+		util::ostringstream os;
+		os << "Invalid flags. Unknown " << (flags - (flags | MYSQLX_EXECUTE_ALL_FLAGS));
+		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
+
 		DBG_VOID_RETURN;
 	}
 	DBG_INF_FMT("flags=%lu", flags);
