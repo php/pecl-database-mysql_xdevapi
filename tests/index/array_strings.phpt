@@ -24,11 +24,11 @@ $session = create_test_db();
 $schema = $session->getSchema($db);
 $coll = $schema->getCollection($test_collection_name);
 
-// expect_create_index_with_name(
-// 	'F1_teams_index',
-// 	'{"fields": [{"field": "$.team", "type": "TEXT(64)", "array": false}]}');
-// expect_create_index(
-// 	'{"fields": [{"field": "$.staff", "type": "CHAR(128)", "array": true}]}');
+expect_create_index_with_name(
+	'F1_teams_index',
+	'{"fields": [{"field": "$.team", "type": "TEXT(64)", "array": false}]}');
+expect_create_index(
+	'{"fields": [{"field": "$.staff", "type": "CHAR(128)", "array": true}]}');
 
 add_F1_team('Mercedes',
 	'[ "Toto Wolff", "Niki Lauda", "Lewis Hamilton", "Valtteri Bottas" ]');
