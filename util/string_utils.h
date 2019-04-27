@@ -22,6 +22,7 @@
 #include "mysqlnd_api.h"
 #include "strings.h"
 #include <boost/algorithm/string/compare.hpp>
+#include <cctype>
 
 namespace mysqlx {
 
@@ -159,6 +160,32 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 
 bool to_int(const string& str, int* value);
 bool to_int(const std::string& str, int* value);
+
+//------------------------------------------------------------------------------
+
+template<typename String>
+bool contains_blank(const String& str)
+{
+	return std::find_if(
+		str.begin(),
+		str.end(),
+		[](unsigned char chr){ return std::isblank(chr); }) != str.end();
+}
+
+template<typename String>
+String quotation(const String& str)
+{
+	return "'" + str + "'";
+}
+
+template<typename String>
+String quotation_if_blank(const String& str)
+{
+	if (str.empty() || contains_blank(str)) {
+		return quotation(str);
+	}
+	return str;
+}
 
 } // namespace util
 

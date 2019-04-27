@@ -112,6 +112,8 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::unknown_tls_version, "Unknown TLS version:" },
 	{ xdevapi_exception::Code::openssl_unavailable,
 		"trying to setup secure connection while OpenSSL is not available" },
+	{ xdevapi_exception::Code::empty_tls_versions,
+		"at least one TLS protocol version must be specified in tls-versions list" },
 };
 /* }}} */
 

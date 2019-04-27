@@ -3005,6 +3005,13 @@ enum_func_status Extract_client_option::assign_ssl_mode(Session_auth_data& auth,
 		DBG_RETURN(PASS);
 	}
 
+	if ((auth.ssl_mode == SSL_mode::any_secure) && (ssl_mode == SSL_mode::disabled)) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::inconsistent_ssl_options,
+			"cannot disable SSL connections when secure options are used");
+		DBG_RETURN(FAIL);
+	}
+
 	const char* error_reason{ "Only one ssl mode is allowed." };
 	DBG_ERR_FMT(error_reason);
 	throw util::xdevapi_exception(
@@ -3126,6 +3133,9 @@ void Extract_client_option::set_ssl_capath(const std::string& ssl_capath)
 void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions)
 {
 	const util::std_strings& tls_versions{ parse_single_or_array(raw_tls_versions) };
+	if (tls_versions.empty()) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::empty_tls_versions);
+	}
 	for (const auto& tls_version_str : tls_versions) {
 		const Tls_version tls_version{ parse_tls_version(tls_version_str) };
 		auth.tls_versions.push_back(tls_version);
@@ -3140,7 +3150,8 @@ Tls_version Extract_client_option::parse_tls_version(const std::string& tls_vers
 		{ Tls_version_v10, Tls_version::tls_v1_0 },
 		{ Tls_version_v11, Tls_version::tls_v1_1 },
 		{ Tls_version_v12, Tls_version::tls_v1_2 },
-		{ Tls_version_v13, Tls_version::tls_v1_3 },
+		//TODO: wait for patch in PHP
+		//{ Tls_version_v13, Tls_version::tls_v1_3 },
 	};
 	auto it{ name_to_protocols.find(tls_version_str) };
 	if (it != name_to_protocols.end()) return it->second;
@@ -3154,7 +3165,7 @@ Tls_version Extract_client_option::parse_tls_version(const std::string& tls_vers
 	);
 
 	util::ostringstream os;
-	os << tls_version_str
+	os << util::quotation_if_blank(tls_version_str)
 		<< " not recognized as a valid TLS protocol version (should be one of "
 		<< boost::join(supported_protocols, ", ")
 		<< ')';
@@ -3199,8 +3210,10 @@ util::std_strings Extract_client_option::parse_single_or_array(const std::string
 	util::std_strings items;
 	if ((value.front() == '[') && (value.back() == ']')) {
 		const std::string contents(value.begin() + 1, value.end() - 1);
-		const char* Items_separator{ "," };
-		boost::split(items, contents, boost::is_any_of(Items_separator));
+		if (!contents.empty()) {
+			const char* Items_separator{ "," };
+			boost::split(items, contents, boost::is_any_of(Items_separator));
+		}
 	} else {
 		items.push_back(value);
 	}
