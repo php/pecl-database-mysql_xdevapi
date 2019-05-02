@@ -47,17 +47,20 @@ enum xmysqlnd_session_state
 	// to connect with pre-allocated connection
 	SESSION_ALLOCATED = 0,
 
+	// while trying to setup connection to server
+	SESSION_CONNECTING = 1,
+
 	// connected, but not authenticated yet
-	SESSION_NON_AUTHENTICATED = 1,
+	SESSION_NON_AUTHENTICATED = 2,
 
 	// authenticated successfully, and ready to use
-	SESSION_READY = 2,
+	SESSION_READY = 3,
 
 	// request to close have been sent
-	SESSION_CLOSE_SENT = 3,
+	SESSION_CLOSE_SENT = 4,
 
 	// connection is closed
-	SESSION_CLOSED = 4,
+	SESSION_CLOSED = 5,
 };
 
 

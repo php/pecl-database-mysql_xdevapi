@@ -324,7 +324,7 @@ xmysqlnd_session_data::connect_handshake(
 		&& (PASS == io.pfc->data->m.reset(io.pfc,
 										  stats,
 										  error_info))) {
-		state.set(SESSION_NON_AUTHENTICATED);
+		state.set(SESSION_CONNECTING);
 		ret = send_client_attributes();
 		if( ret == PASS ) {
 			ret = authenticate(scheme_name, default_schema, set_capabilities);
@@ -593,6 +593,7 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 
 	switch (state_val) {
 		case SESSION_ALLOCATED:
+		case SESSION_CONNECTING:
 			throw util::xdevapi_exception(
 				util::xdevapi_exception::Code::connection_failure,
 				"cannot reset, not connected");
@@ -669,6 +670,7 @@ xmysqlnd_session_data::send_close()
 		break;
 	}
 	case SESSION_ALLOCATED:
+	case SESSION_CONNECTING:
 	case SESSION_CLOSE_SENT:
 		/* The user has killed its own connection */
 		vio->data->m.close_stream(vio, stats, error_info);
@@ -1701,6 +1703,8 @@ bool Authenticate::run_auth()
 	if (!init_capabilities()) return false;
 
 	if (!init_connection()) return false;
+
+	session->state.set(SESSION_NON_AUTHENTICATED);
 
 	if (!gather_auth_mechanisms()) return false;
 
@@ -3035,7 +3039,7 @@ void Extract_client_option::ensure_ssl_mode()
 		*/
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::inconsistent_ssl_options,
-			"secure option '" + option_name + "'  can not be specified when SSL connections are disabled");
+			"secure option '" + option_name + "' can not be specified when SSL connections are disabled");
 	}
 }
 
