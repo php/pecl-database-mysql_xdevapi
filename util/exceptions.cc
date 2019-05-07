@@ -114,6 +114,9 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 		"trying to setup secure connection while OpenSSL is not available" },
 	{ xdevapi_exception::Code::empty_tls_versions,
 		"at least one TLS protocol version must be specified in tls-versions list" },
+	{ xdevapi_exception::Code::cannot_connect_by_ssl, "Cannot connect to MySQL by using SSL" },
+	{ xdevapi_exception::Code::cannot_setup_tls,
+		"Negative response from the server, not able to setup TLS." },
 };
 /* }}} */
 
@@ -125,10 +128,10 @@ string to_sql_state(const string& sql_state)
 /* }}} */
 
 /* {{{ to_error_msg */
-string to_error_msg(unsigned int code, const string& what)
+string to_error_msg(xdevapi_exception::Code code, const string& what)
 {
 	string msg;
-	auto it{ code_to_err_msg.find(static_cast<xdevapi_exception::Code>(code)) };
+	auto it{ code_to_err_msg.find(code) };
 	if (it != code_to_err_msg.end()) {
 		msg = it->second;
 	}
@@ -139,6 +142,13 @@ string to_error_msg(unsigned int code, const string& what)
 	}
 
 	return msg.empty() ? Unknown_error_message : msg;
+}
+/* }}} */
+
+/* {{{ to_error_msg */
+string to_error_msg(unsigned int code, const string& what)
+{
+	return to_error_msg(static_cast<xdevapi_exception::Code>(code), what);
 }
 /* }}} */
 
@@ -277,6 +287,15 @@ string prepare_reason_msg(unsigned int code, const char* sql_state, const char* 
 void log_warning(const string& msg)
 {
 	php_error_docref(nullptr, E_WARNING, "%s", msg.c_str());
+}
+/* }}} */
+
+/* {{{ mysqlx::util::set_error_info */
+void set_error_info(util::xdevapi_exception::Code code, MYSQLND_ERROR_INFO* error_info)
+{
+	error_info->error_no = static_cast<unsigned int>(code);
+	strcpy(error_info->sqlstate, General_sql_state);
+	error_info->error[0] = 0;
 }
 /* }}} */
 

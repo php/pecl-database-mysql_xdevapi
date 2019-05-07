@@ -1079,13 +1079,14 @@ enum_func_status try_setup_crypto_connection(
 					php_stream_xport_crypto_enable(net_stream, 1) < 0)
 			{
 				DBG_ERR_FMT("Cannot connect to MySQL by using SSL");
-				php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL");
+				util::set_error_info(util::xdevapi_exception::Code::cannot_connect_by_ssl, session->error_info);
 				ret = FAIL;
 			} else {
 				php_stream_context_set( net_stream, nullptr );
 			}
 		} else {
 			DBG_ERR_FMT("Negative response from the server, not able to setup TLS.");
+			util::set_error_info(util::xdevapi_exception::Code::cannot_setup_tls, session->error_info);
 		}
 		zval_ptr_dtor(&zvalue);
 	}
