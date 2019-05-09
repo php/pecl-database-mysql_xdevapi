@@ -75,6 +75,10 @@ const MYSQLND_CSTRING namespace_xplugin{ "xplugin", sizeof("xplugin") - 1 };
 
 namespace {
 
+#if PHP_VERSION_ID >= 70400
+#define TLSv13_IS_SUPPORTED
+#endif 
+
 /* {{{ xmysqlnd_get_tls_capability */
 zend_bool
 xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
@@ -1007,8 +1011,9 @@ php_stream_xport_crypt_method_t to_stream_crypt_method(Tls_version tls_version)
 		{ Tls_version::tls_v1_0, STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT },
 		{ Tls_version::tls_v1_1, STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT },
 		{ Tls_version::tls_v1_2, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
-		//TODO: wait for patch in PHP
-		//{ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT }
+		#ifdef TLSv13_IS_SUPPORTED
+		{ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT },
+		#endif
 	};
 
 	return tls_version_to_crypt_method.at(tls_version);
@@ -3155,8 +3160,9 @@ Tls_version Extract_client_option::parse_tls_version(const std::string& tls_vers
 		{ Tls_version_v10, Tls_version::tls_v1_0 },
 		{ Tls_version_v11, Tls_version::tls_v1_1 },
 		{ Tls_version_v12, Tls_version::tls_v1_2 },
-		//TODO: wait for patch in PHP
-		//{ Tls_version_v13, Tls_version::tls_v1_3 },
+		#ifdef TLSv13_IS_SUPPORTED
+		{ Tls_version_v13, Tls_version::tls_v1_3 },
+		#endif
 	};
 	auto it{ name_to_protocols.find(tls_version_str) };
 	if (it != name_to_protocols.end()) return it->second;
