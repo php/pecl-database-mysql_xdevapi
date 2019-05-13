@@ -6,7 +6,6 @@ error_reporting=1
 default_socket_timeout=4
 --FILE--
 <?php
-require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
@@ -45,7 +44,7 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-	require_once(__DIR__."/../connect.inc");
+	require_once(__DIR__."/auth_utils.inc");
 	clean_test_db();
 ?>
 --EXPECTF--

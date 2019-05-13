@@ -5,7 +5,6 @@ mysqlx incorrect connection timeout
 error_reporting=1
 --FILE--
 <?php
-require_once(__DIR__."/../../connect.inc");
 require_once(__DIR__."/timeout_utils.inc");
 
 function test_incorrect_timeouts($host) {
@@ -29,7 +28,7 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-	require_once(__DIR__."/../../connect.inc");
+	require_once(__DIR__."/timeout_utils.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
