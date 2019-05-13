@@ -37,5 +37,5 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-[10055][HY000] Run-time error. Couldn't get connection from pool - queue timeout elapsed mysqlx://testuser:testpasswd@localhost:33160/?ssl-mode=disabled
+[10055][HY000] Run-time error. Couldn't get connection from pool - queue timeout elapsed%s
 done!%A
