@@ -144,7 +144,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 			const uint8_t * buf = reinterpret_cast<const uint8_t*>(object->message.field(i).c_str());
 			const uint32_t buf_size{static_cast<uint32_t>(object->message.field(i).size())};
 			zval zv;
-			DBG_INF_FMT("buf_size=%u", static_cast<uint>(buf_size));
+			DBG_INF_FMT("buf_size=%u", static_cast<unsigned int>(buf_size));
 			for (unsigned j{0}; j < buf_size; j++) {
 				DBG_INF_FMT("[%02u]=x%02X", j, buf[j]);
 			}
@@ -252,7 +252,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							#undef TIME_NULL_VALUE
 						} else {
 							ZVAL_NULL(&zv);
-							php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+							php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", static_cast<unsigned int>(buf[0]));
 						}
 						break;
 					}
@@ -290,7 +290,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							ZVAL_NEW_STR(return_value, zend_string_init(DATETIME_NULL_VALUE, sizeof(DATETIME_NULL_VALUE)-1, 0));
 							#undef DATETIME_NULL_VALUE
 						} else {
-							php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+							php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", static_cast<unsigned int>(buf[0]));
 						}
 						break;
 					}
@@ -336,7 +336,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 							int rest_buffer_size{0};
 							if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 								zval set_entry;
-								DBG_INF_FMT("value length=%3u  rest_buffer_size=%3d", (uint) gval, rest_buffer_size);
+								DBG_INF_FMT("value length=%3u  rest_buffer_size=%3d", static_cast<unsigned int>(gval), rest_buffer_size);
 								if ((rest_buffer_size < 0) || (gval > static_cast<decltype(gval)>(rest_buffer_size))) {
 									php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
 									break;
@@ -364,11 +364,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					const uint8_t last_byte = buf[buf_size - 1]; /* last byte is the sign and the last 4 bits, if any */
 					const uint8_t sign = ((last_byte & 0xF)? last_byte  : last_byte >> 4) & 0xF;
 					const size_t digits = (buf_size - 2 /* scale & last */) * 2  + ((last_byte & 0xF) > 0x9? 1:0);
-					DBG_INF_FMT("scale     =%u", (uint) scale);
-					DBG_INF_FMT("sign      =%u", (uint) sign);
-					DBG_INF_FMT("digits    =%u", (uint) digits);
+					DBG_INF_FMT("scale     =%u", static_cast<unsigned int>(scale));
+					DBG_INF_FMT("sign      =%u", static_cast<unsigned int>(sign));
+					DBG_INF_FMT("digits    =%u", static_cast<unsigned int>(digits));
 					if (!digits) {
-						php_error_docref(nullptr, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
+						php_error_docref(nullptr, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", static_cast<unsigned int>(scale), last_byte);
 						break;
 					}
 					const size_t d_val_len = digits + (sign == 0xD? 1:0) + (digits > scale? 1:0); /* one for the dot, one for the sign*/

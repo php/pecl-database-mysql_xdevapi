@@ -87,6 +87,9 @@ xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 			zval row;
 			xmysqlnd_utils_decode_doc_row(raw_row, &row);
 			add_next_index_zval(dest, &row);
+			if (add_next_index_zval(dest, &row) == FAILURE) {
+				throw std::runtime_error("decode doc failure - cannot add element to result array");
+			}
 		} ZEND_HASH_FOREACH_END();
 	}
 }

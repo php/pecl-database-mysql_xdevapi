@@ -240,7 +240,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_rowset)(XMYSQLND_STMT_RESULT * cons
 		xmysqlnd_rowset_free(result->rowset, stats, error_info);
 	}
 	if (rowset) {
-		DBG_INF_FMT("rows=%u", (uint) rowset->m.get_row_count(rowset));
+		DBG_INF_FMT("rows=%u", static_cast<unsigned int>(rowset->m.get_row_count(rowset)));
 	}
 	result->rowset = rowset;
 	DBG_RETURN(PASS);

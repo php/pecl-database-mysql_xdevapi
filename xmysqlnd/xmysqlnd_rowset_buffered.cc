@@ -185,8 +185,8 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED 
 	const unsigned int row_count = static_cast<unsigned int>(result->row_count);
 	DBG_ENTER("xmysqlnd_rowset_buffered::fetch_all_c");
 	DBG_INF_FMT("dupli=%s", duplicate? "YES":"NO");
-	DBG_INF_FMT("rows =%u  cols=%u", (uint) row_count, (uint) field_count);
-	DBG_INF_FMT("cells=%u", (uint) (row_count * field_count));
+	DBG_INF_FMT("rows =%u  cols=%u", static_cast<unsigned int>(row_count), static_cast<unsigned int>(field_count));
+	DBG_INF_FMT("cells=%u", static_cast<unsigned int>(row_count * field_count));
 	if ((*set = static_cast<zval*>(mnd_ecalloc(row_count * field_count, sizeof(zval)))) != nullptr) {
 		for (size_t row{0}; row < row_count; ++row) {
 			const zval * const from_row_zv = result->rows[row];
@@ -274,7 +274,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, add_row)(XMYSQLND_ROWSET_BUFFERED * co
 	if (row) {
 		result->rows[result->row_count++] = row;
 	}
-	DBG_INF_FMT("row_count=%u  rows_allocated=%u", (uint) result->row_count, (uint) result->rows_allocated);
+	DBG_INF_FMT("row_count=%u  rows_allocated=%u", static_cast<unsigned int>(result->row_count), static_cast<unsigned int>(result->rows_allocated));
 	DBG_RETURN(PASS);
 }
 /* }}} */
