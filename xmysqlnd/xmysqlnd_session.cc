@@ -77,7 +77,7 @@ namespace {
 
 #if PHP_VERSION_ID >= 70400
 #define TLSv13_IS_SUPPORTED
-#endif 
+#endif
 
 /* {{{ xmysqlnd_get_tls_capability */
 zend_bool
