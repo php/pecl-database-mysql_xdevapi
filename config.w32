@@ -715,6 +715,16 @@ function get_now_string() {
 	return now.toUTCString();
 }
 
+function get_compiler_name() {
+	var compiler_name;
+	if (typeof COMPILER_NAME !== typeof undefined) {
+		compiler_name = COMPILER_NAME;
+	} else {
+		compiler_name = COMPILER_NAME_LONG;
+	}
+	return compiler_name + " " + COMPILER_NUMERIC_VERSION;
+}
+
 function grep_xdevapi_version() {
 	var Version_regex = /#define\s+PHP_MYSQL_XDEVAPI_VERSION\s+"(\S+)"\s*/;
 	if (GREP_HEADER('php_mysql_xdevapi.h', Version_regex, get_src_path())) {
@@ -806,7 +816,7 @@ function expose_binaries_metadata() {
 	metafile.WriteLine("===== Compiler / generator used: =====");
 
 	metafile.WriteLine("toolset: " + PHP_TOOLSET);
-	metafile.WriteLine("compiler: " + COMPILER_NAME + " " + COMPILER_NUMERIC_VERSION);
+	metafile.WriteLine("compiler: " + get_compiler_name());
 
 	metafile.WriteLine("boost: " + this.boost_version);
 	metafile.WriteLine("boost-root: " + this.boost_root);
