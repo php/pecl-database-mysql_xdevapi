@@ -201,6 +201,10 @@ std::string Expr_parser_base::parse_cast_type()
     parse_error("Expected cast type");
 
   Keyword::Type type = Keyword::get(*token);
+
+  if (Keyword::NONE == type)
+    parse_error("Unexpected cast type");
+
   type_str = Keyword::name(type);
 
   switch (type)
@@ -228,7 +232,7 @@ std::string Expr_parser_base::parse_cast_type()
     break;
 
   default:
-    parse_error("Expected cast type");
+    parse_error("Unexpected cast type");
 
   }
 
@@ -1201,11 +1205,9 @@ Expression* Expr_parser_base::parse_atomic(Processor *prc)
     case Token::QSTRING:
       if (m_strings_as_blobs)
       {
-        cdk::bytes raw = consume_token()->get_bytes();
-        // NOTE: we remove first and last byte which contain quotes
-        assert(raw.size() > 1);
-        sprc->val()->value(cdk::TYPE_BYTES, Format_info(),
-          cdk::bytes(raw.begin()+1, raw.end()-1));
+        sprc->val()->value(
+          cdk::TYPE_BYTES, Format_info(), consume_token()->get_bytes()
+        );
       }
       else
         sprc->val()->str(consume_token()->get_text());
@@ -1330,6 +1332,15 @@ Expression* Expr_parser_base::parse_atomic(Processor *prc)
     return stored.release();
   }
 
+  /*
+    Here we know that we are in DOCUMENT mode and we are expecting a document
+    path. If parse_schema_ident() called above consumed some tokens, we check
+    if they were not quoted identifiers. Such identifiers are allowed when
+    referring to tables or columns but are invalid in a document path.
+  */
+
+  if (Token::QWORD == types[0] || Token::QWORD == types[1])
+    parse_error("Expected atomic expression");
 
   /*
     Now we treat the identifiers "A.B" parsed by parse_schema_ident() and
@@ -1672,7 +1683,7 @@ Expression* Expr_parser_base::parse_ilri(Processor *prc)
         switch (Keyword::get(*t))
         {
         case Keyword::L_TRUE:  aprc->list_el()->scalar()->val()->yesno(true); break;
-        case Keyword::L_FALSE: aprc->list_el()->scalar()->val()->yesno(true); break;
+        case Keyword::L_FALSE: aprc->list_el()->scalar()->val()->yesno(false); break;
         case Keyword::L_NULL: aprc->list_el()->scalar()->val()->null(); break;
         default:
           t = NULL; // this indicates error

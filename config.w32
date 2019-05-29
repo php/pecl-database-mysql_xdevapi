@@ -602,6 +602,7 @@ function get_includes() {
 		get_src_path(""),
 		get_src_path("xmysqlnd\\cdkbase"),
 		get_src_path("xmysqlnd\\cdkbase\\include"),
+		get_src_path("xmysqlnd\\cdkbase\\extra\\rapidjson\\include"),
 		this.protobuf_dir_include,
 		this.boost_root
 	];
