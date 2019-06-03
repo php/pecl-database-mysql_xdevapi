@@ -1,11 +1,10 @@
 --TEST--
-collection [NOT] OVERLAPS operator on ints
+collection [NOT] OVERLAPS operator on int list
 --SKIPIF--
 --INI--
 error_reporting=E_ALL
 --FILE--
 <?php
-require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/query_utils.inc");
 
 function verify_query_result($criteria, $expected_result) {
@@ -45,7 +44,7 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-require_once(__DIR__."/../connect.inc");
+require_once(__DIR__."/query_utils.inc");
 clean_test_db();
 ?>
 --EXPECTF--

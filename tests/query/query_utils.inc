@@ -18,9 +18,9 @@ function verify_collection_query_result($criteria, $field, $sort_by, $expected_r
 	compare_result($result, $expected_result, $field);
 }
 
-function verify_table_query_result($table, $select_column, $criteria, $order_by, $expected_result) {
-//	$query = $table->select($select_column)->where($criteria)->orderBy($order_by)->execute();
-	$query = $table->select($select_column)->where($criteria)->bind(['age' => "'11'"])->execute();
+function verify_table_query_result($select_column, $criteria, $order_by, $expected_result) {
+	global $table;
+	$query = $table->select($select_column)->where($criteria)->orderBy($order_by)->execute();
 	$result = $query->fetchAll();
 	compare_result($result, $expected_result, $select_column);
 }
