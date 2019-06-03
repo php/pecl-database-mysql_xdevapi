@@ -198,7 +198,7 @@ public:
 
   ~Projection_list() {}
 private:
-  typedef std::vector<cdk::string> Proj_vec;
+  typedef std::vector<cdk::bytes> Proj_vec;
   ::parser::Parser_mode::value parser_mode;
   Proj_vec values;
 };

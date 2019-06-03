@@ -155,7 +155,7 @@ var xmysqlnd_cdkbase_core = [
 
 var xmysqlnd_cdkbase_foundation = [
 	"error.cc",
-	"string.cc"
+	"stream.cc"
 ];
 
 var xmysqlnd_cdkbase_parser = [
@@ -628,6 +628,7 @@ function get_includes() {
 		get_src_path(""),
 		get_src_path("xmysqlnd\\cdkbase"),
 		get_src_path("xmysqlnd\\cdkbase\\include"),
+		get_src_path("xmysqlnd\\cdkbase\\extra\\rapidjson\\include"),
 		this.protobuf_dir_include,
 		this.boost_root
 	];
