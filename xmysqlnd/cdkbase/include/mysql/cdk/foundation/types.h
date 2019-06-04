@@ -76,6 +76,7 @@ public:
   bytes(const char *str)
     : m_begin((byte*)str), m_end(m_begin + strlen(str))
   {}
+  virtual ~bytes(){}
 
   virtual byte* begin() const { return m_begin; }
   virtual byte* end() const { return m_end; }
