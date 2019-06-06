@@ -50,25 +50,25 @@ require(__DIR__."/tls_utils.inc");
 clean_test_db();
 ?>
 --EXPECTF--
-[10065][HY000] Unknown TLS version: TLSv1.x not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: TLS1.0 not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: tlsv0.1 not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: TLSv12 not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: incorrect not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: TLSv1;TLSv1.0 not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: [TLSv1.2,TLSv1.1,TLSv1 not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: TLSv1,TLSv1.2] not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: TLSx1.0 not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: '' not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
+[10065][HY000] Unknown TLS version: TLSv1.x not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: TLS1.0 not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: tlsv0.1 not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: TLSv12 not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: incorrect not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: TLSv1;TLSv1.0 not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: [TLSv1.2,TLSv1.1,TLSv1 not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: TLSv1,TLSv1.2] not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: TLSx1.0 not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: '' not recognized as a valid TLS protocol version (should be one of TLS%a)
 [10067][HY000] at least one TLS protocol version must be specified in tls-versions list
-[10065][HY000] Unknown TLS version: TLSv not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: TLSv1.01 not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: TLSv11 not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: foo not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
+[10065][HY000] Unknown TLS version: TLSv not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: TLSv1.01 not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: TLSv11 not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: foo not recognized as a valid TLS protocol version (should be one of TLS%a)
 [10052][HY000] Invalid argument. The argument to tls-version cannot be empty.
-[10065][HY000] Unknown TLS version: unknown not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: xyz not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
-[10065][HY000] Unknown TLS version: TLS not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.0, TLSv1.1, TLSv1.2)
+[10065][HY000] Unknown TLS version: unknown not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: xyz not recognized as a valid TLS protocol version (should be one of TLS%a)
+[10065][HY000] Unknown TLS version: TLS not recognized as a valid TLS protocol version (should be one of TLS%a)
 [10067][HY000] at least one TLS protocol version must be specified in tls-versions list
 [10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
 [10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used

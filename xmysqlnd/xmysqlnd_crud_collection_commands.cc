@@ -513,7 +513,7 @@ xmysqlnd_crud_collection_modify__add_operation(XMYSQLND_CRUD_COLLECTION_OP__MODI
 	// Validates the source is an array item
 	const size_t size = identifier.document_path().size();
 	if (size) {
-		DBG_INF_FMT("doc_path_size=%u", (uint) size);
+		DBG_INF_FMT("doc_path_size=%u", static_cast<unsigned int>(size));
 		if (validate_array) {
 			const Mysqlx::Expr::DocumentPathItem_Type doc_path_type
 				= identifier.document_path().Get(static_cast<int>(size) - 1).type();

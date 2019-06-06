@@ -378,7 +378,7 @@ xmysqlnd_session_data::connect(
 		auth->username.c_str(),
 		def_schema.c_str(),
 		port,
-		static_cast<uint>(set_capabilities),
+		static_cast<unsigned int>(set_capabilities),
 		persistent,
 		state.get());
 

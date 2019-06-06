@@ -31,16 +31,16 @@ test_tls_connection(
 	, true);
 
 
-if (is_tls_v13_supported()) {
+if (are_tls_ciphersuites_supported()) {
 	test_tls_connection(
-		'tls-versions=TLSv1.3&tls-ciphersuites=TLS_DH_DSS_WITH_AES_256_CBC_SHA256'
+		'tls-versions=TLSv1.3&tls-ciphersuites=TLS_AES_128_GCM_SHA256'
 		, true);
 	test_tls_connection(
-		'tls-versions=[TLSv1.3]&tls-ciphersuites=[TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384]'
+		'tls-versions=[TLSv1.3]&tls-ciphersuites=[TLS_AES_256_GCM_SHA384]'
 		, true);
 	test_tls_connection(
 		'tls-version=TLSv1.3&'.
-		'tls-ciphersuites=[TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA]'
+		'tls-ciphersuites=[TLS_CHACHA20_POLY1305_SHA256,TLS_AES_128_CCM_SHA256,TLS_AES_128_CCM_8_SHA256]'
 		, true);
 }
 
