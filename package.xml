@@ -326,6 +326,16 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="ps_table_update.phpt" role="test" />
      <file name="ps_utils.inc" role="test" />
     </dir>
+    <dir name="query">
+     <file name="collection_overlaps_int.phpt" role="test" />
+     <file name="collection_overlaps_int_list.phpt" role="test" />
+     <file name="collection_overlaps_string.phpt" role="test" />
+     <file name="collection_overlaps_string_list.phpt" role="test" />
+     <file name="query_utils.inc" role="test" />
+     <file name="table_overlaps_int.phpt" role="test" />
+     <file name="table_overlaps_json_int_list.phpt" role="test" />
+     <file name="table_overlaps_json_string_list.phpt" role="test" />
+    </dir>
     <dir name="row_locking">
      <file name="collection_misc.phpt" role="test" />
      <file name="collection_parallel_exclusive_exclusive.phpt" role="test" />
@@ -552,9 +562,58 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <dir name="core">
       <file name="codec.cc" role="src" />
      </dir>
+     <dir name="extra">
+      <dir name="rapidjson">
+       <dir name="include">
+        <dir name="rapidjson">
+         <file name="allocators.h" role="src" />
+         <file name="document.h" role="src" />
+         <file name="encodedstream.h" role="src" />
+         <file name="encodings.h" role="src" />
+         <file name="filereadstream.h" role="src" />
+         <file name="filewritestream.h" role="src" />
+         <file name="fwd.h" role="src" />
+         <file name="istreamwrapper.h" role="src" />
+         <file name="memorybuffer.h" role="src" />
+         <file name="memorystream.h" role="src" />
+         <file name="ostreamwrapper.h" role="src" />
+         <file name="pointer.h" role="src" />
+         <file name="prettywriter.h" role="src" />
+         <file name="rapidjson.h" role="src" />
+         <file name="reader.h" role="src" />
+         <file name="schema.h" role="src" />
+         <file name="stream.h" role="src" />
+         <file name="stringbuffer.h" role="src" />
+         <file name="writer.h" role="src" />
+         <dir name="error">
+          <file name="en.h" role="src" />
+          <file name="error.h" role="src" />
+         </dir>
+         <dir name="internal">
+          <file name="biginteger.h" role="src" />
+          <file name="diyfp.h" role="src" />
+          <file name="dtoa.h" role="src" />
+          <file name="ieee754.h" role="src" />
+          <file name="itoa.h" role="src" />
+          <file name="meta.h" role="src" />
+          <file name="pow10.h" role="src" />
+          <file name="regex.h" role="src" />
+          <file name="stack.h" role="src" />
+          <file name="strfunc.h" role="src" />
+          <file name="strtod.h" role="src" />
+          <file name="swap.h" role="src" />
+         </dir>
+         <dir name="msinttypes">
+          <file name="inttypes.h" role="src" />
+          <file name="stdint.h" role="src" />
+         </dir>
+        </dir>
+       </dir>
+      </dir>
+     </dir>
      <dir name="foundation">
       <file name="error.cc" role="src" />
-      <file name="string.cc" role="src" />
+      <file name="stream.cc" role="src" />
      </dir>
      <dir name="include">
       <dir name="mysql">
@@ -588,15 +647,18 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
          <file name="cdk_time.h" role="src" />
          <file name="codec.h" role="src" />
          <file name="common.h" role="src" />
+         <file name="connection_openssl.h" role="src" />
          <file name="connection_tcpip.h" role="src" />
-         <file name="connection_yassl.h" role="src" />
          <file name="diagnostics.h" role="src" />
          <file name="error.h" role="src" />
          <file name="error_category.h" role="src" />
          <file name="opaque_impl.h" role="src" />
          <file name="opaque_impl.i" role="src" />
+         <file name="socket.h" role="src" />
+         <file name="static_assert.h" role="src" />
          <file name="std_error_conditions.h" role="src" />
          <file name="stream.h" role="src" />
+         <file name="string.h" role="src" />
          <file name="types.h" role="src" />
          <file name="variant.h" role="src" />
         </dir>
@@ -621,6 +683,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
       <file name="delayed_op.h" role="src" />
      </dir>
      <dir name="parser">
+      <file name="char_iterator.h" role="src" />
       <file name="expr_parser.cc" role="src" />
       <file name="expr_parser.h" role="src" />
       <file name="json_parser.cc" role="src" />

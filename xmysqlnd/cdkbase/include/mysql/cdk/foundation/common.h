@@ -23,40 +23,40 @@
 
 #if defined __GNUC__ || defined __clang__
 
-#define PRAGMA(X) _Pragma(#X)
-#define DISABLE_WARNING(W) PRAGMA(GCC diagnostic ignored #W)
+#define PRAGMA_CDK(X) _Pragma(#X)
+#define DISABLE_WARNING_CDK(W) PRAGMA_CDK(GCC diagnostic ignored #W)
 
 #if defined __clang__ || __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
-#define DIAGNOSTIC_PUSH PRAGMA(GCC diagnostic push)
-#define DIAGNOSTIC_POP  PRAGMA(GCC diagnostic pop)
+#define DIAGNOSTIC_PUSH_CDK PRAGMA_CDK(GCC diagnostic push)
+#define DIAGNOSTIC_POP_CDK  PRAGMA_CDK(GCC diagnostic pop)
 #else
-#define DIAGNOSTIC_PUSH
-#define DIAGNOSTIC_POP
+#define DIAGNOSTIC_PUSH_CDK
+#define DIAGNOSTIC_POP_CDK
 #endif
 
 #elif defined _MSC_VER
 
 
-#define PRAGMA(X) __pragma(X)
-#define DISABLE_WARNING(W) PRAGMA(warning (disable:W))
+#define PRAGMA_CDK(X) __pragma(X)
+#define DISABLE_WARNING_CDK(W) PRAGMA_CDK(warning (disable:W))
 
-#define DIAGNOSTIC_PUSH  PRAGMA(warning (push))
-#define DIAGNOSTIC_POP   PRAGMA(warning (pop))
+#define DIAGNOSTIC_PUSH_CDK  PRAGMA_CDK(warning (push))
+#define DIAGNOSTIC_POP_CDK   PRAGMA_CDK(warning (pop))
 
 #else
 
-#define PRAGMA(X)
-#define DISABLE_WARNING(W)
+#define PRAGMA_CDK(X)
+#define DISABLE_WARNING_CDK(W)
 
-#define DIAGNOSTIC_PUSH
-#define DIAGNOSTIC_POP
+#define DIAGNOSTIC_PUSH_CDK
+#define DIAGNOSTIC_POP_CDK
 
 #endif
 
 
 /*
   Macros to disable compile warnings in system headers. Put
-  PUSH_SYS_WARNINGS/POP_SYS_WARNINGS around sytem header includes.
+  PUSH_SYS_WARNINGS_CDK/POP_SYS_WARNINGS_CDK around sytem header includes.
 */
 
 #if defined _MSC_VER
@@ -64,21 +64,39 @@
 /*
   Warning 4350 is triggered by std::shared_ptr<> implementation
   - see https://msdn.microsoft.com/en-us/library/0eestyah.aspx
+
+  Warning 4365 conversion from 'type_1' to 'type_2', signed/unsigned mismatch
+  - see https://msdn.microsoft.com/en-us/library/ms173683.aspx
+
+  Warning 4774 format string expected in argument <position> is not a
+  string literal
 */
 
-#define PUSH_SYS_WARNINGS \
-  PRAGMA(warning (push,2)) \
-  DISABLE_WARNING(4350) \
-  DISABLE_WARNING(4738) \
-  DISABLE_WARNING(4548)
+#define PUSH_SYS_WARNINGS_CDK \
+  PRAGMA_CDK(warning (push,2)) \
+  DISABLE_WARNING_CDK(4350) \
+  DISABLE_WARNING_CDK(4738) \
+  DISABLE_WARNING_CDK(4996) \
+  DISABLE_WARNING_CDK(4548) \
+  DISABLE_WARNING_CDK(4365) \
+  DISABLE_WARNING_CDK(4774) \
+  DISABLE_WARNING_CDK(4244)
+
+#define PUSH_MSVC17_WARNINGS_CDK \
+  PRAGMA_CDK(warning (push,2)) \
+  DISABLE_WARNING_CDK(5039)
+
+#define POP_MSVC17_VARNINGS_CDK DIAGNOSTIC_POP_CDK
 
 #else
 
-#define PUSH_SYS_WARNINGS DIAGNOSTIC_PUSH
+#define PUSH_SYS_WARNINGS_CDK DIAGNOSTIC_PUSH_CDK
+#define PUSH_MSVC17_WARNINGS_CDK
+#define POP_MSVC17_VARNINGS_CDK
 
 #endif
 
-#define POP_SYS_WARNINGS  DIAGNOSTIC_POP
+#define POP_SYS_WARNINGS_CDK  DIAGNOSTIC_POP_CDK
 
 
 // Avoid warnings from Protobuf includes
@@ -90,25 +108,46 @@
   in tracing protbuf code warnings.
 */
 
-#define PUSH_PB_WARNINGS  PRAGMA(warning(push,1))
+#define PUSH_PB_WARNINGS  PRAGMA_CDK(warning(push,1)) \
+   DISABLE_WARNING_CDK(4365)
 
 #else
 
-#define PUSH_PB_WARNINGS DIAGNOSTIC_PUSH \
-    DISABLE_WARNING(-Wshadow) \
-    DISABLE_WARNING(-Wunused-parameter) \
-    DISABLE_WARNING(-Wdeprecated-declarations) \
+#define PUSH_PB_WARNINGS DIAGNOSTIC_PUSH_CDK \
+    DISABLE_WARNING_CDK(-Wshadow) \
+    DISABLE_WARNING_CDK(-Wunused-parameter) \
+    DISABLE_WARNING_CDK(-Wdeprecated-declarations) \
 
 #endif
 
-#define POP_PB_WARNINGS   DIAGNOSTIC_POP
+#define POP_PB_WARNINGS   DIAGNOSTIC_POP_CDK
+
+
+#if defined _MSC_VER
+
+/*
+  We want to use functions which trigger this security warning on Windows,
+  for example string::copy().
+*/
+
+#define PUSH_SCL_SECURE_WARNINGS  DIAGNOSTIC_PUSH_CDK \
+  DISABLE_WARNING_CDK(4996)
+
+#else
+
+#define PUSH_SCL_SECURE_WARNINGS
+
+#endif
+
+#define POP_SCL_SECURE_WARNINGS  DIAGNOSTIC_POP_CDK
+
 
 
 /*
   Include common system headers.
 */
 
-PUSH_SYS_WARNINGS
+PUSH_SYS_WARNINGS_CDK
 
 #if defined(_WIN32)
 
@@ -149,9 +188,10 @@ PUSH_SYS_WARNINGS
 #include <limits>
 #include <utility>
 
-POP_SYS_WARNINGS
+POP_SYS_WARNINGS_CDK
 
 #undef max
+#undef byte
 #undef THROW
 
 /*
@@ -179,8 +219,130 @@ POP_SYS_WARNINGS
 #endif
 
 
+/*
+  Macro to be used to disable "implicit fallthrough" gcc warning
+  <https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html>
+*/
+
+#ifndef FALLTHROUGH
+# if (defined( __GNUC__ ) || defined (__clang__))
+#  if defined(__GNUC__) && __GNUC__ < 7
+#    define FALLTHROUGH // FALLTHROUGH
+#  else
+#    if __cplusplus >= 201703L
+#      define FALLTHROUGH [[fallthrough]] // FALLTHROUGH C++17
+#    elif __cplusplus >= 201103L
+#      if defined (__clang__)
+#        define FALLTHROUGH [[gnu::fallthrough]] // FALLTHROUGH C++11 and C++14
+#      else
+#        define FALLTHROUGH [[clang::fallthrough]] // FALLTHROUGH C++11 and C++14
+#      endif
+#    else
+#      define FALLTHROUGH __attribute__((fallthrough))
+#    endif
+#  endif
+# else
+#   define FALLTHROUGH  // FALLTHROUGH
+# endif
+#endif //FALLTHROUGH
+
+#ifdef __cplusplus
+
+namespace cdk {
+namespace foundation {
+
+
+#ifdef USE_NATIVE_BYTE
+  using ::byte;
+#else
+  typedef unsigned char byte;
+#endif
+
+
+/*
+  Convenience class to disable copy constructor in a derived class.
+*/
+
+class nocopy
+{
+  nocopy(const nocopy&);
+  nocopy& operator=(const nocopy&);
+
+protected:
+  nocopy() {}
+};
 
 
 
+#ifndef HAVE_IS_SAME
+
+  template <typename T, typename U>
+  struct is_same
+  {
+    static const bool value = false;
+  };
+
+  template <typename T>
+  struct is_same<T,T>
+  {
+    static const bool value = true;
+  };
+
+#else
+
+  using std::is_same;
+
+#endif
+
+
+/*
+  Convenience for checking numeric limits (to be used when doing numeric
+  casts).
+
+  TODO: Maybe more templates are needed for the case where T is a float/double
+  type and U is an integer type or vice versa.
+*/
+
+
+template <
+  typename T, typename U,
+  typename std::enable_if<std::is_unsigned<U>::value>::type* = nullptr
+>
+inline
+bool check_num_limits(U val)
+{
+  using UT = typename std::make_unsigned<T>::type;
+  return !(val > (UT)std::numeric_limits<T>::max());
+}
+
+template <
+  typename T, typename U,
+  typename std::enable_if<std::is_unsigned<T>::value>::type* = nullptr,
+  typename std::enable_if<!std::is_unsigned<U>::value>::type* = nullptr
+>
+inline
+bool check_num_limits(U val)
+{
+  return !(val < 0) && !(val > std::numeric_limits<T>::max());
+}
+
+template <
+  typename T, typename U,
+  typename std::enable_if<!std::is_unsigned<T>::value>::type* = nullptr,
+  typename std::enable_if<!std::is_unsigned<U>::value>::type* = nullptr
+>
+inline
+bool check_num_limits(U val)
+{
+  return
+    !((val > std::numeric_limits<T>::max())
+     || (val < std::numeric_limits<T>::lowest()));
+}
+
+#define ASSERT_NUM_LIMITS_CDK(T,V) assert(cdk::foundation::check_num_limits<T>(V))
+
+}}  // cdk::foundation
+
+#endif
 
 #endif

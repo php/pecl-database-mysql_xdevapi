@@ -101,9 +101,14 @@
 	// ----------------------------------------------------------------------
 
 	if (!function_exists('create_test_session')) {
-		function create_test_session() {
+		function create_test_session($create_test_db = false) {
 			global $connection_uri;
-			return mysql_xdevapi\getSession($connection_uri);
+			$session = mysql_xdevapi\getSession($connection_uri);
+			if ($create_test_db) {
+				global $db;
+				$session->sql("create database $db")->execute();
+			}
+			return $session;
 		}
 	}
 
@@ -112,7 +117,7 @@
 		of the DB and tables needed to run the tests.
 	*/
 	if (!function_exists('create_test_db')) {
-		function create_test_db($session = null) {
+		function create_test_db($session = null, $table_spec = null) {
 			global $connection_uri;
 			global $db;
 			global $test_table_name;
@@ -129,7 +134,9 @@
 			if ($session == null) $session = mysql_xdevapi\getSession($connection_uri);
 			$session->sql("create database $db")->execute();
 			$schema = $session->getSchema($db);
-			$session->sql("create table $db.$test_table_name(name varchar(1024), age int, job varchar(1024))")->execute();
+			if (!$table_spec) $table_spec = "name varchar(1024), age int, job varchar(1024)";
+			$create_table_query = "create table $db.$test_table_name(" . $table_spec . ")";
+			$session->sql($create_table_query)->execute();
 			$schema->createCollection($test_collection_name);
 			return $session;
 		}

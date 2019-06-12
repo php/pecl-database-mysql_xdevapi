@@ -19,11 +19,12 @@
 
 #include <mysql/cdk/foundation.h>
 
-PUSH_SYS_WARNINGS
+PUSH_SYS_WARNINGS_CDK
 #include <functional>
 #include <algorithm>
 #include <set>
-POP_SYS_WARNINGS
+#include "api/expression.h"
+POP_SYS_WARNINGS_CDK
 
 
 namespace cdk {
@@ -32,24 +33,34 @@ namespace cdk {
 
 namespace ds {
 
+
+struct Attr_processor
+{
+  virtual ~Attr_processor() {}
+  virtual void attr(const string &key, const string &val)=0;
+};
+
+class Session_attributes
+  : public cdk::api::Expr_base<Attr_processor>
+{};
+
+
 /*
  * Generic session options which are valid for any data source.
  */
 
+
+
 template <class Base>
-class Options : public Base
+class Options
+    : public Base
+    , public Session_attributes
+    , public Attr_processor
 {
 public:
 
   Options()
-    : m_usr(L"root"), m_has_pwd(false), m_has_db(false)
-  {
-  }
-
-  Options(const Options &other)
-    : m_usr(other.m_usr)
-    , m_has_pwd(other.m_has_pwd), m_pwd(other.m_pwd)
-    , m_has_db(other.m_has_db), m_db(other.m_db)
+    : m_usr("root"), m_has_pwd(false), m_has_db(false)
   {
   }
 
@@ -81,6 +92,31 @@ public:
     m_has_db = true;
   }
 
+  void set_attributes(std::map<std::string,std::string> &connection_attr)
+  {
+    m_connection_attr = connection_attr;
+  }
+
+  const Session_attributes* attributes() const
+  {
+    if (m_connection_attr.empty())
+      return nullptr;
+    return this;
+  }
+
+  void process(Processor &prc) const override
+  {
+    for (auto &el :  m_connection_attr)
+    {
+      prc.attr(el.first, el.second);
+    }
+  }
+
+  void attr(const string &key, const string &val) override
+  {
+    m_connection_attr[key]=val;
+  }
+
 protected:
 
   string m_usr;
@@ -89,6 +125,7 @@ protected:
 
   bool    m_has_db;
   string  m_db;
+  std::map<std::string,std::string> m_connection_attr;
 
 };
 
@@ -122,6 +159,7 @@ public:
 
   virtual unsigned short port() const { return m_port; }
   virtual const std::string& host() const { return m_host; }
+
 };
 
 
@@ -131,9 +169,11 @@ class Protocol_options
   public:
 
   enum auth_method_t {
+    DEFAULT,
     PLAIN,
     MYSQL41,
-    EXTERNAL
+    EXTERNAL,
+    SHA256_MEMORY
   };
 
   virtual auth_method_t auth_method() const = 0;
@@ -141,62 +181,73 @@ class Protocol_options
 };
 
 
-class TCPIP::Options
-  : public ds::Options<Protocol_options>
+class Options
+  : public ds::Options<Protocol_options>,
+    public foundation::connection::Socket_base::Options
 {
+protected:
+
+  auth_method_t m_auth_method = DEFAULT;
+
 public:
 
   Options()
-  {
-    m_auth_method = auth_method_t::MYSQL41;
-  }
+  {}
 
   Options(const string &usr, const std::string *pwd =NULL)
     : ds::Options<Protocol_options>(usr, pwd)
-  {
-    /*
-      We don't know if the connection will be over SSL.
-      Guessing unencrypted connection and MYSQL41 auth.
-    */
-    m_auth_method = auth_method_t::MYSQL41;
-  }
-
-#ifdef WITH_SSL
-
-  void set_tls(const cdk::connection::TLS::Options& options)
-  {
-    m_tls_options = options;
-    // Use PLAIN auth for SSL connections
-    if (options.ssl_mode() == cdk::connection::TLS::Options::SSL_MODE::DISABLED)
-      m_auth_method = auth_method_t::MYSQL41;
-    else
-      m_auth_method = auth_method_t::PLAIN;
-  }
-
-  const cdk::connection::TLS::Options& get_tls() const
-  {
-    return m_tls_options;
-  }
-
-#endif
+  {}
 
   void set_auth_method(auth_method_t auth_method)
   {
     m_auth_method = auth_method;
   }
 
+  auth_method_t auth_method() const
+  {
+    return m_auth_method;
+  }
+
+};
+
+
+class TCPIP::Options
+  : public ds::mysqlx::Options
+{
+public:
+
+#ifdef WITH_SSL
+  typedef cdk::connection::TLS::Options  TLS_options;
+#endif
+
 private:
 
 #ifdef WITH_SSL
   cdk::connection::TLS::Options m_tls_options;
 #endif
-  auth_method_t m_auth_method;
 
+public:
 
-  auth_method_t auth_method() const
+  Options()
+  {}
+
+  Options(const string &usr, const std::string *pwd =NULL)
+    : ds::mysqlx::Options(usr, pwd)
+  {}
+
+#ifdef WITH_SSL
+
+  void set_tls(const TLS_options& options)
   {
-    return m_auth_method;
+    m_tls_options = options;
   }
+
+  const TLS_options& get_tls() const
+  {
+    return m_tls_options;
+  }
+
+#endif
 
 };
 
@@ -211,7 +262,6 @@ public:
 
   class Options;
 
-
   Unix_socket(const std::string &path)
     : m_path(path)
   {
@@ -224,41 +274,23 @@ public:
   virtual const std::string& path() const { return m_path; }
 };
 
-class Unix_socket::Options : public ds::Options<Protocol_options>
+class Unix_socket::Options
+  : public ds::mysqlx::Options
 {
-
-public:
+  public:
 
   Options()
   {}
 
-  Options(const ds::Options<Protocol_options>& opt)
-    : ds::Options<Protocol_options>(opt)
+  Options(const string &usr, const std::string *pwd = NULL)
+    : ds::mysqlx::Options(usr, pwd)
   {}
-
-  Options(const string &usr, const std::string *pwd =NULL)
-    : ds::Options<Protocol_options>(usr, pwd)
-  {}
-
-  void set_auth_method(auth_method_t auth_method)
-  {
-    m_auth_method = auth_method;
-  }
-
-private:
-  auth_method_t m_auth_method = auth_method_t::PLAIN;
-
-  auth_method_t auth_method() const
-  {
-    return m_auth_method;
-  }
-
-
 
 };
 #endif //_WIN32
 
 } // mysqlx
+
 
 namespace mysql {
 
@@ -299,6 +331,10 @@ namespace ds {
   template <typename DS_t, typename DS_opt>
   struct DS_pair : public std::pair<DS_t, DS_opt>
   {
+    DS_pair(const DS_pair&) = default;
+#ifdef HAVE_MOVE_CTORS
+    DS_pair(DS_pair&&) = default;
+#endif
     DS_pair(DS_t &ds, DS_opt &opt) : std::pair<DS_t, DS_opt>(ds, opt)
     {}
   };
@@ -308,11 +344,14 @@ namespace ds {
 
   private:
 
-    typedef cdk::foundation::variant <DS_pair<cdk::ds::TCPIP, cdk::ds::TCPIP::Options>,
+    typedef cdk::foundation::variant <
+      DS_pair<cdk::ds::TCPIP, cdk::ds::TCPIP::Options>
 #ifndef _WIN32
-                                      DS_pair<cdk::ds::Unix_socket, cdk::ds::Unix_socket::Options>,
+      ,DS_pair<cdk::ds::Unix_socket, cdk::ds::Unix_socket::Options>
 #endif //_WIN32
-                                      DS_pair<cdk::ds::TCPIP_old, cdk::ds::TCPIP_old::Options>> DS_variant;
+      ,DS_pair<cdk::ds::TCPIP_old, cdk::ds::TCPIP_old::Options>
+    >
+    DS_variant;
 
     bool m_is_prioritized;
     unsigned short m_counter;

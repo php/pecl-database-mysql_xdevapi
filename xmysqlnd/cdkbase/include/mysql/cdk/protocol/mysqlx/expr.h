@@ -227,7 +227,7 @@ public:
     MEMBER_ASTERISK = 2,
     ARRAY_INDEX = 3,
     ARRAY_INDEX_ASTERISK = 4,
-    DOUBLE_ASTERISK = 5
+    DOUBLE_ASTERISK = 5,
   };
 
   virtual ~Doc_path() {}
