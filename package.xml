@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2019-03-07</date>
+	<date>2019-06-12</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.16</release>
+		<release>8.0.17</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,19 +61,18 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#9879: Prepared statement support
-		WL#11983: Support session-connect-attributes
-		WL#12396: Support new session reset functionality
-		orabug #28802543: classes: Driver, ExecutionStatus, Expression, and Statement
-		orabug #28803208: the DocResult prototype appear wrong
-		orabug #28803039: the fields() method seems odd
-		orabug #28805757: how exactly are set() and replace() different?
+		WL#12190-DevAPI: indexing array fields
+		WL#12683-DevAPI: Add overlaps and not_overlaps as operator
+		WL#11852: erase temporary protobuf files at 'make clean' step
+		orabug #28605926: unclear _id related messages with 5.7
+		adapt sources to build with PHP-7.4
 	</notes>
  <contents>
   <dir name="/">
    <file name="CREDITS" role="doc" />
    <file name="LICENSE" role="doc" />
    <file name="Makefile.frag" role="src" />
+   <file name="Makefile.frag.w32" role="src" />
    <file name="README" role="doc" />
    <file name="config-win.h" role="src" />
    <file name="config.m4" role="src" />
@@ -744,6 +743,28 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2019-03-07</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.16</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#9879: Prepared statement support
+			WL#11983: Support session-connect-attributes
+			WL#12396: Support new session reset functionality
+			orabug #28802543: classes: Driver, ExecutionStatus, Expression, and Statement
+			orabug #28803208: the DocResult prototype appear wrong
+			orabug #28803039: the fields() method seems odd
+			orabug #28805757: how exactly are set() and replace() different?
+		</notes>
+	</release>
 	<release>
 		<date>2019-01-29</date>
 		<time>20:00:00</time>
