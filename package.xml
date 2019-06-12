@@ -63,6 +63,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	<notes>
 		WL#12190-DevAPI: indexing array fields
 		WL#12683-DevAPI: Add overlaps and not_overlaps as operator
+		WL#13012: Deprecate methods
 		WL#11852: erase temporary protobuf files at 'make clean' step
 		orabug #28605926: unclear _id related messages with 5.7
 		adapt sources to build with PHP-7.4
