@@ -14,8 +14,8 @@
   +----------------------------------------------------------------------+
 */
 
-#ifndef CDK_FOUNDATION_CONNECTION_YASSL_H
-#define CDK_FOUNDATION_CONNECTION_YASSL_H
+#ifndef CDK_FOUNDATION_CONNECTION_OPENSSL_H
+#define CDK_FOUNDATION_CONNECTION_OPENSSL_H
 
 #include "connection_tcpip.h"
 #include "stream.h"
@@ -29,16 +29,20 @@ namespace connection {
 
 
 class TLS
-  : public TCPIP_base
+  : public Socket_base
   , opaque_impl<TLS>
 {
 public:
 
   class Options;
 
-  TLS(TCPIP_base* tcpip,
+  TLS(Socket_base* tcpip,
       const Options& Opts);
 
+  bool is_secure() const
+  {
+    return true;
+  }
 
   class Read_op;
   class Read_some_op;
@@ -46,7 +50,7 @@ public:
   class Write_some_op;
 
 private:
-  TCPIP_base::Impl& get_base_impl();
+  Socket_base::Impl& get_base_impl();
 };
 
 
@@ -88,15 +92,11 @@ public:
 
   const std::string &get_ca() const { return m_ca; }
   const std::string &get_ca_path() const { return m_ca_path; }
+  const std::string &get_host_name() const { return m_host_name; }
 
-  void set_verify_cn(const std::function<bool(const std::string&)> &pred)
+  void set_host_name(const std::string &host_name)
   {
-      m_verify_cn = pred;
-  }
-
-  bool verify_cn(const std::string& cn) const
-  {
-      return m_verify_cn(cn);
+    m_host_name = host_name;
   }
 
 protected:
@@ -105,13 +105,12 @@ protected:
   std::string m_key;
   std::string m_ca;
   std::string m_ca_path;
-  std::string m_hostname;
-  std::function<bool(const std::string&)> m_verify_cn;
+  std::string m_host_name;
 
 };
 
 
-class TLS::Read_op : public TCPIP_base::IO_op
+class TLS::Read_op : public Socket_base::IO_op
 {
 public:
   Read_op(TLS &conn, const buffers &bufs, time_t deadline = 0);
@@ -128,7 +127,7 @@ private:
 };
 
 
-class TLS::Read_some_op : public TCPIP_base::IO_op
+class TLS::Read_some_op : public Socket_base::IO_op
 {
 public:
   Read_some_op(TLS &conn, const buffers &bufs, time_t deadline = 0);
@@ -143,7 +142,7 @@ private:
 };
 
 
-class TLS::Write_op : public TCPIP_base::IO_op
+class TLS::Write_op : public Socket_base::IO_op
 {
 public:
   Write_op(TLS &conn, const buffers &bufs, time_t deadline = 0);
@@ -160,7 +159,7 @@ private:
 };
 
 
-class TLS::Write_some_op : public TCPIP_base::IO_op
+class TLS::Write_some_op : public Socket_base::IO_op
 {
 public:
   Write_some_op(TLS &conn, const buffers &bufs, time_t deadline = 0);
@@ -179,4 +178,4 @@ private:
 } // namespace foundation
 } // namespace cdk
 
-#endif // CDK_FOUNDATION_CONNECTION_YASSL_H
+#endif // CDK_FOUNDATION_CONNECTION_OPENSSL_H

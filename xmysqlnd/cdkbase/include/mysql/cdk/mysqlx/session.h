@@ -23,9 +23,9 @@
 
 #include "common.h"
 
-PUSH_SYS_WARNINGS
+PUSH_SYS_WARNINGS_CDK
 #include <deque>
-POP_SYS_WARNINGS
+POP_SYS_WARNINGS_CDK
 
 #undef max
 using cdk::shared_ptr;
@@ -177,7 +177,7 @@ class Col_metadata
 
     const cdk::api::Schema_ref* schema() const
     {
-      return m_has_schema ? &m_schema : NULL;
+      return m_has_schema ? &m_schema : nullptr;
     }
 
     friend class Session;
@@ -187,7 +187,7 @@ class Col_metadata
 
   const cdk::api::Table_ref* table() const
   {
-    return m_has_table ? &m_table : NULL;
+    return m_has_table ? &m_table : nullptr;
   }
 
   /*
@@ -221,6 +221,7 @@ class Col_metadata
       default: break;
       }
 
+      FALLTHROUGH;
     case protocol::mysqlx::col_type::ENUM:
     default:
       return TYPE_BYTES == type || TYPE_STRING == type;
@@ -318,7 +319,12 @@ class Col_metadata
 
   void get_info(Format<TYPE_BYTES> &fmt) const
   {
-    Format<TYPE_BYTES>::Access::set_width(fmt, m_length);
+    // Note: flag 0x01 means that bytes should be padded with 0x00
+
+    if (m_flags & 0x01)
+    {
+      Format<TYPE_BYTES>::Access::set_width(fmt, m_length);
+    }
   }
 
   /*
@@ -371,7 +377,19 @@ typedef Session Reply_init;
 
 class Reply;
 class Cursor;
-class SessionAuthInterface;
+class Proto_prepare_op;
+
+class SessionAuthInterface
+{
+public:
+
+  virtual ~SessionAuthInterface() {}
+
+  virtual const char* auth_method() = 0;
+  virtual bytes auth_data()  = 0;
+  virtual bytes auth_response() = 0;
+  virtual bytes auth_continue(bytes) = 0;
+};
 
 
 typedef protocol::mysqlx::api::Protocol_fields Protocol_fields;
@@ -388,21 +406,53 @@ class Session
   friend class Reply;
   friend class Cursor;
 
+  struct Doc_args : public Any_list
+  {
+    const cdk::Any::Document *m_doc;
+    void process(Processor &prc) const;
+  };
+
+  struct Prepare_processor
+      : public Reply_processor
+  {
+    Session *m_session = nullptr;
+
+    virtual void error(unsigned int code, short int severity,
+                       sql_state_t sql_state, const string &msg);
+
+    virtual void notice(unsigned int type,
+                        short int scope,
+                        bytes payload)
+    {
+      assert(m_session);
+      m_session->notice(type, scope, payload);
+    }
+
+  };
+
+  friend Prepare_processor;
+
+
 protected:
 
   Protocol  m_protocol;
+
+  bool      m_prepare_prepare = false;
+
+
   option_t  m_isvalid;
   Diagnostic_arena m_da;
 
   Reply* m_current_reply;
 
-  SessionAuthInterface* m_auth_interface;
+  scoped_ptr<SessionAuthInterface> m_auth_interface;
 
-  shared_ptr<Proto_op> m_cmd;
+  shared_ptr<Proto_prepare_op> m_cmd;
+
   enum { CMD_SQL, CMD_ADMIN, CMD_COLL_ADD } m_cmd_type;
 
   string m_stmt;
-  Any_list *m_cmd_args;
+  Doc_args m_cmd_args;
   const Table_ref *m_table;
 
   unsigned long m_id;
@@ -431,13 +481,15 @@ protected:
   std::deque< shared_ptr<Proto_op> > m_reply_op_queue;
   Cursor*                 m_current_cursor;
 
+  Prepare_processor m_prepare_prc;
+
   bool m_executed;
   bool m_has_results;
   bool m_discard;
 
 public:
 
-  cdk::api::Connection* get_connection();
+  //cdk::api::Connection* get_connection();
 
   typedef ds::Options<ds::mysqlx::Protocol_options> Options;
 
@@ -445,20 +497,24 @@ public:
   Session(C &conn, const Options &options)
     : m_protocol(conn)
     , m_isvalid(false)
-    , m_current_reply(NULL)
-    , m_auth_interface(NULL)
-    , m_cmd_args(NULL)
-    , m_table(NULL)
+    , m_current_reply(nullptr)
+    , m_auth_interface(nullptr)
+    , m_table(nullptr)
     , m_id(0)
     , m_expired(false)
-    , m_current_cursor(NULL)
+    , m_current_cursor(nullptr)
     , m_executed(false)
     , m_has_results(false)
     , m_discard(false)
     , m_nr_cols(0)
   {
+    m_prepare_prc.m_session = this;
     m_stmt_stats.clear();
-    authenticate(options);
+    send_connection_attr(options);
+    authenticate(options, conn.is_secure());
+
+    // TODO: make "lazy" checks instead, deferring to the time when given
+    // feature is used.
     check_protocol_fields();
   }
 
@@ -480,6 +536,9 @@ public:
     m_proto_fields member variable
   */
   void check_protocol_fields();
+  bool has_prepared_statements();
+  void set_has_prepared_statements(bool);
+  bool has_keep_open();
 
   /*
     Clear diagnostic information that accumulated for the session.
@@ -491,6 +550,7 @@ public:
   void clear_errors()
   { m_da.clear(); }
 
+  void reset();
   void close();
 
   /*
@@ -499,14 +559,31 @@ public:
 
   void begin();
   void commit();
-  void rollback();
+  void rollback(const string &savepoint);
+  void savepoint_set(const string &savepoint);
+  void savepoint_remove(const string &savepoint);
+
+  /*
+    Prepared Statments
+  */
+
+  Reply_init& prepared_execute(uint32_t stmt_id,
+                               const Limit *lim,
+                               const Param_source *param
+                               );
+  Reply_init& prepared_execute(uint32_t stmt_id,
+                               const cdk::Any_list *list
+                               );
+
+  Reply_init& prepared_deallocate(uint32_t stmt_id);
 
   /*
      SQL API
   */
 
-  Reply_init &sql(const string&, Any_list*);
-  Reply_init &admin(const char*, Any_list&);
+  Reply_init &sql(uint32_t stmt_id, const string&, Any_list*);
+
+  Reply_init &admin(const char*, const cdk::Any::Document&);
 
   /*
     CRUD API
@@ -514,58 +591,69 @@ public:
 
   Reply_init &coll_add(const Table_ref&,
                        Doc_source&,
-                       const Param_source *param = NULL,
+                       const Param_source *param = nullptr,
                        bool upsert = false);
 
-  Reply_init &coll_remove(const Table_ref&,
-                          const Expression *expr = NULL,
-                          const Order_by *order_by = NULL,
-                          const Limit *lim = NULL,
-                          const Param_source *param = NULL);
-  Reply_init &coll_find(const Table_ref&,
-                        const View_spec *view = NULL,
-                        const Expression *expr = NULL,
-                        const Expression::Document *proj = NULL,
-                        const Order_by *order_by = NULL,
-                        const Expr_list *group_by = NULL,
-                        const Expression *having = NULL,
-                        const Limit *lim = NULL,
-                        const Param_source *param = NULL,
-                        const Lock_mode_value lock_mode = Lock_mode_value::NONE);
-  Reply_init &coll_update(const api::Table_ref&,
+  Reply_init &coll_remove(uint32_t stmt_id,
+                          const Table_ref&,
+                          const Expression *expr = nullptr,
+                          const Order_by *order_by = nullptr,
+                          const Limit *lim = nullptr,
+                          const Param_source *param = nullptr);
+  Reply_init &coll_find(uint32_t stmt_id,
+                        const Table_ref&,
+                        const View_spec *view = nullptr,
+                        const Expression *expr = nullptr,
+                        const Expression::Document *proj = nullptr,
+                        const Order_by *order_by = nullptr,
+                        const Expr_list *group_by = nullptr,
+                        const Expression *having = nullptr,
+                        const Limit *lim = nullptr,
+                        const Param_source *param = nullptr,
+                        const Lock_mode_value lock_mode = Lock_mode_value::NONE,
+                        const Lock_contention_value lock_contention
+                          = Lock_contention_value::DEFAULT);
+  Reply_init &coll_update(uint32_t stmt_id,
+                          const api::Table_ref&,
                           const Expression*,
                           const Update_spec&,
-                          const Order_by *order_by = NULL,
-                          const Limit* = NULL,
-                          const Param_source * = NULL);
+                          const Order_by *order_by = nullptr,
+                          const Limit* = nullptr,
+                          const Param_source * = nullptr);
 
-  Reply_init &table_delete(const Table_ref&,
-                           const Expression *expr = NULL,
-                           const Order_by *order_by = NULL,
-                           const Limit *lim = NULL,
-                           const Param_source *param = NULL);
-  Reply_init &table_select(const Table_ref&,
-                           const View_spec *view = NULL,
-                           const Expression *expr = NULL,
-                           const Projection *proj = NULL,
-                           const Order_by *order_by = NULL,
-                           const Expr_list *group_by = NULL,
-                           const Expression *having = NULL,
-                           const Limit *lim = NULL,
-                           const Param_source *param = NULL,
-                           const Lock_mode_value lock_mode = Lock_mode_value::NONE);
-  Reply_init &table_insert(const Table_ref&,
+  Reply_init &table_delete(uint32_t stmt_id,
+                           const Table_ref&,
+                           const Expression *expr = nullptr,
+                           const Order_by *order_by = nullptr,
+                           const Limit *lim = nullptr,
+                           const Param_source *param = nullptr);
+  Reply_init &table_select(uint32_t stmt_id,
+                           const Table_ref&,
+                           const View_spec *view = nullptr,
+                           const Expression *expr = nullptr,
+                           const Projection *proj = nullptr,
+                           const Order_by *order_by = nullptr,
+                           const Expr_list *group_by = nullptr,
+                           const Expression *having = nullptr,
+                           const Limit *lim = nullptr,
+                           const Param_source *param = nullptr,
+                           const Lock_mode_value lock_mode = Lock_mode_value::NONE,
+                           const Lock_contention_value lock_contention = Lock_contention_value::DEFAULT);
+  Reply_init &table_insert(uint32_t stmt_id,
+                           const Table_ref&,
                            Row_source&,
                            const api::Columns *cols,
-                           const Param_source *param = NULL);
-  Reply_init &table_update(const api::Table_ref &coll,
+                           const Param_source *param = nullptr);
+  Reply_init &table_update(uint32_t stmt_id,
+                           const api::Table_ref &coll,
                            const Expression *expr,
                            const Update_spec &us,
-                           const Order_by *order_by = NULL,
-                           const Limit *lim = NULL,
-                           const Param_source *param = NULL);
+                           const Order_by *order_by = nullptr,
+                           const Limit *lim = nullptr,
+                           const Param_source *param = nullptr);
 
   Reply_init &view_drop(const api::Table_ref&, bool check_existence = false);
+
 
 
   /*
@@ -595,10 +683,14 @@ public:
 
 private:
 
-  Reply_init &set_command(Proto_op *cmd);
+  Reply_init & set_command(Proto_prepare_op *cmd);
 
+  // Send Connection Attributes
+  void send_connection_attr(const Options &options);
   // Authentication (cdk::protocol::mysqlx::Auth_processor)
-  void authenticate(const Options &options);
+  void authenticate(const Options &options, bool secure = false);
+  void do_authenticate(const Options &options, int auth_method, bool secure);
+  void send_auth();
   void auth_ok(bytes data);
   void auth_continue(bytes data);
   void auth_fail(bytes data);
@@ -610,6 +702,8 @@ private:
   void add_diagnostics(Severity::value level, unsigned code,
                        sql_state_t sql_state,
                        const string &msg =string());
+  void add_diagnostics(Severity::value level, const Error *e,
+                       bool report_to_reply = true);
 
   //  Reply registration
   virtual void register_reply(Reply* reply);
@@ -652,6 +746,7 @@ private:
   void row_stats(row_stats_t, row_count_t);
   void last_insert_id(insert_id_t);
   // TODO: void trx_event(trx_event_t);
+  void generated_document_id(const std::string&);
 
   /*
      Helper functions to send/receive protocol messages
