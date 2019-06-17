@@ -142,7 +142,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	xmysqlnd_cdkbase_parser=" \
 		xmysqlnd/cdkbase/core/codec.cc \
 		xmysqlnd/cdkbase/foundation/error.cc \
-		xmysqlnd/cdkbase/foundation/string.cc \
+		xmysqlnd/cdkbase/foundation/stream.cc \
 		xmysqlnd/cdkbase/parser/expr_parser.cc \
 		xmysqlnd/cdkbase/parser/json_parser.cc \
 		xmysqlnd/cdkbase/parser/tokenizer.cc \
@@ -220,6 +220,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase])
 	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/include])
+	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/extra/rapidjson/include])
 
 	PHP_ADD_BUILD_DIR([$ext_srcdir])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/messages])
@@ -264,8 +265,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	MINIMAL_BOOST_VER=105300
 	MINIMAL_BOOST_VER_LABEL="1.53.00"
 
-	PREFERRED_BOOST_VER_SUBDIR="boost_1_69_0"
-	PREFERRED_BOOST_VER_LABEL="1.69.00"
+	PREFERRED_BOOST_VER_SUBDIR="boost_1_70_0"
+	PREFERRED_BOOST_VER_LABEL="1.70.00"
 
 	REQUIRED_BOOST_VER_MSG="required at least $MINIMAL_BOOST_VER_LABEL"
 	REQUIRED_BOOST_VER_MSG+=" (preferred is $PREFERRED_BOOST_VER_LABEL)"

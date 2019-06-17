@@ -446,7 +446,7 @@ xmysqlnd_receive_message(st_xmysqlnd_server_messages_handlers* handlers, void * 
 		}
 		if (!xmysqlnd_server_message_type_is_valid(type)) {
 			SET_CLIENT_ERROR(error_info, CR_UNKNOWN_ERROR, UNKNOWN_SQLSTATE, "The server sent invalid packet type");
-			DBG_ERR_FMT("Invalid packet type %u from the server", (uint) type);
+			DBG_ERR_FMT("Invalid packet type %u from the server", static_cast<unsigned int>(type));
 			DBG_RETURN(FAIL);
 		}
 		enum xmysqlnd_server_message_type packet_type = (enum xmysqlnd_server_message_type) type;
@@ -1341,7 +1341,7 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 #undef TIME_NULL_VALUE
 			} else {
 				ZVAL_NULL(zv);
-				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", (uint)(buf[0]));
+				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of TIME", static_cast<unsigned int>(buf[0]));
 				ret = FAIL;
 			}
 		} else {
@@ -1389,7 +1389,7 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 				ZVAL_NEW_STR(zv, zend_string_init(DATETIME_NULL_VALUE, sizeof(DATETIME_NULL_VALUE)-1, 0));
 #undef DATETIME_NULL_VALUE
 			} else {
-				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of DATETIME", (uint)(buf[0]));
+				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of DATETIME", static_cast<unsigned int>(buf[0]));
 				ret = FAIL;
 			}
 		} else {
@@ -1445,7 +1445,7 @@ enum_func_status xmysqlnd_row_date_field_to_zval(
 				ZVAL_NEW_STR(zv, zend_string_init(date_null_value.c_str(), date_null_value.length(), 0));
 				ret = PASS;
 			} else {
-				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of DATE", (uint)(buf[0]));
+				php_error_docref(nullptr, E_WARNING, "Unexpected value %d for first byte of DATE", static_cast<unsigned int>(buf[0]));
 			}
 		} else {
 			do {
@@ -1492,7 +1492,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 			int rest_buffer_size{0};
 			if (input_stream.GetDirectBufferPointer((const void**) &set_value, &rest_buffer_size)) {
 				zval set_entry;
-				DBG_INF_FMT("[%u]value length=%3u  rest_buffer_size=%3d", j, (uint) gval, rest_buffer_size);
+				DBG_INF_FMT("[%u]value length=%3u  rest_buffer_size=%3d", j, static_cast<unsigned int>(gval), rest_buffer_size);
 				if ((rest_buffer_size < 0) || (gval > static_cast<decltype(gval)>(rest_buffer_size))) {
 					DBG_ERR("Length pointing outside of the buffer");
 					php_error_docref(nullptr, E_WARNING, "Length pointing outside of the buffer");
@@ -1534,12 +1534,12 @@ enum_func_status xmysqlnd_row_decimal_field_to_zval( zval* zv,
 	const uint8_t last_byte = buf[buf_size - 1]; /* last byte is the sign and the last 4 bits, if any */
 	const uint8_t sign = ((last_byte & 0xF)? last_byte  : last_byte >> 4) & 0xF;
 	const size_t digits = (buf_size - 2 /* scale & last */) * 2  + ((last_byte & 0xF) > 0x9? 1:0);
-	DBG_INF_FMT("scale   =%u", (uint) scale);
-	DBG_INF_FMT("sign    =%u", (uint) sign);
-	DBG_INF_FMT("digits  =%u", (uint) digits);
+	DBG_INF_FMT("scale   =%u", static_cast<unsigned int>(scale));
+	DBG_INF_FMT("sign    =%u", static_cast<unsigned int>(sign));
+	DBG_INF_FMT("digits  =%u", static_cast<unsigned int>(digits));
 	if (!digits) {
-		DBG_ERR_FMT("Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
-		php_error_docref(nullptr, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", (uint) scale, last_byte);
+		DBG_ERR_FMT("Wrong value for DECIMAL. scale=%u  last_byte=%u", static_cast<unsigned int>(scale), last_byte);
+		php_error_docref(nullptr, E_WARNING, "Wrong value for DECIMAL. scale=%u  last_byte=%u", static_cast<unsigned int>(scale), last_byte);
 		ret = FAIL;
 	} else {
 		const size_t d_val_len = digits + (sign == 0xD? 1:0) + (digits > scale? 1:0); /* one for the dot, one for the sign*/
@@ -1602,7 +1602,7 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 	const uint8_t * buf = reinterpret_cast<const uint8_t*>(buffer.s);
 	const size_t buf_size = buffer.l;
 	DBG_ENTER("xmysqlnd_row_field_to_zval");
-	DBG_INF_FMT("buf_size=%u", (uint) buf_size);
+	DBG_INF_FMT("buf_size=%u", static_cast<unsigned int>(buf_size));
 	DBG_INF_FMT("name    =%s", field_meta->name.s);
 	/*
 		  Precaution, as if something misbehaves and doesn't initialize `zv` then `zv` will be at

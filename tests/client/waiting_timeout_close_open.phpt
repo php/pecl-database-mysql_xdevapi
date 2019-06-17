@@ -39,6 +39,6 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-[10055][HY000] couldn't get connection from pool - queue timeout elapsed%s
+[10055][HY000] Run-time error. Couldn't get connection from pool - queue timeout elapsed%s
 [10056][HY000] Session closed.
 done!%A

@@ -1,6 +1,5 @@
 <?php
 
-require_once(__DIR__."/../../connect.inc");
 require_once(__DIR__."/../auth_utils.inc");
 
 const Default_connection_time_out = 10;

@@ -6,7 +6,6 @@ error_reporting=E_ALL
 default_socket_timeout=4
 --FILE--
 <?php
-require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
@@ -26,7 +25,7 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-	require_once(__DIR__."/../connect.inc");
+	require_once(__DIR__."/auth_utils.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
@@ -46,12 +45,12 @@ Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method
 [1251][HY000] Invalid authentication method EXTERNAL
 ----------------------
 mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-mode=disabled&auth=unsupported
-[HY000] Invalid authorization mechanism
+[10046][HY000] Invalid authentication mechanism unsupported
 ----------------------
 mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-mode=disabled
 
-Warning: mysql_xdevapi\getSession(): [10054][HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection in %s on line %d
-[10054][HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
+Warning: mysql_xdevapi\getSession(): [10054][HY000] Authentication failure. Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection in %s on line %d
+[10054][HY000] Authentication failure. Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
 ----------------------
 mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-mode=disabled&auth=mysql41
 

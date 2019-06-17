@@ -6,7 +6,6 @@ error_reporting=1
 default_socket_timeout=4
 --FILE--
 <?php
-require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 test_incorrect_connection($disable_ssl_opt.'&');
@@ -38,11 +37,12 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-	require_once(__DIR__."/../connect.inc");
+	require_once(__DIR__."/auth_utils.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
-[HY000] Invalid authorization mechanism
-[HY000] Invalid authorization mechanism
-[HY000] Invalid authorization mechanism
+[10052][HY000] Invalid argument. The argument to auth cannot be empty.
+[10046][HY000] Invalid authentication mechanism =
+[10046][HY000] Invalid authentication mechanism plajn
+[10064][HY000] Unknown SSL mode: disabledauth=
 done!%A

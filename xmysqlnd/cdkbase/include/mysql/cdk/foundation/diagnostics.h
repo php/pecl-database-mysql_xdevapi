@@ -18,11 +18,12 @@
 #define MYSQL_CDK_FOUNDATION_DIAGNOSTICS_H
 
 #include "error.h"
+#include "types.h"
 
-PUSH_SYS_WARNINGS
+PUSH_SYS_WARNINGS_CDK
 #include <vector>
 #include <map>
-POP_SYS_WARNINGS
+POP_SYS_WARNINGS_CDK
 
 namespace cdk {
 namespace foundation {
@@ -276,6 +277,11 @@ public:
   {
     m_it.reset(level);
     return m_it;
+  }
+
+  Entry* get_entry(unsigned int pos)
+  {
+    return m_entries.at(pos);
   }
 
   const Error& get_error();

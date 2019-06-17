@@ -6,7 +6,6 @@ error_reporting=1
 default_socket_timeout=4
 --FILE--
 <?php
-require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
@@ -48,17 +47,17 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-	require_once(__DIR__."/../connect.inc");
+	require_once(__DIR__."/auth_utils.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
-[10054][HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
+[10054][HY000] Authentication failure. Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
 [1251][HY000] Invalid authentication method PLAIN
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
-[10054][HY000] Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
+[10054][HY000] Authentication failure. Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
 done!%A

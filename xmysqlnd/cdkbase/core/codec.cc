@@ -16,12 +16,12 @@
 
 
 #include <mysql/cdk/codec.h>
-#include <sstream>
 #include "../parser/json_parser.h"
 
-PUSH_SYS_WARNINGS
+PUSH_SYS_WARNINGS_CDK
+#include <sstream>
 #include <algorithm>  // std::min
-POP_SYS_WARNINGS
+POP_SYS_WARNINGS_CDK
 
 // Include Protobuf headers needed for decoding float numbers
 
@@ -53,13 +53,8 @@ size_t cdk::Codec<TYPE_BYTES>::to_bytes(const std::string &str, bytes raw)
   return len;
 }
 
-size_t Codec<TYPE_STRING>::measure(const string &str)
-{
-  return get_codec().measure(str);
-}
 
-
-size_t Codec<TYPE_STRING>::from_bytes(bytes raw, string &str)
+size_t Codec<TYPE_STRING>::from_bytes(bytes raw, cdk::string &str)
 {
   //TODO: padding
 
@@ -77,7 +72,7 @@ size_t Codec<TYPE_STRING>::from_bytes(bytes raw, string &str)
 }
 
 
-size_t Codec<TYPE_STRING>::to_bytes(const string& str, bytes raw)
+size_t Codec<TYPE_STRING>::to_bytes(const cdk::string& str, bytes raw)
 {
   return get_codec().to_bytes(str, raw);
 }
@@ -85,18 +80,40 @@ size_t Codec<TYPE_STRING>::to_bytes(const string& str, bytes raw)
 
 foundation::api::String_codec* Format<TYPE_STRING>::codec() const
 {
+  using namespace foundation;
   /*
-    TODO: This implementation uses ASCII codec for all non utf8 strings,
-    which works only for simple strings. Correctly handle all MySQL
-    character encodings.
+    Note: Starting from 8.0.14, xplugin is always sending strings using
+    the connection encoding, which is utf8mb4. This way all MySQL charsets
+    are correctly handled as transcoding to utf8 is done in the server.
+
+    For pre-8.0.14 servers, or if connection encoding is changed somehow,
+    we might get strings in different encoding. We can still fully handle
+    Unicode based encodings. For anything else we fall back to ASCII decoder
+    which will work for strings that contain ASCII chars only - if not,
+    conversion error will be thrown.
+
+    Note: Standard endianess for multi-byte encodings is big-endian. This is
+    what MySQL server uses.
   */
 
-  static foundation::String_codec<foundation::codecvt_utf8>  utf8;
-  static foundation::String_codec<foundation::codecvt_ascii> ascii;
+  static String_codec<String_encoding::UTF8>    utf8;
+  static String_codec<String_encoding::UTF16BE> utf16;
+  static String_codec<String_encoding::UCS4BE>  ucs;
+  static String_codec<String_encoding::ASCII>   ascii;
 
-  return Charset::utf8 == charset() ?
-      (foundation::api::String_codec*)&utf8
-    : (foundation::api::String_codec*)&ascii;
+  switch (charset())
+  {
+  case Charset::utf8:
+  case Charset::utf8mb4:
+    return (foundation::api::String_codec*)&utf8;
+  case Charset::ucs2:
+  case Charset::utf16:
+    return (foundation::api::String_codec*)&utf16;
+  case Charset::utf32:
+    return (foundation::api::String_codec*)&ucs;
+  default:
+    return (foundation::api::String_codec*)&ascii;
+  }
 }
 
 
@@ -496,7 +513,7 @@ size_t Codec<TYPE_FLOAT>::to_bytes(double val, bytes buf)
 size_t Codec<TYPE_DOCUMENT>::from_bytes(bytes data, JSON::Processor &jp)
 {
   std::string json_string(data.begin(), data.end());
-  JSON_parser parser(json_string);
+  JSON_parser parser(std::move(json_string));
   parser.process(jp);
   return 0; // FIXME
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision: 345542 $ -->
+<!-- $Revision: 347406 $ -->
 
 <refentry xml:id="mysql-xdevapi-collection.createindex" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
@@ -126,7 +126,29 @@ $collection->createIndex(
     "required": true}], 
     "type": "SPATIAL"}'
 );
-?>
+
+// Index with multiple fields
+$collection->createIndex(
+  'myindex3', 
+  '{"fields": [
+    {
+      "field": "$.name",
+      "type": "TEXT(20)",
+      "required": true
+    },
+    {
+      "field": "$.age",
+      "type": "INTEGER"
+    },
+    {
+      "field": "$.job",
+      "type": "TEXT(30)",
+      "required": false
+    }
+  ],
+  "unique": true
+  }'
+);
 ]]>
    </programlisting>
   </example>

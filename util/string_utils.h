@@ -22,6 +22,7 @@
 #include "mysqlnd_api.h"
 #include "strings.h"
 #include <boost/algorithm/string/compare.hpp>
+#include <cctype>
 
 namespace mysqlx {
 
@@ -30,6 +31,15 @@ namespace util {
 /* {{{ iless */
 struct iless
 {
+	bool operator()(const char* lhs, const char* rhs) const
+	{
+		return std::lexicographical_compare(
+			lhs, lhs + std::strlen(lhs),
+			rhs, rhs + std::strlen(rhs),
+			boost::algorithm::is_iless()
+		);
+	}
+
 	bool operator()(const std::string& lhs, const std::string& rhs) const
 	{
 		return std::lexicographical_compare(
@@ -124,6 +134,8 @@ strings to_strings(zval* zvals, int count, Pred pred)
 /* }}} */
 
 
+zend_string* to_zend_string(const char* str);
+zend_string* to_zend_string(const string& str);
 zend_string* to_zend_string(formatter& fmt);
 
 //------------------------------------------------------------------------------
@@ -147,6 +159,33 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 //------------------------------------------------------------------------------
 
 bool to_int(const string& str, int* value);
+bool to_int(const std::string& str, int* value);
+
+//------------------------------------------------------------------------------
+
+template<typename String>
+bool contains_blank(const String& str)
+{
+	return std::find_if(
+		str.begin(),
+		str.end(),
+		[](unsigned char chr){ return std::isblank(chr); }) != str.end();
+}
+
+template<typename String>
+String quotation(const String& str)
+{
+	return "'" + str + "'";
+}
+
+template<typename String>
+String quotation_if_blank(const String& str)
+{
+	if (str.empty() || contains_blank(str)) {
+		return quotation(str);
+	}
+	return str;
+}
 
 } // namespace util
 

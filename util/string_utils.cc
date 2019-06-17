@@ -81,10 +81,26 @@ strings to_strings(zval* zvals, int count)
 
 
 /* {{{ to_zend_string */
+zend_string* to_zend_string(const char* str)
+{
+	return zend_string_init(str, strlen(str), 0);
+}
+/* }}} */
+
+
+/* {{{ to_zend_string */
+zend_string* to_zend_string(const string& str)
+{
+	return zend_string_init(str.c_str(), str.length(), 0);
+}
+/* }}} */
+
+
+/* {{{ to_zend_string */
 zend_string* to_zend_string(formatter& fmt)
 {
-	const string& str = fmt.str();
-	return zend_string_init(str.c_str(), str.length(), 0);
+	const string& str{ fmt.str() };
+	return to_zend_string(str);
 }
 /* }}} */
 
@@ -112,6 +128,18 @@ bool to_int(const string& str, int* value)
 {
 	try {
 		*value = std::stoi(str.c_str());
+		return true;
+	} catch(std::exception& /*e*/) {
+		return false;
+	}
+}
+/* }}} */
+
+/* {{{ to_int */
+bool to_int(const std::string& str, int* value)
+{
+	try {
+		*value = std::stoi(str);
 		return true;
 	} catch(std::exception& /*e*/) {
 		return false;

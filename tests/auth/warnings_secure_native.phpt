@@ -6,7 +6,6 @@ error_reporting=E_ALL
 default_socket_timeout=4
 --FILE--
 <?php
-require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
@@ -27,7 +26,7 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-	require_once(__DIR__."/../connect.inc");
+	require_once(__DIR__."/auth_utils.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
@@ -37,7 +36,7 @@ Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
 ----------------------
 mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-key=%s&auth=unknown
-[HY000] Invalid authorization mechanism
+[10046][HY000] Invalid authentication mechanism unknown
 ----------------------
 mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-key=%s
 

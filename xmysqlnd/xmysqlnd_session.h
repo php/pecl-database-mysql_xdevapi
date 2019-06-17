@@ -47,17 +47,20 @@ enum xmysqlnd_session_state
 	// to connect with pre-allocated connection
 	SESSION_ALLOCATED = 0,
 
+	// while trying to setup connection to server
+	SESSION_CONNECTING = 1,
+
 	// connected, but not authenticated yet
-	SESSION_NON_AUTHENTICATED = 1,
+	SESSION_NON_AUTHENTICATED = 2,
 
 	// authenticated successfully, and ready to use
-	SESSION_READY = 2,
+	SESSION_READY = 3,
 
 	// request to close have been sent
-	SESSION_CLOSE_SENT = 3,
+	SESSION_CLOSE_SENT = 4,
 
 	// connection is closed
-	SESSION_CLOSED = 4,
+	SESSION_CLOSED = 5,
 };
 
 
@@ -143,8 +146,9 @@ enum class transport_types {
 enum class SSL_mode
 {
 	not_specified, //Will be turned to 'required' during the connection
-	required,
 	disabled,
+	any_secure,
+	required,
 	verify_ca,
 	verify_identity
 };
@@ -157,6 +161,17 @@ enum class Auth_mechanism
 	external,
 	sha256_memory
 };
+
+enum class Tls_version
+{
+	unspecified,
+	tls_v1_0,
+	tls_v1_1,
+	tls_v1_2,
+	tls_v1_3
+};
+
+using Tls_versions = util::vector<Tls_version>;
 
 /*
  * Information used to authenticate
@@ -176,16 +191,15 @@ struct Session_auth_data
 	SSL_mode ssl_mode;
 	bool ssl_enabled;
 	bool ssl_no_defaults;
+	Tls_versions tls_versions;
+	util::std_strings tls_ciphersuites;
 	std::string ssl_local_pk;
 	std::string ssl_local_cert;
 	std::string ssl_cafile;
 	std::string ssl_capath;
-	std::string ssl_passphrase;
-	std::string ssl_ciphers;
-	std::string ssl_crl;
-	std::string ssl_crlpath;
-	std::string tls_version;
-	Auth_mechanism auth_mechanism = Auth_mechanism::unspecified;
+	util::std_strings ssl_ciphers;
+	bool ssl_allow_self_signed_cert{ true };
+	Auth_mechanism auth_mechanism{ Auth_mechanism::unspecified };
 
 	/*
 	 * On demand we need to provide a list of supported ciphers,
@@ -396,7 +410,6 @@ bool set_connection_timeout(
 	const boost::optional<int>& connection_timeout,
 	MYSQLND_VIO* vio);
 
-enum_func_status           setup_crypto_connection(xmysqlnd_session_data* session,st_xmysqlnd_msg__capabilities_get& caps_get,const st_xmysqlnd_message_factory& msg_factory);
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_auth_continue(void* context,const MYSQLND_CSTRING input,MYSQLND_STRING* const output);
 enum_func_status           xmysqlnd_session_data_set_client_id(void * context, const size_t id);

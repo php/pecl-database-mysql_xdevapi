@@ -49,7 +49,7 @@ xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t le
 		message_dump[i*3+1] = hexconvtab[ s[i] & 15];
 		message_dump[i*3+2] = ' ';
 	}
-	DBG_INF_FMT("%s[%u]=[%*s]", prefix, (uint) len, len, message_dump.c_str());
+	DBG_INF_FMT("%s[%u]=[%*s]", prefix, static_cast<unsigned int>(len), len, message_dump.c_str());
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -281,7 +281,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 {
 	DBG_ENTER("xmysqlnd_dump_client_message");
 	const Mysqlx::ClientMessages_Type type = (Mysqlx::ClientMessages_Type)(packet_type);
-	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ClientMessages_Type_Name(type).c_str(), (uint) payload_size);
+	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ClientMessages_Type_Name(type).c_str(), static_cast<unsigned int>(payload_size));
 	{
 		char * message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
@@ -290,7 +290,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';
 		}
-		DBG_INF_FMT("payload[%u]=[%*s]", (uint) payload_size, payload_size, message_dump);
+		DBG_INF_FMT("payload[%u]=[%*s]", static_cast<unsigned int>(payload_size), payload_size, message_dump);
 		delete [] message_dump;
 	}
 	switch (type) {
@@ -802,7 +802,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 {
 	DBG_ENTER("xmysqlnd_dump_server_message");
 	const Mysqlx::ServerMessages_Type type = (Mysqlx::ServerMessages_Type)(packet_type);
-	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ServerMessages_Type_Name(type).c_str(), (uint) payload_size);
+	DBG_INF_FMT("packet is %s   payload_size=%u", Mysqlx::ServerMessages_Type_Name(type).c_str(), static_cast<unsigned int>(payload_size));
 	{
 		char* message_dump = new char[payload_size*3 + 1];
 		message_dump[payload_size*3] = '\0';
@@ -811,7 +811,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 			message_dump[i*3+1] = hexconvtab[((const char*)payload)[i] & 15];
 			message_dump[i*3+2] = ' ';
 		}
-		DBG_INF_FMT("payload[%u]=[%s]", (uint) payload_size, message_dump);
+		DBG_INF_FMT("payload[%u]=[%s]", static_cast<unsigned int>(payload_size), message_dump);
 		delete [] message_dump;
 	}
 	switch (type) {

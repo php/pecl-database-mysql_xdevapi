@@ -50,6 +50,10 @@ template<typename CharT, typename Traits = std::char_traits<CharT>>
 using basic_istringstream = std::basic_istringstream<CharT, Traits, allocator<CharT>>;
 using istringstream = basic_istringstream<char>;
 
+template<typename CharT, typename Traits = std::char_traits<CharT>>
+using basic_stringstream = std::basic_stringstream<CharT, Traits, allocator<CharT>>;
+using stringstream = basic_stringstream<char>;
+
 std::ostream& operator<<(std::ostream& os, const string& str);
 
 template<typename CharT, typename Traits = std::char_traits<CharT>>
@@ -169,6 +173,10 @@ struct string_view
 	size_t len{0};
 };
 /* }}} */
+
+// ------------------------------------------------------------------------------
+
+using std_strings = std::vector<std::string>;
 
 } // namespace util
 

@@ -71,6 +71,11 @@ int parse_function_parameters(
 		std::forward<Params>(params)...);
 }
 
+// ----------------
+
+bool is_module_loaded(const char* module_name);
+bool is_openssl_loaded();
+
 } // namespace zend
 
 } // namespace util

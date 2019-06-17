@@ -63,7 +63,7 @@ public:
   }
 
   bool is_unsigned() const { return UINT == m_fmt; }
-  size_t length() { return m_length; }
+  size_t length() const { return m_length; }
 
 protected:
 
@@ -109,7 +109,7 @@ class Format<TYPE_BYTES> : public Format_base
 public:
 
   Format(const Format_info &fi)
-    : Format_base(TYPE_STRING, fi)
+    : Format_base(TYPE_BYTES, fi)
     , m_width(0)
   {
     fi.get_info(*this);
@@ -284,7 +284,7 @@ public:
   {}
 
   /// Return number of bytes required to encode given string.
-  size_t measure(const string&);
+  //size_t measure(const string&);
 
   size_t from_bytes(bytes raw, string& str);
   size_t to_bytes(const string&, bytes);

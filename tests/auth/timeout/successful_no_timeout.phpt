@@ -5,7 +5,6 @@ mysqlx successful connection, no timeout
 error_reporting=1
 --FILE--
 <?php
-require_once(__DIR__."/../../connect.inc");
 require_once(__DIR__."/timeout_utils.inc");
 
 function test_successful_not_elapsed_timeouts($host, $timeout) {
@@ -22,7 +21,7 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-	require_once(__DIR__."/../../connect.inc");
+	require_once(__DIR__."/timeout_utils.inc");
 	clean_test_db();
 ?>
 --EXPECTF--

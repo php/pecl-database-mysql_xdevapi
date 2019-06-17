@@ -26,11 +26,11 @@ $session = create_test_db();
 $schema = $session->getSchema($db);
 $coll = $schema->getCollection($test_collection_name);
 
-// expect_create_index_with_name(
-// 	'lottery_draws_index',
-// 	'{"fields": [{"field": "$.draw", "type": "TEXT(64)", "array": false}]}');
-// expect_create_index(
-// 	'{"fields": [{"field": "$.numbers", "type": "INTEGER", "array": true}]}');
+expect_create_index_with_name(
+	'lottery_draws_index',
+	'{"fields": [{"field": "$.draw", "type": "TEXT(64)", "array": false}]}');
+expect_create_index(
+	'{"fields": [{"field": "$.numbers", "type": "UNSIGNED INTEGER", "array": true}]}');
 
 add_lottery_draw('draw 6423', '2018-01-06', '[ 3, 24, 40, 43, 65 ]');
 add_lottery_draw('draw 6810', '2018-02-15', '[ 1, 2, 8, 15, 78 ]');
@@ -58,7 +58,5 @@ print "done!\n";
 	require_once(__DIR__."/../connect.inc");
 	clean_test_db();
 ?>
---XFAIL--
-This test should be fail until the servers team fix the bug #29259501
 --EXPECTF--
 done!%A

@@ -6,7 +6,6 @@ error_reporting=1
 default_socket_timeout=4
 --FILE--
 <?php
-require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/auth_utils.inc");
 
 // setup
@@ -45,20 +44,20 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-	require_once(__DIR__."/../connect.inc");
+	require_once(__DIR__."/auth_utils.inc");
 	clean_test_db();
 ?>
 --EXPECTF--
 [1251][HY000] Invalid authentication method PLAIN
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
-[HY000] Invalid authorization mechanism
+[10046][HY000] Invalid authentication mechanism WRONG
 [1251][HY000] Invalid authentication method PLAIN
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
-[HY000] Invalid authorization mechanism
+[10046][HY000] Invalid authentication mechanism non-existent
 [1251][HY000] Invalid authentication method PLAIN
 [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
-[HY000] Invalid authorization mechanism
+[10046][HY000] Invalid authentication mechanism InCorrect
 done!%A

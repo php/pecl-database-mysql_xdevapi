@@ -23,6 +23,7 @@
 
 extern "C" {
 struct _zend_class_entry;
+struct st_mysqlnd_error_info;
 }
 
 namespace mysqlx {
@@ -96,11 +97,20 @@ struct xdevapi_exception : public std::runtime_error
 		ps_limit_not_supported,
 		session_reset_failure,
 		conn_attrib_wrong_type,
-		conn_attrib_dup_key
+		conn_attrib_dup_key,
+		unknown_client_conn_option,
+		unknown_ssl_mode,
+		unknown_tls_version,
+		openssl_unavailable,
+		empty_tls_versions,
+		cannot_connect_by_ssl,
+		cannot_setup_tls,
 	};
 
 	xdevapi_exception(Code code);
 	xdevapi_exception(Code code, const string& msg);
+	xdevapi_exception(Code code, const char* msg);
+	xdevapi_exception(Code code, const std::string& msg);
 	xdevapi_exception(unsigned int code, const string& msg);
 	xdevapi_exception(unsigned int code, const char* sql_state, const char* msg);
 	xdevapi_exception(unsigned int code, const string& sql_state, const string& msg);
@@ -133,6 +143,10 @@ void raise_unknown_exception();
 string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what);
 string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what);
 void log_warning(const string& msg);
+
+void set_error_info(
+	util::xdevapi_exception::Code code,
+	st_mysqlnd_error_info* error_info);
 
 } // namespace util
 

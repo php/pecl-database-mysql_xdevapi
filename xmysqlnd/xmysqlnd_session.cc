@@ -48,6 +48,7 @@ extern "C" {
 #include "SAPI.h"
 #include "php_variables.h"
 #include "mysqlx_exception.h"
+#include "util/exceptions.h"
 #include "util/object.h"
 #include "util/string_utils.h"
 #include "util/url_utils.h"
@@ -62,99 +63,11 @@ extern "C" {
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/split.hpp>
-
+#include <boost/algorithm/string/trim.hpp>
 
 namespace mysqlx {
 
 namespace drv {
-
-const std::vector<std::string> Session_auth_data::supported_ciphers = {
-	"AES128-GCM-SHA256",
-	"AES128-RMD",
-	"AES128-SHA",
-	"AES128-SHA256",
-	"AES256-GCM-SHA384",
-	"AES256-RMD",
-	"AES256-SHA",
-	"AES256-SHA256",
-	"DES-CBC3-RMD",
-	"DES-CBC3-SHA",
-	"DES-CBC-SHA",
-	"DH-DSS-AES128-GCM-SHA256",
-	"DH-DSS-AES128-SHA",
-	"DH-DSS-AES128-SHA256",
-	"DH-DSS-AES256-GCM-SHA384",
-	"DH-DSS-AES256-SHA",
-	"DH-DSS-AES256-SHA256",
-	"DHE-DSS-AES128-GCM-SHA256",
-	"DHE-DSS-AES128-SHA",
-	"DHE-DSS-AES128-SHA256",
-	"DHE-DSS-AES256-GCM-SHA384",
-	"DHE-DSS-AES256-SHA256",
-	"DHE-ECDSA-AES128-GCM-SHA256",
-	"DHE-RSA-AES128-GCM-SHA256",
-	"DHE-RSA-AES128-RMD",
-	"DHE-RSA-AES128-SHA",
-	"DHE-RSA-AES128-SHA256",
-	"DHE-RSA-AES256-GCM-SHA384",
-	"DHE-RSA-AES256-RMD",
-	"DHE-RSA-AES256-SHA",
-	"DHE-RSA-AES256-SHA256",
-	"DHE-RSA-DES-CBC3-RMD",
-	"DH-RSA-AES128-GCM-SHA256",
-	"DH-RSA-AES128-SHA",
-	"DH-RSA-AES128-SHA256",
-	"DH-RSA-AES256-GCM-SHA384",
-	"DH-RSA-AES256-SHA",
-	"DH-RSA-AES256-SHA256",
-	"ECDH-ECDSA-AES128-GCM-SHA256",
-	"ECDH-ECDSA-AES128-SHA",
-	"ECDH-ECDSA-AES128-SHA256",
-	"ECDH-ECDSA-AES256-GCM-SHA384",
-	"ECDH-ECDSA-AES256-SHA",
-	"ECDH-ECDSA-AES256-SHA384",
-	"ECDHE-ECDSA-AES128-SHA",
-	"ECDHE-ECDSA-AES128-SHA256",
-	"ECDHE-ECDSA-AES256-GCM-SHA384",
-	"ECDHE-ECDSA-AES256-SHA",
-	"ECDHE-ECDSA-AES256-SHA384",
-	"ECDHE-RSA-AES128-GCM-SHA256",
-	"ECDHE-RSA-AES128-SHA",
-	"ECDHE-RSA-AES128-SHA256",
-	"ECDHE-RSA-AES256-GCM-SHA384",
-	"ECDHE-RSA-AES256-SHA",
-	"ECDHE-RSA-AES256-SHA384",
-	"ECDH-RSA-AES128-GCM-SHA256",
-	"ECDH-RSA-AES128-SHA",
-	"ECDH-RSA-AES128-SHA256",
-	"ECDH-RSA-AES256-GCM-SHA384",
-	"ECDH-RSA-AES256-SHA",
-	"ECDH-RSA-AES256-SHA384",
-	"EDH-RSA-DES-CBC3-SHA",
-	"EDH-RSA-DES-CBC-SHA",
-	"RC4-MD5",
-	"RC4-SHA",
-	//What follows is the list of deprecated
-	//TLS ciphers
-	"!DHE-DSS-DES-CBC3-SHA",
-	"!DHE-RSA-DES-CBC3-SHA",
-	"!ECDH-RSA-DES-CBC3-SHA",
-	"!ECDH-ECDSA-DES-CBC3-SHA",
-	"!ECDHE-RSA-DES-CBC3-SHA",
-	"!ECDHE-ECDSA-DES-CBC3-SHA",
-	//What follows is the list of unacceptables
-	//TLS ciphers
-	"!eNULL",
-	"!EXPORT",
-	"!LOW",
-	"!MD5",
-	"!PSK",
-	"!RC2",
-	"!RC4",
-	"!aNULL",
-	"!DES",
-	//	"!SSLv3" This is not acceptable, but required by the server!!! BAD
-};
 
 const MYSQLND_CSTRING namespace_mysqlx{ "mysqlx", sizeof("mysqlx") - 1 };
 const MYSQLND_CSTRING namespace_sql{ "sql", sizeof("sql") - 1 };
@@ -162,16 +75,19 @@ const MYSQLND_CSTRING namespace_xplugin{ "xplugin", sizeof("xplugin") - 1 };
 
 namespace {
 
+#if PHP_VERSION_ID >= 70400
+#define TLSv13_IS_SUPPORTED
+#endif
+
 /* {{{ xmysqlnd_is_capability_present */
 zend_bool
 xmysqlnd_is_capability_present(
-		const zval * capabilities,
-		const char * name,
-		zend_bool * found
+	const zval* capabilities,
+	const char* name,
+	zend_bool* found
 )
 {
-	zval * zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), name,
-								   strlen(name));
+	zval* zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), name, strlen(name));
 	if (!zv || Z_TYPE_P(zv) == IS_UNDEF) {
 		*found = FALSE;
 		return FALSE;
@@ -505,8 +421,8 @@ xmysqlnd_session_data::connect_handshake(
 		&& (PASS == io.pfc->data->m.reset(io.pfc,
 										  stats,
 										  error_info))) {
-		state.set(SESSION_NON_AUTHENTICATED);
-		ret = PASS; //send_client_attributes(); FILIP
+		state.set(SESSION_CONNECTING);
+		ret = send_client_attributes();
 		if( ret == PASS ) {
 			ret = authenticate(scheme_name, default_schema, set_capabilities);
 		}
@@ -562,7 +478,7 @@ xmysqlnd_session_data::connect(
 		auth->username.c_str(),
 		def_schema.c_str(),
 		port,
-		static_cast<uint>(set_capabilities),
+		static_cast<unsigned int>(set_capabilities),
 		persistent,
 		state.get());
 
@@ -781,6 +697,7 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 
 	switch (state_val) {
 		case SESSION_ALLOCATED:
+		case SESSION_CONNECTING:
 			throw util::xdevapi_exception(
 				util::xdevapi_exception::Code::connection_failure,
 				"cannot reset, not connected");
@@ -857,6 +774,7 @@ xmysqlnd_session_data::send_close()
 		break;
 	}
 	case SESSION_ALLOCATED:
+	case SESSION_CONNECTING:
 	case SESSION_CLOSE_SENT:
 		/* The user has killed its own connection */
 		vio->data->m.close_stream(vio, stats, error_info);
@@ -925,6 +843,11 @@ const char* Auth_mechanism_external = "EXTERNAL";
 const char* Auth_mechanism_sha256_memory = "SHA256_MEMORY";
 const char* Auth_mechanism_unspecified = "";
 
+const char* Tls_version_v1 = "TLSv1";
+const char* Tls_version_v10 = "TLSv1.0";
+const char* Tls_version_v11 = "TLSv1.1";
+const char* Tls_version_v12 = "TLSv1.2";
+const char* Tls_version_v13 = "TLSv1.3";
 
 const st_xmysqlnd_session_query_bind_variable_bind noop__var_binder = { nullptr, nullptr };
 const st_xmysqlnd_session_on_result_start_bind noop__on_result_start = { nullptr, nullptr };
@@ -1096,10 +1019,235 @@ void xmysqlnd_session_data::free_contents()
 		mysqlnd_stats_end(stats, persistent);
 		stats = nullptr;
 	}
-	zval_dtor(&capabilities);
+	if (capabilities) {
+		zval_dtor(&capabilities);
+		capabilities = nullptr;
+	}
 	DBG_VOID_RETURN;
 }
 /* }}} */
+
+// ----------------------------------------------------------------------------
+
+/* {{{ setup_crypto_options */
+void setup_crypto_options(
+	php_stream_context* stream_context,
+	xmysqlnd_session_data* session)
+{
+	// SSL context options: http://php.net/manual/en/context.ssl.php
+	DBG_ENTER("setup_crypto_options");
+	const Session_auth_data* auth{ session->auth.get() };
+	zval string;
+
+	//Add client key
+	if( false == auth->ssl_local_pk.empty() ) {
+		DBG_INF_FMT("Setting client-key %s",
+					auth->ssl_local_pk.c_str());
+		ZVAL_STRING(&string, auth->ssl_local_pk.c_str());
+		php_stream_context_set_option(stream_context,"ssl","local_pk",&string);
+		zval_ptr_dtor(&string);
+	}
+
+	//Add client certificate
+	if( false == auth->ssl_local_cert.empty() ) {
+		DBG_INF_FMT("Setting client-cert %s",
+					auth->ssl_local_cert.c_str());
+		ZVAL_STRING(&string, auth->ssl_local_cert.c_str());
+		php_stream_context_set_option(stream_context,"ssl","local_cert",&string);
+		zval_ptr_dtor(&string);
+	}
+
+	//Set CA
+	if( false == auth->ssl_cafile.empty() ) {
+		DBG_INF_FMT("Setting CA %s",
+					auth->ssl_cafile.c_str());
+		ZVAL_STRING(&string, auth->ssl_cafile.c_str());
+		php_stream_context_set_option(stream_context,"ssl","cafile",&string);
+		zval_ptr_dtor(&string);
+	}
+
+	// capath
+	if (!auth->ssl_capath.empty()) {
+		DBG_INF_FMT("Setting CA path %s", auth->ssl_capath.c_str());
+		ZVAL_STRING(&string, auth->ssl_capath.c_str());
+		php_stream_context_set_option(stream_context, "ssl", "capath", &string);
+		zval_ptr_dtor(&string);
+	}
+
+	//Provide the list of supported/unsupported ciphers
+	if (!auth->ssl_ciphers.empty()) {
+		const std::string& cipher_list{ boost::join(auth->ssl_ciphers, ":") };
+		ZVAL_STRING(&string, cipher_list.c_str());
+		php_stream_context_set_option(stream_context,"ssl","ciphers",&string);
+		zval_ptr_dtor(&string);
+	}
+
+	// is verification of SSL certificate required
+	const SSL_mode ssl_mode{ auth->ssl_mode };
+	const bool is_verify_peer_required{
+		(ssl_mode == SSL_mode::verify_ca) || (ssl_mode == SSL_mode::verify_identity) };
+	zval verify_peer;
+	ZVAL_BOOL(&verify_peer, is_verify_peer_required);
+	php_stream_context_set_option(stream_context, "ssl", "verify_peer", &verify_peer);
+	DBG_INF_FMT("verify SSL certificate %d", static_cast<int>(is_verify_peer_required));
+
+	// is verification of peer name required
+	zval verify_peer_name;
+	const bool is_verify_peer_name_required{ ssl_mode == SSL_mode::verify_identity };
+	ZVAL_BOOL(&verify_peer_name, is_verify_peer_name_required);
+	php_stream_context_set_option(stream_context, "ssl", "verify_peer_name", &verify_peer_name);
+	DBG_INF_FMT("verify peer name %d", static_cast<int>(is_verify_peer_name_required));
+
+	// allow self-signed certificates
+	zval allow_self_signed;
+	ZVAL_BOOL(&allow_self_signed, auth->ssl_allow_self_signed_cert);
+	php_stream_context_set_option(stream_context, "ssl", "allow_self_signed", &allow_self_signed);
+	DBG_INF_FMT("allow self-signed CA allow %d", static_cast<int>(auth->ssl_allow_self_signed_cert));
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
+php_stream_xport_crypt_method_t to_stream_crypt_method(Tls_version tls_version)
+{
+	using Tls_version_to_crypt_method = std::map<Tls_version, php_stream_xport_crypt_method_t>;
+	static const Tls_version_to_crypt_method tls_version_to_crypt_method{
+		{ Tls_version::unspecified, STREAM_CRYPTO_METHOD_TLS_ANY_CLIENT },
+		{ Tls_version::tls_v1_0, STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT },
+		{ Tls_version::tls_v1_1, STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT },
+		{ Tls_version::tls_v1_2, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
+		#ifdef TLSv13_IS_SUPPORTED
+		{ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT },
+		#endif
+	};
+
+	return tls_version_to_crypt_method.at(tls_version);
+}
+
+using Crypt_methods = util::vector<php_stream_xport_crypt_method_t>;
+
+Crypt_methods prepare_crypt_methods(const Tls_versions& tls_versions)
+{
+	int tls_crypt_methods{ 0 };
+	for (Tls_version tls_version : tls_versions) {
+		php_stream_xport_crypt_method_t tls_crypt_method{ to_stream_crypt_method(tls_version) };
+		tls_crypt_methods |= tls_crypt_method;
+	}
+
+	return { static_cast<php_stream_xport_crypt_method_t>(tls_crypt_methods) };
+}
+
+/* {{{ try_setup_crypto_connection */
+enum_func_status try_setup_crypto_connection(
+	xmysqlnd_session_data* session,
+	st_xmysqlnd_msg__capabilities_get& caps_get,
+	const st_xmysqlnd_message_factory& msg_factory,
+	php_stream_xport_crypt_method_t crypt_method)
+{
+	DBG_ENTER("try_setup_crypto_connection");
+	enum_func_status ret{FAIL};
+	const struct st_xmysqlnd_on_error_bind on_error =
+	{ xmysqlnd_session_data_handler_on_error, (void*) session };
+	//Attempt to set the TLS capa. flag.
+	st_xmysqlnd_msg__capabilities_set caps_set;
+	caps_set = msg_factory.get__capabilities_set(&msg_factory);
+
+	zval ** capability_names = (zval **) mnd_ecalloc(2, sizeof(zval*));
+	zval ** capability_values = (zval **) mnd_ecalloc(2, sizeof(zval*));
+	zval  name, value;
+
+	const MYSQLND_CSTRING cstr_name = { "tls", 3 };
+
+	ZVAL_STRINGL(&name,cstr_name.s,cstr_name.l);
+
+	capability_names[0] = &name;
+	ZVAL_TRUE(&value);
+	capability_values[0] = &value;
+/*
+	const std::string capa_name{"compression_algorithm"};
+	const std::string algorithm{"deflate"};
+
+	zval zv_capa_name;
+	zval zv_algo_name;
+	ZVAL_STRINGL(&zv_capa_name,capa_name.c_str(),capa_name.size());
+	ZVAL_STRINGL(&zv_algo_name,algorithm.c_str(),algorithm.size());
+
+	capability_names[1] = &zv_capa_name;
+	capability_values[1] = &zv_algo_name;
+*/
+	if( PASS == caps_set.send_request(&caps_set,
+									  1,
+									  capability_names,
+									  capability_values))
+	{
+		DBG_INF_FMT("Cap. send request with tls=true success, reading response..!");
+		zval zvalue;
+		ZVAL_NULL(&zvalue);
+		caps_get.init_read(&caps_get, on_error);
+		ret = caps_get.read_response(&caps_get,
+									 &zvalue);
+		if( ret == PASS ) {
+			DBG_INF_FMT("Cap. response OK, setting up TLS options.!");
+			php_stream_context * context = php_stream_context_alloc();
+			MYSQLND_VIO * vio = session->io.vio;
+			php_stream * net_stream = vio->data->m.get_stream(vio);
+			//Setup all the options
+			setup_crypto_options(context,session);
+			//Attempt to enable the stream with the crypto
+			//settings.
+			php_stream_context_set(net_stream, context);
+			if (php_stream_xport_crypto_setup(net_stream, crypt_method, nullptr) < 0 ||
+					php_stream_xport_crypto_enable(net_stream, 1) < 0)
+			{
+				DBG_ERR_FMT("Cannot connect to MySQL by using SSL");
+				util::set_error_info(util::xdevapi_exception::Code::cannot_connect_by_ssl, session->error_info);
+				ret = FAIL;
+			} else {
+				php_stream_context_set( net_stream, nullptr );
+			}
+		} else {
+			DBG_ERR_FMT("Negative response from the server, not able to setup TLS.");
+			util::set_error_info(util::xdevapi_exception::Code::cannot_setup_tls, session->error_info);
+		}
+		zval_ptr_dtor(&zvalue);
+	}
+
+	//Cleanup
+	zval_ptr_dtor(&name);
+	zval_ptr_dtor(&value);
+	if( capability_names ) {
+		mnd_efree(capability_names);
+	}
+	if( capability_values ) {
+		mnd_efree(capability_values);
+	}
+	DBG_RETURN(ret);
+}
+/* }}} */
+
+enum_func_status setup_crypto_connection(
+	xmysqlnd_session_data* session,
+	st_xmysqlnd_msg__capabilities_get& caps_get,
+	const st_xmysqlnd_message_factory& msg_factory)
+{
+	DBG_ENTER("setup_crypto_connection");
+	Tls_versions tls_versions{ session->auth->tls_versions };
+	if (tls_versions.empty()) {
+		tls_versions.push_back(Tls_version::unspecified);
+	}
+
+	enum_func_status result{ FAIL };
+	const Crypt_methods& crypt_methods{ prepare_crypt_methods(tls_versions) };
+	for (php_stream_xport_crypt_method_t crypt_method : crypt_methods) {
+		DBG_INF_FMT("setup_crypto_connection %d", static_cast<int>(crypt_method));
+		result = try_setup_crypto_connection(session, caps_get, msg_factory, crypt_method);
+		if (result == PASS) {
+			break;
+		}
+	}
+
+	DBG_RETURN(result);
+}
 
 // ----------------------------------------------------------------------------
 
@@ -1677,6 +1825,8 @@ bool Authenticate::run_auth()
 
 	if (!init_connection()) return false;
 
+	session->state.set(SESSION_NON_AUTHENTICATED);
+
 	if (!gather_auth_mechanisms()) return false;
 
 	session->auth_mechanisms = auth_mechanisms;
@@ -1707,22 +1857,17 @@ bool Authenticate::init_capabilities()
 
 bool Authenticate::init_connection()
 {
-	enum_func_status ret{FAIL};
-	zend_bool        tls_set{FALSE};
-
+	zend_bool tls_set{FALSE};
 	xmysqlnd_is_capability_present(&capabilities, "tls", &tls_set);
 
-	if (auth->ssl_mode == SSL_mode::disabled) {
-		return true;
-	}
+	if (auth->ssl_mode == SSL_mode::disabled) return true;
 
 	if (tls_set) {
-		ret = setup_crypto_connection(session, caps_get, msg_factory);
+		return setup_crypto_connection(session, caps_get, msg_factory) == PASS;
 	} else {
 		php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL, unsupported by the server");
+		return false;
 	}
-
-	return ret == PASS;
 }
 
 zval Authenticate::get_capabilities()
@@ -1864,155 +2009,6 @@ void Gather_auth_mechanisms::add_auth_mechanism_if_supported(Auth_mechanism auth
 
 // ----------------------------------------------------------------------------
 
-/* {{{ setup_crypto_options */
-void setup_crypto_options(
-		php_stream_context* stream_context,
-		xmysqlnd_session_data* session)
-{
-	DBG_ENTER("setup_crypto_options");
-	const Session_auth_data* auth{ session->auth.get() };
-	zval string;
-
-	//Add client key
-	if( false == auth->ssl_local_pk.empty() ) {
-		DBG_INF_FMT("Setting client-key %s",
-					auth->ssl_local_pk.c_str());
-		ZVAL_STRING(&string, auth->ssl_local_pk.c_str());
-		php_stream_context_set_option(stream_context,"ssl","local_pk",&string);
-		zval_ptr_dtor(&string);
-	}
-
-	//Add client certificate
-	if( false == auth->ssl_local_cert.empty() ) {
-		DBG_INF_FMT("Setting client-cert %s",
-					auth->ssl_local_cert.c_str());
-		ZVAL_STRING(&string, auth->ssl_local_cert.c_str());
-		php_stream_context_set_option(stream_context,"ssl","local_cert",&string);
-		zval_ptr_dtor(&string);
-	}
-
-
-	//Set CA
-	if( false == auth->ssl_cafile.empty() ) {
-		DBG_INF_FMT("Setting CA %s",
-					auth->ssl_cafile.c_str());
-		ZVAL_STRING(&string, auth->ssl_cafile.c_str());
-		php_stream_context_set_option(stream_context,"ssl","cafile",&string);
-		zval_ptr_dtor(&string);
-	}
-
-	//Provide the list of supported/unsupported ciphers
-	util::string cipher_list;
-	for( auto& cipher : auth->supported_ciphers ) {
-		cipher_list += cipher.c_str();
-		cipher_list += ':';
-	}
-
-	ZVAL_STRING(&string, cipher_list.c_str());
-	php_stream_context_set_option(stream_context,"ssl","ciphers",&string);
-	zval_ptr_dtor(&string);
-
-	//Self certification accepted
-	DBG_INF_FMT("Accepting self-certified CA!");
-	zval verify_peer_zval;
-	ZVAL_TRUE(&verify_peer_zval);
-	php_stream_context_set_option(stream_context,"ssl","allow_self_signed",&verify_peer_zval);
-
-	ZVAL_FALSE(&verify_peer_zval);
-	php_stream_context_set_option(stream_context,"ssl","verify_peer",&verify_peer_zval);
-	php_stream_context_set_option(stream_context,"ssl","verify_peer_name",&verify_peer_zval);
-	DBG_VOID_RETURN;
-}
-
-/* }}} */
-
-/* {{{ setup_crypto_connection */
-enum_func_status setup_crypto_connection(
-		xmysqlnd_session_data* session,
-		st_xmysqlnd_msg__capabilities_get& caps_get,
-		const st_xmysqlnd_message_factory& msg_factory)
-{
-	DBG_ENTER("setup_crypto_connection");
-	enum_func_status ret{FAIL};
-	const struct st_xmysqlnd_on_error_bind on_error =
-	{ xmysqlnd_session_data_handler_on_error, (void*) session };
-	//Attempt to set the TLS capa. flag.
-	st_xmysqlnd_msg__capabilities_set caps_set;
-	caps_set = msg_factory.get__capabilities_set(&msg_factory);
-
-	zval ** capability_names = (zval **) mnd_ecalloc(2, sizeof(zval*));
-	zval ** capability_values = (zval **) mnd_ecalloc(2, sizeof(zval*));
-	zval  name, value;
-
-	const MYSQLND_CSTRING cstr_name = { "tls", 3 };
-
-	ZVAL_STRINGL(&name,cstr_name.s,cstr_name.l);
-
-	capability_names[0] = &name;
-	ZVAL_TRUE(&value);
-	capability_values[0] = &value;
-/*
-	const std::string capa_name{"compression_algorithm"};
-	const std::string algorithm{"deflate"};
-
-	zval zv_capa_name;
-	zval zv_algo_name;
-	ZVAL_STRINGL(&zv_capa_name,capa_name.c_str(),capa_name.size());
-	ZVAL_STRINGL(&zv_algo_name,algorithm.c_str(),algorithm.size());
-
-	capability_names[1] = &zv_capa_name;
-	capability_values[1] = &zv_algo_name;
-*/
-	if( PASS == caps_set.send_request(&caps_set,
-									  1,
-									  capability_names,
-									  capability_values))
-	{
-		DBG_INF_FMT("Cap. send request with tls=true success, reading response..!");
-		zval zvalue;
-		ZVAL_NULL(&zvalue);
-		caps_get.init_read(&caps_get, on_error);
-		ret = caps_get.read_response(&caps_get,
-									 &zvalue);
-		if( ret == PASS ) {
-			DBG_INF_FMT("Cap. response OK, setting up TLS options.!");
-			php_stream_context * context = php_stream_context_alloc();
-			MYSQLND_VIO * vio = session->io.vio;
-			php_stream * net_stream = vio->data->m.get_stream(vio);
-			//Setup all the options
-			setup_crypto_options(context,session);
-			//Attempt to enable the stream with the crypto
-			//settings.
-			php_stream_context_set(net_stream, context);
-			if (php_stream_xport_crypto_setup(net_stream, STREAM_CRYPTO_METHOD_TLS_CLIENT, nullptr) < 0 ||
-					php_stream_xport_crypto_enable(net_stream, 1) < 0)
-			{
-				DBG_ERR_FMT("Cannot connect to MySQL by using SSL");
-				php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL");
-				ret = FAIL;
-			} else {
-				php_stream_context_set( net_stream, nullptr );
-			}
-		} else {
-			DBG_ERR_FMT("Negative response from the server, not able to setup TLS.");
-		}
-		zval_ptr_dtor(&zvalue);
-	}
-
-	//Cleanup
-	zval_ptr_dtor(&name);
-	zval_ptr_dtor(&value);
-	if( capability_names ) {
-		mnd_efree(capability_names);
-	}
-	if( capability_values ) {
-		mnd_efree(capability_values);
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_session::xmysqlnd_session */
 xmysqlnd_session::xmysqlnd_session(
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -2076,7 +2072,6 @@ xmysqlnd_session::connect(
 	DBG_RETURN(ret);
 }
 /* }}} */
-
 
 /* {{{ xmysqlnd_session::reset */
 const enum_func_status
@@ -2439,81 +2434,81 @@ xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 {
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session::query_cb");
-    XMYSQLND_SESSION session_handle(this);
+	XMYSQLND_SESSION session_handle(this);
 	xmysqlnd_stmt * const stmt = create_statement_object(session_handle);
-    XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
-    if (stmt && stmt_execute) {
-        ret = PASS;
-        if (var_binder.handler) {
-            zend_bool loop{TRUE};
-            do {
-                const enum_hnd_func_status var_binder_result = var_binder.handler(var_binder.ctx, session_handle, stmt_execute);
-                switch (var_binder_result) {
-                case HND_FAIL:
-                case HND_PASS_RETURN_FAIL:
-                    ret = FAIL;
-                    /* fallthrough */
-                case HND_PASS:
-                    loop = FALSE;
-                    break;
-                case HND_AGAIN: /* do nothing */
-                default:
-                    break;
-                }
-            } while (loop);
-        }
-        ret = xmysqlnd_stmt_execute__finalize_bind(stmt_execute);
-        if (PASS == ret &&
+	XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
+	if (stmt && stmt_execute) {
+		ret = PASS;
+		if (var_binder.handler) {
+			zend_bool loop{TRUE};
+			do {
+				const enum_hnd_func_status var_binder_result = var_binder.handler(var_binder.ctx, session_handle, stmt_execute);
+				switch (var_binder_result) {
+				case HND_FAIL:
+				case HND_PASS_RETURN_FAIL:
+					ret = FAIL;
+					/* fallthrough */
+				case HND_PASS:
+					loop = FALSE;
+					break;
+				case HND_AGAIN: /* do nothing */
+				default:
+					break;
+				}
+			} while (loop);
+		}
+		ret = xmysqlnd_stmt_execute__finalize_bind(stmt_execute);
+		if (PASS == ret &&
 		(PASS == (ret = stmt->send_raw_message(stmt,
-        xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
-        data->stats, data->error_info))))
-        {
-            struct st_xmysqlnd_query_cb_ctx query_cb_ctx = {
-                session_handle,
-                handler_on_result_start,
-                handler_on_row,
-                handler_on_warning,
-                handler_on_error,
-                handler_on_result_end,
-                handler_on_statement_ok
-            };
-            const struct st_xmysqlnd_stmt_on_row_bind on_row = {
-                handler_on_row.handler? query_cb_handler_on_row : nullptr,
-                &query_cb_ctx
-            };
-            const struct st_xmysqlnd_stmt_on_warning_bind on_warning = {
-                handler_on_warning.handler? query_cb_handler_on_warning : nullptr,
-                &query_cb_ctx
-            };
-            const struct st_xmysqlnd_stmt_on_error_bind on_error = {
-                handler_on_error.handler? query_cb_handler_on_error : nullptr,
-                &query_cb_ctx
-            };
-            const struct st_xmysqlnd_stmt_on_result_start_bind on_result_start = {
-                handler_on_result_start.handler? query_cb_handler_on_result_start : nullptr,
-                &query_cb_ctx
-            };
-            const struct st_xmysqlnd_stmt_on_result_end_bind on_result_end = {
-                handler_on_result_end.handler? query_cb_handler_on_result_end : nullptr,
-                &query_cb_ctx
-            };
-            const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = {
-                handler_on_statement_ok.handler? query_cb_handler_on_statement_ok : nullptr,
-                &query_cb_ctx
-            };
+		xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
+		data->stats, data->error_info))))
+		{
+			struct st_xmysqlnd_query_cb_ctx query_cb_ctx = {
+				session_handle,
+				handler_on_result_start,
+				handler_on_row,
+				handler_on_warning,
+				handler_on_error,
+				handler_on_result_end,
+				handler_on_statement_ok
+			};
+			const struct st_xmysqlnd_stmt_on_row_bind on_row = {
+				handler_on_row.handler? query_cb_handler_on_row : nullptr,
+				&query_cb_ctx
+			};
+			const struct st_xmysqlnd_stmt_on_warning_bind on_warning = {
+				handler_on_warning.handler? query_cb_handler_on_warning : nullptr,
+				&query_cb_ctx
+			};
+			const struct st_xmysqlnd_stmt_on_error_bind on_error = {
+				handler_on_error.handler? query_cb_handler_on_error : nullptr,
+				&query_cb_ctx
+			};
+			const struct st_xmysqlnd_stmt_on_result_start_bind on_result_start = {
+				handler_on_result_start.handler? query_cb_handler_on_result_start : nullptr,
+				&query_cb_ctx
+			};
+			const struct st_xmysqlnd_stmt_on_result_end_bind on_result_end = {
+				handler_on_result_end.handler? query_cb_handler_on_result_end : nullptr,
+				&query_cb_ctx
+			};
+			const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = {
+				handler_on_statement_ok.handler? query_cb_handler_on_statement_ok : nullptr,
+				&query_cb_ctx
+			};
 			ret = stmt->read_all_results(stmt, on_row, on_warning, on_error, on_result_start, on_result_end, on_statement_ok,
-            data->stats, data->error_info);
-        }
-    }
-    /* no else, please */
-    if (stmt) {
-        xmysqlnd_stmt_free(stmt, data->stats, data->error_info);
-    }
-    if (stmt_execute) {
-        xmysqlnd_stmt_execute__destroy(stmt_execute);
-    }
+			data->stats, data->error_info);
+		}
+	}
+	/* no else, please */
+	if (stmt) {
+		xmysqlnd_stmt_free(stmt, data->stats, data->error_info);
+	}
+	if (stmt_execute) {
+		xmysqlnd_stmt_execute__destroy(stmt_execute);
+	}
 
-    session_handle.reset();
+	session_handle.reset();
 	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
@@ -2606,7 +2601,7 @@ xmysqlnd_session::get_server_version()
 	if (server_version_string.empty()) {
 		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_sql, query);
-        XMYSQLND_SESSION session_handle(this);
+		XMYSQLND_SESSION session_handle(this);
 		xmysqlnd_stmt * stmt = create_statement_object(session_handle);
 		if (stmt && stmt_execute) {
 			if (PASS == stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info)) {
@@ -2636,7 +2631,7 @@ xmysqlnd_session::get_server_version()
 		if (stmt_execute) {
 			xmysqlnd_stmt_execute__destroy(stmt_execute);
 		}
-        session_handle.reset();
+		session_handle.reset();
 	} else {
 		DBG_INF_FMT("server_version_string=%s", server_version_string.c_str());
 	}
@@ -2667,7 +2662,7 @@ xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 	xmysqlnd_stmt* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_session::create_statement_object");
 	stmt = xmysqlnd_stmt_create(session_handle, false, data->object_factory, data->stats, data->error_info);
-    DBG_RETURN(stmt);
+	DBG_RETURN(stmt);
 }
 /* }}} */
 
@@ -3003,31 +2998,185 @@ std::pair<util::Url, transport_types> extract_uri_information(const char * uri_s
 }
 /* }}} */
 
-enum_func_status set_ssl_mode( Session_auth_data* auth,
-							   SSL_mode mode )
+// ------------------------------------------------------------------------------
+
+namespace {
+
+class Extract_client_option
 {
-	DBG_ENTER("set_ssl_mode");
-	enum_func_status ret{PASS};
-	if( auth->ssl_mode != SSL_mode::not_specified ) {
-		if( auth->ssl_mode != mode ) {
-			DBG_ERR_FMT("Selected two incompatible ssl modes");
-			devapi::RAISE_EXCEPTION( err_msg_invalid_ssl_mode );
-			ret = FAIL;
-		}
-	} else {
-		DBG_INF_FMT("Selected mode: %d",
-					static_cast<int>(mode) );
-		auth->ssl_mode = mode;
-	}
-	DBG_RETURN( ret );
+public:
+	Extract_client_option(
+		const util::string& option_name,
+		const util::string& option_value,
+		Session_auth_data* auth);
+
+	void run();
+
+	using Setter = void (Extract_client_option::*)(const std::string&);
+
+public:
+	static enum_func_status assign_ssl_mode(Session_auth_data& auth, SSL_mode ssl_mode);
+
+private:
+	void ensure_ssl_mode();
+	void set_ssl_mode(const std::string& ssl_mode_str);
+	SSL_mode parse_ssl_mode(const std::string& mode_str) const;
+	void assign_ssl_mode(SSL_mode ssl_mode);
+	void set_ssl_no_defaults(const std::string&);
+	void set_auth_mechanism(const std::string& auth_mechanism_str);
+	Auth_mechanism parse_auth_mechanism(const std::string& auth_mechanism_str) const;
+	void assign_auth_mechanism(const Auth_mechanism auth_mechanism);
+	void set_ssl_client_key(const std::string& ssl_client_key);
+	void set_ssl_client_cert(const std::string& ssl_client_cert);
+	void set_ssl_cafile(const std::string& ssl_cafile);
+	void set_ssl_capath(const std::string& ssl_capath);
+	void set_tls_versions(const std::string& raw_tls_versions);
+	Tls_version parse_tls_version(const std::string& tls_version_str) const;
+	void set_tls_ciphersuites(const std::string& raw_tls_ciphersuites);
+	void set_ssl_ciphers(const std::string& ssl_ciphers);
+	void set_connect_timeout(const std::string& timeout_str);
+	util::std_strings parse_single_or_array(const std::string& value) const;
+	int parse_int(const std::string& value_str) const;
+
+private:
+	const util::string& option_name;
+	const util::string& option_value;
+	Session_auth_data& auth;
+};
+
+// ------------------------------------------------------------------------------
+
+struct Client_option_info
+{
+	enum Trait {
+		None = 0x0,
+		Requires_value = 0x1,
+		Is_secure = 0x2,
+		Is_integer = 0x4
+	};
+	int traits;
+	bool has_trait(Trait trait) const { return (traits & trait) == trait; }
+	bool requires_value() const { return has_trait(Trait::Requires_value); }
+	bool is_secure() const { return has_trait(Trait::Is_secure); }
+	bool is_integer() const { return has_trait(Trait::Is_integer); }
+
+	Extract_client_option::Setter setter;
+};
+
+Extract_client_option::Extract_client_option(
+	const util::string& option_name,
+	const util::string& option_value,
+	Session_auth_data* auth)
+	: option_name(option_name)
+	, option_value(option_value)
+	, auth(*auth)
+{
 }
 
-/* {{{ parse_ssl_mode */
-enum_func_status parse_ssl_mode( Session_auth_data* auth,
-								 const util::string& mode )
+void Extract_client_option::run()
 {
-	DBG_ENTER("parse_ssl_mode");
-	enum_func_status ret{FAIL};
+	// https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-options.html
+	using Option_to_info = std::map<const char*, Client_option_info, util::iless>;
+	using Option_trait = Client_option_info::Trait;
+	static const Option_to_info option_to_info{
+		{ "ssl-mode", {Option_trait::Requires_value, &Extract_client_option::set_ssl_mode }},
+		{ "ssl-no-defaults", {Option_trait::None, &Extract_client_option::set_ssl_no_defaults }},
+		{ "auth", {Option_trait::Requires_value, &Extract_client_option::set_auth_mechanism }},
+		{ "ssl-key", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_client_key }},
+		{ "ssl-cert", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_client_cert }},
+		{ "ssl-ca", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_cafile }},
+		{ "ssl-capath", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_capath }},
+		{ "ssl-cipher", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_ciphers }},
+		{ "ssl-ciphers", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_ssl_ciphers }},
+		{ "tls-version", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_versions }},
+		{ "tls-versions", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_versions }},
+		{ "tls-ciphersuite", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
+		{ "tls-ciphersuites", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
+		{ "connect-timeout", {Option_trait::Is_integer | Option_trait::Requires_value, &Extract_client_option::set_connect_timeout }},
+	};
+
+	auto it{ option_to_info.find(option_name.c_str()) };
+	if (it == option_to_info.end()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::unknown_client_conn_option,
+			option_name);
+	}
+
+	const Client_option_info& coi{it->second};
+	if ((coi.requires_value()) && option_value.empty()) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument,
+			"The argument to " + option_name + " cannot be empty.");
+	}
+
+	auto setter{coi.setter};
+	(this->*setter)(util::to_std_string(option_value));
+
+	if (coi.is_secure()) {
+		ensure_ssl_mode();
+	}
+}
+
+enum_func_status Extract_client_option::assign_ssl_mode(Session_auth_data& auth, SSL_mode ssl_mode)
+{
+	DBG_ENTER("Extract_client_option::assign_ssl_mode");
+	if (auth.ssl_mode == ssl_mode) {
+		DBG_RETURN(PASS);
+	}
+
+	if (auth.ssl_mode == SSL_mode::not_specified) {
+		DBG_INF_FMT("Selected mode: %d", static_cast<int>(ssl_mode));
+		auth.ssl_mode = ssl_mode;
+		DBG_RETURN(PASS);
+	}
+
+	if ((auth.ssl_mode == SSL_mode::any_secure) && (ssl_mode != SSL_mode::disabled)) {
+		DBG_INF_FMT("Selected secure mode: %d", static_cast<int>(ssl_mode));
+		auth.ssl_mode = ssl_mode;
+		DBG_RETURN(PASS);
+	}
+
+	if ((auth.ssl_mode == SSL_mode::any_secure) && (ssl_mode == SSL_mode::disabled)) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::inconsistent_ssl_options,
+			"cannot disable SSL connections when secure options are used");
+		DBG_RETURN(FAIL);
+	}
+
+	const char* error_reason{ "Only one ssl mode is allowed." };
+	DBG_ERR_FMT(error_reason);
+	throw util::xdevapi_exception(
+		util::xdevapi_exception::Code::inconsistent_ssl_options,
+		error_reason);
+	DBG_RETURN(FAIL);
+}
+
+void Extract_client_option::ensure_ssl_mode()
+{
+	// some SSL options provided, assuming 'required' mode if not specified yet
+	if (auth.ssl_mode == SSL_mode::not_specified) {
+		assign_ssl_mode(SSL_mode::any_secure);
+	} else if (auth.ssl_mode == SSL_mode::disabled) {
+		/*
+			WL#10400 DevAPI: Ensure all Session connections are secure by default
+			- if ssl-mode=disabled is used appearance of any ssl option
+			such as ssl-ca would result in an error
+			- inconsistent options such as  ssl-mode=disabled&ssl-ca=xxxx
+			would result in an error returned to the user
+		*/
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::inconsistent_ssl_options,
+			"secure option '" + option_name + "' can not be specified when SSL connections are disabled");
+	}
+}
+
+void Extract_client_option::set_ssl_mode(const std::string& ssl_mode_str)
+{
+	SSL_mode ssl_mode{ parse_ssl_mode(ssl_mode_str) };
+	assign_ssl_mode(ssl_mode);
+}
+
+SSL_mode Extract_client_option::parse_ssl_mode(const std::string& mode_str) const
+{
 	using modestr_to_enum = std::map<std::string, SSL_mode, util::iless>;
 	static modestr_to_enum mode_mapping = {
 		{ "required", SSL_mode::required },
@@ -3035,206 +3184,473 @@ enum_func_status parse_ssl_mode( Session_auth_data* auth,
 		{ "verify_ca", SSL_mode::verify_ca },
 		{ "verify_identity", SSL_mode::verify_identity }
 	};
-	auto it = mode_mapping.find( mode.c_str() );
-	if( it != mode_mapping.end() ) {
-		ret = set_ssl_mode( auth, it->second );
-	} else {
-		DBG_ERR_FMT("Unknown SSL mode selector: %s",
-					mode.c_str());
+	auto it{ mode_mapping.find(mode_str) };
+	if (it == mode_mapping.end()) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::unknown_ssl_mode, mode_str);
 	}
-	DBG_RETURN( ret );
+	return it->second;
 }
-/* }}} */
 
-
-/* {{{ set_auth_mechanism */
-enum_func_status set_auth_mechanism(
-		Session_auth_data* auth,
-		Auth_mechanism auth_mechanism)
+void Extract_client_option::assign_ssl_mode(SSL_mode ssl_mode)
 {
-	DBG_ENTER("set_auth_mechanism");
-	enum_func_status ret{FAIL};
-	if (auth->auth_mechanism == Auth_mechanism::unspecified) {
-		DBG_INF_FMT("Selected authentication mechanism: %d", static_cast<int>(auth_mechanism));
-		auth->auth_mechanism = auth_mechanism;
-		ret = PASS;
-	} else if (auth->auth_mechanism != auth_mechanism) {
-		DBG_ERR_FMT("Selected two incompatible authentication mechanisms %d vs %d",
-					static_cast<int>(auth->auth_mechanism),
-					static_cast<int>(auth_mechanism));
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_auth_mechanism);
-	}
-	DBG_RETURN( ret );
+	assign_ssl_mode(auth, ssl_mode);
 }
-/* }}} */
 
-/* {{{ parse_auth_mechanism */
-enum_func_status parse_auth_mechanism(
-		Session_auth_data* auth,
-		const util::string& auth_mechanism)
+void Extract_client_option::set_ssl_no_defaults(const std::string&)
 {
-	DBG_ENTER("parse_auth_mechanism");
-	enum_func_status ret{FAIL};
+	auth.ssl_no_defaults = true;
+}
+
+void Extract_client_option::set_auth_mechanism(const std::string& auth_mechanism_str)
+{
+	const Auth_mechanism auth_mechanism{ parse_auth_mechanism(auth_mechanism_str) };
+	assign_auth_mechanism(auth_mechanism);
+}
+
+Auth_mechanism Extract_client_option::parse_auth_mechanism(const std::string& auth_mechanism_str) const
+{
 	using str_to_auth_mechanism = std::map<std::string, Auth_mechanism, util::iless>;
-	static const str_to_auth_mechanism str_to_auth_mechanisms = {
+	static const str_to_auth_mechanism str_to_auth_mechanisms{
 		{ Auth_mechanism_mysql41, Auth_mechanism::mysql41 },
 		{ Auth_mechanism_plain, Auth_mechanism::plain },
 		{ Auth_mechanism_external, Auth_mechanism::external },
 		{ Auth_mechanism_sha256_memory , Auth_mechanism::sha256_memory }
 	};
-	auto it = str_to_auth_mechanisms.find(auth_mechanism.c_str());
-	if (it != str_to_auth_mechanisms.end()) {
-		ret = set_auth_mechanism(auth, it->second);
-	} else {
-		devapi::RAISE_EXCEPTION(err_msg_invalid_auth_mechanism);
-		ret = FAIL;
-		DBG_ERR_FMT("Unknown authentication mechanism: %s", auth_mechanism.c_str());
+	auto it{ str_to_auth_mechanisms.find(auth_mechanism_str) };
+	if (it == str_to_auth_mechanisms.end()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::invalid_auth_mechanism, auth_mechanism_str);
 	}
-	DBG_RETURN( ret );
+	return it->second;
 }
-/* }}} */
 
-namespace {
+void Extract_client_option::assign_auth_mechanism(const Auth_mechanism auth_mechanism)
+{
+	DBG_ENTER("set_auth_mechanism");
+	if (auth.auth_mechanism == Auth_mechanism::unspecified) {
+		DBG_INF_FMT("Selected authentication mechanism: %d", static_cast<int>(auth_mechanism));
+		auth.auth_mechanism = auth_mechanism;
+	} else if (auth.auth_mechanism != auth_mechanism) {
+		const char* error_reason{ "only one authentication mechanism is allowed" };
+		DBG_ERR_FMT("%s", error_reason);
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::invalid_auth_mechanism,
+			error_reason);
+	}
+	DBG_VOID_RETURN;
+}
 
-using integer_auth_option_to_data_member = std::map<
-	std::string,
-	boost::optional<int> Session_auth_data::*,
-	util::iless
->;
+void Extract_client_option::set_ssl_client_key(const std::string& ssl_client_key)
+{
+	auth.ssl_local_pk = ssl_client_key;
+}
 
-const auto AUTH_OPTION_CONNECT_TIMEOUT{ "connect-timeout" };
+void Extract_client_option::set_ssl_client_cert(const std::string& ssl_client_cert)
+{
+	auth.ssl_local_cert = ssl_client_cert;
+}
 
-const integer_auth_option_to_data_member int_auth_option_to_data_member{
-	{ AUTH_OPTION_CONNECT_TIMEOUT, &Session_auth_data::connection_timeout },
+void Extract_client_option::set_ssl_cafile(const std::string& ssl_cafile)
+{
+	auth.ssl_cafile = ssl_cafile;
+}
+
+void Extract_client_option::set_ssl_capath(const std::string& ssl_capath)
+{
+	auth.ssl_capath = ssl_capath;
+}
+
+void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions)
+{
+	const util::std_strings& tls_versions{ parse_single_or_array(raw_tls_versions) };
+	if (tls_versions.empty()) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::empty_tls_versions);
+	}
+	for (const auto& tls_version_str : tls_versions) {
+		const Tls_version tls_version{ parse_tls_version(tls_version_str) };
+		auth.tls_versions.push_back(tls_version);
+	}
+}
+
+Tls_version Extract_client_option::parse_tls_version(const std::string& tls_version_str) const
+{
+	using name_to_protocol = std::map<std::string, Tls_version, util::iless>;
+	static const name_to_protocol name_to_protocols{
+		{ Tls_version_v1, Tls_version::tls_v1_0 },
+		{ Tls_version_v10, Tls_version::tls_v1_0 },
+		{ Tls_version_v11, Tls_version::tls_v1_1 },
+		{ Tls_version_v12, Tls_version::tls_v1_2 },
+		#ifdef TLSv13_IS_SUPPORTED
+		{ Tls_version_v13, Tls_version::tls_v1_3 },
+		#endif
+	};
+	auto it{ name_to_protocols.find(tls_version_str) };
+	if (it != name_to_protocols.end()) return it->second;
+
+	util::strings supported_protocols;
+	std::transform(
+		name_to_protocols.begin(),
+		name_to_protocols.end(),
+		std::back_inserter(supported_protocols),
+		[](const auto& name_protocol) { return util::to_string(name_protocol.first); }
+	);
+
+	util::ostringstream os;
+	os << util::quotation_if_blank(tls_version_str)
+		<< " not recognized as a valid TLS protocol version (should be one of "
+		<< boost::join(supported_protocols, ", ")
+		<< ')';
+	throw util::xdevapi_exception(
+		util::xdevapi_exception::Code::unknown_tls_version,
+		os.str());
+}
+
+void Extract_client_option::set_tls_ciphersuites(const std::string& raw_tls_ciphersuites)
+{
+	auth.tls_ciphersuites = parse_single_or_array(raw_tls_ciphersuites);
+}
+
+void Extract_client_option::set_ssl_ciphers(const std::string& raw_ssl_ciphers)
+{
+	auth.ssl_ciphers = parse_single_or_array(raw_ssl_ciphers);
+}
+
+void Extract_client_option::set_connect_timeout(const std::string& timeout_str)
+{
+	int timeout{ parse_int(timeout_str) };
+	if (timeout < 0) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_timeout);
+	}
+
+	auth.connection_timeout = timeout;
+}
+
+util::std_strings Extract_client_option::parse_single_or_array(const std::string& value) const
+{
+	/*
+		parse value of given option which can be single item or an array of items
+		...?tls-versions=TLSv1.3&...
+		...?tls-versions=[TLSv1.2,TLSv1.3]&...
+
+		...?tls-ciphersuites=[
+			TLS_DHE_PSK_WITH_AES_128_GCM_SHA256,
+			TLS_CHACHA20_POLY1305_SHA256
+			]&...
+	*/
+	assert(!value.empty());
+	util::std_strings items;
+	if ((value.front() == '[') && (value.back() == ']')) {
+		const std::string contents(value.begin() + 1, value.end() - 1);
+		if (!contents.empty()) {
+			const char* Items_separator{ "," };
+			boost::split(items, contents, boost::is_any_of(Items_separator));
+		}
+	} else {
+		items.push_back(value);
+	}
+	std::for_each(
+		items.begin(),
+		items.end(),
+		[](std::string& str){ boost::trim<std::string>(str); }
+	);
+	return items;
+}
+
+int Extract_client_option::parse_int(const std::string& value_str) const
+{
+	int value;
+	if (!util::to_int(value_str, &value)) {
+		util::ostringstream os;
+		os << "The argument to " << option_name
+			<< " must be an integer, but it is '" << value_str.c_str() << "'.";
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+	}
+	return value;
+}
+
+enum_func_status extract_client_option(
+	const util::string& option_name,
+	const util::string& option_value,
+	Session_auth_data* auth)
+{
+	Extract_client_option extract_client_option(option_name, option_value, auth);
+	extract_client_option.run();
+	return PASS;
+}
+
+// ------------------------------------------------------------------------------
+
+using Ciphersuites_to_ciphers = std::map<std::string, std::string>;
+
+class Map_ciphersuites_to_ciphers
+{
+public:
+	Map_ciphersuites_to_ciphers(Session_auth_data* auth_data);
+	void run();
+
+private:
+	bool need_mapping() const;
+
+private:
+	static const Ciphersuites_to_ciphers ciphersuites_to_ciphers;
+	const Tls_versions& tls_versions;
+	const util::std_strings& tls_ciphersuites;
+	util::std_strings& ssl_ciphers;
 };
 
-bool is_integer_auth_option(const util::string& auth_option_variable)
+// source: https://www.openssl.org/docs/man1.0.2/man1/ciphers.html
+const Ciphersuites_to_ciphers Map_ciphersuites_to_ciphers::ciphersuites_to_ciphers{
+	// SSL v3.0 cipher suites.
+	{ "SSL_RSA_WITH_NULL_MD5", "NULL-MD5" },
+	{ "SSL_RSA_WITH_NULL_SHA", "NULL-SHA" },
+	{ "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "EXP-RC4-MD5" },
+	{ "SSL_RSA_WITH_RC4_128_MD5", "RC4-MD5" },
+	{ "SSL_RSA_WITH_RC4_128_SHA", "RC4-SHA" },
+	{ "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5", "EXP-RC2-CBC-MD5" },
+	{ "SSL_RSA_WITH_IDEA_CBC_SHA", "IDEA-CBC-SHA" },
+	{ "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA", "EXP-DES-CBC-SHA" },
+	{ "SSL_RSA_WITH_DES_CBC_SHA", "DES-CBC-SHA" },
+	{ "SSL_RSA_WITH_3DES_EDE_CBC_SHA", "DES-CBC3-SHA" },
+	{ "SSL_DH_DSS_WITH_DES_CBC_SHA", "DH-DSS-DES-CBC-SHA" },
+	{ "SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA", "DH-DSS-DES-CBC3-SHA" },
+	{ "SSL_DH_RSA_WITH_DES_CBC_SHA", "DH-RSA-DES-CBC-SHA" },
+	{ "SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA", "DH-RSA-DES-CBC3-SHA" },
+	{ "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA", "EXP-EDH-DSS-DES-CBC-SHA" },
+	{ "SSL_DHE_DSS_WITH_DES_CBC_SHA", "EDH-DSS-CBC-SHA" },
+	{ "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "EDH-DSS-DES-CBC3-SHA" },
+	{ "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "EXP-EDH-RSA-DES-CBC-SHA" },
+	{ "SSL_DHE_RSA_WITH_DES_CBC_SHA", "EDH-RSA-DES-CBC-SHA" },
+	{ "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "EDH-RSA-DES-CBC3-SHA" },
+	{ "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5", "EXP-ADH-RC4-MD5" },
+	{ "SSL_DH_anon_WITH_RC4_128_MD5", "ADH-RC4-MD5" },
+	{ "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA", "EXP-ADH-DES-CBC-SHA" },
+	{ "SSL_DH_anon_WITH_DES_CBC_SHA", "ADH-DES-CBC-SHA" },
+	{ "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA", "ADH-DES-CBC3-SHA" },
+	//SSL_FORTEZZA_KEA_WITH_NULL_SHA          Not implemented.
+	//SSL_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA  Not implemented.
+	//SSL_FORTEZZA_KEA_WITH_RC4_128_SHA       Not implemented.
+
+	// TLS v1.0 cipher suites.
+	{ "TLS_RSA_WITH_NULL_MD5", "NULL-MD5" },
+	{ "TLS_RSA_WITH_NULL_SHA", "NULL-SHA" },
+	{ "TLS_RSA_EXPORT_WITH_RC4_40_MD5", "EXP-RC4-MD5" },
+	{ "TLS_RSA_WITH_RC4_128_MD5", "RC4-MD5" },
+	{ "TLS_RSA_WITH_RC4_128_SHA", "RC4-SHA" },
+	{ "TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5", "EXP-RC2-CBC-MD5" },
+	{ "TLS_RSA_WITH_IDEA_CBC_SHA", "IDEA-CBC-SHA" },
+	{ "TLS_RSA_EXPORT_WITH_DES40_CBC_SHA", "EXP-DES-CBC-SHA" },
+	{ "TLS_RSA_WITH_DES_CBC_SHA", "DES-CBC-SHA" },
+	{ "TLS_RSA_WITH_3DES_EDE_CBC_SHA", "DES-CBC3-SHA" },
+	//TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA    Not implemented.
+	//TLS_DH_DSS_WITH_DES_CBC_SHA             Not implemented.
+	//TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA        Not implemented.
+	//TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA    Not implemented.
+	//TLS_DH_RSA_WITH_DES_CBC_SHA             Not implemented.
+	//TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA        Not implemented.
+	{ "TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA", "EXP-EDH-DSS-DES-CBC-SHA" },
+	{ "TLS_DHE_DSS_WITH_DES_CBC_SHA", "EDH-DSS-CBC-SHA" },
+	{ "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "EDH-DSS-DES-CBC3-SHA" },
+	{ "TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "EXP-EDH-RSA-DES-CBC-SHA" },
+	{ "TLS_DHE_RSA_WITH_DES_CBC_SHA", "EDH-RSA-DES-CBC-SHA" },
+	{ "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "EDH-RSA-DES-CBC3-SHA" },
+	{ "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5", "EXP-ADH-RC4-MD5" },
+	{ "TLS_DH_anon_WITH_RC4_128_MD5", "ADH-RC4-MD5" },
+	{ "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA", "EXP-ADH-DES-CBC-SHA" },
+	{ "TLS_DH_anon_WITH_DES_CBC_SHA", "ADH-DES-CBC-SHA" },
+	{ "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA", "ADH-DES-CBC3-SHA" },
+
+	// AES ciphersuites from RFC3268, extending TLS v1.0
+	{ "TLS_RSA_WITH_AES_128_CBC_SHA", "AES128-SHA" },
+	{ "TLS_RSA_WITH_AES_256_CBC_SHA", "AES256-SHA" },
+	{ "TLS_DH_DSS_WITH_AES_128_CBC_SHA", "DH-DSS-AES128-SHA" },
+	{ "TLS_DH_DSS_WITH_AES_256_CBC_SHA", "DH-DSS-AES256-SHA" },
+	{ "TLS_DH_RSA_WITH_AES_128_CBC_SHA", "DH-RSA-AES128-SHA" },
+	{ "TLS_DH_RSA_WITH_AES_256_CBC_SHA", "DH-RSA-AES256-SHA" },
+	{ "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "DHE-DSS-AES128-SHA" },
+	{ "TLS_DHE_DSS_WITH_AES_256_CBC_SHA", "DHE-DSS-AES256-SHA" },
+	{ "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "DHE-RSA-AES128-SHA" },
+	{ "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "DHE-RSA-AES256-SHA" },
+	{ "TLS_DH_anon_WITH_AES_128_CBC_SHA", "ADH-AES128-SHA" },
+	{ "TLS_DH_anon_WITH_AES_256_CBC_SHA", "ADH-AES256-SHA" },
+
+	// Camellia ciphersuites from RFC4132, extending TLS v1.0
+	{ "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA", "CAMELLIA128-SHA" },
+	{ "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA", "CAMELLIA256-SHA" },
+	{ "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA", "DH-DSS-CAMELLIA128-SHA" },
+	{ "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA", "DH-DSS-CAMELLIA256-SHA" },
+	{ "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA", "DH-RSA-CAMELLIA128-SHA" },
+	{ "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA", "DH-RSA-CAMELLIA256-SHA" },
+	{ "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA", "DHE-DSS-CAMELLIA128-SHA" },
+	{ "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA", "DHE-DSS-CAMELLIA256-SHA" },
+	{ "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA", "DHE-RSA-CAMELLIA128-SHA" },
+	{ "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA", "DHE-RSA-CAMELLIA256-SHA" },
+	{ "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA", "ADH-CAMELLIA128-SHA" },
+	{ "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA", "ADH-CAMELLIA256-SHA" },
+
+	// SEED ciphersuites from RFC4162, extending TLS v1.0
+	{ "TLS_RSA_WITH_SEED_CBC_SHA", "SEED-SHA" },
+	{ "TLS_DH_DSS_WITH_SEED_CBC_SHA", "DH-DSS-SEED-SHA" },
+	{ "TLS_DH_RSA_WITH_SEED_CBC_SHA", "DH-RSA-SEED-SHA" },
+	{ "TLS_DHE_DSS_WITH_SEED_CBC_SHA", "DHE-DSS-SEED-SHA" },
+	{ "TLS_DHE_RSA_WITH_SEED_CBC_SHA", "DHE-RSA-SEED-SHA" },
+	{ "TLS_DH_anon_WITH_SEED_CBC_SHA", "ADH-SEED-SHA" },
+
+	// GOST ciphersuites from draft-chudov-cryptopro-cptls, extending TLS v1.0
+	// Note: these ciphers require an engine which including GOST cryptographic algorithms, such as the ccgost engine, included in the OpenSSL distribution.
+	{ "TLS_GOSTR341094_WITH_28147_CNT_IMIT", "GOST94-GOST89-GOST89" },
+	{ "TLS_GOSTR341001_WITH_28147_CNT_IMIT", "GOST2001-GOST89-GOST89" },
+	{ "TLS_GOSTR341094_WITH_NULL_GOSTR3411", "GOST94-NULL-GOST94" },
+	{ "TLS_GOSTR341001_WITH_NULL_GOSTR3411", "GOST2001-NULL-GOST94" },
+
+	// Additional Export 1024 and other cipher suites
+	// Note: these ciphers can also be used in SSL v3.
+	{ "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA", "EXP1024-DES-CBC-SHA" },
+	{ "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA", "EXP1024-RC4-SHA" },
+	{ "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA", "EXP1024-DHE-DSS-DES-CBC-SHA" },
+	{ "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA", "EXP1024-DHE-DSS-RC4-SHA" },
+	{ "TLS_DHE_DSS_WITH_RC4_128_SHA", "DHE-DSS-RC4-SHA" },
+
+	// Elliptic curve cipher suites.
+	{ "TLS_ECDH_RSA_WITH_NULL_SHA", "ECDH-RSA-NULL-SHA" },
+	{ "TLS_ECDH_RSA_WITH_RC4_128_SHA", "ECDH-RSA-RC4-SHA" },
+	{ "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA", "ECDH-RSA-DES-CBC3-SHA" },
+	{ "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "ECDH-RSA-AES128-SHA" },
+	{ "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "ECDH-RSA-AES256-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_NULL_SHA", "ECDH-ECDSA-NULL-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_RC4_128_SHA", "ECDH-ECDSA-RC4-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "ECDH-ECDSA-DES-CBC3-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA", "ECDH-ECDSA-AES128-SHA" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA", "ECDH-ECDSA-AES256-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_NULL_SHA", "ECDHE-RSA-NULL-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_RC4_128_SHA", "ECDHE-RSA-RC4-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "ECDHE-RSA-DES-CBC3-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "ECDHE-RSA-AES128-SHA" },
+	{ "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "ECDHE-RSA-AES256-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_NULL_SHA", "ECDHE-ECDSA-NULL-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "ECDHE-ECDSA-RC4-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA", "ECDHE-ECDSA-DES-CBC3-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "ECDHE-ECDSA-AES128-SHA" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA", "ECDHE-ECDSA-AES256-SHA" },
+	{ "TLS_ECDH_anon_WITH_NULL_SHA", "AECDH-NULL-SHA" },
+	{ "TLS_ECDH_anon_WITH_RC4_128_SHA", "AECDH-RC4-SHA" },
+	{ "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA", "AECDH-DES-CBC3-SHA" },
+	{ "TLS_ECDH_anon_WITH_AES_128_CBC_SHA", "AECDH-AES128-SHA" },
+	{ "TLS_ECDH_anon_WITH_AES_256_CBC_SHA", "AECDH-AES256-SHA" },
+
+	//TLS v1.2 cipher suites
+	{ "TLS_RSA_WITH_NULL_SHA256", "NULL-SHA256" },
+	{ "TLS_RSA_WITH_AES_128_CBC_SHA256", "AES128-SHA256" },
+	{ "TLS_RSA_WITH_AES_256_CBC_SHA256", "AES256-SHA256" },
+	{ "TLS_RSA_WITH_AES_128_GCM_SHA256", "AES128-GCM-SHA256" },
+	{ "TLS_RSA_WITH_AES_256_GCM_SHA384", "AES256-GCM-SHA384" },
+	{ "TLS_DH_RSA_WITH_AES_128_CBC_SHA256", "DH-RSA-AES128-SHA256" },
+	{ "TLS_DH_RSA_WITH_AES_256_CBC_SHA256", "DH-RSA-AES256-SHA256" },
+	{ "TLS_DH_RSA_WITH_AES_128_GCM_SHA256", "DH-RSA-AES128-GCM-SHA256" },
+	{ "TLS_DH_RSA_WITH_AES_256_GCM_SHA384", "DH-RSA-AES256-GCM-SHA384" },
+	{ "TLS_DH_DSS_WITH_AES_128_CBC_SHA256", "DH-DSS-AES128-SHA256" },
+	{ "TLS_DH_DSS_WITH_AES_256_CBC_SHA256", "DH-DSS-AES256-SHA256" },
+	{ "TLS_DH_DSS_WITH_AES_128_GCM_SHA256", "DH-DSS-AES128-GCM-SHA256" },
+	{ "TLS_DH_DSS_WITH_AES_256_GCM_SHA384", "DH-DSS-AES256-GCM-SHA384" },
+	{ "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256", "DHE-RSA-AES128-SHA256" },
+	{ "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256", "DHE-RSA-AES256-SHA256" },
+	{ "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256", "DHE-RSA-AES128-GCM-SHA256" },
+	{ "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "DHE-RSA-AES256-GCM-SHA384" },
+	{ "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256", "DHE-DSS-AES128-SHA256" },
+	{ "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256", "DHE-DSS-AES256-SHA256" },
+	{ "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "DHE-DSS-AES128-GCM-SHA256" },
+	{ "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384", "DHE-DSS-AES256-GCM-SHA384" },
+	{ "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "ECDH-RSA-AES128-SHA256" },
+	{ "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384", "ECDH-RSA-AES256-SHA384" },
+	{ "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256", "ECDH-RSA-AES128-GCM-SHA256" },
+	{ "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384", "ECDH-RSA-AES256-GCM-SHA384" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256", "ECDH-ECDSA-AES128-SHA256" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384", "ECDH-ECDSA-AES256-SHA384" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "ECDH-ECDSA-AES128-GCM-SHA256" },
+	{ "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384", "ECDH-ECDSA-AES256-GCM-SHA384" },
+	{ "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "ECDHE-RSA-AES128-SHA256" },
+	{ "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "ECDHE-RSA-AES256-SHA384" },
+	{ "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "ECDHE-RSA-AES128-GCM-SHA256" },
+	{ "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "ECDHE-RSA-AES256-GCM-SHA384" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "ECDHE-ECDSA-AES128-SHA256" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384", "ECDHE-ECDSA-AES256-SHA384" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "ECDHE-ECDSA-AES128-GCM-SHA256" },
+	{ "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "ECDHE-ECDSA-AES256-GCM-SHA384" },
+	{ "TLS_DH_anon_WITH_AES_128_CBC_SHA256", "ADH-AES128-SHA256" },
+	{ "TLS_DH_anon_WITH_AES_256_CBC_SHA256", "ADH-AES256-SHA256" },
+	{ "TLS_DH_anon_WITH_AES_128_GCM_SHA256", "ADH-AES128-GCM-SHA256" },
+	{ "TLS_DH_anon_WITH_AES_256_GCM_SHA384", "ADH-AES256-GCM-SHA384" },
+
+	// Pre shared keying (PSK) cipheruites
+	{ "TLS_PSK_WITH_RC4_128_SHA", "PSK-RC4-SHA" },
+	{ "TLS_PSK_WITH_3DES_EDE_CBC_SHA", "PSK-3DES-EDE-CBC-SHA" },
+	{ "TLS_PSK_WITH_AES_128_CBC_SHA", "PSK-AES128-CBC-SHA" },
+	{ "TLS_PSK_WITH_AES_256_CBC_SHA", "PSK-AES256-CBC-SHA" },
+
+	// Deprecated SSL v2.0 cipher suites.
+	{ "SSL_CK_RC4_128_WITH_MD5", "RC4-MD5" },
+	//SSL_CK_RC4_128_EXPORT40_WITH_MD5        Not implemented.
+	{ "SSL_CK_RC2_128_CBC_WITH_MD5", "RC2-CBC-MD5" },
+	//SSL_CK_RC2_128_CBC_EXPORT40_WITH_MD5    Not implemented.
+	{ "SSL_CK_IDEA_128_CBC_WITH_MD5", "IDEA-CBC-MD5" },
+	//SSL_CK_DES_64_CBC_WITH_MD5              Not implemented.
+	{ "SSL_CK_DES_192_EDE3_CBC_WITH_MD5", "DES-CBC3-MD5" },
+};
+
+Map_ciphersuites_to_ciphers::Map_ciphersuites_to_ciphers(Session_auth_data* auth_data)
+	: tls_versions(auth_data->tls_versions)
+	, tls_ciphersuites(auth_data->tls_ciphersuites)
+	, ssl_ciphers(auth_data->ssl_ciphers)
 {
-	return int_auth_option_to_data_member.count(auth_option_variable.c_str()) != 0;
 }
 
-bool verify_connection_timeout_option(const int auth_option_value)
+void Map_ciphersuites_to_ciphers::run()
 {
-	if (0 <= auth_option_value) return true;
-	throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_timeout);
+	if (!need_mapping()) return;
+
+	for (const std::string& tls_ciphersuite : tls_ciphersuites) {
+		auto it{ciphersuites_to_ciphers.find(tls_ciphersuite)};
+		if (it == ciphersuites_to_ciphers.end()) continue;
+		const std::string& aligned_cipher{ it->second };
+		ssl_ciphers.push_back(aligned_cipher);
+	}
 }
 
-bool verify_integer_auth_option(
-	const util::string& auth_option_variable,
-	const int auth_option_value)
+bool Map_ciphersuites_to_ciphers::need_mapping() const
 {
-	if (auth_option_variable == AUTH_OPTION_CONNECT_TIMEOUT) {
-		return verify_connection_timeout_option(auth_option_value);
-	}
-	assert(!"unknown integer auth option");
-	return false;
+	if (tls_ciphersuites.empty()) return false;
+
+	// if user passes ciphers explicitly, then don't add/overwrite anything
+	if (!ssl_ciphers.empty()) return false;
+
+	/*
+		OpenSSL for TLS earlier than v1.3 doesn't support ciphersuites, so in
+		case user allows also older TLS versions (including v1.2 or earlier) the
+		ciphersuites have to be mapped to ciphers
+	*/
+	return std::any_of(
+		tls_versions.begin(),
+		tls_versions.end(),
+		[](const Tls_version& tls_ver){
+			return (tls_ver == Tls_version::unspecified)
+				|| (tls_ver == Tls_version::tls_v1_0)
+				|| (tls_ver == Tls_version::tls_v1_1)
+				|| (tls_ver == Tls_version::tls_v1_2);
+		}
+	);
 }
 
-bool parse_integer_auth_option(
-	const util::string& auth_option_variable,
-	const util::string& auth_option_value,
-	Session_auth_data* auth_data)
+void map_ciphersuites_to_ciphers(Session_auth_data* auth_data)
 {
-	if( auth_option_value.empty() ) {
-		util::ostringstream os;
-		os << "The argument to " << auth_option_variable << " cannot be empty.";
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
-	}
-
-	int value{0};
-	if (!util::to_int(auth_option_value, &value)) {
-		util::ostringstream os;
-		os << "The argument to " << auth_option_variable
-			<< " must be an integer, but it is '" << auth_option_value << "'.";
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
-	}
-
-	if (!verify_integer_auth_option(auth_option_variable, value)) return false;
-
-	auto int_auth_option_data_member{ int_auth_option_to_data_member.at(auth_option_variable.c_str()) };
-	(auth_data->*int_auth_option_data_member) = value;
-	return true;
+	Map_ciphersuites_to_ciphers map_ciphers(auth_data);
+	map_ciphers.run();
 }
 
 } // anonymous namespace
 
-
-/* {{{ extract_ssl_information */
-enum_func_status extract_ssl_information(
-		const util::string& auth_option_variable,
-		const util::string& auth_option_value,
-		Session_auth_data* auth)
-{
-	DBG_ENTER("extract_ssl_information");
-	enum_func_status ret{PASS};
-	using ssl_option_to_data_member = std::map<std::string,
-		std::string Session_auth_data::*>;
-	// Map the ssl option to the proper member, according to:
-	// https://dev.mysql.com/doc/refman/5.7/en/encrypted-connection-options.html
-	static const ssl_option_to_data_member ssl_option_to_data_members = {
-		{ "ssl-key", &Session_auth_data::ssl_local_pk },
-		{ "ssl-cert",&Session_auth_data::ssl_local_cert },
-		{ "ssl-ca", &Session_auth_data::ssl_cafile },
-		{ "ssl-capath", &Session_auth_data::ssl_capath },
-		{ "ssl-cipher", &Session_auth_data::ssl_ciphers },
-		{ "ssl-crl", &Session_auth_data::ssl_crl },
-		{ "ssl-crlpath", &Session_auth_data::ssl_crlpath },
-		{ "tls-version", &Session_auth_data::tls_version }
-	};
-
-	auto it = ssl_option_to_data_members.find(auth_option_variable.c_str());
-	if (it != ssl_option_to_data_members.end()) {
-		if( auth_option_value.empty() ) {
-			DBG_ERR_FMT("The argument to %s shouldn't be empty!",
-						auth_option_variable.c_str() );
-			php_error_docref(nullptr, E_WARNING, "The argument to %s shouldn't be empty!",
-							 auth_option_variable.c_str() );
-			ret = FAIL;
-		} else {
-			auth->*(it->second) = util::to_std_string(auth_option_value);
-			/*
-				* some SSL options provided, assuming
-				* 'required' mode if not specified yet.
-				*/
-			if( auth->ssl_mode == SSL_mode::not_specified ) {
-				ret = set_ssl_mode( auth, SSL_mode::required );
-			} else if (auth->ssl_mode == SSL_mode::disabled) {
-				/*
-					WL#10400 DevAPI: Ensure all Session connections are secure by default
-					- if ssl-mode=disabled is used appearance of any ssl option
-					such as ssl-ca would result in an error
-					- inconsistent options such as  ssl-mode=disabled&ssl-ca=xxxx
-					would result in an error returned to the user
-				*/
-				devapi::RAISE_EXCEPTION(err_msg_inconsistent_ssl_options);
-				ret = FAIL;
-			}
-		}
-	} else {
-		if (boost::iequals(auth_option_variable, "ssl-mode")) {
-			ret = parse_ssl_mode(auth, auth_option_value);
-		} else if (boost::iequals(auth_option_variable, "ssl-no-defaults")) {
-			auth->ssl_no_defaults = true;
-		} else if (boost::iequals(auth_option_variable, "auth")) {
-			ret = parse_auth_mechanism(auth, auth_option_value);
-		} else if (is_integer_auth_option(auth_option_variable)) {
-			if (!parse_integer_auth_option(auth_option_variable, auth_option_value, auth)) {
-				ret = FAIL;
-			}
-		} else {
-			php_error_docref(nullptr,
-							 E_WARNING,
-							 "Unknown secure connection option %s.",
-							 auth_option_variable.c_str());
-			ret = FAIL;
-		}
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
+// ------------------------------------------------------------------------------
 
 /* {{{ extract_auth_information */
-Session_auth_data * extract_auth_information(const util::Url& node_url)
+Session_auth_data* extract_auth_information(const util::Url& node_url)
 {
 	DBG_ENTER("extract_auth_information");
 	enum_func_status ret{PASS};
@@ -3295,7 +3711,7 @@ Session_auth_data * extract_auth_information(const util::Url& node_url)
 						value.c_str()
 						);
 
-			if( FAIL == extract_ssl_information(variable, value, auth.get()) ) {
+			if( FAIL == extract_client_option(variable, value, auth.get()) ) {
 				ret = FAIL;
 				break;
 			}
@@ -3310,9 +3726,9 @@ Session_auth_data * extract_auth_information(const util::Url& node_url)
 	 * If no SSL mode is selected explicitly then
 	 * assume 'required'
 	 */
-	if( auth->ssl_mode == SSL_mode::not_specified ) {
+	if ((auth->ssl_mode == SSL_mode::not_specified) || (auth->ssl_mode == SSL_mode::any_secure)) {
 		DBG_INF_FMT("Setting default SSL mode to REQUIRED");
-		ret = set_ssl_mode( auth.get(), SSL_mode::required );
+		ret = Extract_client_option::assign_ssl_mode( *auth.get(), SSL_mode::required );
 	}
 
 
@@ -3324,6 +3740,8 @@ Session_auth_data * extract_auth_information(const util::Url& node_url)
 	}
 	auth->username = util::to_std_string(node_url.user);
 	auth->password = util::to_std_string(node_url.pass);
+
+	map_ciphersuites_to_ciphers(auth.get());
 
 	DBG_RETURN(auth.release());
 }
@@ -3907,6 +4325,26 @@ void verify_connection_string(const util::string& connection_string)
 }
 /* }}} */
 
+/* {{{ prepare_connect_error_msg */
+util::string prepare_connect_error_msg(
+	const char* last_error_msg,
+	const util::string& aux_msg)
+{
+	util::ostringstream errmsg;
+
+	if (last_error_msg) {
+		errmsg << last_error_msg;
+	}
+
+	if (!aux_msg.empty()) {
+		if (last_error_msg) errmsg << ", ";
+		errmsg << aux_msg;
+	}
+
+	return errmsg.str();
+}
+/* }}} */
+
 /* {{{ connect_session */
 PHP_MYSQL_XDEVAPI_API
 enum_func_status connect_session(
@@ -3950,27 +4388,30 @@ enum_func_status connect_session(
 			}
 			Session_auth_data * auth = extract_auth_information(url.first);
 			if( nullptr != auth ) {
-				/*
-				 * If Unix sockets are used then TLS connections
-				 * are not allowed either implicitly nor explicitly
-				 */
-				if( auth->ssl_mode != SSL_mode::disabled &&
-						url.second == transport_types::unix_domain_socket ) {
-					DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
-					devapi::RAISE_EXCEPTION( err_msg_tls_not_supported_1 );
-					DBG_RETURN(FAIL);
+				if( auth->ssl_mode != SSL_mode::disabled) {
+					/*
+					 * If Unix sockets are used then TLS connections
+					 * are not allowed either implicitly nor explicitly
+					 */
+					if (url.second == transport_types::unix_domain_socket) {
+						DBG_ERR_FMT("Connection aborted, TLS not supported for Unix sockets!");
+						devapi::RAISE_EXCEPTION( err_msg_tls_not_supported_1 );
+						DBG_RETURN(FAIL);
+					} else if (!util::zend::is_openssl_loaded()) {
+						// cannot setup secure connection when openssl is not loaded
+						throw util::xdevapi_exception(
+							util::xdevapi_exception::Code::openssl_unavailable);
+					}
 				}
-				else
-				{
-					DBG_INF_FMT("Attempting to connect...");
-					ret = establish_connection(session,auth,
-											   url.first,url.second);
-					if (ret == FAIL) {
-						const MYSQLND_ERROR_INFO* session_error_info{
-							session->get_data()->get_error_info() };
-						if (session_error_info) {
-							last_error_info = *session_error_info;
-						}
+
+				DBG_INF_FMT("Attempting to connect...");
+				ret = establish_connection(session,auth,
+											url.first,url.second);
+				if (ret == FAIL) {
+					const MYSQLND_ERROR_INFO* session_error_info{
+						session->get_data()->get_error_info() };
+					if (session_error_info) {
+						last_error_info = *session_error_info;
 					}
 				}
 			} else {

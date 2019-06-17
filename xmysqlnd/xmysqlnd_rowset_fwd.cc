@@ -239,9 +239,9 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, add_row)(XMYSQLND_ROWSET_FWD * const result
 		++result->total_row_count;
 	}
 
-	DBG_INF_FMT("row_count=%u  rows_allocated=%u  total_row_count=%u", (uint) result->row_count,
-																	   (uint) result->rows_allocated,
-																	   (uint) result->total_row_count);
+	DBG_INF_FMT("row_count=%u  rows_allocated=%u  total_row_count=%u", static_cast<unsigned int>(result->row_count),
+																	   static_cast<unsigned int>(result->rows_allocated),
+																	   static_cast<unsigned int>(result->total_row_count));
 	DBG_RETURN(PASS);
 }
 /* }}} */
@@ -252,7 +252,7 @@ static size_t
 XMYSQLND_METHOD(xmysqlnd_rowset_fwd, get_row_count)(const XMYSQLND_ROWSET_FWD * const result)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::get_row_count");
-	DBG_INF_FMT("count=%u", (uint) result->row_count);
+	DBG_INF_FMT("count=%u", static_cast<unsigned int>(result->row_count));
 	DBG_RETURN(result->row_count);
 }
 /* }}} */
