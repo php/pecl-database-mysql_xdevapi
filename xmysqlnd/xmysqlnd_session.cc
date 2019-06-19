@@ -1019,10 +1019,7 @@ void xmysqlnd_session_data::free_contents()
 		mysqlnd_stats_end(stats, persistent);
 		stats = nullptr;
 	}
-	if (capabilities) {
-		zval_dtor(&capabilities);
-		capabilities = nullptr;
-	}
+	zval_dtor(&capabilities);
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -4190,6 +4187,7 @@ enum_func_status extract_compression_options(
 			drv::XMYSQLND_SESSION session,
 			const util::string& uri )
 {
+	DBG_ENTER("extract_compression_options");
 	enum_func_status ret{ PASS };
 	static const std::string                  compression_opt{ "compression=" };
 	static const std::pair<std::string, bool> valid_options[] = {
@@ -4224,7 +4222,7 @@ enum_func_status extract_compression_options(
 					value.c_str());
 		ret = FAIL;
 	}
-	return ret;
+	DBG_RETURN(ret);
 }
 /* }}} */
 
