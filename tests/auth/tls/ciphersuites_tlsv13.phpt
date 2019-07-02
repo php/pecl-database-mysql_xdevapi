@@ -1,5 +1,5 @@
 --TEST--
-mysqlx incorrect ciphersuites for TLSv1.3
+mysqlx TLS ciphersuites for TLSv1.3
 --SKIPIF--
 <?php
 require(__DIR__."/tls_utils.inc");
@@ -12,15 +12,15 @@ skip_if_tls_v13_not_supported();
 require_once(__DIR__."/tls_utils.inc");
 
 test_tls_connection(
-	'tls-versions=TLSv1.3&tls-ciphersuites=TLS_DH_anon_WITH_3DES_EDE_CBC_SHA'
-	, false);
+	'tls-versions=TLSv1.3&tls-ciphersuites=TLS_AES_128_GCM_SHA256'
+	, true);
 test_tls_connection(
-	'tls-versions=[TLSv1.3]&tls-ciphersuites=[TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA]'
-	, false);
+	'tls-versions=[TLSv1.3]&tls-ciphersuites=[TLS_AES_256_GCM_SHA384]'
+	, true);
 test_tls_connection(
 	'tls-version=TLSv1.3&'.
-	'tls-ciphersuites=[SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA,TLS_RSA_WITH_RC4_128_SHA,TLS_DH_anon_WITH_DES_CBC_SHA]'
-	, false);
+	'tls-ciphersuites=[TLS_CHACHA20_POLY1305_SHA256,TLS_AES_128_CCM_SHA256,TLS_AES_128_CCM_8_SHA256]'
+	, true);
 
 verify_expectations();
 print "done!\n";
