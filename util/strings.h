@@ -177,6 +177,7 @@ struct string_view
 // ------------------------------------------------------------------------------
 
 using std_strings = std::vector<std::string>;
+using std_stringset = std::set<std::string>;
 
 } // namespace util
 

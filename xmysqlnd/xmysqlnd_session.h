@@ -189,7 +189,6 @@ struct Session_auth_data
 
 	//SSL information
 	SSL_mode ssl_mode;
-	bool ssl_enabled;
 	bool ssl_no_defaults;
 	Tls_versions tls_versions;
 	util::std_strings tls_ciphersuites;

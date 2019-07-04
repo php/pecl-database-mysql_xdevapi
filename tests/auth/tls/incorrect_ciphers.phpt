@@ -44,20 +44,20 @@ require(__DIR__."/tls_utils.inc");
 clean_test_db();
 ?>
 --EXPECTF--
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
-[10068][HY000] Cannot connect to MySQL by using SSL
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
+[10070][HY000] No valid cipher found in the ssl ciphers list.
 [10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
 [10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
 [10045][HY000] Inconsistent ssl options secure option 'ssl-ciphers' can not be specified when SSL connections are disabled

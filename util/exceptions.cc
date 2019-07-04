@@ -36,7 +36,7 @@ const char* const General_sql_state{ GENERAL_SQL_STATE };
 const char* const Unknown_error_message{ "Unknown error" };
 
 /* {{{ mysqlx::util::code_to_err_msg */
-const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
+const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::fetch_fail, "Couldn't fetch data" },
 	{ xdevapi_exception::Code::meta_fail, "Unable to extract metadata" },
 	{ xdevapi_exception::Code::add_doc, "Error adding document" },
@@ -117,6 +117,10 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg = {
 	{ xdevapi_exception::Code::cannot_connect_by_ssl, "Cannot connect to MySQL by using SSL" },
 	{ xdevapi_exception::Code::cannot_setup_tls,
 		"Negative response from the server, not able to setup TLS." },
+	{ xdevapi_exception::Code::no_valid_cipher_in_list,
+		"No valid cipher found in the ssl ciphers list."},
+	{ xdevapi_exception::Code::no_valid_ciphersuite_in_list,
+		"No valid cipher suite found in the tls ciphersuites list."},
 };
 /* }}} */
 
