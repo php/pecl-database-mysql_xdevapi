@@ -1201,7 +1201,7 @@ xmysqlnd_session_data_set_client_id(void * context, const size_t id)
 	enum_func_status ret{FAIL};
 	xmysqlnd_session_data * session = (xmysqlnd_session_data *) context;
 	DBG_ENTER("xmysqlnd_session_data_set_client_id");
-	DBG_INF_FMT("id=" MYSQLND_LLU_SPEC, id);
+	DBG_INF_FMT("id=" MYSQLX_LLU_SPEC, id);
 	if (context) {
 		session->client_id = id;
 		ret = PASS;

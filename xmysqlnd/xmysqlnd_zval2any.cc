@@ -382,10 +382,10 @@ scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
 	switch (scalar.type()) {
 		case Scalar_Type_V_SINT:
-			ret.l = mnd_sprintf(&ret.s, 0, MYSQLND_LLU_SPEC, scalar.v_signed_int());
+			ret.l = mnd_sprintf(&ret.s, 0, MYSQLX_LLU_SPEC, scalar.v_signed_int());
 			break;
 		case Scalar_Type_V_UINT:
-			ret.l = mnd_sprintf(&ret.s, 0, MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+			ret.l = mnd_sprintf(&ret.s, 0, MYSQLX_LLU_SPEC, scalar.v_unsigned_int());
 			break;
 		case Scalar_Type_V_NULL:
 			break;
@@ -434,7 +434,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 			} else
 #endif
 			{
-				DBG_INF_FMT("value=" MYSQLND_LLU_SPEC, scalar.v_signed_int());
+				DBG_INF_FMT("value=" MYSQLX_LLU_SPEC, scalar.v_signed_int());
 			}
 			break;
 		case Scalar_Type_V_UINT:
@@ -447,7 +447,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
 				DBG_INF_FMT("value=%s", tmp);
 			} else {
-				DBG_INF_FMT("value=" MYSQLND_LLU_SPEC, scalar.v_unsigned_int());
+				DBG_INF_FMT("value=" MYSQLX_LLU_SPEC, scalar.v_unsigned_int());
 			}
 			break;
 		case Scalar_Type_V_NULL:
