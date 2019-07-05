@@ -75,7 +75,7 @@ const MYSQLND_CSTRING namespace_xplugin{ "xplugin", sizeof("xplugin") - 1 };
 
 namespace {
 
-#if (PHP_VERSION_ID >= 70400) && defined(STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT)
+#if PHP_VERSION_ID >= 70400
 #define TLSv13_IS_SUPPORTED
 #endif
 

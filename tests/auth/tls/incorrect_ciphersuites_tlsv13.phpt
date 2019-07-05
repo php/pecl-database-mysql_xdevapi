@@ -31,4 +31,7 @@ require_once(__DIR__."/tls_utils.inc");
 clean_test_db();
 ?>
 --EXPECTF--
+[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
+[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
+[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
 done!%A
