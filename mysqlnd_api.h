@@ -110,6 +110,9 @@ extern "C" {
 
 } // extern "C"
 
+#include <cinttypes>
+#define MYSQLX_LLU_SPEC "%"##PRIu64
+
 #endif // MYSQL_XDEVAPI_MYSQLND_API_H
 
 /*
