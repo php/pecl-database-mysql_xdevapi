@@ -258,15 +258,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					}
 					do {
 						if (!util::pb::read_variant_64(input_stream, &neg)) break;
-						DBG_INF_FMT("neg  =" MYSQLND_LLU_SPEC, neg);
+						DBG_INF_FMT("neg  =" PRIu64, neg);
 						if (!util::pb::read_variant_64(input_stream, &hours)) break;
-						DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
+						DBG_INF_FMT("hours=" PRIu64, hours);
 						if (!util::pb::read_variant_64(input_stream, &minutes)) break;
-						DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
+						DBG_INF_FMT("mins =" PRIu64, minutes);
 						if (!util::pb::read_variant_64(input_stream, &seconds)) break;
-						DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
+						DBG_INF_FMT("secs =" PRIu64, seconds);
 						if (!util::pb::read_variant_64(input_stream, &useconds)) break;
-						DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
+						DBG_INF_FMT("usecs=" PRIu64, useconds);
 					} while (0);
 					#define TIME_FMT_STR "%s%02u:%02u:%02u.%08u"
 					ZVAL_NEW_STR(&zv, strpprintf(0, TIME_FMT_STR , neg? "-":"",
@@ -296,19 +296,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_data_row, decode)
 					}
 					do {
 						if (!util::pb::read_variant_64(input_stream, &year)) break;
-						DBG_INF_FMT("year =" MYSQLND_LLU_SPEC, year);
+						DBG_INF_FMT("year =" PRIu64, year);
 						if (!util::pb::read_variant_64(input_stream, &month)) break;
-						DBG_INF_FMT("month=" MYSQLND_LLU_SPEC, month);
+						DBG_INF_FMT("month=" PRIu64, month);
 						if (!util::pb::read_variant_64(input_stream, &day)) break;
-						DBG_INF_FMT("day  =" MYSQLND_LLU_SPEC, day);
+						DBG_INF_FMT("day  =" PRIu64, day);
 						if (!util::pb::read_variant_64(input_stream, &hours)) break;
-						DBG_INF_FMT("hours=" MYSQLND_LLU_SPEC, hours);
+						DBG_INF_FMT("hours=" PRIu64, hours);
 						if (!util::pb::read_variant_64(input_stream, &minutes)) break;
-						DBG_INF_FMT("mins =" MYSQLND_LLU_SPEC, minutes);
+						DBG_INF_FMT("mins =" PRIu64, minutes);
 						if (!util::pb::read_variant_64(input_stream, &seconds)) break;
-						DBG_INF_FMT("secs =" MYSQLND_LLU_SPEC, seconds);
+						DBG_INF_FMT("secs =" PRIu64, seconds);
 						if (!util::pb::read_variant_64(input_stream, &useconds)) break;
-						DBG_INF_FMT("usecs=" MYSQLND_LLU_SPEC, useconds);
+						DBG_INF_FMT("usecs=" PRIu64, useconds);
 					} while (0);
 					#define DATETIME_FMT_STR "%04u-%02u-%02u %02u:%02u:%02u"
 					ZVAL_NEW_STR(&zv, strpprintf(0, DATETIME_FMT_STR ,

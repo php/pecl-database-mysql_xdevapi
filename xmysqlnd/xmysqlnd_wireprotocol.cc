@@ -1347,15 +1347,15 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 		} else {
 			do {
 				if (!util::pb::read_variant_64(input_stream, &neg)) break;
-				DBG_INF_FMT("neg     =" MYSQLND_LLU_SPEC, neg);
+				DBG_INF_FMT("neg     =" PRIu64, neg);
 				if (!util::pb::read_variant_64(input_stream, &hours)) break;
-				DBG_INF_FMT("hours   =" MYSQLND_LLU_SPEC, hours);
+				DBG_INF_FMT("hours   =" PRIu64, hours);
 				if (!util::pb::read_variant_64(input_stream, &minutes)) break;
-				DBG_INF_FMT("mins    =" MYSQLND_LLU_SPEC, minutes);
+				DBG_INF_FMT("mins    =" PRIu64, minutes);
 				if (!util::pb::read_variant_64(input_stream, &seconds)) break;
-				DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
+				DBG_INF_FMT("secs    =" PRIu64, seconds);
 				if (!util::pb::read_variant_64(input_stream, &useconds)) break;
-				DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
+				DBG_INF_FMT("usecs   =" PRIu64, useconds);
 			} while (0);
 
 			auto str = util::formatter("%s%02u:%02u:%02u.%08u")
@@ -1395,19 +1395,19 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 		} else {
 			do {
 				if (!util::pb::read_variant_64(input_stream, &year)) break;
-				DBG_INF_FMT("year    =" MYSQLND_LLU_SPEC, year);
+				DBG_INF_FMT("year    =" PRIu64, year);
 				if (!util::pb::read_variant_64(input_stream, &month)) break;
-				DBG_INF_FMT("month   =" MYSQLND_LLU_SPEC, month);
+				DBG_INF_FMT("month   =" PRIu64, month);
 				if (!util::pb::read_variant_64(input_stream, &day)) break;
-				DBG_INF_FMT("day     =" MYSQLND_LLU_SPEC, day);
+				DBG_INF_FMT("day     =" PRIu64, day);
 				if (!util::pb::read_variant_64(input_stream, &hours)) break;
-				DBG_INF_FMT("hours   =" MYSQLND_LLU_SPEC, hours);
+				DBG_INF_FMT("hours   =" PRIu64, hours);
 				if (!util::pb::read_variant_64(input_stream, &minutes)) break;
-				DBG_INF_FMT("mins    =" MYSQLND_LLU_SPEC, minutes);
+				DBG_INF_FMT("mins    =" PRIu64, minutes);
 				if (!util::pb::read_variant_64(input_stream, &seconds)) break;
-				DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
+				DBG_INF_FMT("secs    =" PRIu64, seconds);
 				if (!util::pb::read_variant_64(input_stream, &useconds)) break;
-				DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
+				DBG_INF_FMT("usecs   =" PRIu64, useconds);
 			} while (0);
 
 			auto str = util::formatter("%04u-%02u-%02u %02u:%02u:%02u")
@@ -1450,11 +1450,11 @@ enum_func_status xmysqlnd_row_date_field_to_zval(
 		} else {
 			do {
 				if (!util::pb::read_variant_64(input_stream, &year)) break;
-				DBG_INF_FMT("year  =" MYSQLND_LLU_SPEC, year);
+				DBG_INF_FMT("year  =" PRIu64, year);
 				if (!util::pb::read_variant_64(input_stream, &month)) break;
-				DBG_INF_FMT("month =" MYSQLND_LLU_SPEC, month);
+				DBG_INF_FMT("month =" PRIu64, month);
 				if (!util::pb::read_variant_64(input_stream, &day)) break;
-				DBG_INF_FMT("day   =" MYSQLND_LLU_SPEC, day);
+				DBG_INF_FMT("day   =" PRIu64, day);
 			} while (0);
 
 			auto str = util::formatter("%04u-%02u-%02u")

@@ -407,8 +407,8 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			DBG_INF_FMT("limit is %s", has_collection? "SET":"NOT SET");
 			if (has_limit) {
 				const Mysqlx::Crud::Limit & limit = message.limit();
-				DBG_INF_FMT("row_count[%s]=" MYSQLND_LLU_SPEC, limit.has_row_count()? "SET":"NOT SET", limit.has_row_count()? limit.row_count() :0);
-				DBG_INF_FMT("offset   [%s]=" MYSQLND_LLU_SPEC, limit.has_offset()? "SET":"NOT SET", limit.has_offset()? limit.offset() :0);
+				DBG_INF_FMT("row_count[%s]=" PRIu64, limit.has_row_count()? "SET":"NOT SET", limit.has_row_count()? limit.row_count() :0);
+				DBG_INF_FMT("offset   [%s]=" PRIu64, limit.has_offset()? "SET":"NOT SET", limit.has_offset()? limit.offset() :0);
 			}
 
 			DBG_INF_FMT("order_size=%d", message.order_size());
@@ -507,8 +507,8 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			DBG_INF_FMT("limit is %s", has_collection? "SET":"NOT SET");
 			if (has_limit) {
 				const Mysqlx::Crud::Limit & limit = message.limit();
-				DBG_INF_FMT("row_count[%s]=" MYSQLND_LLU_SPEC, limit.has_row_count()? "SET":"NOT SET", limit.has_row_count()? limit.row_count() :0);
-				DBG_INF_FMT("offset   [%s]=" MYSQLND_LLU_SPEC, limit.has_offset()? "SET":"NOT SET", limit.has_offset()? limit.offset() :0);
+				DBG_INF_FMT("row_count[%s]=" PRIu64, limit.has_row_count()? "SET":"NOT SET", limit.has_row_count()? limit.row_count() :0);
+				DBG_INF_FMT("offset   [%s]=" PRIu64, limit.has_offset()? "SET":"NOT SET", limit.has_offset()? limit.offset() :0);
 			}
 
 			DBG_INF_FMT("order_size=%d", message.order_size());
@@ -569,8 +569,8 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 			DBG_INF_FMT("limit is %s", has_collection? "SET":"NOT SET");
 			if (has_limit) {
 				const Mysqlx::Crud::Limit & limit = message.limit();
-				DBG_INF_FMT("row_count[%s]=" MYSQLND_LLU_SPEC, limit.has_row_count()? "SET":"NOT SET", limit.has_row_count()? limit.row_count() :0);
-				DBG_INF_FMT("offset   [%s]=" MYSQLND_LLU_SPEC, limit.has_offset()? "SET":"NOT SET", limit.has_offset()? limit.offset() :0);
+				DBG_INF_FMT("row_count[%s]=" PRIu64, limit.has_row_count()? "SET":"NOT SET", limit.has_row_count()? limit.row_count() :0);
+				DBG_INF_FMT("offset   [%s]=" PRIu64, limit.has_offset()? "SET":"NOT SET", limit.has_offset()? limit.offset() :0);
 			}
 
 			DBG_INF_FMT("order_size=%d", message.order_size());
@@ -641,7 +641,7 @@ xmysqlnd_dump_column_meta(const Mysqlx::Resultset::ColumnMetaData & meta)
 									   has_catalog? meta.catalog().c_str() : "n/a");
 
 	const bool has_collation = meta.has_collation();
-	DBG_INF_FMT("collation[%s] is [" MYSQLND_LLU_SPEC "]", has_collation? "SET":"NOT SET",
+	DBG_INF_FMT("collation[%s] is [" PRIu64 "]", has_collation? "SET":"NOT SET",
 														 has_collation? meta.collation() : 0);
 
 	const bool has_frac_digits = meta.has_fractional_digits();
