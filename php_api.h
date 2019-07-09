@@ -38,8 +38,6 @@ extern "C" {
 
 #include "util/compiler_utils.h"
 
-#define MYSQLX_LLU_SPEC PRIu64
-
 #ifdef PHP_WIN32
 
 #define MYSQLX_HASH_FOREACH_VAL(ht, _val) \
