@@ -45,7 +45,11 @@ struct st_mysqlx_property
 void mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries);
 
 zval * mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_slot, zval * rv);
+#if PHP_VERSION_ID >= 70400
+zval *mysqlx_property_set_value(zval * object, zval * member, zval * value, void ** cache_slot);
+#else
 void mysqlx_property_set_value(zval * object, zval * member, zval * value, void ** cache_slot);
+#endif
 int mysqlx_object_has_property(zval * object, zval *member, int has_set_exists, void ** cache_slot);
 
 void mysqlx_free_property_cb(zval *el);

@@ -126,7 +126,11 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 
 
 /* {{{ mysqlx_property_set_value */
+#if PHP_VERSION_ID >= 70400
+zval *
+#else
 void
+#endif
 mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cache_slot)
 {
 	zval tmp_member;
@@ -158,7 +162,11 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 	if (member == &tmp_member) {
 		zval_dtor(member);
 	}
+#if PHP_VERSION_ID >= 70400
+	DBG_RETURN(value);
+#else
 	DBG_VOID_RETURN;
+#endif
 }
 /* }}} */
 
