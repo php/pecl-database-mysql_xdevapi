@@ -56,15 +56,15 @@ clean_test_db();
 ?>
 --EXPECTF--
 %A[10068][HY000] Cannot connect to MySQL by using SSL
+%A[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
+%A[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
 %A[10068][HY000] Cannot connect to MySQL by using SSL
+%A[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
 %A[10068][HY000] Cannot connect to MySQL by using SSL
+%A[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
+%A[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
 %A[10068][HY000] Cannot connect to MySQL by using SSL
-%A[10068][HY000] Cannot connect to MySQL by using SSL
-%A[10068][HY000] Cannot connect to MySQL by using SSL
-%A[10068][HY000] Cannot connect to MySQL by using SSL
-%A[10068][HY000] Cannot connect to MySQL by using SSL
-%A[10068][HY000] Cannot connect to MySQL by using SSL
-%A[10068][HY000] Cannot connect to MySQL by using SSL
+%A[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
 [10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
 [10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
 [10045][HY000] Inconsistent ssl options secure option 'tls-ciphersuites' can not be specified when SSL connections are disabled

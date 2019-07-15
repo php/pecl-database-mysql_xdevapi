@@ -3,8 +3,8 @@ mysqlx incorrect ciphersuites for TLSv1.3
 --SKIPIF--
 <?php
 require(__DIR__."/tls_utils.inc");
-skip_if_tls_v13_not_supported();
 skip_if_tls_ciphersuites_not_supported();
+skip_if_tls_v13_not_supported();
 ?>
 --FILE--
 <?php
@@ -31,4 +31,7 @@ require_once(__DIR__."/tls_utils.inc");
 clean_test_db();
 ?>
 --EXPECTF--
+[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
+[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
+[10071][HY000] No valid cipher suite found in the tls ciphersuites list.
 done!%A

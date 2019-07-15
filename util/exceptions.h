@@ -105,6 +105,8 @@ struct xdevapi_exception : public std::runtime_error
 		empty_tls_versions,
 		cannot_connect_by_ssl,
 		cannot_setup_tls,
+		no_valid_cipher_in_list,
+		no_valid_ciphersuite_in_list,
 	};
 
 	xdevapi_exception(Code code);

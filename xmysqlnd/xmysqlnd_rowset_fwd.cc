@@ -54,7 +54,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, next)(XMYSQLND_ROWSET_FWD * const result,
 {
 	const zend_bool no_more_on_the_line = !result->stmt->get_msg_stmt_exec().reader_ctx.has_more_rows_in_set;
 	DBG_ENTER("xmysqlnd_rowset_fwd::next");
-	DBG_INF_FMT("row_cursor=" MYSQLND_LLU_SPEC "  row_count=" MYSQLND_LLU_SPEC, result->row_cursor, result->row_count);
+	DBG_INF_FMT("row_cursor=" MYSQLX_LLU_SPEC "  row_count=" MYSQLX_LLU_SPEC, result->row_cursor, result->row_count);
 
 	if ((result->row_count - result->row_cursor) == 1 && !no_more_on_the_line) {
 		DBG_INF_FMT("We have to prefetch %u row(s)", result->prefetch_rows);
@@ -101,7 +101,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_one)(XMYSQLND_ROWSET_FWD * const resu
 	const unsigned int field_count = result->meta->m->get_field_count(result->meta);
 	const size_t row_count = result->row_count;
 	DBG_ENTER("xmysqlnd_rowset_fwd::fetch_one");
-	DBG_INF_FMT("row_cursor=" MYSQLND_LLU_SPEC "  row_count=" MYSQLND_LLU_SPEC, result->row_cursor, result->row_count);
+	DBG_INF_FMT("row_cursor=" MYSQLX_LLU_SPEC "  row_count=" MYSQLX_LLU_SPEC, result->row_cursor, result->row_count);
 	if (row_cursor >= row_count || !result->rows[row_cursor]) {
 		DBG_RETURN(FAIL);
 	}
@@ -153,7 +153,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, fetch_all)(XMYSQLND_ROWSET_FWD * const resu
 		/* Remove what we have, as we don't need it anymore */
 		result->m.free_rows_contents(result, stats, error_info);
 	}
-	DBG_INF_FMT("total_row_count=" MYSQLND_LLU_SPEC, result->total_row_count);
+	DBG_INF_FMT("total_row_count=" MYSQLX_LLU_SPEC, result->total_row_count);
 	DBG_RETURN(PASS);
 }
 /* }}} */

@@ -79,7 +79,16 @@ namespace {
 #define TLSv13_IS_SUPPORTED
 #endif
 
-/* {{{ xmysqlnd_is_capability_present */
+inline bool is_tlsv13_supported() {
+#ifdef TLSv13_IS_SUPPORTED
+	return true;
+#else
+	return false;
+#endif
+}
+
+
+/* {{{ xmysqlnd_get_tls_capability */
 zend_bool
 xmysqlnd_is_capability_present(
 	const zval* capabilities,
@@ -143,7 +152,6 @@ bool set_connection_options(
 Session_auth_data::Session_auth_data() :
 	port{ 0 },
 	ssl_mode{ SSL_mode::not_specified },
-	ssl_enabled{ false },
 	ssl_no_defaults{ true } {
 }
 
@@ -1306,7 +1314,7 @@ xmysqlnd_session_data_set_client_id(void * context, const size_t id)
 	enum_func_status ret{FAIL};
 	xmysqlnd_session_data * session = (xmysqlnd_session_data *) context;
 	DBG_ENTER("xmysqlnd_session_data_set_client_id");
-	DBG_INF_FMT("id=" MYSQLND_LLU_SPEC, id);
+	DBG_INF_FMT("id=" MYSQLX_LLU_SPEC, id);
 	if (context) {
 		session->client_id = id;
 		ret = PASS;
@@ -3593,6 +3601,8 @@ const Ciphersuites_to_ciphers Map_ciphersuites_to_ciphers::ciphersuites_to_ciphe
 	{ "SSL_CK_DES_192_EDE3_CBC_WITH_MD5", "DES-CBC3-MD5" },
 };
 
+// -------------------------------
+
 Map_ciphersuites_to_ciphers::Map_ciphersuites_to_ciphers(Session_auth_data* auth_data)
 	: tls_versions(auth_data->tls_versions)
 	, tls_ciphersuites(auth_data->tls_ciphersuites)
@@ -3636,10 +3646,670 @@ bool Map_ciphersuites_to_ciphers::need_mapping() const
 	);
 }
 
+// -------------------------------
+
 void map_ciphersuites_to_ciphers(Session_auth_data* auth_data)
 {
 	Map_ciphersuites_to_ciphers map_ciphers(auth_data);
 	map_ciphers.run();
+}
+
+// ------------------------------------------------------------------------------
+
+class Filter_ciphers
+{
+public:
+	Filter_ciphers(Session_auth_data* auth_data);
+	void run();
+
+private:
+	void process_ciphersuites();
+	void filter_ciphersuites();
+	bool is_ciphersuite_forbidden(const std::string& ciphersuite) const;
+	bool need_default_ciphersuites() const;
+
+	void process_ciphers();
+	void filter_ciphers();
+	bool is_cipher_forbidden(const std::string& cipher) const;
+	bool need_default_ciphers() const;
+
+private:
+	static const util::std_strings allowed_ciphersuites;
+	static const util::std_strings allowed_ciphers;
+
+	const Tls_versions& tls_versions;
+	util::std_strings& tls_ciphersuites;
+	util::std_strings& ssl_ciphers;
+};
+
+// -------------------------------
+
+const util::std_strings Filter_ciphers::allowed_ciphers
+{
+	// ---------------------
+	// Mandatory
+	// ---------------------
+	// P1 TLSv1.2
+	"ECDHE-ECDSA-AES128-GCM-SHA256",
+
+	// P1 TLSv1.2
+	"ECDHE-ECDSA-AES256-GCM-SHA384",
+
+	// P1 TLSv1.2
+	"ECDHE-RSA-AES128-GCM-SHA256",
+
+	// P1 TLSv1.2
+	"ECDHE-ECDSA-AES128-SHA256",
+
+	// P1 TLSv1.2
+	"ECDHE-RSA-AES128-SHA256",
+
+
+	// ---------------------
+	// Approved
+	// ---------------------
+	// A1 TLSv1.3
+	"TLS_AES_128_GCM_SHA256",
+
+	// A1 TLSv1.3
+	"TLS_AES_256_GCM_SHA384",
+
+	// A1 TLSv1.3
+	"TLS_CHACHA20_POLY1305_SHA256",
+
+	// A1 TLSv1.3
+	"TLS_AES_128_CCM_SHA256",
+
+	// A1 TLSv1.3
+	"TLS_AES_128_CCM_8_SHA256",
+
+	// A1 TLSv1.2
+	"ECDHE-RSA-AES256-GCM-SHA384",
+
+	// A1 TLSv1.2
+	"ECDHE-ECDSA-AES256-SHA384",
+
+	// A1 TLSv1.2
+	"ECDHE-RSA-AES256-SHA384",
+
+	// A1 TLSv1.2
+	"DHE-RSA-AES128-GCM-SHA256",
+
+	// A1 TLSv1.2
+	"DHE-DSS-AES128-GCM-SHA256",
+
+	// A1 TLSv1.2
+	"DHE-RSA-AES128-SHA256",
+
+	// A1 TLSv1.2
+	"DHE-DSS-AES128-SHA256",
+
+	// A1 TLSv1.2
+	"DHE-DSS-AES256-GCM-SHA384",
+
+	// A1 TLSv1.2
+	"DHE-RSA-AES256-SHA256",
+
+	// A1 TLSv1.2
+	"DHE-DSS-AES256-SHA256",
+
+	// A1 TLSv1.2
+	"DHE-RSA-AES256-GCM-SHA384",
+
+	// A1 TLSv1.2
+	"ECDHE-ECDSA-CHACHA20-POLY1305",
+
+	// A1 TLSv1.2
+	"ECDHE-RSA-CHACHA20-POLY1305",
+
+	// A2 TLSv1.2
+	"DH-DSS-AES128-GCM-SHA256",
+
+	// A2 TLSv1.2
+	"ECDH-ECDSA-AES128-GCM-SHA256",
+
+	// A2 TLSv1.2
+	"DH-DSS-AES256-GCM-SHA384",
+
+	// A2 TLSv1.2
+	"ECDH-ECDSA-AES256-GCM-SHA384",
+
+	// A2 TLSv1.2
+	"DH-DSS-AES128-SHA256",
+
+	// A2 TLSv1.2
+	"ECDH-ECDSA-AES128-SHA256",
+
+	// A2 TLSv1.2
+	"DH-DSS-AES256-SHA256",
+
+	// A2 TLSv1.2
+	"ECDH-ECDSA-AES256-SHA384",
+
+	// A2 TLSv1.2
+	"DH-RSA-AES128-GCM-SHA256",
+
+	// A2 TLSv1.2
+	"ECDH-RSA-AES128-GCM-SHA256",
+
+	// A2 TLSv1.2
+	"DH-RSA-AES256-GCM-SHA384",
+
+	// A2 TLSv1.2
+	"ECDH-RSA-AES256-GCM-SHA384",
+
+	// A2 TLSv1.2
+	"DH-RSA-AES128-SHA256",
+
+	// A2 TLSv1.2
+	"ECDH-RSA-AES128-SHA256",
+
+	// A2 TLSv1.2
+	"DH-RSA-AES256-SHA256",
+
+	// A2 TLSv1.2
+	"ECDH-RSA-AES256-SHA384",
+
+
+	// ---------------------
+	// Deprecated
+	// ---------------------
+	// D1 TLSv1.2, TLSv1.1
+	"ECDHE-RSA-AES128-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"ECDHE-ECDSA-AES128-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"ECDHE-RSA-AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"ECDHE-ECDSA-AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"DHE-DSS-AES128-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"DHE-RSA-AES128-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"DHE-DSS-AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"DHE-RSA-AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"DH-DSS-AES128-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"ECDH-ECDSA-AES128-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"DH-DSS-AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"ECDH-ECDSA-AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"DH-RSA-AES128-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"ECDH-RSA-AES128-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"DH-RSA-AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"ECDH-RSA-AES256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"CAMELLIA256-SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"CAMELLIA128-SHA",
+
+	// D1 TLSv1.2
+	"AES128-GCM-SHA256",
+
+	// D1 TLSv1.2
+	"AES256-GCM-SHA384",
+
+	// D1 TLSv1.2
+	"AES128-SHA256",
+
+	// D1 TLSv1.2
+	"AES256-SHA256",
+
+	// D1 TLSv1.2
+	"AES128-SHA",
+
+
+	// D2 TLSv1.2, TLSv1.1
+	// "N/A", unavailable - only ciphersuite counterpart available
+
+	// D2 TLSv1.2, TLSv1.1
+	// "N/A", unavailable - only ciphersuite counterpart available
+
+	// D2 TLSv1.2, TLSv1.1
+	"DHE-DSS-DES-CBC3-SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"DHE-RSA-DES-CBC3-SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"ECDH-RSA-DES-CBC3-SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"ECDH-ECDSA-DES-CBC3-SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"ECDHE-RSA-DES-CBC3-SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"ECDHE-ECDSA-DES-CBC3-SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"DES-CBC3-SHA",
+
+	// D3 TLSv1.0
+	// All approved ciphers - this includes all ciphers from the Mandatory and
+	// Approved categories when used with TLSv1.0
+}; // allowed_ciphers
+
+// -------------------------------
+
+const util::std_strings Filter_ciphers::allowed_ciphersuites
+{
+	// ---------------------
+	// Mandatory
+	// ---------------------
+	// P1 TLSv1.2
+	"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+
+	// P1 TLSv1.2
+	"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+
+	// P1 TLSv1.2
+	"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+
+	// P1 TLSv1.2
+	"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+
+	// P1 TLSv1.2
+	"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+
+
+	// ---------------------
+	// Approved
+	// ---------------------
+	// A1 TLSv1.3
+	"TLS_AES_128_GCM_SHA256",
+
+	// A1 TLSv1.3
+	"TLS_AES_256_GCM_SHA384",
+
+	// A1 TLSv1.3
+	"TLS_CHACHA20_POLY1305_SHA256",
+
+	// A1 TLSv1.3
+	"TLS_AES_128_CCM_SHA256",
+
+	// A1 TLSv1.3
+	"TLS_AES_128_CCM_8_SHA256",
+
+	// A1 TLSv1.2
+	"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+
+	// A1 TLSv1.2
+	"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+
+	// A1 TLSv1.2
+	"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+
+	// A1 TLSv1.2
+	"TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+
+	// A1 TLSv1.2
+	"TLS_DHE_DSS_WITH_AES_128_GCM_SHA256",
+
+
+	// A1 TLSv1.2
+	"TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+
+	// A1 TLSv1.2
+	"TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
+
+	// A1 TLSv1.2
+	"TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
+
+	// A1 TLSv1.2
+	"TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+
+	// A1 TLSv1.2
+	"TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+
+	// A1 TLSv1.2
+	"TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+
+	// A1 TLSv1.2
+	"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+
+	// A1 TLSv1.2
+	"TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_DH_DSS_WITH_AES_128_GCM_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_DH_DSS_WITH_AES_256_GCM_SHA384",
+
+	// A2 TLSv1.2
+	"TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
+
+	// A2 TLSv1.2
+	"TLS_DH_DSS_WITH_AES_128_CBC_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_DH_DSS_WITH_AES_256_CBC_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
+
+	// A2 TLSv1.2
+	"TLS_DH_RSA_WITH_AES_128_GCM_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_DH_RSA_WITH_AES_256_GCM_SHA384",
+
+	// A2 TLSv1.2
+	"TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
+
+	// A2 TLSv1.2
+	"TLS_DH_RSA_WITH_AES_128_CBC_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_DH_RSA_WITH_AES_256_CBC_SHA256",
+
+	// A2 TLSv1.2
+	"TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
+
+
+	// ---------------------
+	// Deprecated
+	// ---------------------
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_DH_DSS_WITH_AES_128_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_RSA_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_DH_DSS_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_DH_RSA_WITH_AES_128_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_DH_RSA_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_RSA_WITH_CAMELLIA_256_CBC_SHA",
+
+	// D1 TLSv1.2, TLSv1.1
+	"TLS_RSA_WITH_CAMELLIA_128_CBC_SHA",
+
+	// D1 TLSv1.2
+	"TLS_RSA_WITH_AES_128_GCM_SHA256",
+
+	// D1 TLSv1.2
+	"TLS_RSA_WITH_AES_256_GCM_SHA384",
+
+	// D1 TLSv1.2
+	"TLS_RSA_WITH_AES_128_CBC_SHA256",
+
+	// D1 TLSv1.2
+	"TLS_RSA_WITH_AES_256_CBC_SHA256",
+
+	// D1 TLSv1.2
+	"TLS_RSA_WITH_AES_128_CBC_SHA",
+
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+
+	// D2 TLSv1.2, TLSv1.1
+	"TLS_RSA_WITH_3DES_EDE_CBC_SHA",
+
+	// D3 TLSv1.0
+	// All approved ciphers - this includes all ciphers from the Mandatory and
+	// Approved categories when used with TLSv1.0
+}; // allowed_ciphersuites
+
+// -------------------------------
+
+Filter_ciphers::Filter_ciphers(Session_auth_data* auth_data)
+	: tls_versions(auth_data->tls_versions)
+	, tls_ciphersuites(auth_data->tls_ciphersuites)
+	, ssl_ciphers(auth_data->ssl_ciphers)
+{
+}
+
+void Filter_ciphers::run()
+{
+	process_ciphersuites();
+	process_ciphers();
+}
+
+// -------------
+
+void Filter_ciphers::process_ciphersuites()
+{
+	if (!tls_ciphersuites.empty()) {
+		filter_ciphersuites();
+		return;
+	}
+
+	if (need_default_ciphersuites()) {
+		tls_ciphersuites = allowed_ciphersuites;
+	}
+}
+
+void Filter_ciphers::filter_ciphersuites()
+{
+	auto it{ std::remove_if(
+		tls_ciphersuites.begin(),
+		tls_ciphersuites.end(),
+		[this](const std::string& ciphersuite) { return is_ciphersuite_forbidden(ciphersuite); })
+	};
+	tls_ciphersuites.erase(it, tls_ciphersuites.end());
+	if (tls_ciphersuites.empty()) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::no_valid_ciphersuite_in_list);
+	}
+}
+
+bool Filter_ciphers::is_ciphersuite_forbidden(const std::string& ciphersuite) const
+{
+	static const util::std_stringset allowed_ciphersuite_set(
+		allowed_ciphersuites.begin(),
+		allowed_ciphersuites.end());
+	return allowed_ciphersuite_set.find(ciphersuite) == allowed_ciphersuite_set.end();
+}
+
+/*
+	OpenSSL for TLS earlier than v1.3 doesn't support ciphersuites, so default
+	ciphpersuites are needed if below conditions are fulfilled:
+	- user doesn't provide list of ciphpersuites explicitly, and
+	- TLSv1.3 or newer is supported
+	- user doesn't provide list of TLS versions explicitly, or...
+	- ...among them is TLSv1.3 (or newer)
+*/
+bool Filter_ciphers::need_default_ciphersuites() const
+{
+	assert(tls_ciphersuites.empty());
+
+	if (tls_versions.empty()) {
+		return is_tlsv13_supported();
+	}
+
+	if (std::find(
+			tls_versions.begin(),
+			tls_versions.end(),
+			Tls_version::tls_v1_3) != tls_versions.end()) {
+		return true;
+	}
+
+	return is_tlsv13_supported()
+		&& (std::find(
+			tls_versions.begin(),
+			tls_versions.end(),
+			Tls_version::unspecified) != tls_versions.end());
+}
+
+// -------------
+
+void Filter_ciphers::process_ciphers()
+{
+	if (!ssl_ciphers.empty()) {
+		filter_ciphers();
+		return;
+	}
+
+	if (need_default_ciphers()) {
+		ssl_ciphers = allowed_ciphers;
+	}
+}
+
+void Filter_ciphers::filter_ciphers()
+{
+	auto it{ std::remove_if(
+		ssl_ciphers.begin(),
+		ssl_ciphers.end(),
+		[this](const std::string& cipher) { return is_cipher_forbidden(cipher); })
+	};
+	ssl_ciphers.erase(it, ssl_ciphers.end());
+	if (ssl_ciphers.empty()) {
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::no_valid_cipher_in_list);
+	}
+}
+
+bool Filter_ciphers::is_cipher_forbidden(const std::string& cipher) const
+{
+	static const util::std_stringset allowed_cipher_set(
+		allowed_ciphers.begin(),
+		allowed_ciphers.end());
+	return allowed_cipher_set.find(cipher) == allowed_cipher_set.end();
+}
+
+/*
+	default ciphpers are needed if below conditions are fulfilled:
+	- user doesn't provide list of ciphpers explicitly, and...
+	- user doesn't provide tls versions explicitly, or...
+	- ...among them is at least one TLS version earlier than TLSv1.3 (so operates on ciphers)
+*/
+bool Filter_ciphers::need_default_ciphers() const
+{
+	assert(ssl_ciphers.empty());
+
+	if (tls_versions.empty()) return true;
+
+	return std::any_of(
+		tls_versions.begin(),
+		tls_versions.end(),
+		[](const Tls_version& tls_ver){
+			return (tls_ver == Tls_version::unspecified)
+				|| (tls_ver == Tls_version::tls_v1_0)
+				|| (tls_ver == Tls_version::tls_v1_1)
+				|| (tls_ver == Tls_version::tls_v1_2);
+		}
+	);
+}
+
+// -------------------------------
+
+void filter_ciphers(Session_auth_data* auth_data)
+{
+	Filter_ciphers filter_ciphers(auth_data);
+	filter_ciphers.run();
+}
+
+void prepare_ciphers(Session_auth_data* auth_data)
+{
+	if (auth_data->ssl_mode == SSL_mode::disabled) return;
+
+	map_ciphersuites_to_ciphers(auth_data);
+	filter_ciphers(auth_data);
 }
 
 } // anonymous namespace
@@ -3738,7 +4408,7 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 	auth->username = util::to_std_string(node_url.user);
 	auth->password = util::to_std_string(node_url.pass);
 
-	map_ciphersuites_to_ciphers(auth.get());
+	prepare_ciphers(auth.get());
 
 	DBG_RETURN(auth.release());
 }
