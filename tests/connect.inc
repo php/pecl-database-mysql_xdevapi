@@ -7,6 +7,7 @@
 	*/
 
 	const DEVAPI_EXT_NAME = "mysql_xdevapi";
+	const OPENSSL_EXT_NAME = "openssl";
 
 	if (!function_exists('get_mysqlx_env')) {
 		function get_mysqlx_env($test_envar, $common_envar, $default_value) {
@@ -29,7 +30,7 @@
 	$connect_flags = (int)get_mysqlx_env("MYSQLX_TEST_CONNECT_FLAGS", "MYSQLX_CONNECT_FLAGS", 0);
 	$disable_ssl_opt = 'ssl-mode=disabled';
 	$base_uri = $scheme.'://'.$user.':'.$passwd.'@'.$host.':'.$port;
-	$connection_uri = $base_uri.'/'.$default_schema.'?'.$disable_ssl_opt;
+	$connection_uri = $base_uri.'/'.$default_schema;
 
 	$test_schema_name = $db;
 	$test_table_name = "test_table";
@@ -90,11 +91,23 @@
 		}
 	}
 
-	if (!function_exists('is_mysql_xdevapi_builtin')) {
-		function is_mysql_xdevapi_builtin() {
+	if (!function_exists('is_module_builtin')) {
+		function is_module_builtin($module_name) {
 			$command = PHP_BINARY." -nm";
 			exec($command, $builtin_modules, $retval);
-			return ($retval == 0) && in_array(DEVAPI_EXT_NAME, $builtin_modules);
+			return ($retval == 0) && in_array($module_name, $builtin_modules);
+		}
+	}
+
+	if (!function_exists('is_mysql_xdevapi_builtin')) {
+		function is_mysql_xdevapi_builtin() {
+			return is_module_builtin(DEVAPI_EXT_NAME);
+		}
+	}
+
+	if (!function_exists('is_openssl_builtin')) {
+		function is_openssl_builtin() {
+			return is_module_builtin(OPENSSL_EXT_NAME);
 		}
 	}
 
