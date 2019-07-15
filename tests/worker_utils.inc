@@ -37,10 +37,18 @@ function resolve_extension_dir() {
 	return $extension_dir;
 }
 
-function prepare_extension_filename() {
+function prepare_extension_filename($ext_name) {
 	$ext_lib_name_prefix = is_running_on_windows() ? "php_" : "";
-	$extension_fname = $ext_lib_name_prefix.DEVAPI_EXT_NAME.'.'.PHP_SHLIB_SUFFIX;
+	$extension_fname = $ext_lib_name_prefix.$ext_name.'.'.PHP_SHLIB_SUFFIX;
 	return $extension_fname;
+}
+
+function prepare_mysql_xdevapi_ext_filename() {
+	return prepare_extension_filename(DEVAPI_EXT_NAME);
+}
+
+function prepare_openssl_ext_filename() {
+	return prepare_extension_filename(OPENSSL_EXT_NAME);
 }
 
 function prepare_worker_cmdline($worker_path) {
@@ -55,7 +63,10 @@ function prepare_worker_cmdline($worker_path) {
 
 	$worker_cmd .= " -d extension_dir=".resolve_extension_dir();
 	if (!is_mysql_xdevapi_builtin()) {
-		$worker_cmd .= " -d extension=".prepare_extension_filename();
+		$worker_cmd .= " -d extension=".prepare_mysql_xdevapi_ext_filename();
+	}
+	if (!is_openssl_builtin()) {
+		$worker_cmd .= " -d extension=".prepare_openssl_ext_filename();
 	}
 
 	$worker_cmd .= " ".$worker_path;
