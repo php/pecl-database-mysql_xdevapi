@@ -3798,7 +3798,7 @@ const util::std_strings Filter_ciphers::allowed_ciphers
 	"DES-CBC3-SHA",
 
 	// D3 TLSv1.0
-	// All approved ciphers - this includes all ciphers from the Mandatory and 
+	// All approved ciphers - this includes all ciphers from the Mandatory and
 	// Approved categories when used with TLSv1.0
 }; // allowed_ciphers
 
@@ -4036,7 +4036,7 @@ const util::std_strings Filter_ciphers::allowed_ciphersuites
 	"TLS_RSA_WITH_3DES_EDE_CBC_SHA",
 
 	// D3 TLSv1.0
-	// All approved ciphers - this includes all ciphers from the Mandatory and 
+	// All approved ciphers - this includes all ciphers from the Mandatory and
 	// Approved categories when used with TLSv1.0
 }; // allowed_ciphersuites
 
@@ -4092,7 +4092,7 @@ bool Filter_ciphers::is_ciphersuite_forbidden(const std::string& ciphersuite) co
 
 /*
 	OpenSSL for TLS earlier than v1.3 doesn't support ciphersuites, so default
-	ciphpersuites are needed if below conditions are fulfilled: 
+	ciphpersuites are needed if below conditions are fulfilled:
 	- user doesn't provide list of ciphpersuites explicitly, and
 	- TLSv1.3 or newer is supported
 	- user doesn't provide list of TLS versions explicitly, or...
@@ -4113,7 +4113,7 @@ bool Filter_ciphers::need_default_ciphersuites() const
 		return true;
 	}
 
-	return is_tlsv13_supported() 
+	return is_tlsv13_supported()
 		&& (std::find(
 			tls_versions.begin(),
 			tls_versions.end(),
@@ -4156,7 +4156,7 @@ bool Filter_ciphers::is_cipher_forbidden(const std::string& cipher) const
 }
 
 /*
-	default ciphpers are needed if below conditions are fulfilled: 
+	default ciphpers are needed if below conditions are fulfilled:
 	- user doesn't provide list of ciphpers explicitly, and...
 	- user doesn't provide tls versions explicitly, or...
 	- ...among them is at least one TLS version earlier than TLSv1.3 (so operates on ciphers)
