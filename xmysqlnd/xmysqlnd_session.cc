@@ -4847,6 +4847,100 @@ util::string prepare_connect_error_msg(
 }
 /* }}} */
 
+namespace{
+constexpr const char* dns_srv_prefix{ "mysqlx+" };
+constexpr const char* uri_addr_slash_pref{ "://" };
+constexpr const char* srv_pref{ "srv" };
+}
+
+bool verify_dns_srv_uri(
+	const char* uri_string
+)
+{
+	DBG_ENTER("verify_dns_srv_uri");
+	const auto off{ strlen( dns_srv_prefix ) +
+					strlen( srv_pref ) +
+					strlen( uri_addr_slash_pref ) };
+	if( strlen( uri_string ) <= off ) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::provided_invalid_uri);
+		return false;
+	}
+	/*
+	 * Verify that those three rules are not broken:
+	 *  #1 In SRV mode specifying a port number in the connection
+	 *     string URL should result in error
+	 *  #2 Attempting to specify a Unix socket connection with SRV
+	 *	   look up will result in error
+	 *  #3 Specifying multiple hostnames while also requesting a DNS
+	 *	   SRV lookup will result in an error and error
+	 */
+	std::string uri( uri_string + off );
+	auto pos = uri.find_first_of("@");
+	if( pos != std::string::npos ) {
+		uri = uri.substr( pos + 1 );
+	}
+	//Verify #1
+	pos = uri.find_first_of(':');
+	if( pos != std::string::npos ) {
+		DBG_ERR_FMT("Port number not allowed while using DNS SRV!");
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::port_nbr_not_allowed_with_srv_uri);
+		return false;
+	}
+	//Verify #2
+	if( ( uri[0] == '(' && uri[1] == '/' ) ||
+			uri[0] == '.' || uri[0] == '/' ) {
+		DBG_ERR_FMT("The URI for DNS SRV does not support unix sockets!");
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::unix_socket_not_allowed_with_srv);
+		return false;
+	}
+	//Verify #3 TODO
+
+	php_url * raw_node_url = php_url_parse(uri_string);
+	if( nullptr == raw_node_url ) {
+		DBG_ERR_FMT("URI parsing failed!");
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::unix_socket_not_allowed_with_srv);
+		return false;
+	}
+	util::Url node_url(raw_node_url);
+	php_url_free(raw_node_url);
+	raw_node_url = nullptr;
+	fprintf(stderr,"TO BE VERIFIED: %s (Hostname: %s)\n",
+			uri.c_str(),
+			node_url.host.c_str() );
+	return false;
+}
+
+/* {{{ requested_srv_lookup */
+bool requested_srv_lookup(
+	const char* uri_string,
+	XMYSQLND_SESSION& session
+)
+{
+	bool				  dns_srv_requested{ false };
+	const char*			  res = strstr(uri_string, dns_srv_prefix);
+	if( res ) {
+		if( strncmp( res + strlen(dns_srv_prefix),
+					 srv_pref, strlen(srv_pref)) ) {
+			/*
+			 * Only 'srv' allowed after mysqlx+.
+			 */
+			throw util::xdevapi_exception(
+				util::xdevapi_exception::Code::provided_invalid_uri);
+		} else {
+			verify_dns_srv_uri( uri_string );
+
+			dns_srv_requested = true;
+		}
+	}
+	return dns_srv_requested;
+}
+/* }}} */
+
+
 /* {{{ connect_session */
 PHP_MYSQL_XDEVAPI_API
 enum_func_status connect_session(
@@ -4858,6 +4952,14 @@ enum_func_status connect_session(
 	enum_func_status ret{FAIL};
 	if( nullptr == uri_string ) {
 		DBG_ERR_FMT("The provided URI string is null!");
+		return ret;
+	}
+
+	if( requested_srv_lookup( uri_string, session ) ) {
+		/*
+		 * Requested lookup with DNS SRV.
+		 */
+		fprintf(stderr,"!!! SRV: Requested DNS SRV\n");
 		return ret;
 	}
 	/*

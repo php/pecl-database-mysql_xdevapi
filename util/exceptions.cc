@@ -121,6 +121,12 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 		"No valid cipher found in the ssl ciphers list."},
 	{ xdevapi_exception::Code::no_valid_ciphersuite_in_list,
 		"No valid cipher suite found in the tls ciphersuites list."},
+	{ xdevapi_exception::Code::port_nbr_not_allowed_with_srv_uri,
+		"Specifying a port number with DNS SRV lookup is not allowed"},
+	{ xdevapi_exception::Code::provided_invalid_uri,
+		"Incorrect URI string provided"},
+	{ xdevapi_exception::Code::unix_socket_not_allowed_with_srv,
+		"Using Unix domain sockets with DNS SRV lookup is not allowed"},
 };
 /* }}} */
 
