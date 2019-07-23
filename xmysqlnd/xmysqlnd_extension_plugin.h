@@ -185,11 +185,3 @@ PHP_MYSQL_XDEVAPI_API extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_
 } // namespace mysqlx
 
 #endif /* XMYSQLND_EXTENSION_PLUGIN_H */
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

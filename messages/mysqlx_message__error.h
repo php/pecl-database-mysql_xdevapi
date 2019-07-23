@@ -61,12 +61,3 @@ void mysqlx_unregister_message__error_class(SHUTDOWN_FUNC_ARGS);
 } // namespace mysqlx
 
 #endif /* MYSQLX_MESSAGE__ERROR_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

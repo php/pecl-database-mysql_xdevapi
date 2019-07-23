@@ -43,12 +43,3 @@ void mysqlx_unregister_base_result_interface(SHUTDOWN_FUNC_ARGS);
 } // namespace mysqlx
 
 #endif /* MYSQLX_BASE_RESULT_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -37,12 +37,3 @@ void mysqlx_unregister_message__data_fetch_done_class(SHUTDOWN_FUNC_ARGS);
 } // namespace mysqlx
 
 #endif /* MYSQLX_MESSAGE__DATA_FETCH_DONE_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -40,11 +40,3 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scal
 } // namespace mysqlx
 
 #endif /* XMYSQLND_ZVAL2ANY_H */
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
