@@ -82,7 +82,6 @@ var mysqlx_devapi_sources = [
 	"mysqlx_table__select.cc",
 	"mysqlx_table__update.cc",
 	"mysqlx_warning.cc",
-	"mysqlx_x_session.cc",
 	"php_mysqlx.cc",
 	"php_mysqlx_ex.cc",
 ];

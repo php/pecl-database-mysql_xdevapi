@@ -158,8 +158,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="mysqlx_table__update.h" role="src" />
    <file name="mysqlx_warning.cc" role="src" />
    <file name="mysqlx_warning.h" role="src" />
-   <file name="mysqlx_x_session.cc" role="src" />
-   <file name="mysqlx_x_session.h" role="src" />
    <file name="php_api.h" role="src" />
    <file name="php_mysql_xdevapi.h" role="src" />
    <file name="php_mysqlx.cc" role="src" />
