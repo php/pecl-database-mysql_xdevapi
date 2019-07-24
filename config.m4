@@ -72,7 +72,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		mysqlx_table__select.cc \
 		mysqlx_table__update.cc \
 		mysqlx_warning.cc \
-		mysqlx_x_session.cc \
 		php_mysqlx.cc \
 		php_mysqlx_ex.cc \
 		"

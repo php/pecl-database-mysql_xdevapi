@@ -886,6 +886,31 @@ mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session)
 }
 /* }}} */
 
+/* {{{ proto bool mysqlx\\mysql_xdevapi_getSession( ) */
+MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getSession)
+{
+	util::string_view uri_string;
+
+	RETVAL_NULL();
+
+	DBG_ENTER("mysql_xdevapi_getSession");
+	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s",
+										 &(uri_string.str), &(uri_string.len)))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	if (uri_string.empty()) {
+		php_error_docref(nullptr, E_WARNING, "Empty URI string");
+		DBG_VOID_RETURN;
+	}
+
+	drv::xmysqlnd_new_session_connect(uri_string.str,return_value);
+
+	DBG_VOID_RETURN;
+}
+/* }}} */
+
 } // namespace devapi
 
 } // namespace mysqlx
