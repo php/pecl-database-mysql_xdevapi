@@ -75,8 +75,7 @@ mysqlx_register_x_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * /*
 	{
 		zend_class_entry tmp_ce;
 		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "XSession", mysqlx_x_session_methods);
-		mysqlx_x_session_class_entry = zend_register_internal_class_ex(
-			&tmp_ce, mysqlx_x_session_class_entry);
+		mysqlx_x_session_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
 	zend_hash_init(&mysqlx_x_session_properties, 0, nullptr, mysqlx_free_property_cb, 1);
