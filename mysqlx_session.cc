@@ -838,8 +838,7 @@ mysqlx_register_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysq
 		zend_class_entry tmp_ce;
 		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Session", mysqlx_session_methods);
 		tmp_ce.create_object = php_mysqlx_session_object_allocator;
-		mysqlx_session_class_entry = zend_register_internal_class_ex(
-			&tmp_ce, mysqlx_session_class_entry);
+		mysqlx_session_class_entry = zend_register_internal_class(&tmp_ce);
 	}
 
 	zend_hash_init(&mysqlx_session_properties, 0, nullptr, mysqlx_free_property_cb, 1);
