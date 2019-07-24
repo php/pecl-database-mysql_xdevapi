@@ -86,25 +86,6 @@ var mysqlx_devapi_sources = [
 	"php_mysqlx_ex.cc",
 ];
 
-var mysqlx_messages = [
-	"mysqlx_connection.cc",
-	"mysqlx_message__auth_ok.cc",
-	"mysqlx_message__auth_start.cc",
-	"mysqlx_message__capabilities.cc",
-	"mysqlx_message__capabilities_get.cc",
-	"mysqlx_message__capabilities_set.cc",
-	"mysqlx_message__capability.cc",
-	"mysqlx_message__error.cc",
-	"mysqlx_message__ok.cc",
-	"mysqlx_message__stmt_execute.cc",
-	"mysqlx_message__stmt_execute_ok.cc",
-	"mysqlx_message__data_fetch_done.cc",
-	"mysqlx_pfc.cc",
-	"mysqlx_resultset__column_metadata.cc",
-	"mysqlx_resultset__data_row.cc",
-	"mysqlx_resultset__resultset_metadata.cc"
-];
-
 var mysqlx_util = [
 	"allocator.cc",
 	"exceptions.cc",
@@ -880,7 +861,6 @@ if (!verify_requirements()) {
 process_protobufs();
 
 init_extension(mysqlx_devapi_sources);
-add_sources("messages", mysqlx_messages);
 add_sources("util", mysqlx_util);
 add_sources("xmysqlnd", xmysqlnd_sources);
 add_sources("xmysqlnd\\cdkbase\\core", xmysqlnd_cdkbase_core);

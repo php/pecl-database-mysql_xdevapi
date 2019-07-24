@@ -76,25 +76,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		php_mysqlx_ex.cc \
 		"
 
-	mysqlx_messages=" \
-		messages/mysqlx_connection.cc \
-		messages/mysqlx_message__auth_ok.cc \
-		messages/mysqlx_message__auth_start.cc \
-		messages/mysqlx_message__capabilities.cc \
-		messages/mysqlx_message__capabilities_get.cc \
-		messages/mysqlx_message__capabilities_set.cc \
-		messages/mysqlx_message__capability.cc \
-		messages/mysqlx_message__data_fetch_done.cc \
-		messages/mysqlx_message__error.cc \
-		messages/mysqlx_message__ok.cc \
-		messages/mysqlx_message__stmt_execute.cc \
-		messages/mysqlx_message__stmt_execute_ok.cc \
-		messages/mysqlx_pfc.cc \
-		messages/mysqlx_resultset__column_metadata.cc \
-		messages/mysqlx_resultset__data_row.cc \
-		messages/mysqlx_resultset__resultset_metadata.cc \
-		"
-
 	mysqlx_util=" \
 		util/allocator.cc \
 		util/exceptions.cc \
@@ -171,7 +152,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	MYSQL_XDEVAPI_SOURCES=" \
 		$xmysqlnd_protobuf_sources \
 		$mysqlx_devapi_sources \
-		$mysqlx_messages \
 		$mysqlx_util \
 		$xmysqlnd_sources \
 		$xmysqlnd_cdkbase_parser \
@@ -222,7 +202,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/extra/rapidjson/include])
 
 	PHP_ADD_BUILD_DIR([$ext_srcdir])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/messages])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/phputils])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/crud_parsers])

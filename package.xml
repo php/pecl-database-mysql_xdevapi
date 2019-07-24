@@ -166,40 +166,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="php_mysqlx_ex.h" role="src" />
    <file name="product_data.txt" role="doc" />
    <file name="protobuf_api.h" role="src" />
-   <dir name="messages">
-    <file name="mysqlx_connection.cc" role="src" />
-    <file name="mysqlx_connection.h" role="src" />
-    <file name="mysqlx_message__auth_ok.cc" role="src" />
-    <file name="mysqlx_message__auth_ok.h" role="src" />
-    <file name="mysqlx_message__auth_start.cc" role="src" />
-    <file name="mysqlx_message__auth_start.h" role="src" />
-    <file name="mysqlx_message__capabilities.cc" role="src" />
-    <file name="mysqlx_message__capabilities.h" role="src" />
-    <file name="mysqlx_message__capabilities_get.cc" role="src" />
-    <file name="mysqlx_message__capabilities_get.h" role="src" />
-    <file name="mysqlx_message__capabilities_set.cc" role="src" />
-    <file name="mysqlx_message__capabilities_set.h" role="src" />
-    <file name="mysqlx_message__capability.cc" role="src" />
-    <file name="mysqlx_message__capability.h" role="src" />
-    <file name="mysqlx_message__data_fetch_done.cc" role="src" />
-    <file name="mysqlx_message__data_fetch_done.h" role="src" />
-    <file name="mysqlx_message__error.cc" role="src" />
-    <file name="mysqlx_message__error.h" role="src" />
-    <file name="mysqlx_message__ok.cc" role="src" />
-    <file name="mysqlx_message__ok.h" role="src" />
-    <file name="mysqlx_message__stmt_execute.cc" role="src" />
-    <file name="mysqlx_message__stmt_execute.h" role="src" />
-    <file name="mysqlx_message__stmt_execute_ok.cc" role="src" />
-    <file name="mysqlx_message__stmt_execute_ok.h" role="src" />
-    <file name="mysqlx_pfc.cc" role="src" />
-    <file name="mysqlx_pfc.h" role="src" />
-    <file name="mysqlx_resultset__column_metadata.cc" role="src" />
-    <file name="mysqlx_resultset__column_metadata.h" role="src" />
-    <file name="mysqlx_resultset__data_row.cc" role="src" />
-    <file name="mysqlx_resultset__data_row.h" role="src" />
-    <file name="mysqlx_resultset__resultset_metadata.cc" role="src" />
-    <file name="mysqlx_resultset__resultset_metadata.h" role="src" />
-   </dir>
    <dir name="tests">
     <file name="000.phpt" role="test" />
     <file name="add_with_empty_arg_is_noop.phpt" role="test" />
