@@ -18,7 +18,9 @@
 #ifndef MYSQL_XDEVAPI_MYSQLND_API_H
 #define MYSQL_XDEVAPI_MYSQLND_API_H
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #ifdef PHP_WIN32
 #pragma warning( push )
@@ -108,9 +110,8 @@ extern "C" {
 
 #endif // PHP_WIN32
 
+#ifdef __cplusplus
 } // extern "C"
-
-#include <inttypes.h>
-#define MYSQLX_LLU_SPEC "%" PRIu64
+#endif
 
 #endif // MYSQL_XDEVAPI_MYSQLND_API_H
