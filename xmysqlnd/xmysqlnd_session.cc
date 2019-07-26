@@ -3567,6 +3567,17 @@ private:
 
 // -------------------------------
 
+/*
+	list according to specification, section "Acceptable ciphers":
+	"The only acceptable cipher suites are these listed in the OSSA document [*] as 
+	either "mandatory", "approved" or "deprecated". The document also contains a 
+	list of "unacceptable" cipher suites, but this is there only for the reference - 
+	the OSSA group clarified that checking of acceptable cipher suites should be 
+	done using white-list approach, not black-list."
+
+	link:
+	https://confluence.oraclecorp.com/confluence/display/GPS/Approved+Security+Technologies%3A+Standards+-+TLS+Ciphers+and+Versions
+*/
 const util::std_strings Filter_ciphers::allowed_ciphers
 {
 	// ---------------------
@@ -3804,6 +3815,7 @@ const util::std_strings Filter_ciphers::allowed_ciphers
 
 // -------------------------------
 
+// more details in comment to above Filter_ciphers::allowed_ciphers
 const util::std_strings Filter_ciphers::allowed_ciphersuites
 {
 	// ---------------------
