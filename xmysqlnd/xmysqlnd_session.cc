@@ -3287,6 +3287,7 @@ private:
 };
 
 // source: https://www.openssl.org/docs/man1.0.2/man1/ciphers.html
+// section: CIPHER SUITE NAMES
 const Ciphersuites_to_ciphers Map_ciphersuites_to_ciphers::ciphersuites_to_ciphers{
 	// SSL v3.0 cipher suites.
 	{ "SSL_RSA_WITH_NULL_MD5", "NULL-MD5" },
