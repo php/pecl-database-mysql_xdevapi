@@ -3570,10 +3570,10 @@ private:
 
 /*
 	list according to specification, section "Acceptable ciphers":
-	"The only acceptable cipher suites are these listed in the OSSA document [*] as 
-	either "mandatory", "approved" or "deprecated". The document also contains a 
-	list of "unacceptable" cipher suites, but this is there only for the reference - 
-	the OSSA group clarified that checking of acceptable cipher suites should be 
+	"The only acceptable cipher suites are these listed in the OSSA document [*] as
+	either "mandatory", "approved" or "deprecated". The document also contains a
+	list of "unacceptable" cipher suites, but this is there only for the reference -
+	the OSSA group clarified that checking of acceptable cipher suites should be
 	done using white-list approach, not black-list."
 
 	link:
