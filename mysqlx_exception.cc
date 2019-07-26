@@ -19,9 +19,7 @@
 extern "C" {
 #include <zend_exceptions.h>
 #include "mysqlnd_api.h"
-#ifdef HAVE_SPL
 #include <ext/spl/spl_exceptions.h> /* spl_ce_RuntimeException */
-#endif
 }
 #include "xmysqlnd/xmysqlnd.h"
 #include "php_mysqlx.h"
@@ -140,11 +138,7 @@ mysqlx_register_exception_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * my
 	{
 		zend_class_entry tmp_ce;
 		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Exception", mysqlx_exception_methods);
-#ifdef HAVE_SPL
 		mysqlx_exception_class_entry = zend_register_internal_class_ex(&tmp_ce, spl_ce_RuntimeException);
-#else
-		mysqlx_exception_class_entry = zend_register_internal_class_ex(&tmp_ce, zend_ce_exception);
-#endif
 	}
 
 	zend_hash_init(&mysqlx_exception_properties, 0, nullptr, mysqlx_free_property_cb, 1);
@@ -200,12 +194,3 @@ mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING /*sql_sta
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -19,7 +19,6 @@
 #include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"
-#include "messages/mysqlx_message__capabilities.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_protocol_dumper.h"
 
@@ -39,18 +38,9 @@
 #include "proto_gen/mysqlx_sql.pb.h"
 
 #include "xmysqlnd_crud_collection_commands.h"
-#include "messages/mysqlx_connection.h"
-#include "messages/mysqlx_pfc.h"
-#include "messages/mysqlx_resultset__column_metadata.h"
-#include "messages/mysqlx_message__ok.h"
-#include "messages/mysqlx_message__stmt_execute_ok.h"
 
 #define ENABLE_MYSQLX_CTORS 0
 
-#if ENABLE_MYSQLX_CTORS
-#include "messages/mysqlx_message__auth_ok.h"
-#endif
-#include "messages/mysqlx_resultset__data_row.h"
 #include "util/pb_utils.h"
 #include "util/string_utils.h"
 #include "protobuf_api.h"
@@ -58,8 +48,6 @@
 namespace mysqlx {
 
 namespace drv {
-
-using namespace devapi::msg;
 
 struct st_xmysqlnd_inspect_warning_bind
 {
@@ -1347,15 +1335,15 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 		} else {
 			do {
 				if (!util::pb::read_variant_64(input_stream, &neg)) break;
-				DBG_INF_FMT("neg     =" MYSQLND_LLU_SPEC, neg);
+				DBG_INF_FMT("neg     =" MYSQLX_LLU_SPEC, neg);
 				if (!util::pb::read_variant_64(input_stream, &hours)) break;
-				DBG_INF_FMT("hours   =" MYSQLND_LLU_SPEC, hours);
+				DBG_INF_FMT("hours   =" MYSQLX_LLU_SPEC, hours);
 				if (!util::pb::read_variant_64(input_stream, &minutes)) break;
-				DBG_INF_FMT("mins    =" MYSQLND_LLU_SPEC, minutes);
+				DBG_INF_FMT("mins    =" MYSQLX_LLU_SPEC, minutes);
 				if (!util::pb::read_variant_64(input_stream, &seconds)) break;
-				DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
+				DBG_INF_FMT("secs    =" MYSQLX_LLU_SPEC, seconds);
 				if (!util::pb::read_variant_64(input_stream, &useconds)) break;
-				DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
+				DBG_INF_FMT("usecs   =" MYSQLX_LLU_SPEC, useconds);
 			} while (0);
 
 			auto str = util::formatter("%s%02u:%02u:%02u.%08u")
@@ -1395,19 +1383,19 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 		} else {
 			do {
 				if (!util::pb::read_variant_64(input_stream, &year)) break;
-				DBG_INF_FMT("year    =" MYSQLND_LLU_SPEC, year);
+				DBG_INF_FMT("year    =" MYSQLX_LLU_SPEC, year);
 				if (!util::pb::read_variant_64(input_stream, &month)) break;
-				DBG_INF_FMT("month   =" MYSQLND_LLU_SPEC, month);
+				DBG_INF_FMT("month   =" MYSQLX_LLU_SPEC, month);
 				if (!util::pb::read_variant_64(input_stream, &day)) break;
-				DBG_INF_FMT("day     =" MYSQLND_LLU_SPEC, day);
+				DBG_INF_FMT("day     =" MYSQLX_LLU_SPEC, day);
 				if (!util::pb::read_variant_64(input_stream, &hours)) break;
-				DBG_INF_FMT("hours   =" MYSQLND_LLU_SPEC, hours);
+				DBG_INF_FMT("hours   =" MYSQLX_LLU_SPEC, hours);
 				if (!util::pb::read_variant_64(input_stream, &minutes)) break;
-				DBG_INF_FMT("mins    =" MYSQLND_LLU_SPEC, minutes);
+				DBG_INF_FMT("mins    =" MYSQLX_LLU_SPEC, minutes);
 				if (!util::pb::read_variant_64(input_stream, &seconds)) break;
-				DBG_INF_FMT("secs    =" MYSQLND_LLU_SPEC, seconds);
+				DBG_INF_FMT("secs    =" MYSQLX_LLU_SPEC, seconds);
 				if (!util::pb::read_variant_64(input_stream, &useconds)) break;
-				DBG_INF_FMT("usecs   =" MYSQLND_LLU_SPEC, useconds);
+				DBG_INF_FMT("usecs   =" MYSQLX_LLU_SPEC, useconds);
 			} while (0);
 
 			auto str = util::formatter("%04u-%02u-%02u %02u:%02u:%02u")
@@ -1450,11 +1438,11 @@ enum_func_status xmysqlnd_row_date_field_to_zval(
 		} else {
 			do {
 				if (!util::pb::read_variant_64(input_stream, &year)) break;
-				DBG_INF_FMT("year  =" MYSQLND_LLU_SPEC, year);
+				DBG_INF_FMT("year  =" MYSQLX_LLU_SPEC, year);
 				if (!util::pb::read_variant_64(input_stream, &month)) break;
-				DBG_INF_FMT("month =" MYSQLND_LLU_SPEC, month);
+				DBG_INF_FMT("month =" MYSQLX_LLU_SPEC, month);
 				if (!util::pb::read_variant_64(input_stream, &day)) break;
-				DBG_INF_FMT("day   =" MYSQLND_LLU_SPEC, day);
+				DBG_INF_FMT("day   =" MYSQLX_LLU_SPEC, day);
 			} while (0);
 
 			auto str = util::formatter("%04u-%02u-%02u")

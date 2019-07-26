@@ -63,12 +63,3 @@ ZEND_TSRMLS_CACHE_EXTERN();
 #endif
 
 #endif	/* PHP_MYSQLX_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

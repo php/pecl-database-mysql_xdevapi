@@ -161,7 +161,7 @@ static const enum_hnd_func_status handler_on_row_field(void * context,
 
 				ctx->rowset->m.destroy_row(ctx->rowset, ctx->current_row, ctx->stats, ctx->error_info);
 			} else {
-				DBG_INF_FMT("fwd_prefetch_count=" MYSQLND_LLU_SPEC " prefetch_counter=" MYSQLND_LLU_SPEC, ctx->fwd_prefetch_count, ctx->prefetch_counter);
+				DBG_INF_FMT("fwd_prefetch_count=" MYSQLX_LLU_SPEC " prefetch_counter=" MYSQLX_LLU_SPEC, ctx->fwd_prefetch_count, ctx->prefetch_counter);
 				ctx->rowset->m.add_row(ctx->rowset, ctx->current_row, ctx->stats, ctx->error_info);
 				if (ctx->fwd_prefetch_count && !--ctx->prefetch_counter) {
 					ret = HND_PASS; /* Otherwise it is HND_AGAIN */
@@ -611,7 +611,7 @@ xmysqlnd_stmt::get_fwd_result(xmysqlnd_stmt * const stmt,
 	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
 	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
 	DBG_ENTER("xmysqlnd_stmt::get_fwd_result");
-	DBG_INF_FMT("rows=" MYSQLND_LLU_SPEC, rows);
+	DBG_INF_FMT("rows=" MYSQLX_LLU_SPEC, rows);
 
 	if (FALSE == stmt->partial_read_started) {
 		read_ctx.stmt = stmt;
@@ -1312,12 +1312,3 @@ void Prepare_stmt_data::handle_limit_expr(
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -18,6 +18,10 @@
 #ifndef MYSQL_XDEVAPI_PHP_API_H
 #define MYSQL_XDEVAPI_PHP_API_H
 
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS 1
+#endif
+
 #ifdef PHP_WIN32
 #pragma warning( push )
 #pragma warning( disable : 4018 4244 4706)
@@ -37,7 +41,6 @@ extern "C" {
 #endif // PHP_WIN32
 
 #include "util/compiler_utils.h"
-
 
 #ifdef PHP_WIN32
 
@@ -66,12 +69,3 @@ extern "C" {
 
 
 #endif // MYSQL_XDEVAPI_PHP_API_H
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

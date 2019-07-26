@@ -57,12 +57,3 @@ mysqlx_unregister_executable_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

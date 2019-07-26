@@ -74,12 +74,3 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_collection_free(xmysqlnd_collection * const 
 } // namespace mysqlx
 
 #endif /* XMYSQLND_COLLECTION_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -224,7 +224,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, get_row_count)(const XMYSQLND_STMT_RESULT 
 	if (result->rowset) {
 		ret = result->rowset->m.get_row_count(result->rowset);
 	}
-	DBG_INF_FMT("rows=" MYSQLND_LLU_SPEC, ret);
+	DBG_INF_FMT("rows=" MYSQLX_LLU_SPEC, ret);
 	DBG_RETURN(ret);
 }
 /* }}} */
@@ -478,12 +478,3 @@ xmysqlnd_stmt_result_free(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * s
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
