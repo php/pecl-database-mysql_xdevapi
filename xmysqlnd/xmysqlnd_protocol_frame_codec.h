@@ -80,12 +80,3 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_pfc_free(XMYSQLND_PFC * const net, MYSQLND_S
 } // namespace mysqlx
 
 #endif /* XMYSQLND_PROTOCOL_FRAME_CODEC_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

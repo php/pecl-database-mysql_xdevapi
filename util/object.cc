@@ -48,12 +48,3 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 } // namespace util
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

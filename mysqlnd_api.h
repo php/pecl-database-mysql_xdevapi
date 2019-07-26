@@ -114,12 +114,3 @@ extern "C" {
 #define MYSQLX_LLU_SPEC "%" PRIu64
 
 #endif // MYSQL_XDEVAPI_MYSQLND_API_H
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

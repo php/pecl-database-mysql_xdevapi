@@ -717,12 +717,3 @@ extern const struct st_xmysqlnd_session_on_statement_ok_bind	noop__on_statement_
 } // namespace mysqlx
 
 #endif /* XMYSQLND_SESSION_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
