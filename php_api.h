@@ -36,6 +36,9 @@ extern "C" {
 #undef max
 }
 
+#include <inttypes.h>
+#define MYSQLX_LLU_SPEC "%" PRIu64
+
 #ifdef PHP_WIN32
 #pragma warning( pop )
 #endif // PHP_WIN32
