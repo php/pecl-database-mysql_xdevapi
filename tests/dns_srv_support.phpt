@@ -7,8 +7,9 @@ error_reporting=E_ALL
 <?php
     require("connect.inc");
 
-    $connection_uri = 'mysqlx+srv://'.$user.':'.$passwd.'@'.$host.'/'.$default_schema;
+    $connection_uri = 'mysqlx+srv://'.$user.':'.$passwd.'@'.'_xmpp-client._tcp.google.com'.'/'.$default_schema;
 	$session = mysql_xdevapi\getSession($connection_uri);
+	//_nicname._tcp.us
 
     verify_expectations();
 	print "done!".PHP_EOL;

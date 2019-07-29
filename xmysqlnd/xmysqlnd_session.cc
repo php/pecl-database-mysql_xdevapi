@@ -64,6 +64,9 @@ extern "C" {
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <resolv.h>
+#include <forward_list>
+#include <string>
 
 namespace mysqlx {
 
@@ -4896,22 +4899,111 @@ bool verify_dns_srv_uri(
 			util::xdevapi_exception::Code::unix_socket_not_allowed_with_srv);
 		return false;
 	}
-	//Verify #3 TODO
+	//Verify #3 TODO: How multiple hostnames are provided?
+	return true;
+}
 
-	php_url * raw_node_url = php_url_parse(uri_string);
-	if( nullptr == raw_node_url ) {
-		DBG_ERR_FMT("URI parsing failed!");
-		throw util::xdevapi_exception(
-			util::xdevapi_exception::Code::unix_socket_not_allowed_with_srv);
-		return false;
+namespace{
+
+struct Dns_srv_hostname
+{
+	std::string hostname_;
+	uint16_t    port_;
+	Dns_srv_hostname(const std::string& hostname,
+					 const uint16_t port ) :
+		hostname_{hostname},
+		port_{port} {}
+};
+
+using Srv_data = std::map<Dns_srv_hostname,
+	std::forward_list<std::pair<uint16_t,uint16_t>>>;
+
+bool operator<(const Dns_srv_hostname& a,
+			   const Dns_srv_hostname& b) {
+	return (a.hostname_ < b.hostname_) || (a.port_ < b.port_);
+}
+
+}
+
+Srv_data srv_list(
+	const char* host_name
+)
+{
+	struct __res_state state;
+	Srv_data srv_data;
+	res_ninit(&state);
+
+	/*using Srv_list = std::forward_list<std::pair<std::string,uint16_t>>;
+	Srv_list srv;
+	Srv_list::const_iterator srv_it = srv.before_begin();*/
+	unsigned char query_buffer[PACKETSZ];
+	char          srv_hostname[MAXDNAME];
+	//let get
+	int res = res_nsearch(&state,
+						  host_name,
+						  C_ANY, ns_t_srv,
+						  query_buffer,
+						  sizeof (query_buffer) );
+
+	if (res >= 0)
+	{
+
+		ns_msg msg;
+		ns_rr rr;
+		ns_initparse(query_buffer, res, &msg);
+
+		for ( uint16_t i{0}; i < ns_msg_count (msg, ns_s_an); ++i) {
+			if( 0 != ns_parserr (&msg, ns_s_an, i, &rr) ) {
+				return {};
+			}
+			uint16_t priority{ ntohs(*(unsigned short*)ns_rr_rdata(rr)) };
+			uint16_t weight{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) };
+			uint16_t port{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2)) };
+			dn_expand(ns_msg_base(msg),
+					  ns_msg_end(msg),
+					  ns_rr_rdata(rr) + 6,
+					  srv_hostname,
+					  sizeof(srv_hostname));
+			srv_data[Dns_srv_hostname(srv_hostname,port)].emplace_front(
+				std::make_pair(priority,weight));
+		}
+
+		for( auto elem : srv_data ){
+			for( auto list_entry : elem.second ){
+				std::cout<<elem.first.hostname_<<":"<<elem.first.port_<<" = "<<
+					   list_entry.first<<"/"<<list_entry.second<<std::endl;
+			}
+		}
+
+/*		ns_msg msg;
+		ns_initparse(query_buffer, res, &msg);
+
+		auto process = [&msg, &srv, &srv_it](const ns_rr &rr) -> void {
+			std::cout << ns_rr_name(rr) << std::endl;
+			std::cout << ns_rr_ttl(rr) << std::endl;
+			// Prio
+			std::cout << ntohs(*(unsigned short*)ns_rr_rdata(rr)) << std::endl;
+			// Weight
+			std::cout << ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) << std::endl;
+			// Port
+			std::cout << ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2)) << std::endl;
+			const unsigned short port = ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2));
+			char name[1024];
+			dn_expand(ns_msg_base(msg), ns_msg_end(msg),
+					  ns_rr_rdata(rr) + 6, name, sizeof(name));
+			std::cout << name << std::endl;
+			srv_it = srv.emplace_after(srv_it,  std::make_pair(name, port));
+		};
+
+		ns_rr rr;
+		for ( uint16_t i{0}; i < ns_msg_count (msg, ns_s_an); ++i) {
+			ns_parserr (&msg, ns_s_an, i, &rr);
+			process(rr);
+		}*/
+	} else {
+		std::cout<<"Nothing found!"<<std::endl;
 	}
-	util::Url node_url(raw_node_url);
-	php_url_free(raw_node_url);
-	raw_node_url = nullptr;
-	fprintf(stderr,"TO BE VERIFIED: %s (Hostname: %s)\n",
-			uri.c_str(),
-			node_url.host.c_str() );
-	return false;
+	return srv_data;
 }
 
 /* {{{ requested_srv_lookup */
@@ -4930,10 +5022,26 @@ bool requested_srv_lookup(
 			 */
 			throw util::xdevapi_exception(
 				util::xdevapi_exception::Code::provided_invalid_uri);
-		} else {
-			verify_dns_srv_uri( uri_string );
-
+		} else if( verify_dns_srv_uri( uri_string ) ) {
+			/*
+			 * Process the URI, get the hostname string
+			 * and attempt to resolve it by getting the
+			 * DNS SRV records
+			 */
+			php_url * raw_node_url = php_url_parse(uri_string);
+			if( nullptr == raw_node_url ) {
+				throw util::xdevapi_exception(
+					util::xdevapi_exception::Code::unix_socket_not_allowed_with_srv);
+				return false;
+			}
+			util::Url node_url(raw_node_url);
+			php_url_free(raw_node_url);
+			raw_node_url = nullptr;
+			fprintf(stderr,"TO BE VERIFIED: %s (Hostname: %s)\n",
+					uri_string,
+					node_url.host.c_str() );
 			dns_srv_requested = true;
+			srv_list(node_url.host.c_str());
 		}
 	}
 	return dns_srv_requested;
