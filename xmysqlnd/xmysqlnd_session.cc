@@ -4905,105 +4905,68 @@ bool verify_dns_srv_uri(
 
 namespace{
 
-struct Dns_srv_hostname
-{
-	std::string hostname_;
-	uint16_t    port_;
-	Dns_srv_hostname(const std::string& hostname,
-					 const uint16_t port ) :
-		hostname_{hostname},
-		port_{port} {}
-};
+using Srv_data = std::map<uint16_t,
+	std::map<uint16_t,std::forward_list<std::pair<std::string,uint16_t>>>
+>;
 
-using Srv_data = std::map<Dns_srv_hostname,
-	std::forward_list<std::pair<uint16_t,uint16_t>>>;
-
-bool operator<(const Dns_srv_hostname& a,
-			   const Dns_srv_hostname& b) {
-	return (a.hostname_ < b.hostname_) || (a.port_ < b.port_);
-}
+using Srv_hostname_list = std::forward_list<std::pair<std::string,uint16_t>>;
 
 }
 
-Srv_data srv_list(
+Srv_hostname_list query_srv_list(
 	const char* host_name
 )
 {
 	struct __res_state state;
-	Srv_data srv_data;
+	Srv_hostname_list  result;
 	res_ninit(&state);
 
-	/*using Srv_list = std::forward_list<std::pair<std::string,uint16_t>>;
-	Srv_list srv;
-	Srv_list::const_iterator srv_it = srv.before_begin();*/
 	unsigned char query_buffer[PACKETSZ];
 	char          srv_hostname[MAXDNAME];
-	//let get
 	int res = res_nsearch(&state,
 						  host_name,
 						  C_ANY, ns_t_srv,
 						  query_buffer,
 						  sizeof (query_buffer) );
 
-	if (res >= 0)
-	{
-
-		ns_msg msg;
-		ns_rr rr;
+	if (res >= 0) {
+		Srv_hostname_list::const_iterator srv_it = result.before_begin();
+		Srv_data srv_data;
+		ns_msg   msg;
+		ns_rr    rr;
 		ns_initparse(query_buffer, res, &msg);
 
 		for ( uint16_t i{0}; i < ns_msg_count (msg, ns_s_an); ++i) {
 			if( 0 != ns_parserr (&msg, ns_s_an, i, &rr) ) {
 				return {};
 			}
-			uint16_t priority{ ntohs(*(unsigned short*)ns_rr_rdata(rr)) };
-			uint16_t weight{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) };
-			uint16_t port{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2)) };
+			const uint16_t priority{ ntohs(*(unsigned short*)ns_rr_rdata(rr)) };
+			const uint16_t weight{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) };
+			const uint16_t port{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2)) };
 			dn_expand(ns_msg_base(msg),
 					  ns_msg_end(msg),
 					  ns_rr_rdata(rr) + 6,
 					  srv_hostname,
 					  sizeof(srv_hostname));
-			srv_data[Dns_srv_hostname(srv_hostname,port)].emplace_front(
-				std::make_pair(priority,weight));
+			srv_data[priority][weight].emplace_front(
+				std::make_pair(srv_hostname,port));
 		}
 
+		/*
+		 * Make sure the entries are in the proper priority/weight
+		 * order
+		 */
 		for( auto elem : srv_data ){
-			for( auto list_entry : elem.second ){
-				std::cout<<elem.first.hostname_<<":"<<elem.first.port_<<" = "<<
-					   list_entry.first<<"/"<<list_entry.second<<std::endl;
+			for( auto entry : mysqlx::drv::Reverse(elem.second) ){
+				for( auto srv : entry.second ) {
+					srv_it = result.emplace_after(srv_it,
+									std::make_pair(srv.first, srv.second));
+				}
 			}
 		}
 
-/*		ns_msg msg;
-		ns_initparse(query_buffer, res, &msg);
-
-		auto process = [&msg, &srv, &srv_it](const ns_rr &rr) -> void {
-			std::cout << ns_rr_name(rr) << std::endl;
-			std::cout << ns_rr_ttl(rr) << std::endl;
-			// Prio
-			std::cout << ntohs(*(unsigned short*)ns_rr_rdata(rr)) << std::endl;
-			// Weight
-			std::cout << ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) << std::endl;
-			// Port
-			std::cout << ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2)) << std::endl;
-			const unsigned short port = ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2));
-			char name[1024];
-			dn_expand(ns_msg_base(msg), ns_msg_end(msg),
-					  ns_rr_rdata(rr) + 6, name, sizeof(name));
-			std::cout << name << std::endl;
-			srv_it = srv.emplace_after(srv_it,  std::make_pair(name, port));
-		};
-
-		ns_rr rr;
-		for ( uint16_t i{0}; i < ns_msg_count (msg, ns_s_an); ++i) {
-			ns_parserr (&msg, ns_s_an, i, &rr);
-			process(rr);
-		}*/
-	} else {
-		std::cout<<"Nothing found!"<<std::endl;
 	}
-	return srv_data;
+	return result;
 }
 
 /* {{{ requested_srv_lookup */
@@ -5041,7 +5004,10 @@ bool requested_srv_lookup(
 					uri_string,
 					node_url.host.c_str() );
 			dns_srv_requested = true;
-			srv_list(node_url.host.c_str());
+			auto srv_data = query_srv_list(node_url.host.c_str());
+			for( auto elem : srv_data ){
+				std::cout<<elem.first<<":"<<elem.second<<std::endl;
+			}
 		}
 	}
 	return dns_srv_requested;
