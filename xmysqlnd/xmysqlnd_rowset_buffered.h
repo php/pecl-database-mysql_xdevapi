@@ -103,12 +103,3 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_rowset_buffered_free(XMYSQLND_ROWSET_BUFFERE
 } // namespace mysqlx
 
 #endif /* XMYSQLND_ROWSET_BUFFERED_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

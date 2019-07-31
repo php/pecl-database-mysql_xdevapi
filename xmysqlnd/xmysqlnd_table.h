@@ -81,12 +81,3 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_table_free(xmysqlnd_table * const table, MYS
 } // namespace mysqlx
 
 #endif /* XMYSQLND_TABLE_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

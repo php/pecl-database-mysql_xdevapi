@@ -77,12 +77,3 @@ mysqlx_object_get_debug_info(zval *object, int *is_temp)
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

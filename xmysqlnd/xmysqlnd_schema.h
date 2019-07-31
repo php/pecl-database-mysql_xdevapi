@@ -113,12 +113,3 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_schema_free(xmysqlnd_schema * const schema, 
 } // namespace mysqlx
 
 #endif /* XMYSQLND_SCHEMA_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -243,12 +243,3 @@ using unique_ptr = std::unique_ptr<T, deleter<T>>;
 } // namespace mysqlx
 
 #endif // MYSQL_XDEVAPI_PHP_ALLOCATOR_H
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

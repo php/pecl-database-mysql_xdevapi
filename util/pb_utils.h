@@ -151,12 +151,3 @@ void verify_limit_offset(const Mysqlx::Crud::Find& message);
 } // namespace mysqlx
 
 #endif /* MYSQL_XDEVAPI_UTIL_PB_UTILS_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
