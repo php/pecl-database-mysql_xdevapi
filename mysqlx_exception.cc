@@ -194,12 +194,3 @@ mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING /*sql_sta
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

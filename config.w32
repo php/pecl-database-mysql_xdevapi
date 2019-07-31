@@ -82,28 +82,8 @@ var mysqlx_devapi_sources = [
 	"mysqlx_table__select.cc",
 	"mysqlx_table__update.cc",
 	"mysqlx_warning.cc",
-	"mysqlx_x_session.cc",
 	"php_mysqlx.cc",
 	"php_mysqlx_ex.cc",
-];
-
-var mysqlx_messages = [
-	"mysqlx_connection.cc",
-	"mysqlx_message__auth_ok.cc",
-	"mysqlx_message__auth_start.cc",
-	"mysqlx_message__capabilities.cc",
-	"mysqlx_message__capabilities_get.cc",
-	"mysqlx_message__capabilities_set.cc",
-	"mysqlx_message__capability.cc",
-	"mysqlx_message__error.cc",
-	"mysqlx_message__ok.cc",
-	"mysqlx_message__stmt_execute.cc",
-	"mysqlx_message__stmt_execute_ok.cc",
-	"mysqlx_message__data_fetch_done.cc",
-	"mysqlx_pfc.cc",
-	"mysqlx_resultset__column_metadata.cc",
-	"mysqlx_resultset__data_row.cc",
-	"mysqlx_resultset__resultset_metadata.cc"
 ];
 
 var mysqlx_util = [
@@ -311,6 +291,10 @@ function search_full_path(base_paths, subpath) {
 
 function is_dev_mode() {
 	return PHP_DEV_MODE == "yes";
+}
+
+function is_phpize_mode() {
+	return MODE_PHPIZE;
 }
 
 function is_makefile_frag_supported() {
@@ -599,11 +583,17 @@ function generate_protobufs() {
 }
 
 function add_makefile_frag() {
+	// set src dir depending on build mode: phpize vs static
+	var sources_dir = is_phpize_mode() ? "$(PHP_SRC_DIR)" : "ext\\" + Ext_name;
+	DEFINE("MYSQL_XDEVAPI_SRC_DIR", sources_dir);
+
+	// config protobufs
 	var protoc_path = get_protoc_path();
 	DEFINE("MYSQL_XDEVAPI_PROTOC", protoc_path);
 	if (this.protobuf_include_dir) {
 		DEFINE("MYSQL_XDEVAPI_PROTOBUF_INCLUDES", this.protobuf_include_dir);
 	}
+
 	ADD_MAKEFILE_FRAGMENT();
 }
 
@@ -629,7 +619,7 @@ function get_includes() {
 		get_src_path("xmysqlnd\\cdkbase"),
 		get_src_path("xmysqlnd\\cdkbase\\include"),
 		get_src_path("xmysqlnd\\cdkbase\\extra\\rapidjson\\include"),
-		this.protobuf_dir_include,
+		this.protobuf_include_dir,
 		this.boost_root
 	];
 
@@ -688,6 +678,11 @@ function init_extension(base_sources) {
 
 //	set_warnings_level('/W4');
 	set_warnings_level('/W3');
+
+	AC_DEFINE('HAVE_MYSQL_XDEVAPI', 1, 'mysql-xdevapi support enabled');
+
+	var build_mode = is_phpize_mode() ? "phpize/pecl" : "static";
+	MESSAGE(Ext_label + " " + build_mode + " build mode");
 }
 
 function add_sources_cflags(subdir, cflags) {
@@ -702,8 +697,33 @@ function add_sources(subdir, sources, cflags) {
 	if (cflags) add_sources_cflags(subdir, cflags);
 }
 
+function setup_sources() {
+	add_sources("util", mysqlx_util);
+	add_sources("xmysqlnd", xmysqlnd_sources);
+	add_sources("xmysqlnd\\cdkbase\\core", xmysqlnd_cdkbase_core);
+	add_sources("xmysqlnd\\cdkbase\\foundation", xmysqlnd_cdkbase_foundation);
+	add_sources("xmysqlnd\\cdkbase\\parser", xmysqlnd_cdkbase_parser);
+	add_sources("xmysqlnd\\crud_parsers", xmysqlnd_crud_parsers);
+	add_sources("xmysqlnd\\proto_gen", xmysqlnd_protobuf_sources, "/wd4267");
+
+	if (PHP_MYSQL_XDEVAPI_SHARED) {
+		ADD_FLAG("CFLAGS_MYSQL_XDEVAPI", "/D PHP_MYSQL_XDEVAPI_EXPORTS");
+	}
+}
+
 function add_dependency(dep_extension_name) {
 	ADD_EXTENSION_DEP(Ext_name, dep_extension_name, false);
+}
+
+function setup_dependencies() {
+	add_dependency('hash');
+	add_dependency('json');
+	add_dependency('mysqlnd');
+
+	if (!is_phpize_mode() && (PHP_MYSQLND == "no")) {
+		PHP_MYSQLND = "yes";
+		MESSAGE(Ext_label + " depends on mysqlnd, it has been enabled");
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -881,30 +901,8 @@ if (!verify_requirements()) {
 process_protobufs();
 
 init_extension(mysqlx_devapi_sources);
-add_sources("messages", mysqlx_messages);
-add_sources("util", mysqlx_util);
-add_sources("xmysqlnd", xmysqlnd_sources);
-add_sources("xmysqlnd\\cdkbase\\core", xmysqlnd_cdkbase_core);
-add_sources("xmysqlnd\\cdkbase\\foundation", xmysqlnd_cdkbase_foundation);
-add_sources("xmysqlnd\\cdkbase\\parser", xmysqlnd_cdkbase_parser);
-add_sources("xmysqlnd\\crud_parsers", xmysqlnd_crud_parsers);
-add_sources("xmysqlnd\\proto_gen", xmysqlnd_protobuf_sources, "/wd4267");
-
-if (PHP_MYSQL_XDEVAPI_SHARED) {
-	ADD_FLAG("CFLAGS_MYSQL_XDEVAPI", "/D PHP_MYSQL_XDEVAPI_EXPORTS");
-}
-
-// dependencies
-add_dependency('hash');
-add_dependency('json');
-add_dependency('mysqlnd');
-
-if (!MODE_PHPIZE && (PHP_MYSQLND == "no")) {
-	PHP_MYSQLND = "yes";
-	MESSAGE(Ext_label + " depends on mysqlnd, it has been enabled");
-}
-
-AC_DEFINE('HAVE_MYSQL_XDEVAPI', 1, 'mysql-xdevapi support enabled');
+setup_sources();
+setup_dependencies();
 
 expose_metadata();
 

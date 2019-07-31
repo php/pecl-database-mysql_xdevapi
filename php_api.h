@@ -36,6 +36,9 @@ extern "C" {
 #undef max
 }
 
+#include <inttypes.h>
+#define MYSQLX_LLU_SPEC "%" PRIu64
+
 #ifdef PHP_WIN32
 #pragma warning( pop )
 #endif // PHP_WIN32
@@ -69,12 +72,3 @@ extern "C" {
 
 
 #endif // MYSQL_XDEVAPI_PHP_API_H
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

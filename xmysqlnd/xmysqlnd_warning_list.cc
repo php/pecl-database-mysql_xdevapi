@@ -164,12 +164,3 @@ xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const warn_list)
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -32,12 +32,3 @@ void mysqlx_unregister_crud_operation_sortable_interface(SHUTDOWN_FUNC_ARGS);
 } // namespace mysqlx
 
 #endif /* MYSQLX_CRUD_OPERATION_SORTABLE_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

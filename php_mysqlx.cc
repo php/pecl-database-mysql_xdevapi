@@ -33,7 +33,6 @@ extern "C" {
 #include "mysqlx_client.h"
 #include "mysqlx_expression.h"
 #include "mysqlx_session.h"
-#include "mysqlx_x_session.h"
 #include <string>
 
 extern "C" {
@@ -202,7 +201,7 @@ static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 /* }}} */
 #endif
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_x_session, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_session, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, uri, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -223,7 +222,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ mysqlx_functions */
 static const zend_function_entry mysqlx_functions[] = {
-	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi__getXSession), arginfo_mysql_xdevapi__get_x_session)
+	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi_getSession), arginfo_mysql_xdevapi__get_session)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getClient, mysqlx::devapi::ZEND_FN(mysql_xdevapi_getClient), arginfo_mysql_xdevapi__get_client)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, expression, mysqlx::devapi::ZEND_FN(mysql_xdevapi__expression), arginfo_mysql_xdevapi__expression)
 	PHP_FE_END
@@ -281,12 +280,3 @@ ZEND_GET_MODULE(mysql_xdevapi)
 /* }}} */
 
 } // extern "C"
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

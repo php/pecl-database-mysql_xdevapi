@@ -19,7 +19,6 @@
 #include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"
-#include "messages/mysqlx_message__capabilities.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_protocol_dumper.h"
 
@@ -39,18 +38,9 @@
 #include "proto_gen/mysqlx_sql.pb.h"
 
 #include "xmysqlnd_crud_collection_commands.h"
-#include "messages/mysqlx_connection.h"
-#include "messages/mysqlx_pfc.h"
-#include "messages/mysqlx_resultset__column_metadata.h"
-#include "messages/mysqlx_message__ok.h"
-#include "messages/mysqlx_message__stmt_execute_ok.h"
 
 #define ENABLE_MYSQLX_CTORS 0
 
-#if ENABLE_MYSQLX_CTORS
-#include "messages/mysqlx_message__auth_ok.h"
-#endif
-#include "messages/mysqlx_resultset__data_row.h"
 #include "util/pb_utils.h"
 #include "util/string_utils.h"
 #include "protobuf_api.h"
@@ -58,8 +48,6 @@
 namespace mysqlx {
 
 namespace drv {
-
-using namespace devapi::msg;
 
 struct st_xmysqlnd_inspect_warning_bind
 {

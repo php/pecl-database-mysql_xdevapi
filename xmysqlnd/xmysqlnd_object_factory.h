@@ -172,11 +172,3 @@ PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_object_fac
 } // namespace mysqlx
 
 #endif /* XMYSQLND_OBJECT_FACTORY_H */
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

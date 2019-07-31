@@ -31,11 +31,3 @@ void xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * pay
 } // namespace mysqlx
 
 #endif /* XMYSQLND_PROTOCOL_DUMPER_H */
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

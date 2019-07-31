@@ -3404,6 +3404,7 @@ private:
 };
 
 // source: https://www.openssl.org/docs/man1.0.2/man1/ciphers.html
+// section: CIPHER SUITE NAMES
 const Ciphersuites_to_ciphers Map_ciphersuites_to_ciphers::ciphersuites_to_ciphers{
 	// SSL v3.0 cipher suites.
 	{ "SSL_RSA_WITH_NULL_MD5", "NULL-MD5" },
@@ -3684,6 +3685,17 @@ private:
 
 // -------------------------------
 
+/*
+	list according to specification, section "Acceptable ciphers":
+	"The only acceptable cipher suites are these listed in the OSSA document [*] as
+	either "mandatory", "approved" or "deprecated". The document also contains a
+	list of "unacceptable" cipher suites, but this is there only for the reference -
+	the OSSA group clarified that checking of acceptable cipher suites should be
+	done using white-list approach, not black-list."
+
+	link:
+	https://confluence.oraclecorp.com/confluence/display/GPS/Approved+Security+Technologies%3A+Standards+-+TLS+Ciphers+and+Versions
+*/
 const util::std_strings Filter_ciphers::allowed_ciphers
 {
 	// ---------------------
@@ -3921,6 +3933,7 @@ const util::std_strings Filter_ciphers::allowed_ciphers
 
 // -------------------------------
 
+// more details in comment to above Filter_ciphers::allowed_ciphers
 const util::std_strings Filter_ciphers::allowed_ciphersuites
 {
 	// ---------------------
@@ -5150,12 +5163,3 @@ enum_func_status xmysqlnd_new_session_connect(
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
