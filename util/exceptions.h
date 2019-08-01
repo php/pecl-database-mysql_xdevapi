@@ -107,6 +107,7 @@ struct xdevapi_exception : public std::runtime_error
 		cannot_setup_tls,
 		no_valid_cipher_in_list,
 		no_valid_ciphersuite_in_list,
+		out_of_range,
 	};
 
 	xdevapi_exception(Code code);

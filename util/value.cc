@@ -17,6 +17,16 @@
 */
 #include "php_api.h"
 #include "value.h"
+#include "util/exceptions.h"
+
+/*
+	useful links:
+	https://medium.com/@davidtstrauss/copy-and-move-semantics-of-zvals-in-php-7-41427223d784
+	https://wiki.php.net/phpng-upgrading
+	https://wiki.php.net/phpng-upgrading#hashtable_api
+	http://blog.jpauli.tech/2016/04/08/hashtables.html
+	http://nikic.github.io/2014/12/22/PHPs-new-hashtable-implementation.html
+*/
 
 namespace mysqlx {
 
@@ -27,15 +37,76 @@ zvalue::zvalue()
 	ZVAL_UNDEF(&zv);
 }
 
+zvalue::zvalue(Type type)
+{
+	switch (type) {
+	case Undefined:
+		ZVAL_UNDEF(&zv);
+		break;
+
+	case Null:
+		ZVAL_NULL(&zv);
+		break;
+
+	case False:
+		ZVAL_FALSE(&zv);
+		break;
+
+	case True:
+		ZVAL_TRUE(&zv);
+		break;
+
+	case Long:
+		ZVAL_LONG(&zv, 0);
+		break;
+
+	case Double:
+		ZVAL_DOUBLE(&zv, 0.0);
+		break;
+
+	case String:
+		ZVAL_EMPTY_STRING(&zv);
+		break;
+
+	case Array:
+		array_init(&zv);
+		break;
+
+	default:
+		assert(!"default initialization of that type is not supported");
+		ZVAL_UNDEF(&zv);
+	}
+}
+
 zvalue::zvalue(const zvalue& rhs)
 {
-	ZVAL_COPY(&zv, &rhs.zv);
+	ZVAL_ZVAL(&zv, rhs.ptr(), 1, 0);
 }
 
 zvalue::zvalue(zvalue&& rhs)
 {
-	ZVAL_UNDEF(&zv);
-	std::swap(zv, rhs.zv);
+	ZVAL_ZVAL(&zv, &rhs.zv, 1, 1);
+	ZVAL_UNDEF(&rhs.zv);
+}
+
+zvalue::zvalue(const zval& rhs)
+{
+	ZVAL_ZVAL(&zv, const_cast<zval*>(&rhs), 1, 0);
+}
+
+zvalue::zvalue(zval&& rhs)
+{
+	ZVAL_ZVAL(&zv, &rhs, 1, 1);
+	ZVAL_UNDEF(&rhs);
+}
+
+zvalue::zvalue(const zval* rhs)
+{
+	if (rhs) {
+		ZVAL_ZVAL(&zv, const_cast<zval*>(rhs), 1, 0);
+	} else {
+		ZVAL_UNDEF(&zv);
+	}
 }
 
 zvalue::zvalue(std::nullptr_t /*value*/)
@@ -48,17 +119,22 @@ zvalue::zvalue(bool value)
 	ZVAL_BOOL(&zv, value);
 }
 
-zvalue::zvalue(int16_t value)
-{
-	ZVAL_LONG(&zv, value);
-}
-
 zvalue::zvalue(int32_t value)
 {
-	ZVAL_LONG(&zv, value);
+	ZVAL_LONG(&zv, static_cast<zend_long>(value));
 }
 
 zvalue::zvalue(int64_t value)
+{
+	ZVAL_LONG(&zv, static_cast<zend_long>(value));
+}
+
+zvalue::zvalue(uint32_t value)
+{
+	ZVAL_LONG(&zv, static_cast<zend_long>(value));
+}
+
+zvalue::zvalue(uint64_t value)
 {
 	ZVAL_LONG(&zv, static_cast<zend_long>(value));
 }
@@ -69,8 +145,8 @@ zvalue::zvalue(double value)
 }
 
 zvalue::zvalue(char value)
+	: zvalue(&value, 1)
 {
-	ZVAL_STRINGL(&zv, &value, 1);
 }
 
 zvalue::zvalue(const string& value)
@@ -88,86 +164,134 @@ zvalue::zvalue(const std::string& value)
 {
 }
 
+zvalue::zvalue(const char* value)
+	: zvalue(value, std::strlen(value))
+{
+}
+
 zvalue::zvalue(const char* value, std::size_t length)
 {
 	ZVAL_UNDEF(&zv);
 	assign(value, length);
 }
 
+zvalue zvalue::create_array(std::size_t size)
+{
+	zvalue arr;
+	arr.reserve(size);
+	return arr;
+}
+
 zvalue::~zvalue()
 {
-	if (owner) {
-		zval_ptr_dtor(&zv);
-	}
+	zval_ptr_dtor(&zv);
 }
 
 // -----------------------------------------------------------------------------
 
-zvalue& zvalue::operator=(const zvalue& value)
+zvalue& zvalue::operator=(const zvalue& rhs)
 {
-	if (this == &value) return *this;
+	if (this == &rhs) return *this;
 
 	zval_ptr_dtor(&zv);
-	zv = value.zv;
-	Z_TRY_ADDREF(zv);
-
+	ZVAL_ZVAL(&zv, rhs.ptr(), 1, 0);
 	return *this;
 }
 
 zvalue& zvalue::operator=(zvalue&& rhs)
 {
 	if (this == &rhs) return *this;
-	std::swap(zv, rhs.zv);
+
+	zval_ptr_dtor(&zv);
+	ZVAL_ZVAL(&zv, &rhs.zv, 1, 1);
+	ZVAL_UNDEF(&rhs.zv);
+	return *this;
+}
+
+zvalue& zvalue::operator=(const zval& rhs)
+{
+	if (&zv == &rhs) return *this;
+
+	zval_ptr_dtor(&zv);
+	ZVAL_ZVAL(&zv, const_cast<zval*>(&rhs), 1, 0);
+	return *this;
+}
+
+zvalue& zvalue::operator=(zval&& rhs)
+{
+	if (&zv == &rhs) return *this;
+
+	zval_ptr_dtor(&zv);
+	ZVAL_ZVAL(&zv, &rhs, 1, 1);
+	ZVAL_UNDEF(&rhs);
+	return *this;
+}
+
+zvalue& zvalue::operator=(const zval* rhs)
+{
+	if (&zv == rhs) return *this;
+
+	zval_ptr_dtor(&zv);
+	if (rhs) {
+		ZVAL_ZVAL(&zv, const_cast<zval*>(rhs), 1, 0);
+	} else {
+		ZVAL_UNDEF(&zv);
+	}
 	return *this;
 }
 
 zvalue& zvalue::operator=(std::nullptr_t /*value*/)
 {
-	zval_dtor(&zv);
+	zval_ptr_dtor(&zv);
 	ZVAL_NULL(&zv);
 	return *this;
 }
 
 zvalue& zvalue::operator=(bool value)
 {
-	zval_dtor(&zv);
+	zval_ptr_dtor(&zv);
 	ZVAL_BOOL(&zv, value);
-	return *this;
-}
-
-zvalue& zvalue::operator=(int16_t value)
-{
-	zval_dtor(&zv);
-	ZVAL_LONG(&zv, value);
 	return *this;
 }
 
 zvalue& zvalue::operator=(int32_t value)
 {
-	zval_dtor(&zv);
-	ZVAL_LONG(&zv, value);
+	zval_ptr_dtor(&zv);
+	ZVAL_LONG(&zv, static_cast<zend_long>(value));
 	return *this;
 }
 
 zvalue& zvalue::operator=(int64_t value)
 {
-	// TODO fix needed for 32bit
-	zval_dtor(&zv);
+	zval_ptr_dtor(&zv);
+	ZVAL_LONG(&zv, static_cast<zend_long>(value));
+	return *this;
+}
+
+zvalue& zvalue::operator=(uint32_t value)
+{
+	zval_ptr_dtor(&zv);
+	ZVAL_LONG(&zv, static_cast<zend_long>(value));
+	return *this;
+}
+
+zvalue& zvalue::operator=(uint64_t value)
+{
+	zval_ptr_dtor(&zv);
 	ZVAL_LONG(&zv, static_cast<zend_long>(value));
 	return *this;
 }
 
 zvalue& zvalue::operator=(double value)
 {
-	zval_dtor(&zv);
+	zval_ptr_dtor(&zv);
 	ZVAL_DOUBLE(&zv, value);
 	return *this;
 }
 
 zvalue& zvalue::operator=(char value)
 {
-	zval_dtor(&zv);
-	ZVAL_STRINGL(&zv, &value, 1);
+	assign(&value, 1);
 	return *this;
 }
 
@@ -191,112 +315,15 @@ zvalue& zvalue::operator=(const std::string& value)
 
 zvalue& zvalue::operator=(const char* value)
 {
-	assign(value);
+	assign(value, std::strlen(value));
 	return *this;
 }
 
 void zvalue::assign(const char* value, std::size_t length)
 {
-	zval_dtor(&zv);
-	if (value)
-	{
-		ZVAL_STRINGL(&zv, value, length < 0 ? std::strlen(value) : length);
-	}
-	else
-	{
-		ZVAL_NULL(&zv);
-	}
-}
-
-// -----------------------------------------------------------------------------
-
-zvalue zvalue::clone() const
-{
-	zvalue result;
-	ZVAL_DUP(&result.zv, &zv);
-	return result;
-}
-
-void zvalue::undef()
-{
-	if (Z_TYPE(zv) == IS_UNDEF) return;
+	assert(value && length);
 	zval_ptr_dtor(&zv);
-	ZVAL_UNDEF(&zv);
-}
-
-zval& zvalue::ref()
-{
-	return zv;
-}
-
-zval* zvalue::ptr()
-{
-	return &zv;
-}
-
-zval* zvalue::release()
-{
-	// TODO: needs better zval management
-	owner = false;
-	return &zv;
-}
-
-// -----------------------------------------------------------------------------
-
-zvalue::Type zvalue::type() const
-{
-	return static_cast<Type>(Z_TYPE(zv));
-}
-
-bool zvalue::is_undef() const
-{
-	return type() == Type::Undefined;
-}
-
-bool zvalue::is_null() const
-{
-	return type() == Type::Null;
-}
-
-bool zvalue::is_false() const
-{
-	return type() == Type::False;
-}
-
-bool zvalue::is_true() const
-{
-	return type() == Type::True;
-}
-
-bool zvalue::is_bool() const
-{
-	const Type t = type();
-	return (t == Type::False) || (t == Type::True);
-}
-
-bool zvalue::is_long() const
-{
-	return type() == Type::Long;
-}
-
-bool zvalue::is_double() const
-{
-	return type() == Type::Double;
-}
-
-bool zvalue::is_string() const
-{
-	return type() == Type::String;
-}
-
-bool zvalue::is_array() const
-{
-	return type() == Type::Array;
-}
-
-bool zvalue::is_object() const
-{
-	return type() == Type::Object;
+	ZVAL_STRINGL(&zv, value, length);
 }
 
 // -----------------------------------------------------------------------------
@@ -317,11 +344,77 @@ bool zvalue::to_bool() const
 	}
 }
 
-int64_t zvalue::to_long() const
+// ---------------------
+
+int zvalue::to_int() const
+{
+	assert(is_long());
+	return static_cast<int>(Z_LVAL(zv));
+}
+
+long zvalue::to_long() const
+{
+	assert(is_long());
+	return static_cast<long>(Z_LVAL(zv));
+}
+
+zend_long zvalue::to_zlong() const
 {
 	assert(is_long());
 	return Z_LVAL(zv);
 }
+
+int32_t zvalue::to_int32() const
+{
+	assert(is_long());
+	return static_cast<int32_t>(Z_LVAL(zv));
+}
+
+int64_t zvalue::to_int64() const
+{
+	assert(is_long());
+	return static_cast<int64_t>(Z_LVAL(zv));
+}
+
+// ---------------------
+
+unsigned int zvalue::to_uint() const
+{
+	assert(is_long());
+	return static_cast<unsigned int>(Z_LVAL(zv));
+}
+
+unsigned long zvalue::to_ulong() const
+{
+	assert(is_long());
+	return static_cast<unsigned long>(Z_LVAL(zv));
+}
+
+zend_ulong zvalue::to_zulong() const
+{
+	assert(is_long());
+	return static_cast<zend_ulong>(Z_LVAL(zv));
+}
+
+std::size_t zvalue::to_size_t() const
+{
+	assert(is_long());
+	return static_cast<std::size_t>(Z_LVAL(zv));
+}
+
+uint32_t zvalue::to_uint32() const
+{
+	assert(is_long());
+	return static_cast<uint32_t>(Z_LVAL(zv));
+}
+
+uint64_t zvalue::to_uint64() const
+{
+	assert(is_long());
+	return static_cast<uint64_t>(Z_LVAL(zv));
+}
+
+// ---------------------
 
 double zvalue::to_double() const
 {
@@ -329,82 +422,355 @@ double zvalue::to_double() const
 	return Z_DVAL(zv);
 }
 
+// ---------------------
+
 string zvalue::to_string() const
 {
 	assert(is_string());
-	return string { Z_STRVAL(zv), Z_STRLEN(zv) };
+	return string{ Z_STRVAL(zv), Z_STRLEN(zv) };
 }
 
-const char* zvalue::get_str_ptr() const
+string_view zvalue::to_string_view() const
+{
+	assert(is_string());
+	return string_view{ Z_STRVAL(zv), Z_STRLEN(zv) };
+}
+
+std::string zvalue::to_std_string() const
+{
+	assert(is_string());
+	return std::string{ Z_STRVAL(zv), Z_STRLEN(zv) };
+}
+
+const char* zvalue::c_str() const
 {
 	assert(is_string());
 	return Z_STRVAL(zv);
 }
 
-std::size_t zvalue::get_str_length() const
+// -----------------------------------------------------------------------------
+
+std::size_t zvalue::size() const
 {
-	assert(is_string());
-	return Z_STRLEN(zv);
+	switch (type()) {
+	case Type::String:
+		return Z_STRLEN(zv);
+
+	case Type::Array:
+		return zend_array_count(Z_ARRVAL(zv));
+
+	default:
+		assert(!"size unsupported for that type");
+		return 0;
+	}
+}
+
+void zvalue::clear()
+{
+	switch (type()) {
+	case Type::String:
+		zval_ptr_dtor(&zv);
+		ZVAL_EMPTY_STRING(&zv);
+		break;
+
+	case Type::Array:
+		zend_hash_clean(Z_ARRVAL(zv));
+		break;
+
+	default:
+		assert(!"clear unsupported for that type");
+	}
+}
+
+void zvalue::reserve(std::size_t size)
+{
+	zval_ptr_dtor(&zv);
+	array_init_size(&zv, size);
+}
+
+void zvalue::reset()
+{
+	if (is_undef()) return;
+	zval_ptr_dtor(&zv);
+	ZVAL_UNDEF(&zv);
+}
+
+zvalue zvalue::clone() const
+{
+	zvalue result;
+	ZVAL_DUP(&result.zv, &zv);
+	return result;
+}
+
+void zvalue::acquire(zval* other)
+{
+	assert(other);
+	zval_ptr_dtor(&zv);
+	ZVAL_ZVAL(&zv, other, 1, 1);
+	ZVAL_UNDEF(other);
+}
+
+void zvalue::copy_to(zval* other)
+{
+	assert(other);
+	ZVAL_ZVAL(other, &zv, 1, 0);
+}
+
+void zvalue::move_to(zval* other)
+{
+	assert(other);
+	ZVAL_ZVAL(other, &zv, 1, 1);
+	ZVAL_UNDEF(&zv);
+}
+
+zval zvalue::release()
+{
+	zval other;
+	ZVAL_ZVAL(&other, &zv, 1, 1);
+	ZVAL_UNDEF(&zv);
+	return other;
+}
+
+void zvalue::invalidate()
+{
+	ZVAL_UNDEF(&zv);
 }
 
 // -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
 
-zvalue_ptr::zvalue_ptr(zval* zv_ptr) : zv(zv_ptr)
+bool zvalue::contains(std::size_t index) const
 {
+	assert(is_array());
+	return zend_hash_index_exists(Z_ARRVAL(zv), index) ? true : false;
+}
+
+bool zvalue::contains(const char* key, std::size_t key_length) const
+{
+	assert(is_array());
+	return zend_hash_str_exists(Z_ARRVAL(zv), key, key_length) ? true : false;
+}
+
+// ---------------------
+
+const zvalue zvalue::find(std::size_t index) const
+{
+	assert(is_array());
+	zval* zv{ zend_hash_index_find(Z_ARRVAL(ref()), index) };
+	return zv ? zvalue(*zv) : zvalue();
+}
+
+const zvalue zvalue::find(const char* key, std::size_t key_length) const
+{
+	assert(is_array());
+	zval* zv{ zend_hash_str_find(Z_ARRVAL(ref()), key, key_length) };
+	return zv ? zvalue(*zv) : zvalue();
+}
+
+const zvalue zvalue::at(std::size_t index) const
+{
+	assert(is_array());
+	zval* zv{ zend_hash_index_find(Z_ARRVAL(ref()), index) };
+	if (!zv) {
+		util::ostringstream os;
+		os << "index " << index <<  " not found";
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::out_of_range,
+			os.str());
+	}
+	return zvalue(*zv);
+}
+
+const zvalue zvalue::at(const char* key, std::size_t key_length) const
+{
+	assert(is_array());
+	zval* zv{ zend_hash_str_find(Z_ARRVAL(ref()), key, key_length) };
+	if (!zv) {
+		util::ostringstream os;
+		os << "key " << key <<  " not found";
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::out_of_range,
+			os.str());
+	}
+	return zvalue(*zv);
 }
 
 // -----------------------------------------------------------------------------
 
-zvalue_ptr::Type zvalue_ptr::type() const
+void zvalue::insert(std::size_t index, const zvalue& value)
 {
-	return static_cast<Type>(Z_TYPE_P(zv));
+	assert(is_array());
+	zvalue ht_value(value);
+	if (zend_hash_index_update(Z_ARRVAL(zv), static_cast<zend_ulong>(index), ht_value.ptr())) {
+		ht_value.invalidate();
+	}
 }
 
-bool zvalue_ptr::is_null() const
+void zvalue::insert(std::size_t index, zvalue&& value)
 {
-	return type() == Type::Null;
+	assert(is_array());
+	if (zend_hash_index_update(Z_ARRVAL(zv), static_cast<zend_ulong>(index), value.ptr())) {
+		value.invalidate();
+	}
 }
 
-bool zvalue_ptr::is_false() const
+void zvalue::insert(const char* key, std::size_t key_length, const zvalue& value)
 {
-	return type() == Type::False;
+	assert(is_array());
+	zvalue ht_value(value);
+	if (zend_hash_str_update(Z_ARRVAL(zv), key, key_length, ht_value.ptr())) {
+		ht_value.invalidate();
+	}
 }
 
-bool zvalue_ptr::is_true() const
+void zvalue::insert(const char* key, std::size_t key_length, zvalue&& value)
 {
-	return type() == Type::True;
+	assert(is_array());
+	if (zend_hash_str_update(Z_ARRVAL(zv), key, key_length, value.ptr())) {
+		value.invalidate();
+	}
 }
 
-bool zvalue_ptr::is_bool() const
+// ---------------------
+
+void zvalue::push_back(const zvalue& value)
 {
-	const Type t = type();
-	return (t == Type::False) || (t == Type::True);
+	assert(is_array());
+	zvalue ht_value(value);
+	if (zend_hash_next_index_insert(Z_ARRVAL(zv), ht_value.ptr())) {
+		ht_value.invalidate();
+	}
 }
 
-bool zvalue_ptr::is_long() const
+void zvalue::push_back(zvalue&& value)
 {
-	return type() == Type::Long;
+	assert(is_array());
+	if (zend_hash_next_index_insert(Z_ARRVAL(zv), value.ptr())) {
+		value.invalidate();
+	}
 }
 
-bool zvalue_ptr::is_double() const
+// ---------------------
+
+bool zvalue::erase(std::size_t index)
 {
-	return type() == Type::Double;
+	assert(is_array());
+	return zend_hash_index_del(Z_ARRVAL(zv), static_cast<zend_ulong>(index)) == SUCCESS;
 }
 
-bool zvalue_ptr::is_string() const
+bool zvalue::erase(const char* key, std::size_t key_length)
 {
-	return type() == Type::String;
+	assert(is_array());
+	return zend_hash_str_del(Z_ARRVAL(zv), key, key_length) == SUCCESS;
 }
 
-bool zvalue_ptr::is_array() const
+// -----------------------------------------------------------------------------
+
+zvalue::iterator::iterator(HashTable* ht, HashPosition pos)
+	: ht(ht)
+	, pos(pos)
 {
-	return type() == Type::Array;
 }
 
-bool zvalue_ptr::is_object() const
+zvalue::iterator zvalue::iterator::operator++(int)
 {
-	return type() == Type::Object;
+	iterator it(ht, pos);
+	++(*this);
+	return it;
+}
+
+zvalue::iterator& zvalue::iterator::operator++()
+{
+	zend_hash_move_forward_ex(ht, &pos);
+	return *this;
+}
+
+zvalue::iterator::value_type zvalue::iterator::operator*() const
+{
+	zvalue key;
+	zend_hash_get_current_key_zval_ex(ht, key.ptr(), &pos);
+	assert(!key.is_null());
+	zvalue value{ zend_hash_get_current_data_ex(ht, &pos) };
+	return std::make_pair(key, value);
+}
+
+bool zvalue::iterator::operator==(const iterator& rhs) const
+{
+	return pos == rhs.pos;
+}
+
+bool zvalue::iterator::operator!=(const iterator& rhs) const
+{
+	return pos != rhs.pos;
+}
+
+// ---------------------
+
+zvalue::iterator zvalue::begin() const
+{
+	assert(is_array());
+	HashTable* ht{ Z_ARRVAL(ref()) };
+	HashPosition pos{ HT_INVALID_IDX };
+	zend_hash_internal_pointer_reset_ex(ht, &pos);
+	return iterator(ht, pos);
+}
+
+zvalue::iterator zvalue::end() const
+{
+	assert(is_array());
+	return iterator(Z_ARRVAL(ref()), HT_INVALID_IDX);
+}
+
+// -----------------------------------------------------------------------------
+
+zvalue::value_iterator::value_iterator(HashTable* ht, HashPosition pos)
+	: ht(ht)
+	, pos(pos)
+{
+}
+
+zvalue::value_iterator zvalue::value_iterator::operator++(int)
+{
+	value_iterator it(ht, pos);
+	++(*this);
+	return it;
+}
+
+zvalue::value_iterator& zvalue::value_iterator::operator++()
+{
+	zend_hash_move_forward_ex(ht, &pos);
+	return *this;
+}
+
+zvalue::value_iterator::value_type zvalue::value_iterator::operator*() const
+{
+	return zend_hash_get_current_data_ex(ht, &pos);
+}
+
+bool zvalue::value_iterator::operator==(const value_iterator& rhs) const
+{
+	return pos == rhs.pos;
+}
+
+bool zvalue::value_iterator::operator!=(const value_iterator& rhs) const
+{
+	return pos != rhs.pos;
+}
+
+// ---------------------
+
+zvalue::value_iterator zvalue::vbegin() const
+{
+	assert(is_array());
+	HashTable* ht{ Z_ARRVAL(ref()) };
+	HashPosition pos{ HT_INVALID_IDX };
+	zend_hash_internal_pointer_reset_ex(ht, &pos);
+	return value_iterator(ht, pos);
+}
+
+zvalue::value_iterator zvalue::vend() const
+{
+	assert(is_array());
+	return value_iterator(Z_ARRVAL(ref()), HT_INVALID_IDX);
 }
 
 } // namespace util
