@@ -189,12 +189,6 @@ inline bool zvalue::to_value<bool>() const
 // ---------------------
 
 template<>
-inline long zvalue::to_value<long>() const
-{
-	return to_long();
-}
-
-template<>
 inline int32_t zvalue::to_value<int32_t>() const
 {
 	return to_int32();
@@ -207,12 +201,6 @@ inline int64_t zvalue::to_value<int64_t>() const
 }
 
 // ---------------------
-
-template<>
-inline unsigned long zvalue::to_value<unsigned long>() const
-{
-	return to_ulong();
-}
 
 template<>
 inline uint32_t zvalue::to_value<uint32_t>() const

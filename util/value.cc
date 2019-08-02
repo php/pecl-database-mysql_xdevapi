@@ -485,7 +485,7 @@ void zvalue::clear()
 void zvalue::reserve(std::size_t size)
 {
 	zval_ptr_dtor(&zv);
-	array_init_size(&zv, size);
+	array_init_size(&zv, static_cast<uint32_t>(size));
 }
 
 void zvalue::reset()
