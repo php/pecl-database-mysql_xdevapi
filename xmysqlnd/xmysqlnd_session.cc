@@ -4298,6 +4298,68 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 }
 /* }}} */
 
+
+/* {{{ verify_uri_address */
+int contains_list_of_url(
+		const util::string& uri
+)
+{
+	/*
+	 * The function returns:
+	 *  end = the URI contains a valid list
+	 *  0   = the URI does not contain a valid list
+	 * -1   = the URI is ill formatted.
+	 */
+	auto beg = uri.find_first_of('@');
+	if( beg != util::string::npos ) {
+		++beg;
+	} else {
+		return -1;
+	}
+	bool valid_list{ false };
+	/*
+	 * Find the first opening [ (start of the list) and
+	 * the relative closing ] (end of the list). Verify
+	 * if that can possibly be a list.
+	 *
+	 * (This code is not safe from ill-formatted URI's.. nobody is)
+	 */
+	int brk_cnt{ uri[ beg ] == '[' };
+	std::size_t end{ beg + 1 };
+	for( ; brk_cnt > 0 && end < uri.size() ; ++end ) {
+		switch( uri[ end ] )
+		{
+		case '[':
+			if( ++brk_cnt > 1 ) {
+				//possible only if this is a list
+				valid_list = true;
+			}
+			break;
+		case ']':
+			if( 0 == --brk_cnt ) {
+				//done..
+					--end;
+			}
+			break;
+		case ','://Found a list separator
+			valid_list = true;
+			break;
+		case '(':
+		case ')':
+			valid_list = true;
+			break;
+		default:
+			break;
+		}
+	}
+	if( brk_cnt != 0 ) {
+		//Ill-formed URI
+		return -1;
+	}
+	return valid_list ? end : 0;
+}
+
+/* {{{ list_of_addresses_parser */
 list_of_addresses_parser::list_of_addresses_parser(util::string uri)
 {
 	/*
@@ -4321,53 +4383,11 @@ list_of_addresses_parser::list_of_addresses_parser(util::string uri)
 		invalidate();
 		return;
 	}
-	/*
-	 * Enable parsing only if this is a list
-	 * of addresses
-	 */
-	bool valid_list{ false };
-	/*
-	 * Find the first opening [ (start of the list) and
-	 * the relative closing ] (end of the list). Verify
-	 * if that can possibly be a list.
-	 *
-	 * (This code is not safe from ill-formatted URI's.. nobody is)
-	 */
-	int brk_cnt{ uri[ beg ] == '[' };
-	for( end = beg + 1 ; brk_cnt > 0 && end < uri.size() ; ++end ) {
-		switch( uri[ end ] )
-		{
-		case '[':
-			if( ++brk_cnt > 1 ) {
-				//possible only if this is a list
-				valid_list = true;
-			}
-			break;
-		case ']':
-			if( 0 == --brk_cnt ) {
-				//done..
-				--end;
-			}
-			break;
-		case ','://Found a list separator
-			valid_list = true;
-			break;
-		case '(':
-		case ')':
-			valid_list = true;
-			break;
-		default:
-			break;
-		}
-	}
-
-	if( brk_cnt != 0 ) {
-		//Ill-formed URI
+	int valid_list = contains_list_of_url( uri );
+	if( valid_list < 0 ) {
 		invalidate();
-		return;
-	}
-
-	if( valid_list ) {
+	} else if ( valid_list > 0 ) {
+		end = valid_list;
 		uri_string = uri;
 		/*
 		 * The unformatted_uri string is used
@@ -4385,13 +4405,15 @@ list_of_addresses_parser::list_of_addresses_parser(util::string uri)
 		 * Only one address
 		 */
 		list_of_addresses.push_back({
-										uri,
-										MAX_HOST_PRIORITY });
+								uri,
+								MAX_HOST_PRIORITY });
 		invalidate(); //Signal to 'parse' to actually not parse.
 	}
 }
+/* }}} */
 
 
+/* {{{ parse */
 vec_of_addresses list_of_addresses_parser::parse()
 {
 	DBG_ENTER("list_of_addresses_parser::parse");
@@ -4457,14 +4479,20 @@ vec_of_addresses list_of_addresses_parser::parse()
 	}
 	DBG_RETURN( list_of_addresses );
 }
+/* }}} */
 
+
+/* {{{ invalidate */
 void list_of_addresses_parser::invalidate()
 {
 	//Signal to 'parse' to actually not parse.
 	beg = 1;
 	end = 0;
 }
+/* }}} */
 
+
+/* {{{ parse_round_token */
 bool list_of_addresses_parser::parse_round_token(const util::string &str)
 {
 	/*
@@ -4534,8 +4562,10 @@ bool list_of_addresses_parser::parse_round_token(const util::string &str)
 	add_address(new_addr);
 	return true;
 }
+/* }}} */
 
 
+/* {{{ add_address */
 void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
 {
 	/*
@@ -4547,6 +4577,7 @@ void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
 	list_of_addresses.push_back( { new_addr, addr.second } );
 }
 /* }}} */
+
 
 /* {{{ extract_uri_addresses */
 vec_of_addresses extract_uri_addresses(const util::string& uri)
@@ -4878,14 +4909,14 @@ bool verify_dns_srv_uri(
 	 *  #3 Specifying multiple hostnames while also requesting a DNS
 	 *	   SRV lookup will result in an error and error
 	 */
-	std::string uri( uri_string + off );
+	util::string uri( uri_string + off );
 	auto pos = uri.find_first_of("@");
-	if( pos != std::string::npos ) {
+	if( pos != util::string::npos ) {
 		uri = uri.substr( pos + 1 );
 	}
 	//Verify #1
 	pos = uri.find_first_of(':');
-	if( pos != std::string::npos ) {
+	if( pos != util::string::npos ) {
 		DBG_ERR_FMT("Port number not allowed while using DNS SRV!");
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::port_nbr_not_allowed_with_srv_uri);
@@ -4899,17 +4930,23 @@ bool verify_dns_srv_uri(
 			util::xdevapi_exception::Code::unix_socket_not_allowed_with_srv);
 		return false;
 	}
-	//Verify #3 TODO: How multiple hostnames are provided?
+	//Verify #3
+	int valid_list = contains_list_of_url( uri_string );
+	if( valid_list != 0 ) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::url_list_not_allowed);
+		return false;
+	}
 	return true;
 }
 
 namespace{
 
 using Srv_data = std::map<uint16_t,
-	std::map<uint16_t,std::forward_list<std::pair<std::string,uint16_t>>>
+	std::map<uint16_t,std::forward_list<std::pair<util::string,uint16_t>>>
 >;
 
-using Srv_hostname_list = std::forward_list<std::pair<std::string,uint16_t>>;
+using Srv_hostname_list = std::forward_list<std::pair<util::string,uint16_t>>;
 
 }
 
@@ -4970,47 +5007,84 @@ Srv_hostname_list query_srv_list(
 }
 
 /* {{{ requested_srv_lookup */
+static
 bool requested_srv_lookup(
 	const char* uri_string,
 	XMYSQLND_SESSION& session
 )
 {
-	bool				  dns_srv_requested{ false };
 	const char*			  res = strstr(uri_string, dns_srv_prefix);
 	if( res ) {
 		if( strncmp( res + strlen(dns_srv_prefix),
-					 srv_pref, strlen(srv_pref)) ) {
+					 srv_pref, strlen(srv_pref) ) ) {
 			/*
 			 * Only 'srv' allowed after mysqlx+.
 			 */
 			throw util::xdevapi_exception(
 				util::xdevapi_exception::Code::provided_invalid_uri);
-		} else if( verify_dns_srv_uri( uri_string ) ) {
-			/*
-			 * Process the URI, get the hostname string
-			 * and attempt to resolve it by getting the
-			 * DNS SRV records
-			 */
-			php_url * raw_node_url = php_url_parse(uri_string);
-			if( nullptr == raw_node_url ) {
-				throw util::xdevapi_exception(
-					util::xdevapi_exception::Code::unix_socket_not_allowed_with_srv);
-				return false;
-			}
-			util::Url node_url(raw_node_url);
-			php_url_free(raw_node_url);
-			raw_node_url = nullptr;
-			fprintf(stderr,"TO BE VERIFIED: %s (Hostname: %s)\n",
-					uri_string,
-					node_url.host.c_str() );
-			dns_srv_requested = true;
-			auto srv_data = query_srv_list(node_url.host.c_str());
-			for( auto elem : srv_data ){
-				std::cout<<elem.first<<":"<<elem.second<<std::endl;
-			}
 		}
+		return verify_dns_srv_uri( uri_string );
 	}
-	return dns_srv_requested;
+	return false;
+}
+/* }}} */
+
+
+/* {{{ convert_srv_hostname_to_uri */
+static
+vec_of_addresses convert_srv_hostname_to_uri(
+	const Srv_hostname_list& srv_hostnames,
+	const util::Url&         node_url
+)
+{
+	vec_of_addresses uri;
+	/*
+	 * Convert the raw URL to valid URI
+	 */
+	for( const auto elem : srv_hostnames ){
+		util::stringstream new_uri;
+		new_uri << namespace_mysqlx.s << "://" <<
+				   node_url.user << ":" <<
+				   node_url.pass << "@" <<
+				   elem.first;
+		if( !node_url.query.empty() ) {
+			new_uri << "/?" <<node_url.query;
+		}
+		uri.push_back( std::make_pair( new_uri.str(), elem.second ));
+	}
+	return uri;
+}
+/* }}} */
+
+
+/* {{{ dns_srv_get_hostname_list */
+static
+vec_of_addresses dns_srv_get_hostname_list(
+	const char* uri_string
+)
+{
+	DBG_ENTER("dns_srv_get_hostname_list");
+	/*
+	 * Process the URI, get the hostname string
+	 * and attempt to resolve it by getting the
+	 * DNS SRV records
+	 */
+	php_url * raw_node_url = php_url_parse(uri_string);
+	if( nullptr == raw_node_url ) {
+		DBG_ERR_FMT("URI parsing failed!");
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::provided_invalid_uri);
+		return {};
+	}
+	util::Url node_url(raw_node_url);
+	php_url_free(raw_node_url);
+	raw_node_url = nullptr;
+	auto raw_hostnames = query_srv_list(node_url.host.c_str());
+	if( not raw_hostnames.empty()){
+		return convert_srv_hostname_to_uri( raw_hostnames,
+											node_url );
+	}
+	return {};
 }
 /* }}} */
 
@@ -5026,29 +5100,33 @@ enum_func_status connect_session(
 	enum_func_status ret{FAIL};
 	if( nullptr == uri_string ) {
 		DBG_ERR_FMT("The provided URI string is null!");
-		return ret;
+		DBG_RETURN(ret);
 	}
 
+	vec_of_addresses uris;
 	if( requested_srv_lookup( uri_string, session ) ) {
 		/*
 		 * Requested lookup with DNS SRV.
 		 */
-		fprintf(stderr,"!!! SRV: Requested DNS SRV\n");
-		return ret;
+		uris = dns_srv_get_hostname_list( uri_string );
+		DBG_INF_FMT("Got a valid list of %d servers from the SRV records",
+					uris.size());
+	} else {
+		/*
+		 * Verify whether a list of addresses is provided,
+		 * if that's the case we need to parse those addresses
+		 * and their priority in order to implement the
+		 * Client Side Failover
+		 */
+		uris = extract_uri_addresses( uri_string );
 	}
-	/*
-	 * Verify whether a list of addresses is provided,
-	 * if that's the case we need to parse those addresses
-	 * and their priority in order to implement the
-	 * Client Side Failover
-	 */
-	auto uris = extract_uri_addresses( uri_string );
 	/*
 	 * For each address attempt to perform a connection
 	 * (The addresses are sorted by priority)
 	 */
 	MYSQLND_ERROR_INFO last_error_info{};
 	for( auto&& current_uri : uris ) {
+		fprintf(stderr,"CONNECTING TO: %s\n", current_uri.first.c_str());
 		DBG_INF_FMT("Attempting to connect with: %s\n",
 					current_uri.first.c_str());
 		auto url = extract_uri_information( current_uri.first.c_str() );

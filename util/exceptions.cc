@@ -127,8 +127,11 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 		"Incorrect URI string provided"},
 	{ xdevapi_exception::Code::unix_socket_not_allowed_with_srv,
 		"Using Unix domain sockets with DNS SRV lookup is not allowed"},
+	{ xdevapi_exception::Code::url_list_not_allowed,
+		"URI with a list of URL not allowed."},
 };
 /* }}} */
+
 
 /* {{{ to_sql_state */
 string to_sql_state(const string& sql_state)
