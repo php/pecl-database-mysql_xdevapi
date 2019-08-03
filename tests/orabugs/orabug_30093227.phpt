@@ -9,7 +9,7 @@ orabug #30093227: mysql_xdevapi\CollectionFind::fields() path fails when ends in
 	https://bugs.php.net/bug.php?id=78331
 	https://stackoverflow.com/questions/57169316/mysql-json-how-do-i-access-nested-json-object-thats-indexed-by-numerical-key
 */
-require(__DIR__."/connect.inc");
+require(__DIR__."/../connect.inc");
 
 function fetch_field($field) {
 	global $coll;
@@ -96,7 +96,7 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-require(__DIR__."/connect.inc");
+require(__DIR__."/../connect.inc");
 clean_test_db();
 ?>
 --EXPECTF--
