@@ -490,13 +490,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, __construct)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 {
 	zval* object_zv{nullptr};
-	const zval* fields{nullptr};
+	zval* fields{nullptr};
 
 	DBG_ENTER("mysqlx_collection__find::fields");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
-												(zval *) &fields))
+												&fields))
 	{
 		DBG_VOID_RETURN;
 	}

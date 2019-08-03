@@ -147,6 +147,13 @@ bool to_int(const std::string& str, int* value)
 }
 /* }}} */
 
+bool is_alnum_identifier(const std::string& ident)
+{
+	return !ident.empty()
+		&& std::isalpha(ident.front())
+		&& std::all_of(ident.begin() + 1, ident.end(), ::isalnum);
+}
+
 } // namespace util
 
 } // namespace mysqlx

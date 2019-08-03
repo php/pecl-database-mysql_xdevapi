@@ -21,6 +21,7 @@
 
 
 #include <string>
+#include "util/string_utils.h"
 #include "xmysqlnd/proto_gen/mysqlx_expr.pb.h"
 #include "xmysqlnd/cdkbase/parser/expr_parser.h"
 #include "xmysqlnd/cdkbase/parser/tokenizer.h"
@@ -302,10 +303,14 @@ bool projection(
 	}
 
 	if( false == ident.empty() ) {
-		target_expr += " ";
+		target_expr += ' ';
 		target_expr += parser_as_symbol;
-		target_expr += " ";
+		target_expr += ' ';
+
+		const bool need_backticks{ !util::is_alnum_identifier(ident) };
+		if (need_backticks) target_expr += '`';
 		target_expr += ident;
+		if (need_backticks) target_expr += '`';
 	}
 
 	std::vector<std::string> ph;

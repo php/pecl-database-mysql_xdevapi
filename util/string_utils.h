@@ -161,6 +161,8 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 bool to_int(const string& str, int* value);
 bool to_int(const std::string& str, int* value);
 
+bool is_alnum_identifier(const std::string& ident);
+
 //------------------------------------------------------------------------------
 
 template<typename String>
