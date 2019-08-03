@@ -44,16 +44,23 @@ $doc = [
         '-13' => [
             'qq' => [
                 13
-            ]
+            ],
+            ',a;b-c' => 42
 		],
         -1313 => [
             'qqryq' => [
                 -1212
-            ]
+            ],
+			2424 => 4848
 		],
         'abc-0.7' => 'xyz',
         '_def0-9' => -6.5,
-        '13.14.15' => 16.172,
+        '13.14.15' => [
+            '-xyz,123!-345' => [
+                -1212
+            ],
+			-123 => 16.172
+		],
         '_def0;9' => 'weird id',
         'jkl,11' => 'yet another weird id',
     ]
@@ -68,13 +75,19 @@ fetch_field('$.tree."100".qwe');
 fetch_field('$.tree."100"');
 fetch_field('$.tree."200"');
 fetch_field('$.tree."300"');
+fetch_field('$.tree."300".asdf');
 fetch_field('$.tree."400.5"');
 fetch_field('$.tree."abc"');
 fetch_field('$.tree."-13"');
+fetch_field('$.tree."-13".",a;b-c"');
 fetch_field('$.tree."-1313"');
+fetch_field('$.tree."-1313"."2424"');
+fetch_field('$.tree."-1313".qqryq');
 fetch_field('$.tree."abc-0.7"');
 fetch_field('$.tree."_def0-9"');
 fetch_field('$.tree."13.14.15"');
+fetch_field('$.tree."13.14.15"."-123"');
+fetch_field('$.tree."13.14.15"."-xyz,123!-345"');
 fetch_field('$.tree."_def0;9"');
 fetch_field('$.tree."jkl,11"');
 
@@ -144,6 +157,17 @@ array(1) {
     }
   }
 }
+----- $.tree."300".asdf -----
+array(1) {
+  [0]=>
+  array(1) {
+    ["asdf"]=>
+    array(1) {
+      [0]=>
+      string(1) "b"
+    }
+  }
+}
 ----- $.tree."400.5" -----
 array(1) {
   [0]=>
@@ -165,13 +189,23 @@ array(1) {
   [0]=>
   array(1) {
     [-13]=>
-    array(1) {
+    array(2) {
       ["qq"]=>
       array(1) {
         [0]=>
         int(13)
       }
+      [",a;b-c"]=>
+      int(42)
     }
+  }
+}
+----- $.tree."-13".",a;b-c" -----
+array(1) {
+  [0]=>
+  array(1) {
+    [",a;b-c"]=>
+    int(42)
   }
 }
 ----- $.tree."-1313" -----
@@ -179,12 +213,33 @@ array(1) {
   [0]=>
   array(1) {
     [-1313]=>
-    array(1) {
+    array(2) {
+      [2424]=>
+      int(4848)
       ["qqryq"]=>
       array(1) {
         [0]=>
         int(-1212)
       }
+    }
+  }
+}
+----- $.tree."-1313"."2424" -----
+array(1) {
+  [0]=>
+  array(1) {
+    [2424]=>
+    int(4848)
+  }
+}
+----- $.tree."-1313".qqryq -----
+array(1) {
+  [0]=>
+  array(1) {
+    ["qqryq"]=>
+    array(1) {
+      [0]=>
+      int(-1212)
     }
   }
 }
@@ -209,7 +264,34 @@ array(1) {
   [0]=>
   array(1) {
     ["13.14.15"]=>
+    array(2) {
+      [-123]=>
+      float(16.172)
+      ["-xyz,123!-345"]=>
+      array(1) {
+        [0]=>
+        int(-1212)
+      }
+    }
+  }
+}
+----- $.tree."13.14.15"."-123" -----
+array(1) {
+  [0]=>
+  array(1) {
+    [-123]=>
     float(16.172)
+  }
+}
+----- $.tree."13.14.15"."-xyz,123!-345" -----
+array(1) {
+  [0]=>
+  array(1) {
+    ["-xyz,123!-345"]=>
+    array(1) {
+      [0]=>
+      int(-1212)
+    }
   }
 }
 ----- $.tree."_def0;9" -----
