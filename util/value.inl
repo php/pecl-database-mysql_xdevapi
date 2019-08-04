@@ -275,9 +275,85 @@ inline void zvalue::move_to(zval& zv)
 	move_to(&zv);
 }
 
+inline void zvalue::inc_ref() const
+{
+	Z_TRY_ADDREF(ref());
+}
+
+inline void zvalue::dec_ref() const
+{
+	Z_TRY_DELREF(ref());
+}
+
 inline void zvalue::swap(zvalue& rhs) noexcept
 {
 	std::swap(zv, rhs.zv);
+}
+
+// -----------------------------------------------------------------------------
+
+inline const zvalue zvalue::get_property(const string& name) const
+{
+	return get_property(name.c_str(), name.length());
+}
+
+inline const zvalue zvalue::get_property(const string_view& name) const
+{
+	return get_property(name.c_str(), name.length());
+}
+
+inline const zvalue zvalue::get_property(const std::string& name) const
+{
+	return get_property(name.c_str(), name.length());
+}
+
+inline const zvalue zvalue::get_property(const char* name) const
+{
+	return get_property(name, std::strlen(name));
+}
+
+// ---------------------
+
+inline void zvalue::set_property(const string& name, const zvalue& value)
+{
+	set_property(name.c_str(), name.length(), value);
+}
+
+inline void zvalue::set_property(const string_view& name, const zvalue& value)
+{
+	set_property(name.c_str(), name.length(), value);
+}
+
+inline void zvalue::set_property(const std::string& name, const zvalue& value)
+{
+	set_property(name.c_str(), name.length(), value);
+}
+
+inline void zvalue::set_property(const char* name, const zvalue& value)
+{
+	set_property(name, std::strlen(name), value);
+}
+
+// ---------------------
+
+inline void zvalue::unset_property(const string& name)
+{
+	return unset_property(name.c_str(), name.length());
+}
+
+inline void zvalue::unset_property(const string_view& name)
+{
+	return unset_property(name.c_str(), name.length());
+}
+
+inline void zvalue::unset_property(const std::string& name)
+{
+	return unset_property(name.c_str(), name.length());
+}
+
+inline void zvalue::unset_property(const char* name)
+{
+	return unset_property(name, std::strlen(name));
 }
 
 // -----------------------------------------------------------------------------

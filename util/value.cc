@@ -23,9 +23,19 @@
 	useful links:
 	https://medium.com/@davidtstrauss/copy-and-move-semantics-of-zvals-in-php-7-41427223d784
 	https://wiki.php.net/phpng-upgrading
-	https://wiki.php.net/phpng-upgrading#hashtable_api
-	http://blog.jpauli.tech/2016/04/08/hashtables.html
+	http://blog.jpauli.tech/2016-04-08-hashtables-html/
+	http://blog.jpauli.tech/2015-09-18-php-string-management-html/
+	http://blog.jpauli.tech/2016-01-14-php-7-objects-html/
 	http://nikic.github.io/2014/12/22/PHPs-new-hashtable-implementation.html
+	https://nikic.github.io/2015/05/05/Internal-value-representation-in-PHP-7-part-1.html
+	https://nikic.github.io/2015/06/19/Internal-value-representation-in-PHP-7-part-2.html
+	https://github.com/phpinternalsbook/PHP-Internals-Book/tree/master/Book/php7/internal_types/zvals
+	http://www.phpinternalsbook.com/index.html
+
+	also related to PHP5:
+	http://www.phpinternalsbook.com/php5/hashtables/hashtable_api.html
+	http://www.phpinternalsbook.com/php5/hashtables/array_api.html
+	http://www.phpinternalsbook.com/php5/zvals/memory_management.html
 */
 
 namespace mysqlx {
@@ -538,6 +548,28 @@ void zvalue::invalidate()
 
 // -----------------------------------------------------------------------------
 
+const zvalue zvalue::get_property(const char* name, std::size_t name_length) const
+{
+	assert(is_object());
+	zval rv;
+	ZVAL_UNDEF(&rv);
+	return zvalue(zend_read_property(Z_OBJCE(zv), ptr(), name, name_length, true, &rv));
+}
+
+void zvalue::set_property(const char* name, std::size_t name_length, const zvalue& value)
+{
+	assert(is_object());
+	zend_update_property(Z_OBJCE(zv), ptr(), name, name_length, value.ptr());
+}
+
+void zvalue::unset_property(const char* name, std::size_t name_length)
+{
+	assert(is_object());
+	zend_unset_property(Z_OBJCE(zv), ptr(), name, name_length);
+}
+
+// -----------------------------------------------------------------------------
+
 bool zvalue::contains(std::size_t index) const
 {
 	assert(is_array());
@@ -555,43 +587,43 @@ bool zvalue::contains(const char* key, std::size_t key_length) const
 const zvalue zvalue::find(std::size_t index) const
 {
 	assert(is_array());
-	zval* zv{ zend_hash_index_find(Z_ARRVAL(ref()), index) };
-	return zv ? zvalue(*zv) : zvalue();
+	zval* elem{ zend_hash_index_find(Z_ARRVAL(ref()), index) };
+	return elem ? zvalue(*elem) : zvalue();
 }
 
 const zvalue zvalue::find(const char* key, std::size_t key_length) const
 {
 	assert(is_array());
-	zval* zv{ zend_hash_str_find(Z_ARRVAL(ref()), key, key_length) };
-	return zv ? zvalue(*zv) : zvalue();
+	zval* elem{ zend_hash_str_find(Z_ARRVAL(ref()), key, key_length) };
+	return elem ? zvalue(*elem) : zvalue();
 }
 
 const zvalue zvalue::at(std::size_t index) const
 {
 	assert(is_array());
-	zval* zv{ zend_hash_index_find(Z_ARRVAL(ref()), index) };
-	if (!zv) {
+	zval* elem{ zend_hash_index_find(Z_ARRVAL(ref()), index) };
+	if (!elem) {
 		util::ostringstream os;
 		os << "index " << index <<  " not found";
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::out_of_range,
 			os.str());
 	}
-	return zvalue(*zv);
+	return zvalue(*elem);
 }
 
 const zvalue zvalue::at(const char* key, std::size_t key_length) const
 {
 	assert(is_array());
-	zval* zv{ zend_hash_str_find(Z_ARRVAL(ref()), key, key_length) };
-	if (!zv) {
+	zval* elem{ zend_hash_str_find(Z_ARRVAL(ref()), key, key_length) };
+	if (!elem) {
 		util::ostringstream os;
 		os << "key " << key <<  " not found";
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::out_of_range,
 			os.str());
 	}
-	return zvalue(*zv);
+	return zvalue(*elem);
 }
 
 // -----------------------------------------------------------------------------
@@ -599,9 +631,8 @@ const zvalue zvalue::at(const char* key, std::size_t key_length) const
 void zvalue::insert(std::size_t index, const zvalue& value)
 {
 	assert(is_array());
-	zvalue ht_value(value);
-	if (zend_hash_index_update(Z_ARRVAL(zv), static_cast<zend_ulong>(index), ht_value.ptr())) {
-		ht_value.invalidate();
+	if (zend_hash_index_update(Z_ARRVAL(zv), static_cast<zend_ulong>(index), value.ptr())) {
+		value.inc_ref();
 	}
 }
 
@@ -616,9 +647,8 @@ void zvalue::insert(std::size_t index, zvalue&& value)
 void zvalue::insert(const char* key, std::size_t key_length, const zvalue& value)
 {
 	assert(is_array());
-	zvalue ht_value(value);
-	if (zend_hash_str_update(Z_ARRVAL(zv), key, key_length, ht_value.ptr())) {
-		ht_value.invalidate();
+	if (zend_hash_str_update(Z_ARRVAL(zv), key, key_length, value.ptr())) {
+		value.inc_ref();
 	}
 }
 
@@ -635,9 +665,8 @@ void zvalue::insert(const char* key, std::size_t key_length, zvalue&& value)
 void zvalue::push_back(const zvalue& value)
 {
 	assert(is_array());
-	zvalue ht_value(value);
-	if (zend_hash_next_index_insert(Z_ARRVAL(zv), ht_value.ptr())) {
-		ht_value.invalidate();
+	if (zend_hash_next_index_insert(Z_ARRVAL(zv), value.ptr())) {
+		value.inc_ref();
 	}
 }
 
