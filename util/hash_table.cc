@@ -102,7 +102,9 @@ void Hash_table::insert(const char* key, const string_view& value)
 void Hash_table::insert(const char* key, std::size_t key_len, const string_view& value)
 {
 	zvalue zv(value);
-	zend_hash_str_update(ht, key, key_len, zv.release());
+	if (zend_hash_str_update(ht, key, key_len, zv.ptr())) {
+		zv.invalidate();
+	}
 }
 
 void Hash_table::insert(const char* key, zval* value)
