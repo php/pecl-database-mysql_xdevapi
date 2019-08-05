@@ -199,6 +199,10 @@ class zvalue
 		void move_to(zval* zv);
 		void move_to(zval& zv);
 
+		// increment / decrement reference counter if type is refcounted, else does nothing
+		void inc_ref() const;
+		void dec_ref() const;
+
 		// returns holded value, and sets type to undefined
 		zval release();
 
@@ -206,6 +210,26 @@ class zvalue
 		void invalidate();
 
 		void swap(zvalue& rhs) noexcept;
+
+	public:
+		// object
+		const zvalue get_property(const string& name) const;
+		const zvalue get_property(const string_view& name) const;
+		const zvalue get_property(const std::string& name) const;
+		const zvalue get_property(const char* name) const;
+		const zvalue get_property(const char* name, std::size_t name_length) const;
+
+		void set_property(const string& name, const zvalue& value);
+		void set_property(const string_view& name, const zvalue& value);
+		void set_property(const std::string& name, const zvalue& value);
+		void set_property(const char* name, const zvalue& value);
+		void set_property(const char* name, std::size_t name_length, const zvalue& value);
+
+		void unset_property(const string& name);
+		void unset_property(const string_view& name);
+		void unset_property(const std::string& name);
+		void unset_property(const char* name);
+		void unset_property(const char* name, std::size_t name_length);
 
 	public:
 		// array / hash_table
