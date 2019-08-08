@@ -5126,7 +5126,6 @@ enum_func_status connect_session(
 	 */
 	MYSQLND_ERROR_INFO last_error_info{};
 	for( auto&& current_uri : uris ) {
-		fprintf(stderr,"CONNECTING TO: %s\n", current_uri.first.c_str());
 		DBG_INF_FMT("Attempting to connect with: %s\n",
 					current_uri.first.c_str());
 		auto url = extract_uri_information( current_uri.first.c_str() );
