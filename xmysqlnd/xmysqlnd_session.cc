@@ -64,7 +64,9 @@ extern "C" {
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#ifndef PHP_WIN32
 #include <resolv.h>
+#endif
 #include <forward_list>
 #include <string>
 
@@ -4950,6 +4952,7 @@ using Srv_hostname_list = std::forward_list<std::pair<util::string,uint16_t>>;
 
 }
 
+#ifndef PHP_WIN32
 Srv_hostname_list query_srv_list(
 	const char* host_name
 )
@@ -5005,6 +5008,14 @@ Srv_hostname_list query_srv_list(
 	}
 	return result;
 }
+#else
+Srv_hostname_list query_srv_list(
+    const char* host_name
+)
+{
+    return {};
+}
+#endif
 
 /* {{{ requested_srv_lookup */
 static
