@@ -4363,7 +4363,7 @@ int contains_list_of_url(
 		//Ill-formed URI
 		return -1;
 	}
-	return valid_list ? end : 0;
+    return valid_list ? static_cast<int>( end ): 0;
 }
 
 /* {{{ list_of_addresses_parser */
@@ -4983,7 +4983,7 @@ Srv_hostname_list query_srv_list(
 
 		for ( uint16_t i{0}; i < ns_msg_count (msg, ns_s_an); ++i) {
 			if( 0 != ns_parserr (&msg, ns_s_an, i, &rr) ) {
-				return {};
+                return result;
 			}
 			const uint16_t priority{ ntohs(*(unsigned short*)ns_rr_rdata(rr)) };
 			const uint16_t weight{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) };
