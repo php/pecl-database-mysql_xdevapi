@@ -68,6 +68,8 @@ extern "C" {
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <arpa/nameser.h>
+#include <arpa/nameser_compat.h>
 #include <resolv.h>
 #endif
 #include <forward_list>
