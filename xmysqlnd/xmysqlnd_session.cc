@@ -65,6 +65,8 @@ extern "C" {
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #ifndef PHP_WIN32
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <resolv.h>
 #endif
