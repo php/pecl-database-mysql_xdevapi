@@ -5091,7 +5091,7 @@ vec_of_addresses dns_srv_get_hostname_list(
 	php_url_free(raw_node_url);
 	raw_node_url = nullptr;
 	auto raw_hostnames = query_srv_list(node_url.host.c_str());
-	if( not raw_hostnames.empty()){
+    if( ! raw_hostnames.empty()){
 		return convert_srv_hostname_to_uri( raw_hostnames,
 											node_url );
 	}
