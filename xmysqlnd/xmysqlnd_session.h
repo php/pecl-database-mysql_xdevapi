@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef XMYSQLND_SESSION_H
@@ -186,6 +188,7 @@ struct Session_auth_data
 	std::string username;
 	std::string password;
 	boost::optional<int> connection_timeout;
+	boost::optional<bool> compression_enabled;
 
 	//SSL information
 	SSL_mode ssl_mode;
@@ -456,8 +459,6 @@ public:
 	enum_func_status  send_close();
 	bool is_closed() const { return state.get() == SESSION_CLOSED; }
 	size_t            negotiate_client_api_capabilities(const size_t flags);
-	std::string       select_compression_algorithm();
-	enum_func_status  request_compression_algorithm( const std::string& algorithm );
 
 	bool is_session_properly_supported() const;
 	size_t            get_client_id();
@@ -501,7 +502,6 @@ public:
 	drv::Prepare_stmt_data             ps_data;
 	std::vector<util::string>          supported_compression_algo;
 	zval                               capabilities;
-	bool                               compression_enabled;
 private:
 	void free_contents();
 	Mysqlx::Datatypes::Object*  prepare_client_attr_object();

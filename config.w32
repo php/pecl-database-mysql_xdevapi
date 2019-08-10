@@ -103,6 +103,7 @@ var mysqlx_util = [
 var xmysqlnd_sources = [
 	"xmysqlnd_any2expr.cc",
 	"xmysqlnd_collection.cc",
+	"xmysqlnd_compression.cc",
 	"xmysqlnd_crud_collection_commands.cc",
 	"xmysqlnd_crud_table_commands.cc",
 	"xmysqlnd_driver.cc",

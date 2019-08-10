@@ -26,6 +26,7 @@ extern "C" {
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h"
+#include "xmysqlnd_compression.h"
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_environment.h"
 #include "xmysqlnd_protocol_frame_codec.h"
@@ -52,6 +53,7 @@ extern "C" {
 #include "util/object.h"
 #include "util/string_utils.h"
 #include "util/url_utils.h"
+#include "util/value.h"
 #include "util/zend_utils.h"
 #include <utility>
 #include <algorithm>
@@ -92,11 +94,11 @@ inline bool is_tlsv13_supported() {
 zend_bool
 xmysqlnd_is_capability_present(
 	const zval* capabilities,
-	const char* name,
+	const std::string& cap_name,
 	zend_bool* found
 )
 {
-	zval* zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), name, strlen(name));
+	zval* zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), cap_name.c_str(), cap_name.length());
 	if (!zv || Z_TYPE_P(zv) == IS_UNDEF) {
 		*found = FALSE;
 		return FALSE;
@@ -321,95 +323,6 @@ xmysqlnd_session_data::send_client_attributes()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::select_compression_algorithm */
-std::string
-xmysqlnd_session_data::select_compression_algorithm()
-{
-	static const std::string comp_alg_attr{"compression_algorithm"};
-	static const std::string default_algorithm{"deflate"};
-	DBG_ENTER("xmysqlnd_session_data::select_compression_algorithm");
-	std::string algorithm;
-	zend_bool   compression_set{ FALSE };
-
-	xmysqlnd_is_capability_present(&capabilities, comp_alg_attr.c_str(),
-								   &compression_set);
-	if( compression_set ) {
-		zval*       entry{nullptr};
-		const zval* algorithms = zend_hash_str_find(Z_ARRVAL(capabilities),
-													comp_alg_attr.c_str(),
-													comp_alg_attr.size());
-
-		MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(algorithms), entry) {
-			if (!strcasecmp(Z_STRVAL_P(entry), default_algorithm.c_str())) {
-				algorithm = default_algorithm;
-				break;
-			}
-		} ZEND_HASH_FOREACH_END();
-		if( algorithm.empty()){
-			devapi::RAISE_EXCEPTION( err_msg_compres_negotiation_failed );
-		}
-	} else {
-		devapi::RAISE_EXCEPTION( err_msg_compression_not_supported );
-	}
-	DBG_RETURN(algorithm);
-}
-/* }}} */
-
-
-/* {{{ xmysqlnd_session_data::request_compression_algorithm */
-enum_func_status
-xmysqlnd_session_data::request_compression_algorithm( const std::string& algorithm )
-{
-	return PASS;
-	DBG_ENTER("xmysqlnd_session_data::request_compression_algorithm");
-	enum_func_status  ret{ FAIL };
-
-	st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
-
-	st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
-	st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
-
-	zval ** capability_names = static_cast<zval**>( mnd_ecalloc(1 , sizeof(zval*)));
-	zval ** capability_values = static_cast<zval**>( mnd_ecalloc(1, sizeof(zval*)));
-
-	if( capability_names && capability_values ) {
-		const std::string capa_name{"compression_algorithm"};
-		const struct st_xmysqlnd_on_error_bind on_error =
-		{ xmysqlnd_session_data_handler_on_error, (void*) this };
-		zval zv_capa_name;
-		zval zv_algo_name;
-		ZVAL_STRINGL(&zv_capa_name,capa_name.c_str(),capa_name.size());
-		ZVAL_STRINGL(&zv_algo_name,algorithm.c_str(),algorithm.size());
-		capability_names[0] = &zv_capa_name;
-		capability_values[0] = &zv_algo_name;
-		if( PASS == caps_set.send_request(&caps_set,
-										  1,
-										  capability_names,
-										  capability_values))
-		{
-			DBG_INF_FMT("Cap. send request with compression_algorithm=%s success, reading response..!",
-						algorithm.c_str());
-			zval zvalue;
-			ZVAL_NULL(&zvalue);
-			caps_get.init_read(&caps_get, on_error);
-			ret = caps_get.read_response(&caps_get,
-										 &zvalue);
-			if( ret == PASS ) {
-				DBG_INF_FMT("Cap. response OK, enabled compression with %s",
-							algorithm.c_str());
-			} else {
-				DBG_ERR_FMT("Negative response from the server, is not possible to enable the compression.");
-				devapi::RAISE_EXCEPTION( err_msg_compres_negotiation_failed );
-			}
-			zval_ptr_dtor(&zvalue);
-		}
-	}
-
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ xmysqlnd_session_data::connect_handshake */
 enum_func_status
 xmysqlnd_session_data::connect_handshake(
@@ -434,11 +347,10 @@ xmysqlnd_session_data::connect_handshake(
 		if( ret == PASS ) {
 			ret = authenticate(scheme_name, default_schema, set_capabilities);
 		}
-		if( ret == PASS && compression_enabled == true ) {
-			std::string comp_algorithm = select_compression_algorithm();
-			if( !comp_algorithm.empty() ){
-				ret = request_compression_algorithm(comp_algorithm);
-			}
+		if( ret == PASS && auth->compression_enabled == true ) {
+			st_xmysqlnd_message_factory msg_factory{
+				xmysqlnd_get_message_factory(&io, stats, error_info) };
+			compression::run_setup(msg_factory, capabilities);
 		}
 	}
 	DBG_RETURN(ret);
@@ -902,6 +814,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 	MYSQLND_STATS* mysqlnd_stats,
 	MYSQLND_ERROR_INFO* mysqlnd_error_info)
+	: savepoint_name_seed(1)
 {
 	DBG_ENTER("xmysqlnd_session_data::xmysqlnd_session_data");
 	object_factory = factory;
@@ -933,8 +846,6 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 		throw std::runtime_error("Unable to create the object");
 	}
 
-	savepoint_name_seed = 1;
-	compression_enabled = false;
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -1862,8 +1773,9 @@ bool Authenticate::init_capabilities()
 
 bool Authenticate::init_connection()
 {
+	const std::string capability_tls{ "tls" };
 	zend_bool tls_set{FALSE};
-	xmysqlnd_is_capability_present(&capabilities, "tls", &tls_set);
+	xmysqlnd_is_capability_present(&capabilities, capability_tls, &tls_set);
 
 	if (auth->ssl_mode == SSL_mode::disabled) return true;
 
@@ -3040,7 +2952,10 @@ private:
 	void set_tls_ciphersuites(const std::string& raw_tls_ciphersuites);
 	void set_ssl_ciphers(const std::string& ssl_ciphers);
 	void set_connect_timeout(const std::string& timeout_str);
+	void set_compression(const std::string& compression_str);
+
 	util::std_strings parse_single_or_array(const std::string& value) const;
+	bool parse_boolean(const std::string& value_str) const;
 	int parse_int(const std::string& value_str) const;
 
 private:
@@ -3057,16 +2972,20 @@ struct Client_option_info
 		None = 0x0,
 		Requires_value = 0x1,
 		Is_secure = 0x2,
-		Is_integer = 0x4
+		Is_boolean = 0x4,
+		Is_integer = 0x8
 	};
 	int traits;
 	bool has_trait(Trait trait) const { return (traits & trait) == trait; }
 	bool requires_value() const { return has_trait(Trait::Requires_value); }
 	bool is_secure() const { return has_trait(Trait::Is_secure); }
+	bool is_boolean() const { return has_trait(Trait::Is_boolean); }
 	bool is_integer() const { return has_trait(Trait::Is_integer); }
 
 	Extract_client_option::Setter setter;
 };
+
+// -----------------
 
 Extract_client_option::Extract_client_option(
 	const util::string& option_name,
@@ -3098,6 +3017,7 @@ void Extract_client_option::run()
 		{ "tls-ciphersuite", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
 		{ "tls-ciphersuites", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
 		{ "connect-timeout", {Option_trait::Is_integer | Option_trait::Requires_value, &Extract_client_option::set_connect_timeout }},
+		{ "compress", {Option_trait::Is_boolean | Option_trait::Requires_value, &Extract_client_option::set_compression }},
 	};
 
 	auto it{ option_to_info.find(option_name.c_str()) };
@@ -3120,6 +3040,8 @@ void Extract_client_option::run()
 		ensure_ssl_mode();
 	}
 }
+
+// -----------------
 
 enum_func_status Extract_client_option::assign_ssl_mode(Session_auth_data& auth, SSL_mode ssl_mode)
 {
@@ -3183,7 +3105,7 @@ void Extract_client_option::set_ssl_mode(const std::string& ssl_mode_str)
 SSL_mode Extract_client_option::parse_ssl_mode(const std::string& mode_str) const
 {
 	using modestr_to_enum = std::map<std::string, SSL_mode, util::iless>;
-	static modestr_to_enum mode_mapping = {
+	static const modestr_to_enum mode_mapping = {
 		{ "required", SSL_mode::required },
 		{ "disabled", SSL_mode::disabled },
 		{ "verify_ca", SSL_mode::verify_ca },
@@ -3330,6 +3252,13 @@ void Extract_client_option::set_connect_timeout(const std::string& timeout_str)
 	auth.connection_timeout = timeout;
 }
 
+void Extract_client_option::set_compression(const std::string& compression_str)
+{
+	auth.compression_enabled = parse_boolean(compression_str);
+}
+
+// -----------------
+
 util::std_strings Extract_client_option::parse_single_or_array(const std::string& value) const
 {
 	/*
@@ -3359,6 +3288,28 @@ util::std_strings Extract_client_option::parse_single_or_array(const std::string
 		[](std::string& str){ boost::trim<std::string>(str); }
 	);
 	return items;
+}
+
+bool Extract_client_option::parse_boolean(const std::string& value_str) const
+{
+	static const std::map<std::string, bool, util::iless> valid_options{
+		{"true", true},
+		{"false", false},
+		{"on", true},
+		{"off", false},
+		{"yes", true},
+		{"no", false}
+	};
+
+	auto it{ valid_options.find(value_str) };
+	if (it == valid_options.end()) {
+		util::ostringstream os;
+		os << "The argument to " << option_name
+			<< " must be boolean, but it is '" << value_str.c_str() << "'.";
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+	}
+
+	return it->second;
 }
 
 int Extract_client_option::parse_int(const std::string& value_str) const
@@ -4375,8 +4326,7 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 			 * are handled separately, in this function we're
 			 * focusing on authentication stuff.
 			 */
-			if( boost::iequals(variable, "connection-attributes" ) ||
-				boost::iequals(variable, "compression" ) ) {
+			if( boost::iequals(variable, "connection-attributes" )) {
 					continue;
 			}
 
@@ -4865,51 +4815,6 @@ enum_func_status parse_conn_attrib(
 /* }}} */
 
 
-/* {{{ extract_compression_options */
-enum_func_status extract_compression_options(
-			drv::XMYSQLND_SESSION session,
-			const util::string& uri )
-{
-	DBG_ENTER("extract_compression_options");
-	enum_func_status ret{ PASS };
-	static const std::string                  compression_opt{ "compression=" };
-	static const std::pair<std::string, bool> valid_options[] = {
-		{"TRUE", true},
-		{"ON",   true},
-		{"FALSE",false},
-		{"OFF",  false},
-		{"",     false} //sentinel
-	};
-	if( session == nullptr || uri.empty() ) {
-		return FAIL;
-	}
-	std::size_t pos = uri.find(compression_opt.c_str());
-	std::size_t end_pos{ 0 };
-	if( pos != std::string::npos ) {
-		pos += compression_opt.size();
-		end_pos = pos;
-		for(;end_pos < uri.size() && uri[end_pos] != ',';++end_pos);
-		std::string value{ uri.substr( pos, end_pos - pos ).c_str() };
-		std::transform(value.begin(),value.end(),value.begin(),
-					   [](unsigned char c) -> unsigned char { return std::toupper(c); });
-		for( int i{ 0 } ; valid_options[i].first.size() ; ++i ){
-			if( valid_options[i].first == value ) {
-				session->get_data()->compression_enabled = valid_options[i].second;
-				DBG_INF_FMT("The compression has been explicitly set to %s and it's %s",
-							value.c_str(),
-							valid_options[i].second ? "enabled" : "disabled" );
-				return ret;
-			}
-		}
-		DBG_ERR_FMT("The provided compression option is not recognized: %s",
-					value.c_str());
-		ret = FAIL;
-	}
-	DBG_RETURN(ret);
-}
-/* }}} */
-
-
 /* {{{ extract_connection_attributes */
 enum_func_status extract_connection_attributes(
 			drv::XMYSQLND_SESSION session,
@@ -5060,11 +4965,6 @@ enum_func_status connect_session(
 			if( FAIL == extract_connection_attributes( session,
 													   current_uri.first ) ) {
 				devapi::RAISE_EXCEPTION( err_msg_internal_error );
-				DBG_RETURN(ret);
-			}
-			if( FAIL == extract_compression_options( session,
-													 current_uri.first ) ) {
-				devapi::RAISE_EXCEPTION( err_msg_invalid_compression_opt );
 				DBG_RETURN(ret);
 			}
 			Session_auth_data * auth = extract_auth_information(url.first);

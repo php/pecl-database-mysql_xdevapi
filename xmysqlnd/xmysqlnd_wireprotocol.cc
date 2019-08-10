@@ -829,7 +829,6 @@ xmysqlnd_capabilities_set__send_request(st_xmysqlnd_msg__capabilities_set* msg,
 		zval2any(capabilities_values[i], any_entry);
 		capability->mutable_value()->CopyFrom(any_entry);
 	}
-	message.PrintDebugString();
 	return xmysqlnd_send_message(COM_CAPABILITIES_SET, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
 /* }}} */

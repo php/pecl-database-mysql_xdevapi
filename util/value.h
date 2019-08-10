@@ -87,6 +87,7 @@ class zvalue
 		zvalue(const map<Key, Value>& values);
 
 		static zvalue create_array(std::size_t size = 0);
+		static zvalue create_object();
 
 		~zvalue();
 
@@ -366,6 +367,16 @@ class zvalue
 
 		value_iterator vbegin() const;
 		value_iterator vend() const;
+
+		struct values_range
+		{
+			values_range(const zvalue& ref);
+			value_iterator begin() const;
+			value_iterator end() const;
+			const zvalue& ref;
+		};
+
+		values_range values() const;
 
 	public:
 		zval& ref() const;

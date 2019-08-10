@@ -192,6 +192,11 @@ zvalue zvalue::create_array(std::size_t size)
 	return arr;
 }
 
+zvalue zvalue::create_object()
+{
+	return zvalue(Type::Object);
+}
+
 zvalue::~zvalue()
 {
 	zval_ptr_dtor(&zv);
