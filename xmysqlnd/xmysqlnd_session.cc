@@ -347,11 +347,6 @@ xmysqlnd_session_data::connect_handshake(
 		if( ret == PASS ) {
 			ret = authenticate(scheme_name, default_schema, set_capabilities);
 		}
-		if( ret == PASS && auth->compression_enabled == true ) {
-			st_xmysqlnd_message_factory msg_factory{
-				xmysqlnd_get_message_factory(&io, stats, error_info) };
-			compression::run_setup(msg_factory, capabilities);
-		}
 	}
 	DBG_RETURN(ret);
 }
@@ -1739,6 +1734,8 @@ bool Authenticate::run_auth()
 {
 	if (!init_capabilities()) return false;
 
+	setup_compression();
+
 	if (!init_connection()) return false;
 
 	session->state.set(SESSION_NON_AUTHENTICATED);
@@ -1769,6 +1766,13 @@ bool Authenticate::init_capabilities()
 
 	caps_get.init_read(&caps_get, on_error);
 	return caps_get.read_response(&caps_get, &capabilities) == PASS;
+}
+
+void Authenticate::setup_compression()
+{
+	if (auth->compression_enabled) {
+		compression::run_setup(msg_factory, capabilities);
+	}
 }
 
 bool Authenticate::init_connection()
@@ -4322,7 +4326,7 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 			}
 
 			/*
-			 * Connection attributes and the compression option
+			 * Connection attributes 
 			 * are handled separately, in this function we're
 			 * focusing on authentication stuff.
 			 */

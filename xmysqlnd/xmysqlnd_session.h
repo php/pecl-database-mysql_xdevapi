@@ -347,6 +347,7 @@ private:
 	bool run_re_auth();
 
 	bool init_capabilities();
+	void setup_compression();
 	bool init_connection();
 	bool gather_auth_mechanisms();
 	bool authentication_loop();
@@ -358,7 +359,7 @@ private:
 	const MYSQLND_CSTRING& scheme;
 	const util::string& default_schema;
 
-	const st_xmysqlnd_message_factory msg_factory;
+	st_xmysqlnd_message_factory msg_factory;
 	st_xmysqlnd_msg__capabilities_get caps_get;
 	const Session_auth_data* auth;
 

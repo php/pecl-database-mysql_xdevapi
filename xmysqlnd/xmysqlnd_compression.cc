@@ -29,6 +29,27 @@ namespace compression {
 
 namespace {
 
+const std::string PROPERTY_ALGORITHM{ "algorithm" };
+const std::string PROPERTY_SERVER_STYLE{ "server_style" };
+const std::string PROPERTY_CLIENT_STYLE{ "client_style" };
+
+const std::string ALGORITHM_LZ4{ "lz4" };
+const std::string ALGORITHM_ZLIB{ "zlib" };
+const std::string ALGORITHM_DEFLATE{ "deflate" };
+const std::string ALGORITHM_ZLIB_DEFLATE{ "deflate" };
+
+const std::string SERVER_STYLE_NONE{ "none" };
+const std::string SERVER_STYLE_SINGLE{ "single" };
+const std::string SERVER_STYLE_MULTIPLE{ "multiple" };
+const std::string SERVER_STYLE_GROUP{ "group" };
+
+const std::string CLIENT_STYLE_NONE{ "none" };
+const std::string CLIENT_STYLE_SINGLE{ "single" };
+const std::string CLIENT_STYLE_MULTIPLE{ "multiple" };
+const std::string CLIENT_STYLE_GROUP{ "group" };
+
+// ----------------------------------------------------------------------------
+
 class Gather_capabilities
 {
 public:
@@ -60,7 +81,9 @@ Gather_capabilities::Gather_capabilities(Capabilities& capabilities)
 
 bool Gather_capabilities::run(const util::zvalue& raw_capabilities)
 {
-	util::zvalue compression_caps{ raw_capabilities["compression"] };
+	if (!raw_capabilities.is_array()) return false;
+
+	const util::zvalue& compression_caps{ raw_capabilities["compression"] };
 	if (!compression_caps.is_object()) return false;
 
 	return add_supported_algorithms(compression_caps)
@@ -75,9 +98,9 @@ void Gather_capabilities::add_supported_algorithm(const util::zvalue& zalgorithm
 	const std::string& algorithm_name{ zalgorithm.to_std_string() };
 	using name_to_algorithm = std::map<std::string, Algorithm, util::iless>;
 	static const name_to_algorithm algorithm_mapping{
-		{ "deflate", Algorithm::zlib_deflate },
-		{ "zlib", Algorithm::zlib_deflate },
-		{ "lz4", Algorithm::lz4 },
+		{ ALGORITHM_DEFLATE, Algorithm::zlib_deflate },
+		{ ALGORITHM_ZLIB, Algorithm::zlib_deflate },
+		{ ALGORITHM_LZ4, Algorithm::lz4 },
 	};
 
 	auto it{ algorithm_mapping.find(algorithm_name) };
@@ -89,7 +112,7 @@ void Gather_capabilities::add_supported_algorithm(const util::zvalue& zalgorithm
 
 bool Gather_capabilities::add_supported_algorithms(const util::zvalue& compression_caps)
 {
-	util::zvalue algorithms{ compression_caps.get_property("algorithm") };
+	const util::zvalue& algorithms{ compression_caps.get_property(PROPERTY_ALGORITHM) };
 	if (!algorithms.is_array()) return false;
 
 	for (const auto& algorithm : algorithms.values()) {
@@ -108,9 +131,9 @@ void Gather_capabilities::add_supported_server_style(const util::zvalue& zserver
 	const std::string& server_style_name{ zserver_style.to_std_string() };
 	using name_to_server_style = std::map<std::string, Server_style, util::iless>;
 	static const name_to_server_style server_style_mapping{
-		{ "single", Server_style::single },
-		{ "multiple", Server_style::multiple },
-		{ "group", Server_style::group },
+		{ SERVER_STYLE_SINGLE, Server_style::single },
+		{ SERVER_STYLE_MULTIPLE, Server_style::multiple },
+		{ SERVER_STYLE_GROUP, Server_style::group },
 	};
 
 	auto it{ server_style_mapping.find(server_style_name) };
@@ -122,7 +145,7 @@ void Gather_capabilities::add_supported_server_style(const util::zvalue& zserver
 
 bool Gather_capabilities::add_supported_server_styles(const util::zvalue& compression_caps)
 {
-	util::zvalue server_styles{ compression_caps.get_property("server_style") };
+	const util::zvalue& server_styles{ compression_caps.get_property(PROPERTY_SERVER_STYLE) };
 	if (!server_styles.is_array()) return false;
 
 	for (const auto& server_style : server_styles.values()) {
@@ -141,9 +164,9 @@ void Gather_capabilities::add_supported_client_style(const util::zvalue& zclient
 	const std::string& client_style_name{ zclient_style.to_std_string() };
 	using name_to_client_style = std::map<std::string, Client_style, util::iless>;
 	static const name_to_client_style client_style_mapping{
-		{ "single", Client_style::single },
-		{ "multiple", Client_style::multiple },
-		{ "group", Client_style::group },
+		{ CLIENT_STYLE_SINGLE, Client_style::single },
+		{ CLIENT_STYLE_MULTIPLE, Client_style::multiple },
+		{ CLIENT_STYLE_GROUP, Client_style::group },
 	};
 
 	auto it{ client_style_mapping.find(client_style_name) };
@@ -155,7 +178,7 @@ void Gather_capabilities::add_supported_client_style(const util::zvalue& zclient
 
 bool Gather_capabilities::add_supported_client_styles(const util::zvalue& compression_caps)
 {
-	util::zvalue client_styles{ compression_caps.get_property("client_style") };
+	const util::zvalue& client_styles{ compression_caps.get_property(PROPERTY_CLIENT_STYLE) };
 	if (!client_styles.is_array()) return false;
 
 	for (const auto& client_style : client_styles.values()) {
@@ -167,10 +190,112 @@ bool Gather_capabilities::add_supported_client_styles(const util::zvalue& compre
 
 // ----------------------------------------------------------------------------
 
-class Run_setup
+class Negotiate
 {
 public:
-	Run_setup(st_xmysqlnd_message_factory& msg_factory);
+	Negotiate(st_xmysqlnd_message_factory& msg_factory);
+
+public:
+	bool run(const Configuration& config);
+
+private:
+	std::string to_string(Algorithm algorithm) const;
+	std::string to_string(Server_style server_style) const;
+	std::string to_string(Client_style client_style) const;
+
+private:
+	static const enum_hnd_func_status handler_on_error(
+		void* context,
+		const unsigned int code,
+		const MYSQLND_CSTRING sql_state,
+		const MYSQLND_CSTRING message);
+
+private:
+	st_xmysqlnd_message_factory& msg_factory;
+//	const Configuration& config;
+};
+
+// ------------------------------------------
+
+Negotiate::Negotiate(st_xmysqlnd_message_factory& msg_factory)
+	: msg_factory(msg_factory)
+{
+}
+
+bool Negotiate::run(const Configuration& config)
+{
+	// "compression":{"client_style":"single", "server_style":"single", "algorithm": "defalte"})
+	util::zvalue cap_compression_name("compression");
+	util::zvalue cap_compression_value(util::zvalue::create_object());
+	cap_compression_value.set_property(PROPERTY_ALGORITHM, to_string(config.algorithm));
+	cap_compression_value.set_property(PROPERTY_SERVER_STYLE, to_string(config.server_style));
+	cap_compression_value.set_property(PROPERTY_CLIENT_STYLE, to_string(config.client_style));
+
+	st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
+	zval* cap_names[]{cap_compression_name.ptr()};
+	zval* cap_values[]{cap_compression_value.ptr()};
+	if (caps_set.send_request(&caps_set, 1, cap_names, cap_values) != PASS) {
+		return false;
+	}
+
+	const st_xmysqlnd_on_error_bind on_error{ handler_on_error, this };
+	caps_set.init_read(&caps_set, on_error);
+	util::zvalue result;
+	return caps_set.read_response(&caps_set, result.ptr()) == PASS;
+}
+
+// ------------------------------------------
+
+std::string Negotiate::to_string(Algorithm algorithm) const
+{
+	using algorithm_to_name = std::map<Algorithm, std::string>;
+	static const algorithm_to_name algorithm_mapping{
+		{ Algorithm::zlib_deflate, ALGORITHM_DEFLATE },
+		{ Algorithm::lz4, ALGORITHM_LZ4 },
+	};
+	return algorithm_mapping.at(algorithm);
+}
+
+std::string Negotiate::to_string(Server_style server_style) const
+{
+	using server_style_to_name = std::map<Server_style, std::string>;
+	static const server_style_to_name server_style_mapping{
+		{ Server_style::single, SERVER_STYLE_SINGLE },
+		{ Server_style::multiple, SERVER_STYLE_MULTIPLE },
+		{ Server_style::group, SERVER_STYLE_GROUP },
+	};
+	return server_style_mapping.at(server_style);
+}
+
+std::string Negotiate::to_string(Client_style client_style) const
+{
+	using client_style_to_name = std::map<Client_style, std::string>;
+	static const client_style_to_name client_style_mapping{
+		{ Client_style::single, CLIENT_STYLE_SINGLE },
+		{ Client_style::multiple, CLIENT_STYLE_MULTIPLE },
+		{ Client_style::group, CLIENT_STYLE_GROUP },
+	};
+	return client_style_mapping.at(client_style);
+}
+
+const enum_hnd_func_status Negotiate::handler_on_error(
+	void* context,
+	const unsigned int code,
+	const MYSQLND_CSTRING sql_state,
+	const MYSQLND_CSTRING message)
+{
+	//xmysqlnd_session_data* session = static_cast<xmysqlnd_session_data*>(context);
+	DBG_ENTER("xmysqlnd_stmt::handler_on_error");
+	//raise_session_error(session, code, sql_state.s, message.s);
+	DBG_RETURN(HND_PASS_RETURN_FAIL);
+}
+
+// ----------------------------------------------------------------------------
+
+class Setup
+{
+public:
+	Setup(st_xmysqlnd_message_factory& msg_factory);
 
 public:
 	bool run(const util::zvalue& capabilities);
@@ -189,28 +314,28 @@ private:
 	Configuration config;
 };
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------
 
-Run_setup::Run_setup(st_xmysqlnd_message_factory& msg_factory)
+Setup::Setup(st_xmysqlnd_message_factory& msg_factory)
 	: msg_factory(msg_factory)
 {
 }
 
-bool Run_setup::run(const util::zvalue& raw_capabilities)
+bool Setup::run(const util::zvalue& raw_capabilities)
 {
 	if (!gather_capabilities(raw_capabilities)) return false;
 	return negotiate();
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------
 
-bool Run_setup::gather_capabilities(const util::zvalue& raw_capabilities)
+bool Setup::gather_capabilities(const util::zvalue& raw_capabilities)
 {
 	Gather_capabilities gc(capabilities);
 	return gc.run(raw_capabilities);
 }
 
-bool Run_setup::negotiate()
+bool Setup::negotiate()
 {
 	// algorithms, server styles and client styles in the order how they should be negotiated
 	const Algorithms algorithms{
@@ -240,7 +365,9 @@ bool Run_setup::negotiate()
 				if (!is_client_style_supported(client_style)) continue;
 
 				Configuration config{ algorithm, server_style, client_style };
-				if (negotiate(config)) return true;
+				if (negotiate(config)) {
+					return true;
+				}
 			}
 		}
 	}
@@ -248,72 +375,41 @@ bool Run_setup::negotiate()
 	return false;
 }
 
-bool Run_setup::is_algorithm_supported(Algorithm algorithm) const
+// ---------------------
+
+bool Setup::is_algorithm_supported(Algorithm algorithm) const
 {
 	const auto& algorithms{ capabilities.algorithms };
-	return std::find(algorithms.begin(), algorithms.end(), algorithm) != algorithms.end();
+	return std::find(
+		algorithms.begin(),
+		algorithms.end(),
+		algorithm) != algorithms.end();
 }
 
-bool Run_setup::is_server_style_supported(Server_style server_style) const
+bool Setup::is_server_style_supported(Server_style server_style) const
 {
 	const auto& server_styles{ capabilities.server_styles };
-	return std::find(server_styles.begin(), server_styles.end(), server_style) != server_styles.end();
+	return std::find(
+		server_styles.begin(),
+		server_styles.end(),
+		server_style) != server_styles.end();
 }
 
-bool Run_setup::is_client_style_supported(Client_style client_style) const
+bool Setup::is_client_style_supported(Client_style client_style) const
 {
 	const auto& client_styles{ capabilities.client_styles };
-	return std::find(client_styles.begin(), client_styles.end(), client_style) != client_styles.end();
+	return std::find(
+		client_styles.begin(),
+		client_styles.end(),
+		client_style) != client_styles.end();
 }
 
-bool Run_setup::negotiate(const Configuration& config)
+// ---------------------
+
+bool Setup::negotiate(const Configuration& config)
 {
-	//(algorithm, server_style, client_style);
-	st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
-	//st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
-
-	// "compression":{"client_style":"single", "server_style":"single", "algorithm": "defalte"})
-	util::zvalue cap_names("compression");
-	//util::zvalue cap_names("algorithm");
-	util::zvalue cap_values(util::zvalue::create_object());
-//	cap_values.set_property();
-
-	//zval** capability_names{ util::mem_alloc<zval*>() };
-	//zval** capability_values{ util::mem_alloc<zval*>() };
-
-
-	//	const std::string capa_name{"compression_algorithm"};
-	//	const struct st_xmysqlnd_on_error_bind on_error =
-	//	{ xmysqlnd_session_data_handler_on_error, (void*) this };
-	//	zval zv_capa_name;
-	//	zval zv_algo_name;
-	//	ZVAL_STRINGL(&zv_capa_name,capa_name.c_str(),capa_name.size());
-	//	ZVAL_STRINGL(&zv_algo_name,algorithm.c_str(),algorithm.size());
-	//	capability_names[0] = &zv_capa_name;
-	//	capability_values[0] = &zv_algo_name;
-	//	if( PASS == caps_set.send_request(&caps_set,
-	//									  1,
-	//									  capability_names,
-	//									  capability_values))
-	//	{
-	//		DBG_INF_FMT("Cap. send request with compression_algorithm=%s success, reading response..!",
-	//					algorithm.c_str());
-	//		zval zvalue;
-	//		ZVAL_NULL(&zvalue);
-	//		caps_get.init_read(&caps_get, on_error);
-	//		ret = caps_get.read_response(&caps_get,
-	//									 &zvalue);
-	//		if( ret == PASS ) {
-	//			DBG_INF_FMT("Cap. response OK, enabled compression with %s",
-	//						algorithm.c_str());
-	//		} else {
-	//			DBG_ERR_FMT("Negative response from the server, is not possible to enable the compression.");
-	//			devapi::RAISE_EXCEPTION( err_msg_compres_negotiation_failed );
-	//		}
-	//		zval_ptr_dtor(&zvalue);
-	//	}
-	//}
-	return false;
+	Negotiate negotiate(msg_factory);
+	return negotiate.run(config);
 }
 
 } // anonymous namespace
@@ -324,8 +420,8 @@ void run_setup(
 	st_xmysqlnd_message_factory& msg_factory,
 	const util::zvalue& capabilities)
 {
-	Run_setup rs(msg_factory);
-	rs.run(capabilities);
+	Setup setup(msg_factory);
+	setup.run(capabilities);
 }
 
 } // namespace compression

@@ -82,6 +82,10 @@ zvalue::zvalue(Type type)
 		array_init(&zv);
 		break;
 
+	case Object:
+		object_init(&zv);
+		break;
+
 	default:
 		assert(!"default initialization of that type is not supported");
 		ZVAL_UNDEF(&zv);
