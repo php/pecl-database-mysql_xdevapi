@@ -76,6 +76,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		php_mysqlx_ex.cc \
 		"
 
+	extra_lz4="
+		lz4.c \
+		lz4frame.c \
+		lz4hc.c \
+		xxhash.c
+		"
+
 	mysqlx_util=" \
 		util/allocator.cc \
 		util/exceptions.cc \
@@ -153,6 +160,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	MYSQL_XDEVAPI_SOURCES=" \
 		$xmysqlnd_protobuf_sources \
 		$mysqlx_devapi_sources \
+		$extra_lz4 \
 		$mysqlx_util \
 		$xmysqlnd_sources \
 		$xmysqlnd_cdkbase_parser \

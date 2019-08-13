@@ -86,6 +86,13 @@ var mysqlx_devapi_sources = [
 	"php_mysqlx_ex.cc",
 ];
 
+var extra_lz4 = [
+	"lz4.c",
+	"lz4frame.c",
+	"lz4hc.c",
+	"xxhash.c"
+];
+
 var mysqlx_util = [
 	"allocator.cc",
 	"exceptions.cc",
@@ -699,6 +706,7 @@ function add_sources(subdir, sources, cflags) {
 }
 
 function setup_sources() {
+	add_sources("extra\\lz4", extra_lz4);
 	add_sources("util", mysqlx_util);
 	add_sources("xmysqlnd", xmysqlnd_sources);
 	add_sources("xmysqlnd\\cdkbase\\core", xmysqlnd_cdkbase_core);
