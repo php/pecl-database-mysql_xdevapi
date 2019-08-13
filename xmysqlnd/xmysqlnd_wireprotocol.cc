@@ -39,10 +39,9 @@
 
 #include "xmysqlnd_crud_collection_commands.h"
 
-#define ENABLE_MYSQLX_CTORS 0
-
 #include "util/pb_utils.h"
 #include "util/string_utils.h"
+#include "util/value.h"
 #include "protobuf_api.h"
 
 namespace mysqlx {
@@ -353,7 +352,7 @@ xmysqlnd_server_message_type_is_valid(const zend_uchar type)
 }
 /* }}} */
 
-#define SIZE_OF_STACK_BUFFER 200
+const std::size_t SIZE_OF_STACK_BUFFER = 1024;
 
 /* {{{ xmysqlnd_send_message */
 static const enum_func_status
@@ -610,17 +609,12 @@ static void
 capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * return_value)
 {
 	DBG_ENTER("capabilities_to_zv");
-	array_init_size(return_value, message.capabilities_size());
+	util::zvalue capabilities(util::zvalue::create_array(message.capabilities_size()));
 	for (int i{0}; i < message.capabilities_size(); ++i) {
-		zval zv;
-		ZVAL_UNDEF(&zv);
-		any2zval(message.capabilities(i).value(), &zv);
-		if (Z_REFCOUNTED(zv)) {
-			Z_ADDREF(zv);
-		}
-		add_assoc_zval_ex(return_value, message.capabilities(i).name().c_str(), message.capabilities(i).name().size(), &zv);
-		zval_ptr_dtor(&zv);
+		const auto& capability{ message.capabilities(i) };
+		capabilities.insert(capability.name(), any2zval(capability.value()));
 	}
+	capabilities.move_to(return_value);
 	DBG_VOID_RETURN;
 }
 /* }}} */
@@ -748,12 +742,6 @@ xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 static const enum_hnd_func_status
 capabilities_set_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
-#if ENABLE_MYSQLX_CTORS
-	st_xmysqlnd_msg__capabilities_set* const ctx = static_cast<st_xmysqlnd_msg__capabilities_set* >(context);
-	if (ctx->return_value_zval) {
-		mysqlx_new_message__ok(ctx->return_value_zval, message);
-	}
-#endif
 	return HND_PASS;
 }
 /* }}} */
@@ -912,11 +900,6 @@ auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue&
 	enum_hnd_func_status ret{HND_PASS};
 	st_xmysqlnd_msg__auth_start* const ctx = static_cast<st_xmysqlnd_msg__auth_start* >(context);
 	DBG_ENTER("auth_start_on_AUTHENTICATE_CONTINUE");
-#if ENABLE_MYSQLX_CTORS
-	if (ctx->auth_start_response_zval) {
-		mysqlx_new_message__auth_continue(ctx->auth_start_response_zval, message);
-	}
-#endif
 	if (ctx->on_auth_continue.handler) {
 		const MYSQLND_CSTRING handler_input = { message.auth_data().c_str(), message.auth_data().size() };
 		MYSQLND_STRING handler_output = { nullptr, 0 };
@@ -948,11 +931,6 @@ auth_start_on_AUTHENTICATE_OK(const Mysqlx::Session::AuthenticateOk& /*message*/
 	st_xmysqlnd_msg__auth_start* const ctx = static_cast<st_xmysqlnd_msg__auth_start* >(context);
 	DBG_ENTER("auth_start_on_AUTHENTICATE_OK");
 	DBG_INF_FMT("ctx->auth_start_response_zval=%p", ctx->auth_start_response_zval);
-#if ENABLE_MYSQLX_CTORS
-	if (ctx->auth_start_response_zval) {
-		mysqlx_new_message__auth_ok(ctx->auth_start_response_zval, message);
-	}
-#endif
 	DBG_RETURN(HND_PASS);
 }
 /* }}} */
@@ -1099,13 +1077,6 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData& message, vo
 	++ctx->field_count;
 	DBG_INF_FMT("field_count=%u", ctx->field_count);
 
-#if ENABLE_MYSQLX_CTORS
-	if (ctx->response_zval) {
-		mysqlx_new_column_metadata(ctx->response_zval, message);
-		DBG_INF("HND_PASS");
-		DBG_RETURN(HND_PASS); /* typically this should be HND_AGAIN */
-	}
-#endif
 	if (ctx->create_meta_field.create && ctx->on_meta_field.handler) {
 		XMYSQLND_RESULT_FIELD_META * field = ctx->create_meta_field.create(ctx->create_meta_field.ctx);
 		if (!field) {
@@ -1684,13 +1655,6 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row& message, void* context)
 	DBG_INF_FMT("on_row_field.handler=%p  field_count=%u", ctx->on_row_field.handler, ctx->field_count);
 
 	ctx->has_more_results = TRUE;
-#if ENABLE_MYSQLX_CTORS
-	if (ctx->response_zval) {
-		mysqlx_new_data_row(ctx->response_zval, message);
-		DBG_INF("HND_PASS");
-		DBG_RETURN(HND_PASS);
-	}
-#endif
 	if (ctx->on_row_field.handler) {
 		for (unsigned int i{0}; i < ctx->field_count; ++i) {
 			const MYSQLND_CSTRING buffer = { message.field(i).c_str(), message.field(i).size() };
@@ -1761,11 +1725,6 @@ stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk& /*message*/, v
 	DBG_ENTER("stmt_execute_on_STMT_EXECUTE_OK");
 	DBG_INF_FMT("on_stmt_execute_ok.handler=%p", ctx->on_stmt_execute_ok.handler);
 	ctx->has_more_results = FALSE;
-#if ENABLE_MYSQLX_CTORS
-	if (ctx->response_zval) {
-		mysqlx_new_stmt_execute_ok(ctx->response_zval, message);
-	}
-#endif
 	if (ctx->on_stmt_execute_ok.handler) {
 		ctx->on_stmt_execute_ok.handler(ctx->on_stmt_execute_ok.ctx);
 	}
