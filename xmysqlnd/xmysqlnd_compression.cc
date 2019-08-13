@@ -18,6 +18,7 @@
 #include "php_api.h"
 #include "xmysqlnd_compression.h"
 #include "xmysqlnd_wireprotocol.h"
+#include "util/exceptions.h"
 #include "util/types.h"
 #include "util/value.h"
 
@@ -284,10 +285,10 @@ const enum_hnd_func_status Negotiate::handler_on_error(
 	const MYSQLND_CSTRING sql_state,
 	const MYSQLND_CSTRING message)
 {
-	//xmysqlnd_session_data* session = static_cast<xmysqlnd_session_data*>(context);
-	DBG_ENTER("xmysqlnd_stmt::handler_on_error");
-	//raise_session_error(session, code, sql_state.s, message.s);
-	DBG_RETURN(HND_PASS_RETURN_FAIL);
+	throw util::xdevapi_exception(
+		code,
+		util::string(sql_state.s, sql_state.l),
+		util::string(message.s, message.l));
 }
 
 // ----------------------------------------------------------------------------
@@ -295,7 +296,9 @@ const enum_hnd_func_status Negotiate::handler_on_error(
 class Setup
 {
 public:
-	Setup(st_xmysqlnd_message_factory& msg_factory);
+	Setup(
+		st_xmysqlnd_message_factory& msg_factory,
+		Configuration& negotiated_config);
 
 public:
 	bool run(const util::zvalue& capabilities);
@@ -311,13 +314,16 @@ private:
 private:
 	st_xmysqlnd_message_factory& msg_factory;
 	Capabilities capabilities;
-	Configuration config;
+	Configuration& negotiated_config;
 };
 
 // ------------------------------------------
 
-Setup::Setup(st_xmysqlnd_message_factory& msg_factory)
+Setup::Setup(
+	st_xmysqlnd_message_factory& msg_factory,
+	Configuration& negotiated_config)
 	: msg_factory(msg_factory)
+	, negotiated_config(negotiated_config)
 {
 }
 
@@ -364,8 +370,9 @@ bool Setup::negotiate()
 			for (auto client_style : client_styles) {
 				if (!is_client_style_supported(client_style)) continue;
 
-				Configuration config{ algorithm, server_style, client_style };
+				Configuration config(algorithm, server_style, client_style);
 				if (negotiate(config)) {
+					negotiated_config = config;
 					return true;
 				}
 			}
@@ -416,12 +423,31 @@ bool Setup::negotiate(const Configuration& config)
 
 // ----------------------------------------------------------------------------
 
-void run_setup(
-	st_xmysqlnd_message_factory& msg_factory,
-	const util::zvalue& capabilities)
+Configuration::Configuration(
+	Algorithm algorithm,
+	Server_style server_style,
+	Client_style client_style)
+	: algorithm(algorithm)
+	, server_style(server_style)
+	, client_style(client_style)
 {
-	Setup setup(msg_factory);
-	setup.run(capabilities);
+}
+
+bool Configuration::enabled() const
+{
+	return (algorithm != Algorithm::none) 
+		&& ((server_style != Server_style::none) || (client_style != Client_style::none));
+}
+
+// ----------------------------------------------------------------------------
+
+bool run_setup(
+	st_xmysqlnd_message_factory& msg_factory,
+	const util::zvalue& capabilities,
+	Configuration& negotiated_config)
+{
+	Setup setup(msg_factory, negotiated_config);
+	return setup.run(capabilities);
 }
 
 } // namespace compression

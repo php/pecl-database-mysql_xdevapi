@@ -24,6 +24,7 @@
 extern "C" {
 #include <ext/standard/url.h>
 }
+#include "xmysqlnd_compression.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_stmt.h"
@@ -501,8 +502,8 @@ public:
 	unsigned int                       savepoint_name_seed;
 	vec_of_attribs                     connection_attribs;
 	drv::Prepare_stmt_data             ps_data;
-	std::vector<util::string>          supported_compression_algo;
 	zval                               capabilities;
+	compression::Configuration compression_cfg;
 private:
 	void free_contents();
 	Mysqlx::Datatypes::Object*  prepare_client_attr_object();

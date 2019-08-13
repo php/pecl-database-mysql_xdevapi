@@ -26,7 +26,6 @@ extern "C" {
 }
 #include "xmysqlnd.h"
 #include "xmysqlnd_priv.h"
-#include "xmysqlnd_compression.h"
 #include "xmysqlnd_enum_n_def.h"
 #include "xmysqlnd_environment.h"
 #include "xmysqlnd_protocol_frame_codec.h"
@@ -1074,18 +1073,6 @@ enum_func_status try_setup_crypto_connection(
 	capability_names[0] = &name;
 	ZVAL_TRUE(&value);
 	capability_values[0] = &value;
-/*
-	const std::string capa_name{"compression_algorithm"};
-	const std::string algorithm{"deflate"};
-
-	zval zv_capa_name;
-	zval zv_algo_name;
-	ZVAL_STRINGL(&zv_capa_name,capa_name.c_str(),capa_name.size());
-	ZVAL_STRINGL(&zv_algo_name,algorithm.c_str(),algorithm.size());
-
-	capability_names[1] = &zv_capa_name;
-	capability_values[1] = &zv_algo_name;
-*/
 	if( PASS == caps_set.send_request(&caps_set,
 									  1,
 									  capability_names,
@@ -1771,7 +1758,7 @@ bool Authenticate::init_capabilities()
 void Authenticate::setup_compression()
 {
 	if (auth->compression_enabled) {
-		compression::run_setup(msg_factory, capabilities);
+		compression::run_setup(msg_factory, capabilities, session->compression_cfg);
 	}
 }
 

@@ -64,14 +64,21 @@ struct Capabilities
 
 struct Configuration
 {
-	Algorithm algorithm{ Algorithm::none };
-	Server_style server_style{ Server_style::none };
-	Client_style client_style{ Client_style::none };
+	Algorithm algorithm;
+	Server_style server_style;
+	Client_style client_style;
+
+	Configuration(
+		Algorithm algorithm = Algorithm::none,
+		Server_style server_style = Server_style::none,
+		Client_style client_style = Client_style::none);
+	bool enabled() const;
 };
 
-void run_setup(
+bool run_setup(
 	st_xmysqlnd_message_factory& msg_factory,
-	const util::zvalue& capabilities);
+	const util::zvalue& capabilities,
+	Configuration& negotiated_config);
 
 } // namespace compression
 
