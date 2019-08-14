@@ -619,7 +619,7 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 		case SESSION_NON_AUTHENTICATED:
 		case SESSION_READY:
 		case SESSION_CLOSE_SENT: {
-			const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+			st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
 			st_xmysqlnd_msg__session_reset conn_reset_msg{ msg_factory.get__session_reset(&msg_factory) };
 			if (keep_open) {
 				conn_reset_msg.keep_open.reset(keep_open);
@@ -665,7 +665,7 @@ xmysqlnd_session_data::send_close()
 	switch (state_val) {
 	case SESSION_NON_AUTHENTICATED:
 	case SESSION_READY: {
-		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+		st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
 		if ((state_val == SESSION_READY) && is_session_properly_supported()) {
 			DBG_INF("Session clean, sending SESS_CLOSE");
 			st_xmysqlnd_msg__session_close session_close_msg = msg_factory.get__session_close(&msg_factory);
@@ -724,7 +724,7 @@ bool xmysqlnd_session_data::is_session_properly_supported() const
 {
 	if (session_properly_supported) return *session_properly_supported;
 
-	const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+	st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
 	st_xmysqlnd_msg__expectations_open conn_expectations_open{ msg_factory.get__expectations_open(&msg_factory) };
 	conn_expectations_open.condition_key = Mysqlx::Expect::Open_Condition::EXPECT_FIELD_EXIST;
 	const char* field_keep_session_open{ "6.1" };
@@ -1051,7 +1051,7 @@ Crypt_methods prepare_crypt_methods(const Tls_versions& tls_versions)
 enum_func_status try_setup_crypto_connection(
 	xmysqlnd_session_data* session,
 	st_xmysqlnd_msg__capabilities_get& caps_get,
-	const st_xmysqlnd_message_factory& msg_factory,
+	st_xmysqlnd_message_factory& msg_factory,
 	php_stream_xport_crypt_method_t crypt_method)
 {
 	DBG_ENTER("try_setup_crypto_connection");
@@ -1059,8 +1059,7 @@ enum_func_status try_setup_crypto_connection(
 	const struct st_xmysqlnd_on_error_bind on_error =
 	{ xmysqlnd_session_data_handler_on_error, (void*) session };
 	//Attempt to set the TLS capa. flag.
-	st_xmysqlnd_msg__capabilities_set caps_set;
-	caps_set = msg_factory.get__capabilities_set(&msg_factory);
+	st_xmysqlnd_msg__capabilities_set caps_set{	msg_factory.get__capabilities_set(&msg_factory) };
 
 	zval ** capability_names = (zval **) mnd_ecalloc(2, sizeof(zval*));
 	zval ** capability_values = (zval **) mnd_ecalloc(2, sizeof(zval*));
@@ -1126,7 +1125,7 @@ enum_func_status try_setup_crypto_connection(
 enum_func_status setup_crypto_connection(
 	xmysqlnd_session_data* session,
 	st_xmysqlnd_msg__capabilities_get& caps_get,
-	const st_xmysqlnd_message_factory& msg_factory)
+	st_xmysqlnd_message_factory& msg_factory)
 {
 	DBG_ENTER("setup_crypto_connection");
 	Tls_versions tls_versions{ session->auth->tls_versions };
