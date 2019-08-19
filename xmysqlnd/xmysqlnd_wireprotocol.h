@@ -587,7 +587,7 @@ struct st_xmysqlnd_message_factory
 	st_xmysqlnd_msg__prepare_execute            (*get__prepare_execute)(st_xmysqlnd_message_factory* factory);
 };
 
-st_xmysqlnd_message_factory xmysqlnd_get_message_factory(const st_xmysqlnd_level3_io* const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+st_xmysqlnd_message_factory get_message_factory(Message_context msg_ctx);
 
 void xmysqlnd_shutdown_protobuf_library();
 

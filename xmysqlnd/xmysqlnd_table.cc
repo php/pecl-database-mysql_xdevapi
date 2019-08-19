@@ -344,9 +344,7 @@ xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 		DBG_RETURN(stmt);
 	}
 	if (xmysqlnd_crud_table_insert__is_initialized(op)) {
-		st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
-																							session->data->stats,
-																							session->data->error_info);
+		st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
 		struct st_xmysqlnd_msg__table_insert table_insert = msg_factory.get__table_insert(&msg_factory);
 		if (PASS == table_insert.send_insert_request(&table_insert, xmysqlnd_crud_table_insert__get_protobuf_message(op)))
 		{
@@ -381,7 +379,7 @@ xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 		}
 		if (xmysqlnd_crud_table_delete__is_initialized(op))
 		{
-			st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+			st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
 			struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
 			if (PASS == table_ud.send_delete_request(&table_ud, xmysqlnd_crud_table_delete__get_protobuf_message(op)))
 			{
@@ -444,7 +442,7 @@ xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 		}
 		if (xmysqlnd_crud_table_update__is_initialized(op))
 		{
-			st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io, session->data->stats, session->data->error_info);
+			st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
 			struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
 			if (PASS == table_ud.send_update_request(&table_ud, xmysqlnd_crud_table_update__get_protobuf_message(op)))
 			{

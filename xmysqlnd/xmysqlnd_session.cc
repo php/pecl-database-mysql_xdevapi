@@ -156,6 +156,18 @@ Session_auth_data::Session_auth_data() :
 	ssl_no_defaults{ true } {
 }
 
+st_xmysqlnd_message_factory xmysqlnd_session_data::create_message_factory()
+{
+	Message_context msg_ctx{
+		io.vio,
+		io.pfc,
+		stats,
+		error_info,
+		compression_cfg
+	};
+	return get_message_factory(msg_ctx);
+}
+
 /* {{{ xmysqlnd_session_data::get_scheme */
 std::string
 xmysqlnd_session_data::get_scheme(
@@ -250,7 +262,7 @@ xmysqlnd_session_data::send_client_attributes()
 	enum_func_status  ret{ PASS };
 	if( capa_count > 0 ) {
 		ret = FAIL;
-		st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+		st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 
 		st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
 		st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
@@ -619,7 +631,7 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 		case SESSION_NON_AUTHENTICATED:
 		case SESSION_READY:
 		case SESSION_CLOSE_SENT: {
-			st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+			st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 			st_xmysqlnd_msg__session_reset conn_reset_msg{ msg_factory.get__session_reset(&msg_factory) };
 			if (keep_open) {
 				conn_reset_msg.keep_open.reset(keep_open);
@@ -665,7 +677,7 @@ xmysqlnd_session_data::send_close()
 	switch (state_val) {
 	case SESSION_NON_AUTHENTICATED:
 	case SESSION_READY: {
-		st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+		st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 		if ((state_val == SESSION_READY) && is_session_properly_supported()) {
 			DBG_INF("Session clean, sending SESS_CLOSE");
 			st_xmysqlnd_msg__session_close session_close_msg = msg_factory.get__session_close(&msg_factory);
@@ -720,11 +732,11 @@ xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 
 
 /* {{{ xmysqlnd_session_data::is_session_properly_supported */
-bool xmysqlnd_session_data::is_session_properly_supported() const
+bool xmysqlnd_session_data::is_session_properly_supported()
 {
 	if (session_properly_supported) return *session_properly_supported;
 
-	st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+	st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 	st_xmysqlnd_msg__expectations_open conn_expectations_open{ msg_factory.get__expectations_open(&msg_factory) };
 	conn_expectations_open.condition_key = Mysqlx::Expect::Open_Condition::EXPECT_FIELD_EXIST;
 	const char* field_keep_session_open{ "6.1" };
@@ -1701,7 +1713,7 @@ Authenticate::Authenticate(
 	: session(session)
 	, scheme(scheme)
 	, default_schema(def_schema)
-	, msg_factory(xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info))
+	, msg_factory(session->create_message_factory())
 	, auth(session->auth.get())
 {
 	ZVAL_NULL(&capabilities);
@@ -4312,7 +4324,7 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 			}
 
 			/*
-			 * Connection attributes 
+			 * Connection attributes
 			 * are handled separately, in this function we're
 			 * focusing on authentication stuff.
 			 */

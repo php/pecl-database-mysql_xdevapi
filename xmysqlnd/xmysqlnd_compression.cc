@@ -346,9 +346,9 @@ bool Setup::negotiate()
 	// algorithms, server styles and client styles in the order how they should be negotiated
 	const Algorithms algorithms{
 		Algorithm::lz4,
-		Algorithm::zlib_deflate 
+		Algorithm::zlib_deflate
 	};
-	
+
 	const Server_styles server_styles{
 		Server_style::group,
 		Server_style::multiple,
@@ -435,7 +435,7 @@ Configuration::Configuration(
 
 bool Configuration::enabled() const
 {
-	return (algorithm != Algorithm::none) 
+	return (algorithm != Algorithm::none)
 		&& ((server_style != Server_style::none) || (client_style != Client_style::none));
 }
 

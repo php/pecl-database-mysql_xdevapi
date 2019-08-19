@@ -434,6 +434,7 @@ public:
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
+	st_xmysqlnd_message_factory create_message_factory();
 	std::string get_scheme(const std::string& hostname, unsigned int port);
 	enum_func_status  connect_handshake(
 		const MYSQLND_CSTRING scheme,
@@ -462,7 +463,7 @@ public:
 	bool is_closed() const { return state.get() == SESSION_CLOSED; }
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
-	bool is_session_properly_supported() const;
+	bool is_session_properly_supported();
 	size_t            get_client_id();
 	void              cleanup();
 public:

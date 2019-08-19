@@ -391,10 +391,10 @@ xmysqlnd_send_message(
 		msg_ctx.pfc,
 		msg_ctx.vio,
 		static_cast<zend_uchar>(packet_type),
-		static_cast<zend_uchar*>(payload), 
-		payload_size, 
-		bytes_sent, 
-		msg_ctx.stats, 
+		static_cast<zend_uchar*>(payload),
+		payload_size,
+		bytes_sent,
+		msg_ctx.stats,
 		msg_ctx.error_info);
 	if (payload != stack_buffer) {
 		mnd_efree(payload);
@@ -443,14 +443,14 @@ xmysqlnd_receive_message(
 
 	do {
 		ret = msg_ctx.pfc->data->m.receive(
-			msg_ctx.pfc, 
-			msg_ctx.vio, 
-			stack_buffer, 
-			sizeof(stack_buffer), 
-			&type, 
-			&payload, 
-			&rcv_payload_size, 
-			msg_ctx.stats, 
+			msg_ctx.pfc,
+			msg_ctx.vio,
+			stack_buffer,
+			sizeof(stack_buffer),
+			&type,
+			&payload,
+			&rcv_payload_size,
+			msg_ctx.stats,
 			msg_ctx.error_info);
 		if (FAIL == ret) {
 			DBG_RETURN(FAIL);
@@ -3411,18 +3411,13 @@ xmysqlnd_msg_factory_get__prepare_execute(st_xmysqlnd_message_factory* factory)
 /* }}} */
 
 
-/* {{{ xmysqlnd_get_message_factory */
+/* {{{ get_message_factory */
 st_xmysqlnd_message_factory
-xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+get_message_factory(Message_context msg_ctx)
 {
 	st_xmysqlnd_message_factory factory
 	{
-		{
-			io->vio,
-			io->pfc,
-			stats,
-			error_info
-		},
+		msg_ctx,
 		xmysqlnd_msg_factory_get__capabilities_get,
 		xmysqlnd_msg_factory_get__capabilities_set,
 		xmysqlnd_msg_factory_get__auth_start,
