@@ -4995,7 +4995,7 @@ Srv_hostname_list query_srv_list(
 						  sizeof (query_buffer) );
 
 	if (res < 0) {
-		return {};
+		return Srv_hostname_list();
 	}
 
 	Srv_data srv_data;
@@ -5005,7 +5005,7 @@ Srv_hostname_list query_srv_list(
 
 	for ( uint16_t i{0}; i < ns_msg_count (msg, ns_s_an); ++i) {
 		if( 0 != ns_parserr (&msg, ns_s_an, i, &rr) ) {
-			return {};
+			return Srv_hostname_list();
 		}
 		const uint16_t priority{ ntohs(*(unsigned short*)ns_rr_rdata(rr)) };
 		const uint16_t weight{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) };
