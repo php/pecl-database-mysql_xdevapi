@@ -71,6 +71,8 @@ extern "C" {
 #include <arpa/nameser.h>
 #include <arpa/nameser_compat.h>
 #include <resolv.h>
+#else
+#include <windns.h>
 #endif
 #include <forward_list>
 #include <string>
@@ -4955,6 +4957,25 @@ using Srv_data = std::map<uint16_t,
 
 using Srv_hostname_list = std::forward_list<std::pair<util::string,uint16_t>>;
 
+Srv_hostname_list srv_data_to_hostname_list(const Srv_data& srv_data)
+{
+	Srv_hostname_list result;
+	/*
+	* Make sure the entries are in the proper priority/weight
+	* order
+	*/
+	Srv_hostname_list::const_iterator srv_it{ result.before_begin() };
+	for( auto elem : srv_data ){
+		for( auto entry : mysqlx::drv::Reverse(elem.second) ){
+			for( auto srv : entry.second ) {
+				srv_it = result.emplace_after(srv_it,
+								srv.first, srv.second);
+			}
+		}
+	}
+	return result;
+}
+
 }
 
 #ifndef PHP_WIN32
@@ -4963,7 +4984,6 @@ Srv_hostname_list query_srv_list(
 )
 {
 	struct __res_state state;
-	Srv_hostname_list  result;
 	res_ninit(&state);
 
 	unsigned char query_buffer[PACKETSZ];
@@ -4974,51 +4994,66 @@ Srv_hostname_list query_srv_list(
 						  query_buffer,
 						  sizeof (query_buffer) );
 
-	if (res >= 0) {
-		Srv_hostname_list::const_iterator srv_it = result.before_begin();
-		Srv_data srv_data;
-		ns_msg   msg;
-		ns_rr    rr;
-		ns_initparse(query_buffer, res, &msg);
-
-		for ( uint16_t i{0}; i < ns_msg_count (msg, ns_s_an); ++i) {
-			if( 0 != ns_parserr (&msg, ns_s_an, i, &rr) ) {
-                return result;
-			}
-			const uint16_t priority{ ntohs(*(unsigned short*)ns_rr_rdata(rr)) };
-			const uint16_t weight{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) };
-			const uint16_t port{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2)) };
-			dn_expand(ns_msg_base(msg),
-					  ns_msg_end(msg),
-					  ns_rr_rdata(rr) + 6,
-					  srv_hostname,
-					  sizeof(srv_hostname));
-			srv_data[priority][weight].emplace_front(
-				std::make_pair(srv_hostname,port));
-		}
-
-		/*
-		 * Make sure the entries are in the proper priority/weight
-		 * order
-		 */
-		for( auto elem : srv_data ){
-			for( auto entry : mysqlx::drv::Reverse(elem.second) ){
-				for( auto srv : entry.second ) {
-					srv_it = result.emplace_after(srv_it,
-									std::make_pair(srv.first, srv.second));
-				}
-			}
-		}
-
+	if (res < 0) {
+		return {};
 	}
-	return result;
+
+	Srv_data srv_data;
+	ns_msg   msg;
+	ns_rr    rr;
+	ns_initparse(query_buffer, res, &msg);
+
+	for ( uint16_t i{0}; i < ns_msg_count (msg, ns_s_an); ++i) {
+		if( 0 != ns_parserr (&msg, ns_s_an, i, &rr) ) {
+			return {};
+		}
+		const uint16_t priority{ ntohs(*(unsigned short*)ns_rr_rdata(rr)) };
+		const uint16_t weight{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 1)) };
+		const uint16_t port{ ntohs(*((unsigned short*)ns_rr_rdata(rr) + 2)) };
+		dn_expand(ns_msg_base(msg),
+					ns_msg_end(msg),
+					ns_rr_rdata(rr) + 6,
+					srv_hostname,
+					sizeof(srv_hostname));
+		srv_data[priority][weight].emplace_front(
+			std::make_pair(srv_hostname,port));
+	}
+
+	return srv_data_to_hostname_list(srv_data);
 }
 #else
 Srv_hostname_list query_srv_list(
-    const char* host_name
+	const char* host_name
 )
 {
-    return {};
+	PDNS_RECORD dns_records{ nullptr };
+	DNS_STATUS status{ DnsQuery(
+		host_name,
+		DNS_TYPE_SRV,
+		DNS_QUERY_STANDARD,
+		nullptr,
+		&dns_records,
+		nullptr)
+	};
+
+	if (status != 0) {
+		return {};
+	}
+
+	Srv_data srv_data;
+	PDNS_RECORD dns_record{ dns_records };
+	while (dns_record) {
+		if (dns_record->wType == DNS_TYPE_SRV) {
+			const auto& dns_data{ dns_record->Data.Srv };
+			srv_data[dns_data.wPriority][dns_data.wWeight].emplace_front(
+				dns_data.pNameTarget, dns_data.wPort);
+		}
+		dns_record = dns_record->pNext;
+	}
+
+	DnsRecordListFree(dns_records, DnsFreeRecordListDeep);
+
+	return srv_data_to_hostname_list(srv_data);
 }
 #endif
 
