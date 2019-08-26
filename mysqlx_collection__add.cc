@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
@@ -64,6 +66,9 @@ execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
 {
 	util::zvalue stmt_zv;
 	mysqlx_new_stmt(stmt_zv.ptr(), &stmt);
+	if (stmt_zv.is_null()) {
+		xmysqlnd_stmt_free(&stmt, nullptr, nullptr);
+	}
 	if (!stmt_zv.is_object()) return FAIL;
 	zend_long flags{0};
 	mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_zv.ptr()),
@@ -219,6 +224,9 @@ void Collection_add::execute(zval* resultset)
 		case util::zvalue::Type::Object:
 			ret = collection_add_object(add_op, doc);
 			break;
+		default:
+			assert(!"should not happen!");
+			ret = Add_op_status::fail;
 		}
 		if( ret == Add_op_status::noop ) {
 			++noop_cnt;

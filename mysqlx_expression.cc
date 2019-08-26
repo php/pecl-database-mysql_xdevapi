@@ -222,7 +222,7 @@ is_a_mysqlx_expression(const zval * const value)
 
 
 /* {{{ is_a_mysqlx_expression */
-const zval *
+zval*
 get_mysqlx_expression(const zval * const object_zv)
 {
 	zval* ret{nullptr};

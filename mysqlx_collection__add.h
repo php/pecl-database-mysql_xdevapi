@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQLX_COLLECTION__ADD_H
@@ -36,8 +38,8 @@ class Collection_add : public util::custom_allocable
 {
 public:
 	Collection_add() = default;
-	Collection_add(const Collection_add& rhs) = delete;
-	Collection_add& operator=(const Collection_add& rhs) = delete;
+	Collection_add(const Collection_add&) = delete;
+	Collection_add& operator=(const Collection_add&) = delete;
 	~Collection_add();
 
 	bool add_docs(

@@ -738,7 +738,7 @@ zvalue::iterator::value_type zvalue::iterator::operator*() const
 	zvalue key;
 	zend_hash_get_current_key_zval_ex(ht, key.ptr(), &pos);
 	assert(!key.is_null());
-	zvalue value{ zend_hash_get_current_data_ex(ht, &pos) };
+	zvalue value(zend_hash_get_current_data_ex(ht, &pos));
 	return std::make_pair(key, value);
 }
 

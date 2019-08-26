@@ -592,18 +592,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 	auto& data_object = util::fetch_data_object<st_mysqlx_collection>(object_zv);
 	Collection_remove coll_remove;
 	const char* Remove_one_search_expression = "_id = :id";
-	if (!coll_remove.init(object_zv, data_object.collection, Remove_one_search_expression)) {
+	if (!coll_remove.init(data_object.collection, Remove_one_search_expression)) {
 		DBG_VOID_RETURN;
 	}
 
-	util::Hash_table bind_variables;
+	util::zvalue bind_variables(util::zvalue::create_array(1));
 	bind_variables.insert("id", id);
-	coll_remove.bind(bind_variables.ptr(), return_value);
-	if (Z_TYPE_P(return_value) == IS_FALSE) {
-		DBG_VOID_RETURN;
+	if (coll_remove.bind(bind_variables.ptr())) {
+		coll_remove.execute(return_value);
 	}
-
-	coll_remove.execute(return_value);
 
 	DBG_VOID_RETURN;
 }

@@ -106,7 +106,7 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 {
 	st_mysqlx_table__update* object{nullptr};
 	zval* object_zv{nullptr};
-	const zval* value{nullptr};
+	zval* value{nullptr};
 	MYSQLND_CSTRING table_field = {nullptr, 0};
 	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
@@ -116,7 +116,7 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
 												&object_zv, mysqlx_table__update_class_entry,
 											 	&(table_field.s), &(table_field.l),
-												(zval *) &value))
+												&value))
 	{
 		DBG_VOID_RETURN;
 	}

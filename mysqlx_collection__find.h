@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQLX_COLLECTION__FIND_H
@@ -36,8 +38,8 @@ class Collection_find : public util::custom_allocable
 {
 public:
 	Collection_find() = default;
-	Collection_find(const Collection_find& rhs) = delete;
-	Collection_find& operator=(const Collection_find& rhs) = delete;
+	Collection_find(const Collection_find&) = delete;
+	Collection_find& operator=(const Collection_find&) = delete;
 	~Collection_find();
 
 	bool init(

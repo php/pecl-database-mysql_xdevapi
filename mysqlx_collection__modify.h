@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQLX_COLLECTION__MODIFY_H
@@ -34,8 +36,8 @@ class Collection_modify : public util::custom_allocable
 {
 public:
 	Collection_modify() = default;
-	Collection_modify(const Collection_modify& rhs) = delete;
-	Collection_modify& operator=(const Collection_modify& rhs) = delete;
+	Collection_modify(const Collection_modify&) = delete;
+	Collection_modify& operator=(const Collection_modify&) = delete;
 	~Collection_modify();
 
 	bool init(
