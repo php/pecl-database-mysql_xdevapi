@@ -18,6 +18,8 @@
 #ifndef MYSQLX_COLLECTION__ADD_H
 #define MYSQLX_COLLECTION__ADD_H
 
+#include "util/value.h"
+
 namespace mysqlx {
 
 namespace drv {
@@ -39,24 +41,21 @@ public:
 	~Collection_add();
 
 	bool add_docs(
-		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		zval* docs,
 		int num_of_docs);
 	bool add_docs(
-		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& single_doc_id,
 		zval* doc);
 
 public:
-	void execute(zval* return_value);
+	void execute(zval* resultset);
 
 private:
-	zval* object_zv{nullptr};
 	drv::xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
-	std::vector<zval> docs;
+	std::vector<util::zvalue> docs;
 };
 /* }}} */
 

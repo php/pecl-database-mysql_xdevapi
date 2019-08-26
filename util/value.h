@@ -187,6 +187,8 @@ class zvalue
 		// new fully separated item, not just next reference incremented
 		zvalue clone() const;
 
+		static zvalue clone_from(zval* src);
+
 		// take over ownership of passed zval
 		void acquire(zval* zv);
 		void acquire(zval& zv);
@@ -195,9 +197,13 @@ class zvalue
 		void copy_to(zval* zv);
 		void copy_to(zval& zv);
 
+		static void copy_to(zval* src, zval* dst);
+
 		// moves value to zv, and sets type to undefined
 		void move_to(zval* zv);
 		void move_to(zval& zv);
+
+		static void move_to(zval* src, zval* dst);
 
 		// increment / decrement reference counter if type is refcounted, else does nothing
 		void inc_ref() const;

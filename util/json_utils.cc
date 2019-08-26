@@ -59,6 +59,11 @@ void to_zv_string(zval* src, zval* dest)
 }
 /* }}} */
 
+void to_zv_string(util::zvalue& src, util::zvalue& dest)
+{
+	to_zv_string(src.ptr(), dest.ptr());
+}
+
 namespace {
 
 class Ensure_doc_id

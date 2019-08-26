@@ -562,7 +562,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 	Collection_add coll_add;
 	zval doc_with_id;
 	util::json::ensure_doc_id(doc, id, &doc_with_id);
-	if (!coll_add.add_docs(object_zv, data_object.collection, id, &doc_with_id)) {
+	if (!coll_add.add_docs(data_object.collection, id, &doc_with_id)) {
 		DBG_VOID_RETURN;
 	}
 

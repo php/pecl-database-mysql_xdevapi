@@ -512,25 +512,45 @@ zvalue zvalue::clone() const
 	return result;
 }
 
-void zvalue::acquire(zval* other)
+zvalue zvalue::clone_from(zval* src)
 {
-	assert(other);
+	zvalue result;
+	ZVAL_DUP(&result.zv, src);
+	return result;
+}
+
+void zvalue::acquire(zval* src)
+{
+	assert(src);
 	zval_ptr_dtor(&zv);
-	ZVAL_ZVAL(&zv, other, 1, 1);
-	ZVAL_UNDEF(other);
+	ZVAL_ZVAL(&zv, src, 1, 1);
+	ZVAL_UNDEF(src);
 }
 
-void zvalue::copy_to(zval* other)
+void zvalue::copy_to(zval* dst)
 {
-	assert(other);
-	ZVAL_ZVAL(other, &zv, 1, 0);
+	assert(dst);
+	ZVAL_ZVAL(dst, &zv, 1, 0);
 }
 
-void zvalue::move_to(zval* other)
+void zvalue::copy_to(zval* src, zval* dst)
 {
-	assert(other);
-	ZVAL_ZVAL(other, &zv, 1, 1);
+	assert(src && dst);
+	ZVAL_ZVAL(dst, src, 1, 0);
+}
+
+void zvalue::move_to(zval* dst)
+{
+	assert(dst);
+	ZVAL_ZVAL(dst, &zv, 1, 1);
 	ZVAL_UNDEF(&zv);
+}
+
+void zvalue::move_to(zval* src, zval* dst)
+{
+	assert(src && dst);
+	ZVAL_ZVAL(dst, src, 1, 1);
+	ZVAL_UNDEF(src);
 }
 
 zval zvalue::release()

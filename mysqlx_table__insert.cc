@@ -17,10 +17,7 @@
 */
 #include "php_api.h"
 #include "mysqlnd_api.h"
-extern "C" {
-#include <ext/json/php_json.h>
-#include <zend_smart_str.h>
-}
+#include "json_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_schema.h"

@@ -260,19 +260,19 @@ inline bool zvalue::empty() const
 	return size() == 0;
 }
 
-inline void zvalue::acquire(zval& zv)
+inline void zvalue::acquire(zval& src)
 {
-	acquire(&zv);
+	acquire(&src);
 }
 
-inline void zvalue::copy_to(zval& zv)
+inline void zvalue::copy_to(zval& dst)
 {
-	copy_to(&zv);
+	copy_to(&dst);
 }
 
-inline void zvalue::move_to(zval& zv)
+inline void zvalue::move_to(zval& dst)
 {
-	move_to(&zv);
+	move_to(&dst);
 }
 
 inline void zvalue::inc_ref() const
