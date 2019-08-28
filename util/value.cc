@@ -185,6 +185,12 @@ zvalue::zvalue(const char* value, std::size_t length)
 	assign(value, length);
 }
 
+zvalue::zvalue(std::initializer_list<std::pair<const char*, zvalue>> values)
+{
+	ZVAL_UNDEF(&zv);
+	insert(values);
+}
+
 zvalue zvalue::create_array(std::size_t size)
 {
 	zvalue arr;
@@ -334,6 +340,12 @@ void zvalue::assign(const char* value, std::size_t length)
 	assert(value && length);
 	zval_ptr_dtor(&zv);
 	ZVAL_STRINGL(&zv, value, length);
+}
+
+zvalue& zvalue::operator=(std::initializer_list<std::pair<const char*, zvalue>> values)
+{
+	insert(values);
+	return *this;
 }
 
 // -----------------------------------------------------------------------------
@@ -494,8 +506,12 @@ void zvalue::clear()
 
 void zvalue::reserve(std::size_t size)
 {
-	zval_ptr_dtor(&zv);
-	array_init_size(&zv, static_cast<uint32_t>(size));
+	if (is_array()) {
+		zend_hash_extend(Z_ARRVAL(zv), size, (Z_ARRVAL(zv)->u.flags & HASH_FLAG_PACKED));
+	} else {
+		zval_ptr_dtor(&zv);
+		array_init_size(&zv, static_cast<uint32_t>(size));
+	}
 }
 
 void zvalue::reset()

@@ -71,6 +71,8 @@ class zvalue
 		zvalue(const char* value);
 		zvalue(const char* value, std::size_t length);
 
+		zvalue(std::initializer_list<std::pair<const char*, zvalue>> values);
+
 		template<typename T>
 		zvalue(std::initializer_list<T> values);
 
@@ -113,6 +115,8 @@ class zvalue
 		zvalue& operator=(const char* value);
 
 		void assign(const char* value, std::size_t length);
+
+		zvalue& operator=(std::initializer_list<std::pair<const char*, zvalue>> values);
 
 		template<typename T>
 		zvalue& operator=(std::initializer_list<T> values);
@@ -299,9 +303,20 @@ class zvalue
 		void insert(const char* key, zvalue&& value);
 		void insert(const char* key, std::size_t key_length, zvalue&& value);
 
+		template<typename Key, typename Value>
+		void insert(const std::pair<Key, Value>& key_value);
+
+		void insert(std::initializer_list<std::pair<const char*, zvalue>> values);
+
+		template<typename Key, typename Value>
+		void append(std::initializer_list<std::pair<Key, Value>> values);
+
 		// adds new item at the next free index
 		void push_back(const zvalue& value);
 		void push_back(zvalue&& value);
+
+		template<typename T>
+		void push_back(std::initializer_list<T> values);
 
 		// returns true if item was erased, or false if given index/key didn't exist
 		bool erase(std::size_t index);
