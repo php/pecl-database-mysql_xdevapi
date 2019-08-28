@@ -141,6 +141,7 @@ bool Collection_remove::sort(
 			break;
 		default:
 			RAISE_EXCEPTION(err_msg_wrong_param_3);
+			DBG_RETURN(false);
 		}
 	}
 	DBG_RETURN(true);
@@ -203,8 +204,7 @@ void Collection_remove::execute(zval* resultset)
 				mysqlx_new_stmt(stmt_zv.ptr(), stmt);
 				if (stmt_zv.is_null()) {
 					xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-				}
-				if (stmt_zv.is_object()) {
+				} else if (stmt_zv.is_object()) {
 					zend_long flags{0};
 					mysqlx_statement_execute_read_response(
 						Z_MYSQLX_P(stmt_zv.ptr()), flags, MYSQLX_RESULT, resultset);

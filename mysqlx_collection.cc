@@ -477,6 +477,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 		DBG_VOID_RETURN;
 	}
 
+	//util::zvalue bind_variables{{"id", id}};
 	util::Hash_table bind_variables;
 	bind_variables.insert("id", id);
 	coll_find.bind(bind_variables.ptr(), return_value);
@@ -515,24 +516,21 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 
 	Collection_modify coll_modify;
 	const char* Replace_one_search_expression = "$._id = :id";
-	if (!coll_modify.init(object_zv, data_object.collection, Replace_one_search_expression)) {
+	if (!coll_modify.init(data_object.collection, Replace_one_search_expression)) {
 		DBG_VOID_RETURN;
 	}
 
-	util::Hash_table bind_variables;
-	bind_variables.insert("id", id);
-	coll_modify.bind(bind_variables.ptr(), return_value);
-	if (Z_TYPE_P(return_value) == IS_FALSE) {
+	util::zvalue bind_variables{{"id", id}};
+	if (!coll_modify.bind(bind_variables)) {
 		DBG_VOID_RETURN;
 	}
 
 	const util::string_view Doc_root_path("$");
-	zval doc_with_id;
-	util::json::ensure_doc_id(doc, id, &doc_with_id);
-	coll_modify.set(Doc_root_path, true, &doc_with_id, return_value);
-
-	coll_modify.execute(return_value);
-	zval_ptr_dtor(&doc_with_id);
+	util::zvalue doc_with_id;
+	util::json::ensure_doc_id(doc, id, doc_with_id.ptr());
+	if (coll_modify.set(Doc_root_path, true, doc_with_id.ptr())) {
+		coll_modify.execute(return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -560,13 +558,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 	auto& data_object = util::fetch_data_object<st_mysqlx_collection>(object_zv);
 
 	Collection_add coll_add;
-	zval doc_with_id;
-	util::json::ensure_doc_id(doc, id, &doc_with_id);
-	if (!coll_add.add_docs(data_object.collection, id, &doc_with_id)) {
-		DBG_VOID_RETURN;
+	util::zvalue doc_with_id;
+	util::json::ensure_doc_id(doc, id, doc_with_id.ptr());
+	if (coll_add.add_docs(data_object.collection, id, doc_with_id.ptr())) {
+		coll_add.execute(return_value);
 	}
-
-	coll_add.execute(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -596,8 +592,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 		DBG_VOID_RETURN;
 	}
 
-	util::zvalue bind_variables(util::zvalue::create_array(1));
-	bind_variables.insert("id", id);
+	util::zvalue bind_variables{{"id", id}};
 	if (coll_remove.bind(bind_variables.ptr())) {
 		coll_remove.execute(return_value);
 	}

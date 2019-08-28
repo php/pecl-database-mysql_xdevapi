@@ -68,8 +68,11 @@ execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
 	mysqlx_new_stmt(stmt_zv.ptr(), &stmt);
 	if (stmt_zv.is_null()) {
 		xmysqlnd_stmt_free(&stmt, nullptr, nullptr);
+		return FAIL;
+	} 
+	if (!stmt_zv.is_object()) {
+		return FAIL;
 	}
-	if (!stmt_zv.is_object()) return FAIL;
 	zend_long flags{0};
 	mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_zv.ptr()),
 						flags, MYSQLX_RESULT, resultset);
@@ -110,9 +113,8 @@ collection_add_object(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	util::zvalue& doc)
 {
-	util::zvalue new_doc;
 	Add_op_status ret = Add_op_status::fail;
-	util::json::to_zv_string(doc, new_doc);
+	util::zvalue new_doc{ util::json::to_zv_string(doc) };
 	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, new_doc.ptr()) ) {
 		ret = Add_op_status::success;
 	}

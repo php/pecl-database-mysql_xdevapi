@@ -22,6 +22,8 @@
 
 namespace mysqlx {
 
+namespace util { class zvalue; }
+
 namespace drv {
 
 struct xmysqlnd_collection;
@@ -41,23 +43,15 @@ public:
 	~Collection_modify();
 
 	bool init(
-		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
 public:
-	void sort(
-		zval* sort_expr,
-		int num_of_expr,
-		zval* return_value);
-	void limit(
-		zend_long rows,
-		zval* return_value);
-	void skip(
-		zend_long position,
-		zval* return_value);
-	void bind(
-		HashTable* bind_variables,
-		zval* return_value);
+	bool sort(
+		zval* sort_expressions,
+		int num_of_expr);
+	bool limit(zend_long rows);
+	bool skip(zend_long position);
+	bool bind(const util::zvalue& bind_variables);
 
 	enum class Operation
 	{
@@ -67,43 +61,34 @@ public:
 		Array_append
 	};
 
-	void add_operation(
+	bool add_operation(
 		Operation operation,
 		const util::string_view& path,
 		const bool is_document,
-		zval* value,
-		zval* return_value);
+		util::zvalue value);
 
-	void set(
+	bool set(
 		const util::string_view& path,
 		const bool is_document,
-		zval* value,
-		zval* return_value);
-	void unset(
+		zval* value);
+	bool unset(
 		zval* variables,
-		int num_of_variables,
-		zval* return_value);
-	void replace(
+		int num_of_variables);
+	bool replace(
 		const util::string_view& path,
-		zval* value,
-		zval* return_value);
-	void patch(
-		const util::string_view& document_contents,
-		zval* return_value);
+		zval* value);
+	bool patch(const util::string_view &document_contents_str);
 
-	void arrayInsert(
+	bool arrayInsert(
 		const util::string_view& path,
-		zval* value,
-		zval* return_value);
-	void arrayAppend(
+		zval* value);
+	bool arrayAppend(
 		const util::string_view& path,
-		zval* value,
-		zval* return_value);
+		zval* value);
 
 	void execute(zval* return_value);
 
 private:
-	zval* object_zv{nullptr};
 	drv::xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__modify* modify_op{nullptr};
 

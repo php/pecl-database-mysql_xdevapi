@@ -40,6 +40,7 @@
 #include "util/allocator.h"
 #include "util/json_utils.h"
 #include "util/object.h"
+#include "util/value.h"
 #include "util/zend_utils.h"
 
 namespace mysqlx {
@@ -103,13 +104,11 @@ ZEND_END_ARG_INFO()
 
 /* {{{ Collection_modify::init() */
 bool Collection_modify::init(
-	zval* obj_zv,
 	xmysqlnd_collection* coll,
 	const util::string_view& search_expression)
 {
-	if (!obj_zv || !coll || search_expression.empty()) return false;
+	if (!coll || search_expression.empty()) return false;
 
-	object_zv = obj_zv;
 	collection = coll->get_reference();
 	modify_op = xmysqlnd_crud_collection_modify__create(
 		mnd_str2c(collection->get_schema()->get_name()),
@@ -138,358 +137,296 @@ Collection_modify::~Collection_modify()
 
 
 /* {{{ Collection_modify::sort() */
-void Collection_modify::sort(
-	zval* sort_expr,
-	int num_of_expr,
-	zval* return_value)
+bool Collection_modify::sort(
+	zval* sort_expressions,
+	int num_of_expr)
 {
 	DBG_ENTER("Collection_modify::sort");
 
-	if (!sort_expr) {
-		DBG_VOID_RETURN;
+	if (!sort_expressions) {
+		DBG_RETURN(false);
 	}
 
-	RETVAL_FALSE;
-
-	for( int i{0}; i < num_of_expr ; ++i ) {
-		switch (Z_TYPE(sort_expr[i])) {
-		case IS_STRING:
+	for( int i{0}; i < num_of_expr; ++i ) {
+		const util::zvalue sort_expr(sort_expressions[i]);
+		switch (sort_expr.type()) {
+		case util::zvalue::Type::String:
 			{
-				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL(sort_expr[i]),
-												Z_STRLEN(sort_expr[i]) };
-				if (PASS == xmysqlnd_crud_collection_modify__add_sort(modify_op,
+				const MYSQLND_CSTRING sort_expr_str{ sort_expr.c_str(), sort_expr.length() };
+				if (FAIL == xmysqlnd_crud_collection_modify__add_sort(modify_op,
 															sort_expr_str)) {
-					ZVAL_COPY(return_value, object_zv);
+					RAISE_EXCEPTION(err_msg_add_sort_fail);
+					DBG_RETURN(false);
 				}
 			}
 			break;
-		case IS_ARRAY:
+		case util::zvalue::Type::Array:
 			{
-				zval* entry{nullptr};
-				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
-					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry),
-													Z_STRLEN_P(entry) };
-					if (Z_TYPE_P(entry) != IS_STRING) {
+				for (auto it{ sort_expr.vbegin() }; it != sort_expr.vend(); ++it) {
+					const util::zvalue& sort_expr_entry(*it);
+					if (!sort_expr_entry.is_string()) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
-						DBG_VOID_RETURN;
+						DBG_RETURN(false);
 					}
+					const MYSQLND_CSTRING sort_expr_str{
+						sort_expr_entry.c_str(), sort_expr_entry.length() };
 					if (FAIL == xmysqlnd_crud_collection_modify__add_sort(modify_op,
-														sort_expr_str)) {
+															sort_expr_str)) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
-						DBG_VOID_RETURN;
+						DBG_RETURN(false);
 					}
-				} ZEND_HASH_FOREACH_END();
-				ZVAL_COPY(return_value, object_zv);
+				}
 			}
 			break;
 		default:
 			RAISE_EXCEPTION(err_msg_wrong_param_3);
+			DBG_RETURN(false);
 			break;
 		}
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(true);
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::limit() */
-void Collection_modify::limit(
-	zend_long rows,
-	zval* return_value)
+bool Collection_modify::limit(zend_long rows)
 {
 	DBG_ENTER("Collection_modify::limit");
 
 	if (rows < 0) {
 		RAISE_EXCEPTION(err_msg_wrong_param_2);
-		DBG_VOID_RETURN;
+		DBG_RETURN(false);
 	}
 
-	RETVAL_FALSE;
-
-	if (PASS == xmysqlnd_crud_collection_modify__set_limit(modify_op, rows)) {
-		ZVAL_COPY(return_value, object_zv);
-	}
-
-	DBG_VOID_RETURN;
+	DBG_RETURN(PASS == xmysqlnd_crud_collection_modify__set_limit(modify_op, rows));
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::skip() */
-void Collection_modify::skip(
-	zend_long position,
-	zval* return_value)
+bool Collection_modify::skip(zend_long position)
 {
 	DBG_ENTER("Collection_modify::skip");
 
 	if (position < 0) {
 		RAISE_EXCEPTION(err_msg_wrong_param_2);
-		DBG_VOID_RETURN;
+		DBG_RETURN(false);
 	}
 
-	RETVAL_FALSE;
-
-	if (PASS == xmysqlnd_crud_collection_modify__set_skip(modify_op, position)) {
-		ZVAL_COPY(return_value, object_zv);
-	}
-
-	DBG_VOID_RETURN;
+	DBG_RETURN(PASS == xmysqlnd_crud_collection_modify__set_skip(modify_op, position));
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::bind() */
-void Collection_modify::bind(
-	HashTable* bind_variables,
-	zval* return_value)
+bool Collection_modify::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("Collection_modify::bind");
 
-	RETVAL_FALSE;
-
-	zend_string* key{nullptr};
-	zval* val{nullptr};
-	MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
-		if (key) {
-			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
-			if (FAIL == xmysqlnd_crud_collection_modify__bind_value(modify_op, variable, val)) {
-				RAISE_EXCEPTION(err_msg_bind_fail);
-				DBG_VOID_RETURN;
-			}
+	for (const auto& variable_value : bind_variables) { 
+		const util::zvalue& var_name{ variable_value.first };
+		if (!var_name.is_string()) continue;
+		const MYSQLND_CSTRING variable{ var_name.c_str(), var_name.length() };
+		const util::zvalue& var_value{ variable_value.second };
+		if (FAIL == xmysqlnd_crud_collection_modify__bind_value(modify_op, variable, var_value.ptr())) {
+			RAISE_EXCEPTION(err_msg_bind_fail);
+			DBG_RETURN(false);
 		}
-	} ZEND_HASH_FOREACH_END();
-	ZVAL_COPY(return_value, object_zv);
+	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(true);
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::add_operation */
-void Collection_modify::add_operation(
+bool Collection_modify::add_operation(
 	Operation operation,
 	const util::string_view& path,
 	const bool is_document,
-	zval* raw_value,
-	zval* return_value)
+	util::zvalue value)
 {
 	DBG_ENTER("Collection_modify::add_operation");
 
-	RETVAL_FALSE;
-
 	zend_bool is_expression{FALSE};
 
-	zval converted_value;
-	ZVAL_UNDEF(&converted_value);
-
-	const zval* value = raw_value;
-
-	switch (Z_TYPE_P(value)) {
-		case IS_OBJECT:
+	switch (value.type()) {
+		case util::zvalue::Type::Object:
 			if (operation == Collection_modify::Operation::Set) {
-				if (is_a_mysqlx_expression(value)) {
+				if (is_a_mysqlx_expression(value.ptr())) {
 					/* get the string */
-					value = get_mysqlx_expression(value);
+					value = get_mysqlx_expression(value.ptr());
 					is_expression = TRUE;
 				}
 				break;
 			}
 			/* fall-through */
-		case IS_STRING:
-		case IS_DOUBLE:
-		case IS_TRUE:
-		case IS_FALSE:
-		case IS_LONG:
-		case IS_NULL:
+		case util::zvalue::Type::String:
+		case util::zvalue::Type::Double:
+		case util::zvalue::Type::True:
+		case util::zvalue::Type::False:
+		case util::zvalue::Type::Long:
+		case util::zvalue::Type::Null:
 			break;
 
 		case IS_ARRAY:
-			util::json::to_zv_string(raw_value, &converted_value);
-			value = &converted_value;
+			value = util::json::to_zv_string(value);
 			break;
 
 		default:{
 			RAISE_EXCEPTION(err_msg_invalid_type);
-			DBG_VOID_RETURN;
+			DBG_RETURN(false);
 		}
-
 	}
-
-	RETVAL_FALSE;
 
 	enum_func_status ret{FAIL};
 	const MYSQLND_CSTRING& path_nd = path.to_nd_cstr();
 	switch (operation) {
 		case Operation::Set:
-			ret = xmysqlnd_crud_collection_modify__set(modify_op, path_nd, value, is_expression, is_document);
+			ret = xmysqlnd_crud_collection_modify__set(modify_op, path_nd, value.ptr(), is_expression, is_document);
 			break;
 
 		case Operation::Replace:
-			ret = xmysqlnd_crud_collection_modify__replace(modify_op, path_nd, value, is_expression, is_document);
+			ret = xmysqlnd_crud_collection_modify__replace(modify_op, path_nd, value.ptr(), is_expression, is_document);
 			break;
 
 		case Operation::Array_insert:
-			ret = xmysqlnd_crud_collection_modify__array_insert(modify_op, path_nd, value);
+			ret = xmysqlnd_crud_collection_modify__array_insert(modify_op, path_nd, value.ptr());
 			break;
 
 		case Operation::Array_append:
-			ret = xmysqlnd_crud_collection_modify__array_append(modify_op, path_nd, value);
+			ret = xmysqlnd_crud_collection_modify__array_append(modify_op, path_nd, value.ptr());
 			break;
 
 		default:
 			assert(!"unknown collection_modify field operation");
 	}
 
-	if (PASS == ret) {
-		ZVAL_COPY(return_value, object_zv);
-	}
-
-	zval_dtor(&converted_value);
-
-	DBG_VOID_RETURN;
+	DBG_RETURN(ret == PASS);
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::set() */
-void Collection_modify::set(
+bool Collection_modify::set(
 	const util::string_view& path,
 	const bool is_document,
-	zval* value,
-	zval* return_value)
+	zval* value)
 {
 	DBG_ENTER("Collection_modify::set");
-	add_operation(Operation::Set, path, is_document, value, return_value);
-	DBG_VOID_RETURN;
+	DBG_RETURN(add_operation(Operation::Set, path, is_document, value));
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::unset() */
-void Collection_modify::unset(
+bool Collection_modify::unset(
 	zval* variables,
-	int num_of_variables,
-	zval* return_value)
+	int num_of_variables)
 {
 	DBG_ENTER("Collection_modify::unset");
 
-	RETVAL_FALSE;
-
 	if (num_of_variables <= 0) {
-		DBG_VOID_RETURN;
+		DBG_RETURN(false);
 	}
 
 	for (int i{0}; i < num_of_variables; ++i) {
-		switch (Z_TYPE(variables[i]))
+		const util::zvalue variable(variables[i]);
+		switch (variable.type())
 		{
-		case IS_STRING:
+		case util::zvalue::Type::String:
 			{
-				const MYSQLND_CSTRING variable = { Z_STRVAL(variables[i]),
-										Z_STRLEN(variables[i]) };
-				if (FAIL == xmysqlnd_crud_collection_modify__unset(modify_op,
-																variable)) {
-						RAISE_EXCEPTION(err_msg_unset_fail);
+				const MYSQLND_CSTRING var{ variable.c_str(), variable.length() };
+				if (FAIL == xmysqlnd_crud_collection_modify__unset(modify_op, var)) {
+					RAISE_EXCEPTION(err_msg_unset_fail);
+					DBG_RETURN(false);
 				}
 			}
 			break;
-		case IS_ARRAY:
+		case util::zvalue::Type::Array:
 			{
-				zval* entry{nullptr};
-				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(variables[i]), entry) {
-					if (Z_TYPE_P(entry) != IS_STRING) {
+				for (auto it{ variable.vbegin() }; it != variable.vend(); ++it) {
+					const util::zvalue& variable_entry(*it);
+					if (!variable_entry.is_string()) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
-						DBG_VOID_RETURN;
+						DBG_RETURN(false);
 					}
-					const MYSQLND_CSTRING variable = { Z_STRVAL_P(entry),
-											Z_STRLEN_P(entry) };
-					if (FAIL == xmysqlnd_crud_collection_modify__unset(modify_op,
-																	variable)) {
+					const MYSQLND_CSTRING variable_str{
+						variable_entry.c_str(), variable_entry.length() };
+					if (FAIL == xmysqlnd_crud_collection_modify__unset(modify_op, variable_str)) {
 						RAISE_EXCEPTION(err_msg_unset_fail);
-						DBG_VOID_RETURN;
+						DBG_RETURN(false);
 					}
-				} ZEND_HASH_FOREACH_END();
+				}
 			}
 			break;
 		default:
 			RAISE_EXCEPTION(err_msg_wrong_param_3);
+			DBG_RETURN(false);
 			break;
 		}
 	}
 
-	ZVAL_COPY(return_value, object_zv);
-	DBG_VOID_RETURN;
+	DBG_RETURN(true);
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::replace() */
-void Collection_modify::replace(
+bool Collection_modify::replace(
 	const util::string_view& path,
-	zval* value,
-	zval* return_value)
+	zval* value)
 {
 	DBG_ENTER("Collection_modify::replace");
-	add_operation(Operation::Replace, path, false, value, return_value);
-	DBG_VOID_RETURN;
+	DBG_RETURN(add_operation(Operation::Replace, path, false, value));
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::patch() */
-void Collection_modify::patch(
-	const util::string_view &document_contents,
-	zval* return_value)
+bool Collection_modify::patch(const util::string_view &document_contents_str)
 {
 	DBG_ENTER("Collection_modify::patch");
 
-	RETVAL_FALSE;
-
-	MYSQLND_CSTRING emptyDocPath = { nullptr, 0 };
-	zval zvDocumentContents;
-	document_contents.to_zval(&zvDocumentContents);
-	if (FAIL == xmysqlnd_crud_collection_modify__patch(modify_op, emptyDocPath, &zvDocumentContents)) {
+	const MYSQLND_CSTRING Empty_doc_path{ nullptr, 0 };
+	util::zvalue document_contents(document_contents_str);
+	if (FAIL == xmysqlnd_crud_collection_modify__patch(modify_op, Empty_doc_path, document_contents.ptr())) {
 		RAISE_EXCEPTION(err_msg_merge_fail);
+		DBG_RETURN(false);
 	}
-	ZVAL_COPY(return_value, object_zv);
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(true);
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::arrayInsert() */
-void Collection_modify::arrayInsert(
+bool Collection_modify::arrayInsert(
 	const util::string_view& path,
-	zval* value,
-	zval* return_value)
+	zval* value)
 {
 	DBG_ENTER("Collection_modify::arrayInsert");
-	add_operation(Operation::Array_insert, path, true, value, return_value);
-	DBG_VOID_RETURN;
+	DBG_RETURN(add_operation(Operation::Array_insert, path, true, value));
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::arrayAppend() */
-void Collection_modify::arrayAppend(
+bool Collection_modify::arrayAppend(
 	const util::string_view& path,
-	zval* value,
-	zval* return_value)
+	zval* value)
 {
 	DBG_ENTER("Collection_modify::arrayAppend");
-	add_operation(Operation::Array_append, path, false, value, return_value);
-	DBG_VOID_RETURN;
+	DBG_RETURN(add_operation(Operation::Array_append, path, false, value));
 }
 /* }}} */
 
 
 /* {{{ Collection_modify::execute() */
-void Collection_modify::execute(
-	zval* return_value)
+void Collection_modify::execute(zval* resultset)
 {
 	DBG_ENTER("Collection_modify::execute");
-
-	RETVAL_FALSE;
 
 	DBG_INF_FMT("modify_op=%p collection=%p", modify_op, collection);
 	if (FALSE == xmysqlnd_crud_collection_modify__is_initialized(modify_op)) {
@@ -497,22 +434,16 @@ void Collection_modify::execute(
 	} else {
 		xmysqlnd_stmt* stmt = collection->modify(modify_op);
 		if (stmt) {
-			zval stmt_zv;
-			ZVAL_UNDEF(&stmt_zv);
-			mysqlx_new_stmt(&stmt_zv, stmt);
-			if (Z_TYPE(stmt_zv) == IS_NULL) {
-				xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-			}
-			if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-				zval zv;
-				ZVAL_UNDEF(&zv);
-				zend_long flags{0};
-				mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+			util::zvalue stmt_zv;
+			mysqlx_new_stmt(stmt_zv.ptr(), stmt);
 
-				ZVAL_COPY(return_value, &zv);
-				zval_dtor(&zv);
+			if (stmt_zv.is_null()) {
+				xmysqlnd_stmt_free(stmt, nullptr, nullptr);
+			} else if (stmt_zv.is_object()) {
+				zend_long flags{0};
+				mysqlx_statement_execute_read_response(
+					Z_MYSQLX_P(stmt_zv.ptr()), flags, MYSQLX_RESULT, resultset);
 			}
-			zval_ptr_dtor(&stmt_zv);
 		}
 	}
 
@@ -535,23 +466,25 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, __construct)
 /* {{{ proto mixed mysqlx_collection__modify::sort() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 {
-	zval* object_zv{nullptr};
-	zval* sort_expr{nullptr};
-	int num_of_expr{0};
-
 	DBG_ENTER("mysqlx_collection__modify::sort");
+
+	zval* object_zv{nullptr};
+	zval* sort_expressions{nullptr};
+	int num_of_expr{0};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_modify_class_entry,
-									&sort_expr,
+									&sort_expressions,
 									&num_of_expr))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.sort(sort_expr, num_of_expr, return_value);
+	if (coll_modify.sort(sort_expressions, num_of_expr)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -561,10 +494,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 /* {{{ proto mixed mysqlx_collection__modify::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 {
+	DBG_ENTER("mysqlx_collection__modify::limit");
+
 	zval* object_zv{nullptr};
 	zend_long rows{0};
-
-	DBG_ENTER("mysqlx_collection__modify::limit");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_modify_class_entry,
@@ -574,7 +507,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.limit(rows, return_value);
+	if (coll_modify.limit(rows)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -584,10 +519,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 /* {{{ proto mixed mysqlx_collection__modify::skip() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 {
+	DBG_ENTER("mysqlx_collection__modify::skip");
+
 	zval* object_zv{nullptr};
 	zend_long position{0};
-
-	DBG_ENTER("mysqlx_collection__modify::skip");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_modify_class_entry,
@@ -602,7 +537,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.skip(position, return_value);
+	if (coll_modify.skip(position)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -612,20 +549,23 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 /* {{{ proto mixed mysqlx_collection__modify::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 {
-	zval* object_zv{nullptr};
-	HashTable* bind_variables{nullptr};
-
 	DBG_ENTER("mysqlx_collection__modify::bind");
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
+	zval* object_zv{nullptr};
+	zval* bind_vars{nullptr};
+
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_modify_class_entry,
-												&bind_variables))
+												&bind_vars))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.bind(bind_variables, return_value);
+	util::zvalue bind_variables(bind_vars);
+	if (coll_modify.bind(bind_variables)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -639,13 +579,11 @@ mysqlx_collection__modify__2_param_op(
 	const Collection_modify::Operation operation,
 	const bool is_document = false)
 {
-	zval* object_zv{nullptr};
-	zval* value{nullptr};
-	util::string_view path;
-
 	DBG_ENTER("mysqlx_collection__modify__2_param_op");
 
-	RETVAL_FALSE;
+	zval* object_zv{nullptr};
+	util::string_view path;
+	zval* value{nullptr};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
 												&object_zv, collection_modify_class_entry,
@@ -656,7 +594,9 @@ mysqlx_collection__modify__2_param_op(
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.add_operation(operation, path, is_document, value, return_value);
+	if (coll_modify.add_operation(operation, path, is_document, value)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -687,10 +627,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 /* {{{ proto mixed mysqlx_collection__modify::patch() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 {
+	DBG_ENTER("mysqlx_collection__modify::patch");
+
 	zval* object_zv{nullptr};
 	util::string_view document_contents;
-
-	DBG_ENTER("mysqlx_collection__modify::patch");
 
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data, getThis(), "Os",
@@ -701,7 +641,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.patch(document_contents, return_value);
+	if (coll_modify.patch(document_contents)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -733,11 +675,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 /* {{{ proto mixed mysqlx_collection__modify::unset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 {
+	DBG_ENTER("mysqlx_collection__modify::unset");
+
 	zval* object_zv{nullptr};
 	zval* variables{nullptr};
 	int num_of_variables{0};
-
-	DBG_ENTER("mysqlx_collection__modify::unset");
 
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data, getThis(), "O+",
@@ -750,7 +692,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.unset(variables, num_of_variables, return_value);
+	if (coll_modify.unset(variables, num_of_variables)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -760,9 +704,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 /* {{{ proto mixed mysqlx_collection__modify::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 {
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_collection__modify::execute");
+
+	zval* object_zv{nullptr};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, collection_modify_class_entry))
@@ -876,7 +820,7 @@ mysqlx_new_collection__modify(
 	if (SUCCESS == object_init_ex(return_value, collection_modify_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		Collection_modify* const coll_modify = static_cast<Collection_modify*>(mysqlx_object->ptr);
-		if (!coll_modify || !coll_modify->init(return_value, collection, search_expression)) {
+		if (!coll_modify || !coll_modify->init(collection, search_expression)) {
 			DBG_ERR("Error");
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);
