@@ -43,51 +43,37 @@ public:
 	~Collection_find();
 
 	bool init(
-		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
 
 public:
-	void fields(
-		const zval* fields,
-		zval* return_value);
+	bool fields(const zval* fields);
 
 	enum class Operation {
 		Sort,
 		Group_by
 	};
 
-	void add_operation(
+	bool add_operation(
 		Operation op,
 		zval* sort_expr,
-		int num_of_expr,
-		zval* return_value);
+		int num_of_expr);
 
-	void group_by(
+	bool group_by(
 		zval* sort_expr,
-		int num_of_expr,
-		zval* return_value);
+		int num_of_expr);
 
-	void having(
-		const MYSQLND_CSTRING& search_condition,
-		zval* return_value);
+	bool having(const util::string_view& search_condition);
 
-	void sort(
+	bool sort(
 		zval* sort_expr,
-		int num_of_expr,
-		zval* return_value);
+		int num_of_expr);
 
-	void limit(
-		zend_long rows,
-		zval* return_value);
+	bool limit(zend_long rows);
 
-	void offset(
-		zend_long position,
-		zval* return_value);
+	bool offset(zend_long position);
 
-	void bind(
-		HashTable* bind_variables,
-		zval* return_value);
+	bool bind(const util::zvalue& bind_variables);
 
 	void lock_shared(zval* return_value, int lock_waiting_option);
 	void lock_exclusive(zval* return_value, int lock_waiting_option);
@@ -100,7 +86,6 @@ public:
 	Mysqlx::Crud::Find* get_stmt();
 
 private:
-	zval*                                      object_zv{nullptr};
 	drv::xmysqlnd_collection*                  collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__find* find_op{nullptr};
 };

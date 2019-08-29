@@ -135,9 +135,7 @@ Collection_find::~Collection_find()
 
 
 /* {{{ mysqlx_collection__find::fields */
-void Collection_find::fields(
-	const zval* fields,
-	zval* return_value)
+bool Collection_find::fields(const zval* fields)
 {
 	DBG_ENTER("Collection_find::fields");
 
@@ -157,8 +155,6 @@ void Collection_find::fields(
 			RAISE_EXCEPTION(err_msg_invalid_type);
 			DBG_VOID_RETURN;
 	}
-
-	RETVAL_FALSE;
 
 	enum_func_status ret{PASS};
 	if (Z_TYPE_P(fields) == IS_STRING) {
@@ -197,11 +193,10 @@ void Collection_find::fields(
 
 
 /* {{{ Collection_find::add_operation */
-void Collection_find::add_operation(
+bool Collection_find::add_operation(
 	Collection_find::Operation operation,
 	zval* sort_expr,
-	int num_of_expr,
-	zval* return_value)
+	int num_of_expr)
 {
 	DBG_ENTER("Collection_find::add_operation");
 
@@ -214,8 +209,6 @@ void Collection_find::add_operation(
 			DBG_VOID_RETURN;
 		}
 	}
-
-	RETVAL_FALSE;
 
 	for( int i{0}; i < num_of_expr ; ++i ) {
 		switch (Z_TYPE(sort_expr[i])) {
@@ -267,39 +260,31 @@ void Collection_find::add_operation(
 
 
 /* {{{ proto mixed mysqlx_collection__find::sort() */
-void Collection_find::sort(
+bool Collection_find::sort(
 	zval* sort_expr,
-	int num_of_expr,
-	zval* return_value)
+	int num_of_expr)
 {
 	DBG_ENTER("mysqlx_collection__find::sort");
-	add_operation(Operation::Sort, sort_expr, num_of_expr, return_value);
-	DBG_VOID_RETURN;
+	DBG_RETURN(add_operation(Operation::Sort, sort_expr, num_of_expr));
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_collection__find::group_by() */
-void Collection_find::group_by(
+bool Collection_find::group_by(
 	zval* sort_expr,
-	int num_of_expr,
-	zval* return_value)
+	int num_of_expr)
 {
 	DBG_ENTER("mysqlx_collection__find::group_by");
-	add_operation(Operation::Group_by, sort_expr, num_of_expr, return_value);
-	DBG_VOID_RETURN;
+	DBG_RETURN(add_operation(Operation::Group_by, sort_expr, num_of_expr));
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_collection__find::having() */
-void Collection_find::having(
-	const MYSQLND_CSTRING& search_condition,
-	zval* return_value)
+bool Collection_find::having(const util::string_view& search_condition)
 {
 	DBG_ENTER("mysqlx_collection__find::having");
-
-	RETVAL_FALSE;
 
 	if (PASS == xmysqlnd_crud_collection_find__set_having(find_op, search_condition)) {
 		ZVAL_COPY(return_value, object_zv);
@@ -311,9 +296,7 @@ void Collection_find::having(
 
 
 /* {{{ proto mixed mysqlx_collection__find::limit() */
-void Collection_find::limit(
-	zend_long rows,
-	zval* return_value)
+bool Collection_find::limit(zend_long rows)
 {
 	DBG_ENTER("mysqlx_collection__find::limit");
 
@@ -321,8 +304,6 @@ void Collection_find::limit(
 		RAISE_EXCEPTION(err_msg_wrong_param_2);
 		DBG_VOID_RETURN;
 	}
-
-	RETVAL_FALSE;
 
 	if (PASS == xmysqlnd_crud_collection_find__set_limit(find_op, rows)) {
 		ZVAL_COPY(return_value, object_zv);
@@ -334,9 +315,7 @@ void Collection_find::limit(
 
 
 /* {{{ proto mixed mysqlx_collection__find::offset() */
-void Collection_find::offset(
-	zend_long position,
-	zval* return_value)
+bool Collection_find::offset(zend_long position)
 {
 	DBG_ENTER("mysqlx_collection__find::offset");
 
@@ -344,8 +323,6 @@ void Collection_find::offset(
 		RAISE_EXCEPTION(err_msg_wrong_param_2);
 		DBG_VOID_RETURN;
 	}
-
-	RETVAL_FALSE;
 
 	if (PASS == xmysqlnd_crud_collection_find__set_offset(find_op, position)) {
 		ZVAL_COPY(return_value, object_zv);
@@ -357,13 +334,9 @@ void Collection_find::offset(
 
 
 /* {{{ proto mixed mysqlx_collection__find::bind() */
-void Collection_find::bind(
-	HashTable* bind_variables,
-	zval* return_value)
+bool Collection_find::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("mysqlx_collection__find::bind");
-
-	RETVAL_FALSE;
 
 	zend_string* key{nullptr};
 	zval* val{nullptr};
@@ -388,8 +361,6 @@ void Collection_find::lock_shared(zval* return_value, int lock_waiting_option)
 {
 	DBG_ENTER("mysqlx_collection__find::lock_shared");
 
-	RETVAL_FALSE;
-
 	if ((xmysqlnd_crud_collection_find__enable_lock_shared(find_op) == PASS)
 		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS))
 	{
@@ -405,8 +376,6 @@ void Collection_find::lock_shared(zval* return_value, int lock_waiting_option)
 void Collection_find::lock_exclusive(zval* return_value, int lock_waiting_option)
 {
 	DBG_ENTER("mysqlx_collection__find::lock_exclusive");
-
-	RETVAL_FALSE;
 
 	if ((xmysqlnd_crud_collection_find__enable_lock_exclusive(find_op) == PASS)
 		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS))
@@ -433,8 +402,6 @@ void Collection_find::execute(
 	zval* return_value)
 {
 	DBG_ENTER("mysqlx_collection__find::execute");
-
-	RETVAL_FALSE;
 
 	xmysqlnd_crud_collection_find_verify_is_initialized(find_op);
 
@@ -504,7 +471,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.fields(fields, return_value);
+	if (coll_find.coll_find.fields(fields)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -533,7 +502,9 @@ mysqlx_collection__find__add_sort_or_grouping(
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.add_operation(op_type, sort_expr, num_of_expr, return_value);
+	if (coll_find.add_operation(op_type, sort_expr, num_of_expr)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -569,20 +540,22 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, groupBy)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 {
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING search_condition = {nullptr, 0};
+	util::string_view search_condition;
 
 	DBG_ENTER("mysqlx_collection__find::having");
 	php_error_docref(nullptr, E_WARNING, "find.having is a deprecated function since MySQL 8.0.16");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, collection_find_class_entry,
-												&(search_condition.s), &(search_condition.l)))
+												&(search_condition.str), &(search_condition.len)))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.having(search_condition, return_value);
+	if (coll_find.having(search_condition)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -605,7 +578,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.limit(rows, return_value);
+	if (coll_find.limit(rows)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -633,7 +608,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.offset(position, return_value);
+	if (coll_find.offset(position)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -644,11 +621,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 {
 	zval* object_zv{nullptr};
-	HashTable* bind_variables{nullptr};
+	zval* bind_vars{nullptr};
 
 	DBG_ENTER("mysqlx_collection__find::bind");
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
+	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
 												&bind_variables))
 	{
@@ -656,7 +633,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.bind(bind_variables, return_value);
+	util::zvalue bind_variables(bind_vars);
+	if (coll_find.bind(bind_variables)) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -823,7 +803,7 @@ mysqlx_new_collection__find(
 	if (SUCCESS == object_init_ex(return_value, collection_find_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
 		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
 		Collection_find* const coll_find = static_cast<Collection_find*>(mysqlx_object->ptr);
-		if (!coll_find || !coll_find->init(return_value, collection, search_expression)) {
+		if (!coll_find || !coll_find->init(collection, search_expression)) {
 			DBG_ERR("Error");
 			php_error_docref(nullptr, E_WARNING, "invalid coll_find of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			zval_ptr_dtor(return_value);

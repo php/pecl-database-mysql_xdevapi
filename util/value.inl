@@ -537,7 +537,7 @@ void zvalue::append(std::initializer_list<std::pair<Key, Value>> values)
 	for_each(
 		values.begin(),
 		values.end(),
-		[this](const auto& key_value) { insert(key_value); }
+		[](const auto& key_value) { insert(key_value); }
 		);
 }
 

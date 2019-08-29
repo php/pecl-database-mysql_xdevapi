@@ -477,17 +477,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 		DBG_VOID_RETURN;
 	}
 
-	//util::zvalue bind_variables{{"id", id}};
-	util::Hash_table bind_variables;
-	bind_variables.insert("id", id);
-	coll_find.bind(bind_variables.ptr(), return_value);
-	if (Z_TYPE_P(return_value) == IS_FALSE) {
-		DBG_VOID_RETURN;
+	util::zvalue bind_variables{{"id", id}};
+	if (coll_find.bind(bind_variables.ptr()) {
+		coll_find.execute(return_value);
+		fetch_one_from_doc_result(return_value);
 	}
-
-	coll_find.execute(return_value);
-
-	fetch_one_from_doc_result(return_value);
 
 	DBG_VOID_RETURN;
 }

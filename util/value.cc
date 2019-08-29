@@ -507,7 +507,10 @@ void zvalue::clear()
 void zvalue::reserve(std::size_t size)
 {
 	if (is_array()) {
-		zend_hash_extend(Z_ARRVAL(zv), size, (Z_ARRVAL(zv)->u.flags & HASH_FLAG_PACKED));
+		zend_hash_extend(
+			Z_ARRVAL(zv),
+			static_cast<uint32_t>(size),
+			(Z_ARRVAL(zv)->u.flags & HASH_FLAG_PACKED));
 	} else {
 		zval_ptr_dtor(&zv);
 		array_init_size(&zv, static_cast<uint32_t>(size));
