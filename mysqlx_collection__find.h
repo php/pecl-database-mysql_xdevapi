@@ -24,6 +24,8 @@ namespace Mysqlx { namespace Crud { class Find; } }
 
 namespace mysqlx {
 
+namespace util { class zvalue; }
+
 namespace drv {
 
 struct xmysqlnd_collection;
@@ -47,7 +49,7 @@ public:
 		const util::string_view& search_expression);
 
 public:
-	bool fields(const zval* fields);
+	bool fields(zval& fields);
 
 	enum class Operation {
 		Sort,
@@ -75,8 +77,8 @@ public:
 
 	bool bind(const util::zvalue& bind_variables);
 
-	void lock_shared(zval* return_value, int lock_waiting_option);
-	void lock_exclusive(zval* return_value, int lock_waiting_option);
+	bool lock_shared(int lock_waiting_option);
+	bool lock_exclusive(int lock_waiting_option);
 
 	void execute(zval* return_value);
 	void execute(

@@ -40,6 +40,7 @@
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
 #include "util/object.h"
+#include "util/value.h"
 #include "util/zend_utils.h"
 #include "xmysqlnd/xmysqlnd_utils.h"
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
@@ -98,13 +99,11 @@ ZEND_END_ARG_INFO()
 
 /* {{{ Collection_find::init() */
 bool Collection_find::init(
-	zval* obj_zv,
 	xmysqlnd_collection* coll,
 	const util::string_view& search_expression)
 {
-	if (!obj_zv || !coll) return false;
+	if (!coll) return false;
 
-	object_zv = obj_zv;
 	collection = coll->get_reference();
 	find_op = xmysqlnd_crud_collection_find__create(
 		mnd_str2c(collection->get_schema()->get_name()),
@@ -135,59 +134,59 @@ Collection_find::~Collection_find()
 
 
 /* {{{ mysqlx_collection__find::fields */
-bool Collection_find::fields(const zval* fields)
+bool Collection_find::fields(util::zvalue& fields)
 {
 	DBG_ENTER("Collection_find::fields");
 
 	bool is_expression{false};
-	switch (Z_TYPE_P(fields)) {
-		case IS_STRING:
-		case IS_ARRAY:
+	switch (fields.type()) {
+		case util::zvalue::Type::String:
+		case util::zvalue::Type::Array:
 			break;
-		case IS_OBJECT:
-			if (is_a_mysqlx_expression(fields)) {
+		case util::zvalue::Type::Object:
+			if (is_a_mysqlx_expression(fields.ptr())) {
 				/* get the string */
-				fields = get_mysqlx_expression(fields);
+				fields = get_mysqlx_expression(fields.ptr());
 				is_expression = true;
 			}
 			break;
 		default:
 			RAISE_EXCEPTION(err_msg_invalid_type);
-			DBG_VOID_RETURN;
+			DBG_RETURN(false);
 	}
 
 	enum_func_status ret{PASS};
-	if (Z_TYPE_P(fields) == IS_STRING) {
-		const MYSQLND_CSTRING field_str = { Z_STRVAL_P(fields), Z_STRLEN_P(fields) };
+	if (fields.is_string()) {
+		const MYSQLND_CSTRING field_str = { fields.c_str(), fields.length() };
 		ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
-	} else if (Z_TYPE_P(fields) == IS_ARRAY) {
-		const zval* entry{nullptr};
-		MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(fields), entry) {
+	} else if (fields.is_array()) {
+		for (auto it{ fields.vbegin() }; it != fields.vend(); ++it) {
+			util::zvalue field(*it);
 			is_expression = false;
-			if (Z_TYPE_P(entry) == IS_OBJECT) {
-				if (is_a_mysqlx_expression(entry)) {
+			if (field.is_object()) {
+				if (is_a_mysqlx_expression(field.ptr())) {
 					/* get the string */
-					entry = get_mysqlx_expression(entry);
+					field = get_mysqlx_expression(field.ptr());
 					is_expression = true;
 				}
 			}
 			/* NO else */
-			if (Z_TYPE_P(entry) != IS_STRING) {
+			if (!field.is_string()) {
 				RAISE_EXCEPTION(err_msg_wrong_param_1);
-				DBG_VOID_RETURN;
+				DBG_RETURN(false);
 			}
-			MYSQLND_CSTRING field_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+			MYSQLND_CSTRING field_str{ field.c_str(), field.length() };
 			ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
 			if(ret==FAIL)
 				break;
-		} ZEND_HASH_FOREACH_END();
+		}
 	}
 	if (FAIL == ret) {
 		RAISE_EXCEPTION(err_msg_add_field);
+		DBG_RETURN(false);
 	}
-	ZVAL_COPY(return_value, object_zv);
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(true);
 }
 /* }}} */
 
@@ -206,11 +205,12 @@ bool Collection_find::add_operation(
 			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
 			php_error_docref(nullptr, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
 							 Z_TYPE(sort_expr[i]));
-			DBG_VOID_RETURN;
+			DBG_RETURN(false);
 		}
 	}
 
 	for( int i{0}; i < num_of_expr ; ++i ) {
+
 		switch (Z_TYPE(sort_expr[i])) {
 		case IS_STRING:
 			{
@@ -234,7 +234,7 @@ bool Collection_find::add_operation(
 					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
-						DBG_VOID_RETURN;
+						DBG_RETURN(false);
 					}
 					if (Collection_find::Operation::Sort == operation) {
 						ret = xmysqlnd_crud_collection_find__add_sort(find_op, sort_expr_str);
@@ -243,15 +243,14 @@ bool Collection_find::add_operation(
 					}
 					if (FAIL == ret) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
-						DBG_VOID_RETURN;
+						DBG_RETURN(false);
 					}
-				} ZEND_HASH_FOREACH_END();
-				ZVAL_COPY(return_value, object_zv);
+				}
 			}
 			break;
 		default:
 			RAISE_EXCEPTION(err_msg_wrong_param_3);
-			break;
+			DBG_RETURN(false);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -285,12 +284,7 @@ bool Collection_find::group_by(
 bool Collection_find::having(const util::string_view& search_condition)
 {
 	DBG_ENTER("mysqlx_collection__find::having");
-
-	if (PASS == xmysqlnd_crud_collection_find__set_having(find_op, search_condition)) {
-		ZVAL_COPY(return_value, object_zv);
-	}
-
-	DBG_VOID_RETURN;
+	DBG_RETURN((PASS == xmysqlnd_crud_collection_find__set_having(find_op, search_condition));
 }
 /* }}} */
 
@@ -302,14 +296,10 @@ bool Collection_find::limit(zend_long rows)
 
 	if (rows < 0) {
 		RAISE_EXCEPTION(err_msg_wrong_param_2);
-		DBG_VOID_RETURN;
+		DBG_RETURN(false);
 	}
 
-	if (PASS == xmysqlnd_crud_collection_find__set_limit(find_op, rows)) {
-		ZVAL_COPY(return_value, object_zv);
-	}
-
-	DBG_VOID_RETURN;
+	DBG_RETURN(PASS == xmysqlnd_crud_collection_find__set_limit(find_op, rows));
 }
 /* }}} */
 
@@ -321,14 +311,10 @@ bool Collection_find::offset(zend_long position)
 
 	if (position < 0) {
 		RAISE_EXCEPTION(err_msg_wrong_param_2);
-		DBG_VOID_RETURN;
+		DBG_RETURN(false);
 	}
 
-	if (PASS == xmysqlnd_crud_collection_find__set_offset(find_op, position)) {
-		ZVAL_COPY(return_value, object_zv);
-	}
-
-	DBG_VOID_RETURN;
+	DBG_RETURN(PASS == xmysqlnd_crud_collection_find__set_offset(find_op, position));
 }
 /* }}} */
 
@@ -348,8 +334,7 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 				DBG_VOID_RETURN;
 			}
 		}
-	} ZEND_HASH_FOREACH_END();
-	ZVAL_COPY(return_value, object_zv);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -357,33 +342,21 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 
 
 /* {{{ proto mixed mysqlx_collection__find::lock_shared() */
-void Collection_find::lock_shared(zval* return_value, int lock_waiting_option)
+bool Collection_find::lock_shared(int lock_waiting_option)
 {
 	DBG_ENTER("mysqlx_collection__find::lock_shared");
-
-	if ((xmysqlnd_crud_collection_find__enable_lock_shared(find_op) == PASS)
-		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS))
-	{
-		ZVAL_COPY(return_value, object_zv);
-	}
-
-	DBG_VOID_RETURN;
+	DBG_RETURN((xmysqlnd_crud_collection_find__enable_lock_shared(find_op) == PASS)
+		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS));
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_collection__find::lock_exclusive() */
-void Collection_find::lock_exclusive(zval* return_value, int lock_waiting_option)
+bool Collection_find::lock_exclusive(int lock_waiting_option)
 {
 	DBG_ENTER("mysqlx_collection__find::lock_exclusive");
-
-	if ((xmysqlnd_crud_collection_find__enable_lock_exclusive(find_op) == PASS)
-		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS))
-	{
-		ZVAL_COPY(return_value, object_zv);
-	}
-
-	DBG_VOID_RETURN;
+	DBG_RETURN((xmysqlnd_crud_collection_find__enable_lock_exclusive(find_op) == PASS)
+		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS));
 }
 /* }}} */
 
@@ -399,7 +372,7 @@ void Collection_find::execute(zval* return_value)
 /* {{{ proto mixed mysqlx_collection__find::execute() */
 void Collection_find::execute(
 	zend_long flags,
-	zval* return_value)
+	zval* resultset)
 {
 	DBG_ENTER("mysqlx_collection__find::execute");
 
@@ -407,21 +380,14 @@ void Collection_find::execute(
 
 	xmysqlnd_stmt* stmt{ collection->find(find_op) };
 	if (stmt) {
-		zval stmt_zv;
-		ZVAL_UNDEF(&stmt_zv);
-		mysqlx_new_stmt(&stmt_zv, stmt);
-		if (Z_TYPE(stmt_zv) == IS_NULL) {
+		util::zvalue stmt_zv;
+		mysqlx_new_stmt(stmt_zv.ptr(), stmt);
+		if (stmt_zv.is_null()) {
 			xmysqlnd_stmt_free(stmt, nullptr, nullptr);
+		} else if (stmt_zv.is_object()) {
+			mysqlx_statement_execute_read_response(
+				Z_MYSQLX_P(stmt_zv.ptr()), flags, MYSQLX_RESULT_DOC, resultset);
 		}
-		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-			zval zv;
-			ZVAL_UNDEF(&zv);
-			mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_DOC, &zv);
-
-			ZVAL_COPY(return_value, &zv);
-			zval_dtor(&zv);
-		}
-		zval_ptr_dtor(&stmt_zv);
 	}
 
 	DBG_VOID_RETURN;
@@ -458,10 +424,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, __construct)
 /* {{{ mysqlx_collection__find::fields */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 {
-	zval* object_zv{nullptr};
-	zval* fields{nullptr};
-
 	DBG_ENTER("mysqlx_collection__find::fields");
+
+	zval* object_zv{nullptr};
+	zval* raw_fields{nullptr};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
@@ -471,6 +437,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
+	util::zvalue fields(raw_fields);
 	if (coll_find.coll_find.fields(fields)) {
 		util::zvalue::copy_to(object_zv, return_value);
 	}
@@ -539,10 +506,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, groupBy)
 /* {{{ proto mixed mysqlx_collection__find::having() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 {
+	DBG_ENTER("mysqlx_collection__find::having");
+
 	zval* object_zv{nullptr};
 	util::string_view search_condition;
 
-	DBG_ENTER("mysqlx_collection__find::having");
 	php_error_docref(nullptr, E_WARNING, "find.having is a deprecated function since MySQL 8.0.16");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
@@ -565,10 +533,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 /* {{{ proto mixed mysqlx_collection__find::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 {
+	DBG_ENTER("mysqlx_collection__find::limit");
+
 	zval* object_zv{nullptr};
 	zend_long rows{0};
-
-	DBG_ENTER("mysqlx_collection__find::limit");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_find_class_entry,
@@ -590,10 +558,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 /* {{{ proto mixed mysqlx_collection__find::offset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 {
+	DBG_ENTER("mysqlx_collection__find::offset");
+
 	zval* object_zv{nullptr};
 	zend_long position{0};
-
-	DBG_ENTER("mysqlx_collection__find::offset");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_find_class_entry,
@@ -620,10 +588,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 /* {{{ proto mixed mysqlx_collection__find::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 {
+	DBG_ENTER("mysqlx_collection__find::bind");
+
 	zval* object_zv{nullptr};
 	zval* bind_vars{nullptr};
-
-	DBG_ENTER("mysqlx_collection__find::bind");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
@@ -658,7 +626,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockShared)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.lock_shared(return_value, static_cast<int>(lock_waiting_option));
+	if (coll_find.lock_shared(return_value, static_cast<int>(lock_waiting_option))) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -680,7 +650,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.lock_exclusive(return_value, static_cast<int>(lock_waiting_option));
+	if (coll_find.lock_exclusive(return_value, static_cast<int>(lock_waiting_option))) {
+		util::zvalue::copy_to(object_zv, return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
@@ -690,10 +662,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 /* {{{ proto mixed mysqlx_collection__find::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, execute)
 {
+	DBG_ENTER("mysqlx_collection__find::execute");
+
 	zval* object_zv{nullptr};
 	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
-
-	DBG_ENTER("mysqlx_collection__find::execute");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 												&object_zv, collection_find_class_entry,
