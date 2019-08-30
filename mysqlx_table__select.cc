@@ -169,11 +169,15 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 	}
 
 	for(int i{0}; i < num_of_expr ; ++i ) {
-		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
-			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
-			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
-			php_error_docref(nullptr, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
-							 Z_TYPE(sort_expr[i]));
+		auto sort_expr_type{ Z_TYPE(sort_expr[i]) };
+		if (sort_expr_type != IS_STRING &&
+			sort_expr_type != IS_OBJECT &&
+			sort_expr_type != IS_ARRAY) {
+			php_error_docref(
+				nullptr, 
+				E_WARNING, 
+				"Only strings, objects and arrays can be added. Type is %u",
+				sort_expr_type);
 			DBG_VOID_RETURN;
 		}
 	}

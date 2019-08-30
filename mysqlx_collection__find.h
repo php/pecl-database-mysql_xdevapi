@@ -49,7 +49,7 @@ public:
 		const util::string_view& search_expression);
 
 public:
-	bool fields(zval& fields);
+	bool fields(util::zvalue& fields);
 
 	enum class Operation {
 		Sort,
@@ -58,17 +58,17 @@ public:
 
 	bool add_operation(
 		Operation op,
-		zval* sort_expr,
+		zval* sort_expressions,
 		int num_of_expr);
 
 	bool group_by(
-		zval* sort_expr,
+		zval* sort_expressions,
 		int num_of_expr);
 
 	bool having(const util::string_view& search_condition);
 
 	bool sort(
-		zval* sort_expr,
+		zval* sort_expressions,
 		int num_of_expr);
 
 	bool limit(zend_long rows);
@@ -80,10 +80,10 @@ public:
 	bool lock_shared(int lock_waiting_option);
 	bool lock_exclusive(int lock_waiting_option);
 
-	void execute(zval* return_value);
+	void execute(zval* resultset);
 	void execute(
 		zend_long flags,
-		zval* return_value);
+		zval* resultset);
 
 	Mysqlx::Crud::Find* get_stmt();
 

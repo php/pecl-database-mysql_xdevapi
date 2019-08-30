@@ -348,11 +348,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 	}
 
 	for(int i{0}; i < num_of_columns ; ++i ) {
-		if (Z_TYPE(columns[i]) != IS_STRING &&
-			Z_TYPE(columns[i]) != IS_OBJECT &&
-			Z_TYPE(columns[i]) != IS_ARRAY) {
-			php_error_docref(nullptr, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
-							 Z_TYPE(columns[i]));
+		auto column_type{ Z_TYPE(columns[i]) };
+		if (column_type != IS_STRING &&
+			column_type != IS_OBJECT &&
+			column_type != IS_ARRAY) {
+			php_error_docref(
+				nullptr, 
+				E_WARNING, 
+				"Only strings, objects and arrays can be added. Type is %u",
+				column_type);
 			DBG_VOID_RETURN;
 		}
 	}

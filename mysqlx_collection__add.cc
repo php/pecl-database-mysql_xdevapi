@@ -153,10 +153,15 @@ bool Collection_add::add_docs(
 	if (!documents || !num_of_documents) return false;
 
 	for (int i{0}; i < num_of_documents; ++i) {
-		if (Z_TYPE(documents[i]) != IS_STRING &&
-			Z_TYPE(documents[i]) != IS_OBJECT &&
-			Z_TYPE(documents[i]) != IS_ARRAY) {
-			php_error_docref(nullptr, E_WARNING, "Only strings, objects and arrays can be added. Type is %u", Z_TYPE(documents[i]));
+		auto doc_type{ Z_TYPE(documents[i]) };
+		if (doc_type != IS_STRING &&
+			doc_type != IS_OBJECT &&
+			doc_type != IS_ARRAY) {
+			php_error_docref(
+				nullptr, 
+				E_WARNING, 
+				"Only strings, objects and arrays can be added. Type is %u", 
+				doc_type);
 			return false;
 		}
 	}

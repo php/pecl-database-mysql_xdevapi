@@ -473,12 +473,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 
 	Collection_find coll_find;
 	const char* Get_one_search_expression = "_id = :id";
-	if (!coll_find.init(object_zv, data_object.collection, Get_one_search_expression)) {
+	if (!coll_find.init(data_object.collection, Get_one_search_expression)) {
 		DBG_VOID_RETURN;
 	}
 
 	util::zvalue bind_variables{{"id", id}};
-	if (coll_find.bind(bind_variables.ptr()) {
+	if (coll_find.bind(bind_variables.ptr())) {
 		coll_find.execute(return_value);
 		fetch_one_from_doc_result(return_value);
 	}

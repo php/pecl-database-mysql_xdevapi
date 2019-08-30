@@ -58,15 +58,15 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__fields, 0, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__group_by, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, sort_expressions)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__having, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, search_condition)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__sort, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
+	ZEND_ARG_INFO(no_pass_by_ref, sort_expressions)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__limit, 0, ZEND_RETURN_VALUE, 1)
@@ -194,48 +194,53 @@ bool Collection_find::fields(util::zvalue& fields)
 /* {{{ Collection_find::add_operation */
 bool Collection_find::add_operation(
 	Collection_find::Operation operation,
-	zval* sort_expr,
+	zval* sort_expressions,
 	int num_of_expr)
 {
 	DBG_ENTER("Collection_find::add_operation");
 
 	for( int i{0}; i < num_of_expr ; ++i ) {
-		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
-			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
-			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
-			php_error_docref(nullptr, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
-							 Z_TYPE(sort_expr[i]));
+		auto sort_expr_type{ Z_TYPE(sort_expressions[i]) };
+		if (sort_expr_type != IS_STRING &&
+			sort_expr_type != IS_OBJECT &&
+			sort_expr_type != IS_ARRAY) {
+			php_error_docref(
+				nullptr, 
+				E_WARNING, 
+				"Only strings, objects and arrays can be added. Type is %u",
+				sort_expr_type);
 			DBG_RETURN(false);
 		}
 	}
 
 	for( int i{0}; i < num_of_expr ; ++i ) {
-
-		switch (Z_TYPE(sort_expr[i])) {
-		case IS_STRING:
+		const util::zvalue sort_expr(sort_expressions[i]);
+		switch (sort_expr.type()) {
+		case util::zvalue::Type::String:
 			{
-				const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL(sort_expr[i]), Z_STRLEN(sort_expr[i]) };
+				const MYSQLND_CSTRING sort_expr_str{ sort_expr.c_str(), sort_expr.length() };
 				if (Collection_find::Operation::Sort == operation) {
-					if (PASS == xmysqlnd_crud_collection_find__add_sort(find_op, sort_expr_str)) {
-						ZVAL_COPY(return_value, object_zv);
+					if (FAIL == xmysqlnd_crud_collection_find__add_sort(find_op, sort_expr_str)) {
+						DBG_RETURN(false);
 					}
 				} else if (Collection_find::Operation::Group_by == operation) {
-					if (PASS == xmysqlnd_crud_collection_find__add_grouping(find_op, sort_expr_str)) {
-						ZVAL_COPY(return_value, object_zv);
+					if (FAIL == xmysqlnd_crud_collection_find__add_grouping(find_op, sort_expr_str)) {
+						DBG_RETURN(false);
 					}
 				}
 			}
 			break;
-		case IS_ARRAY:
+		case util::zvalue::Type::Array:
 			{
-				zval* entry{nullptr};
-				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(sort_expr[i]), entry) {
-					enum_func_status ret{FAIL};
-					const MYSQLND_CSTRING sort_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
-					if (Z_TYPE_P(entry) != IS_STRING) {
+				for (auto it{ sort_expr.vbegin() }; it != sort_expr.vend(); ++it) {
+					const util::zvalue& sort_expr_entry(*it);
+					if (!sort_expr_entry.is_string()) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
 						DBG_RETURN(false);
 					}
+					const MYSQLND_CSTRING sort_expr_str{
+						sort_expr_entry.c_str(), sort_expr_entry.length() };
+					enum_func_status ret{FAIL};
 					if (Collection_find::Operation::Sort == operation) {
 						ret = xmysqlnd_crud_collection_find__add_sort(find_op, sort_expr_str);
 					} else if (Collection_find::Operation::Group_by == operation) {
@@ -253,29 +258,29 @@ bool Collection_find::add_operation(
 			DBG_RETURN(false);
 		}
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(true);
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_collection__find::sort() */
 bool Collection_find::sort(
-	zval* sort_expr,
+	zval* sort_expressions,
 	int num_of_expr)
 {
 	DBG_ENTER("mysqlx_collection__find::sort");
-	DBG_RETURN(add_operation(Operation::Sort, sort_expr, num_of_expr));
+	DBG_RETURN(add_operation(Operation::Sort, sort_expressions, num_of_expr));
 }
 /* }}} */
 
 
 /* {{{ proto mixed mysqlx_collection__find::group_by() */
 bool Collection_find::group_by(
-	zval* sort_expr,
+	zval* sort_expressions,
 	int num_of_expr)
 {
 	DBG_ENTER("mysqlx_collection__find::group_by");
-	DBG_RETURN(add_operation(Operation::Group_by, sort_expr, num_of_expr));
+	DBG_RETURN(add_operation(Operation::Group_by, sort_expressions, num_of_expr));
 }
 /* }}} */
 
@@ -284,7 +289,8 @@ bool Collection_find::group_by(
 bool Collection_find::having(const util::string_view& search_condition)
 {
 	DBG_ENTER("mysqlx_collection__find::having");
-	DBG_RETURN((PASS == xmysqlnd_crud_collection_find__set_having(find_op, search_condition));
+	const MYSQLND_CSTRING search_condition_str{ search_condition.c_str(), search_condition.length() };
+	DBG_RETURN(PASS == xmysqlnd_crud_collection_find__set_having(find_op, search_condition_str));
 }
 /* }}} */
 
@@ -324,19 +330,18 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("mysqlx_collection__find::bind");
 
-	zend_string* key{nullptr};
-	zval* val{nullptr};
-	MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
-		if (key) {
-			const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
-			if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, variable, val)) {
-				RAISE_EXCEPTION(err_msg_bind_fail);
-				DBG_VOID_RETURN;
-			}
+	for (const auto& variable_value : bind_variables) { 
+		const util::zvalue& var_name{ variable_value.first };
+		if (!var_name.is_string()) continue;
+		const MYSQLND_CSTRING variable{ var_name.c_str(), var_name.length() };
+		const util::zvalue& var_value{ variable_value.second };
+		if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, variable, var_value.ptr())) {
+			RAISE_EXCEPTION(err_msg_bind_fail);
+			DBG_RETURN(false);
 		}
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(true);
 }
 /* }}} */
 
@@ -362,9 +367,9 @@ bool Collection_find::lock_exclusive(int lock_waiting_option)
 
 
 /* {{{ proto mixed mysqlx_collection__find::execute() */
-void Collection_find::execute(zval* return_value)
+void Collection_find::execute(zval* resultset)
 {
-	execute(MYSQLX_EXECUTE_FLAG_BUFFERED, return_value);
+	execute(MYSQLX_EXECUTE_FLAG_BUFFERED, resultset);
 }
 /* }}} */
 
@@ -431,14 +436,14 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
-												&fields))
+												&raw_fields))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	util::zvalue fields(raw_fields);
-	if (coll_find.coll_find.fields(fields)) {
+	if (coll_find.fields(fields)) {
 		util::zvalue::copy_to(object_zv, return_value);
 	}
 
@@ -456,20 +461,20 @@ mysqlx_collection__find__add_sort_or_grouping(
 	DBG_ENTER("mysqlx_collection__find__add_sort_or_grouping");
 
 	zval* object_zv{nullptr};
-	zval* sort_expr{nullptr};
+	zval* sort_expressions{nullptr};
 	int num_of_expr{0};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_find_class_entry,
-									&sort_expr,
+									&sort_expressions,
 									&num_of_expr))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	if (coll_find.add_operation(op_type, sort_expr, num_of_expr)) {
+	if (coll_find.add_operation(op_type, sort_expressions, num_of_expr)) {
 		util::zvalue::copy_to(object_zv, return_value);
 	}
 
@@ -595,7 +600,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
-												&bind_variables))
+												&bind_vars))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -626,7 +631,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockShared)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	if (coll_find.lock_shared(return_value, static_cast<int>(lock_waiting_option))) {
+	if (coll_find.lock_shared(static_cast<int>(lock_waiting_option))) {
 		util::zvalue::copy_to(object_zv, return_value);
 	}
 
@@ -650,7 +655,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	if (coll_find.lock_exclusive(return_value, static_cast<int>(lock_waiting_option))) {
+	if (coll_find.lock_exclusive(static_cast<int>(lock_waiting_option))) {
 		util::zvalue::copy_to(object_zv, return_value);
 	}
 
