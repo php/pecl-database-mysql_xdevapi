@@ -205,8 +205,8 @@ bool Collection_find::add_operation(
 			sort_expr_type != IS_OBJECT &&
 			sort_expr_type != IS_ARRAY) {
 			php_error_docref(
-				nullptr, 
-				E_WARNING, 
+				nullptr,
+				E_WARNING,
 				"Only strings, objects and arrays can be added. Type is %u",
 				sort_expr_type);
 			DBG_RETURN(false);
@@ -330,7 +330,7 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("mysqlx_collection__find::bind");
 
-	for (const auto& variable_value : bind_variables) { 
+	for (const auto& variable_value : bind_variables) {
 		const util::zvalue& var_name{ variable_value.first };
 		if (!var_name.is_string()) continue;
 		const MYSQLND_CSTRING variable{ var_name.c_str(), var_name.length() };

@@ -169,7 +169,7 @@ bool Collection_remove::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("Collection_remove::bind");
 
-	for (const auto& variable_value : bind_variables) { 
+	for (const auto& variable_value : bind_variables) {
 		const util::zvalue& var_name{ variable_value.first };
 		if (!var_name.is_string()) continue;
 		const MYSQLND_CSTRING variable{ var_name.c_str(), var_name.length() };

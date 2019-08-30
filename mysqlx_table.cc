@@ -353,8 +353,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 			column_type != IS_OBJECT &&
 			column_type != IS_ARRAY) {
 			php_error_docref(
-				nullptr, 
-				E_WARNING, 
+				nullptr,
+				E_WARNING,
 				"Only strings, objects and arrays can be added. Type is %u",
 				column_type);
 			DBG_VOID_RETURN;

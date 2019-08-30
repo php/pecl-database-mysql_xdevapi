@@ -174,8 +174,8 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 			sort_expr_type != IS_OBJECT &&
 			sort_expr_type != IS_ARRAY) {
 			php_error_docref(
-				nullptr, 
-				E_WARNING, 
+				nullptr,
+				E_WARNING,
 				"Only strings, objects and arrays can be added. Type is %u",
 				sort_expr_type);
 			DBG_VOID_RETURN;

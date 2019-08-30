@@ -69,7 +69,7 @@ execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
 	if (stmt_zv.is_null()) {
 		xmysqlnd_stmt_free(&stmt, nullptr, nullptr);
 		return FAIL;
-	} 
+	}
 	if (!stmt_zv.is_object()) {
 		return FAIL;
 	}
@@ -114,7 +114,7 @@ collection_add_object(
 	util::zvalue& doc)
 {
 	Add_op_status ret = Add_op_status::fail;
-	util::zvalue new_doc{ util::json::to_zv_string(doc) };
+	util::zvalue new_doc(util::json::to_zv_string(doc));
 	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, new_doc.ptr()) ) {
 		ret = Add_op_status::success;
 	}
@@ -158,9 +158,9 @@ bool Collection_add::add_docs(
 			doc_type != IS_OBJECT &&
 			doc_type != IS_ARRAY) {
 			php_error_docref(
-				nullptr, 
-				E_WARNING, 
-				"Only strings, objects and arrays can be added. Type is %u", 
+				nullptr,
+				E_WARNING,
+				"Only strings, objects and arrays can be added. Type is %u",
 				doc_type);
 			return false;
 		}
@@ -220,7 +220,7 @@ void Collection_add::execute(zval* resultset)
 	Add_op_status ret = Add_op_status::success;
 	for (auto it{docs.begin()}; it != docs.end() && ret != Add_op_status::fail ; ++it) {
 		ret = Add_op_status::fail;
-		auto& doc{ *it };
+		util::zvalue doc(*it);
 		switch(doc.type()) {
 		case util::zvalue::Type::String:
 			ret = collection_add_string(add_op, doc);
