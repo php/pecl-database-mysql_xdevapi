@@ -171,7 +171,10 @@ bool Collection_remove::bind(const util::zvalue& bind_variables)
 
 	for (const auto& variable_value : bind_variables) {
 		const util::zvalue& var_name{ variable_value.first };
-		if (!var_name.is_string()) continue;
+		if (!var_name.is_string()) {
+			RAISE_EXCEPTION(err_msg_bind_fail);
+			DBG_RETURN(false);
+		}
 		const MYSQLND_CSTRING variable{ var_name.c_str(), var_name.length() };
 		const util::zvalue& var_value{ variable_value.second };
 		if (FAIL == xmysqlnd_crud_collection_remove__bind_value(remove_op, variable, var_value.ptr())) {

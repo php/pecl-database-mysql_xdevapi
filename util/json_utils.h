@@ -32,7 +32,7 @@ class zvalue;
 namespace json {
 
 void to_zv_string(zval* src, zval* dest);
-util::zvalue to_zv_string(util::zvalue& src);
+util::zvalue to_zv_string(const util::zvalue& src);
 
 void ensure_doc_id(
 	zval* raw_doc,

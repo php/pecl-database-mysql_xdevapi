@@ -478,7 +478,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 	}
 
 	util::zvalue bind_variables{{"id", id}};
-	if (coll_find.bind(bind_variables.ptr())) {
+	if (coll_find.bind(bind_variables)) {
 		coll_find.execute(return_value);
 		fetch_one_from_doc_result(return_value);
 	}
@@ -587,7 +587,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 	}
 
 	util::zvalue bind_variables{{"id", id}};
-	if (coll_remove.bind(bind_variables.ptr())) {
+	if (coll_remove.bind(bind_variables)) {
 		coll_remove.execute(return_value);
 	}
 

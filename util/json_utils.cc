@@ -59,7 +59,7 @@ void to_zv_string(zval* src, zval* dest)
 }
 /* }}} */
 
-util::zvalue to_zv_string(util::zvalue& src)
+util::zvalue to_zv_string(const util::zvalue& src)
 {
 	util::zvalue dest;
 	to_zv_string(src.ptr(), dest.ptr());

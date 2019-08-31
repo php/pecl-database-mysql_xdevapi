@@ -157,7 +157,7 @@ bool Collection_find::fields(util::zvalue& fields)
 
 	enum_func_status ret{PASS};
 	if (fields.is_string()) {
-		const MYSQLND_CSTRING field_str = { fields.c_str(), fields.length() };
+		const MYSQLND_CSTRING field_str{ fields.c_str(), fields.length() };
 		ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
 	} else if (fields.is_array()) {
 		for (auto it{ fields.vbegin() }; it != fields.vend(); ++it) {
@@ -332,7 +332,10 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 
 	for (const auto& variable_value : bind_variables) {
 		const util::zvalue& var_name{ variable_value.first };
-		if (!var_name.is_string()) continue;
+		if (!var_name.is_string()) {
+			RAISE_EXCEPTION(err_msg_bind_fail);
+			DBG_RETURN(false);
+		}
 		const MYSQLND_CSTRING variable{ var_name.c_str(), var_name.length() };
 		const util::zvalue& var_value{ variable_value.second };
 		if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, variable, var_value.ptr())) {
