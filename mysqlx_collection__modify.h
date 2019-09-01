@@ -53,23 +53,8 @@ public:
 	bool skip(zend_long position);
 	bool bind(const util::zvalue& bind_variables);
 
-	enum class Operation
-	{
-		Set,
-		Replace,
-		Array_insert,
-		Array_append
-	};
-
-	bool add_operation(
-		Operation operation,
-		const util::string_view& path,
-		const bool is_document,
-		util::zvalue value);
-
 	bool set(
 		const util::string_view& path,
-		const bool is_document,
 		zval* value);
 	bool unset(
 		zval* variables,
@@ -77,16 +62,21 @@ public:
 	bool replace(
 		const util::string_view& path,
 		zval* value);
-	bool patch(const util::string_view &document_contents_str);
+	bool patch(const util::string_view& document_contents);
 
-	bool arrayInsert(
+	bool array_insert(
 		const util::string_view& path,
 		zval* value);
-	bool arrayAppend(
+	bool array_append(
 		const util::string_view& path,
 		zval* value);
 
 	void execute(zval* return_value);
+
+private:
+	drv::Modify_value prepare_value(
+		const util::string_view& path,
+		util::zvalue value);
 
 private:
 	drv::xmysqlnd_collection* collection{nullptr};

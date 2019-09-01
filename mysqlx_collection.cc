@@ -522,7 +522,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 	const util::string_view Doc_root_path("$");
 	util::zvalue doc_with_id;
 	util::json::ensure_doc_id(doc, id, doc_with_id.ptr());
-	if (coll_modify.set(Doc_root_path, true, doc_with_id.ptr())) {
+	if (coll_modify.set(Doc_root_path, doc_with_id.ptr())) {
 		coll_modify.execute(return_value);
 	}
 

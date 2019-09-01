@@ -356,7 +356,7 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 	}
 	if( false == ps_data->is_ps_supported() ) {
 		if ( !ps_data->is_bind_finalized( op->ps_message_id ) &&
-			 FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
+			 !xmysqlnd_crud_collection_modify__finalize_bind(op)) {
 			DBG_RETURN(stmt);
 		}
 		if (xmysqlnd_crud_collection_modify__is_initialized(op)) {
@@ -370,7 +370,7 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 		DBG_INF(stmt != nullptr? "PASS":"FAIL");
 	} else {
 		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()) );
-		if ( FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
+		if (!xmysqlnd_crud_collection_modify__finalize_bind(op)) {
 			DBG_RETURN(stmt);
 		}
 		op->ps_message_id = res.second;

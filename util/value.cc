@@ -50,35 +50,35 @@ zvalue::zvalue()
 zvalue::zvalue(Type type)
 {
 	switch (type) {
-	case Undefined:
+	case Type::Undefined:
 		ZVAL_UNDEF(&zv);
 		break;
 
-	case Null:
+	case Type::Null:
 		ZVAL_NULL(&zv);
 		break;
 
-	case False:
+	case Type::False:
 		ZVAL_FALSE(&zv);
 		break;
 
-	case True:
+	case Type::True:
 		ZVAL_TRUE(&zv);
 		break;
 
-	case Long:
+	case Type::Long:
 		ZVAL_LONG(&zv, 0);
 		break;
 
-	case Double:
+	case Type::Double:
 		ZVAL_DOUBLE(&zv, 0.0);
 		break;
 
-	case String:
+	case Type::String:
 		ZVAL_EMPTY_STRING(&zv);
 		break;
 
-	case Array:
+	case Type::Array:
 		array_init(&zv);
 		break;
 

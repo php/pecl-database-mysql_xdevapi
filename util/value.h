@@ -29,7 +29,7 @@ namespace util {
 class zvalue
 {
 	public:
-		enum Type {
+		enum class Type {
 			Undefined = IS_UNDEF,
 			Null = IS_NULL,
 			False = IS_FALSE,

@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef XMYSQLND_CRUD_COLLECTION_COMMANDS_H
@@ -25,6 +27,7 @@
 #include "xmysqlnd_crud_collection_commands.h"
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 #include "xmysqlnd/crud_parsers/expression_parser.h"
+#include "util/value.h"
 
 namespace Mysqlx { namespace Sql { class StmtExecute; } }
 
@@ -54,43 +57,47 @@ struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_remove__get_protobu
 zend_bool xmysqlnd_crud_collection_remove__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
 
 
+struct Modify_value
+{
+	const util::string_view& path;
+	util::zvalue value;
+	bool is_expression;
+	bool is_document;
+};
+
 typedef struct st_xmysqlnd_crud_collection_op__modify XMYSQLND_CRUD_COLLECTION_OP__MODIFY;
 XMYSQLND_CRUD_COLLECTION_OP__MODIFY * xmysqlnd_crud_collection_modify__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);
 void xmysqlnd_crud_collection_modify__destroy(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
-enum_func_status xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const std::string& criteria);
-enum_func_status xmysqlnd_crud_collection_modify__set_limit(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t limit);
-enum_func_status xmysqlnd_crud_collection_modify__set_skip(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const size_t offset);
-enum_func_status xmysqlnd_crud_collection_modify__bind_value(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING name, zval * value);
-enum_func_status xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING sort);
+bool xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const std::string& criteria);
+bool xmysqlnd_crud_collection_modify__set_limit(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const size_t limit);
+bool xmysqlnd_crud_collection_modify__set_skip(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const size_t offset);
+bool xmysqlnd_crud_collection_modify__bind_value(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const MYSQLND_CSTRING name, zval * value);
+bool xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const MYSQLND_CSTRING sort);
 
-enum_func_status xmysqlnd_crud_collection_modify__unset(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj, const MYSQLND_CSTRING path);
-enum_func_status xmysqlnd_crud_collection_modify__set(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
-													  const MYSQLND_CSTRING path,
-													  const zval * const value,
-													  const zend_bool is_expression,
-													  const zend_bool is_document);
-enum_func_status xmysqlnd_crud_collection_modify__replace(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
-														  const MYSQLND_CSTRING path,
-														  const zval * const value,
-														  const zend_bool is_expression,
-														  const zend_bool is_document);
-enum_func_status xmysqlnd_crud_collection_modify__merge(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
-														const MYSQLND_CSTRING path,
-														const zval * const value);
-enum_func_status xmysqlnd_crud_collection_modify__patch(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
-                                                        const MYSQLND_CSTRING path,
-                                                        const zval * const patch);
-enum_func_status xmysqlnd_crud_collection_modify__array_insert(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
-															   const MYSQLND_CSTRING path,
-															   const zval * const value);
-enum_func_status xmysqlnd_crud_collection_modify__array_append(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
-															   const MYSQLND_CSTRING path,
-															   const zval * const value);
-enum_func_status xmysqlnd_crud_collection_modify__array_delete(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj,
-															   const MYSQLND_CSTRING path);
-enum_func_status xmysqlnd_crud_collection_modify__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
-struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_modify__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
-zend_bool xmysqlnd_crud_collection_modify__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
+bool xmysqlnd_crud_collection_modify__unset(
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
+	const util::string_view& path);
+bool xmysqlnd_crud_collection_modify__set(
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
+	const Modify_value& modify_value);
+bool xmysqlnd_crud_collection_modify__replace(
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
+	const Modify_value& modify_value);
+bool xmysqlnd_crud_collection_modify__merge(
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
+	const Modify_value& modify_value);
+bool xmysqlnd_crud_collection_modify__patch(
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
+	const Modify_value& modify_value);
+bool xmysqlnd_crud_collection_modify__array_insert(
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
+	const Modify_value& modify_value);
+bool xmysqlnd_crud_collection_modify__array_append(
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
+	const Modify_value& modify_value);
+bool xmysqlnd_crud_collection_modify__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
+st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_modify__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
+bool xmysqlnd_crud_collection_modify__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
 
 
 typedef struct st_xmysqlnd_crud_collection_op__find XMYSQLND_CRUD_COLLECTION_OP__FIND;
@@ -245,7 +252,6 @@ struct st_xmysqlnd_stmt_op__execute
         }
     }
 };
-
 
 } // namespace drv
 
