@@ -12,10 +12,10 @@ mysqlx collection modify, deleting elements from an array
 	fill_db_collection($coll);
 
 
-	$coll->modify('job in (\'Programmatore\', \'Cantante\')')->arrayAppend('job', 'Volontario')->arrayAppend('job', 'Tassinaro')->execute();
-	$coll->modify('name in (\'Riccardo\', \'Carlo\')')->unset('job[0]')->execute();
-	$coll->modify('name in (\'Alfredo\', \'Leonardo\')')->unset('job[1]')->execute();
-	$coll->modify('name like \'Lonardo\'')->unset('job[0]')->execute();
+	$coll->modify("job in ('Programmatore', 'Cantante')")->arrayAppend('job', 'Volontario')->arrayAppend('job', 'Tassinaro')->execute();
+	$coll->modify("name in ('Riccardo', 'Carlo')")->unset('job[0]')->execute();
+	$coll->modify("name in ('Alfredo', 'Leonardo')")->unset('job[1]')->execute();
+	$coll->modify("name like 'Lonardo'")->unset('job[0]')->execute();
 	var_dump($coll->find()->execute()->fetchAll());
 	print "done!\n";
 ?>

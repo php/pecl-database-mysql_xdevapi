@@ -18,8 +18,8 @@ mysqlx table delete/where
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable($test_table_name);
 
-	$table->delete()->where('name in (\'Romy\', \'Caspian\', \'Olympia\', \'Mamie\') and age > :age_limit')->bind(['age_limit' => 13])->execute();
-	$table->delete()->where('name = \'bad_name\'')->limit(1)->execute(); //Shall do nothing
+	$table->delete()->where("name in ('Romy', 'Caspian', 'Olympia', 'Mamie') and age > :age_limit")->bind(['age_limit' => 13])->execute();
+	$table->delete()->where("name = 'bad_name'")->limit(1)->execute(); //Shall do nothing
 	$table->delete()->orderby('age desc')->where('age < 20 and age > 12 and name != :name')->bind(['name' => 'Tierney'])->limit(2)->execute();
 	dump_all_row($table);
 
