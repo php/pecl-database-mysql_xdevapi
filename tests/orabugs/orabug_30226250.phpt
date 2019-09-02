@@ -5,8 +5,7 @@ orabug #30226250: some of Collection.Modify ops don't support JSON documents
 error_reporting=0
 --FILE--
 <?php
-require(__DIR__."/connect.inc");
-clean_test_db();
+require(__DIR__."/../connect.inc");
 
 $session = create_test_db();
 
@@ -43,7 +42,7 @@ print "done!\n";
 ?>
 --CLEAN--
 <?php
-require(__DIR__."/connect.inc");
+require(__DIR__."/../connect.inc");
 clean_test_db();
 ?>
 --EXPECTF--

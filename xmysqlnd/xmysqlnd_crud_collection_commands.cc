@@ -500,6 +500,8 @@ xmysqlnd_crud_collection_modify__add_operation(
 		case util::zvalue::Type::Resource:
 			DBG_ERR("Wrong value type");
 			DBG_RETURN(false);
+		default:
+			break;
 		}
 	}
 
