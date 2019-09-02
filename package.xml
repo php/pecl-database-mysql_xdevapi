@@ -82,6 +82,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
    <file name="examples.php" role="test" />
+   <file name="json_api.h" role="src" />
    <file name="mysql_xdevapi.def" role="src" />
    <file name="mysqlnd_api.h" role="src" />
    <file name="mysqlx_base_result.cc" role="src" />
@@ -298,6 +299,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     </dir>
     <dir name="orabugs">
      <file name="orabug_30093227.phpt" role="test" />
+     <file name="orabug_30226250.phpt" role="test" />
     </dir>
     <dir name="prepared_statement">
      <file name="ps_collection_find.phpt" role="test" />
