@@ -66,15 +66,20 @@ util::zvalue to_zv_string(const util::zvalue& src)
 	return dest;
 }
 
-bool is_document(const util::zvalue& value)
+bool can_be_document(const util::zvalue& value)
 {
 	assert(value.is_string());
-	char* json_str{ const_cast<char*>(value.c_str()) };
-	int json_len{ static_cast<int>(value.length()) };
-	util::zvalue json_document;
-	int decode_result{ 
-		php_json_decode(json_document.ptr(), json_str, json_len, true, PHP_JSON_PARSER_DEFAULT_DEPTH) };
-	return (decode_result != FAILURE) && json_document.is_array();
+	if (value.empty()) return false;
+	const char* value_str = value.c_str();
+	return *value_str == '{';
+}
+
+bool can_be_array(const util::zvalue& value)
+{
+	assert(value.is_string());
+	if (value.empty()) return false;
+	const char* value_str = value.c_str();
+	return *value_str == '[';
 }
 
 namespace {

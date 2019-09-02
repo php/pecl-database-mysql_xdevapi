@@ -63,6 +63,7 @@ struct Modify_value
 	util::zvalue value;
 	bool is_expression;
 	bool is_document;
+	bool validate_array;
 };
 
 typedef struct st_xmysqlnd_crud_collection_op__modify XMYSQLND_CRUD_COLLECTION_OP__MODIFY;

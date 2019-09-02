@@ -246,7 +246,8 @@ bool Collection_modify::bind(const util::zvalue& bind_variables)
 /* {{{ Collection_modify::prepare_value */
 drv::Modify_value Collection_modify::prepare_value(
 	const util::string_view& path,
-	util::zvalue value)
+	util::zvalue value,
+	bool validate_array)
 {
 	DBG_ENTER("Collection_modify::prepare_value");
 
@@ -269,7 +270,7 @@ drv::Modify_value Collection_modify::prepare_value(
 			break;
 
 		case util::zvalue::Type::String:
-			is_document = util::json::is_document(value);
+			is_document = util::json::can_be_document(value) || util::json::can_be_array(value);
 			break;
 
 		case util::zvalue::Type::Array:
@@ -281,7 +282,7 @@ drv::Modify_value Collection_modify::prepare_value(
 			throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_type);
 	}
 
-	drv::Modify_value result{ path, value, is_expression, is_document };
+	drv::Modify_value result{ path, value, is_expression, is_document, validate_array };
 	DBG_RETURN(result);
 }
 /* }}} */
@@ -384,7 +385,7 @@ bool Collection_modify::array_insert(
 	zval* value)
 {
 	DBG_ENTER("Collection_modify::array_insert");
-	DBG_RETURN(xmysqlnd_crud_collection_modify__array_insert(modify_op, prepare_value(path, value)));
+	DBG_RETURN(xmysqlnd_crud_collection_modify__array_insert(modify_op, prepare_value(path, value, true)));
 }
 /* }}} */
 

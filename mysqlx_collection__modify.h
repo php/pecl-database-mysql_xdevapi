@@ -76,7 +76,8 @@ public:
 private:
 	drv::Modify_value prepare_value(
 		const util::string_view& path,
-		util::zvalue value);
+		util::zvalue value,
+		bool validate_array = false);
 
 private:
 	drv::xmysqlnd_collection* collection{nullptr};

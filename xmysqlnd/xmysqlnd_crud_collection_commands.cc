@@ -474,13 +474,13 @@ static bool
 xmysqlnd_crud_collection_modify__add_operation(
 	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type,
-	const Modify_value& modify_value,
-	const bool validate_array = false)
+	const Modify_value& modify_value)
 {
 	const util::string_view& path{ modify_value.path };
 	const util::zvalue& value{ modify_value.value };
 	const bool is_expression{ modify_value.is_expression };
 	const bool is_document{ modify_value.is_document };
+	const bool validate_array{ modify_value.validate_array };
 
 	DBG_ENTER("xmysqlnd_crud_collection_modify__add_operation");
 	DBG_INF_FMT("operation=%s", Mysqlx::Crud::UpdateOperation::UpdateType_Name(op_type).c_str());
@@ -550,7 +550,7 @@ xmysqlnd_crud_collection_modify__add_operation(
 													obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
 													obj->placeholders );
 				operation->set_allocated_value( exprCriteria );
-			} catch (cdk::Error &e) {
+			} catch (cdk::Error& e) {
 				php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 				DBG_ERR_FMT("%s", e.what());
 				DBG_ERR("Parser error for document field");
@@ -582,7 +582,7 @@ bool xmysqlnd_crud_collection_modify__unset(
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_REMOVE;
 	DBG_ENTER("xmysqlnd_crud_collection_modify__unset");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__add_operation(
-		obj, op_type, Modify_value{ path, util::zvalue(), false, false }));
+		obj, op_type, Modify_value{ path, util::zvalue(), false, false, false }));
 }
 /* }}} */
 
@@ -642,7 +642,7 @@ bool xmysqlnd_crud_collection_modify__array_insert(
 {
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ARRAY_INSERT;
 	DBG_ENTER("xmysqlnd_crud_collection_modify__array_insert");
-	DBG_RETURN(xmysqlnd_crud_collection_modify__add_operation(obj, op_type, modify_value, true));
+	DBG_RETURN(xmysqlnd_crud_collection_modify__add_operation(obj, op_type, modify_value));
 }
 /* }}} */
 
