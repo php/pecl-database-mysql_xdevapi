@@ -484,12 +484,12 @@ xmysqlnd_crud_collection_modify__add_operation(
 
 	DBG_ENTER("xmysqlnd_crud_collection_modify__add_operation");
 	DBG_INF_FMT("operation=%s", Mysqlx::Crud::UpdateOperation::UpdateType_Name(op_type).c_str());
-	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u", 
-		path.length(), 
-		path.c_str(), 
-		value.ptr(), 
-		static_cast<unsigned>(is_expression), 
-		static_cast<unsigned>(is_document), 
+	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u",
+		path.length(),
+		path.c_str(),
+		value.ptr(),
+		static_cast<unsigned>(is_expression),
+		static_cast<unsigned>(is_document),
 		static_cast<unsigned>(validate_array));
 
 	if (!value.is_undef()) {
