@@ -158,7 +158,6 @@ public:
 	void add_placeholders(const util::std_strings& placeholders);
 	bool bind(const util::string& placeholder, zval* value);
 	bool finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args);
-	void verify_all_bound() const;
 
 	using Bound_values = std::vector<Mysqlx::Datatypes::Scalar*>;
 	Bound_values get_bound_values() const;

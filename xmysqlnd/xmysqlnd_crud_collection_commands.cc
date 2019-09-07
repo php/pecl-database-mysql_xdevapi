@@ -38,10 +38,10 @@ Bindings::Bindings()
 
 Bindings::~Bindings()
 {
-	//for (auto& bound_value : bound_variables) {
-	//	auto& value = bound_value.second;
-	//	delete value;
-	//}
+	for (auto& bound_value : bound_variables) {
+		auto& value = bound_value.second;
+		delete value;
+	}
 }
 
 bool Bindings::empty() const
@@ -57,7 +57,7 @@ std::size_t Bindings::size() const
 void Bindings::add_placeholders(const util::std_strings& placeholders)
 {
 	for (const auto& placeholder : placeholders) {
-		bound_variables[util::to_string(placeholder)] = nullptr;
+		bound_variables.insert({util::to_string(placeholder), nullptr});
 	}
 }
 
@@ -90,23 +90,21 @@ bool Bindings::bind(const util::string& var_name, zval* var_value)
 	DBG_RETURN(true);
 }
 
-void Bindings::verify_all_bound() const
-{
-	DBG_ENTER("Bindings::finalize");
-	for (const auto& var_name_value : bound_variables) {
-		if (var_name_value.second == nullptr) {
-			//throw
-		}
-	}
-	DBG_VOID_RETURN;
-}
-
 bool Bindings::finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args)
 {
 	DBG_ENTER("Bindings::finalize");
-	verify_all_bound();
+	assert(mutable_args->empty());
 	for (const auto& var_name_value : bound_variables) {
-		mutable_args->AddAllocated(var_name_value.second);
+		auto var_value{ var_name_value.second };
+		if (var_value == nullptr) {
+			util::ostringstream os;
+			os << "No such variable in the expression: '" << var_name_value.first << "'.";
+			throw util::xdevapi_exception(
+				util::xdevapi_exception::Code::bind_fail,
+				os.str());
+		}
+		Mysqlx::Datatypes::Scalar* cloned_var_value{ new Mysqlx::Datatypes::Scalar(*var_value) };
+		mutable_args->AddAllocated(cloned_var_value);
 	}
 	DBG_RETURN(true);
 }
@@ -114,10 +112,12 @@ bool Bindings::finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes:
 Bindings::Bound_values Bindings::get_bound_values() const
 {
 	DBG_ENTER("Bindings::get_bound_values");
-	verify_all_bound();
 	Bound_values bound_values;
 	for (const auto& var_name_value : bound_variables) {
-		bound_values.push_back(var_name_value.second);
+		auto var_value{ var_name_value.second };
+		// finalize should always be called before get_bound_values
+		assert(var_value != nullptr);
+		bound_values.push_back(var_value);
 	}
 	DBG_RETURN(bound_values);
 }

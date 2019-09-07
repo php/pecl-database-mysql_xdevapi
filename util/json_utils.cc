@@ -66,28 +66,31 @@ util::zvalue to_zv_string(const util::zvalue& src)
 	return dest;
 }
 
-bool can_be_document(const util::zvalue& value)
+namespace {
+
+bool is_first_char(const util::zvalue& value, const char chr)
 {
 	assert(value.is_string());
 	if (value.empty()) return false;
 	const char* value_str = value.c_str();
-	return *value_str == '{';
+	return *value_str == chr;
+}
+
+} // anonymous namespace
+
+bool can_be_document(const util::zvalue& value)
+{
+	return is_first_char(value, '{');
 }
 
 bool can_be_array(const util::zvalue& value)
 {
-	assert(value.is_string());
-	if (value.empty()) return false;
-	const char* value_str = value.c_str();
-	return *value_str == '[';
+	return is_first_char(value, '[');
 }
 
 bool can_be_binding(const util::zvalue& value)
 {
-	assert(value.is_string());
-	if (value.empty()) return false;
-	const char* value_str = value.c_str();
-	return *value_str == ':';
+	return is_first_char(value, ':');
 }
 
 namespace {
