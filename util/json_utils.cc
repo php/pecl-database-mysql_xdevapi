@@ -82,6 +82,14 @@ bool can_be_array(const util::zvalue& value)
 	return *value_str == '[';
 }
 
+bool can_be_binding(const util::zvalue& value)
+{
+	assert(value.is_string());
+	if (value.empty()) return false;
+	const char* value_str = value.c_str();
+	return *value_str == ':';
+}
+
 namespace {
 
 class Ensure_doc_id

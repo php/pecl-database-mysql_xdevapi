@@ -336,9 +336,8 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}
-		const MYSQLND_CSTRING variable{ var_name.c_str(), var_name.length() };
 		const util::zvalue& var_value{ variable_value.second };
-		if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, variable, var_value.ptr())) {
+		if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, var_name.to_string(), var_value.ptr())) {
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}

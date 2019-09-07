@@ -32,35 +32,54 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_crud_collection__bind_value */
-enum_func_status
-xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
-									 std::vector<Mysqlx::Datatypes::Scalar*> & bound_values,
-									 const MYSQLND_CSTRING & name,
-									 zval * value)
+Bindings::Bindings()
 {
-	DBG_ENTER("xmysqlnd_crud_collection__bind_value");
-	DBG_INF_FMT("name=%*s", name.l, name.s);
+}
 
-	const std::string var_name(name.s, name.l);
-	const std::vector<std::string>::iterator begin = placeholders.begin();
-	const std::vector<std::string>::iterator end = placeholders.end();
-	const std::vector<std::string>::const_iterator it = std::find(begin, end, var_name);
-	if (it == end) {
+Bindings::~Bindings()
+{
+	//for (auto& bound_value : bound_variables) {
+	//	auto& value = bound_value.second;
+	//	delete value;
+	//}
+}
+
+bool Bindings::empty() const
+{
+	return bound_variables.empty();
+}
+
+std::size_t Bindings::size() const
+{
+	return bound_variables.size();
+}
+
+void Bindings::add_placeholders(const util::std_strings& placeholders)
+{
+	for (const auto& placeholder : placeholders) {
+		bound_variables[util::to_string(placeholder)] = nullptr;
+	}
+}
+
+bool Bindings::bind(const util::string& var_name, zval* var_value)
+{
+	DBG_ENTER("Bindings::bind");
+	DBG_INF_FMT("name=%*s", var_name.length(), var_name.c_str());
+
+	auto it = bound_variables.find(var_name);
+	if (it == bound_variables.end()) {
 		DBG_ERR("No such variable in the expression");
-		DBG_RETURN(FAIL);
+		DBG_RETURN(false);
 	}
 
 	Mysqlx::Datatypes::Any any;
-	if (FAIL == zval2any(value, any)) {
+	if (FAIL == zval2any(var_value, any)) {
 		DBG_ERR("Error converting the zval to scalar");
-		DBG_RETURN(FAIL);
+		DBG_RETURN(false);
 	}
 	any2log(any);
 
-	const std::size_t index = static_cast<std::size_t>(it - begin);
-	DBG_INF_FMT("offset=%u", index);
-	auto& bound_value = bound_values[index];
+	auto& bound_value = it->second;
 	if (bound_value) {
 		delete bound_value;
 	}
@@ -68,9 +87,93 @@ xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
 
 	scalar2log(*bound_value);
 
-	DBG_INF("PASS");
-	DBG_RETURN(PASS);
+	DBG_RETURN(true);
 }
+
+void Bindings::verify_all_bound() const
+{
+	DBG_ENTER("Bindings::finalize");
+	for (const auto& var_name_value : bound_variables) {
+		if (var_name_value.second == nullptr) {
+			//throw
+		}
+	}
+	DBG_VOID_RETURN;
+}
+
+bool Bindings::finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args)
+{
+	DBG_ENTER("Bindings::finalize");
+	verify_all_bound();
+	for (const auto& var_name_value : bound_variables) {
+		mutable_args->AddAllocated(var_name_value.second);
+	}
+	DBG_RETURN(true);
+}
+
+Bindings::Bound_values Bindings::get_bound_values() const
+{
+	DBG_ENTER("Bindings::get_bound_values");
+	verify_all_bound();
+	Bound_values bound_values;
+	for (const auto& var_name_value : bound_variables) {
+		bound_values.push_back(var_name_value.second);
+	}
+	DBG_RETURN(bound_values);
+}
+
+namespace {
+
+Mysqlx::Expr::Expr* parse_expression(const std::string& expression_str, Bindings& bindings)
+{
+	std::vector<std::string> placeholders;
+	Mysqlx::Expr::Expr* expression
+		= mysqlx::devapi::parser::parse(expression_str, true, placeholders);
+	bindings.add_placeholders(placeholders);
+	return expression;
+}
+
+} // anonymous namespace
+
+/* {{{ xmysqlnd_crud_collection__bind_value */
+//enum_func_status
+//xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
+//									 std::vector<Mysqlx::Datatypes::Scalar*> & bound_variables,
+//									 const MYSQLND_CSTRING & name,
+//									 zval * value)
+//{
+//	DBG_ENTER("xmysqlnd_crud_collection__bind_value");
+//	DBG_INF_FMT("name=%*s", name.l, name.s);
+//
+//	const std::string var_name(name.s, name.l);
+//	const std::vector<std::string>::iterator begin = placeholders.begin();
+//	const std::vector<std::string>::iterator end = placeholders.end();
+//	const std::vector<std::string>::const_iterator it = std::find(begin, end, var_name);
+//	if (it == end) {
+//		DBG_ERR("No such variable in the expression");
+//		DBG_RETURN(FAIL);
+//	}
+//
+//	Mysqlx::Datatypes::Any any;
+//	if (FAIL == zval2any(value, any)) {
+//		DBG_ERR("Error converting the zval to scalar");
+//		DBG_RETURN(FAIL);
+//	}
+//	any2log(any);
+//
+//	const std::size_t index = static_cast<std::size_t>(it - begin);
+//	DBG_INF_FMT("offset=%u", index);
+//	auto& bound_value = bound_variables[index];
+//	if (bound_value) {
+//		delete bound_value;
+//	}
+//	bound_value = any.release_scalar();
+//
+//	scalar2log(*bound_value);
+//
+//	DBG_INF("PASS");
+//	DBG_RETURN(PASS);
+//}
 /* }}} */
 
 
@@ -82,14 +185,9 @@ xmysqlnd_crud_collection__add_sort(MSG& message,
 {
 	DBG_ENTER("xmysqlnd_crud_collection__add_sort");
 	DBG_INF_FMT("sort=%*s", sort.l, sort.s);
-	const Mysqlx::Crud::DataModel data_model =
-			message.data_model();
-
 	try {
 		const std::string source(sort.s, sort.l);
-		if( false == mysqlx::devapi::parser::orderby( source,
-														   data_model == Mysqlx::Crud::DOCUMENT,
-														   &message) ) {
+		if( false == mysqlx::devapi::parser::orderby(source, true, &message) ) {
 			DBG_ERR_FMT("Unable to parser the orderby expression");
 			DBG_RETURN(FAIL);
 		}
@@ -106,27 +204,27 @@ xmysqlnd_crud_collection__add_sort(MSG& message,
 
 
 /* {{{ xmysqlnd_crud_collection__finalize_bind */
-enum_func_status
-xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args,
-										std::vector<Mysqlx::Datatypes::Scalar*> & bound_values)
-{
-	DBG_ENTER("xmysqlnd_crud_collection__finalize_bind");
-
-	const Mysqlx::Datatypes::Scalar* null_value{nullptr};
-	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin{ bound_values.begin() };
-	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end{ bound_values.end() };
-	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index{ std::find(begin, end, null_value) };
-	if (index == end) {
-		mutable_args->Clear();
-
-		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it{ begin };
-		for (; it != end; ++it) {
-			Mysqlx::Datatypes::Scalar* arg{ new Mysqlx::Datatypes::Scalar(**it) };
-			mutable_args->AddAllocated(arg);
-		}
-	}
-	DBG_RETURN(index == end? PASS : FAIL);
-}
+//enum_func_status
+//xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args,
+//										std::vector<Mysqlx::Datatypes::Scalar*> & bound_variables)
+//{
+//	DBG_ENTER("xmysqlnd_crud_collection__finalize_bind");
+//
+//	const Mysqlx::Datatypes::Scalar* null_value{nullptr};
+//	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin{ bound_variables.begin() };
+//	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end{ bound_variables.end() };
+//	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index{ std::find(begin, end, null_value) };
+//	if (index == end) {
+//		mutable_args->Clear();
+//
+//		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it{ begin };
+//		for (; it != end; ++it) {
+//			Mysqlx::Datatypes::Scalar* arg{ new Mysqlx::Datatypes::Scalar(**it) };
+//			mutable_args->AddAllocated(arg);
+//		}
+//	}
+//	DBG_RETURN(index == end? PASS : FAIL);
+//}
 /* }}} */
 
 
@@ -262,15 +360,8 @@ xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOV
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__set_criteria");
 	try {
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( criteria,
-																				obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
-																				obj->placeholders );
-		obj->message.set_allocated_criteria(exprCriteria);
-
-		if (obj->bound_values.size()) {
-			obj->bound_values.clear();
-		}
-		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(criteria, obj->bindings);
+		obj->message.set_allocated_criteria(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
@@ -307,15 +398,13 @@ xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * 
 
 /* {{{ xmysqlnd_crud_collection_remove__bind_value */
 enum_func_status
-xmysqlnd_crud_collection_remove__bind_value(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const MYSQLND_CSTRING name, zval * value)
+xmysqlnd_crud_collection_remove__bind_value(
+	XMYSQLND_CRUD_COLLECTION_OP__REMOVE* obj,
+	const util::string& name,
+	zval* value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__bind_value");
-	if (obj->placeholders.size() && !obj->message.has_criteria()) {
-		DBG_ERR("No criteria set");
-		DBG_RETURN(FAIL);
-	}
-	const enum_func_status ret = xmysqlnd_crud_collection__bind_value(obj->placeholders, obj->bound_values, name, value);
-	DBG_RETURN(ret);
+	DBG_RETURN(obj->bindings.bind(name, value) ? PASS : FAIL);
 }
 /* }}} */
 
@@ -348,13 +437,7 @@ enum_func_status
 xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__finalize_bind");
-	if (obj->placeholders.size() && !obj->message.has_criteria()) {
-		DBG_ERR("No criteria set");
-		DBG_RETURN(FAIL);
-	}
-
-	const enum_func_status ret = xmysqlnd_crud_collection__finalize_bind(obj->message.mutable_args(), obj->bound_values);
-	DBG_RETURN(ret);
+	DBG_RETURN(obj->bindings.finalize(obj->message.mutable_args()) ? PASS : FAIL);
 }
 /* }}} */
 
@@ -400,15 +483,8 @@ xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIF
 {
 	DBG_ENTER("xmysqlnd_crud_collection_modify__set_criteria");
 	try {
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( criteria,
-																				obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
-																				obj->placeholders );
-		obj->message.set_allocated_criteria(exprCriteria);
-
-		if (obj->bound_values.size()) {
-			obj->bound_values.clear();
-		}
-		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(criteria, obj->bindings);
+		obj->message.set_allocated_criteria(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
@@ -445,15 +521,13 @@ xmysqlnd_crud_collection_modify__set_skip(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* o
 
 /* {{{ xmysqlnd_crud_collection_modify__bind_value */
 bool
-xmysqlnd_crud_collection_modify__bind_value(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const MYSQLND_CSTRING name, zval * value)
+xmysqlnd_crud_collection_modify__bind_value(
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
+	const util::string& name,
+	zval* value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_modify__bind_value");
-	if (obj->placeholders.size() && !obj->message.has_criteria()) {
-		DBG_ERR("No criteria set");
-		DBG_RETURN(false);
-	}
-	const enum_func_status ret = xmysqlnd_crud_collection__bind_value(obj->placeholders, obj->bound_values, name, value);
-	DBG_RETURN(ret == PASS);
+	DBG_RETURN(obj->bindings.bind(name, value));
 }
 /* }}} */
 
@@ -513,8 +587,7 @@ xmysqlnd_crud_collection_modify__add_operation(
 	try {
 		const std::string Default_path("$");
 		const std::string& source(path.empty() ? Default_path : path.to_std_string());
-		docpath.reset(mysqlx::devapi::parser::parse(source,
-										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT));
+		docpath.reset(mysqlx::devapi::parser::parse(source, true));
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
@@ -548,10 +621,8 @@ xmysqlnd_crud_collection_modify__add_operation(
 		if (value.is_string() && (is_expression || is_document)) {
 			try {
 				const std::string& source(value.to_std_string());
-				Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
-													obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
-													obj->placeholders );
-				operation->set_allocated_value( exprCriteria );
+				Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings);
+				operation->set_allocated_value( expr_criteria );
 			} catch (cdk::Error& e) {
 				php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 				DBG_ERR_FMT("%s", e.what());
@@ -678,13 +749,7 @@ bool
 xmysqlnd_crud_collection_modify__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_modify__finalize_bind");
-	if (obj->placeholders.size() && !obj->message.has_criteria()) {
-		DBG_ERR("No criteria set");
-		DBG_RETURN(false);
-	}
-
-	const enum_func_status ret = xmysqlnd_crud_collection__finalize_bind(obj->message.mutable_args(), obj->bound_values);
-	DBG_RETURN(ret == PASS);
+	DBG_RETURN(obj->bindings.finalize(obj->message.mutable_args()));
 }
 /* }}} */
 
@@ -699,29 +764,6 @@ st_xmysqlnd_pb_message_shell
 /* }}} */
 
 /****************************** COLLECTION.FIND() *******************************************************/
-/*
-struct st_xmysqlnd_crud_collection_op__find
-{
-	Mysqlx::Crud::Find message;
-	std::vector<std::string> placeholders;
-	std::vector<Mysqlx::Datatypes::Scalar*> bound_values;
-
-	st_xmysqlnd_crud_collection_op__find(const MYSQLND_CSTRING & schema,
-										 const MYSQLND_CSTRING & object_name)
-	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
-		message.set_data_model(Mysqlx::Crud::DOCUMENT);
-	}
-
-	~st_xmysqlnd_crud_collection_op__find()
-	{
-		for (auto& bound_value : bound_values) {
-			delete bound_value;
-		}
-	}
-};
-*/
 
 /* {{{ xmysqlnd_crud_collection_find__create */
 XMYSQLND_CRUD_COLLECTION_OP__FIND *
@@ -754,16 +796,8 @@ xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 	DBG_ENTER("xmysqlnd_crud_collection_find__set_criteria");
 	try {
 		const std::string source(criteria.s, criteria.l);
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
-																				obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
-																				obj->placeholders );
-
-		obj->message.set_allocated_criteria(exprCriteria);
-
-		if (obj->bound_values.size()) {
-			obj->bound_values.clear();
-		}
-		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings);
+		obj->message.set_allocated_criteria(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
@@ -800,15 +834,13 @@ xmysqlnd_crud_collection_find__set_offset(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 
 /* {{{ xmysqlnd_crud_collection_find__bind_value */
 enum_func_status
-xmysqlnd_crud_collection_find__bind_value(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING name, zval * value)
+xmysqlnd_crud_collection_find__bind_value(
+	XMYSQLND_CRUD_COLLECTION_OP__FIND* obj,
+	const util::string& name,
+	zval* value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__bind_value");
-	if (obj->placeholders.size() && !obj->message.has_criteria()) {
-		DBG_ERR("No criteria set");
-		DBG_RETURN(FAIL);
-	}
-	enum_func_status ret = xmysqlnd_crud_collection__bind_value(obj->placeholders, obj->bound_values, name, value);
-	DBG_RETURN(ret);
+	DBG_RETURN(obj->bindings.bind(name, value) ? PASS : FAIL);
 }
 /* }}} */
 
@@ -831,14 +863,9 @@ xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__add_grouping");
 	try {
-		const static bool is_document = false; /*should be false, no comparison with data_model */
 		const std::string source(search_field.s, search_field.l);
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
-																				is_document,
-																				obj->placeholders );
-		obj->message.mutable_grouping()->AddAllocated(exprCriteria);
-
-		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings);
+		obj->message.mutable_grouping()->AddAllocated(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
@@ -878,8 +905,7 @@ xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 	}
 
 	try {
-		Mysqlx::Expr::Expr * criteria = mysqlx::devapi::parser::parse( source,
-																			is_document );
+		Mysqlx::Expr::Expr* criteria = parse_expression(source, obj->bindings);
 
 		// Parsing is done just to validate it is a valid JSON expression
 		if (criteria->type() != Mysqlx::Expr::Expr_Type_OBJECT) {
@@ -894,13 +920,8 @@ xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 	}
 
 	try {
-		Mysqlx::Expr::Expr * criteria = mysqlx::devapi::parser::parse( source,
-																			is_document,
-																			obj->placeholders );
-
+		Mysqlx::Expr::Expr* criteria = parse_expression(source, obj->bindings);
 		obj->message.mutable_projection()->Add()->set_allocated_source( criteria );
-
-		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
@@ -920,14 +941,9 @@ xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__set_having");
 	try {
-		const static zend_bool is_document = TRUE; /*should be TRUE, no comparison with data_model */
 		const std::string source(criteria.s, criteria.l);
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
-																				is_document,
-																				obj->placeholders );
-		obj->message.set_allocated_grouping_criteria(exprCriteria);
-
-		obj->bound_values.resize(obj->placeholders.size(), nullptr); /* fill with NULLs */
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings);
+		obj->message.set_allocated_grouping_criteria(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
 		DBG_ERR_FMT("%s", e.what());
@@ -970,12 +986,8 @@ enum_func_status
 xmysqlnd_crud_collection_find__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__finalize_bind");
-	if (obj->placeholders.size() && !obj->message.has_criteria()) {
-		DBG_ERR("No criteria set");
-		DBG_RETURN(FAIL);
-	}
-
-	enum_func_status ret = xmysqlnd_crud_collection__finalize_bind(obj->message.mutable_args(), obj->bound_values);
+	const enum_func_status ret
+		= obj->bindings.finalize(obj->message.mutable_args()) ? PASS : FAIL;
 	DBG_RETURN(ret);
 }
 /* }}} */

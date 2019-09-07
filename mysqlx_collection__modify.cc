@@ -230,9 +230,8 @@ bool Collection_modify::bind(const util::zvalue& bind_variables)
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}
-		const MYSQLND_CSTRING variable{ var_name.c_str(), var_name.length() };
 		const util::zvalue& var_value{ variable_value.second };
-		if (!xmysqlnd_crud_collection_modify__bind_value(modify_op, variable, var_value.ptr())) {
+		if (!xmysqlnd_crud_collection_modify__bind_value(modify_op, var_name.to_string(), var_value.ptr())) {
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}
@@ -270,7 +269,11 @@ drv::Modify_value Collection_modify::prepare_value(
 			break;
 
 		case util::zvalue::Type::String:
-			is_document = util::json::can_be_document(value) || util::json::can_be_array(value);
+			if (util::json::can_be_document(value) || util::json::can_be_array(value)) {
+				is_document = true;
+			} else if (util::json::can_be_binding(value)) {
+				is_expression = true;
+			}
 			break;
 
 		case util::zvalue::Type::Array:

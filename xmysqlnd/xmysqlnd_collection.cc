@@ -310,7 +310,7 @@ xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 			DBG_INF(stmt != nullptr? "PASS":"FAIL");
 		}
 	}else{
-		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()));
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bindings.size()));
 		if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
 			DBG_RETURN(stmt);
 		}
@@ -332,7 +332,7 @@ xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 		}
 
 		if( ps_data->prepare_msg_delivered( res.second ) &&
-			ps_data->bind_values( res.second, op->bound_values ) ) {
+			ps_data->bind_values( res.second, op->bindings.get_bound_values() ) ) {
 			stmt = ps_data->send_execute_msg( res.second );
 		}
 	}
@@ -369,7 +369,7 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 		}
 		DBG_INF(stmt != nullptr? "PASS":"FAIL");
 	} else {
-		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()) );
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bindings.size()) );
 		if (!xmysqlnd_crud_collection_modify__finalize_bind(op)) {
 			DBG_RETURN(stmt);
 		}
@@ -390,7 +390,7 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 		}
 
 		if( ps_data->prepare_msg_delivered( res.second ) &&
-			ps_data->bind_values( res.second, op->bound_values ) ) {
+			ps_data->bind_values( res.second, op->bindings.get_bound_values() ) ) {
 			stmt = ps_data->send_execute_msg( res.second );
 		}
 	}
@@ -427,7 +427,7 @@ xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 			}
 		}
 	} else {
-		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()) );
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bindings.size()) );
 		if ( FAIL == xmysqlnd_crud_collection_find__finalize_bind(op) ) {
 			DBG_RETURN(stmt);
 		}
@@ -442,7 +442,7 @@ xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 			}
 		}
 		if( ps_data->prepare_msg_delivered( res.second ) &&
-			ps_data->bind_values( res.second, op->bound_values ) ) {
+			ps_data->bind_values( res.second, op->bindings.get_bound_values() ) ) {
 			stmt = ps_data->send_execute_msg( res.second );
 		}
 	}
