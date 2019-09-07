@@ -340,7 +340,7 @@ class zvalue
 				using iterator_category = std::forward_iterator_tag;
 
 			public:
-				explicit iterator(HashTable* ht, HashPosition pos);
+				explicit iterator(HashTable* ht, HashPosition size, HashPosition pos);
 
 				iterator operator++(int);
 				iterator& operator++();
@@ -352,6 +352,7 @@ class zvalue
 
 			private:
 				HashTable* ht;
+				HashPosition size;
 				mutable HashPosition pos;
 		};
 
@@ -370,7 +371,7 @@ class zvalue
 				using iterator_category = std::forward_iterator_tag;
 
 			public:
-				explicit value_iterator(HashTable* ht, HashPosition pos);
+				explicit value_iterator(HashTable* ht, HashPosition size, HashPosition pos);
 
 				value_iterator operator++(int);
 				value_iterator& operator++();
@@ -382,6 +383,7 @@ class zvalue
 
 			private:
 				HashTable* ht;
+				HashPosition size;
 				mutable HashPosition pos;
 		};
 

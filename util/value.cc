@@ -733,22 +733,25 @@ bool zvalue::erase(const char* key, std::size_t key_length)
 
 // -----------------------------------------------------------------------------
 
-zvalue::iterator::iterator(HashTable* ht, HashPosition pos)
+zvalue::iterator::iterator(HashTable* ht, HashPosition size, HashPosition pos)
 	: ht(ht)
+	, size(size)
 	, pos(pos)
 {
 }
 
 zvalue::iterator zvalue::iterator::operator++(int)
 {
-	iterator it(ht, pos);
+	iterator it(ht, size, pos);
 	++(*this);
 	return it;
 }
 
 zvalue::iterator& zvalue::iterator::operator++()
 {
-	zend_hash_move_forward_ex(ht, &pos);
+	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
+		pos = HT_INVALID_IDX;
+	}
 	return *this;
 }
 
@@ -779,33 +782,36 @@ zvalue::iterator zvalue::begin() const
 	HashTable* ht{ Z_ARRVAL(ref()) };
 	HashPosition pos{ HT_INVALID_IDX };
 	zend_hash_internal_pointer_reset_ex(ht, &pos);
-	return iterator(ht, pos);
+	return iterator(ht, static_cast<HashPosition>(size()), pos);
 }
 
 zvalue::iterator zvalue::end() const
 {
 	assert(is_array());
-	return iterator(Z_ARRVAL(ref()), HT_INVALID_IDX);
+	return iterator(Z_ARRVAL(ref()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
 }
 
 // -----------------------------------------------------------------------------
 
-zvalue::value_iterator::value_iterator(HashTable* ht, HashPosition pos)
+zvalue::value_iterator::value_iterator(HashTable* ht, HashPosition size, HashPosition pos)
 	: ht(ht)
+	, size(size)
 	, pos(pos)
 {
 }
 
 zvalue::value_iterator zvalue::value_iterator::operator++(int)
 {
-	value_iterator it(ht, pos);
+	value_iterator it(ht, size, pos);
 	++(*this);
 	return it;
 }
 
 zvalue::value_iterator& zvalue::value_iterator::operator++()
 {
-	zend_hash_move_forward_ex(ht, &pos);
+	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
+		pos = HT_INVALID_IDX;
+	}
 	return *this;
 }
 
@@ -832,13 +838,13 @@ zvalue::value_iterator zvalue::vbegin() const
 	HashTable* ht{ Z_ARRVAL(ref()) };
 	HashPosition pos{ HT_INVALID_IDX };
 	zend_hash_internal_pointer_reset_ex(ht, &pos);
-	return value_iterator(ht, pos);
+	return value_iterator(ht, static_cast<HashPosition>(size()), pos);
 }
 
 zvalue::value_iterator zvalue::vend() const
 {
 	assert(is_array());
-	return value_iterator(Z_ARRVAL(ref()), HT_INVALID_IDX);
+	return value_iterator(Z_ARRVAL(ref()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
 }
 
 } // namespace util
