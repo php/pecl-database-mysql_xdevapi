@@ -54,10 +54,18 @@ std::size_t Bindings::size() const
 	return bound_variables.size();
 }
 
+void Bindings::add_placeholder(const util::string& placeholder)
+{
+	auto it{ find_variable(placeholder) };
+	if (it == bound_variables.end()) {
+		bound_variables.push_back({ placeholder, nullptr });
+	}
+}
+
 void Bindings::add_placeholders(const util::std_strings& placeholders)
 {
 	for (const auto& placeholder : placeholders) {
-		bound_variables.insert({util::to_string(placeholder), nullptr});
+		add_placeholder(util::to_string(placeholder));
 	}
 }
 
@@ -66,7 +74,7 @@ bool Bindings::bind(const util::string& var_name, zval* var_value)
 	DBG_ENTER("Bindings::bind");
 	DBG_INF_FMT("name=%*s", var_name.length(), var_name.c_str());
 
-	auto it = bound_variables.find(var_name);
+	auto it{ find_variable(var_name) };
 	if (it == bound_variables.end()) {
 		DBG_ERR("No such variable in the expression");
 		DBG_RETURN(false);
@@ -122,13 +130,26 @@ Bindings::Bound_values Bindings::get_bound_values() const
 	DBG_RETURN(bound_values);
 }
 
+Bindings::Bound_variables_it Bindings::find_variable(const util::string& var_name)
+{
+	return std::find_if(
+		bound_variables.begin(),
+		bound_variables.end(),
+		[var_name](const auto& var_name_value) { return var_name_value.first == var_name; }
+	);
+}
+
 namespace {
 
-Mysqlx::Expr::Expr* parse_expression(const std::string& expression_str, Bindings& bindings)
+Mysqlx::Expr::Expr* parse_expression(
+	const std::string& expression_str,
+	Bindings& bindings,
+	bool is_document_model = true)
 {
 	std::vector<std::string> placeholders;
 	Mysqlx::Expr::Expr* expression
-		= mysqlx::devapi::parser::parse(expression_str, true, placeholders);
+		= mysqlx::devapi::parser::parse(expression_str, is_document_model, placeholders);
+	
 	bindings.add_placeholders(placeholders);
 	return expression;
 }
@@ -864,7 +885,7 @@ xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 	DBG_ENTER("xmysqlnd_crud_collection_find__add_grouping");
 	try {
 		const std::string source(search_field.s, search_field.l);
-		Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings);
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings, false);
 		obj->message.mutable_grouping()->AddAllocated(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());

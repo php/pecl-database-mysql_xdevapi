@@ -152,18 +152,24 @@ public:
 	Bindings();
 	~Bindings();
 
+	using Bound_variable = std::pair<util::string, Mysqlx::Datatypes::Scalar*>;
+	using Bound_variables = util::vector<Bound_variable>;
+	using Bound_values = std::vector<Mysqlx::Datatypes::Scalar*>;
+
 public:
 	bool empty() const;
 	std::size_t size() const;
+	void add_placeholder(const util::string& placeholder);
 	void add_placeholders(const util::std_strings& placeholders);
 	bool bind(const util::string& placeholder, zval* value);
 	bool finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args);
-
-	using Bound_values = std::vector<Mysqlx::Datatypes::Scalar*>;
 	Bound_values get_bound_values() const;
 
 private:
-	using Bound_variables = util::unordered_map<util::string, Mysqlx::Datatypes::Scalar*>;
+	using Bound_variables_it = Bound_variables::iterator;
+	Bound_variables_it find_variable(const util::string& var_name);
+
+private:
 	Bound_variables bound_variables;
 };
 

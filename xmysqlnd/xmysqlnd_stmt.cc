@@ -1081,14 +1081,14 @@ Prepare_stmt_data::send_execute_msg(
 /* {{{ Prepare_stmt_data::bind_values */
 bool Prepare_stmt_data::bind_values(
 			uint32_t message_id,
-			std::vector<Mysqlx::Datatypes::Scalar*> & bound_values
+			std::vector<Mysqlx::Datatypes::Scalar*> bound_values
 )
 {
 	size_t db_idx = get_ps_entry( message_id );
 	if( db_idx > ps_db.size() ) {
 		return false;
 	}
-	ps_db[ db_idx ].bound_values = bound_values;
+	ps_db[ db_idx ].bound_values = std::move(bound_values);
 	return true;
 }
 /* }}} */

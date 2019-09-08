@@ -234,7 +234,7 @@ public:
 	st_xmysqlnd_pb_message_shell get_protobuf_msg( MSG_T*,uint32_t );
 	bool                         send_prepare_msg( uint32_t message_id );
 	xmysqlnd_stmt *              send_execute_msg( uint32_t message_id );
-	bool                         bind_values( uint32_t message_id, std::vector<Mysqlx::Datatypes::Scalar*> & bound_values);
+	bool                         bind_values( uint32_t message_id, std::vector<Mysqlx::Datatypes::Scalar*> bound_values);
 	bool                         bind_values( uint32_t message_id, zval* params, unsigned int params_allocated);
 	void                         assign_session( XMYSQLND_SESSION session_obj );
 	bool                         prepare_msg_delivered( const uint32_t message_id );
