@@ -156,48 +156,6 @@ Mysqlx::Expr::Expr* parse_expression(
 
 } // anonymous namespace
 
-/* {{{ xmysqlnd_crud_collection__bind_value */
-//enum_func_status
-//xmysqlnd_crud_collection__bind_value(std::vector<std::string> & placeholders,
-//									 std::vector<Mysqlx::Datatypes::Scalar*> & bound_variables,
-//									 const MYSQLND_CSTRING & name,
-//									 zval * value)
-//{
-//	DBG_ENTER("xmysqlnd_crud_collection__bind_value");
-//	DBG_INF_FMT("name=%*s", name.l, name.s);
-//
-//	const std::string var_name(name.s, name.l);
-//	const std::vector<std::string>::iterator begin = placeholders.begin();
-//	const std::vector<std::string>::iterator end = placeholders.end();
-//	const std::vector<std::string>::const_iterator it = std::find(begin, end, var_name);
-//	if (it == end) {
-//		DBG_ERR("No such variable in the expression");
-//		DBG_RETURN(FAIL);
-//	}
-//
-//	Mysqlx::Datatypes::Any any;
-//	if (FAIL == zval2any(value, any)) {
-//		DBG_ERR("Error converting the zval to scalar");
-//		DBG_RETURN(FAIL);
-//	}
-//	any2log(any);
-//
-//	const std::size_t index = static_cast<std::size_t>(it - begin);
-//	DBG_INF_FMT("offset=%u", index);
-//	auto& bound_value = bound_variables[index];
-//	if (bound_value) {
-//		delete bound_value;
-//	}
-//	bound_value = any.release_scalar();
-//
-//	scalar2log(*bound_value);
-//
-//	DBG_INF("PASS");
-//	DBG_RETURN(PASS);
-//}
-/* }}} */
-
-
 /* {{{ xmysqlnd_crud_collection__add_sort */
 template< typename MSG >
 enum_func_status
@@ -222,32 +180,6 @@ xmysqlnd_crud_collection__add_sort(MSG& message,
 	DBG_RETURN(PASS);
 }
 /* }}} */
-
-
-/* {{{ xmysqlnd_crud_collection__finalize_bind */
-//enum_func_status
-//xmysqlnd_crud_collection__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args,
-//										std::vector<Mysqlx::Datatypes::Scalar*> & bound_variables)
-//{
-//	DBG_ENTER("xmysqlnd_crud_collection__finalize_bind");
-//
-//	const Mysqlx::Datatypes::Scalar* null_value{nullptr};
-//	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator begin{ bound_variables.begin() };
-//	const std::vector<Mysqlx::Datatypes::Scalar*>::iterator end{ bound_variables.end() };
-//	const std::vector<Mysqlx::Datatypes::Scalar*>::const_iterator index{ std::find(begin, end, null_value) };
-//	if (index == end) {
-//		mutable_args->Clear();
-//
-//		std::vector<Mysqlx::Datatypes::Scalar*>::iterator it{ begin };
-//		for (; it != end; ++it) {
-//			Mysqlx::Datatypes::Scalar* arg{ new Mysqlx::Datatypes::Scalar(**it) };
-//			mutable_args->AddAllocated(arg);
-//		}
-//	}
-//	DBG_RETURN(index == end? PASS : FAIL);
-//}
-/* }}} */
-
 
 /****************************** COLLECTION.ADD() *******************************************************/
 
