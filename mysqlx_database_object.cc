@@ -49,7 +49,6 @@ static const zend_function_entry mysqlx_database_object_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_register_database_object_interface */
 void
 mysqlx_register_database_object_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
@@ -60,7 +59,6 @@ mysqlx_register_database_object_interface(UNUSED_INIT_FUNC_ARGS, zend_object_han
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_database_object_interface */
 void
 mysqlx_unregister_database_object_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {

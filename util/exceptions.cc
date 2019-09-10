@@ -124,14 +124,12 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 };
 /* }}} */
 
-/* {{{ to_sql_state */
 string to_sql_state(const string& sql_state)
 {
 	return sql_state.empty() ? General_sql_state : sql_state;
 }
 /* }}} */
 
-/* {{{ to_error_msg */
 string to_error_msg(xdevapi_exception::Code code, const string& what)
 {
 	string msg;
@@ -149,7 +147,6 @@ string to_error_msg(xdevapi_exception::Code code, const string& what)
 }
 /* }}} */
 
-/* {{{ to_error_msg */
 string to_error_msg(unsigned int code, const string& what)
 {
 	return to_error_msg(static_cast<xdevapi_exception::Code>(code), what);

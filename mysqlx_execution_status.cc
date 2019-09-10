@@ -74,7 +74,6 @@ static const zend_function_entry mysqlx_execution_status_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_execution_status_property__affected_items */
 static zval *
 mysqlx_execution_status_property__affected_items(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -86,7 +85,6 @@ mysqlx_execution_status_property__affected_items(const st_mysqlx_object* obj, zv
 /* }}} */
 
 
-/* {{{ mysqlx_execution_status_property__matched_items */
 static zval *
 mysqlx_execution_status_property__matched_items(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -98,7 +96,6 @@ mysqlx_execution_status_property__matched_items(const st_mysqlx_object* obj, zva
 /* }}} */
 
 
-/* {{{ mysqlx_execution_status_property__found_items */
 static zval *
 mysqlx_execution_status_property__found_items(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -110,7 +107,6 @@ mysqlx_execution_status_property__found_items(const st_mysqlx_object* obj, zval 
 /* }}} */
 
 
-/* {{{ mysqlx_execution_status_property__last_insert_id */
 static zval *
 mysqlx_execution_status_property__last_insert_id(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -151,7 +147,6 @@ static const struct st_mysqlx_property_entry mysqlx_execution_status_property_en
 static zend_object_handlers mysqlx_object_execution_status_handlers;
 static HashTable mysqlx_execution_status_properties;
 
-/* {{{ mysqlx_execution_status_free_storage */
 static void
 mysqlx_execution_status_free_storage(zend_object * object)
 {
@@ -166,7 +161,6 @@ mysqlx_execution_status_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_execution_status_object_allocator */
 static zend_object *
 php_mysqlx_execution_status_object_allocator(zend_class_entry * class_type)
 {
@@ -180,7 +174,6 @@ php_mysqlx_execution_status_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_execution_status_class */
 void
 mysqlx_register_execution_status_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -208,7 +201,6 @@ mysqlx_register_execution_status_class(UNUSED_INIT_FUNC_ARGS, zend_object_handle
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_execution_status_class */
 void
 mysqlx_unregister_execution_status_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -217,7 +209,6 @@ mysqlx_unregister_execution_status_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_execution_status */
 void
 mysqlx_new_execution_status(zval * return_value, const XMYSQLND_STMT_EXECUTION_STATE * const status)
 {

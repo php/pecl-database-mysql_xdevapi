@@ -63,7 +63,6 @@ struct table_or_view_var_binder_ctx
 };
 
 
-/* {{{ table_op_var_binder */
 const enum_hnd_func_status
 table_op_var_binder(
 	void * context,
@@ -115,7 +114,6 @@ struct table_or_view_op_ctx
 };
 
 
-/* {{{ table_or_view_exists_in_database_op */
 const enum_hnd_func_status
 table_or_view_exists_in_database_op(
 	void * context,
@@ -188,7 +186,6 @@ xmysqlnd_table::exists_in_database(
 
 //------------------------------------------------------------------------------
 
-/* {{{ check_is_view_op */
 const enum_hnd_func_status
 check_is_view_op(
 	void * context,
@@ -265,7 +262,6 @@ struct st_table_sql_single_result_ctx
 };
 
 
-/* {{{ table_sql_single_result_op_on_row */
 const enum_hnd_func_status
 table_sql_single_result_op_on_row(
 	void * context,
@@ -598,7 +594,6 @@ xmysqlnd_table::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 }
 /* }}} */
 
-/* {{{ xmysqlnd_table_create */
 PHP_MYSQL_XDEVAPI_API xmysqlnd_table *
 xmysqlnd_table_create(xmysqlnd_schema * schema,
 						   const MYSQLND_CSTRING table_name,
@@ -620,7 +615,6 @@ xmysqlnd_table_create(xmysqlnd_schema * schema,
 /* }}} */
 
 
-/* {{{ xmysqlnd_table_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_table_free(xmysqlnd_table * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

@@ -794,7 +794,6 @@ xmysqlnd_stmt::cleanup(xmysqlnd_stmt * const stmt)
 }
 /* }}} */
 
-/* {{{ xmysqlnd_stmt_create */
 PHP_MYSQL_XDEVAPI_API xmysqlnd_stmt *
 xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 						  const zend_bool persistent,
@@ -813,7 +812,6 @@ xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_stmt_free(xmysqlnd_stmt * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -1173,7 +1171,6 @@ void Prepare_stmt_data::set_finalized_bind(
 /* }}} */
 
 
-/* {{{ prepare_st_on_error_handler */
 const enum_hnd_func_status prepare_st_on_error_handler(void * context,
 												 const unsigned int code,
 												 const MYSQLND_CSTRING sql_state,

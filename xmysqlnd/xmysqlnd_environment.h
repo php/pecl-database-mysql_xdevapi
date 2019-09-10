@@ -24,7 +24,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ Environment */
 struct Environment
 {
 	enum class Variable

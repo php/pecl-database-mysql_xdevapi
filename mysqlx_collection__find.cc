@@ -454,7 +454,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 /* }}} */
 
 
-/* {{{ mysqlx_collection__find__add_sort_or_grouping */
 static void
 mysqlx_collection__find__add_sort_or_grouping(
 	INTERNAL_FUNCTION_PARAMETERS,
@@ -717,7 +716,6 @@ const st_mysqlx_property_entry collection_find_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_collection__find_free_storage */
 static void
 mysqlx_collection__find_free_storage(zend_object* object)
 {
@@ -726,7 +724,6 @@ mysqlx_collection__find_free_storage(zend_object* object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_collection__find_object_allocator */
 static zend_object *
 php_mysqlx_collection__find_object_allocator(zend_class_entry* class_type)
 {
@@ -740,7 +737,6 @@ php_mysqlx_collection__find_object_allocator(zend_class_entry* class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_collection__find_class */
 void
 mysqlx_register_collection__find_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
@@ -762,7 +758,6 @@ mysqlx_register_collection__find_class(UNUSED_INIT_FUNC_ARGS, zend_object_handle
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_collection__find_class */
 void
 mysqlx_unregister_collection__find_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -771,7 +766,6 @@ mysqlx_unregister_collection__find_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_collection__find */
 void
 mysqlx_new_collection__find(
 	zval * return_value,
@@ -794,7 +788,6 @@ mysqlx_new_collection__find(
 /* }}} */
 
 
-/* {{{ get_stmt_from_collection_find */
 Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv)
 {
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);

@@ -33,7 +33,6 @@ namespace util {
 
 namespace json {
 
-/* {{{ to_zv_string */
 void to_zv_string(zval* src, zval* dest)
 {
 	smart_str buf = { 0 };
@@ -199,7 +198,6 @@ void Ensure_doc_id::store_id()
 
 } // anonymous namespace
 
-/* {{{ ensure_doc_id */
 void ensure_doc_id(
 	zval* raw_doc,
 	const string_view& id,
@@ -211,7 +209,6 @@ void ensure_doc_id(
 }
 /* }}} */
 
-/* {{{ ensure_doc_id_as_string */
 void ensure_doc_id_as_string(
 	const string_view& doc_id,
 	zval* doc)

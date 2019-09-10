@@ -88,7 +88,6 @@ inline bool is_tlsv13_supported() {
 }
 
 
-/* {{{ xmysqlnd_get_tls_capability */
 zend_bool
 xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 {
@@ -105,7 +104,6 @@ xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
 
 } // anonymous namespace
 
-/* {{{ set_connection_timeout */
 bool set_connection_timeout(
 	const boost::optional<int>& connection_timeout,
 	MYSQLND_VIO* vio)
@@ -133,7 +131,6 @@ bool set_connection_timeout(
 
 namespace {
 
-/* {{{ set_connection_options */
 bool set_connection_options(
 	const Session_auth_data* auth_data,
 	MYSQLND_VIO* vio)
@@ -589,7 +586,6 @@ xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
 /* }}} */
 
 
-/* {{{ mysqlnd_send_reset */
 enum_func_status
 xmysqlnd_session_data::send_reset(bool keep_open)
 {
@@ -638,7 +634,6 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 /* }}} */
 
 
-/* {{{ mysqlnd_send_close */
 enum_func_status
 xmysqlnd_session_data::send_close()
 {
@@ -788,7 +783,6 @@ st_xmysqlnd_session_state::set(const enum xmysqlnd_session_state new_state)
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_state_init */
 st_xmysqlnd_session_state::st_xmysqlnd_session_state()
 {
 	DBG_ENTER("st_xmysqlnd_session_state constructor");
@@ -932,7 +926,6 @@ void xmysqlnd_session_data::free_contents()
 
 // ----------------------------------------------------------------------------
 
-/* {{{ setup_crypto_options */
 void setup_crypto_options(
 	php_stream_context* stream_context,
 	xmysqlnd_session_data* session)
@@ -1040,7 +1033,6 @@ Crypt_methods prepare_crypt_methods(const Tls_versions& tls_versions)
 	return { static_cast<php_stream_xport_crypt_method_t>(tls_crypt_methods) };
 }
 
-/* {{{ try_setup_crypto_connection */
 enum_func_status try_setup_crypto_connection(
 	xmysqlnd_session_data* session,
 	st_xmysqlnd_msg__capabilities_get& caps_get,
@@ -1143,7 +1135,6 @@ enum_func_status setup_crypto_connection(
 
 // ----------------------------------------------------------------------------
 
-/* {{{ raise_session_error */
 void raise_session_error(
 	xmysqlnd_session_data* session,
 	const unsigned int code,
@@ -1159,7 +1150,6 @@ void raise_session_error(
 /* }}} */
 
 
-/* {{{ handler_on_error */
 const enum_hnd_func_status
 xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
@@ -1170,7 +1160,6 @@ xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, 
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data_handler_on_auth_continue */
 const enum_hnd_func_status
 xmysqlnd_session_data_handler_on_auth_continue(
 		void* context,
@@ -1194,7 +1183,6 @@ xmysqlnd_session_data_handler_on_auth_continue(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data_set_client_id */
 enum_func_status
 xmysqlnd_session_data_set_client_id(void * context, const size_t id)
 {
@@ -1210,7 +1198,6 @@ xmysqlnd_session_data_set_client_id(void * context, const size_t id)
 }
 /* }}} */
 
-/* {{{ on_muted_auth_warning */
 const enum_hnd_func_status
 on_muted_auth_warning(
 		void* /*context*/,
@@ -1225,7 +1212,6 @@ on_muted_auth_warning(
 /* }}} */
 
 
-/* {{{ on_muted_auth_error */
 const enum_hnd_func_status
 on_muted_auth_error(
 		void* /*context*/,
@@ -2124,7 +2110,6 @@ void Uuid_generator::assign_timestamp( Uuid_format& uuid )
 }
 /* }}} */
 
-/* {{{ xmysqlnd_schema_operation */
 enum_func_status
 xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
 {
@@ -2185,7 +2170,6 @@ xmysqlnd_session::drop_db(const MYSQLND_CSTRING db)
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_query_cb_ctx */
 struct st_xmysqlnd_query_cb_ctx
 {
 	XMYSQLND_SESSION session;
@@ -2199,7 +2183,6 @@ struct st_xmysqlnd_query_cb_ctx
 /* }}} */
 
 
-/* {{{ query_cb_handler_on_result_start */
 const enum_hnd_func_status
 query_cb_handler_on_result_start(void * context, xmysqlnd_stmt * const stmt)
 {
@@ -2215,7 +2198,6 @@ query_cb_handler_on_result_start(void * context, xmysqlnd_stmt * const stmt)
 /* }}} */
 
 
-/* {{{ query_cb_handler_on_row */
 const enum_hnd_func_status
 query_cb_handler_on_row(void * context,
 						xmysqlnd_stmt * const stmt,
@@ -2236,7 +2218,6 @@ query_cb_handler_on_row(void * context,
 /* }}} */
 
 
-/* {{{ query_cb_handler_on_warning */
 const enum_hnd_func_status
 query_cb_handler_on_warning(void * context,
 							xmysqlnd_stmt * const stmt,
@@ -2256,7 +2237,6 @@ query_cb_handler_on_warning(void * context,
 /* }}} */
 
 
-/* {{{ query_cb_handler_on_error */
 const enum_hnd_func_status
 query_cb_handler_on_error(void * context,
 						  xmysqlnd_stmt * const stmt,
@@ -2276,7 +2256,6 @@ query_cb_handler_on_error(void * context,
 /* }}} */
 
 
-/* {{{ query_cb_handler_on_result_end */
 const enum_hnd_func_status
 query_cb_handler_on_result_end(void * context, xmysqlnd_stmt * const stmt, const zend_bool has_more)
 {
@@ -2292,7 +2271,6 @@ query_cb_handler_on_result_end(void * context, xmysqlnd_stmt * const stmt, const
 /* }}} */
 
 
-/* {{{ query_cb_handler_on_statement_ok */
 const enum_hnd_func_status
 query_cb_handler_on_statement_ok(void * context, xmysqlnd_stmt * const stmt, const st_xmysqlnd_stmt_execution_state* const exec_state)
 {
@@ -2402,7 +2380,6 @@ xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_on_warning */
 const enum_hnd_func_status
 xmysqlnd_session_on_warning(
 	void* /*context*/,
@@ -2596,7 +2573,6 @@ xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
 xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -2612,7 +2588,6 @@ xmysqlnd_session_create(const size_t client_flags, const zend_bool persistent, c
 /* }}} */
 
 
-/* {{{ create_session */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION
 create_session(const bool persistent)
 {
@@ -2667,7 +2642,6 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 }
 /* }}} */
 
-/* {{{ create_new_session */
 mysqlx::devapi::Session_data * create_new_session(zval * session_zval)
 {
 	DBG_ENTER("create_new_session");
@@ -2678,7 +2652,6 @@ mysqlx::devapi::Session_data * create_new_session(zval * session_zval)
 /* }}} */
 
 
-/* {{{ establish_connection */
 enum_func_status establish_connection(XMYSQLND_SESSION& session,
 									  Session_auth_data * auth,
 									  const util::Url& url,
@@ -2817,7 +2790,6 @@ extract_transport(util::string& uri)
 /* }}} */
 
 
-/* {{{ extract_uri_information */
 std::pair<util::Url, transport_types> extract_uri_information(const char * uri_string)
 {
 	DBG_ENTER("extract_uri_information");
@@ -4212,7 +4184,6 @@ void prepare_ciphers(Session_auth_data* auth_data)
 
 // ------------------------------------------------------------------------------
 
-/* {{{ extract_auth_information */
 Session_auth_data* extract_auth_information(const util::Url& node_url)
 {
 	DBG_ENTER("extract_auth_information");
@@ -4558,7 +4529,6 @@ void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
 }
 /* }}} */
 
-/* {{{ extract_uri_addresses */
 vec_of_addresses extract_uri_addresses(const util::string& uri)
 {
 	/*
@@ -4586,7 +4556,6 @@ vec_of_addresses extract_uri_addresses(const util::string& uri)
 
 
 namespace {
-/* {{{ get_os_name */
 util::string
 get_os_name()
 {
@@ -4611,7 +4580,6 @@ get_os_name()
 /* }}} */
 
 
-/* {{{ get_platform */
 static util::string
 get_platform()
 {
@@ -4635,7 +4603,6 @@ get_platform()
 /* }}} */
 }
 
-/* {{{ get_def_client_attribs */
 enum_func_status get_def_client_attribs( vec_of_attribs& attribs )
 {
 	util::ostringstream ss;
@@ -4659,7 +4626,6 @@ enum_func_status get_def_client_attribs( vec_of_attribs& attribs )
 /* }}} */
 
 
-/* {{{ parse_attribute */
 std::pair<util::string,util::string>
 parse_attribute( const util::string& attribute )
 {
@@ -4693,7 +4659,6 @@ parse_attribute( const util::string& attribute )
 /* }}} */
 
 
-/* {{{ parse_conn_attrib_values */
 enum_func_status parse_conn_attrib(
 			vec_of_attribs& attrib_container,
 			util::string    user_attribs,
@@ -4744,7 +4709,6 @@ enum_func_status parse_conn_attrib(
 	return get_def_client_attribs( attrib_container );
 }
 
-/* {{{ extract_connection_attributes */
 enum_func_status extract_connection_attributes(
 			drv::XMYSQLND_SESSION session,
 			const util::string& uri )
@@ -4809,7 +4773,6 @@ enum_func_status extract_connection_attributes(
 /* }}} */
 
 
-/* {{{ verify_uri_address */
 void verify_uri_address(const util::string& uri_address)
 {
 	php_url* raw_url{ php_url_parse(uri_address.c_str()) };
@@ -4824,7 +4787,6 @@ void verify_uri_address(const util::string& uri_address)
 }
 /* }}} */
 
-/* {{{ verify_connection_string */
 void verify_connection_string(const util::string& connection_string)
 {
 	const auto& uri_addresses{ extract_uri_addresses(connection_string) };
@@ -4840,7 +4802,6 @@ void verify_connection_string(const util::string& connection_string)
 }
 /* }}} */
 
-/* {{{ prepare_connect_error_msg */
 util::string prepare_connect_error_msg(
 	const char* last_error_msg,
 	const util::string& aux_msg)
@@ -4860,7 +4821,6 @@ util::string prepare_connect_error_msg(
 }
 /* }}} */
 
-/* {{{ connect_session */
 PHP_MYSQL_XDEVAPI_API
 enum_func_status connect_session(
 	const char* uri_string,
@@ -4956,7 +4916,6 @@ enum_func_status connect_session(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_new_session_connect */
 PHP_MYSQL_XDEVAPI_API
 enum_func_status xmysqlnd_new_session_connect(
 	const char* uri_string,

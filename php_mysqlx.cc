@@ -220,7 +220,6 @@ ZEND_END_ARG_INFO()
 */
 #define MYSQL_XDEVAPI_NAMESPACE "mysql_xdevapi"
 
-/* {{{ mysqlx_functions */
 static const zend_function_entry mysqlx_functions[] = {
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi_getSession), arginfo_mysql_xdevapi__get_session)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getClient, mysqlx::devapi::ZEND_FN(mysql_xdevapi_getClient), arginfo_mysql_xdevapi__get_client)
@@ -230,7 +229,6 @@ static const zend_function_entry mysqlx_functions[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_deps */
 static const zend_module_dep mysqlx_deps[] = {
 	ZEND_MOD_REQUIRED("standard")
 	ZEND_MOD_REQUIRED("mysqlnd")
@@ -241,7 +239,6 @@ static const zend_module_dep mysqlx_deps[] = {
 /* }}} */
 
 
-/* {{{ mysql_xdevapi_module_entry */
 zend_module_entry mysql_xdevapi_module_entry = {
 	STANDARD_MODULE_HEADER_EX,
 	nullptr,
@@ -270,7 +267,6 @@ zend_module_entry mysql_xdevapi_module_entry = {
 };
 /* }}} */
 
-/* {{{ COMPILE_DL_MYSQL_XDEVAPI */
 #ifdef COMPILE_DL_MYSQL_XDEVAPI
 #ifdef ZTS
 ZEND_TSRMLS_CACHE_DEFINE();

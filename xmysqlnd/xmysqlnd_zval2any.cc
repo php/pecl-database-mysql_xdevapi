@@ -52,7 +52,6 @@ void zval2object(zval* zv, Mysqlx::Datatypes::Any& any)
 
 } // anonymous namespace
 
-/* {{{ zval2any */
 PHP_MYSQL_XDEVAPI_API enum_func_status
 zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 {
@@ -126,7 +125,6 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 /* }}} */
 
 
-/* {{{ scalar2zval */
 PHP_MYSQL_XDEVAPI_API enum_func_status
 scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 {
@@ -187,7 +185,6 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 /* }}} */
 
 
-/* {{{ any2zval */
 PHP_MYSQL_XDEVAPI_API enum_func_status
 any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 {
@@ -293,7 +290,6 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 /* }}} */
 
 
-/* {{{ scalar2uint */
 PHP_MYSQL_XDEVAPI_API uint64_t
 scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 {
@@ -333,7 +329,6 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 /* }}} */
 
 
-/* {{{ scalar2uint */
 PHP_MYSQL_XDEVAPI_API int64_t
 scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 {
@@ -373,7 +368,6 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 /* }}} */
 
 
-/* {{{ scalar2string */
 PHP_MYSQL_XDEVAPI_API MYSQLND_STRING
 scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 {
@@ -418,7 +412,6 @@ scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 /* }}} */
 
 
-/* {{{ scalar2log */
 PHP_MYSQL_XDEVAPI_API void
 scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 {
@@ -475,7 +468,6 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 /* }}} */
 
 
-/* {{{ any2log */
 PHP_MYSQL_XDEVAPI_API void
 any2log(const Mysqlx::Datatypes::Any & any)
 {
@@ -510,7 +502,6 @@ any2log(const Mysqlx::Datatypes::Any & any)
 /* }}} */
 
 
-/* {{{ repeated2log */
 PHP_MYSQL_XDEVAPI_API void repeated2log(
 	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated)
 {

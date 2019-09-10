@@ -67,7 +67,6 @@ static const zend_function_entry mysqlx_warning_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_warning_property__message */
 static zval *
 mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -90,7 +89,6 @@ mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_valu
 /* }}} */
 
 
-/* {{{ mysqlx_warning_property__level */
 static zval *
 mysqlx_warning_property__level(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -102,7 +100,6 @@ mysqlx_warning_property__level(const st_mysqlx_object* obj, zval * return_value)
 /* }}} */
 
 
-/* {{{ mysqlx_warning_property__code */
 static zval *
 mysqlx_warning_property__code(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -130,7 +127,6 @@ static zend_object_handlers mysqlx_object_warning_handlers;
 static HashTable mysqlx_warning_properties;
 
 
-/* {{{ mysqlx_warning_free_storage */
 static void
 mysqlx_warning_free_storage(zend_object * object)
 {
@@ -149,7 +145,6 @@ mysqlx_warning_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_warning_object_allocator */
 static zend_object *
 php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 {
@@ -182,7 +177,6 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_warning_class */
 void
 mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -208,7 +202,6 @@ mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysq
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_warning_class */
 void
 mysqlx_unregister_warning_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -217,7 +210,6 @@ mysqlx_unregister_warning_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_warning */
 void
 mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int level, const unsigned int code)
 {

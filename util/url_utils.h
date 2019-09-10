@@ -28,7 +28,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ Url */
 struct Url
 {
 	Url() = default;

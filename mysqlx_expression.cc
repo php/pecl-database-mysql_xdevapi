@@ -125,7 +125,6 @@ const struct st_mysqlx_property_entry mysqlx_expression_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_expression_free_storage */
 static void
 mysqlx_expression_free_storage(zend_object * object)
 {
@@ -141,7 +140,6 @@ mysqlx_expression_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_expression_object_allocator */
 static zend_object *
 php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 {
@@ -155,7 +153,6 @@ php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_expression_class */
 void
 mysqlx_register_expression_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -180,7 +177,6 @@ mysqlx_register_expression_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * m
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_expression_class */
 void
 mysqlx_unregister_expression_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -189,7 +185,6 @@ mysqlx_unregister_expression_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_expression */
 void
 mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression)
 {
@@ -212,7 +207,6 @@ mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression)
 }
 /* }}} */
 
-/* {{{ is_a_mysqlx_expression */
 zend_bool
 is_a_mysqlx_expression(const zval * const value)
 {
@@ -221,7 +215,6 @@ is_a_mysqlx_expression(const zval * const value)
 /* }}} */
 
 
-/* {{{ is_a_mysqlx_expression */
 zval*
 get_mysqlx_expression(const zval * const object_zv)
 {

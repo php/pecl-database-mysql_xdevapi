@@ -158,7 +158,6 @@ XMYSQLND_METHOD(mysqlx_row_result_iterator, rewind)(zend_object_iterator * iter)
 /* }}} */
 
 
-/* {{{ mysqlx_row_result_iterator_funcs */
 static zend_object_iterator_funcs mysqlx_row_result_iterator_funcs =
 {
 	XMYSQLND_METHOD(mysqlx_row_result_iterator, dtor),
@@ -171,7 +170,6 @@ static zend_object_iterator_funcs mysqlx_row_result_iterator_funcs =
 /* }}} */
 
 
-/* {{{ mysqlx_row_result_create_iterator */
 static zend_object_iterator *
 mysqlx_row_result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
 {
@@ -186,7 +184,6 @@ mysqlx_row_result_create_iterator(zend_class_entry * ce, zval * object, int by_r
 /* }}} */
 
 
-/* {{{ mysqlx_register_row_result_iterator */
 void
 mysqlx_register_row_result_iterator(zend_class_entry * ce)
 {

@@ -53,7 +53,6 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_type)(XMYSQLND_RESULT_FIELD_META
 /* }}} */
 
 
-/* {{{ xmysqlnd_set_mysqlnd_string */
 static inline enum_func_status
 xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, const size_t value_len, const zend_bool persistent MYSQLND_MEM_D)
 {
@@ -325,7 +324,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_result_field_meta);
 
-/* {{{ xmysqlnd_result_field_meta_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_RESULT_FIELD_META *
 xmysqlnd_result_field_meta_create(const zend_bool persistent,
 								  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -340,7 +338,6 @@ xmysqlnd_result_field_meta_create(const zend_bool persistent,
 /* }}} */
 
 
-/* {{{ xmysqlnd_result_field_meta_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD_META * const object, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -454,7 +451,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_stmt_result_meta);
 
-/* {{{ xmysqlnd_stmt_result_meta_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_RESULT_META *
 xmysqlnd_stmt_result_meta_create(const zend_bool persistent,
 									  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -469,7 +465,6 @@ xmysqlnd_stmt_result_meta_create(const zend_bool persistent,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result_meta_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_stmt_result_meta_free(XMYSQLND_STMT_RESULT_META * const object, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

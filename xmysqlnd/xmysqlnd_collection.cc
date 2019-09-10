@@ -61,7 +61,6 @@ struct st_collection_exists_in_database_var_binder_ctx
 };
 
 
-/* {{{ collection_op_var_binder */
 static const enum_hnd_func_status
 collection_op_var_binder(
 	void * context,
@@ -113,7 +112,6 @@ struct collection_exists_in_database_ctx
 };
 
 
-/* {{{ collection_xplugin_op_on_row */
 static const enum_hnd_func_status
 collection_xplugin_op_on_row(
 	void * context,
@@ -192,7 +190,6 @@ struct st_collection_sql_single_result_ctx
 };
 
 
-/* {{{ collection_xplugin_op_on_row */
 static const enum_hnd_func_status
 collection_sql_single_result_op_on_row(
 	void * context,
@@ -505,7 +502,6 @@ xmysqlnd_collection::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_i
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection_create */
 PHP_MYSQL_XDEVAPI_API xmysqlnd_collection *
 xmysqlnd_collection_create(xmysqlnd_schema * schema,
 								const MYSQLND_CSTRING collection_name,
@@ -527,7 +523,6 @@ xmysqlnd_collection_create(xmysqlnd_schema * schema,
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_collection_free(xmysqlnd_collection * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

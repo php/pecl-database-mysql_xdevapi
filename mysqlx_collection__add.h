@@ -33,7 +33,6 @@ struct st_xmysqlnd_crud_collection_op__add;
 
 namespace devapi {
 
-/* {{{ Collection_add */
 class Collection_add : public util::custom_allocable
 {
 public:

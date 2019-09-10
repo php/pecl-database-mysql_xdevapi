@@ -160,7 +160,6 @@ void Bind_create_index_args::bind_index_fields()
 	util::pb::add_field_to_object("constraint", fields.release(), idx_obj);
 }
 
-/* {{{ collection_create_index_var_binder */
 const enum_hnd_func_status
 collection_create_index_var_binder(
 	void* context,
@@ -182,7 +181,6 @@ collection_create_index_var_binder(
 
 } // anonymous namespace
 
-/* {{{ collection_create_index_execute */
 bool collection_create_index_execute(
 	XMYSQLND_SESSION session,
 	const util::string_view& schema_name,
@@ -232,7 +230,6 @@ struct collection_drop_index_var_binder_ctx
 	const util::string_view& index_name;
 };
 
-/* {{{ collection_drop_index_var_binder */
 const enum_hnd_func_status
 collection_drop_index_var_binder(
 	void* context,
@@ -258,7 +255,6 @@ collection_drop_index_var_binder(
 
 } // anonymous namespace
 
-/* {{{ collection_drop_index_execute */
 bool collection_drop_index_execute(
 	XMYSQLND_SESSION session,
 	const util::string_view& schema_name,

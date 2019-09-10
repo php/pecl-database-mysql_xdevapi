@@ -27,7 +27,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ make_mysqlnd_str */
 MYSQLND_STRING make_mysqlnd_str(const char * str) {
 	if( str == nullptr ) {
 		return { nullptr, 0 };
@@ -40,7 +39,6 @@ MYSQLND_STRING make_mysqlnd_str(const char * str) {
 /* }}} */
 
 
-/* {{{ make_mysqlnd_cstr */
 MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
 	MYSQLND_STRING new_str = make_mysqlnd_str(str);
 	return { new_str.s, new_str.l };
@@ -48,7 +46,6 @@ MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
 /* }}} */
 
 
-/* {{{ compare_mysqlnd_cstr */
 bool
 equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs)
 {
@@ -58,7 +55,6 @@ equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs)
 /* }}} */
 
 
-/* {{{ xmysqlnd_utils_decode_doc_row */
 void
 xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 {
@@ -76,7 +72,6 @@ xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 /* }}} */
 
 
-/* {{{ xmysqlnd_utils_decode_doc_rows */
 void
 xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 {
@@ -138,7 +133,6 @@ const unsigned char os_toebcdic[256] = {
 };
 #endif // CHARSET_EBCDIC
 
-/* {{{ pct_to_char */
 static char pct_to_char( const util::string& str,
 		  const std::size_t idx )
 {
@@ -160,7 +154,6 @@ static char pct_to_char( const util::string& str,
 /* }}} */
 
 
-/* {{{ decode_pct_path */
 util::string
 decode_pct_path(const util::string& encoded_path)
 {

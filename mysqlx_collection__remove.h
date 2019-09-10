@@ -33,7 +33,6 @@ struct st_xmysqlnd_crud_collection_op__remove;
 
 namespace devapi {
 
-/* {{{ Collection_remove */
 class Collection_remove : public util::custom_allocable
 {
 public:

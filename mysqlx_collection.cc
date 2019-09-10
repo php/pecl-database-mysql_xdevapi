@@ -206,7 +206,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 /* }}} */
 
 
-/* {{{ mysqlx_collection_on_error */
 static const enum_hnd_func_status
 mysqlx_collection_on_error(void * /*context*/, XMYSQLND_SESSION session,
 					xmysqlnd_stmt* const /*stmt*/,
@@ -678,7 +677,6 @@ static const zend_function_entry mysqlx_collection_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_collection_property__name */
 static zval *
 mysqlx_collection_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -710,7 +708,6 @@ const struct st_mysqlx_property_entry mysqlx_collection_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_collection_free_storage */
 static void
 mysqlx_collection_free_storage(zend_object * object)
 {
@@ -729,7 +726,6 @@ mysqlx_collection_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_collection_object_allocator */
 static zend_object *
 php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
 {
@@ -743,7 +739,6 @@ php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_collection_class */
 void
 mysqlx_register_collection_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -769,7 +764,6 @@ mysqlx_register_collection_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * m
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_collection_class */
 void
 mysqlx_unregister_collection_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -778,7 +772,6 @@ mysqlx_unregister_collection_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_collection */
 void
 mysqlx_new_collection(zval * return_value, xmysqlnd_collection * collection, const zend_bool clone)
 {

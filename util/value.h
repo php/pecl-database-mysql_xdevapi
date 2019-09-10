@@ -25,7 +25,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ zvalue */
 class zvalue
 {
 	public:

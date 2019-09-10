@@ -217,7 +217,6 @@ typedef std::shared_ptr<xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
 using vec_of_addresses = util::vector< std::pair<util::string,long> >;
 using vec_of_attribs = util::vector< std::pair<util::string,util::string > >;
 
-/* {{{ list_of_addresses_parser */
 class list_of_addresses_parser
 {
 	void invalidate();

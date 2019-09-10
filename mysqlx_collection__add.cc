@@ -60,7 +60,6 @@ ZEND_END_ARG_INFO()
 
 //------------------------------------------------------------------------------
 
-/* {{{ execute_statement */
 enum_func_status
 execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
 {
@@ -93,7 +92,6 @@ struct doc_add_op_return_status
 	MYSQLND_CSTRING doc_id;
 };
 
-/* {{{ collection_add_string */
 Add_op_status
 collection_add_string(
 	st_xmysqlnd_crud_collection_op__add* add_op,
@@ -332,7 +330,6 @@ static const zend_function_entry mysqlx_collection__add_methods[] = {
 /* }}} */
 
 #if 0
-/* {{{ mysqlx_collection__add_property__name */
 static zval *
 mysqlx_collection__add_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
@@ -366,7 +363,6 @@ const st_mysqlx_property_entry collection_add_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_collection__add_free_storage */
 static void
 mysqlx_collection__add_free_storage(zend_object* object)
 {
@@ -375,7 +371,6 @@ mysqlx_collection__add_free_storage(zend_object* object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_collection__add_object_allocator */
 static zend_object *
 php_mysqlx_collection__add_object_allocator(zend_class_entry* class_type)
 {
@@ -389,7 +384,6 @@ php_mysqlx_collection__add_object_allocator(zend_class_entry* class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_collection__add_class */
 void
 mysqlx_register_collection__add_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
@@ -413,7 +407,6 @@ mysqlx_register_collection__add_class(UNUSED_INIT_FUNC_ARGS, zend_object_handler
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_collection__add_class */
 void
 mysqlx_unregister_collection__add_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -422,7 +415,6 @@ mysqlx_unregister_collection__add_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_collection__add */
 void
 mysqlx_new_collection__add(
 	zval* return_value,

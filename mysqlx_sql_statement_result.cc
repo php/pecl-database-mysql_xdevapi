@@ -96,7 +96,6 @@ ZEND_END_ARG_INFO()
 } \
 
 
-/* {{{ mysqlx_sql_stmt_result_on_warning */
 static const enum_hnd_func_status
 mysqlx_sql_stmt_result_on_warning(
 	void * /*context*/,
@@ -112,7 +111,6 @@ mysqlx_sql_stmt_result_on_warning(
 /* }}} */
 
 
-/* {{{ mysqlx_sql_stmt_result_on_error */
 static const enum_hnd_func_status
 mysqlx_sql_stmt_result_on_error(
 	void * /*context*/,
@@ -128,7 +126,6 @@ mysqlx_sql_stmt_result_on_error(
 /* }}} */
 
 
-/* {{{ mysqlx_sql_statement_read_next_result */
 static int mysqlx_sql_statement_read_next_result(st_mysqlx_sql_statement_result* object)
 {
 	int nextResult{0};
@@ -431,7 +428,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarnings)
 /* }}} */
 
 
-/* {{{ get_stmt_result_meta */
 static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(st_xmysqlnd_stmt_result* stmt_result)
 {
 	st_xmysqlnd_stmt_result_meta* meta = 0;
@@ -625,7 +621,6 @@ const struct st_mysqlx_property_entry mysqlx_sql_statement_result_property_entri
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_sql_statement_result_free_storage */
 static void
 mysqlx_sql_statement_result_free_storage(zend_object * object)
 {
@@ -646,7 +641,6 @@ mysqlx_sql_statement_result_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_sql_statement_result_object_allocator */
 static zend_object *
 php_mysqlx_sql_statement_result_object_allocator(zend_class_entry * class_type)
 {
@@ -660,7 +654,6 @@ php_mysqlx_sql_statement_result_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_sql_statement_result_class */
 void
 mysqlx_register_sql_statement_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -685,7 +678,6 @@ mysqlx_register_sql_statement_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_ha
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_sql_statement_result_class */
 void
 mysqlx_unregister_sql_statement_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -694,7 +686,6 @@ mysqlx_unregister_sql_statement_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_sql_stmt_result */
 void
 mysqlx_new_sql_stmt_result(zval * return_value, XMYSQLND_STMT_RESULT * result, st_mysqlx_statement* stmt)
 {

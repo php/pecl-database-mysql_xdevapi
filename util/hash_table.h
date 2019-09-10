@@ -26,7 +26,6 @@ namespace util {
 
 struct string_view;
 
-/* {{{ Hash_table */
 class Hash_table
 {
 	public:

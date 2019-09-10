@@ -38,7 +38,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_plugin__get_session_plugin_area */
 static void **
 xmysqlnd_plugin__get_session_plugin_area(const xmysqlnd_session * session, const unsigned int plugin_id)
 {
@@ -52,7 +51,6 @@ xmysqlnd_plugin__get_session_plugin_area(const xmysqlnd_session * session, const
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_session_data_plugin_area */
 static void **
 xmysqlnd_plugin__get_session_data_plugin_area(const xmysqlnd_session_data * object, const unsigned int plugin_id)
 {
@@ -66,7 +64,6 @@ xmysqlnd_plugin__get_session_data_plugin_area(const xmysqlnd_session_data * obje
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_schema_plugin_area */
 static void **
 xmysqlnd_plugin__get_schema_plugin_area(const xmysqlnd_schema * object, const unsigned int plugin_id)
 {
@@ -80,7 +77,6 @@ xmysqlnd_plugin__get_schema_plugin_area(const xmysqlnd_schema * object, const un
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_collection_plugin_area */
 static void **
 xmysqlnd_plugin__get_collection_plugin_area(const xmysqlnd_collection * object, const unsigned int plugin_id)
 {
@@ -94,7 +90,6 @@ xmysqlnd_plugin__get_collection_plugin_area(const xmysqlnd_collection * object, 
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_table_plugin_area */
 static void **
 xmysqlnd_plugin__get_table_plugin_area(const xmysqlnd_table * object, const unsigned int plugin_id)
 {
@@ -108,7 +103,6 @@ xmysqlnd_plugin__get_table_plugin_area(const xmysqlnd_table * object, const unsi
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_stmt_plugin_area */
 static void **
 xmysqlnd_plugin__get_stmt_plugin_area(const xmysqlnd_stmt * object, const unsigned int plugin_id)
 {
@@ -122,7 +116,6 @@ xmysqlnd_plugin__get_stmt_plugin_area(const xmysqlnd_stmt * object, const unsign
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_stmt_result_plugin_area */
 static void **
 xmysqlnd_plugin__get_stmt_result_plugin_area(const XMYSQLND_STMT_RESULT * object, const unsigned int plugin_id)
 {
@@ -136,7 +129,6 @@ xmysqlnd_plugin__get_stmt_result_plugin_area(const XMYSQLND_STMT_RESULT * object
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_rowset_buffered_plugin_area */
 static void **
 xmysqlnd_plugin__get_rowset_buffered_plugin_area(const XMYSQLND_ROWSET_BUFFERED * object, const unsigned int plugin_id)
 {
@@ -150,7 +142,6 @@ xmysqlnd_plugin__get_rowset_buffered_plugin_area(const XMYSQLND_ROWSET_BUFFERED 
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_rowset_fwd_plugin_area */
 static void **
 xmysqlnd_plugin__get_rowset_fwd_plugin_area(const XMYSQLND_ROWSET_FWD * object, const unsigned int plugin_id)
 {
@@ -164,7 +155,6 @@ xmysqlnd_plugin__get_rowset_fwd_plugin_area(const XMYSQLND_ROWSET_FWD * object, 
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_query_result_meta_plugin_area */
 static void **
 xmysqlnd_plugin__get_query_result_meta_plugin_area(const XMYSQLND_STMT_RESULT_META * object, const unsigned int plugin_id)
 {
@@ -178,7 +168,6 @@ xmysqlnd_plugin__get_query_result_meta_plugin_area(const XMYSQLND_STMT_RESULT_ME
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_rowset_plugin_area */
 static void **
 xmysqlnd_plugin__get_rowset_plugin_area(const XMYSQLND_ROWSET * object, const unsigned int plugin_id)
 {
@@ -192,7 +181,6 @@ xmysqlnd_plugin__get_rowset_plugin_area(const XMYSQLND_ROWSET * object, const un
 /* }}} */
 
 
-/* {{{ xmysqlnd_plugin__get_plugin_pfc_data */
 static void **
 xmysqlnd_plugin__get_plugin_pfc_data(const XMYSQLND_PFC * object, unsigned int plugin_id)
 {
@@ -223,7 +211,6 @@ struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 
 
 
-/* {{{ _xmysqlnd_object_factory_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) *
 _xmysqlnd_object_factory_get_methods()
 {
@@ -231,7 +218,6 @@ _xmysqlnd_object_factory_get_methods()
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_object_factory_set_methods */
 static void
 _xmysqlnd_object_factory_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const methods)
 {
@@ -239,7 +225,6 @@ _xmysqlnd_object_factory_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_o
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_stmt_result_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result) *
 _xmysqlnd_stmt_result_get_methods()
 {
@@ -247,7 +232,6 @@ _xmysqlnd_stmt_result_get_methods()
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_stmt_result_set_methods */
 static void
 _xmysqlnd_stmt_result_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result) * const methods)
 {
@@ -256,7 +240,6 @@ _xmysqlnd_stmt_result_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt
 /* }}} */
 
 
-/* {{{ _xmysqlnd_rowset_buffered_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) *
 _xmysqlnd_rowset_buffered_get_methods()
 {
@@ -264,7 +247,6 @@ _xmysqlnd_rowset_buffered_get_methods()
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_rowset_buffered_set_methods */
 static void
 _xmysqlnd_rowset_buffered_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered) * const methods)
 {
@@ -273,7 +255,6 @@ _xmysqlnd_rowset_buffered_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_
 /* }}} */
 
 
-/* {{{ _xmysqlnd_rowset_fwd_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) *
 _xmysqlnd_rowset_fwd_get_methods()
 {
@@ -281,7 +262,6 @@ _xmysqlnd_rowset_fwd_get_methods()
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_rowset_fwd_set_methods */
 static void
 _xmysqlnd_rowset_fwd_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd) * const methods)
 {
@@ -290,7 +270,6 @@ _xmysqlnd_rowset_fwd_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowse
 /* }}} */
 
 
-/* {{{ _xmysqlnd_stmt_result_meta_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta) *
 _xmysqlnd_stmt_result_meta_get_methods()
 {
@@ -298,7 +277,6 @@ _xmysqlnd_stmt_result_meta_get_methods()
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_stmt_result_meta_set_methods */
 static void
 _xmysqlnd_stmt_result_meta_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta) * const methods)
 {
@@ -307,7 +285,6 @@ _xmysqlnd_stmt_result_meta_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd
 /* }}} */
 
 
-/* {{{ _xmysqlnd_result_field_meta_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) *
 _xmysqlnd_result_field_meta_get_methods()
 {
@@ -315,7 +292,6 @@ _xmysqlnd_result_field_meta_get_methods()
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_result_field_meta_set_methods */
 static void
 _xmysqlnd_result_field_meta_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta) * const methods)
 {
@@ -324,7 +300,6 @@ _xmysqlnd_result_field_meta_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqln
 /* }}} */
 
 
-/* {{{ _xmysqlnd_rowset_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *
 _xmysqlnd_rowset_get_methods()
 {
@@ -332,7 +307,6 @@ _xmysqlnd_rowset_get_methods()
 }
 /* }}} */
 
-/* {{{ _xmysqlnd_rowset_set_methods */
 static void
 _xmysqlnd_rowset_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) * const methods)
 {
@@ -341,7 +315,6 @@ _xmysqlnd_rowset_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset) *
 /* }}} */
 
 
-/* {{{ _xmysqlnd_pfc_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) *
 _xmysqlnd_pfc_get_methods()
 {
@@ -350,7 +323,6 @@ _xmysqlnd_pfc_get_methods()
 /* }}} */
 
 
-/* {{{ _xmysqlnd_pfc_set_methods */
 static void
 _xmysqlnd_pfc_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * const methods)
 {
@@ -359,7 +331,6 @@ _xmysqlnd_pfc_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_pac
 /* }}} */
 
 
-/* {{{ _xmysqlnd_warning_list_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) *
 _xmysqlnd_warning_list_get_methods()
 {
@@ -368,7 +339,6 @@ _xmysqlnd_warning_list_get_methods()
 /* }}} */
 
 
-/* {{{ _xmysqlnd_warning_list_set_methods */
 static void
 _xmysqlnd_warning_list_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * const methods)
 {
@@ -377,7 +347,6 @@ _xmysqlnd_warning_list_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_war
 /* }}} */
 
 
-/* {{{ _xmysqlnd_stmt_execution_state_get_methods */
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) *
 _xmysqlnd_stmt_execution_state_get_methods()
 {
@@ -386,7 +355,6 @@ _xmysqlnd_stmt_execution_state_get_methods()
 /* }}} */
 
 
-/* {{{ _xmysqlnd_stmt_execution_state_set_methods */
 static void
 _xmysqlnd_stmt_execution_state_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * const methods)
 {

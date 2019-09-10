@@ -209,7 +209,6 @@ Index_definition parse_index_def(
 
 //------------------------------------------------------------------------------
 
-/* {{{ collection_index_on_error */
 static const enum_hnd_func_status
 collection_index_on_error(
 	void* /*context*/,
@@ -226,7 +225,6 @@ collection_index_on_error(
 } // anonymous namespace
 
 
-/* {{{ create_collection_index */
 void create_collection_index(
 	drv::xmysqlnd_collection* collection,
 	const util::string_view& index_name,
@@ -257,7 +255,6 @@ void create_collection_index(
 /* }}} */
 
 
-/* {{{ drop_collection_index */
 void drop_collection_index(
 	xmysqlnd_collection* collection,
 	const util::string_view& index_name,

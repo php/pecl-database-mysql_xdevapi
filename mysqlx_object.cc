@@ -25,7 +25,6 @@ namespace mysqlx {
 
 namespace devapi {
 
-/* {{{ mysqlx_fetch_object_from_zo */
 st_mysqlx_object* mysqlx_fetch_object_from_zo(zend_object * obj)
 {
 	/* Go back `XtOffsetOf of zo in st_mysqlx_object` bytes from `obj`  */
@@ -34,7 +33,6 @@ st_mysqlx_object* mysqlx_fetch_object_from_zo(zend_object * obj)
 /* }}} */
 
 
-/* {{{ mysqlx_object_free_storage */
 void
 mysqlx_object_free_storage(zend_object * object)
 {
@@ -44,7 +42,6 @@ mysqlx_object_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ mysqlx_object_get_debug_info */
 HashTable *
 mysqlx_object_get_debug_info(zval *object, int *is_temp)
 {

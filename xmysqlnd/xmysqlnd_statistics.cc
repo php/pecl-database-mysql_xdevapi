@@ -27,7 +27,6 @@ namespace drv {
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_STATS* xmysqlnd_global_stats{nullptr};
 
-/* {{{ mysqlnd_stats_values_names */
 const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 {
 	{ util::literal_to_mysqlnd_str("bytes_sent") },
@@ -50,7 +49,6 @@ const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 /* }}} */
 
 
-/* {{{ _xmysqlnd_get_client_stats */
 PHP_MYSQL_XDEVAPI_API void
 _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FILE_LINE_DC)
 {

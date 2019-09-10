@@ -35,7 +35,6 @@ struct st_xmysqlnd_crud_collection_op__find;
 
 namespace devapi {
 
-/* {{{ Collection_find */
 class Collection_find : public util::custom_allocable
 {
 public:

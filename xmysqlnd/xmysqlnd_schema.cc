@@ -41,7 +41,6 @@ const MYSQLND_CSTRING db_object_type_filter_view_tag = { "VIEW", sizeof("VIEW") 
 
 } // anonymous namespace
 
-/* {{{ is_table_object_type */
 bool is_table_object_type(const MYSQLND_CSTRING& object_type)
 {
 	return equal_mysqlnd_cstr(object_type, db_object_type_filter_table_tag);
@@ -49,7 +48,6 @@ bool is_table_object_type(const MYSQLND_CSTRING& object_type)
 /* }}} */
 
 
-/* {{{ is_collection_object_type */
 bool is_collection_object_type(const MYSQLND_CSTRING& object_type)
 {
 	return equal_mysqlnd_cstr(object_type, db_object_type_filter_collection_tag);
@@ -57,7 +55,6 @@ bool is_collection_object_type(const MYSQLND_CSTRING& object_type)
 /* }}} */
 
 
-/* {{{ is_view_object_type */
 bool is_view_object_type(const MYSQLND_CSTRING& object_type)
 {
 	return equal_mysqlnd_cstr(object_type, db_object_type_filter_view_tag);
@@ -104,7 +101,6 @@ void xmysqlnd_schema::cleanup()
 }
 
 
-/* {{{ schema_xplugin_op_var_binder */
 static const enum_hnd_func_status
 schema_xplugin_op_var_binder(
 	void * context,
@@ -151,7 +147,6 @@ struct st_schema_exists_in_database_ctx
 };
 
 
-/* {{{ schema_sql_op_on_row */
 static const enum_hnd_func_status
 schema_sql_op_on_row(
 	void * context,
@@ -250,7 +245,6 @@ struct st_create_collection_handler_ctx
 	const struct st_xmysqlnd_schema_on_error_bind on_error;
 };
 
-/* {{{ collection_op_handler_on_error */
 static const enum_hnd_func_status
 collection_op_handler_on_error(void * context,
 							   XMYSQLND_SESSION session,
@@ -267,7 +261,6 @@ collection_op_handler_on_error(void * context,
 /* }}} */
 
 
-/* {{{ collection_op_var_binder */
 static const enum_hnd_func_status
 collection_op_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
@@ -307,7 +300,6 @@ collection_op_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection_op */
 static const enum_func_status
 xmysqlnd_collection_op(
 	xmysqlnd_schema * const schema,
@@ -433,7 +425,6 @@ struct xmysqlnd_schema_get_db_objects_ctx
 };
 
 
-/* {{{ get_db_objects_on_row */
 bool match_object_type(
 	const db_object_type_filter object_type_filter,
 	const MYSQLND_CSTRING& object_type)
@@ -453,7 +444,6 @@ bool match_object_type(
 /* }}} */
 
 
-/* {{{ get_db_objects_on_row */
 static const enum_hnd_func_status
 get_db_objects_on_row(void * context,
 					  XMYSQLND_SESSION session,
@@ -488,7 +478,6 @@ struct st_collection_get_objects_var_binder_ctx
 };
 
 
-/* {{{ collection_get_objects_var_binder */
 static const enum_hnd_func_status
 collection_get_objects_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
 {
@@ -608,7 +597,6 @@ xmysqlnd_schema::free_contents()
 }
 /* }}} */
 
-/* {{{ xmysqlnd_schema_create */
 PHP_MYSQL_XDEVAPI_API xmysqlnd_schema *
 xmysqlnd_schema_create(XMYSQLND_SESSION session,
 							const MYSQLND_CSTRING schema_name,
@@ -630,7 +618,6 @@ xmysqlnd_schema_create(XMYSQLND_SESSION session,
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_schema_free(xmysqlnd_schema * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

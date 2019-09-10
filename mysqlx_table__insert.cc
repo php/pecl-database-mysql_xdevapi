@@ -184,7 +184,6 @@ static const zend_function_entry mysqlx_table__insert_methods[] = {
 /* }}} */
 
 #if 0
-/* {{{ mysqlx_table__insert_property__name */
 static zval *
 mysqlx_table__insert_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -218,7 +217,6 @@ const struct st_mysqlx_property_entry mysqlx_table__insert_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_table__insert_free_storage */
 static void
 mysqlx_table__insert_free_storage(zend_object * object)
 {
@@ -241,7 +239,6 @@ mysqlx_table__insert_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_table__insert_object_allocator */
 static zend_object *
 php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 {
@@ -255,7 +252,6 @@ php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_table__insert_class */
 void
 mysqlx_register_table__insert_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -282,7 +278,6 @@ mysqlx_register_table__insert_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers 
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_table__insert_class */
 void
 mysqlx_unregister_table__insert_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -291,7 +286,6 @@ mysqlx_unregister_table__insert_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_table__insert */
 void
 mysqlx_new_table__insert(zval * return_value,
 					xmysqlnd_table * table,

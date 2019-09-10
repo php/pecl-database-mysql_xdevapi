@@ -37,7 +37,6 @@ static const zend_function_entry mysqlx_schema_object_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_register_schema_object_interface */
 void
 mysqlx_register_schema_object_interface(
 	UNUSED_INIT_FUNC_ARGS,
@@ -51,7 +50,6 @@ mysqlx_register_schema_object_interface(
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_schema_object_interface */
 void
 mysqlx_unregister_schema_object_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {

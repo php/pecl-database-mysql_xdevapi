@@ -66,7 +66,6 @@ static const zend_function_entry mysqlx_exception_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_exception_property__message */
 static zval *
 mysqlx_exception_property__message(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -89,7 +88,6 @@ mysqlx_exception_property__message(const st_mysqlx_object* obj, zval * return_va
 /* }}} */
 
 
-/* {{{ mysqlx_exception_property__level */
 static zval *
 mysqlx_exception_property__level(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -101,7 +99,6 @@ mysqlx_exception_property__level(const st_mysqlx_object* obj, zval * return_valu
 /* }}} */
 
 
-/* {{{ mysqlx_exception_property__code */
 static zval *
 mysqlx_exception_property__code(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -129,7 +126,6 @@ static zend_object_handlers mysqlx_object_exception_handlers;
 static HashTable mysqlx_exception_properties;
 
 
-/* {{{ mysqlx_register_exception_class */
 void
 mysqlx_register_exception_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -148,7 +144,6 @@ mysqlx_register_exception_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * my
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_exception_class */
 void
 mysqlx_unregister_exception_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -157,7 +152,6 @@ mysqlx_unregister_exception_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_exception */
 void
 mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
@@ -173,7 +167,6 @@ mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, c
 /* }}} */
 
 
-/* {{{ mysqlx_new_exception_ex */
 void
 mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING /*sql_state*/, const char * const format, ...)
 {

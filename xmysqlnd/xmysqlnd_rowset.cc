@@ -365,7 +365,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset);
 
-/* {{{ xmysqlnd_rowset_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET *
 xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type,
 					   const size_t prefetch_rows,
@@ -383,7 +382,6 @@ xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type,
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_rowset_free(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

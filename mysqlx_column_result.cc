@@ -168,7 +168,6 @@ static uint64_t int_type_mappings[] = {
 	FIELD_TYPE_INT//11
 };
 
-/* {{{ get_column_type */
 uint64_t
 get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 {
@@ -230,7 +229,6 @@ get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 }
 /* }}} */
 
-/* {{{ get_column_meta_field */
 zend_bool
 is_type_signed(const st_xmysqlnd_result_field_meta* const meta)
 {
@@ -255,7 +253,6 @@ is_type_signed(const st_xmysqlnd_result_field_meta* const meta)
 }
 /* }}} */
 
-/* {{{ get_column_length */
 void
 get_column_length(zval* return_value, std::uint32_t length)
 {
@@ -270,7 +267,6 @@ get_column_length(zval* return_value, std::uint32_t length)
 }
 /* }}} */
 
-/* {{{ get_column_meta_field */
 void
 get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					meta_fields selected_meta_field)
@@ -569,7 +565,6 @@ const struct st_mysqlx_property_entry mysqlx_column_result_property_entries[] =
 
 } // anonymous namespace
 
-/* {{{ mysqlx_new_column_result */
 void
 mysqlx_new_column_result(
 	zval * return_value,
@@ -597,7 +592,6 @@ mysqlx_new_column_result(
 /* }}} */
 
 
-/* {{{ php_mysqlx_column_result_object_allocator */
 static zend_object *
 php_mysqlx_column_result_object_allocator(zend_class_entry * class_type)
 {
@@ -611,7 +605,6 @@ php_mysqlx_column_result_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result_free_storage */
 static void
 mysqlx_column_result_free_storage(zend_object * object)
 {
@@ -630,7 +623,6 @@ mysqlx_column_result_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ mysqlx_register_column_result_class */
 void
 mysqlx_register_column_result_class(UNUSED_INIT_FUNC_ARGS,
 						zend_object_handlers * mysqlx_std_object_handlers)
@@ -659,7 +651,6 @@ mysqlx_register_column_result_class(UNUSED_INIT_FUNC_ARGS,
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_column_result_class */
 void
 mysqlx_unregister_column_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {

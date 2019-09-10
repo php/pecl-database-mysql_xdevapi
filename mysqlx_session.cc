@@ -114,7 +114,6 @@ bool Session_data::close_connection()
 	return true;
 }
 
-/* {{{ fetch_session_data */
 template<typename T>
 Session_data& fetch_session_data(T* from, bool allow_closed = false)
 {
@@ -126,7 +125,6 @@ Session_data& fetch_session_data(T* from, bool allow_closed = false)
 }
 /* }}} */
 
-/* {{{ mysqlx_throw_exception_from_session_if_needed */
 static zend_bool
 mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
@@ -196,7 +194,6 @@ struct st_mysqlx_get_schemas_ctx
 	zval* list;
 };
 
-/* {{{ get_schemas_handler_on_row */
 static const enum_hnd_func_status
 get_schemas_handler_on_row(void * context,
 						   XMYSQLND_SESSION const session,
@@ -228,7 +225,6 @@ get_schemas_handler_on_row(void * context,
 /* }}} */
 
 
-/* {{{ mysqlx_session_command_handler_on_error */
 static const enum_hnd_func_status
 mysqlx_session_command_handler_on_error(
 	void * /*context*/,
@@ -351,7 +347,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 /* }}} */
 
 
-/* {{{ mysqlx_execute_session_query */
 static void
 mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 								  const MYSQLND_CSTRING namespace_,
@@ -802,7 +797,6 @@ const struct st_mysqlx_property_entry mysqlx_session_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_session_free_storage */
 static void
 mysqlx_session_free_storage(zend_object* object)
 {
@@ -813,7 +807,6 @@ mysqlx_session_free_storage(zend_object* object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_base_session_object_allocator */
 static zend_object *
 php_mysqlx_session_object_allocator(zend_class_entry * class_type)
 {
@@ -827,7 +820,6 @@ php_mysqlx_session_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_session_class */
 void
 mysqlx_register_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -850,7 +842,6 @@ mysqlx_register_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysq
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_session_class */
 void
 mysqlx_unregister_session_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -859,7 +850,6 @@ mysqlx_unregister_session_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_session */
 void
 mysqlx_new_session(zval* return_value)
 {
@@ -872,7 +862,6 @@ mysqlx_new_session(zval* return_value)
 /* }}} */
 
 
-/* {{{ mysqlx_new_session */
 void
 mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session)
 {

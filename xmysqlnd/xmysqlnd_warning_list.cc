@@ -136,7 +136,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_warning_list);
 
-/* {{{ xmysqlnd_warning_list_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_WARNING_LIST *
 xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -148,7 +147,6 @@ xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_MET
 /* }}} */
 
 
-/* {{{ xmysqlnd_warning_list_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const warn_list)
 {

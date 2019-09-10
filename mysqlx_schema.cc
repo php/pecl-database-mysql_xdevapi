@@ -175,7 +175,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 /* }}} */
 
 
-/* {{{ mysqlx_scheme_on_error */
 static const enum_hnd_func_status
 mysqlx_scheme_on_error(
 	void* /*context*/,
@@ -226,7 +225,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 
 /************************************** INHERITED END   ****************************************/
 
-/* {{{ mysqlx_schema_on_error */
 static const enum_hnd_func_status
 mysqlx_schema_on_error(
 	void* /*context*/,
@@ -242,7 +240,6 @@ mysqlx_schema_on_error(
 /* }}} */
 
 
-/* {{{ on_drop_db_object_error */
 const enum_hnd_func_status on_drop_db_object_error(
 	void* /*context*/,
 	const xmysqlnd_schema * const /*schema*/,
@@ -414,7 +411,6 @@ struct st_mysqlx_on_db_object_ctx
 	zval* list;
 };
 
-/* {{{ mysqlx_on_db_object */
 static void
 mysqlx_on_db_object(void* context, xmysqlnd_schema* const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type)
 {
@@ -454,7 +450,6 @@ mysqlx_on_db_object(void* context, xmysqlnd_schema* const schema, const MYSQLND_
 /* }}} */
 
 
-/* {{{ mysqlx_get_database_objects */
 static void
 mysqlx_get_database_objects(
 	xmysqlnd_schema* schema,
@@ -547,7 +542,6 @@ static const zend_function_entry mysqlx_schema_methods[] = {
 /* }}} */
 
 
-/* {{{ mysqlx_schema_property__name */
 static zval *
 mysqlx_schema_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
@@ -579,7 +573,6 @@ const struct st_mysqlx_property_entry mysqlx_schema_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_schema_free_storage */
 static void
 mysqlx_schema_free_storage(zend_object* object)
 {
@@ -601,7 +594,6 @@ mysqlx_schema_free_storage(zend_object* object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_schema_object_allocator */
 static zend_object *
 php_mysqlx_schema_object_allocator(zend_class_entry* class_type)
 {
@@ -616,7 +608,6 @@ php_mysqlx_schema_object_allocator(zend_class_entry* class_type)
 
 } // anonymous namespace
 
-/* {{{ mysqlx_register_schema_class */
 void
 mysqlx_register_schema_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
@@ -642,7 +633,6 @@ mysqlx_register_schema_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_schema_class */
 void
 mysqlx_unregister_schema_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -651,7 +641,6 @@ mysqlx_unregister_schema_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_schema */
 void
 mysqlx_new_schema(zval* return_value, xmysqlnd_schema* schema)
 {

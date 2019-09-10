@@ -283,7 +283,6 @@ const struct st_mysqlx_property_entry mysqlx_result_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_result_free_storage */
 static void
 mysqlx_result_free_storage(zend_object * object)
 {
@@ -301,7 +300,6 @@ mysqlx_result_free_storage(zend_object * object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_result_object_allocator */
 static zend_object *
 php_mysqlx_result_object_allocator(zend_class_entry * class_type)
 {
@@ -315,7 +313,6 @@ php_mysqlx_result_object_allocator(zend_class_entry * class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_result_class */
 void
 mysqlx_register_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -340,7 +337,6 @@ mysqlx_register_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysql
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_result_class */
 void
 mysqlx_unregister_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -349,7 +345,6 @@ mysqlx_unregister_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_result */
 void
 mysqlx_new_result(zval * return_value, XMYSQLND_STMT_RESULT * result)
 {

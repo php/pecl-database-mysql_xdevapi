@@ -425,7 +425,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset_buffered);
 
-/* {{{ xmysqlnd_rowset_buffered_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_BUFFERED *
 xmysqlnd_rowset_buffered_create(xmysqlnd_stmt * stmt,
 								const zend_bool persistent,
@@ -441,7 +440,6 @@ xmysqlnd_rowset_buffered_create(xmysqlnd_stmt * stmt,
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset_buffered_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_rowset_buffered_free(XMYSQLND_ROWSET_BUFFERED * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

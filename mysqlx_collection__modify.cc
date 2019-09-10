@@ -771,7 +771,6 @@ const st_mysqlx_property_entry collection_modify_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_collection__modify_free_storage */
 static void
 mysqlx_collection__modify_free_storage(zend_object* object)
 {
@@ -780,7 +779,6 @@ mysqlx_collection__modify_free_storage(zend_object* object)
 /* }}} */
 
 
-/* {{{ php_mysqlx_collection__modify_object_allocator */
 static zend_object *
 php_mysqlx_collection__modify_object_allocator(zend_class_entry* class_type)
 {
@@ -794,7 +792,6 @@ php_mysqlx_collection__modify_object_allocator(zend_class_entry* class_type)
 /* }}} */
 
 
-/* {{{ mysqlx_register_collection__modify_class */
 void
 mysqlx_register_collection__modify_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
@@ -817,7 +814,6 @@ mysqlx_register_collection__modify_class(UNUSED_INIT_FUNC_ARGS, zend_object_hand
 /* }}} */
 
 
-/* {{{ mysqlx_unregister_collection__modify_class */
 void
 mysqlx_unregister_collection__modify_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
@@ -826,7 +822,6 @@ mysqlx_unregister_collection__modify_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 /* }}} */
 
 
-/* {{{ mysqlx_new_collection__modify */
 void
 mysqlx_new_collection__modify(
 	zval* return_value,

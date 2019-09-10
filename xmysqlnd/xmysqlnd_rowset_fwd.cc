@@ -381,7 +381,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset_fwd);
 
-/* {{{ xmysqlnd_rowset_fwd_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_FWD *
 xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
 						   xmysqlnd_stmt * stmt,
@@ -398,7 +397,6 @@ xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset_fwd_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_rowset_fwd_free(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

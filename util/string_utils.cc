@@ -22,7 +22,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ to_string */
 string to_string(const zval& zv)
 {
 	switch (Z_TYPE(zv)) {
@@ -67,7 +66,6 @@ string to_string(const MYSQLND_CSTRING& s)
 /* }}} */
 
 
-/* {{{ to_strings */
 strings to_strings(zval* zvals, int count)
 {
 	strings strings;
@@ -80,7 +78,6 @@ strings to_strings(zval* zvals, int count)
 /* }}} */
 
 
-/* {{{ to_zend_string */
 zend_string* to_zend_string(const char* str)
 {
 	return zend_string_init(str, strlen(str), 0);
@@ -88,7 +85,6 @@ zend_string* to_zend_string(const char* str)
 /* }}} */
 
 
-/* {{{ to_zend_string */
 zend_string* to_zend_string(const string& str)
 {
 	return zend_string_init(str.c_str(), str.length(), 0);
@@ -96,7 +92,6 @@ zend_string* to_zend_string(const string& str)
 /* }}} */
 
 
-/* {{{ to_zend_string */
 zend_string* to_zend_string(formatter& fmt)
 {
 	const string& str{ fmt.str() };
@@ -105,7 +100,6 @@ zend_string* to_zend_string(formatter& fmt)
 /* }}} */
 
 
-/* {{{ escape_identifier */
 string
 escape_identifier( const string& identifier ) {
 	std::stringstream result;
@@ -123,7 +117,6 @@ escape_identifier( const string& identifier ) {
 /* }}} */
 
 
-/* {{{ to_int */
 bool to_int(const string& str, int* value)
 {
 	try {
@@ -135,7 +128,6 @@ bool to_int(const string& str, int* value)
 }
 /* }}} */
 
-/* {{{ to_int */
 bool to_int(const std::string& str, int* value)
 {
 	try {
