@@ -442,7 +442,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, __construct)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::sort() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 {
 	DBG_ENTER("mysqlx_collection__modify::sort");
@@ -470,7 +469,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 {
 	DBG_ENTER("mysqlx_collection__modify::limit");
@@ -495,7 +493,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::skip() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 {
 	DBG_ENTER("mysqlx_collection__modify::skip");
@@ -525,7 +522,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 {
 	DBG_ENTER("mysqlx_collection__modify::bind");
@@ -551,7 +547,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::set() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, set)
 {
 	DBG_ENTER("mysqlx_collection__modify::set");
@@ -579,7 +574,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, set)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::replace() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 {
 	DBG_ENTER("mysqlx_collection__modify::replace");
@@ -606,7 +600,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 }
 /* }}} */
 
-/* {{{ proto mixed mysqlx_collection__modify::patch() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 {
 	DBG_ENTER("mysqlx_collection__modify::patch");
@@ -632,7 +625,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::arrayInsert() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 {
 	DBG_ENTER("mysqlx_collection__modify::arrayInsert");
@@ -660,7 +652,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::arrayAppend() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 {
 	DBG_ENTER("mysqlx_collection__modify::arrayAppend");
@@ -688,7 +679,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::unset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 {
 	DBG_ENTER("mysqlx_collection__modify::unset");
@@ -717,7 +707,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__modify::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 {
 	DBG_ENTER("mysqlx_collection__modify::execute");

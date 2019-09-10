@@ -119,7 +119,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, __construct)
 
 
 /************************************** INHERITED START ****************************************/
-/* {{{ proto mixed mysqlx_schema::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
 {
 	DBG_ENTER("mysqlx_schema::getSession");
@@ -147,7 +146,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_schema::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -190,7 +188,6 @@ mysqlx_scheme_on_error(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_schema::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 {
 	st_mysqlx_schema* object{nullptr};

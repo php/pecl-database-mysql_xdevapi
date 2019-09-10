@@ -163,7 +163,6 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__update::set() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, set)
 {
 	mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
@@ -171,7 +170,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, set)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__update::where() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -204,7 +202,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__update::orderby() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -269,7 +266,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__update::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -304,7 +300,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 }
 /* }}} */
 
-/* {{{ proto mixed mysqlx_table__update::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -346,7 +341,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 }
 /* }}} */
 
-/* {{{ proto mixed mysqlx_table__update::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 {
 	st_mysqlx_table__update* object{nullptr};

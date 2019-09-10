@@ -98,7 +98,6 @@ Collection_remove::~Collection_remove()
 /* }}} */
 
 
-/* {{{ proto mixed Collection_remove::sort() */
 bool Collection_remove::sort(
 	zval* sort_expressions,
 	int num_of_expr)
@@ -149,7 +148,6 @@ bool Collection_remove::sort(
 /* }}} */
 
 
-/* {{{ proto mixed Collection_remove::limit() */
 bool Collection_remove::limit(zend_long rows)
 {
 	DBG_ENTER("Collection_remove::limit");
@@ -164,7 +162,6 @@ bool Collection_remove::limit(zend_long rows)
 /* }}} */
 
 
-/* {{{ proto mixed Collection_remove::bind() */
 bool Collection_remove::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("Collection_remove::bind");
@@ -188,7 +185,6 @@ bool Collection_remove::bind(const util::zvalue& bind_variables)
 /* }}} */
 
 
-/* {{{ proto mixed Collection_remove::execute() */
 void Collection_remove::execute(zval* resultset)
 {
 	DBG_ENTER("Collection_remove::execute");
@@ -231,7 +227,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, __construct)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__remove::sort() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, sort)
 {
 	DBG_ENTER("mysqlx_collection__remove::sort");
@@ -258,7 +253,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, sort)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__remove::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 {
 	DBG_ENTER("mysqlx_collection__remove::limit");
@@ -287,7 +281,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__remove::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 {
 	DBG_ENTER("mysqlx_collection__remove::bind");
@@ -312,7 +305,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__remove::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 {
 	DBG_ENTER("mysqlx_collection__remove::execute");

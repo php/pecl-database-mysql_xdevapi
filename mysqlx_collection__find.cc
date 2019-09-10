@@ -261,7 +261,6 @@ bool Collection_find::add_operation(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::sort() */
 bool Collection_find::sort(
 	zval* sort_expressions,
 	int num_of_expr)
@@ -272,7 +271,6 @@ bool Collection_find::sort(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::group_by() */
 bool Collection_find::group_by(
 	zval* sort_expressions,
 	int num_of_expr)
@@ -283,7 +281,6 @@ bool Collection_find::group_by(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::having() */
 bool Collection_find::having(const util::string_view& search_condition)
 {
 	DBG_ENTER("mysqlx_collection__find::having");
@@ -293,7 +290,6 @@ bool Collection_find::having(const util::string_view& search_condition)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::limit() */
 bool Collection_find::limit(zend_long rows)
 {
 	DBG_ENTER("mysqlx_collection__find::limit");
@@ -308,7 +304,6 @@ bool Collection_find::limit(zend_long rows)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::offset() */
 bool Collection_find::offset(zend_long position)
 {
 	DBG_ENTER("mysqlx_collection__find::offset");
@@ -323,7 +318,6 @@ bool Collection_find::offset(zend_long position)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::bind() */
 bool Collection_find::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("mysqlx_collection__find::bind");
@@ -346,7 +340,6 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::lock_shared() */
 bool Collection_find::lock_shared(int lock_waiting_option)
 {
 	DBG_ENTER("mysqlx_collection__find::lock_shared");
@@ -356,7 +349,6 @@ bool Collection_find::lock_shared(int lock_waiting_option)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::lock_exclusive() */
 bool Collection_find::lock_exclusive(int lock_waiting_option)
 {
 	DBG_ENTER("mysqlx_collection__find::lock_exclusive");
@@ -366,7 +358,6 @@ bool Collection_find::lock_exclusive(int lock_waiting_option)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::execute() */
 void Collection_find::execute(zval* resultset)
 {
 	execute(MYSQLX_EXECUTE_FLAG_BUFFERED, resultset);
@@ -374,7 +365,6 @@ void Collection_find::execute(zval* resultset)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::execute() */
 void Collection_find::execute(
 	zend_long flags,
 	zval* resultset)
@@ -400,7 +390,6 @@ void Collection_find::execute(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::execute() */
 Mysqlx::Crud::Find* Collection_find::get_stmt()
 {
 	if (!find_op
@@ -480,7 +469,6 @@ mysqlx_collection__find__add_sort_or_grouping(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::sort() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, sort)
 {
 	DBG_ENTER("mysqlx_collection__find::sort");
@@ -492,7 +480,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, sort)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::groupBy() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, groupBy)
 {
 	DBG_ENTER("mysqlx_collection__find::groupBy");
@@ -505,7 +492,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, groupBy)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::having() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 {
 	DBG_ENTER("mysqlx_collection__find::having");
@@ -532,7 +518,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 {
 	DBG_ENTER("mysqlx_collection__find::limit");
@@ -557,7 +542,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::offset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 {
 	DBG_ENTER("mysqlx_collection__find::offset");
@@ -587,7 +571,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 {
 	DBG_ENTER("mysqlx_collection__find::bind");
@@ -613,7 +596,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::lockShared() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockShared)
 {
 	DBG_ENTER("mysqlx_collection__find::lockShared");
@@ -637,7 +619,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockShared)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::lockExclusive() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 {
 	DBG_ENTER("mysqlx_collection__find::lockExclusive");
@@ -661,7 +642,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__find::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, execute)
 {
 	DBG_ENTER("mysqlx_collection__find::execute");

@@ -241,7 +241,6 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::orderby() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, orderby)
 {
 	DBG_ENTER("mysqlx_table__select::orderby");
@@ -251,7 +250,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, orderby)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::groupBy() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, groupBy)
 {
 	DBG_ENTER("mysqlx_table__select::groupBy");
@@ -261,7 +259,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, groupBy)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::having() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -292,7 +289,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -328,7 +324,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::offset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -364,7 +359,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -403,7 +397,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::lockShared() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 {
 	DBG_ENTER("mysqlx_table__select::lockShared");
@@ -433,7 +426,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::lockExclusive() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 {
 	DBG_ENTER("mysqlx_table__select::lockExclusive");
@@ -463,7 +455,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__select::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 {
 	DBG_ENTER("mysqlx_table__select::execute");

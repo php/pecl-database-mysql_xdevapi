@@ -76,7 +76,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, __construct)
 
 
 
-/* {{{ proto mixed mysqlx_table__insert::values() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 {
 	st_mysqlx_table__insert* object{nullptr};
@@ -121,7 +120,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__insert::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 {
 	st_mysqlx_table__insert* object{nullptr};

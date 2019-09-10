@@ -111,7 +111,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, __construct)
 
 
 /************************************** INHERITED START ****************************************/
-/* {{{ proto mixed mysqlx_table::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 {
 	DBG_ENTER("mysqlx_table::getSession");
@@ -139,7 +138,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 {
 	st_mysqlx_table* object{nullptr};
@@ -186,7 +184,6 @@ mysqlx_table_on_error(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 {
 	st_mysqlx_table* object{nullptr};
@@ -218,7 +215,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table::isView() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 {
 	zval* object_zv{nullptr};
@@ -253,7 +249,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table::count() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 {
 	DBG_ENTER("mysqlx_table::count");
@@ -283,7 +278,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table::getSchema() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 {
 	st_mysqlx_table* object{nullptr};
@@ -326,7 +320,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 /************************************** INHERITED END   ****************************************/
 
 
-/* {{{ proto mixed mysqlx_table::insert() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 {
 	st_mysqlx_table* object{nullptr};
@@ -376,7 +369,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table::select() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 {
 	st_mysqlx_table* object{nullptr};
@@ -414,7 +406,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table::update() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 {
 	st_mysqlx_table* object{nullptr};
@@ -441,7 +432,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table::delete() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 {
 	st_mysqlx_table* object{nullptr};

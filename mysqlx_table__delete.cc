@@ -90,7 +90,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, __construct)
 
 
 
-/* {{{ proto mixed mysqlx_table__delete::where() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 {
 	st_mysqlx_table__delete* object{nullptr};
@@ -130,7 +129,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__delete::orderby() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 {
 	st_mysqlx_table__delete* object{nullptr};
@@ -198,7 +196,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__delete::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 {
 	st_mysqlx_table__delete* object{nullptr};
@@ -236,7 +233,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__delete::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 {
 	st_mysqlx_table__delete* object{nullptr};
@@ -279,7 +275,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_table__delete::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 {
 	st_mysqlx_table__delete* object{nullptr};

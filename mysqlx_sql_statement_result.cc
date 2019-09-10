@@ -565,7 +565,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnNames)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_sql_statement_result::nextResult() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, nextResult)
 {
 	zval* object_zv{nullptr};

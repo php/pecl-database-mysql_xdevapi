@@ -142,7 +142,6 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA sessio
 }
 /* }}} */
 
-/* {{{ proto mixed mysqlx_session::getServerVersion() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getServerVersion)
 {
 	DBG_ENTER("mysqlx_session::getServerVersion");
@@ -165,7 +164,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getServerVersion)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_session::generateUUID() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, generateUUID)
 {
 	DBG_ENTER("mysqlx_session::generateUUID");
@@ -529,7 +527,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_session::startTransaction() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, startTransaction)
 {
 	DBG_ENTER("mysqlx_session::startTransaction");
@@ -555,7 +552,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, startTransaction)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_session::commit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, commit)
 {
 	DBG_ENTER("mysqlx_session::commit");
@@ -581,7 +577,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, commit)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_session::rollback() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollback)
 {
 	DBG_ENTER("mysqlx_session::rollback");
@@ -619,7 +614,6 @@ generate_savepoint_name( const unsigned int name_seed )
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_session::setSavepoint() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, setSavepoint)
 {
 	DBG_ENTER("mysqlx_session::setSavepoint");

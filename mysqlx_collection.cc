@@ -151,7 +151,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, __construct)
 
 
 /************************************** INHERITED START ****************************************/
-/* {{{ proto mixed mysqlx_collection::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 {
 	DBG_ENTER("mysqlx_collection::getSession");
@@ -179,7 +178,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -224,7 +222,6 @@ mysqlx_collection_on_error(void * /*context*/, XMYSQLND_SESSION session,
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -256,7 +253,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::count() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 {
 	DBG_ENTER("mysqlx_collection::count");
@@ -286,7 +282,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::getSchema() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -328,7 +323,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 /************************************** INHERITED END   ****************************************/
 
 
-/* {{{ proto mixed mysqlx_collection::add() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -362,7 +356,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::find() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -391,7 +384,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::modify() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -421,7 +413,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::remove() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -451,7 +442,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::getOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 {
 	DBG_ENTER("mysqlx_collection::getOne");
@@ -486,7 +476,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::replaceOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 {
 	DBG_ENTER("mysqlx_collection::replaceOne");
@@ -529,7 +518,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::addOrReplaceOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 {
 	zval* object_zv{nullptr};
@@ -561,7 +549,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::removeOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 {
 	zval* object_zv{nullptr};
@@ -594,7 +581,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::createIndex() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 {
 	zval* object_zv{nullptr};
@@ -622,7 +608,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection::dropIndex() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 {
 	zval* object_zv{nullptr};

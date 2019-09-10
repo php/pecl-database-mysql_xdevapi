@@ -265,7 +265,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, __construct)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__add::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 {
 	DBG_ENTER("mysqlx_collection__add::execute");
@@ -286,7 +285,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_collection__add::add() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 {
 	zval* object_zv{nullptr};
