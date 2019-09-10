@@ -78,7 +78,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, __construct)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_result::getAffectedItemsCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 {
 	zval* object_zv{nullptr};
@@ -112,7 +111,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_result::getAutoIncrementValue(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAutoIncrementValue)
 {
 	zval* object_zv{nullptr};
@@ -147,7 +145,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAutoIncrementValue)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_result::getGeneratedIds(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 {
     DBG_ENTER("mysqlx_result::getGeneratedIds");
@@ -185,7 +182,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_result::getWarningsCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 {
 	zval* object_zv{nullptr};
@@ -219,7 +215,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_result::getWarnings(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 {
 	zval* object_zv{nullptr};

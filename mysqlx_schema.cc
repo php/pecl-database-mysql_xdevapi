@@ -248,7 +248,6 @@ const enum_hnd_func_status on_drop_db_object_error(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_schema::createCollection(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -284,7 +283,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 /* }}} */
 
 
-/* {{{ mysqlx_schema::dropCollection(string collection_name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 {
 	zval* object_zv{nullptr};
@@ -314,7 +312,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_schema::getCollection(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -345,7 +342,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_schema::getTable(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -374,7 +370,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_schema::getCollectionAsTable(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 {
 	st_mysqlx_schema* object{nullptr};

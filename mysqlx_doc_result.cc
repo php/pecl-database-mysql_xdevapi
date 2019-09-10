@@ -77,7 +77,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, __construct)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_doc_result::fetchOne(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchOne)
 {
 	zval* object_zv{nullptr};
@@ -109,7 +108,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchOne)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_doc_result::fetchAll(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 {
 
@@ -139,7 +137,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_doc_result::getWarningsCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 {
 	zval* object_zv{nullptr};
@@ -174,7 +171,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_doc_result::getWarnings(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 {
 	zval* object_zv{nullptr};

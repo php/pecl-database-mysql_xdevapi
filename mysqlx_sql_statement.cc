@@ -593,7 +593,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, execute)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_sql_statement::hasMoreResults(object statement) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, hasMoreResults)
 {
 	st_mysqlx_statement* object{nullptr};
@@ -680,7 +679,6 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_sql_statement::readResult(object statement) */
 /*     proto mixed mysqlx_sql_statement::readResult(object statement, callable on_row_cb, callable on_error_cb, callable on_rset_end, callable on_stmt_ok[, mixed cb_param]]) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, getResult)
 {
@@ -689,7 +687,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, getResult)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_sql_statement::getNextResult(object statement) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, getNextResult)
 {
 	mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_sql_statement_class_entry);
@@ -953,7 +950,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, __construct)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_statement::hasMoreResults(object statement) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, hasMoreResults)
 {
 	st_mysqlx_statement* object{nullptr};
@@ -976,7 +972,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, hasMoreResults)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_statement::readResult(object statement) */
 /*     proto mixed mysqlx_statement::readResult(object statement, callable on_row_cb, callable on_error_cb, callable on_rset_end, callable on_stmt_ok[, mixed cb_param]]) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, getResult)
 {
@@ -985,7 +980,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, getResult)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_statement::getNextResult(object statement) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, getNextResult)
 {
 	mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_statement_class_entry);

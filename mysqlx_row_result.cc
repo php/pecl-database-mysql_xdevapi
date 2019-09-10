@@ -88,7 +88,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, __construct)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_row_result::fetchOne(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchOne)
 {
 	zval* object_zv{nullptr};
@@ -118,7 +117,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchOne)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_row_result::fetchAll(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 {
 	DBG_ENTER("mysqlx_row_result::fetchAll");
@@ -145,7 +143,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_row_result::getWarningsCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarningsCount)
 {
 	zval* object_zv{nullptr};
@@ -179,7 +176,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarningsCount)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_row_result::getWarnings(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarnings)
 {
 	zval* object_zv{nullptr};
@@ -265,7 +261,6 @@ static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(INTERNAL_FUNCTION_PARA
 }
 
 
-/* {{{ proto mixed mysqlx_row_result::getColumnsCount(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnsCount)
 {
 	DBG_ENTER("mysqlx_row_result::getColumnsCount");
@@ -289,7 +284,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnsCount)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_row_result::getColumns(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumns)
 {
 	DBG_ENTER("mysqlx_row_result::getColumns");
@@ -318,7 +312,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumns)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_row_result::getColumnNames(object result) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnNames)
 {
 	DBG_ENTER("mysqlx_row_result::getColumnNames");

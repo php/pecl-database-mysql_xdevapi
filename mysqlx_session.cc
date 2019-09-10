@@ -311,7 +311,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 /* }}} */
 
 
-/* {{{ mysqlx_session::getSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 {
 	DBG_ENTER("mysqlx_session::getSchema");
@@ -393,7 +392,6 @@ mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_session::sql(string query) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 {
 	DBG_ENTER("mysqlx_session::sql");
@@ -431,7 +429,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_session::quoteName(string query) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 {
 	DBG_ENTER("mysqlx_session::quoteName");
@@ -461,7 +458,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 /* }}} */
 
 
-/* {{{ mysqlx_session::createSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 {
 	DBG_ENTER("mysqlx_session::createSchema");
@@ -493,7 +489,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 /* }}} */
 
 
-/* {{{ mysqlx_session::dropSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 {
 	DBG_ENTER("mysqlx_session::dropSchema");
@@ -656,7 +651,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, setSavepoint)
 /* }}} */
 
 
-/* {{{ mysqlx_session::rollbackTo(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollbackTo)
 {
 	DBG_ENTER("mysqlx_session::rollbackTo");
@@ -692,7 +686,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollbackTo)
 /* }}} */
 
 
-/* {{{ mysqlx_session::releaseSavepoint(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, releaseSavepoint)
 {
 	DBG_ENTER("mysqlx_session::releaseSavepoint");
