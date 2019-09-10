@@ -224,7 +224,6 @@ void Collection_remove::execute(zval* resultset)
 //------------------------------------------------------------------------------
 
 
-/* {{{ mysqlx_collection__remove::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

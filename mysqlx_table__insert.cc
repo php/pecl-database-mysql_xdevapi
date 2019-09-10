@@ -68,7 +68,6 @@ struct st_mysqlx_table__insert : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_table__insert::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

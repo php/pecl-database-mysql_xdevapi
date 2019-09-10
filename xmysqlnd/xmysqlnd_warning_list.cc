@@ -26,7 +26,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_warning_list::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_warning_list, init)(
 	XMYSQLND_WARNING_LIST* const /*warn_list*/,
@@ -40,7 +39,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, init)(
 /* }}} */
 
 
-/* {{{ xmysqlnd_warning_list::add_warning */
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * const warn_list,
 													const enum xmysqlnd_stmt_warning_level level,
@@ -63,7 +61,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_warning_list::count */
 static unsigned int
 XMYSQLND_METHOD(xmysqlnd_warning_list, count)(const XMYSQLND_WARNING_LIST * const warn_list)
 {
@@ -73,7 +70,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, count)(const XMYSQLND_WARNING_LIST * cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_warning_list::get_warning */
 static const XMYSQLND_WARNING
 XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST * const warn_list, unsigned int offset)
 {
@@ -89,7 +85,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST 
 /* }}} */
 
 
-/* {{{ xmysqlnd_warning_list::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * const warn_list)
 {
@@ -109,7 +104,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * co
 /* }}} */
 
 
-/* {{{ xmysqlnd_warning_list::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_list)
 {

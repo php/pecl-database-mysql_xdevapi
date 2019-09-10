@@ -176,7 +176,6 @@ schema_sql_op_on_row(
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema::exists_in_database */
 enum_func_status
 xmysqlnd_schema::exists_in_database(
 	struct st_xmysqlnd_session_on_error_bind on_error,
@@ -218,7 +217,6 @@ xmysqlnd_schema::exists_in_database(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_schema::create_collection_object */
 xmysqlnd_collection *
 xmysqlnd_schema::create_collection_object(
 		const MYSQLND_CSTRING collection_name
@@ -337,7 +335,6 @@ xmysqlnd_collection_op(
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema::create_collection */
 xmysqlnd_collection *
 xmysqlnd_schema::create_collection(
 	const util::string_view& collection_name,
@@ -361,7 +358,6 @@ xmysqlnd_schema::create_collection(
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema::drop_collection */
 enum_func_status
 xmysqlnd_schema::drop_collection(
 	const util::string_view& collection_name,
@@ -379,7 +375,6 @@ xmysqlnd_schema::drop_collection(
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema::create_table_object */
 xmysqlnd_table *
 xmysqlnd_schema::create_table_object( const MYSQLND_CSTRING table_name)
 {
@@ -396,7 +391,6 @@ xmysqlnd_schema::create_table_object( const MYSQLND_CSTRING table_name)
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema::drop_table */
 enum_func_status
 xmysqlnd_schema::drop_table(
 	const util::string_view& table_name,
@@ -517,7 +511,6 @@ collection_get_objects_var_binder(void * context, XMYSQLND_SESSION session, XMYS
 
 } // anonymous namespace
 
-/* {{{ xmysqlnd_schema::get_db_objects */
 enum_func_status
 xmysqlnd_schema::get_db_objects(
 	const MYSQLND_CSTRING& /*collection_name*/,
@@ -556,7 +549,6 @@ xmysqlnd_schema::get_db_objects(
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema::get_reference */
 xmysqlnd_schema *
 xmysqlnd_schema::get_reference()
 {
@@ -568,7 +560,6 @@ xmysqlnd_schema::get_reference()
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema::free_reference */
 enum_func_status
 xmysqlnd_schema::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -584,7 +575,6 @@ xmysqlnd_schema::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * erro
 /* }}} */
 
 
-/* {{{ xmysqlnd_schema::free_contents */
 void
 xmysqlnd_schema::free_contents()
 {

@@ -162,7 +162,6 @@ static int mysqlx_sql_statement_read_next_result(st_mysqlx_sql_statement_result*
 /* }}} */
 
 
-/* {{{ mysqlx_sql_statement_result::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

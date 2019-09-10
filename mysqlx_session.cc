@@ -736,7 +736,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, releaseSavepoint)
 /* }}} */
 
 
-/* {{{ mysqlx_session::close */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 {
 	DBG_ENTER("mysqlx_session::close");
@@ -758,7 +757,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 /* }}} */
 
 
-/* {{{ mysqlx_session::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

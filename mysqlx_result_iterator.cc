@@ -44,7 +44,6 @@ struct st_mysqlx__result_iterator : util::custom_allocable
 };
 
 
-/* {{{ mysqlx__result_iterator::dtor */
 static void
 XMYSQLND_METHOD(mysqlx__result_iterator, dtor)(zend_object_iterator * iter)
 {
@@ -62,7 +61,6 @@ XMYSQLND_METHOD(mysqlx__result_iterator, dtor)(zend_object_iterator * iter)
 /* }}} */
 
 
-/* {{{ mysqlx__result_iterator::valid */
 static int
 XMYSQLND_METHOD(mysqlx__result_iterator, valid)(zend_object_iterator * iter)
 {
@@ -76,7 +74,6 @@ XMYSQLND_METHOD(mysqlx__result_iterator, valid)(zend_object_iterator * iter)
 
 #include <ext/standard/php_var.h>
 
-/* {{{ mysqlx__result_iterator::current_data */
 static zval *
 XMYSQLND_METHOD(mysqlx__result_iterator, current_data)(zend_object_iterator * iter)
 {
@@ -88,7 +85,6 @@ XMYSQLND_METHOD(mysqlx__result_iterator, current_data)(zend_object_iterator * it
 /* }}} */
 
 
-/* {{{ mysqlx__result_iterator::fetch_current_data */
 static enum_func_status
 XMYSQLND_METHOD(mysqlx__result_iterator, fetch_current_data)(zend_object_iterator * iter)
 {
@@ -112,7 +108,6 @@ XMYSQLND_METHOD(mysqlx__result_iterator, fetch_current_data)(zend_object_iterato
 /* }}} */
 
 
-/* {{{ mysqlx__result_iterator::next */
 static void
 XMYSQLND_METHOD(mysqlx__result_iterator, next)(zend_object_iterator * iter)
 {
@@ -133,7 +128,6 @@ XMYSQLND_METHOD(mysqlx__result_iterator, next)(zend_object_iterator * iter)
 /* }}} */
 
 
-/* {{{ mysqlx__result_iterator::rewind */
 static void
 XMYSQLND_METHOD(mysqlx__result_iterator, rewind)(zend_object_iterator * iter)
 {

@@ -33,7 +33,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_stmt_result::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, init)(
 	XMYSQLND_STMT_RESULT* const /*result*/,
@@ -47,7 +46,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, init)(
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::next */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, next)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -62,7 +60,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, next)(XMYSQLND_STMT_RESULT * const result,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::fetch_current */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_current)(XMYSQLND_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -77,7 +74,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_current)(XMYSQLND_STMT_RESULT * cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::fetch_one */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_one)(XMYSQLND_STMT_RESULT * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -92,7 +88,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_one)(XMYSQLND_STMT_RESULT * const re
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::fetch_one_c */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_one_c)(XMYSQLND_STMT_RESULT * const result, const size_t row_cursor, zval ** row, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -107,7 +102,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_one_c)(XMYSQLND_STMT_RESULT * const 
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::fetch_all */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_all)(XMYSQLND_STMT_RESULT * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -122,7 +116,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_all)(XMYSQLND_STMT_RESULT * const re
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::fetch_all_c */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_all_c)(XMYSQLND_STMT_RESULT * const result, zval ** set, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -137,7 +130,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, fetch_all_c)(XMYSQLND_STMT_RESULT * const 
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::rewind */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, rewind)(XMYSQLND_STMT_RESULT * const result)
 {
@@ -152,7 +144,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, rewind)(XMYSQLND_STMT_RESULT * const resul
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::eof */
 static zend_bool
 XMYSQLND_METHOD(xmysqlnd_stmt_result, eof)(const XMYSQLND_STMT_RESULT * const result)
 {
@@ -167,7 +158,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, eof)(const XMYSQLND_STMT_RESULT * const re
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::create_row */
 static zval *
 XMYSQLND_METHOD(xmysqlnd_stmt_result, create_row)(XMYSQLND_STMT_RESULT * const result,
 													   const XMYSQLND_STMT_RESULT_META * const meta,
@@ -184,7 +174,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, create_row)(XMYSQLND_STMT_RESULT * const r
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::destroy_row */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_result, destroy_row)(XMYSQLND_STMT_RESULT * const result,
 														zval * row,
@@ -200,7 +189,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, destroy_row)(XMYSQLND_STMT_RESULT * const 
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::add_row */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, add_row)(XMYSQLND_STMT_RESULT * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -215,7 +203,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, add_row)(XMYSQLND_STMT_RESULT * const resu
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::get_row_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_stmt_result, get_row_count)(const XMYSQLND_STMT_RESULT * const result)
 {
@@ -230,7 +217,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, get_row_count)(const XMYSQLND_STMT_RESULT 
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::attach_rowset */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_rowset)(XMYSQLND_STMT_RESULT * const result, XMYSQLND_ROWSET * const rowset, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -248,7 +234,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_rowset)(XMYSQLND_STMT_RESULT * cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::attach_meta */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_meta)(
 					XMYSQLND_STMT_RESULT * const result,
@@ -267,7 +252,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_meta)(
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::attach_execution_state */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_execution_state)(XMYSQLND_STMT_RESULT * const result, XMYSQLND_STMT_EXECUTION_STATE * const exec_state)
 {
@@ -287,7 +271,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_execution_state)(XMYSQLND_STMT_RESU
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::attach_warning_list */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_warning_list)(XMYSQLND_STMT_RESULT * const result, XMYSQLND_WARNING_LIST * const warning_list)
 {
@@ -307,7 +290,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, attach_warning_list)(XMYSQLND_STMT_RESULT 
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::get_reference */
 static XMYSQLND_STMT_RESULT *
 XMYSQLND_METHOD(xmysqlnd_stmt_result, get_reference)(XMYSQLND_STMT_RESULT * const result)
 {
@@ -319,7 +301,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, get_reference)(XMYSQLND_STMT_RESULT * cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::free_reference */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result, free_reference)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -335,7 +316,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, free_reference)(XMYSQLND_STMT_RESULT * con
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::free_rows_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows_contents)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -348,7 +328,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows_contents)(XMYSQLND_STMT_RESULT *
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::free_rows */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -361,7 +340,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows)(XMYSQLND_STMT_RESULT * const re
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_result, free_contents)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -394,7 +372,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, free_contents)(XMYSQLND_STMT_RESULT * cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_result::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_result, dtor)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

@@ -52,7 +52,6 @@ struct st_mysqlx_warning
 }
 
 
-/* {{{ mysqlx_warning::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

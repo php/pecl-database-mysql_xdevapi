@@ -148,7 +148,6 @@ Session_auth_data::Session_auth_data() :
 	ssl_no_defaults{ true } {
 }
 
-/* {{{ xmysqlnd_session_data::get_scheme */
 std::string
 xmysqlnd_session_data::get_scheme(
 	const std::string& hostname,
@@ -191,7 +190,6 @@ xmysqlnd_session_data::get_scheme(
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::send_client_attributes */
 Mysqlx::Datatypes::Object*
 xmysqlnd_session_data::prepare_client_attr_object()
 {
@@ -233,7 +231,6 @@ xmysqlnd_session_data::prepare_client_attr_object()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::send_client_attributes */
 enum_func_status
 xmysqlnd_session_data::send_client_attributes()
 {
@@ -314,7 +311,6 @@ xmysqlnd_session_data::send_client_attributes()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::connect_handshake */
 enum_func_status
 xmysqlnd_session_data::connect_handshake(
 	const MYSQLND_CSTRING scheme_name,
@@ -343,7 +339,6 @@ xmysqlnd_session_data::connect_handshake(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::authenticate */
 enum_func_status
 xmysqlnd_session_data::authenticate(
 	const MYSQLND_CSTRING scheme_name,
@@ -363,7 +358,6 @@ xmysqlnd_session_data::authenticate(
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::connect */
 enum_func_status
 xmysqlnd_session_data::connect(
 	const util::string& def_schema,
@@ -496,7 +490,6 @@ xmysqlnd_session_data::connect(
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::quote_name */
 MYSQLND_STRING
 xmysqlnd_session_data::quote_name(const MYSQLND_CSTRING name)
 {
@@ -532,7 +525,6 @@ xmysqlnd_session_data::quote_name(const MYSQLND_CSTRING name)
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::get_error_no */
 unsigned int
 xmysqlnd_session_data::get_error_no()
 {
@@ -540,7 +532,6 @@ xmysqlnd_session_data::get_error_no()
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::get_error_str */
 const char *
 xmysqlnd_session_data::get_error_str()
 {
@@ -548,7 +539,6 @@ xmysqlnd_session_data::get_error_str()
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::get_sqlstate */
 const char *
 xmysqlnd_session_data::get_sqlstate()
 {
@@ -556,7 +546,6 @@ xmysqlnd_session_data::get_sqlstate()
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session_data::get_error_info */
 const MYSQLND_ERROR_INFO*
 xmysqlnd_session_data::get_error_info() const
 {
@@ -565,7 +554,6 @@ xmysqlnd_session_data::get_error_info() const
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::set_client_option */
 enum_func_status
 xmysqlnd_session_data::set_client_option(enum_xmysqlnd_client_option option,
 											const char * const value)
@@ -693,7 +681,6 @@ xmysqlnd_session_data::send_close()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::negotiate_client_api_capabilities */
 size_t
 xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 {
@@ -708,7 +695,6 @@ xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::is_session_properly_supported */
 bool xmysqlnd_session_data::is_session_properly_supported() const
 {
 	if (session_properly_supported) return *session_properly_supported;
@@ -732,7 +718,6 @@ bool xmysqlnd_session_data::is_session_properly_supported() const
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::get_client_id */
 size_t
 xmysqlnd_session_data::get_client_id()
 {
@@ -760,7 +745,6 @@ const st_xmysqlnd_session_on_error_bind noop__on_error = { nullptr, nullptr };
 const st_xmysqlnd_session_on_result_end_bind noop__on_result_end = { nullptr, nullptr };
 const st_xmysqlnd_session_on_statement_ok_bind noop__on_statement_ok = { nullptr, nullptr };
 
-/* {{{ xmysqlnd_session_state::get */
 enum xmysqlnd_session_state
 st_xmysqlnd_session_state::get() const
 {
@@ -771,7 +755,6 @@ st_xmysqlnd_session_state::get() const
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_state::set */
 void
 st_xmysqlnd_session_state::set(const enum xmysqlnd_session_state new_state)
 {
@@ -791,7 +774,6 @@ st_xmysqlnd_session_state::st_xmysqlnd_session_state()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::xmysqlnd_session_data */
 xmysqlnd_session_data::xmysqlnd_session_data(
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 	MYSQLND_STATS* mysqlnd_stats,
@@ -833,7 +815,6 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::xmysqlnd_session_data */
 xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexcept
 {
 	object_factory = rhs.object_factory;
@@ -877,7 +858,6 @@ xmysqlnd_session_data::~xmysqlnd_session_data()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::cleanup */
 void xmysqlnd_session_data::cleanup()
 {
 	DBG_ENTER("xmysqlnd_session_data::reset");
@@ -904,7 +884,6 @@ void xmysqlnd_session_data::cleanup()
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::free_contents */
 void xmysqlnd_session_data::free_contents()
 {
 	DBG_ENTER("xmysqlnd_session_data::free_contents");
@@ -1883,7 +1862,6 @@ void Gather_auth_mechanisms::add_auth_mechanism_if_supported(Auth_mechanism auth
 
 // ----------------------------------------------------------------------------
 
-/* {{{ xmysqlnd_session::xmysqlnd_session */
 xmysqlnd_session::xmysqlnd_session(
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 	MYSQLND_STATS* stats,
@@ -1900,7 +1878,6 @@ xmysqlnd_session::xmysqlnd_session(
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::xmysqlnd_session */
 xmysqlnd_session::xmysqlnd_session(xmysqlnd_session&& rhs) noexcept
 {
 	data = std::make_shared<xmysqlnd_session_data>(std::move(*rhs.data));
@@ -1927,7 +1904,6 @@ xmysqlnd_session::get_data()
 	return data;
 }
 
-/* {{{ xmysqlnd_session::connect */
 const enum_func_status
 xmysqlnd_session::connect(
 	const util::string& default_schema,
@@ -1947,7 +1923,6 @@ xmysqlnd_session::connect(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session::reset */
 const enum_func_status
 xmysqlnd_session::reset()
 {
@@ -1965,7 +1940,6 @@ xmysqlnd_session::reset()
 /* }}} */
 
 
-/* {{{ Uuid_format::Uuid_format */
 Uuid_format::Uuid_format() :
 	clock_seq{ 0 },
 	time_hi_and_version{ 0 },
@@ -1977,7 +1951,6 @@ Uuid_format::Uuid_format() :
 /* }}} */
 
 
-/* {{{ Uuid_format::get_uuid */
 Uuid_format::uuid_t Uuid_format::get_uuid()
 {
 	using uchar = unsigned char;
@@ -2014,7 +1987,6 @@ Uuid_format::uuid_t Uuid_format::get_uuid()
 /* }}} */
 
 
-/* {{{ Uuid_generator::Uuid_generator */
 Uuid_generator::Uuid_generator() :
 	last_timestamp{ 0 }
 {
@@ -2023,7 +1995,6 @@ Uuid_generator::Uuid_generator() :
 /* }}} */
 
 
-/* {{{ Uuid_generator::generate */
 Uuid_format::uuid_t Uuid_generator::generate()
 {
 	Uuid_format uuid;
@@ -2034,7 +2005,6 @@ Uuid_format::uuid_t Uuid_generator::generate()
 /* }}} */
 
 
-/* {{{ Uuid_generator::generate_session_node_info */
 void Uuid_generator::generate_session_node_info()
 {
 	std::random_device rd;
@@ -2056,7 +2026,6 @@ void Uuid_generator::generate_session_node_info()
 /* }}} */
 
 
-/* {{{ Uuid_generator::assign_node_id */
 void Uuid_generator::assign_node_id( Uuid_format &uuid )
 {
 	uuid.node_id = session_node_id;
@@ -2064,7 +2033,6 @@ void Uuid_generator::assign_node_id( Uuid_format &uuid )
 /* }}} */
 
 
-/* {{{ Uuid_generator::assign_timestamp */
 void Uuid_generator::assign_timestamp( Uuid_format& uuid )
 {
 	/*
@@ -2131,7 +2099,6 @@ xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, con
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::select_db */
 const enum_func_status
 xmysqlnd_session::select_db(const MYSQLND_CSTRING db)
 {
@@ -2144,7 +2111,6 @@ xmysqlnd_session::select_db(const MYSQLND_CSTRING db)
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::create_db */
 const enum_func_status
 xmysqlnd_session::create_db(const MYSQLND_CSTRING db)
 {
@@ -2157,7 +2123,6 @@ xmysqlnd_session::create_db(const MYSQLND_CSTRING db)
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::drop_db */
 const enum_func_status
 xmysqlnd_session::drop_db(const MYSQLND_CSTRING db)
 {
@@ -2286,7 +2251,6 @@ query_cb_handler_on_statement_ok(void * context, xmysqlnd_stmt * const stmt, con
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::query_cb */
 const enum_func_status
 xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 											const MYSQLND_CSTRING query,
@@ -2395,7 +2359,6 @@ xmysqlnd_session_on_warning(
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::query */
 const enum_func_status
 xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 										 const MYSQLND_CSTRING query,
@@ -2458,7 +2421,6 @@ xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::get_server_version */
 zend_ulong
 xmysqlnd_session::get_server_version()
 {
@@ -2520,7 +2482,6 @@ xmysqlnd_session::get_server_version()
 }
 /* }}} */
 
-/* {{{ xmysqlnd_session::create_statement_object */
 xmysqlnd_stmt *
 xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 {
@@ -2532,7 +2493,6 @@ xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::create_schema_object */
 xmysqlnd_schema *
 xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 {
@@ -2546,7 +2506,6 @@ xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::close */
 const enum_func_status
 xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
 {

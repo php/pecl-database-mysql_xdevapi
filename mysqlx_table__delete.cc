@@ -82,7 +82,6 @@ struct st_mysqlx_table__delete : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_table__delete::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

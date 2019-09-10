@@ -35,7 +35,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_table::xmysqlnd_table */
 xmysqlnd_table::xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const cur_obj_factory,
 										   xmysqlnd_schema * const cur_schema,
 										   const MYSQLND_CSTRING cur_table_name,
@@ -141,7 +140,6 @@ table_or_view_exists_in_database_op(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_table::exists_in_database */
 enum_func_status
 xmysqlnd_table::exists_in_database(
 		struct st_xmysqlnd_session_on_error_bind on_error,
@@ -211,7 +209,6 @@ check_is_view_op(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_table::is_view */
 enum_func_status
 xmysqlnd_table::is_view(
 	st_xmysqlnd_session_on_error_bind on_error,
@@ -284,7 +281,6 @@ table_sql_single_result_op_on_row(
 /* }}} */
 
 
-/* {{{ xmysqlnd_table::count */
 enum_func_status
 xmysqlnd_table::count(
 	struct st_xmysqlnd_session_on_error_bind on_error,
@@ -326,7 +322,6 @@ xmysqlnd_table::count(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_table::insert */
 xmysqlnd_stmt *
 xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 {
@@ -357,7 +352,6 @@ xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 /* }}} */
 
 
-/* {{{ xmysqlnd_table::opdelete */
 xmysqlnd_stmt *
 xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 {
@@ -421,7 +415,6 @@ xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 /* }}} */
 
 
-/* {{{ xmysqlnd_table::update */
 xmysqlnd_stmt *
 xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 {
@@ -483,7 +476,6 @@ xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 /* }}} */
 
 
-/* {{{ xmysqlnd_table::select */
 xmysqlnd_stmt *
 xmysqlnd_table::select(XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 {
@@ -541,7 +533,6 @@ xmysqlnd_table::select(XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 /* }}} */
 
 
-/* {{{ xmysqlnd_table::get_reference */
 xmysqlnd_table *
 xmysqlnd_table::get_reference()
 {
@@ -553,7 +544,6 @@ xmysqlnd_table::get_reference()
 /* }}} */
 
 
-/* {{{ xmysqlnd_table::free_reference */
 enum_func_status
 xmysqlnd_table::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -568,7 +558,6 @@ xmysqlnd_table::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error
 /* }}} */
 
 
-/* {{{ xmysqlnd_table::free_contents */
 void
 xmysqlnd_table::free_contents()
 {
@@ -582,7 +571,6 @@ xmysqlnd_table::free_contents()
 /* }}} */
 
 
-/* {{{ xmysqlnd_table::dtor */
 void
 xmysqlnd_table::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

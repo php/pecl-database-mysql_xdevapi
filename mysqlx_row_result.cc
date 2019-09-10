@@ -81,7 +81,6 @@ ZEND_END_ARG_INFO()
 	} \
 } \
 
-/* {{{ mysqlx_row_result::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

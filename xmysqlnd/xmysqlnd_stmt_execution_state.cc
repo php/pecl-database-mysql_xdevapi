@@ -27,7 +27,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_stmt_execution_state::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, init)(
 	XMYSQLND_STMT_EXECUTION_STATE* const /*state*/,
@@ -41,7 +40,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, init)(
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::get_affected_items_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_affected_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -51,7 +49,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_affected_items_count)(const X
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::get_matched_items_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_matched_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -61,7 +58,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_matched_items_count)(const XM
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::get_found_items_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_found_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -72,7 +68,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_found_items_count)(const XMYS
 
 
 
-/* {{{ xmysqlnd_stmt_execution_state::get_last_insert_id */
 static uint64_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_insert_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -82,7 +77,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_insert_id)(const XMYSQLN
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::get_generated_ids */
 static const mysqlx::util::vector<mysqlx::util::string> *
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_generated_ids)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -92,7 +86,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_generated_ids)(const XMYSQLND
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::set_affected_items_count */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
 {
@@ -104,7 +97,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count)(XMYSQLN
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::set_matched_items_count */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
 {
@@ -116,7 +108,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count)(XMYSQLND
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::set_found_items_count */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
 {
@@ -128,7 +119,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count)(XMYSQLND_S
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::add_generated_doc_id */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, add_generated_doc_id)(XMYSQLND_STMT_EXECUTION_STATE * const state,
 																	 const MYSQLND_STRING id)
@@ -140,7 +130,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, add_generated_doc_id)(XMYSQLND_ST
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::set_last_insert_id */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value)
 {
@@ -152,7 +141,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -166,7 +154,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXEC
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt_execution_state::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {

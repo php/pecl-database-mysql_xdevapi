@@ -546,7 +546,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_client__close, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-/* {{{ mysqlx_client::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

@@ -132,7 +132,6 @@ ZEND_END_ARG_INFO()
 	} \
 } \
 
-/* {{{ mysqlx_column_result::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -366,7 +365,6 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getSchemaName */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getSchemaName)
 {
 	DBG_ENTER("mysqlx_column_result::getSchemaName");
@@ -377,7 +375,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getSchemaName)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getTableName */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getTableName)
 {
 	DBG_ENTER("mysqlx_column_result::getTableName");
@@ -388,7 +385,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getTableName)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getTableLabel */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getTableLabel)
 {
 	DBG_ENTER("mysqlx_column_result::getTableLabel");
@@ -399,7 +395,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getTableLabel)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getColumnName */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getColumnName)
 {
 	DBG_ENTER("mysqlx_column_result::getColumnName");
@@ -410,7 +405,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getColumnName)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getColumnLabel */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getColumnLabel)
 {
 	DBG_ENTER("mysqlx_column_result::getColumnLabel");
@@ -421,7 +415,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getColumnLabel)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getLength */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getLength)
 {
 	DBG_ENTER("mysqlx_column_result::getLength");
@@ -432,7 +425,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getLength)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getFractionalDigits */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getFractionalDigits)
 {
 	DBG_ENTER("mysqlx_column_result::getFractionalDigits");
@@ -443,7 +435,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getFractionalDigits)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::isNumberSigned */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, isNumberSigned)
 {
 	DBG_ENTER("mysqlx_column_result::isNumberSigned");
@@ -454,7 +445,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, isNumberSigned)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getCollationName */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getCollationName)
 {
 	DBG_ENTER("mysqlx_column_result::getCollationName");
@@ -465,7 +455,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getCollationName)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getCharacterSetName */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getCharacterSetName)
 {
 	DBG_ENTER("mysqlx_column_result::getCharacterSetName");
@@ -476,7 +465,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getCharacterSetName)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::getType */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getType)
 {
 	DBG_ENTER("mysqlx_column_result::getType");
@@ -487,7 +475,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, getType)
 /* }}} */
 
 
-/* {{{ mysqlx_column_result::isPadded */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, isPadded)
 {
 	DBG_ENTER("mysqlx_column_result::isPadded");

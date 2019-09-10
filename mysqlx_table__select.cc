@@ -106,7 +106,6 @@ struct st_mysqlx_table__select : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_table__select::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -114,7 +113,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, __construct)
 /* }}} */
 
 
-/* {{{ mysqlx_table__select::where */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 {
 	st_mysqlx_table__select* object{nullptr};

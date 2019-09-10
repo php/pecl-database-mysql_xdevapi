@@ -58,7 +58,6 @@ struct st_mysqlx_execution_status : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_execution_status::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_execution_status, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

@@ -291,7 +291,6 @@ void Prepare_stmt_data::set_allocated_type(Mysqlx::Prepare::Prepare_OneOfMessage
 	Mysqlx::Sql::StmtExecute* msg);
 
 
-/* {{{ Prepare_stmt_data::prepare_ps_entry */
 template< typename MSG_T >
 Prepare_statement_entry
 Prepare_stmt_data::prepare_ps_entry( const MSG_T &msg )
@@ -303,7 +302,6 @@ Prepare_stmt_data::prepare_ps_entry( const MSG_T &msg )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::add_limit_expr */
 template< typename MSG_T >
 void Prepare_stmt_data::add_limit_expr(
 		MSG_T * msg,
@@ -324,7 +322,6 @@ void Prepare_stmt_data::add_limit_expr(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::handle_limit_expr */
 template< typename MSG_T >
 void Prepare_stmt_data::handle_limit_expr(
 		Prepare_statement_entry& prepare,
@@ -362,7 +359,6 @@ void Prepare_stmt_data::handle_limit_expr(
 	uint32_t bound_values_count);
 
 
-/* {{{ Prepare_stmt_data::add_message */
 template< typename MSG_T >
 std::pair<bool,uint32_t> Prepare_stmt_data::add_message(
 		MSG_T& msg,

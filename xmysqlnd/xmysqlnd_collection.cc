@@ -36,7 +36,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_collection::xmysqlnd_collection */
 xmysqlnd_collection::xmysqlnd_collection(
 								xmysqlnd_schema * const cur_schema,
 								const MYSQLND_CSTRING cur_collection_name,
@@ -143,7 +142,6 @@ collection_xplugin_op_on_row(
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::exists_in_database */
 enum_func_status
 xmysqlnd_collection::exists_in_database(
 	struct st_xmysqlnd_session_on_error_bind on_error,
@@ -210,7 +208,6 @@ collection_sql_single_result_op_on_row(
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::count */
 enum_func_status
 xmysqlnd_collection::count(
 	struct st_xmysqlnd_session_on_error_bind on_error,
@@ -251,7 +248,6 @@ xmysqlnd_collection::count(
 }
 /* }}} */
 
-/* {{{ xmysqlnd_collection::add */
 xmysqlnd_stmt *
 xmysqlnd_collection::add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 {
@@ -280,7 +276,6 @@ xmysqlnd_collection::add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::remove */
 xmysqlnd_stmt *
 xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
@@ -339,7 +334,6 @@ xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::modify */
 xmysqlnd_stmt *
 xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 {
@@ -397,7 +391,6 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::find */
 xmysqlnd_stmt*
 xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 {
@@ -448,7 +441,6 @@ xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::get_reference */
 xmysqlnd_collection *
 xmysqlnd_collection::get_reference()
 {
@@ -460,7 +452,6 @@ xmysqlnd_collection::get_reference()
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::free_reference */
 enum_func_status
 xmysqlnd_collection::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -475,7 +466,6 @@ xmysqlnd_collection::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * 
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::free_contents */
 void
 xmysqlnd_collection::free_contents()
 {
@@ -489,7 +479,6 @@ xmysqlnd_collection::free_contents()
 /* }}} */
 
 
-/* {{{ xmysqlnd_collection::cleanup */
 void
 xmysqlnd_collection::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

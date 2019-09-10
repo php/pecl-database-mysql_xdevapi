@@ -56,7 +56,6 @@ ZEND_END_ARG_INFO()
 
 
 
-/* {{{ mysqlx_expression::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
 	UNUSED(return_value);

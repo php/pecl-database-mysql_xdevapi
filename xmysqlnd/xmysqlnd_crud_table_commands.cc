@@ -134,7 +134,6 @@ xmysqlnd_crud_table__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx:
 /****************************** TABLE.INSERT() *******************************************************/
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::add_columns */
 void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 											const int num_of_columns)
 {
@@ -176,7 +175,6 @@ void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::add_column */
 void st_xmysqlnd_crud_table_op__insert::add_column(zval * column_zv)
 {
 	const MYSQLND_CSTRING columns_zv_str = {Z_STRVAL_P(column_zv), Z_STRLEN_P(column_zv)};
@@ -186,7 +184,6 @@ void st_xmysqlnd_crud_table_op__insert::add_column(zval * column_zv)
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::add_row */
 void st_xmysqlnd_crud_table_op__insert::add_row(zval* row_zv)
 {
 	zval new_row_zv;
@@ -196,7 +193,6 @@ void st_xmysqlnd_crud_table_op__insert::add_row(zval* row_zv)
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_columns */
 void st_xmysqlnd_crud_table_op__insert::bind_columns()
 {
 	for (auto& column_name : column_names)
@@ -207,7 +203,6 @@ void st_xmysqlnd_crud_table_op__insert::bind_columns()
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_column */
 void st_xmysqlnd_crud_table_op__insert::bind_column(const std::string& column_name)
 {
 	Mysqlx::Crud::Column* column = message.add_projection();
@@ -216,7 +211,6 @@ void st_xmysqlnd_crud_table_op__insert::bind_column(const std::string& column_na
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_rows */
 void st_xmysqlnd_crud_table_op__insert::bind_rows()
 {
 	for (auto& values_zv : rows_zv)
@@ -228,7 +222,6 @@ void st_xmysqlnd_crud_table_op__insert::bind_rows()
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_row */
 void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud::Insert_TypedRow* row)
 {
 	switch (Z_TYPE_P(values_zv))
@@ -251,7 +244,6 @@ void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_row_field */
 void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx::Crud::Insert_TypedRow* row)
 {
 	Mysqlx::Datatypes::Any any;
@@ -690,7 +682,6 @@ xmysqlnd_crud_table_update__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__UPDATE 
 
 /****************************** TABLE.SELECT() *******************************************************/
 
-/* {{{ st_xmysqlnd_crud_table_op__select::add_columns */
 void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 											const int num_of_columns)
 {

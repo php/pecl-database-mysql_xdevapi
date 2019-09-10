@@ -26,7 +26,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ Url::Url */
 Url::Url(const php_url* phpurl)
 	: scheme(to_string(phpurl->scheme))
 	, user(to_string(phpurl->user))
@@ -48,7 +47,6 @@ Url::Url(const php_url* phpurl)
 /* }}} */
 
 
-/* {{{ Url::empty */
 bool Url::empty() const
 {
 	return scheme.empty()

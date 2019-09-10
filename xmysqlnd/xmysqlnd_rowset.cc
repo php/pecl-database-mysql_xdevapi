@@ -33,7 +33,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_rowset::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, init)(XMYSQLND_ROWSET * const result,
 									   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
@@ -68,7 +67,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, init)(XMYSQLND_ROWSET * const result,
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::next */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, next)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -84,7 +82,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, next)(XMYSQLND_ROWSET * const result, MYSQLND_S
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::fetch_current */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, fetch_current)(XMYSQLND_ROWSET * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -100,7 +97,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, fetch_current)(XMYSQLND_ROWSET * const result, 
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::fetch_one */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, fetch_one)(XMYSQLND_ROWSET * const result, const size_t row_cursor, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -116,7 +112,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, fetch_one)(XMYSQLND_ROWSET * const result, cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::fetch_one_c */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, fetch_one_c)(XMYSQLND_ROWSET * const result, const size_t row_cursor, zval ** row, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -130,7 +125,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, fetch_one_c)(XMYSQLND_ROWSET * const result, co
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::fetch_all */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, fetch_all)(XMYSQLND_ROWSET * const result, zval * set, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -146,7 +140,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, fetch_all)(XMYSQLND_ROWSET * const result, zval
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::fetch_all_c */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, fetch_all_c)(XMYSQLND_ROWSET * const result, zval ** set, const zend_bool duplicate, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -160,7 +153,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, fetch_all_c)(XMYSQLND_ROWSET * const result, zv
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::rewind */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, rewind)(XMYSQLND_ROWSET * const result)
 {
@@ -176,7 +168,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, rewind)(XMYSQLND_ROWSET * const result)
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::eof */
 static zend_bool
 XMYSQLND_METHOD(xmysqlnd_rowset, eof)(const XMYSQLND_ROWSET * const result)
 {
@@ -192,7 +183,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, eof)(const XMYSQLND_ROWSET * const result)
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::create_row */
 static zval *
 XMYSQLND_METHOD(xmysqlnd_rowset, create_row)(XMYSQLND_ROWSET * const result,
 											 const XMYSQLND_STMT_RESULT_META * const meta,
@@ -211,7 +201,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, create_row)(XMYSQLND_ROWSET * const result,
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::destroy_row */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset, destroy_row)(XMYSQLND_ROWSET * const result,
 											  zval * row,
@@ -229,7 +218,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, destroy_row)(XMYSQLND_ROWSET * const result,
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::add_row */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, add_row)(XMYSQLND_ROWSET * const result, zval * row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -245,7 +233,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, add_row)(XMYSQLND_ROWSET * const result, zval *
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::get_row_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_rowset, get_row_count)(const XMYSQLND_ROWSET * const result)
 {
@@ -261,7 +248,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, get_row_count)(const XMYSQLND_ROWSET * const re
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::attach_meta */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset, attach_meta)(XMYSQLND_ROWSET * const result, XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -277,7 +263,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, attach_meta)(XMYSQLND_ROWSET * const result, XM
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::free_rows_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset, free_rows_contents)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -292,7 +277,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, free_rows_contents)(XMYSQLND_ROWSET * const res
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::free_rows */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset, free_rows)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -307,7 +291,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, free_rows)(XMYSQLND_ROWSET * const result, MYSQ
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset, free_contents)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -322,7 +305,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset, free_contents)(XMYSQLND_ROWSET * const result, 
 /* }}} */
 
 
-/* {{{ xmysqlnd_rowset::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset, dtor)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {

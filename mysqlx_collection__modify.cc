@@ -242,7 +242,6 @@ bool Collection_modify::bind(const util::zvalue& bind_variables)
 /* }}} */
 
 
-/* {{{ Collection_modify::prepare_value */
 drv::Modify_value Collection_modify::prepare_value(
 	const util::string_view& path,
 	util::zvalue value,
@@ -436,7 +435,6 @@ void Collection_modify::execute(zval* resultset)
 //------------------------------------------------------------------------------
 
 
-/* {{{ mysqlx_collection__modify::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

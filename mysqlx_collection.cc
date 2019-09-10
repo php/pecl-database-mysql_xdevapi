@@ -143,7 +143,6 @@ struct st_mysqlx_collection : public util::custom_allocable
 	} \
 } \
 
-/* {{{ mysqlx_collection::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

@@ -248,7 +248,6 @@ xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj,
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_collection_op__add::add_document */
 void st_xmysqlnd_crud_collection_op__add::add_document(zval* doc)
 {
 	zval new_doc;
@@ -258,7 +257,6 @@ void st_xmysqlnd_crud_collection_op__add::add_document(zval* doc)
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_crud_collection_op__add::bind_docs */
 void st_xmysqlnd_crud_collection_op__add::bind_docs()
 {
 	for (auto& values_zv : docs_zv)
@@ -957,7 +955,6 @@ struct st_xmysqlnd_pb_message_shell
 
 /****************************** SQL EXECUTE *******************************************************/
 
-/* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
 enum_func_status
 st_xmysqlnd_stmt_op__execute::bind_one_param(const zval * param_zv)
 {
@@ -968,7 +965,6 @@ st_xmysqlnd_stmt_op__execute::bind_one_param(const zval * param_zv)
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_stmt_op__execute::bind_one_stmt_param */
 enum_func_status
 st_xmysqlnd_stmt_op__execute::bind_one_param(const unsigned int param_no, const zval * param_zv)
 {
@@ -1006,7 +1002,6 @@ st_xmysqlnd_stmt_op__execute::bind_one_param(const unsigned int param_no, const 
 /* }}} */
 
 
-/* {{{ st_xmysqlnd_stmt_op__execute::finalize_bind */
 enum_func_status
 st_xmysqlnd_stmt_op__execute::finalize_bind()
 {

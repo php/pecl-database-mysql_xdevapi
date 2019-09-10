@@ -133,7 +133,6 @@ Collection_find::~Collection_find()
 /* }}} */
 
 
-/* {{{ mysqlx_collection__find::fields */
 bool Collection_find::fields(util::zvalue& fields)
 {
 	DBG_ENTER("Collection_find::fields");
@@ -191,7 +190,6 @@ bool Collection_find::fields(util::zvalue& fields)
 /* }}} */
 
 
-/* {{{ Collection_find::add_operation */
 bool Collection_find::add_operation(
 	Collection_find::Operation operation,
 	zval* sort_expressions,
@@ -421,14 +419,12 @@ Mysqlx::Crud::Find* Collection_find::get_stmt()
 //------------------------------------------------------------------------------
 
 
-/* {{{ mysqlx_collection__find::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 /* }}} */
 
-/* {{{ mysqlx_collection__find::fields */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 {
 	DBG_ENTER("mysqlx_collection__find::fields");

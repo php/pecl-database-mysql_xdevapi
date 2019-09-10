@@ -111,7 +111,6 @@ struct st_mysqlx_schema : public util::custom_allocable
 	} \
 } \
 
-/* {{{ mysqlx_schema::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

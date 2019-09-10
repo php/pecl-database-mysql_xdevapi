@@ -38,7 +38,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_stmt::init */
 xmysqlnd_stmt::xmysqlnd_stmt(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const obj_factory,
 										  XMYSQLND_SESSION cur_session)
 {
@@ -49,7 +48,6 @@ xmysqlnd_stmt::xmysqlnd_stmt(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_fa
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::send_raw_message */
 enum_func_status
 xmysqlnd_stmt::send_raw_message(xmysqlnd_stmt * const stmt,
 													  const struct st_xmysqlnd_pb_message_shell message_shell,
@@ -76,7 +74,6 @@ xmysqlnd_stmt::send_raw_message(xmysqlnd_stmt * const stmt,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::create_rowset_fwd */
 static XMYSQLND_ROWSET * create_rowset_fwd(void * context)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
@@ -94,7 +91,6 @@ static XMYSQLND_ROWSET * create_rowset_fwd(void * context)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::create_rowset_buffered */
 static XMYSQLND_ROWSET * create_rowset_buffered(void * context)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
@@ -106,7 +102,6 @@ static XMYSQLND_ROWSET * create_rowset_buffered(void * context)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::create_meta */
 static XMYSQLND_STMT_RESULT_META *
 XMYSQLND_METHOD(xmysqlnd_stmt, create_meta)(void * context)
 {
@@ -119,7 +114,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt, create_meta)(void * context)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::create_meta_field */
 static XMYSQLND_RESULT_FIELD_META * create_meta_field(void * context)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
@@ -131,7 +125,6 @@ static XMYSQLND_RESULT_FIELD_META * create_meta_field(void * context)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_meta_field */
 static const enum_hnd_func_status handler_on_row_field(void * context,
 														  const MYSQLND_CSTRING buffer,
 														  const unsigned int idx,
@@ -175,7 +168,6 @@ static const enum_hnd_func_status handler_on_row_field(void * context,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_meta_field */
 static const enum_hnd_func_status
 handler_on_meta_field(void * context, st_xmysqlnd_result_field_meta* field)
 {
@@ -196,7 +188,6 @@ handler_on_meta_field(void * context, st_xmysqlnd_result_field_meta* field)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_warning */
 static const enum_hnd_func_status
 handler_on_warning(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
 {
@@ -218,7 +209,6 @@ handler_on_warning(void * context, const enum xmysqlnd_stmt_warning_level level,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_error */
 static const enum_hnd_func_status
 handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
@@ -235,7 +225,6 @@ handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING 
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_exec_state_change */
 static const enum_hnd_func_status
 handler_on_exec_state_change(void * context, const enum xmysqlnd_execution_state_type type, const size_t value)
 {
@@ -270,7 +259,6 @@ handler_on_exec_state_change(void * context, const enum xmysqlnd_execution_state
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_generated_doc_ids */
 static const enum_hnd_func_status
 handler_on_generated_doc_ids(void * context, const MYSQLND_STRING id)
 {
@@ -283,7 +271,6 @@ handler_on_generated_doc_ids(void * context, const MYSQLND_STRING id)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_trx_state_change */
 static const enum_hnd_func_status
 handler_on_trx_state_change(void* /*context*/, const enum xmysqlnd_transaction_state_type type)
 {
@@ -299,7 +286,6 @@ handler_on_trx_state_change(void* /*context*/, const enum xmysqlnd_transaction_s
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_resultset_end */
 static const enum_hnd_func_status
 handler_on_resultset_end(void * context, const zend_bool has_more)
 {
@@ -315,7 +301,6 @@ handler_on_resultset_end(void * context, const zend_bool has_more)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::handler_on_statement_ok */
 static const enum_hnd_func_status
 handler_on_statement_ok(void * context)
 {
@@ -332,7 +317,6 @@ handler_on_statement_ok(void * context)
 
 
 
-/* {{{ xmysqlnd_stmt::read_one_result */
 enum_func_status
 xmysqlnd_stmt::read_one_result(xmysqlnd_stmt * const stmt,
 													 const struct st_xmysqlnd_stmt_on_row_bind on_row,
@@ -432,7 +416,6 @@ xmysqlnd_stmt::read_one_result(xmysqlnd_stmt * const stmt,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::read_all_results */
 enum_func_status
 xmysqlnd_stmt::read_all_results(xmysqlnd_stmt * const stmt,
 													  const struct st_xmysqlnd_stmt_on_row_bind on_row,
@@ -467,7 +450,6 @@ xmysqlnd_stmt::read_all_results(xmysqlnd_stmt * const stmt,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::has_more_results */
 zend_bool
 xmysqlnd_stmt::has_more_results(xmysqlnd_stmt * stmt)
 {
@@ -478,7 +460,6 @@ xmysqlnd_stmt::has_more_results(xmysqlnd_stmt * stmt)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::get_buffered_result */
 XMYSQLND_STMT_RESULT *
 xmysqlnd_stmt::get_buffered_result(xmysqlnd_stmt * const stmt,
 														 zend_bool * const has_more_results,
@@ -587,7 +568,6 @@ xmysqlnd_stmt::get_buffered_result(xmysqlnd_stmt * const stmt,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::get_fwd_result */
 XMYSQLND_STMT_RESULT *
 xmysqlnd_stmt::get_fwd_result(xmysqlnd_stmt * const stmt,
 													const size_t rows,
@@ -682,7 +662,6 @@ xmysqlnd_stmt::get_fwd_result(xmysqlnd_stmt * const stmt,
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::skip_one_result */
 enum_func_status
 xmysqlnd_stmt::skip_one_result(xmysqlnd_stmt * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -732,7 +711,6 @@ xmysqlnd_stmt::skip_one_result(xmysqlnd_stmt * const stmt, zend_bool * const has
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::skip_all_results */
 enum_func_status
 xmysqlnd_stmt::skip_all_results(xmysqlnd_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
@@ -747,7 +725,6 @@ xmysqlnd_stmt::skip_all_results(xmysqlnd_stmt * const stmt, MYSQLND_STATS * cons
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::get_reference */
 xmysqlnd_stmt *
 xmysqlnd_stmt::get_reference(xmysqlnd_stmt * const stmt)
 {
@@ -759,7 +736,6 @@ xmysqlnd_stmt::get_reference(xmysqlnd_stmt * const stmt)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::free_reference */
 enum_func_status
 xmysqlnd_stmt::free_reference(xmysqlnd_stmt * const stmt)
 {
@@ -774,7 +750,6 @@ xmysqlnd_stmt::free_reference(xmysqlnd_stmt * const stmt)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::free_contents */
 void
 xmysqlnd_stmt::free_contents(xmysqlnd_stmt * const /*stmt*/)
 {
@@ -784,7 +759,6 @@ xmysqlnd_stmt::free_contents(xmysqlnd_stmt * const /*stmt*/)
 /* }}} */
 
 
-/* {{{ xmysqlnd_stmt::cleanup */
 void
 xmysqlnd_stmt::cleanup(xmysqlnd_stmt * const stmt)
 {
@@ -822,7 +796,6 @@ xmysqlnd_stmt_free(xmysqlnd_stmt * const stmt, MYSQLND_STATS * stats, MYSQLND_ER
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::Prepare_stmt_data */
 Prepare_stmt_data::Prepare_stmt_data() :
 	next_ps_id{ DEFAULT_PS_ID },
     ps_supported{ true }
@@ -832,7 +805,6 @@ Prepare_stmt_data::Prepare_stmt_data() :
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::get_ps_entry */
 size_t
 Prepare_stmt_data::get_ps_entry( const google::protobuf::Message& msg )
 {
@@ -851,7 +823,6 @@ Prepare_stmt_data::get_ps_entry( const google::protobuf::Message& msg )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::get_ps_entry */
 size_t
 Prepare_stmt_data::get_ps_entry( const uint32_t msg_id )
 {
@@ -869,7 +840,6 @@ Prepare_stmt_data::get_ps_entry( const uint32_t msg_id )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::set_allocated_type */
 template<>
 void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
 											Mysqlx::Crud::Insert* msg )
@@ -880,7 +850,6 @@ void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessag
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::set_allocated_type */
 template<>
 void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
 											Mysqlx::Crud::Find* msg )
@@ -892,7 +861,6 @@ void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessag
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::set_allocated_type */
 template<>
 void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
 											Mysqlx::Crud::Update* msg )
@@ -904,7 +872,6 @@ void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessag
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::set_allocated_type */
 template<>
 void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
 											Mysqlx::Crud::Delete* msg )
@@ -916,7 +883,6 @@ void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessag
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::set_allocated_type */
 template<>
 void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessage* one_msg,
                                             Mysqlx::Sql::StmtExecute* msg )
@@ -927,7 +893,6 @@ void Prepare_stmt_data::set_allocated_type( Mysqlx::Prepare::Prepare_OneOfMessag
 }
 /* }}} */
 
-/* {{{ Prepare_stmt_data::assign_session */
 void
 Prepare_stmt_data::assign_session( XMYSQLND_SESSION session_obj )
 {
@@ -936,7 +901,6 @@ Prepare_stmt_data::assign_session( XMYSQLND_SESSION session_obj )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::send_prepare_msg */
 bool
 Prepare_stmt_data::send_prepare_msg( uint32_t message_id )
 {
@@ -973,7 +937,6 @@ Prepare_stmt_data::send_prepare_msg( uint32_t message_id )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::set_ps_server_error */
 void
 Prepare_stmt_data::set_ps_server_error( const uint32_t message_code )
 {
@@ -982,7 +945,6 @@ Prepare_stmt_data::set_ps_server_error( const uint32_t message_code )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::get_prepare_resp */
 bool
 Prepare_stmt_data::get_prepare_resp( drv::xmysqlnd_stmt * stmt )
 {
@@ -1001,7 +963,6 @@ Prepare_stmt_data::get_prepare_resp( drv::xmysqlnd_stmt * stmt )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::add_limit_expr_mutable_arg */
 void Prepare_stmt_data::add_limit_expr_mutable_arg(
 			Mysqlx::Prepare::Execute& execute_msg,
 			const int32_t value
@@ -1022,7 +983,6 @@ void Prepare_stmt_data::add_limit_expr_mutable_arg(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::send_execute_msg */
 xmysqlnd_stmt *
 Prepare_stmt_data::send_execute_msg(
 			uint32_t message_id
@@ -1076,7 +1036,6 @@ Prepare_stmt_data::send_execute_msg(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::bind_values */
 bool Prepare_stmt_data::bind_values(
 			uint32_t message_id,
 			std::vector<Mysqlx::Datatypes::Scalar*> bound_values
@@ -1092,7 +1051,6 @@ bool Prepare_stmt_data::bind_values(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::bind_values */
 bool Prepare_stmt_data::bind_values(
 			uint32_t message_id,
 			zval* params,
@@ -1116,7 +1074,6 @@ bool Prepare_stmt_data::bind_values(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::prepare_msg_delivered */
 bool Prepare_stmt_data::prepare_msg_delivered( const uint32_t message_id )
 {
 	size_t db_idx = get_ps_entry( message_id );
@@ -1128,7 +1085,6 @@ bool Prepare_stmt_data::prepare_msg_delivered( const uint32_t message_id )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::set_supported_ps */
 void Prepare_stmt_data::set_supported_ps( bool supported )
 {
 	ps_supported = supported;
@@ -1136,7 +1092,6 @@ void Prepare_stmt_data::set_supported_ps( bool supported )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::prepare_msg_delivered */
 bool Prepare_stmt_data::is_ps_supported() const
 {
 	return ps_supported;
@@ -1144,7 +1099,6 @@ bool Prepare_stmt_data::is_ps_supported() const
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::is_bind_finalized */
 bool Prepare_stmt_data::is_bind_finalized( const uint32_t message_id )
 {
 	auto idx = get_ps_entry( message_id );
@@ -1156,7 +1110,6 @@ bool Prepare_stmt_data::is_bind_finalized( const uint32_t message_id )
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::set_finalized_bind */
 void Prepare_stmt_data::set_finalized_bind(
 			const uint32_t message_id,
 			const bool finalized
@@ -1193,7 +1146,6 @@ const enum_hnd_func_status prepare_st_on_error_handler(void * context,
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::handle_limit_expr */
 template<>
 void Prepare_stmt_data::handle_limit_expr(
 			Prepare_statement_entry& prepare,
@@ -1206,7 +1158,6 @@ void Prepare_stmt_data::handle_limit_expr(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::common_handle_limit_expr */
 template< typename MSG_T >
 void common_handle_limit_expr(
 			Prepare_statement_entry& prepare,
@@ -1254,7 +1205,6 @@ void common_handle_limit_expr(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::handle_limit_expr */
 template<>
 void Prepare_stmt_data::handle_limit_expr(
 			Prepare_statement_entry& prepare,
@@ -1267,7 +1217,6 @@ void Prepare_stmt_data::handle_limit_expr(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::handle_limit_expr */
 template<>
 void Prepare_stmt_data::handle_limit_expr(
 			Prepare_statement_entry& prepare,
@@ -1280,7 +1229,6 @@ void Prepare_stmt_data::handle_limit_expr(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::handle_limit_expr */
 template<>
 void Prepare_stmt_data::handle_limit_expr(
 			Prepare_statement_entry& prepare,
@@ -1293,7 +1241,6 @@ void Prepare_stmt_data::handle_limit_expr(
 /* }}} */
 
 
-/* {{{ Prepare_stmt_data::handle_limit_expr */
 template<>
 void Prepare_stmt_data::handle_limit_expr(
             Prepare_statement_entry& prepare,

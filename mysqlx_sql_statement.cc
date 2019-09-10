@@ -76,7 +76,6 @@ ZEND_END_ARG_INFO()
 	} \
 } \
 
-/* {{{ mysqlx_sql_statement::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -948,7 +947,6 @@ void execute_new_statement_read_response(
 /* }}} */
 
 
-/* {{{ mysqlx_statement::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

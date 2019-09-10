@@ -37,7 +37,6 @@ namespace drv {
 #define XMYSQLND_PAYLOAD_LENGTH_STORE	int4store
 #define XMYSQLND_PAYLOAD_LENGTH_LOAD 	uint4korr
 
-/* {{{ xmysqlnd_pfc::reset */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, reset)(XMYSQLND_PFC * const /*pfc*/, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {
@@ -47,7 +46,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, reset)(XMYSQLND_PFC * const /*pfc*/, MYSQLND_STATS
 /* }}} */
 
 
-/* {{{ xmysqlnd_pfc::send */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 									MYSQLND_VIO * const vio,
@@ -110,7 +108,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 /* }}} */
 
 
-/* {{{ xmysqlnd_pfc::receive */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const /*pfc*/,
 									   MYSQLND_VIO * const vio,
@@ -157,7 +154,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const /*pfc*/,
 /* }}} */
 
 
-/* {{{ xmysqlnd_pfc::set_client_option */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const /*pfc*/, enum_xmysqlnd_client_option option, const char * const /*value*/)
 {
@@ -168,7 +164,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const /*pfc*/, e
 /* }}} */
 
 
-/* {{{ xmysqlnd_pfc::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_pfc, free_contents)(XMYSQLND_PFC * /*pfc*/)
 {
@@ -179,7 +174,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, free_contents)(XMYSQLND_PFC * /*pfc*/)
 /* }}} */
 
 
-/* {{{ xmysqlnd_pfc::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const /*pfc*/, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const /*object_factory*/, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {
@@ -189,7 +183,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const /*pfc*/, const MYSQLND_
 /* }}} */
 
 
-/* {{{ xmysqlnd_pfc::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_pfc, dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {

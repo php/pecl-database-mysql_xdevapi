@@ -258,7 +258,6 @@ void Collection_add::execute(zval* resultset)
 //------------------------------------------------------------------------------
 
 
-/* {{{ mysqlx_collection__add::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
