@@ -66,7 +66,6 @@ ZEND_END_ARG_INFO()
 
 //------------------------------------------------------------------------------
 
-/* {{{ Collection_remove::init() */
 bool Collection_remove::init(
 	xmysqlnd_collection* coll,
 	const util::string_view& search_expression)
@@ -84,7 +83,6 @@ bool Collection_remove::init(
 /* }}} */
 
 
-/* {{{ Collection_remove::~Collection_remove() */
 Collection_remove::~Collection_remove()
 {
 	if (remove_op) {

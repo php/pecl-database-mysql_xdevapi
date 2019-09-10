@@ -22,14 +22,12 @@ namespace mysqlx {
 namespace devapi {
 namespace parser {
 
-/* {{{ mysqlx::devapi::parser::Args_conv::Args_conv */
 Args_conv::Args_conv( std::vector<std::string>& placeholders ) :
 	placeholders{ placeholders }
 {}
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Args_conv::conv_placeholder */
 unsigned Args_conv::conv_placeholder( const cdk::protocol::mysqlx::string& parm )
 {
 	const unsigned int next = static_cast<unsigned int>(placeholders.size());
@@ -39,7 +37,6 @@ unsigned Args_conv::conv_placeholder( const cdk::protocol::mysqlx::string& parm 
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::parse */
 Mysqlx::Expr::Expr* parse( const std::string& expression,
 						   const bool doc_datamodel,
 						   std::vector< std::string >& placeholders )
@@ -63,7 +60,6 @@ Mysqlx::Expr::Expr* parse( const std::string& expression,
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::parse */
 Mysqlx::Expr::Expr* parse( const std::string& expression,
 						   const bool doc_datamodel )
 {
@@ -82,7 +78,6 @@ Mysqlx::Expr::Expr* parse( const std::string& expression,
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Expr_builder::Expr_builder */
 Expr_builder::Expr_builder( Mysqlx::Expr::Expr& msg,
 							cdk::protocol::mysqlx::Args_conv* conv )
 {
@@ -91,7 +86,6 @@ Expr_builder::Expr_builder( Mysqlx::Expr::Expr& msg,
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_builder::reset */
 void Order_builder::reset( Builder_base::Message& msg,
 						   cdk::protocol::mysqlx::Args_conv* conv )
 {
@@ -101,7 +95,6 @@ void Order_builder::reset( Builder_base::Message& msg,
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_builder::sort_key */
 Order_builder::Expr_prc* Order_builder::sort_key( cdk::api::Sort_direction::value dir )
 {
 	m_msg->set_direction( dir == cdk::api::Sort_direction::ASC ?
@@ -111,7 +104,6 @@ Order_builder::Expr_prc* Order_builder::sort_key( cdk::api::Sort_direction::valu
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by_item::Order_by_item */
 Order_by_item::Order_by_item( const char* expr,
 							  cdk::Sort_direction::value sort_direction,
 							  ::parser::Parser_mode::value mode ) :
@@ -122,7 +114,6 @@ Order_by_item::Order_by_item( const char* expr,
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by_item::process */
 void Order_by_item::process( cdk::Expression::Processor& prc ) const
 {
 	::parser::Expression_parser parser( parser_mode, expression );
@@ -131,7 +122,6 @@ void Order_by_item::process( cdk::Expression::Processor& prc ) const
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by_item::direction */
 cdk::Sort_direction::value Order_by_item::direction() const
 {
 	return sort_direction;
@@ -139,13 +129,11 @@ cdk::Sort_direction::value Order_by_item::direction() const
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by::Order_by */
 Order_by::Order_by( ::parser::Parser_mode::value mode ) : parser_mode( mode )
 {}
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by::add_item */
 void Order_by::add_item( const char* expr,
 						 cdk::Sort_direction::value sort_direction )
 {
@@ -154,7 +142,6 @@ void Order_by::add_item( const char* expr,
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by::clear */
 void Order_by::clear()
 {
 	item_list.clear();
@@ -162,7 +149,6 @@ void Order_by::clear()
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by::count */
 uint32_t Order_by::count() const
 {
 	return static_cast<uint32_t>(item_list.size());
@@ -170,7 +156,6 @@ uint32_t Order_by::count() const
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by::process */
 void Order_by::process( Processor& prc ) const
 {
 	prc.list_begin();
@@ -189,7 +174,6 @@ void Order_by::process( Processor& prc ) const
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by::get_direction */
 cdk::Sort_direction::value Order_by::get_direction( uint32_t pos ) const
 {
 	return item_list[pos].direction();
@@ -197,7 +181,6 @@ cdk::Sort_direction::value Order_by::get_direction( uint32_t pos ) const
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Expr_to_doc_prc_converter::Expr_to_doc_prc_converter */
 Expr_to_doc_prc_converter::Doc_prc* Expr_to_doc_prc_converter::doc()
 {
 	return m_proc;
@@ -205,7 +188,6 @@ Expr_to_doc_prc_converter::Doc_prc* Expr_to_doc_prc_converter::doc()
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Expr_to_doc_prc_converter::scalar */
 Expr_to_doc_prc_converter::Scalar_prc* Expr_to_doc_prc_converter::scalar()
 {
 	throw std::runtime_error( "Document expected" );
@@ -213,7 +195,6 @@ Expr_to_doc_prc_converter::Scalar_prc* Expr_to_doc_prc_converter::scalar()
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Expr_to_doc_prc_converter::arr */
 Expr_to_doc_prc_converter::List_prc* Expr_to_doc_prc_converter::arr()
 {
 	throw std::runtime_error( "Document expected" );
@@ -221,7 +202,6 @@ Expr_to_doc_prc_converter::List_prc* Expr_to_doc_prc_converter::arr()
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_builder::reset */
 void Projection_builder::reset( Projection_builder::Message& msg,
 								cdk::protocol::mysqlx::Args_conv* conv )
 {
@@ -231,7 +211,6 @@ void Projection_builder::reset( Projection_builder::Message& msg,
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_builder::expr */
 Projection_builder::Expr_prc* Projection_builder::expr()
 {
 	return &expression_builder;
@@ -239,7 +218,6 @@ Projection_builder::Expr_prc* Projection_builder::expr()
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_builder::alias */
 void Projection_builder::alias( const cdk::foundation::string& a )
 {
 	m_msg->set_alias( a );
@@ -247,7 +225,6 @@ void Projection_builder::alias( const cdk::foundation::string& a )
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_list::Projection_list */
 Projection_list::Projection_list( bool doc_datamodel )
 {
 	if ( doc_datamodel ) {
@@ -259,7 +236,6 @@ Projection_list::Projection_list( bool doc_datamodel )
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_list::process */
 void Projection_list::process( cdk::Projection::Processor& prc ) const
 {
 	prc.list_begin();
@@ -276,7 +252,6 @@ void Projection_list::process( cdk::Projection::Processor& prc ) const
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_list::add_value */
 void Projection_list::add_value( const char* val )
 {
 	values.push_back( val );
@@ -284,7 +259,6 @@ void Projection_list::add_value( const char* val )
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_list::clear */
 void Projection_list::clear()
 {
 	values.clear();
@@ -292,7 +266,6 @@ void Projection_list::clear()
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_list::count */
 uint32_t Projection_list::count() const
 {
 	return static_cast<uint32_t>(values.size());
@@ -300,7 +273,6 @@ uint32_t Projection_list::count() const
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_list::process */
 void Projection_list::process( cdk::Expression::Document::Processor& prc ) const
 {
 	::parser::Expression_parser parser( ::parser::Parser_mode::DOCUMENT, values[0] );

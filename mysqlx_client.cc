@@ -552,7 +552,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, __construct)
 }
 /* }}} */
 
-/* {{{ mysqlx_client::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 {
 	DBG_ENTER("mysqlx_client::getSession");
@@ -572,7 +571,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 }
 /* }}} */
 
-/* {{{ mysqlx_client::close() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 {
 	DBG_ENTER("mysqlx_client::close");

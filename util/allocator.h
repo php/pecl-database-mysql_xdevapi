@@ -180,7 +180,6 @@ using permanent_allocator = allocator<T, permanent_tag_t>;
 
 namespace internal {
 
-/* {{{ mysqlx::util::internal::allocable */
 template<typename allocation_tag>
 class allocable
 {

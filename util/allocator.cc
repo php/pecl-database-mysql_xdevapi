@@ -29,7 +29,6 @@ const permanent_tag_t permanent_tag{};
 namespace internal
 {
 
-/* {{{ mysqlx::util::internal::mem_alloc */
 void* mem_alloc(std::size_t bytes_count)
 {
 	void* ptr = mnd_ecalloc(1, bytes_count);
@@ -41,7 +40,6 @@ void* mem_alloc(std::size_t bytes_count)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::internal::mem_free */
 void mem_free(void* ptr)
 {
 	mnd_efree(ptr);
@@ -50,7 +48,6 @@ void mem_free(void* ptr)
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::internal::mem_permanent_alloc */
 void* mem_permanent_alloc(std::size_t bytes_count)
 {
 	void* ptr = mnd_pecalloc(1, bytes_count, true);
@@ -62,7 +59,6 @@ void* mem_permanent_alloc(std::size_t bytes_count)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::internal::mem_permanent_free */
 void mem_permanent_free(void* ptr)
 {
 	mnd_pefree(ptr, true);

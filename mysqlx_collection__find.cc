@@ -97,7 +97,6 @@ ZEND_END_ARG_INFO()
 //------------------------------------------------------------------------------
 
 
-/* {{{ Collection_find::init() */
 bool Collection_find::init(
 	xmysqlnd_collection* coll,
 	const util::string_view& search_expression)
@@ -119,7 +118,6 @@ bool Collection_find::init(
 /* }}} */
 
 
-/* {{{ Collection_find::~Collection_find() */
 Collection_find::~Collection_find()
 {
 	if (find_op) {

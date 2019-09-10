@@ -846,7 +846,6 @@ xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexce
 /* }}} */
 
 
-/* {{{ xmysqlnd_session_data::~xmysqlnd_session_data */
 xmysqlnd_session_data::~xmysqlnd_session_data()
 {
 	DBG_ENTER("xmysqlnd_session_data::~xmysqlnd_session_data");
@@ -1890,7 +1889,6 @@ xmysqlnd_session::xmysqlnd_session(xmysqlnd_session&& rhs) noexcept
 /* }}} */
 
 
-/* {{{ xmysqlnd_session::~xmysqlnd_session */
 xmysqlnd_session::~xmysqlnd_session()
 {
 	DBG_ENTER("xmysqlnd_session::~xmysqlnd_session");

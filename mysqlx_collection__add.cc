@@ -142,7 +142,6 @@ collection_add_array(
 //------------------------------------------------------------------------------
 
 
-/* {{{ Collection_add::init() */
 bool Collection_add::add_docs(
 	xmysqlnd_collection* coll,
 	zval* documents,
@@ -182,7 +181,6 @@ bool Collection_add::add_docs(
 /* }}} */
 
 
-/* {{{ Collection_add::init() */
 bool Collection_add::add_docs(
 	xmysqlnd_collection* coll,
 	const util::string_view& /*doc_id*/,
@@ -195,7 +193,6 @@ bool Collection_add::add_docs(
 /* }}} */
 
 
-/* {{{ Collection_add::~Collection_add() */
 Collection_add::~Collection_add()
 {
 	if (add_op) {
@@ -209,7 +206,6 @@ Collection_add::~Collection_add()
 /* }}} */
 
 
-/* {{{ Collection_add::execute() */
 void Collection_add::execute(zval* resultset)
 {
 	DBG_ENTER("Collection_add::execute");

@@ -156,49 +156,42 @@ string to_error_msg(unsigned int code, const string& what)
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code)
 	: xdevapi_exception(code, nullptr)
 {
 }
 /* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code, const string& msg)
 	: xdevapi_exception(static_cast<unsigned int>(code), msg)
 {
 }
 /* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code, const char* msg)
 	: xdevapi_exception(static_cast<unsigned int>(code), General_sql_state, msg)
 {
 }
 /* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code, const std::string& msg)
 	: xdevapi_exception(code, util::to_string(msg))
 {
 }
 /* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& msg)
 	: xdevapi_exception(code, General_sql_state, msg)
 {
 }
 /* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const char* sql_state, const char* msg)
 	: xdevapi_exception(code, to_string(sql_state), to_string(msg))
 {
 }
 /* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
 	: std::runtime_error(prepare_reason_msg(code, sql_state, msg).c_str())
 	, code(code)
@@ -208,14 +201,12 @@ xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state,
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, _zend_class_entry* ce)
 	: doc_ref_exception(severity, util::string("invalid object of class ") + ZSTR_VAL(ce->name))
 {
 }
 /* }}} */
 
-/* {{{ mysqlx::util::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
 	: std::runtime_error(msg.c_str())
 	, severity(severity)

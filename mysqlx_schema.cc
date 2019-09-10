@@ -472,7 +472,6 @@ mysqlx_get_database_objects(
 }
 /* }}} */
 
-/* {{{ mysqlx_session::getTables() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTables)
 {
 	zval* object_zv{nullptr};
@@ -493,7 +492,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTables)
 /* }}} */
 
 
-/* {{{ mysqlx_session::getCollections() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 {
 	zval* object_zv{nullptr};

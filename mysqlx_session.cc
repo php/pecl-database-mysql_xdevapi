@@ -241,7 +241,6 @@ mysqlx_session_command_handler_on_error(
 /* }}} */
 
 
-/* {{{ mysqlx_session::getSchemas() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 {
 	DBG_ENTER("mysqlx_session::getSchemas");
@@ -279,7 +278,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 /* }}} */
 
 
-/* {{{ mysqlx_session::getDefaultSchema() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 {
 	DBG_ENTER("mysqlx_session::getDefaultSchema");

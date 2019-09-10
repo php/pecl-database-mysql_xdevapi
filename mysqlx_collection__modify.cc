@@ -102,7 +102,6 @@ ZEND_END_ARG_INFO()
 //------------------------------------------------------------------------------
 
 
-/* {{{ Collection_modify::init() */
 bool Collection_modify::init(
 	xmysqlnd_collection* coll,
 	const util::string_view& search_expression)
@@ -122,7 +121,6 @@ bool Collection_modify::init(
 /* }}} */
 
 
-/* {{{ Collection_modify::~Collection_modify() */
 Collection_modify::~Collection_modify()
 {
 	if (modify_op) {
@@ -136,7 +134,6 @@ Collection_modify::~Collection_modify()
 /* }}} */
 
 
-/* {{{ Collection_modify::sort() */
 bool Collection_modify::sort(
 	zval* sort_expressions,
 	int num_of_expr)
@@ -189,7 +186,6 @@ bool Collection_modify::sort(
 /* }}} */
 
 
-/* {{{ Collection_modify::limit() */
 bool Collection_modify::limit(zend_long rows)
 {
 	DBG_ENTER("Collection_modify::limit");
@@ -204,7 +200,6 @@ bool Collection_modify::limit(zend_long rows)
 /* }}} */
 
 
-/* {{{ Collection_modify::skip() */
 bool Collection_modify::skip(zend_long position)
 {
 	DBG_ENTER("Collection_modify::skip");
@@ -219,7 +214,6 @@ bool Collection_modify::skip(zend_long position)
 /* }}} */
 
 
-/* {{{ Collection_modify::bind() */
 bool Collection_modify::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("Collection_modify::bind");
@@ -290,7 +284,6 @@ drv::Modify_value Collection_modify::prepare_value(
 /* }}} */
 
 
-/* {{{ Collection_modify::set() */
 bool Collection_modify::set(
 	const util::string_view& path,
 	zval* value)
@@ -301,7 +294,6 @@ bool Collection_modify::set(
 /* }}} */
 
 
-/* {{{ Collection_modify::unset() */
 bool Collection_modify::unset(
 	zval* variables,
 	int num_of_variables)
@@ -355,7 +347,6 @@ bool Collection_modify::unset(
 /* }}} */
 
 
-/* {{{ Collection_modify::replace() */
 bool Collection_modify::replace(
 	const util::string_view& path,
 	zval* value)
@@ -366,7 +357,6 @@ bool Collection_modify::replace(
 /* }}} */
 
 
-/* {{{ Collection_modify::patch() */
 bool Collection_modify::patch(const util::string_view& document_contents)
 {
 	DBG_ENTER("Collection_modify::patch");
@@ -381,7 +371,6 @@ bool Collection_modify::patch(const util::string_view& document_contents)
 /* }}} */
 
 
-/* {{{ Collection_modify::array_insert() */
 bool Collection_modify::array_insert(
 	const util::string_view& path,
 	zval* value)
@@ -392,7 +381,6 @@ bool Collection_modify::array_insert(
 /* }}} */
 
 
-/* {{{ Collection_modify::array_append() */
 bool Collection_modify::array_append(
 	const util::string_view& path,
 	zval* value)
@@ -403,7 +391,6 @@ bool Collection_modify::array_append(
 /* }}} */
 
 
-/* {{{ Collection_modify::execute() */
 void Collection_modify::execute(zval* resultset)
 {
 	DBG_ENTER("Collection_modify::execute");

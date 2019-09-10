@@ -36,7 +36,6 @@ namespace mysqlx {
 namespace devapi {
 namespace parser {
 
-/* {{{ mysqlx::devapi::parser::Args_conv */
 class Args_conv : public cdk::protocol::mysqlx::Args_conv
 {
 public:
@@ -48,19 +47,16 @@ private:
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::parse */
 Mysqlx::Expr::Expr* parse(const std::string& expression,
 						  const bool doc_datamodel,
 						  std::vector<std::string>& placeholders);
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::parse */
 Mysqlx::Expr::Expr* parse(const std::string& expression , const bool doc_datamodel);
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Expr_builder */
 class Expr_builder
 		: public cdk::protocol::mysqlx::Any_builder_base<
 		cdk::protocol::mysqlx::Expr_builder_base,
@@ -75,7 +71,6 @@ public:
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_builder */
 struct Order_builder
 		: public cdk::protocol::mysqlx::Builder_base<
 		Mysqlx::Crud::Order,
@@ -90,7 +85,6 @@ struct Order_builder
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Ord_msg_traits */
 template<class MSG>
 struct Ord_msg_traits
 {
@@ -105,7 +99,6 @@ struct Ord_msg_traits
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by_item */
 class Order_by_item : public cdk::Expression
 {
 public:
@@ -123,7 +116,6 @@ private:
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Order_by */
 class Order_by : public cdk::Order_by
 {
 	typedef std::vector<Order_by_item> Order_item_list;
@@ -142,7 +134,6 @@ private:
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Expr_to_doc_prc_converter */
 class Expr_to_doc_prc_converter
   : public cdk::Converter<
 	  Expr_to_doc_prc_converter,
@@ -157,7 +148,6 @@ class Expr_to_doc_prc_converter
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_builder */
 struct Projection_builder
   : public cdk::protocol::mysqlx::Builder_base<
 		Mysqlx::Crud::Projection,
@@ -172,7 +162,6 @@ struct Projection_builder
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Proj_msg_traits */
 struct Proj_msg_traits
 {
   typedef Mysqlx::Crud::Find       Array;
@@ -186,7 +175,6 @@ struct Proj_msg_traits
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::Projection_list */
 class Projection_list : public cdk::Projection, public cdk::Expression::Document
 {
 public:
@@ -206,7 +194,6 @@ private:
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::orderby */
 template<typename MSG>
 bool orderby(
 		const std::string& expression,
@@ -263,7 +250,6 @@ bool orderby(
 /* }}} */
 
 
-/* {{{ mysqlx::devapi::parser::projection */
 template<typename MSG>
 bool projection(
 		const std::string& expression,
