@@ -595,7 +595,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollback)
 /* }}} */
 
 
-/* {{{ generate_savepoint_name*/
 static util::string
 generate_savepoint_name( const unsigned int name_seed )
 {

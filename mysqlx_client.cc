@@ -670,7 +670,6 @@ mysqlx_unregister_client_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 
 // ---------
 
-/* {{{ mysqlx\\mysql_xdevapi_getClient */
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 {
 	util::string_view connection_uri;

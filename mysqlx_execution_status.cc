@@ -116,7 +116,6 @@ mysqlx_execution_status_property__last_insert_id(const st_mysqlx_object* obj, zv
 /* }}} */
 
 
-/* {{{ mysqlx_execution_status_property__last_document_id*/
 static zval *
 mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, zval * return_value)
 {

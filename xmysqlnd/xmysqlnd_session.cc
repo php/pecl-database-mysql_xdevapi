@@ -2653,8 +2653,7 @@ enum_func_status establish_connection(XMYSQLND_SESSION& session,
 }
 /* }}} */
 
-/* {{{ extract_transport
- *
+/*
  * Be aware that extract_transport will modify
  * the string argument!
  */

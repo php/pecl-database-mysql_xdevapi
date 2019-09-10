@@ -54,7 +54,6 @@ inline void* operator new(std::size_t bytes_count, const mysqlx::util::alloc_tag
 }
 /* }}} */
 
-/* {{{ operator new[] */
 inline void* operator new[](std::size_t bytes_count, const mysqlx::util::alloc_tag_t&)
 {
 	return mysqlx::util::internal::mem_alloc(bytes_count);
@@ -67,7 +66,6 @@ inline void operator delete(void* ptr, const mysqlx::util::alloc_tag_t&)
 }
 /* }}} */
 
-/* {{{ operator delete[] */
 inline void operator delete[](void* ptr, const mysqlx::util::alloc_tag_t&)
 {
 	mysqlx::util::internal::mem_free(ptr);
@@ -82,7 +80,6 @@ inline void* operator new(std::size_t bytes_count, const mysqlx::util::permanent
 }
 /* }}} */
 
-/* {{{ operator new[] */
 inline void* operator new[](std::size_t bytes_count, const mysqlx::util::permanent_tag_t&)
 {
 	return mysqlx::util::internal::mem_permanent_alloc(bytes_count);
@@ -95,7 +92,6 @@ inline void operator delete(void* ptr, const mysqlx::util::permanent_tag_t&)
 }
 /* }}} */
 
-/* {{{ operator delete[] */
 inline void operator delete[](void* ptr, const mysqlx::util::permanent_tag_t&)
 {
 	mysqlx::util::internal::mem_permanent_free(ptr);

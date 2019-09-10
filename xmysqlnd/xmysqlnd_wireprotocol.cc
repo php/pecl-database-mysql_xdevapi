@@ -140,7 +140,6 @@ xmysqlnd_inspect_warning(const struct st_xmysqlnd_on_warning_bind on_warning, co
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_changed_exec_state*/
 static enum_hnd_func_status
 xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change, const Mysqlx::Notice::SessionStateChanged & message)
 {
@@ -176,7 +175,6 @@ xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_
 /* }}} */
 
 
-/* {{{ xmysqlnd_inspect_generated_doc_ids*/
 static enum_hnd_func_status
 xmysqlnd_inspect_generated_doc_ids(const st_xmysqlnd_on_generated_doc_ids_bind on_execution_state_change,
 								const Mysqlx::Notice::SessionStateChanged & message)

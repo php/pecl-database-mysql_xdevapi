@@ -23,7 +23,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ operator<< */
 std::ostream& operator<<(std::ostream& os, const string& str)
 {
 	return os << str.c_str();

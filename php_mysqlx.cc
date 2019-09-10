@@ -37,8 +37,6 @@ extern "C" {
 
 extern "C" {
 
-/* {{{ PHP_MINFO_FUNCTION
- */
 PHP_MINFO_FUNCTION(mysql_xdevapi)
 {
 	UNUSED(zend_module);
@@ -63,8 +61,6 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 PHP_MYSQL_XDEVAPI_API ZEND_DECLARE_MODULE_GLOBALS(mysql_xdevapi)
 
 
-/* {{{ PHP_GINIT_FUNCTION
- */
 static PHP_GINIT_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- xmysqlnd / mysqlx ---------------- */
@@ -90,8 +86,6 @@ static PHP_GINIT_FUNCTION(mysql_xdevapi)
 /* }}} */
 
 
-/* {{{ PHP_INI_BEGIN
-*/
 PHP_INI_BEGIN()
 	STD_PHP_INI_BOOLEAN("xmysqlnd.collect_statistics",	"1", 	PHP_INI_ALL,	OnUpdateBool,	collect_statistics, 		zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
 	STD_PHP_INI_BOOLEAN("xmysqlnd.collect_memory_statistics","0",PHP_INI_SYSTEM,OnUpdateBool,	collect_memory_statistics,	zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
@@ -112,8 +106,6 @@ PHP_INI_END()
 /* }}} */
 
 
-/* {{{ PHP_MINIT_FUNCTION
- */
 static PHP_MINIT_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- xmysqlnd ---------------- */
@@ -129,8 +121,6 @@ static PHP_MINIT_FUNCTION(mysql_xdevapi)
 /* }}} */
 
 
-/* {{{ PHP_MSHUTDOWN_FUNCTION
- */
 static PHP_MSHUTDOWN_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- mysqlx ---------------- */
@@ -147,8 +137,6 @@ static PHP_MSHUTDOWN_FUNCTION(mysql_xdevapi)
 
 
 #if PHP_DEBUG
-/* {{{ PHP_RINIT_FUNCTION
- */
 static PHP_RINIT_FUNCTION(mysql_xdevapi)
 {
 	UNUSED_FUNC_ARGS();
@@ -176,8 +164,6 @@ static PHP_RINIT_FUNCTION(mysql_xdevapi)
 
 
 #if PHP_DEBUG
-/* {{{ PHP_RSHUTDOWN_FUNCTION
- */
 static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 {
 	UNUSED_FUNC_ARGS();

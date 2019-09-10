@@ -105,7 +105,6 @@ collection_add_string(
 /* }}} */
 
 
-/* {{{ collection_add_object*/
 Add_op_status
 collection_add_object(
 	st_xmysqlnd_crud_collection_op__add* add_op,
@@ -121,7 +120,6 @@ collection_add_object(
 /* }}} */
 
 
-/* {{{ collection_add_array*/
 Add_op_status
 collection_add_array(
 	st_xmysqlnd_crud_collection_op__add* add_op,
