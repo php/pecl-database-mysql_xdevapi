@@ -856,7 +856,6 @@ mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session)
 }
 /* }}} */
 
-/* {{{ proto bool mysqlx\\mysql_xdevapi_getSession( ) */
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getSession)
 {
 	util::string_view uri_string;

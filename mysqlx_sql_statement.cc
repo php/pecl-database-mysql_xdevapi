@@ -432,7 +432,6 @@ mysqlx_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zva
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_sql_statement::bind(object statement, int param_no, mixed value) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 {
 	zval* object_zv{nullptr};
@@ -572,7 +571,6 @@ mysqlx_sql_statement_execute(
 /* }}} */
 
 
-/* {{{ proto mixed mysqlx_sql_statement::execute(object statement, int flags) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, execute)
 {
 	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
