@@ -36,8 +36,6 @@ static const zend_function_entry mysqlx_crud_operation_bindable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_bindable, bind, mysqlx_crud_operation_bindable__bind)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 void
 mysqlx_register_crud_operation_bindable_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
@@ -46,14 +44,11 @@ mysqlx_register_crud_operation_bindable_interface(UNUSED_INIT_FUNC_ARGS, zend_ob
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "CrudOperationBindable", mysqlx_crud_operation_bindable_methods);
 	mysqlx_crud_operation_bindable_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_crud_operation_bindable_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
-/* }}} */
 
 } // namespace devapi
 

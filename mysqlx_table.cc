@@ -107,8 +107,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 /************************************** INHERITED START ****************************************/
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
@@ -135,8 +133,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 {
@@ -160,8 +156,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 mysqlx_table_on_error(
@@ -181,8 +175,6 @@ mysqlx_table_on_error(
 		DBG_RETURN(HND_PASS_RETURN_FAIL);
 	}
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 {
@@ -212,8 +204,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 {
@@ -246,8 +236,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 {
@@ -275,8 +263,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 {
@@ -316,7 +302,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 	DBG_VOID_RETURN;
 }
 
-/* }}} */
+
 /************************************** INHERITED END   ****************************************/
 
 
@@ -366,8 +352,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 {
@@ -403,8 +387,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 {
@@ -429,8 +411,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 {
@@ -455,8 +435,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_table_methods[] = {
 	PHP_ME(mysqlx_table, __construct,		nullptr,											ZEND_ACC_PRIVATE)
@@ -477,8 +455,6 @@ static const zend_function_entry mysqlx_table_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zval *
 mysqlx_table_property__name(const st_mysqlx_object* obj, zval * return_value)
@@ -499,8 +475,6 @@ mysqlx_table_property__name(const st_mysqlx_object* obj, zval * return_value)
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_table_handlers;
 static HashTable mysqlx_table_properties;
@@ -526,8 +500,6 @@ mysqlx_table_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_table_object_allocator(zend_class_entry * class_type)
@@ -539,8 +511,6 @@ php_mysqlx_table_object_allocator(zend_class_entry * class_type)
 		&mysqlx_table_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_table_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -564,16 +534,12 @@ mysqlx_register_table_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_table_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_table_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_table(zval * return_value, xmysqlnd_table * table, const zend_bool clone)
@@ -594,7 +560,6 @@ mysqlx_new_table(zval * return_value, xmysqlnd_table * table, const zend_bool cl
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

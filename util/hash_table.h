@@ -62,7 +62,6 @@ class Hash_table
 		HashTable* ht{nullptr};
 
 };
-/* }}} */
 
 } // namespace util
 

@@ -50,7 +50,6 @@ xmysqlnd_collection::xmysqlnd_collection(
 	DBG_INF_FMT("name=[%d]%*s", collection_name.l, collection_name.l, collection_name.s);
 
 }
-/* }}} */
 
 struct st_collection_exists_in_database_var_binder_ctx
 {
@@ -101,8 +100,6 @@ bind:
 	++ctx->counter;
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 struct collection_exists_in_database_ctx
 {
@@ -139,8 +136,6 @@ collection_xplugin_op_on_row(
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_collection::exists_in_database(
@@ -179,8 +174,6 @@ xmysqlnd_collection::exists_in_database(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 struct st_collection_sql_single_result_ctx
 {
@@ -205,8 +198,6 @@ collection_sql_single_result_op_on_row(
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_collection::count(
@@ -246,7 +237,6 @@ xmysqlnd_collection::count(
 	mnd_sprintf_free(query_str);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 xmysqlnd_stmt *
 xmysqlnd_collection::add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
@@ -273,8 +263,6 @@ xmysqlnd_collection::add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 xmysqlnd_stmt *
 xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
@@ -331,8 +319,6 @@ xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
-
 
 xmysqlnd_stmt *
 xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
@@ -388,8 +374,6 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
-
 
 xmysqlnd_stmt*
 xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
@@ -438,8 +422,6 @@ xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 	}
 	DBG_RETURN(stmt);
 }
-/* }}} */
-
 
 xmysqlnd_collection *
 xmysqlnd_collection::get_reference()
@@ -449,8 +431,6 @@ xmysqlnd_collection::get_reference()
 	DBG_INF_FMT("new_refcount=%u", refcount);
 	DBG_RETURN(this);
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_collection::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -463,8 +443,6 @@ xmysqlnd_collection::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * 
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 void
 xmysqlnd_collection::free_contents()
@@ -476,8 +454,6 @@ xmysqlnd_collection::free_contents()
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 void
 xmysqlnd_collection::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -488,8 +464,6 @@ xmysqlnd_collection::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_i
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API xmysqlnd_collection *
 xmysqlnd_collection_create(xmysqlnd_schema * schema,
@@ -509,8 +483,6 @@ xmysqlnd_collection_create(xmysqlnd_schema * schema,
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_collection_free(xmysqlnd_collection * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -523,7 +495,6 @@ xmysqlnd_collection_free(xmysqlnd_collection * const collection, MYSQLND_STATS *
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

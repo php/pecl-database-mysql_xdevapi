@@ -44,18 +44,12 @@ public:
 private:
 	std::vector< std::string >& placeholders;
 };
-/* }}} */
-
 
 Mysqlx::Expr::Expr* parse(const std::string& expression,
 						  const bool doc_datamodel,
 						  std::vector<std::string>& placeholders);
-/* }}} */
-
 
 Mysqlx::Expr::Expr* parse(const std::string& expression , const bool doc_datamodel);
-/* }}} */
-
 
 class Expr_builder
 		: public cdk::protocol::mysqlx::Any_builder_base<
@@ -68,8 +62,6 @@ public:
 	Expr_builder(Mysqlx::Expr::Expr& msg,
 				 cdk::protocol::mysqlx::Args_conv* conv = nullptr);
 };
-/* }}} */
-
 
 struct Order_builder
 		: public cdk::protocol::mysqlx::Builder_base<
@@ -82,8 +74,6 @@ struct Order_builder
 
 	Expr_builder expr_builder;
 };
-/* }}} */
-
 
 template<class MSG>
 struct Ord_msg_traits
@@ -96,8 +86,6 @@ struct Ord_msg_traits
 		return *arr.add_order();
 	}
 };
-/* }}} */
-
 
 class Order_by_item : public cdk::Expression
 {
@@ -113,8 +101,6 @@ private:
 	const char* expression;
 	cdk::Sort_direction::value sort_direction;
 };
-/* }}} */
-
 
 class Order_by : public cdk::Order_by
 {
@@ -131,8 +117,6 @@ private:
 	::parser::Parser_mode::value parser_mode;
 	Order_item_list item_list;
 };
-/* }}} */
-
 
 class Expr_to_doc_prc_converter
   : public cdk::Converter<
@@ -145,8 +129,6 @@ class Expr_to_doc_prc_converter
   Scalar_prc* scalar();
   List_prc* arr();
 };
-/* }}} */
-
 
 struct Projection_builder
   : public cdk::protocol::mysqlx::Builder_base<
@@ -159,8 +141,6 @@ struct Projection_builder
 
   Expr_builder expression_builder;
 };
-/* }}} */
-
 
 struct Proj_msg_traits
 {
@@ -172,8 +152,6 @@ struct Proj_msg_traits
 	return *arr.add_projection();
   }
 };
-/* }}} */
-
 
 class Projection_list : public cdk::Projection, public cdk::Expression::Document
 {
@@ -191,8 +169,6 @@ private:
   ::parser::Parser_mode::value parser_mode;
   Proj_vec values;
 };
-/* }}} */
-
 
 template<typename MSG>
 bool orderby(
@@ -247,8 +223,6 @@ bool orderby(
 
 	return true;
 }
-/* }}} */
-
 
 template<typename MSG>
 bool projection(
@@ -322,7 +296,6 @@ bool projection(
 	conv.process( proj_builder );
 	return true;
 }
-/* }}} */
 
 } //mysqlx::devapi::parser
 } //mysqlx::devapi

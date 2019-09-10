@@ -56,7 +56,6 @@ void to_zv_string(zval* src, zval* dest)
 	ZVAL_STRINGL(dest, buf.s->val, buf.s->len);
 	smart_str_free(&buf);
 }
-/* }}} */
 
 util::zvalue to_zv_string(const util::zvalue& src)
 {
@@ -207,7 +206,6 @@ void ensure_doc_id(
 	Ensure_doc_id edi(raw_doc, id, doc_with_id);
 	edi.run();
 }
-/* }}} */
 
 void ensure_doc_id_as_string(
 	const string_view& doc_id,
@@ -221,7 +219,6 @@ void ensure_doc_id_as_string(
 	to_zv_string(&doc_with_string_id, doc);
 	zval_dtor(&doc_with_string_id);
 }
-/* }}} */
 
 } // namespace json
 

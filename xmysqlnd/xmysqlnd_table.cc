@@ -50,7 +50,6 @@ xmysqlnd_table::xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_
 
 	object_factory = cur_obj_factory;
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -103,8 +102,6 @@ bind:
 	++ctx->counter;
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 struct table_or_view_op_ctx
 {
@@ -138,7 +135,6 @@ table_or_view_exists_in_database_op(
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
 
 enum_func_status
 xmysqlnd_table::exists_in_database(
@@ -180,7 +176,6 @@ xmysqlnd_table::exists_in_database(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -207,7 +202,6 @@ check_is_view_op(
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
 
 enum_func_status
 xmysqlnd_table::is_view(
@@ -249,7 +243,6 @@ xmysqlnd_table::is_view(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -278,8 +271,6 @@ table_sql_single_result_op_on_row(
 		DBG_RETURN(HND_AGAIN);
 	}
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_table::count(
@@ -320,7 +311,6 @@ xmysqlnd_table::count(
 	mnd_sprintf_free(query_str);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 xmysqlnd_stmt *
 xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
@@ -349,8 +339,6 @@ xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
-
 
 xmysqlnd_stmt *
 xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
@@ -412,8 +400,6 @@ xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
-
 
 xmysqlnd_stmt *
 xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
@@ -473,8 +459,6 @@ xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
-
 
 xmysqlnd_stmt *
 xmysqlnd_table::select(XMYSQLND_CRUD_TABLE_OP__SELECT * op)
@@ -530,8 +514,6 @@ xmysqlnd_table::select(XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 	}
 	DBG_RETURN(stmt);
 }
-/* }}} */
-
 
 xmysqlnd_table *
 xmysqlnd_table::get_reference()
@@ -541,8 +523,6 @@ xmysqlnd_table::get_reference()
 	DBG_INF_FMT("new_refcount=%u", refcount);
 	DBG_RETURN(this);
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_table::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -555,8 +535,6 @@ xmysqlnd_table::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 void
 xmysqlnd_table::free_contents()
@@ -568,8 +546,6 @@ xmysqlnd_table::free_contents()
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 void
 xmysqlnd_table::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -580,7 +556,6 @@ xmysqlnd_table::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 PHP_MYSQL_XDEVAPI_API xmysqlnd_table *
 xmysqlnd_table_create(xmysqlnd_schema * schema,
@@ -600,8 +575,6 @@ xmysqlnd_table_create(xmysqlnd_schema * schema,
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_table_free(xmysqlnd_table * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -612,7 +585,6 @@ xmysqlnd_table_free(xmysqlnd_table * const table, MYSQLND_STATS * stats, MYSQLND
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

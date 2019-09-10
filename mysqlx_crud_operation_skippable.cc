@@ -36,8 +36,6 @@ static const zend_function_entry mysqlx_crud_operation_skippable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_skippable, skip, mysqlx_crud_operation_skippable__skip)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 void
 mysqlx_register_crud_operation_skippable_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
@@ -46,14 +44,11 @@ mysqlx_register_crud_operation_skippable_interface(UNUSED_INIT_FUNC_ARGS, zend_o
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "CrudOperationSkippable", mysqlx_crud_operation_skippable_methods);
 	mysqlx_crud_operation_skippable_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_crud_operation_skippable_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
-/* }}} */
 
 } // namespace devapi
 

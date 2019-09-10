@@ -299,8 +299,6 @@ Prepare_stmt_data::prepare_ps_entry( const MSG_T &msg )
 	new_entry.type_name = msg.GetTypeName();
 	return new_entry;
 }
-/* }}} */
-
 
 template< typename MSG_T >
 void Prepare_stmt_data::add_limit_expr(
@@ -319,8 +317,6 @@ void Prepare_stmt_data::add_limit_expr(
 	limit_expr->set_allocated_row_count( expr );
 	msg->set_allocated_limit_expr( limit_expr );
 }
-/* }}} */
-
 
 template< typename MSG_T >
 void Prepare_stmt_data::handle_limit_expr(
@@ -332,7 +328,6 @@ void Prepare_stmt_data::handle_limit_expr(
 	//We should never be here.
     throw util::xdevapi_exception(util::xdevapi_exception::Code::ps_limit_not_supported);
 }
-/* }}} */
 
 template<>
 void Prepare_stmt_data::handle_limit_expr(
@@ -400,7 +395,6 @@ std::pair<bool,uint32_t> Prepare_stmt_data::add_message(
 	}
 	return { false, ps_db[ db_idx ].msg_id };
 }
-/* }}} */
 
 template< typename MSG_T >
 st_xmysqlnd_pb_message_shell

@@ -62,15 +62,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_execution_status, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_execution_status_methods[] = {
 	PHP_ME(mysqlx_execution_status, __construct,				nullptr,			ZEND_ACC_PRIVATE)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zval *
 mysqlx_execution_status_property__affected_items(const st_mysqlx_object* obj, zval * return_value)
@@ -80,8 +76,6 @@ mysqlx_execution_status_property__affected_items(const st_mysqlx_object* obj, zv
 	ZVAL_LONG(return_value, object->items_affected);
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zval *
 mysqlx_execution_status_property__matched_items(const st_mysqlx_object* obj, zval * return_value)
@@ -91,8 +85,6 @@ mysqlx_execution_status_property__matched_items(const st_mysqlx_object* obj, zva
 	ZVAL_LONG(return_value, object->items_matched);
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zval *
 mysqlx_execution_status_property__found_items(const st_mysqlx_object* obj, zval * return_value)
@@ -102,8 +94,6 @@ mysqlx_execution_status_property__found_items(const st_mysqlx_object* obj, zval 
 	ZVAL_LONG(return_value, object->items_found);
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zval *
 mysqlx_execution_status_property__last_insert_id(const st_mysqlx_object* obj, zval * return_value)
@@ -113,8 +103,6 @@ mysqlx_execution_status_property__last_insert_id(const st_mysqlx_object* obj, zv
 	ZVAL_LONG(return_value, static_cast<zend_long>(object->last_insert_id));
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zval *
 mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, zval * return_value)
@@ -124,8 +112,6 @@ mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, 
 	ZVAL_LONG(return_value, static_cast<zend_long>(object->last_insert_id));
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static const struct st_mysqlx_property_entry mysqlx_execution_status_property_entries[] =
 {
@@ -136,9 +122,6 @@ static const struct st_mysqlx_property_entry mysqlx_execution_status_property_en
 	{{"lastDocumentId", sizeof("lastDocumentId") - 1}, mysqlx_execution_status_property__last_document_id, nullptr},
 	{{nullptr, 0}, nullptr, nullptr}
 };
-/* }}} */
-
-
 
 static zend_object_handlers mysqlx_object_execution_status_handlers;
 static HashTable mysqlx_execution_status_properties;
@@ -154,8 +137,6 @@ mysqlx_execution_status_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_execution_status_object_allocator(zend_class_entry * class_type)
@@ -167,8 +148,6 @@ php_mysqlx_execution_status_object_allocator(zend_class_entry * class_type)
 		&mysqlx_execution_status_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_execution_status_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -194,16 +173,12 @@ mysqlx_register_execution_status_class(UNUSED_INIT_FUNC_ARGS, zend_object_handle
 	zend_declare_property_null(mysqlx_execution_status_class_entry, "lastInsertId",		sizeof("lastInsertId") - 1,		ZEND_ACC_PUBLIC);
 	zend_declare_property_null(mysqlx_execution_status_class_entry, "lastDocumentId",	sizeof("lastDocumentId") - 1,	ZEND_ACC_PUBLIC);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_execution_status_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_execution_status_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_execution_status(zval * return_value, const XMYSQLND_STMT_EXECUTION_STATE * const status)
@@ -227,7 +202,6 @@ mysqlx_new_execution_status(zval * return_value, const XMYSQLND_STMT_EXECUTION_S
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

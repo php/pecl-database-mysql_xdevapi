@@ -90,8 +90,6 @@ private:
 	drv::xmysqlnd_collection*                  collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__find* find_op{nullptr};
 };
-/* }}} */
-
 
 extern zend_class_entry* collection_find_class_entry;
 

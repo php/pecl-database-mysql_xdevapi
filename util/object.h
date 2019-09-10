@@ -75,7 +75,6 @@ zend_class_entry* register_class(
 
 	return class_entry;
 }
-/* }}} */
 
 template<typename ... Interfaces>
 zend_class_entry* register_derived_class(
@@ -99,7 +98,6 @@ zend_class_entry* register_derived_class(
 
 	return class_entry;
 }
-/* }}} */
 
 template<typename Data_object, typename Allocation_tag = util::alloc_tag_t>
 devapi::st_mysqlx_object* alloc_object(
@@ -125,7 +123,6 @@ devapi::st_mysqlx_object* alloc_object(
 
 	return mysqlx_object;
 }
-/* }}} */
 
 template<typename Data_object>
 devapi::st_mysqlx_object* alloc_permanent_object(
@@ -138,7 +135,6 @@ devapi::st_mysqlx_object* alloc_permanent_object(
 		handlers,
 		properties);
 }
-/* }}} */
 
 template<typename Data_object>
 Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
@@ -151,7 +147,6 @@ Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
 	}
 	return *data_object;
 }
-/* }}} */
 
 template<typename Data_object>
 Data_object& fetch_data_object(zval* from)
@@ -161,7 +156,6 @@ Data_object& fetch_data_object(zval* from)
 	st_mysqlx_object* mysqlx_object{ Z_MYSQLX_P(from) };
 	return fetch_data_object<Data_object>(mysqlx_object);
 }
-/* }}} */
 
 template<typename Data_object>
 Data_object& fetch_data_object(zend_object* from)
@@ -171,7 +165,6 @@ Data_object& fetch_data_object(zend_object* from)
 	st_mysqlx_object* mysqlx_object{ mysqlx_fetch_object_from_zo(from) };
 	return fetch_data_object<Data_object>(mysqlx_object);
 }
-/* }}} */
 
 template<typename Data_object>
 Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
@@ -183,7 +176,6 @@ Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
 		throw util::doc_ref_exception(util::doc_ref_exception::Severity::warning, ce);
 	}
 }
-/* }}} */
 
 template<typename Data_object>
 void free_object(zend_object* object)
@@ -197,8 +189,6 @@ void free_object(zend_object* object)
 	delete data_object;
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 template<typename Result, typename Result_iterator>
 zend_object_iterator* create_result_iterator(
@@ -232,7 +222,6 @@ zend_object_iterator* create_result_iterator(
 
 	return &iterator->intern;
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 

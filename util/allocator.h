@@ -52,25 +52,21 @@ inline void* operator new(std::size_t bytes_count, const mysqlx::util::alloc_tag
 {
 	return mysqlx::util::internal::mem_alloc(bytes_count);
 }
-/* }}} */
 
 inline void* operator new[](std::size_t bytes_count, const mysqlx::util::alloc_tag_t&)
 {
 	return mysqlx::util::internal::mem_alloc(bytes_count);
 }
-/* }}} */
 
 inline void operator delete(void* ptr, const mysqlx::util::alloc_tag_t&)
 {
 	mysqlx::util::internal::mem_free(ptr);
 }
-/* }}} */
 
 inline void operator delete[](void* ptr, const mysqlx::util::alloc_tag_t&)
 {
 	mysqlx::util::internal::mem_free(ptr);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -78,25 +74,21 @@ inline void* operator new(std::size_t bytes_count, const mysqlx::util::permanent
 {
 	return mysqlx::util::internal::mem_permanent_alloc(bytes_count);
 }
-/* }}} */
 
 inline void* operator new[](std::size_t bytes_count, const mysqlx::util::permanent_tag_t&)
 {
 	return mysqlx::util::internal::mem_permanent_alloc(bytes_count);
 }
-/* }}} */
 
 inline void operator delete(void* ptr, const mysqlx::util::permanent_tag_t&)
 {
 	mysqlx::util::internal::mem_permanent_free(ptr);
 }
-/* }}} */
 
 inline void operator delete[](void* ptr, const mysqlx::util::permanent_tag_t&)
 {
 	mysqlx::util::internal::mem_permanent_free(ptr);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -163,7 +155,6 @@ class allocator
 			((T*)ptr)->~T();
 		}
 };
-/* }}} */
 
 template<typename T>
 using permanent_allocator = allocator<T, permanent_tag_t>;
@@ -204,7 +195,6 @@ class allocable
 		allocable& operator=(const allocable& ) = default;
 
 };
-/* }}} */
 
 } // namespace internal
 
@@ -222,7 +212,6 @@ struct deleter
 		::operator delete(t, util::alloc_tag);
 	}
 };
-/* }}} */
 
 template<typename T>
 using unique_ptr = std::unique_ptr<T, deleter<T>>;

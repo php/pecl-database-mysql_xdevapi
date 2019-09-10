@@ -57,8 +57,6 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, dtor)(zend_object_iterator * iter)
 	zval_ptr_dtor(&iterator->current_row);
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static int
 XMYSQLND_METHOD(mysqlx_sql_result_iterator, valid)(zend_object_iterator * iter)
@@ -68,8 +66,6 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, valid)(zend_object_iterator * iter)
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	DBG_RETURN(iterator->usable? SUCCESS:FAILURE);
 }
-/* }}} */
-
 
 #include <ext/standard/php_var.h>
 
@@ -81,8 +77,6 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, current_data)(zend_object_iterator *
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	DBG_RETURN((iterator->result && iterator->usable)? &iterator->current_row : nullptr);
 }
-/* }}} */
-
 
 static enum_func_status
 XMYSQLND_METHOD(mysqlx_sql_result_iterator, fetch_current_data)(zend_object_iterator * iter)
@@ -104,8 +98,6 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, fetch_current_data)(zend_object_iter
 	}
 	DBG_RETURN(FAIL);
 }
-/* }}} */
-
 
 static void
 XMYSQLND_METHOD(mysqlx_sql_result_iterator, next)(zend_object_iterator * iter)
@@ -124,8 +116,6 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, next)(zend_object_iterator * iter)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static void
 XMYSQLND_METHOD(mysqlx_sql_result_iterator, rewind)(zend_object_iterator * iter)
@@ -148,8 +138,6 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, rewind)(zend_object_iterator * iter)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static zend_object_iterator_funcs mysqlx_sql_result_iterator_funcs =
 {
@@ -160,8 +148,6 @@ static zend_object_iterator_funcs mysqlx_sql_result_iterator_funcs =
 	XMYSQLND_METHOD(mysqlx_sql_result_iterator, next),
 	XMYSQLND_METHOD(mysqlx_sql_result_iterator, rewind),
 };
-/* }}} */
-
 
 static zend_object_iterator *
 mysqlx_sql_result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
@@ -174,8 +160,6 @@ mysqlx_sql_result_create_iterator(zend_class_entry * ce, zval * object, int by_r
 		by_ref);
 	DBG_RETURN(iterator);
 }
-/* }}} */
-
 
 void
 mysqlx_register_sql_statement_result_iterator(zend_class_entry * ce)
@@ -187,7 +171,6 @@ mysqlx_register_sql_statement_result_iterator(zend_class_entry * ce)
 
 	zend_class_implements(ce, 1, zend_ce_traversable);
 }
-/* }}} */
 
 } // namespace devapi
 

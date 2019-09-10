@@ -396,7 +396,6 @@ class zvalue
 	private:
 		zval zv;
 };
-/* }}} */
 
 } // namespace util
 

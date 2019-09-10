@@ -38,13 +38,11 @@ void* mem_alloc(std::size_t bytes_count)
 		throw std::bad_alloc();
 	}
 }
-/* }}} */
 
 void mem_free(void* ptr)
 {
 	mnd_efree(ptr);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -57,13 +55,11 @@ void* mem_permanent_alloc(std::size_t bytes_count)
 		throw std::bad_alloc();
 	}
 }
-/* }}} */
 
 void mem_permanent_free(void* ptr)
 {
 	mnd_pefree(ptr, true);
 }
-/* }}} */
 
 } // namespace internal
 

@@ -118,8 +118,6 @@ bool Collection_modify::init(
 	return xmysqlnd_crud_collection_modify__set_criteria(
 		modify_op, search_expression.to_std_string());
 }
-/* }}} */
-
 
 Collection_modify::~Collection_modify()
 {
@@ -131,8 +129,6 @@ Collection_modify::~Collection_modify()
 		xmysqlnd_collection_free(collection, nullptr, nullptr);
 	}
 }
-/* }}} */
-
 
 bool Collection_modify::sort(
 	zval* sort_expressions,
@@ -183,8 +179,6 @@ bool Collection_modify::sort(
 	}
 	DBG_RETURN(true);
 }
-/* }}} */
-
 
 bool Collection_modify::limit(zend_long rows)
 {
@@ -197,8 +191,6 @@ bool Collection_modify::limit(zend_long rows)
 
 	DBG_RETURN(xmysqlnd_crud_collection_modify__set_limit(modify_op, rows));
 }
-/* }}} */
-
 
 bool Collection_modify::skip(zend_long position)
 {
@@ -211,8 +203,6 @@ bool Collection_modify::skip(zend_long position)
 
 	DBG_RETURN(xmysqlnd_crud_collection_modify__set_skip(modify_op, position));
 }
-/* }}} */
-
 
 bool Collection_modify::bind(const util::zvalue& bind_variables)
 {
@@ -233,8 +223,6 @@ bool Collection_modify::bind(const util::zvalue& bind_variables)
 
 	DBG_RETURN(true);
 }
-/* }}} */
-
 
 drv::Modify_value Collection_modify::prepare_value(
 	const util::string_view& path,
@@ -281,8 +269,6 @@ drv::Modify_value Collection_modify::prepare_value(
 	drv::Modify_value result{ path, value, is_expression, is_document, validate_array };
 	DBG_RETURN(result);
 }
-/* }}} */
-
 
 bool Collection_modify::set(
 	const util::string_view& path,
@@ -291,8 +277,6 @@ bool Collection_modify::set(
 	DBG_ENTER("Collection_modify::set");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__set(modify_op, prepare_value(path, value)));
 }
-/* }}} */
-
 
 bool Collection_modify::unset(
 	zval* variables,
@@ -344,8 +328,6 @@ bool Collection_modify::unset(
 
 	DBG_RETURN(true);
 }
-/* }}} */
-
 
 bool Collection_modify::replace(
 	const util::string_view& path,
@@ -354,8 +336,6 @@ bool Collection_modify::replace(
 	DBG_ENTER("Collection_modify::replace");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__replace(modify_op, prepare_value(path, value)));
 }
-/* }}} */
-
 
 bool Collection_modify::patch(const util::string_view& document_contents)
 {
@@ -368,8 +348,6 @@ bool Collection_modify::patch(const util::string_view& document_contents)
 	}
 	DBG_RETURN(true);
 }
-/* }}} */
-
 
 bool Collection_modify::array_insert(
 	const util::string_view& path,
@@ -378,8 +356,6 @@ bool Collection_modify::array_insert(
 	DBG_ENTER("Collection_modify::array_insert");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__array_insert(modify_op, prepare_value(path, value, true)));
 }
-/* }}} */
-
 
 bool Collection_modify::array_append(
 	const util::string_view& path,
@@ -388,8 +364,6 @@ bool Collection_modify::array_append(
 	DBG_ENTER("Collection_modify::array_append");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__array_append(modify_op, prepare_value(path, value)));
 }
-/* }}} */
-
 
 void Collection_modify::execute(zval* resultset)
 {
@@ -416,8 +390,6 @@ void Collection_modify::execute(zval* resultset)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 //------------------------------------------------------------------------------
 
@@ -426,8 +398,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 {
@@ -453,8 +423,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 {
@@ -477,8 +445,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 {
@@ -506,8 +472,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 {
@@ -531,8 +495,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, set)
 {
@@ -558,8 +520,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, set)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 {
@@ -585,7 +545,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 {
@@ -609,8 +568,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 {
@@ -636,8 +593,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 {
@@ -663,8 +618,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 {
@@ -691,8 +644,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 {
@@ -711,8 +662,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_collection__modify_methods[] = {
 	PHP_ME(mysqlx_collection__modify, 	__construct,	nullptr,												ZEND_ACC_PRIVATE)
@@ -733,8 +682,6 @@ static const zend_function_entry mysqlx_collection__modify_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zend_object_handlers collection_modify_handlers;
 static HashTable collection_modify_properties;
@@ -749,8 +696,6 @@ mysqlx_collection__modify_free_storage(zend_object* object)
 {
 	util::free_object<Collection_modify>(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_collection__modify_object_allocator(zend_class_entry* class_type)
@@ -762,8 +707,6 @@ php_mysqlx_collection__modify_object_allocator(zend_class_entry* class_type)
 		&collection_modify_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_collection__modify_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
@@ -784,16 +727,12 @@ mysqlx_register_collection__modify_class(UNUSED_INIT_FUNC_ARGS, zend_object_hand
 		mysqlx_crud_operation_skippable_interface_entry,
 		mysqlx_crud_operation_sortable_interface_entry);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_collection__modify_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&collection_modify_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_collection__modify(
@@ -816,7 +755,6 @@ mysqlx_new_collection__modify(
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

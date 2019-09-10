@@ -44,8 +44,6 @@ Url::Url(const php_url* phpurl)
 		path = url_path.substr( prefix_offset );
 	}
 }
-/* }}} */
-
 
 bool Url::empty() const
 {
@@ -58,7 +56,6 @@ bool Url::empty() const
 		&& query.empty()
 		&& fragment.empty();
 }
-/* }}} */
 
 } // namespace util
 

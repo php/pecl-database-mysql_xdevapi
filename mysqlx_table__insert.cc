@@ -72,9 +72,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 {
@@ -117,8 +114,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 {
@@ -166,8 +161,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_table__insert_methods[] = {
 	PHP_ME(mysqlx_table__insert, __construct,	nullptr,											ZEND_ACC_PRIVATE)
@@ -177,7 +170,6 @@ static const zend_function_entry mysqlx_table__insert_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 #if 0
 static zval *
@@ -199,7 +191,7 @@ mysqlx_table__insert_property__name(const st_mysqlx_object* obj, zval * return_v
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
+
 #endif
 
 static zend_object_handlers mysqlx_object_table__insert_handlers;
@@ -232,8 +224,6 @@ mysqlx_table__insert_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
@@ -245,8 +235,6 @@ php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 		&mysqlx_table__insert_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_table__insert_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -271,16 +259,12 @@ mysqlx_register_table__insert_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers 
 	zend_declare_property_null(mysqlx_table__insert_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_table__insert_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__insert_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_table__insert(zval * return_value,
@@ -310,7 +294,6 @@ mysqlx_new_table__insert(zval * return_value,
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

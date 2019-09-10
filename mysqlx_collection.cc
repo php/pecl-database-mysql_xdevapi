@@ -147,8 +147,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 /************************************** INHERITED START ****************************************/
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
@@ -175,8 +173,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 {
@@ -200,8 +196,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 mysqlx_collection_on_error(void * /*context*/, XMYSQLND_SESSION session,
@@ -219,8 +213,6 @@ mysqlx_collection_on_error(void * /*context*/, XMYSQLND_SESSION session,
 		DBG_RETURN(HND_PASS_RETURN_FAIL);
 	}
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 {
@@ -250,8 +242,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 {
@@ -279,8 +269,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 {
@@ -319,7 +307,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
+
 /************************************** INHERITED END   ****************************************/
 
 
@@ -353,8 +341,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 {
@@ -381,8 +367,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 {
@@ -410,8 +394,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 {
@@ -439,8 +421,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 {
@@ -473,8 +453,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 {
@@ -515,8 +493,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 {
@@ -546,8 +522,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 {
@@ -578,8 +552,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 {
@@ -605,8 +577,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 {
@@ -628,8 +598,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_collection_methods[] = {
 	PHP_ME(mysqlx_collection, __construct,		nullptr,												ZEND_ACC_PRIVATE)
@@ -657,8 +625,6 @@ static const zend_function_entry mysqlx_collection_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zval *
 mysqlx_collection_property__name(const st_mysqlx_object* obj, zval * return_value)
@@ -679,8 +645,6 @@ mysqlx_collection_property__name(const st_mysqlx_object* obj, zval * return_valu
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_collection_handlers;
 static HashTable mysqlx_collection_properties;
@@ -706,8 +670,6 @@ mysqlx_collection_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
@@ -719,8 +681,6 @@ php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
 		&mysqlx_collection_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_collection_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -744,16 +704,12 @@ mysqlx_register_collection_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * m
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_collection_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_collection_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_collection_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_collection(zval * return_value, xmysqlnd_collection * collection, const zend_bool clone)
@@ -774,7 +730,6 @@ mysqlx_new_collection(zval * return_value, xmysqlnd_collection * collection, con
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

@@ -57,7 +57,6 @@ struct iless
 		);
 	}
 };
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -129,8 +128,6 @@ strings to_strings(zval* zvals, int count, Pred pred)
 	}
 	return strings;
 }
-/* }}} */
-
 
 zend_string* to_zend_string(const char* str);
 zend_string* to_zend_string(const string& str);

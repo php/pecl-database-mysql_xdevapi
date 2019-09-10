@@ -115,8 +115,6 @@ bool Collection_find::init(
 	return xmysqlnd_crud_collection_find__set_criteria(
 		find_op, search_expression.to_nd_cstr()) == PASS;
 }
-/* }}} */
-
 
 Collection_find::~Collection_find()
 {
@@ -128,8 +126,6 @@ Collection_find::~Collection_find()
 		xmysqlnd_collection_free(collection, nullptr, nullptr);
 	}
 }
-/* }}} */
-
 
 bool Collection_find::fields(util::zvalue& fields)
 {
@@ -185,8 +181,6 @@ bool Collection_find::fields(util::zvalue& fields)
 
 	DBG_RETURN(true);
 }
-/* }}} */
-
 
 bool Collection_find::add_operation(
 	Collection_find::Operation operation,
@@ -256,8 +250,6 @@ bool Collection_find::add_operation(
 	}
 	DBG_RETURN(true);
 }
-/* }}} */
-
 
 bool Collection_find::sort(
 	zval* sort_expressions,
@@ -266,8 +258,6 @@ bool Collection_find::sort(
 	DBG_ENTER("mysqlx_collection__find::sort");
 	DBG_RETURN(add_operation(Operation::Sort, sort_expressions, num_of_expr));
 }
-/* }}} */
-
 
 bool Collection_find::group_by(
 	zval* sort_expressions,
@@ -276,8 +266,6 @@ bool Collection_find::group_by(
 	DBG_ENTER("mysqlx_collection__find::group_by");
 	DBG_RETURN(add_operation(Operation::Group_by, sort_expressions, num_of_expr));
 }
-/* }}} */
-
 
 bool Collection_find::having(const util::string_view& search_condition)
 {
@@ -285,8 +273,6 @@ bool Collection_find::having(const util::string_view& search_condition)
 	const MYSQLND_CSTRING search_condition_str{ search_condition.c_str(), search_condition.length() };
 	DBG_RETURN(PASS == xmysqlnd_crud_collection_find__set_having(find_op, search_condition_str));
 }
-/* }}} */
-
 
 bool Collection_find::limit(zend_long rows)
 {
@@ -299,8 +285,6 @@ bool Collection_find::limit(zend_long rows)
 
 	DBG_RETURN(PASS == xmysqlnd_crud_collection_find__set_limit(find_op, rows));
 }
-/* }}} */
-
 
 bool Collection_find::offset(zend_long position)
 {
@@ -313,8 +297,6 @@ bool Collection_find::offset(zend_long position)
 
 	DBG_RETURN(PASS == xmysqlnd_crud_collection_find__set_offset(find_op, position));
 }
-/* }}} */
-
 
 bool Collection_find::bind(const util::zvalue& bind_variables)
 {
@@ -335,8 +317,6 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 
 	DBG_RETURN(true);
 }
-/* }}} */
-
 
 bool Collection_find::lock_shared(int lock_waiting_option)
 {
@@ -344,8 +324,6 @@ bool Collection_find::lock_shared(int lock_waiting_option)
 	DBG_RETURN((xmysqlnd_crud_collection_find__enable_lock_shared(find_op) == PASS)
 		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS));
 }
-/* }}} */
-
 
 bool Collection_find::lock_exclusive(int lock_waiting_option)
 {
@@ -353,15 +331,11 @@ bool Collection_find::lock_exclusive(int lock_waiting_option)
 	DBG_RETURN((xmysqlnd_crud_collection_find__enable_lock_exclusive(find_op) == PASS)
 		&& (xmysqlnd_crud_collection_find_set_lock_waiting_option(find_op, lock_waiting_option) == PASS));
 }
-/* }}} */
-
 
 void Collection_find::execute(zval* resultset)
 {
 	execute(MYSQLX_EXECUTE_FLAG_BUFFERED, resultset);
 }
-/* }}} */
-
 
 void Collection_find::execute(
 	zend_long flags,
@@ -385,8 +359,6 @@ void Collection_find::execute(
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 Mysqlx::Crud::Find* Collection_find::get_stmt()
 {
@@ -401,7 +373,6 @@ Mysqlx::Crud::Find* Collection_find::get_stmt()
 	Mysqlx::Crud::Find* msg = static_cast<Mysqlx::Crud::Find*>(msg_shell.message);
 	return msg;
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -410,7 +381,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 {
@@ -434,8 +404,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static void
 mysqlx_collection__find__add_sort_or_grouping(
@@ -464,8 +432,6 @@ mysqlx_collection__find__add_sort_or_grouping(
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, sort)
 {
@@ -475,8 +441,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, sort)
 		Collection_find::Operation::Sort);
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, groupBy)
 {
@@ -487,8 +451,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, groupBy)
 		Collection_find::Operation::Group_by);
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 {
@@ -513,8 +475,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 {
@@ -537,8 +497,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 {
@@ -566,8 +524,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 {
@@ -591,8 +547,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockShared)
 {
@@ -614,8 +568,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockShared)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 {
@@ -637,8 +589,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, execute)
 {
@@ -659,8 +609,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_collection__find_methods[] = {
 	PHP_ME(mysqlx_collection__find, __construct, nullptr, ZEND_ACC_PRIVATE)
@@ -678,8 +626,6 @@ static const zend_function_entry mysqlx_collection__find_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zend_object_handlers collection_find_handlers;
 static HashTable collection_find_properties;
@@ -694,8 +640,6 @@ mysqlx_collection__find_free_storage(zend_object* object)
 {
 	util::free_object<Collection_find>(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_collection__find_object_allocator(zend_class_entry* class_type)
@@ -707,8 +651,6 @@ php_mysqlx_collection__find_object_allocator(zend_class_entry* class_type)
 		&collection_find_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_collection__find_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
@@ -728,16 +670,12 @@ mysqlx_register_collection__find_class(UNUSED_INIT_FUNC_ARGS, zend_object_handle
 		mysqlx_crud_operation_limitable_interface_entry,
 		mysqlx_crud_operation_sortable_interface_entry);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_collection__find_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&collection_find_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_collection__find(
@@ -758,15 +696,12 @@ mysqlx_new_collection__find(
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv)
 {
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
 	return coll_find.get_stmt();
 }
-/* }}} */
 
 } // namespace devapi
 

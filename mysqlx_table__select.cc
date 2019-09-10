@@ -110,8 +110,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 {
@@ -140,8 +138,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 		}
 	}
 }
-/* }}} */
-
 
 #define ADD_SORT 1
 #define ADD_GROUPING 2
@@ -238,8 +234,6 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, orderby)
 {
@@ -247,8 +241,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, orderby)
 	mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_SORT);
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, groupBy)
 {
@@ -256,8 +248,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, groupBy)
 	mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_GROUPING);
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 {
@@ -286,8 +276,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 {
@@ -321,8 +309,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 {
@@ -356,8 +342,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 {
@@ -394,8 +378,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 {
@@ -423,8 +405,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 {
@@ -452,8 +432,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 {
@@ -495,8 +473,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_table__select_methods[] = {
 	PHP_ME(mysqlx_table__select, __construct, nullptr, ZEND_ACC_PRIVATE)
@@ -514,7 +490,6 @@ static const zend_function_entry mysqlx_table__select_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 #if 0
 static zval *
@@ -536,7 +511,7 @@ mysqlx_table__select_property__name(const st_mysqlx_object* obj, zval * return_v
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
+
 #endif
 
 static zend_object_handlers mysqlx_object_table__select_handlers;
@@ -569,8 +544,6 @@ mysqlx_table__select_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_table__select_object_allocator(zend_class_entry * class_type)
@@ -582,8 +555,6 @@ php_mysqlx_table__select_object_allocator(zend_class_entry * class_type)
 		&mysqlx_table__select_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_table__select_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -608,16 +579,12 @@ mysqlx_register_table__select_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers 
 	zend_declare_property_null(mysqlx_table__select_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_table__select_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__select_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_table__select(zval * return_value,
@@ -647,8 +614,6 @@ mysqlx_new_table__select(zval * return_value,
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)
 {
@@ -665,7 +630,6 @@ Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)
 	Mysqlx::Crud::Find* msg = static_cast<Mysqlx::Crud::Find*>(msg_shell.message);
 	return msg;
 }
-/* }}} */
 
 } // namespace devapi
 

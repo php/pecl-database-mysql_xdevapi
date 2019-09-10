@@ -74,8 +74,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchOne)
 {
@@ -105,8 +103,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchOne)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 {
@@ -134,8 +130,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 {
@@ -168,8 +162,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 {
@@ -208,8 +200,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_doc_result_methods[] = {
 	PHP_ME(mysqlx_doc_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
@@ -221,8 +211,6 @@ static const zend_function_entry mysqlx_doc_result_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_doc_result_handlers;
 static HashTable mysqlx_doc_result_properties;
@@ -246,8 +234,6 @@ mysqlx_doc_result_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_doc_result_object_allocator(zend_class_entry * class_type)
@@ -259,8 +245,6 @@ php_mysqlx_doc_result_object_allocator(zend_class_entry * class_type)
 		&mysqlx_doc_result_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_doc_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -283,16 +267,12 @@ mysqlx_register_doc_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * m
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_doc_result_properties, mysqlx_doc_result_property_entries);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_doc_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_doc_result_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_doc_result(zval * return_value, XMYSQLND_STMT_RESULT * result)
@@ -313,8 +293,6 @@ mysqlx_new_doc_result(zval * return_value, XMYSQLND_STMT_RESULT * result)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 void fetch_one_from_doc_result(zval* return_value) {
 	DBG_ENTER("fetch_one_from_doc_result");
@@ -343,7 +321,6 @@ void fetch_one_from_doc_result(zval* return_value) {
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

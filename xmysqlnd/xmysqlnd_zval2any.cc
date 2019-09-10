@@ -122,8 +122,6 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API enum_func_status
 scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
@@ -182,8 +180,6 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API enum_func_status
 any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
@@ -287,8 +283,6 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API uint64_t
 scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
@@ -326,8 +320,6 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API int64_t
 scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
@@ -365,8 +357,6 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_STRING
 scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
@@ -409,8 +399,6 @@ scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
@@ -465,8 +453,6 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 any2log(const Mysqlx::Datatypes::Any & any)
@@ -499,8 +485,6 @@ any2log(const Mysqlx::Datatypes::Any & any)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void repeated2log(
 	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated)
@@ -509,8 +493,6 @@ PHP_MYSQL_XDEVAPI_API void repeated2log(
 		scalar2log(scalar);
 	}
 }
-/* }}} */
-
 
 } // namespace drv
 

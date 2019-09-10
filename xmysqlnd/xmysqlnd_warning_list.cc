@@ -36,8 +36,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, init)(
 	DBG_ENTER("xmysqlnd_warning_list::init");
 	DBG_RETURN(PASS);
 }
-/* }}} */
-
 
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * const warn_list,
@@ -58,8 +56,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * cons
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static unsigned int
 XMYSQLND_METHOD(xmysqlnd_warning_list, count)(const XMYSQLND_WARNING_LIST * const warn_list)
@@ -67,8 +63,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, count)(const XMYSQLND_WARNING_LIST * cons
 	DBG_ENTER("xmysqlnd_warning_list::count");
 	DBG_RETURN(warn_list->warning_count);
 }
-/* }}} */
-
 
 static const XMYSQLND_WARNING
 XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST * const warn_list, unsigned int offset)
@@ -82,8 +76,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST 
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * const warn_list)
@@ -101,8 +93,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * co
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_list)
@@ -114,8 +104,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_warning_list)
@@ -138,8 +126,6 @@ xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_MET
 	result = object_factory->get_warnings_list(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const warn_list)
@@ -151,7 +137,6 @@ xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const warn_list)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

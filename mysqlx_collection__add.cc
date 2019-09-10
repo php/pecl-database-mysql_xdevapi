@@ -77,7 +77,6 @@ execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
 						flags, MYSQLX_RESULT, resultset);
 	return PASS;
 }
-/* }}} */
 
 enum class Add_op_status
 {
@@ -102,8 +101,6 @@ collection_add_string(
 	}
 	return Add_op_status::fail;
 }
-/* }}} */
-
 
 Add_op_status
 collection_add_object(
@@ -117,8 +114,6 @@ collection_add_object(
 	}
 	return ret;
 }
-/* }}} */
-
 
 Add_op_status
 collection_add_array(
@@ -133,7 +128,6 @@ collection_add_array(
 	}
 	return ret;
 }
-/* }}} */
 
 } // anonymous namespace
 
@@ -176,8 +170,6 @@ bool Collection_add::add_docs(
 
 	return true;
 }
-/* }}} */
-
 
 bool Collection_add::add_docs(
 	xmysqlnd_collection* coll,
@@ -188,8 +180,6 @@ bool Collection_add::add_docs(
 	if (!add_docs(coll, doc, num_of_documents)) return false;
 	return xmysqlnd_crud_collection_add__set_upsert(add_op) == PASS;
 }
-/* }}} */
-
 
 Collection_add::~Collection_add()
 {
@@ -201,8 +191,6 @@ Collection_add::~Collection_add()
 		xmysqlnd_collection_free(collection, nullptr, nullptr);
 	}
 }
-/* }}} */
-
 
 void Collection_add::execute(zval* resultset)
 {
@@ -246,8 +234,6 @@ void Collection_add::execute(zval* resultset)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 //------------------------------------------------------------------------------
 
@@ -256,8 +242,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 {
@@ -276,8 +260,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 {
@@ -306,8 +288,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_collection__add_methods[] = {
 	PHP_ME(mysqlx_collection__add, __construct,	nullptr,											ZEND_ACC_PRIVATE)
@@ -317,7 +297,6 @@ static const zend_function_entry mysqlx_collection__add_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 #if 0
 static zval *
@@ -339,7 +318,7 @@ mysqlx_collection__add_property__name(const st_mysqlx_object* obj, zval* return_
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
+
 #endif
 
 static zend_object_handlers collection_add_handlers;
@@ -358,8 +337,6 @@ mysqlx_collection__add_free_storage(zend_object* object)
 {
 	util::free_object<Collection_add>(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_collection__add_object_allocator(zend_class_entry* class_type)
@@ -371,8 +348,6 @@ php_mysqlx_collection__add_object_allocator(zend_class_entry* class_type)
 		&collection_add_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_collection__add_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
@@ -394,16 +369,12 @@ mysqlx_register_collection__add_class(UNUSED_INIT_FUNC_ARGS, zend_object_handler
 	zend_declare_property_null(collection_add_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_collection__add_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&collection_add_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_collection__add(
@@ -426,7 +397,6 @@ mysqlx_new_collection__add(
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

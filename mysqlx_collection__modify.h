@@ -83,8 +83,6 @@ private:
 	drv::st_xmysqlnd_crud_collection_op__modify* modify_op{nullptr};
 
 };
-/* }}} */
-
 
 void mysqlx_new_collection__modify(
 	zval* return_value,

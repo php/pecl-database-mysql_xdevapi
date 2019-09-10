@@ -44,7 +44,6 @@ struct Url
 	string query;
 	string fragment;
 };
-/* }}} */
 
 } // namespace util
 

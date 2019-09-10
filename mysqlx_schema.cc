@@ -115,8 +115,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 /************************************** INHERITED START ****************************************/
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
@@ -143,8 +141,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 {
@@ -169,8 +165,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 mysqlx_scheme_on_error(
@@ -185,8 +179,6 @@ mysqlx_scheme_on_error(
 	mysqlx_new_exception(code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 {
@@ -216,8 +208,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 /************************************** INHERITED END   ****************************************/
 
@@ -233,8 +223,6 @@ mysqlx_schema_on_error(
 	mysqlx_new_exception(code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
-/* }}} */
-
 
 const enum_hnd_func_status on_drop_db_object_error(
 	void* /*context*/,
@@ -245,8 +233,6 @@ const enum_hnd_func_status on_drop_db_object_error(
 {
 	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 {
@@ -280,8 +266,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 {
@@ -309,8 +293,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 {
@@ -339,8 +321,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 {
@@ -367,8 +347,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 {
@@ -394,8 +372,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 struct st_mysqlx_on_db_object_ctx
 {
@@ -438,8 +414,6 @@ mysqlx_on_db_object(void* context, xmysqlnd_schema* const schema, const MYSQLND_
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static void
 mysqlx_get_database_objects(
@@ -465,7 +439,6 @@ mysqlx_get_database_objects(
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTables)
 {
@@ -484,8 +457,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTables)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 {
@@ -504,10 +475,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
-
-
 
 static const zend_function_entry mysqlx_schema_methods[] = {
 	PHP_ME(mysqlx_schema, __construct, nullptr, ZEND_ACC_PRIVATE)
@@ -527,8 +494,6 @@ static const zend_function_entry mysqlx_schema_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zval *
 mysqlx_schema_property__name(const st_mysqlx_object* obj, zval* return_value)
@@ -549,8 +514,6 @@ mysqlx_schema_property__name(const st_mysqlx_object* obj, zval* return_value)
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_schema_handlers;
 static HashTable mysqlx_schema_properties;
@@ -579,8 +542,6 @@ mysqlx_schema_free_storage(zend_object* object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_schema_object_allocator(zend_class_entry* class_type)
@@ -592,7 +553,6 @@ php_mysqlx_schema_object_allocator(zend_class_entry* class_type)
 		&mysqlx_schema_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
 } // anonymous namespace
 
@@ -618,16 +578,12 @@ mysqlx_register_schema_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_schema_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_schema_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_schema_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_schema(zval* return_value, xmysqlnd_schema* schema)
@@ -646,7 +602,6 @@ mysqlx_new_schema(zval* return_value, xmysqlnd_schema* schema)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

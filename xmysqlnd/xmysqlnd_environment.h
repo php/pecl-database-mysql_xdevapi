@@ -37,7 +37,6 @@ struct Environment
 	static int get_as_int(Variable var);
 
 };
-/* }}} */
 
 } // namespace drv
 

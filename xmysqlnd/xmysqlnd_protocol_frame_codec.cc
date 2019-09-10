@@ -43,8 +43,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, reset)(XMYSQLND_PFC * const /*pfc*/, MYSQLND_STATS
 	DBG_ENTER("xmysqlnd_pfc::reset");
 	DBG_RETURN(PASS);
 }
-/* }}} */
-
 
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
@@ -105,8 +103,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
-
 
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const /*pfc*/,
@@ -151,8 +147,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, receive)(XMYSQLND_PFC * const /*pfc*/,
 	DBG_INF("FAIL");
 	DBG_RETURN(FAIL);
 }
-/* }}} */
-
 
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const /*pfc*/, enum_xmysqlnd_client_option option, const char * const /*value*/)
@@ -161,8 +155,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, set_client_option)(XMYSQLND_PFC * const /*pfc*/, e
 	DBG_INF_FMT("option=%u", option);
 	DBG_RETURN(FAIL);
 }
-/* }}} */
-
 
 static void
 XMYSQLND_METHOD(xmysqlnd_pfc, free_contents)(XMYSQLND_PFC * /*pfc*/)
@@ -171,8 +163,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, free_contents)(XMYSQLND_PFC * /*pfc*/)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const /*pfc*/, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const /*object_factory*/, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
@@ -180,8 +170,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, init)(XMYSQLND_PFC * const /*pfc*/, const MYSQLND_
 	DBG_ENTER("xmysqlnd_pfc::init");
 	DBG_RETURN(PASS);
 }
-/* }}} */
-
 
 static void
 XMYSQLND_METHOD(xmysqlnd_pfc, dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
@@ -195,8 +183,6 @@ XMYSQLND_METHOD(xmysqlnd_pfc, dtor)(XMYSQLND_PFC * const pfc, MYSQLND_STATS * co
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_protocol_packet_frame_codec)
@@ -223,8 +209,6 @@ xmysqlnd_pfc_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE
 	pfc = object_factory->get_protocol_frame_codec(object_factory, persistent, stats, error_info);
 	DBG_RETURN(pfc);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_pfc_free(XMYSQLND_PFC * const pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -235,7 +219,6 @@ xmysqlnd_pfc_free(XMYSQLND_PFC * const pfc, MYSQLND_STATS * stats, MYSQLND_ERROR
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

@@ -58,8 +58,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_session)(const MYSQLND_CLASS_METHOD
 
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static xmysqlnd_session_data *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_session_data)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -79,8 +77,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_session_data)(const MYSQLND_CLASS_M
 	object->persistent = persistent;
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static xmysqlnd_schema *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_schema)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
@@ -104,9 +100,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_schema)(const MYSQLND_CLASS_METHODS
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
-
 
 static xmysqlnd_collection *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_collection)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
@@ -130,8 +123,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_collection)(const MYSQLND_CLASS_MET
 
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static xmysqlnd_table *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_table)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -154,8 +145,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_table)(const MYSQLND_CLASS_METHODS_
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static xmysqlnd_stmt *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -174,8 +163,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt)(const MYSQLND_CLASS_METHODS_T
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_STMT_RESULT *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -197,8 +184,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result)(const MYSQLND_CLASS_ME
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_ROWSET_BUFFERED *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -221,8 +206,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_buffered)(const MYSQLND_CLAS
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_ROWSET_FWD *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_fwd)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -246,8 +229,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset_fwd)(const MYSQLND_CLASS_MET
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_ROWSET *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -272,8 +253,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_rowset)(const MYSQLND_CLASS_METHODS
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_STMT_RESULT_META *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const /*factory*/,
@@ -296,8 +275,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_result_meta)(const MYSQLND_CLA
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -320,8 +297,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_result_field_meta)(const MYSQLND_CL
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_PFC *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -351,8 +326,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_pfc)(const MYSQLND_CLASS_METHODS_TY
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_WARNING_LIST *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_warnings_list)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -375,8 +348,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_warnings_list)(const MYSQLND_CLASS_
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static XMYSQLND_STMT_EXECUTION_STATE *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
@@ -399,8 +370,6 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_stmt_execution_state)(const MYSQLND
 	}
 	DBG_RETURN(object);
 }
-/* }}} */
-
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_object_factory)

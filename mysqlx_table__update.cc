@@ -92,8 +92,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 #define TWO_PARAM_OP__SET 1
 #define TWO_PARAM_OP__ARRAY_INSERT 2
@@ -160,15 +158,11 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, set)
 {
 	mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 {
@@ -199,8 +193,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 {
@@ -263,8 +255,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 {
@@ -298,7 +288,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 {
@@ -339,7 +328,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 {
@@ -387,8 +375,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_table__update_methods[] = {
 	PHP_ME(mysqlx_table__update, __construct,	nullptr,											ZEND_ACC_PRIVATE)
@@ -403,7 +389,6 @@ static const zend_function_entry mysqlx_table__update_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 #if 0
 static zval *
@@ -425,7 +410,7 @@ mysqlx_table__update_property__name(const st_mysqlx_object* obj, zval * return_v
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
+
 #endif
 
 static zend_object_handlers mysqlx_object_table__update_handlers;
@@ -458,8 +443,6 @@ mysqlx_table__update_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_table__update_object_allocator(zend_class_entry * class_type)
@@ -471,8 +454,6 @@ php_mysqlx_table__update_object_allocator(zend_class_entry * class_type)
 		&mysqlx_table__update_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_table__update_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -497,16 +478,12 @@ mysqlx_register_table__update_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers 
 	zend_declare_property_null(mysqlx_table__update_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_table__update_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__update_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_table__update(zval * return_value, xmysqlnd_table * table, const zend_bool clone)
@@ -530,7 +507,6 @@ mysqlx_new_table__update(zval * return_value, xmysqlnd_table * table, const zend
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

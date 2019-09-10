@@ -80,8 +80,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 struct st_xmysqlnd_exec_with_cb_ctx
 {
@@ -194,8 +192,6 @@ exec_with_cb_handle_on_row(void * context,
 #endif
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 exec_with_cb_handle_on_warning(
@@ -238,8 +234,6 @@ exec_with_cb_handle_on_warning(
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 exec_with_cb_handle_on_error(
@@ -285,8 +279,6 @@ exec_with_cb_handle_on_error(
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 exec_with_cb_handle_on_resultset_end(void * context, xmysqlnd_stmt * const /*stmt*/, const zend_bool has_more)
@@ -320,8 +312,6 @@ exec_with_cb_handle_on_resultset_end(void * context, xmysqlnd_stmt * const /*stm
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 exec_with_cb_handle_on_statement_ok(void * context,
@@ -361,8 +351,6 @@ exec_with_cb_handle_on_statement_ok(void * context,
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 #if 0
 #ifndef FAST_ZPP
@@ -412,7 +400,6 @@ mysqlx_fetch_data_with_callback(st_mysqlx_statement* object, st_xmysqlnd_exec_wi
 	object->in_execution = has_more_results;
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 void
 mysqlx_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zval * return_value)
@@ -429,8 +416,6 @@ mysqlx_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zva
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 {
@@ -452,8 +437,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 mysqlx_sql_stmt_on_warning(
@@ -467,8 +450,6 @@ mysqlx_sql_stmt_on_warning(
 	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 mysqlx_sql_stmt_on_error(
@@ -482,8 +463,6 @@ mysqlx_sql_stmt_on_error(
 	mysqlx_new_exception(code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
-/* }}} */
-
 
 void
 mysqlx_sql_statement_get_results(
@@ -522,8 +501,6 @@ mysqlx_sql_statement_get_results(
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 void
 mysqlx_sql_statement_execute(
@@ -568,8 +545,6 @@ mysqlx_sql_statement_execute(
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, execute)
 {
@@ -588,8 +563,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, hasMoreResults)
 {
@@ -610,8 +583,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, hasMoreResults)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_class_entry * const class_entry)
 {
@@ -674,24 +645,17 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 /*     proto mixed mysqlx_sql_statement::readResult(object statement, callable on_row_cb, callable on_error_cb, callable on_rset_end, callable on_stmt_ok[, mixed cb_param]]) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, getResult)
 {
 	mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_sql_statement_class_entry);
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, getNextResult)
 {
 	mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_sql_statement_class_entry);
 }
-/* }}} */
-
-
 
 static const zend_function_entry mysqlx_sql_statement_methods[] = {
 	PHP_ME(mysqlx_sql_statement, __construct,		nullptr,													ZEND_ACC_PRIVATE)
@@ -702,8 +666,6 @@ static const zend_function_entry mysqlx_sql_statement_methods[] = {
 	PHP_ME(mysqlx_sql_statement, getNextResult,	arginfo_mysqlx_sql_statement__get_result, 			ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_sql_statement_handlers;
 static HashTable mysqlx_sql_statement_properties;
@@ -733,8 +695,6 @@ mysqlx_sql_statement_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_sql_statement_object_allocator(zend_class_entry * class_type)
@@ -746,8 +706,6 @@ php_mysqlx_sql_statement_object_allocator(zend_class_entry * class_type)
 		&mysqlx_sql_statement_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
-
 
 void
 mysqlx_register_sql_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -773,16 +731,12 @@ mysqlx_register_sql_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers 
 	zend_declare_class_constant_long(mysqlx_sql_statement_class_entry, "EXECUTE_ASYNC", sizeof("EXECUTE_ASYNC") - 1, MYSQLX_EXECUTE_FLAG_ASYNC);
 	zend_declare_class_constant_long(mysqlx_sql_statement_class_entry, "BUFFERED", sizeof("BUFFERED") - 1, MYSQLX_EXECUTE_FLAG_BUFFERED);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_sql_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_sql_statement_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_sql_stmt(zval * return_value, xmysqlnd_stmt * stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query)
@@ -813,8 +767,6 @@ mysqlx_new_sql_stmt(zval * return_value, xmysqlnd_stmt * stmt, const MYSQLND_CST
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 /*********************************************************************/
 void
@@ -911,8 +863,6 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 void execute_new_statement_read_response(
 	drv::xmysqlnd_stmt* stmt,
@@ -938,15 +888,11 @@ void execute_new_statement_read_response(
 	}
 	zval_ptr_dtor(&stmt_zv);
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, hasMoreResults)
 {
@@ -967,23 +913,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, hasMoreResults)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 /*     proto mixed mysqlx_statement::readResult(object statement, callable on_row_cb, callable on_error_cb, callable on_rset_end, callable on_stmt_ok[, mixed cb_param]]) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, getResult)
 {
 	mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_statement_class_entry);
 }
-/* }}} */
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, getNextResult)
 {
 	mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAM_PASSTHRU, mysqlx_statement_class_entry);
 }
-/* }}} */
-
 
 static const zend_function_entry mysqlx_statement_methods[] = {
 	PHP_ME(mysqlx_statement, __construct,		nullptr,													ZEND_ACC_PRIVATE)
@@ -992,8 +932,6 @@ static const zend_function_entry mysqlx_statement_methods[] = {
 	PHP_ME(mysqlx_statement, getNextResult,	arginfo_mysqlx_sql_statement__get_result, 			ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_statement_handlers;
 static HashTable mysqlx_statement_properties;
@@ -1010,8 +948,6 @@ mysqlx_statement_free_storage(zend_object * object)
 	/* shows the intention that we do reuse code */
 	mysqlx_sql_statement_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_statement_object_allocator(zend_class_entry * class_type)
@@ -1019,8 +955,6 @@ php_mysqlx_statement_object_allocator(zend_class_entry * class_type)
 	/* shows the intention that we do reuse code */
 	return php_mysqlx_sql_statement_object_allocator(class_type);
 }
-/* }}} */
-
 
 void
 mysqlx_register_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -1043,16 +977,12 @@ mysqlx_register_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * my
 	zend_declare_class_constant_long(mysqlx_statement_class_entry, "EXECUTE_ASYNC", sizeof("EXECUTE_ASYNC") - 1, MYSQLX_EXECUTE_FLAG_ASYNC);
 	zend_declare_class_constant_long(mysqlx_statement_class_entry, "BUFFERED", sizeof("BUFFERED") - 1, MYSQLX_EXECUTE_FLAG_BUFFERED);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_statement_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_stmt(zval * return_value, xmysqlnd_stmt * stmt)
@@ -1078,7 +1008,6 @@ mysqlx_new_stmt(zval * return_value, xmysqlnd_stmt * stmt)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

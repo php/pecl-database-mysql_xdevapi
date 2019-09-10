@@ -43,8 +43,6 @@ object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 array2expr(const Mysqlx::Datatypes::Array & src_array, Mysqlx::Expr::Array* dest_array)
@@ -57,8 +55,6 @@ array2expr(const Mysqlx::Datatypes::Array & src_array, Mysqlx::Expr::Array* dest
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest)
@@ -85,7 +81,6 @@ any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

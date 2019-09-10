@@ -56,14 +56,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
 
 static const zend_function_entry mysqlx_warning_methods[] = {
 	PHP_ME(mysqlx_warning, __construct,	nullptr,	ZEND_ACC_PRIVATE)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 static zval *
 mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_value)
@@ -84,8 +81,6 @@ mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_valu
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zval *
 mysqlx_warning_property__level(const st_mysqlx_object* obj, zval * return_value)
@@ -95,8 +90,6 @@ mysqlx_warning_property__level(const st_mysqlx_object* obj, zval * return_value)
 	ZVAL_LONG(return_value, object->level);
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zval *
 mysqlx_warning_property__code(const st_mysqlx_object* obj, zval * return_value)
@@ -107,8 +100,6 @@ mysqlx_warning_property__code(const st_mysqlx_object* obj, zval * return_value)
 	ZVAL_LONG(return_value, object->code);
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static const struct st_mysqlx_property_entry mysqlx_warning_property_entries[] =
 {
@@ -117,8 +108,6 @@ static const struct st_mysqlx_property_entry mysqlx_warning_property_entries[] =
 	{{"code",				sizeof("code") - 1},		mysqlx_warning_property__code,		nullptr},
 	{{nullptr, 				0},							nullptr, 								nullptr}
 };
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_warning_handlers;
 static HashTable mysqlx_warning_properties;
@@ -139,8 +128,6 @@ mysqlx_warning_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
-
 
 static zend_object *
 php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
@@ -171,8 +158,6 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 	}
 	DBG_RETURN(nullptr);
 }
-/* }}} */
-
 
 void
 mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
@@ -196,16 +181,12 @@ mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysq
 	zend_declare_property_null(mysqlx_warning_class_entry, "level",		sizeof("level") - 1,		ZEND_ACC_PUBLIC);
 	zend_declare_property_null(mysqlx_warning_class_entry, "code",		sizeof("code") - 1,			ZEND_ACC_PUBLIC);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_warning_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_warning_properties);
 }
-/* }}} */
-
 
 void
 mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int level, const unsigned int code)
@@ -226,7 +207,6 @@ mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int 
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

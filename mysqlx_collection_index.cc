@@ -220,7 +220,6 @@ collection_index_on_error(
 {
 	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
 }
-/* }}} */
 
 } // anonymous namespace
 
@@ -252,8 +251,6 @@ void create_collection_index(
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 void drop_collection_index(
 	xmysqlnd_collection* collection,
@@ -276,7 +273,6 @@ void drop_collection_index(
 		RETVAL_FALSE;
 	}
 }
-/* }}} */
 
 } // namespace devapi
 

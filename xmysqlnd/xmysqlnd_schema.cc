@@ -45,21 +45,16 @@ bool is_table_object_type(const MYSQLND_CSTRING& object_type)
 {
 	return equal_mysqlnd_cstr(object_type, db_object_type_filter_table_tag);
 }
-/* }}} */
-
 
 bool is_collection_object_type(const MYSQLND_CSTRING& object_type)
 {
 	return equal_mysqlnd_cstr(object_type, db_object_type_filter_collection_tag);
 }
-/* }}} */
-
 
 bool is_view_object_type(const MYSQLND_CSTRING& object_type)
 {
 	return equal_mysqlnd_cstr(object_type, db_object_type_filter_view_tag);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -137,8 +132,6 @@ schema_xplugin_op_var_binder(
 	++ctx->counter;
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 struct st_schema_exists_in_database_ctx
 {
@@ -173,8 +166,6 @@ schema_sql_op_on_row(
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_schema::exists_in_database(
@@ -215,7 +206,6 @@ xmysqlnd_schema::exists_in_database(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 xmysqlnd_collection *
 xmysqlnd_schema::create_collection_object(
@@ -234,8 +224,6 @@ xmysqlnd_schema::create_collection_object(
 											session->data->error_info);
 	DBG_RETURN(collection);
 }
-/* }}} */
-
 
 struct st_create_collection_handler_ctx
 {
@@ -256,8 +244,6 @@ collection_op_handler_on_error(void * context,
 	ctx->on_error.handler(ctx->on_error.ctx, ctx->schema, code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 collection_op_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
@@ -295,8 +281,6 @@ collection_op_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT
 	++ctx->counter;
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 static const enum_func_status
 xmysqlnd_collection_op(
@@ -332,8 +316,6 @@ xmysqlnd_collection_op(
 							   noop__on_statement_ok);
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 xmysqlnd_collection *
 xmysqlnd_schema::create_collection(
@@ -355,8 +337,6 @@ xmysqlnd_schema::create_collection(
 	}
 	DBG_RETURN(collection);
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_schema::drop_collection(
@@ -372,8 +352,6 @@ xmysqlnd_schema::drop_collection(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 xmysqlnd_table *
 xmysqlnd_schema::create_table_object( const MYSQLND_CSTRING table_name)
@@ -388,8 +366,6 @@ xmysqlnd_schema::create_table_object( const MYSQLND_CSTRING table_name)
 								  session->data->error_info);
 	DBG_RETURN(table);
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_schema::drop_table(
@@ -405,8 +381,6 @@ xmysqlnd_schema::drop_table(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 namespace {
 
@@ -435,8 +409,6 @@ bool match_object_type(
 			return false;
 	}
 }
-/* }}} */
-
 
 static const enum_hnd_func_status
 get_db_objects_on_row(void * context,
@@ -462,8 +434,6 @@ get_db_objects_on_row(void * context,
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
-
 
 struct st_collection_get_objects_var_binder_ctx
 {
@@ -507,7 +477,6 @@ collection_get_objects_var_binder(void * context, XMYSQLND_SESSION session, XMYS
 	++ctx->counter;
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 } // anonymous namespace
 
@@ -546,8 +515,6 @@ xmysqlnd_schema::get_db_objects(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 xmysqlnd_schema *
 xmysqlnd_schema::get_reference()
@@ -557,8 +524,6 @@ xmysqlnd_schema::get_reference()
 	DBG_INF_FMT("new_refcount=%u", refcount);
 	DBG_RETURN(this);
 }
-/* }}} */
-
 
 enum_func_status
 xmysqlnd_schema::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -572,8 +537,6 @@ xmysqlnd_schema::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * erro
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 void
 xmysqlnd_schema::free_contents()
@@ -585,7 +548,6 @@ xmysqlnd_schema::free_contents()
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 PHP_MYSQL_XDEVAPI_API xmysqlnd_schema *
 xmysqlnd_schema_create(XMYSQLND_SESSION session,
@@ -605,8 +567,6 @@ xmysqlnd_schema_create(XMYSQLND_SESSION session,
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_schema_free(xmysqlnd_schema * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -625,7 +585,6 @@ xmysqlnd_schema_free(xmysqlnd_schema * const schema, MYSQLND_STATS * stats, MYSQ
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

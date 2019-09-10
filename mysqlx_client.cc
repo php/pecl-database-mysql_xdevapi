@@ -258,7 +258,6 @@ private:
 
 	Time_point next_prune_time;
 };
-/* }}} */
 
 // ---------
 
@@ -550,7 +549,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 {
@@ -569,7 +567,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 {
@@ -587,8 +584,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 const zend_function_entry client_methods[] = {
 	PHP_ME(mysqlx_client, __construct, nullptr, ZEND_ACC_PRIVATE)
@@ -596,7 +591,6 @@ const zend_function_entry client_methods[] = {
 	PHP_ME(mysqlx_client, close, arginfo_client__close, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 zend_object_handlers client_handlers;
 HashTable client_properties;
@@ -611,8 +605,6 @@ client_free_storage(zend_object* object)
 {
 	util::free_object<Client_data>(object);
 }
-/* }}} */
-
 
 zend_object*
 client_object_allocator(zend_class_entry* class_type)
@@ -625,7 +617,6 @@ client_object_allocator(zend_class_entry* class_type)
 	};
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
 void
 mysqlx_new_client(
@@ -641,7 +632,6 @@ mysqlx_new_client(
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // anonymous namespace
 
@@ -659,14 +649,12 @@ mysqlx_register_client_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx
 		client_properties,
 		client_property_entries);
 }
-/* }}} */
 
 void
 mysqlx_unregister_client_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&client_properties);
 }
-/* }}} */
 
 // ---------
 
@@ -692,7 +680,6 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 namespace client {
 
@@ -700,13 +687,11 @@ void prune_expired_connections()
 {
 	Client_state_manager::get().prune_expired_connections();
 }
-/* }}} */
 
 void release_all_clients()
 {
 	Client_state_manager::get().release_all_clients();
 }
-/* }}} */
 
 } // namespace client
 

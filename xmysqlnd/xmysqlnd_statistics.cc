@@ -46,8 +46,6 @@ const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 	{ util::literal_to_mysqlnd_str("active_connections") },
 	{ util::literal_to_mysqlnd_str("active_persistent_connections") },
 };
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void
 _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FILE_LINE_DC)
@@ -66,7 +64,6 @@ _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FI
 	mysqlnd_fill_stats_hash(stats_ptr, xmysqlnd_stats_values_names, return_value ZEND_FILE_LINE_CC);
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

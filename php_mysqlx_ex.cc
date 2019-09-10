@@ -165,8 +165,6 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	return SUCCESS;
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API int
 mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
@@ -213,7 +211,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	UNREGISTER_INI_ENTRIES();
 	return SUCCESS;
 }
-/* }}} */
 
 } // namespace devapi
 

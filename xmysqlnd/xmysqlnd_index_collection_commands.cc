@@ -177,7 +177,6 @@ collection_create_index_var_binder(
 
 	DBG_RETURN(HND_PASS);
 }
-/* }}} */
 
 } // anonymous namespace
 
@@ -216,7 +215,6 @@ bool collection_create_index_execute(
 
 	DBG_RETURN(ret == PASS);
 }
-/* }}} */
 
 /****************************** COLLECTION.DROP_INDEX() *******************************************************/
 
@@ -251,7 +249,6 @@ collection_drop_index_var_binder(
 
 	DBG_RETURN(HND_PASS);
 }
-/* }}} */
 
 } // anonymous namespace
 
@@ -291,7 +288,6 @@ bool collection_drop_index_execute(
 
 	DBG_RETURN(ret == PASS);
 }
-/* }}} */
 
 } // namespace drv
 

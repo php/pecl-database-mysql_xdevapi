@@ -58,8 +58,6 @@ private:
 	drv::st_xmysqlnd_crud_collection_op__remove* remove_op{nullptr};
 
 };
-/* }}} */
-
 
 void mysqlx_new_collection__remove(
 	zval* return_value,

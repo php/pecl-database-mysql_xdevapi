@@ -33,8 +33,6 @@ static const zend_function_entry mysqlx_schema_object_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_schema_object, getSchema, arginfo_mysqlx_schema_object__get_schema)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
-
 
 void
 mysqlx_register_schema_object_interface(
@@ -46,14 +44,11 @@ mysqlx_register_schema_object_interface(
 	mysqlx_schema_object_interface_entry = zend_register_internal_interface(&tmp_ce);
 	zend_class_implements(mysqlx_schema_object_interface_entry, 1, mysqlx_database_object_interface_entry);
 }
-/* }}} */
-
 
 void
 mysqlx_unregister_schema_object_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
-/* }}} */
 
 } // namespace devapi
 

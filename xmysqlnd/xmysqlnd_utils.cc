@@ -36,15 +36,11 @@ MYSQLND_STRING make_mysqlnd_str(const char * str) {
 	std::copy(str,str + len + 1, newstr);
 	return { newstr, len };
 }
-/* }}} */
-
 
 MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
 	MYSQLND_STRING new_str = make_mysqlnd_str(str);
 	return { new_str.s, new_str.l };
 }
-/* }}} */
-
 
 bool
 equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs)
@@ -52,8 +48,6 @@ equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs)
 	if (lhs.l != rhs.l) return false;
 	return !memcmp(lhs.s, rhs.s, lhs.l);
 }
-/* }}} */
-
 
 void
 xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
@@ -69,8 +63,6 @@ xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 			PHP_JSON_PARSER_DEFAULT_DEPTH);
 	}
 }
-/* }}} */
-
 
 void
 xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
@@ -87,7 +79,6 @@ xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 		} ZEND_HASH_FOREACH_END();
 	}
 }
-/* }}} */
 
 /* The ascii-to-ebcdic table: */
 /*
@@ -151,8 +142,6 @@ static char pct_to_char( const util::string& str,
 
 	return value;
 }
-/* }}} */
-
 
 util::string
 decode_pct_path(const util::string& encoded_path)
@@ -177,16 +166,12 @@ decode_pct_path(const util::string& encoded_path)
 	}
 	return decoded_path;
 }
-/* }}} */
-
 
 bool operator==(const google::protobuf::Message& msg_a,
 				const google::protobuf::Message& msg_b) {
   return (msg_a.GetTypeName() == msg_b.GetTypeName()) &&
 	  (msg_a.SerializeAsString() == msg_b.SerializeAsString());
 }
-/* }}} */
-
 
 } // namespace drv
 

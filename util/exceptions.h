@@ -119,7 +119,6 @@ struct xdevapi_exception : public std::runtime_error
 
 	unsigned int code;
 };
-/* }}} */
 
 struct doc_ref_exception : public std::runtime_error
 {
@@ -134,7 +133,6 @@ struct doc_ref_exception : public std::runtime_error
 
 	Severity severity;
 };
-/* }}} */
 
 void raise_xdevapi_exception(const xdevapi_exception& e);
 void raise_doc_ref_exception(const doc_ref_exception& e);

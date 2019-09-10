@@ -58,8 +58,6 @@ private:
 	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
 	std::vector<util::zvalue> docs;
 };
-/* }}} */
-
 
 void mysqlx_new_collection__add(
 	zval* return_value,

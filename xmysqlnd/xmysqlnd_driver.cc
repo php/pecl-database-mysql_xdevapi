@@ -201,8 +201,6 @@ static const MYSQLND_STRING xmysqlnd_stats_values_names[STAT_LAST] =
 	{ util::literal_to_mysqlnd_str("bytes_received_real_data_normal") },
 	{ util::literal_to_mysqlnd_str("bytes_received_real_data_ps") }
 };
-/* }}} */
-
 
 static struct st_mysqlnd_plugin_core xmysqlnd_plugin_core =
 {
@@ -233,8 +231,6 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void)
 	}
 	xmysqlnd_shutdown_protobuf_library();
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void)
 {
@@ -248,20 +244,16 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void)
 		}
 	}
 }
-/* }}} */
 
 PHP_MYSQL_XDEVAPI_API const char * xmysqlnd_get_client_info()
 {
 	return PHP_XMYSQLND_VERSION;
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API unsigned int xmysqlnd_get_client_version()
 {
 	return XMYSQLND_VERSION_ID;
 }
-/* }}} */
 
 } // namespace drv
 
