@@ -50,7 +50,6 @@ string to_string(const zval& zv)
 /* }}} */
 
 
-/* {{{ string to_string */
 string to_string(const MYSQLND_STRING& s)
 {
 	return string(s.s, s.l);
@@ -58,7 +57,6 @@ string to_string(const MYSQLND_STRING& s)
 /* }}} */
 
 
-/* {{{ string to_string */
 string to_string(const MYSQLND_CSTRING& s)
 {
 	return string(s.s, s.l);

@@ -594,7 +594,6 @@ on_ERROR(const Mysqlx::Error & error, const struct st_xmysqlnd_on_error_bind on_
 
 
 /************************************** CAPABILITIES GET **************************************************/
-/* {{{ proto capabilities_to_zv */
 static void
 capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * return_value)
 {
