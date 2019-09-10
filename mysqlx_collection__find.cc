@@ -684,7 +684,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_collection__find_methods[] */
 static const zend_function_entry mysqlx_collection__find_methods[] = {
 	PHP_ME(mysqlx_collection__find, __construct, nullptr, ZEND_ACC_PRIVATE)
 

@@ -396,7 +396,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_table__update_methods[] */
 static const zend_function_entry mysqlx_table__update_methods[] = {
 	PHP_ME(mysqlx_table__update, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 

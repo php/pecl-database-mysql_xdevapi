@@ -32,7 +32,6 @@ ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_sortable__sort, 0, ZEND_RETURN_VALU
 ZEND_END_ARG_INFO()
 
 
-/* {{{ mysqlx_crud_operation_sortable_methods[] */
 static const zend_function_entry mysqlx_crud_operation_sortable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_sortable, sort, mysqlx_crud_operation_sortable__sort)
 	{nullptr, nullptr, nullptr}

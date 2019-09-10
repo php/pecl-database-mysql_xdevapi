@@ -171,7 +171,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_table__insert_methods[] */
 static const zend_function_entry mysqlx_table__insert_methods[] = {
 	PHP_ME(mysqlx_table__insert, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 

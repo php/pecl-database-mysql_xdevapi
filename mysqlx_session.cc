@@ -764,7 +764,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 /* }}} */
 
 
-/* {{{ mysqlx_session_methods[] */
 static const zend_function_entry mysqlx_session_methods[] = {
 	PHP_ME(mysqlx_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_session__sql, ZEND_ACC_PUBLIC)

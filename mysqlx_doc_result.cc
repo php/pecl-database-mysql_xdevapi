@@ -215,7 +215,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 /* }}} */
 
 
-/* {{{ mysqlx_doc_result_methods[] */
 static const zend_function_entry mysqlx_doc_result_methods[] = {
 	PHP_ME(mysqlx_doc_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_doc_result, fetchOne,				arginfo_mysqlx_doc_result__fetch_one,				ZEND_ACC_PUBLIC)

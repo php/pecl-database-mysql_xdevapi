@@ -589,7 +589,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, nextResult)
 /* }}} */
 
 
-/* {{{ mysqlx_sql_statement_result_methods[] */
 static const zend_function_entry mysqlx_sql_statement_result_methods[] = {
 	PHP_ME(mysqlx_sql_statement_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_sql_statement_result, hasData,				arginfo_mysqlx_sql_statement_result__has_data,					ZEND_ACC_PUBLIC)

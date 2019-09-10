@@ -507,7 +507,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_table__select_methods[] */
 static const zend_function_entry mysqlx_table__select_methods[] = {
 	PHP_ME(mysqlx_table__select, __construct, nullptr, ZEND_ACC_PRIVATE)
 

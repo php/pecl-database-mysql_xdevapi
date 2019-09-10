@@ -519,7 +519,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 
 
 
-/* {{{ mysqlx_schema_methods[] */
 static const zend_function_entry mysqlx_schema_methods[] = {
 	PHP_ME(mysqlx_schema, __construct, nullptr, ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/

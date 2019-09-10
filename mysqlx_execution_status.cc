@@ -65,7 +65,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_execution_status, __construct)
 /* }}} */
 
 
-/* {{{ mysqlx_execution_status_methods[] */
 static const zend_function_entry mysqlx_execution_status_methods[] = {
 	PHP_ME(mysqlx_execution_status, __construct,				nullptr,			ZEND_ACC_PRIVATE)
 	{nullptr, nullptr, nullptr}
@@ -129,7 +128,6 @@ mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, 
 /* }}} */
 
 
-/* {{{ mysqlx_execution_status_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_execution_status_property_entries[] =
 {
 	{{"affectedItems", sizeof("affectedItems") - 1}, mysqlx_execution_status_property__affected_items, nullptr},

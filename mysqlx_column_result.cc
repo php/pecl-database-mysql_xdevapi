@@ -484,7 +484,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, isPadded)
 }
 /* }}} */
 
-/* {{{ mysqlx_column_methods[] */
 static const zend_function_entry mysqlx_column_result_methods[] = {
 	PHP_ME(mysqlx_column_result,
 		__construct,

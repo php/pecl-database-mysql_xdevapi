@@ -59,7 +59,6 @@ RAISE_EXCEPTION(const int errcode, const char * const msg)
 	} \
 }
 
-/* {{{ mysqlx_exception_methods[] */
 static const zend_function_entry mysqlx_exception_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
@@ -111,7 +110,6 @@ mysqlx_exception_property__code(const st_mysqlx_object* obj, zval * return_value
 /* }}} */
 
 
-/* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_exception_property_entries[] =
 {
 	{{"message",			sizeof("message") - 1},		mysqlx_exception_property__message,	nullptr},

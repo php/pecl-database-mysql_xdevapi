@@ -468,7 +468,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 /* }}} */
 
 
-/* {{{ mysqlx_table_methods[] */
 static const zend_function_entry mysqlx_table_methods[] = {
 	PHP_ME(mysqlx_table, __construct,		nullptr,											ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/

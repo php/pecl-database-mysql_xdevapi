@@ -58,7 +58,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 }
 /* }}} */
 
-/* {{{ mysqlx_warning_methods[] */
 static const zend_function_entry mysqlx_warning_methods[] = {
 	PHP_ME(mysqlx_warning, __construct,	nullptr,	ZEND_ACC_PRIVATE)
 	{nullptr, nullptr, nullptr}
@@ -111,7 +110,6 @@ mysqlx_warning_property__code(const st_mysqlx_object* obj, zval * return_value)
 /* }}} */
 
 
-/* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_warning_property_entries[] =
 {
 	{{"message",			sizeof("message") - 1},		mysqlx_warning_property__message,	nullptr},

@@ -260,7 +260,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 /* }}} */
 
 
-/* {{{ mysqlx_result_methods[] */
 static const zend_function_entry mysqlx_result_methods[] = {
 	PHP_ME(mysqlx_result, __construct,			nullptr,														ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_result, getAffectedItemsCount,	arginfo_mysqlx_result__get_affected_items_count,	ZEND_ACC_PUBLIC)

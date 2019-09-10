@@ -646,7 +646,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 /* }}} */
 
 
-/* {{{ mysqlx_collection_methods[] */
 static const zend_function_entry mysqlx_collection_methods[] = {
 	PHP_ME(mysqlx_collection, __construct,		nullptr,												ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/

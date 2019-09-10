@@ -329,7 +329,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_table__delete_methods[] */
 static const zend_function_entry mysqlx_table__delete_methods[] = {
 	PHP_ME(mysqlx_table__delete, __construct,	nullptr,									ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_table__delete, where,	arginfo_mysqlx_table__delete__where,	ZEND_ACC_PUBLIC)

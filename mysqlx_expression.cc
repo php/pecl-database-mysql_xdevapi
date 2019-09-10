@@ -88,7 +88,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 /* }}} */
 
 
-/* {{{ mysqlx_expression_methods[] */
 static const zend_function_entry mysqlx_expression_methods[] = {
 	PHP_ME(mysqlx_expression, __construct,		arginfo_mysqlx_expression__construct,	ZEND_ACC_PUBLIC)
 

@@ -698,7 +698,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, getNextResult)
 
 
 
-/* {{{ mysqlx_sql_statement_methods[] */
 static const zend_function_entry mysqlx_sql_statement_methods[] = {
 	PHP_ME(mysqlx_sql_statement, __construct,		nullptr,													ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_sql_statement, bind,				arginfo_mysqlx_sql_statement__bind,				ZEND_ACC_PUBLIC)
@@ -994,7 +993,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, getNextResult)
 /* }}} */
 
 
-/* {{{ mysqlx_statement_methods[] */
 static const zend_function_entry mysqlx_statement_methods[] = {
 	PHP_ME(mysqlx_statement, __construct,		nullptr,													ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_statement, hasMoreResults,	arginfo_mysqlx_sql_statement__has_more_results,	ZEND_ACC_PUBLIC)

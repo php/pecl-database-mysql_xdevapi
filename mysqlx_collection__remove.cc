@@ -332,7 +332,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_collection__remove_methods[] */
 static const zend_function_entry mysqlx_collection__remove_methods[] = {
 	PHP_ME(mysqlx_collection__remove, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 

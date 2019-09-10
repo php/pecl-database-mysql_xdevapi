@@ -317,7 +317,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 /* }}} */
 
 
-/* {{{ mysqlx_collection__add_methods[] */
 static const zend_function_entry mysqlx_collection__add_methods[] = {
 	PHP_ME(mysqlx_collection__add, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 

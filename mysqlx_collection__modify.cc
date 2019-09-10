@@ -738,7 +738,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 /* }}} */
 
 
-/* {{{ mysqlx_collection__modify_methods[] */
 static const zend_function_entry mysqlx_collection__modify_methods[] = {
 	PHP_ME(mysqlx_collection__modify, 	__construct,	nullptr,												ZEND_ACC_PRIVATE)
 

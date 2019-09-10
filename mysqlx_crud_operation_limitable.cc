@@ -31,7 +31,6 @@ ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_limitable__limit, 0, ZEND_RETURN_VA
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-/* {{{ mysqlx_crud_operation_limitable_methods[] */
 static const zend_function_entry mysqlx_crud_operation_limitable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_limitable, limit, mysqlx_crud_operation_limitable__limit)
 	{nullptr, nullptr, nullptr}

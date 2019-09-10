@@ -592,7 +592,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 /* }}} */
 
 
-/* {{{ client_methods[] */
 const zend_function_entry client_methods[] = {
 	PHP_ME(mysqlx_client, __construct, nullptr, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_client, getSession, arginfo_client__get_session, ZEND_ACC_PUBLIC)
