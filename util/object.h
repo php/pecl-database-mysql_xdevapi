@@ -38,7 +38,6 @@ namespace util {
 
 using object_allocator_func_t = zend_object*(zend_class_entry*);
 
-/* {{{ mysqlx::util::register_class */
 template<typename ... Interfaces>
 zend_class_entry* register_class(
 	zend_class_entry* tmp_ce,
@@ -78,7 +77,6 @@ zend_class_entry* register_class(
 }
 /* }}} */
 
-/* {{{ mysqlx::util::register_derived_class */
 template<typename ... Interfaces>
 zend_class_entry* register_derived_class(
 	zend_class_entry* tmp_ce,
@@ -103,7 +101,6 @@ zend_class_entry* register_derived_class(
 }
 /* }}} */
 
-/* {{{ mysqlx::util::alloc_object */
 template<typename Data_object, typename Allocation_tag = util::alloc_tag_t>
 devapi::st_mysqlx_object* alloc_object(
 	zend_class_entry* class_type,
@@ -130,7 +127,6 @@ devapi::st_mysqlx_object* alloc_object(
 }
 /* }}} */
 
-/* {{{ mysqlx::util::alloc_permanent_object */
 template<typename Data_object>
 devapi::st_mysqlx_object* alloc_permanent_object(
 	zend_class_entry* class_type,
@@ -144,7 +140,6 @@ devapi::st_mysqlx_object* alloc_permanent_object(
 }
 /* }}} */
 
-/* {{{ mysqlx::util::fetch_data_object */
 template<typename Data_object>
 Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
 {
@@ -158,7 +153,6 @@ Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::fetch_data_object */
 template<typename Data_object>
 Data_object& fetch_data_object(zval* from)
 {
@@ -169,7 +163,6 @@ Data_object& fetch_data_object(zval* from)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::fetch_data_object */
 template<typename Data_object>
 Data_object& fetch_data_object(zend_object* from)
 {
@@ -180,7 +173,6 @@ Data_object& fetch_data_object(zend_object* from)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::init_object */
 template<typename Data_object>
 Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
 {
@@ -193,7 +185,6 @@ Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::free_object */
 template<typename Data_object>
 void free_object(zend_object* object)
 {
@@ -209,7 +200,6 @@ void free_object(zend_object* object)
 /* }}} */
 
 
-/* {{{ mysqlx::util::free_object */
 template<typename Result, typename Result_iterator>
 zend_object_iterator* create_result_iterator(
 	zend_class_entry* /*ce*/,

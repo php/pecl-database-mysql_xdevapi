@@ -27,7 +27,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ mysqlx::util::safe_call_php_method */
 void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
 	MYSQL_XDEVAPI_TRY {
@@ -36,7 +35,6 @@ void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::safe_call_php_function */
 void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
 	MYSQL_XDEVAPI_TRY {

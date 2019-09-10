@@ -35,7 +35,6 @@ namespace
 const char* const General_sql_state{ GENERAL_SQL_STATE };
 const char* const Unknown_error_message{ "Unknown error" };
 
-/* {{{ mysqlx::util::code_to_err_msg */
 const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::fetch_fail, "Couldn't fetch data" },
 	{ xdevapi_exception::Code::meta_fail, "Unable to extract metadata" },
@@ -226,7 +225,6 @@ doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::raise_xdevapi_exception */
 void raise_xdevapi_exception(const xdevapi_exception& e)
 {
 	const char* what = e.what();
@@ -234,7 +232,6 @@ void raise_xdevapi_exception(const xdevapi_exception& e)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::raise_doc_ref_exception */
 void raise_doc_ref_exception(const doc_ref_exception& e)
 {
 	static const std::map<doc_ref_exception::Severity, int> severity_mapping = {
@@ -247,7 +244,6 @@ void raise_doc_ref_exception(const doc_ref_exception& e)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::raise_common_exception */
 void raise_common_exception(const std::exception& e)
 {
 	const char* what = e.what();
@@ -256,7 +252,6 @@ void raise_common_exception(const std::exception& e)
 }
 /* }}} */
 
-/* {{{ mysqlx::util::raise_unknown_exception */
 void raise_unknown_exception()
 {
 	const char* what = "MySQL XDevAPI - unknown exception";
@@ -267,7 +262,6 @@ void raise_unknown_exception()
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::prepare_reason_msg */
 string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what)
 {
 	ostringstream os;
@@ -277,21 +271,18 @@ string prepare_reason_msg(unsigned int code, const string& sql_state, const stri
 }
 /* }}} */
 
-/* {{{ mysqlx::util::prepare_reason_msg */
 string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what)
 {
 	return prepare_reason_msg(code, to_string(sql_state), to_string(what));
 }
 /* }}} */
 
-/* {{{ mysqlx::util::log_warning */
 void log_warning(const string& msg)
 {
 	php_error_docref(nullptr, E_WARNING, "%s", msg.c_str());
 }
 /* }}} */
 
-/* {{{ mysqlx::util::set_error_info */
 void set_error_info(util::xdevapi_exception::Code code, MYSQLND_ERROR_INFO* error_info)
 {
 	error_info->error_no = static_cast<unsigned int>(code);

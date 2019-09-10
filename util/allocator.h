@@ -112,7 +112,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ mysqlx::util::allocator */
 template<typename T, typename allocation_tag = alloc_tag_t>
 class allocator
 {
@@ -223,7 +222,6 @@ using permanent_allocable = internal::allocable<permanent_tag_t>;
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::deleter */
 template<typename T>
 struct deleter
 {
