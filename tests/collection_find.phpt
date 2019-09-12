@@ -104,7 +104,12 @@ function verify_composed_sort( $data ) {
 
 	verify_composed_sort($data);
 
-	$res = $coll->find()->fields(['name','age'])->limit(3)->sort('age desc')->having('age > 40')->execute();
+	$res = $coll->find()
+		->fields(['name','age'])
+		->limit(3)->sort('age desc')
+		->having('age > :ageParam')
+		->bind(['ageParam' => 40])
+		->execute();
 	expect_eq($res->getWarningsCount(), 0);
 	expect_eq($res->getWarnings(), []);
 	$data = $res->fetchAll();
