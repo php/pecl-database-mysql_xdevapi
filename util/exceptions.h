@@ -30,7 +30,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ mysqlx::util::xdevapi_exception */
 struct xdevapi_exception : public std::runtime_error
 {
 	enum class Code : unsigned int
@@ -120,9 +119,7 @@ struct xdevapi_exception : public std::runtime_error
 
 	unsigned int code;
 };
-/* }}} */
 
-/* {{{ mysqlx::util::doc_ref_exception */
 struct doc_ref_exception : public std::runtime_error
 {
 	enum class Severity
@@ -136,7 +133,6 @@ struct doc_ref_exception : public std::runtime_error
 
 	Severity severity;
 };
-/* }}} */
 
 void raise_xdevapi_exception(const xdevapi_exception& e);
 void raise_doc_ref_exception(const doc_ref_exception& e);

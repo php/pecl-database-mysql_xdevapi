@@ -44,7 +44,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_base_result__get_warnings, 0, ZEND_RETURN_
 ZEND_END_ARG_INFO()
 
 
-/* {{{ mysqlx_base_result_methods[] */
 static const zend_function_entry mysqlx_base_result_methods[] = {
 	//PHP_ME(mysqlx_base_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
 	PHP_ABSTRACT_ME(mysqlx_base_result, getWarningsCount,		arginfo_mysqlx_base_result__get_warnings_count)
@@ -52,10 +51,7 @@ static const zend_function_entry mysqlx_base_result_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ mysqlx_register_base_result_interface */
 void
 mysqlx_register_base_result_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
@@ -63,14 +59,11 @@ mysqlx_register_base_result_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handler
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "BaseResult", mysqlx_base_result_methods);
 	mysqlx_base_result_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
-/* }}} */
 
-/* {{{ mysqlx_unregister_base_result_interface */
 void
 mysqlx_unregister_base_result_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
-/* }}} */
 
 } // namespace devapi
 

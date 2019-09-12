@@ -17,7 +17,7 @@ error_reporting=0
 
 	$coll->remove('true')->sort('age desc')->limit(2)->execute();
 	$coll->modify('_id in (1,13,5,7)')->unset(['age'])->execute();
-	$coll->remove('job in (\'Barista\', \'Programmatore\', \'Ballerino\', \'Programmatrice\')')->limit(5)->sort(['age desc', 'name asc'])->execute();
+	$coll->remove("job in ('Barista', 'Programmatore', 'Ballerino', 'Programmatrice')")->limit(5)->sort(['age desc', 'name asc'])->execute();
 
 	$res = $coll->find()->execute()->fetchAll();
 	expect_eq($res[0]['job'],'Programmatore');

@@ -28,7 +28,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ iless */
 struct iless
 {
 	bool operator()(const char* lhs, const char* rhs) const
@@ -58,7 +57,6 @@ struct iless
 		);
 	}
 };
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -120,7 +118,6 @@ inline std::string to_std_string(const std::string& str)
 
 strings to_strings(zval* zvals, int count);
 
-/* {{{ to_strings */
 template<typename Pred>
 strings to_strings(zval* zvals, int count, Pred pred)
 {
@@ -131,8 +128,6 @@ strings to_strings(zval* zvals, int count, Pred pred)
 	}
 	return strings;
 }
-/* }}} */
-
 
 zend_string* to_zend_string(const char* str);
 zend_string* to_zend_string(const string& str);

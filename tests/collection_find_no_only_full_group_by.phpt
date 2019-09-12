@@ -16,7 +16,7 @@ mysqlx Collection find, no 'only full group by'
 
 	//This will disable 'only full group by'
 	$new_sql_modes = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-	$session->sql('SET SESSION sql_mode = \''.$new_sql_modes.'\'')->execute();
+	$session->sql("SET SESSION sql_mode = '".$new_sql_modes."'")->execute();
 
 	try {
 		//This is going to work now but the representant of each group is indeterminate (probably the first available entry)
@@ -34,7 +34,7 @@ mysqlx Collection find, no 'only full group by'
 		test_step_failed();
 	}
 
-	$session->sql('SET SESSION sql_mode = \''.$saved_sql_modes.'\'')->execute();
+	$session->sql("SET SESSION sql_mode = '".$saved_sql_modes."'")->execute();
 	//This shall fail now
 	try {
 		$res = $coll->find()->fields(['name as n','age as a','job as j'])->groupBy('j')->execute();

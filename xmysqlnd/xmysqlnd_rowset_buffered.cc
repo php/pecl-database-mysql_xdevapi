@@ -29,7 +29,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_rowset_buffered::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, init)(XMYSQLND_ROWSET_BUFFERED * const result,
 												const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const /*factory*/,
@@ -41,10 +40,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, init)(XMYSQLND_ROWSET_BUFFERED * const
 	result->stmt = stmt->get_reference(stmt);
 	DBG_RETURN(result->stmt? PASS:FAIL);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::next */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, next)(XMYSQLND_ROWSET_BUFFERED * const result,
 												MYSQLND_STATS * const /*stats*/,
@@ -57,10 +53,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, next)(XMYSQLND_ROWSET_BUFFERED * const
 	++result->row_cursor;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::fetch_current */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_current)(XMYSQLND_ROWSET_BUFFERED * const result,
 														 zval * row,
@@ -73,7 +66,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_current)(XMYSQLND_ROWSET_BUFFERE
 	DBG_INF_FMT("%s", PASS == ret? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 /*!!!
   For Collection.find() this method should not call array_init_size() but ZVAL_STRINGL(row).
@@ -81,7 +73,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_current)(XMYSQLND_ROWSET_BUFFERE
   flatten to not use an array in case of just one column.
 */
 
-/* {{{ xmysqlnd_rowset_buffered::fetch_one */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one)(XMYSQLND_ROWSET_BUFFERED * const result,
 													 const size_t row_cursor,
@@ -113,10 +104,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one)(XMYSQLND_ROWSET_BUFFERED * 
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::fetch_one_c */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one_c)(XMYSQLND_ROWSET_BUFFERED * const result,
 													   const size_t row_cursor,
@@ -148,10 +136,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_one_c)(XMYSQLND_ROWSET_BUFFERED 
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::fetch_all */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all)(XMYSQLND_ROWSET_BUFFERED * const result,
 													 zval * set,
@@ -170,10 +155,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all)(XMYSQLND_ROWSET_BUFFERED * 
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::fetch_all_c */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED * const result,
 													   zval ** set,
@@ -204,10 +186,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, fetch_all_c)(XMYSQLND_ROWSET_BUFFERED 
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::rewind */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, rewind)(XMYSQLND_ROWSET_BUFFERED * const result)
 {
@@ -215,10 +194,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, rewind)(XMYSQLND_ROWSET_BUFFERED * con
 	result->row_cursor = 0;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::eof */
 static zend_bool
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, eof)(const XMYSQLND_ROWSET_BUFFERED * const result)
 {
@@ -226,10 +202,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, eof)(const XMYSQLND_ROWSET_BUFFERED * 
 	DBG_INF_FMT("%s", result->row_cursor >= result->row_count? "TRUE":"FALSE");
 	DBG_RETURN(result->row_cursor >= result->row_count? TRUE:FALSE);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::create_row */
 static zval *
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, create_row)(XMYSQLND_ROWSET_BUFFERED * const result,
 													  const XMYSQLND_STMT_RESULT_META * const meta,
@@ -241,10 +214,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, create_row)(XMYSQLND_ROWSET_BUFFERED *
 	DBG_ENTER("xmysqlnd_rowset_buffered::create_row");
 	DBG_RETURN(row);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::destroy_row */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, destroy_row)(XMYSQLND_ROWSET_BUFFERED * const result,
 													   zval * row,
@@ -257,10 +227,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, destroy_row)(XMYSQLND_ROWSET_BUFFERED 
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::add_row */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, add_row)(XMYSQLND_ROWSET_BUFFERED * const result, zval * row, MYSQLND_STATS * const /*stats*/, MYSQLND_ERROR_INFO * const /*error_info*/)
 {
@@ -277,20 +244,14 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, add_row)(XMYSQLND_ROWSET_BUFFERED * co
 	DBG_INF_FMT("row_count=%u  rows_allocated=%u", static_cast<unsigned int>(result->row_count), static_cast<unsigned int>(result->rows_allocated));
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::get_row_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, get_row_count)(const XMYSQLND_ROWSET_BUFFERED * const result)
 {
 	DBG_ENTER("xmysqlnd_rowset_buffered::get_row_count");
 	DBG_RETURN(result->row_count);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::attach_meta */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, attach_meta)(XMYSQLND_ROWSET_BUFFERED * const result,
 													   XMYSQLND_STMT_RESULT_META * const meta,
@@ -306,10 +267,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, attach_meta)(XMYSQLND_ROWSET_BUFFERED 
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::free_rows_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows_contents)(XMYSQLND_ROWSET_BUFFERED * const result,
 															  MYSQLND_STATS * stats,
@@ -335,10 +293,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows_contents)(XMYSQLND_ROWSET_BU
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::free_rows */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows)(XMYSQLND_ROWSET_BUFFERED * const result,
 													 MYSQLND_STATS * stats,
@@ -357,10 +312,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_rows)(XMYSQLND_ROWSET_BUFFERED * 
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_contents)(XMYSQLND_ROWSET_BUFFERED * const result,
 														 MYSQLND_STATS * stats,
@@ -374,10 +326,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, free_contents)(XMYSQLND_ROWSET_BUFFERE
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_rowset_buffered, dtor)(XMYSQLND_ROWSET_BUFFERED * const result,
 												MYSQLND_STATS * stats,
@@ -394,8 +343,6 @@ XMYSQLND_METHOD(xmysqlnd_rowset_buffered, dtor)(XMYSQLND_ROWSET_BUFFERED * const
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_rowset_buffered)
@@ -425,7 +372,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_rowset_buffered);
 
-/* {{{ xmysqlnd_rowset_buffered_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_BUFFERED *
 xmysqlnd_rowset_buffered_create(xmysqlnd_stmt * stmt,
 								const zend_bool persistent,
@@ -438,10 +384,7 @@ xmysqlnd_rowset_buffered_create(xmysqlnd_stmt * stmt,
 	result = object_factory->get_rowset_buffered(object_factory, stmt, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_rowset_buffered_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_rowset_buffered_free(XMYSQLND_ROWSET_BUFFERED * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -452,7 +395,6 @@ xmysqlnd_rowset_buffered_free(XMYSQLND_ROWSET_BUFFERED * const result, MYSQLND_S
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

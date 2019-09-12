@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2019-06-12</date>
+	<date>2019-10-14</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.17</release>
+		<release>8.0.18</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,12 +61,15 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#12190-DevAPI: indexing array fields
-		WL#12683-DevAPI: Add overlaps and not_overlaps as operator
-		WL#13012: Deprecate methods
-		WL#11852: erase temporary protobuf files at 'make clean' step
-		orabug #28605926: unclear _id related messages with 5.7
-		adapt sources to build with PHP-7.4
+		WL#12732: DevAPI: Specify TLS ciphers to be used by a client or session
+		orabug #29421446: fixes for secure connections
+		orabug #30093227: mysql_xdevapi\CollectionFind::fields() path fails when ends in number
+		orabug #30088118: clean up XSession leavings
+		orabug #30088150: remove messages - completed
+		orabug #30084547: improve zval wrapper
+		orabug #29998874: fix tests to pass with default auth_plugin=caching_sha2_password
+		orabug #30096952: add support for building in static mode
+		fixes for building with PHP-7.4+
 	</notes>
  <contents>
   <dir name="/">
@@ -79,6 +82,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
    <file name="examples.php" role="test" />
+   <file name="json_api.h" role="src" />
    <file name="mysql_xdevapi.def" role="src" />
    <file name="mysqlnd_api.h" role="src" />
    <file name="mysqlx_base_result.cc" role="src" />
@@ -242,6 +246,18 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
       <file name="successful_no_timeout.phpt" role="test" />
       <file name="timeout_utils.inc" role="test" />
      </dir>
+     <dir name="tls">
+      <file name="ciphers.phpt" role="test" />
+      <file name="ciphersuites.phpt" role="test" />
+      <file name="ciphersuites_tlsv13.phpt" role="test" />
+      <file name="incorrect_ciphers.phpt" role="test" />
+      <file name="incorrect_ciphersuites.phpt" role="test" />
+      <file name="incorrect_ciphersuites_tlsv13.phpt" role="test" />
+      <file name="incorrect_tls_versions.phpt" role="test" />
+      <file name="tls_utils.inc" role="test" />
+      <file name="tls_versions.phpt" role="test" />
+      <file name="tls_versions_tlsv13.phpt" role="test" />
+     </dir>
     </dir>
     <dir name="client">
      <file name="client_disabled.phpt" role="test" />
@@ -280,6 +296,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="fail.phpt" role="test" />
      <file name="index_utils.inc" role="test" />
      <file name="multi.phpt" role="test" />
+    </dir>
+    <dir name="orabugs">
+     <file name="orabug_30093227.phpt" role="test" />
+     <file name="orabug_30226250.phpt" role="test" />
     </dir>
     <dir name="prepared_statement">
      <file name="ps_collection_find.phpt" role="test" />
@@ -462,6 +482,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="url_utils.h" role="src" />
     <file name="value.cc" role="src" />
     <file name="value.h" role="src" />
+    <file name="value.inl" role="src" />
     <file name="zend_utils.cc" role="src" />
     <file name="zend_utils.h" role="src" />
    </dir>
@@ -708,6 +729,27 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2019-06-12</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.17</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#12190-DevAPI: indexing array fields
+			WL#12683-DevAPI: Add overlaps and not_overlaps as operator
+			WL#13012: Deprecate methods
+			WL#11852: erase temporary protobuf files at 'make clean' step
+			orabug #28605926: unclear _id related messages with 5.7
+			adapt sources to build with PHP-7.4
+		</notes>
+	</release>
 	<release>
 		<date>2019-03-07</date>
 		<time>20:00:00</time>

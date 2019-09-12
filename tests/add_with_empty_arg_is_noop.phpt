@@ -16,7 +16,7 @@ error_reporting=0
 
 		$result = $coll->add([])->execute();//Single noop
 
-		expect_false($result);
+		expect_null($result);
 
 		$res = $coll->find()->execute()->fetchAll();
 		expect_empty_array($res);
@@ -30,13 +30,13 @@ error_reporting=0
 		expect_eq($result->getAffectedItemsCount(), 2);
 
 		$result = $coll->add([])->execute();//Again noop
-		expect_false($result);
+		expect_null($result);
 
 		$res = $coll->find()->execute()->fetchAll();
 		expect_eq(count($res),2);
 
 		$result = $coll->add([],[],[])->execute(); //Perverted case...
-		expect_false($result);
+		expect_null($result);
 		$res = $coll->find()->execute()->fetchAll();
 		expect_eq(count($res),2);
 

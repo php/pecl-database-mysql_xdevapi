@@ -30,7 +30,7 @@ error_reporting=0
 		$test[0] = "1";
 
 		try {
-			#This should fail as the DB already exist
+			// This should fail as the DB already exist
 			$session->createSchema($test_schema_name);
 		} catch(Exception $e) {
 			$test[1] = "1";

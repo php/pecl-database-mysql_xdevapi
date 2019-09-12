@@ -23,7 +23,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ Environment::get_as_string */
 util::string Environment::get_as_string(Variable var)
 {
 	struct Variable_info {
@@ -53,16 +52,12 @@ util::string Environment::get_as_string(Variable var)
 
 	return var_info.default_value;
 }
-/* }}} */
 
-
-/* {{{ Environment::get_as_int */
 int Environment::get_as_int(Variable var)
 {
 	const util::string& value_str = get_as_string(var);
 	return std::stoi(value_str.c_str());
 }
-/* }}} */
 
 } // namespace drv
 

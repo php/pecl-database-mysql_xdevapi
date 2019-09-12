@@ -205,7 +205,6 @@ struct Idle_connection
 };
 
 
-/* {{{ Connection_pool */
 class Connection_pool
 	: public util::permanent_allocable
 	, private drv::Connection_pool_callback
@@ -259,7 +258,6 @@ private:
 
 	Time_point next_prune_time;
 };
-/* }}} */
 
 // ---------
 
@@ -547,14 +545,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_client__close, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 
-/* {{{ mysqlx_client::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
 
-/* {{{ mysqlx_client::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 {
 	DBG_ENTER("mysqlx_client::getSession");
@@ -572,9 +567,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-/* {{{ mysqlx_client::close() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 {
 	DBG_ENTER("mysqlx_client::close");
@@ -591,17 +584,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ client_methods[] */
 const zend_function_entry client_methods[] = {
 	PHP_ME(mysqlx_client, __construct, nullptr, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_client, getSession, arginfo_client__get_session, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_client, close, arginfo_client__close, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 zend_object_handlers client_handlers;
 HashTable client_properties;
@@ -611,16 +600,12 @@ const st_mysqlx_property_entry client_property_entries[] =
 	{{nullptr, 0}, nullptr, nullptr}
 };
 
-/* {{{ client_free_storage */
 void
 client_free_storage(zend_object* object)
 {
 	util::free_object<Client_data>(object);
 }
-/* }}} */
 
-
-/* {{{ client_object_allocator */
 zend_object*
 client_object_allocator(zend_class_entry* class_type)
 {
@@ -632,9 +617,7 @@ client_object_allocator(zend_class_entry* class_type)
 	};
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
-/* {{{ mysqlx_new_client */
 void
 mysqlx_new_client(
 	const util::string_view& connection_uri,
@@ -649,11 +632,9 @@ mysqlx_new_client(
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // anonymous namespace
 
-/* {{{ mysqlx_register_client_class */
 void
 mysqlx_register_client_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
@@ -668,19 +649,15 @@ mysqlx_register_client_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx
 		client_properties,
 		client_property_entries);
 }
-/* }}} */
 
-/* {{{ mysqlx_unregister_client_class */
 void
 mysqlx_unregister_client_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&client_properties);
 }
-/* }}} */
 
 // ---------
 
-/* {{{ mysqlx\\mysql_xdevapi_getClient */
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 {
 	util::string_view connection_uri;
@@ -703,23 +680,18 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 namespace client {
 
-/* {{{ prune_expired_connections */
 void prune_expired_connections()
 {
 	Client_state_manager::get().prune_expired_connections();
 }
-/* }}} */
 
-/* {{{ release_all_clients */
 void release_all_clients()
 {
 	Client_state_manager::get().release_all_clients();
 }
-/* }}} */
 
 } // namespace client
 

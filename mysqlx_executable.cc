@@ -28,15 +28,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_executable__execute, 0, ZEND_RETURN_VALUE,
 ZEND_END_ARG_INFO()
 
 
-/* {{{ mysqlx_executable_methods[] */
 static const zend_function_entry mysqlx_executable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_executable, execute, arginfo_mysqlx_executable__execute)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ mysqlx_register_executable_interface */
 void
 mysqlx_register_executable_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
@@ -44,15 +40,11 @@ mysqlx_register_executable_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Executable", mysqlx_executable_methods);
 	mysqlx_executable_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_executable_interface */
 void
 mysqlx_unregister_executable_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
-/* }}} */
 
 } // namespace devapi
 

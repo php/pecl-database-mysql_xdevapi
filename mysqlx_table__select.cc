@@ -106,15 +106,11 @@ struct st_mysqlx_table__select : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_table__select::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
 
-
-/* {{{ mysqlx_table__select::where */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -142,13 +138,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 		}
 	}
 }
-/* }}} */
-
 
 #define ADD_SORT 1
 #define ADD_GROUPING 2
 
-/* {{{ mysqlx_table__select__add_sort_or_grouping */
 static void
 mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
@@ -169,11 +162,15 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 	}
 
 	for(int i{0}; i < num_of_expr ; ++i ) {
-		if (Z_TYPE(sort_expr[i]) != IS_STRING &&
-			Z_TYPE(sort_expr[i]) != IS_OBJECT &&
-			Z_TYPE(sort_expr[i]) != IS_ARRAY) {
-			php_error_docref(nullptr, E_WARNING, "Only strings, objects and arrays can be added. Type is %u",
-							 Z_TYPE(sort_expr[i]));
+		auto sort_expr_type{ Z_TYPE(sort_expr[i]) };
+		if (sort_expr_type != IS_STRING &&
+			sort_expr_type != IS_OBJECT &&
+			sort_expr_type != IS_ARRAY) {
+			php_error_docref(
+				nullptr,
+				E_WARNING,
+				"Only strings, objects and arrays can be added. Type is %u",
+				sort_expr_type);
 			DBG_VOID_RETURN;
 		}
 	}
@@ -237,30 +234,21 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::orderby() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, orderby)
 {
 	DBG_ENTER("mysqlx_table__select::orderby");
 	mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_SORT);
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::groupBy() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, groupBy)
 {
 	DBG_ENTER("mysqlx_table__select::groupBy");
 	mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAM_PASSTHRU, ADD_GROUPING);
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::having() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -288,10 +276,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -324,10 +309,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::offset() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -360,10 +342,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 {
 	st_mysqlx_table__select* object{nullptr};
@@ -399,10 +378,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::lockShared() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 {
 	DBG_ENTER("mysqlx_table__select::lockShared");
@@ -429,10 +405,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::lockExclusive() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 {
 	DBG_ENTER("mysqlx_table__select::lockExclusive");
@@ -459,10 +432,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__select::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 {
 	DBG_ENTER("mysqlx_table__select::execute");
@@ -503,10 +473,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_table__select_methods[] */
 static const zend_function_entry mysqlx_table__select_methods[] = {
 	PHP_ME(mysqlx_table__select, __construct, nullptr, ZEND_ACC_PRIVATE)
 
@@ -523,10 +490,8 @@ static const zend_function_entry mysqlx_table__select_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 #if 0
-/* {{{ mysqlx_table__select_property__name */
 static zval *
 mysqlx_table__select_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -546,7 +511,7 @@ mysqlx_table__select_property__name(const st_mysqlx_object* obj, zval * return_v
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
+
 #endif
 
 static zend_object_handlers mysqlx_object_table__select_handlers;
@@ -560,7 +525,6 @@ const struct st_mysqlx_property_entry mysqlx_table__select_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_table__select_free_storage */
 static void
 mysqlx_table__select_free_storage(zend_object * object)
 {
@@ -580,10 +544,7 @@ mysqlx_table__select_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
 
-
-/* {{{ php_mysqlx_table__select_object_allocator */
 static zend_object *
 php_mysqlx_table__select_object_allocator(zend_class_entry * class_type)
 {
@@ -594,10 +555,7 @@ php_mysqlx_table__select_object_allocator(zend_class_entry * class_type)
 		&mysqlx_table__select_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_table__select_class */
 void
 mysqlx_register_table__select_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -621,19 +579,13 @@ mysqlx_register_table__select_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers 
 	zend_declare_property_null(mysqlx_table__select_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_table__select_class */
 void
 mysqlx_unregister_table__select_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__select_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_table__select */
 void
 mysqlx_new_table__select(zval * return_value,
 				xmysqlnd_table * table,
@@ -662,10 +614,7 @@ mysqlx_new_table__select(zval * return_value,
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ get_stmt_from_table_select */
 Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)
 {
 	auto& data_object = util::fetch_data_object<st_mysqlx_table__select>(object_zv);
@@ -681,7 +630,6 @@ Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)
 	Mysqlx::Crud::Find* msg = static_cast<Mysqlx::Crud::Find*>(msg_shell.message);
 	return msg;
 }
-/* }}} */
 
 } // namespace devapi
 

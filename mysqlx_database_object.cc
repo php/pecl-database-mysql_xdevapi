@@ -36,7 +36,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_database_object__exists_in_database, 0, ZE
 ZEND_END_ARG_INFO()
 
 
-/* {{{ mysqlx_database_object_methods[] */
 static const zend_function_entry mysqlx_database_object_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_database_object, getSession, arginfo_mysqlx_database_object__get_session)
 
@@ -46,10 +45,7 @@ static const zend_function_entry mysqlx_database_object_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ mysqlx_register_database_object_interface */
 void
 mysqlx_register_database_object_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
@@ -57,15 +53,11 @@ mysqlx_register_database_object_interface(UNUSED_INIT_FUNC_ARGS, zend_object_han
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "DatabaseObject", mysqlx_database_object_methods);
 	mysqlx_database_object_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_database_object_interface */
 void
 mysqlx_unregister_database_object_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
-/* }}} */
 
 } // namespace devapi
 

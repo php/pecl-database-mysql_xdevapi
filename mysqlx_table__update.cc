@@ -88,25 +88,21 @@ struct st_mysqlx_table__update : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_table__update::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 #define TWO_PARAM_OP__SET 1
 #define TWO_PARAM_OP__ARRAY_INSERT 2
 #define TWO_PARAM_OP__ARRAY_APPEND 3
 
-/* {{{ mysqlx_table__update__2_param_op */
 static void
 mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned int op_type)
 {
 	st_mysqlx_table__update* object{nullptr};
 	zval* object_zv{nullptr};
-	const zval* value{nullptr};
+	zval* value{nullptr};
 	MYSQLND_CSTRING table_field = {nullptr, 0};
 	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
@@ -116,7 +112,7 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
 												&object_zv, mysqlx_table__update_class_entry,
 											 	&(table_field.s), &(table_field.l),
-												(zval *) &value))
+												&value))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -162,18 +158,12 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__update::set() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, set)
 {
 	mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAM_PASSTHRU, TWO_PARAM_OP__SET);
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__update::where() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -203,10 +193,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__update::orderby() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -268,10 +255,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__update::limit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -304,9 +288,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-/* {{{ proto mixed mysqlx_table__update::bind() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -346,9 +328,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-/* {{{ proto mixed mysqlx_table__update::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 {
 	st_mysqlx_table__update* object{nullptr};
@@ -395,10 +375,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_table__update_methods[] */
 static const zend_function_entry mysqlx_table__update_methods[] = {
 	PHP_ME(mysqlx_table__update, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 
@@ -412,10 +389,8 @@ static const zend_function_entry mysqlx_table__update_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 #if 0
-/* {{{ mysqlx_table__update_property__name */
 static zval *
 mysqlx_table__update_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -435,7 +410,7 @@ mysqlx_table__update_property__name(const st_mysqlx_object* obj, zval * return_v
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
+
 #endif
 
 static zend_object_handlers mysqlx_object_table__update_handlers;
@@ -449,7 +424,6 @@ const struct st_mysqlx_property_entry mysqlx_table__update_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_table__update_free_storage */
 static void
 mysqlx_table__update_free_storage(zend_object * object)
 {
@@ -469,10 +443,7 @@ mysqlx_table__update_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
 
-
-/* {{{ php_mysqlx_table__update_object_allocator */
 static zend_object *
 php_mysqlx_table__update_object_allocator(zend_class_entry * class_type)
 {
@@ -483,10 +454,7 @@ php_mysqlx_table__update_object_allocator(zend_class_entry * class_type)
 		&mysqlx_table__update_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_table__update_class */
 void
 mysqlx_register_table__update_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -510,19 +478,13 @@ mysqlx_register_table__update_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers 
 	zend_declare_property_null(mysqlx_table__update_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_table__update_class */
 void
 mysqlx_unregister_table__update_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__update_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_table__update */
 void
 mysqlx_new_table__update(zval * return_value, xmysqlnd_table * table, const zend_bool clone)
 {
@@ -545,7 +507,6 @@ mysqlx_new_table__update(zval * return_value, xmysqlnd_table * table, const zend
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

@@ -23,53 +23,36 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ operator<< */
 std::ostream& operator<<(std::ostream& os, const string& str)
 {
 	return os << str.c_str();
 }
-/* }}} */
 
-
-/* {{{ string_view::string_view */
 string_view::string_view(zval* zv)
 	: string_view(Z_STRVAL_P(zv), Z_STRLEN_P(zv))
 {
 	assert(Z_TYPE_P(zv) == IS_STRING);
 }
-/* }}} */
 
-
-/* {{{ string_view::string_view */
 string_view::string_view(const MYSQLND_STRING& s)
 	: string_view(s.s, s.l)
 {
 }
-/* }}} */
 
-
-/* {{{ string_view::string_view */
 string_view::string_view(const MYSQLND_CSTRING& s)
 	: string_view(s.s, s.l)
 {
 }
-/* }}} */
 
-
-/* {{{ string_view::to_nd_cstr */
 MYSQLND_CSTRING string_view::to_nd_cstr() const
 {
 	return MYSQLND_CSTRING{ str, len };
 }
-/* }}} */
 
-
-/* {{{ string_view::to_zval */
 void string_view::to_zval(zval* dest) const
 {
 	ZVAL_STRINGL(dest, str, len);
 }
-/* }}} */
 
 } // namespace util
 

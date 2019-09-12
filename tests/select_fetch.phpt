@@ -12,7 +12,7 @@ mysqlx select / fetch
 	$schema = $session->getSchema($db);
 	$table = $schema->getTable('test_table');
 
-        $res = $table->select('name','age')->where('name like \'P%\' or name like\'C%\'')
+        $res = $table->select('name','age')->where("name like 'P%' or name like'C%'")
 		->execute()->fetchAll();
 	expect_eq(count($res), 6);
 	$res = $table->select('name','age')->where('name like :name and age > :age')
@@ -25,7 +25,7 @@ mysqlx select / fetch
 	expect_eq($val['name'], 'Tierney');
 	expect_eq($val['age'], 39);
 
-	$res = $table->select(['name','age'])->where('name in (\'Cassidy\',\'Polly\')')
+	$res = $table->select(['name','age'])->where("name in ('Cassidy','Polly')")
 		->orderBy(['age desc','name asc'])->execute();
 
 	expect_eq($res->getColumnsCount(), 2);

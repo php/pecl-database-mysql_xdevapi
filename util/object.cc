@@ -27,23 +27,19 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ mysqlx::util::safe_call_php_method */
 void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
 	MYSQL_XDEVAPI_TRY {
 		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 	} MYSQL_XDEVAPI_CATCH
 }
-/* }}} */
 
-/* {{{ mysqlx::util::safe_call_php_function */
 void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
 	MYSQL_XDEVAPI_TRY {
 		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 	} MYSQL_XDEVAPI_CATCH
 }
-/* }}} */
 
 } // namespace util
 

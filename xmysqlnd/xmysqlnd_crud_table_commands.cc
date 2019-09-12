@@ -39,7 +39,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_crud_table__bind_value */
 enum_func_status
 xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 									 std::vector<Mysqlx::Datatypes::Scalar*> & bound_values,
@@ -76,10 +75,7 @@ xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__add_orderby */
 template< typename MSG >
 enum_func_status
 xmysqlnd_crud_table__add_orderby(MSG& message,
@@ -106,10 +102,7 @@ xmysqlnd_crud_table__add_orderby(MSG& message,
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table__finalize_bind */
 enum_func_status
 xmysqlnd_crud_table__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args,
 										std::vector<Mysqlx::Datatypes::Scalar*> & bound_values)
@@ -131,13 +124,10 @@ xmysqlnd_crud_table__finalize_bind(google::protobuf::RepeatedPtrField< ::Mysqlx:
 	}
 	DBG_RETURN(index == end? PASS : FAIL);
 }
-/* }}} */
-
 
 /****************************** TABLE.INSERT() *******************************************************/
 
 
-/* {{{ st_xmysqlnd_crud_table_op__insert::add_columns */
 void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 											const int num_of_columns)
 {
@@ -176,30 +166,21 @@ void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 	} while( ( ++i < num_of_columns ) && ret != FAIL );
 	return;
 }
-/* }}} */
 
-
-/* {{{ st_xmysqlnd_crud_table_op__insert::add_column */
 void st_xmysqlnd_crud_table_op__insert::add_column(zval * column_zv)
 {
 	const MYSQLND_CSTRING columns_zv_str = {Z_STRVAL_P(column_zv), Z_STRLEN_P(column_zv)};
 	const std::string column_name(columns_zv_str.s, columns_zv_str.l);
 	column_names.push_back(column_name);
 }
-/* }}} */
 
-
-/* {{{ st_xmysqlnd_crud_table_op__insert::add_row */
 void st_xmysqlnd_crud_table_op__insert::add_row(zval* row_zv)
 {
 	zval new_row_zv;
 	ZVAL_COPY_VALUE(&new_row_zv, row_zv);
 	rows_zv.push_back(new_row_zv);
 }
-/* }}} */
 
-
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_columns */
 void st_xmysqlnd_crud_table_op__insert::bind_columns()
 {
 	for (auto& column_name : column_names)
@@ -207,19 +188,13 @@ void st_xmysqlnd_crud_table_op__insert::bind_columns()
 		bind_column(column_name);
 	}
 }
-/* }}} */
 
-
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_column */
 void st_xmysqlnd_crud_table_op__insert::bind_column(const std::string& column_name)
 {
 	Mysqlx::Crud::Column* column = message.add_projection();
 	column->set_name(column_name);
 }
-/* }}} */
 
-
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_rows */
 void st_xmysqlnd_crud_table_op__insert::bind_rows()
 {
 	for (auto& values_zv : rows_zv)
@@ -228,10 +203,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_rows()
 		bind_row(&values_zv, row);
 	}
 }
-/* }}} */
 
-
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_row */
 void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud::Insert_TypedRow* row)
 {
 	switch (Z_TYPE_P(values_zv))
@@ -251,10 +223,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud
 		}
 	}
 }
-/* }}} */
 
-
-/* {{{ st_xmysqlnd_crud_table_op__insert::bind_row_field */
 void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx::Crud::Insert_TypedRow* row)
 {
 	Mysqlx::Datatypes::Any any;
@@ -268,13 +237,10 @@ void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx:
 	Mysqlx::Expr::Expr * field = row->add_field();
 	any2expr(any, field);
 }
-/* }}} */
-
 
 /****************************** xmysqlnd_crud_table_insert *******************************************************/
 
 
-/* {{{ xmysqlnd_crud_table_insert__create */
 XMYSQLND_CRUD_TABLE_OP__INSERT *
 xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema,
 							const MYSQLND_CSTRING table_name,
@@ -287,10 +253,7 @@ xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema,
 																table_name, columns,num_of_columns);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_insert__destroy */
 void
 xmysqlnd_crud_table_insert__destroy(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
@@ -298,10 +261,7 @@ xmysqlnd_crud_table_insert__destroy(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 	delete obj;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_insert__destroy */
 enum_func_status
 xmysqlnd_crud_table_insert__add_row(XMYSQLND_CRUD_TABLE_OP__INSERT * obj, zval * values_zv)
 {
@@ -310,10 +270,7 @@ xmysqlnd_crud_table_insert__add_row(XMYSQLND_CRUD_TABLE_OP__INSERT * obj, zval *
 	obj->add_row(values_zv);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_insert__finalize_bind */
 enum_func_status
 xmysqlnd_crud_table_insert__finalize_bind(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
@@ -323,20 +280,14 @@ xmysqlnd_crud_table_insert__finalize_bind(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 	obj->bind_rows();
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_insert__get_protobuf_message */
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_insert__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
 	return ret;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_insert__is_initialized */
 zend_bool
 xmysqlnd_crud_table_insert__is_initialized(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
@@ -345,13 +296,10 @@ xmysqlnd_crud_table_insert__is_initialized(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 	DBG_INF_FMT("is_initialized=%u", ret);
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 /****************************** TABLE.DELETE() *******************************************************/
 
 
-/* {{{ xmysqlnd_crud_table_delete__create */
 XMYSQLND_CRUD_TABLE_OP__DELETE *
 xmysqlnd_crud_table_delete__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
 {
@@ -360,10 +308,7 @@ xmysqlnd_crud_table_delete__create(const MYSQLND_CSTRING schema, const MYSQLND_C
 	XMYSQLND_CRUD_TABLE_OP__DELETE * ret = new struct st_xmysqlnd_crud_table_op__delete(schema, object_name);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__destroy */
 void
 xmysqlnd_crud_table_delete__destroy(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
@@ -371,10 +316,7 @@ xmysqlnd_crud_table_delete__destroy(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 	delete obj;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__set_criteria */
 enum_func_status
 xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING criteria)
 {
@@ -399,10 +341,7 @@ xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, c
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__set_limit */
 enum_func_status
 xmysqlnd_crud_table_delete__set_limit(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const size_t limit)
 {
@@ -410,10 +349,7 @@ xmysqlnd_crud_table_delete__set_limit(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, cons
 	obj->message.mutable_limit()->set_row_count(limit);
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__bind_value */
 enum_func_status
 xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING name, zval * value)
 {
@@ -425,10 +361,7 @@ xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, con
 	const enum_func_status ret = xmysqlnd_crud_table__bind_value(obj->placeholders, obj->bound_values, name, value);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__add_orderby */
 enum_func_status
 xmysqlnd_crud_table_delete__add_orderby(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING orderby)
 {
@@ -436,10 +369,7 @@ xmysqlnd_crud_table_delete__add_orderby(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, co
 	const enum_func_status ret = xmysqlnd_crud_table__add_orderby(obj->message, orderby);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__is_initialized */
 zend_bool
 xmysqlnd_crud_table_delete__is_initialized(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
@@ -448,10 +378,7 @@ xmysqlnd_crud_table_delete__is_initialized(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 	DBG_INF_FMT("is_initialized=%u", ret);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__finalize_bind */
 enum_func_status
 xmysqlnd_crud_table_delete__finalize_bind(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
@@ -464,22 +391,16 @@ xmysqlnd_crud_table_delete__finalize_bind(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 	const enum_func_status ret = xmysqlnd_crud_table__finalize_bind(obj->message.mutable_args(), obj->bound_values);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_delete__get_protobuf_message */
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_delete__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
 	return ret;
 }
-/* }}} */
-
 
 /****************************** TABLE.UPDATE() *******************************************************/
 
-/* {{{ xmysqlnd_crud_table_update__create */
 XMYSQLND_CRUD_TABLE_OP__UPDATE *
 xmysqlnd_crud_table_update__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
 {
@@ -488,10 +409,7 @@ xmysqlnd_crud_table_update__create(const MYSQLND_CSTRING schema, const MYSQLND_C
 	XMYSQLND_CRUD_TABLE_OP__UPDATE * ret = new struct st_xmysqlnd_crud_table_op__update(schema, object_name);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__destroy */
 void
 xmysqlnd_crud_table_update__destroy(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
@@ -499,10 +417,7 @@ xmysqlnd_crud_table_update__destroy(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 	delete obj;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__set_criteria */
 enum_func_status
 xmysqlnd_crud_table_update__set_criteria(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING criteria)
 {
@@ -527,10 +442,7 @@ xmysqlnd_crud_table_update__set_criteria(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, c
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__set_limit */
 enum_func_status
 xmysqlnd_crud_table_update__set_limit(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const size_t limit)
 {
@@ -538,10 +450,7 @@ xmysqlnd_crud_table_update__set_limit(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, cons
 	obj->message.mutable_limit()->set_row_count(limit);
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__set_offset */
 enum_func_status
 xmysqlnd_crud_table_update__set_offset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const size_t offset)
 {
@@ -549,10 +458,7 @@ xmysqlnd_crud_table_update__set_offset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, con
 	obj->message.mutable_limit()->set_offset(offset);
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__bind_value */
 enum_func_status
 xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING name, zval * value)
 {
@@ -564,10 +470,7 @@ xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, con
 	const enum_func_status ret = xmysqlnd_crud_table__bind_value(obj->placeholders, obj->bound_values, name, value);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__add_orderby */
 enum_func_status
 xmysqlnd_crud_table_update__add_orderby(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING orderby)
 {
@@ -575,10 +478,7 @@ xmysqlnd_crud_table_update__add_orderby(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, co
 	const enum_func_status ret = xmysqlnd_crud_table__add_orderby(obj->message, orderby);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__add_operation */
 static enum_func_status
 xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 											   const Mysqlx::Crud::UpdateOperation_UpdateType op_type,
@@ -651,10 +551,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__unset */
 enum_func_status
 xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING path)
 {
@@ -663,10 +560,7 @@ xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MY
 	const enum_func_status ret = xmysqlnd_crud_table_update__add_operation(obj, op_type, path, nullptr, FALSE, FALSE, FALSE);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__set */
 enum_func_status
 xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 									 const MYSQLND_CSTRING path,
@@ -679,10 +573,7 @@ xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 	const enum_func_status ret = xmysqlnd_crud_table_update__add_operation(obj, op_type, path, value, is_expression, is_document, FALSE);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__is_initialized */
 zend_bool
 xmysqlnd_crud_table_update__is_initialized(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
@@ -691,10 +582,7 @@ xmysqlnd_crud_table_update__is_initialized(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 	DBG_INF_FMT("is_initialized=%u", ret);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__finalize_bind */
 enum_func_status
 xmysqlnd_crud_table_update__finalize_bind(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
@@ -707,21 +595,16 @@ xmysqlnd_crud_table_update__finalize_bind(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 	const enum_func_status ret = xmysqlnd_crud_table__finalize_bind(obj->message.mutable_args(), obj->bound_values);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_update__get_protobuf_message */
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_update__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_UPDATE };
 	return ret;
 }
-/* }}} */
 
 /****************************** TABLE.SELECT() *******************************************************/
 
-/* {{{ st_xmysqlnd_crud_table_op__select::add_columns */
 void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 											const int num_of_columns)
 {
@@ -758,11 +641,9 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 		devapi::RAISE_EXCEPTION(err_msg_add_sort_fail);
 	}
 }
-/* }}} */
 
 /****************************** TABLE.SELECT() xmysqlnd_crud_table_select__ **************************/
 
-/* {{{ xmysqlnd_crud_table_select__create */
 XMYSQLND_CRUD_TABLE_OP__SELECT *
 xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema,
 				const MYSQLND_CSTRING object_name,
@@ -774,10 +655,7 @@ xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema,
 	ret = new struct st_xmysqlnd_crud_table_op__select(schema, object_name, columns, num_of_columns);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__destroy */
 void
 xmysqlnd_crud_table_select__destroy(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
@@ -785,10 +663,7 @@ xmysqlnd_crud_table_select__destroy(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 	delete obj;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__set_criteria */
 enum_func_status
 xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING criteria)
 {
@@ -813,10 +688,7 @@ xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__set_limit */
 enum_func_status
 xmysqlnd_crud_table_select__set_limit(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const size_t limit)
 {
@@ -824,10 +696,7 @@ xmysqlnd_crud_table_select__set_limit(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, cons
 	obj->message.mutable_limit()->set_row_count(limit);
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__set_offset */
 enum_func_status
 xmysqlnd_crud_table_select__set_offset(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const size_t offset)
 {
@@ -835,10 +704,7 @@ xmysqlnd_crud_table_select__set_offset(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 	obj->message.mutable_limit()->set_offset(offset);
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__bind_value */
 enum_func_status
 xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING name, zval * value)
 {
@@ -850,10 +716,7 @@ xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 	enum_func_status ret = xmysqlnd_crud_table__bind_value(obj->placeholders, obj->bound_values, name, value);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__add_orderby */
 enum_func_status
 xmysqlnd_crud_table_select__add_orderby(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING orderby)
 {
@@ -862,10 +725,7 @@ xmysqlnd_crud_table_select__add_orderby(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, co
 	ret = xmysqlnd_crud_table__add_orderby(obj->message, orderby);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__add_grouping */
 enum_func_status
 xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING search_field)
 {
@@ -888,10 +748,7 @@ xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__set_column */
 enum_func_status
 xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 										  const MYSQLND_CSTRING column,
@@ -950,10 +807,7 @@ xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__set_having */
 enum_func_status
 xmysqlnd_crud_table_select__set_having(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING criteria)
 {
@@ -976,10 +830,7 @@ xmysqlnd_crud_table_select__set_having(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__is_initialized */
 zend_bool
 xmysqlnd_crud_table_select__is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
@@ -988,10 +839,7 @@ xmysqlnd_crud_table_select__is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 	DBG_INF_FMT("is_initialized=%u", ret);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select_verify_is_initialized */
 void
 xmysqlnd_crud_table_select_verify_is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT* obj)
 {
@@ -1001,10 +849,7 @@ xmysqlnd_crud_table_select_verify_is_initialized(XMYSQLND_CRUD_TABLE_OP__SELECT*
 
 	throw util::xdevapi_exception(util::xdevapi_exception::Code::find_fail);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__finalize_bind */
 enum_func_status
 xmysqlnd_crud_table_select__finalize_bind(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
@@ -1017,10 +862,7 @@ xmysqlnd_crud_table_select__finalize_bind(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 	enum_func_status ret = xmysqlnd_crud_table__finalize_bind(obj->message.mutable_args(), obj->bound_values);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__enable_lock_shared */
 enum_func_status
 xmysqlnd_crud_table_select__enable_lock_shared(XMYSQLND_CRUD_TABLE_OP__SELECT* obj)
 {
@@ -1028,10 +870,7 @@ xmysqlnd_crud_table_select__enable_lock_shared(XMYSQLND_CRUD_TABLE_OP__SELECT* o
 	obj->message.set_locking(::Mysqlx::Crud::Find_RowLock_SHARED_LOCK);
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__enable_lock_exclusive */
 enum_func_status
 xmysqlnd_crud_table_select__enable_lock_exclusive(XMYSQLND_CRUD_TABLE_OP__SELECT* obj)
 {
@@ -1039,10 +878,7 @@ xmysqlnd_crud_table_select__enable_lock_exclusive(XMYSQLND_CRUD_TABLE_OP__SELECT
 	obj->message.set_locking(::Mysqlx::Crud::Find_RowLock_EXCLUSIVE_LOCK);
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select_set_lock_waiting_option */
 enum_func_status
 xmysqlnd_crud_table_select_set_lock_waiting_option(
 	XMYSQLND_CRUD_TABLE_OP__SELECT* obj,
@@ -1068,17 +904,13 @@ xmysqlnd_crud_table_select_set_lock_waiting_option(
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_crud_table_select__get_protobuf_message */
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_select__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
 	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };
 	return ret;
 }
-/* }}} */
 
 } // namespace drv
 
