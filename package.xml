@@ -285,6 +285,15 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="waiting_timeout.phpt" role="test" />
      <file name="waiting_timeout_close_open.phpt" role="test" />
     </dir>
+    <dir name="crud_json">
+     <file name="crud_json_utils.inc" role="test" />
+     <file name="modify_array_append.phpt" role="test" />
+     <file name="modify_array_insert.phpt" role="test" />
+     <file name="modify_patch.phpt" role="test" />
+     <file name="modify_replace.phpt" role="test" />
+     <file name="modify_set.phpt" role="test" />
+     <file name="modify_unset.phpt" role="test" />
+    </dir>
     <dir name="index">
      <file name="array_dates.phpt" role="test" />
      <file name="array_integers.phpt" role="test" />
