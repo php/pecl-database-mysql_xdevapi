@@ -63,12 +63,16 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	<notes>
 		WL#12732: DevAPI: Specify TLS ciphers to be used by a client or session
 		orabug #29421446: fixes for secure connections
+		orabug #30226250: some of Collection.Modify ops don't support JSON documents properly
 		orabug #30093227: mysql_xdevapi\CollectionFind::fields() path fails when ends in number
+		orabug #30226232: incorrect behaviour of chained CRUD ops in webserver mode
+		orabug #30258670: CollectionModify.arrayInsert vs bind: cannot use bindings for arrayInsert
 		orabug #30088118: clean up XSession leavings
-		orabug #30088150: remove messages - completed
+		orabug #30088150: remove messages
 		orabug #30084547: improve zval wrapper
 		orabug #29998874: fix tests to pass with default auth_plugin=caching_sha2_password
 		orabug #30096952: add support for building in static mode
+		orabug #30084593: get rid of vim "decorators"
 		fixes for building with PHP-7.4+
 	</notes>
  <contents>
@@ -284,6 +288,15 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="simple_vs_common.phpt" role="test" />
      <file name="waiting_timeout.phpt" role="test" />
      <file name="waiting_timeout_close_open.phpt" role="test" />
+    </dir>
+    <dir name="crud_json">
+     <file name="crud_json_utils.inc" role="test" />
+     <file name="modify_array_append.phpt" role="test" />
+     <file name="modify_array_insert.phpt" role="test" />
+     <file name="modify_patch.phpt" role="test" />
+     <file name="modify_replace.phpt" role="test" />
+     <file name="modify_set.phpt" role="test" />
+     <file name="modify_unset.phpt" role="test" />
     </dir>
     <dir name="index">
      <file name="array_dates.phpt" role="test" />
