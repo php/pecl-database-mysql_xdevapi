@@ -161,6 +161,7 @@ public:
 	std::size_t size() const;
 	void add_placeholder(const util::string& placeholder);
 	void add_placeholders(const util::std_strings& placeholders);
+	util::std_strings get_placeholders() const;
 	bool bind(const util::string& placeholder, zval* value);
 	bool finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args);
 	Bound_values get_bound_values() const;

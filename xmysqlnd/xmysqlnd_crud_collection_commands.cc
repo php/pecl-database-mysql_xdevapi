@@ -69,6 +69,15 @@ void Bindings::add_placeholders(const util::std_strings& placeholders)
 	}
 }
 
+util::std_strings Bindings::get_placeholders() const
+{
+	util::std_strings placeholders;
+	for (const auto& var_name_value : bound_variables) {
+		placeholders.push_back(util::to_std_string(var_name_value.first));
+	}
+	return placeholders;
+}
+
 bool Bindings::bind(const util::string& var_name, zval* var_value)
 {
 	DBG_ENTER("Bindings::bind");
@@ -146,10 +155,10 @@ Mysqlx::Expr::Expr* parse_expression(
 	Bindings& bindings,
 	bool is_document_model = true)
 {
-	std::vector<std::string> placeholders;
+	util::std_strings placeholders(bindings.get_placeholders());
 	Mysqlx::Expr::Expr* expression
 		= mysqlx::devapi::parser::parse(expression_str, is_document_model, placeholders);
-	
+
 	bindings.add_placeholders(placeholders);
 	return expression;
 }

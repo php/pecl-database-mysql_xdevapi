@@ -12,7 +12,10 @@ error_reporting=0
 	expect_true( null != $coll );
 	fill_db_collection( $coll );
 
-	$coll->modify('CAST(_id AS SIGNED) = 1')->patch('{"name" : "New_Marco"}')->execute();
+	$coll->modify('CAST(_id AS SIGNED) = 1')
+		->patch(':newDoc')
+		->bind(["newDoc" => '{"name" : "New_Marco"}'])
+		->execute();
 	$coll->modify('name = :nm')->patch('{"name" : null,"birth" : { "year": 2018-age }}')->bind(['nm' => 'Alfredo'])->execute();
 	$coll->modify(true)->patch('{"Hobby" : ["Swimming","Dancing"], "code": concat("secret_" , name) }')->execute();
 	$coll->modify('_id IN ["2","5","7","10"]')->patch('{"age": age + 100}')->execute();
