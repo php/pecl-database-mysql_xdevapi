@@ -23,7 +23,7 @@ namespace mysqlx {
 namespace devapi {
 
 zend_bool is_a_mysqlx_expression(const zval * const value);
-const zval * get_mysqlx_expression(const zval * const object_zv);
+zval* get_mysqlx_expression(const zval * const object_zv);
 void mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression);
 void mysqlx_register_expression_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS);
@@ -35,12 +35,3 @@ PHP_FUNCTION(mysql_xdevapi__expression);
 } // namespace mysqlx
 
 #endif /* MYSQLX_EXPRESSION_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

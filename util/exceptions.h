@@ -30,7 +30,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ mysqlx::util::xdevapi_exception */
 struct xdevapi_exception : public std::runtime_error
 {
 	enum class Code : unsigned int
@@ -110,7 +109,8 @@ struct xdevapi_exception : public std::runtime_error
 		port_nbr_not_allowed_with_srv_uri,
 		provided_invalid_uri,
 		unix_socket_not_allowed_with_srv,
-		url_list_not_allowed
+        url_list_not_allowed,
+		out_of_range,
 	};
 
 	xdevapi_exception(Code code);
@@ -123,9 +123,7 @@ struct xdevapi_exception : public std::runtime_error
 
 	unsigned int code;
 };
-/* }}} */
 
-/* {{{ mysqlx::util::doc_ref_exception */
 struct doc_ref_exception : public std::runtime_error
 {
 	enum class Severity
@@ -139,7 +137,6 @@ struct doc_ref_exception : public std::runtime_error
 
 	Severity severity;
 };
-/* }}} */
 
 void raise_xdevapi_exception(const xdevapi_exception& e);
 void raise_doc_ref_exception(const doc_ref_exception& e);
@@ -174,12 +171,3 @@ void set_error_info(
 	}
 
 #endif // MYSQL_XDEVAPI_UTIL_EXCEPTIONS_H
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

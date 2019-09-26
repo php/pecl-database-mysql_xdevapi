@@ -234,7 +234,7 @@ public:
 	st_xmysqlnd_pb_message_shell get_protobuf_msg( MSG_T*,uint32_t );
 	bool                         send_prepare_msg( uint32_t message_id );
 	xmysqlnd_stmt *              send_execute_msg( uint32_t message_id );
-	bool                         bind_values( uint32_t message_id, std::vector<Mysqlx::Datatypes::Scalar*> & bound_values);
+	bool                         bind_values( uint32_t message_id, std::vector<Mysqlx::Datatypes::Scalar*> bound_values);
 	bool                         bind_values( uint32_t message_id, zval* params, unsigned int params_allocated);
 	void                         assign_session( XMYSQLND_SESSION session_obj );
 	bool                         prepare_msg_delivered( const uint32_t message_id );
@@ -291,7 +291,6 @@ void Prepare_stmt_data::set_allocated_type(Mysqlx::Prepare::Prepare_OneOfMessage
 	Mysqlx::Sql::StmtExecute* msg);
 
 
-/* {{{ Prepare_stmt_data::prepare_ps_entry */
 template< typename MSG_T >
 Prepare_statement_entry
 Prepare_stmt_data::prepare_ps_entry( const MSG_T &msg )
@@ -300,10 +299,7 @@ Prepare_stmt_data::prepare_ps_entry( const MSG_T &msg )
 	new_entry.type_name = msg.GetTypeName();
 	return new_entry;
 }
-/* }}} */
 
-
-/* {{{ Prepare_stmt_data::add_limit_expr */
 template< typename MSG_T >
 void Prepare_stmt_data::add_limit_expr(
 		MSG_T * msg,
@@ -321,10 +317,7 @@ void Prepare_stmt_data::add_limit_expr(
 	limit_expr->set_allocated_row_count( expr );
 	msg->set_allocated_limit_expr( limit_expr );
 }
-/* }}} */
 
-
-/* {{{ Prepare_stmt_data::handle_limit_expr */
 template< typename MSG_T >
 void Prepare_stmt_data::handle_limit_expr(
 		Prepare_statement_entry& prepare,
@@ -335,7 +328,6 @@ void Prepare_stmt_data::handle_limit_expr(
 	//We should never be here.
     throw util::xdevapi_exception(util::xdevapi_exception::Code::ps_limit_not_supported);
 }
-/* }}} */
 
 template<>
 void Prepare_stmt_data::handle_limit_expr(
@@ -362,7 +354,6 @@ void Prepare_stmt_data::handle_limit_expr(
 	uint32_t bound_values_count);
 
 
-/* {{{ Prepare_stmt_data::add_message */
 template< typename MSG_T >
 std::pair<bool,uint32_t> Prepare_stmt_data::add_message(
 		MSG_T& msg,
@@ -404,7 +395,6 @@ std::pair<bool,uint32_t> Prepare_stmt_data::add_message(
 	}
 	return { false, ps_db[ db_idx ].msg_id };
 }
-/* }}} */
 
 template< typename MSG_T >
 st_xmysqlnd_pb_message_shell
@@ -423,12 +413,3 @@ Prepare_stmt_data::get_protobuf_msg(
 } // namespace mysqlx
 
 #endif /* XMYSQLND_STMT_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -209,7 +209,6 @@ Index_definition parse_index_def(
 
 //------------------------------------------------------------------------------
 
-/* {{{ collection_index_on_error */
 static const enum_hnd_func_status
 collection_index_on_error(
 	void* /*context*/,
@@ -221,12 +220,10 @@ collection_index_on_error(
 {
 	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
 }
-/* }}} */
 
 } // anonymous namespace
 
 
-/* {{{ create_collection_index */
 void create_collection_index(
 	drv::xmysqlnd_collection* collection,
 	const util::string_view& index_name,
@@ -254,10 +251,7 @@ void create_collection_index(
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ drop_collection_index */
 void drop_collection_index(
 	xmysqlnd_collection* collection,
 	const util::string_view& index_name,
@@ -279,17 +273,7 @@ void drop_collection_index(
 		RETVAL_FALSE;
 	}
 }
-/* }}} */
 
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

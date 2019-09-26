@@ -11,18 +11,23 @@ mysqlx modify arrayAppend/Insert
 
 	fill_db_collection($coll);
 
-	$coll->modify('name in (\'Marco\', \'Alfredo\', \'Carlo\', \'Leonardo\')')->arrayAppend('job', 'Grafico')->set('name', 'ENTITY')->execute();
-	$coll->modify('name like :name')->arrayInsert('job[0]', 'Calciatore')->bind(['name' => 'ENTITY'])->execute();
+	$coll->modify("name in ('Marco', 'Alfredo', 'Carlo', 'Leonardo')")
+		->arrayAppend('job', ':job')
+		->bind(['job' => 'Grafico'])
+		->set('name', 'ENTITY')->execute();
+	$coll->modify('name like :name')
+		->arrayInsert('job[0]', ':job')
+		->bind(['name' => 'ENTITY', 'job' => 'Calciatore'])->execute();
 	$coll->modify('age > :age')->sort('age desc')->unset(['age'])->bind(['age' => 20])->limit(4)->execute();
-	$coll->modify('name like \'ENTITY\' and age > :age')->bind(['age' => 23])->unset(['age'])->execute();
-	$coll->modify('name in (\'ENTITY\', \'Lucia\')')->sort('_id desc')->limit(2)->set('auto', 'BMW')->execute();
+	$coll->modify("name like 'ENTITY' and age > :age")->bind(['age' => 23])->unset(['age'])->execute();
+	$coll->modify("name in ('ENTITY', 'Lucia')")->sort('_id desc')->limit(2)->set('auto', 'BMW')->execute();
 
 	try {
 		$coll->modify('TRUE')->limit(-1)->unset('name')->execute();
 	} catch(Exception $ex) {
 		print "Exception!\n";
 	}
-	$res = $coll->find('name in (\'ENTITY\', \'Lucia\')')->execute();
+	$res = $coll->find("name in ('ENTITY', 'Lucia')")->execute();
 	$data = $res->fetchAll();
 	var_dump($data);
 

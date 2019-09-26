@@ -19,7 +19,6 @@
 #include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"
-#include "messages/mysqlx_message__capabilities.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_protocol_dumper.h"
 
@@ -39,18 +38,9 @@
 #include "proto_gen/mysqlx_sql.pb.h"
 
 #include "xmysqlnd_crud_collection_commands.h"
-#include "messages/mysqlx_connection.h"
-#include "messages/mysqlx_pfc.h"
-#include "messages/mysqlx_resultset__column_metadata.h"
-#include "messages/mysqlx_message__ok.h"
-#include "messages/mysqlx_message__stmt_execute_ok.h"
 
 #define ENABLE_MYSQLX_CTORS 0
 
-#if ENABLE_MYSQLX_CTORS
-#include "messages/mysqlx_message__auth_ok.h"
-#endif
-#include "messages/mysqlx_resultset__data_row.h"
 #include "util/pb_utils.h"
 #include "util/string_utils.h"
 #include "protobuf_api.h"
@@ -58,8 +48,6 @@
 namespace mysqlx {
 
 namespace drv {
-
-using namespace devapi::msg;
 
 struct st_xmysqlnd_inspect_warning_bind
 {
@@ -75,7 +63,6 @@ struct st_xmysqlnd_inspect_changed_variable_bind
 };
 
 
-/* {{{ xmysqlnd_field_type_name */
 MYSQLND_CSTRING
 xmysqlnd_field_type_name(const unsigned int type)
 {
@@ -85,10 +72,7 @@ xmysqlnd_field_type_name(const unsigned int type)
 	ret.l = field.size();
 	return ret;
 }
-/* }}} */
 
-
-/* {{{ get_datetime_type */
 static int
 get_datetime_type(const XMYSQLND_RESULT_FIELD_META* const field_meta)
 {
@@ -97,10 +81,7 @@ get_datetime_type(const XMYSQLND_RESULT_FIELD_META* const field_meta)
 	}
 	return FIELD_TYPE_DATETIME;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_inspect_changed_variable */
 static enum_hnd_func_status
 xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change, const Mysqlx::Notice::SessionVariableChanged & message)
 {
@@ -124,10 +105,7 @@ xmysqlnd_inspect_changed_variable(const struct st_xmysqlnd_on_session_var_change
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_inspect_warning */
 static enum_hnd_func_status
 xmysqlnd_inspect_warning(const struct st_xmysqlnd_on_warning_bind on_warning, const Mysqlx::Notice::Warning & warning)
 {
@@ -153,10 +131,7 @@ xmysqlnd_inspect_warning(const struct st_xmysqlnd_on_warning_bind on_warning, co
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_inspect_changed_exec_state*/
 static enum_hnd_func_status
 xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_change_bind on_execution_state_change, const Mysqlx::Notice::SessionStateChanged & message)
 {
@@ -189,10 +164,7 @@ xmysqlnd_inspect_changed_exec_state(const struct st_xmysqlnd_on_execution_state_
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_inspect_generated_doc_ids*/
 static enum_hnd_func_status
 xmysqlnd_inspect_generated_doc_ids(const st_xmysqlnd_on_generated_doc_ids_bind on_execution_state_change,
 								const Mysqlx::Notice::SessionStateChanged & message)
@@ -211,10 +183,7 @@ xmysqlnd_inspect_generated_doc_ids(const st_xmysqlnd_on_generated_doc_ids_bind o
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_inspect_changed_state */
 static enum_hnd_func_status
 xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & message,
 							   const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change,
@@ -277,10 +246,7 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_inspect_notice_frame */
 static enum_hnd_func_status
 xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 							  const struct st_xmysqlnd_on_warning_bind on_warning,
@@ -339,20 +305,13 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-
-/* {{{ xmysqlnd_client_message_type_is_valid */
 static inline zend_bool
 xmysqlnd_client_message_type_is_valid(const enum xmysqlnd_client_message_type type)
 {
 	return Mysqlx::ClientMessages::Type_IsValid((Mysqlx::ClientMessages_Type) type);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_server_message_type_is_valid */
 static inline zend_bool
 xmysqlnd_server_message_type_is_valid(const zend_uchar type)
 {
@@ -363,11 +322,9 @@ xmysqlnd_server_message_type_is_valid(const zend_uchar type)
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 #define SIZE_OF_STACK_BUFFER 200
 
-/* {{{ xmysqlnd_send_message */
 static const enum_func_status
 xmysqlnd_send_message(enum xmysqlnd_client_message_type packet_type, ::google::protobuf::Message & message,
 					  MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info,
@@ -401,9 +358,6 @@ xmysqlnd_send_message(enum xmysqlnd_client_message_type packet_type, ::google::p
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
-
 
 struct st_xmysqlnd_server_messages_handlers
 {
@@ -425,7 +379,6 @@ struct st_xmysqlnd_server_messages_handlers
 };
 
 
-/* {{{ xmysqlnd_receive_message */
 enum_func_status
 xmysqlnd_receive_message(st_xmysqlnd_server_messages_handlers* handlers, void * handler_ctx,
 						 MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
@@ -583,10 +536,7 @@ xmysqlnd_receive_message(st_xmysqlnd_server_messages_handlers* handlers, void * 
 	DBG_INF(ret == PASS? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ on_ERROR */
 static enum_hnd_func_status
 on_ERROR(const Mysqlx::Error & error, const struct st_xmysqlnd_on_error_bind on_error)
 {
@@ -613,11 +563,8 @@ on_ERROR(const Mysqlx::Error & error, const struct st_xmysqlnd_on_error_bind on_
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 /************************************** CAPABILITIES GET **************************************************/
-/* {{{ proto capabilities_to_zv */
 static void
 capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * return_value)
 {
@@ -635,10 +582,7 @@ capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * re
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ capabilities_get_on_ERROR */
 static const enum_hnd_func_status
 capabilities_get_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -648,10 +592,7 @@ capabilities_get_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ capabilities_get_on_CAPABILITIES */
 static const enum_hnd_func_status
 capabilities_get_on_CAPABILITIES(const Mysqlx::Connection::Capabilities& message, void* context)
 {
@@ -659,17 +600,12 @@ capabilities_get_on_CAPABILITIES(const Mysqlx::Connection::Capabilities& message
 	capabilities_to_zval(message, ctx->capabilities_zval);
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ capabilities_get_on_NOTICE */
 static const enum_hnd_func_status
 capabilities_get_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers capabilities_get_handlers =
 {
@@ -691,7 +627,6 @@ static struct st_xmysqlnd_server_messages_handlers capabilities_get_handlers =
 };
 
 
-/* {{{ xmysqlnd_capabilities_get__read_response */
 enum_func_status
 xmysqlnd_capabilities_get__read_response(st_xmysqlnd_msg__capabilities_get* msg, zval * capabilities)
 {
@@ -705,10 +640,7 @@ xmysqlnd_capabilities_get__read_response(st_xmysqlnd_msg__capabilities_get* msg,
 										msg->error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_capabilities_get__send_request */
 enum_func_status
 xmysqlnd_capabilities_get__send_request(st_xmysqlnd_msg__capabilities_get* msg)
 {
@@ -719,10 +651,7 @@ xmysqlnd_capabilities_get__send_request(st_xmysqlnd_msg__capabilities_get* msg)
 					msg->pfc, msg->stats,
 					msg->error_info, &bytes_sent);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_capabilities_get__init_read */
 enum_func_status
 xmysqlnd_capabilities_get__init_read(st_xmysqlnd_msg__capabilities_get* const msg,
 									 const struct st_xmysqlnd_on_error_bind on_error)
@@ -731,10 +660,7 @@ xmysqlnd_capabilities_get__init_read(st_xmysqlnd_msg__capabilities_get* const ms
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_get_capabilities_get_message */
 static struct st_xmysqlnd_msg__capabilities_get
 xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -752,11 +678,9 @@ xmysqlnd_get_capabilities_get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 	};
 	return ctx;
 }
-/* }}} */
 
 /************************************** CAPABILITIES SET **************************************************/
 
-/* {{{ capabilities_set_on_OK */
 static const enum_hnd_func_status
 capabilities_set_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
@@ -768,10 +692,7 @@ capabilities_set_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 #endif
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ capabilities_set_on_ERROR */
 static const enum_hnd_func_status
 capabilities_set_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -781,17 +702,12 @@ capabilities_set_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ capabilities_set_on_NOTICE */
 static const enum_hnd_func_status
 capabilities_set_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers capabilities_set_handlers =
 {
@@ -812,7 +728,6 @@ static struct st_xmysqlnd_server_messages_handlers capabilities_set_handlers =
 	nullptr,							// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_capabilities_set__read_response */
 enum_func_status
 xmysqlnd_capabilities_set__read_response(st_xmysqlnd_msg__capabilities_set* msg, zval * return_value)
 {
@@ -822,9 +737,7 @@ xmysqlnd_capabilities_set__read_response(st_xmysqlnd_msg__capabilities_set* msg,
 	ret = xmysqlnd_receive_message(&capabilities_set_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_send__capabilities_set */
 enum_func_status
 xmysqlnd_capabilities_set__send_request(st_xmysqlnd_msg__capabilities_set* msg,
 										const size_t cap_count,
@@ -844,10 +757,7 @@ xmysqlnd_capabilities_set__send_request(st_xmysqlnd_msg__capabilities_set* msg,
 
 	return xmysqlnd_send_message(COM_CAPABILITIES_SET, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_capabilities_set__init_read */
 enum_func_status
 xmysqlnd_capabilities_set__init_read(st_xmysqlnd_msg__capabilities_set* const msg,
 									 const struct st_xmysqlnd_on_error_bind on_error)
@@ -856,10 +766,7 @@ xmysqlnd_capabilities_set__init_read(st_xmysqlnd_msg__capabilities_set* const ms
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_get_capabilities_set_message */
 static struct st_xmysqlnd_msg__capabilities_set
 xmysqlnd_get_capabilities_set_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -877,11 +784,8 @@ xmysqlnd_get_capabilities_set_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /************************************** AUTH_START **************************************************/
-/* {{{ auth_start_on_ERROR */
 static const enum_hnd_func_status
 auth_start_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -891,10 +795,7 @@ auth_start_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ auth_start_on_NOTICE */
 static const enum_hnd_func_status
 auth_start_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 {
@@ -916,9 +817,7 @@ auth_start_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 																   ctx->on_client_id);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-/* {{{ auth_start_on_AUTHENTICATE_CONTINUE */
 static const enum_hnd_func_status
 auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue& message, void* context)
 {
@@ -951,10 +850,7 @@ auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue&
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ auth_start_on_AUTHENTICATE_OK */
 static const enum_hnd_func_status
 auth_start_on_AUTHENTICATE_OK(const Mysqlx::Session::AuthenticateOk& /*message*/, void* context)
 {
@@ -968,9 +864,6 @@ auth_start_on_AUTHENTICATE_OK(const Mysqlx::Session::AuthenticateOk& /*message*/
 #endif
 	DBG_RETURN(HND_PASS);
 }
-/* }}} */
-
-
 
 static struct st_xmysqlnd_server_messages_handlers auth_start_handlers =
 {
@@ -991,7 +884,6 @@ static struct st_xmysqlnd_server_messages_handlers auth_start_handlers =
 	nullptr,							// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_authentication_start__init_read */
 enum_func_status
 xmysqlnd_authentication_start__init_read(st_xmysqlnd_msg__auth_start* const msg,
 										 const struct st_xmysqlnd_on_auth_continue_bind on_auth_continue,
@@ -1008,10 +900,7 @@ xmysqlnd_authentication_start__init_read(st_xmysqlnd_msg__auth_start* const msg,
 	msg->on_session_var_change = on_session_var_change;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_authentication_start__read_response */
 enum_func_status
 xmysqlnd_authentication_start__read_response(st_xmysqlnd_msg__auth_start* msg, zval * auth_start_response)
 {
@@ -1020,10 +909,7 @@ xmysqlnd_authentication_start__read_response(st_xmysqlnd_msg__auth_start* msg, z
 	const enum_func_status ret = xmysqlnd_receive_message(&auth_start_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_authentication_start__send_request */
 enum_func_status
 xmysqlnd_authentication_start__send_request(st_xmysqlnd_msg__auth_start* msg, const MYSQLND_CSTRING auth_mech_name, const MYSQLND_CSTRING auth_data)
 {
@@ -1033,10 +919,7 @@ xmysqlnd_authentication_start__send_request(st_xmysqlnd_msg__auth_start* msg, co
 	message.set_auth_data(auth_data.s, auth_data.l);
 	return xmysqlnd_send_message(COM_AUTH_START, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_get_auth_start_message */
 static struct st_xmysqlnd_msg__auth_start
 xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -1058,12 +941,9 @@ xmysqlnd_get_auth_start_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /**************************************  STMT_EXECUTE **************************************************/
 
-/* {{{ stmt_execute_on_ERROR */
 static const enum_hnd_func_status
 stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -1072,10 +952,7 @@ stmt_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 	enum_hnd_func_status ret = on_ERROR(error, ctx->on_error);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ stmt_execute_on_NOTICE */
 static const enum_hnd_func_status
 stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 {
@@ -1093,10 +970,7 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ stmt_execute_on_COLUMN_META */
 static const enum_hnd_func_status
 stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData& message, void* context)
 {
@@ -1175,7 +1049,6 @@ stmt_execute_on_COLUMN_META(const Mysqlx::Resultset::ColumnMetaData& message, vo
 		DBG_RETURN(ret);
 	}
 }
-/* }}} */
 
 static const char * zt2str[] =
 {
@@ -1192,7 +1065,6 @@ static const char * zt2str[] =
 	"REFERENCE",
 };
 
-/* {{{ ztype2str */
 static inline const char *
 ztype2str(const zval * const zv)
 {
@@ -1200,10 +1072,7 @@ ztype2str(const zval * const zv)
 	if (type > IS_REFERENCE) return "n/a";
 	return zt2str[type];
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_sint_field_to_zval */
 static
 enum_func_status xmysqlnd_row_sint_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1232,10 +1101,7 @@ enum_func_status xmysqlnd_row_sint_field_to_zval( zval* zv,
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_uint_field_to_zval */
 static
 enum_func_status xmysqlnd_row_uint_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1264,10 +1130,7 @@ enum_func_status xmysqlnd_row_uint_field_to_zval( zval* zv,
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_double_field_to_zval */
 static
 enum_func_status xmysqlnd_row_double_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1288,10 +1151,7 @@ enum_func_status xmysqlnd_row_double_field_to_zval( zval* zv,
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_float_field_to_zval */
 static
 enum_func_status xmysqlnd_row_float_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1319,10 +1179,7 @@ enum_func_status xmysqlnd_row_float_field_to_zval( zval* zv,
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_time_field_to_zval */
 static
 enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1369,10 +1226,7 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_datetime_field_to_zval */
 static
 enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1422,10 +1276,7 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_date_field_to_zval */
 static
 enum_func_status xmysqlnd_row_date_field_to_zval(
 	zval* zv,
@@ -1467,10 +1318,7 @@ enum_func_status xmysqlnd_row_date_field_to_zval(
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_set_field_to_zval */
 static
 enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1512,10 +1360,7 @@ enum_func_status xmysqlnd_row_set_field_to_zval( zval* zv,
 	DBG_INF_FMT("set elements=%u", zend_hash_num_elements(Z_ARRVAL_P(zv)));
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_decimal_field_to_zval */
 static
 enum_func_status xmysqlnd_row_decimal_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1565,10 +1410,7 @@ enum_func_status xmysqlnd_row_decimal_field_to_zval( zval* zv,
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_string_field_to_zval */
 static
 enum_func_status xmysqlnd_row_string_field_to_zval( zval* zv,
 									  const uint8_t * buf,
@@ -1588,10 +1430,7 @@ enum_func_status xmysqlnd_row_string_field_to_zval( zval* zv,
 	}
 	DBG_RETURN( ret );
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_row_field_to_zval */
 static enum_func_status
 xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 						   const XMYSQLND_RESULT_FIELD_META * const field_meta,
@@ -1684,10 +1523,7 @@ xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ stmt_execute_on_RSET_ROW */
 static const enum_hnd_func_status
 stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row& message, void* context)
 {
@@ -1718,10 +1554,7 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row& message, void* context)
 	DBG_INF(ret == HND_AGAIN? "HND_AGAIN":"HND_PASS");
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ stmt_execute_on_RSET_FETCH_DONE */
 static const enum_hnd_func_status
 stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone& /*message*/, void* context)
 {
@@ -1735,10 +1568,7 @@ stmt_execute_on_RSET_FETCH_DONE(const Mysqlx::Resultset::FetchDone& /*message*/,
 	}
 	DBG_RETURN(HND_AGAIN); /* After FETCH_DONE a STMT_EXECUTE_OK is expected */
 }
-/* }}} */
 
-
-/* {{{ stmt_execute_on_RSET_FETCH_SUSPENDED */
 static const enum_hnd_func_status
 stmt_execute_on_RSET_FETCH_SUSPENDED(void * context)
 {
@@ -1747,10 +1577,7 @@ stmt_execute_on_RSET_FETCH_SUSPENDED(void * context)
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
 }
-/* }}} */
 
-
-/* {{{ stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS */
 static const enum_hnd_func_status
 stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMoreResultsets& /*message*/, void* context)
 {
@@ -1764,9 +1591,7 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS(const Mysqlx::Resultset::FetchDoneMor
 	}
 	DBG_RETURN(HND_PASS);
 }
-/* }}} */
 
-/* {{{ stmt_execute */
 static const enum_hnd_func_status
 stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk& /*message*/, void* context)
 {
@@ -1784,10 +1609,7 @@ stmt_execute_on_STMT_EXECUTE_OK(const Mysqlx::Sql::StmtExecuteOk& /*message*/, v
 	}
 	DBG_RETURN(HND_PASS);
 }
-/* }}} */
 
-
-/* {{{ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS */
 static const enum_hnd_func_status
 stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDoneMoreOutParams& /*message*/, void* context)
 {
@@ -1796,8 +1618,6 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDo
 	ctx->has_more_results = TRUE;
 	DBG_RETURN(HND_PASS);
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 {
@@ -1819,7 +1639,6 @@ static struct st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 };
 
 
-/* {{{ xmysqlnd_sql_stmt_execute__init_read */
 enum_func_status
 xmysqlnd_sql_stmt_execute__init_read(st_xmysqlnd_msg__sql_stmt_execute* const msg,
 									 const struct st_xmysqlnd_meta_field_create_bind create_meta_field,
@@ -1865,10 +1684,7 @@ xmysqlnd_sql_stmt_execute__init_read(st_xmysqlnd_msg__sql_stmt_execute* const ms
 	msg->reader_ctx.read_started = FALSE;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_sql_stmt_execute__read_response */
 enum_func_status
 xmysqlnd_sql_stmt_execute__read_response(st_xmysqlnd_msg__sql_stmt_execute* const msg,
 										 zval * const response)
@@ -1886,10 +1702,7 @@ xmysqlnd_sql_stmt_execute__read_response(st_xmysqlnd_msg__sql_stmt_execute* cons
 	DBG_INF_FMT("xmysqlnd_receive_message returned %s", PASS == ret? "PASS":"FAIL");
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_sql_stmt_execute__send_execute_request */
 enum_func_status
 xmysqlnd_sql_stmt_execute__send_execute_request(st_xmysqlnd_msg__sql_stmt_execute* msg,
 												const struct st_xmysqlnd_pb_message_shell pb_message_shell)
@@ -1907,10 +1720,7 @@ xmysqlnd_sql_stmt_execute__send_execute_request(st_xmysqlnd_msg__sql_stmt_execut
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_get_sql_stmt_execute_message */
 static struct st_xmysqlnd_msg__sql_stmt_execute
 xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -1948,20 +1758,14 @@ xmysqlnd_get_sql_stmt_execute_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /**************************************  SESS_RESET **************************************************/
-/* {{{ sess_reset_on_OK */
 static const enum_hnd_func_status
 sess_reset_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ sess_reset_on_ERROR */
 static const enum_hnd_func_status
 sess_reset_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -1970,17 +1774,12 @@ sess_reset_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ sess_reset_on_NOTICE */
 static const enum_hnd_func_status
 sess_reset_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static st_xmysqlnd_server_messages_handlers sess_reset_handlers =
 {
@@ -2001,7 +1800,6 @@ static st_xmysqlnd_server_messages_handlers sess_reset_handlers =
 	nullptr,				// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_sess_reset__init_read */
 enum_func_status
 xmysqlnd_sess_reset__init_read(
 	st_xmysqlnd_msg__session_reset* const msg,
@@ -2011,10 +1809,7 @@ xmysqlnd_sess_reset__init_read(
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_sess_reset__read_response */
 enum_func_status
 xmysqlnd_sess_reset__read_response(st_xmysqlnd_msg__session_reset* msg)
 {
@@ -2024,10 +1819,7 @@ xmysqlnd_sess_reset__read_response(st_xmysqlnd_msg__session_reset* msg)
 			&sess_reset_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info) };
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_sess_reset__send_request */
 enum_func_status
 xmysqlnd_sess_reset__send_request(st_xmysqlnd_msg__session_reset* msg)
 {
@@ -2039,10 +1831,7 @@ xmysqlnd_sess_reset__send_request(st_xmysqlnd_msg__session_reset* msg)
 	return xmysqlnd_send_message(
 		COM_SESSION_RESET, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_sess_reset__get_message */
 static st_xmysqlnd_msg__session_reset
 xmysqlnd_sess_reset__get_message(
 	MYSQLND_VIO* vio,
@@ -2063,20 +1852,14 @@ xmysqlnd_sess_reset__get_message(
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /**************************************  SESS_CLOSE **************************************************/
-/* {{{ sess_close_on_OK */
 static const enum_hnd_func_status
 sess_close_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ sess_close_on_ERROR */
 static const enum_hnd_func_status
 sess_close_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -2085,17 +1868,12 @@ sess_close_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ sess_close_on_NOTICE */
 static const enum_hnd_func_status
 sess_close_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static st_xmysqlnd_server_messages_handlers sess_close_handlers =
 {
@@ -2116,7 +1894,6 @@ static st_xmysqlnd_server_messages_handlers sess_close_handlers =
 	nullptr,				// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_sess_close__init_read */
 enum_func_status
 xmysqlnd_sess_close__init_read(
 	st_xmysqlnd_msg__session_close* const msg,
@@ -2126,10 +1903,7 @@ xmysqlnd_sess_close__init_read(
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_sess_close__read_response */
 enum_func_status
 xmysqlnd_sess_close__read_response(st_xmysqlnd_msg__session_close* msg)
 {
@@ -2139,10 +1913,7 @@ xmysqlnd_sess_close__read_response(st_xmysqlnd_msg__session_close* msg)
 			&sess_close_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info) };
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_sess_close__send_request */
 enum_func_status
 xmysqlnd_sess_close__send_request(st_xmysqlnd_msg__session_close* msg)
 {
@@ -2151,10 +1922,7 @@ xmysqlnd_sess_close__send_request(st_xmysqlnd_msg__session_close* msg)
 	return xmysqlnd_send_message(
 		COM_SESSION_CLOSE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_sess_close__get_message */
 static st_xmysqlnd_msg__session_close
 xmysqlnd_sess_close__get_message(
 	MYSQLND_VIO* vio,
@@ -2175,20 +1943,14 @@ xmysqlnd_sess_close__get_message(
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /**************************************  CON_CLOSE **************************************************/
-/* {{{ con_close_on_OK */
 static const enum_hnd_func_status
 con_close_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ con_close_on_ERROR */
 static const enum_hnd_func_status
 con_close_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -2197,17 +1959,12 @@ con_close_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ con_close_on_NOTICE */
 static const enum_hnd_func_status
 con_close_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers con_close_handlers =
 {
@@ -2228,7 +1985,6 @@ static struct st_xmysqlnd_server_messages_handlers con_close_handlers =
 	nullptr,					// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_con_close__init_read */
 enum_func_status
 xmysqlnd_con_close__init_read(st_xmysqlnd_msg__connection_close* const msg,
 							  const struct st_xmysqlnd_on_error_bind on_error)
@@ -2237,10 +1993,7 @@ xmysqlnd_con_close__init_read(st_xmysqlnd_msg__connection_close* const msg,
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_con_close__read_response */
 enum_func_status
 xmysqlnd_con_close__read_response(st_xmysqlnd_msg__connection_close* msg)
 {
@@ -2248,10 +2001,7 @@ xmysqlnd_con_close__read_response(st_xmysqlnd_msg__connection_close* msg)
 	const enum_func_status ret = xmysqlnd_receive_message(&con_close_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_con_close__send_request */
 enum_func_status
 xmysqlnd_con_close__send_request(st_xmysqlnd_msg__connection_close* msg)
 {
@@ -2260,11 +2010,7 @@ xmysqlnd_con_close__send_request(st_xmysqlnd_msg__connection_close* msg)
 
 	return xmysqlnd_send_message(COM_CONN_CLOSE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
-/* }}} */
 
-
-
-/* {{{ xmysqlnd_con_close__get_message */
 static struct st_xmysqlnd_msg__connection_close
 xmysqlnd_con_close__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -2282,12 +2028,8 @@ xmysqlnd_con_close__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_S
 	};
 	return ctx;
 }
-/* }}} */
-
-
 
 /**************************************  EXPECT_OPEN **************************************************/
-/* {{{ expectations_open_on_OK */
 static const enum_hnd_func_status
 expectations_open_on_OK(const Mysqlx::Ok& /*message*/, void* context)
 {
@@ -2295,10 +2037,7 @@ expectations_open_on_OK(const Mysqlx::Ok& /*message*/, void* context)
 	ctx->result = st_xmysqlnd_msg__expectations_open::Result::ok;
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ expectations_open_on_ERROR */
 static const enum_hnd_func_status
 expectations_open_on_ERROR(const Mysqlx::Error& error, void* context)
 {
@@ -2308,17 +2047,12 @@ expectations_open_on_ERROR(const Mysqlx::Error& error, void* context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ expectations_open_on_NOTICE */
 static const enum_hnd_func_status
 expectations_open_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static st_xmysqlnd_server_messages_handlers expectations_open_handlers
 {
@@ -2339,7 +2073,6 @@ static st_xmysqlnd_server_messages_handlers expectations_open_handlers
 	nullptr,				// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_expectations_open__init_read */
 enum_func_status
 xmysqlnd_expectations_open__init_read(
 	st_xmysqlnd_msg__expectations_open* const msg,
@@ -2349,10 +2082,7 @@ xmysqlnd_expectations_open__init_read(
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_expectations_open__read_response */
 enum_func_status
 xmysqlnd_expectations_open__read_response(st_xmysqlnd_msg__expectations_open* msg)
 {
@@ -2362,10 +2092,7 @@ xmysqlnd_expectations_open__read_response(st_xmysqlnd_msg__expectations_open* ms
 			&expectations_open_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info) };
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_expectations_open__send_request */
 enum_func_status
 xmysqlnd_expectations_open__send_request(st_xmysqlnd_msg__expectations_open* msg)
 {
@@ -2378,10 +2105,7 @@ xmysqlnd_expectations_open__send_request(st_xmysqlnd_msg__expectations_open* msg
 	return xmysqlnd_send_message(
 		COM_EXPECTATIONS_OPEN, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_expectations_open__get_message */
 static st_xmysqlnd_msg__expectations_open
 xmysqlnd_expectations_open__get_message(
 	MYSQLND_VIO* vio,
@@ -2406,20 +2130,14 @@ xmysqlnd_expectations_open__get_message(
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /**************************************  EXPECT_CLOSE **************************************************/
-/* {{{ expectations_close_on_OK */
 static const enum_hnd_func_status
 expectations_close_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ expectations_close_on_ERROR */
 static const enum_hnd_func_status
 expectations_close_on_ERROR(const Mysqlx::Error& error, void* context)
 {
@@ -2428,17 +2146,12 @@ expectations_close_on_ERROR(const Mysqlx::Error& error, void* context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ expectations_close_on_NOTICE */
 static const enum_hnd_func_status
 expectations_close_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static st_xmysqlnd_server_messages_handlers expectations_close_handlers
 {
@@ -2459,7 +2172,6 @@ static st_xmysqlnd_server_messages_handlers expectations_close_handlers
 	nullptr,				// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_expectations_close__init_read */
 enum_func_status
 xmysqlnd_expectations_close__init_read(
 	st_xmysqlnd_msg__expectations_close* const msg,
@@ -2469,10 +2181,7 @@ xmysqlnd_expectations_close__init_read(
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_expectations_close__read_response */
 enum_func_status
 xmysqlnd_expectations_close__read_response(st_xmysqlnd_msg__expectations_close* msg)
 {
@@ -2482,10 +2191,7 @@ xmysqlnd_expectations_close__read_response(st_xmysqlnd_msg__expectations_close* 
 			&expectations_close_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info) };
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_expectations_close__send_request */
 enum_func_status
 xmysqlnd_expectations_close__send_request(st_xmysqlnd_msg__expectations_close* msg)
 {
@@ -2494,10 +2200,7 @@ xmysqlnd_expectations_close__send_request(st_xmysqlnd_msg__expectations_close* m
 	return xmysqlnd_send_message(
 		COM_EXPECTATIONS_CLOSE, message, msg->vio, msg->pfc, msg->stats, msg->error_info, &bytes_sent);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_expectations_close__get_message */
 static st_xmysqlnd_msg__expectations_close
 xmysqlnd_expectations_close__get_message(
 	MYSQLND_VIO* vio,
@@ -2518,20 +2221,14 @@ xmysqlnd_expectations_close__get_message(
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /**************************************  COLLECTION_INSERT **************************************************/
-/* {{{ collection_add_on_OK */
 static const enum_hnd_func_status
 collection_add_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ collection_add_on_ERROR */
 static const enum_hnd_func_status
 collection_add_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -2540,17 +2237,12 @@ collection_add_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ collection_add_on_NOTICE */
 static const enum_hnd_func_status
 collection_add_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers collection_add_handlers =
 {
@@ -2571,7 +2263,6 @@ static struct st_xmysqlnd_server_messages_handlers collection_add_handlers =
 	nullptr,					// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_collection_add__init_read */
 enum_func_status
 xmysqlnd_collection_add__init_read(st_xmysqlnd_msg__collection_add* const msg,
 									  const struct st_xmysqlnd_on_error_bind on_error)
@@ -2580,11 +2271,7 @@ xmysqlnd_collection_add__init_read(st_xmysqlnd_msg__collection_add* const msg,
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-
-/* {{{ xmysqlnd_collection_add__read_response */
 enum_func_status
 xmysqlnd_collection_add__read_response(st_xmysqlnd_msg__collection_add* msg)
 {
@@ -2593,10 +2280,7 @@ xmysqlnd_collection_add__read_response(st_xmysqlnd_msg__collection_add* msg)
 	ret = xmysqlnd_receive_message(&collection_add_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection_add__send_request */
 enum_func_status
 xmysqlnd_collection_add__send_request(st_xmysqlnd_msg__collection_add* msg,
 				const struct st_xmysqlnd_pb_message_shell pb_message_shell)
@@ -2612,9 +2296,7 @@ xmysqlnd_collection_add__send_request(st_xmysqlnd_msg__collection_add* msg,
 								 &bytes_sent);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_collection_add__get_message */
 static struct st_xmysqlnd_msg__collection_add
 xmysqlnd_collection_add__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -2632,20 +2314,15 @@ xmysqlnd_collection_add__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQ
 	};
 	return ctx;
 }
-/* }}} */
 
 /**************************************  TABLE_INSERT  **************************************************/
 
-/* {{{ table_insert_on_OK */
 static const enum_hnd_func_status
 table_insert_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ table_insert_on_ERROR */
 static const enum_hnd_func_status
 table_insert_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -2654,10 +2331,7 @@ table_insert_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ table_insert_on_NOTICE */
 static const enum_hnd_func_status
 table_insert_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 {
@@ -2677,8 +2351,6 @@ table_insert_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers table_insert_handlers =
 {
@@ -2699,7 +2371,6 @@ static struct st_xmysqlnd_server_messages_handlers table_insert_handlers =
 	nullptr,					// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_table_insert__send_request */
 enum_func_status
 xmysqlnd_table_insert__send_request(
 	st_xmysqlnd_msg__table_insert* msg,
@@ -2717,10 +2388,7 @@ xmysqlnd_table_insert__send_request(
 													   &bytes_sent);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table_insert__init_read */
 enum_func_status
 xmysqlnd_table_insert__init_read(st_xmysqlnd_msg__table_insert* const msg,
 	const struct st_xmysqlnd_on_warning_bind on_warning,
@@ -2738,11 +2406,7 @@ xmysqlnd_table_insert__init_read(st_xmysqlnd_msg__table_insert* const msg,
 
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-
-/* {{{ xmysqlnd_table_insert__read_response */
 enum_func_status
 xmysqlnd_table_insert__read_response(st_xmysqlnd_msg__table_insert* msg)
 {
@@ -2751,10 +2415,7 @@ xmysqlnd_table_insert__read_response(st_xmysqlnd_msg__table_insert* msg)
 	ret = xmysqlnd_receive_message(&table_insert_handlers, &msg->result_ctx, msg->result_ctx.vio, msg->result_ctx.pfc, msg->result_ctx.stats, msg->result_ctx.error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table_insert__get_message */
 static struct st_xmysqlnd_msg__table_insert
 xmysqlnd_table_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -2780,19 +2441,14 @@ xmysqlnd_table_insert__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLN
 	};
 	return ctx;
 }
-/* }}} */
 
 /**************************************  COLLECTION_MODIFY / COLLECTION_REMOVE  **************************************************/
-/* {{{ collection_find_on_OK */
 static const enum_hnd_func_status
 collection_ud_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ collection_ud_on_ERROR */
 static const enum_hnd_func_status
 collection_ud_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -2801,17 +2457,12 @@ collection_ud_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ collection_ud_on_NOTICE */
 static const enum_hnd_func_status
 collection_ud_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers collection_ud_handlers =
 {
@@ -2833,7 +2484,6 @@ static struct st_xmysqlnd_server_messages_handlers collection_ud_handlers =
 };
 
 
-/* {{{ xmysqlnd_collection_ud__init_read */
 enum_func_status
 xmysqlnd_collection_ud__init_read(st_xmysqlnd_msg__collection_ud* const msg,
 								   const struct st_xmysqlnd_on_error_bind on_error)
@@ -2844,10 +2494,7 @@ xmysqlnd_collection_ud__init_read(st_xmysqlnd_msg__collection_ud* const msg,
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection_ud__read_response */
 enum_func_status
 xmysqlnd_collection_ud__read_response(st_xmysqlnd_msg__collection_ud* msg)
 {
@@ -2856,10 +2503,7 @@ xmysqlnd_collection_ud__read_response(st_xmysqlnd_msg__collection_ud* msg)
 	ret = xmysqlnd_receive_message(&collection_ud_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection_ud__send_request */
 static enum_func_status
 xmysqlnd_collection_ud__send_request(st_xmysqlnd_msg__collection_ud* msg,
 									 const enum xmysqlnd_client_message_type pb_message_type,
@@ -2877,10 +2521,7 @@ xmysqlnd_collection_ud__send_request(st_xmysqlnd_msg__collection_ud* msg,
 													   &bytes_sent);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection_ud__send_update_request */
 enum_func_status
 xmysqlnd_collection_ud__send_update_request(st_xmysqlnd_msg__collection_ud* msg,
 											 const struct st_xmysqlnd_pb_message_shell pb_message_shell)
@@ -2889,10 +2530,7 @@ xmysqlnd_collection_ud__send_update_request(st_xmysqlnd_msg__collection_ud* msg,
 	const enum_func_status ret = xmysqlnd_collection_ud__send_request(msg, COM_CRUD_UPDATE, pb_message_shell);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection_ud__send_delete_request */
 enum_func_status
 xmysqlnd_collection_ud__send_delete_request(st_xmysqlnd_msg__collection_ud* msg,
 											 const struct st_xmysqlnd_pb_message_shell pb_message_shell)
@@ -2901,10 +2539,7 @@ xmysqlnd_collection_ud__send_delete_request(st_xmysqlnd_msg__collection_ud* msg,
 	const enum_func_status ret = xmysqlnd_collection_ud__send_request(msg, COM_CRUD_DELETE, pb_message_shell);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection_ud__get_message */
 static struct st_xmysqlnd_msg__collection_ud
 xmysqlnd_collection_ud__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -2924,20 +2559,15 @@ xmysqlnd_collection_ud__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQL
 	};
 	return ctx;
 }
-/* }}} */
 
 /**************************************  VIEW_CMD  **************************************************/
 
-/* {{{ view_cmd_on_OK */
 static const enum_hnd_func_status
 view_cmd_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ view_cmd_on_ERROR */
 static const enum_hnd_func_status
 view_cmd_on_ERROR(const Mysqlx::Error & error, void* context)
 {
@@ -2946,10 +2576,7 @@ view_cmd_on_ERROR(const Mysqlx::Error & error, void* context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ view_cmd_on_NOTICE */
 static const enum_hnd_func_status
 view_cmd_on_NOTICE(const Mysqlx::Notice::Frame & message, void* context)
 {
@@ -2970,8 +2597,6 @@ view_cmd_on_NOTICE(const Mysqlx::Notice::Frame & message, void* context)
 
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 static st_xmysqlnd_server_messages_handlers view_cmd_handlers =
 {
@@ -2992,7 +2617,6 @@ static st_xmysqlnd_server_messages_handlers view_cmd_handlers =
 	nullptr, // on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_view_cmd__send_request */
 template<xmysqlnd_client_message_type View_cmd_id>
 enum_func_status
 xmysqlnd_view_cmd__send_request(
@@ -3012,10 +2636,7 @@ xmysqlnd_view_cmd__send_request(
 		&bytes_sent);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_view_cmd__init_read */
 enum_func_status
 xmysqlnd_view_cmd__init_read(
 	st_xmysqlnd_msg__view_cmd* const msg,
@@ -3034,10 +2655,7 @@ xmysqlnd_view_cmd__init_read(
 
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_view_cmd__read_response */
 enum_func_status
 xmysqlnd_view_cmd__read_response(st_xmysqlnd_msg__view_cmd* msg)
 {
@@ -3052,10 +2670,7 @@ xmysqlnd_view_cmd__read_response(st_xmysqlnd_msg__view_cmd* msg)
 		msg->result_ctx.error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_view_create__get_message */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_view_create__get_message(
 	MYSQLND_VIO* vio,
@@ -3085,10 +2700,7 @@ xmysqlnd_view_create__get_message(
 	};
 	return ctx;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_view_alter__get_message */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_view_alter__get_message(
 	MYSQLND_VIO* vio,
@@ -3118,10 +2730,7 @@ xmysqlnd_view_alter__get_message(
 	};
 	return ctx;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_view_drop__get_message */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_view_drop__get_message(
 	MYSQLND_VIO* vio,
@@ -3151,19 +2760,14 @@ xmysqlnd_view_drop__get_message(
 	};
 	return ctx;
 }
-/* }}} */
 
 /**************************************  PREPARE_PREPARE **************************************************/
-/* {{{ prepare_prepare_on_OK */
 static const enum_hnd_func_status
 prepare_prepare_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ prepare_prepare_on_ERROR */
 static const enum_hnd_func_status
 prepare_prepare_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -3172,17 +2776,12 @@ prepare_prepare_on_ERROR(const Mysqlx::Error & error, void * context)
     on_ERROR(error, ctx->on_error);
     return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ prepare_prepare_on_NOTICE */
 static const enum_hnd_func_status
 prepare_prepare_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers prepare_prepare_handlers =
 {
@@ -3203,7 +2802,6 @@ static struct st_xmysqlnd_server_messages_handlers prepare_prepare_handlers =
 	nullptr,					// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_prepare_prepare__init_read */
 enum_func_status
 xmysqlnd_prepare_prepare__init_read(st_xmysqlnd_msg__prepare_prepare* const msg,
 									  const struct st_xmysqlnd_on_error_bind on_error)
@@ -3212,11 +2810,7 @@ xmysqlnd_prepare_prepare__init_read(st_xmysqlnd_msg__prepare_prepare* const msg,
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-
-/* {{{ xmysqlnd_prepare_prepare__read_response */
 enum_func_status
 xmysqlnd_prepare_prepare__read_response(st_xmysqlnd_msg__prepare_prepare* msg)
 {
@@ -3225,10 +2819,7 @@ xmysqlnd_prepare_prepare__read_response(st_xmysqlnd_msg__prepare_prepare* msg)
 	ret = xmysqlnd_receive_message(&prepare_prepare_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_prepare_prepare__send_request */
 enum_func_status
 xmysqlnd_prepare_prepare__send_request(st_xmysqlnd_msg__prepare_prepare* msg,
 				const struct st_xmysqlnd_pb_message_shell pb_message_shell)
@@ -3244,9 +2835,7 @@ xmysqlnd_prepare_prepare__send_request(st_xmysqlnd_msg__prepare_prepare* msg,
 								 &bytes_sent);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_prepare_prepare__get_message */
 static struct st_xmysqlnd_msg__prepare_prepare
 xmysqlnd_prepare_prepare__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -3264,20 +2853,14 @@ xmysqlnd_prepare_prepare__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /**************************************  PREPARE_EXECUTE **************************************************/
-/* {{{ prepare_execute_on_OK */
 static const enum_hnd_func_status
 prepare_execute_on_OK(const Mysqlx::Ok& /*message*/, void* /*context*/)
 {
 	return HND_PASS;
 }
-/* }}} */
 
-
-/* {{{ prepare_execute_on_ERROR */
 static const enum_hnd_func_status
 prepare_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 {
@@ -3286,17 +2869,12 @@ prepare_execute_on_ERROR(const Mysqlx::Error & error, void * context)
 	on_ERROR(error, ctx->on_error);
 	return HND_PASS_RETURN_FAIL;
 }
-/* }}} */
 
-
-/* {{{ prepare_execute_on_NOTICE */
 static const enum_hnd_func_status
 prepare_execute_on_NOTICE(const Mysqlx::Notice::Frame& /*message*/, void* /*context*/)
 {
 	return HND_AGAIN;
 }
-/* }}} */
-
 
 static struct st_xmysqlnd_server_messages_handlers prepare_execute_handlers =
 {
@@ -3317,7 +2895,6 @@ static struct st_xmysqlnd_server_messages_handlers prepare_execute_handlers =
 	nullptr,					// on_UNKNOWN
 };
 
-/* {{{ xmysqlnd_prepare_execute__init_read */
 enum_func_status
 xmysqlnd_prepare_execute__init_read(st_xmysqlnd_msg__prepare_execute* const msg,
 									  const struct st_xmysqlnd_on_error_bind on_error)
@@ -3326,11 +2903,7 @@ xmysqlnd_prepare_execute__init_read(st_xmysqlnd_msg__prepare_execute* const msg,
 	msg->on_error = on_error;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-
-/* {{{ xmysqlnd_prepare_execute__read_response */
 enum_func_status
 xmysqlnd_prepare_execute__read_response(st_xmysqlnd_msg__prepare_execute* msg)
 {
@@ -3339,10 +2912,7 @@ xmysqlnd_prepare_execute__read_response(st_xmysqlnd_msg__prepare_execute* msg)
 	ret = xmysqlnd_receive_message(&prepare_execute_handlers, msg, msg->vio, msg->pfc, msg->stats, msg->error_info);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_prepare_execute__send_request */
 enum_func_status
 xmysqlnd_prepare_execute__send_request(st_xmysqlnd_msg__prepare_execute* msg,
 				const struct st_xmysqlnd_pb_message_shell pb_message_shell)
@@ -3358,9 +2928,7 @@ xmysqlnd_prepare_execute__send_request(st_xmysqlnd_msg__prepare_execute* msg,
 								 &bytes_sent);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_prepare_execute__get_message */
 static struct st_xmysqlnd_msg__prepare_execute
 xmysqlnd_prepare_execute__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -3378,173 +2946,117 @@ xmysqlnd_prepare_execute__get_message(MYSQLND_VIO * vio, XMYSQLND_PFC * pfc, MYS
 	};
 	return ctx;
 }
-/* }}} */
-
 
 /**************************************  FACTORY **************************************************/
 
-/* {{{ xmysqlnd_msg_factory_get__capabilities_get */
 static struct st_xmysqlnd_msg__capabilities_get
 xmysqlnd_msg_factory_get__capabilities_get(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_get_capabilities_get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__capabilities_set */
 static struct st_xmysqlnd_msg__capabilities_set
 xmysqlnd_msg_factory_get__capabilities_set(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_get_capabilities_set_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__auth_start */
 static struct st_xmysqlnd_msg__auth_start
 xmysqlnd_msg_factory_get__auth_start(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_get_auth_start_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_msg_factory_get__sql_stmt_execute */
 static struct st_xmysqlnd_msg__sql_stmt_execute
 xmysqlnd_msg_factory_get__sql_stmt_execute(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_get_sql_stmt_execute_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__con_reset */
 static struct st_xmysqlnd_msg__session_reset
 xmysqlnd_msg_factory_get__sess_reset(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_sess_reset__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__con_close */
 static struct st_xmysqlnd_msg__session_close
 xmysqlnd_msg_factory_get__sess_close(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_sess_close__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__con_close */
 static struct st_xmysqlnd_msg__connection_close
 xmysqlnd_msg_factory_get__con_close(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_con_close__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__expectations_open */
 static st_xmysqlnd_msg__expectations_open
 xmysqlnd_msg_factory_get__expectations_open(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_expectations_open__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__expectations_close */
 static st_xmysqlnd_msg__expectations_close
 xmysqlnd_msg_factory_get__expectations_close(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_expectations_close__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__collection_add */
 static struct st_xmysqlnd_msg__collection_add
 xmysqlnd_msg_factory_get__collection_add(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_collection_add__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__collection_ud */
 static struct st_xmysqlnd_msg__collection_ud
 xmysqlnd_msg_factory_get__collection_ud(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_collection_ud__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ st_xmysqlnd_msg__collection_read */
 static struct st_xmysqlnd_msg__sql_stmt_execute
 xmysqlnd_msg_factory_get__collection_read(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_msg_factory_get__sql_stmt_execute(factory);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__table_insert */
 static struct st_xmysqlnd_msg__table_insert
 xmysqlnd_msg_factory_get__table_insert(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_table_insert__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__view_create */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_msg_factory_get__view_create(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_view_create__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__view_alter */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_msg_factory_get__view_alter(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_view_alter__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__view_drop */
 static st_xmysqlnd_msg__view_cmd
 xmysqlnd_msg_factory_get__view_drop(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_view_drop__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__prepare_prepare */
 static st_xmysqlnd_msg__prepare_prepare
 xmysqlnd_msg_factory_get__prepare_prepare(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_prepare_prepare__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_msg_factory_get__prepare_execute */
 static st_xmysqlnd_msg__prepare_execute
 xmysqlnd_msg_factory_get__prepare_execute(const st_xmysqlnd_message_factory* const factory)
 {
 	return xmysqlnd_prepare_execute__get_message(factory->vio, factory->pfc, factory->stats, factory->error_info);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_get_message_factory */
 struct st_xmysqlnd_message_factory
 xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -3575,26 +3087,13 @@ xmysqlnd_get_message_factory(const XMYSQLND_L3_IO * const io, MYSQLND_STATS * st
 	};
 	return factory;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_shutdown_protobuf_library */
 void
 xmysqlnd_shutdown_protobuf_library()
 {
 	google::protobuf::ShutdownProtobufLibrary();
 }
-/* }}} */
 
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:{
- * tab-width: 4
- * c-basic-offset: 4
- * End:{
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

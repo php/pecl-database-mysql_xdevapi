@@ -28,7 +28,11 @@ error_reporting=0
 	$coll->add('{"name": "Susanne", "age": 24, "job": "Plumber"}')->execute();
 	$coll->add('{"name": "Mike", "age": 39, "job": "Manager"}')->execute();
 
-	$coll->modify('name like :param')->set("job", "Unemployed")->bind(['param' => 'Sakila'])->execute();
+	$coll->modify('name like :param')
+		->set("job", ":job")
+		->bind(['param' => 'Sakila'])
+		->bind(['job' => 'Unemployed'])
+		->execute();
 
 	$res = $coll->find('name like "Sakila"')->execute();
 	$data = $res->fetchAll();
@@ -41,7 +45,10 @@ error_reporting=0
 
 
 	$coll->modify('job like :job_name')->unset(["age", "name"])->bind(['job_name' => 'Plumber'])->execute();
-	$coll->modify('job like :job_name')->set("name", "Artur")->set("age",49)->bind(['job_name' => 'Plumber'])->execute();
+	$coll->modify('job like :job_name')
+		->set("name", "Artur")
+		->set("age", ":newAge")
+		->bind(['job_name' => 'Plumber', "newAge" => 49])->execute();
 
 	$res = $coll->find('job like "Plumber"')->execute();
 	$data = $res->fetchAll();

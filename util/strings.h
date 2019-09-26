@@ -80,7 +80,6 @@ using wformatter = basic_formatter<wchar_t>;
 	1) then optionally make some checks (whether is empty or make some 	comparison
 	like == ), or immediately get proper util::string via to_string() member routine
 */
-/* {{{ string_view */
 struct string_view
 {
 	string_view() = default;
@@ -172,7 +171,6 @@ struct string_view
 	const char* str{nullptr};
 	size_t len{0};
 };
-/* }}} */
 
 // ------------------------------------------------------------------------------
 
@@ -184,12 +182,3 @@ using std_stringset = std::set<std::string>;
 } // namespace mysqlx
 
 #endif // MYSQL_XDEVAPI_UTIL_STRINGS_H
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

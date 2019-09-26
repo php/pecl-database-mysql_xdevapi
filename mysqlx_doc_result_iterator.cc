@@ -45,7 +45,6 @@ struct st_mysqlx_doc_result_iterator : util::custom_allocable
 };
 
 
-/* {{{ mysqlx_doc_result_iterator::dtor */
 static void
 XMYSQLND_METHOD(mysqlx_doc_result_iterator, dtor)(zend_object_iterator * iter)
 {
@@ -60,10 +59,7 @@ XMYSQLND_METHOD(mysqlx_doc_result_iterator, dtor)(zend_object_iterator * iter)
 	zval_ptr_dtor(&iterator->current_row);
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_doc_result_iterator::valid */
 static int
 XMYSQLND_METHOD(mysqlx_doc_result_iterator, valid)(zend_object_iterator * iter)
 {
@@ -72,12 +68,9 @@ XMYSQLND_METHOD(mysqlx_doc_result_iterator, valid)(zend_object_iterator * iter)
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	DBG_RETURN(iterator->usable? SUCCESS:FAILURE);
 }
-/* }}} */
-
 
 #include <ext/standard/php_var.h>
 
-/* {{{ mysqlx_doc_result_iterator::current_data */
 static zval *
 XMYSQLND_METHOD(mysqlx_doc_result_iterator, current_data)(zend_object_iterator * iter)
 {
@@ -86,10 +79,7 @@ XMYSQLND_METHOD(mysqlx_doc_result_iterator, current_data)(zend_object_iterator *
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	DBG_RETURN((iterator->result && iterator->usable)? &iterator->current_row : nullptr);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_doc_result_iterator::fetch_current_data */
 static enum_func_status
 XMYSQLND_METHOD(mysqlx_doc_result_iterator, fetch_current_data)(zend_object_iterator * iter)
 {
@@ -115,10 +105,7 @@ XMYSQLND_METHOD(mysqlx_doc_result_iterator, fetch_current_data)(zend_object_iter
 	}
 	DBG_RETURN(FAIL);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_doc_result_iterator::next */
 static void
 XMYSQLND_METHOD(mysqlx_doc_result_iterator, next)(zend_object_iterator * iter)
 {
@@ -136,10 +123,7 @@ XMYSQLND_METHOD(mysqlx_doc_result_iterator, next)(zend_object_iterator * iter)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_doc_result_iterator::rewind */
 static void
 XMYSQLND_METHOD(mysqlx_doc_result_iterator, rewind)(zend_object_iterator * iter)
 {
@@ -161,10 +145,7 @@ XMYSQLND_METHOD(mysqlx_doc_result_iterator, rewind)(zend_object_iterator * iter)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_doc_result_iterator_funcs */
 static zend_object_iterator_funcs mysqlx_doc_result_iterator_funcs =
 {
 	XMYSQLND_METHOD(mysqlx_doc_result_iterator, dtor),
@@ -174,10 +155,7 @@ static zend_object_iterator_funcs mysqlx_doc_result_iterator_funcs =
 	XMYSQLND_METHOD(mysqlx_doc_result_iterator, next),
 	XMYSQLND_METHOD(mysqlx_doc_result_iterator, rewind),
 };
-/* }}} */
 
-
-/* {{{ mysqlx_doc_result_create_iterator */
 static zend_object_iterator *
 mysqlx_doc_result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
 {
@@ -189,10 +167,7 @@ mysqlx_doc_result_create_iterator(zend_class_entry * ce, zval * object, int by_r
 		by_ref);
 	DBG_RETURN(iterator);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_doc_result_iterator */
 void
 mysqlx_register_doc_result_iterator(zend_class_entry * ce)
 {
@@ -203,17 +178,7 @@ mysqlx_register_doc_result_iterator(zend_class_entry * ce)
 
 	zend_class_implements(ce, 1, zend_ce_traversable);
 }
-/* }}} */
 
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

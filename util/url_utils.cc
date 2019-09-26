@@ -26,7 +26,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ Url::Url */
 Url::Url(const php_url* phpurl)
 	: scheme(to_string(phpurl->scheme))
 	, user(to_string(phpurl->user))
@@ -45,10 +44,7 @@ Url::Url(const php_url* phpurl)
 		path = url_path.substr( prefix_offset );
 	}
 }
-/* }}} */
 
-
-/* {{{ Url::empty */
 bool Url::empty() const
 {
 	return scheme.empty()
@@ -60,17 +56,7 @@ bool Url::empty() const
 		&& query.empty()
 		&& fragment.empty();
 }
-/* }}} */
 
 } // namespace util
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -119,12 +119,3 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_result_free(XMYSQLND_STMT_RESULT * cons
 } // namespace mysqlx
 
 #endif /* XMYSQLND_STMT_RESULT_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

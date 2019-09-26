@@ -47,11 +47,3 @@ typedef enum xmysqlnd_handler_func_status
 #include "xmysqlnd_object_factory.h"
 
 #endif /* XMYSQLND_DRIVER_H */
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

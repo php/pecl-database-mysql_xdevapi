@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision: 345602 $ -->
+<!-- $Revision: 347749 $ -->
 
 <refentry xml:id="mysql-xdevapi-collection.add" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
@@ -31,7 +31,7 @@
    </listitem>
    <listitem>
     <para>
-      A mix of of both, and multiple documents can be added in the same operation.
+      A mix of both, and multiple documents can be added in the same operation.
     </para>
    </listitem>
   </orderedlist>

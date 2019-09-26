@@ -28,7 +28,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ iless */
 struct iless
 {
 	bool operator()(const char* lhs, const char* rhs) const
@@ -58,7 +57,6 @@ struct iless
 		);
 	}
 };
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -120,7 +118,6 @@ inline std::string to_std_string(const std::string& str)
 
 strings to_strings(zval* zvals, int count);
 
-/* {{{ to_strings */
 template<typename Pred>
 strings to_strings(zval* zvals, int count, Pred pred)
 {
@@ -131,8 +128,6 @@ strings to_strings(zval* zvals, int count, Pred pred)
 	}
 	return strings;
 }
-/* }}} */
-
 
 zend_string* to_zend_string(const char* str);
 zend_string* to_zend_string(const string& str);
@@ -160,6 +155,8 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 
 bool to_int(const string& str, int* value);
 bool to_int(const std::string& str, int* value);
+
+bool is_alnum_identifier(const std::string& ident);
 
 //------------------------------------------------------------------------------
 
@@ -192,12 +189,3 @@ String quotation_if_blank(const String& str)
 } // namespace mysqlx
 
 #endif // MYSQL_XDEVAPI_UTIL_STRING_UTILS_H
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

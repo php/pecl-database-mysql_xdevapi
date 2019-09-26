@@ -52,22 +52,16 @@ struct st_mysqlx_warning
 }
 
 
-/* {{{ mysqlx_warning::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
 
-/* {{{ mysqlx_warning_methods[] */
 static const zend_function_entry mysqlx_warning_methods[] = {
 	PHP_ME(mysqlx_warning, __construct,	nullptr,	ZEND_ACC_PRIVATE)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ mysqlx_warning_property__message */
 static zval *
 mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -87,10 +81,7 @@ mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_valu
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_warning_property__level */
 static zval *
 mysqlx_warning_property__level(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -99,10 +90,7 @@ mysqlx_warning_property__level(const st_mysqlx_object* obj, zval * return_value)
 	ZVAL_LONG(return_value, object->level);
 	DBG_RETURN(return_value);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_warning_property__code */
 static zval *
 mysqlx_warning_property__code(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -112,10 +100,7 @@ mysqlx_warning_property__code(const st_mysqlx_object* obj, zval * return_value)
 	ZVAL_LONG(return_value, object->code);
 	DBG_RETURN(return_value);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_warning_property_entries[] =
 {
 	{{"message",			sizeof("message") - 1},		mysqlx_warning_property__message,	nullptr},
@@ -123,14 +108,11 @@ static const struct st_mysqlx_property_entry mysqlx_warning_property_entries[] =
 	{{"code",				sizeof("code") - 1},		mysqlx_warning_property__code,		nullptr},
 	{{nullptr, 				0},							nullptr, 								nullptr}
 };
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_warning_handlers;
 static HashTable mysqlx_warning_properties;
 
 
-/* {{{ mysqlx_warning_free_storage */
 static void
 mysqlx_warning_free_storage(zend_object * object)
 {
@@ -146,10 +128,7 @@ mysqlx_warning_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
 
-
-/* {{{ php_mysqlx_warning_object_allocator */
 static zend_object *
 php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 {
@@ -179,10 +158,7 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 	}
 	DBG_RETURN(nullptr);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_warning_class */
 void
 mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -205,19 +181,13 @@ mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysq
 	zend_declare_property_null(mysqlx_warning_class_entry, "level",		sizeof("level") - 1,		ZEND_ACC_PUBLIC);
 	zend_declare_property_null(mysqlx_warning_class_entry, "code",		sizeof("code") - 1,			ZEND_ACC_PUBLIC);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_warning_class */
 void
 mysqlx_unregister_warning_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_warning_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_warning */
 void
 mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int level, const unsigned int code)
 {
@@ -237,17 +207,7 @@ mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int 
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

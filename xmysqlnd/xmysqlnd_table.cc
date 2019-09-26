@@ -35,7 +35,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_table::xmysqlnd_table */
 xmysqlnd_table::xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const cur_obj_factory,
 										   xmysqlnd_schema * const cur_schema,
 										   const MYSQLND_CSTRING cur_table_name,
@@ -51,7 +50,6 @@ xmysqlnd_table::xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_
 
 	object_factory = cur_obj_factory;
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -63,7 +61,6 @@ struct table_or_view_var_binder_ctx
 };
 
 
-/* {{{ table_op_var_binder */
 const enum_hnd_func_status
 table_op_var_binder(
 	void * context,
@@ -105,8 +102,6 @@ bind:
 	++ctx->counter;
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 struct table_or_view_op_ctx
 {
@@ -115,7 +110,6 @@ struct table_or_view_op_ctx
 };
 
 
-/* {{{ table_or_view_exists_in_database_op */
 const enum_hnd_func_status
 table_or_view_exists_in_database_op(
 	void * context,
@@ -141,9 +135,7 @@ table_or_view_exists_in_database_op(
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_table::exists_in_database */
 enum_func_status
 xmysqlnd_table::exists_in_database(
 		struct st_xmysqlnd_session_on_error_bind on_error,
@@ -184,11 +176,9 @@ xmysqlnd_table::exists_in_database(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
-/* {{{ check_is_view_op */
 const enum_hnd_func_status
 check_is_view_op(
 	void * context,
@@ -212,9 +202,7 @@ check_is_view_op(
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_table::is_view */
 enum_func_status
 xmysqlnd_table::is_view(
 	st_xmysqlnd_session_on_error_bind on_error,
@@ -255,7 +243,6 @@ xmysqlnd_table::is_view(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -265,7 +252,6 @@ struct st_table_sql_single_result_ctx
 };
 
 
-/* {{{ table_sql_single_result_op_on_row */
 const enum_hnd_func_status
 table_sql_single_result_op_on_row(
 	void * context,
@@ -285,10 +271,7 @@ table_sql_single_result_op_on_row(
 		DBG_RETURN(HND_AGAIN);
 	}
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table::count */
 enum_func_status
 xmysqlnd_table::count(
 	struct st_xmysqlnd_session_on_error_bind on_error,
@@ -328,9 +311,7 @@ xmysqlnd_table::count(
 	mnd_sprintf_free(query_str);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_table::insert */
 xmysqlnd_stmt *
 xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 {
@@ -358,10 +339,7 @@ xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table::opdelete */
 xmysqlnd_stmt *
 xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 {
@@ -422,10 +400,7 @@ xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table::update */
 xmysqlnd_stmt *
 xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 {
@@ -484,10 +459,7 @@ xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table::select */
 xmysqlnd_stmt *
 xmysqlnd_table::select(XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 {
@@ -542,10 +514,7 @@ xmysqlnd_table::select(XMYSQLND_CRUD_TABLE_OP__SELECT * op)
 	}
 	DBG_RETURN(stmt);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table::get_reference */
 xmysqlnd_table *
 xmysqlnd_table::get_reference()
 {
@@ -554,10 +523,7 @@ xmysqlnd_table::get_reference()
 	DBG_INF_FMT("new_refcount=%u", refcount);
 	DBG_RETURN(this);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table::free_reference */
 enum_func_status
 xmysqlnd_table::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -569,10 +535,7 @@ xmysqlnd_table::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table::free_contents */
 void
 xmysqlnd_table::free_contents()
 {
@@ -583,10 +546,7 @@ xmysqlnd_table::free_contents()
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table::dtor */
 void
 xmysqlnd_table::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -596,9 +556,7 @@ xmysqlnd_table::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-/* {{{ xmysqlnd_table_create */
 PHP_MYSQL_XDEVAPI_API xmysqlnd_table *
 xmysqlnd_table_create(xmysqlnd_schema * schema,
 						   const MYSQLND_CSTRING table_name,
@@ -617,10 +575,7 @@ xmysqlnd_table_create(xmysqlnd_schema * schema,
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_table_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_table_free(xmysqlnd_table * const table, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -630,17 +585,7 @@ xmysqlnd_table_free(xmysqlnd_table * const table, MYSQLND_STATS * stats, MYSQLND
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

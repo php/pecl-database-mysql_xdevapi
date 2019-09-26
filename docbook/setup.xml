@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision: 345450 $ -->
+<!-- $Revision: 345646 $ -->
 
 <chapter xml:id="mysql-xdevapi.setup" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  &reftitle.setup;
@@ -100,6 +100,10 @@ pdo_mysql
         <para>
           Google Protocol Buffers (protobuf): required,  optionally use the --with-protobuf=DIR
           configure option or set the MYSQL_XDEVAPI_PROTOBUF_ROOT environment variable.
+        </para>
+        <para>
+          Optionally use <literal>make protobufs</literal> to generate protobuf files (*.pb.cc/.h),
+          and <literal>make clean-protobufs</literal> to delete generate protobuf files.
         </para>
         <para>
           Windows specific protobuf note: depending on your environment,

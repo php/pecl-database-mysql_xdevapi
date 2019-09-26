@@ -21,6 +21,7 @@
 
 
 #include <string>
+#include "util/string_utils.h"
 #include "xmysqlnd/proto_gen/mysqlx_expr.pb.h"
 #include "xmysqlnd/cdkbase/parser/expr_parser.h"
 #include "xmysqlnd/cdkbase/parser/tokenizer.h"
@@ -35,7 +36,6 @@ namespace mysqlx {
 namespace devapi {
 namespace parser {
 
-/* {{{ mysqlx::devapi::parser::Args_conv */
 class Args_conv : public cdk::protocol::mysqlx::Args_conv
 {
 public:
@@ -44,22 +44,13 @@ public:
 private:
 	std::vector< std::string >& placeholders;
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::parse */
 Mysqlx::Expr::Expr* parse(const std::string& expression,
 						  const bool doc_datamodel,
 						  std::vector<std::string>& placeholders);
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::parse */
 Mysqlx::Expr::Expr* parse(const std::string& expression , const bool doc_datamodel);
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Expr_builder */
 class Expr_builder
 		: public cdk::protocol::mysqlx::Any_builder_base<
 		cdk::protocol::mysqlx::Expr_builder_base,
@@ -71,10 +62,7 @@ public:
 	Expr_builder(Mysqlx::Expr::Expr& msg,
 				 cdk::protocol::mysqlx::Args_conv* conv = nullptr);
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Order_builder */
 struct Order_builder
 		: public cdk::protocol::mysqlx::Builder_base<
 		Mysqlx::Crud::Order,
@@ -86,10 +74,7 @@ struct Order_builder
 
 	Expr_builder expr_builder;
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Ord_msg_traits */
 template<class MSG>
 struct Ord_msg_traits
 {
@@ -101,10 +86,7 @@ struct Ord_msg_traits
 		return *arr.add_order();
 	}
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Order_by_item */
 class Order_by_item : public cdk::Expression
 {
 public:
@@ -119,10 +101,7 @@ private:
 	const char* expression;
 	cdk::Sort_direction::value sort_direction;
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Order_by */
 class Order_by : public cdk::Order_by
 {
 	typedef std::vector<Order_by_item> Order_item_list;
@@ -138,10 +117,7 @@ private:
 	::parser::Parser_mode::value parser_mode;
 	Order_item_list item_list;
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Expr_to_doc_prc_converter */
 class Expr_to_doc_prc_converter
   : public cdk::Converter<
 	  Expr_to_doc_prc_converter,
@@ -153,10 +129,7 @@ class Expr_to_doc_prc_converter
   Scalar_prc* scalar();
   List_prc* arr();
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Projection_builder */
 struct Projection_builder
   : public cdk::protocol::mysqlx::Builder_base<
 		Mysqlx::Crud::Projection,
@@ -168,10 +141,7 @@ struct Projection_builder
 
   Expr_builder expression_builder;
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Proj_msg_traits */
 struct Proj_msg_traits
 {
   typedef Mysqlx::Crud::Find       Array;
@@ -182,10 +152,7 @@ struct Proj_msg_traits
 	return *arr.add_projection();
   }
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::Projection_list */
 class Projection_list : public cdk::Projection, public cdk::Expression::Document
 {
 public:
@@ -202,10 +169,7 @@ private:
   ::parser::Parser_mode::value parser_mode;
   Proj_vec values;
 };
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::orderby */
 template<typename MSG>
 bool orderby(
 		const std::string& expression,
@@ -259,10 +223,7 @@ bool orderby(
 
 	return true;
 }
-/* }}} */
 
-
-/* {{{ mysqlx::devapi::parser::projection */
 template<typename MSG>
 bool projection(
 		const std::string& expression,
@@ -302,10 +263,14 @@ bool projection(
 	}
 
 	if( false == ident.empty() ) {
-		target_expr += " ";
+		target_expr += ' ';
 		target_expr += parser_as_symbol;
-		target_expr += " ";
+		target_expr += ' ';
+
+		const bool need_backticks{ !util::is_alnum_identifier(ident) };
+		if (need_backticks) target_expr += '`';
 		target_expr += ident;
+		if (need_backticks) target_expr += '`';
 	}
 
 	std::vector<std::string> ph;
@@ -331,7 +296,6 @@ bool projection(
 	conv.process( proj_builder );
 	return true;
 }
-/* }}} */
 
 } //mysqlx::devapi::parser
 } //mysqlx::devapi

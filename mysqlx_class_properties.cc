@@ -28,27 +28,20 @@ namespace devapi {
 
 using namespace drv;
 
-/* {{{ mysqlx_property_get_forbidden */
 static zval *
 mysqlx_property_get_forbidden(const st_mysqlx_object* /*not_used1*/, zval* /*not_used2*/)
 {
 	php_error_docref(nullptr, E_ERROR, "Write-only property");
 	return nullptr;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_property_set_forbidden */
 static int
 mysqlx_property_set_forbidden(st_mysqlx_object* /*not_used1*/, zval* /*not_used2*/)
 {
 	php_error_docref(nullptr, E_ERROR, "Read-only property");
 	return FAILURE;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_add_property */
 static void
 mysqlx_add_property(HashTable * properties, const MYSQLND_CSTRING property_name, const func_mysqlx_property_get get, const func_mysqlx_property_set set)
 {
@@ -65,10 +58,7 @@ mysqlx_add_property(HashTable * properties, const MYSQLND_CSTRING property_name,
 	zend_string_release(property.name);
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_add_properties */
 void
 mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries)
 {
@@ -76,10 +66,7 @@ mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries)
 		mysqlx_add_property(ht, entries[i].property_name, entries[i].get_value, entries[i].set_value);
 	}
 }
-/* }}} */
 
-
-/* {{{ mysqlx_property_get_value */
 zval *
 mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_slot, zval * rv)
 {
@@ -122,10 +109,7 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 
 	DBG_RETURN(retval);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_property_set_value */
 property_set_value_return_type
 mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cache_slot)
 {
@@ -165,10 +149,7 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 	DBG_VOID_RETURN;
 	#endif
 }
-/* }}} */
 
-
-/* {{{ mysqlx_object_has_property */
 int
 mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, void **cache_slot)
 {
@@ -215,27 +196,13 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_free_property_cb */
 void
 mysqlx_free_property_cb(zval * el)
 {
 	pefree(Z_PTR_P(el), 1);
 }
-/* }}} */
 
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
-

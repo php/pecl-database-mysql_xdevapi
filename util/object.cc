@@ -27,33 +27,20 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ mysqlx::util::safe_call_php_method */
 void safe_call_php_method(php_method_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
 	MYSQL_XDEVAPI_TRY {
 		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 	} MYSQL_XDEVAPI_CATCH
 }
-/* }}} */
 
-/* {{{ mysqlx::util::safe_call_php_function */
 void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS)
 {
 	MYSQL_XDEVAPI_TRY {
 		handler(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 	} MYSQL_XDEVAPI_CATCH
 }
-/* }}} */
 
 } // namespace util
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

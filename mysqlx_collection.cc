@@ -143,16 +143,12 @@ struct st_mysqlx_collection : public util::custom_allocable
 	} \
 } \
 
-/* {{{ mysqlx_collection::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 /************************************** INHERITED START ****************************************/
-/* {{{ proto mixed mysqlx_collection::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 {
 	DBG_ENTER("mysqlx_collection::getSession");
@@ -177,10 +173,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -203,10 +196,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_collection_on_error */
 static const enum_hnd_func_status
 mysqlx_collection_on_error(void * /*context*/, XMYSQLND_SESSION session,
 					xmysqlnd_stmt* const /*stmt*/,
@@ -223,10 +213,7 @@ mysqlx_collection_on_error(void * /*context*/, XMYSQLND_SESSION session,
 		DBG_RETURN(HND_PASS_RETURN_FAIL);
 	}
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -255,10 +242,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::count() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 {
 	DBG_ENTER("mysqlx_collection::count");
@@ -285,10 +269,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::getSchema() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -326,11 +307,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
+
 /************************************** INHERITED END   ****************************************/
 
 
-/* {{{ proto mixed mysqlx_collection::add() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -361,10 +341,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::find() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -390,10 +367,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::modify() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -420,10 +394,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::remove() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 {
 	st_mysqlx_collection* object{nullptr};
@@ -450,10 +421,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::getOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 {
 	DBG_ENTER("mysqlx_collection::getOne");
@@ -473,27 +441,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 
 	Collection_find coll_find;
 	const char* Get_one_search_expression = "_id = :id";
-	if (!coll_find.init(object_zv, data_object.collection, Get_one_search_expression)) {
+	if (!coll_find.init(data_object.collection, Get_one_search_expression)) {
 		DBG_VOID_RETURN;
 	}
 
-	util::Hash_table bind_variables;
-	bind_variables.insert("id", id);
-	coll_find.bind(bind_variables.ptr(), return_value);
-	if (Z_TYPE_P(return_value) == IS_FALSE) {
-		DBG_VOID_RETURN;
+	util::zvalue bind_variables{{"id", id}};
+	if (coll_find.bind(bind_variables)) {
+		coll_find.execute(return_value);
+		fetch_one_from_doc_result(return_value);
 	}
-
-	coll_find.execute(return_value);
-
-	fetch_one_from_doc_result(return_value);
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::replaceOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 {
 	DBG_ENTER("mysqlx_collection::replaceOne");
@@ -515,31 +475,25 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 
 	Collection_modify coll_modify;
 	const char* Replace_one_search_expression = "$._id = :id";
-	if (!coll_modify.init(object_zv, data_object.collection, Replace_one_search_expression)) {
+	if (!coll_modify.init(data_object.collection, Replace_one_search_expression)) {
 		DBG_VOID_RETURN;
 	}
 
-	util::Hash_table bind_variables;
-	bind_variables.insert("id", id);
-	coll_modify.bind(bind_variables.ptr(), return_value);
-	if (Z_TYPE_P(return_value) == IS_FALSE) {
+	util::zvalue bind_variables{{"id", id}};
+	if (!coll_modify.bind(bind_variables)) {
 		DBG_VOID_RETURN;
 	}
 
 	const util::string_view Doc_root_path("$");
-	zval doc_with_id;
-	util::json::ensure_doc_id(doc, id, &doc_with_id);
-	coll_modify.set(Doc_root_path, true, &doc_with_id, return_value);
-
-	coll_modify.execute(return_value);
-	zval_ptr_dtor(&doc_with_id);
+	util::zvalue doc_with_id;
+	util::json::ensure_doc_id(doc, id, doc_with_id.ptr());
+	if (coll_modify.set(Doc_root_path, doc_with_id.ptr())) {
+		coll_modify.execute(return_value);
+	}
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::addOrReplaceOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 {
 	zval* object_zv{nullptr};
@@ -560,20 +514,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 	auto& data_object = util::fetch_data_object<st_mysqlx_collection>(object_zv);
 
 	Collection_add coll_add;
-	zval doc_with_id;
-	util::json::ensure_doc_id(doc, id, &doc_with_id);
-	if (!coll_add.add_docs(object_zv, data_object.collection, id, &doc_with_id)) {
-		DBG_VOID_RETURN;
+	util::zvalue doc_with_id;
+	util::json::ensure_doc_id(doc, id, doc_with_id.ptr());
+	if (coll_add.add_docs(data_object.collection, id, doc_with_id.ptr())) {
+		coll_add.execute(return_value);
 	}
-
-	coll_add.execute(return_value);
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::removeOne() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 {
 	zval* object_zv{nullptr};
@@ -592,25 +541,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 	auto& data_object = util::fetch_data_object<st_mysqlx_collection>(object_zv);
 	Collection_remove coll_remove;
 	const char* Remove_one_search_expression = "_id = :id";
-	if (!coll_remove.init(object_zv, data_object.collection, Remove_one_search_expression)) {
+	if (!coll_remove.init(data_object.collection, Remove_one_search_expression)) {
 		DBG_VOID_RETURN;
 	}
 
-	util::Hash_table bind_variables;
-	bind_variables.insert("id", id);
-	coll_remove.bind(bind_variables.ptr(), return_value);
-	if (Z_TYPE_P(return_value) == IS_FALSE) {
-		DBG_VOID_RETURN;
+	util::zvalue bind_variables{{"id", id}};
+	if (coll_remove.bind(bind_variables)) {
+		coll_remove.execute(return_value);
 	}
-
-	coll_remove.execute(return_value);
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::createIndex() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 {
 	zval* object_zv{nullptr};
@@ -635,10 +577,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_collection::dropIndex() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 {
 	zval* object_zv{nullptr};
@@ -659,10 +598,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_collection_methods[] */
 static const zend_function_entry mysqlx_collection_methods[] = {
 	PHP_ME(mysqlx_collection, __construct,		nullptr,												ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/
@@ -689,10 +625,7 @@ static const zend_function_entry mysqlx_collection_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ mysqlx_collection_property__name */
 static zval *
 mysqlx_collection_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -712,8 +645,6 @@ mysqlx_collection_property__name(const st_mysqlx_object* obj, zval * return_valu
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_collection_handlers;
 static HashTable mysqlx_collection_properties;
@@ -724,7 +655,6 @@ const struct st_mysqlx_property_entry mysqlx_collection_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_collection_free_storage */
 static void
 mysqlx_collection_free_storage(zend_object * object)
 {
@@ -740,10 +670,7 @@ mysqlx_collection_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
 
-
-/* {{{ php_mysqlx_collection_object_allocator */
 static zend_object *
 php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
 {
@@ -754,10 +681,7 @@ php_mysqlx_collection_object_allocator(zend_class_entry * class_type)
 		&mysqlx_collection_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_collection_class */
 void
 mysqlx_register_collection_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -780,19 +704,13 @@ mysqlx_register_collection_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * m
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_collection_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_collection_class */
 void
 mysqlx_unregister_collection_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_collection_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_collection */
 void
 mysqlx_new_collection(zval * return_value, xmysqlnd_collection * collection, const zend_bool clone)
 {
@@ -812,17 +730,7 @@ mysqlx_new_collection(zval * return_value, xmysqlnd_collection * collection, con
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

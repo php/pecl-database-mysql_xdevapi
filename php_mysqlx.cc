@@ -33,13 +33,10 @@ extern "C" {
 #include "mysqlx_client.h"
 #include "mysqlx_expression.h"
 #include "mysqlx_session.h"
-#include "mysqlx_x_session.h"
 #include <string>
 
 extern "C" {
 
-/* {{{ PHP_MINFO_FUNCTION
- */
 PHP_MINFO_FUNCTION(mysql_xdevapi)
 {
 	UNUSED(zend_module);
@@ -58,14 +55,10 @@ PHP_MINFO_FUNCTION(mysql_xdevapi)
 
 	php_info_print_table_end();
 }
-/* }}} */
-
 
 PHP_MYSQL_XDEVAPI_API ZEND_DECLARE_MODULE_GLOBALS(mysql_xdevapi)
 
 
-/* {{{ PHP_GINIT_FUNCTION
- */
 static PHP_GINIT_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- xmysqlnd / mysqlx ---------------- */
@@ -88,11 +81,7 @@ static PHP_GINIT_FUNCTION(mysql_xdevapi)
 	mysql_xdevapi_globals->debug_calloc_fail_threshold = -1;
 	mysql_xdevapi_globals->debug_realloc_fail_threshold = -1;
 }
-/* }}} */
 
-
-/* {{{ PHP_INI_BEGIN
-*/
 PHP_INI_BEGIN()
 	STD_PHP_INI_BOOLEAN("xmysqlnd.collect_statistics",	"1", 	PHP_INI_ALL,	OnUpdateBool,	collect_statistics, 		zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
 	STD_PHP_INI_BOOLEAN("xmysqlnd.collect_memory_statistics","0",PHP_INI_SYSTEM,OnUpdateBool,	collect_memory_statistics,	zend_mysql_xdevapi_globals, mysql_xdevapi_globals)
@@ -110,11 +99,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("xmysqlnd.debug_realloc_fail_threshold","-1",   PHP_INI_SYSTEM,	OnUpdateLong,	debug_realloc_fail_threshold,	zend_mysql_xdevapi_globals,		mysql_xdevapi_globals)
 #endif
 PHP_INI_END()
-/* }}} */
 
-
-/* {{{ PHP_MINIT_FUNCTION
- */
 static PHP_MINIT_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- xmysqlnd ---------------- */
@@ -127,11 +112,7 @@ static PHP_MINIT_FUNCTION(mysql_xdevapi)
 
 	return SUCCESS;
 }
-/* }}} */
 
-
-/* {{{ PHP_MSHUTDOWN_FUNCTION
- */
 static PHP_MSHUTDOWN_FUNCTION(mysql_xdevapi)
 {
 	/* ---------------- mysqlx ---------------- */
@@ -144,12 +125,8 @@ static PHP_MSHUTDOWN_FUNCTION(mysql_xdevapi)
 	UNREGISTER_INI_ENTRIES();
 	return SUCCESS;
 }
-/* }}} */
-
 
 #if PHP_DEBUG
-/* {{{ PHP_RINIT_FUNCTION
- */
 static PHP_RINIT_FUNCTION(mysql_xdevapi)
 {
 	UNUSED_FUNC_ARGS();
@@ -172,13 +149,11 @@ static PHP_RINIT_FUNCTION(mysql_xdevapi)
 
 	return SUCCESS;
 }
-/* }}} */
+
 #endif
 
 
 #if PHP_DEBUG
-/* {{{ PHP_RSHUTDOWN_FUNCTION
- */
 static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 {
 	UNUSED_FUNC_ARGS();
@@ -199,10 +174,10 @@ static PHP_RSHUTDOWN_FUNCTION(mysql_xdevapi)
 	mysqlx::devapi::client::prune_expired_connections();
 	return SUCCESS;
 }
-/* }}} */
+
 #endif
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_x_session, 0, ZEND_RETURN_VALUE, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysql_xdevapi__get_session, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(0, uri, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
@@ -221,17 +196,13 @@ ZEND_END_ARG_INFO()
 */
 #define MYSQL_XDEVAPI_NAMESPACE "mysql_xdevapi"
 
-/* {{{ mysqlx_functions */
 static const zend_function_entry mysqlx_functions[] = {
-	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi__getXSession), arginfo_mysql_xdevapi__get_x_session)
+	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getSession, mysqlx::devapi::ZEND_FN(mysql_xdevapi_getSession), arginfo_mysql_xdevapi__get_session)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, getClient, mysqlx::devapi::ZEND_FN(mysql_xdevapi_getClient), arginfo_mysql_xdevapi__get_client)
 	ZEND_NS_NAMED_FE(MYSQL_XDEVAPI_NAMESPACE, expression, mysqlx::devapi::ZEND_FN(mysql_xdevapi__expression), arginfo_mysql_xdevapi__expression)
 	PHP_FE_END
 };
-/* }}} */
 
-
-/* {{{ mysqlx_deps */
 static const zend_module_dep mysqlx_deps[] = {
 	ZEND_MOD_REQUIRED("standard")
 	ZEND_MOD_REQUIRED("mysqlnd")
@@ -239,10 +210,7 @@ static const zend_module_dep mysqlx_deps[] = {
 	ZEND_MOD_REQUIRED("json")
 	ZEND_MOD_END
 };
-/* }}} */
 
-
-/* {{{ mysql_xdevapi_module_entry */
 zend_module_entry mysql_xdevapi_module_entry = {
 	STANDARD_MODULE_HEADER_EX,
 	nullptr,
@@ -269,24 +237,12 @@ zend_module_entry mysql_xdevapi_module_entry = {
 	nullptr,
 	STANDARD_MODULE_PROPERTIES_EX
 };
-/* }}} */
 
-/* {{{ COMPILE_DL_MYSQL_XDEVAPI */
 #ifdef COMPILE_DL_MYSQL_XDEVAPI
 #ifdef ZTS
 ZEND_TSRMLS_CACHE_DEFINE();
 #endif
 ZEND_GET_MODULE(mysql_xdevapi)
 #endif
-/* }}} */
 
 } // extern "C"
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

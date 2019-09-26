@@ -28,7 +28,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ object2expr */
 PHP_MYSQL_XDEVAPI_API void
 object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest_obj)
 {
@@ -44,10 +43,7 @@ object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ array2expr */
 PHP_MYSQL_XDEVAPI_API void
 array2expr(const Mysqlx::Datatypes::Array & src_array, Mysqlx::Expr::Array* dest_array)
 {
@@ -59,10 +55,7 @@ array2expr(const Mysqlx::Datatypes::Array & src_array, Mysqlx::Expr::Array* dest
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ array2expr */
 PHP_MYSQL_XDEVAPI_API void
 any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest)
 {
@@ -88,17 +81,7 @@ any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -24,7 +24,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ Environment */
 struct Environment
 {
 	enum class Variable
@@ -38,19 +37,9 @@ struct Environment
 	static int get_as_int(Variable var);
 
 };
-/* }}} */
 
 } // namespace drv
 
 } // namespace mysqlx
 
 #endif /* XMYSQLND_ENVIRONMENT_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

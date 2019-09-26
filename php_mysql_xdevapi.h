@@ -18,8 +18,8 @@
 #ifndef PHP_MYSQL_XDEVAPI_H
 #define PHP_MYSQL_XDEVAPI_H
 
-#define PHP_MYSQL_XDEVAPI_VERSION "8.0.17"
-#define MYSQL_XDEVAPI_VERSION_ID 80017
+#define PHP_MYSQL_XDEVAPI_VERSION "8.0.18"
+#define MYSQL_XDEVAPI_VERSION_ID 80018
 #define PHP_MYSQL_XDEVAPI_LICENSE "PHP License, version 3.01"
 #define PHP_MYSQL_XDEVAPI_NAME   "mysql-connector-php"
 
@@ -38,12 +38,3 @@
 #endif
 
 #endif /*PHP_MYSQL_XDEVAPI_H*/
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

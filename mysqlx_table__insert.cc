@@ -17,10 +17,7 @@
 */
 #include "php_api.h"
 #include "mysqlnd_api.h"
-extern "C" {
-#include <ext/json/php_json.h>
-#include <zend_smart_str.h>
-}
+#include "json_api.h"
 #include "xmysqlnd/xmysqlnd.h"
 #include "xmysqlnd/xmysqlnd_session.h"
 #include "xmysqlnd/xmysqlnd_schema.h"
@@ -71,16 +68,11 @@ struct st_mysqlx_table__insert : public util::custom_allocable
 } \
 
 
-/* {{{ mysqlx_table__insert::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
 
-
-
-/* {{{ proto mixed mysqlx_table__insert::values() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 {
 	st_mysqlx_table__insert* object{nullptr};
@@ -122,10 +114,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_table__insert::execute() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 {
 	st_mysqlx_table__insert* object{nullptr};
@@ -172,10 +161,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_table__insert_methods[] */
 static const zend_function_entry mysqlx_table__insert_methods[] = {
 	PHP_ME(mysqlx_table__insert, __construct,	nullptr,											ZEND_ACC_PRIVATE)
 
@@ -184,10 +170,8 @@ static const zend_function_entry mysqlx_table__insert_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 #if 0
-/* {{{ mysqlx_table__insert_property__name */
 static zval *
 mysqlx_table__insert_property__name(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -207,7 +191,7 @@ mysqlx_table__insert_property__name(const st_mysqlx_object* obj, zval * return_v
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
+
 #endif
 
 static zend_object_handlers mysqlx_object_table__insert_handlers;
@@ -221,7 +205,6 @@ const struct st_mysqlx_property_entry mysqlx_table__insert_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_table__insert_free_storage */
 static void
 mysqlx_table__insert_free_storage(zend_object * object)
 {
@@ -241,10 +224,7 @@ mysqlx_table__insert_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
 
-
-/* {{{ php_mysqlx_table__insert_object_allocator */
 static zend_object *
 php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 {
@@ -255,10 +235,7 @@ php_mysqlx_table__insert_object_allocator(zend_class_entry * class_type)
 		&mysqlx_table__insert_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_table__insert_class */
 void
 mysqlx_register_table__insert_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -282,19 +259,13 @@ mysqlx_register_table__insert_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers 
 	zend_declare_property_null(mysqlx_table__insert_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 #endif
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_table__insert_class */
 void
 mysqlx_unregister_table__insert_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_table__insert_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_table__insert */
 void
 mysqlx_new_table__insert(zval * return_value,
 					xmysqlnd_table * table,
@@ -323,17 +294,7 @@ mysqlx_new_table__insert(zval * return_value,
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

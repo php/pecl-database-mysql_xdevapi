@@ -217,7 +217,6 @@ typedef std::shared_ptr<xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
 using vec_of_addresses = util::vector< std::pair<util::string,long> >;
 using vec_of_attribs = util::vector< std::pair<util::string,util::string > >;
 
-/* {{{ list_of_addresses_parser */
 class list_of_addresses_parser
 {
 	void invalidate();
@@ -717,12 +716,3 @@ extern const struct st_xmysqlnd_session_on_statement_ok_bind	noop__on_statement_
 } // namespace mysqlx
 
 #endif /* XMYSQLND_SESSION_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

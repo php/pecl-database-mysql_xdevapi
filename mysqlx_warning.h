@@ -31,12 +31,3 @@ void mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned
 } // namespace mysqlx
 
 #endif /* MYSQLX_WARNING_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

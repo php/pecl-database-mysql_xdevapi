@@ -36,6 +36,9 @@ extern "C" {
 #undef max
 }
 
+#include <inttypes.h>
+#define MYSQLX_LLU_SPEC "%" PRIu64
+
 #ifdef PHP_WIN32
 #pragma warning( pop )
 #endif // PHP_WIN32
@@ -59,7 +62,7 @@ extern "C" {
 	ZEND_HASH_FOREACH_STR_KEY_VAL(ht, _key, _val) \
 	MYSQLX_RESTORE_WARNINGS()
 
-#else
+#else // UNIX OSes
 
 #define MYSQLX_HASH_FOREACH_VAL ZEND_HASH_FOREACH_VAL
 #define MYSQLX_HASH_FOREACH_PTR	ZEND_HASH_FOREACH_PTR
@@ -67,14 +70,4 @@ extern "C" {
 
 #endif
 
-
 #endif // MYSQL_XDEVAPI_PHP_API_H
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

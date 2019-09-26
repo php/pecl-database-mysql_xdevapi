@@ -35,7 +35,6 @@ namespace
 const char* const General_sql_state{ GENERAL_SQL_STATE };
 const char* const Unknown_error_message{ "Unknown error" };
 
-/* {{{ mysqlx::util::code_to_err_msg */
 const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::fetch_fail, "Couldn't fetch data" },
 	{ xdevapi_exception::Code::meta_fail, "Unable to extract metadata" },
@@ -130,17 +129,13 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::url_list_not_allowed,
 		"URI with a list of URL not allowed."},
 };
-/* }}} */
-
 
 /* {{{ to_sql_state */
 string to_sql_state(const string& sql_state)
 {
 	return sql_state.empty() ? General_sql_state : sql_state;
 }
-/* }}} */
 
-/* {{{ to_error_msg */
 string to_error_msg(xdevapi_exception::Code code, const string& what)
 {
 	string msg;
@@ -156,97 +151,73 @@ string to_error_msg(xdevapi_exception::Code code, const string& what)
 
 	return msg.empty() ? Unknown_error_message : msg;
 }
-/* }}} */
 
-/* {{{ to_error_msg */
 string to_error_msg(unsigned int code, const string& what)
 {
 	return to_error_msg(static_cast<xdevapi_exception::Code>(code), what);
 }
-/* }}} */
 
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code)
 	: xdevapi_exception(code, nullptr)
 {
 }
-/* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code, const string& msg)
 	: xdevapi_exception(static_cast<unsigned int>(code), msg)
 {
 }
-/* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code, const char* msg)
 	: xdevapi_exception(static_cast<unsigned int>(code), General_sql_state, msg)
 {
 }
-/* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(Code code, const std::string& msg)
 	: xdevapi_exception(code, util::to_string(msg))
 {
 }
-/* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& msg)
 	: xdevapi_exception(code, General_sql_state, msg)
 {
 }
-/* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const char* sql_state, const char* msg)
 	: xdevapi_exception(code, to_string(sql_state), to_string(msg))
 {
 }
-/* }}} */
 
-/* {{{ mysqlx::util::xdevapi_exception::xdevapi_exception */
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
 	: std::runtime_error(prepare_reason_msg(code, sql_state, msg).c_str())
 	, code(code)
 {
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, _zend_class_entry* ce)
 	: doc_ref_exception(severity, util::string("invalid object of class ") + ZSTR_VAL(ce->name))
 {
 }
-/* }}} */
 
-/* {{{ mysqlx::util::doc_ref_exception::doc_ref_exception */
 doc_ref_exception::doc_ref_exception(Severity severity, const string& msg)
 	: std::runtime_error(msg.c_str())
 	, severity(severity)
 {
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::raise_xdevapi_exception */
 void raise_xdevapi_exception(const xdevapi_exception& e)
 {
 	const char* what = e.what();
 	zend_throw_exception(devapi::mysqlx_exception_class_entry, what, e.code);
 }
-/* }}} */
 
-/* {{{ mysqlx::util::raise_doc_ref_exception */
 void raise_doc_ref_exception(const doc_ref_exception& e)
 {
 	static const std::map<doc_ref_exception::Severity, int> severity_mapping = {
@@ -257,29 +228,23 @@ void raise_doc_ref_exception(const doc_ref_exception& e)
 	const char* what = e.what();
 	php_error_docref(nullptr, severity, "%s", what);
 }
-/* }}} */
 
-/* {{{ mysqlx::util::raise_common_exception */
 void raise_common_exception(const std::exception& e)
 {
 	const char* what = e.what();
 	const int CommonExceptionCode = 0; //TODO
 	zend_throw_exception(devapi::mysqlx_exception_class_entry, what, CommonExceptionCode);
 }
-/* }}} */
 
-/* {{{ mysqlx::util::raise_unknown_exception */
 void raise_unknown_exception()
 {
 	const char* what = "MySQL XDevAPI - unknown exception";
 	const int UnknownExceptionCode = 0; //TODO
 	zend_throw_exception(devapi::mysqlx_exception_class_entry, what, UnknownExceptionCode);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::prepare_reason_msg */
 string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what)
 {
 	ostringstream os;
@@ -287,40 +252,24 @@ string prepare_reason_msg(unsigned int code, const string& sql_state, const stri
 	const string& reason = os.str();
 	return reason;
 }
-/* }}} */
 
-/* {{{ mysqlx::util::prepare_reason_msg */
 string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what)
 {
 	return prepare_reason_msg(code, to_string(sql_state), to_string(what));
 }
-/* }}} */
 
-/* {{{ mysqlx::util::log_warning */
 void log_warning(const string& msg)
 {
 	php_error_docref(nullptr, E_WARNING, "%s", msg.c_str());
 }
-/* }}} */
 
-/* {{{ mysqlx::util::set_error_info */
 void set_error_info(util::xdevapi_exception::Code code, MYSQLND_ERROR_INFO* error_info)
 {
 	error_info->error_no = static_cast<unsigned int>(code);
 	strcpy(error_info->sqlstate, General_sql_state);
 	error_info->error[0] = 0;
 }
-/* }}} */
 
 } // namespace util
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

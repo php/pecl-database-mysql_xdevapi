@@ -12,36 +12,16 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@mysql.com>                           |
+  | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQLX_MESSAGE__CAPABILITIES_GET_H
-#define MYSQLX_MESSAGE__CAPABILITIES_GET_H
+#ifndef MYSQL_XDEVAPI_JSON_API_H
+#define MYSQL_XDEVAPI_JSON_API_H
 
-namespace mysqlx {
+extern "C" {
+#include <ext/json/php_json.h>
+#include <ext/json/php_json_parser.h>
+#include <zend_smart_str.h>
+}
 
-namespace devapi {
-
-namespace msg {
-
-/* This typically should be static, but we have coupling */
-extern zend_class_entry *mysqlx_message__capabilities_get_class_entry;
-void mysqlx_register_message__capabilities_get_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
-void mysqlx_unregister_message__capabilities_get_class(SHUTDOWN_FUNC_ARGS);
-
-} // namespace msg
-
-} // namespace devapi
-
-} // namespace mysqlx
-
-#endif /* MYSQLX_MESSAGE__CAPABILITIES_GET_H */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
+#endif // MYSQL_XDEVAPI_JSON_API_H

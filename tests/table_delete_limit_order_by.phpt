@@ -27,7 +27,7 @@ mysqlx table delete/limit/orderBy
 	}
 
 	try {
-		$table->delete()->where(['age = 17','name = \'Tierney\''])->execute();
+		$table->delete()->where(['age = 17',"name = 'Tierney'"])->execute();
 		test_step_failed();
 	} catch(Exception $e) {
 		test_step_ok();
@@ -37,7 +37,7 @@ mysqlx table delete/limit/orderBy
 	expect_eq(count($res), 16);
 
 	$table->delete()->where('name = :name')->orderby('age desc')->limit(2)->bind(['name' => 'Tierney'])->execute();
-	$res = $table->select('name','age')->where('name like \'Tierney\'')->orderby('age desc')->execute()->fetchAll();
+	$res = $table->select('name','age')->where("name like 'Tierney'")->orderby('age desc')->execute()->fetchAll();
 
 	expect_eq(count($res), 2);
 	expect_eq($res[0]['name'],'Tierney');
@@ -59,7 +59,7 @@ mysqlx table delete/limit/orderBy
 	$session->sql("insert into $db.test_table values ('Zillon', 34, 'pilot')")->execute();
 
 	$table->delete()->orderby(['name desc','age desc'])->limit(2)->execute();
-	$res = $table->select('name','age','job')->where('name = \'Zillon\'')->execute()->fetchAll();
+	$res = $table->select('name','age','job')->where("name = 'Zillon'")->execute()->fetchAll();
 	expect_eq(count($res), 1);
 	expect_eq($res[0]['name'],'Zillon');
 	expect_eq($res[0]['age'],21);

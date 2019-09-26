@@ -35,7 +35,6 @@ static zend_bool xmysqlnd_library_initted = FALSE;
 	ext/mysqlnd/mysqlnd_statistics.c
 	needed due to optional shared (so/dll) build
 */
-/* {{{ xmysqlnd_stats_values_names */
 static const MYSQLND_STRING xmysqlnd_stats_values_names[STAT_LAST] =
 {
 	{ util::literal_to_mysqlnd_str("bytes_sent") },
@@ -202,8 +201,6 @@ static const MYSQLND_STRING xmysqlnd_stats_values_names[STAT_LAST] =
 	{ util::literal_to_mysqlnd_str("bytes_received_real_data_normal") },
 	{ util::literal_to_mysqlnd_str("bytes_received_real_data_ps") }
 };
-/* }}} */
-
 
 static struct st_mysqlnd_plugin_core xmysqlnd_plugin_core =
 {
@@ -225,7 +222,6 @@ static struct st_mysqlnd_plugin_core xmysqlnd_plugin_core =
 };
 
 
-/* {{{ mysqlnd_library_end */
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void)
 {
 	if (xmysqlnd_library_initted == TRUE) {
@@ -235,10 +231,7 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_end(void)
 	}
 	xmysqlnd_shutdown_protobuf_library();
 }
-/* }}} */
 
-
-/* {{{ mysqlnd_library_init */
 PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void)
 {
 	if (xmysqlnd_library_initted == FALSE) {
@@ -251,32 +244,17 @@ PHP_MYSQL_XDEVAPI_API void xmysqlnd_library_init(void)
 		}
 	}
 }
-/* }}} */
 
-/* {{{ xmysqlnd_get_client_info */
 PHP_MYSQL_XDEVAPI_API const char * xmysqlnd_get_client_info()
 {
 	return PHP_XMYSQLND_VERSION;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_get_client_version */
 PHP_MYSQL_XDEVAPI_API unsigned int xmysqlnd_get_client_version()
 {
 	return XMYSQLND_VERSION_ID;
 }
-/* }}} */
 
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

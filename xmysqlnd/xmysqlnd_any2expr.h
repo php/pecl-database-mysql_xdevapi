@@ -50,11 +50,3 @@ PHP_MYSQL_XDEVAPI_API void any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::E
 } // namespace mysqlx
 
 #endif /* XMYSQLND_ANY2EXPR_H */
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */
