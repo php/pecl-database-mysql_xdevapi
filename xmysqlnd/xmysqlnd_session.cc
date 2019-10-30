@@ -71,7 +71,6 @@ namespace drv {
 
 const MYSQLND_CSTRING namespace_mysqlx{ "mysqlx", sizeof("mysqlx") - 1 };
 const MYSQLND_CSTRING namespace_sql{ "sql", sizeof("sql") - 1 };
-const MYSQLND_CSTRING namespace_xplugin{ "xplugin", sizeof("xplugin") - 1 };
 
 namespace {
 

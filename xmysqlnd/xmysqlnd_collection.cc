@@ -30,6 +30,7 @@ extern "C" {
 #include "xmysqlnd_utils.h"
 #include "mysqlx_exception.h"
 #include "util/exceptions.h"
+#include "util/pb_utils.h"
 #include "xmysqlnd_extension_plugin.h"
 
 namespace mysqlx {
@@ -58,48 +59,26 @@ struct st_collection_exists_in_database_var_binder_ctx
 	unsigned int counter;
 };
 
-
-static const enum_hnd_func_status
-collection_op_var_binder(
-	void * context,
+static const enum_hnd_func_status collection_op_var_binder(
+	void* context,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	enum_hnd_func_status ret{HND_FAIL};
-	st_collection_exists_in_database_var_binder_ctx* ctx = (st_collection_exists_in_database_var_binder_ctx*) context;
-	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_op_var_binder");
-	switch (ctx->counter) {
-		case 0:
-			param = &ctx->schema_name;
-			ret = HND_AGAIN;
-			goto bind;
-		case 1:{
-			param = &ctx->collection_name;
-			ret = HND_PASS;
-bind:
-			{
-				enum_func_status result;
-				zval zv;
-				ZVAL_UNDEF(&zv);
-				ZVAL_STRINGL(&zv, param->s, param->l);
-				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
-				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
 
-				zval_ptr_dtor(&zv);
-				if (FAIL == result) {
-					ret = HND_FAIL;
-				}
-			}
-			break;
-		}
-		default:
-			assert(!"should not happen");
-			break;
-	}
-	++ctx->counter;
-	DBG_RETURN(ret);
+	st_collection_exists_in_database_var_binder_ctx* ctx
+		= static_cast<st_collection_exists_in_database_var_binder_ctx*>(context);
+
+	Mysqlx::Sql::StmtExecute& stmt_message = xmysqlnd_stmt_execute__get_pb_msg(stmt_execute);
+
+	util::pb::Object* idx_obj{util::pb::add_object_arg(stmt_message)};
+
+	util::pb::add_field_to_object("schema", ctx->schema_name, idx_obj);
+	util::pb::add_field_to_object("pattern", ctx->collection_name, idx_obj);
+
+	DBG_RETURN(HND_PASS);
 }
+
 
 struct collection_exists_in_database_ctx
 {
@@ -109,7 +88,7 @@ struct collection_exists_in_database_ctx
 
 
 static const enum_hnd_func_status
-collection_xplugin_op_on_row(
+collection_mysqlx_op_on_row(
 	void * context,
 	XMYSQLND_SESSION session,
 	xmysqlnd_stmt * const /*stmt*/,
@@ -119,7 +98,7 @@ collection_xplugin_op_on_row(
 	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	collection_exists_in_database_ctx* ctx = static_cast<collection_exists_in_database_ctx*>(context);
-	DBG_ENTER("collection_xplugin_op_on_row");
+	DBG_ENTER("collection_mysqlx_op_on_row");
 	if (ctx && row) {
 		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
@@ -128,10 +107,6 @@ collection_xplugin_op_on_row(
 			&& is_collection_object_type(object_type))
 		{
 			ZVAL_TRUE(ctx->exists);
-		}
-		else
-		{
-			ZVAL_FALSE(ctx->exists);
 		}
 	}
 	DBG_RETURN(HND_AGAIN);
@@ -160,9 +135,9 @@ xmysqlnd_collection::exists_in_database(
 		exists
 	};
 
-	const st_xmysqlnd_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row = { collection_mysqlx_op_on_row, &on_row_ctx };
 
-	ret = schema->get_session()->query_cb(namespace_xplugin,
+	ret = schema->get_session()->query_cb(namespace_mysqlx,
 							   query,
 							   var_binder,
 							   noop__on_result_start,
@@ -192,7 +167,7 @@ collection_sql_single_result_op_on_row(
 	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	st_collection_sql_single_result_ctx* ctx = (st_collection_sql_single_result_ctx*) context;
-	DBG_ENTER("collection_xplugin_op_on_row");
+	DBG_ENTER("collection_sql_single_result_op_on_row");
 	if (ctx && row) {
 		ZVAL_COPY_VALUE(ctx->result, &row[0]);
 	}

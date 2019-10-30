@@ -701,7 +701,6 @@ PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(
 
 extern const MYSQLND_CSTRING namespace_mysqlx;
 extern const MYSQLND_CSTRING namespace_sql;
-extern const MYSQLND_CSTRING namespace_xplugin;
 
 extern const struct st_xmysqlnd_session_query_bind_variable_bind noop__var_binder;
 extern const struct st_xmysqlnd_session_on_result_start_bind	noop__on_result_start;

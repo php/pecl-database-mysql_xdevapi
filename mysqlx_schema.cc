@@ -250,7 +250,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 	}
 	MYSQLX_FETCH_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	 if (!collection_name.empty() && object->schema) {
+	if (!collection_name.empty() && object->schema) {
 		const struct st_xmysqlnd_schema_on_error_bind on_error = { mysqlx_schema_on_error, nullptr };
 
 		xmysqlnd_collection* const collection = object->schema->create_collection( collection_name, on_error);
