@@ -72,10 +72,10 @@ static const enum_hnd_func_status table_op_var_binder(
 
 	Mysqlx::Sql::StmtExecute& stmt_message = xmysqlnd_stmt_execute__get_pb_msg(stmt_execute);
 
-	util::pb::Object* idx_obj{util::pb::add_object_arg(stmt_message)};
+	util::pb::Object* stmt_obj{util::pb::add_object_arg(stmt_message)};
 
-	util::pb::add_field_to_object("schema", ctx->schema_name, idx_obj);
-	util::pb::add_field_to_object("pattern", ctx->table_name, idx_obj);
+	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
+	util::pb::add_field_to_object("pattern", ctx->table_name, stmt_obj);
 
 	DBG_RETURN(HND_PASS);
 }

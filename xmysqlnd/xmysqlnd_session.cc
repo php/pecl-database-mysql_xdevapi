@@ -2191,7 +2191,7 @@ xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 		xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
 		data->stats, data->error_info))))
 		{
-			struct st_xmysqlnd_query_cb_ctx query_cb_ctx = {
+			st_xmysqlnd_query_cb_ctx query_cb_ctx{
 				session_handle,
 				handler_on_result_start,
 				handler_on_row,
@@ -2200,27 +2200,27 @@ xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 				handler_on_result_end,
 				handler_on_statement_ok
 			};
-			const struct st_xmysqlnd_stmt_on_row_bind on_row = {
+			const st_xmysqlnd_stmt_on_row_bind on_row{
 				handler_on_row.handler? query_cb_handler_on_row : nullptr,
 				&query_cb_ctx
 			};
-			const struct st_xmysqlnd_stmt_on_warning_bind on_warning = {
+			const st_xmysqlnd_stmt_on_warning_bind on_warning{
 				handler_on_warning.handler? query_cb_handler_on_warning : nullptr,
 				&query_cb_ctx
 			};
-			const struct st_xmysqlnd_stmt_on_error_bind on_error = {
+			const st_xmysqlnd_stmt_on_error_bind on_error{
 				handler_on_error.handler? query_cb_handler_on_error : nullptr,
 				&query_cb_ctx
 			};
-			const struct st_xmysqlnd_stmt_on_result_start_bind on_result_start = {
+			const st_xmysqlnd_stmt_on_result_start_bind on_result_start{
 				handler_on_result_start.handler? query_cb_handler_on_result_start : nullptr,
 				&query_cb_ctx
 			};
-			const struct st_xmysqlnd_stmt_on_result_end_bind on_result_end = {
+			const st_xmysqlnd_stmt_on_result_end_bind on_result_end{
 				handler_on_result_end.handler? query_cb_handler_on_result_end : nullptr,
 				&query_cb_ctx
 			};
-			const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = {
+			const st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok{
 				handler_on_statement_ok.handler? query_cb_handler_on_statement_ok : nullptr,
 				&query_cb_ctx
 			};

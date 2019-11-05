@@ -256,10 +256,10 @@ static const enum_hnd_func_status schema_op_var_binder(void * context,
 
 	Mysqlx::Sql::StmtExecute& stmt_message = xmysqlnd_stmt_execute__get_pb_msg(stmt_execute);
 
-	util::pb::Object* idx_obj{util::pb::add_object_arg(stmt_message)};
+	util::pb::Object* stmt_obj{util::pb::add_object_arg(stmt_message)};
 
-	util::pb::add_field_to_object("schema", ctx->schema_name, idx_obj);
-	util::pb::add_field_to_object("name", ctx->collection_name, idx_obj);
+	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
+	util::pb::add_field_to_object("name", ctx->collection_name, stmt_obj);
 
 	DBG_RETURN(HND_PASS);
 }
@@ -425,39 +425,22 @@ struct st_collection_get_objects_var_binder_ctx
 
 
 static const enum_hnd_func_status
-collection_get_objects_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+collection_get_objects_var_binder(
+	void* context,
+	XMYSQLND_SESSION session,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	enum_hnd_func_status ret{HND_FAIL};
-	st_collection_get_objects_var_binder_ctx* ctx = (st_collection_get_objects_var_binder_ctx*) context;
-	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_get_objects_var_binder");
-	DBG_INF_FMT("counter=%d", ctx->counter);
-	switch (ctx->counter) {
-		case 0:
-			param = &ctx->schema_name;
-			ret = HND_PASS;
-			{
-				enum_func_status result;
-				zval zv;
-				ZVAL_UNDEF(&zv);
-				ZVAL_STRINGL(&zv, param->s, param->l);
-				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
+	st_collection_get_objects_var_binder_ctx* ctx
+		= static_cast<st_collection_get_objects_var_binder_ctx*>(context);
 
-				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+	Mysqlx::Sql::StmtExecute& stmt_message = xmysqlnd_stmt_execute__get_pb_msg(stmt_execute);
 
-//				result = stmt->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
+	util::pb::Object* stmt_obj{util::pb::add_object_arg(stmt_message)};
 
-				zval_ptr_dtor(&zv);
-				if (FAIL == result) {
-					ret = HND_FAIL;
-				}
-			}
-			break;
-		default: /* should not happen */
-			break;
-	}
-	++ctx->counter;
-	DBG_RETURN(ret);
+	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
+
+	DBG_RETURN(HND_PASS);
 }
 
 } // anonymous namespace
@@ -478,10 +461,13 @@ xmysqlnd_schema::get_db_objects(
 	};
 	const struct st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_get_objects_var_binder, &var_binder_ctx };
 
-	xmysqlnd_schema_get_db_objects_ctx handler_ctx = { this, object_type_filter, on_object, handler_on_error };
+	xmysqlnd_schema_get_db_objects_ctx handler_ctx{ this, object_type_filter, on_object, handler_on_error };
+	st_create_collection_handler_ctx error_handler_ctx{ this, handler_on_error };
 
-	const struct st_xmysqlnd_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
-	const struct st_xmysqlnd_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : nullptr, &handler_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row{
+		on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
+	const st_xmysqlnd_session_on_error_bind on_error{
+		handler_on_error.handler? collection_op_handler_on_error : nullptr, &error_handler_ctx };
 
 	DBG_ENTER("xmysqlnd_schema::get_db_objects");
 
