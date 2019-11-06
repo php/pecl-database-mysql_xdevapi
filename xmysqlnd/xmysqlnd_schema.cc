@@ -28,6 +28,7 @@
 #include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_structs.h"
 #include "xmysqlnd_utils.h"
+#include "util/pb_utils.h"
 
 namespace mysqlx {
 
@@ -97,7 +98,7 @@ void xmysqlnd_schema::cleanup()
 
 
 static const enum_hnd_func_status
-schema_xplugin_op_var_binder(
+schema_sql_op_var_binder(
 	void * context,
 	XMYSQLND_SESSION session,
 	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
@@ -105,7 +106,7 @@ schema_xplugin_op_var_binder(
 	enum_hnd_func_status ret{HND_FAIL};
 	st_schema_exists_in_database_var_binder_ctx* ctx = (st_schema_exists_in_database_var_binder_ctx*) context;
 	const MYSQLND_CSTRING* param{nullptr};
-	DBG_ENTER("schema_xplugin_op_var_binder");
+	DBG_ENTER("schema_sql_op_var_binder");
 	switch (ctx->counter) {
 		case 0:{
 			param = &ctx->schema_name;
@@ -183,7 +184,7 @@ xmysqlnd_schema::exists_in_database(
 		0
 	};
 	const st_xmysqlnd_session_query_bind_variable_bind var_binder = {
-		schema_xplugin_op_var_binder,
+		schema_sql_op_var_binder,
 		&var_binder_ctx
 	};
 
@@ -245,41 +246,22 @@ collection_op_handler_on_error(void * context,
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 
-static const enum_hnd_func_status
-collection_op_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+static const enum_hnd_func_status schema_op_var_binder(void * context,
+	XMYSQLND_SESSION session,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	DBG_ENTER("collection_op_var_binder");
-	enum_hnd_func_status ret{HND_FAIL};
+	DBG_ENTER("schema_op_var_binder");
+
 	st_collection_op_var_binder_ctx* ctx = static_cast<st_collection_op_var_binder_ctx*>(context);
-	const MYSQLND_CSTRING* param{nullptr};
-	enum_func_status result;
-	zval zv;
-	switch (ctx->counter) {
-		case 0:
-			param = &ctx->schema_name;
-			ret = HND_AGAIN;
-			break;
-		case 1:{
-			param = &ctx->collection_name;
-			ret = HND_PASS;
-			break;
-		}
-		default: /* should not happen */
-			break;
-	}
-	if(ret != HND_FAIL) {
-		ZVAL_UNDEF(&zv);
-		ZVAL_STRINGL(&zv, param->s, param->l);
-		DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
-		result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
-		//result = stmt->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
-		zval_ptr_dtor(&zv);
-		if (FAIL == result) {
-			ret = HND_FAIL;
-		}
-	}
-	++ctx->counter;
-	DBG_RETURN(ret);
+
+	Mysqlx::Sql::StmtExecute& stmt_message = xmysqlnd_stmt_execute__get_pb_msg(stmt_execute);
+
+	util::pb::Object* stmt_obj{util::pb::add_object_arg(stmt_message)};
+
+	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
+	util::pb::add_field_to_object("name", ctx->collection_name, stmt_obj);
+
+	DBG_RETURN(HND_PASS);
 }
 
 static const enum_func_status
@@ -297,7 +279,7 @@ xmysqlnd_collection_op(
 		collection_name.to_nd_cstr(),
 		0
 	};
-	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { schema_op_var_binder, &var_binder_ctx };
 
 	st_create_collection_handler_ctx handler_ctx = { schema, handler_on_error };
 	const st_xmysqlnd_session_on_error_bind on_error
@@ -305,7 +287,7 @@ xmysqlnd_collection_op(
 
 	DBG_ENTER("xmysqlnd_collection_op");
 
-	ret = session->query_cb(namespace_xplugin,
+	ret = session->query_cb(namespace_mysqlx,
 							   query,
 							   var_binder,
 							   noop__on_result_start,
@@ -443,39 +425,22 @@ struct st_collection_get_objects_var_binder_ctx
 
 
 static const enum_hnd_func_status
-collection_get_objects_var_binder(void * context, XMYSQLND_SESSION session, XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+collection_get_objects_var_binder(
+	void* context,
+	XMYSQLND_SESSION session,
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	enum_hnd_func_status ret{HND_FAIL};
-	st_collection_get_objects_var_binder_ctx* ctx = (st_collection_get_objects_var_binder_ctx*) context;
-	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_get_objects_var_binder");
-	DBG_INF_FMT("counter=%d", ctx->counter);
-	switch (ctx->counter) {
-		case 0:
-			param = &ctx->schema_name;
-			ret = HND_PASS;
-			{
-				enum_func_status result;
-				zval zv;
-				ZVAL_UNDEF(&zv);
-				ZVAL_STRINGL(&zv, param->s, param->l);
-				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
+	st_collection_get_objects_var_binder_ctx* ctx
+		= static_cast<st_collection_get_objects_var_binder_ctx*>(context);
 
-				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+	Mysqlx::Sql::StmtExecute& stmt_message = xmysqlnd_stmt_execute__get_pb_msg(stmt_execute);
 
-//				result = stmt->m.bind_one_stmt_param(stmt, ctx->counter, &zv);
+	util::pb::Object* stmt_obj{util::pb::add_object_arg(stmt_message)};
 
-				zval_ptr_dtor(&zv);
-				if (FAIL == result) {
-					ret = HND_FAIL;
-				}
-			}
-			break;
-		default: /* should not happen */
-			break;
-	}
-	++ctx->counter;
-	DBG_RETURN(ret);
+	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
+
+	DBG_RETURN(HND_PASS);
 }
 
 } // anonymous namespace
@@ -496,14 +461,17 @@ xmysqlnd_schema::get_db_objects(
 	};
 	const struct st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_get_objects_var_binder, &var_binder_ctx };
 
-	xmysqlnd_schema_get_db_objects_ctx handler_ctx = { this, object_type_filter, on_object, handler_on_error };
+	xmysqlnd_schema_get_db_objects_ctx handler_ctx{ this, object_type_filter, on_object, handler_on_error };
+	st_create_collection_handler_ctx error_handler_ctx{ this, handler_on_error };
 
-	const struct st_xmysqlnd_session_on_row_bind on_row = { on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
-	const struct st_xmysqlnd_session_on_error_bind on_error = { handler_on_error.handler? collection_op_handler_on_error : nullptr, &handler_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row{
+		on_object.handler? get_db_objects_on_row : nullptr, &handler_ctx };
+	const st_xmysqlnd_session_on_error_bind on_error{
+		handler_on_error.handler? collection_op_handler_on_error : nullptr, &error_handler_ctx };
 
 	DBG_ENTER("xmysqlnd_schema::get_db_objects");
 
-	ret = session->query_cb(namespace_xplugin,
+	ret = session->query_cb(namespace_mysqlx,
 							   query,
 							   var_binder,
 							   noop__on_result_start,

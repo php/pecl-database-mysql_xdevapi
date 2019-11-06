@@ -26,13 +26,12 @@ mysqlx Collection
 	} catch(Exception $ex) {
 		test_step_failed();
 	}
-/*
+
 	try {
-		//This is not implemented yet
-		$session = $coll->getSession();
+		$session2 = $coll->getSession();
 	} catch(Exception $ex) {
 		test_step_failed();
-	}*/
+	}
 
 	$coll = $schema->getCollection("not_existing_collection");
 	expect_eq($coll->getName(), 'not_existing_collection');
