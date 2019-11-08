@@ -34,10 +34,11 @@ const std::string PROPERTY_ALGORITHM{ "algorithm" };
 const std::string PROPERTY_SERVER_STYLE{ "server_style" };
 const std::string PROPERTY_CLIENT_STYLE{ "client_style" };
 
-const std::string ALGORITHM_LZ4{ "lz4" };
-const std::string ALGORITHM_ZLIB{ "zlib" };
-const std::string ALGORITHM_DEFLATE{ "deflate" };
-const std::string ALGORITHM_ZLIB_DEFLATE{ "deflate" };
+const std::string ALGORITHM_ZSTD_STREAM{ "zstd_stream" };
+const std::string ALGORITHM_LZ4_MESSAGE{ "lz4_message" };
+const std::string ALGORITHM_ZLIB_STREAM{ "zlib_stream" };
+const std::string ALGORITHM_DEFLATE_STREAM{ "deflate_stream" };
+const std::string ALGORITHM_ZLIB_DEFLATE_STREAM{ "deflate_stream" };
 
 const std::string SERVER_STYLE_NONE{ "none" };
 const std::string SERVER_STYLE_SINGLE{ "single" };
@@ -99,9 +100,10 @@ void Gather_capabilities::add_supported_algorithm(const util::zvalue& zalgorithm
 	const std::string& algorithm_name{ zalgorithm.to_std_string() };
 	using name_to_algorithm = std::map<std::string, Algorithm, util::iless>;
 	static const name_to_algorithm algorithm_mapping{
-		{ ALGORITHM_DEFLATE, Algorithm::zlib_deflate },
-		{ ALGORITHM_ZLIB, Algorithm::zlib_deflate },
-		{ ALGORITHM_LZ4, Algorithm::lz4 },
+		{ ALGORITHM_ZSTD_STREAM, Algorithm::zstd_stream },
+		{ ALGORITHM_LZ4_MESSAGE, Algorithm::lz4_message },
+		{ ALGORITHM_DEFLATE_STREAM, Algorithm::zlib_deflate_stream },
+		{ ALGORITHM_ZLIB_STREAM, Algorithm::zlib_deflate_stream },
 	};
 
 	auto it{ algorithm_mapping.find(algorithm_name) };
@@ -251,8 +253,9 @@ std::string Negotiate::to_string(Algorithm algorithm) const
 {
 	using algorithm_to_name = std::map<Algorithm, std::string>;
 	static const algorithm_to_name algorithm_mapping{
-		{ Algorithm::zlib_deflate, ALGORITHM_DEFLATE },
-		{ Algorithm::lz4, ALGORITHM_LZ4 },
+		{ Algorithm::zstd_stream, ALGORITHM_ZSTD_STREAM },
+		{ Algorithm::lz4_message, ALGORITHM_LZ4_MESSAGE },
+		{ Algorithm::zlib_deflate_stream, ALGORITHM_DEFLATE_STREAM },
 	};
 	return algorithm_mapping.at(algorithm);
 }
@@ -345,8 +348,8 @@ bool Setup::negotiate()
 {
 	// algorithms, server styles and client styles in the order how they should be negotiated
 	const Algorithms algorithms{
-		Algorithm::lz4,
-		Algorithm::zlib_deflate
+		Algorithm::lz4_message,
+		Algorithm::zlib_deflate_stream
 	};
 
 	const Server_styles server_styles{

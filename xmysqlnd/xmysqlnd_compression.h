@@ -33,8 +33,9 @@ namespace compression {
 enum class Algorithm
 {
 	none,
-	zlib_deflate,
-	lz4
+	zstd_stream,
+	lz4_message,
+	zlib_deflate_stream
 };
 
 enum class Server_style {
