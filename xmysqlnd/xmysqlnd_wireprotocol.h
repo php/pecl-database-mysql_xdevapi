@@ -68,9 +68,7 @@ enum xmysqlnd_client_message_type
 	COM_CURSOR_OPEN			= Mysqlx::ClientMessages_Type_CURSOR_OPEN,
 	COM_CURSOR_CLOSE		= Mysqlx::ClientMessages_Type_CURSOR_CLOSE,
 	COM_CURSOR_FETCH		= Mysqlx::ClientMessages_Type_CURSOR_FETCH,
-	COM_COMPRESSION_SINGLE	= Mysqlx::ClientMessages_Type_COMPRESSION_SINGLE,
-	COM_COMPRESSION_MULTIPLE = Mysqlx::ClientMessages_Type_COMPRESSION_MULTIPLE,
-	COM_COMPRESSION_GROUP	= Mysqlx::ClientMessages_Type_COMPRESSION_GROUP,
+	COM_COMPRESSION			= Mysqlx::ClientMessages_Type_COMPRESSION,
 	COM_NONE                = 255
 };
 
@@ -89,9 +87,7 @@ enum xmysqlnd_server_message_type
 	XMSG_RSET_FETCH_DONE_MORE_RSETS = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_RESULTSETS,
 	XMSG_STMT_EXECUTE_OK		    = Mysqlx::ServerMessages_Type_SQL_STMT_EXECUTE_OK,
 	XMSG_RSET_FETCH_DONE_MORE_OUT   = Mysqlx::ServerMessages_Type_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS,
-	XMSG_COMPRESSION_SINGLE			= Mysqlx::ServerMessages_Type_COMPRESSION_SINGLE,
-	XMSG_COMPRESSION_MULTIPLE		= Mysqlx::ServerMessages_Type_COMPRESSION_MULTIPLE,
-	XMSG_COMPRESSION_GROUP			= Mysqlx::ServerMessages_Type_COMPRESSION_GROUP,
+	XMSG_COMPRESSION				= Mysqlx::ServerMessages_Type_COMPRESSION,
 	XMSG_NONE = 255
 };
 
