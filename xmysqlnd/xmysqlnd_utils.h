@@ -44,6 +44,38 @@ util::string decode_pct_path(const util::string& encoded_path);
 bool operator==(const google::protobuf::Message& msg_a,
 				const google::protobuf::Message& msg_b);
 
+template <typename ContainerT>
+class ReverseContainerView
+{
+public:
+	explicit ReverseContainerView(ContainerT& container)
+	  : container_{container}
+	{ }
+
+	auto begin() {
+		return std::rbegin(container_);
+	}
+	auto end() {
+		return std::rend(container_);
+	}
+
+private:
+	ContainerT&  container_;
+};
+
+
+template<typename ContainerT>
+auto Reverse(ContainerT& container)
+{
+	return ReverseContainerView<ContainerT>(container);
+}
+
+template<typename ContainerT>
+auto Reverse(const ContainerT& container)
+{
+	return ReverseContainerView<const ContainerT>(container);
+}
+
 } // namespace drv
 
 } // namespace mysqlx

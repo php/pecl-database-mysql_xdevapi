@@ -106,6 +106,10 @@ struct xdevapi_exception : public std::runtime_error
 		cannot_setup_tls,
 		no_valid_cipher_in_list,
 		no_valid_ciphersuite_in_list,
+		port_nbr_not_allowed_with_srv_uri,
+		provided_invalid_uri,
+		unix_socket_not_allowed_with_srv,
+        url_list_not_allowed,
 		out_of_range,
 	};
 

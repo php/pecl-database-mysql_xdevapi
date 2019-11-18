@@ -110,7 +110,7 @@ bool Bindings::bind(const util::string& var_name, zval* var_value)
 bool Bindings::finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args)
 {
 	DBG_ENTER("Bindings::finalize");
-	assert(mutable_args->empty());
+    //assert(mutable_args->empty());
 	for (const auto& var_name_value : bound_variables) {
 		auto var_value{ var_name_value.second };
 		if (var_value == nullptr) {
