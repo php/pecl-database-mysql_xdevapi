@@ -19,6 +19,7 @@
 #define XMYSQLND_COMPRESSION_H
 
 #include <vector>
+#include <boost/optional.hpp>
 
 namespace mysqlx {
 
@@ -30,6 +31,12 @@ struct st_xmysqlnd_message_factory;
 
 namespace compression {
 
+enum class Policy {
+	required,
+	preferred,
+	disabled
+};
+
 enum class Algorithm
 {
 	none,
@@ -38,45 +45,32 @@ enum class Algorithm
 	zlib_deflate_stream
 };
 
-enum class Server_style {
-	none,
-	single,
-	multiple,
-	group
-};
-
-enum class Client_style {
-	none,
-	single,
-	multiple,
-	group
-};
-
 using Algorithms = std::vector<Algorithm>;
-using Server_styles = std::vector<Server_style>;
-using Client_styles = std::vector<Client_style>;
 
 struct Capabilities
 {
 	Algorithms algorithms;
-	Server_styles server_styles;
-	Client_styles client_styles;
 };
+
 
 struct Configuration
 {
 	Algorithm algorithm;
-	Server_style server_style;
-	Client_style client_style;
 
-	Configuration(
-		Algorithm algorithm = Algorithm::none,
-		Server_style server_style = Server_style::none,
-		Client_style client_style = Client_style::none);
+	// informs the server that it can combine multiple types of
+	// messages into a single compressed payload
+	boost::optional<bool> combine_mixed_messages;
+
+	// if set this informs the server that it should not combine
+	// more than x number of messages inside a single compressed payload.
+	boost::optional<int> max_combine_messages;
+
+	Configuration(Algorithm algorithm = Algorithm::none);
 	bool enabled() const;
 };
 
-bool run_setup(
+void run_setup(
+	Policy policy,
 	st_xmysqlnd_message_factory& msg_factory,
 	const util::zvalue& capabilities,
 	Configuration& negotiated_config);

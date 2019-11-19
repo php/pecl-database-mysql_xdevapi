@@ -121,6 +121,10 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 		"No valid cipher found in the ssl ciphers list."},
 	{ xdevapi_exception::Code::no_valid_ciphersuite_in_list,
 		"No valid cipher suite found in the tls ciphersuites list."},
+	{ xdevapi_exception::Code::compression_not_supported,
+		"Compression requested but the server does not support it."},
+	{ xdevapi_exception::Code::compression_negotiation_failure,
+		"Compression requested but the compression algorithm negotiation failed."},
 };
 /* }}} */
 

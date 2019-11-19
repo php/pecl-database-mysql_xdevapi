@@ -108,6 +108,8 @@ struct xdevapi_exception : public std::runtime_error
 		no_valid_cipher_in_list,
 		no_valid_ciphersuite_in_list,
 		out_of_range,
+		compression_not_supported,
+		compression_negotiation_failure,
 	};
 
 	xdevapi_exception(Code code);

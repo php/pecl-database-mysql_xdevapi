@@ -567,6 +567,11 @@ xmysqlnd_receive_message(
 					handled = true;
 				}
 				break;
+
+			case XMSG_COMPRESSION:
+				handled = false;
+				break;
+
 			default:
 				handled = true;
 				if (handlers->on_UNKNOWN) {

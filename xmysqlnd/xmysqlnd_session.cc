@@ -1768,9 +1768,7 @@ bool Authenticate::init_capabilities()
 
 void Authenticate::setup_compression()
 {
-	if (auth->compression_enabled) {
-		compression::run_setup(msg_factory, capabilities, session->compression_cfg);
-	}
+	compression::run_setup(auth->compression_policy, msg_factory, capabilities, session->compression_cfg);
 }
 
 bool Authenticate::init_connection()
@@ -2959,6 +2957,7 @@ private:
 	util::std_strings parse_single_or_array(const std::string& value) const;
 	bool parse_boolean(const std::string& value_str) const;
 	int parse_int(const std::string& value_str) const;
+	compression::Policy parse_compression_policy(const std::string& compression_policy_str) const;
 
 private:
 	const util::string& option_name;
@@ -3254,9 +3253,9 @@ void Extract_client_option::set_connect_timeout(const std::string& timeout_str)
 	auth.connection_timeout = timeout;
 }
 
-void Extract_client_option::set_compression(const std::string& compression_str)
+void Extract_client_option::set_compression(const std::string& compression_policy_str)
 {
-	auth.compression_enabled = parse_boolean(compression_str);
+	auth.compression_policy = parse_compression_policy(compression_policy_str);
 }
 
 // -----------------
@@ -3324,6 +3323,29 @@ int Extract_client_option::parse_int(const std::string& value_str) const
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}
 	return value;
+}
+
+compression::Policy Extract_client_option::parse_compression_policy(
+	const std::string& compression_policy_str) const
+{
+	static const std::map<std::string, compression::Policy, util::iless> valid_policies{
+		{"required", compression::Policy::required},
+		{"preferred", compression::Policy::preferred},
+		{"disabled", compression::Policy::disabled},
+	};
+
+	auto it{ valid_policies.find(compression_policy_str) };
+	if (it == valid_policies.end()) {
+		util::ostringstream os;
+		os << "The connection property '"
+			<< option_name
+			<< "' acceptable values are: 'preferred', 'required', or 'disabled'. The value '"
+			<< compression_policy_str.c_str()
+			<< "' is not acceptable.";
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+	}
+
+	return it->second;
 }
 
 enum_func_status extract_client_option(
