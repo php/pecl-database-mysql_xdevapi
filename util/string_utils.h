@@ -151,6 +151,16 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 	return st_mysqlnd_const_string{ str.c_str(), str.length() };
 }
 
+inline bool is_empty(const st_mysqlnd_string& mysqlnd_str)
+{
+	return (mysqlnd_str.s == nullptr) || (mysqlnd_str.l == 0);
+}
+
+inline bool is_empty(const st_mysqlnd_const_string& mysqlnd_str)
+{
+	return (mysqlnd_str.s == nullptr) || (mysqlnd_str.l == 0);
+}
+
 //------------------------------------------------------------------------------
 
 bool to_int(const string& str, int* value);

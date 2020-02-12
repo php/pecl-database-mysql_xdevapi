@@ -34,6 +34,9 @@ namespace json {
 void to_zv_string(zval* src, zval* dest);
 util::zvalue to_zv_string(const util::zvalue& src);
 
+util::zvalue to_zv_object(const char* src, const std::size_t src_len);
+
+
 bool can_be_document(const util::zvalue& value);
 bool can_be_array(const util::zvalue& value);
 bool can_be_binding(const util::zvalue& value);

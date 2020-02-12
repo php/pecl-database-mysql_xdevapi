@@ -17,9 +17,12 @@
 */
 #include "pb_utils.h"
 #include "exceptions.h"
+#include "mysqlnd_api.h"
 #include "protobuf_api.h"
+#include "xmysqlnd/xmysqlnd_zval2any.h"
 #include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
 #include "xmysqlnd/proto_gen/mysqlx_sql.pb.h"
+#include "util/value.h"
 
 namespace mysqlx {
 
@@ -182,6 +185,13 @@ void to_any(
 	Any& any)
 {
 	to_any(value.c_str(), value.length(), any);
+}
+
+void to_any(
+	const util::zvalue& zv,
+	Any& any)
+{
+	drv::zval2any(zv.c_ptr(), any);
 }
 
 void to_any(

@@ -581,9 +581,19 @@ inline bool zvalue::erase(const char* key)
 
 // -----------------------------------------------------------------------------
 
+inline const zval& zvalue::c_ref() const
+{
+	return zv;
+}
+
 inline zval& zvalue::ref() const
 {
 	return const_cast<zval&>(zv);
+}
+
+inline const zval* zvalue::c_ptr() const
+{
+	return &zv;
 }
 
 inline zval* zvalue::ptr() const

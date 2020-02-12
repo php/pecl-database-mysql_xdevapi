@@ -64,6 +64,18 @@ util::zvalue to_zv_string(const util::zvalue& src)
 	return dest;
 }
 
+util::zvalue to_zv_object(const char* src, const std::size_t src_len)
+{
+	util::zvalue dest;
+	php_json_decode(
+		dest.ptr(),
+		const_cast<char*>(src),
+		static_cast<int>(src_len),
+		false,
+		PHP_JSON_PARSER_DEFAULT_DEPTH);
+	return dest;
+}
+
 namespace {
 
 bool is_first_char(const util::zvalue& value, const char chr)

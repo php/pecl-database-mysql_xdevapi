@@ -67,7 +67,14 @@ public:
 
 	enum_func_status        exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 	xmysqlnd_collection* create_collection_object(const MYSQLND_CSTRING collection_name);
-	xmysqlnd_collection* create_collection(const util::string_view& collection_name,const st_xmysqlnd_schema_on_error_bind on_error);
+	xmysqlnd_collection* create_collection(
+		const util::string_view& collection_name,
+		const util::string_view& collection_options,
+		const st_xmysqlnd_schema_on_error_bind on_error);
+	bool modify_collection(
+		const util::string_view& collection_name,
+		const util::string_view& collection_options,
+		const st_xmysqlnd_schema_on_error_bind on_error);
 	enum_func_status        drop_collection(const util::string_view& collection_name,const st_xmysqlnd_schema_on_error_bind on_error);
 	xmysqlnd_table*      create_table_object(const MYSQLND_CSTRING table_name);
 	enum_func_status        drop_table(const util::string_view& table_name,const st_xmysqlnd_schema_on_error_bind on_error);

@@ -390,7 +390,10 @@ class zvalue
 		value_iterator vend() const;
 
 	public:
+		const zval& c_ref() const;
 		zval& ref() const;
+
+		const zval* c_ptr() const;
 		zval* ptr() const;
 
 	private:

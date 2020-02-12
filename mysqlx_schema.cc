@@ -64,6 +64,13 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__create_collection, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, options, IS_STRING, dont_allow_null)
+ZEND_END_ARG_INFO()
+
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema_modify_collection, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, name, IS_STRING, dont_allow_null)
+	ZEND_ARG_TYPE_INFO(no_pass_by_ref, options, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -236,24 +243,27 @@ const enum_hnd_func_status on_drop_db_object_error(
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 {
-	st_mysqlx_schema* object{nullptr};
 	zval* object_zv{nullptr};
 	util::string_view collection_name;
+	const util::string_view Empty_collection_options{ "{}" };
+	util::string_view collection_options(Empty_collection_options);
 
 	DBG_ENTER("mysqlx_schema::createCollection");
 	if (FAILURE == util::zend::parse_method_parameters(
-		execute_data, getThis(), "Os",
+		execute_data, getThis(), "Os|s",
 		&object_zv, mysqlx_schema_class_entry,
-		&(collection_name.str), &(collection_name.len)))
+		&(collection_name.str), &(collection_name.len),
+		&collection_options.str, &collection_options.len))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_SCHEMA_FROM_ZVAL(object, object_zv);
-	RETVAL_FALSE;
-	if (!collection_name.empty() && object->schema) {
-		const struct st_xmysqlnd_schema_on_error_bind on_error = { mysqlx_schema_on_error, nullptr };
 
-		xmysqlnd_collection* const collection = object->schema->create_collection( collection_name, on_error);
+	RETVAL_NULL();
+
+	auto& data_object{ util::fetch_data_object<st_mysqlx_schema>(object_zv) };
+	if (!collection_name.empty()) {
+		const st_xmysqlnd_schema_on_error_bind on_error{ mysqlx_schema_on_error, nullptr };
+		xmysqlnd_collection* const collection{ data_object.schema->create_collection(collection_name, collection_options, on_error) };
 		DBG_INF_FMT("collection=%p", collection);
 		if (collection) {
 			mysqlx_new_collection(return_value, collection, FALSE);
@@ -262,6 +272,34 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 				DBG_ERR("Something is wrong");
 				xmysqlnd_collection_free(collection, nullptr, nullptr);
 			}
+		}
+	}
+	DBG_VOID_RETURN;
+}
+
+MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, modifyCollection)
+{
+	zval* object_zv{nullptr};
+	util::string_view collection_name;
+	util::string_view collection_options;
+
+	DBG_ENTER("mysqlx_schema::modifyCollection");
+	if (FAILURE == util::zend::parse_method_parameters(
+		execute_data, getThis(), "Oss",
+		&object_zv, mysqlx_schema_class_entry,
+		&collection_name.str, &collection_name.len,
+		&collection_options.str, &collection_options.len))
+	{
+		DBG_VOID_RETURN;
+	}
+
+	RETVAL_FALSE;
+
+	auto& data_object{ util::fetch_data_object<st_mysqlx_schema>(object_zv) };
+	if (!collection_name.empty()) {
+		const st_xmysqlnd_schema_on_error_bind on_error{ mysqlx_schema_on_error, nullptr };
+		if (data_object.schema->modify_collection(collection_name, collection_options, on_error)) {
+			RETVAL_TRUE;
 		}
 	}
 	DBG_VOID_RETURN;
@@ -484,6 +522,7 @@ static const zend_function_entry mysqlx_schema_methods[] = {
 	PHP_ME(mysqlx_schema, existsInDatabase, arginfo_mysqlx_schema__exists_in_database, ZEND_ACC_PUBLIC)
 	/************************************** INHERITED END   ****************************************/
 	PHP_ME(mysqlx_schema, createCollection, arginfo_mysqlx_schema__create_collection, ZEND_ACC_PUBLIC)
+	PHP_ME(mysqlx_schema, modifyCollection, arginfo_mysqlx_schema_modify_collection, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_schema, dropCollection, arginfo_mysqlx_schema__drop_collection, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_schema, getCollection, arginfo_mysqlx_schema__get_collection, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_schema, getCollections, arginfo_mysqlx_schema__get_collections, ZEND_ACC_PUBLIC)

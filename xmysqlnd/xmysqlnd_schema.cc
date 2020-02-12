@@ -28,6 +28,7 @@
 #include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_structs.h"
 #include "xmysqlnd_utils.h"
+#include "util/json_utils.h"
 #include "util/pb_utils.h"
 
 namespace mysqlx {
@@ -260,6 +261,10 @@ static const enum_hnd_func_status schema_op_var_binder(void * context,
 
 	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
 	util::pb::add_field_to_object("name", ctx->collection_name, stmt_obj);
+	if (!util::is_empty(ctx->collection_options)) {
+		util::zvalue zobj_collection_options{ util::json::to_zv_object(ctx->collection_options.s, ctx->collection_options.l) };
+		util::pb::add_field_to_object("options", zobj_collection_options, stmt_obj);
+	}
 
 	DBG_RETURN(HND_PASS);
 }
@@ -268,26 +273,26 @@ static const enum_func_status
 xmysqlnd_collection_op(
 	xmysqlnd_schema * const schema,
 	const util::string_view& collection_name,
+	const util::string_view& collection_options,
 	const MYSQLND_CSTRING query,
 	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
-	enum_func_status ret;
 	auto session = schema->get_session();
 
 	st_collection_op_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->get_name()),
 		collection_name.to_nd_cstr(),
-		0
+		collection_options.to_nd_cstr()
 	};
-	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { schema_op_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder{ schema_op_var_binder, &var_binder_ctx };
 
-	st_create_collection_handler_ctx handler_ctx = { schema, handler_on_error };
-	const st_xmysqlnd_session_on_error_bind on_error
-		= { handler_on_error.handler ? collection_op_handler_on_error : nullptr, &handler_ctx };
+	st_create_collection_handler_ctx handler_ctx{ schema, handler_on_error };
+	const st_xmysqlnd_session_on_error_bind on_error{
+		handler_on_error.handler ? collection_op_handler_on_error : nullptr, &handler_ctx };
 
 	DBG_ENTER("xmysqlnd_collection_op");
 
-	ret = session->query_cb(namespace_mysqlx,
+	enum_func_status ret = session->query_cb(namespace_mysqlx,
 							   query,
 							   var_binder,
 							   noop__on_result_start,
@@ -299,16 +304,34 @@ xmysqlnd_collection_op(
 	DBG_RETURN(ret);
 }
 
-xmysqlnd_collection *
-xmysqlnd_schema::create_collection(
+static const enum_func_status
+xmysqlnd_collection_op(
+	xmysqlnd_schema * const schema,
 	const util::string_view& collection_name,
+	const MYSQLND_CSTRING query,
 	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
-	static const MYSQLND_CSTRING query = {"create_collection", sizeof("create_collection") - 1 };
+	const util::string_view empty_collection_options;
+	return xmysqlnd_collection_op(
+		schema,
+		collection_name,
+		empty_collection_options,
+		query,
+		handler_on_error);
+}
+
+xmysqlnd_collection*
+xmysqlnd_schema::create_collection(
+	const util::string_view& collection_name,
+	const util::string_view& collection_options,
+	const st_xmysqlnd_schema_on_error_bind handler_on_error)
+{
+	const MYSQLND_CSTRING query{"create_collection", sizeof("create_collection") - 1 };
 	xmysqlnd_collection* collection{nullptr};
 	DBG_ENTER("xmysqlnd_schema::create_collection");
-	DBG_INF_FMT("schema_name=%s collection_name=%s", schema_name.s, collection_name.c_str());
-	if (PASS == xmysqlnd_collection_op(this, collection_name, query, handler_on_error)) {
+	DBG_INF_FMT("schema_name=%s collection_name=%s collection_options=%s",
+		schema_name.s, collection_name.c_str(), collection_options.c_str());
+	if (PASS == xmysqlnd_collection_op(this, collection_name, collection_options, query, handler_on_error)) {
 		collection = xmysqlnd_collection_create(
 			this,
 			collection_name.to_nd_cstr(),
@@ -318,6 +341,18 @@ xmysqlnd_schema::create_collection(
 			session->data->error_info);
 	}
 	DBG_RETURN(collection);
+}
+
+bool xmysqlnd_schema::modify_collection(
+	const util::string_view& collection_name,
+	const util::string_view& collection_options,
+	const st_xmysqlnd_schema_on_error_bind handler_on_error)
+{
+	DBG_ENTER("xmysqlnd_schema::modify_collection");
+	const MYSQLND_CSTRING query{"modify_collection_options", sizeof("modify_collection_options") - 1 };
+	DBG_INF_FMT("schema_name=%s collection_name=%s collection_options=%s",
+		schema_name.s, collection_name.c_str(), collection_options.c_str());
+	DBG_RETURN(xmysqlnd_collection_op(this, collection_name, collection_options, query, handler_on_error) == PASS);
 }
 
 enum_func_status
@@ -330,7 +365,7 @@ xmysqlnd_schema::drop_collection(
 	DBG_ENTER("xmysqlnd_schema::drop_collection");
 	DBG_INF_FMT("schema_name=%s collection_name=%s", schema_name.s, collection_name.c_str());
 
-	ret = xmysqlnd_collection_op(this, collection_name.to_nd_cstr(), query, handler_on_error);
+	ret = xmysqlnd_collection_op(this, collection_name, query, handler_on_error);
 
 	DBG_RETURN(ret);
 }
@@ -359,7 +394,7 @@ xmysqlnd_schema::drop_table(
 	DBG_ENTER("xmysqlnd_schema::drop_table");
 	DBG_INF_FMT("schema_name=%s table_name=%s ", schema_name.s, table_name.c_str());
 
-	ret = xmysqlnd_collection_op(this, table_name.to_nd_cstr(), query, handler_on_error);
+	ret = xmysqlnd_collection_op(this, table_name, query, handler_on_error);
 
 	DBG_RETURN(ret);
 }
