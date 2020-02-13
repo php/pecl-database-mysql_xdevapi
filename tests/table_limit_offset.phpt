@@ -16,7 +16,7 @@ fill_db_table($table);
 // fetch all from given age range
 $query = $table->select('name', 'age')
 	->where(':age_min <= age and age < :age_max')
-	->bind(['age_min' => 12, 'age_max' => 15])->orderBy('age desc');
+	->bind(['age_min' => 12, 'age_max' => 15])->orderBy('age desc', 'name asc');
 $res = $query->execute();
 $data = $res->fetchAll();
 expect_eq(count($data), 5);
@@ -26,8 +26,8 @@ $query = $query->limit(3);
 $res = $query->execute();
 $data = $res->fetchAll();
 expect_eq(count($data), 3);
-expect_eq($data[0]['name'], 'Olympia');
-expect_eq($data[1]['name'], 'Lev');
+expect_eq($data[0]['name'], 'Lev');
+expect_eq($data[1]['name'], 'Olympia');
 expect_eq($data[2]['name'], 'Cassidy');
 
 // fetch only 3 records from given age range with 2 rows offset (counting
