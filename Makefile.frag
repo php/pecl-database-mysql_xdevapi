@@ -1,8 +1,6 @@
 # INFO: we generate protobufs into srcdir, not builddir!
 
 $(srcdir)/xmysqlnd/proto_gen/mysqlx.pb.cc: $(srcdir)/xmysqlnd/proto_def/mysqlx.proto
-	@echo compiler version...
-	$(CXX) --version
 	@echo generate protobufs...
 	$(MYSQL_XDEVAPI_PROTOC) --version
 ifdef MYSQL_XDEVAPI_PROTOBUF_INCLUDES
