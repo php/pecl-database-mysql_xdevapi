@@ -420,6 +420,7 @@ struct st_xmysqlnd_server_messages_handlers
 	const enum_hnd_func_status (*on_RSET_FETCH_DONE_MORE_RSETS)(const Mysqlx::Resultset::FetchDoneMoreResultsets & message, void * context);
 	const enum_hnd_func_status (*on_STMT_EXECUTE_OK)(const Mysqlx::Sql::StmtExecuteOk & message, void * context);
 	const enum_hnd_func_status (*on_RSET_FETCH_DONE_MORE_OUT_PARAMS)(const Mysqlx::Resultset::FetchDoneMoreOutParams & message, void * context);
+	const enum_hnd_func_status (*on_COMPRESSED)(const Mysqlx::Connection::Compression& message, void* context);
 	const enum_hnd_func_status (*on_UNEXPECTED)(const zend_uchar packet_type, const zend_uchar * const payload, const size_t payload_size, void * context);
 	const enum_hnd_func_status (*on_UNKNOWN)(const zend_uchar packet_type, const zend_uchar * const payload, const size_t payload_size, void * context);
 };
@@ -569,7 +570,13 @@ xmysqlnd_receive_message(
 				break;
 
 			case XMSG_COMPRESSION:
-				handled = false;
+				if (handlers->on_COMPRESSED) {
+	//				handled = process_compressed_message();
+					Mysqlx::Connection::Compression message;
+					message.ParseFromArray(payload, payload_size);
+					hnd_ret = handlers->on_COMPRESSED(message, handler_ctx);
+					handled = true;
+				}
 				break;
 
 			default:
@@ -1760,6 +1767,15 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDo
 /* }}} */
 
 
+static const enum_hnd_func_status
+stmt_execute_on_COMPRESSED(const Mysqlx::Connection::Compression& message, void* context)
+{
+	st_xmysqlnd_result_set_reader_ctx* const ctx = static_cast<st_xmysqlnd_result_set_reader_ctx* >(context);
+	DBG_ENTER("stmt_on_COMPRESSED");
+	ctx->has_more_results = TRUE;
+	DBG_RETURN(HND_PASS);
+}
+
 static st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 {
 	nullptr,								// on_OK
@@ -1775,6 +1791,7 @@ static st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 	stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS,		// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
 	stmt_execute_on_STMT_EXECUTE_OK,				// on_SQL_STMT_EXECUTE_OK
 	stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS,// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
+	stmt_execute_on_COMPRESSED,	// on_COMPRESSED)
 	nullptr,								// on_UNEXPECTED
 	nullptr,								// on_UNKNOWN
 };

@@ -3018,7 +3018,7 @@ void Extract_client_option::run()
 		{ "tls-ciphersuite", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
 		{ "tls-ciphersuites", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
 		{ "connect-timeout", {Option_trait::Is_integer | Option_trait::Requires_value, &Extract_client_option::set_connect_timeout }},
-		{ "compress", {Option_trait::Is_boolean | Option_trait::Requires_value, &Extract_client_option::set_compression }},
+		{ "compression", {Option_trait::Is_boolean | Option_trait::Requires_value, &Extract_client_option::set_compression }},
 	};
 
 	auto it{ option_to_info.find(option_name.c_str()) };
