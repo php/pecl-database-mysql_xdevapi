@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -62,13 +62,12 @@ extern "C" {
 	ZEND_HASH_FOREACH_STR_KEY_VAL(ht, _key, _val) \
 	MYSQLX_RESTORE_WARNINGS()
 
-#else
+#else // UNIX OSes
 
 #define MYSQLX_HASH_FOREACH_VAL ZEND_HASH_FOREACH_VAL
 #define MYSQLX_HASH_FOREACH_PTR	ZEND_HASH_FOREACH_PTR
 #define MYSQLX_HASH_FOREACH_STR_KEY_VAL ZEND_HASH_FOREACH_STR_KEY_VAL
 
 #endif
-
 
 #endif // MYSQL_XDEVAPI_PHP_API_H

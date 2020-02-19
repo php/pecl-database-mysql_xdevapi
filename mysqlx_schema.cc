@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -111,16 +111,12 @@ struct st_mysqlx_schema : public util::custom_allocable
 	} \
 } \
 
-/* {{{ mysqlx_schema::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
-
 
 /************************************** INHERITED START ****************************************/
-/* {{{ proto mixed mysqlx_schema::getSession() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
 {
 	DBG_ENTER("mysqlx_schema::getSession");
@@ -145,10 +141,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_schema::getName() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -172,10 +165,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_scheme_on_error */
 static const enum_hnd_func_status
 mysqlx_scheme_on_error(
 	void* /*context*/,
@@ -189,10 +179,7 @@ mysqlx_scheme_on_error(
 	mysqlx_new_exception(code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_schema::existsInDatabase() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -221,12 +208,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 /************************************** INHERITED END   ****************************************/
 
-/* {{{ mysqlx_schema_on_error */
 static const enum_hnd_func_status
 mysqlx_schema_on_error(
 	void* /*context*/,
@@ -239,10 +223,7 @@ mysqlx_schema_on_error(
 	mysqlx_new_exception(code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
-/* }}} */
 
-
-/* {{{ on_drop_db_object_error */
 const enum_hnd_func_status on_drop_db_object_error(
 	void* /*context*/,
 	const xmysqlnd_schema * const /*schema*/,
@@ -252,10 +233,7 @@ const enum_hnd_func_status on_drop_db_object_error(
 {
 	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_schema::createCollection(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -272,7 +250,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 	}
 	MYSQLX_FETCH_SCHEMA_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
-	 if (!collection_name.empty() && object->schema) {
+	if (!collection_name.empty() && object->schema) {
 		const struct st_xmysqlnd_schema_on_error_bind on_error = { mysqlx_schema_on_error, nullptr };
 
 		xmysqlnd_collection* const collection = object->schema->create_collection( collection_name, on_error);
@@ -288,10 +266,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_schema::dropCollection(string collection_name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 {
 	zval* object_zv{nullptr};
@@ -318,10 +293,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_schema::getCollection(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -349,10 +321,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_schema::getTable(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -378,10 +347,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_schema::getCollectionAsTable(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 {
 	st_mysqlx_schema* object{nullptr};
@@ -406,15 +372,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 struct st_mysqlx_on_db_object_ctx
 {
 	zval* list;
 };
 
-/* {{{ mysqlx_on_db_object */
 static void
 mysqlx_on_db_object(void* context, xmysqlnd_schema* const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type)
 {
@@ -451,10 +414,7 @@ mysqlx_on_db_object(void* context, xmysqlnd_schema* const schema, const MYSQLND_
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_get_database_objects */
 static void
 mysqlx_get_database_objects(
 	xmysqlnd_schema* schema,
@@ -479,9 +439,7 @@ mysqlx_get_database_objects(
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-/* {{{ mysqlx_session::getTables() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTables)
 {
 	zval* object_zv{nullptr};
@@ -499,10 +457,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTables)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::getCollections() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 {
 	zval* object_zv{nullptr};
@@ -520,12 +475,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-
-
-/* {{{ mysqlx_schema_methods[] */
 static const zend_function_entry mysqlx_schema_methods[] = {
 	PHP_ME(mysqlx_schema, __construct, nullptr, ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/
@@ -544,10 +494,7 @@ static const zend_function_entry mysqlx_schema_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ mysqlx_schema_property__name */
 static zval *
 mysqlx_schema_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
@@ -567,8 +514,6 @@ mysqlx_schema_property__name(const st_mysqlx_object* obj, zval* return_value)
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_schema_handlers;
 static HashTable mysqlx_schema_properties;
@@ -579,7 +524,6 @@ const struct st_mysqlx_property_entry mysqlx_schema_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_schema_free_storage */
 static void
 mysqlx_schema_free_storage(zend_object* object)
 {
@@ -598,10 +542,7 @@ mysqlx_schema_free_storage(zend_object* object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
 
-
-/* {{{ php_mysqlx_schema_object_allocator */
 static zend_object *
 php_mysqlx_schema_object_allocator(zend_class_entry* class_type)
 {
@@ -612,11 +553,9 @@ php_mysqlx_schema_object_allocator(zend_class_entry* class_type)
 		&mysqlx_schema_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
 } // anonymous namespace
 
-/* {{{ mysqlx_register_schema_class */
 void
 mysqlx_register_schema_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
@@ -639,19 +578,13 @@ mysqlx_register_schema_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_schema_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_schema_class */
 void
 mysqlx_unregister_schema_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_schema_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_schema */
 void
 mysqlx_new_schema(zval* return_value, xmysqlnd_schema* schema)
 {
@@ -669,7 +602,6 @@ mysqlx_new_schema(zval* return_value, xmysqlnd_schema* schema)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

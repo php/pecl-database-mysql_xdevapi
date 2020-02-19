@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | rhs is bundled with this package in the file LICENSE, and is        |
@@ -27,9 +27,16 @@ namespace mysqlx {
 
 namespace util {
 
+class zvalue;
+
 namespace json {
 
 void to_zv_string(zval* src, zval* dest);
+util::zvalue to_zv_string(const util::zvalue& src);
+
+bool can_be_document(const util::zvalue& value);
+bool can_be_array(const util::zvalue& value);
+bool can_be_binding(const util::zvalue& value);
 
 void ensure_doc_id(
 	zval* raw_doc,

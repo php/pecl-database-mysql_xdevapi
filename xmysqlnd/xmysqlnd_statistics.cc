@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -27,7 +27,6 @@ namespace drv {
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_STATS* xmysqlnd_global_stats{nullptr};
 
-/* {{{ mysqlnd_stats_values_names */
 const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 {
 	{ util::literal_to_mysqlnd_str("bytes_sent") },
@@ -47,10 +46,7 @@ const MYSQLND_STRING xmysqlnd_stats_values_names[XMYSQLND_STAT_LAST] =
 	{ util::literal_to_mysqlnd_str("active_connections") },
 	{ util::literal_to_mysqlnd_str("active_persistent_connections") },
 };
-/* }}} */
 
-
-/* {{{ _xmysqlnd_get_client_stats */
 PHP_MYSQL_XDEVAPI_API void
 _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FILE_LINE_DC)
 {
@@ -68,7 +64,6 @@ _xmysqlnd_get_client_stats(MYSQLND_STATS * stats_ptr, zval *return_value ZEND_FI
 	mysqlnd_fill_stats_hash(stats_ptr, xmysqlnd_stats_values_names, return_value ZEND_FILE_LINE_CC);
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

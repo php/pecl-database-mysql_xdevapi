@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,7 +26,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_warning_list::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_warning_list, init)(
 	XMYSQLND_WARNING_LIST* const /*warn_list*/,
@@ -37,10 +36,7 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, init)(
 	DBG_ENTER("xmysqlnd_warning_list::init");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_warning_list::add_warning */
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * const warn_list,
 													const enum xmysqlnd_stmt_warning_level level,
@@ -60,20 +56,14 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * cons
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_warning_list::count */
 static unsigned int
 XMYSQLND_METHOD(xmysqlnd_warning_list, count)(const XMYSQLND_WARNING_LIST * const warn_list)
 {
 	DBG_ENTER("xmysqlnd_warning_list::count");
 	DBG_RETURN(warn_list->warning_count);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_warning_list::get_warning */
 static const XMYSQLND_WARNING
 XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST * const warn_list, unsigned int offset)
 {
@@ -86,10 +76,7 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST 
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_warning_list::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * const warn_list)
 {
@@ -106,10 +93,7 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * co
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_warning_list::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_list)
 {
@@ -120,8 +104,6 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_warning_list)
@@ -136,7 +118,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_warning_list);
 
-/* {{{ xmysqlnd_warning_list_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_WARNING_LIST *
 xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -145,10 +126,7 @@ xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_MET
 	result = object_factory->get_warnings_list(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_warning_list_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const warn_list)
 {
@@ -159,7 +137,6 @@ xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const warn_list)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

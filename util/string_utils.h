@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -28,7 +28,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ iless */
 struct iless
 {
 	bool operator()(const char* lhs, const char* rhs) const
@@ -58,7 +57,6 @@ struct iless
 		);
 	}
 };
-/* }}} */
 
 //------------------------------------------------------------------------------
 
@@ -120,7 +118,6 @@ inline std::string to_std_string(const std::string& str)
 
 strings to_strings(zval* zvals, int count);
 
-/* {{{ to_strings */
 template<typename Pred>
 strings to_strings(zval* zvals, int count, Pred pred)
 {
@@ -131,8 +128,6 @@ strings to_strings(zval* zvals, int count, Pred pred)
 	}
 	return strings;
 }
-/* }}} */
-
 
 zend_string* to_zend_string(const char* str);
 zend_string* to_zend_string(const string& str);
@@ -160,6 +155,8 @@ inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 
 bool to_int(const string& str, int* value);
 bool to_int(const std::string& str, int* value);
+
+bool is_alnum_identifier(const std::string& ident);
 
 //------------------------------------------------------------------------------
 

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -28,7 +28,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ object2expr */
 PHP_MYSQL_XDEVAPI_API void
 object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest_obj)
 {
@@ -44,10 +43,7 @@ object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ array2expr */
 PHP_MYSQL_XDEVAPI_API void
 array2expr(const Mysqlx::Datatypes::Array & src_array, Mysqlx::Expr::Array* dest_array)
 {
@@ -59,10 +55,7 @@ array2expr(const Mysqlx::Datatypes::Array & src_array, Mysqlx::Expr::Array* dest
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ array2expr */
 PHP_MYSQL_XDEVAPI_API void
 any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest)
 {
@@ -88,7 +81,6 @@ any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

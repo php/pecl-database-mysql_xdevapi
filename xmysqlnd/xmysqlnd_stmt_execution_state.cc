@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -27,7 +27,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_stmt_execution_state::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, init)(
 	XMYSQLND_STMT_EXECUTION_STATE* const /*state*/,
@@ -38,61 +37,42 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, init)(
 	DBG_ENTER("xmysqlnd_stmt_execution_state::init");
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::get_affected_items_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_affected_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_affected_items_count");
 	DBG_RETURN(state->items_affected);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::get_matched_items_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_matched_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_matched_items_count");
 	DBG_RETURN(state->items_matched);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::get_found_items_count */
 static size_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_found_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_found_items_count");
 	DBG_RETURN(state->items_found);
 }
-/* }}} */
 
-
-
-/* {{{ xmysqlnd_stmt_execution_state::get_last_insert_id */
 static uint64_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_last_insert_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_last_insert_id");
 	DBG_RETURN(state->last_insert_id);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::get_generated_ids */
 static const mysqlx::util::vector<mysqlx::util::string> *
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_generated_ids)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_generated_ids");
 	DBG_RETURN(&state->generated_doc_ids);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::set_affected_items_count */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
 {
@@ -101,10 +81,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count)(XMYSQLN
 	state->items_affected = value;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::set_matched_items_count */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
 {
@@ -113,10 +90,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count)(XMYSQLND
 	state->items_matched = value;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::set_found_items_count */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
 {
@@ -125,10 +99,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count)(XMYSQLND_S
 	state->items_found = value;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::add_generated_doc_id */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, add_generated_doc_id)(XMYSQLND_STMT_EXECUTION_STATE * const state,
 																	 const MYSQLND_STRING id)
@@ -137,10 +108,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, add_generated_doc_id)(XMYSQLND_ST
 	state->generated_doc_ids.push_back( util::to_string(id) );
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::set_last_insert_id */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value)
 {
@@ -149,10 +117,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_last_insert_id)(XMYSQLND_STMT
 	state->last_insert_id = value;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -163,10 +128,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, free_contents)(XMYSQLND_STMT_EXEC
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_execution_state::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor)(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -177,8 +139,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, dtor)(XMYSQLND_STMT_EXECUTION_STA
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt_execution_state)
@@ -202,7 +162,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_stmt_execution_state);
 
-/* {{{ xmysqlnd_stmt_execution_state_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_EXECUTION_STATE *
 xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 									 const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -214,10 +173,7 @@ xmysqlnd_stmt_execution_state_create(const zend_bool persistent,
 	result = object_factory->get_stmt_execution_state(object_factory, persistent, stats, error_info);
 	DBG_RETURN(result);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_result_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
@@ -228,7 +184,6 @@ xmysqlnd_stmt_execution_state_free(XMYSQLND_STMT_EXECUTION_STATE * const state)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

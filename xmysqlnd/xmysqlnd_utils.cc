@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -27,7 +27,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ make_mysqlnd_str */
 MYSQLND_STRING make_mysqlnd_str(const char * str) {
 	if( str == nullptr ) {
 		return { nullptr, 0 };
@@ -37,28 +36,19 @@ MYSQLND_STRING make_mysqlnd_str(const char * str) {
 	std::copy(str,str + len + 1, newstr);
 	return { newstr, len };
 }
-/* }}} */
 
-
-/* {{{ make_mysqlnd_cstr */
 MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
 	MYSQLND_STRING new_str = make_mysqlnd_str(str);
 	return { new_str.s, new_str.l };
 }
-/* }}} */
 
-
-/* {{{ compare_mysqlnd_cstr */
 bool
 equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs)
 {
 	if (lhs.l != rhs.l) return false;
 	return !memcmp(lhs.s, rhs.s, lhs.l);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_utils_decode_doc_row */
 void
 xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 {
@@ -73,10 +63,7 @@ xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 			PHP_JSON_PARSER_DEFAULT_DEPTH);
 	}
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_utils_decode_doc_rows */
 void
 xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 {
@@ -92,7 +79,6 @@ xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
 		} ZEND_HASH_FOREACH_END();
 	}
 }
-/* }}} */
 
 /* The ascii-to-ebcdic table: */
 /*
@@ -138,7 +124,6 @@ const unsigned char os_toebcdic[256] = {
 };
 #endif // CHARSET_EBCDIC
 
-/* {{{ pct_to_char */
 static char pct_to_char( const util::string& str,
 		  const std::size_t idx )
 {
@@ -157,10 +142,7 @@ static char pct_to_char( const util::string& str,
 
 	return value;
 }
-/* }}} */
 
-
-/* {{{ decode_pct_path */
 util::string
 decode_pct_path(const util::string& encoded_path)
 {
@@ -184,17 +166,12 @@ decode_pct_path(const util::string& encoded_path)
 	}
 	return decoded_path;
 }
-/* }}} */
 
-
-/* {{{ operator== */
 bool operator==(const google::protobuf::Message& msg_a,
 				const google::protobuf::Message& msg_b) {
   return (msg_a.GetTypeName() == msg_b.GetTypeName()) &&
 	  (msg_a.SerializeAsString() == msg_b.SerializeAsString());
 }
-/* }}} */
-
 
 } // namespace drv
 

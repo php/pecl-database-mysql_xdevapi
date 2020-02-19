@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -221,7 +221,6 @@ typedef std::shared_ptr<xmysqlnd_session_data> XMYSQLND_SESSION_DATA;
 using vec_of_addresses = util::vector< std::pair<util::string,long> >;
 using vec_of_attribs = util::vector< std::pair<util::string,util::string > >;
 
-/* {{{ list_of_addresses_parser */
 class list_of_addresses_parser
 {
 	void invalidate();
@@ -709,7 +708,6 @@ PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(
 
 extern const MYSQLND_CSTRING namespace_mysqlx;
 extern const MYSQLND_CSTRING namespace_sql;
-extern const MYSQLND_CSTRING namespace_xplugin;
 
 extern const struct st_xmysqlnd_session_query_bind_variable_bind noop__var_binder;
 extern const struct st_xmysqlnd_session_on_result_start_bind	noop__on_result_start;

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -33,7 +33,6 @@ namespace util {
 
 namespace json {
 
-/* {{{ to_zv_string */
 void to_zv_string(zval* src, zval* dest)
 {
 	smart_str buf = { 0 };
@@ -57,7 +56,40 @@ void to_zv_string(zval* src, zval* dest)
 	ZVAL_STRINGL(dest, buf.s->val, buf.s->len);
 	smart_str_free(&buf);
 }
-/* }}} */
+
+util::zvalue to_zv_string(const util::zvalue& src)
+{
+	util::zvalue dest;
+	to_zv_string(src.ptr(), dest.ptr());
+	return dest;
+}
+
+namespace {
+
+bool is_first_char(const util::zvalue& value, const char chr)
+{
+	assert(value.is_string());
+	if (value.empty()) return false;
+	const char* value_str = value.c_str();
+	return *value_str == chr;
+}
+
+} // anonymous namespace
+
+bool can_be_document(const util::zvalue& value)
+{
+	return is_first_char(value, '{');
+}
+
+bool can_be_array(const util::zvalue& value)
+{
+	return is_first_char(value, '[');
+}
+
+bool can_be_binding(const util::zvalue& value)
+{
+	return is_first_char(value, ':');
+}
 
 namespace {
 
@@ -165,7 +197,6 @@ void Ensure_doc_id::store_id()
 
 } // anonymous namespace
 
-/* {{{ ensure_doc_id */
 void ensure_doc_id(
 	zval* raw_doc,
 	const string_view& id,
@@ -175,9 +206,7 @@ void ensure_doc_id(
 	Ensure_doc_id edi(raw_doc, id, doc_with_id);
 	edi.run();
 }
-/* }}} */
 
-/* {{{ ensure_doc_id_as_string */
 void ensure_doc_id_as_string(
 	const string_view& doc_id,
 	zval* doc)
@@ -190,7 +219,6 @@ void ensure_doc_id_as_string(
 	to_zv_string(&doc_with_string_id, doc);
 	zval_dtor(&doc_with_string_id);
 }
-/* }}} */
 
 } // namespace json
 

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -55,7 +55,6 @@ void zval2object(zval* zv, Mysqlx::Datatypes::Any& any)
 
 } // anonymous namespace
 
-/* {{{ zval2any */
 PHP_MYSQL_XDEVAPI_API enum_func_status
 zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 {
@@ -126,7 +125,6 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
 enum_func_status
 zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any)
@@ -192,10 +190,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ any2zval */
 PHP_MYSQL_XDEVAPI_API enum_func_status
 any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 {
@@ -249,7 +244,6 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 	}
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
 enum_func_status any2zval(const Mysqlx::Datatypes::Any& any, util::zvalue& zv)
 {
@@ -263,7 +257,6 @@ util::zvalue any2zval(const Mysqlx::Datatypes::Any& any)
 	return value;
 }
 
-/* {{{ scalar2uint */
 PHP_MYSQL_XDEVAPI_API uint64_t
 scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 {
@@ -300,10 +293,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ scalar2uint */
 PHP_MYSQL_XDEVAPI_API int64_t
 scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 {
@@ -340,10 +330,7 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ scalar2string */
 PHP_MYSQL_XDEVAPI_API MYSQLND_STRING
 scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 {
@@ -385,10 +372,7 @@ scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ scalar2log */
 PHP_MYSQL_XDEVAPI_API void
 scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 {
@@ -442,10 +426,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ any2log */
 PHP_MYSQL_XDEVAPI_API void
 any2log(const Mysqlx::Datatypes::Any & any)
 {
@@ -477,10 +458,7 @@ any2log(const Mysqlx::Datatypes::Any & any)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ repeated2log */
 PHP_MYSQL_XDEVAPI_API void repeated2log(
 	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated)
 {
@@ -488,8 +466,6 @@ PHP_MYSQL_XDEVAPI_API void repeated2log(
 		scalar2log(scalar);
 	}
 }
-/* }}} */
-
 
 } // namespace drv
 

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -114,7 +114,6 @@ bool Session_data::close_connection()
 	return true;
 }
 
-/* {{{ fetch_session_data */
 template<typename T>
 Session_data& fetch_session_data(T* from, bool allow_closed = false)
 {
@@ -124,9 +123,7 @@ Session_data& fetch_session_data(T* from, bool allow_closed = false)
 	}
 	return data_object;
 }
-/* }}} */
 
-/* {{{ mysqlx_throw_exception_from_session_if_needed */
 static zend_bool
 mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
@@ -142,9 +139,7 @@ mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA sessio
 	}
 	DBG_RETURN(FALSE);
 }
-/* }}} */
 
-/* {{{ proto mixed mysqlx_session::getServerVersion() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getServerVersion)
 {
 	DBG_ENTER("mysqlx_session::getServerVersion");
@@ -164,10 +159,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getServerVersion)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_session::generateUUID() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, generateUUID)
 {
 	DBG_ENTER("mysqlx_session::generateUUID");
@@ -189,14 +181,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, generateUUID)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 struct st_mysqlx_get_schemas_ctx
 {
 	zval* list;
 };
 
-/* {{{ get_schemas_handler_on_row */
 static const enum_hnd_func_status
 get_schemas_handler_on_row(void * context,
 						   XMYSQLND_SESSION const session,
@@ -225,10 +215,7 @@ get_schemas_handler_on_row(void * context,
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session_command_handler_on_error */
 static const enum_hnd_func_status
 mysqlx_session_command_handler_on_error(
 	void * /*context*/,
@@ -244,10 +231,7 @@ mysqlx_session_command_handler_on_error(
 	}
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::getSchemas() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 {
 	DBG_ENTER("mysqlx_session::getSchemas");
@@ -282,10 +266,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::getDefaultSchema() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 {
 	DBG_ENTER("mysqlx_session::getDefaultSchema");
@@ -316,10 +297,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::getSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 {
 	DBG_ENTER("mysqlx_session::getSchema");
@@ -348,10 +326,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_execute_session_query */
 static void
 mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 								  const MYSQLND_CSTRING namespace_,
@@ -399,10 +374,7 @@ mysqlx_execute_session_query(XMYSQLND_SESSION  session,
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_session::sql(string query) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 {
 	DBG_ENTER("mysqlx_session::sql");
@@ -437,10 +409,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_session::quoteName(string query) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 {
 	DBG_ENTER("mysqlx_session::quoteName");
@@ -467,10 +436,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::createSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 {
 	DBG_ENTER("mysqlx_session::createSchema");
@@ -499,10 +465,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::dropSchema(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 {
 	DBG_ENTER("mysqlx_session::dropSchema");
@@ -531,10 +494,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_session::startTransaction() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, startTransaction)
 {
 	DBG_ENTER("mysqlx_session::startTransaction");
@@ -557,10 +517,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, startTransaction)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_session::commit() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, commit)
 {
 	DBG_ENTER("mysqlx_session::commit");
@@ -583,10 +540,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, commit)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_session::rollback() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollback)
 {
 	DBG_ENTER("mysqlx_session::rollback");
@@ -609,10 +563,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollback)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ generate_savepoint_name*/
 static util::string
 generate_savepoint_name( const unsigned int name_seed )
 {
@@ -621,10 +572,7 @@ generate_savepoint_name( const unsigned int name_seed )
 	output << SAVEPOINT_NAME_PREFIX << name_seed;
 	return output.str().c_str();
 }
-/* }}} */
 
-
-/* {{{ proto mixed mysqlx_session::setSavepoint() */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, setSavepoint)
 {
 	DBG_ENTER("mysqlx_session::setSavepoint");
@@ -666,10 +614,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, setSavepoint)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::rollbackTo(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollbackTo)
 {
 	DBG_ENTER("mysqlx_session::rollbackTo");
@@ -702,10 +647,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollbackTo)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::releaseSavepoint(string name) */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, releaseSavepoint)
 {
 	DBG_ENTER("mysqlx_session::releaseSavepoint");
@@ -738,10 +680,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, releaseSavepoint)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::close */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 {
 	DBG_ENTER("mysqlx_session::close");
@@ -760,18 +699,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
-/* }}} */
 
-
-/* {{{ mysqlx_session_methods[] */
 static const zend_function_entry mysqlx_session_methods[] = {
 	PHP_ME(mysqlx_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_session__sql, ZEND_ACC_PUBLIC)
@@ -792,7 +725,6 @@ static const zend_function_entry mysqlx_session_methods[] = {
 	PHP_ME(mysqlx_session, close, arginfo_mysqlx_session__close, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
 static zend_object_handlers mysqlx_object_session_handlers;
 static HashTable mysqlx_session_properties;
@@ -802,7 +734,6 @@ const struct st_mysqlx_property_entry mysqlx_session_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_session_free_storage */
 static void
 mysqlx_session_free_storage(zend_object* object)
 {
@@ -810,10 +741,7 @@ mysqlx_session_free_storage(zend_object* object)
 	data_object.close_connection();
 	util::free_object<Session_data>(object);
 }
-/* }}} */
 
-
-/* {{{ php_mysqlx_base_session_object_allocator */
 static zend_object *
 php_mysqlx_session_object_allocator(zend_class_entry * class_type)
 {
@@ -824,10 +752,7 @@ php_mysqlx_session_object_allocator(zend_class_entry * class_type)
 		&mysqlx_session_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_session_class */
 void
 mysqlx_register_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -847,19 +772,13 @@ mysqlx_register_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysq
 	/* Add name + getter + setter to the hash table with the properties for the class */
 	mysqlx_add_properties(&mysqlx_session_properties, mysqlx_session_property_entries);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_session_class */
 void
 mysqlx_unregister_session_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_session_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_session */
 void
 mysqlx_new_session(zval* return_value)
 {
@@ -869,10 +788,7 @@ mysqlx_new_session(zval* return_value)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_session */
 void
 mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session)
 {
@@ -884,9 +800,7 @@ mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-/* {{{ proto bool mysqlx\\mysql_xdevapi_getSession( ) */
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getSession)
 {
 	util::string_view uri_string;
@@ -909,7 +823,6 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getSession)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

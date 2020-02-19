@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQLX_COLLECTION__FIND_H
@@ -21,6 +23,8 @@
 namespace Mysqlx { namespace Crud { class Find; } }
 
 namespace mysqlx {
+
+namespace util { class zvalue; }
 
 namespace drv {
 
@@ -31,79 +35,61 @@ struct st_xmysqlnd_crud_collection_op__find;
 
 namespace devapi {
 
-/* {{{ Collection_find */
 class Collection_find : public util::custom_allocable
 {
 public:
 	Collection_find() = default;
-	Collection_find(const Collection_find& rhs) = delete;
-	Collection_find& operator=(const Collection_find& rhs) = delete;
+	Collection_find(const Collection_find&) = delete;
+	Collection_find& operator=(const Collection_find&) = delete;
 	~Collection_find();
 
 	bool init(
-		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
 
 public:
-	void fields(
-		const zval* fields,
-		zval* return_value);
+	bool fields(util::zvalue& fields);
 
 	enum class Operation {
 		Sort,
 		Group_by
 	};
 
-	void add_operation(
+	bool add_operation(
 		Operation op,
-		zval* sort_expr,
-		int num_of_expr,
-		zval* return_value);
+		zval* sort_expressions,
+		int num_of_expr);
 
-	void group_by(
-		zval* sort_expr,
-		int num_of_expr,
-		zval* return_value);
+	bool group_by(
+		zval* sort_expressions,
+		int num_of_expr);
 
-	void having(
-		const MYSQLND_CSTRING& search_condition,
-		zval* return_value);
+	bool having(const util::string_view& search_condition);
 
-	void sort(
-		zval* sort_expr,
-		int num_of_expr,
-		zval* return_value);
+	bool sort(
+		zval* sort_expressions,
+		int num_of_expr);
 
-	void limit(
-		zend_long rows,
-		zval* return_value);
+	bool limit(zend_long rows);
 
-	void offset(
-		zend_long position,
-		zval* return_value);
+	bool offset(zend_long position);
 
-	void bind(
-		HashTable* bind_variables,
-		zval* return_value);
+	bool bind(const util::zvalue& bind_variables);
 
-	void lock_shared(zval* return_value, int lock_waiting_option);
-	void lock_exclusive(zval* return_value, int lock_waiting_option);
+	bool lock_shared(int lock_waiting_option);
+	bool lock_exclusive(int lock_waiting_option);
 
-	void execute(zval* return_value);
+	void execute(zval* resultset);
 	void execute(
 		zend_long flags,
-		zval* return_value);
+		zval* resultset);
 
 	Mysqlx::Crud::Find* get_stmt();
 
 private:
-	zval*                                      object_zv{nullptr};
 	drv::xmysqlnd_collection*                  collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__find* find_op{nullptr};
 };
-/* }}} */
-
 
 extern zend_class_entry* collection_find_class_entry;
 

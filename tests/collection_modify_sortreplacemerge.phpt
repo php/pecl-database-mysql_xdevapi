@@ -12,7 +12,10 @@ mysqlx collection modify sort/replace/merge
 	fill_db_collection($coll);
 
 	$obj = $coll->modify('age > :age1 and age < :age2')->bind(['age1' => 25, 'age2' => 40]);
-	$data = $obj->sort(['_id desc'])->limit(2)->replace('job', 'Disoccupato')->execute();
+	$data = $obj->sort(['_id desc'])->limit(2)
+		->replace('job', ':newJob')
+		->bind(['newJob' => 'Disoccupato'])
+		->execute();
 
 	var_dump($coll->find("job like 'Disoccupato'")->execute()->fetchAll());
 
@@ -20,7 +23,7 @@ mysqlx collection modify sort/replace/merge
 	$coll->modify('ordinal >= 1 and ordinal <= 9')->unset(['age'])->execute();
 	$coll->modify('true')->sort('name desc', 'age asc')->limit(4)->set('Married', 'NO')->execute();
 
-	$coll->modify("Married like 'NO'")->patch("{'Divorced' : 'NO', 'Vegan' : 'YES'}")->execute();
+	$coll->modify("Married like 'NO'")->patch('{"Divorced" : "NO", "Vegan" : "YES"}')->execute();
 
 	var_dump($coll->find()->execute()->fetchAll());
 	print "done!\n";

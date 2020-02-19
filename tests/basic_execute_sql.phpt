@@ -15,7 +15,7 @@ mysqlx basic execute SQL
 		$session->sql("create table $db.$test_table_name (name text, age int, job text)")->execute();
 	} catch(Exception $e) {
 		expect_eq($e->getMessage(),
-			'[HY000] Couldn\'t fetch data');
+			"[HY000] Couldn't fetch data");
 		expect_eq($e->getCode(), 10000);
 		print "Exception!".PHP_EOL;
 	}

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,8 +18,8 @@
 #ifndef XMYSQLND_H
 #define XMYSQLND_H
 
-#define PHP_XMYSQLND_VERSION "mysql_xdevapi 8.0.17"
-#define XMYSQLND_VERSION_ID 80017
+#define PHP_XMYSQLND_VERSION "mysql_xdevapi 8.0.19"
+#define XMYSQLND_VERSION_ID 80019
 
 #if PHP_DEBUG
 #define MYSQLND_DBG_ENABLED 1

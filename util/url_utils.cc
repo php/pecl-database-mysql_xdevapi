@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -26,7 +26,6 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ Url::Url */
 Url::Url(const php_url* phpurl)
 	: scheme(to_string(phpurl->scheme))
 	, user(to_string(phpurl->user))
@@ -45,10 +44,7 @@ Url::Url(const php_url* phpurl)
 		path = url_path.substr( prefix_offset );
 	}
 }
-/* }}} */
 
-
-/* {{{ Url::empty */
 bool Url::empty() const
 {
 	return scheme.empty()
@@ -60,7 +56,6 @@ bool Url::empty() const
 		&& query.empty()
 		&& fragment.empty();
 }
-/* }}} */
 
 } // namespace util
 

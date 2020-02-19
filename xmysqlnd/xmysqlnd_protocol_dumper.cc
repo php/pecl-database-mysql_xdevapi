@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -38,7 +38,6 @@ namespace drv {
 
 static char hexconvtab[] = "0123456789abcdef";
 
-/* {{{ xmysqlnd_dump_string_to_log */
 void
 xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t len)
 {
@@ -52,10 +51,7 @@ xmysqlnd_dump_string_to_log(const char * prefix, const char * s, const size_t le
 	DBG_INF_FMT("%s[%u]=[%*s]", prefix, static_cast<unsigned int>(len), len, message_dump.c_str());
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_column_identifier */
 static void
 xmysqlnd_dump_column_identifier(const Mysqlx::Expr::ColumnIdentifier & column)
 {
@@ -74,10 +70,7 @@ xmysqlnd_dump_column_identifier(const Mysqlx::Expr::ColumnIdentifier & column)
 										has_schema_name? column.schema_name().c_str() : "n/a");
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_expr_doc_path_item */
 static void
 xmysqlnd_dump_expr_doc_path_item(const Mysqlx::Expr::DocumentPathItem & item)
 {
@@ -97,10 +90,7 @@ xmysqlnd_dump_expr_doc_path_item(const Mysqlx::Expr::DocumentPathItem & item)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_column */
 MYSQLX_SUPPRESS_MSVC_WARNINGS(4505)
 static void
 xmysqlnd_dump_column(const Mysqlx::Crud::Column & column)
@@ -122,11 +112,9 @@ xmysqlnd_dump_column(const Mysqlx::Crud::Column & column)
 	DBG_VOID_RETURN;
 }
 MYSQLX_RESTORE_WARNINGS()
-/* }}} */
 
 static void xmysqlnd_dump_expr(const Mysqlx::Expr::Expr & expr);
 
-/* {{{ xmysqlnd_dump_function_call */
 static void
 xmysqlnd_dump_function_call(const Mysqlx::Expr::FunctionCall & fc)
 {
@@ -152,10 +140,7 @@ xmysqlnd_dump_function_call(const Mysqlx::Expr::FunctionCall & fc)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_operator */
 static void
 xmysqlnd_dump_operator(const Mysqlx::Expr::Operator & op)
 {
@@ -171,10 +156,7 @@ xmysqlnd_dump_operator(const Mysqlx::Expr::Operator & op)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_expr */
 static void
 xmysqlnd_dump_expr(const Mysqlx::Expr::Expr & expr)
 {
@@ -246,10 +228,7 @@ xmysqlnd_dump_expr(const Mysqlx::Expr::Expr & expr)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_update_operation */
 static void
 xmysqlnd_dump_update_operation(const Mysqlx::Crud::UpdateOperation & op)
 {
@@ -272,10 +251,7 @@ xmysqlnd_dump_update_operation(const Mysqlx::Crud::UpdateOperation & op)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_client_message */
 void
 xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload, const int payload_size)
 {
@@ -603,10 +579,7 @@ xmysqlnd_dump_client_message(const zend_uchar packet_type, const void * payload,
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_column_meta */
 static void
 xmysqlnd_dump_column_meta(const Mysqlx::Resultset::ColumnMetaData & meta)
 {
@@ -662,10 +635,7 @@ xmysqlnd_dump_column_meta(const Mysqlx::Resultset::ColumnMetaData & meta)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_warning */
 static void
 xmysqlnd_dump_warning(const Mysqlx::Notice::Warning & warning)
 {
@@ -685,10 +655,7 @@ xmysqlnd_dump_warning(const Mysqlx::Notice::Warning & warning)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_changed_variable */
 static void
 xmysqlnd_dump_changed_variable(const Mysqlx::Notice::SessionVariableChanged & message)
 {
@@ -706,10 +673,7 @@ xmysqlnd_dump_changed_variable(const Mysqlx::Notice::SessionVariableChanged & me
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_changed_state */
 static void
 xmysqlnd_dump_changed_state(const Mysqlx::Notice::SessionStateChanged & message)
 {
@@ -728,10 +692,7 @@ xmysqlnd_dump_changed_state(const Mysqlx::Notice::SessionStateChanged & message)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_notice_frame */
 static void
 xmysqlnd_dump_notice_frame(const Mysqlx::Notice::Frame & frame)
 {
@@ -779,10 +740,7 @@ xmysqlnd_dump_notice_frame(const Mysqlx::Notice::Frame & frame)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_capabilities_to_log */
 static void
 xmysqlnd_dump_capabilities_to_log(const Mysqlx::Connection::Capabilities & message)
 {
@@ -793,10 +751,7 @@ xmysqlnd_dump_capabilities_to_log(const Mysqlx::Connection::Capabilities & messa
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_dump_server_message */
 void
 xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload, const int payload_size)
 {
@@ -900,17 +855,7 @@ xmysqlnd_dump_server_message(const zend_uchar packet_type, const void * payload,
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 
 } // namespace mysqlx
-
-/*
- * Local variables:{
- * tab-width: 4
- * c-basic-offset: 4
- * End:{
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

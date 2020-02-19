@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -29,7 +29,6 @@ const permanent_tag_t permanent_tag{};
 namespace internal
 {
 
-/* {{{ mysqlx::util::internal::mem_alloc */
 void* mem_alloc(std::size_t bytes_count)
 {
 	void* ptr = mnd_ecalloc(1, bytes_count);
@@ -39,18 +38,14 @@ void* mem_alloc(std::size_t bytes_count)
 		throw std::bad_alloc();
 	}
 }
-/* }}} */
 
-/* {{{ mysqlx::util::internal::mem_free */
 void mem_free(void* ptr)
 {
 	mnd_efree(ptr);
 }
-/* }}} */
 
 //------------------------------------------------------------------------------
 
-/* {{{ mysqlx::util::internal::mem_permanent_alloc */
 void* mem_permanent_alloc(std::size_t bytes_count)
 {
 	void* ptr = mnd_pecalloc(1, bytes_count, true);
@@ -60,14 +55,11 @@ void* mem_permanent_alloc(std::size_t bytes_count)
 		throw std::bad_alloc();
 	}
 }
-/* }}} */
 
-/* {{{ mysqlx::util::internal::mem_permanent_free */
 void mem_permanent_free(void* ptr)
 {
 	mnd_pefree(ptr, true);
 }
-/* }}} */
 
 } // namespace internal
 

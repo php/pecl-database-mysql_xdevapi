@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,8 +18,8 @@
 #ifndef PHP_MYSQL_XDEVAPI_H
 #define PHP_MYSQL_XDEVAPI_H
 
-#define PHP_MYSQL_XDEVAPI_VERSION "8.0.17"
-#define MYSQL_XDEVAPI_VERSION_ID 80017
+#define PHP_MYSQL_XDEVAPI_VERSION "8.0.19"
+#define MYSQL_XDEVAPI_VERSION_ID 80019
 #define PHP_MYSQL_XDEVAPI_LICENSE "PHP License, version 3.01"
 #define PHP_MYSQL_XDEVAPI_NAME   "mysql-connector-php"
 

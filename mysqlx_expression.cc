@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -56,7 +56,6 @@ ZEND_END_ARG_INFO()
 
 
 
-/* {{{ mysqlx_expression::__construct */
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
 	UNUSED(return_value);
@@ -86,20 +85,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_expression_methods[] */
 static const zend_function_entry mysqlx_expression_methods[] = {
 	PHP_ME(mysqlx_expression, __construct,		arginfo_mysqlx_expression__construct,	ZEND_ACC_PUBLIC)
 
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ proto bool mysqlx\\mysql_xdevapi__Expression(string expression)
-   Bind variables to a prepared statement as parameters */
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 {
 	MYSQLND_CSTRING expression = {nullptr, 0};
@@ -114,8 +106,6 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_expression_handlers;
 static HashTable mysqlx_expression_properties;
@@ -125,7 +115,6 @@ const struct st_mysqlx_property_entry mysqlx_expression_property_entries[] =
 	{{nullptr,	0}, nullptr, nullptr}
 };
 
-/* {{{ mysqlx_expression_free_storage */
 static void
 mysqlx_expression_free_storage(zend_object * object)
 {
@@ -138,10 +127,7 @@ mysqlx_expression_free_storage(zend_object * object)
 	}
 	mysqlx_object_free_storage(object);
 }
-/* }}} */
 
-
-/* {{{ php_mysqlx_expression_object_allocator */
 static zend_object *
 php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 {
@@ -152,10 +138,7 @@ php_mysqlx_expression_object_allocator(zend_class_entry * class_type)
 		&mysqlx_expression_properties);
 	DBG_RETURN(&mysqlx_object->zo);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_expression_class */
 void
 mysqlx_register_expression_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -177,19 +160,13 @@ mysqlx_register_expression_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * m
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_expression_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_expression_class */
 void
 mysqlx_unregister_expression_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_expression_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_expression */
 void
 mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression)
 {
@@ -210,19 +187,14 @@ mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression)
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-/* {{{ is_a_mysqlx_expression */
 zend_bool
 is_a_mysqlx_expression(const zval * const value)
 {
 	return (instanceof_function(Z_OBJCE_P(value), mysqlx_expression_class_entry));
 }
-/* }}} */
 
-
-/* {{{ is_a_mysqlx_expression */
-const zval *
+zval*
 get_mysqlx_expression(const zval * const object_zv)
 {
 	zval* ret{nullptr};
@@ -239,7 +211,6 @@ get_mysqlx_expression(const zval * const object_zv)
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
 } // namespace devapi
 

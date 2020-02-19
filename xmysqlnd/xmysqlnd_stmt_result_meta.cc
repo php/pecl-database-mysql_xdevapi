@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -28,7 +28,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_result_field_meta::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, init)(XMYSQLND_RESULT_FIELD_META * const field,
 												  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
@@ -38,10 +37,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, init)(XMYSQLND_RESULT_FIELD_META * c
 	field->object_factory = factory;
 	return PASS;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_type */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_type)(XMYSQLND_RESULT_FIELD_META * const field, enum xmysqlnd_field_type type)
 {
@@ -50,10 +46,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_type)(XMYSQLND_RESULT_FIELD_META
 	field->type_set = TRUE;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_set_mysqlnd_string */
 static inline enum_func_status
 xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, const size_t value_len, const zend_bool persistent MYSQLND_MEM_D)
 {
@@ -69,10 +62,7 @@ xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, cons
 	}
 	return PASS;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_name */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_name)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
@@ -94,60 +84,42 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_name)(XMYSQLND_RESULT_FIELD_META
 
 	DBG_RETURN(field->name.s? PASS:FAIL);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_original_name */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_original_name)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_original_name");
 	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->original_name, str, len, field->persistent MYSQLND_MEM_C));
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_table */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_table)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_table");
 	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->table, str, len, field->persistent MYSQLND_MEM_C));
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_original_table */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_original_table)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_original_table");
 	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->original_table, str, len, field->persistent MYSQLND_MEM_C));
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_schema */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_schema)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_schema");
 	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->schema, str, len, field->persistent MYSQLND_MEM_C));
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_catalog */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_catalog)(XMYSQLND_RESULT_FIELD_META * const field, const char * const str, const size_t len)
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::set_catalog");
 	DBG_RETURN(xmysqlnd_set_mysqlnd_string(&field->catalog, str, len, field->persistent MYSQLND_MEM_C));
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_collation */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_collation)(XMYSQLND_RESULT_FIELD_META * const field, const uint64_t collation)
 {
@@ -156,10 +128,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_collation)(XMYSQLND_RESULT_FIELD
 	field->collation_set = TRUE;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_fractional_digits */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_fractional_digits)(XMYSQLND_RESULT_FIELD_META * const field, const uint32_t digits)
 {
@@ -168,10 +137,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_fractional_digits)(XMYSQLND_RESU
 	field->fractional_digits_set = TRUE;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_length */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_length)(XMYSQLND_RESULT_FIELD_META * const field, const uint32_t length)
 {
@@ -180,10 +146,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_length)(XMYSQLND_RESULT_FIELD_ME
 	field->length_set = TRUE;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_flags */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_flags)(XMYSQLND_RESULT_FIELD_META * const field, const uint32_t flags)
 {
@@ -192,10 +155,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_flags)(XMYSQLND_RESULT_FIELD_MET
 	field->flags_set = TRUE;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::set_content_type */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_content_type)(XMYSQLND_RESULT_FIELD_META * const field, const uint32_t content_type)
 {
@@ -204,10 +164,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_content_type)(XMYSQLND_RESULT_FI
 	field->content_type_set = TRUE;
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::clone */
 static XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, clone)(const XMYSQLND_RESULT_FIELD_META * const origin, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -230,10 +187,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, clone)(const XMYSQLND_RESULT_FIELD_M
 	}
 	DBG_RETURN(cloned);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD_META * const field)
 {
@@ -282,10 +236,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD
 					field->content_type_set = FALSE;
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(
 	XMYSQLND_RESULT_FIELD_META* const field,
@@ -299,8 +250,6 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, dtor)(
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_result_field_meta)
@@ -325,7 +274,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_result_field_meta);
 
-/* {{{ xmysqlnd_result_field_meta_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_RESULT_FIELD_META *
 xmysqlnd_result_field_meta_create(const zend_bool persistent,
 								  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -337,10 +285,7 @@ xmysqlnd_result_field_meta_create(const zend_bool persistent,
 	object = object_factory->get_result_field_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_result_field_meta_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD_META * const object, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -350,13 +295,10 @@ xmysqlnd_result_field_meta_free(XMYSQLND_RESULT_FIELD_META * const object, MYSQL
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 /*******************************************************************************************************************************************/
 
 
-/* {{{ xmysqlnd_stmt_result_meta::init */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, init)(
 	XMYSQLND_STMT_RESULT_META* const /*meta*/,
@@ -365,10 +307,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, init)(
 {
 	return PASS;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_result_meta::add_field */
 static enum_func_status
 XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, add_field)(
 	XMYSQLND_STMT_RESULT_META* const meta,
@@ -389,28 +328,19 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, add_field)(
 
 	DBG_RETURN(PASS);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_result_meta::count */
 static unsigned int
 XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, count)(const XMYSQLND_STMT_RESULT_META * const meta)
 {
 	return (meta->field_count);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_result_meta::get_field */
 static const XMYSQLND_RESULT_FIELD_META *
 XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, get_field)(const XMYSQLND_STMT_RESULT_META * const meta, unsigned int field)
 {
 	return((meta->field_count > 0 && field < meta->field_count)? meta->fields[field] : nullptr);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_result_meta::free_contents */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, free_contents)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -424,10 +354,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, free_contents)(XMYSQLND_STMT_RESULT_M
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_result_meta::dtor */
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, dtor)(XMYSQLND_STMT_RESULT_META * const meta, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -438,8 +365,6 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result_meta, dtor)(XMYSQLND_STMT_RESULT_META * con
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
-
 
 static
 MYSQLND_CLASS_METHODS_START(xmysqlnd_stmt_result_meta)
@@ -454,7 +379,6 @@ MYSQLND_CLASS_METHODS_END;
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_stmt_result_meta);
 
-/* {{{ xmysqlnd_stmt_result_meta_create */
 PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_RESULT_META *
 xmysqlnd_stmt_result_meta_create(const zend_bool persistent,
 									  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -466,10 +390,7 @@ xmysqlnd_stmt_result_meta_create(const zend_bool persistent,
 	object = object_factory->get_stmt_result_meta(object_factory, persistent, stats, error_info);
 	DBG_RETURN(object);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_stmt_result_meta_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_stmt_result_meta_free(XMYSQLND_STMT_RESULT_META * const object, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -479,7 +400,6 @@ xmysqlnd_stmt_result_meta_free(XMYSQLND_STMT_RESULT_META * const object, MYSQLND
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

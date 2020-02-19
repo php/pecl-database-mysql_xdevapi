@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -24,7 +24,6 @@ namespace mysqlx {
 
 namespace drv {
 
-/* {{{ Environment */
 struct Environment
 {
 	enum class Variable
@@ -38,7 +37,6 @@ struct Environment
 	static int get_as_int(Variable var);
 
 };
-/* }}} */
 
 } // namespace drv
 

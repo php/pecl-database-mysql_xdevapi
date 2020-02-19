@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -25,11 +25,10 @@ namespace mysqlx {
 
 namespace util {
 
-/* {{{ zvalue */
 class zvalue
 {
 	public:
-		enum Type {
+		enum class Type {
 			Undefined = IS_UNDEF,
 			Null = IS_NULL,
 			False = IS_FALSE,
@@ -70,6 +69,8 @@ class zvalue
 		zvalue(const std::string& value);
 		zvalue(const char* value);
 		zvalue(const char* value, std::size_t length);
+
+		zvalue(std::initializer_list<std::pair<const char*, zvalue>> values);
 
 		template<typename T>
 		zvalue(std::initializer_list<T> values);
@@ -114,6 +115,8 @@ class zvalue
 		zvalue& operator=(const char* value);
 
 		void assign(const char* value, std::size_t length);
+
+		zvalue& operator=(std::initializer_list<std::pair<const char*, zvalue>> values);
 
 		template<typename T>
 		zvalue& operator=(std::initializer_list<T> values);
@@ -188,6 +191,8 @@ class zvalue
 		// new fully separated item, not just next reference incremented
 		zvalue clone() const;
 
+		static zvalue clone_from(zval* src);
+
 		// take over ownership of passed zval
 		void acquire(zval* zv);
 		void acquire(zval& zv);
@@ -196,9 +201,13 @@ class zvalue
 		void copy_to(zval* zv);
 		void copy_to(zval& zv);
 
+		static void copy_to(zval* src, zval* dst);
+
 		// moves value to zv, and sets type to undefined
 		void move_to(zval* zv);
 		void move_to(zval& zv);
+
+		static void move_to(zval* src, zval* dst);
 
 		// increment / decrement reference counter if type is refcounted, else does nothing
 		void inc_ref() const;
@@ -294,9 +303,20 @@ class zvalue
 		void insert(const char* key, zvalue&& value);
 		void insert(const char* key, std::size_t key_length, zvalue&& value);
 
+		template<typename Key, typename Value>
+		void insert(const std::pair<Key, Value>& key_value);
+
+		void insert(std::initializer_list<std::pair<const char*, zvalue>> values);
+
+		template<typename Key, typename Value>
+		void append(std::initializer_list<std::pair<Key, Value>> values);
+
 		// adds new item at the next free index
 		void push_back(const zvalue& value);
 		void push_back(zvalue&& value);
+
+		template<typename T>
+		void push_back(std::initializer_list<T> values);
 
 		// returns true if item was erased, or false if given index/key didn't exist
 		bool erase(std::size_t index);
@@ -320,7 +340,7 @@ class zvalue
 				using iterator_category = std::forward_iterator_tag;
 
 			public:
-				explicit iterator(HashTable* ht, HashPosition pos);
+				explicit iterator(HashTable* ht, HashPosition size, HashPosition pos);
 
 				iterator operator++(int);
 				iterator& operator++();
@@ -332,6 +352,7 @@ class zvalue
 
 			private:
 				HashTable* ht;
+				HashPosition size;
 				mutable HashPosition pos;
 		};
 
@@ -350,7 +371,7 @@ class zvalue
 				using iterator_category = std::forward_iterator_tag;
 
 			public:
-				explicit value_iterator(HashTable* ht, HashPosition pos);
+				explicit value_iterator(HashTable* ht, HashPosition size, HashPosition pos);
 
 				value_iterator operator++(int);
 				value_iterator& operator++();
@@ -362,6 +383,7 @@ class zvalue
 
 			private:
 				HashTable* ht;
+				HashPosition size;
 				mutable HashPosition pos;
 		};
 
@@ -385,7 +407,6 @@ class zvalue
 	private:
 		zval zv;
 };
-/* }}} */
 
 } // namespace util
 

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | rhs is bundled with this package in the file LICENSE, and is        |
@@ -50,39 +50,39 @@ zvalue::zvalue()
 zvalue::zvalue(Type type)
 {
 	switch (type) {
-	case Undefined:
+	case Type::Undefined:
 		ZVAL_UNDEF(&zv);
 		break;
 
-	case Null:
+	case Type::Null:
 		ZVAL_NULL(&zv);
 		break;
 
-	case False:
+	case Type::False:
 		ZVAL_FALSE(&zv);
 		break;
 
-	case True:
+	case Type::True:
 		ZVAL_TRUE(&zv);
 		break;
 
-	case Long:
+	case Type::Long:
 		ZVAL_LONG(&zv, 0);
 		break;
 
-	case Double:
+	case Type::Double:
 		ZVAL_DOUBLE(&zv, 0.0);
 		break;
 
-	case String:
+	case Type::String:
 		ZVAL_EMPTY_STRING(&zv);
 		break;
 
-	case Array:
+	case Type::Array:
 		array_init(&zv);
 		break;
 
-	case Object:
+	case Type::Object:
 		object_init(&zv);
 		break;
 
@@ -187,6 +187,12 @@ zvalue::zvalue(const char* value, std::size_t length)
 {
 	ZVAL_UNDEF(&zv);
 	assign(value, length);
+}
+
+zvalue::zvalue(std::initializer_list<std::pair<const char*, zvalue>> values)
+{
+	ZVAL_UNDEF(&zv);
+	insert(values);
 }
 
 zvalue zvalue::create_array(std::size_t size)
@@ -343,6 +349,12 @@ void zvalue::assign(const char* value, std::size_t length)
 	assert(value && length);
 	zval_ptr_dtor(&zv);
 	ZVAL_STRINGL(&zv, value, length);
+}
+
+zvalue& zvalue::operator=(std::initializer_list<std::pair<const char*, zvalue>> values)
+{
+	insert(values);
+	return *this;
 }
 
 // -----------------------------------------------------------------------------
@@ -503,8 +515,15 @@ void zvalue::clear()
 
 void zvalue::reserve(std::size_t size)
 {
-	zval_ptr_dtor(&zv);
-	array_init_size(&zv, static_cast<uint32_t>(size));
+	if (is_array()) {
+		zend_hash_extend(
+			Z_ARRVAL(zv),
+			static_cast<uint32_t>(size),
+			(Z_ARRVAL(zv)->u.flags & HASH_FLAG_PACKED));
+	} else {
+		zval_ptr_dtor(&zv);
+		array_init_size(&zv, static_cast<uint32_t>(size));
+	}
 }
 
 void zvalue::reset()
@@ -521,25 +540,45 @@ zvalue zvalue::clone() const
 	return result;
 }
 
-void zvalue::acquire(zval* other)
+zvalue zvalue::clone_from(zval* src)
 {
-	assert(other);
+	zvalue result;
+	ZVAL_DUP(&result.zv, src);
+	return result;
+}
+
+void zvalue::acquire(zval* src)
+{
+	assert(src);
 	zval_ptr_dtor(&zv);
-	ZVAL_ZVAL(&zv, other, 1, 1);
-	ZVAL_UNDEF(other);
+	ZVAL_ZVAL(&zv, src, 1, 1);
+	ZVAL_UNDEF(src);
 }
 
-void zvalue::copy_to(zval* other)
+void zvalue::copy_to(zval* dst)
 {
-	assert(other);
-	ZVAL_ZVAL(other, &zv, 1, 0);
+	assert(dst);
+	ZVAL_ZVAL(dst, &zv, 1, 0);
 }
 
-void zvalue::move_to(zval* other)
+void zvalue::copy_to(zval* src, zval* dst)
 {
-	assert(other);
-	ZVAL_ZVAL(other, &zv, 1, 1);
+	assert(src && dst);
+	ZVAL_ZVAL(dst, src, 1, 0);
+}
+
+void zvalue::move_to(zval* dst)
+{
+	assert(dst);
+	ZVAL_ZVAL(dst, &zv, 1, 1);
 	ZVAL_UNDEF(&zv);
+}
+
+void zvalue::move_to(zval* src, zval* dst)
+{
+	assert(src && dst);
+	ZVAL_ZVAL(dst, src, 1, 1);
+	ZVAL_UNDEF(src);
 }
 
 zval zvalue::release()
@@ -703,22 +742,25 @@ bool zvalue::erase(const char* key, std::size_t key_length)
 
 // -----------------------------------------------------------------------------
 
-zvalue::iterator::iterator(HashTable* ht, HashPosition pos)
+zvalue::iterator::iterator(HashTable* ht, HashPosition size, HashPosition pos)
 	: ht(ht)
+	, size(size)
 	, pos(pos)
 {
 }
 
 zvalue::iterator zvalue::iterator::operator++(int)
 {
-	iterator it(ht, pos);
+	iterator it(ht, size, pos);
 	++(*this);
 	return it;
 }
 
 zvalue::iterator& zvalue::iterator::operator++()
 {
-	zend_hash_move_forward_ex(ht, &pos);
+	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
+		pos = HT_INVALID_IDX;
+	}
 	return *this;
 }
 
@@ -727,7 +769,7 @@ zvalue::iterator::value_type zvalue::iterator::operator*() const
 	zvalue key;
 	zend_hash_get_current_key_zval_ex(ht, key.ptr(), &pos);
 	assert(!key.is_null());
-	zvalue value{ zend_hash_get_current_data_ex(ht, &pos) };
+	zvalue value(zend_hash_get_current_data_ex(ht, &pos));
 	return std::make_pair(key, value);
 }
 
@@ -749,33 +791,36 @@ zvalue::iterator zvalue::begin() const
 	HashTable* ht{ Z_ARRVAL(ref()) };
 	HashPosition pos{ HT_INVALID_IDX };
 	zend_hash_internal_pointer_reset_ex(ht, &pos);
-	return iterator(ht, pos);
+	return iterator(ht, static_cast<HashPosition>(size()), pos);
 }
 
 zvalue::iterator zvalue::end() const
 {
 	assert(is_array());
-	return iterator(Z_ARRVAL(ref()), HT_INVALID_IDX);
+	return iterator(Z_ARRVAL(ref()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
 }
 
 // -----------------------------------------------------------------------------
 
-zvalue::value_iterator::value_iterator(HashTable* ht, HashPosition pos)
+zvalue::value_iterator::value_iterator(HashTable* ht, HashPosition size, HashPosition pos)
 	: ht(ht)
+	, size(size)
 	, pos(pos)
 {
 }
 
 zvalue::value_iterator zvalue::value_iterator::operator++(int)
 {
-	value_iterator it(ht, pos);
+	value_iterator it(ht, size, pos);
 	++(*this);
 	return it;
 }
 
 zvalue::value_iterator& zvalue::value_iterator::operator++()
 {
-	zend_hash_move_forward_ex(ht, &pos);
+	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
+		pos = HT_INVALID_IDX;
+	}
 	return *this;
 }
 
@@ -802,13 +847,13 @@ zvalue::value_iterator zvalue::vbegin() const
 	HashTable* ht{ Z_ARRVAL(ref()) };
 	HashPosition pos{ HT_INVALID_IDX };
 	zend_hash_internal_pointer_reset_ex(ht, &pos);
-	return value_iterator(ht, pos);
+	return value_iterator(ht, static_cast<HashPosition>(size()), pos);
 }
 
 zvalue::value_iterator zvalue::vend() const
 {
 	assert(is_array());
-	return value_iterator(Z_ARRVAL(ref()), HT_INVALID_IDX);
+	return value_iterator(Z_ARRVAL(ref()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
 }
 
 } // namespace util

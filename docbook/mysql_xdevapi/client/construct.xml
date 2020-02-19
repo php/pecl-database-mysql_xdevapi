@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- $Revision$ -->
 
-<refentry xml:id="mysql-xdevapi-xsession.construct" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+<refentry xml:id="mysql-xdevapi-client.construct" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
  <refnamediv>
-  <refname>XSession::__construct</refname>
-  <refpurpose>Description constructor</refpurpose>
+  <refname>Client::__construct</refname>
+  <refpurpose>Client constructor</refpurpose>
  </refnamediv>
 
  <refsect1 role="description">
   &reftitle.description;
   <constructorsynopsis>
-   <modifier>private</modifier> <methodname>mysql_xdevapi\XSession::__construct</methodname>
+   <modifier>private</modifier> <methodname>mysql_xdevapi\Client::__construct</methodname>
    <void />
   </constructorsynopsis>
   <para>
-
+   Construct a client object.
   </para>
-
-  &warn.undocumented.func;
-
  </refsect1>
 
  <refsect1 role="parameters">
@@ -26,34 +23,25 @@
   &no.function.parameters;
  </refsect1>
 
- <!-- Return values commented out, as constructors generally don't return a
-      value. Uncomment this if you do need a return values section (for
-      example, because there's also a procedural version of the method).
- <refsect1 role="returnvalues">
-  &reftitle.returnvalues;
-  <para>
-   
-  </para>
- </refsect1>
- -->
-
-
- <refsect1 role="examples">
+<refsect1 role="examples">
   &reftitle.examples;
   <example>
-   <title><function>mysql_xdevapi\XSession::__construct</function> example</title>
+   <title><function>mysql_xdevapi\Client::__construct</function> example</title>
    <programlisting role="php">
 <![CDATA[
 <?php
-
-/* ... */
-
-?>
+$pooling_options = '{
+  "enabled": true,
+    "maxSize": 10,
+    "maxIdleTime": 3600,
+    "queueTimeOut": 1000
+}';
+$client = mysql_xdevapi\getClient($connection_uri, $pooling_options);
+$session = $client->getSession();
 ]]>
    </programlisting>
   </example>
  </refsect1>
-
 
 </refentry>
 

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -44,7 +44,6 @@ struct st_mysqlx__result_iterator : util::custom_allocable
 };
 
 
-/* {{{ mysqlx__result_iterator::dtor */
 static void
 XMYSQLND_METHOD(mysqlx__result_iterator, dtor)(zend_object_iterator * iter)
 {
@@ -59,10 +58,7 @@ XMYSQLND_METHOD(mysqlx__result_iterator, dtor)(zend_object_iterator * iter)
 	zval_ptr_dtor(&iterator->current_row);
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx__result_iterator::valid */
 static int
 XMYSQLND_METHOD(mysqlx__result_iterator, valid)(zend_object_iterator * iter)
 {
@@ -71,12 +67,9 @@ XMYSQLND_METHOD(mysqlx__result_iterator, valid)(zend_object_iterator * iter)
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	DBG_RETURN(iterator->usable? SUCCESS:FAILURE);
 }
-/* }}} */
-
 
 #include <ext/standard/php_var.h>
 
-/* {{{ mysqlx__result_iterator::current_data */
 static zval *
 XMYSQLND_METHOD(mysqlx__result_iterator, current_data)(zend_object_iterator * iter)
 {
@@ -85,10 +78,7 @@ XMYSQLND_METHOD(mysqlx__result_iterator, current_data)(zend_object_iterator * it
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	DBG_RETURN((iterator->result && iterator->usable)? &iterator->current_row : nullptr);
 }
-/* }}} */
 
-
-/* {{{ mysqlx__result_iterator::fetch_current_data */
 static enum_func_status
 XMYSQLND_METHOD(mysqlx__result_iterator, fetch_current_data)(zend_object_iterator * iter)
 {
@@ -109,10 +99,7 @@ XMYSQLND_METHOD(mysqlx__result_iterator, fetch_current_data)(zend_object_iterato
 	}
 	DBG_RETURN(FAIL);
 }
-/* }}} */
 
-
-/* {{{ mysqlx__result_iterator::next */
 static void
 XMYSQLND_METHOD(mysqlx__result_iterator, next)(zend_object_iterator * iter)
 {
@@ -130,10 +117,7 @@ XMYSQLND_METHOD(mysqlx__result_iterator, next)(zend_object_iterator * iter)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx__result_iterator::rewind */
 static void
 XMYSQLND_METHOD(mysqlx__result_iterator, rewind)(zend_object_iterator * iter)
 {
@@ -155,10 +139,7 @@ XMYSQLND_METHOD(mysqlx__result_iterator, rewind)(zend_object_iterator * iter)
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx__result_iterator_funcs */
 static zend_object_iterator_funcs mysqlx__result_iterator_funcs =
 {
 	XMYSQLND_METHOD(mysqlx__result_iterator, dtor),
@@ -168,10 +149,7 @@ static zend_object_iterator_funcs mysqlx__result_iterator_funcs =
 	XMYSQLND_METHOD(mysqlx__result_iterator, next),
 	XMYSQLND_METHOD(mysqlx__result_iterator, rewind),
 };
-/* }}} */
 
-
-/* {{{ mysqlx__result_create_iterator */
 static zend_object_iterator *
 mysqlx__result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
 {
@@ -183,10 +161,7 @@ mysqlx__result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
 		by_ref);
 	DBG_RETURN(iterator);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_register_result_iterator */
 void
 mysqlx_register_result_iterator(zend_class_entry * ce)
 {
@@ -197,7 +172,6 @@ mysqlx_register_result_iterator(zend_class_entry * ce)
 
 	zend_class_implements(ce, 1, zend_ce_traversable);
 }
-/* }}} */
 
 } // namespace devapi
 

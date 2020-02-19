@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -25,26 +25,19 @@ namespace mysqlx {
 
 namespace devapi {
 
-/* {{{ mysqlx_fetch_object_from_zo */
 st_mysqlx_object* mysqlx_fetch_object_from_zo(zend_object * obj)
 {
 	/* Go back `XtOffsetOf of zo in st_mysqlx_object` bytes from `obj`  */
 	return (st_mysqlx_object*)((char*)(obj) - XtOffsetOf(struct st_mysqlx_object, zo));
 }
-/* }}} */
 
-
-/* {{{ mysqlx_object_free_storage */
 void
 mysqlx_object_free_storage(zend_object * object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	zend_object_std_dtor(&mysqlx_object->zo);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_object_get_debug_info */
 HashTable *
 mysqlx_object_get_debug_info(zval *object, int *is_temp)
 {
@@ -72,7 +65,6 @@ mysqlx_object_get_debug_info(zval *object, int *is_temp)
 	*is_temp = 1;
 	return retval;
 }
-/* }}} */
 
 } // namespace devapi
 

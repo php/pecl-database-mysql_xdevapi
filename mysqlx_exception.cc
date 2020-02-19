@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -59,14 +59,10 @@ RAISE_EXCEPTION(const int errcode, const char * const msg)
 	} \
 }
 
-/* {{{ mysqlx_exception_methods[] */
 static const zend_function_entry mysqlx_exception_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ mysqlx_exception_property__message */
 static zval *
 mysqlx_exception_property__message(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -86,10 +82,7 @@ mysqlx_exception_property__message(const st_mysqlx_object* obj, zval * return_va
 	}
 	DBG_RETURN(return_value);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_exception_property__level */
 static zval *
 mysqlx_exception_property__level(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -98,10 +91,7 @@ mysqlx_exception_property__level(const st_mysqlx_object* obj, zval * return_valu
 	ZVAL_LONG(return_value, object->level);
 	DBG_RETURN(return_value);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_exception_property__code */
 static zval *
 mysqlx_exception_property__code(const st_mysqlx_object* obj, zval * return_value)
 {
@@ -111,10 +101,7 @@ mysqlx_exception_property__code(const st_mysqlx_object* obj, zval * return_value
 	ZVAL_LONG(return_value, object->code);
 	DBG_RETURN(return_value);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_column_meta_property_entries[] */
 static const struct st_mysqlx_property_entry mysqlx_exception_property_entries[] =
 {
 	{{"message",			sizeof("message") - 1},		mysqlx_exception_property__message,	nullptr},
@@ -122,14 +109,11 @@ static const struct st_mysqlx_property_entry mysqlx_exception_property_entries[]
 	{{"code",				sizeof("code") - 1},		mysqlx_exception_property__code,		nullptr},
 	{{nullptr, 				0},							nullptr, 								nullptr}
 };
-/* }}} */
-
 
 static zend_object_handlers mysqlx_object_exception_handlers;
 static HashTable mysqlx_exception_properties;
 
 
-/* {{{ mysqlx_register_exception_class */
 void
 mysqlx_register_exception_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
 {
@@ -145,19 +129,13 @@ mysqlx_register_exception_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * my
 
 	mysqlx_add_properties(&mysqlx_exception_properties, mysqlx_exception_property_entries);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_exception_class */
 void
 mysqlx_unregister_exception_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 	zend_hash_destroy(&mysqlx_exception_properties);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_exception */
 void
 mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
 {
@@ -170,10 +148,7 @@ mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, c
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_new_exception_ex */
 void
 mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING /*sql_state*/, const char * const format, ...)
 {
@@ -189,7 +164,6 @@ mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING /*sql_sta
 	mnd_efree(msg);
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace devapi
 

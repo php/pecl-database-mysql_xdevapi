@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -60,7 +60,6 @@ namespace devapi {
 
 using namespace drv;
 
-/* {{{ mysqlx_minit_classes */
 PHP_MYSQL_XDEVAPI_API int
 mysqlx_minit_classes(INIT_FUNC_ARGS)
 {
@@ -166,10 +165,7 @@ mysqlx_minit_classes(INIT_FUNC_ARGS)
 
 	return SUCCESS;
 }
-/* }}} */
 
-
-/* {{{ mysqlx_mshutdown_classes */
 PHP_MYSQL_XDEVAPI_API int
 mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 {
@@ -215,7 +211,6 @@ mysqlx_mshutdown_classes(SHUTDOWN_FUNC_ARGS)
 	UNREGISTER_INI_ENTRIES();
 	return SUCCESS;
 }
-/* }}} */
 
 } // namespace devapi
 

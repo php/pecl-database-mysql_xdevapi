@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -32,13 +32,13 @@ extern "C" {
 #include "xmysqlnd_utils.h"
 #include "mysqlx_exception.h"
 #include "util/exceptions.h"
+#include "util/pb_utils.h"
 #include "xmysqlnd_extension_plugin.h"
 
 namespace mysqlx {
 
 namespace drv {
 
-/* {{{ xmysqlnd_collection::xmysqlnd_collection */
 xmysqlnd_collection::xmysqlnd_collection(
 								xmysqlnd_schema * const cur_schema,
 								const MYSQLND_CSTRING cur_collection_name,
@@ -53,7 +53,6 @@ xmysqlnd_collection::xmysqlnd_collection(
 	DBG_INF_FMT("name=[%d]%*s", collection_name.l, collection_name.l, collection_name.s);
 
 }
-/* }}} */
 
 struct st_collection_exists_in_database_var_binder_ctx
 {
@@ -62,51 +61,25 @@ struct st_collection_exists_in_database_var_binder_ctx
 	unsigned int counter;
 };
 
-
-/* {{{ collection_op_var_binder */
-static const enum_hnd_func_status
-collection_op_var_binder(
-	void * context,
+static const enum_hnd_func_status collection_op_var_binder(
+	void* context,
 	XMYSQLND_SESSION session,
-	XMYSQLND_STMT_OP__EXECUTE * const stmt_execute)
+	XMYSQLND_STMT_OP__EXECUTE* const stmt_execute)
 {
-	enum_hnd_func_status ret{HND_FAIL};
-	st_collection_exists_in_database_var_binder_ctx* ctx = (st_collection_exists_in_database_var_binder_ctx*) context;
-	const MYSQLND_CSTRING* param{nullptr};
 	DBG_ENTER("collection_op_var_binder");
-	switch (ctx->counter) {
-		case 0:
-			param = &ctx->schema_name;
-			ret = HND_AGAIN;
-			goto bind;
-		case 1:{
-			param = &ctx->collection_name;
-			ret = HND_PASS;
-bind:
-			{
-				enum_func_status result;
-				zval zv;
-				ZVAL_UNDEF(&zv);
-				ZVAL_STRINGL(&zv, param->s, param->l);
-				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
-				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
 
-				zval_ptr_dtor(&zv);
-				if (FAIL == result) {
-					ret = HND_FAIL;
-				}
-			}
-			break;
-		}
-		default:
-			assert(!"should not happen");
-			break;
-	}
-	++ctx->counter;
-	DBG_RETURN(ret);
+	st_collection_exists_in_database_var_binder_ctx* ctx
+		= static_cast<st_collection_exists_in_database_var_binder_ctx*>(context);
+
+	Mysqlx::Sql::StmtExecute& stmt_message = xmysqlnd_stmt_execute__get_pb_msg(stmt_execute);
+
+	util::pb::Object* stmt_obj{util::pb::add_object_arg(stmt_message)};
+
+	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
+	util::pb::add_field_to_object("pattern", ctx->collection_name, stmt_obj);
+
+	DBG_RETURN(HND_PASS);
 }
-/* }}} */
-
 
 struct collection_exists_in_database_ctx
 {
@@ -115,9 +88,8 @@ struct collection_exists_in_database_ctx
 };
 
 
-/* {{{ collection_xplugin_op_on_row */
 static const enum_hnd_func_status
-collection_xplugin_op_on_row(
+collection_mysqlx_op_on_row(
 	void * context,
 	XMYSQLND_SESSION session,
 	xmysqlnd_stmt * const /*stmt*/,
@@ -127,7 +99,7 @@ collection_xplugin_op_on_row(
 	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	collection_exists_in_database_ctx* ctx = static_cast<collection_exists_in_database_ctx*>(context);
-	DBG_ENTER("collection_xplugin_op_on_row");
+	DBG_ENTER("collection_mysqlx_op_on_row");
 	if (ctx && row) {
 		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
@@ -137,17 +109,10 @@ collection_xplugin_op_on_row(
 		{
 			ZVAL_TRUE(ctx->exists);
 		}
-		else
-		{
-			ZVAL_FALSE(ctx->exists);
-		}
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::exists_in_database */
 enum_func_status
 xmysqlnd_collection::exists_in_database(
 	struct st_xmysqlnd_session_on_error_bind on_error,
@@ -171,9 +136,9 @@ xmysqlnd_collection::exists_in_database(
 		exists
 	};
 
-	const st_xmysqlnd_session_on_row_bind on_row = { collection_xplugin_op_on_row, &on_row_ctx };
+	const st_xmysqlnd_session_on_row_bind on_row = { collection_mysqlx_op_on_row, &on_row_ctx };
 
-	ret = schema->get_session()->query_cb(namespace_xplugin,
+	ret = schema->get_session()->query_cb(namespace_mysqlx,
 							   query,
 							   var_binder,
 							   noop__on_result_start,
@@ -185,8 +150,6 @@ xmysqlnd_collection::exists_in_database(
 
 	DBG_RETURN(ret);
 }
-/* }}} */
-
 
 struct st_collection_sql_single_result_ctx
 {
@@ -194,7 +157,6 @@ struct st_collection_sql_single_result_ctx
 };
 
 
-/* {{{ collection_xplugin_op_on_row */
 static const enum_hnd_func_status
 collection_sql_single_result_op_on_row(
 	void * context,
@@ -206,16 +168,13 @@ collection_sql_single_result_op_on_row(
 	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
 	st_collection_sql_single_result_ctx* ctx = (st_collection_sql_single_result_ctx*) context;
-	DBG_ENTER("collection_xplugin_op_on_row");
+	DBG_ENTER("collection_sql_single_result_op_on_row");
 	if (ctx && row) {
 		ZVAL_COPY_VALUE(ctx->result, &row[0]);
 	}
 	DBG_RETURN(HND_AGAIN);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::count */
 enum_func_status
 xmysqlnd_collection::count(
 	struct st_xmysqlnd_session_on_error_bind on_error,
@@ -254,9 +213,7 @@ xmysqlnd_collection::count(
 	mnd_sprintf_free(query_str);
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-/* {{{ xmysqlnd_collection::add */
 xmysqlnd_stmt *
 xmysqlnd_collection::add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 {
@@ -279,10 +236,7 @@ xmysqlnd_collection::add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op)
 
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::remove */
 xmysqlnd_stmt *
 xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 {
@@ -308,7 +262,7 @@ xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 			DBG_INF(stmt != nullptr? "PASS":"FAIL");
 		}
 	}else{
-		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()));
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bindings.size()));
 		if (!op || FAIL == xmysqlnd_crud_collection_remove__finalize_bind(op)) {
 			DBG_RETURN(stmt);
 		}
@@ -330,17 +284,14 @@ xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 		}
 
 		if( ps_data->prepare_msg_delivered( res.second ) &&
-			ps_data->bind_values( res.second, op->bound_values ) ) {
+			ps_data->bind_values( res.second, op->bindings.get_bound_values() ) ) {
 			stmt = ps_data->send_execute_msg( res.second );
 		}
 	}
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::modify */
 xmysqlnd_stmt *
 xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 {
@@ -354,7 +305,7 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 	}
 	if( false == ps_data->is_ps_supported() ) {
 		if ( !ps_data->is_bind_finalized( op->ps_message_id ) &&
-			 FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
+			 !xmysqlnd_crud_collection_modify__finalize_bind(op)) {
 			DBG_RETURN(stmt);
 		}
 		if (xmysqlnd_crud_collection_modify__is_initialized(op)) {
@@ -367,8 +318,8 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 		}
 		DBG_INF(stmt != nullptr? "PASS":"FAIL");
 	} else {
-		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()) );
-		if ( FAIL == xmysqlnd_crud_collection_modify__finalize_bind(op)) {
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bindings.size()) );
+		if (!xmysqlnd_crud_collection_modify__finalize_bind(op)) {
 			DBG_RETURN(stmt);
 		}
 		op->ps_message_id = res.second;
@@ -388,17 +339,14 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 		}
 
 		if( ps_data->prepare_msg_delivered( res.second ) &&
-			ps_data->bind_values( res.second, op->bound_values ) ) {
+			ps_data->bind_values( res.second, op->bindings.get_bound_values() ) ) {
 			stmt = ps_data->send_execute_msg( res.second );
 		}
 	}
 
 	DBG_RETURN(stmt);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::find */
 xmysqlnd_stmt*
 xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 {
@@ -425,7 +373,7 @@ xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 			}
 		}
 	} else {
-		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bound_values.size()) );
+		auto res = ps_data->add_message( op->message, static_cast<uint32_t>(op->bindings.size()) );
 		if ( FAIL == xmysqlnd_crud_collection_find__finalize_bind(op) ) {
 			DBG_RETURN(stmt);
 		}
@@ -440,16 +388,13 @@ xmysqlnd_collection::find(XMYSQLND_CRUD_COLLECTION_OP__FIND * op)
 			}
 		}
 		if( ps_data->prepare_msg_delivered( res.second ) &&
-			ps_data->bind_values( res.second, op->bound_values ) ) {
+			ps_data->bind_values( res.second, op->bindings.get_bound_values() ) ) {
 			stmt = ps_data->send_execute_msg( res.second );
 		}
 	}
 	DBG_RETURN(stmt);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::get_reference */
 xmysqlnd_collection *
 xmysqlnd_collection::get_reference()
 {
@@ -458,10 +403,7 @@ xmysqlnd_collection::get_reference()
 	DBG_INF_FMT("new_refcount=%u", refcount);
 	DBG_RETURN(this);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::free_reference */
 enum_func_status
 xmysqlnd_collection::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -473,10 +415,7 @@ xmysqlnd_collection::free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * 
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::free_contents */
 void
 xmysqlnd_collection::free_contents()
 {
@@ -487,10 +426,7 @@ xmysqlnd_collection::free_contents()
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection::cleanup */
 void
 xmysqlnd_collection::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -500,10 +436,7 @@ xmysqlnd_collection::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_i
 
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection_create */
 PHP_MYSQL_XDEVAPI_API xmysqlnd_collection *
 xmysqlnd_collection_create(xmysqlnd_schema * schema,
 								const MYSQLND_CSTRING collection_name,
@@ -522,10 +455,7 @@ xmysqlnd_collection_create(xmysqlnd_schema * schema,
 	}
 	DBG_RETURN(ret);
 }
-/* }}} */
 
-
-/* {{{ xmysqlnd_collection_free */
 PHP_MYSQL_XDEVAPI_API void
 xmysqlnd_collection_free(xmysqlnd_collection * const collection, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
@@ -537,7 +467,6 @@ xmysqlnd_collection_free(xmysqlnd_collection * const collection, MYSQLND_STATS *
 	}
 	DBG_VOID_RETURN;
 }
-/* }}} */
 
 } // namespace drv
 

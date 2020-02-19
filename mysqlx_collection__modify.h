@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -13,12 +13,16 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef MYSQLX_COLLECTION__MODIFY_H
 #define MYSQLX_COLLECTION__MODIFY_H
 
 namespace mysqlx {
+
+namespace util { class zvalue; }
 
 namespace drv {
 
@@ -29,85 +33,56 @@ struct st_xmysqlnd_crud_collection_op__modify;
 
 namespace devapi {
 
-/* {{{ Collection_modify */
 class Collection_modify : public util::custom_allocable
 {
 public:
 	Collection_modify() = default;
-	Collection_modify(const Collection_modify& rhs) = delete;
-	Collection_modify& operator=(const Collection_modify& rhs) = delete;
+	Collection_modify(const Collection_modify&) = delete;
+	Collection_modify& operator=(const Collection_modify&) = delete;
 	~Collection_modify();
 
 	bool init(
-		zval* object_zv,
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
 public:
-	void sort(
-		zval* sort_expr,
-		int num_of_expr,
-		zval* return_value);
-	void limit(
-		zend_long rows,
-		zval* return_value);
-	void skip(
-		zend_long position,
-		zval* return_value);
-	void bind(
-		HashTable* bind_variables,
-		zval* return_value);
+	bool sort(
+		zval* sort_expressions,
+		int num_of_expr);
+	bool limit(zend_long rows);
+	bool skip(zend_long position);
+	bool bind(const util::zvalue& bind_variables);
 
-	enum class Operation
-	{
-		Set,
-		Replace,
-		Array_insert,
-		Array_append
-	};
-
-	void add_operation(
-		Operation operation,
+	bool set(
 		const util::string_view& path,
-		const bool is_document,
-		zval* value,
-		zval* return_value);
-
-	void set(
-		const util::string_view& path,
-		const bool is_document,
-		zval* value,
-		zval* return_value);
-	void unset(
+		zval* value);
+	bool unset(
 		zval* variables,
-		int num_of_variables,
-		zval* return_value);
-	void replace(
+		int num_of_variables);
+	bool replace(
 		const util::string_view& path,
-		zval* value,
-		zval* return_value);
-	void patch(
-		const util::string_view& document_contents,
-		zval* return_value);
+		zval* value);
+	bool patch(const util::string_view& document_contents);
 
-	void arrayInsert(
+	bool array_insert(
 		const util::string_view& path,
-		zval* value,
-		zval* return_value);
-	void arrayAppend(
+		zval* value);
+	bool array_append(
 		const util::string_view& path,
-		zval* value,
-		zval* return_value);
+		zval* value);
 
 	void execute(zval* return_value);
 
 private:
-	zval* object_zv{nullptr};
+	drv::Modify_value prepare_value(
+		const util::string_view& path,
+		util::zvalue value,
+		bool validate_array = false);
+
+private:
 	drv::xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__modify* modify_op{nullptr};
 
 };
-/* }}} */
-
 
 void mysqlx_new_collection__modify(
 	zval* return_value,

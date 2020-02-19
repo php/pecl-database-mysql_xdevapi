@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -23,7 +23,7 @@ namespace mysqlx {
 namespace devapi {
 
 zend_bool is_a_mysqlx_expression(const zval * const value);
-const zval * get_mysqlx_expression(const zval * const object_zv);
+zval* get_mysqlx_expression(const zval * const object_zv);
 void mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression);
 void mysqlx_register_expression_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS);

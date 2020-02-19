@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -31,15 +31,11 @@ ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_limitable__limit, 0, ZEND_RETURN_VA
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, rows, IS_LONG, dont_allow_null)
 ZEND_END_ARG_INFO()
 
-/* {{{ mysqlx_crud_operation_limitable_methods[] */
 static const zend_function_entry mysqlx_crud_operation_limitable_methods[] = {
 	PHP_ABSTRACT_ME(mysqlx_crud_operation_limitable, limit, mysqlx_crud_operation_limitable__limit)
 	{nullptr, nullptr, nullptr}
 };
-/* }}} */
 
-
-/* {{{ mysqlx_register_crud_operation_limitable_interface */
 void
 mysqlx_register_crud_operation_limitable_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
@@ -47,15 +43,11 @@ mysqlx_register_crud_operation_limitable_interface(UNUSED_INIT_FUNC_ARGS, zend_o
 	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "CrudOperationLimitable", mysqlx_crud_operation_limitable_methods);
 	mysqlx_crud_operation_limitable_interface_entry = zend_register_internal_interface(&tmp_ce);
 }
-/* }}} */
 
-
-/* {{{ mysqlx_unregister_crud_operation_limitable_interface */
 void
 mysqlx_unregister_crud_operation_limitable_interface(UNUSED_SHUTDOWN_FUNC_ARGS)
 {
 }
-/* }}} */
 
 } // namespace devapi
 
