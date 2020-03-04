@@ -713,7 +713,7 @@ xmysqlnd_stmt::cleanup(xmysqlnd_stmt * const stmt)
 	DBG_VOID_RETURN;
 }
 
-PHP_MYSQL_XDEVAPI_API xmysqlnd_stmt *
+xmysqlnd_stmt *
 xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -729,7 +729,7 @@ xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 	DBG_RETURN(stmt);
 }
 
-PHP_MYSQL_XDEVAPI_API void
+void
 xmysqlnd_stmt_free(xmysqlnd_stmt * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_free");

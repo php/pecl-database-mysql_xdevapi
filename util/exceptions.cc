@@ -130,6 +130,8 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 		"URI with a list of URL not allowed."},
 	{ xdevapi_exception::Code::compression_not_supported,
 		"Compression requested but the server does not support it."},
+	{ xdevapi_exception::Code::compressor_not_available,
+		"To enable given compression algorithm please build mysql_xdevapi with proper switch like --with-(zlib|lz4|zstd)=[DIR]."},
 	{ xdevapi_exception::Code::compression_negotiation_failure,
 		"Compression requested but the compression algorithm negotiation failed."},
 };

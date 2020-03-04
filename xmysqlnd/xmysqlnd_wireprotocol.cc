@@ -21,6 +21,7 @@
 #include "mysqlnd_api.h"
 #include "xmysqlnd.h"
 #include "xmysqlnd_wireprotocol.h"
+#include "xmysqlnd_compression.h"
 #include "xmysqlnd_zval2any.h"
 #include "xmysqlnd_protocol_dumper.h"
 
@@ -315,14 +316,56 @@ xmysqlnd_client_message_type_is_valid(const xmysqlnd_client_message_type type)
 }
 
 static inline zend_bool
-xmysqlnd_server_message_type_is_valid(const zend_uchar type)
+xmysqlnd_server_message_type_is_valid(const xmysqlnd_server_message_type type)
 {
 	DBG_ENTER("xmysqlnd_server_message_type_is_valid");
-	zend_bool ret = Mysqlx::ServerMessages::Type_IsValid((Mysqlx::ServerMessages_Type) type);
+	Mysqlx::ServerMessages_Type server_type = static_cast<Mysqlx::ServerMessages_Type>(type);
+	zend_bool ret = Mysqlx::ServerMessages::Type_IsValid(server_type);
 	if (ret) {
-		DBG_INF_FMT("TYPE=%s", Mysqlx::ServerMessages::Type_Name((Mysqlx::ServerMessages_Type) type).c_str());
+		DBG_INF_FMT("TYPE=%s", Mysqlx::ServerMessages::Type_Name(server_type).c_str());
 	}
 	DBG_RETURN(ret);
+}
+
+std::string prepare_compression_message_payload(
+	xmysqlnd_client_message_type packet_type,
+	const compression::Compress_result& compress_result,
+	Message_context& msg_ctx)
+{
+	// std::string output;
+	// google::protobuf::io::StringOutputStream string_zero_stream(&output);
+	// google::protobuf::io::CodedOutputStream ostream(&string_zero_stream);
+
+	// Mysqlx::Connection::Compression compression_first_fields;
+	// Mysqlx::Connection::Compression compression_payload;
+
+	// compression_first_fields.set_client_messages(
+	// 	static_cast<Mysqlx::ClientMessages_Type>(packet_type));
+	// compression_first_fields.set_uncompressed_size(uncompressed_size);
+
+	// compression_payload.set_payload(compressed_payload);
+
+	// // use SerializePartial to encode the "first_fields" before the "payload"
+	// compression_first_fields.SerializePartialToCodedStream(&ostream);
+	// compression_payload.SerializePartialToCodedStream(&ostream);
+
+	Mysqlx::Connection::Compression compression_msg;
+
+	compression_msg.set_client_messages(
+		static_cast<Mysqlx::ClientMessages_Type>(packet_type));
+	compression_msg.set_uncompressed_size(compress_result.uncompressed_size);
+
+	compression_msg.set_payload(compress_result.compressed_payload);
+
+	Messages messages;
+	// auto res =
+	msg_ctx.compression_executor->decompress_messages(compression_msg, messages);
+
+	std::string output;
+	//(message.ByteSize());
+	// const size_t payload_size = message.ByteSize();
+	compression_msg.SerializeToString(&output);
+	return output;
 }
 
 const std::size_t SIZE_OF_STACK_BUFFER = 1024;
@@ -344,7 +387,7 @@ xmysqlnd_send_message(
 	}
 #endif
 	char stack_buffer[SIZE_OF_STACK_BUFFER];
-	void * payload = stack_buffer;
+	void* payload = stack_buffer;
 
 	const size_t payload_size = message.ByteSize();
 	if (payload_size > sizeof(stack_buffer)) {
@@ -356,15 +399,36 @@ xmysqlnd_send_message(
 		}
 	}
 	message.SerializeToArray(payload, static_cast<int>(payload_size));
-	ret = msg_ctx.pfc->data->m.send(
-		msg_ctx.pfc,
-		msg_ctx.vio,
-		static_cast<zend_uchar>(packet_type),
-		static_cast<zend_uchar*>(payload),
-		payload_size,
-		bytes_sent,
-		msg_ctx.stats,
-		msg_ctx.error_info);
+	if ((payload_size < compression::Compression_threshold) || !msg_ctx.compression_executor->enabled()) {
+	// if (true || (payload_size < compression::Compression_threshold) || !msg_ctx.compression_executor->enabled()) {
+		ret = msg_ctx.pfc->data->m.send(
+			msg_ctx.pfc,
+			msg_ctx.vio,
+			static_cast<zend_uchar>(packet_type),
+			static_cast<zend_uchar*>(payload),
+			payload_size,
+			bytes_sent,
+			msg_ctx.stats,
+			msg_ctx.error_info);
+	} else {
+		const compression::Compress_result& compress_result = msg_ctx.compression_executor->compress_message(
+			packet_type,
+			payload_size,
+			static_cast<util::byte*>(payload));
+		const std::string& msg_payload = prepare_compression_message_payload(
+			packet_type,
+			compress_result,
+			msg_ctx);
+		ret = msg_ctx.pfc->data->m.send(
+			msg_ctx.pfc,
+			msg_ctx.vio,
+			COM_COMPRESSION,
+			reinterpret_cast<const util::byte*>(msg_payload.data()),
+			msg_payload.length(),
+			bytes_sent,
+			msg_ctx.stats,
+			msg_ctx.error_info);
+	}
 	if (payload != stack_buffer) {
 		mnd_efree(payload);
 	}
@@ -386,11 +450,171 @@ struct st_xmysqlnd_server_messages_handlers
 	const enum_hnd_func_status (*on_RSET_FETCH_DONE_MORE_RSETS)(const Mysqlx::Resultset::FetchDoneMoreResultsets & message, void * context);
 	const enum_hnd_func_status (*on_STMT_EXECUTE_OK)(const Mysqlx::Sql::StmtExecuteOk & message, void * context);
 	const enum_hnd_func_status (*on_RSET_FETCH_DONE_MORE_OUT_PARAMS)(const Mysqlx::Resultset::FetchDoneMoreOutParams & message, void * context);
-	const enum_hnd_func_status (*on_COMPRESSED)(const Mysqlx::Connection::Compression& message, void* context);
+	const enum_hnd_func_status (*on_COMPRESSED)(const Mysqlx::Connection::Compression& message, Message_context& msg_ctx, Messages& messages);
 	const enum_hnd_func_status (*on_UNEXPECTED)(const zend_uchar packet_type, const zend_uchar * const payload, const size_t payload_size, void * context);
 	const enum_hnd_func_status (*on_UNKNOWN)(const zend_uchar packet_type, const zend_uchar * const payload, const size_t payload_size, void * context);
 };
 
+xmysqlnd_handler_func_status process_received_message(
+	st_xmysqlnd_server_messages_handlers* handlers,
+	void* handler_ctx,
+	Message_context& msg_ctx,
+	Messages& messages,
+	xmysqlnd_server_message_type packet_type,
+	int payload_size,
+	unsigned char* payload)
+{
+	DBG_ENTER("process_received_message");
+
+	if (!xmysqlnd_server_message_type_is_valid(packet_type)) {
+		SET_CLIENT_ERROR(msg_ctx.error_info, CR_UNKNOWN_ERROR, UNKNOWN_SQLSTATE, "The server sent invalid packet type");
+		DBG_ERR_FMT("Invalid packet type %u from the server", static_cast<unsigned int>(packet_type));
+		DBG_RETURN(HND_FAIL);
+	}
+	xmysqlnd_handler_func_status hnd_ret = HND_PASS;
+	bool handled{ false };
+	switch (packet_type) {
+		case XMSG_OK:
+			if (handlers->on_OK) {
+				Mysqlx::Ok message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_OK(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_ERROR:
+			if (handlers->on_ERROR) {
+				Mysqlx::Error message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_ERROR(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_CAPABILITIES:
+			if (handlers->on_CAPABILITIES) {
+				Mysqlx::Connection::Capabilities message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_CAPABILITIES(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_AUTH_CONTINUE:
+			if (handlers->on_AUTHENTICATE_CONTINUE) {
+				Mysqlx::Session::AuthenticateContinue message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_AUTHENTICATE_CONTINUE(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_AUTH_OK:
+			if (handlers->on_AUTHENTICATE_OK) {
+				Mysqlx::Session::AuthenticateOk message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_AUTHENTICATE_OK(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_NOTICE:
+			if (handlers->on_NOTICE) {
+				Mysqlx::Notice::Frame message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_NOTICE(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_COLUMN_METADATA:
+			if (handlers->on_COLUMN_META) {
+				Mysqlx::Resultset::ColumnMetaData message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_COLUMN_META(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_RSET_ROW:
+			if (handlers->on_RSET_ROW) {
+				Mysqlx::Resultset::Row message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_RSET_ROW(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_RSET_FETCH_DONE:
+			if (handlers->on_RSET_FETCH_DONE) {
+				Mysqlx::Resultset::FetchDone message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_RSET_FETCH_DONE(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMGS_RSET_FETCH_SUSPENDED:
+			if (handlers->on_RSET_FETCH_SUSPENDED) {
+				hnd_ret = handlers->on_RSET_FETCH_SUSPENDED(handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_RSET_FETCH_DONE_MORE_RSETS:
+			if (handlers->on_RSET_FETCH_DONE_MORE_RSETS) {
+				Mysqlx::Resultset::FetchDoneMoreResultsets message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_RSET_FETCH_DONE_MORE_RSETS(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_STMT_EXECUTE_OK:
+			if (handlers->on_STMT_EXECUTE_OK) {
+				Mysqlx::Sql::StmtExecuteOk message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_STMT_EXECUTE_OK(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_RSET_FETCH_DONE_MORE_OUT:
+			if (handlers->on_RSET_FETCH_DONE_MORE_OUT_PARAMS) {
+				Mysqlx::Resultset::FetchDoneMoreOutParams message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_RSET_FETCH_DONE_MORE_OUT_PARAMS(message, handler_ctx);
+				handled = true;
+			}
+			break;
+
+		case XMSG_COMPRESSION:
+			if (handlers->on_COMPRESSED) {
+				Mysqlx::Connection::Compression message;
+				message.ParseFromArray(payload, payload_size);
+				hnd_ret = handlers->on_COMPRESSED(message, msg_ctx, messages);
+				handled = true;
+			}
+			break;
+
+		default:
+			handled = true;
+			if (handlers->on_UNKNOWN) {
+				hnd_ret = handlers->on_UNKNOWN(packet_type, payload, payload_size, handler_ctx);
+			}
+			SET_CLIENT_ERROR(msg_ctx.error_info, CR_UNKNOWN_ERROR, UNKNOWN_SQLSTATE, "Unknown type");
+			DBG_ERR_FMT("Unknown type %d", (int) packet_type);
+			break;
+	}
+	if (!handled) {
+		DBG_INF_FMT("Unhandled message %d", packet_type);
+		if (handlers->on_UNEXPECTED) {
+			hnd_ret = handlers->on_UNEXPECTED(packet_type, payload, payload_size, handler_ctx);
+		}
+	}
+	DBG_RETURN(hnd_ret);
+}
 
 enum_func_status
 xmysqlnd_receive_message(
@@ -404,166 +628,54 @@ xmysqlnd_receive_message(
 	size_t rcv_payload_size;
 	zend_uchar* payload;
 	zend_uchar type;
+	Messages decompressed_messages;
 
 	DBG_ENTER("xmysqlnd_receive_message");
 
 	do {
-		ret = msg_ctx.pfc->data->m.receive(
-			msg_ctx.pfc,
-			msg_ctx.vio,
-			stack_buffer,
-			sizeof(stack_buffer),
-			&type,
-			&payload,
-			&rcv_payload_size,
-			msg_ctx.stats,
-			msg_ctx.error_info);
-		if (FAIL == ret) {
-			DBG_RETURN(FAIL);
-		}
-		if (!xmysqlnd_server_message_type_is_valid(type)) {
-			SET_CLIENT_ERROR(msg_ctx.error_info, CR_UNKNOWN_ERROR, UNKNOWN_SQLSTATE, "The server sent invalid packet type");
-			DBG_ERR_FMT("Invalid packet type %u from the server", static_cast<unsigned int>(type));
-			DBG_RETURN(FAIL);
-		}
-		xmysqlnd_server_message_type packet_type{ static_cast<xmysqlnd_server_message_type>(type) };
-		hnd_ret = HND_PASS;
-		bool handled{false};
-		int payload_size = static_cast<int>(rcv_payload_size);
-		switch (packet_type) {
-			case XMSG_OK:
-				if (handlers->on_OK) {
-					Mysqlx::Ok message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_OK(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_ERROR:
-				if (handlers->on_ERROR) {
-					Mysqlx::Error message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_ERROR(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_CAPABILITIES:
-				if (handlers->on_CAPABILITIES) {
-					Mysqlx::Connection::Capabilities message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_CAPABILITIES(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_AUTH_CONTINUE:
-				if (handlers->on_AUTHENTICATE_CONTINUE) {
-					Mysqlx::Session::AuthenticateContinue message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_AUTHENTICATE_CONTINUE(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_AUTH_OK:
-				if (handlers->on_AUTHENTICATE_OK) {
-					Mysqlx::Session::AuthenticateOk message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_AUTHENTICATE_OK(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_NOTICE:
-				if (handlers->on_NOTICE) {
-					Mysqlx::Notice::Frame message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_NOTICE(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_COLUMN_METADATA:
-				if (handlers->on_COLUMN_META) {
-					Mysqlx::Resultset::ColumnMetaData message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_COLUMN_META(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_RSET_ROW:
-				if (handlers->on_RSET_ROW) {
-					Mysqlx::Resultset::Row message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_RSET_ROW(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_RSET_FETCH_DONE:
-				if (handlers->on_RSET_FETCH_DONE) {
-					Mysqlx::Resultset::FetchDone message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_RSET_FETCH_DONE(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMGS_RSET_FETCH_SUSPENDED:
-				if (handlers->on_RSET_FETCH_SUSPENDED) {
-					hnd_ret = handlers->on_RSET_FETCH_SUSPENDED(handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_RSET_FETCH_DONE_MORE_RSETS:
-				if (handlers->on_RSET_FETCH_DONE_MORE_RSETS) {
-					Mysqlx::Resultset::FetchDoneMoreResultsets message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_RSET_FETCH_DONE_MORE_RSETS(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_STMT_EXECUTE_OK:
-				if (handlers->on_STMT_EXECUTE_OK) {
-					Mysqlx::Sql::StmtExecuteOk message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_STMT_EXECUTE_OK(message, handler_ctx);
-					handled = true;
-				}
-				break;
-			case XMSG_RSET_FETCH_DONE_MORE_OUT:
-				if (handlers->on_RSET_FETCH_DONE_MORE_OUT_PARAMS) {
-					Mysqlx::Resultset::FetchDoneMoreOutParams message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_RSET_FETCH_DONE_MORE_OUT_PARAMS(message, handler_ctx);
-					handled = true;
-				}
-				break;
-
-			case XMSG_COMPRESSION:
-				if (handlers->on_COMPRESSED) {
-	//				handled = process_compressed_message();
-					Mysqlx::Connection::Compression message;
-					message.ParseFromArray(payload, payload_size);
-					hnd_ret = handlers->on_COMPRESSED(message, handler_ctx);
-					handled = true;
-				}
-				break;
-
-			default:
-				handled = true;
-				if (handlers->on_UNKNOWN) {
-					hnd_ret = handlers->on_UNKNOWN(type, payload, payload_size, handler_ctx);
-				}
-				SET_CLIENT_ERROR(msg_ctx.error_info, CR_UNKNOWN_ERROR, UNKNOWN_SQLSTATE, "Unknown type");
-				DBG_ERR_FMT("Unknown type %d", (int) packet_type);
-				break;
-		}
-		if (!handled) {
-			DBG_INF_FMT("Unhandled message %d", packet_type);
-			if (handlers->on_UNEXPECTED) {
-				hnd_ret = handlers->on_UNEXPECTED(type, payload, payload_size, handler_ctx);
+		if (decompressed_messages.empty()) {
+			ret = msg_ctx.pfc->data->m.receive(
+				msg_ctx.pfc,
+				msg_ctx.vio,
+				stack_buffer,
+				sizeof(stack_buffer),
+				&type,
+				&payload,
+				&rcv_payload_size,
+				msg_ctx.stats,
+				msg_ctx.error_info);
+			if (FAIL == ret) {
+				DBG_RETURN(FAIL);
 			}
-		}
-		if (payload != stack_buffer) {
-			mnd_efree(payload);
-		}
-		if (hnd_ret == HND_AGAIN) {
-			DBG_INF("HND_AGAIN. Reading new packet from the network");
+			hnd_ret = process_received_message(
+				handlers,
+				handler_ctx,
+				msg_ctx,
+				decompressed_messages,
+				static_cast<xmysqlnd_server_message_type>(type),
+				static_cast<int>(rcv_payload_size),
+				payload);
+			if (payload != stack_buffer) {
+				mnd_efree(payload);
+			}
+			if (hnd_ret == HND_AGAIN) {
+				DBG_INF("HND_AGAIN. Reading new packet from the network");
+			}
+		} else {
+			Messages empty_decompressed_messages;
+			for (auto& message : decompressed_messages) {
+				hnd_ret = process_received_message(
+					handlers,
+					handler_ctx,
+					msg_ctx,
+					empty_decompressed_messages,
+					message.packet_type,
+					message.payload.size(),
+					message.payload.data());
+				// we don't expect any compressed message among just decompressed ones :-P
+				assert(empty_decompressed_messages.empty());
+			}
+			decompressed_messages.clear();
 		}
 	} while (hnd_ret == HND_AGAIN);
 	DBG_INF_FMT("hnd_ret=%d", hnd_ret);
@@ -1605,12 +1717,15 @@ stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS(const Mysqlx::Resultset::FetchDo
 }
 
 static const enum_hnd_func_status
-stmt_execute_on_COMPRESSED(const Mysqlx::Connection::Compression& message, void* context)
+stmt_execute_on_COMPRESSED(
+	const Mysqlx::Connection::Compression& message,
+	Message_context& msg_ctx,
+	Messages& messages)
 {
-	st_xmysqlnd_result_set_reader_ctx* const ctx = static_cast<st_xmysqlnd_result_set_reader_ctx* >(context);
 	DBG_ENTER("stmt_on_COMPRESSED");
-	ctx->has_more_results = TRUE;
-	DBG_RETURN(HND_PASS);
+	// if (decompress_messages(message, messages))
+	msg_ctx.compression_executor->decompress_messages(message, messages);
+	DBG_RETURN(HND_AGAIN);
 }
 
 static st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
@@ -1627,8 +1742,8 @@ static st_xmysqlnd_server_messages_handlers stmt_execute_handlers =
 	stmt_execute_on_RSET_FETCH_SUSPENDED,			// on_RESULTSET_FETCH_SUSPENDED
 	stmt_execute_on_RSET_FETCH_DONE_MORE_RSETS,		// on_RESULTSET_FETCH_DONE_MORE_RESULTSETS
 	stmt_execute_on_STMT_EXECUTE_OK,				// on_SQL_STMT_EXECUTE_OK
-	stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS,// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS)
-	stmt_execute_on_COMPRESSED,	// on_COMPRESSED)
+	stmt_execute_on_RSET_FETCH_DONE_MORE_OUT_PARAMS,// on_RESULTSET_FETCH_DONE_MORE_OUT_PARAMS
+	stmt_execute_on_COMPRESSED,	// on_COMPRESSED
 	nullptr,								// on_UNEXPECTED
 	nullptr,								// on_UNKNOWN
 };

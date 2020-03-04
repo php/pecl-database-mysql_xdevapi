@@ -55,7 +55,7 @@ void zval2object(zval* zv, Mysqlx::Datatypes::Any& any)
 
 } // anonymous namespace
 
-PHP_MYSQL_XDEVAPI_API enum_func_status
+enum_func_status
 zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 {
 	DBG_ENTER("zval2any");
@@ -133,7 +133,7 @@ zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any)
 }
 
 /* {{{ scalar2zval */
-PHP_MYSQL_XDEVAPI_API enum_func_status
+enum_func_status
 scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 {
 	DBG_ENTER("scalar2zval");
@@ -191,7 +191,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 	DBG_RETURN(PASS);
 }
 
-PHP_MYSQL_XDEVAPI_API enum_func_status
+enum_func_status
 any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 {
 	DBG_ENTER("any2zval");
@@ -257,7 +257,7 @@ util::zvalue any2zval(const Mysqlx::Datatypes::Any& any)
 	return value;
 }
 
-PHP_MYSQL_XDEVAPI_API uint64_t
+uint64_t
 scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	uint64_t ret{0};
@@ -294,7 +294,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_RETURN(ret);
 }
 
-PHP_MYSQL_XDEVAPI_API int64_t
+int64_t
 scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	int64_t ret{0};
@@ -331,7 +331,7 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_RETURN(ret);
 }
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_STRING
+MYSQLND_STRING
 scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	MYSQLND_STRING ret = {nullptr, 0};
@@ -373,7 +373,7 @@ scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_RETURN(ret);
 }
 
-PHP_MYSQL_XDEVAPI_API void
+void
 scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	DBG_ENTER("scalar2log");
@@ -427,7 +427,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_VOID_RETURN;
 }
 
-PHP_MYSQL_XDEVAPI_API void
+void
 any2log(const Mysqlx::Datatypes::Any & any)
 {
 	DBG_ENTER("any2log");
@@ -459,7 +459,7 @@ any2log(const Mysqlx::Datatypes::Any & any)
 	DBG_VOID_RETURN;
 }
 
-PHP_MYSQL_XDEVAPI_API void repeated2log(
+void repeated2log(
 	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated)
 {
 	for (auto scalar : repeated) {

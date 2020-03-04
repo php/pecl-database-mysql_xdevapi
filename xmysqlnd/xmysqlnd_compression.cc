@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,12 +15,16 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#include "php_api.h"
 #include "xmysqlnd_compression.h"
-#include "xmysqlnd_wireprotocol.h"
+#include "xmysqlnd_compression_types.h"
+#include "xmysqlnd_compressor.h"
+#include "xmysqlnd_compressor_lz4.h"
+#include "xmysqlnd_compressor_zlib.h"
+#include "xmysqlnd_compressor_zstd.h"
 #include "util/exceptions.h"
 #include "util/types.h"
 #include "util/value.h"
+#include "proto_gen/mysqlx_connection.pb.h"
 
 namespace mysqlx {
 
@@ -30,296 +34,226 @@ namespace compression {
 
 namespace {
 
-const std::string PROPERTY_ALGORITHM{ "algorithm" };
-const std::string PROPERTY_SERVER_COMBINE_MIXED_MESSAGES{ "server_combine_mixed_messages" };
-const std::string PROPERTY_CLIENT_MAX_COMBINE_MESSAGES{ "server_max_combine_messages" };
+const std::size_t Payload_length_size = 4;
+const std::size_t Packet_type_size = 1;
 
-const std::string ALGORITHM_ZSTD_STREAM{ "zstd_stream" };
-const std::string ALGORITHM_LZ4_MESSAGE{ "lz4_message" };
-const std::string ALGORITHM_ZLIB_STREAM{ "zlib_stream" };
-const std::string ALGORITHM_DEFLATE_STREAM{ "deflate_stream" };
-const std::string ALGORITHM_ZLIB_DEFLATE_STREAM{ "deflate_stream" };
+template<typename Dest, typename Src>
+Dest& cast_ref_to(Src& src)
+{
+	return *reinterpret_cast<Dest*>(&src);
+}
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------
 
-class Gather_capabilities
+class Payload_composer
 {
 public:
-	Gather_capabilities(Capabilities& capabilities);
-
-public:
-	bool run(const util::zvalue& capabilities);
-
-private:
-	void add_supported_algorithm(const util::zvalue& zalgorithm);
-	bool add_supported_algorithms(const util::zvalue& compression_caps);
+	Payload_composer(std::size_t msg_payload_size);
+	util::bytes run(
+		xmysqlnd_client_message_type msg_packet_type,
+		std::size_t msg_payload_size,
+		util::byte* msg_payload);
 
 private:
-	Capabilities& capabilities;
+	void add_length(std::size_t msg_payload_size);
+	void add_packet_type(xmysqlnd_client_message_type msg_packet_type);
+	void add_payload(
+		std::size_t msg_payload_size,
+		util::byte* msg_payload);
+
+private:
+	util::bytes buffer;
+	util::bytes::iterator it;
 };
 
+// -----------------
+
+Payload_composer::Payload_composer(std::size_t msg_payload_size)
+{
+	const std::size_t buffer_size = Payload_length_size + Packet_type_size + msg_payload_size;
+	buffer.resize(buffer_size);
+	it = buffer.begin();
+}
+
+util::bytes Payload_composer::run(
+	xmysqlnd_client_message_type msg_packet_type,
+	std::size_t msg_payload_size,
+	util::byte* msg_payload)
+{
+	add_length(msg_payload_size);
+	add_packet_type(msg_packet_type);
+	add_payload(msg_payload_size, msg_payload);
+	return buffer;
+}
+
+void Payload_composer::add_length(std::size_t msg_payload_size)
+{
+	std::size_t& buffer_length = cast_ref_to<std::size_t>(*it);
+	buffer_length = Packet_type_size + msg_payload_size;
+	std::advance(it, Payload_length_size);
+}
+
+void Payload_composer::add_packet_type(xmysqlnd_client_message_type msg_packet_type)
+{
+	*it = static_cast<util::byte>(msg_packet_type);
+	std::advance(it, Packet_type_size);
+}
+
+void Payload_composer::add_payload(
+	std::size_t msg_payload_size,
+	util::byte* msg_payload)
+{
+	std::copy_n(
+		msg_payload,
+		msg_payload_size,
+		it);
+}
+
 // ------------------------------------------
 
-Gather_capabilities::Gather_capabilities(Capabilities& capabilities)
-	: capabilities(capabilities)
-{
-}
-
-bool Gather_capabilities::run(const util::zvalue& raw_capabilities)
-{
-	if (!raw_capabilities.is_array()) return false;
-
-	const util::zvalue& compression_caps{ raw_capabilities["compression"] };
-	if (!compression_caps.is_object()) return false;
-
-	return add_supported_algorithms(compression_caps);
-}
-
-void Gather_capabilities::add_supported_algorithm(const util::zvalue& zalgorithm)
-{
-	if (!zalgorithm.is_string()) return;
-
-	const std::string& algorithm_name{ zalgorithm.to_std_string() };
-	using name_to_algorithm = std::map<std::string, Algorithm, util::iless>;
-	static const name_to_algorithm algorithm_mapping{
-		{ ALGORITHM_ZSTD_STREAM, Algorithm::zstd_stream },
-		{ ALGORITHM_LZ4_MESSAGE, Algorithm::lz4_message },
-		{ ALGORITHM_DEFLATE_STREAM, Algorithm::zlib_deflate_stream },
-		{ ALGORITHM_ZLIB_STREAM, Algorithm::zlib_deflate_stream },
-	};
-
-	auto it{ algorithm_mapping.find(algorithm_name) };
-	if (it == algorithm_mapping.end()) return;
-
-	const Algorithm algorithm{ it->second };
-	capabilities.algorithms.push_back(algorithm);
-}
-
-bool Gather_capabilities::add_supported_algorithms(const util::zvalue& compression_caps)
-{
-	const util::zvalue& algorithms{ compression_caps.get_property(PROPERTY_ALGORITHM) };
-	if (!algorithms.is_array()) return false;
-
-	for (const auto& algorithm : algorithms.values()) {
-		add_supported_algorithm(algorithm);
-	}
-
-	return !capabilities.algorithms.empty();
-}
-
-// ----------------------------------------------------------------------------
-
-class Negotiate
+class Message_extractor
 {
 public:
-	Negotiate(st_xmysqlnd_message_factory& msg_factory);
+	Message_extractor(Messages& messages);
 
 public:
-	bool run(const Configuration& config);
+	void run(const util::bytes& uncompressed_payload);
 
 private:
-	std::string to_string(Algorithm algorithm) const;
+	std::size_t extract_length();
+	xmysqlnd_server_message_type extract_type();
+	util::bytes extract_payload(std::size_t msg_length);
 
 private:
-	static const enum_hnd_func_status handler_on_error(
-		void* context,
-		const unsigned int code,
-		const MYSQLND_CSTRING sql_state,
-		const MYSQLND_CSTRING message);
-
-private:
-	st_xmysqlnd_message_factory& msg_factory;
-//	const Configuration& config;
+	Messages& messages;
+	util::bytes::const_iterator it;
 };
 
-// ------------------------------------------
+// -----------------
 
-Negotiate::Negotiate(st_xmysqlnd_message_factory& msg_factory)
-	: msg_factory(msg_factory)
+Message_extractor::Message_extractor(Messages& messages)
+	: messages(messages)
 {
 }
 
-bool Negotiate::run(const Configuration& config)
+void Message_extractor::run(const util::bytes& uncompressed_payload)
 {
-	/*
-		samples:
-		"compression":{"algorithm": "deflate_stream", "server_max_combine_messages" : 10 })
-		"compression":{"algorithm": "lz4_message", "server_combine_mixed_messages" : true })
-	*/
-	util::zvalue cap_compression_name("compression");
-	util::zvalue cap_compression_value(util::zvalue::create_object());
-	cap_compression_value.set_property(PROPERTY_ALGORITHM, to_string(config.algorithm));
-	if (config.combine_mixed_messages) {
-		cap_compression_value.set_property(PROPERTY_SERVER_COMBINE_MIXED_MESSAGES, *config.combine_mixed_messages);
-	}
-	if (config.max_combine_messages) {
-		cap_compression_value.set_property(PROPERTY_CLIENT_MAX_COMBINE_MESSAGES, *config.max_combine_messages);
-	}
+	it = uncompressed_payload.begin();
 
-	st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
-	zval* cap_names[]{cap_compression_name.ptr()};
-	zval* cap_values[]{cap_compression_value.ptr()};
-	if (caps_set.send_request(&caps_set, 1, cap_names, cap_values) != PASS) {
-		return false;
-	}
-
-	const st_xmysqlnd_on_error_bind on_error{ handler_on_error, this };
-	caps_set.init_read(&caps_set, on_error);
-	util::zvalue result;
-	return caps_set.read_response(&caps_set, result.ptr()) == PASS;
-}
-
-// ------------------------------------------
-
-std::string Negotiate::to_string(Algorithm algorithm) const
-{
-	using algorithm_to_name = std::map<Algorithm, std::string>;
-	static const algorithm_to_name algorithm_mapping{
-		{ Algorithm::zstd_stream, ALGORITHM_ZSTD_STREAM },
-		{ Algorithm::lz4_message, ALGORITHM_LZ4_MESSAGE },
-		{ Algorithm::zlib_deflate_stream, ALGORITHM_DEFLATE_STREAM },
-	};
-	return algorithm_mapping.at(algorithm);
-}
-
-const enum_hnd_func_status Negotiate::handler_on_error(
-	void* context,
-	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
-{
-	throw util::xdevapi_exception(
-		code,
-		util::string(sql_state.s, sql_state.l),
-		util::string(message.s, message.l));
-}
-
-// ----------------------------------------------------------------------------
-
-class Setup
-{
-public:
-	Setup(
-		Policy policy,
-		st_xmysqlnd_message_factory& msg_factory,
-		Configuration& negotiated_config);
-
-public:
-	void run(const util::zvalue& capabilities);
-
-private:
-	bool gather_capabilities(const util::zvalue& raw_capabilities);
-	bool negotiate();
-	bool is_algorithm_supported(Algorithm algorithm) const;
-	bool negotiate(const Configuration& config);
-
-private:
-	const Policy policy;
-	st_xmysqlnd_message_factory& msg_factory;
-	Capabilities capabilities;
-	Configuration& negotiated_config;
-};
-
-// ------------------------------------------
-
-Setup::Setup(
-	Policy policy,
-	st_xmysqlnd_message_factory& msg_factory,
-	Configuration& negotiated_config)
-	: policy(policy)
-	, msg_factory(msg_factory)
-	, negotiated_config(negotiated_config)
-{
-}
-
-void Setup::run(const util::zvalue& raw_capabilities)
-{
-	if (policy == compression::Policy::disabled) return;
-
-	const bool required = (policy == compression::Policy::required);
-
-	if (!gather_capabilities(raw_capabilities) && required) {
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::compression_not_supported);
-	}
-
-	if (!negotiate() && required) {
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::compression_negotiation_failure);
+	while (it != uncompressed_payload.end()) {
+		std::size_t msg_length = extract_length();
+		xmysqlnd_server_message_type msg_type = extract_type();
+		util::bytes msg_payload = extract_payload(msg_length);
+		messages.emplace_back(msg_type, std::move(msg_payload));
 	}
 }
 
-// ------------------------------------------
-
-bool Setup::gather_capabilities(const util::zvalue& raw_capabilities)
+std::size_t Message_extractor::extract_length()
 {
-	Gather_capabilities gc(capabilities);
-	return gc.run(raw_capabilities);
+	std::size_t msg_length = cast_ref_to<const std::size_t>(*it);
+	std::advance(it, Payload_length_size);
+	return msg_length;
 }
 
-bool Setup::negotiate()
+xmysqlnd_server_message_type Message_extractor::extract_type()
 {
-	// algorithms in the order how they should be negotiated
-	const Algorithms algorithms{
-		Algorithm::lz4_message,
-		Algorithm::zlib_deflate_stream
-	};
-
-	for (auto algorithm : algorithms) {
-		if (!is_algorithm_supported(algorithm)) continue;
-
-		Configuration config(algorithm);
-		if (negotiate(config)) {
-			negotiated_config = config;
-			return true;
-		}
-	}
-
-	return false;
+	xmysqlnd_server_message_type packet_type
+		= static_cast<xmysqlnd_server_message_type>(*it);
+	std::advance(it, Packet_type_size);
+	return packet_type;
 }
 
-// ---------------------
-
-bool Setup::is_algorithm_supported(Algorithm algorithm) const
+util::bytes Message_extractor::extract_payload(std::size_t msg_length)
 {
-	const auto& algorithms{ capabilities.algorithms };
-	return std::find(
-		algorithms.begin(),
-		algorithms.end(),
-		algorithm) != algorithms.end();
-}
-
-// ---------------------
-
-bool Setup::negotiate(const Configuration& config)
-{
-	Negotiate negotiate(msg_factory);
-	return negotiate.run(config);
+	std::size_t payload_size = msg_length - Packet_type_size;
+	util::bytes payload(it, it + payload_size);
+	std::advance(it, payload_size);
+	return payload;
 }
 
 } // anonymous namespace
 
-// ----------------------------------------------------------------------------
+// ------------------------------------------
 
-Configuration::Configuration(Algorithm algorithm)
-	: algorithm(algorithm)
-	, combine_mixed_messages(false)
+Executor::Executor()
 {
 }
 
-bool Configuration::enabled() const
+Executor& Executor::operator=(Executor&& rhs)
 {
-	return (algorithm != Algorithm::none);
+	if (this != &rhs) {
+		compressor = std::move(rhs.compressor);
+	}
+	return *this;
+}
+
+Executor::~Executor()
+{
 }
 
 // ----------------------------------------------------------------------------
 
-void run_setup(
-	Policy policy,
-	st_xmysqlnd_message_factory& msg_factory,
-	const util::zvalue& capabilities,
-	Configuration& negotiated_config)
+namespace {
+
+Compressor* create_compressor(const Configuration& cfg)
 {
-	Setup setup(policy, msg_factory, negotiated_config);
-	setup.run(capabilities);
+	assert(cfg.enabled());
+
+	using compressor_creator = Compressor* (*)();
+	using algorithm_to_compressor_creator = std::map<Algorithm, compressor_creator>;
+	static const algorithm_to_compressor_creator compressor_creators{
+		{ Algorithm::zstd_stream, create_compressor_zstd },
+		{ Algorithm::lz4_message, create_compressor_lz4 },
+		{ Algorithm::zlib_deflate_stream, create_compressor_zlib }
+	};
+
+	compressor_creator comp_creator{ compressor_creators.at(cfg.algorithm) };
+	return comp_creator();
+}
+
+} // anonymous namespace
+
+void Executor::reset()
+{
+	compressor.reset();
+}
+
+void Executor::reset(const Configuration& cfg)
+{
+	if (cfg.enabled()) {
+		compressor.reset(create_compressor(cfg));
+	} else {
+		reset();
+	}
+}
+
+bool Executor::enabled() const
+{
+	return compressor != nullptr;
+}
+
+// ----------------------------------------------------------------------------
+
+Compress_result Executor::compress_message(
+	xmysqlnd_client_message_type msg_packet_type,
+	std::size_t msg_payload_size,
+	util::byte* msg_payload)
+{
+	assert(enabled());
+	Payload_composer payload_composer(msg_payload_size);
+	const util::bytes& uncompressed_payload = payload_composer.run(msg_packet_type, msg_payload_size, msg_payload);
+	return Compress_result{
+		uncompressed_payload.size(),
+		compressor->compress(uncompressed_payload)
+	};
+}
+
+void Executor::decompress_messages(const Mysqlx::Connection::Compression& message, Messages& messages)
+{
+	assert(enabled());
+	const util::bytes& uncompressed_payload{ compressor->decompress(message) };
+	Message_extractor msg_extractor(messages);
+	msg_extractor.run(uncompressed_payload);
 }
 
 } // namespace compression

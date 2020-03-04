@@ -111,6 +111,12 @@ var xmysqlnd_sources = [
 	"xmysqlnd_any2expr.cc",
 	"xmysqlnd_collection.cc",
 	"xmysqlnd_compression.cc",
+	"xmysqlnd_compression_setup.cc",
+	"xmysqlnd_compression_types.cc",
+	"xmysqlnd_compressor.cc",
+	"xmysqlnd_compressor_lz4.cc",
+	"xmysqlnd_compressor_zlib.cc",
+	"xmysqlnd_compressor_zstd.cc",
 	"xmysqlnd_crud_collection_commands.cc",
 	"xmysqlnd_crud_table_commands.cc",
 	"xmysqlnd_driver.cc",
@@ -134,6 +140,7 @@ var xmysqlnd_sources = [
 	"xmysqlnd_utils.cc",
 	"xmysqlnd_warning_list.cc",
 	"xmysqlnd_wireprotocol.cc",
+	"xmysqlnd_wireprotocol_types.cc",
 	"xmysqlnd_zval2any.cc"
 ];
 

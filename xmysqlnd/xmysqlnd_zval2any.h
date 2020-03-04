@@ -28,21 +28,21 @@ namespace util { class zvalue; }
 
 namespace drv {
 
-PHP_MYSQL_XDEVAPI_API enum_func_status scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv);
-PHP_MYSQL_XDEVAPI_API enum_func_status zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any);
+enum_func_status scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv);
+enum_func_status zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any);
 enum_func_status zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any);
 
-PHP_MYSQL_XDEVAPI_API enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
+enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
 enum_func_status any2zval(const Mysqlx::Datatypes::Any& any, util::zvalue& zv);
 util::zvalue any2zval(const Mysqlx::Datatypes::Any& any);
 
-PHP_MYSQL_XDEVAPI_API void any2log(const Mysqlx::Datatypes::Any & any);
-PHP_MYSQL_XDEVAPI_API void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);
-PHP_MYSQL_XDEVAPI_API void repeated2log(
+void any2log(const Mysqlx::Datatypes::Any & any);
+void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);
+void repeated2log(
 	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated);
-PHP_MYSQL_XDEVAPI_API uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
-PHP_MYSQL_XDEVAPI_API int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
-PHP_MYSQL_XDEVAPI_API MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
+uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
+int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
+MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
 
 } // namespace drv
 

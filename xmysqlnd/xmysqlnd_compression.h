@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2019 The PHP Group                                |
+  | Copyright (c) 2006-2020 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -18,62 +18,53 @@
 #ifndef XMYSQLND_COMPRESSION_H
 #define XMYSQLND_COMPRESSION_H
 
-#include <vector>
-#include <boost/optional.hpp>
+#include "xmysqlnd_wireprotocol_types.h"
+
+namespace Mysqlx { namespace Connection { class Compression; } }
 
 namespace mysqlx {
 
-namespace util { class zvalue; }
-
 namespace drv {
-
-struct st_xmysqlnd_message_factory;
 
 namespace compression {
 
-enum class Policy {
-	required,
-	preferred,
-	disabled
+struct Configuration;
+struct Compressor;
+
+struct Compress_result
+{
+	std::size_t uncompressed_size;
+	std::string compressed_payload;
 };
 
-enum class Algorithm
+class Executor
 {
-	none,
-	zstd_stream,
-	lz4_message,
-	zlib_deflate_stream
-};
+public:
+	Executor();
+	Executor(const Executor& rhs) = delete;
+	Executor& operator=(const Executor& rhs) = delete;
+	Executor(Executor&& rhs) = delete;
+	Executor& operator=(Executor&& rhs);
+	~Executor();
 
-using Algorithms = std::vector<Algorithm>;
+public:
+	void reset();
+	void reset(const Configuration& cfg);
 
-struct Capabilities
-{
-	Algorithms algorithms;
-};
-
-
-struct Configuration
-{
-	Algorithm algorithm;
-
-	// informs the server that it can combine multiple types of
-	// messages into a single compressed payload
-	boost::optional<bool> combine_mixed_messages;
-
-	// if set this informs the server that it should not combine
-	// more than x number of messages inside a single compressed payload.
-	boost::optional<int> max_combine_messages;
-
-	Configuration(Algorithm algorithm = Algorithm::none);
 	bool enabled() const;
-};
 
-void run_setup(
-	Policy policy,
-	st_xmysqlnd_message_factory& msg_factory,
-	const util::zvalue& capabilities,
-	Configuration& negotiated_config);
+	Compress_result compress_message(
+		xmysqlnd_client_message_type packet_type,
+		std::size_t payload_size,
+		util::byte* payload);
+
+	void decompress_messages(
+		const Mysqlx::Connection::Compression& message,
+		Messages& messages);
+
+private:
+	std::unique_ptr<Compressor> compressor;
+};
 
 } // namespace compression
 

@@ -112,6 +112,7 @@ struct xdevapi_exception : public std::runtime_error
         url_list_not_allowed,
 		out_of_range,
 		compression_not_supported,
+		compressor_not_available,
 		compression_negotiation_failure,
 	};
 

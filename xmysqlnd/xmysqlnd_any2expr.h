@@ -41,9 +41,9 @@ namespace mysqlx {
 
 namespace drv {
 
-PHP_MYSQL_XDEVAPI_API void object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest_obj);
-PHP_MYSQL_XDEVAPI_API void array2expr(const Mysqlx::Datatypes::Array& src_array, Mysqlx::Expr::Array* dest_array);
-PHP_MYSQL_XDEVAPI_API void any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest);
+void object2expr(const Mysqlx::Datatypes::Object& src_obj, Mysqlx::Expr::Object* dest_obj);
+void array2expr(const Mysqlx::Datatypes::Array& src_array, Mysqlx::Expr::Array* dest_array);
+void any2expr(const Mysqlx::Datatypes::Any& src, Mysqlx::Expr::Expr* dest);
 
 } // namespace drv
 

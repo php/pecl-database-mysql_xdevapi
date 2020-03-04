@@ -15,13 +15,53 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PROTOBUF_API_H
-#define MYSQL_XDEVAPI_PROTOBUF_API_H
+#ifndef XMYSQLND_COMPRESSION_TYPES_H
+#define XMYSQLND_COMPRESSION_TYPES_H
 
-MYSQLX_SUPPRESS_ALL_WARNINGS()
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/wire_format_lite.h>
-MYSQLX_RESTORE_WARNINGS()
+#include <boost/optional.hpp>
 
-#endif // MYSQL_XDEVAPI_PROTOBUF_API_H
+namespace mysqlx {
+
+namespace drv {
+
+namespace compression {
+
+enum class Policy {
+	required,
+	preferred,
+	disabled
+};
+
+enum class Algorithm
+{
+	none,
+	zstd_stream,
+	lz4_message,
+	zlib_deflate_stream
+};
+
+const std::size_t Compression_threshold = 200;
+
+struct Configuration
+{
+	Algorithm algorithm;
+
+	// informs the server that it can combine multiple types of
+	// messages into a single compressed payload
+	boost::optional<bool> combine_mixed_messages;
+
+	// if set this informs the server that it should not combine
+	// more than x number of messages inside a single compressed payload.
+	boost::optional<int> max_combine_messages;
+
+	Configuration(Algorithm algorithm = Algorithm::none);
+	bool enabled() const;
+};
+
+} // namespace compression
+
+} // namespace drv
+
+} // namespace mysqlx
+
+#endif // XMYSQLND_COMPRESSION_TYPES_H

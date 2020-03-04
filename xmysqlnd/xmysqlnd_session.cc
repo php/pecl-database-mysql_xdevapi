@@ -35,6 +35,7 @@ extern "C" {
 #include "xmysqlnd_stmt.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_wireprotocol.h"
+#include "xmysqlnd_compression_setup.h"
 #include "xmysqlnd_protocol_dumper.h"
 #include "xmysqlnd_stmt_result.h"
 #include "xmysqlnd_stmt_result_meta.h"
@@ -168,7 +169,7 @@ st_xmysqlnd_message_factory xmysqlnd_session_data::create_message_factory()
 		io.pfc,
 		stats,
 		error_info,
-		compression_cfg
+		&compression_executor
 	};
 	return get_message_factory(msg_ctx);
 }
@@ -816,6 +817,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexce
 	transport_type = rhs.transport_type;
 	socket_path = std::move(rhs.socket_path);
 	server_host_info = std::move(rhs.server_host_info);
+	compression_executor = std::move(rhs.compression_executor);
 	client_id = rhs.client_id;
 	rhs.client_id = 0;
 	charset = rhs.charset;
@@ -858,6 +860,7 @@ void xmysqlnd_session_data::cleanup()
 	DBG_INF("Freeing memory of members");
 
 	auth.reset();
+	compression_executor.reset();
 	default_schema.clear();
 	scheme.clear();
 	server_host_info.clear();
@@ -1687,7 +1690,9 @@ bool Authenticate::init_capabilities()
 
 void Authenticate::setup_compression()
 {
-	compression::run_setup(auth->compression_policy, msg_factory, capabilities, session->compression_cfg);
+	compression::Configuration compression_cfg;
+	compression::run_setup(auth->compression_policy, msg_factory, capabilities, compression_cfg);
+	session->compression_executor.reset(compression_cfg);
 }
 
 bool Authenticate::init_connection()

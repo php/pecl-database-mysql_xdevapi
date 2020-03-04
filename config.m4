@@ -76,11 +76,11 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		php_mysqlx_ex.cc \
 		"
 
-	extra_lz4="
-		lz4.c \
-		lz4frame.c \
-		lz4hc.c \
-		xxhash.c
+	extra_lz4=" \
+		extra/lz4/lz4.c \
+		extra/lz4/lz4frame.c \
+		extra/lz4/lz4hc.c \
+		extra/lz4/xxhash.c \
 		"
 
 	mysqlx_util=" \
@@ -101,6 +101,12 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_any2expr.cc \
 		xmysqlnd/xmysqlnd_collection.cc \
 		xmysqlnd/xmysqlnd_compression.cc \
+		xmysqlnd/xmysqlnd_compression_setup.cc \
+		xmysqlnd/xmysqlnd_compression_types.cc \
+		xmysqlnd/xmysqlnd_compressor.cc \
+		xmysqlnd/xmysqlnd_compressor_lz4.cc \
+		xmysqlnd/xmysqlnd_compressor_zlib.cc \
+		xmysqlnd/xmysqlnd_compressor_zstd.cc \
 		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
 		xmysqlnd/xmysqlnd_crud_table_commands.cc \
 		xmysqlnd/xmysqlnd_driver.cc \
@@ -124,6 +130,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_utils.cc \
 		xmysqlnd/xmysqlnd_warning_list.cc \
 		xmysqlnd/xmysqlnd_wireprotocol.cc \
+		xmysqlnd/xmysqlnd_wireprotocol_types.cc \
 		xmysqlnd/xmysqlnd_zval2any.cc \
 		"
 

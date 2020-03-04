@@ -24,6 +24,7 @@
 extern "C" {
 #include <ext/standard/url.h>
 }
+#include "xmysqlnd_compression_types.h"
 #include "xmysqlnd_compression.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
@@ -471,10 +472,11 @@ public:
 	/* Authentication info */
 	std::unique_ptr<Session_auth_data> auth;
 	Auth_mechanisms                    auth_mechanisms;
-	/* Other connection info */
+	/* Other connection data */
 	std::string                        scheme;
 	std::string                        default_schema;
 	transport_types                    transport_type;
+	compression::Executor compression_executor;
 	/* Used only in case of non network transports */
 	std::string                        socket_path;
 	std::string                        server_host_info;
@@ -503,7 +505,6 @@ public:
 	vec_of_attribs                     connection_attribs;
 	drv::Prepare_stmt_data             ps_data;
 	zval                               capabilities;
-	compression::Configuration compression_cfg;
 private:
 	void free_contents();
 	Mysqlx::Datatypes::Object*  prepare_client_attr_object();
