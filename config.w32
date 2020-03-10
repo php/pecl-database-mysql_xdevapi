@@ -15,6 +15,18 @@ ARG_WITH("protobuf",
 	"protobuf library install dir",
 	"");
 
+ARG_WITH("lz4",
+	"lz4 library install dir",
+	"");
+
+ARG_WITH("zlib",
+	"zlib library install dir",
+	"");
+
+ARG_WITH("zstd",
+	"zstd library install dir",
+	"");
+
 ARG_ENABLE("dev-mode",
 	"Enable developer mode",
 	"no");

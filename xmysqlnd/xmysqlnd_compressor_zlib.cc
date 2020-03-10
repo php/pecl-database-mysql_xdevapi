@@ -17,8 +17,13 @@
 */
 #include "xmysqlnd_compressor.h"
 #include "xmysqlnd_compressor_zlib.h"
+#include "util/exceptions.h"
+#include "proto_gen/mysqlx_connection.pb.h"
+
+#define MYSQL_XDEVAPI_HAVE_ZLIB
 #ifdef MYSQL_XDEVAPI_HAVE_ZLIB
-//#include
+// #include "zlib.h"
+#include "t:/zlib/zlib-1.2.11/zlib.h"
 #endif
 
 namespace mysqlx {
@@ -27,9 +32,9 @@ namespace drv {
 
 namespace compression {
 
-namespace {
-
 #ifdef MYSQL_XDEVAPI_HAVE_ZLIB
+
+namespace {
 
 class Compressor_zlib : public Compressor
 {
@@ -38,93 +43,82 @@ public:
 	~Compressor_zlib() override;
 
 public:
-	std::size_t compress() override;
-	std::size_t decompress() override;
+	std::string compress(const util::bytes& uncompressed_payload) override;
+	util::bytes decompress(const Mysqlx::Connection::Compression& message) override;
 
 private:
-	z_stream u_zstream;       // Uncompression ZLib stream
-	z_stream c_zstream;       // Compression ZLib stream
-
+	z_stream compress_stream;
+	z_stream decompress_stream;
 };
 
-Compressor_zlib::Compressor_zlib(Protocol_compression& c)
+Compressor_zlib::Compressor_zlib()
 {
-	// Initial functions mapping, keep the internal implementation
-	c_zstream.zalloc = Z_NULL;
-	c_zstream.zfree = Z_NULL;
-	c_zstream.opaque = Z_NULL;
-	c_zstream.total_out = 0;
+	// compression
+	compress_stream.zalloc = Z_NULL;
+	compress_stream.zfree = Z_NULL;
+	compress_stream.opaque = Z_NULL;
+	compress_stream.total_out = 0;
 
-	// TODO: Make the compression level adjustable
-	if (deflateInit(&c_zstream, 9) != Z_OK)
-		throw_error("Could not initialize compression output stream");
+	const int Compression_level = 9;
+	if (deflateInit(&compress_stream, Compression_level) != Z_OK) {
+		throw std::runtime_error("cannot initialize zlib compression stream");
+	}
 
-	// Initial functions mapping, keep the internal implementation
-	u_zstream.zalloc = Z_NULL;
-	u_zstream.zfree = Z_NULL;
-	u_zstream.opaque = Z_NULL;
+	// decompression
+	decompress_stream.zalloc = Z_NULL;
+	decompress_stream.zfree = Z_NULL;
+	decompress_stream.opaque = Z_NULL;
 
-	if (inflateInit(&u_zstream) != Z_OK)
-		throw_error("Could not initialize compression input stream");
+	if (inflateInit(&decompress_stream) != Z_OK) {
+		throw std::runtime_error("cannot initialize zlib decompression stream");
+	}
 }
 
 Compressor_zlib::~Compressor_zlib()
 {
-	deflateEnd(&c_zstream);
-	inflateEnd(&u_zstream);
+	deflateEnd(&compress_stream);
+	inflateEnd(&decompress_stream);
 }
 
-
-size_t Compressor_zlib::compress(byte *src, size_t len)
+std::string Compressor_zlib::compress(const util::bytes& uncompressed_payload)
 {
-	size_t total_compressed_len = c_zstream.total_out;
+	compress_stream.next_in = const_cast<util::byte*>(uncompressed_payload.data());
+	compress_stream.avail_in = uncompressed_payload.size();
 
-	c_zstream.next_in = src;           // Input buffer with uncompressed data
-	c_zstream.avail_in = (uInt)len;    // Length of uncompressed data
+	std::string compressed_payload(deflateBound(&compress_stream, uncompressed_payload.size()), '\0');
+	compress_stream.next_out = reinterpret_cast<util::byte*>(&compressed_payload.front());
+	compress_stream.avail_out = compressed_payload.size();
 
-	/*
-	TODO: Do smarter allocation for compression buffer since
-	the upper bound might be quite redundant.
-	*/
-	size_t deflate_size = deflateBound(&c_zstream, (uLong)len);
-
-	// This will reallocate the buffer if needed and get its address
-	c_zstream.next_out = m_protocol_compression.get_out_buf(deflate_size);
-
-	c_zstream.avail_out = (uInt)m_protocol_compression.get_out_buf_len();
-
-	int res = deflate(&c_zstream, Z_SYNC_FLUSH);
-	if (res != Z_OK)
-	return 0;
-
-	return c_zstream.total_out - total_compressed_len;
-}
-
-size_t Compressor_zlib::uncompress(byte *dst,
-  size_t dest_size, size_t compressed_size,
-  size_t &bytes_consumed)
-{
-	u_zstream.next_in = m_protocol_compression.get_inp_buf();
-	u_zstream.avail_in = (uInt)compressed_size;
-
-	u_zstream.next_out = dst;
-	u_zstream.avail_out = (uInt)dest_size;
-	int inflate_res = inflate(&u_zstream, Z_SYNC_FLUSH);
-
-	if (inflate_res != Z_OK)
-	{
-		inflateReset(&u_zstream);
-		return COMPRESSION_ERROR;
+	if (deflate(&compress_stream, Z_SYNC_FLUSH) != Z_OK) {
+		throw std::runtime_error("error during zlib compression");
 	}
 
-	// The number of processed compressed bytes
-	bytes_consumed = compressed_size - u_zstream.avail_in;
-
-	// The number of uncompressed bytes
-	return dest_size - u_zstream.avail_out;
+	return compressed_payload;
 }
 
-#endif
+util::bytes Compressor_zlib::decompress(const Mysqlx::Connection::Compression& message)
+{
+	const std::string& compressed_payload = message.payload();
+	decompress_stream.next_in = reinterpret_cast<util::byte*>(const_cast<char*>(compressed_payload.data()));
+	decompress_stream.avail_in = compressed_payload.size();
+
+	const std::size_t uncompressed_size = static_cast<std::size_t>(message.uncompressed_size());
+	util::bytes uncompressed_payload(uncompressed_size);
+	decompress_stream.next_out = uncompressed_payload.data();
+	decompress_stream.avail_out = uncompressed_size;
+
+	if (inflate(&decompress_stream, Z_SYNC_FLUSH) != Z_OK) {
+		inflateReset(&decompress_stream);
+		throw std::runtime_error("error during zlib decompression");
+	}
+
+	// number of processed compressed bytes
+	//bytes_consumed = compressed_size  m_u_zstream.avail_in;
+	// number of uncompressed bytes
+	//return dest_size - m_u_zstream.avail_out;
+
+	return uncompressed_payload;
+}
 
 } // anonymous namespace
 
@@ -132,22 +126,27 @@ size_t Compressor_zlib::uncompress(byte *dst,
 
 bool is_compressor_zlib_available()
 {
-#ifdef MYSQL_XDEVAPI_HAVE_ZLIB
 	return true;
-#else
-	return false;
-#endif
 }
 
 Compressor* create_compressor_zlib()
 {
-//	assert(is_compressor_zlib_available());
-#ifdef MYSQL_XDEVAPI_HAVE_ZLIB
 	return new Compressor_zlib();
-#else
-	return nullptr;
-#endif
 }
+
+#else
+
+bool is_compressor_zlib_available()
+{
+	return false;
+}
+
+Compressor* create_compressor_zlib()
+{
+	throw util::xdevapi_exception(util::xdevapi_exception::Code::compressor_not_available);
+}
+
+#endif // MYSQL_XDEVAPI_HAVE_ZLIB
 
 } // namespace compression
 

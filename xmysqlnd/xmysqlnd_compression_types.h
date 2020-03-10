@@ -40,7 +40,11 @@ enum class Algorithm
 	zlib_deflate_stream
 };
 
+#ifdef MYSQL_XDEVAPI_DEV_MODE
 const std::size_t Compression_threshold = 200;
+#else
+const std::size_t Compression_threshold = 1000;
+#endif
 
 struct Configuration
 {

@@ -14,6 +14,27 @@ PHP_ARG_WITH(
 	no,
 	no)
 
+PHP_ARG_WITH(
+	lz4,
+	for lz4 install dir,
+	[  --with-lz4[=DIR]       Point out lz4 library],
+	no,
+	no)
+
+PHP_ARG_WITH(
+	zlib,
+	for zlib install dir,
+	[  --with-zlib[=DIR]       Point out zlib library],
+	no,
+	no)
+
+PHP_ARG_WITH(
+	zstd,
+	for zstd install dir,
+	[  --with-zstd[=DIR]       Point out zstd library],
+	no,
+	no)
+
 PHP_ARG_ENABLE(
 	dev-mode,
 	whether to enable developer mode,
@@ -265,7 +286,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	REQUIRED_BOOST_VER_MSG="required at least $MINIMAL_BOOST_VER_LABEL"
 	REQUIRED_BOOST_VER_MSG+=" (preferred is $PREFERRED_BOOST_VER_LABEL)"
 
-	if [ test -d "$WITH_BOOST" ]; then
+	if test -d "$WITH_BOOST"; then
 		PREFERRED_BOOST_LOCATION=[$WITH_BOOST/$PREFERRED_BOOST_VER_SUBDIR]
 	else
 		PREFERRED_BOOST_LOCATION=""
@@ -362,11 +383,11 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	echo [version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_SRC_PATH
 
  	AC_PATH_PROG(GIT_PATH, 'git')
-	if [ test -x "${GIT_PATH}" ]; then
+	if test -x "${GIT_PATH}"; then
 		IS_GIT_REPO=`git rev-parse --is-inside-work-tree`
 	fi
 
-	if [ test "${IS_GIT_REPO}" ]; then
+	if test "${IS_GIT_REPO}"; then
 		BRANCH_NAME=`git symbolic-ref --short HEAD`
 		echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
 
@@ -374,13 +395,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
 	else
 		# internal use, below envars available only on pb2 hosts without git
-		if [ test "${BRANCH_SOURCE}" ]; then
+		if test "${BRANCH_SOURCE}"; then
 			# e.g. export BRANCH_SOURCE='http://myrepo.no.oracle.com/git/connector-php-devapi.git wl-12276-expose-metadata'
 			BRANCH_NAME=`echo ${BRANCH_SOURCE} | cut -d' ' -f2`
 			echo [branch: ${BRANCH_NAME}] >> $INFO_SRC_PATH
 		fi
 
-		if [ test "${PUSH_REVISION}" ]; then
+		if test "${PUSH_REVISION}"; then
 			echo [commit: ${PUSH_REVISION}] >> $INFO_SRC_PATH
 		fi
 	fi
@@ -428,7 +449,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
 	echo [php-config: ${PHP_CONFIG}] >> $INFO_BIN_PATH
-    if [test "$enable_maintainer_zts" = "yes"]; then
+    if test "$enable_maintainer_zts" = "yes"; then
       THREAD_SAFETY="yes"
     else
       THREAD_SAFETY="no"

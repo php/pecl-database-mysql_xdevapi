@@ -19,7 +19,7 @@
 #include "xmysqlnd_compressor_lz4.h"
 #include "util/exceptions.h"
 #include "proto_gen/mysqlx_connection.pb.h"
-#include <iostream>
+
 #define MYSQL_XDEVAPI_HAVE_LZ4
 #ifdef MYSQL_XDEVAPI_HAVE_LZ4
 #include "O:/devapi-7.1.task/devapi/src/extra/lz4/lz4.h"
@@ -118,17 +118,14 @@ std::string Compressor_lz4::compress(const util::bytes& uncompressed_payload)
 
 util::bytes Compressor_lz4::decompress(const Mysqlx::Connection::Compression& message)
 {
-	const std::string& payload = message.payload();
-	const std::size_t compressed_size = payload.length();
+	const std::string& compressed_payload = message.payload();
+	const std::size_t compressed_size = compressed_payload.size();
 	std::size_t all_processed_bytes = 0;
-	const char* src = payload.data();
+	const char* src = compressed_payload.data();
 
-	util::bytes uncompressed_payload;
 	const std::size_t uncompressed_size = static_cast<std::size_t>(message.uncompressed_size());
+	util::bytes uncompressed_payload(uncompressed_size);
 	std::size_t all_written_bytes = 0;
-	if (uncompressed_payload.size() < uncompressed_size) {
-		uncompressed_payload.resize(uncompressed_size);
-	}
 	unsigned char* dest = uncompressed_payload.data();
 
 	bool keep_processing = true;
