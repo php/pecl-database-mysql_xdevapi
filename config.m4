@@ -97,13 +97,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		php_mysqlx_ex.cc \
 		"
 
-	extra_lz4=" \
-		extra/lz4/lz4.c \
-		extra/lz4/lz4frame.c \
-		extra/lz4/lz4hc.c \
-		extra/lz4/xxhash.c \
-		"
-
 	mysqlx_util=" \
 		util/allocator.cc \
 		util/exceptions.cc \

@@ -649,7 +649,7 @@ xmysqlnd_receive_message(
 					msg_ctx,
 					empty_decompressed_messages,
 					message.packet_type,
-					message.payload.size(),
+					static_cast<int>(message.payload.size()),
 					message.payload.data());
 				// we don't expect any compressed message among just decompressed ones :-P
 				assert(empty_decompressed_messages.empty());
