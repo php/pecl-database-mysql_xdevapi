@@ -361,6 +361,14 @@ function is_dev_mode() {
 	return PHP_DEV_MODE == "yes";
 }
 
+function devmode_message(message) {
+	if (is_dev_mode()) {
+		ERROR(message);
+	} else {
+		WARNING(message);
+	}
+}
+
 function is_phpize_mode() {
 	return MODE_PHPIZE;
 }
@@ -385,6 +393,14 @@ var protoc_path;
 var lz4_lib_path;
 var lz4_include_dir;
 var lz4_enabled;
+
+var zlib_lib_path;
+var zlib_include_dir;
+var zlib_enabled;
+
+var zstd_lib_path;
+var zstd_include_dir;
+var zstd_enabled;
 
 // ------
 
@@ -533,97 +549,120 @@ function resolve_protobuf_paths() {
 	}
 }
 
-// ------
+// ------------
 
-function get_lz4_lib_search_label() {
-	return '[lib]lz4[_static]' + (PHP_DEBUG == "yes" ? '[d]' : '') + '.lib';
+function get_compressor_lib_search_label(compressor_name) {
+	return '[lib]' + compressor_name + '[_static]' + (PHP_DEBUG == "yes" ? '[d]' : '') + '.lib';
 }
 
-// function get_compression_lib_search_dirs(default_lz4_root) {
-function get_lz4_lib_search_dirs(default_lz4_root) {
+function get_compressor_lib_search_dirs(custom_root, default_root) {
 	var search_dirs = [
-			prepare_optional_path(PHP_LZ4, 'static'),
-			prepare_optional_path(PHP_LZ4, 'lib'),
-			prepare_optional_path(PHP_LZ4, 'dll')
+			prepare_optional_path(custom_root, 'static'),
+			prepare_optional_path(custom_root, 'lib'),
+			prepare_optional_path(custom_root, 'dll')
 		]
 		.concat(this.extra_libs)
 		.concat([
-			prepare_optional_path(default_lz4_root, 'static'),
-			prepare_optional_path(default_lz4_root, 'lib'),
-			prepare_optional_path(default_lz4_root, 'dll')
+			prepare_optional_path(default_root, 'static'),
+			prepare_optional_path(default_root, 'lib'),
+			prepare_optional_path(default_root, 'dll')
 		]);
 	return search_dirs;
 }
 
-function get_lz4_lib_names() {
-	var generic_libnames = [
-		'liblz4_static',
-		'lz4_static',
-		'lz4',
-		'liblz4'
-	];
-	return generate_lib_names(generic_libnames);
-}
-
-function resolve_lz4_lib_dir(default_lz4_root) {
-	var dirs_to_search = get_lz4_lib_search_dirs(default_lz4_root);
-	var libnames = get_lz4_lib_names();
-	var label = get_lz4_lib_search_label();
+function resolve_compressor_lib_dir(compressor_name, custom_root, default_root, generic_libnames) {
+	var dirs_to_search = get_compressor_lib_search_dirs(custom_root, default_root);
+	var libnames = generate_lib_names(generic_libnames);
+	var label = get_compressor_lib_search_label(compressor_name);
 	return search_path(dirs_to_search, libnames, label);
 }
 
-
-//function resolve_compressor(compressor_root, compressor_header) {
-//	var lz4_lib_path = resolve_lz4_lib_dir;
-
-////	var Lz4_header = "lz4.h"
-////	var Zlib_header = "zlib.h"
-////	var Zstd_header = "zstd.h"
-//
-//
-//	if () {
-//
-//	}
-//}
-
-function resolve_lz4_include_dir(default_lz4_root) {
+function resolve_compressor_include_dir(custom_root, default_root, header_filename) {
 	var dirs_to_search =
-		[prepare_optional_path(PHP_LZ4, 'include')]
+		[prepare_optional_path(custom_root, 'include')]
 		.concat(this.extra_includes)
-		.concat([prepare_optional_path(default_lz4_root, 'include')]);
+		.concat([prepare_optional_path(default_root, 'include')]);
 
-	return search_base_path(dirs_to_search, "lz4.h");
+	return search_base_path(dirs_to_search, header_filename);
 }
+
+function verify_compressor_lib(compressor_name, lib_path, include_dir) {
+	if (!lib_path || !include_dir) {
+		devmode_message(compressor_name + " library not found");
+		return false;
+	}
+
+	if (!check_lib_by_path(lib_path)) {
+		devmode_message("invalid " + compressor_name + " library");
+		return false;
+	}
+
+	return true;
+}
+
+// ------
 
 function resolve_compressor_lz4() {
 	if (!PHP_LZ4) return;
-	var default_lz4_root = resolve_default_root('lz4');
-	this.lz4_lib_path = resolve_lz4_lib_dir(default_lz4_root);
-	this.lz4_include_dir = resolve_lz4_include_dir(default_lz4_root);
-	if (!this.lz4_lib_path || !this.lz4_include_dir) {
-		var message = "lz4 library not found";
-		if (is_dev_mode()) {
-			ERROR(message);
-		} else {
-			WARNING(message);
-		}
-	} else if (!check_lib_by_path(this.lz4_lib_path)) {
-		var message = "invalid lz4 library";
-		if (is_dev_mode()) {
-			ERROR(message);
-		} else {
-			WARNING(message);
-		}
-	} else {
+
+	var compressor_name = 'lz4';
+	var generic_libnames = [
+		'liblz4_static',
+		'lz4_static',
+		'liblz4',
+		'lz4'
+	];
+
+	var default_root = resolve_default_root(compressor_name);
+	this.lz4_lib_path = resolve_compressor_lib_dir(compressor_name, PHP_LZ4, default_root, generic_libnames);
+	this.lz4_include_dir = resolve_compressor_include_dir(PHP_LZ4, default_root, "lz4.h");
+	if (verify_compressor_lib(compressor_name, this.lz4_lib_path, this.lz4_include_dir)) {
 		this.lz4_enabled = true;
+	}
+}
+
+function resolve_compressor_zlib() {
+	if (!PHP_ZLIB) return;
+
+	var compressor_name = 'zlib';
+	var generic_libnames = [
+		'zlib_static',
+		'libz_static',
+		'zlib',
+		'libz'
+	];
+
+	var default_root = resolve_default_root(compressor_name);
+	this.zlib_lib_path = resolve_compressor_lib_dir(compressor_name, PHP_ZLIB, default_root, generic_libnames);
+	this.zlib_include_dir = resolve_compressor_include_dir(PHP_ZLIB, default_root, "zlib.h");
+	if (verify_compressor_lib(compressor_name, this.zlib_lib_path, this.zlib_include_dir)) {
+		this.zlib_enabled = true;
+	}
+}
+
+function resolve_compressor_zstd() {
+	if (!PHP_ZSTD) return;
+
+	var compressor_name = 'zstd';
+	var generic_libnames = [
+		'libzstd_static',
+		'zstd_static',
+		'libzstd',
+		'zstd'
+	];
+
+	var default_root = resolve_default_root(compressor_name);
+	this.zstd_lib_path = resolve_compressor_lib_dir(compressor_name, PHP_ZSTD, default_root, generic_libnames);
+	this.zstd_include_dir = resolve_compressor_include_dir(PHP_ZSTD, default_root, "zstd.h");
+	if (verify_compressor_lib(compressor_name, this.zstd_lib_path, this.zstd_include_dir)) {
+		this.zstd_enabled = true;
 	}
 }
 
 function resolve_compressors() {
 	resolve_compressor_lz4();
-//	resolve_compressor_lz4(PHP_LZ4, Lz4_header);
-//	resolve_compressor(PHP_ZLIB, Zlib_header);
-//	resolve_compressor(PHP_ZSTD, Zstd_header);
+	resolve_compressor_zlib();
+	resolve_compressor_zstd();
 }
 
 // ------
@@ -765,7 +804,9 @@ function get_includes() {
 		get_src_path("xmysqlnd\\cdkbase\\extra\\rapidjson\\include"),
 		this.protobuf_include_dir,
 		this.boost_root,
-		optional_include(this.lz4_enabled, this.lz4_include_dir)
+		optional_include(this.lz4_enabled, this.lz4_include_dir),
+		optional_include(this.zlib_enabled, this.zlib_include_dir),
+		optional_include(this.zstd_enabled, this.zstd_include_dir)
 	];
 
 	return concatenate(includes, prepare_include);
@@ -783,6 +824,8 @@ function get_preprocessor_definitions() {
 		"/U ZEND_WIN32_FORCE_INLINE",
 		cfg_preprocessor_def(PHP_DEV_MODE, "MYSQL_XDEVAPI_DEV_MODE"),
 		cfg_preprocessor_def(this.lz4_enabled, "MYSQL_XDEVAPI_HAVE_LZ4"),
+		cfg_preprocessor_def(this.zlib_enabled, "MYSQL_XDEVAPI_HAVE_ZLIB"),
+		cfg_preprocessor_def(this.zstd_enabled, "MYSQL_XDEVAPI_HAVE_ZSTD"),
 	].join(' ');
 }
 
@@ -1033,6 +1076,19 @@ function expose_binaries_metadata() {
 	metafile.WriteLine("lz4-lib-path: " + extract_full_path(this.lz4_lib_path));
 	metafile.WriteLine("lz4-include-dir: " + this.lz4_include_dir);
 	metafile.WriteLine("lz4-enabled: " + this.lz4_enabled);
+
+	metafile.WriteBlankLines(1);
+
+	metafile.WriteLine("zlib-lib-path: " + extract_full_path(this.zlib_lib_path));
+	metafile.WriteLine("zlib-include-dir: " + this.zlib_include_dir);
+	metafile.WriteLine("zlib-enabled: " + this.zlib_enabled);
+
+	metafile.WriteBlankLines(1);
+
+	metafile.WriteLine("zstd-lib-path: " + extract_full_path(this.zstd_lib_path));
+	metafile.WriteLine("zstd-include-dir: " + this.zstd_include_dir);
+	metafile.WriteLine("zstd-enabled: " + this.zstd_enabled);
+
 	metafile.WriteLine("===== EOF =====");
 
 	metafile.Close();

@@ -20,10 +20,8 @@
 #include "util/exceptions.h"
 #include "proto_gen/mysqlx_connection.pb.h"
 
-#define MYSQL_XDEVAPI_HAVE_ZSTD
 #ifdef MYSQL_XDEVAPI_HAVE_ZSTD
-// #include "zstd.h"
-#include "t:/zstd/zstd-v1.4.4-win64/include/zstd.h"
+#include <zstd.h>
 #endif
 
 namespace mysqlx {

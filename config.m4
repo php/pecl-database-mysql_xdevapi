@@ -438,13 +438,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	COMPILER_VERSION=`${CXX} --version | head -1`
 	echo [compiler: "${COMPILER_VERSION}"] >> $INFO_BIN_PATH
 
-	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
-	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
-	echo [boost-root: ${BOOST_RESOLVED_ROOT}] >> $INFO_BIN_PATH
-
-	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
-	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
-	echo [protbuf-root: ${PROTOBUF_RESOLVED_ROOT}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
 	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
@@ -473,6 +466,16 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	echo [LDFLAGS: ${LDFLAGS}] >> $INFO_BIN_PATH
 	echo [PHP_LDFLAGS: ${PHP_LDFLAGS}] >> $INFO_BIN_PATH
 
-	echo [===== EOF =====] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
 
+	echo [===== Libraries: =====] >> $INFO_BIN_PATH
+	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
+	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
+	echo [boost-root: ${BOOST_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
+	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
+	echo [protbuf-root: ${PROTOBUF_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [===== EOF =====] >> $INFO_BIN_PATH
 fi

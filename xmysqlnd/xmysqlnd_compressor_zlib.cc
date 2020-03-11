@@ -20,10 +20,8 @@
 #include "util/exceptions.h"
 #include "proto_gen/mysqlx_connection.pb.h"
 
-#define MYSQL_XDEVAPI_HAVE_ZLIB
 #ifdef MYSQL_XDEVAPI_HAVE_ZLIB
-// #include "zlib.h"
-#include "t:/zlib/zlib-1.2.11/zlib.h"
+#include <zlib.h>
 #endif
 
 namespace mysqlx {
