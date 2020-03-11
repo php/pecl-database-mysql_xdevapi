@@ -328,7 +328,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	SEARCH_PATH="$PHP_PROTOBUF $MYSQL_XDEVAPI_PROTOBUF_ROOT $PROTOBUF_ROOT $PROTOBUF_PATH /usr/local /usr"
 	SEARCH_FOR="bin/protoc"
 	for i in $SEARCH_PATH ; do
-		if test -r "$i/$SEARCH_FOR"; then
+		if test -x "$i/$SEARCH_FOR"; then
 			PROTOBUF_RESOLVED_ROOT=$i
 			break
 		fi

@@ -332,38 +332,17 @@ std::string prepare_compression_message_payload(
 	const compression::Compress_result& compress_result,
 	Message_context& msg_ctx)
 {
-	// std::string output;
-	// google::protobuf::io::StringOutputStream string_zero_stream(&output);
-	// google::protobuf::io::CodedOutputStream ostream(&string_zero_stream);
-
-	// Mysqlx::Connection::Compression compression_first_fields;
-	// Mysqlx::Connection::Compression compression_payload;
-
-	// compression_first_fields.set_client_messages(
-	// 	static_cast<Mysqlx::ClientMessages_Type>(packet_type));
-	// compression_first_fields.set_uncompressed_size(uncompressed_size);
-
-	// compression_payload.set_payload(compressed_payload);
-
-	// // use SerializePartial to encode the "first_fields" before the "payload"
-	// compression_first_fields.SerializePartialToCodedStream(&ostream);
-	// compression_payload.SerializePartialToCodedStream(&ostream);
-
 	Mysqlx::Connection::Compression compression_msg;
 
 	compression_msg.set_client_messages(
 		static_cast<Mysqlx::ClientMessages_Type>(packet_type));
 	compression_msg.set_uncompressed_size(compress_result.uncompressed_size);
-
 	compression_msg.set_payload(compress_result.compressed_payload);
 
 	Messages messages;
-	// auto res =
 	msg_ctx.compression_executor->decompress_messages(compression_msg, messages);
 
 	std::string output;
-	//(message.ByteSize());
-	// const size_t payload_size = message.ByteSize();
 	compression_msg.SerializeToString(&output);
 	return output;
 }
@@ -1723,7 +1702,6 @@ stmt_execute_on_COMPRESSED(
 	Messages& messages)
 {
 	DBG_ENTER("stmt_on_COMPRESSED");
-	// if (decompress_messages(message, messages))
 	msg_ctx.compression_executor->decompress_messages(message, messages);
 	DBG_RETURN(HND_AGAIN);
 }

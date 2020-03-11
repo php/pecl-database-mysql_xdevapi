@@ -41,6 +41,7 @@ configure : function() {
 var Ext_label = "mysql-xdevapi";
 var Ext_name = "mysql_xdevapi";
 
+
 var Boost_version_header = "boost\\version.hpp";
 
 var Minimal_boost_ver = 105300;
@@ -48,6 +49,7 @@ var Minimal_boost_ver_label = "1.53.00";
 
 var Preferred_boost_ver_subdir = "boost_1_70_0";
 var Preferred_boost_ver_label = "1.70.00";
+
 
 var Sources_metadata_filename = "INFO_SRC";
 var Binaries_metadata_filename = "INFO_BIN";
@@ -96,13 +98,6 @@ var mysqlx_devapi_sources = [
 	"mysqlx_warning.cc",
 	"php_mysqlx.cc",
 	"php_mysqlx_ex.cc",
-];
-
-var extra_lz4 = [
-	"lz4.c",
-	"lz4frame.c",
-	"lz4hc.c",
-	"xxhash.c"
 ];
 
 var mysqlx_util = [
@@ -272,6 +267,33 @@ function get_env_lib(env_var) {
 
 // ------
 
+function generate_lib_names(generic_libnames) {
+	var libnames = [];
+	for (var i = 0; i < generic_libnames.length; ++i) {
+		var generic_libname = generic_libnames[i];
+		var libname = generic_libname + '.lib';
+		libnames.push(libname);
+
+		if (PHP_DEBUG == "yes") {
+			var libname_dbg = generic_libname + 'd.lib';
+			libnames.push(libname_dbg);
+		}
+	}
+	return libnames;
+}
+
+// is_inside_subdir = true if executable is located in subdir like e.g. 'bin', then root
+// is located one level upper
+function resolve_default_root(executable_name, is_inside_subdir) {
+	var executable_path = PATH_PROG(executable_name, get_env("PATH"));
+	if (!executable_path) return null;
+	var executable_dir = file_system.GetParentFolderName(executable_path);
+	if (is_inside_subdir) {
+		executable_dir = file_system.GetParentFolderName(executable_dir);
+	}
+	return executable_dir;
+}
+
 function path_exists(path) {
 	return file_system.FolderExists(path) || file_system.FileExists(path);
 }
@@ -279,6 +301,14 @@ function path_exists(path) {
 function prepare_optional_path(base_dir, sub_dir) {
 	if (!base_dir) return null;
 	return base_dir + '\\' + sub_dir;
+}
+
+function extract_base_path(path_data) {
+	return path_data ? path_data.base_path : null;
+}
+
+function extract_full_path(path_data) {
+	return path_data ? path_data.full_path : null;
 }
 
 function search_path(base_paths, subpaths, label) {
@@ -316,6 +346,17 @@ function search_full_path(base_paths, subpath) {
 
 // ------
 
+function check_lib(libname, path_to_check) {
+	return CHECK_LIB(libname, Ext_name, path_to_check);
+}
+
+function check_lib_by_path(lib_path) {
+	if (!lib_path) return false;
+	return check_lib(lib_path.subpath, lib_path.base_path);
+}
+
+// ------
+
 function is_dev_mode() {
 	return PHP_DEV_MODE == "yes";
 }
@@ -340,6 +381,10 @@ var boost_version;
 var protobuf_lib_path;
 var protobuf_include_dir;
 var protoc_path;
+
+var lz4_lib_path;
+var lz4_include_dir;
+var lz4_enabled;
 
 // ------
 
@@ -415,15 +460,6 @@ function validate_boost_version() {
 
 // ------
 
-function resolve_default_protobuf_root() {
-	var default_protoc_path = PATH_PROG('protoc', get_env("PATH"));
-	if (!default_protoc_path) return null;
-	var default_protobuf_bin_dir = file_system.GetParentFolderName(default_protoc_path);
-	return file_system.GetParentFolderName(default_protobuf_bin_dir);
-}
-
-// ------
-
 function get_protobuf_lib_search_label() {
 	return '[lib]protobuf' + (PHP_DEBUG == "yes" ? '[d]' : '') + '.lib';
 }
@@ -443,19 +479,11 @@ function get_protobuf_lib_search_dirs(default_protobuf_root) {
 }
 
 function get_protobuf_lib_names() {
-	var libnames = [
-		'protobuf.lib',
-		'libprotobuf.lib'
+	var generic_libnames = [
+		'protobuf',
+		'libprotobuf'
 	];
-
-	if (PHP_DEBUG == "yes") {
-		libnames = libnames.concat([
-			'protobufd.lib',
-			'libprotobufd.lib'
-		]);
-	}
-
-	return libnames;
+	return generate_lib_names(generic_libnames);
 }
 
 function resolve_protobuf_lib_dir(default_protobuf_root) {
@@ -485,7 +513,7 @@ function resolve_protoc_path() {
 	var dirs_to_search = [
 		PHP_PROTOBUF,
 		get_env_path('MYSQL_XDEVAPI_PROTOBUF_ROOT'),
-		prepare_optional_path(this.protobuf_lib_path ? this.protobuf_lib_path.base_path : null, '..'),
+		prepare_optional_path(extract_base_path(this.protobuf_lib_path), '..'),
 		prepare_optional_path(this.protobuf_include_dir, '..'),
 		get_env_path('PROTOBUF_ROOT'),
 		get_env_path('PROTOBUF_PATH')
@@ -495,7 +523,7 @@ function resolve_protoc_path() {
 }
 
 function resolve_protobuf_paths() {
-	var default_protobuf_root = resolve_default_protobuf_root();
+	var default_protobuf_root = resolve_default_root('protoc', true);
 	this.protobuf_lib_path = resolve_protobuf_lib_dir(default_protobuf_root);
 	this.protobuf_include_dir = resolve_protobuf_include_dir(default_protobuf_root);
 	this.protoc_path = resolve_protoc_path();
@@ -507,25 +535,110 @@ function resolve_protobuf_paths() {
 
 // ------
 
+function get_lz4_lib_search_label() {
+	return '[lib]lz4[_static]' + (PHP_DEBUG == "yes" ? '[d]' : '') + '.lib';
+}
+
+// function get_compression_lib_search_dirs(default_lz4_root) {
+function get_lz4_lib_search_dirs(default_lz4_root) {
+	var search_dirs = [
+			prepare_optional_path(PHP_LZ4, 'static'),
+			prepare_optional_path(PHP_LZ4, 'lib'),
+			prepare_optional_path(PHP_LZ4, 'dll')
+		]
+		.concat(this.extra_libs)
+		.concat([
+			prepare_optional_path(default_lz4_root, 'static'),
+			prepare_optional_path(default_lz4_root, 'lib'),
+			prepare_optional_path(default_lz4_root, 'dll')
+		]);
+	return search_dirs;
+}
+
+function get_lz4_lib_names() {
+	var generic_libnames = [
+		'liblz4_static',
+		'lz4_static',
+		'lz4',
+		'liblz4'
+	];
+	return generate_lib_names(generic_libnames);
+}
+
+function resolve_lz4_lib_dir(default_lz4_root) {
+	var dirs_to_search = get_lz4_lib_search_dirs(default_lz4_root);
+	var libnames = get_lz4_lib_names();
+	var label = get_lz4_lib_search_label();
+	return search_path(dirs_to_search, libnames, label);
+}
+
+
+//function resolve_compressor(compressor_root, compressor_header) {
+//	var lz4_lib_path = resolve_lz4_lib_dir;
+
+////	var Lz4_header = "lz4.h"
+////	var Zlib_header = "zlib.h"
+////	var Zstd_header = "zstd.h"
+//
+//
+//	if () {
+//
+//	}
+//}
+
+function resolve_lz4_include_dir(default_lz4_root) {
+	var dirs_to_search =
+		[prepare_optional_path(PHP_LZ4, 'include')]
+		.concat(this.extra_includes)
+		.concat([prepare_optional_path(default_lz4_root, 'include')]);
+
+	return search_base_path(dirs_to_search, "lz4.h");
+}
+
+function resolve_compressor_lz4() {
+	if (!PHP_LZ4) return;
+	var default_lz4_root = resolve_default_root('lz4');
+	this.lz4_lib_path = resolve_lz4_lib_dir(default_lz4_root);
+	this.lz4_include_dir = resolve_lz4_include_dir(default_lz4_root);
+	if (!this.lz4_lib_path || !this.lz4_include_dir) {
+		var message = "lz4 library not found";
+		if (is_dev_mode()) {
+			ERROR(message);
+		} else {
+			WARNING(message);
+		}
+	} else if (!check_lib_by_path(this.lz4_lib_path)) {
+		var message = "invalid lz4 library";
+		if (is_dev_mode()) {
+			ERROR(message);
+		} else {
+			WARNING(message);
+		}
+	} else {
+		this.lz4_enabled = true;
+	}
+}
+
+function resolve_compressors() {
+	resolve_compressor_lz4();
+//	resolve_compressor_lz4(PHP_LZ4, Lz4_header);
+//	resolve_compressor(PHP_ZLIB, Zlib_header);
+//	resolve_compressor(PHP_ZSTD, Zstd_header);
+}
+
+// ------
+
 function init_prerequisites() {
 	resolve_extra_includes();
 	resolve_extra_libs();
 	resolve_boost_paths();
 	validate_boost_version();
 	resolve_protobuf_paths();
+	resolve_compressors();
 }
 
 // ----------------------------------------------------------------------------
 // requirements
-
-function check_lib(libname, path_to_check) {
-	return CHECK_LIB(libname, Ext_name, path_to_check);
-}
-
-function check_protobuf_lib_by_path(lib_path) {
-	if (!lib_path) return false;
-	return check_lib(lib_path.subpath, lib_path.base_path);
-}
 
 function check_protobuf_lib_by_default_name() {
 	var libnames = get_protobuf_lib_names();
@@ -538,7 +651,7 @@ function check_protobuf_lib_by_default_name() {
 }
 
 function is_protobuf_available() {
-	return check_protobuf_lib_by_path(this.protobuf_lib_path)
+	return check_lib_by_path(this.protobuf_lib_path)
 		|| check_protobuf_lib_by_default_name();
 }
 
@@ -640,6 +753,10 @@ function prepare_include(dir) {
 	return "/I " + escape_path(dir);
 }
 
+function optional_include(is_enabled, include_dir) {
+	return is_enabled ? include_dir : null;
+}
+
 function get_includes() {
 	var includes = [
 		get_src_path(""),
@@ -647,14 +764,15 @@ function get_includes() {
 		get_src_path("xmysqlnd\\cdkbase\\include"),
 		get_src_path("xmysqlnd\\cdkbase\\extra\\rapidjson\\include"),
 		this.protobuf_include_dir,
-		this.boost_root
+		this.boost_root,
+		optional_include(this.lz4_enabled, this.lz4_include_dir)
 	];
 
 	return concatenate(includes, prepare_include);
 }
 
 function cfg_preprocessor_def(config_argument, preprocessor_def) {
-	if (config_argument == 'no') return '';
+	if (!config_argument || (config_argument == 'no')) return '';
 	return '/D ' + preprocessor_def;
 }
 
@@ -663,7 +781,8 @@ function get_preprocessor_definitions() {
 		"/D ZEND_ENABLE_STATIC_TSRMLS_CACHE=1",
 		"/D ZEND_WIN32_KEEP_INLINE",
 		"/U ZEND_WIN32_FORCE_INLINE",
-		cfg_preprocessor_def(PHP_DEV_MODE, "MYSQL_XDEVAPI_DEV_MODE")
+		cfg_preprocessor_def(PHP_DEV_MODE, "MYSQL_XDEVAPI_DEV_MODE"),
+		cfg_preprocessor_def(this.lz4_enabled, "MYSQL_XDEVAPI_HAVE_LZ4"),
 	].join(' ');
 }
 
@@ -725,7 +844,6 @@ function add_sources(subdir, sources, cflags) {
 }
 
 function setup_sources() {
-	add_sources("extra\\lz4", extra_lz4);
 	add_sources("util", mysqlx_util);
 	add_sources("xmysqlnd", xmysqlnd_sources);
 	add_sources("xmysqlnd\\cdkbase\\core", xmysqlnd_cdkbase_core);
@@ -867,15 +985,6 @@ function expose_binaries_metadata() {
 	metafile.WriteLine("toolset: " + PHP_TOOLSET);
 	metafile.WriteLine("compiler: " + get_compiler_name());
 
-	metafile.WriteLine("boost: " + this.boost_version);
-	metafile.WriteLine("boost-root: " + this.boost_root);
-
-	var protobuf_version_cmd = this.protoc_path + ' --version';
-	var protobuf_version = run_command(protobuf_version_cmd);
-	metafile.WriteLine("protbuf: " + protobuf_version);
-	metafile.WriteLine("protobuf-include-dir: " + this.protobuf_include_dir);
-	metafile.WriteLine("protoc-path: " + this.protoc_path);
-
 	metafile.WriteBlankLines(1);
 
 	metafile.WriteLine("===== Feature flags used: =====");
@@ -886,6 +995,9 @@ function expose_binaries_metadata() {
 	metafile.WriteLine("developer-mode: " + PHP_DEV_MODE);
 	metafile.WriteLine("--with-boost: " + PHP_BOOST);
 	metafile.WriteLine("--with-protobuf: " + PHP_PROTOBUF);
+	metafile.WriteLine("--with-lz4: " + PHP_LZ4);
+	metafile.WriteLine("--with-zlib: " + PHP_ZLIB);
+	metafile.WriteLine("--with-zstd: " + PHP_ZSTD);
 	write_metadata_from_define("MYSQL_XDEVAPI_BOOST_ROOT", metafile);
 	write_metadata_from_define("MYSQL_XDEVAPI_PROTOBUF_ROOT", metafile);
 	metafile.WriteLine("extra-includes: " + PHP_EXTRA_INCLUDES);
@@ -900,6 +1012,27 @@ function expose_binaries_metadata() {
 	write_metadata_from_define("LDFLAGS", metafile);
 	write_metadata_from_define("PHP_LDFLAGS", metafile);
 
+	metafile.WriteBlankLines(1);
+
+	metafile.WriteLine("===== Libraries: =====");
+
+	metafile.WriteLine("boost: " + this.boost_version);
+	metafile.WriteLine("boost-root: " + this.boost_root);
+
+	metafile.WriteBlankLines(1);
+
+	var protobuf_version_cmd = this.protoc_path + ' --version';
+	var protobuf_version = run_command(protobuf_version_cmd);
+	metafile.WriteLine("protbuf: " + protobuf_version);
+	metafile.WriteLine("protobuf-lib-path: " + extract_full_path(this.protobuf_lib_path));
+	metafile.WriteLine("protobuf-include-dir: " + this.protobuf_include_dir);
+	metafile.WriteLine("protoc-path: " + this.protoc_path);
+
+	metafile.WriteBlankLines(1);
+
+	metafile.WriteLine("lz4-lib-path: " + extract_full_path(this.lz4_lib_path));
+	metafile.WriteLine("lz4-include-dir: " + this.lz4_include_dir);
+	metafile.WriteLine("lz4-enabled: " + this.lz4_enabled);
 	metafile.WriteLine("===== EOF =====");
 
 	metafile.Close();

@@ -20,10 +20,9 @@
 #include "util/exceptions.h"
 #include "proto_gen/mysqlx_connection.pb.h"
 
-#define MYSQL_XDEVAPI_HAVE_LZ4
 #ifdef MYSQL_XDEVAPI_HAVE_LZ4
-#include "O:/devapi-7.1.task/devapi/src/extra/lz4/lz4.h"
-#include "O:/devapi-7.1.task/devapi/src/extra/lz4/lz4frame.h"
+#include <lz4.h>
+#include <lz4frame.h>
 #endif
 
 namespace mysqlx {
