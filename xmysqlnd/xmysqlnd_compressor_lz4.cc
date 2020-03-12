@@ -53,11 +53,11 @@ private:
 
 Compressor_lz4::Compressor_lz4()
 {
-	if (LZ4F_isError(LZ4F_createCompressionContext(&compress_ctx, LZ4F_getVersion()))) {
+	if (LZ4F_isError(LZ4F_createCompressionContext(&compress_ctx, LZ4F_VERSION))) {
 		throw std::runtime_error("cannot create lz4 compression context");
 	}
 
-	if (LZ4F_isError(LZ4F_createDecompressionContext(&decompress_ctx, LZ4F_getVersion()))) {
+	if (LZ4F_isError(LZ4F_createDecompressionContext(&decompress_ctx, LZ4F_VERSION))) {
 		throw std::runtime_error("cannot create lz4 decompression context");
 	}
 

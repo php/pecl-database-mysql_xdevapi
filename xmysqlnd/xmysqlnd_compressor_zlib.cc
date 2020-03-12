@@ -91,6 +91,7 @@ std::string Compressor_zlib::compress(const util::bytes& uncompressed_payload)
 		throw std::runtime_error("error during zlib compression");
 	}
 
+	compressed_payload.resize(compress_stream.total_out);
 	return compressed_payload;
 }
 
@@ -110,11 +111,7 @@ util::bytes Compressor_zlib::decompress(const Mysqlx::Connection::Compression& m
 		throw std::runtime_error("error during zlib decompression");
 	}
 
-	// number of processed compressed bytes
-	//bytes_consumed = compressed_size  m_u_zstream.avail_in;
-	// number of uncompressed bytes
-	//return dest_size - m_u_zstream.avail_out;
-
+	assert((decompress_stream.avail_in == 0) && (decompress_stream.avail_out == 0));
 	return uncompressed_payload;
 }
 
