@@ -20,6 +20,7 @@
 
 MYSQLX_SUPPRESS_ALL_WARNINGS()
 #include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 #include <google/protobuf/wire_format_lite.h>
 MYSQLX_RESTORE_WARNINGS()

@@ -50,39 +50,64 @@ PHP_ARG_ENABLE(
 	yes)
 
 AC_DEFUN([MYSQL_XDEVAPI_ADD_CXXFLAGS], [
-	MYSQL_XDEVAPI_CXXFLAGS="$MYSQL_XDEVAPI_CXXFLAGS $1"
+	CXXFLAG=$1
+	MYSQL_XDEVAPI_CXXFLAGS="$MYSQL_XDEVAPI_CXXFLAGS $CXXFLAG"
 ])
 
 AC_DEFUN([MYSQL_XDEVAPI_DEFINE], [
-	MYSQL_XDEVAPI_ADD_CXXFLAGS([-D$1])
+	CPP_DEFINE=$1
+	MYSQL_XDEVAPI_ADD_CXXFLAGS([-D$CPP_DEFINE])
 ])
 
-dnl AC_DEFUN([MYSQL_XDEVAPI_COMPRESSOR], [
-dnl 	if test "$PHP_LZ4" != "no"; then
-dnl 		AC_MSG_CHECKING([for lz4])
-dnl 		SEARCH_PATH="$PHP_LZ4 /usr/local /usr"
-dnl 		SEARCH_FOR="include/lz4.h"
-dnl 		for i in $SEARCH_PATH ; do
-dnl 			if test -r "$i/$SEARCH_FOR"; then
-dnl 				LZ4_RESOLVED_ROOT=$i
-dnl 				break
-dnl 			fi
-dnl 		done
-dnl
-dnl 		if test -d "$LZ4_RESOLVED_ROOT"; then
-dnl 			PHP_ADD_INCLUDE([$LZ4_RESOLVED_ROOT/include])
-dnl 			PHP_ADD_LIBRARY_WITH_PATH(lz4, [$LZ4_RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
-dnl 			MYSQL_XDEVAPI_DEFINE(MYSQL_XDEVAPI_HAVE_LZ4)
-dnl 			AC_MSG_RESULT(found in $LZ4_RESOLVED_ROOT)
-dnl 		else
-dnl 			AC_MSG_ERROR([not found])
-dnl 		fi
-dnl 	fi
-dnl ])
+AC_DEFUN([MYSQL_XDEVAPI_NOTICE], [
+	MESSAGE=$1
+	if test "$PHP_DEV_MODE" == "yes" || test "$PHP_DEV_MODE_ENABLED" == "yes"; then
+		AC_MSG_ERROR([$MESSAGE])
+	else
+		AC_MSG_WARN([$MESSAGE])
+	fi
+])
+
+
+dnl $1 default compressor root (e.g. $PHP_ZLIB)
+dnl $2 lib label (e.g. "zlib")
+dnl $3 lib name (e.g. "z")
+dnl $4 header name (e.g. "zlib.h")
+dnl $5 cpp #define (e.g. "MYSQL_XDEVAPI_HAVE_ZLIB")
+dnl $6 resolved root var (e.g. ZLIB_RESOLVED_ROOT)
+AC_DEFUN([MYSQL_XDEVAPI_RESOLVE_COMPRESSOR], [
+	DEFAULT_ROOT=$1
+	LIB_LABEL=$2
+	LIB_NAME=$3
+	HEADER_NAME=$4
+	CPP_DEFINE=$5
+
+	if test "$DEFAULT_ROOT" != "no"; then
+		AC_MSG_CHECKING([for $LIB_LABEL])
+ 		SEARCH_PATH="$DEFAULT_ROOT /usr/local /usr"
+ 		SEARCH_FOR="include/$HEADER_NAME"
+ 		for i in $SEARCH_PATH ; do
+ 			if test -r "$i/$SEARCH_FOR"; then
+ 				RESOLVED_ROOT=$i
+ 				break
+ 			fi
+ 		done
+
+ 		if test -d "$RESOLVED_ROOT"; then
+ 			PHP_ADD_INCLUDE([$RESOLVED_ROOT/include])
+ 			PHP_ADD_LIBRARY_WITH_PATH($LIB_NAME, [$RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
+ 			MYSQL_XDEVAPI_DEFINE($CPP_DEFINE)
+			$6=$RESOLVED_ROOT
+ 			AC_MSG_RESULT(found in $RESOLVED_ROOT)
+ 		else
+			MYSQL_XDEVAPI_NOTICE([not found])
+ 		fi
+ 	fi
+])
 
 
 dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
-if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes"; then
+if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "yes"; then
 	PHP_REQUIRE_CXX
 
 	mysqlx_devapi_sources=" \
@@ -222,7 +247,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14 \
 		-Wall -Wno-unused-function -Wformat-security -Wformat-extra-args"
 
-	if test "$PHP_DEV_MODE" = "yes" || test "$PHP_DEV_MODE_ENABLED" = "yes"; then
+	if test "$PHP_DEV_MODE" == "yes" || test "$PHP_DEV_MODE_ENABLED" == "yes"; then
 		MYSQL_XDEVAPI_ADD_CXXFLAGS([-Werror])
 		MYSQL_XDEVAPI_DEFINE(MYSQL_XDEVAPI_DEV_MODE)
 	fi
@@ -330,74 +355,10 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		AC_MSG_ERROR([not found, consider use of --with-protobuf or setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi
 
-	PHP_ADD_MAKEFILE_FRAGMENT()
-
-
-	dnl lz4
-	if test "$PHP_LZ4" != "no"; then
-		AC_MSG_CHECKING([for lz4])
-		SEARCH_PATH="$PHP_LZ4 /usr/local /usr"
-		SEARCH_FOR="include/lz4.h"
-		for i in $SEARCH_PATH ; do
-			if test -r "$i/$SEARCH_FOR"; then
-				LZ4_RESOLVED_ROOT=$i
-				break
-			fi
-		done
-
-		if test -d "$LZ4_RESOLVED_ROOT"; then
-			PHP_ADD_INCLUDE([$LZ4_RESOLVED_ROOT/include])
-			PHP_ADD_LIBRARY_WITH_PATH(lz4, [$LZ4_RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
-			MYSQL_XDEVAPI_DEFINE(MYSQL_XDEVAPI_HAVE_LZ4)
-			AC_MSG_RESULT(found in $LZ4_RESOLVED_ROOT)
-		else
-			AC_MSG_ERROR([not found])
-		fi
-	fi
-
-	dnl zlib
-	if test "$PHP_ZLIB" != "no"; then
-		AC_MSG_CHECKING([for zlib])
-		SEARCH_PATH="$PHP_ZLIB /usr/local /usr"
-		SEARCH_FOR="include/zlib.h"
-		for i in $SEARCH_PATH ; do
-			if test -r "$i/$SEARCH_FOR"; then
-				ZLIB_RESOLVED_ROOT=$i
-				break
-			fi
-		done
-
-		if test -d "$ZLIB_RESOLVED_ROOT"; then
-			PHP_ADD_INCLUDE([$ZLIB_RESOLVED_ROOT/include])
-			PHP_ADD_LIBRARY_WITH_PATH(z, [$ZLIB_RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
-			MYSQL_XDEVAPI_DEFINE(MYSQL_XDEVAPI_HAVE_ZLIB)
-			AC_MSG_RESULT(found in $ZLIB_RESOLVED_ROOT)
-		else
-			AC_MSG_ERROR([not found])
-		fi
-	fi
-
-	dnl zstd
-	if test "$PHP_ZSTD" != "no"; then
-		AC_MSG_CHECKING([for zstd])
-		SEARCH_PATH="$PHP_ZSTD /usr/local /usr"
-		SEARCH_FOR="include/zstd.h"
-		for i in $SEARCH_PATH ; do
-			if test -r "$i/$SEARCH_FOR"; then
-				ZSTD_RESOLVED_ROOT=$i
-				break
-			fi
-		done
-
-		if test -d "$ZSTD_RESOLVED_ROOT"; then
-			PHP_ADD_INCLUDE([$ZSTD_RESOLVED_ROOT/include])
-			PHP_ADD_LIBRARY_WITH_PATH(zstd, [$ZSTD_RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
-			MYSQL_XDEVAPI_DEFINE(MYSQL_XDEVAPI_HAVE_ZSTD)
-			AC_MSG_RESULT(found in $ZSTD_RESOLVED_ROOT)
-		else
-			AC_MSG_ERROR([not found])
-		fi
-	fi
+	dnl compressors
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_LZ4", "lz4", "lz4", "lz4.h", "MYSQL_XDEVAPI_HAVE_LZ4", LZ4_RESOLVED_ROOT)
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_ZLIB", "zlib", "z", "zlib.h", "MYSQL_XDEVAPI_HAVE_ZLIB", ZLIB_RESOLVED_ROOT)
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_ZSTD", "zstd", "zstd", "zstd.h", "MYSQL_XDEVAPI_HAVE_ZSTD", ZSTD_RESOLVED_ROOT)
 
 
 	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_srcdir, $ext_builddir or
@@ -417,6 +378,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/core])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/foundation])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/parser])
+
+	PHP_ADD_MAKEFILE_FRAGMENT()
 
 	dnl phpize/pecl build
 	if test "$PHP_PECL_EXTENSION"; then
@@ -530,7 +493,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 
 	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
 	echo [php-config: ${PHP_CONFIG}] >> $INFO_BIN_PATH
-    if test "$enable_maintainer_zts" = "yes"; then
+    if test "$enable_maintainer_zts" == "yes"; then
       THREAD_SAFETY="yes"
     else
       THREAD_SAFETY="no"

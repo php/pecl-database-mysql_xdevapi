@@ -339,9 +339,6 @@ std::string prepare_compression_message_payload(
 	compression_msg.set_uncompressed_size(compress_result.uncompressed_size);
 	compression_msg.set_payload(compress_result.compressed_payload);
 
-	// Messages messages;
-	// msg_ctx.compression_executor->decompress_messages(compression_msg, messages);
-
 	std::string output;
 	compression_msg.SerializeToString(&output);
 	return output;
@@ -379,7 +376,6 @@ xmysqlnd_send_message(
 	}
 	message.SerializeToArray(payload, static_cast<int>(payload_size));
 	if ((payload_size < compression::Compression_threshold) || !msg_ctx.compression_executor->enabled()) {
-	// if (true || (payload_size < compression::Compression_threshold) || !msg_ctx.compression_executor->enabled()) {
 		ret = msg_ctx.pfc->data->m.send(
 			msg_ctx.pfc,
 			msg_ctx.vio,

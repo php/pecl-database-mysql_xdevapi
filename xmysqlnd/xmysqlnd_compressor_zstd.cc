@@ -96,6 +96,7 @@ std::string Compressor_zstd::compress(const util::bytes& uncompressed_payload)
 		throw std::runtime_error("error during zstd compression flush");
 	}
 
+	compressed_payload.resize(out_buffer.pos);
 	return compressed_payload;
 }
 
@@ -123,9 +124,8 @@ util::bytes Compressor_zstd::decompress(const Mysqlx::Connection::Compression& m
 		}
 	}
 
-	// bytes_consumed = in_buffer.pos;
-	// return out_buffer.pos;
-
+	assert(compressed_payload.size() == in_buffer.pos);
+	assert(uncompressed_payload.size() == out_buffer.pos);
 	return uncompressed_payload;
 }
 
@@ -147,7 +147,6 @@ Compressor* create_compressor_zstd()
 
 bool is_compressor_zstd_available()
 {
-	// return true;
 	return false;
 }
 

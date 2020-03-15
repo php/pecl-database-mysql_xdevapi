@@ -83,6 +83,7 @@ std::string Compressor_zlib::compress(const util::bytes& uncompressed_payload)
 	compress_stream.next_in = const_cast<util::byte*>(uncompressed_payload.data());
 	compress_stream.avail_in = uncompressed_payload.size();
 
+	const std::size_t previous_total_out = compress_stream.total_out;
 	std::string compressed_payload(deflateBound(&compress_stream, uncompressed_payload.size()), '\0');
 	compress_stream.next_out = reinterpret_cast<util::byte*>(&compressed_payload.front());
 	compress_stream.avail_out = compressed_payload.size();
@@ -91,7 +92,7 @@ std::string Compressor_zlib::compress(const util::bytes& uncompressed_payload)
 		throw std::runtime_error("error during zlib compression");
 	}
 
-	compressed_payload.resize(compress_stream.total_out);
+	compressed_payload.resize(compress_stream.total_out - previous_total_out);
 	return compressed_payload;
 }
 
