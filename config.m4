@@ -330,9 +330,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		AC_MSG_ERROR([not found, consider use of --with-protobuf or setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi
 
-	PHP_ADD_MAKEFILE_FRAGMENT()
-
-
 	dnl lz4
 	if test "$PHP_LZ4" != "no"; then
 		AC_MSG_CHECKING([for lz4])
@@ -417,6 +414,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/core])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/foundation])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/parser])
+
+	PHP_ADD_MAKEFILE_FRAGMENT()
 
 	dnl phpize/pecl build
 	if test "$PHP_PECL_EXTENSION"; then

@@ -504,7 +504,7 @@ public:
 	unsigned int                       savepoint_name_seed;
 	vec_of_attribs                     connection_attribs;
 	drv::Prepare_stmt_data             ps_data;
-	zval                               capabilities;
+	util::zvalue                       capabilities;
 private:
 	void free_contents();
 	Mysqlx::Datatypes::Object*  prepare_client_attr_object();

@@ -885,7 +885,7 @@ void xmysqlnd_session_data::free_contents()
 		mysqlnd_stats_end(stats, persistent);
 		stats = nullptr;
 	}
-	zval_dtor(&capabilities);
+	capabilities.reset();
 	DBG_VOID_RETURN;
 }
 

@@ -243,9 +243,7 @@ Setup::Setup(
 	Policy policy,
 	st_xmysqlnd_message_factory& msg_factory,
 	Configuration& negotiated_config)
-	:
-	policy(policy)
-	//  policy(compression::Policy::disabled)
+	: policy(policy)
 	, msg_factory(msg_factory)
 	, negotiated_config(negotiated_config)
 {

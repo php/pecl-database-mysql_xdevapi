@@ -339,9 +339,6 @@ std::string prepare_compression_message_payload(
 	compression_msg.set_uncompressed_size(compress_result.uncompressed_size);
 	compression_msg.set_payload(compress_result.compressed_payload);
 
-	// Messages messages;
-	// msg_ctx.compression_executor->decompress_messages(compression_msg, messages);
-
 	std::string output;
 	compression_msg.SerializeToString(&output);
 	return output;

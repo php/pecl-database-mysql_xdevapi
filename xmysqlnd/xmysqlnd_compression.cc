@@ -88,7 +88,7 @@ util::bytes Payload_composer::run(
 
 void Payload_composer::add_length(std::size_t msg_payload_size)
 {
-	std::size_t& buffer_length = cast_ref_to<std::size_t>(*it);
+	std::uint32_t& buffer_length = cast_ref_to<std::uint32_t>(*it);
 	buffer_length = Packet_type_size + msg_payload_size;
 	std::advance(it, Payload_length_size);
 }
@@ -150,7 +150,7 @@ void Message_extractor::run(const util::bytes& uncompressed_payload)
 
 std::size_t Message_extractor::extract_length()
 {
-	std::size_t msg_length = cast_ref_to<const std::size_t>(*it);
+	std::size_t msg_length = cast_ref_to<const std::uint32_t>(*it);
 	std::advance(it, Payload_length_size);
 	return msg_length;
 }
