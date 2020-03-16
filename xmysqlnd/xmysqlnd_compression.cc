@@ -89,7 +89,7 @@ util::bytes Payload_composer::run(
 void Payload_composer::add_length(std::size_t msg_payload_size)
 {
 	std::uint32_t& buffer_length = cast_ref_to<std::uint32_t>(*it);
-	buffer_length = Packet_type_size + msg_payload_size;
+	buffer_length = static_cast<std::uint32_t>(Packet_type_size + msg_payload_size);
 	std::advance(it, Payload_length_size);
 }
 

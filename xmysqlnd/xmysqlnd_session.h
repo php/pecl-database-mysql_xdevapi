@@ -472,7 +472,7 @@ public:
 	/* Authentication info */
 	std::unique_ptr<Session_auth_data> auth;
 	Auth_mechanisms                    auth_mechanisms;
-	/* Other connection data */
+	/* Other connection stuff */
 	std::string                        scheme;
 	std::string                        default_schema;
 	transport_types                    transport_type;

@@ -41,9 +41,9 @@ enum class Algorithm
 };
 
 #ifdef MYSQL_XDEVAPI_DEV_MODE
-const std::size_t Compression_threshold = 200;
+const std::size_t Client_compression_threshold = 200;
 #else
-const std::size_t Compression_threshold = 1000;
+const std::size_t Client_compression_threshold = 1000;
 #endif
 
 struct Configuration

@@ -375,8 +375,8 @@ xmysqlnd_send_message(
 		}
 	}
 	message.SerializeToArray(payload, static_cast<int>(payload_size));
-	if ((payload_size < compression::Compression_threshold) || !msg_ctx.compression_executor->enabled()) {
-	// if (true || (payload_size < compression::Compression_threshold) || !msg_ctx.compression_executor->enabled()) {
+	if ((payload_size < compression::Client_compression_threshold) || !msg_ctx.compression_executor->enabled()) {
+	// if (true || (payload_size < compression::Client_compression_threshold) || !msg_ctx.compression_executor->enabled()) {
 		ret = msg_ctx.pfc->data->m.send(
 			msg_ctx.pfc,
 			msg_ctx.vio,
