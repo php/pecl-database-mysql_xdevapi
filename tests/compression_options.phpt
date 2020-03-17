@@ -5,6 +5,10 @@ mysqlx compression options
 <?php
 require("connect.inc");
 
+const Compression_disabled_msg =
+	"[10078][HY000] To enable given compression algorithm please build mysql_xdevapi with proper ".
+	"switch like --with-(zlib|lz4|zstd)=[DIR].";
+
 // ---------------------------------------
 // correct options lower-case
 
@@ -26,7 +30,7 @@ try {
 	$session = mysql_xdevapi\getSession($base_uri.'/?compression=required');
 	test_step_ok();
 } catch(Exception $e) {
-	if ($e->getMessage() == "") {
+	if ($e->getMessage() == Compression_disabled_msg) {
 		test_step_ok();
 	} else {
 		test_step_failed();
@@ -48,6 +52,17 @@ try {
 	test_step_ok();
 } catch(Exception $e) {
 	test_step_failed();
+}
+
+try {
+	$session = mysql_xdevapi\getSession($base_uri.'/?compression=Required');
+	test_step_ok();
+} catch(Exception $e) {
+	if ($e->getMessage() == Compression_disabled_msg) {
+		test_step_ok();
+	} else {
+		test_step_failed();
+	}
 }
 
 // ---------------------------------------

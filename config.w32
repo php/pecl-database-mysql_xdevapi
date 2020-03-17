@@ -229,6 +229,14 @@ function println(text) {
 	STDOUT.WriteLine(text);
 }
 
+function notice(message, treat_as_error) {
+	if (treat_as_error) {
+		ERROR(message);
+	} else {
+		WARNING(message);
+	}
+}
+
 function exec_command(command, description) {
 	println(description);
 	println(command);
@@ -359,14 +367,6 @@ function check_lib_by_path(lib_path) {
 
 function is_dev_mode() {
 	return PHP_DEV_MODE == "yes";
-}
-
-function devmode_message(message) {
-	if (is_dev_mode()) {
-		ERROR(message);
-	} else {
-		WARNING(message);
-	}
 }
 
 function is_phpize_mode() {
@@ -588,12 +588,12 @@ function resolve_compressor_include_dir(custom_root, default_root, header_filena
 
 function verify_compressor_lib(compressor_name, lib_path, include_dir) {
 	if (!lib_path || !include_dir) {
-		devmode_message(compressor_name + " library not found");
+		notice(compressor_name + " library not found", is_dev_mode());
 		return false;
 	}
 
 	if (!check_lib_by_path(lib_path)) {
-		devmode_message("invalid " + compressor_name + " library");
+		notice("invalid " + compressor_name + " library", is_dev_mode());
 		return false;
 	}
 
