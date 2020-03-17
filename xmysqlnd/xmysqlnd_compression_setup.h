@@ -12,7 +12,8 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>                          |
+  | Authors: Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef XMYSQLND_COMPRESSION_SETUP_H

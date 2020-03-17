@@ -12,7 +12,8 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>                          |
+  | Authors: Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
@@ -141,7 +142,6 @@ private:
 
 private:
 	st_xmysqlnd_message_factory& msg_factory;
-//	const Configuration& config;
 };
 
 // ------------------------------------------
