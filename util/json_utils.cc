@@ -26,6 +26,7 @@ extern "C" {
 #include "exceptions.h"
 #include "hash_table.h"
 #include "value.h"
+#include <rapidjson/document.h>
 
 namespace mysqlx {
 
@@ -230,6 +231,146 @@ void ensure_doc_id_as_string(
 		&doc_with_string_id);
 	to_zv_string(&doc_with_string_id, doc);
 	zval_dtor(&doc_with_string_id);
+}
+
+//------------------------------------------------------------------------------
+
+namespace {
+
+class Json_to_any
+{
+public:
+	void run(
+		const char* doc,
+		std::size_t doc_len,
+		Mysqlx::Datatypes::Any& result);
+
+private:
+	void to_null(Mysqlx::Datatypes::Any& any);
+	void to_boolean(bool value, Mysqlx::Datatypes::Any& any);
+	void to_number(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any);
+	void to_string(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any);
+	void to_array(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any);
+	void to_object(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any);
+	void to_value(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any);
+};
+
+void Json_to_any::run(
+	const char* doc,
+	std::size_t doc_len,
+	Mysqlx::Datatypes::Any& result)
+{
+	rapidjson::Document document;
+	document.Parse(doc, doc_len);
+	to_value(document, result);
+}
+
+void Json_to_any::to_null(Mysqlx::Datatypes::Any& any)
+{
+	any.set_type(Mysqlx::Datatypes::Any_Type_SCALAR);
+	any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_NULL);
+}
+
+void Json_to_any::to_boolean(bool value, Mysqlx::Datatypes::Any& any)
+{
+	any.set_type(Mysqlx::Datatypes::Any_Type_SCALAR);
+	any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_BOOL);
+	any.mutable_scalar()->set_v_bool(value);
+}
+
+void Json_to_any::to_number(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any)
+{
+	any.set_type(Mysqlx::Datatypes::Any_Type_SCALAR);
+
+	if (value.IsInt()) {
+		any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_SINT);
+		any.mutable_scalar()->set_v_signed_int(value.GetInt());
+	} else if (value.IsInt64()) {
+		any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_SINT);
+		any.mutable_scalar()->set_v_signed_int(value.GetInt64());
+	} else if (value.IsUint()) {
+		any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_UINT);
+		any.mutable_scalar()->set_v_unsigned_int(value.GetUint());
+	} else if (value.IsUint64()) {
+		any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_UINT);
+		any.mutable_scalar()->set_v_unsigned_int(value.GetUint64());
+	} else if (value.IsDouble()) {
+		any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_DOUBLE);
+		any.mutable_scalar()->set_v_double(value.GetDouble());
+	}
+}
+
+void Json_to_any::to_string(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any)
+{
+	any.set_type(Mysqlx::Datatypes::Any_Type_SCALAR);
+	any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_STRING);
+	any.mutable_scalar()->mutable_v_string()->set_value(value.GetString());
+}
+
+void Json_to_any::to_array(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any)
+{
+	any.set_type(Mysqlx::Datatypes::Any_Type_ARRAY);
+	for (const auto& elem : value.GetArray()) {
+		Mysqlx::Datatypes::Any* any_elem = any.mutable_array()->add_value();
+		to_value(elem, *any_elem);
+	}
+}
+
+void Json_to_any::to_object(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any)
+{
+	any.set_type(Mysqlx::Datatypes::Any_Type_OBJECT);
+
+	Mysqlx::Datatypes::Object* obj{ any.mutable_obj() };
+	for (const auto& member : value.GetObject()) {
+		Mysqlx::Datatypes::Object_ObjectField* field{ obj->add_fld() };
+		field->set_key(member.name.GetString());
+		Mysqlx::Datatypes::Any* field_value{ field->mutable_value() };
+		to_value(member.value, *field_value);
+	}
+}
+
+void Json_to_any::to_value(const rapidjson::Value& value, Mysqlx::Datatypes::Any& any)
+{
+	switch (value.GetType()) {
+		case rapidjson::kNullType:
+			to_null(any);
+			break;
+
+		case rapidjson::kFalseType:
+			to_boolean(false, any);
+			break;
+
+		case rapidjson::kTrueType:
+			to_boolean(true, any);
+			break;
+
+		case rapidjson::kNumberType:
+			to_number(value, any);
+			break;
+
+		case rapidjson::kStringType:
+			to_string(value, any);
+			break;
+
+		case rapidjson::kArrayType:
+			to_array(value, any);
+			break;
+
+		case rapidjson::kObjectType:
+			to_object(value, any);
+			break;
+
+		default:
+			assert(!"unknown type!");
+	}
+}
+
+} // anonymouse namespace
+
+void to_any(const char* doc, std::size_t doc_len, Mysqlx::Datatypes::Any& any)
+{
+	Json_to_any json_to_any;
+	json_to_any.run(doc, doc_len, any);
 }
 
 } // namespace json

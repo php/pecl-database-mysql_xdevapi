@@ -262,8 +262,12 @@ static const enum_hnd_func_status schema_op_var_binder(void * context,
 	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
 	util::pb::add_field_to_object("name", ctx->collection_name, stmt_obj);
 	if (!util::is_empty(ctx->collection_options)) {
-		util::zvalue zobj_collection_options{ util::json::to_zv_object(ctx->collection_options.s, ctx->collection_options.l) };
-		util::pb::add_field_to_object("options", zobj_collection_options, stmt_obj);
+		Mysqlx::Datatypes::Object_ObjectField* collection_options{ stmt_obj->add_fld() };
+		collection_options->set_key("options");
+		util::json::to_any(
+			ctx->collection_options.s,
+			ctx->collection_options.l,
+			*collection_options->mutable_value());
 	}
 
 	DBG_RETURN(HND_PASS);
@@ -552,7 +556,7 @@ xmysqlnd_schema::free_contents()
 	DBG_VOID_RETURN;
 }
 
-PHP_MYSQL_XDEVAPI_API xmysqlnd_schema *
+xmysqlnd_schema*
 xmysqlnd_schema_create(XMYSQLND_SESSION session,
 							const MYSQLND_CSTRING schema_name,
 							const zend_bool persistent,
@@ -571,7 +575,7 @@ xmysqlnd_schema_create(XMYSQLND_SESSION session,
 	DBG_RETURN(ret);
 }
 
-PHP_MYSQL_XDEVAPI_API void
+void
 xmysqlnd_schema_free(xmysqlnd_schema * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_schema_free");

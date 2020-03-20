@@ -106,14 +106,14 @@ private:
 };
 
 
-PHP_MYSQL_XDEVAPI_API xmysqlnd_schema * xmysqlnd_schema_create(XMYSQLND_SESSION session,
+xmysqlnd_schema* xmysqlnd_schema_create(XMYSQLND_SESSION session,
 														  const MYSQLND_CSTRING schema_name,
 														  const zend_bool persistent,
 														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														  MYSQLND_STATS * const stats,
 														  MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_schema_free(xmysqlnd_schema * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+void xmysqlnd_schema_free(xmysqlnd_schema * const schema, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 } // namespace drv
 

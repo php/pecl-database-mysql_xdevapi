@@ -20,6 +20,7 @@
 #define MYSQL_XDEVAPI_UTIL_JSON_UTILS_H
 
 #include "strings.h"
+#include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
 #include <boost/version.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -49,6 +50,8 @@ void ensure_doc_id(
 void ensure_doc_id_as_string(
 	const string_view& doc_id,
 	zval* doc);
+
+void to_any(const char* doc, std::size_t doc_len, Mysqlx::Datatypes::Any& any);
 
 /*
 	in older versions of boost (e.g. 1.53.0 which is at the moment still officially
