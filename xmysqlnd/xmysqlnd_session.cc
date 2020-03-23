@@ -2199,9 +2199,9 @@ xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 		}
 		ret = xmysqlnd_stmt_execute__finalize_bind(stmt_execute);
 		if (PASS == ret &&
-		(PASS == (ret = stmt->send_raw_message(stmt,
-		xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
-		data->stats, data->error_info))))
+			(PASS == (ret = stmt->send_raw_message(stmt,
+			xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute),
+			data->stats, data->error_info))))
 		{
 			st_xmysqlnd_query_cb_ctx query_cb_ctx{
 				session_handle,
@@ -2237,7 +2237,7 @@ xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 				&query_cb_ctx
 			};
 			ret = stmt->read_all_results(stmt, on_row, on_warning, on_error, on_result_start, on_result_end, on_statement_ok,
-			data->stats, data->error_info);
+				data->stats, data->error_info);
 		}
 	}
 	/* no else, please */

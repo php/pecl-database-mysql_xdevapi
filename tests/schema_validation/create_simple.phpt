@@ -4,7 +4,6 @@ mysqlx schema validation simple
 --FILE--
 <?php
 require(__DIR__."/../connect.inc");
-clean_test_db();
 
 $session = create_test_session(true);
 $schema = $session->getSchema($db);

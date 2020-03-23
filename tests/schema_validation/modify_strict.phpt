@@ -4,7 +4,6 @@ mysqlx schema validation modify level strict
 --FILE--
 <?php
 require(__DIR__."/../connect.inc");
-clean_test_db();
 
 function try_modify_collection() {
 	global $schema;

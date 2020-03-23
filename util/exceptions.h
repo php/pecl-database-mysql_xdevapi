@@ -109,8 +109,9 @@ struct xdevapi_exception : public std::runtime_error
 		port_nbr_not_allowed_with_srv_uri,
 		provided_invalid_uri,
 		unix_socket_not_allowed_with_srv,
-        url_list_not_allowed,
+		url_list_not_allowed,
 		out_of_range,
+		json_parse_error,
 	};
 
 	xdevapi_exception(Code code);

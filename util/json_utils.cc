@@ -26,7 +26,12 @@ extern "C" {
 #include "exceptions.h"
 #include "hash_table.h"
 #include "value.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
 #include <rapidjson/document.h>
+#include <rapidjson/error/en.h>
+#pragma GCC diagnostic pop
 
 namespace mysqlx {
 
@@ -68,12 +73,15 @@ util::zvalue to_zv_string(const util::zvalue& src)
 util::zvalue to_zv_object(const char* src, const std::size_t src_len)
 {
 	util::zvalue dest;
-	php_json_decode(
+	if (php_json_decode(
 		dest.ptr(),
 		const_cast<char*>(src),
 		static_cast<int>(src_len),
 		false,
-		PHP_JSON_PARSER_DEFAULT_DEPTH);
+		PHP_JSON_PARSER_DEFAULT_DEPTH) != SUCCESS)
+	{
+		throw xdevapi_exception(xdevapi_exception::Code::json_parse_error);
+	}
 	return dest;
 }
 
@@ -262,6 +270,13 @@ void Json_to_any::run(
 {
 	rapidjson::Document document;
 	document.Parse(doc, doc_len);
+
+	if (document.HasParseError()) {
+		util::ostringstream err;
+		err << "(character " << document.GetErrorOffset() << "): "
+			<<	GetParseError_En(document.GetParseError());
+		throw xdevapi_exception(xdevapi_exception::Code::json_parse_error, err.str());
+	}
 	to_value(document, result);
 }
 
