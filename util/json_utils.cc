@@ -278,7 +278,7 @@ void Json_to_any::run(
 	if (document.HasParseError()) {
 		util::ostringstream err;
 		err << "(character " << document.GetErrorOffset() << "): "
-			<<	GetParseError_En(document.GetParseError());
+			<< GetParseError_En(document.GetParseError());
 		throw xdevapi_exception(xdevapi_exception::Code::json_parse_error, err.str());
 	}
 	to_value(document, result);
