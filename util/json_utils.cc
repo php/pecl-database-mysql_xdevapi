@@ -27,11 +27,15 @@ extern "C" {
 #include "hash_table.h"
 #include "value.h"
 
+#if defined(__GNUC__) && (__GNUC__ >= 8)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
+#if defined(__GNUC__) && (__GNUC__ >= 8)
 #pragma GCC diagnostic pop
+#endif
 
 namespace mysqlx {
 
