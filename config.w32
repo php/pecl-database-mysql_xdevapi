@@ -34,8 +34,8 @@ var Boost_version_header = "boost\\version.hpp";
 var Minimal_boost_ver = 105300;
 var Minimal_boost_ver_label = "1.53.00";
 
-var Preferred_boost_ver_subdir = "boost_1_70_0";
-var Preferred_boost_ver_label = "1.70.00";
+var Preferred_boost_ver_subdir = "boost_1_72_0";
+var Preferred_boost_ver_label = "1.72.00";
 
 var Sources_metadata_filename = "INFO_SRC";
 var Binaries_metadata_filename = "INFO_BIN";
