@@ -128,6 +128,8 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 		"Using Unix domain sockets with DNS SRV lookup is not allowed"},
 	{ xdevapi_exception::Code::url_list_not_allowed,
 		"URI with a list of URL not allowed."},
+	{ xdevapi_exception::Code::out_of_range, "out of range"},
+	{ xdevapi_exception::Code::json_parse_error, "json parse error"},
 	{ xdevapi_exception::Code::compression_not_supported,
 		"Compression requested but the server does not support it."},
 	{ xdevapi_exception::Code::compressor_not_available,

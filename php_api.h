@@ -33,6 +33,7 @@ extern "C" {
 #undef ERROR
 #undef add_method
 #undef inline
+#undef min
 #undef max
 }
 

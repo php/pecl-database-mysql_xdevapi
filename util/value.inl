@@ -602,9 +602,19 @@ inline zvalue::values_range zvalue::values() const
 
 // -----------------------------------------------------------------------------
 
+inline const zval& zvalue::c_ref() const
+{
+	return zv;
+}
+
 inline zval& zvalue::ref() const
 {
 	return const_cast<zval&>(zv);
+}
+
+inline const zval* zvalue::c_ptr() const
+{
+	return &zv;
 }
 
 inline zval* zvalue::ptr() const

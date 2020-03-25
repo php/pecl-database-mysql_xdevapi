@@ -32,6 +32,8 @@ namespace mysqlx {
 
 namespace util {
 
+class zvalue;
+
 namespace pb {
 
 using Any = Mysqlx::Datatypes::Any;
@@ -63,6 +65,8 @@ void to_any(const char* str,const size_t length, Any& any);
 void to_any(const std::string& value, Any& any);
 void to_any(const util::string& value, Any& any);
 void to_any(const util::string_view& value, Any& any);
+
+void to_any(const util::zvalue& zv, Any& any);
 
 void to_any(Object* value, Any& any);
 void to_any(Array* value, Any& any);

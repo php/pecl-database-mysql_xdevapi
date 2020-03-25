@@ -401,7 +401,10 @@ class zvalue
 		values_range values() const;
 
 	public:
+		const zval& c_ref() const;
 		zval& ref() const;
+
+		const zval* c_ptr() const;
 		zval* ptr() const;
 
 	private:
