@@ -15,14 +15,61 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PROTOBUF_API_H
-#define MYSQL_XDEVAPI_PROTOBUF_API_H
+#ifndef XMYSQLND_COMPRESSION_H
+#define XMYSQLND_COMPRESSION_H
 
-MYSQLX_SUPPRESS_ALL_WARNINGS()
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/zero_copy_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/wire_format_lite.h>
-MYSQLX_RESTORE_WARNINGS()
+#include "xmysqlnd_wireprotocol_types.h"
 
-#endif // MYSQL_XDEVAPI_PROTOBUF_API_H
+namespace Mysqlx { namespace Connection { class Compression; } }
+
+namespace mysqlx {
+
+namespace drv {
+
+namespace compression {
+
+struct Configuration;
+struct Compressor;
+
+struct Compress_result
+{
+	std::size_t uncompressed_size;
+	std::string compressed_payload;
+};
+
+class Executor
+{
+public:
+	Executor();
+	Executor(const Executor& rhs) = delete;
+	Executor& operator=(const Executor& rhs) = delete;
+	Executor(Executor&& rhs) = delete;
+	Executor& operator=(Executor&& rhs);
+	~Executor();
+
+public:
+	void reset();
+	void reset(const Configuration& cfg);
+
+	bool enabled() const;
+
+	Compress_result compress_message(
+		xmysqlnd_client_message_type packet_type,
+		std::size_t payload_size,
+		util::byte* payload);
+
+	void decompress_messages(
+		const Mysqlx::Connection::Compression& message,
+		Messages& messages);
+
+private:
+	std::unique_ptr<Compressor> compressor;
+};
+
+} // namespace compression
+
+} // namespace drv
+
+} // namespace mysqlx
+
+#endif // XMYSQLND_COMPRESSION_H

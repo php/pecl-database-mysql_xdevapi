@@ -15,14 +15,24 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PROTOBUF_API_H
-#define MYSQL_XDEVAPI_PROTOBUF_API_H
+#ifndef XMYSQLND_COMPRESSOR_ZSTD_H
+#define XMYSQLND_COMPRESSOR_ZSTD_H
 
-MYSQLX_SUPPRESS_ALL_WARNINGS()
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/zero_copy_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/wire_format_lite.h>
-MYSQLX_RESTORE_WARNINGS()
+namespace mysqlx {
 
-#endif // MYSQL_XDEVAPI_PROTOBUF_API_H
+namespace drv {
+
+namespace compression {
+
+bool is_compressor_zstd_available();
+
+struct Compressor;
+Compressor* create_compressor_zstd();
+
+} // namespace compression
+
+} // namespace drv
+
+} // namespace mysqlx
+
+#endif

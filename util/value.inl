@@ -581,6 +581,27 @@ inline bool zvalue::erase(const char* key)
 
 // -----------------------------------------------------------------------------
 
+inline zvalue::values_range::values_range(const zvalue& ref) : ref(ref)
+{
+}
+
+inline zvalue::value_iterator zvalue::values_range::begin() const
+{
+	return ref.vbegin();
+}
+
+inline zvalue::value_iterator zvalue::values_range::end() const
+{
+	return ref.vend();
+}
+
+inline zvalue::values_range zvalue::values() const
+{
+	return values_range(*this);
+}
+
+// -----------------------------------------------------------------------------
+
 inline zval& zvalue::ref() const
 {
 	return const_cast<zval&>(zv);

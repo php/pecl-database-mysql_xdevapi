@@ -12,40 +12,61 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Andrey Hristov <andrey@php.net>                             |
-  |          Filip Janiszewski <fjanisze@php.net>                        |
+  | Authors: Filip Janiszewski <fjanisze@php.net>                        |
   |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef XMYSQLND_ZVAL2ANY_H
-#define XMYSQLND_ZVAL2ANY_H
+#ifndef XMYSQLND_COMPRESSION_TYPES_H
+#define XMYSQLND_COMPRESSION_TYPES_H
 
-#include "proto_gen/mysqlx_datatypes.pb.h"
+#include <boost/optional.hpp>
 
 namespace mysqlx {
 
-namespace util { class zvalue; }
-
 namespace drv {
 
-enum_func_status scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv);
-enum_func_status zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any);
-enum_func_status zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any);
+namespace compression {
 
-enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
-enum_func_status any2zval(const Mysqlx::Datatypes::Any& any, util::zvalue& zv);
-util::zvalue any2zval(const Mysqlx::Datatypes::Any& any);
+enum class Policy {
+	required,
+	preferred,
+	disabled
+};
 
-void any2log(const Mysqlx::Datatypes::Any & any);
-void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);
-void repeated2log(
-	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated);
-uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
-int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
-MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
+enum class Algorithm
+{
+	none,
+	zstd_stream,
+	lz4_message,
+	zlib_deflate_stream
+};
+
+#ifdef MYSQL_XDEVAPI_DEV_MODE
+const std::size_t Client_compression_threshold = 200;
+#else
+const std::size_t Client_compression_threshold = 1000;
+#endif
+
+struct Configuration
+{
+	Algorithm algorithm;
+
+	// informs the server that it can combine multiple types of
+	// messages into a single compressed payload
+	boost::optional<bool> combine_mixed_messages;
+
+	// if set this informs the server that it should not combine
+	// more than x number of messages inside a single compressed payload.
+	boost::optional<int> max_combine_messages;
+
+	Configuration(Algorithm algorithm = Algorithm::none);
+	bool enabled() const;
+};
+
+} // namespace compression
 
 } // namespace drv
 
 } // namespace mysqlx
 
-#endif /* XMYSQLND_ZVAL2ANY_H */
+#endif // XMYSQLND_COMPRESSION_TYPES_H

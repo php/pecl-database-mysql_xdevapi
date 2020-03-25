@@ -183,13 +183,13 @@ public: //To be removed anyway
 };
 
 
-PHP_MYSQL_XDEVAPI_API xmysqlnd_stmt * xmysqlnd_stmt_create(XMYSQLND_SESSION session,
+xmysqlnd_stmt * xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 													  const zend_bool persistent,
 													  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info);
 
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_free(xmysqlnd_stmt * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+void xmysqlnd_stmt_free(xmysqlnd_stmt * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 
 struct Prepare_statement_entry
 {

@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #include "php_api.h"
@@ -21,6 +23,7 @@
 #include "xmysqlnd_zval2any.h"
 
 #include "util/string_utils.h"
+#include "util/value.h"
 
 #include "proto_gen/mysqlx.pb.h"
 #include "proto_gen/mysqlx_datatypes.pb.h"
@@ -52,7 +55,7 @@ void zval2object(zval* zv, Mysqlx::Datatypes::Any& any)
 
 } // anonymous namespace
 
-PHP_MYSQL_XDEVAPI_API enum_func_status
+enum_func_status
 zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 {
 	DBG_ENTER("zval2any");
@@ -123,10 +126,17 @@ zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
 	DBG_RETURN(PASS);
 }
 
-PHP_MYSQL_XDEVAPI_API enum_func_status
+enum_func_status
+zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any)
+{
+	return zval2any(zv.ptr(), any);
+}
+
+/* {{{ scalar2zval */
+enum_func_status
 scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 {
-	DBG_ENTER("any2zval");
+	DBG_ENTER("scalar2zval");
 	zval_ptr_dtor(zv);
 	ZVAL_UNDEF(zv);
 	switch (scalar.type()) {
@@ -181,7 +191,7 @@ scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 	DBG_RETURN(PASS);
 }
 
-PHP_MYSQL_XDEVAPI_API enum_func_status
+enum_func_status
 any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 {
 	DBG_ENTER("any2zval");
@@ -190,55 +200,6 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 	switch (any.type()) {
 		case Any_Type_SCALAR:
 			scalar2zval(any.scalar(), zv);
-#if 0
-			switch (any.scalar().type()) {
-				case Scalar_Type_V_SINT:
-#if SIZEOF_ZEND_LONG==4
-					if (UNEXPECTED(any.scalar().v_signed_int() >= ZEND_LONG_MAX)) {
-						char tmp[22];
-						snprintf(tmp, sizeof(tmp), "%s", util::to_string(any.scalar().v_signed_int()).c_str());
-						ZVAL_STRING(zv, tmp);
-					} else
-#endif
-					{
-						ZVAL_LONG(zv, any.scalar().v_signed_int());
-					}
-					break;
-				case Scalar_Type_V_UINT:
-#if SIZEOF_ZEND_LONG==8
-					if (any.scalar().v_unsigned_int() > 9223372036854775807L) {
-#elif SIZEOF_ZEND_LONG==4
-					if (any.scalar().v_unsigned_int() > L64(2147483647)) {
-#endif
-						char tmp[22];
-						snprintf(tmp, sizeof(tmp), "%s", util::to_string(any.scalar().v_unsigned_int()).c_str());
-						ZVAL_STRING(zv, tmp);
-					} else {
-						ZVAL_LONG(zv, any.scalar().v_unsigned_int());
-					}
-					break;
-				case Scalar_Type_V_NULL:
-					ZVAL_NULL(zv);
-					break;
-				case Scalar_Type_V_OCTETS:
-					ZVAL_STRINGL(zv, any.scalar().v_octets().value().c_str(), any.scalar().v_octets().value().size() - 1);
-					break;
-				case Scalar_Type_V_DOUBLE:
-					ZVAL_DOUBLE(zv, any.scalar().v_double());
-					break;
-				case Scalar_Type_V_FLOAT:
-					ZVAL_DOUBLE(zv, mysql_float_to_double(any.scalar().v_float(), -1)); // Fixlength, without meta maybe bad results (see mysqlnd)
-					break;
-				case Scalar_Type_V_BOOL:
-					ZVAL_BOOL(zv, any.scalar().v_bool());
-					break;
-				case Scalar_Type_V_STRING:
-					ZVAL_STRINGL(zv, any.scalar().v_string().value().c_str(), any.scalar().v_string().value().size());
-					break;
-				default:
-					;// assert
-			}
-#endif
 			break;
 		case Any_Type_OBJECT: {
 			zval properties;
@@ -284,7 +245,19 @@ any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
 	DBG_RETURN(PASS);
 }
 
-PHP_MYSQL_XDEVAPI_API uint64_t
+enum_func_status any2zval(const Mysqlx::Datatypes::Any& any, util::zvalue& zv)
+{
+	return any2zval(any, zv.ptr());
+}
+
+util::zvalue any2zval(const Mysqlx::Datatypes::Any& any)
+{
+	util::zvalue value;
+	any2zval(any, value.ptr());
+	return value;
+}
+
+uint64_t
 scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	uint64_t ret{0};
@@ -321,7 +294,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_RETURN(ret);
 }
 
-PHP_MYSQL_XDEVAPI_API int64_t
+int64_t
 scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	int64_t ret{0};
@@ -358,7 +331,7 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_RETURN(ret);
 }
 
-PHP_MYSQL_XDEVAPI_API MYSQLND_STRING
+MYSQLND_STRING
 scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	MYSQLND_STRING ret = {nullptr, 0};
@@ -400,7 +373,7 @@ scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_RETURN(ret);
 }
 
-PHP_MYSQL_XDEVAPI_API void
+void
 scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 {
 	DBG_ENTER("scalar2log");
@@ -454,7 +427,7 @@ scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_VOID_RETURN;
 }
 
-PHP_MYSQL_XDEVAPI_API void
+void
 any2log(const Mysqlx::Datatypes::Any & any)
 {
 	DBG_ENTER("any2log");
@@ -486,7 +459,7 @@ any2log(const Mysqlx::Datatypes::Any & any)
 	DBG_VOID_RETURN;
 }
 
-PHP_MYSQL_XDEVAPI_API void repeated2log(
+void repeated2log(
 	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated)
 {
 	for (auto scalar : repeated) {

@@ -52,11 +52,8 @@ xmysqlnd_stmt::send_raw_message(xmysqlnd_stmt * const stmt,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info)
 {
-	MYSQLND_VIO * vio = stmt->session->data->io.vio;
-	XMYSQLND_PFC * pfc = stmt->session->data->io.pfc;
-	const XMYSQLND_L3_IO io = {vio, pfc};
 	/* pass stmt->session->data->io directly ?*/
-	const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+	st_xmysqlnd_message_factory msg_factory{ stmt->session->data->create_message_factory() };
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_stmt::send_raw_message");
 
@@ -716,7 +713,7 @@ xmysqlnd_stmt::cleanup(xmysqlnd_stmt * const stmt)
 	DBG_VOID_RETURN;
 }
 
-PHP_MYSQL_XDEVAPI_API xmysqlnd_stmt *
+xmysqlnd_stmt *
 xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
@@ -732,7 +729,7 @@ xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 	DBG_RETURN(stmt);
 }
 
-PHP_MYSQL_XDEVAPI_API void
+void
 xmysqlnd_stmt_free(xmysqlnd_stmt * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_free");
@@ -831,9 +828,7 @@ Prepare_stmt_data::assign_session( XMYSQLND_SESSION session_obj )
 bool
 Prepare_stmt_data::send_prepare_msg( uint32_t message_id )
 {
-	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
-										session->data->stats,
-										session->data->error_info);
+	st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
 	Mysqlx::Prepare::Prepare prep_msg;
 	size_t                   db_idx = get_ps_entry(message_id);
 	bool                     res{ true };
@@ -871,9 +866,7 @@ Prepare_stmt_data::set_ps_server_error( const uint32_t message_code )
 bool
 Prepare_stmt_data::get_prepare_resp( drv::xmysqlnd_stmt * stmt )
 {
-	st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
-										session->data->stats,
-										session->data->error_info);
+	st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
 	st_xmysqlnd_msg__prepare_prepare prepare_prepare = msg_factory.get__prepare_prepare(&msg_factory);
 	st_xmysqlnd_on_error_bind on_error = {
 		prepare_st_on_error_handler,
@@ -940,9 +933,7 @@ Prepare_stmt_data::send_execute_msg(
 		add_limit_expr_mutable_arg( execute_msg, static_cast<int32_t>(ps_entry.offset) );
 	}
 
-	struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&session->data->io,
-										session->data->stats,
-										session->data->error_info);
+	st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
 	st_xmysqlnd_msg__prepare_execute prepare_execute = msg_factory.get__prepare_execute(&msg_factory);
 	enum_func_status request_ret = prepare_execute.send_execute_request(&prepare_execute,
 										get_protobuf_msg(&execute_msg,COM_PREPARE_EXECUTE));

@@ -13,6 +13,8 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
 #ifndef XMYSQLND_SESSION_H
@@ -22,6 +24,8 @@
 extern "C" {
 #include <ext/standard/url.h>
 }
+#include "xmysqlnd_compression_types.h"
+#include "xmysqlnd_compression.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_protocol_frame_codec.h"
 #include "xmysqlnd_stmt.h"
@@ -186,6 +190,7 @@ struct Session_auth_data
 	std::string username;
 	std::string password;
 	boost::optional<int> connection_timeout;
+	compression::Policy compression_policy{ compression::Policy::preferred };
 
 	//SSL information
 	SSL_mode ssl_mode;
@@ -337,25 +342,25 @@ public:
 	~Authenticate();
 
 	bool run(bool re_auth = false);
-
+	zval get_capabilities();
 private:
 	bool run_auth();
 	bool run_re_auth();
 
 	bool init_capabilities();
+	void setup_compression();
 	bool init_connection();
 	bool gather_auth_mechanisms();
 	bool authentication_loop();
 	bool authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_plugin);
 	void raise_multiple_auth_mechanisms_algorithm_error();
 	bool is_multiple_auth_mechanisms_algorithm() const;
-
 private:
 	xmysqlnd_session_data* session;
 	const MYSQLND_CSTRING& scheme;
 	const util::string& default_schema;
 
-	const st_xmysqlnd_message_factory msg_factory;
+	st_xmysqlnd_message_factory msg_factory;
 	st_xmysqlnd_msg__capabilities_get caps_get;
 	const Session_auth_data* auth;
 
@@ -429,6 +434,7 @@ public:
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
+	st_xmysqlnd_message_factory create_message_factory();
 	std::string get_scheme(const std::string& hostname, unsigned int port);
 	enum_func_status  connect_handshake(
 		const MYSQLND_CSTRING scheme,
@@ -457,7 +463,7 @@ public:
 	bool is_closed() const { return state.get() == SESSION_CLOSED; }
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
-	bool is_session_properly_supported() const;
+	bool is_session_properly_supported();
 	size_t            get_client_id();
 	void              cleanup();
 public:
@@ -466,10 +472,11 @@ public:
 	/* Authentication info */
 	std::unique_ptr<Session_auth_data> auth;
 	Auth_mechanisms                    auth_mechanisms;
-	/* Other connection info */
-	std::string scheme;
-	std::string default_schema;
+	/* Other connection stuff */
+	std::string                        scheme;
+	std::string                        default_schema;
 	transport_types                    transport_type;
+	compression::Executor compression_executor;
 	/* Used only in case of non network transports */
 	std::string                        socket_path;
 	std::string                        server_host_info;
@@ -487,7 +494,7 @@ public:
 		- Session::Close meant Connection::Close
 		more details: WL#12375 WL#12396
 	*/
-	mutable boost::optional<bool> session_properly_supported;
+	mutable boost::optional<bool>      session_properly_supported;
 	/* stats */
 	MYSQLND_STATS*                     stats;
 	zend_bool		                   own_stats;
@@ -497,6 +504,7 @@ public:
 	unsigned int                       savepoint_name_seed;
 	vec_of_attribs                     connection_attribs;
 	drv::Prepare_stmt_data             ps_data;
+	util::zvalue                       capabilities;
 private:
 	void free_contents();
 	Mysqlx::Datatypes::Object*  prepare_client_attr_object();

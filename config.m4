@@ -14,6 +14,27 @@ PHP_ARG_WITH(
 	no,
 	no)
 
+PHP_ARG_WITH(
+	lz4,
+	for lz4 install dir,
+	[  --with-lz4[=DIR]       Point out lz4 library],
+	no,
+	no)
+
+PHP_ARG_WITH(
+	zlib,
+	for zlib install dir,
+	[  --with-zlib[=DIR]       Point out zlib library],
+	no,
+	no)
+
+PHP_ARG_WITH(
+	zstd,
+	for zstd install dir,
+	[  --with-zstd[=DIR]       Point out zstd library],
+	no,
+	no)
+
 PHP_ARG_ENABLE(
 	dev-mode,
 	whether to enable developer mode,
@@ -28,9 +49,65 @@ PHP_ARG_ENABLE(
 	no,
 	yes)
 
+AC_DEFUN([MYSQL_XDEVAPI_ADD_CXXFLAGS], [
+	CXXFLAG=$1
+	MYSQL_XDEVAPI_CXXFLAGS="$MYSQL_XDEVAPI_CXXFLAGS $CXXFLAG"
+])
+
+AC_DEFUN([MYSQL_XDEVAPI_DEFINE], [
+	CPP_DEFINE=$1
+	MYSQL_XDEVAPI_ADD_CXXFLAGS([-D$CPP_DEFINE])
+])
+
+AC_DEFUN([MYSQL_XDEVAPI_NOTICE], [
+	MESSAGE=$1
+	if test "$PHP_DEV_MODE" == "yes" || test "$PHP_DEV_MODE_ENABLED" == "yes"; then
+		AC_MSG_ERROR([$MESSAGE])
+	else
+		AC_MSG_WARN([$MESSAGE])
+	fi
+])
+
+
+dnl $1 default compressor root (e.g. $PHP_ZLIB)
+dnl $2 lib label (e.g. "zlib")
+dnl $3 lib name (e.g. "z")
+dnl $4 header name (e.g. "zlib.h")
+dnl $5 cpp #define (e.g. "MYSQL_XDEVAPI_HAVE_ZLIB")
+dnl $6 resolved root var (e.g. ZLIB_RESOLVED_ROOT)
+AC_DEFUN([MYSQL_XDEVAPI_RESOLVE_COMPRESSOR], [
+	DEFAULT_ROOT=$1
+	LIB_LABEL=$2
+	LIB_NAME=$3
+	HEADER_NAME=$4
+	CPP_DEFINE=$5
+
+	if test "$DEFAULT_ROOT" != "no"; then
+		AC_MSG_CHECKING([for $LIB_LABEL])
+ 		SEARCH_PATH="$DEFAULT_ROOT /usr/local /usr"
+ 		SEARCH_FOR="include/$HEADER_NAME"
+ 		for i in $SEARCH_PATH ; do
+ 			if test -r "$i/$SEARCH_FOR"; then
+ 				RESOLVED_ROOT=$i
+ 				break
+ 			fi
+ 		done
+
+ 		if test -d "$RESOLVED_ROOT"; then
+ 			PHP_ADD_INCLUDE([$RESOLVED_ROOT/include])
+ 			PHP_ADD_LIBRARY_WITH_PATH($LIB_NAME, [$RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
+ 			MYSQL_XDEVAPI_DEFINE($CPP_DEFINE)
+			$6=$RESOLVED_ROOT
+ 			AC_MSG_RESULT(found in $RESOLVED_ROOT)
+ 		else
+			MYSQL_XDEVAPI_NOTICE([not found])
+ 		fi
+ 	fi
+])
+
 
 dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
-if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes"; then
+if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "yes"; then
 	PHP_REQUIRE_CXX
 
 	mysqlx_devapi_sources=" \
@@ -93,6 +170,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	xmysqlnd_sources=" \
 		xmysqlnd/xmysqlnd_any2expr.cc \
 		xmysqlnd/xmysqlnd_collection.cc \
+		xmysqlnd/xmysqlnd_compression.cc \
+		xmysqlnd/xmysqlnd_compression_setup.cc \
+		xmysqlnd/xmysqlnd_compression_types.cc \
+		xmysqlnd/xmysqlnd_compressor.cc \
+		xmysqlnd/xmysqlnd_compressor_lz4.cc \
+		xmysqlnd/xmysqlnd_compressor_zlib.cc \
+		xmysqlnd/xmysqlnd_compressor_zstd.cc \
 		xmysqlnd/xmysqlnd_crud_collection_commands.cc \
 		xmysqlnd/xmysqlnd_crud_table_commands.cc \
 		xmysqlnd/xmysqlnd_driver.cc \
@@ -116,6 +200,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		xmysqlnd/xmysqlnd_utils.cc \
 		xmysqlnd/xmysqlnd_warning_list.cc \
 		xmysqlnd/xmysqlnd_wireprotocol.cc \
+		xmysqlnd/xmysqlnd_wireprotocol_types.cc \
 		xmysqlnd/xmysqlnd_zval2any.cc \
 		"
 
@@ -159,16 +244,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		"
 
 
-	if test "$PHP_DEV_MODE" = "yes" || test "$PHP_DEV_MODE_ENABLED" = "yes"; then
-		AC_DEFINE([MYSQL_XDEVAPI_DEV_MODE], 1, [Enable developer mode])
-		DEV_MODE_CXXFLAGS="-Werror"
-	else
-		DEV_MODE_CXXFLAGS=""
-	fi
-
 	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14 \
-		-Wall -Wno-unused-function -Wformat-security -Wformat-extra-args \
-		$DEV_MODE_CXXFLAGS"
+		-Wall -Wno-unused-function -Wformat-security -Wformat-extra-args"
+
+	if test "$PHP_DEV_MODE" == "yes" || test "$PHP_DEV_MODE_ENABLED" == "yes"; then
+		MYSQL_XDEVAPI_ADD_CXXFLAGS([-Werror])
+		MYSQL_XDEVAPI_DEFINE(MYSQL_XDEVAPI_DEV_MODE)
+	fi
 
 	case $host_os in
 		*darwin*)
@@ -188,56 +270,9 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 			dnl btw I tried to find a way to pass includes with switch "-isystem" instead
 			dnl of "-I", but so far didn't find one (PHP_ADD_INCLUDE adds common "-I")
 			AC_MSG_NOTICE([-Wno-deprecated-declarations added])
-			MYSQL_XDEVAPI_CXXFLAGS="$MYSQL_XDEVAPI_CXXFLAGS -Wno-deprecated-declarations"
+			MYSQL_XDEVAPI_ADD_CXXFLAGS([-Wno-deprecated-declarations])
 			;;
 	esac
-
-	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_srcdir, $ext_builddir or
-	dnl $PHP_PECL_EXTENSION. Should be called before they are used.
-	PHP_NEW_EXTENSION(mysql_xdevapi, $MYSQL_XDEVAPI_SOURCES, $ext_shared,, $MYSQL_XDEVAPI_CXXFLAGS, true)
-	PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
-
-	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase])
-	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/include])
-	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/extra/rapidjson/include])
-
-	PHP_ADD_BUILD_DIR([$ext_srcdir])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/phputils])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/crud_parsers])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/proto_gen])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/core])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/foundation])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/parser])
-
-	dnl phpize/pecl build
-	if test "$PHP_PECL_EXTENSION"; then
-		AC_MSG_NOTICE([phpize/pecl build mode])
-
-		case $host_os in
-			*solaris*)
-				dnl On Solaris there is problem with C++ exceptions while
-				dnl building with gcc/g++ due to conflict between Solaris libc
-				dnl vs GNU libgcc_s. They both contain _Unwind_RaiseException
-				dnl function, so we have to ensure libgcc_s comes in front of
-				dnl libc at link stage, else crashes may occur
-				dnl It may be problematic as autoconf may eat duplicates, e.g.
-				dnl -lgcc_s -lc -lgcc_s  becomes =>  -lc -lgcc_s
-				dnl see also libtool --preserve-dup-deps
-				if test -n "$GCC"; then
-					AC_MSG_NOTICE(patch applied for libc vs libgcc_s _Unwind_RaiseException conflict)
-					LDFLAGS="$LDFLAGS -lgcc_s"
-				fi
-				;;
-		esac
-	fi
-
-
-	dnl dependencies
-	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, hash)
-	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
-	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
-
 
 	dnl boost
 	MINIMAL_BOOST_VER=105300
@@ -249,7 +284,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	REQUIRED_BOOST_VER_MSG="required at least $MINIMAL_BOOST_VER_LABEL"
 	REQUIRED_BOOST_VER_MSG+=" (preferred is $PREFERRED_BOOST_VER_LABEL)"
 
-	if [ test -d "$WITH_BOOST" ]; then
+	if test -d "$WITH_BOOST"; then
 		PREFERRED_BOOST_LOCATION=[$WITH_BOOST/$PREFERRED_BOOST_VER_SUBDIR]
 	else
 		PREFERRED_BOOST_LOCATION=""
@@ -291,7 +326,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	SEARCH_PATH="$PHP_PROTOBUF $MYSQL_XDEVAPI_PROTOBUF_ROOT $PROTOBUF_ROOT $PROTOBUF_PATH /usr/local /usr"
 	SEARCH_FOR="bin/protoc"
 	for i in $SEARCH_PATH ; do
-		if test -r "$i/$SEARCH_FOR"; then
+		if test -x "$i/$SEARCH_FOR"; then
 			PROTOBUF_RESOLVED_ROOT=$i
 			break
 		fi
@@ -320,7 +355,60 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		AC_MSG_ERROR([not found, consider use of --with-protobuf or setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi
 
+	dnl compressors
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_LZ4", "lz4", "lz4", "lz4.h", "MYSQL_XDEVAPI_HAVE_LZ4", LZ4_RESOLVED_ROOT)
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_ZLIB", "zlib", "z", "zlib.h", "MYSQL_XDEVAPI_HAVE_ZLIB", ZLIB_RESOLVED_ROOT)
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_ZSTD", "zstd", "zstd", "zstd.h", "MYSQL_XDEVAPI_HAVE_ZSTD", ZSTD_RESOLVED_ROOT)
+
+
+	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_srcdir, $ext_builddir or
+	dnl $PHP_PECL_EXTENSION. Should be called before they are used.
+	PHP_NEW_EXTENSION(mysql_xdevapi, $MYSQL_XDEVAPI_SOURCES, $ext_shared,, $MYSQL_XDEVAPI_CXXFLAGS, true)
+	PHP_SUBST(MYSQL_XDEVAPI_SHARED_LIBADD)
+
+	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase])
+	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/include])
+	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/extra/rapidjson/include])
+
+	PHP_ADD_BUILD_DIR([$ext_srcdir])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/phputils])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/crud_parsers])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/proto_gen])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/core])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/foundation])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/cdkbase/parser])
+
 	PHP_ADD_MAKEFILE_FRAGMENT()
+
+	dnl phpize/pecl build
+	if test "$PHP_PECL_EXTENSION"; then
+		AC_MSG_NOTICE([phpize/pecl build mode])
+
+		case $host_os in
+			*solaris*)
+				dnl On Solaris there is problem with C++ exceptions while
+				dnl building with gcc/g++ due to conflict between Solaris libc
+				dnl vs GNU libgcc_s. They both contain _Unwind_RaiseException
+				dnl function, so we have to ensure libgcc_s comes in front of
+				dnl libc at link stage, else crashes may occur
+				dnl It may be problematic as autoconf may eat duplicates, e.g.
+				dnl -lgcc_s -lc -lgcc_s  becomes =>  -lc -lgcc_s
+				dnl see also libtool --preserve-dup-deps
+				if test -n "$GCC"; then
+					AC_MSG_NOTICE(patch applied for libc vs libgcc_s _Unwind_RaiseException conflict)
+					LDFLAGS="$LDFLAGS -lgcc_s"
+				fi
+				;;
+		esac
+	fi
+
+
+	dnl dependencies
+	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, hash)
+	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, json)
+	PHP_ADD_EXTENSION_DEP(mysql_xdevapi, mysqlnd)
+
 
 	dnl Enable mysqlnd build in case it wasn't passed explicitly in cmd-line
 	if test -z "$PHP_PECL_EXTENSION"; then
@@ -335,7 +423,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		fi
 	fi
 
-	AC_DEFINE(HAVE_MYSQL_XDEVAPI, 1, [mysql-xdevapi support enabled])
+	AC_DEFINE([HAVE_MYSQL_XDEVAPI], 1, [mysql-xdevapi support enabled])
 
 	dnl expose metadata
 	dnl expose sources metadata
@@ -346,11 +434,11 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	echo [version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_SRC_PATH
 
  	AC_PATH_PROG(GIT_PATH, 'git')
-	if [ test -x "${GIT_PATH}" ]; then
+	if test -x "${GIT_PATH}"; then
 		IS_GIT_REPO=`git rev-parse --is-inside-work-tree`
 	fi
 
-	if [ test "${IS_GIT_REPO}" ]; then
+	if test "${IS_GIT_REPO}"; then
 		BRANCH_NAME=`git symbolic-ref --short HEAD`
 		echo [branch: $BRANCH_NAME] >> $INFO_SRC_PATH
 
@@ -358,13 +446,13 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 		echo "${COMMIT_INFO}" >> $INFO_SRC_PATH
 	else
 		# internal use, below envars available only on pb2 hosts without git
-		if [ test "${BRANCH_SOURCE}" ]; then
+		if test "${BRANCH_SOURCE}"; then
 			# e.g. export BRANCH_SOURCE='http://myrepo.no.oracle.com/git/connector-php-devapi.git wl-12276-expose-metadata'
 			BRANCH_NAME=`echo ${BRANCH_SOURCE} | cut -d' ' -f2`
 			echo [branch: ${BRANCH_NAME}] >> $INFO_SRC_PATH
 		fi
 
-		if [ test "${PUSH_REVISION}" ]; then
+		if test "${PUSH_REVISION}"; then
 			echo [commit: ${PUSH_REVISION}] >> $INFO_SRC_PATH
 		fi
 	fi
@@ -401,18 +489,11 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	COMPILER_VERSION=`${CXX} --version | head -1`
 	echo [compiler: "${COMPILER_VERSION}"] >> $INFO_BIN_PATH
 
-	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
-	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
-	echo [boost-root: ${BOOST_RESOLVED_ROOT}] >> $INFO_BIN_PATH
-
-	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
-	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
-	echo [protbuf-root: ${PROTOBUF_RESOLVED_ROOT}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
 	echo [===== Feature flags used: =====] >> $INFO_BIN_PATH
 	echo [php-config: ${PHP_CONFIG}] >> $INFO_BIN_PATH
-    if [test "$enable_maintainer_zts" = "yes"]; then
+    if test "$enable_maintainer_zts" == "yes"; then
       THREAD_SAFETY="yes"
     else
       THREAD_SAFETY="no"
@@ -420,10 +501,6 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	echo [thread-safety: ${THREAD_SAFETY}] >> $INFO_BIN_PATH
 	echo [debug: ${ZEND_DEBUG}] >> $INFO_BIN_PATH
 	echo [developer-mode: ${PHP_DEV_MODE}] >> $INFO_BIN_PATH
-	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
-	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
-	echo [MYSQL_XDEVAPI_BOOST_ROOT: ${MYSQL_XDEVAPI_BOOST_ROOT}] >> $INFO_BIN_PATH
-	echo [MYSQL_XDEVAPI_PROTOBUF_ROOT: ${MYSQL_XDEVAPI_PROTOBUF_ROOT}] >> $INFO_BIN_PATH
 
 	echo [] >> $INFO_BIN_PATH
 
@@ -436,6 +513,32 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" = "yes
 	echo [LDFLAGS: ${LDFLAGS}] >> $INFO_BIN_PATH
 	echo [PHP_LDFLAGS: ${PHP_LDFLAGS}] >> $INFO_BIN_PATH
 
-	echo [===== EOF =====] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
 
+	echo [===== Libraries: =====] >> $INFO_BIN_PATH
+	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_BOOST_ROOT: ${MYSQL_XDEVAPI_BOOST_ROOT}] >> $INFO_BIN_PATH
+	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
+	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
+	echo [boost-root: ${BOOST_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
+	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
+	echo [MYSQL_XDEVAPI_PROTOBUF_ROOT: ${MYSQL_XDEVAPI_PROTOBUF_ROOT}] >> $INFO_BIN_PATH
+	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
+	echo [protbuf-root: ${PROTOBUF_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [--with-lz4: ${PHP_LZ4}] >> $INFO_BIN_PATH
+	echo [lz4-root: ${LZ4_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [--with-zlib: ${PHP_ZLIB}] >> $INFO_BIN_PATH
+	echo [zlib-root: ${ZLIB_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [] >> $INFO_BIN_PATH
+
+	echo [--with-zstd: ${PHP_ZSTD}] >> $INFO_BIN_PATH
+	echo [zstd-root: ${ZSTD_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [===== EOF =====] >> $INFO_BIN_PATH
 fi

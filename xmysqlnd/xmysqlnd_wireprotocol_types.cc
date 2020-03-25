@@ -12,17 +12,26 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Authors: Darek Slusarczyk <marines@php.net>                          |
+  | Authors: Andrey Hristov <andrey@php.net>                             |
+  |          Filip Janiszewski <fjanisze@php.net>                        |
+  |          Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_PROTOBUF_API_H
-#define MYSQL_XDEVAPI_PROTOBUF_API_H
+#include "php_api.h"
+#include "xmysqlnd_wireprotocol_types.h"
 
-MYSQLX_SUPPRESS_ALL_WARNINGS()
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/zero_copy_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/wire_format_lite.h>
-MYSQLX_RESTORE_WARNINGS()
+namespace mysqlx {
 
-#endif // MYSQL_XDEVAPI_PROTOBUF_API_H
+namespace drv {
+
+Message_data::Message_data(
+	xmysqlnd_server_message_type packet_type,
+	util::bytes payload)
+	: packet_type(packet_type)
+	, payload(std::move(payload))
+{
+}
+
+} // namespace drv
+
+} // namespace mysqlx

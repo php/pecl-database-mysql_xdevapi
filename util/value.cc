@@ -82,6 +82,10 @@ zvalue::zvalue(Type type)
 		array_init(&zv);
 		break;
 
+	case Type::Object:
+		object_init(&zv);
+		break;
+
 	default:
 		assert(!"default initialization of that type is not supported");
 		ZVAL_UNDEF(&zv);
@@ -196,6 +200,11 @@ zvalue zvalue::create_array(std::size_t size)
 	zvalue arr;
 	arr.reserve(size);
 	return arr;
+}
+
+zvalue zvalue::create_object()
+{
+	return zvalue(Type::Object);
 }
 
 zvalue::~zvalue()

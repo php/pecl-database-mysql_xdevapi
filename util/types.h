@@ -52,6 +52,9 @@ using deque = std::deque<T, std::allocator<T>>;
 template<typename T, typename Container = deque<T>>
 using stack = std::stack<T, Container>;
 
+using byte = unsigned char;
+using bytes = vector<byte>;
+
 } // namespace util
 
 } // namespace mysqlx

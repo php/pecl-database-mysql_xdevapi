@@ -35,6 +35,7 @@ extern "C" {
 #include "xmysqlnd_stmt.h"
 #include "xmysqlnd_extension_plugin.h"
 #include "xmysqlnd_wireprotocol.h"
+#include "xmysqlnd_compression_setup.h"
 #include "xmysqlnd_protocol_dumper.h"
 #include "xmysqlnd_stmt_result.h"
 #include "xmysqlnd_stmt_result_meta.h"
@@ -52,6 +53,7 @@ extern "C" {
 #include "util/object.h"
 #include "util/string_utils.h"
 #include "util/url_utils.h"
+#include "util/value.h"
 #include "util/zend_utils.h"
 #include <utility>
 #include <algorithm>
@@ -100,9 +102,13 @@ inline bool is_tlsv13_supported() {
 
 
 zend_bool
-xmysqlnd_get_tls_capability(const zval * capabilities, zend_bool * found)
+xmysqlnd_is_capability_present(
+	const zval* capabilities,
+	const std::string& cap_name,
+	zend_bool* found
+)
 {
-	zval * zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), "tls", sizeof("tls") - 1);
+	zval* zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), cap_name.c_str(), cap_name.length());
 	if (!zv || Z_TYPE_P(zv) == IS_UNDEF) {
 		*found = FALSE;
 		return FALSE;
@@ -154,6 +160,18 @@ Session_auth_data::Session_auth_data() :
 	port{ 0 },
 	ssl_mode{ SSL_mode::not_specified },
 	ssl_no_defaults{ true } {
+}
+
+st_xmysqlnd_message_factory xmysqlnd_session_data::create_message_factory()
+{
+	Message_context msg_ctx{
+		io.vio,
+		io.pfc,
+		stats,
+		error_info,
+		&compression_executor
+	};
+	return get_message_factory(msg_ctx);
 }
 
 std::string
@@ -243,7 +261,7 @@ xmysqlnd_session_data::send_client_attributes()
 	enum_func_status  ret{ PASS };
 	if( capa_count > 0 ) {
 		ret = FAIL;
-		st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+		st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 
 		st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
 		st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
@@ -354,6 +372,7 @@ xmysqlnd_session_data::authenticate(
 		DBG_INF("AUTHENTICATED. YAY!");
 		ret = PASS;
 	}
+	capabilities = authenticate.get_capabilities();
 	DBG_RETURN(ret);
 }
 
@@ -586,7 +605,7 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 		case SESSION_NON_AUTHENTICATED:
 		case SESSION_READY:
 		case SESSION_CLOSE_SENT: {
-			const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+			st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 			st_xmysqlnd_msg__session_reset conn_reset_msg{ msg_factory.get__session_reset(&msg_factory) };
 			if (keep_open) {
 				conn_reset_msg.keep_open.reset(keep_open);
@@ -629,7 +648,7 @@ xmysqlnd_session_data::send_close()
 	switch (state_val) {
 	case SESSION_NON_AUTHENTICATED:
 	case SESSION_READY: {
-		const struct st_xmysqlnd_message_factory msg_factory = xmysqlnd_get_message_factory(&io, stats, error_info);
+		st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 		if ((state_val == SESSION_READY) && is_session_properly_supported()) {
 			DBG_INF("Session clean, sending SESS_CLOSE");
 			st_xmysqlnd_msg__session_close session_close_msg = msg_factory.get__session_close(&msg_factory);
@@ -678,11 +697,11 @@ xmysqlnd_session_data::negotiate_client_api_capabilities(const size_t flags)
 	DBG_RETURN(ret);
 }
 
-bool xmysqlnd_session_data::is_session_properly_supported() const
+bool xmysqlnd_session_data::is_session_properly_supported()
 {
 	if (session_properly_supported) return *session_properly_supported;
 
-	const st_xmysqlnd_message_factory msg_factory{ xmysqlnd_get_message_factory(&io, stats, error_info) };
+	st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 	st_xmysqlnd_msg__expectations_open conn_expectations_open{ msg_factory.get__expectations_open(&msg_factory) };
 	conn_expectations_open.condition_key = Mysqlx::Expect::Open_Condition::EXPECT_FIELD_EXIST;
 	const char* field_keep_session_open{ "6.1" };
@@ -752,6 +771,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 	MYSQLND_STATS* mysqlnd_stats,
 	MYSQLND_ERROR_INFO* mysqlnd_error_info)
+	: savepoint_name_seed(1)
 {
 	DBG_ENTER("xmysqlnd_session_data::xmysqlnd_session_data");
 	object_factory = factory;
@@ -783,7 +803,6 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 		throw std::runtime_error("Unable to create the object");
 	}
 
-	savepoint_name_seed = 1;
 	DBG_VOID_RETURN;
 }
 
@@ -798,6 +817,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexce
 	transport_type = rhs.transport_type;
 	socket_path = std::move(rhs.socket_path);
 	server_host_info = std::move(rhs.server_host_info);
+	compression_executor = std::move(rhs.compression_executor);
 	client_id = rhs.client_id;
 	rhs.client_id = 0;
 	charset = rhs.charset;
@@ -840,6 +860,7 @@ void xmysqlnd_session_data::cleanup()
 	DBG_INF("Freeing memory of members");
 
 	auth.reset();
+	compression_executor.reset();
 	default_schema.clear();
 	scheme.clear();
 	server_host_info.clear();
@@ -864,6 +885,7 @@ void xmysqlnd_session_data::free_contents()
 		mysqlnd_stats_end(stats, persistent);
 		stats = nullptr;
 	}
+	capabilities.reset();
 	DBG_VOID_RETURN;
 }
 
@@ -978,7 +1000,7 @@ Crypt_methods prepare_crypt_methods(const Tls_versions& tls_versions)
 enum_func_status try_setup_crypto_connection(
 	xmysqlnd_session_data* session,
 	st_xmysqlnd_msg__capabilities_get& caps_get,
-	const st_xmysqlnd_message_factory& msg_factory,
+	st_xmysqlnd_message_factory& msg_factory,
 	php_stream_xport_crypt_method_t crypt_method)
 {
 	DBG_ENTER("try_setup_crypto_connection");
@@ -986,11 +1008,10 @@ enum_func_status try_setup_crypto_connection(
 	const struct st_xmysqlnd_on_error_bind on_error =
 	{ xmysqlnd_session_data_handler_on_error, (void*) session };
 	//Attempt to set the TLS capa. flag.
-	st_xmysqlnd_msg__capabilities_set caps_set;
-	caps_set = msg_factory.get__capabilities_set(&msg_factory);
+	st_xmysqlnd_msg__capabilities_set caps_set{	msg_factory.get__capabilities_set(&msg_factory) };
 
-	zval ** capability_names = (zval **) mnd_ecalloc(1, sizeof(zval*));
-	zval ** capability_values = (zval **) mnd_ecalloc(1, sizeof(zval*));
+	zval ** capability_names = (zval **) mnd_ecalloc(2, sizeof(zval*));
+	zval ** capability_values = (zval **) mnd_ecalloc(2, sizeof(zval*));
 	zval  name, value;
 
 	const MYSQLND_CSTRING cstr_name = { "tls", 3 };
@@ -1000,7 +1021,6 @@ enum_func_status try_setup_crypto_connection(
 	capability_names[0] = &name;
 	ZVAL_TRUE(&value);
 	capability_values[0] = &value;
-
 	if( PASS == caps_set.send_request(&caps_set,
 									  1,
 									  capability_names,
@@ -1053,7 +1073,7 @@ enum_func_status try_setup_crypto_connection(
 enum_func_status setup_crypto_connection(
 	xmysqlnd_session_data* session,
 	st_xmysqlnd_msg__capabilities_get& caps_get,
-	const st_xmysqlnd_message_factory& msg_factory)
+	st_xmysqlnd_message_factory& msg_factory)
 {
 	DBG_ENTER("setup_crypto_connection");
 	Tls_versions tls_versions{ session->auth->tls_versions };
@@ -1615,7 +1635,7 @@ Authenticate::Authenticate(
 	: session(session)
 	, scheme(scheme)
 	, default_schema(def_schema)
-	, msg_factory(xmysqlnd_get_message_factory(&session->io, session->stats, session->error_info))
+	, msg_factory(session->create_message_factory())
 	, auth(session->auth.get())
 {
 	ZVAL_NULL(&capabilities);
@@ -1623,7 +1643,6 @@ Authenticate::Authenticate(
 
 Authenticate::~Authenticate()
 {
-	zval_dtor(&capabilities);
 }
 
 bool Authenticate::run(bool re_auth)
@@ -1634,6 +1653,8 @@ bool Authenticate::run(bool re_auth)
 bool Authenticate::run_auth()
 {
 	if (!init_capabilities()) return false;
+
+	setup_compression();
 
 	if (!init_connection()) return false;
 
@@ -1667,10 +1688,18 @@ bool Authenticate::init_capabilities()
 	return caps_get.read_response(&caps_get, &capabilities) == PASS;
 }
 
+void Authenticate::setup_compression()
+{
+	compression::Configuration compression_cfg;
+	compression::run_setup(auth->compression_policy, msg_factory, capabilities, compression_cfg);
+	session->compression_executor.reset(compression_cfg);
+}
+
 bool Authenticate::init_connection()
 {
+	const std::string capability_tls{ "tls" };
 	zend_bool tls_set{FALSE};
-	xmysqlnd_get_tls_capability(&capabilities, &tls_set);
+	xmysqlnd_is_capability_present(&capabilities, capability_tls, &tls_set);
 
 	if (auth->ssl_mode == SSL_mode::disabled) return true;
 
@@ -1680,6 +1709,11 @@ bool Authenticate::init_connection()
 		php_error_docref(nullptr, E_WARNING, "Cannot connect to MySQL by using SSL, unsupported by the server");
 		return false;
 	}
+}
+
+zval Authenticate::get_capabilities()
+{
+	return capabilities;
 }
 
 bool Authenticate::gather_auth_mechanisms()
@@ -2741,8 +2775,12 @@ private:
 	void set_tls_ciphersuites(const std::string& raw_tls_ciphersuites);
 	void set_ssl_ciphers(const std::string& ssl_ciphers);
 	void set_connect_timeout(const std::string& timeout_str);
+	void set_compression(const std::string& compression_str);
+
 	util::std_strings parse_single_or_array(const std::string& value) const;
+	bool parse_boolean(const std::string& value_str) const;
 	int parse_int(const std::string& value_str) const;
+	compression::Policy parse_compression_policy(const std::string& compression_policy_str) const;
 
 private:
 	const util::string& option_name;
@@ -2758,16 +2796,20 @@ struct Client_option_info
 		None = 0x0,
 		Requires_value = 0x1,
 		Is_secure = 0x2,
-		Is_integer = 0x4
+		Is_boolean = 0x4,
+		Is_integer = 0x8
 	};
 	int traits;
 	bool has_trait(Trait trait) const { return (traits & trait) == trait; }
 	bool requires_value() const { return has_trait(Trait::Requires_value); }
 	bool is_secure() const { return has_trait(Trait::Is_secure); }
+	bool is_boolean() const { return has_trait(Trait::Is_boolean); }
 	bool is_integer() const { return has_trait(Trait::Is_integer); }
 
 	Extract_client_option::Setter setter;
 };
+
+// -----------------
 
 Extract_client_option::Extract_client_option(
 	const util::string& option_name,
@@ -2799,6 +2841,7 @@ void Extract_client_option::run()
 		{ "tls-ciphersuite", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
 		{ "tls-ciphersuites", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
 		{ "connect-timeout", {Option_trait::Is_integer | Option_trait::Requires_value, &Extract_client_option::set_connect_timeout }},
+		{ "compression", {Option_trait::Is_boolean | Option_trait::Requires_value, &Extract_client_option::set_compression }},
 	};
 
 	auto it{ option_to_info.find(option_name.c_str()) };
@@ -2821,6 +2864,8 @@ void Extract_client_option::run()
 		ensure_ssl_mode();
 	}
 }
+
+// -----------------
 
 enum_func_status Extract_client_option::assign_ssl_mode(Session_auth_data& auth, SSL_mode ssl_mode)
 {
@@ -2884,7 +2929,7 @@ void Extract_client_option::set_ssl_mode(const std::string& ssl_mode_str)
 SSL_mode Extract_client_option::parse_ssl_mode(const std::string& mode_str) const
 {
 	using modestr_to_enum = std::map<std::string, SSL_mode, util::iless>;
-	static modestr_to_enum mode_mapping = {
+	static const modestr_to_enum mode_mapping = {
 		{ "required", SSL_mode::required },
 		{ "disabled", SSL_mode::disabled },
 		{ "verify_ca", SSL_mode::verify_ca },
@@ -3031,6 +3076,13 @@ void Extract_client_option::set_connect_timeout(const std::string& timeout_str)
 	auth.connection_timeout = timeout;
 }
 
+void Extract_client_option::set_compression(const std::string& compression_policy_str)
+{
+	auth.compression_policy = parse_compression_policy(compression_policy_str);
+}
+
+// -----------------
+
 util::std_strings Extract_client_option::parse_single_or_array(const std::string& value) const
 {
 	/*
@@ -3062,6 +3114,28 @@ util::std_strings Extract_client_option::parse_single_or_array(const std::string
 	return items;
 }
 
+bool Extract_client_option::parse_boolean(const std::string& value_str) const
+{
+	static const std::map<std::string, bool, util::iless> valid_options{
+		{"true", true},
+		{"false", false},
+		{"on", true},
+		{"off", false},
+		{"yes", true},
+		{"no", false}
+	};
+
+	auto it{ valid_options.find(value_str) };
+	if (it == valid_options.end()) {
+		util::ostringstream os;
+		os << "The argument to " << option_name
+			<< " must be boolean, but it is '" << value_str.c_str() << "'.";
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+	}
+
+	return it->second;
+}
+
 int Extract_client_option::parse_int(const std::string& value_str) const
 {
 	int value;
@@ -3072,6 +3146,29 @@ int Extract_client_option::parse_int(const std::string& value_str) const
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
 	}
 	return value;
+}
+
+compression::Policy Extract_client_option::parse_compression_policy(
+	const std::string& compression_policy_str) const
+{
+	static const std::map<std::string, compression::Policy, util::iless> valid_policies{
+		{"required", compression::Policy::required},
+		{"preferred", compression::Policy::preferred},
+		{"disabled", compression::Policy::disabled},
+	};
+
+	auto it{ valid_policies.find(compression_policy_str) };
+	if (it == valid_policies.end()) {
+		util::ostringstream os;
+		os << "The connection property '"
+			<< option_name
+			<< "' acceptable values are: 'preferred', 'required', or 'disabled'. The value '"
+			<< compression_policy_str.c_str()
+			<< "' is not acceptable.";
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::invalid_argument, os.str());
+	}
+
+	return it->second;
 }
 
 enum_func_status extract_client_option(
@@ -4071,10 +4168,11 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 			}
 
 			/*
-			 * Connection attributes are handled separately, in this
-			 * function we're focusing on authentication stuff.
+			 * Connection attributes
+			 * are handled separately, in this function we're
+			 * focusing on authentication stuff.
 			 */
-			if( boost::iequals(variable, "connection-attributes" ) ) {
+			if( boost::iequals(variable, "connection-attributes" )) {
 					continue;
 			}
 
@@ -4576,13 +4674,14 @@ enum_func_status parse_conn_attrib(
 	return get_def_client_attribs( attrib_container );
 }
 
+
 enum_func_status extract_connection_attributes(
 			drv::XMYSQLND_SESSION session,
 			const util::string& uri )
 {
 	static const std::string conn_attrib{ "connection-attributes" };
 	static const size_t      max_attrib_len{ 1024 * 64 };
-	enum_func_status ret = PASS;
+	enum_func_status         ret{ PASS };
 	if( session == nullptr || uri.empty() ) {
 		return FAIL;
 	}

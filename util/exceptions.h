@@ -111,6 +111,9 @@ struct xdevapi_exception : public std::runtime_error
 		unix_socket_not_allowed_with_srv,
         url_list_not_allowed,
 		out_of_range,
+		compression_not_supported,
+		compressor_not_available,
+		compression_negotiation_failure,
 	};
 
 	xdevapi_exception(Code code);
