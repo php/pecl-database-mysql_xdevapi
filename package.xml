@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2020-01-10</date>
+	<date>2020-04-10</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.19</release>
+		<release>8.0.20</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,8 +61,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#13541: Fix admin command namespace usage
-		WL#13398 DNS SRV support
+		WL#13001 DevAPI: Connection compression
+		orabug #30864458: some methods should not be reported as deprecated anymore
 	</notes>
  <contents>
   <dir name="/">
@@ -184,6 +184,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="collection_modifysetunset.phpt" role="test" />
     <file name="collection_remove.phpt" role="test" />
     <file name="complex_query.phpt" role="test" />
+    <file name="compression_options.phpt" role="test" />
     <file name="connect.inc" role="test" />
     <file name="connection_test_uri_string.phpt" role="test" />
     <file name="createdrop_schema.phpt" role="test" />
@@ -494,6 +495,20 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="xmysqlnd_any2expr.h" role="src" />
     <file name="xmysqlnd_collection.cc" role="src" />
     <file name="xmysqlnd_collection.h" role="src" />
+    <file name="xmysqlnd_compression.cc" role="src" />
+    <file name="xmysqlnd_compression.h" role="src" />
+    <file name="xmysqlnd_compression_setup.cc" role="src" />
+    <file name="xmysqlnd_compression_setup.h" role="src" />
+    <file name="xmysqlnd_compression_types.cc" role="src" />
+    <file name="xmysqlnd_compression_types.h" role="src" />
+    <file name="xmysqlnd_compressor.cc" role="src" />
+    <file name="xmysqlnd_compressor.h" role="src" />
+    <file name="xmysqlnd_compressor_lz4.cc" role="src" />
+    <file name="xmysqlnd_compressor_lz4.h" role="src" />
+    <file name="xmysqlnd_compressor_zlib.cc" role="src" />
+    <file name="xmysqlnd_compressor_zlib.h" role="src" />
+    <file name="xmysqlnd_compressor_zstd.cc" role="src" />
+    <file name="xmysqlnd_compressor_zstd.h" role="src" />
     <file name="xmysqlnd_crud_collection_commands.cc" role="src" />
     <file name="xmysqlnd_crud_collection_commands.h" role="src" />
     <file name="xmysqlnd_crud_commands.h" role="src" />
@@ -543,6 +558,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="xmysqlnd_warning_list.h" role="src" />
     <file name="xmysqlnd_wireprotocol.cc" role="src" />
     <file name="xmysqlnd_wireprotocol.h" role="src" />
+    <file name="xmysqlnd_wireprotocol_types.cc" role="src" />
+    <file name="xmysqlnd_wireprotocol_types.h" role="src" />
     <file name="xmysqlnd_zval2any.cc" role="src" />
     <file name="xmysqlnd_zval2any.h" role="src" />
     <dir name="cdkbase">
@@ -731,6 +748,23 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2020-01-10</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.19</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#13541: Fix admin command namespace usage
+			WL#13398: DNS SRV support
+		</notes>
+	</release>
 	<release>
 		<date>2019-10-14</date>
 		<time>20:00:00</time>

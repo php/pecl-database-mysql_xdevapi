@@ -67,6 +67,8 @@ Supported X DevAPI features
 - getCollection(s) / getTable(s) / getCollectionAsTable
 - drop schema / collection
 - connection pooling
+- DNS SRV support
+- connection compression
 
 For a simple use cases see examples.php or tests/*.phpt
 
