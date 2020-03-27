@@ -705,7 +705,7 @@ PHP_MYSQL_XDEVAPI_API enum_func_status connect_session(
 	XMYSQLND_SESSION& session);
 PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(
 	const char* uri_string,
-	zval * return_value);
+	zval* return_value);
 
 extern const MYSQLND_CSTRING namespace_mysqlx;
 extern const MYSQLND_CSTRING namespace_sql;

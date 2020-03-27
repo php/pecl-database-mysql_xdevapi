@@ -676,20 +676,16 @@ mysqlx_unregister_collection__find_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 
 void
 mysqlx_new_collection__find(
-	zval * return_value,
+	zval* return_value,
 	const util::string_view& search_expression,
 	drv::xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__find");
-	if (SUCCESS == object_init_ex(return_value, collection_find_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		Collection_find* const coll_find = static_cast<Collection_find*>(mysqlx_object->ptr);
-		if (!coll_find || !coll_find->init(collection, search_expression)) {
-			DBG_ERR("Error");
-			php_error_docref(nullptr, E_WARNING, "invalid coll_find of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
+	Collection_find& coll_find{ util::init_object<Collection_find>(collection_find_class_entry, return_value) };
+	if (!coll_find.init(collection, search_expression)) {
+		zval_ptr_dtor(return_value);
+		ZVAL_NULL(return_value);
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::find_fail);
 	}
 	DBG_VOID_RETURN;
 }

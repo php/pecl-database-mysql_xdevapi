@@ -457,7 +457,7 @@ mysqlx_sql_stmt_on_error(
 void
 mysqlx_sql_statement_get_results(
 		st_mysqlx_statement* object,
-		zval * return_value
+		zval* return_value
 )
 {
 	DBG_ENTER("mysqlx_sql_statement_get_results");
@@ -496,7 +496,7 @@ void
 mysqlx_sql_statement_execute(
 		const st_mysqlx_object* const mysqlx_object,
 		const zend_long flags,
-		zval * return_value
+		zval* return_value
 )
 {
 	st_mysqlx_statement* object = (st_mysqlx_statement*) mysqlx_object->ptr;
@@ -727,32 +727,20 @@ mysqlx_unregister_sql_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_sql_stmt(zval * return_value, xmysqlnd_stmt * stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query)
+mysqlx_new_sql_stmt(zval* return_value, xmysqlnd_stmt* stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query)
 {
 	DBG_ENTER("mysqlx_new_sql_stmt");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_sql_statement_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_statement* object = (st_mysqlx_statement*) mysqlx_object->ptr;
-		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
+	st_mysqlx_statement& data_object{
+		util::init_object<st_mysqlx_statement>(mysqlx_sql_statement_class_entry, return_value) };
+	data_object.stmt = stmt;
+	data_object.stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
+	data_object.execute_flags = 0;
+	data_object.send_query_status = FAIL;
+	data_object.in_execution = FALSE;
+	data_object.has_more_results = FALSE;
+	data_object.has_more_rows_in_set = FALSE;
 
-		if (object && stmt && stmt_execute) {
-			object->stmt = stmt;
-			object->stmt_execute = stmt_execute;
-			object->execute_flags = 0;
-			object->send_query_status = FAIL;
-			object->in_execution = FALSE;
-			object->has_more_results = FALSE;
-			object->has_more_rows_in_set = FALSE;
-		} else {
-			if (stmt_execute) {
-				xmysqlnd_stmt_execute__destroy(stmt_execute);
-			}
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
 	DBG_VOID_RETURN;
 }
 
@@ -761,7 +749,7 @@ void
 mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_object,
 											const zend_long flags,
 											const enum mysqlx_result_type result_type,
-											zval * return_value)
+											zval* return_value)
 {
 	st_mysqlx_statement* object = (st_mysqlx_statement*) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_statement_execute");
@@ -972,27 +960,20 @@ mysqlx_unregister_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_stmt(zval * return_value, xmysqlnd_stmt * stmt)
+mysqlx_new_stmt(zval* return_value, xmysqlnd_stmt * stmt)
 {
 	DBG_ENTER("mysqlx_new_stmt");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_statement_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_statement* object = (st_mysqlx_statement*) mysqlx_object->ptr;
-		if (object) {
-			object->stmt = stmt;
-			object->stmt_execute = nullptr;
-			object->execute_flags = 0;
-			object->send_query_status = FAIL;
-			object->in_execution = FALSE;
-			object->has_more_results = FALSE;
-			object->has_more_rows_in_set = FALSE;
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
+	st_mysqlx_statement& data_object{
+		util::init_object<st_mysqlx_statement>(mysqlx_statement_class_entry, return_value) };
+	data_object.stmt = stmt;
+	data_object.stmt_execute = nullptr;
+	data_object.execute_flags = 0;
+	data_object.send_query_status = FAIL;
+	data_object.in_execution = FALSE;
+	data_object.has_more_results = FALSE;
+	data_object.has_more_rows_in_set = FALSE;
+
 	DBG_VOID_RETURN;
 }
 

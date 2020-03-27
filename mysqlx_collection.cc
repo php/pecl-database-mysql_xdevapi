@@ -568,7 +568,7 @@ static const zend_function_entry mysqlx_collection_methods[] = {
 };
 
 static zval *
-mysqlx_collection_property__name(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_collection_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_collection* object = (const st_mysqlx_collection* ) (obj->ptr);
 	DBG_ENTER("mysqlx_collection_property__name");
@@ -653,21 +653,13 @@ mysqlx_unregister_collection_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_collection(zval * return_value, xmysqlnd_collection * collection, const zend_bool clone)
+mysqlx_new_collection(zval* return_value, xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_collection");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_collection_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_collection* const object = (st_mysqlx_collection*) mysqlx_object->ptr;
-		if (object) {
-			object->collection = clone? collection->get_reference() : collection;
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
+	st_mysqlx_collection& data_object{
+		util::init_object<st_mysqlx_collection>(mysqlx_collection_class_entry, return_value) };
+	data_object.collection = collection;
 
 	DBG_VOID_RETURN;
 }

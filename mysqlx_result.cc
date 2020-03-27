@@ -284,21 +284,13 @@ mysqlx_unregister_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_result(zval * return_value, XMYSQLND_STMT_RESULT * result)
+mysqlx_new_result(zval* return_value, XMYSQLND_STMT_RESULT* result)
 {
 	DBG_ENTER("mysqlx_new_result");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_result_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_result* const object = (st_mysqlx_result*) mysqlx_object->ptr;
-		if (object) {
-			object->result = result;
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
+	st_mysqlx_result& data_object{
+		util::init_object<st_mysqlx_result>(mysqlx_result_class_entry, return_value) };
+	data_object.result = result;
 
 	DBG_VOID_RETURN;
 }

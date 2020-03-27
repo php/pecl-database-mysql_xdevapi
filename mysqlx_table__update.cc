@@ -368,7 +368,7 @@ static const zend_function_entry mysqlx_table__update_methods[] = {
 
 #if 0
 static zval *
-mysqlx_table__update_property__name(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_table__update_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_table__update* object = (const st_mysqlx_table__update* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table__update_property__name");
@@ -462,25 +462,15 @@ mysqlx_unregister_table__update_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_table__update(zval * return_value, xmysqlnd_table * table, const zend_bool clone)
+mysqlx_new_table__update(zval* return_value, xmysqlnd_table* table)
 {
 	DBG_ENTER("mysqlx_new_table__update");
-
-	if (SUCCESS == object_init_ex(return_value, mysqlx_table__update_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_table__update* const object = (st_mysqlx_table__update*) mysqlx_object->ptr;
-		if (object) {
-			object->table = clone? table->get_reference() : table;
-			object->crud_op = xmysqlnd_crud_table_update__create(
-				mnd_str2c(object->table->get_schema()->get_name()),
-				mnd_str2c(object->table->get_name()));
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
-
+	st_mysqlx_table__update& data_object{
+		util::init_object<st_mysqlx_table__update>(mysqlx_table__update_class_entry, return_value) };
+	data_object.table = table->get_reference();
+	data_object.crud_op = xmysqlnd_crud_table_update__create(
+		mnd_str2c(data_object.table->get_schema()->get_name()),
+		mnd_str2c(data_object.table->get_name()));
 	DBG_VOID_RETURN;
 }
 

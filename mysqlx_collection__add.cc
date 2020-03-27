@@ -385,14 +385,11 @@ mysqlx_new_collection__add(
 {
 	DBG_ENTER("mysqlx_new_collection__add");
 
-	if (SUCCESS == object_init_ex(return_value, collection_add_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		Collection_add* const coll_add = static_cast<Collection_add*>(mysqlx_object->ptr);
-		if (!coll_add || !coll_add->add_docs(collection, docs, num_of_docs)) {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
+	Collection_add& coll_add{ util::init_object<Collection_add>(collection_add_class_entry, return_value) };
+	if (!coll_add.add_docs(collection, docs, num_of_docs)) {
+		zval_ptr_dtor(return_value);
+		ZVAL_NULL(return_value);
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::add_doc);
 	}
 
 	DBG_VOID_RETURN;

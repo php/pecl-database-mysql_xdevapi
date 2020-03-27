@@ -97,7 +97,7 @@ struct st_xmysqlnd_msg__capabilities_set
 									 const size_t cap_count, zval ** capabilities_names, zval ** capabilities_values);
 
 	enum_func_status (*read_response)(st_xmysqlnd_msg__capabilities_set* msg,
-									  zval * return_value);
+									  zval* return_value);
 
 	enum_func_status (*init_read)(st_xmysqlnd_msg__capabilities_set* const msg,
 								  const struct st_xmysqlnd_on_error_bind on_error);

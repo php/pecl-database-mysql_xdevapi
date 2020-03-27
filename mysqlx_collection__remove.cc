@@ -368,17 +368,11 @@ mysqlx_new_collection__remove(
 	xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__remove");
-	if (SUCCESS == object_init_ex(return_value, collection_remove_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		Collection_remove* const coll_remove = static_cast<Collection_remove*>(mysqlx_object->ptr);
-		if (!coll_remove ||
-			!coll_remove->init(collection->get_reference(), search_expression))
-		{
-			DBG_ERR("Error");
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
+	Collection_remove& coll_remove{ util::init_object<Collection_remove>(collection_remove_class_entry, return_value) };
+	if (!coll_remove.init(collection, search_expression)) {
+		zval_ptr_dtor(return_value);
+		ZVAL_NULL(return_value);
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::remove_fail);
 	}
 	DBG_VOID_RETURN;
 }

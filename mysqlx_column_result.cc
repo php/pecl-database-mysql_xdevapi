@@ -508,25 +508,14 @@ const struct st_mysqlx_property_entry mysqlx_column_result_property_entries[] =
 
 void
 mysqlx_new_column_result(
-	zval * return_value,
-	const st_xmysqlnd_result_field_meta * meta)
+	zval* return_value,
+	const st_xmysqlnd_result_field_meta* meta)
 {
 	DBG_ENTER("mysqlx_new_column");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_column_result_class_entry) &&
-			IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_column_result* const object =
-				(st_mysqlx_column_result*) mysqlx_object->ptr;
-		if (object) {
-			object->meta = meta;
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s",
-							 ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
+	st_mysqlx_column_result& data_object{
+		util::init_object<st_mysqlx_column_result>(mysqlx_column_result_class_entry, return_value) };
+	data_object.meta = meta;
 
 	DBG_VOID_RETURN;
 }

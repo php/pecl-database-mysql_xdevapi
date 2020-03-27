@@ -688,7 +688,7 @@ on_ERROR(const Mysqlx::Error & error, const st_xmysqlnd_on_error_bind on_error)
 
 /************************************** CAPABILITIES GET **************************************************/
 static void
-capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval * return_value)
+capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval* return_value)
 {
 	DBG_ENTER("capabilities_to_zv");
 	util::zvalue capabilities(util::zvalue::create_array(message.capabilities_size()));
@@ -834,7 +834,7 @@ static st_xmysqlnd_server_messages_handlers capabilities_set_handlers =
 };
 
 enum_func_status
-xmysqlnd_capabilities_set__read_response(st_xmysqlnd_msg__capabilities_set* msg, zval * return_value)
+xmysqlnd_capabilities_set__read_response(st_xmysqlnd_msg__capabilities_set* msg, zval* return_value)
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_read__capabilities_set");

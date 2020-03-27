@@ -26,7 +26,7 @@ struct st_xmysqlnd_stmt_execution_state;
 
 namespace devapi {
 
-void mysqlx_new_execution_status(zval * return_value, const drv::st_xmysqlnd_stmt_execution_state* const status);
+void mysqlx_new_execution_status(zval* return_value, const drv::st_xmysqlnd_stmt_execution_state* const status);
 void mysqlx_register_execution_status_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
 void mysqlx_unregister_execution_status_class(SHUTDOWN_FUNC_ARGS);
 

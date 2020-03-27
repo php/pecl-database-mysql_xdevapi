@@ -54,7 +54,7 @@ static const zend_function_entry mysqlx_exception_methods[] = {
 };
 
 static zval *
-mysqlx_exception_property__message(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_exception_property__message(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
 	DBG_ENTER("mysqlx_exception_property__message");
@@ -74,7 +74,7 @@ mysqlx_exception_property__message(const st_mysqlx_object* obj, zval * return_va
 }
 
 static zval *
-mysqlx_exception_property__level(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_exception_property__level(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
 	DBG_ENTER("mysqlx_exception_property__level");
@@ -83,7 +83,7 @@ mysqlx_exception_property__level(const st_mysqlx_object* obj, zval * return_valu
 }
 
 static zval *
-mysqlx_exception_property__code(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_exception_property__code(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
 	DBG_ENTER("mysqlx_exception_property__code");

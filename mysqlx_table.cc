@@ -320,7 +320,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 	if (num_of_columns > 0) {
 		mysqlx_new_table__insert(return_value,
 									  data_object.table,
-									  TRUE /* clone */,
 									  columns,
 									  num_of_columns);
 	}
@@ -353,7 +352,6 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 					num_of_columns);
 		mysqlx_new_table__select(return_value,
 						data_object.table,
-						TRUE /* clone */,
 						columns,
 						num_of_columns);
 	}
@@ -376,7 +374,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 
 	RETVAL_FALSE;
 
-	mysqlx_new_table__update(return_value, data_object.table, TRUE /* clone */);
+	mysqlx_new_table__update(return_value, data_object.table);
 
 	DBG_VOID_RETURN;
 }
@@ -396,7 +394,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 
 	RETVAL_FALSE;
 
-	mysqlx_new_table__delete(return_value, data_object.table, TRUE /* clone */);
+	mysqlx_new_table__delete(return_value, data_object.table);
 
 	DBG_VOID_RETURN;
 }
@@ -422,7 +420,7 @@ static const zend_function_entry mysqlx_table_methods[] = {
 };
 
 static zval *
-mysqlx_table_property__name(const st_mysqlx_object* obj, zval * return_value)
+mysqlx_table_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_table* object = (const st_mysqlx_table* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table_property__name");
@@ -507,22 +505,12 @@ mysqlx_unregister_table_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_table(zval * return_value, xmysqlnd_table * table, const zend_bool clone)
+mysqlx_new_table(zval* return_value, xmysqlnd_table* table)
 {
 	DBG_ENTER("mysqlx_new_table");
-
-	if (SUCCESS == object_init_ex(return_value, mysqlx_table_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_table* const object = (st_mysqlx_table*) mysqlx_object->ptr;
-		if (object) {
-			object->table = clone? table->get_reference() : table;
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
-
+	st_mysqlx_table& data_object{
+		util::init_object<st_mysqlx_table>(mysqlx_table_class_entry, return_value) };
+	data_object.table = table;
 	DBG_VOID_RETURN;
 }
 

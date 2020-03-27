@@ -742,15 +742,11 @@ mysqlx_new_collection__modify(
 {
 	DBG_ENTER("mysqlx_new_collection__modify");
 
-	if (SUCCESS == object_init_ex(return_value, collection_modify_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		Collection_modify* const coll_modify = static_cast<Collection_modify*>(mysqlx_object->ptr);
-		if (!coll_modify || !coll_modify->init(collection, search_expression)) {
-			DBG_ERR("Error");
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
+	Collection_modify& coll_modify{ util::init_object<Collection_modify>(collection_modify_class_entry, return_value) };
+	if (!coll_modify.init(collection, search_expression)) {
+		zval_ptr_dtor(return_value);
+		ZVAL_NULL(return_value);
+		throw util::xdevapi_exception(util::xdevapi_exception::Code::modify_fail);
 	}
 
 	DBG_VOID_RETURN;

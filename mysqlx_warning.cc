@@ -180,19 +180,11 @@ void
 mysqlx_new_warning(zval* return_value, const MYSQLND_CSTRING msg, unsigned int level, const unsigned int code)
 {
 	DBG_ENTER("mysqlx_new_warning");
-	if (SUCCESS == object_init_ex(return_value, mysqlx_warning_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_warning* const object = (st_mysqlx_warning*) mysqlx_object->ptr;
-		if (object) {
-			object->msg = mnd_dup_cstring(msg, object->persistent);
-			object->level = level;
-			object->code = code;
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
+	st_mysqlx_warning& data_object{
+		util::init_object<st_mysqlx_warning>(mysqlx_warning_class_entry, return_value) };
+	data_object.msg = mnd_dup_cstring(msg, data_object.persistent);
+	data_object.level = level;
+	data_object.code = code;
 	DBG_VOID_RETURN;
 }
 

@@ -237,7 +237,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 		xmysqlnd_collection* const collection{ data_object.schema->create_collection(collection_name, collection_options, on_error) };
 		DBG_INF_FMT("collection=%p", collection);
 		if (collection) {
-			mysqlx_new_collection(return_value, collection, FALSE);
+			mysqlx_new_collection(return_value, collection);
 			DBG_INF_FMT("type=%d", Z_TYPE_P(return_value));
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
 				DBG_ERR("Something is wrong");
@@ -321,7 +321,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 	if ( !collection_name.empty() && data_object.schema) {
 		xmysqlnd_collection* const collection = data_object.schema->create_collection_object(collection_name.to_nd_cstr());
 		if (collection) {
-			mysqlx_new_collection(return_value, collection, FALSE);
+			mysqlx_new_collection(return_value, collection);
 			if (Z_TYPE_P(return_value) != IS_OBJECT) {
 				xmysqlnd_collection_free(collection, nullptr, nullptr);
 			}
@@ -347,7 +347,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 	RETVAL_NULL();
 	if ( !table_name.empty() && data_object.schema) {
 		xmysqlnd_table* const table = data_object.schema->create_table_object(table_name.to_nd_cstr());
-		mysqlx_new_table(return_value, table, FALSE /* no clone */);
+		mysqlx_new_table(return_value, table);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
 			xmysqlnd_table_free(table, nullptr, nullptr);
 		}
@@ -371,7 +371,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 	RETVAL_NULL();
 	if (!collection_name.empty() && data_object.schema) {
 		xmysqlnd_table* const table = data_object.schema->create_table_object(collection_name.to_nd_cstr());
-		mysqlx_new_table(return_value, table, FALSE /* no clone */);
+		mysqlx_new_table(return_value, table);
 		if (Z_TYPE_P(return_value) != IS_OBJECT) {
 			xmysqlnd_table_free(table, nullptr, nullptr);
 		}
@@ -397,7 +397,7 @@ mysqlx_on_db_object(void* context, xmysqlnd_schema* const schema, const MYSQLND_
 	if ((object_type.s[0] == 'T') || (object_type.s[0] == 'V')) {
 		xmysqlnd_table* const table = schema->create_table_object(object_name);
 		if (table) {
-			mysqlx_new_table(&zv, table, FALSE);
+			mysqlx_new_table(&zv, table);
 			if (Z_TYPE(zv) == IS_OBJECT) {
 				add_assoc_zval_ex(ctx->list, object_name.s, object_name.l, &zv);
 			} else {
@@ -408,7 +408,7 @@ mysqlx_on_db_object(void* context, xmysqlnd_schema* const schema, const MYSQLND_
 	} else if (object_type.s[0] == 'C') {
 		xmysqlnd_collection* const collection = schema->create_collection_object(object_name);
 		if (collection) {
-			mysqlx_new_collection(&zv, collection, FALSE);
+			mysqlx_new_collection(&zv, collection);
 			if (Z_TYPE(zv) == IS_OBJECT) {
 				add_assoc_zval_ex(ctx->list, object_name.s, object_name.l, &zv);
 			} else {
@@ -593,15 +593,9 @@ mysqlx_new_schema(zval* return_value, xmysqlnd_schema* schema)
 {
 	DBG_ENTER("mysqlx_new_schema");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_schema_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_schema* const object = static_cast<st_mysqlx_schema*>(mysqlx_object->ptr);
-		if (object) {
-			object->schema = schema;
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-		}
-	}
+	st_mysqlx_schema& data_object{
+		util::init_object<st_mysqlx_schema>(mysqlx_schema_class_entry, return_value) };
+	data_object.schema = schema;
 
 	DBG_VOID_RETURN;
 }

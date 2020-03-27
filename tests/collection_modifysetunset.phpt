@@ -61,10 +61,10 @@ error_reporting=0
 	$coll->modify('name like :name_param')->unset(["crap1", "crap2"])->bind(['name_param' => 'Sakila'])->execute();
 
 	try{
-	    $coll->modify()->set("name","test")->execute();
-	    test_step_failed();
+		$coll->modify()->set("name","test")->execute();
+		test_step_failed();
 	} catch( Exception $ex ) {
-	    test_step_ok();
+		test_step_ok();
 	}
 
 	$res = $coll->find()->execute();
@@ -81,10 +81,15 @@ error_reporting=0
 	// fails expected due to empty or incorrect search-condition
 	function check_incorrect_condition($condition) {
 		global $coll;
-		expect_null($coll->modify($condition));
+		try {
+			$coll->modify($condition);
+			test_step_failed();
+		} catch(Exception $e) {
+			test_step_ok();
+		}
 	}
 
-	expect_null( $coll->modify('') );
+	check_incorrect_condition('');
 	check_incorrect_condition(' ');
 	check_incorrect_condition('@ incorrect $ condition &');
 

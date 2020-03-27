@@ -156,22 +156,13 @@ mysqlx_unregister_expression_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_expression(zval * return_value, const MYSQLND_CSTRING expression)
+mysqlx_new_expression(zval* return_value, const MYSQLND_CSTRING expression)
 {
 	DBG_ENTER("mysqlx_new_expression");
 
-	if (SUCCESS == object_init_ex(return_value, mysqlx_expression_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(return_value);
-		st_mysqlx_expression* const object = (st_mysqlx_expression*) mysqlx_object->ptr;
-		if (object) {
-			DBG_INF_FMT("expression=[%*s]", expression.l, expression.s);
-			ZVAL_STRINGL(&object->expression, expression.s, expression.l);
-		} else {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			zval_ptr_dtor(return_value);
-			ZVAL_NULL(return_value);
-		}
-	}
+	st_mysqlx_expression& data_object{
+		util::init_object<st_mysqlx_expression>(mysqlx_expression_class_entry, return_value) };
+	ZVAL_STRINGL(&data_object.expression, expression.s, expression.l);
 
 	DBG_VOID_RETURN;
 }
