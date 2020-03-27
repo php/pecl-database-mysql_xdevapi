@@ -40,18 +40,6 @@ struct st_mysqlx_warning
 };
 
 
-#define MYSQLX_FETCH_WARNING_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_warning*) mysqlx_object->ptr; \
-	if (!(_to)) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-}
-
-
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -62,13 +50,13 @@ static const zend_function_entry mysqlx_warning_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
 
-static zval *
-mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_value)
+static zval*
+mysqlx_warning_property__message(const st_mysqlx_object* obj, zval* return_value)
 {
-	const st_mysqlx_warning* object = (const st_mysqlx_warning* ) (obj->ptr);
 	DBG_ENTER("mysqlx_warning_property__message");
-	if (object->msg.s) {
-		ZVAL_STRINGL(return_value, object->msg.s, object->msg.l);
+	const st_mysqlx_warning& data_object{ util::fetch_data_object<st_mysqlx_warning>(obj) };
+	if (data_object.msg.s) {
+		ZVAL_STRINGL(return_value, data_object.msg.s, data_object.msg.l);
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -82,22 +70,22 @@ mysqlx_warning_property__message(const st_mysqlx_object* obj, zval * return_valu
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_warning_property__level(const st_mysqlx_object* obj, zval * return_value)
+static zval*
+mysqlx_warning_property__level(const st_mysqlx_object* obj, zval* return_value)
 {
-	const st_mysqlx_warning* object = (const st_mysqlx_warning* ) (obj->ptr);
 	DBG_ENTER("mysqlx_warning_property__level");
-	ZVAL_LONG(return_value, object->level);
+	const st_mysqlx_warning& data_object{ util::fetch_data_object<st_mysqlx_warning>(obj) };
+	ZVAL_LONG(return_value, data_object.level);
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_warning_property__code(const st_mysqlx_object* obj, zval * return_value)
+static zval*
+mysqlx_warning_property__code(const st_mysqlx_object* obj, zval* return_value)
 {
-	const st_mysqlx_warning* object = (const st_mysqlx_warning* ) (obj->ptr);
 	DBG_ENTER("mysqlx_warning_property__code");
+	const st_mysqlx_warning& data_object{ util::fetch_data_object<st_mysqlx_warning>(obj) };
 	/* code is 32 bit unsigned and on 32bit system won't fit into 32 bit signed zend_long, but this won't happen in practice*/
-	ZVAL_LONG(return_value, object->code);
+	ZVAL_LONG(return_value, data_object.code);
 	DBG_RETURN(return_value);
 }
 
@@ -189,7 +177,7 @@ mysqlx_unregister_warning_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_warning(zval * return_value, const MYSQLND_CSTRING msg, unsigned int level, const unsigned int code)
+mysqlx_new_warning(zval* return_value, const MYSQLND_CSTRING msg, unsigned int level, const unsigned int code)
 {
 	DBG_ENTER("mysqlx_new_warning");
 	if (SUCCESS == object_init_ex(return_value, mysqlx_warning_class_entry) && IS_OBJECT == Z_TYPE_P(return_value)) {

@@ -137,6 +137,18 @@ devapi::st_mysqlx_object* alloc_permanent_object(
 }
 
 template<typename Data_object>
+const Data_object& fetch_data_object(const devapi::st_mysqlx_object* mysqlx_object)
+{
+	using namespace devapi;
+
+	const Data_object* data_object{ static_cast<const Data_object*>(mysqlx_object->ptr) };
+	if (!data_object) {
+		throw util::doc_ref_exception(util::doc_ref_exception::Severity::warning, mysqlx_object->zo.ce);
+	}
+	return *data_object;
+}
+
+template<typename Data_object>
 Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
 {
 	using namespace devapi;
