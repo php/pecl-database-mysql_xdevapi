@@ -57,17 +57,6 @@ struct st_mysqlx_table__insert : public util::custom_allocable
 };
 
 
-#define MYSQLX_FETCH_TABLE_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_table__insert*) mysqlx_object->ptr; \
-	if (!(_to) || !(_to)->table) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
-
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -75,14 +64,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, __construct)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 {
-	st_mysqlx_table__insert* object{nullptr};
+	DBG_ENTER("mysqlx_table__insert::values");
+
 	zval* object_zv{nullptr};
 	zval* values{nullptr};
 	zend_bool op_failed{FALSE};
 	int num_of_values{0};
-
-	DBG_ENTER("mysqlx_table__insert::values");
-
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data, getThis(), "O+",
 		&object_zv,
@@ -93,7 +80,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table__insert>(object_zv) };
 
 	RETVAL_FALSE;
 
@@ -101,7 +88,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 				num_of_values);
 
 	for(int i{0}; i < num_of_values ; ++i ) {
-		if (FAIL == xmysqlnd_crud_table_insert__add_row(object->crud_op,
+		if (FAIL == xmysqlnd_crud_table_insert__add_row(data_object.crud_op,
 												&values[i])) {
 			op_failed = TRUE;
 			break;
@@ -117,27 +104,25 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 {
-	st_mysqlx_table__insert* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table__insert::execute");
 
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__insert_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table__insert>(object_zv) };
 
 	RETVAL_FALSE;
 
-	DBG_INF_FMT("crud_op=%p table=%p", object->crud_op, object->table);
-	if (object->crud_op && object->table) {
-		if (FALSE == xmysqlnd_crud_table_insert__is_initialized(object->crud_op)) {
+	DBG_INF_FMT("crud_op=%p table=%p", data_object.crud_op, data_object.table);
+	if (data_object.crud_op && data_object.table) {
+		if (FALSE == xmysqlnd_crud_table_insert__is_initialized(data_object.crud_op)) {
 			RAISE_EXCEPTION(err_msg_insert_fail);
 		} else {
-			xmysqlnd_stmt * stmt = object->table->insert(object->crud_op);
+			xmysqlnd_stmt* stmt = data_object.table->insert(data_object.crud_op);
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);

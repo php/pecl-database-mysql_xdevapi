@@ -59,17 +59,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-#define MYSQLX_FETCH_RESULT_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_result*) mysqlx_object->ptr; \
-	if (!(_to)) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, __construct)
 {
@@ -78,30 +67,28 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, __construct)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_result::getAffectedItemsCount");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_LONG(0);
-	if (object->result) {
-		const XMYSQLND_STMT_EXECUTION_STATE * exec_state = object->result->exec_state;
-		/* Maybe check here if there was an error and throw an Exception or return a warning */
-		if (exec_state) {
-			const size_t value = exec_state->m->get_affected_items_count(exec_state);
-			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
-				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
-			} else {
-				RETVAL_LONG(value);
-				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
-			}
+
+	auto& data_object{ util::fetch_data_object<st_mysqlx_result>(object_zv) };
+
+	const XMYSQLND_STMT_EXECUTION_STATE* exec_state = data_object.result->exec_state;
+	/* Maybe check here if there was an error and throw an Exception or return a warning */
+	if (exec_state) {
+		const size_t value = exec_state->m->get_affected_items_count(exec_state);
+		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
+			ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
+			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
+		} else {
+			RETVAL_LONG(value);
+			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 		}
 	}
 	DBG_VOID_RETURN;
@@ -109,31 +96,29 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAutoIncrementValue)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_result::getAutoIncrementValue");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
 	RETVAL_FALSE;
-	if (object->result && object->result->exec_state) {
-		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
-		/* Maybe check here if there was an error and throw an Exception or return a warning */
-		if (exec_state) {
-			const uint64_t value = exec_state->m->get_last_insert_id(exec_state);
-			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				const auto& value_str{ util::to_string(value) };
-				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", value_str.c_str()));
-				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
-			} else {
-				ZVAL_LONG(return_value, static_cast<zend_long>(value));
-				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
-			}
+
+	auto& data_object{ util::fetch_data_object<st_mysqlx_result>(object_zv) };
+
+	const XMYSQLND_STMT_EXECUTION_STATE* const exec_state = data_object.result->exec_state;
+	/* Maybe check here if there was an error and throw an Exception or return a warning */
+	if (exec_state) {
+		const uint64_t value = exec_state->m->get_last_insert_id(exec_state);
+		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
+			const auto& value_str{ util::to_string(value) };
+			ZVAL_NEW_STR(return_value, strpprintf(0, "%s", value_str.c_str()));
+			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
+		} else {
+			ZVAL_LONG(return_value, static_cast<zend_long>(value));
+			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 		}
 	}
 	DBG_VOID_RETURN;
@@ -143,63 +128,51 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 {
     DBG_ENTER("mysqlx_result::getGeneratedIds");
 	zval* object_zv{nullptr};
-	st_mysqlx_result* object{nullptr};
-
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
-	if (object->result && object->result->exec_state) {
-		const XMYSQLND_STMT_EXECUTION_STATE * const exec_state = object->result->exec_state;
-		if ( exec_state == nullptr ) {
-			php_error_docref(nullptr, E_WARNING, "Unable to get the correct exec_state");
-			DBG_VOID_RETURN;
+	auto& data_object{ util::fetch_data_object<st_mysqlx_result>(object_zv) };
+	const XMYSQLND_STMT_EXECUTION_STATE* const exec_state = data_object.result->exec_state;
+	if ( exec_state == nullptr ) {
+		php_error_docref(nullptr, E_WARNING, "Unable to get the correct exec_state");
+		DBG_VOID_RETURN;
 
-		}
-		auto& ids = exec_state->generated_doc_ids;
-		const size_t num_of_docs = ids.size();
-		array_init_size(return_value, static_cast<uint32_t>(num_of_docs));
-		for( auto& elem : ids ) {
-			zval id;
-			ZVAL_STRINGL(&id,elem.c_str(),elem.size());
-			zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &id);
-		}
 	}
-
-	util::zend::ensure_is_array(return_value);
+	auto& ids = exec_state->generated_doc_ids;
+	util::zvalue docs(util::zvalue::create_array(ids.size()));
+	for( auto& elem : ids ) {
+		docs.push_back(elem);
+	}
+	docs.move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_result::getWarningsCount");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
-
 	RETVAL_LONG(0);
-	if (object->result) {
-		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
-		/* Maybe check here if there was an error and throw an Exception or return a warning */
-		if (warnings) {
-			const size_t value = warnings->m->count(warnings);
-			if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
-				ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
-				DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
-			} else {
-				RETVAL_LONG(value);
-				DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
-			}
+
+	auto& data_object{ util::fetch_data_object<st_mysqlx_result>(object_zv) };
+	const XMYSQLND_WARNING_LIST* const warnings = data_object.result->warnings;
+	/* Maybe check here if there was an error and throw an Exception or return a warning */
+	if (warnings) {
+		const size_t value = warnings->m->count(warnings);
+		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
+			ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
+			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
+		} else {
+			RETVAL_LONG(value);
+			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 		}
 	}
 	DBG_VOID_RETURN;
@@ -207,33 +180,27 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_result::getWarnings");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_RESULT_FROM_ZVAL(object, object_zv);
 
-	if (object->result) {
-		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
-		/* Maybe check here if there was an error and throw an Exception or return a warning */
-		if (warnings) {
-			const unsigned int count{warnings->m->count(warnings)};
-			array_init_size(return_value, count);
-			for (unsigned int i{0}; i < count; ++i) {
-				const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
-				zval warning_zv;
-
-				ZVAL_UNDEF(&warning_zv);
-				mysqlx_new_warning(&warning_zv, warning.message, warning.level, warning.code);
-
-				if (Z_TYPE(warning_zv) != IS_UNDEF) {
-					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &warning_zv);
-				}
+	auto& data_object{ util::fetch_data_object<st_mysqlx_result>(object_zv) };
+	const XMYSQLND_WARNING_LIST* const warnings = data_object.result->warnings;
+	/* Maybe check here if there was an error and throw an Exception or return a warning */
+	if (warnings) {
+		const unsigned int count{warnings->m->count(warnings)};
+		array_init_size(return_value, count);
+		for (unsigned int i{0}; i < count; ++i) {
+			const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
+			util::zvalue warning_zv;
+			mysqlx_new_warning(warning_zv.ptr(), warning.message, warning.level, warning.code);
+			if (!warning_zv.is_undef()) {
+				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), warning_zv.ptr());
+				warning_zv.invalidate();
 			}
 		}
 	}

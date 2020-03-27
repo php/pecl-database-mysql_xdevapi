@@ -93,16 +93,6 @@ struct st_mysqlx_table : public util::custom_allocable
 };
 
 
-#define MYSQLX_FETCH_TABLE_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_table*) mysqlx_object->ptr; \
-	if (!(_to) || !(_to)->table) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -136,23 +126,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 {
-	st_mysqlx_table* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table::getName");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 
-	if (object->table) {
-		RETVAL_STRINGL(object->table->get_name().s, object->table->get_name().l);
-	} else {
-		RETVAL_FALSE;
-	}
+	RETVAL_STRINGL(data_object.table->get_name().s, data_object.table->get_name().l);
 
 	DBG_VOID_RETURN;
 }
@@ -178,28 +163,25 @@ mysqlx_table_on_error(
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 {
-	st_mysqlx_table* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table::existsInDatabase");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 
 	RETVAL_FALSE;
 
-	xmysqlnd_table * table = object->table;
-	if (table) {
-		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
-		zval exists;
-		ZVAL_UNDEF(&exists);
-		if (PASS == table->exists_in_database(on_error, &exists)) {
-			ZVAL_COPY_VALUE(return_value, &exists);
-		}
+	xmysqlnd_table* table = data_object.table;
+	const st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
+	zval exists;
+	ZVAL_UNDEF(&exists);
+	if (PASS == table->exists_in_database(on_error, &exists)) {
+		ZVAL_COPY_VALUE(return_value, &exists);
 	}
 
 	DBG_VOID_RETURN;
@@ -207,11 +189,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 {
-	zval* object_zv{nullptr};
-
-	RETVAL_FALSE;
-
 	DBG_ENTER("mysqlx_table::isView");
+
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data,
 		getThis(),
@@ -224,14 +204,14 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 
 	auto& data_object = util::fetch_data_object<st_mysqlx_table>(object_zv);
 
+	RETVAL_FALSE;
+
 	xmysqlnd_table * table = data_object.table;
-	if (table) {
-		const st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
-		zval exists;
-		ZVAL_UNDEF(&exists);
-		if (PASS == table->is_view(on_error, &exists)) {
-			ZVAL_COPY_VALUE(return_value, &exists);
-		}
+	const st_xmysqlnd_session_on_error_bind on_error = { mysqlx_table_on_error, nullptr };
+	zval exists;
+	ZVAL_UNDEF(&exists);
+	if (PASS == table->is_view(on_error, &exists)) {
+		ZVAL_COPY_VALUE(return_value, &exists);
 	}
 
 	DBG_VOID_RETURN;
@@ -266,12 +246,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 {
-	st_mysqlx_table* object{nullptr};
-	XMYSQLND_SESSION session;
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table::getSchema");
 
+	XMYSQLND_SESSION session;
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(
 				execute_data,
 				getThis(), "O",
@@ -280,17 +258,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 	RETVAL_FALSE;
 
-	if( object->table &&
-		object->table->get_schema() ) {
-		session = object->table->get_schema()->get_session();
+	if( data_object.table->get_schema() ) {
+		session = data_object.table->get_schema()->get_session();
 	}
 
 	if(session != nullptr) {
-		MYSQLND_STRING schema_name{ object->table->get_schema()->get_name() };
-		xmysqlnd_schema * schema = session->create_schema_object(
+		MYSQLND_STRING schema_name{ data_object.table->get_schema()->get_name() };
+		xmysqlnd_schema* schema = session->create_schema_object(
 					mnd_str2c(schema_name));
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
@@ -308,13 +285,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 {
-	st_mysqlx_table* object{nullptr};
+	DBG_ENTER("mysqlx_table::insert");
+
 	zval* object_zv{nullptr};
 	zval* columns{nullptr};
 	int num_of_columns{0};
-
-	DBG_ENTER("mysqlx_table::insert");
-
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data, getThis(), "O+",
 		&object_zv, mysqlx_table_class_entry,
@@ -338,13 +313,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 		}
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 
 	RETVAL_FALSE;
 
-	if (object->table && num_of_columns > 0) {
+	if (num_of_columns > 0) {
 		mysqlx_new_table__insert(return_value,
-									  object->table,
+									  data_object.table,
 									  TRUE /* clone */,
 									  columns,
 									  num_of_columns);
@@ -355,13 +330,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 {
-	st_mysqlx_table* object{nullptr};
+	DBG_ENTER("mysqlx_table::select");
+
 	zval* object_zv{nullptr};
 	zval* columns{nullptr};
 	int num_of_columns{0};
-
-	DBG_ENTER("mysqlx_table::select");
-
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data, getThis(), "O+",
 		&object_zv, mysqlx_table_class_entry,
@@ -371,15 +344,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 
 	RETVAL_FALSE;
 
-	if (object->table && columns) {
+	if (columns) {
 		DBG_INF_FMT("Num of columns: %d",
 					num_of_columns);
 		mysqlx_new_table__select(return_value,
-						object->table,
+						data_object.table,
 						TRUE /* clone */,
 						columns,
 						num_of_columns);
@@ -390,48 +363,40 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 {
-	st_mysqlx_table* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table::update");
 
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 
 	RETVAL_FALSE;
 
-	if (object->table) {
-		mysqlx_new_table__update(return_value, object->table, TRUE /* clone */);
-	}
+	mysqlx_new_table__update(return_value, data_object.table, TRUE /* clone */);
 
 	DBG_VOID_RETURN;
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 {
-	st_mysqlx_table* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table::delete");
 
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 
 	RETVAL_FALSE;
 
-	if (object->table) {
-		mysqlx_new_table__delete(return_value, object->table, TRUE /* clone */);
-	}
+	mysqlx_new_table__delete(return_value, data_object.table, TRUE /* clone */);
 
 	DBG_VOID_RETURN;
 }
@@ -479,7 +444,7 @@ mysqlx_table_property__name(const st_mysqlx_object* obj, zval * return_value)
 static zend_object_handlers mysqlx_object_table_handlers;
 static HashTable mysqlx_table_properties;
 
-const struct st_mysqlx_property_entry mysqlx_table_property_entries[] =
+const st_mysqlx_property_entry mysqlx_table_property_entries[] =
 {
 	{{"name",	sizeof("name") - 1}, mysqlx_table_property__name,	nullptr},
 	{{nullptr,	0}, nullptr, nullptr}

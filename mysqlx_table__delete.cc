@@ -71,17 +71,6 @@ struct st_mysqlx_table__delete : public util::custom_allocable
 };
 
 
-#define MYSQLX_FETCH_TABLE_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_table__delete*) mysqlx_object->ptr; \
-	if (!(_to) || !(_to)->table) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
-
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -89,12 +78,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, __construct)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 {
-	st_mysqlx_table__delete* object{nullptr};
-	zval* object_zv{nullptr};
-	zval* where_expr{nullptr};
-
 	DBG_ENTER("mysqlx_table__delete::where");
 
+	zval* object_zv{nullptr};
+	zval* where_expr{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&where_expr))
@@ -102,20 +89,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->crud_op && where_expr)
-	{
-
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table__delete>(object_zv) };
+	if (data_object.crud_op && where_expr) {
 		if(Z_TYPE_P(where_expr) != IS_STRING) {
 			RAISE_EXCEPTION(err_msg_wrong_param_4);
-		}
-		else
-		{
+		} else {
 			const MYSQLND_CSTRING where_expr_str = {Z_STRVAL_P(where_expr), Z_STRLEN_P(where_expr)};
-			if (PASS == xmysqlnd_crud_table_delete__set_criteria(object->crud_op, where_expr_str)) {
+			if (PASS == xmysqlnd_crud_table_delete__set_criteria(data_object.crud_op, where_expr_str)) {
 				ZVAL_COPY(return_value, object_zv);
 			}
 		}
@@ -126,13 +108,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 {
-	st_mysqlx_table__delete* object{nullptr};
+	DBG_ENTER("mysqlx_table__delete::orderby");
+
 	zval* object_zv{nullptr};
 	zval* orderby_expr{nullptr};
 	int num_of_expr{0};
-
-	DBG_ENTER("mysqlx_table__delete::orderby");
-
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 									&object_zv,
 									mysqlx_table__delete_class_entry,
@@ -142,11 +122,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (!( object->crud_op && orderby_expr ) ) {
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table__delete>(object_zv) };
+	if (!( data_object.crud_op && orderby_expr ) ) {
 		DBG_VOID_RETURN;
 	}
 
@@ -157,7 +136,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 			{
 				const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL(orderby_expr[i]),
 													Z_STRLEN(orderby_expr[i])};
-				if (PASS == xmysqlnd_crud_table_delete__add_orderby(object->crud_op, orderby_expr_str)) {
+				if (PASS == xmysqlnd_crud_table_delete__add_orderby(data_object.crud_op, orderby_expr_str)) {
 					ZVAL_COPY(return_value, object_zv);
 				}
 			}
@@ -172,7 +151,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
 						DBG_VOID_RETURN;
 					}
-					if (FAIL == xmysqlnd_crud_table_delete__add_orderby(object->crud_op, orderby_expr_str))
+					if (FAIL == xmysqlnd_crud_table_delete__add_orderby(data_object.crud_op, orderby_expr_str))
 					{
 						RAISE_EXCEPTION(err_msg_add_orderby_fail);
 						DBG_VOID_RETURN;
@@ -191,12 +170,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 {
-	st_mysqlx_table__delete* object{nullptr};
-	zval* object_zv{nullptr};
-	zend_long rows;
-
 	DBG_ENTER("mysqlx_table__delete::limit");
 
+	zval* object_zv{nullptr};
+	zend_long rows;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&rows))
@@ -204,19 +181,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 		DBG_VOID_RETURN;
 	}
 
-	if (rows < 0)
-	{
+	if (rows < 0) {
 		RAISE_EXCEPTION(err_msg_wrong_param_2);
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->crud_op)
-	{
-		if (PASS == xmysqlnd_crud_table_delete__set_limit(object->crud_op, rows)) {
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table__delete>(object_zv) };
+	if (data_object.crud_op) {
+		if (PASS == xmysqlnd_crud_table_delete__set_limit(data_object.crud_op, rows)) {
 			ZVAL_COPY(return_value, object_zv);
 		}
 	}
@@ -226,12 +200,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 {
-	st_mysqlx_table__delete* object{nullptr};
-	zval* object_zv{nullptr};
-	HashTable * bind_variables;
-
 	DBG_ENTER("mysqlx_table__delete::bind");
 
+	zval* object_zv{nullptr};
+	HashTable * bind_variables;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&bind_variables))
@@ -239,20 +211,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->crud_op)
-	{
-		zend_string * key;
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table__delete>(object_zv) };
+	if (data_object.crud_op) {
+		zend_string* key;
 		zval* val{nullptr};
 		MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val)
 		{
 			if (key)
 			{
 				const MYSQLND_CSTRING variable = {ZSTR_VAL(key), ZSTR_LEN(key)};
-				if (FAIL == xmysqlnd_crud_table_delete__bind_value(object->crud_op, variable, val))
+				if (FAIL == xmysqlnd_crud_table_delete__bind_value(data_object.crud_op, variable, val))
 				{
 					RAISE_EXCEPTION(err_msg_bind_fail);
 					DBG_VOID_RETURN;
@@ -266,27 +236,24 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 {
-	st_mysqlx_table__delete* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_table__delete::execute");
 
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__delete_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_TABLE_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	DBG_INF_FMT("crud_op=%p table=%p", object->crud_op, object->table);
-	if (object->crud_op && object->table) {
-		if (FALSE == xmysqlnd_crud_table_delete__is_initialized(object->crud_op)) {
+	auto& data_object{ util::fetch_data_object<st_mysqlx_table__delete>(object_zv) };
+	DBG_INF_FMT("crud_op=%p table=%p", data_object.crud_op, data_object.table);
+	if (data_object.crud_op && data_object.table) {
+		if (FALSE == xmysqlnd_crud_table_delete__is_initialized(data_object.crud_op)) {
 			RAISE_EXCEPTION(err_msg_delete_fail);
 		} else {
-			xmysqlnd_stmt * stmt = object->table->opdelete( object->crud_op);
+			xmysqlnd_stmt* stmt = data_object.table->opdelete(data_object.crud_op);
 			if (stmt) {
 				zval stmt_zv;
 				ZVAL_UNDEF(&stmt_zv);

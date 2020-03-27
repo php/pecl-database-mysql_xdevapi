@@ -58,17 +58,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_doc_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-#define MYSQLX_FETCH_DOC_RESULT_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_doc_result*) mysqlx_object->ptr; \
-	if (!(_to)) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, __construct)
 {
@@ -77,28 +66,23 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, __construct)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchOne)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_doc_result* object{nullptr};
-
-	RETVAL_NULL();
-
 	DBG_ENTER("mysqlx_doc_result::fetchOne");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_DOC_RESULT_FROM_ZVAL(object, object_zv);
+	RETVAL_NULL();
 
-	if (object && object->result && FALSE == object->result->m.eof(object->result)) {
-		zval row;
-		ZVAL_UNDEF(&row);
-		if (PASS == object->result->m.fetch_current(object->result, &row, nullptr, nullptr)) {
-			xmysqlnd_utils_decode_doc_row(&row, return_value);
-			//ZVAL_COPY_VALUE(return_value, &row);
-			zval_ptr_dtor(&row);
-			object->result->m.next(object->result, nullptr, nullptr);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_doc_result>(object_zv) };
+	drv::st_xmysqlnd_stmt_result* result{ data_object.result};
+	if (FALSE == data_object.result->m.eof(result)) {
+		util::zvalue row;
+		if (PASS == data_object.result->m.fetch_current(result, row.ptr(), nullptr, nullptr)) {
+			xmysqlnd_utils_decode_doc_row(row.ptr(), return_value);
+			data_object.result->m.next(result, nullptr, nullptr);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -118,12 +102,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_doc_result>(object_zv) };
 	if (data_object.result) {
-		zval set;
-		ZVAL_UNDEF(&set);
-		if (PASS == data_object.result->m.fetch_all(data_object.result, &set, nullptr, nullptr)) {
-			xmysqlnd_utils_decode_doc_rows(&set, return_value);
-			//ZVAL_COPY_VALUE(return_value, &set);
-			zval_ptr_dtor(&set);
+		util::zvalue set;
+		if (PASS == data_object.result->m.fetch_all(data_object.result, set.ptr(), nullptr, nullptr)) {
+			xmysqlnd_utils_decode_doc_rows(set.ptr(), return_value);
 		}
 	}
 	util::zend::ensure_is_array(return_value);
@@ -133,25 +114,21 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_doc_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_doc_result::getWarningsCount");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_DOC_RESULT_FROM_ZVAL(object, object_zv);
-
 	RETVAL_LONG(0);
+
+	auto& data_object{ util::fetch_data_object<st_mysqlx_doc_result>(object_zv) };
 	size_t warning_count{ 0 };
-	if (object->result) {
-		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
-		/* Maybe check here if there was an error and throw an Exception or return a warning */
-		if (warnings) {
-			warning_count = warnings->m->count(warnings);
-		}
+	const XMYSQLND_WARNING_LIST* const warnings = data_object.result->warnings;
+	/* Maybe check here if there was an error and throw an Exception or return a warning */
+	if (warnings) {
+		warning_count = warnings->m->count(warnings);
 	}
 	if (UNEXPECTED(warning_count >= ZEND_LONG_MAX)) {
 		ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(warning_count).c_str()));
@@ -165,33 +142,29 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_doc_result* object{nullptr};
-
 	DBG_ENTER("mysqlx_doc_result::getWarnings");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
-	MYSQLX_FETCH_DOC_RESULT_FROM_ZVAL(object, object_zv);
 
-	if (object->result) {
-		const XMYSQLND_WARNING_LIST * const warnings = object->result->warnings;
-		/* Maybe check here if there was an error and throw an Exception or return a warning */
-		if (warnings) {
-			const unsigned int count{warnings->m->count(warnings)};
-			array_init_size(return_value, count);
-			for (unsigned int i{0}; i < count; ++i) {
-				const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
-				zval warning_zv;
+	auto& data_object{ util::fetch_data_object<st_mysqlx_doc_result>(object_zv) };
 
-				ZVAL_UNDEF(&warning_zv);
-				mysqlx_new_warning(&warning_zv, warning.message, warning.level, warning.code);
+	const XMYSQLND_WARNING_LIST * const warnings = data_object.result->warnings;
+	/* Maybe check here if there was an error and throw an Exception or return a warning */
+	if (warnings) {
+		const unsigned int count{warnings->m->count(warnings)};
+		array_init_size(return_value, count);
+		for (unsigned int i{0}; i < count; ++i) {
+			const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
+			util::zvalue warning_zv;
+			mysqlx_new_warning(warning_zv.ptr(), warning.message, warning.level, warning.code);
 
-				if (Z_TYPE(warning_zv) != IS_UNDEF) {
-					zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &warning_zv);
-				}
+			if (!warning_zv.is_undef()) {
+				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), warning_zv.ptr());
+				warning_zv.invalidate();
 			}
 		}
 	}

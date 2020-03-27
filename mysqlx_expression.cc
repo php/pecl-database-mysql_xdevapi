@@ -44,18 +44,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_expression__construct, 0, ZEND_RETURN_VALU
 ZEND_END_ARG_INFO()
 
 
-#define MYSQLX_FETCH_EXPRESSION_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_expression*) mysqlx_object->ptr; \
-	if (!(_to) || !(_to)->expr) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
-
-
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
 	UNUSED(return_value);

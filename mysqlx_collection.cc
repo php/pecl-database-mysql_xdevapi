@@ -133,16 +133,6 @@ struct st_mysqlx_collection : public util::custom_allocable
 };
 
 
-#define MYSQLX_FETCH_COLLECTION_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_collection*) mysqlx_object->ptr; \
-	if (!(_to) || !(_to)->collection) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -164,10 +154,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 		DBG_VOID_RETURN;
 	}
 
-	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
-
 	RETVAL_FALSE;
 
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
 	XMYSQLND_SESSION session{ data_object.collection->get_schema()->get_session()};
 	mysqlx_new_session(return_value, session);
 
@@ -176,23 +165,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSession)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getName)
 {
-	st_mysqlx_collection* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_collection::getName");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
 
-	if (object->collection) {
-		RETVAL_STRINGL(object->collection->get_name().s, object->collection->get_name().l);
-	} else {
-		RETVAL_FALSE;
-	}
+	RETVAL_STRINGL(data_object.collection->get_name().s, data_object.collection->get_name().l);
 
 	DBG_VOID_RETURN;
 }
@@ -216,29 +199,19 @@ mysqlx_collection_on_error(void * /*context*/, XMYSQLND_SESSION session,
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, existsInDatabase)
 {
-	st_mysqlx_collection* object{nullptr};
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_collection::existsInDatabase");
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_collection_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	xmysqlnd_collection * collection = object->collection;
-	if (collection) {
-		const struct st_xmysqlnd_session_on_error_bind on_error = { mysqlx_collection_on_error, nullptr };
-		zval exists;
-		ZVAL_UNDEF(&exists);
-		if (PASS == collection->exists_in_database( on_error, &exists)) {
-			ZVAL_COPY_VALUE(return_value, &exists);
-		}
-	}
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
+	const st_xmysqlnd_session_on_error_bind on_error{ mysqlx_collection_on_error, nullptr };
+	data_object.collection->exists_in_database( on_error, return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -257,14 +230,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 	RETVAL_LONG(0);
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
-	xmysqlnd_collection* collection{ data_object.collection };
-	if (collection) {
-		const st_xmysqlnd_session_on_error_bind on_error{ mysqlx_collection_on_error, nullptr };
-		zval counter;
-		ZVAL_UNDEF(&counter);
-		if (PASS == collection->count(on_error, &counter)) {
-			ZVAL_COPY_VALUE(return_value, &counter);
-		}
+	const st_xmysqlnd_session_on_error_bind on_error{ mysqlx_collection_on_error, nullptr };
+	util::zvalue counter;
+	if (PASS == data_object.collection->count(on_error, counter.ptr())) {
+		counter.copy_to(return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -272,12 +241,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, count)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 {
-	st_mysqlx_collection* object{nullptr};
-	XMYSQLND_SESSION session;
-	zval* object_zv{nullptr};
-
 	DBG_ENTER("mysqlx_collection::getSchema");
-
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(
 				execute_data,
 				getThis(), "O",
@@ -286,18 +251,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
 	RETVAL_FALSE;
 
-	if( object->collection &&
-		object->collection->get_schema() ) {
-		session = object->collection->get_schema()->get_session();
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
+	XMYSQLND_SESSION session;
+	auto& coll = data_object.collection;
+	if (coll->get_schema() ) {
+		session = coll->get_schema()->get_session();
 	}
 
 	if(session != nullptr) {
-		MYSQLND_STRING schema_name{ object->collection->get_schema()->get_name() };
-		xmysqlnd_schema * schema = session->create_schema_object(
-					mnd_str2c(schema_name));
+		MYSQLND_STRING schema_name{ coll->get_schema()->get_name() };
+		xmysqlnd_schema* schema = session->create_schema_object(mnd_str2c(schema_name));
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
 		} else {
@@ -313,13 +278,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getSchema)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 {
-	st_mysqlx_collection* object{nullptr};
+	DBG_ENTER("mysqlx_collection::add");
 	zval* object_zv{nullptr};
 	zval* docs{nullptr};
 	int num_of_docs{0};
-
-	DBG_ENTER("mysqlx_collection::add");
-
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 												&object_zv,
 												mysqlx_collection_class_entry,
@@ -329,27 +291,21 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, add)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->collection) {
-		mysqlx_new_collection__add(return_value, object->collection,
-										docs,
-										num_of_docs);
-	}
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
+	mysqlx_new_collection__add(return_value, data_object.collection,
+									docs,
+									num_of_docs);
 
 	DBG_VOID_RETURN;
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 {
-	st_mysqlx_collection* object{nullptr};
+	DBG_ENTER("mysqlx_collection::find");
 	zval* object_zv{nullptr};
 	util::string_view search_expr;
-
-	DBG_ENTER("mysqlx_collection::find");
-
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|s",
 												&object_zv, mysqlx_collection_class_entry,
 												&(search_expr.str), &(search_expr.len)))
@@ -357,25 +313,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->collection) {
-		mysqlx_new_collection__find(return_value, search_expr, object->collection);
-	}
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
+	mysqlx_new_collection__find(return_value, search_expr, data_object.collection);
 
 	DBG_VOID_RETURN;
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 {
-	st_mysqlx_collection* object{nullptr};
+	DBG_ENTER("mysqlx_collection::modify");
 	zval* object_zv{nullptr};
 	util::string_view search_expr;
-
-	DBG_ENTER("mysqlx_collection::modify");
-
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
@@ -384,25 +334,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::modify_fail);
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->collection) {
-		mysqlx_new_collection__modify(return_value, search_expr, object->collection);
-	}
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
+	mysqlx_new_collection__modify(return_value, search_expr, data_object.collection);
 
 	DBG_VOID_RETURN;
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 {
-	st_mysqlx_collection* object{nullptr};
+	DBG_ENTER("mysqlx_collection::remove");
 	zval* object_zv{nullptr};
 	util::string_view search_expr;
-
-	DBG_ENTER("mysqlx_collection::remove");
-
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
@@ -411,13 +355,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::remove_fail);
 	}
 
-	MYSQLX_FETCH_COLLECTION_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->collection) {
-		mysqlx_new_collection__remove(return_value, search_expr, object->collection);
-	}
+	auto& data_object{ util::fetch_data_object<st_mysqlx_collection>(object_zv) };
+	mysqlx_new_collection__remove(return_value, search_expr, data_object.collection);
 
 	DBG_VOID_RETURN;
 }

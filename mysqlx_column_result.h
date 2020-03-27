@@ -28,7 +28,7 @@ namespace devapi {
 
 struct st_mysqlx_column_result : public util::custom_allocable
 {
-	const drv::st_xmysqlnd_result_field_meta * meta;
+	const drv::st_xmysqlnd_result_field_meta* meta;
 };
 
 void mysqlx_new_column_result(zval * return_value, const drv::st_xmysqlnd_result_field_meta * meta);

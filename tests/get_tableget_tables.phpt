@@ -23,9 +23,9 @@ mysqlx getTable/getTables
 		$table->insert(["name", "age"])->values(["Jackie", 256])->execute();
 		test_step_failed();
 	} catch(Exception $e) {
-		//expected exception
+		test_step_ok();
 	}
-	expect_false($schema->getTable(""));
+	expect_null($schema->getTable(""));
 
 	$session->sql("create table $db.test_table2(job text, experience int, uuid int)")->execute();
 	$session->sql("create table $db.test_table3(name text, surname text)")->execute();

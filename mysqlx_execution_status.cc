@@ -46,18 +46,6 @@ struct st_mysqlx_execution_status : public util::custom_allocable
 #define TYPE_NAME_ENABLED 1
 
 
-#define MYSQLX_FETCH__EXECUTION_STATUS_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_execution_status*) mysqlx_object->ptr; \
-	if (!(_to)) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-} \
-
-
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_execution_status, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();

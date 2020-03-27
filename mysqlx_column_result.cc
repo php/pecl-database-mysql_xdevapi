@@ -121,16 +121,6 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_is_padded,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
-#define MYSQLX_FETCH_COLUMN_RESULT_FROM_ZVAL(_to, _from) \
-{ \
-	const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P((_from)); \
-	(_to) = (st_mysqlx_column_result*) mysqlx_object->ptr; \
-	if (!(_to)) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		RETVAL_NULL(); \
-		DBG_VOID_RETURN; \
-	} \
-} \
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, __construct)
 {
@@ -266,10 +256,8 @@ void
 get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					meta_fields selected_meta_field)
 {
-	zval* object_zv{nullptr};
-	st_mysqlx_column_result* object{nullptr};
 	DBG_ENTER("get_column_meta_field");
-
+	zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 								&object_zv,
 								mysqlx_column_result_class_entry))
@@ -277,49 +265,49 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 		DBG_VOID_RETURN;
 	}
 
-	MYSQLX_FETCH_COLUMN_RESULT_FROM_ZVAL(object, object_zv);
-
 	RETVAL_FALSE;
 
-	if (object->meta) {
+	auto& data_object{ util::fetch_data_object<st_mysqlx_column_result>(object_zv) };
+	const drv::st_xmysqlnd_result_field_meta* meta{ data_object.meta };
+	if (meta) {
 		switch(selected_meta_field) {
 		case schema_name:
-			ZVAL_STRINGL(return_value,object->meta->schema.s,
-						 object->meta->schema.l);
+			ZVAL_STRINGL(return_value,meta->schema.s,
+						 meta->schema.l);
 			break;
 		case table_name:
-			ZVAL_STRINGL(return_value,object->meta->original_table.s,
-						 object->meta->original_table.l);
+			ZVAL_STRINGL(return_value,meta->original_table.s,
+						 meta->original_table.l);
 			break;
 		case table_label:
-			ZVAL_STRINGL(return_value,object->meta->table.s,
-						 object->meta->table.l);
+			ZVAL_STRINGL(return_value,meta->table.s,
+						 meta->table.l);
 			break;
 		case column_name:
-			ZVAL_STRINGL(return_value,object->meta->original_name.s,
-						 object->meta->original_name.l);
+			ZVAL_STRINGL(return_value,meta->original_name.s,
+						 meta->original_name.l);
 			break;
 		case column_label:
-			ZVAL_STRINGL(return_value,object->meta->name.s,
-						 object->meta->name.l);
+			ZVAL_STRINGL(return_value,meta->name.s,
+						 meta->name.l);
 			break;
 		case type:
-			ZVAL_LONG(return_value,static_cast<zend_long>(get_column_type(object->meta)));
+			ZVAL_LONG(return_value,static_cast<zend_long>(get_column_type(meta)));
 			break;
 		case length:
-			get_column_length(return_value, object->meta->length);
+			get_column_length(return_value, meta->length);
 			break;
 		case fractional_digit:
-			ZVAL_LONG(return_value,object->meta->fractional_digits);
+			ZVAL_LONG(return_value,meta->fractional_digits);
 			break;
 		case is_number_signed:
-			ZVAL_BOOL(return_value,is_type_signed(object->meta));
+			ZVAL_BOOL(return_value,is_type_signed(meta));
 			break;
 		case collation_name:
 		case characterset_name:
 			{
 				const st_mysqlnd_charset* set =
-					mysqlnd_find_charset_nr(static_cast<unsigned int>(object->meta->collation));
+					mysqlnd_find_charset_nr(static_cast<unsigned int>(meta->collation));
 				if( set != nullptr && set->collation != nullptr ) {
 					if( selected_meta_field == collation_name ) {
 						ZVAL_STRINGL(return_value,
@@ -340,8 +328,8 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 		case is_padded:
 			{
 				zend_bool is_padded{FALSE};
-				if( object->meta->type == XMYSQLND_TYPE_BYTES &&
-					(object->meta->flags_set && object->meta->flags & BYTES_RIGHTPAD)) {
+				if( meta->type == XMYSQLND_TYPE_BYTES &&
+					(meta->flags_set && meta->flags & BYTES_RIGHTPAD)) {
 					is_padded = TRUE;
 				}
 				ZVAL_BOOL(return_value,is_padded);
@@ -351,8 +339,6 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 			RAISE_EXCEPTION(err_msg_meta_fail);
 			break;
 		}
-
-
 	} else {
 		RAISE_EXCEPTION(err_msg_meta_fail);
 	}

@@ -49,16 +49,6 @@ RAISE_EXCEPTION(const int errcode, const char * const msg)
 	mysqlx_new_exception(errcode, sqlstate, errmsg);
 }
 
-#define MYSQLX_FETCH_EXCEPTION_FROM_ZO(_to, _from) \
-{ \
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo((_from)); \
-	(_to) = (st_mysqlx_exception*) mysqlx_object->ptr; \
-	if (!(_to)) { \
-		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name)); \
-		DBG_VOID_RETURN; \
-	} \
-}
-
 static const zend_function_entry mysqlx_exception_methods[] = {
 	{nullptr, nullptr, nullptr}
 };

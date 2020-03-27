@@ -6,7 +6,7 @@ mysqlx compression options
 require("connect.inc");
 
 const Compression_disabled_msg =
-	"[10078][HY000] To enable given compression algorithm please build mysql_xdevapi with proper ".
+	"[10079][HY000] To enable given compression algorithm please build mysql_xdevapi with proper ".
 	"switch like --with-(zlib|lz4|zstd)=[DIR].";
 
 // ---------------------------------------
