@@ -117,13 +117,7 @@ static HashTable mysqlx_execution_status_properties;
 static void
 mysqlx_execution_status_free_storage(zend_object * object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_execution_status* message = (st_mysqlx_execution_status*) mysqlx_object->ptr;
-
-	if (message) {
-		mnd_efree(message);
-	}
-	mysqlx_object_free_storage(object);
+	util::free_object<st_mysqlx_execution_status>(object);
 }
 
 static zend_object *
