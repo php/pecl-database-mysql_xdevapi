@@ -189,7 +189,7 @@ xmysqlnd_stmt * xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info);
 
-void xmysqlnd_stmt_free(xmysqlnd_stmt * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+void xmysqlnd_stmt_free(xmysqlnd_stmt* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info);
 
 struct Prepare_statement_entry
 {

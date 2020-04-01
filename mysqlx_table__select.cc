@@ -90,9 +90,16 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_table__select : public util::custom_allocable
 {
-	XMYSQLND_CRUD_TABLE_OP__SELECT * crud_op;
-	xmysqlnd_table * table;
+	~st_mysqlx_table__select();
+	XMYSQLND_CRUD_TABLE_OP__SELECT* crud_op;
+	xmysqlnd_table* table;
 };
+
+st_mysqlx_table__select::~st_mysqlx_table__select()
+{
+	xmysqlnd_table_free(table, nullptr, nullptr);
+	xmysqlnd_crud_table_select__destroy(crud_op);
+}
 
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, __construct)
@@ -502,21 +509,7 @@ const struct st_mysqlx_property_entry mysqlx_table__select_property_entries[] =
 static void
 mysqlx_table__select_free_storage(zend_object * object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_table__select* inner_obj = (st_mysqlx_table__select*) mysqlx_object->ptr;
-
-	if (inner_obj) {
-		if (inner_obj->table) {
-			xmysqlnd_table_free(inner_obj->table, nullptr, nullptr);
-			inner_obj->table = nullptr;
-		}
-		if(inner_obj->crud_op) {
-			xmysqlnd_crud_table_select__destroy(inner_obj->crud_op);
-			inner_obj->crud_op = nullptr;
-		}
-		mnd_efree(inner_obj);
-	}
-	mysqlx_object_free_storage(object);
+	util::free_object<st_mysqlx_table__select>(object);
 }
 
 static zend_object *

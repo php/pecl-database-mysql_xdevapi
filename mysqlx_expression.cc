@@ -36,6 +36,10 @@ static zend_class_entry * mysqlx_expression_class_entry;
 
 struct st_mysqlx_expression : public util::custom_allocable
 {
+	~st_mysqlx_expression()
+	{
+		zval_ptr_dtor(&expression);
+	}
 	zval expression;
 };
 
@@ -104,16 +108,9 @@ const struct st_mysqlx_property_entry mysqlx_expression_property_entries[] =
 };
 
 static void
-mysqlx_expression_free_storage(zend_object * object)
+mysqlx_expression_free_storage(zend_object* object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_expression* inner_obj = (st_mysqlx_expression*) mysqlx_object->ptr;
-
-	if (inner_obj) {
-		zval_ptr_dtor(&inner_obj->expression);
-		mnd_efree(inner_obj);
-	}
-	mysqlx_object_free_storage(object);
+	util::free_object<st_mysqlx_expression>(object);
 }
 
 static zend_object *

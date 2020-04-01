@@ -61,7 +61,7 @@ typedef XMYSQLND_STMT_RESULT *	(*func_xmysqlnd_stmt_result__get_reference)(XMYSQ
 typedef enum_func_status	(*func_xmysqlnd_stmt_result__free_reference)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
 typedef void				(*func_xmysqlnd_stmt_result__free_contents)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef void				(*func_xmysqlnd_stmt_result__dtor)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef void				(*func_xmysqlnd_stmt_result__dtor)(XMYSQLND_STMT_RESULT* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result)
 {
@@ -112,7 +112,7 @@ struct st_xmysqlnd_stmt_result : public util::custom_allocable
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_stmt_result);
 PHP_MYSQL_XDEVAPI_API XMYSQLND_STMT_RESULT * xmysqlnd_stmt_result_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_result_free(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_stmt_result_free(XMYSQLND_STMT_RESULT* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info);
 
 } // namespace drv
 

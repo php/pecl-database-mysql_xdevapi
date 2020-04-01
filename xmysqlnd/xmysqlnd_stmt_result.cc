@@ -266,7 +266,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, get_reference)(XMYSQLND_STMT_RESULT * cons
 }
 
 static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_stmt_result, free_reference)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result, free_reference)(XMYSQLND_STMT_RESULT* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	enum_func_status ret{PASS};
 	DBG_ENTER("xmysqlnd_stmt_result::free_reference");
@@ -279,7 +279,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, free_reference)(XMYSQLND_STMT_RESULT * con
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows_contents)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows_contents)(XMYSQLND_STMT_RESULT* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result::free_rows_contents");
 	if (result->rowset) {
@@ -289,7 +289,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows_contents)(XMYSQLND_STMT_RESULT *
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows)(XMYSQLND_STMT_RESULT* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result::free_rows");
 	if (result->rowset) {
@@ -299,7 +299,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, free_rows)(XMYSQLND_STMT_RESULT * const re
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_result, free_contents)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result, free_contents)(XMYSQLND_STMT_RESULT* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result::free_contents");
 	if (result->rowset) {
@@ -329,7 +329,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_result, free_contents)(XMYSQLND_STMT_RESULT * cons
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_result, dtor)(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_stmt_result, dtor)(XMYSQLND_STMT_RESULT* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result::dtor");
 	if (result) {
@@ -391,7 +391,7 @@ xmysqlnd_stmt_result_create(const zend_bool persistent,
 }
 
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_stmt_result_free(XMYSQLND_STMT_RESULT * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_stmt_result_free(XMYSQLND_STMT_RESULT* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_result_free");
 	DBG_INF_FMT("result=%p", result);

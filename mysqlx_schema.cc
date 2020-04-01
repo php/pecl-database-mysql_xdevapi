@@ -104,8 +104,17 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_schema : public util::custom_allocable
 {
+	~st_mysqlx_schema();
 	xmysqlnd_schema* schema;
 };
+
+st_mysqlx_schema::~st_mysqlx_schema()
+{
+	xmysqlnd_schema_free(schema, nullptr, nullptr);
+	if (schema->get_counter() == 0) {
+		mnd_efree(schema);
+	}
+}
 
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, __construct)
@@ -530,20 +539,7 @@ const struct st_mysqlx_property_entry mysqlx_schema_property_entries[] =
 static void
 mysqlx_schema_free_storage(zend_object* object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_schema* inner_obj = static_cast<st_mysqlx_schema*>(mysqlx_object->ptr);
-
-	if (inner_obj) {
-		if (inner_obj->schema) {
-			xmysqlnd_schema_free(inner_obj->schema, nullptr, nullptr);
-			if( inner_obj->schema->get_counter() == 0 ) {
-				mnd_efree(inner_obj->schema);
-			}
-			inner_obj->schema = nullptr;
-		}
-		mnd_efree(inner_obj);
-	}
-	mysqlx_object_free_storage(object);
+	util::free_object<st_mysqlx_schema>(object);
 }
 
 static zend_object *

@@ -33,6 +33,7 @@ struct st_mysqlx_statement;
 
 struct st_mysqlx_sql_statement_result : public util::custom_allocable
 {
+	~st_mysqlx_sql_statement_result();
 	drv::st_xmysqlnd_stmt_result* result;
 	drv::xmysqlnd_stmt* stmt;
 	zend_long execute_flags;

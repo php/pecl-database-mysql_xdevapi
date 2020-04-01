@@ -239,7 +239,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, attach_meta)(XMYSQLND_ROWSET_FWD * const re
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows_contents)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows_contents)(XMYSQLND_ROWSET_FWD* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::free_rows_contents");
 	DBG_INF_FMT("rows=%p  meta=%p", result->rows, result->meta);
@@ -263,7 +263,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows_contents)(XMYSQLND_ROWSET_FWD * c
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows)(XMYSQLND_ROWSET_FWD* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::free_rows");
 	DBG_INF_FMT("rows=%p  meta=%p", result->rows, result->meta);
@@ -280,7 +280,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_rows)(XMYSQLND_ROWSET_FWD * const resu
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_contents)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_contents)(XMYSQLND_ROWSET_FWD* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::free_contents");
 
@@ -293,7 +293,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset_fwd, free_contents)(XMYSQLND_ROWSET_FWD * const 
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_rowset_fwd, dtor)(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset_fwd, dtor)(XMYSQLND_ROWSET_FWD* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd::dtor");
 	if (result) {
@@ -348,7 +348,7 @@ xmysqlnd_rowset_fwd_create(const size_t prefetch_rows,
 }
 
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_rowset_fwd_free(XMYSQLND_ROWSET_FWD * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_rowset_fwd_free(XMYSQLND_ROWSET_FWD* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_fwd_free");
 	DBG_INF_FMT("result=%p", result);

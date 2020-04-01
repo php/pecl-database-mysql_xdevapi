@@ -65,6 +65,12 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement__get_result, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+st_mysqlx_statement::~st_mysqlx_statement()
+{
+	xmysqlnd_stmt_free(stmt, nullptr, nullptr);
+	xmysqlnd_stmt_execute__destroy(stmt_execute);
+}
+
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
@@ -667,21 +673,7 @@ const struct st_mysqlx_property_entry mysqlx_sql_statement_property_entries[] =
 static void
 mysqlx_sql_statement_free_storage(zend_object * object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_statement* inner_obj = (st_mysqlx_statement*) mysqlx_object->ptr;
-
-	if (inner_obj) {
-		if (inner_obj->stmt) {
-			xmysqlnd_stmt_free(inner_obj->stmt, nullptr, nullptr);
-			inner_obj->stmt = nullptr;
-		}
-		if (inner_obj->stmt_execute) {
-			xmysqlnd_stmt_execute__destroy(inner_obj->stmt_execute);
-			inner_obj->stmt_execute = nullptr;
-		}
-		mnd_efree(inner_obj);
-	}
-	mysqlx_object_free_storage(object);
+	util::free_object<st_mysqlx_statement>(object);
 }
 
 static zend_object *

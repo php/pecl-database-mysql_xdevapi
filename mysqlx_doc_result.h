@@ -30,6 +30,8 @@ namespace devapi {
 
 struct st_mysqlx_doc_result : public util::custom_allocable
 {
+	~st_mysqlx_doc_result();
+
 	drv::st_xmysqlnd_stmt_result* result;
 };
 

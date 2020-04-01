@@ -50,8 +50,9 @@ enum mysqlx_result_type
 
 struct st_mysqlx_statement : public util::custom_allocable
 {
-	drv::xmysqlnd_stmt * stmt;
-	drv::XMYSQLND_STMT_OP__EXECUTE * stmt_execute;
+	~st_mysqlx_statement();
+	drv::xmysqlnd_stmt* stmt;
+	drv::XMYSQLND_STMT_OP__EXECUTE* stmt_execute;
 	drv::st_xmysqlnd_pb_message_shell* pb_shell;
 	zend_long execute_flags;
 	enum_func_status send_query_status;

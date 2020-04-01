@@ -386,7 +386,7 @@ xmysqlnd_rowset_buffered_create(xmysqlnd_stmt * stmt,
 }
 
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_rowset_buffered_free(XMYSQLND_ROWSET_BUFFERED * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_rowset_buffered_free(XMYSQLND_ROWSET_BUFFERED* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_buffered_free");
 	DBG_INF_FMT("result=%p", result);

@@ -31,13 +31,19 @@ using namespace drv;
 
 static zend_class_entry * mysqlx_warning_class_entry;
 
-struct st_mysqlx_warning
+struct st_mysqlx_warning : public util::custom_allocable
 {
+	~st_mysqlx_warning();
 	MYSQLND_STRING msg;
 	unsigned int level;
 	unsigned int code;
 	zend_bool persistent;
 };
+
+st_mysqlx_warning::~st_mysqlx_warning()
+{
+	mnd_efree(msg.s);
+}
 
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
@@ -104,17 +110,7 @@ static HashTable mysqlx_warning_properties;
 static void
 mysqlx_warning_free_storage(zend_object * object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_warning* message = (st_mysqlx_warning*) mysqlx_object->ptr;
-
-	if (message) {
-		if (message->msg.s) {
-			mnd_efree(message->msg.s);
-			message->msg.s = nullptr;
-		}
-		mnd_efree(message);
-	}
-	mysqlx_object_free_storage(object);
+	util::free_object<st_mysqlx_warning>(object);
 }
 
 static zend_object *

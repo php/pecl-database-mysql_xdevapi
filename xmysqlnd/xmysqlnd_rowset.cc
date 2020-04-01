@@ -236,7 +236,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, attach_meta)(XMYSQLND_ROWSET * const result, XM
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_rowset, free_rows_contents)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset, free_rows_contents)(XMYSQLND_ROWSET* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset::free_rows_contents");
 	if (result->fwd) {
@@ -248,7 +248,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, free_rows_contents)(XMYSQLND_ROWSET * const res
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_rowset, free_rows)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset, free_rows)(XMYSQLND_ROWSET* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset::free_rows");
 	if (result->fwd) {
@@ -260,7 +260,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, free_rows)(XMYSQLND_ROWSET * const result, MYSQ
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_rowset, free_contents)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset, free_contents)(XMYSQLND_ROWSET* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset::free_contents");
 	if (result->fwd) {
@@ -272,7 +272,7 @@ XMYSQLND_METHOD(xmysqlnd_rowset, free_contents)(XMYSQLND_ROWSET * const result, 
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_rowset, dtor)(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+XMYSQLND_METHOD(xmysqlnd_rowset, dtor)(XMYSQLND_ROWSET* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset::dtor");
 	if (result) {
@@ -328,7 +328,7 @@ xmysqlnd_rowset_create(const enum xmysqlnd_rowset_type type,
 }
 
 PHP_MYSQL_XDEVAPI_API void
-xmysqlnd_rowset_free(XMYSQLND_ROWSET * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_rowset_free(XMYSQLND_ROWSET* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_rowset_free");
 	DBG_INF_FMT("result=%p", result);

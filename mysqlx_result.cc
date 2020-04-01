@@ -59,6 +59,10 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__get_warnings, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+st_mysqlx_result::~st_mysqlx_result()
+{
+	xmysqlnd_stmt_result_free(result, nullptr, nullptr);
+}
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, __construct)
 {
@@ -232,16 +236,7 @@ const struct st_mysqlx_property_entry mysqlx_result_property_entries[] =
 static void
 mysqlx_result_free_storage(zend_object * object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_result* inner_obj = (st_mysqlx_result*) mysqlx_object->ptr;
-
-	if (inner_obj) {
-		if (inner_obj->result) {
-			xmysqlnd_stmt_result_free(inner_obj->result, nullptr, nullptr);
-		}
-		mnd_efree(inner_obj);
-	}
-	mysqlx_object_free_storage(object);
+	util::free_object<st_mysqlx_result>(object);
 }
 
 static zend_object *

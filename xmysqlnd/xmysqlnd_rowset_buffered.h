@@ -51,7 +51,7 @@ typedef void				(*func_xmysqlnd_rowset_buffered__free_rows)(XMYSQLND_ROWSET_BUFF
 typedef enum_func_status	(*func_xmysqlnd_rowset_buffered__attach_meta)(XMYSQLND_ROWSET_BUFFERED * const result, st_xmysqlnd_stmt_result_meta* const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 
 typedef void				(*func_xmysqlnd_rowset_buffered__free_contents)(XMYSQLND_ROWSET_BUFFERED * const result, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef void				(*func_xmysqlnd_rowset_buffered__dtor)(XMYSQLND_ROWSET_BUFFERED * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+typedef void				(*func_xmysqlnd_rowset_buffered__dtor)(XMYSQLND_ROWSET_BUFFERED* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info);
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_buffered)
 {
@@ -96,7 +96,7 @@ struct st_xmysqlnd_rowset_buffered : public util::custom_allocable
 
 PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DECLARE(xmysqlnd_rowset_buffered);
 PHP_MYSQL_XDEVAPI_API XMYSQLND_ROWSET_BUFFERED * xmysqlnd_rowset_buffered_create(xmysqlnd_stmt* stmt, const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,  MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-PHP_MYSQL_XDEVAPI_API void xmysqlnd_rowset_buffered_free(XMYSQLND_ROWSET_BUFFERED * const result, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
+PHP_MYSQL_XDEVAPI_API void xmysqlnd_rowset_buffered_free(XMYSQLND_ROWSET_BUFFERED* const result, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info);
 
 } // namespace drv
 

@@ -32,7 +32,7 @@ st_mysqlx_object* mysqlx_fetch_object_from_zo(zend_object * obj)
 }
 
 void
-mysqlx_object_free_storage(zend_object * object)
+mysqlx_object_free_storage(zend_object* object)
 {
 	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
 	zend_object_std_dtor(&mysqlx_object->zo);

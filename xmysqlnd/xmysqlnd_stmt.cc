@@ -730,10 +730,12 @@ xmysqlnd_stmt_create(XMYSQLND_SESSION session,
 }
 
 void
-xmysqlnd_stmt_free(xmysqlnd_stmt * const stmt, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
+xmysqlnd_stmt_free(xmysqlnd_stmt* const stmt, MYSQLND_STATS* stats, MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_stmt_free");
-	stmt->free_reference(stmt);
+	if (stmt) {
+		stmt->free_reference(stmt);
+	}
 	DBG_VOID_RETURN;
 }
 

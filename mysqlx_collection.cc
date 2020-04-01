@@ -129,7 +129,11 @@ ZEND_END_ARG_INFO()
 
 struct st_mysqlx_collection : public util::custom_allocable
 {
-	xmysqlnd_collection * collection;
+	~st_mysqlx_collection()
+	{
+		xmysqlnd_collection_free(collection, nullptr, nullptr);
+	}
+	xmysqlnd_collection* collection;
 };
 
 
@@ -599,17 +603,7 @@ const struct st_mysqlx_property_entry mysqlx_collection_property_entries[] =
 static void
 mysqlx_collection_free_storage(zend_object * object)
 {
-	st_mysqlx_object* mysqlx_object = mysqlx_fetch_object_from_zo(object);
-	st_mysqlx_collection* inner_obj = (st_mysqlx_collection*) mysqlx_object->ptr;
-
-	if (inner_obj) {
-		if (inner_obj->collection) {
-			xmysqlnd_collection_free(inner_obj->collection, nullptr, nullptr);
-			inner_obj->collection = nullptr;
-		}
-		mnd_efree(inner_obj);
-	}
-	mysqlx_object_free_storage(object);
+	util::free_object<st_mysqlx_collection>(object);
 }
 
 static zend_object *
