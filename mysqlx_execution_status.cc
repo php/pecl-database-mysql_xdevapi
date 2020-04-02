@@ -132,21 +132,18 @@ php_mysqlx_execution_status_object_allocator(zend_class_entry * class_type)
 }
 
 void
-mysqlx_register_execution_status_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_execution_status_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_execution_status_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_execution_status_handlers.free_obj = mysqlx_execution_status_free_storage;
-
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "ExecutionStatus", mysqlx_execution_status_methods);
-		tmp_ce.create_object = php_mysqlx_execution_status_object_allocator;
-		mysqlx_execution_status_class_entry = zend_register_internal_class(&tmp_ce);
-	}
-
-	zend_hash_init(&mysqlx_execution_status_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	mysqlx_add_properties(&mysqlx_execution_status_properties, mysqlx_execution_status_property_entries);
+	MYSQL_XDEVAPI_REGISTER_CLASS(
+		mysqlx_execution_status_class_entry,
+		"ExecutionStatus",
+		mysqlx_std_object_handlers,
+		mysqlx_object_execution_status_handlers,
+		php_mysqlx_execution_status_object_allocator,
+		mysqlx_execution_status_free_storage,
+		mysqlx_execution_status_methods,
+		mysqlx_execution_status_properties,
+		mysqlx_execution_status_property_entries);
 
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_execution_status_class_entry, "affectedItems",	sizeof("affectedItems") - 1,	ZEND_ACC_PUBLIC);

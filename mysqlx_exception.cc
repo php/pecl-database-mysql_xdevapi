@@ -26,6 +26,7 @@ extern "C" {
 #include "mysqlx_class_properties.h"
 
 #include "mysqlx_exception.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -105,19 +106,17 @@ static HashTable mysqlx_exception_properties;
 
 
 void
-mysqlx_register_exception_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_exception_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_exception_handlers = *mysqlx_std_object_handlers;
-
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Exception", mysqlx_exception_methods);
-		mysqlx_exception_class_entry = zend_register_internal_class_ex(&tmp_ce, spl_ce_RuntimeException);
-	}
-
-	zend_hash_init(&mysqlx_exception_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	mysqlx_add_properties(&mysqlx_exception_properties, mysqlx_exception_property_entries);
+	MYSQL_XDEVAPI_REGISTER_DERIVED_CLASS(
+		mysqlx_exception_class_entry,
+		spl_ce_RuntimeException,
+		"Exception",
+		mysqlx_std_object_handlers,
+		mysqlx_object_exception_handlers,
+		mysqlx_exception_methods,
+		mysqlx_exception_properties,
+		mysqlx_exception_property_entries);
 }
 
 void

@@ -19,6 +19,8 @@
 #define MYSQL_XDEVAPI_PHP_OBJECT_H
 
 #include "php_api.h"
+#include "mysqlx_class_properties.h"
+#include "mysqlx_object.h"
 #include "exceptions.h"
 
 namespace mysqlx {
@@ -37,6 +39,26 @@ struct st_mysqlx_object;
 namespace util {
 
 using object_allocator_func_t = zend_object*(zend_class_entry*);
+
+template<typename ... Interfaces>
+zend_class_entry* register_interface(
+	zend_class_entry* tmp_ce,
+	const Interfaces& ... interfaces)
+{
+	using namespace devapi;
+
+	zend_class_entry* interface_entry = zend_register_internal_interface(tmp_ce);
+
+	auto interfaces_count{ sizeof...(Interfaces) };
+	if (interfaces_count) {
+		zend_class_implements(
+			interface_entry,
+			sizeof...(Interfaces),
+			interfaces ...);
+	}
+
+	return interface_entry;
+}
 
 template<typename ... Interfaces>
 zend_class_entry* register_class(
@@ -80,10 +102,14 @@ template<typename ... Interfaces>
 zend_class_entry* register_derived_class(
 	zend_class_entry* tmp_ce,
 	zend_class_entry* base_class_entry,
+	zend_object_handlers* std_handlers,
+	zend_object_handlers* handlers,
 	HashTable* properties,
 	const devapi::st_mysqlx_property_entry* property_entries)
 {
 	using namespace devapi;
+
+	*handlers = *std_handlers;
 
 	zend_class_entry* class_entry = zend_register_internal_class_ex(tmp_ce, base_class_entry);
 
@@ -227,8 +253,8 @@ zend_object_iterator* create_result_iterator(
 
 		iterator->intern.funcs = result_iterator_funcs;
 		iterator->row_num = 0;
-		iterator->started = FALSE;
-		iterator->usable = TRUE;
+		iterator->started = false;
+		iterator->usable = true;
 		iterator->result = mysqlx_result->result->m.get_reference(mysqlx_result->result);
 	}
 
@@ -246,6 +272,19 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 } // namespace util
 
 } // namespace mysqlx
+
+#define MYSQL_XDEVAPI_REGISTER_INTERFACE( \
+	class_entry, \
+	class_name, \
+	methods, \
+	...) \
+{ \
+	zend_class_entry tmp_ce; \
+	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", class_name, methods); \
+	class_entry = util::register_interface( \
+		&tmp_ce, \
+		##__VA_ARGS__); \
+}
 
 #define MYSQL_XDEVAPI_REGISTER_CLASS( \
 	class_entry, \
@@ -276,6 +315,8 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 	class_entry, \
 	base_class_entry, \
 	class_name, \
+	std_handlers, \
+	handlers, \
 	methods, \
 	properties, \
 	property_entries, \
@@ -286,6 +327,8 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 	class_entry = util::register_derived_class( \
 		&tmp_ce, \
 		base_class_entry, \
+		std_handlers, \
+		&handlers, \
 		&properties, \
 		property_entries, \
 		##__VA_ARGS__); \

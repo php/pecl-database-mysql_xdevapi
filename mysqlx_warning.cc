@@ -144,21 +144,18 @@ php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
 }
 
 void
-mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_warning_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_warning_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_warning_handlers.free_obj = mysqlx_warning_free_storage;
-
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Warning", mysqlx_warning_methods);
-		tmp_ce.create_object = php_mysqlx_warning_object_allocator;
-		mysqlx_warning_class_entry = zend_register_internal_class(&tmp_ce);
-	}
-
-	zend_hash_init(&mysqlx_warning_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	mysqlx_add_properties(&mysqlx_warning_properties, mysqlx_warning_property_entries);
+	MYSQL_XDEVAPI_REGISTER_CLASS(
+		mysqlx_warning_class_entry,
+		"Warning",
+		mysqlx_std_object_handlers,
+		mysqlx_object_warning_handlers,
+		php_mysqlx_warning_object_allocator,
+		mysqlx_warning_free_storage,
+		mysqlx_warning_methods,
+		mysqlx_warning_properties,
+		mysqlx_warning_property_entries);
 
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_warning_class_entry, "message",	sizeof("message") - 1,		ZEND_ACC_PUBLIC);

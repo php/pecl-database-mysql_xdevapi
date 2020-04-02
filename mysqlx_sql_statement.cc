@@ -688,22 +688,18 @@ php_mysqlx_sql_statement_object_allocator(zend_class_entry * class_type)
 }
 
 void
-mysqlx_register_sql_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_sql_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_sql_statement_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_sql_statement_handlers.free_obj = mysqlx_sql_statement_free_storage;
-
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "SqlStatement", mysqlx_sql_statement_methods);
-		tmp_ce.create_object = php_mysqlx_sql_statement_object_allocator;
-		mysqlx_sql_statement_class_entry = zend_register_internal_class(&tmp_ce);
-	}
-
-	zend_hash_init(&mysqlx_sql_statement_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_sql_statement_properties, mysqlx_sql_statement_property_entries);
+	MYSQL_XDEVAPI_REGISTER_CLASS(
+		mysqlx_sql_statement_class_entry,
+		"SqlStatement",
+		mysqlx_std_object_handlers,
+		mysqlx_object_sql_statement_handlers,
+		php_mysqlx_sql_statement_object_allocator,
+		mysqlx_sql_statement_free_storage,
+		mysqlx_sql_statement_methods,
+		mysqlx_sql_statement_properties,
+		mysqlx_sql_statement_property_entries);
 
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_sql_statement_class_entry, "statement",	sizeof("statement") - 1, ZEND_ACC_PUBLIC);
@@ -924,22 +920,18 @@ php_mysqlx_statement_object_allocator(zend_class_entry * class_type)
 }
 
 void
-mysqlx_register_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_statement_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_statement_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_statement_handlers.free_obj = mysqlx_statement_free_storage;
-
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Statement", mysqlx_statement_methods);
-		tmp_ce.create_object = php_mysqlx_statement_object_allocator;
-		mysqlx_statement_class_entry = zend_register_internal_class(&tmp_ce);
-	}
-
-	zend_hash_init(&mysqlx_statement_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_statement_properties, mysqlx_statement_property_entries);
+	MYSQL_XDEVAPI_REGISTER_CLASS(
+		mysqlx_statement_class_entry,
+		"Statement",
+		mysqlx_std_object_handlers,
+		mysqlx_object_statement_handlers,
+		php_mysqlx_statement_object_allocator,
+		mysqlx_statement_free_storage,
+		mysqlx_statement_methods,
+		mysqlx_statement_properties,
+		mysqlx_statement_property_entries);
 
 	zend_declare_class_constant_long(mysqlx_statement_class_entry, "EXECUTE_ASYNC", sizeof("EXECUTE_ASYNC") - 1, MYSQLX_EXECUTE_FLAG_ASYNC);
 	zend_declare_class_constant_long(mysqlx_statement_class_entry, "BUFFERED", sizeof("BUFFERED") - 1, MYSQLX_EXECUTE_FLAG_BUFFERED);

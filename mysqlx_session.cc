@@ -754,23 +754,18 @@ php_mysqlx_session_object_allocator(zend_class_entry * class_type)
 }
 
 void
-mysqlx_register_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_session_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_session_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_session_handlers.free_obj = mysqlx_session_free_storage;
-
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Session", mysqlx_session_methods);
-		tmp_ce.create_object = php_mysqlx_session_object_allocator;
-		mysqlx_session_class_entry = zend_register_internal_class_ex(
-			&tmp_ce, mysqlx_session_class_entry);
-	}
-
-	zend_hash_init(&mysqlx_session_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_session_properties, mysqlx_session_property_entries);
+	MYSQL_XDEVAPI_REGISTER_CLASS(
+		mysqlx_session_class_entry,
+		"Session",
+		mysqlx_std_object_handlers,
+		mysqlx_object_session_handlers,
+		php_mysqlx_session_object_allocator,
+		mysqlx_session_free_storage,
+		mysqlx_session_methods,
+		mysqlx_session_properties,
+		mysqlx_session_property_entries);
 }
 
 void

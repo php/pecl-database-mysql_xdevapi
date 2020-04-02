@@ -24,7 +24,7 @@ namespace devapi {
 
 extern zend_class_entry * mysqlx_database_object_interface_entry;
 
-void mysqlx_register_database_object_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_register_database_object_interface(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_database_object_interface(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi

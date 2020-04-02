@@ -17,6 +17,7 @@
 */
 #include "php_api.h"
 #include "mysqlx_database_object.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -49,9 +50,10 @@ static const zend_function_entry mysqlx_database_object_methods[] = {
 void
 mysqlx_register_database_object_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
-	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "DatabaseObject", mysqlx_database_object_methods);
-	mysqlx_database_object_interface_entry = zend_register_internal_interface(&tmp_ce);
+	MYSQL_XDEVAPI_REGISTER_INTERFACE(
+		mysqlx_database_object_interface_entry,
+		"DatabaseObject",
+		mysqlx_database_object_methods);
 }
 
 void

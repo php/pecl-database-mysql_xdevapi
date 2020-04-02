@@ -27,7 +27,7 @@ struct xmysqlnd_table;
 namespace devapi {
 
 void mysqlx_new_table(zval* return_value, drv::xmysqlnd_table* table);
-void mysqlx_register_table_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_register_table_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_table_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi

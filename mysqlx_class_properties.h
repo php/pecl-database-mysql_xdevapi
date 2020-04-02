@@ -18,6 +18,7 @@
 #ifndef MYSQLX_CLASS_PROPERTIES_H
 #define MYSQLX_CLASS_PROPERTIES_H
 
+#include "mysqlnd_api.h"
 #include "mysqlx_object.h"
 
 namespace mysqlx {

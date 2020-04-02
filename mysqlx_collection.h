@@ -27,7 +27,7 @@ struct xmysqlnd_collection;
 namespace devapi {
 
 void mysqlx_new_collection(zval* return_value, drv::xmysqlnd_collection* schema);
-void mysqlx_register_collection_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_register_collection_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_collection_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi

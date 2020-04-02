@@ -349,23 +349,20 @@ php_mysqlx_table__delete_object_allocator(zend_class_entry * class_type)
 }
 
 void
-mysqlx_register_table__delete_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_table__delete_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_table__delete_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_table__delete_handlers.free_obj = mysqlx_table__delete_free_storage;
+	MYSQL_XDEVAPI_REGISTER_CLASS(
+		mysqlx_table__delete_class_entry,
+		"TableDelete",
+		mysqlx_std_object_handlers,
+		mysqlx_object_table__delete_handlers,
+		php_mysqlx_table__delete_object_allocator,
+		mysqlx_table__delete_free_storage,
+		mysqlx_table__delete_methods,
+		mysqlx_table__delete_properties,
+		mysqlx_table__delete_property_entries,
+		mysqlx_executable_interface_entry);
 
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "TableDelete", mysqlx_table__delete_methods);
-		tmp_ce.create_object = php_mysqlx_table__delete_object_allocator;
-		mysqlx_table__delete_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_table__delete_class_entry, 1, mysqlx_executable_interface_entry);
-	}
-
-	zend_hash_init(&mysqlx_table__delete_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_table__delete_properties, mysqlx_table__delete_property_entries);
 #if 0
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_table__delete_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);

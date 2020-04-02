@@ -24,7 +24,7 @@ namespace devapi {
 
 extern zend_class_entry * mysqlx_crud_operation_skippable_interface_entry;
 
-void mysqlx_register_crud_operation_skippable_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_register_crud_operation_skippable_interface(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_crud_operation_skippable_interface(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi

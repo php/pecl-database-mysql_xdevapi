@@ -30,6 +30,7 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
 #include "mysqlx_base_result.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -55,9 +56,10 @@ static const zend_function_entry mysqlx_base_result_methods[] = {
 void
 mysqlx_register_base_result_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
-	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "BaseResult", mysqlx_base_result_methods);
-	mysqlx_base_result_interface_entry = zend_register_internal_interface(&tmp_ce);
+	MYSQL_XDEVAPI_REGISTER_INTERFACE(
+		mysqlx_base_result_interface_entry,
+		"BaseResult",
+		mysqlx_base_result_methods);
 }
 
 void

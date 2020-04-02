@@ -328,25 +328,21 @@ php_mysqlx_row_result_object_allocator(zend_class_entry * class_type)
 }
 
 void
-mysqlx_register_row_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_row_result_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_row_result_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_row_result_handlers.free_obj = mysqlx_row_result_free_storage;
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "RowResult", mysqlx_row_result_methods);
-		tmp_ce.create_object = php_mysqlx_row_result_object_allocator;
+	MYSQL_XDEVAPI_REGISTER_CLASS(
+		mysqlx_row_result_class_entry,
+		"RowResult",
+		mysqlx_std_object_handlers,
+		mysqlx_object_row_result_handlers,
+		php_mysqlx_row_result_object_allocator,
+		mysqlx_row_result_free_storage,
+		mysqlx_row_result_methods,
+		mysqlx_row_result_properties,
+		mysqlx_row_result_property_entries,
+		mysqlx_base_result_interface_entry);
 
-		mysqlx_row_result_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_row_result_class_entry, 1, mysqlx_base_result_interface_entry);
-
-		mysqlx_register_row_result_iterator(mysqlx_row_result_class_entry);
-	}
-
-	zend_hash_init(&mysqlx_row_result_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_row_result_properties, mysqlx_row_result_property_entries);
+	mysqlx_register_row_result_iterator(mysqlx_row_result_class_entry);
 }
 
 void

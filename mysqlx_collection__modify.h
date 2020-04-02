@@ -88,7 +88,7 @@ void mysqlx_new_collection__modify(
 	zval* return_value,
 	const util::string_view& search_expression,
 	drv::xmysqlnd_collection* collection);
-void mysqlx_register_collection__modify_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_register_collection__modify_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_collection__modify_class(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi

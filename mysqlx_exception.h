@@ -27,7 +27,7 @@ extern zend_class_entry * mysqlx_exception_class_entry;
 void mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING msg);
 void mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING sql_state, const char * const format, ...);
 
-void mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 
 #define GENERAL_SQL_STATE "HY000" //Same as for the server

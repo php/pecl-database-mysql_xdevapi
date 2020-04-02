@@ -35,7 +35,7 @@ struct st_mysqlx_base_result : public util::custom_allocable
 	drv::st_xmysqlnd_stmt_result* result;
 };
 
-void mysqlx_register_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers);
+void mysqlx_register_base_result_interface(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_base_result_interface(SHUTDOWN_FUNC_ARGS);
 
 } // namespace devapi

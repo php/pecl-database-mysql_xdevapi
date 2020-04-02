@@ -17,6 +17,7 @@
 */
 #include "php_api.h"
 #include "mysqlx_executable.h"
+#include "util/object.h"
 
 namespace mysqlx {
 
@@ -36,9 +37,10 @@ static const zend_function_entry mysqlx_executable_methods[] = {
 void
 mysqlx_register_executable_interface(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* /*mysqlx_std_object_handlers*/)
 {
-	zend_class_entry tmp_ce;
-	INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Executable", mysqlx_executable_methods);
-	mysqlx_executable_interface_entry = zend_register_internal_interface(&tmp_ce);
+	MYSQL_XDEVAPI_REGISTER_INTERFACE(
+		mysqlx_executable_interface_entry,
+		"Executable",
+		mysqlx_executable_methods);
 }
 
 void

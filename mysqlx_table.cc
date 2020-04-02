@@ -472,23 +472,19 @@ php_mysqlx_table_object_allocator(zend_class_entry * class_type)
 }
 
 void
-mysqlx_register_table_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers * mysqlx_std_object_handlers)
+mysqlx_register_table_class(UNUSED_INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers)
 {
-	mysqlx_object_table_handlers = *mysqlx_std_object_handlers;
-	mysqlx_object_table_handlers.free_obj = mysqlx_table_free_storage;
-
-	{
-		zend_class_entry tmp_ce;
-		INIT_NS_CLASS_ENTRY(tmp_ce, "mysql_xdevapi", "Table", mysqlx_table_methods);
-		tmp_ce.create_object = php_mysqlx_table_object_allocator;
-		mysqlx_table_class_entry = zend_register_internal_class(&tmp_ce);
-		zend_class_implements(mysqlx_table_class_entry, 1, mysqlx_schema_object_interface_entry);
-	}
-
-	zend_hash_init(&mysqlx_table_properties, 0, nullptr, mysqlx_free_property_cb, 1);
-
-	/* Add name + getter + setter to the hash table with the properties for the class */
-	mysqlx_add_properties(&mysqlx_table_properties, mysqlx_table_property_entries);
+	MYSQL_XDEVAPI_REGISTER_CLASS(
+		mysqlx_table_class_entry,
+		"Table",
+		mysqlx_std_object_handlers,
+		mysqlx_object_table_handlers,
+		php_mysqlx_table_object_allocator,
+		mysqlx_table_free_storage,
+		mysqlx_table_methods,
+		mysqlx_table_properties,
+		mysqlx_table_property_entries,
+		mysqlx_schema_object_interface_entry);
 
 	/* The following is needed for the Reflection API */
 	zend_declare_property_null(mysqlx_table_class_entry, "name",	sizeof("name") - 1,	ZEND_ACC_PUBLIC);
