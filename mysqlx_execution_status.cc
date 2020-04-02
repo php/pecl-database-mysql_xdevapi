@@ -121,7 +121,7 @@ mysqlx_execution_status_free_storage(zend_object * object)
 }
 
 static zend_object *
-php_mysqlx_execution_status_object_allocator(zend_class_entry * class_type)
+php_mysqlx_execution_status_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("php_mysqlx_execution_status_object_allocator");
 	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_execution_status>(

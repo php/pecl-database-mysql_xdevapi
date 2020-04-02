@@ -114,33 +114,14 @@ mysqlx_warning_free_storage(zend_object * object)
 }
 
 static zend_object *
-php_mysqlx_warning_object_allocator(zend_class_entry * class_type)
+php_mysqlx_warning_object_allocator(zend_class_entry* class_type)
 {
-	const zend_bool persistent = FALSE;
-	st_mysqlx_object* mysqlx_object = (st_mysqlx_object*) mnd_ecalloc(1, sizeof(struct st_mysqlx_object) + zend_object_properties_size(class_type));
-	st_mysqlx_warning* message = (st_mysqlx_warning*)  mnd_ecalloc(1, sizeof(struct st_mysqlx_warning));
-
 	DBG_ENTER("php_mysqlx_warning_object_allocator");
-	if ( mysqlx_object && message) {
-		mysqlx_object->ptr = message;
-
-		message->persistent = persistent;
-		zend_object_std_init(&mysqlx_object->zo, class_type);
-		object_properties_init(&mysqlx_object->zo, class_type);
-
-		mysqlx_object->zo.handlers = &mysqlx_object_warning_handlers;
-		mysqlx_object->properties = &mysqlx_warning_properties;
-
-		DBG_RETURN(&mysqlx_object->zo);
-
-	}
-	if (message) {
-		mnd_efree(message);
-	}
-	if (mysqlx_object) {
-		mnd_efree(mysqlx_object);
-	}
-	DBG_RETURN(nullptr);
+	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_warning>(
+		class_type,
+		&mysqlx_object_warning_handlers,
+		&mysqlx_warning_properties);
+	DBG_RETURN(&mysqlx_object->zo);
 }
 
 void

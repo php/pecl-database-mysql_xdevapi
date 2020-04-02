@@ -677,7 +677,7 @@ mysqlx_sql_statement_free_storage(zend_object * object)
 }
 
 static zend_object *
-php_mysqlx_sql_statement_object_allocator(zend_class_entry * class_type)
+php_mysqlx_sql_statement_object_allocator(zend_class_entry* class_type)
 {
 	DBG_ENTER("php_mysqlx_sql_statement_object_allocator");
 	st_mysqlx_object* mysqlx_object = util::alloc_object<st_mysqlx_statement>(
@@ -913,7 +913,7 @@ mysqlx_statement_free_storage(zend_object * object)
 }
 
 static zend_object *
-php_mysqlx_statement_object_allocator(zend_class_entry * class_type)
+php_mysqlx_statement_object_allocator(zend_class_entry* class_type)
 {
 	/* shows the intention that we do reuse code */
 	return php_mysqlx_sql_statement_object_allocator(class_type);
