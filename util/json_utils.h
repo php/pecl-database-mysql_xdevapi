@@ -42,14 +42,11 @@ bool can_be_document(const util::zvalue& value);
 bool can_be_array(const util::zvalue& value);
 bool can_be_binding(const util::zvalue& value);
 
-void ensure_doc_id(
+util::zvalue ensure_doc_id(
 	zval* raw_doc,
-	const string_view& id,
-	zval* doc_with_id);
+	const string_view& id);
 
-void ensure_doc_id_as_string(
-	const string_view& doc_id,
-	zval* doc);
+util::zvalue to_zval(const char* doc, std::size_t doc_len);
 
 void to_any(const char* doc, std::size_t doc_len, Mysqlx::Datatypes::Any& any);
 

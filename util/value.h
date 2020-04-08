@@ -223,6 +223,8 @@ class zvalue
 
 	public:
 		// object
+		std::size_t properties_count() const;
+
 		const zvalue get_property(const string& name) const;
 		const zvalue get_property(const string_view& name) const;
 		const zvalue get_property(const std::string& name) const;

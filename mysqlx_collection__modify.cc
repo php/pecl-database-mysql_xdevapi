@@ -239,6 +239,9 @@ drv::Modify_value Collection_modify::prepare_value(
 			if (is_a_mysqlx_expression(value.ptr())) {
 				value = get_mysqlx_expression(value.ptr());
 				is_expression = true;
+			} else {
+				value = util::json::to_zv_string(value);
+				is_document = true;
 			}
 			break;
 

@@ -430,8 +430,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 	}
 
 	const util::string_view Doc_root_path("$");
-	util::zvalue doc_with_id;
-	util::json::ensure_doc_id(doc, id, doc_with_id.ptr());
+	util::zvalue doc_with_id(util::json::ensure_doc_id(doc, id));
 	if (coll_modify.set(Doc_root_path, doc_with_id.ptr())) {
 		coll_modify.execute(return_value);
 	}
@@ -459,8 +458,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 	auto& data_object = util::fetch_data_object<st_mysqlx_collection>(object_zv);
 
 	Collection_add coll_add;
-	util::zvalue doc_with_id;
-	util::json::ensure_doc_id(doc, id, doc_with_id.ptr());
+	util::zvalue doc_with_id(util::json::ensure_doc_id(doc, id));
 	if (coll_add.add_docs(data_object.collection, id, doc_with_id.ptr())) {
 		coll_add.execute(return_value);
 	}

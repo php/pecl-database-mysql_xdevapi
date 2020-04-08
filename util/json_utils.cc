@@ -123,11 +123,10 @@ class Ensure_doc_id
 	public:
 		Ensure_doc_id(
 			zval* raw_doc,
-			const string_view& doc_id,
-			zval* doc_with_id);
+			const string_view& doc_id);
 
 	public:
-		void run();
+		util::zvalue run();
 
 	private:
 		void process_string();
@@ -140,20 +139,19 @@ class Ensure_doc_id
 	private:
 		zval* raw_doc{nullptr};
 		const string_view& doc_id;
-		zval* doc_with_id{nullptr};
+		util::zvalue doc_with_id;
 
 };
 
 //------------------------------------------------------------------------------
 
-Ensure_doc_id::Ensure_doc_id(zval* src, const string_view& id, zval* dest)
+Ensure_doc_id::Ensure_doc_id(zval* src, const string_view& id)
 	: raw_doc(src)
 	, doc_id(id)
-	, doc_with_id(dest)
 {
 }
 
-void Ensure_doc_id::run()
+util::zvalue Ensure_doc_id::run()
 {
 	switch(Z_TYPE_P(raw_doc)) {
 		case IS_STRING:
@@ -171,6 +169,7 @@ void Ensure_doc_id::run()
 		default:
 			throw xdevapi_exception(xdevapi_exception::Code::json_fail);
 	}
+	return doc_with_id;
 }
 
 void Ensure_doc_id::process_string()
@@ -186,63 +185,170 @@ void Ensure_doc_id::process_array()
 		throw xdevapi_exception(xdevapi_exception::Code::json_fail);
 	}
 
-	ZVAL_DUP(doc_with_id, raw_doc);
+	doc_with_id = zvalue::clone_from(raw_doc);
 	store_id();
 }
 
 void Ensure_doc_id::process_object()
 {
-	zval doc_as_str;
-	to_zv_string(raw_doc, &doc_as_str);
-	decode_json(&doc_as_str);
-	zval_dtor(&doc_as_str);
+	util::zvalue doc_as_str;
+	to_zv_string(raw_doc, doc_as_str.ptr());
+	decode_json(doc_as_str.ptr());
 	store_id();
 }
 
 void Ensure_doc_id::decode_json(zval* doc_as_str)
 {
 	assert(Z_TYPE_P(doc_as_str) == IS_STRING);
-	char* json_str = Z_STRVAL_P(doc_as_str);
-	int json_len = static_cast<int>(Z_STRLEN_P(doc_as_str));
-	php_json_decode(doc_with_id, json_str, json_len, true, PHP_JSON_PARSER_DEFAULT_DEPTH);
-
-	if (Z_TYPE_P(doc_with_id) != IS_ARRAY) {
+	const char* doc_str = Z_STRVAL_P(doc_as_str);
+	std::size_t doc_len = static_cast<std::size_t>(Z_STRLEN_P(doc_as_str));
+	doc_with_id = to_zval(doc_str, doc_len);
+	if (!doc_with_id.is_array() && !doc_with_id.is_object()) {
 		throw xdevapi_exception(xdevapi_exception::Code::json_fail);
 	}
 }
 
 void Ensure_doc_id::store_id()
 {
-	if (Z_TYPE_P(doc_with_id) != IS_ARRAY) return;
-
-	Hash_table ht(doc_with_id, false);
 	const char* Id_column_name = "_id";
-	ht.insert(Id_column_name, doc_id);
+	switch (doc_with_id.type()) {
+	case util::zvalue::Type::Array:
+		doc_with_id.insert(Id_column_name, doc_id);
+		break;
+
+	case util::zvalue::Type::Object:
+		doc_with_id.set_property(Id_column_name, doc_id);
+		break;
+
+	default:
+		assert(!"unexpected doc type!");
+	}
 }
 
 } // anonymous namespace
 
-void ensure_doc_id(
+util::zvalue ensure_doc_id(
 	zval* raw_doc,
-	const string_view& id,
-	zval* doc_with_id)
+	const string_view& id)
 {
-	ZVAL_UNDEF(doc_with_id);
-	Ensure_doc_id edi(raw_doc, id, doc_with_id);
-	edi.run();
+	Ensure_doc_id edi(raw_doc, id);
+	return edi.run();
 }
 
-void ensure_doc_id_as_string(
-	const string_view& doc_id,
-	zval* doc)
+//------------------------------------------------------------------------------
+
+namespace {
+
+class Json_to_zval
 {
-	zval doc_with_string_id;
-	util::json::ensure_doc_id(
-		doc,
-		doc_id,
-		&doc_with_string_id);
-	to_zv_string(&doc_with_string_id, doc);
-	zval_dtor(&doc_with_string_id);
+public:
+	util::zvalue run(
+		const char* doc,
+		std::size_t doc_len);
+
+private:
+	util::zvalue to_number(const rapidjson::Value& value);
+	util::zvalue to_string(const rapidjson::Value& value);
+	util::zvalue to_array(const rapidjson::Value& value);
+	util::zvalue to_object(const rapidjson::Value& value);
+	util::zvalue to_value(const rapidjson::Value& value);
+};
+
+util::zvalue Json_to_zval::run(
+	const char* doc,
+	std::size_t doc_len)
+{
+	rapidjson::Document document;
+	document.Parse(doc, doc_len);
+
+	if (document.HasParseError()) {
+		util::ostringstream err;
+		err << "(character " << document.GetErrorOffset() << "): "
+			<< GetParseError_En(document.GetParseError());
+		throw xdevapi_exception(xdevapi_exception::Code::json_parse_error, err.str());
+	}
+	return to_value(document);
+}
+
+util::zvalue Json_to_zval::to_number(const rapidjson::Value& value)
+{
+	if (value.IsInt()) {
+		return value.GetInt();
+	} else if (value.IsInt64()) {
+		return value.GetInt64();
+	} else if (value.IsUint()) {
+		return value.GetUint();
+	} else if (value.IsUint64()) {
+		return value.GetUint64();
+	} else if (value.IsDouble()) {
+		return value.GetDouble();
+	} else {
+		assert(!"unknown numeric type");
+		return zvalue();
+	}
+}
+
+util::zvalue Json_to_zval::to_string(const rapidjson::Value& value)
+{
+	return value.GetString();
+}
+
+util::zvalue Json_to_zval::to_array(const rapidjson::Value& value)
+{
+	util::zvalue arr(zvalue::create_array(value.Size()));
+	for (const auto& elem : value.GetArray()) {
+		arr.push_back(to_value(elem));
+	}
+	return arr;
+}
+
+util::zvalue Json_to_zval::to_object(const rapidjson::Value& value)
+{
+	util::zvalue obj(zvalue::create_object());
+	for (const auto& member : value.GetObject()) {
+		obj.set_property(
+			member.name.GetString(),
+			to_value(member.value));
+	}
+	return obj;
+}
+
+util::zvalue Json_to_zval::to_value(const rapidjson::Value& value)
+{
+	switch (value.GetType()) {
+		case rapidjson::kNullType:
+			return nullptr;
+
+		case rapidjson::kFalseType:
+			return false;
+
+		case rapidjson::kTrueType:
+			return true;
+
+		case rapidjson::kNumberType:
+			return to_number(value);
+
+		case rapidjson::kStringType:
+			return to_string(value);
+
+		case rapidjson::kArrayType:
+			return to_array(value);
+
+		case rapidjson::kObjectType:
+			return to_object(value);
+
+		default:
+			assert(!"unknown type!");
+			return zvalue();
+	}
+}
+
+} // anonymouse namespace
+
+util::zvalue to_zval(const char* doc, std::size_t doc_len)
+{
+	Json_to_zval json_to_zval;
+	return json_to_zval.run(doc, doc_len);
 }
 
 //------------------------------------------------------------------------------
@@ -316,6 +422,8 @@ void Json_to_any::to_number(const rapidjson::Value& value, Mysqlx::Datatypes::An
 	} else if (value.IsDouble()) {
 		any.mutable_scalar()->set_type(Mysqlx::Datatypes::Scalar_Type_V_DOUBLE);
 		any.mutable_scalar()->set_v_double(value.GetDouble());
+	} else {
+		assert(!"unknown numeric type");
 	}
 }
 

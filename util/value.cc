@@ -490,6 +490,9 @@ std::size_t zvalue::size() const
 	case Type::Array:
 		return zend_array_count(Z_ARRVAL(zv));
 
+	case Type::Object:
+		return properties_count();
+
 	default:
 		assert(!"size unsupported for that type");
 		return 0;
@@ -595,6 +598,13 @@ void zvalue::invalidate()
 }
 
 // -----------------------------------------------------------------------------
+
+std::size_t zvalue::properties_count() const
+{
+	assert(is_object());
+	HashTable* ht = HASH_OF(ptr());
+	return ht ? zend_hash_num_elements(ht) : 0;
+}
 
 const zvalue zvalue::get_property(const char* name, std::size_t name_length) const
 {
@@ -787,8 +797,8 @@ bool zvalue::iterator::operator!=(const iterator& rhs) const
 
 zvalue::iterator zvalue::begin() const
 {
-	assert(is_array());
-	HashTable* ht{ Z_ARRVAL(ref()) };
+	assert(is_array() || is_object());
+	HashTable* ht{ HASH_OF(ptr()) };
 	HashPosition pos{ HT_INVALID_IDX };
 	zend_hash_internal_pointer_reset_ex(ht, &pos);
 	return iterator(ht, static_cast<HashPosition>(size()), pos);
@@ -796,8 +806,8 @@ zvalue::iterator zvalue::begin() const
 
 zvalue::iterator zvalue::end() const
 {
-	assert(is_array());
-	return iterator(Z_ARRVAL(ref()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
+	assert(is_array() || is_object());
+	return iterator(HASH_OF(ptr()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
 }
 
 // -----------------------------------------------------------------------------
@@ -843,8 +853,8 @@ bool zvalue::value_iterator::operator!=(const value_iterator& rhs) const
 
 zvalue::value_iterator zvalue::vbegin() const
 {
-	assert(is_array());
-	HashTable* ht{ Z_ARRVAL(ref()) };
+	assert(is_array() || is_object());
+	HashTable* ht{ HASH_OF(ptr()) };
 	HashPosition pos{ HT_INVALID_IDX };
 	zend_hash_internal_pointer_reset_ex(ht, &pos);
 	return value_iterator(ht, static_cast<HashPosition>(size()), pos);
@@ -852,8 +862,8 @@ zvalue::value_iterator zvalue::vbegin() const
 
 zvalue::value_iterator zvalue::vend() const
 {
-	assert(is_array());
-	return value_iterator(Z_ARRVAL(ref()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
+	assert(is_array() || is_object());
+	return value_iterator(HASH_OF(ptr()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
 }
 
 } // namespace util
