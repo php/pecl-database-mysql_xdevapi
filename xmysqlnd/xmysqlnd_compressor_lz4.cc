@@ -46,6 +46,9 @@ public:
 	util::bytes decompress(const Mysqlx::Connection::Compression& message) override;
 
 private:
+	void reset_decompression_context();
+
+private:
 	LZ4F_cctx_s* compress_ctx{ nullptr };
 	LZ4F_dctx_s* decompress_ctx{ nullptr };
 	LZ4F_preferences_t lz4_prefs{};
@@ -141,7 +144,7 @@ util::bytes Compressor_lz4::decompress(const Mysqlx::Connection::Compression& me
 			nullptr);
 
 		if (LZ4F_isError(result)) {
-			LZ4F_resetDecompressionContext(decompress_ctx);
+			reset_decompression_context();
 			throw std::runtime_error("error during lz4 decompression");
 		}
 
@@ -155,6 +158,21 @@ util::bytes Compressor_lz4::decompress(const Mysqlx::Connection::Compression& me
 	} while(keep_processing);
 
 	return uncompressed_payload;
+}
+
+void Compressor_lz4::reset_decompression_context()
+{
+#if LZ4_VERSION_NUMBER >= 10800
+	LZ4F_resetDecompressionContext(decompress_ctx);
+#else
+	if (LZ4F_isError(LZ4F_freeDecompressionContext(decompress_ctx))) {
+		throw std::runtime_error("cannot free lz4 decompression context");
+	}
+
+	if (LZ4F_isError(LZ4F_createDecompressionContext(&decompress_ctx, LZ4F_VERSION))) {
+		throw std::runtime_error("cannot create lz4 decompression context");
+	}
+#endif
 }
 
 } // anonymous namespace
