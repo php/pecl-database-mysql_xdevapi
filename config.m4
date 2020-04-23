@@ -49,9 +49,10 @@ PHP_ARG_ENABLE(
 	no,
 	yes)
 
+
 AC_DEFUN([MYSQL_XDEVAPI_ADD_CXXFLAGS], [
-	CXXFLAG=$1
-	MYSQL_XDEVAPI_CXXFLAGS="$MYSQL_XDEVAPI_CXXFLAGS $CXXFLAG"
+	NEW_CXXFLAG=$1
+	MYSQL_XDEVAPI_CXXFLAGS="$MYSQL_XDEVAPI_CXXFLAGS $NEW_CXXFLAG"
 ])
 
 AC_DEFUN([MYSQL_XDEVAPI_DEFINE], [
@@ -68,48 +69,132 @@ AC_DEFUN([MYSQL_XDEVAPI_NOTICE], [
 	fi
 ])
 
+dnl $1 dirs to be searched (e.g. $PROTOBUF_SEARCH_DIRS)
+dnl $2 looked for path (e.g. "google/protobuf/any.h")
+dnl $3 subdirs to be also searched (e.g. "include")
+dnl $4 variable to store the result - resolved path (e.g. MYSQL_XDEVAPI_PROTOBUF_INCLUDES)
+AC_DEFUN([MYSQL_XDEVAPI_RESOLVE_PATH], [
+	SEARCH_DIRS=$1
+	SEARCH_FOR=$2
+	SUBDIRS=$3
+
+	RESOLVED_PATH=""
+	for dir in $SEARCH_DIRS; do
+		if test -r "$dir/$SEARCH_FOR"; then
+			RESOLVED_PATH=$dir
+			break
+		fi
+
+		for subdir in $SUBDIRS; do
+			if test -r "$dir/$subdir/$SEARCH_FOR"; then
+				RESOLVED_PATH=$dir/$subdir
+				break
+			fi
+		done
+	done
+
+	$4=$RESOLVED_PATH
+])
+
+AC_DEFUN([MYSQL_XDEVAPI_PREPARE_BINARY_SEARCH_PATH], [
+	SEARCH_DIRS=$1
+	BINARY_SEARCH_PATH=""
+	for i in $SEARCH_DIRS; do
+		if test -d $i; then
+			BINARY_SEARCH_PATH="$BINARY_SEARCH_PATH:$i"
+		fi
+		if test -d $i/bin; then
+			BINARY_SEARCH_PATH="$BINARY_SEARCH_PATH:$i/bin"
+		fi
+	done
+	$2=[$BINARY_SEARCH_PATH:$PATH]
+])
+
+
+AC_DEFUN([MYSQL_XDEVAPI_APPEND_INCLUDE_SEARCH_DIR], [
+	NEW_INCLUDE_SEARCH_DIR=$1
+	if test -d ${NEW_INCLUDE_SEARCH_DIR}; then
+		dnl needed also for AC_CHECK_HEADER and AC_EGREP_CPP
+		CPPFLAGS="${CPPFLAGS} -I${NEW_INCLUDE_SEARCH_DIR}"
+	fi
+])
+
+AC_DEFUN([MYSQL_XDEVAPI_ADD_DIR_TO_INCLUDE_SEARCH_PATH], [
+	NEW_INCLUDE_SEARCH_DIR=$1
+	if test ${NEW_INCLUDE_SEARCH_DIR}; then
+		MYSQL_XDEVAPI_APPEND_INCLUDE_SEARCH_DIR("$NEW_INCLUDE_SEARCH_DIR")
+		MYSQL_XDEVAPI_APPEND_INCLUDE_SEARCH_DIR("$NEW_INCLUDE_SEARCH_DIR/include")
+	fi
+])
+
+AC_DEFUN([MYSQL_XDEVAPI_ADD_DIRS_TO_INCLUDE_SEARCH_PATH], [
+	NEW_INCLUDE_SEARCH_DIRS=$1
+	for i in $NEW_INCLUDE_SEARCH_DIRS; do
+		MYSQL_XDEVAPI_ADD_DIR_TO_INCLUDE_SEARCH_PATH($i)
+	done
+])
+
+
+AC_DEFUN([MYSQL_XDEVAPI_APPEND_LIB_SEARCH_DIR], [
+	NEW_LIB_SEARCH_DIR=$1
+	if test -d ${NEW_LIB_SEARCH_DIR}; then
+		dnl needed also for AC_CHECK_LIB
+		LDFLAGS="${LDFLAGS} -L${NEW_LIB_SEARCH_DIR}"
+	fi
+])
+
+AC_DEFUN([MYSQL_XDEVAPI_ADD_DIR_TO_LIB_SEARCH_PATH], [
+	NEW_LIB_SEARCH_DIR=$1
+	if test ${NEW_LIB_SEARCH_DIR}; then
+		MYSQL_XDEVAPI_APPEND_LIB_SEARCH_DIR("$NEW_LIB_SEARCH_DIR")
+		MYSQL_XDEVAPI_APPEND_LIB_SEARCH_DIR("$NEW_LIB_SEARCH_DIR/lib")
+	fi
+])
+
+AC_DEFUN([MYSQL_XDEVAPI_ADD_DIRS_TO_LIB_SEARCH_PATH], [
+	NEW_LIB_SEARCH_DIRS=$1
+	for i in $NEW_LIB_SEARCH_DIRS; do
+		MYSQL_XDEVAPI_ADD_DIR_TO_LIB_SEARCH_PATH($i)
+	done
+])
+
 
 dnl $1 default compressor root (e.g. $PHP_ZLIB)
 dnl $2 lib label (e.g. "zlib")
 dnl $3 lib name (e.g. "z")
-dnl $4 header name (e.g. "zlib.h")
-dnl $5 cpp #define (e.g. "MYSQL_XDEVAPI_HAVE_ZLIB")
-dnl $6 resolved root var (e.g. ZLIB_RESOLVED_ROOT)
+dnl $4 function name (e.g. "LZ4F_createCompressionContext")
+dnl $5 header name (e.g. "zlib.h")
+dnl $6 cpp #define (e.g. "MYSQL_XDEVAPI_HAVE_ZLIB")
+dnl $7 variable to store the result - whether compressor was resolved (e.g. IS_ZLIB_ENABLED)
 AC_DEFUN([MYSQL_XDEVAPI_RESOLVE_COMPRESSOR], [
 	DEFAULT_ROOT=$1
 	LIB_LABEL=$2
 	LIB_NAME=$3
-	HEADER_NAME=$4
-	CPP_DEFINE=$5
-
+	FUNC_NAME=$4
+	HEADER_NAME=$5
+	CPP_DEFINE=$6
+	$7="no"
 	if test "$DEFAULT_ROOT" != "no"; then
-		AC_MSG_CHECKING([for $LIB_LABEL])
- 		SEARCH_PATH="$DEFAULT_ROOT /usr/local /usr"
- 		SEARCH_FOR="include/$HEADER_NAME"
- 		for i in $SEARCH_PATH ; do
- 			if test -r "$i/$SEARCH_FOR"; then
- 				RESOLVED_ROOT=$i
- 				break
- 			fi
- 		done
+		if test "$DEFAULT_ROOT" != "yes"; then
+			MYSQL_XDEVAPI_ADD_DIR_TO_INCLUDE_SEARCH_PATH("$DEFAULT_ROOT")
+			MYSQL_XDEVAPI_ADD_DIR_TO_LIB_SEARCH_PATH("$DEFAULT_ROOT")
+		fi
 
- 		if test -d "$RESOLVED_ROOT"; then
- 			PHP_ADD_INCLUDE([$RESOLVED_ROOT/include])
- 			PHP_ADD_LIBRARY_WITH_PATH($LIB_NAME, [$RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
- 			MYSQL_XDEVAPI_DEFINE($CPP_DEFINE)
-			$6=$RESOLVED_ROOT
- 			AC_MSG_RESULT(found in $RESOLVED_ROOT)
- 		else
-			MYSQL_XDEVAPI_NOTICE([not found])
- 		fi
+		AC_CHECK_HEADER([$HEADER_NAME], [], [COMPRESSOR_INCLUDES_NOT_FOUND=1])
+		AC_CHECK_LIB([$LIB_NAME], [$FUNC_NAME], [], [COMPRESSOR_LIB_NOT_FOUND=1])
+		if test -z $COMPRESSOR_INCLUDES_NOT_FOUND && test -z $COMPRESSOR_LIB_NOT_FOUND; then
+			PHP_ADD_LIBRARY_WITH_PATH($LIB_NAME, [], MYSQL_XDEVAPI_SHARED_LIBADD)
+			MYSQL_XDEVAPI_DEFINE($CPP_DEFINE)
+			$7="yes"
+		else
+			MYSQL_XDEVAPI_NOTICE("could not resolve compressor $LIB_LABEL")
+		fi
  	fi
 ])
 
 
 dnl If some extension uses mysql-xdevapi it will get compiled in PHP core
 if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "yes"; then
-	PHP_REQUIRE_CXX
-
 	mysqlx_devapi_sources=" \
 		mysqlx_base_result.cc \
 		mysqlx_class_properties.cc \
@@ -243,6 +328,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 		$xmysqlnd_crud_parsers \
 		"
 
+	PHP_REQUIRE_CXX
+	AC_LANG([C++])
 
 	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14 \
 		-Wall -Wno-unused-function -Wformat-security -Wformat-extra-args"
@@ -290,28 +377,20 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 		PREFERRED_BOOST_LOCATION=""
 	fi
 
-	AC_MSG_CHECKING([for boost])
-	SEARCH_PATH="$PHP_BOOST $PREFERRED_BOOST_LOCATION $MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH /usr/local/include /usr/include"
-	SEARCH_FOR="boost/version.hpp"
-	for i in $SEARCH_PATH ; do
-		if test -r "$i/$SEARCH_FOR"; then
-			BOOST_RESOLVED_ROOT=$i
-			break
-		fi
-	done
+	BOOST_SEARCH_DIRS="$PHP_BOOST $PREFERRED_BOOST_LOCATION $MYSQL_XDEVAPI_BOOST_ROOT $BOOST_ROOT $BOOST_PATH"
+	AC_MSG_NOTICE([checking for boost $BOOST_SEARCH_DIRS])
+	MYSQL_XDEVAPI_ADD_DIRS_TO_INCLUDE_SEARCH_PATH($BOOST_SEARCH_DIRS)
+	AC_CHECK_HEADER("boost/version.hpp", [], [BOOST_INCLUDES_NOT_FOUND=1])
 
-	if test -d "$BOOST_RESOLVED_ROOT"; then
-		PHP_ADD_INCLUDE([$BOOST_RESOLVED_ROOT])
-		AC_MSG_RESULT(found in $BOOST_RESOLVED_ROOT)
-	else
-		AC_MSG_ERROR([not found, consider use of --with-boost or setting MYSQL_XDEVAPI_BOOST_ROOT; $REQUIRED_BOOST_VER_MSG])
+	if test $BOOST_INCLUDES_NOT_FOUND; then
+		AC_MSG_ERROR([boost not found, please install it in system, consider use of --with-boost or setting MYSQL_XDEVAPI_BOOST_ROOT; $REQUIRED_BOOST_VER_MSG])
 	fi
 
-	AC_MSG_CHECKING([if boost version is valid])
+	AC_MSG_CHECKING([whether boost version is valid])
 	AC_EGREP_CPP(
 		boost_version_ok,
 		[
-			#include "$BOOST_RESOLVED_ROOT/boost/version.hpp"
+			#include <boost/version.hpp>
 			#if BOOST_VERSION >= $MINIMAL_BOOST_VER
 				boost_version_ok
 			#endif
@@ -322,43 +401,42 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 
 
 	dnl protobuf
-	AC_MSG_CHECKING([for protobuf])
-	SEARCH_PATH="$PHP_PROTOBUF $MYSQL_XDEVAPI_PROTOBUF_ROOT $PROTOBUF_ROOT $PROTOBUF_PATH /usr/local /usr"
-	SEARCH_FOR="bin/protoc"
-	for i in $SEARCH_PATH ; do
-		if test -x "$i/$SEARCH_FOR"; then
-			PROTOBUF_RESOLVED_ROOT=$i
-			break
-		fi
-	done
+	PROTOBUF_SEARCH_DIRS="$PHP_PROTOBUF $MYSQL_XDEVAPI_PROTOBUF_ROOT $PROTOBUF_ROOT $PROTOBUF_PATH"
+	AC_MSG_NOTICE([checking for protobuf $PROTOBUF_SEARCH_DIRS])
 
-	if test -z "$PROTOBUF_RESOLVED_ROOT"; then
-		AC_PATH_PROG(PROTOC_PATH_RESOLVED, protoc)
-		if test -x "$PROTOC_PATH_RESOLVED"; then
-			PROTOBUF_BIN_DIR=$(dirname "$PROTOC_PATH_RESOLVED")
-			PROTOBUF_RESOLVED_ROOT=$(dirname "$PROTOBUF_BIN_DIR")
-		fi
-	fi
+	MYSQL_XDEVAPI_ADD_DIRS_TO_INCLUDE_SEARCH_PATH($PROTOBUF_SEARCH_DIRS)
+	AC_CHECK_HEADER("google/protobuf/any.h", [], [PROTOBUF_INCLUDES_NOT_FOUND=1])
 
-	if test -d "$PROTOBUF_RESOLVED_ROOT"; then
-		MYSQL_XDEVAPI_PROTOC=$PROTOBUF_RESOLVED_ROOT/bin/protoc
+	MYSQL_XDEVAPI_ADD_DIRS_TO_LIB_SEARCH_PATH($PROTOBUF_SEARCH_DIRS)
+	AC_CHECK_LIB(protobuf, main, [], [PROTOBUF_LIB_NOT_FOUND=1])
+
+	MYSQL_XDEVAPI_PREPARE_BINARY_SEARCH_PATH($PROTOBUF_SEARCH_DIRS, PROTOBUF_BINARY_SEARCH_PATH)
+	AC_PATH_PROG(MYSQL_XDEVAPI_PROTOC, protoc, [PROTOBUF_PROTOC_NOT_FOUND=1], [$PROTOBUF_BINARY_SEARCH_PATH])
+
+	if test -z $PROTOBUF_INCLUDES_NOT_FOUND && test -z $PROTOBUF_LIB_NOT_FOUND && test -z $PROTOBUF_PROTOC_NOT_FOUND; then
 		PHP_SUBST(MYSQL_XDEVAPI_PROTOC)
-
-		MYSQL_XDEVAPI_PROTOBUF_INCLUDES=$PROTOBUF_RESOLVED_ROOT/include
-		PHP_SUBST(MYSQL_XDEVAPI_PROTOBUF_INCLUDES)
-
-		PHP_ADD_INCLUDE([$MYSQL_XDEVAPI_PROTOBUF_INCLUDES])
-		PHP_ADD_LIBRARY_WITH_PATH(protobuf, [$PROTOBUF_RESOLVED_ROOT/lib], MYSQL_XDEVAPI_SHARED_LIBADD)
-
-		AC_MSG_RESULT([found in $PROTOBUF_RESOLVED_ROOT])
+		PHP_ADD_LIBRARY_WITH_PATH(protobuf, [], MYSQL_XDEVAPI_SHARED_LIBADD)
 	else
-		AC_MSG_ERROR([not found, consider use of --with-protobuf or setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
+		AC_MSG_ERROR([protobuf not found, please install it in system, consider use of --with-protobuf or setting MYSQL_XDEVAPI_PROTOBUF_ROOT])
 	fi
+
+	dnl exact path needed at generation of *.proto by protoc - see Makefile.frag, if not resolved then
+	dnl protobuf lib is supposed to be in default location, and not necessary to pass explicitly to protoc
+	AC_MSG_CHECKING([protobuf includes dir])
+	MYSQL_XDEVAPI_RESOLVE_PATH($PROTOBUF_SEARCH_DIRS, "google/protobuf/any.h", "include", MYSQL_XDEVAPI_PROTOBUF_INCLUDES)
+	if test -d $MYSQL_XDEVAPI_PROTOBUF_INCLUDES; then
+		PHP_SUBST(MYSQL_XDEVAPI_PROTOBUF_INCLUDES)
+		AC_MSG_RESULT($MYSQL_XDEVAPI_PROTOBUF_INCLUDES)
+	else
+		MYSQL_XDEVAPI_PROTOBUF_INCLUDES="default system location"
+		AC_MSG_RESULT($MYSQL_XDEVAPI_PROTOBUF_INCLUDES)
+	fi
+
 
 	dnl compressors
-	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_LZ4", "lz4", "lz4", "lz4.h", "MYSQL_XDEVAPI_HAVE_LZ4", LZ4_RESOLVED_ROOT)
-	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_ZLIB", "zlib", "z", "zlib.h", "MYSQL_XDEVAPI_HAVE_ZLIB", ZLIB_RESOLVED_ROOT)
-	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_ZSTD", "zstd", "zstd", "zstd.h", "MYSQL_XDEVAPI_HAVE_ZSTD", ZSTD_RESOLVED_ROOT)
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_LZ4", "lz4", "lz4", "LZ4F_createCompressionContext", "lz4.h", "MYSQL_XDEVAPI_HAVE_LZ4", IS_LZ4_ENABLED)
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_ZLIB", "zlib", "z", "inflateEnd", "zlib.h", "MYSQL_XDEVAPI_HAVE_ZLIB", IS_ZLIB_ENABLED)
+	MYSQL_XDEVAPI_RESOLVE_COMPRESSOR("$PHP_ZSTD", "zstd", "zstd", "ZSTD_createCStream", "zstd.h", "MYSQL_XDEVAPI_HAVE_ZSTD", IS_ZSTD_ENABLED)
 
 
 	dnl CAUTION! PHP_NEW_EXTENSION defines variables like $ext_srcdir, $ext_builddir or
@@ -423,7 +501,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 		fi
 	fi
 
-	AC_DEFINE([HAVE_MYSQL_XDEVAPI], 1, [mysql-xdevapi support enabled])
+	PHP_DEF_HAVE([MYSQL_XDEVAPI], 1, [mysql-xdevapi support enabled])
 
 	dnl expose metadata
 	dnl expose sources metadata
@@ -433,8 +511,8 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 	echo [MySQL X DevAPI for PHP ${MYSQL_XDEVAPI_VERSION}] > $INFO_SRC_PATH
 	echo [version: ${MYSQL_XDEVAPI_VERSION}] >> $INFO_SRC_PATH
 
- 	AC_PATH_PROG(GIT_PATH, 'git')
-	if test -x "${GIT_PATH}"; then
+ 	AC_PATH_PROG(GIT_EXEC_PATH, 'git')
+	if test -x "${GIT_EXEC_PATH}"; then
 		IS_GIT_REPO=`git rev-parse --is-inside-work-tree`
 	fi
 
@@ -509,6 +587,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 	echo [CFLAGS: ${CFLAGS}] >> $INFO_BIN_PATH
 	echo [CXX: ${CXX}] >> $INFO_BIN_PATH
 	echo [CXXFLAGS: ${CXXFLAGS}] >> $INFO_BIN_PATH
+	echo [CPPFLAGS: ${CPPFLAGS}] >> $INFO_BIN_PATH
 	echo [MYSQL_XDEVAPI_CXXFLAGS: ${MYSQL_XDEVAPI_CXXFLAGS}] >> $INFO_BIN_PATH
 	echo [LDFLAGS: ${LDFLAGS}] >> $INFO_BIN_PATH
 	echo [PHP_LDFLAGS: ${PHP_LDFLAGS}] >> $INFO_BIN_PATH
@@ -518,27 +597,25 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 	echo [===== Libraries: =====] >> $INFO_BIN_PATH
 	echo [--with-boost: ${PHP_BOOST}] >> $INFO_BIN_PATH
 	echo [MYSQL_XDEVAPI_BOOST_ROOT: ${MYSQL_XDEVAPI_BOOST_ROOT}] >> $INFO_BIN_PATH
-	BOOST_VERSION=`$EGREP "define BOOST_VERSION" $BOOST_RESOLVED_ROOT/boost/version.hpp | $SED -e 's/[[^0-9]]//g'`
-	echo [boost: ${BOOST_VERSION}] >> $INFO_BIN_PATH
-	echo [boost-root: ${BOOST_RESOLVED_ROOT}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
 	PROTOC_VERSION=`${MYSQL_XDEVAPI_PROTOC} --version`
 	echo [--with-protobuf: ${PHP_PROTOBUF}] >> $INFO_BIN_PATH
 	echo [MYSQL_XDEVAPI_PROTOBUF_ROOT: ${MYSQL_XDEVAPI_PROTOBUF_ROOT}] >> $INFO_BIN_PATH
-	echo [protbuf: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
-	echo [protbuf-root: ${PROTOBUF_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [version: ${PROTOC_VERSION}] >> $INFO_BIN_PATH
+	echo [protoc path: ${MYSQL_XDEVAPI_PROTOC}] >> $INFO_BIN_PATH
+	echo [includes path: ${MYSQL_XDEVAPI_PROTOBUF_INCLUDES}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
 	echo [--with-lz4: ${PHP_LZ4}] >> $INFO_BIN_PATH
-	echo [lz4-root: ${LZ4_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [lz4 enabled: ${IS_LZ4_ENABLED}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
 	echo [--with-zlib: ${PHP_ZLIB}] >> $INFO_BIN_PATH
-	echo [zlib-root: ${ZLIB_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [zlib enabled: ${IS_ZLIB_ENABLED}] >> $INFO_BIN_PATH
 	echo [] >> $INFO_BIN_PATH
 
 	echo [--with-zstd: ${PHP_ZSTD}] >> $INFO_BIN_PATH
-	echo [zstd-root: ${ZSTD_RESOLVED_ROOT}] >> $INFO_BIN_PATH
+	echo [zstd enabled: ${IS_ZSTD_ENABLED}] >> $INFO_BIN_PATH
 	echo [===== EOF =====] >> $INFO_BIN_PATH
 fi
