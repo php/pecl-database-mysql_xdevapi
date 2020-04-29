@@ -608,6 +608,8 @@ function resolve_compressor_lz4() {
 	var generic_libnames = [
 		'liblz4_static',
 		'lz4_static',
+		'liblz4static',
+		'lz4static',
 		'liblz4',
 		'lz4'
 	];
@@ -627,6 +629,8 @@ function resolve_compressor_zlib() {
 	var generic_libnames = [
 		'zlib_static',
 		'libz_static',
+		'zlibstatic',
+		'libzstatic',
 		'zlib',
 		'libz'
 	];
@@ -646,6 +650,8 @@ function resolve_compressor_zstd() {
 	var generic_libnames = [
 		'libzstd_static',
 		'zstd_static',
+		'libzstdstatic',
+		'zstdstatic',
 		'libzstd',
 		'zstd'
 	];
