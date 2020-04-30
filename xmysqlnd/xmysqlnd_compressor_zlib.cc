@@ -34,6 +34,12 @@ namespace compression {
 
 namespace {
 
+template<typename T>
+uInt to_uint(T value)
+{
+	return static_cast<uInt>(value);
+}
+
 class Compressor_zlib : public Compressor
 {
 public:
@@ -81,12 +87,12 @@ Compressor_zlib::~Compressor_zlib()
 std::string Compressor_zlib::compress(const util::bytes& uncompressed_payload)
 {
 	compress_stream.next_in = const_cast<util::byte*>(uncompressed_payload.data());
-	compress_stream.avail_in = uncompressed_payload.size();
+	compress_stream.avail_in = to_uint(uncompressed_payload.size());
 
 	const std::size_t previous_total_out = compress_stream.total_out;
-	std::string compressed_payload(deflateBound(&compress_stream, uncompressed_payload.size()), '\0');
+	std::string compressed_payload(	deflateBound(&compress_stream, to_uint(uncompressed_payload.size())), '\0');
 	compress_stream.next_out = reinterpret_cast<util::byte*>(&compressed_payload.front());
-	compress_stream.avail_out = compressed_payload.size();
+	compress_stream.avail_out = to_uint(compressed_payload.size());
 
 	if (deflate(&compress_stream, Z_SYNC_FLUSH) != Z_OK) {
 		throw std::runtime_error("error during zlib compression");
@@ -100,12 +106,12 @@ util::bytes Compressor_zlib::decompress(const Mysqlx::Connection::Compression& m
 {
 	const std::string& compressed_payload = message.payload();
 	decompress_stream.next_in = reinterpret_cast<util::byte*>(const_cast<char*>(compressed_payload.data()));
-	decompress_stream.avail_in = compressed_payload.size();
+	decompress_stream.avail_in = to_uint(compressed_payload.size());
 
 	const std::size_t uncompressed_size = static_cast<std::size_t>(message.uncompressed_size());
 	util::bytes uncompressed_payload(uncompressed_size);
 	decompress_stream.next_out = uncompressed_payload.data();
-	decompress_stream.avail_out = uncompressed_size;
+	decompress_stream.avail_out = to_uint(uncompressed_size);
 
 	if (inflate(&decompress_stream, Z_SYNC_FLUSH) != Z_OK) {
 		inflateReset(&decompress_stream);
