@@ -1035,11 +1035,6 @@ function expose_binaries_metadata() {
 	metafile.WriteLine("thread-safety: " + PHP_ZTS);
 	metafile.WriteLine("debug: " + PHP_DEBUG);
 	metafile.WriteLine("developer-mode: " + PHP_DEV_MODE);
-	metafile.WriteLine("--with-boost: " + PHP_BOOST);
-	metafile.WriteLine("--with-protobuf: " + PHP_PROTOBUF);
-	metafile.WriteLine("--with-lz4: " + PHP_LZ4);
-	metafile.WriteLine("--with-zlib: " + PHP_ZLIB);
-	metafile.WriteLine("--with-zstd: " + PHP_ZSTD);
 	write_metadata_from_define("MYSQL_XDEVAPI_BOOST_ROOT", metafile);
 	write_metadata_from_define("MYSQL_XDEVAPI_PROTOBUF_ROOT", metafile);
 	metafile.WriteLine("extra-includes: " + PHP_EXTRA_INCLUDES);
@@ -1058,11 +1053,13 @@ function expose_binaries_metadata() {
 
 	metafile.WriteLine("===== Libraries: =====");
 
+	metafile.WriteLine("--with-boost: " + PHP_BOOST);
 	metafile.WriteLine("boost: " + this.boost_version);
 	metafile.WriteLine("boost-root: " + this.boost_root);
 
 	metafile.WriteBlankLines(1);
 
+	metafile.WriteLine("--with-protobuf: " + PHP_PROTOBUF);
 	var protobuf_version_cmd = this.protoc_path + ' --version';
 	var protobuf_version = run_command(protobuf_version_cmd);
 	metafile.WriteLine("protbuf: " + protobuf_version);
@@ -1072,18 +1069,21 @@ function expose_binaries_metadata() {
 
 	metafile.WriteBlankLines(1);
 
+	metafile.WriteLine("--with-lz4: " + PHP_LZ4);
 	metafile.WriteLine("lz4-lib-path: " + extract_full_path(this.lz4_lib_path));
 	metafile.WriteLine("lz4-include-dir: " + this.lz4_include_dir);
 	metafile.WriteLine("lz4-enabled: " + this.lz4_enabled);
 
 	metafile.WriteBlankLines(1);
 
+	metafile.WriteLine("--with-zlib: " + PHP_ZLIB);
 	metafile.WriteLine("zlib-lib-path: " + extract_full_path(this.zlib_lib_path));
 	metafile.WriteLine("zlib-include-dir: " + this.zlib_include_dir);
 	metafile.WriteLine("zlib-enabled: " + this.zlib_enabled);
 
 	metafile.WriteBlankLines(1);
 
+	metafile.WriteLine("--with-zstd: " + PHP_ZSTD);
 	metafile.WriteLine("zstd-lib-path: " + extract_full_path(this.zstd_lib_path));
 	metafile.WriteLine("zstd-include-dir: " + this.zstd_include_dir);
 	metafile.WriteLine("zstd-enabled: " + this.zstd_enabled);
