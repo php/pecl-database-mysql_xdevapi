@@ -90,7 +90,7 @@ std::string Compressor_zlib::compress(const util::bytes& uncompressed_payload)
 	compress_stream.avail_in = to_uint(uncompressed_payload.size());
 
 	const std::size_t previous_total_out = compress_stream.total_out;
-	std::string compressed_payload(	deflateBound(&compress_stream, to_uint(uncompressed_payload.size())), '\0');
+	std::string compressed_payload(deflateBound(&compress_stream, to_uint(uncompressed_payload.size())), '\0');
 	compress_stream.next_out = reinterpret_cast<util::byte*>(&compressed_payload.front());
 	compress_stream.avail_out = to_uint(compressed_payload.size());
 

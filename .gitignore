@@ -176,6 +176,7 @@ coverage*
 # Extension specifc ignores
 */configure.in
 configure.in
+in
 */ltmain.sh
 */libs.mk
 */build
@@ -208,3 +209,4 @@ Release_TSDbg
 Release_TS_inline
 Release_inline
 .vs
+.vscode
