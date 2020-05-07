@@ -35,6 +35,23 @@ namespace compression {
 
 namespace {
 
+struct lz4_exception : public std::runtime_error
+{
+	lz4_exception(LZ4F_errorCode_t err_code, const char* prefix)
+		: std::runtime_error(prepare_error_message(err_code, prefix))
+	{
+	}
+
+	std::string prepare_error_message(LZ4F_errorCode_t err_code, const char* prefix) const
+	{
+		std::ostringstream msg;
+		msg << prefix << '(' << err_code << "): " << LZ4F_getErrorName(err_code);
+		return msg.str();
+	}
+};
+
+// ----------------
+
 class Compressor_lz4 : public Compressor
 {
 public:
@@ -46,6 +63,10 @@ public:
 	util::bytes decompress(const Mysqlx::Connection::Compression& message) override;
 
 private:
+	void checked_op(std::size_t result, const char* reason);
+	void create_compression_ctx();
+	void create_decompression_ctx();
+	void free_decompression_ctx();
 	void reset_decompression_context();
 
 private:
@@ -54,15 +75,12 @@ private:
 	LZ4F_preferences_t lz4_prefs{};
 };
 
+// ----------------
+
 Compressor_lz4::Compressor_lz4()
 {
-	if (LZ4F_isError(LZ4F_createCompressionContext(&compress_ctx, LZ4F_VERSION))) {
-		throw std::runtime_error("cannot create lz4 compression context");
-	}
-
-	if (LZ4F_isError(LZ4F_createDecompressionContext(&decompress_ctx, LZ4F_VERSION))) {
-		throw std::runtime_error("cannot create lz4 decompression context");
-	}
+	create_compression_ctx();
+	create_decompression_ctx();
 
 	lz4_prefs.autoFlush = 1;
 	lz4_prefs.frameInfo.contentSize = 0;
@@ -81,7 +99,7 @@ std::string Compressor_lz4::compress(const util::bytes& uncompressed_payload)
 		if (LZ4F_isError(result)) {
 			LZ4F_freeCompressionContext(compress_ctx);
 			compress_ctx = nullptr;
-			throw std::runtime_error("error during lz4 compression");
+			throw lz4_exception(result, "error during lz4 compression");
 		}
 	};
 
@@ -94,6 +112,12 @@ std::string Compressor_lz4::compress(const util::bytes& uncompressed_payload)
 		&lz4_prefs);
 	assert_lz4_result(lz4_op_result);
 	std::size_t written_bytes = lz4_op_result;
+
+#if LZ4_VERSION_NUMBER < 10703
+	// for older versions add header size to compressed_payload length, else LZ4F_compressUpdate
+	// will fail due to too small dst buffer (error status LZ4F_ERROR_dstMaxSize_tooSmall)
+	compressed_payload.resize(compressed_payload.size() + written_bytes);
+#endif
 
 	lz4_op_result = LZ4F_compressUpdate(
 		compress_ctx,
@@ -145,7 +169,7 @@ util::bytes Compressor_lz4::decompress(const Mysqlx::Connection::Compression& me
 
 		if (LZ4F_isError(result)) {
 			reset_decompression_context();
-			throw std::runtime_error("error during lz4 decompression");
+			throw lz4_exception(result, "error during lz4 decompression");
 		}
 
 		all_processed_bytes += bytes_to_process;
@@ -160,18 +184,41 @@ util::bytes Compressor_lz4::decompress(const Mysqlx::Connection::Compression& me
 	return uncompressed_payload;
 }
 
+void Compressor_lz4::checked_op(std::size_t result, const char* reason)
+{
+	if (LZ4F_isError(result)) {
+		throw lz4_exception(result, reason);
+	}
+}
+
+void Compressor_lz4::create_compression_ctx()
+{
+	checked_op(
+		LZ4F_createCompressionContext(&compress_ctx, LZ4F_VERSION),
+		"cannot create lz4 compression context");
+}
+
+void Compressor_lz4::create_decompression_ctx()
+{
+	checked_op(
+		LZ4F_createDecompressionContext(&decompress_ctx, LZ4F_VERSION),
+		"cannot create lz4 decompression context");
+}
+
+void Compressor_lz4::free_decompression_ctx()
+{
+	checked_op(
+		LZ4F_freeDecompressionContext(decompress_ctx),
+		"cannot free lz4 decompression context");
+}
+
 void Compressor_lz4::reset_decompression_context()
 {
 #if LZ4_VERSION_NUMBER >= 10800
 	LZ4F_resetDecompressionContext(decompress_ctx);
 #else
-	if (LZ4F_isError(LZ4F_freeDecompressionContext(decompress_ctx))) {
-		throw std::runtime_error("cannot free lz4 decompression context");
-	}
-
-	if (LZ4F_isError(LZ4F_createDecompressionContext(&decompress_ctx, LZ4F_VERSION))) {
-		throw std::runtime_error("cannot create lz4 decompression context");
-	}
+	free_decompression_ctx();
+	create_decompression_ctx();
 #endif
 }
 
