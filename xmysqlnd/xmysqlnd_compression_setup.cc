@@ -44,9 +44,48 @@ const std::string ALGORITHM_ZLIB_STREAM{ "zlib_stream" };
 const std::string ALGORITHM_DEFLATE_STREAM{ "deflate_stream" };
 const std::string ALGORITHM_ZLIB_DEFLATE_STREAM{ "deflate_stream" };
 
+const std::string ALGORITHM_ALIAS_ZSTD{ "zstd" };
+const std::string ALGORITHM_ALIAS_LZ4{ "lz4" };
+const std::string ALGORITHM_ALIAS_ZLIB{ "zlib" };
+const std::string ALGORITHM_ALIAS_DEFLATE{ "deflate" };
+
 // ----------------------------------------------------------------------------
 
 using Algorithms = std::vector<Algorithm>;
+
+Algorithm to_algorithm(const std::string& algorithm_name)
+{
+	using name_to_algorithm = std::map<std::string, Algorithm, util::iless>;
+	static const name_to_algorithm algorithm_mapping{
+		{ ALGORITHM_ZSTD_STREAM, Algorithm::zstd_stream },
+		{ ALGORITHM_LZ4_MESSAGE, Algorithm::lz4_message },
+		{ ALGORITHM_DEFLATE_STREAM, Algorithm::zlib_deflate_stream },
+		{ ALGORITHM_ZLIB_STREAM, Algorithm::zlib_deflate_stream },
+
+		{ ALGORITHM_ALIAS_ZSTD, Algorithm::zstd_stream },
+		{ ALGORITHM_ALIAS_LZ4, Algorithm::lz4_message },
+		{ ALGORITHM_ALIAS_ZLIB, Algorithm::zlib_deflate_stream },
+		{ ALGORITHM_ALIAS_DEFLATE, Algorithm::zlib_deflate_stream },
+	};
+
+	auto it{ algorithm_mapping.find(algorithm_name) };
+	return (it != algorithm_mapping.end()) ? it->second : Algorithm::none;
+}
+
+Algorithms to_algorithms(const util::std_strings& algorithm_names)
+{
+	Algorithms algorithms;
+	for (const std::string& algorithm_name : algorithm_names) {
+		const Algorithm algorithm{ to_algorithm(algorithm_name) };
+		if (algorithm != Algorithm::none) {
+			algorithms.push_back(algorithm);
+		}
+	}
+	return algorithms;
+}
+
+
+// ----------------------------------------------------------------------------
 
 struct Capabilities
 {
@@ -93,19 +132,10 @@ void Gather_capabilities::add_supported_algorithm(const util::zvalue& zalgorithm
 	if (!zalgorithm.is_string()) return;
 
 	const std::string& algorithm_name{ zalgorithm.to_std_string() };
-	using name_to_algorithm = std::map<std::string, Algorithm, util::iless>;
-	static const name_to_algorithm algorithm_mapping{
-		{ ALGORITHM_ZSTD_STREAM, Algorithm::zstd_stream },
-		{ ALGORITHM_LZ4_MESSAGE, Algorithm::lz4_message },
-		{ ALGORITHM_DEFLATE_STREAM, Algorithm::zlib_deflate_stream },
-		{ ALGORITHM_ZLIB_STREAM, Algorithm::zlib_deflate_stream },
-	};
-
-	auto it{ algorithm_mapping.find(algorithm_name) };
-	if (it == algorithm_mapping.end()) return;
-
-	const Algorithm algorithm{ it->second };
-	capabilities.supported_algorithms.push_back(algorithm);
+	const Algorithm algorithm{ to_algorithm(algorithm_name) };
+	if (algorithm != Algorithm::none) {
+		capabilities.supported_algorithms.push_back(algorithm);
+	}
 }
 
 bool Gather_capabilities::add_supported_algorithms(const util::zvalue& compression_caps)
@@ -211,18 +241,15 @@ const enum_hnd_func_status Negotiate::handler_on_error(
 class Setup
 {
 public:
-	Setup(
-		Policy policy,
-		st_xmysqlnd_message_factory& msg_factory,
-		Configuration& negotiated_config);
+	Setup(const Setup_data& data);
 
 public:
-	void run(const util::zvalue& capabilities);
+	Configuration run(const util::zvalue& capabilities);
 
 private:
+	Algorithms prepare_algorithms_to_negotiate(const util::std_strings& custom_algorithms_order) const;
 	bool gather_capabilities(const util::zvalue& raw_capabilities);
 	bool negotiate();
-	Algorithms get_negotiated_algorithms() const;
 	bool negotiate(const Configuration& config);
 
 	bool is_algorithm_supported(Algorithm algorithm) const;
@@ -232,26 +259,26 @@ private:
 
 private:
 	const Policy policy;
+	const Algorithms algorithms;
 	st_xmysqlnd_message_factory& msg_factory;
 	Capabilities capabilities;
-	Configuration& negotiated_config;
+	Configuration negotiated_config;
 };
 
 // ------------------------------------------
 
-Setup::Setup(
-	Policy policy,
-	st_xmysqlnd_message_factory& msg_factory,
-	Configuration& negotiated_config)
-	: policy(policy)
-	, msg_factory(msg_factory)
-	, negotiated_config(negotiated_config)
+Setup::Setup(const Setup_data& data)
+	: policy(data.policy)
+	, algorithms(prepare_algorithms_to_negotiate(data.algorithms))
+	, msg_factory(data.msg_factory)
 {
 }
 
-void Setup::run(const util::zvalue& raw_capabilities)
+Configuration Setup::run(const util::zvalue& raw_capabilities)
 {
-	if (policy == compression::Policy::disabled) return;
+	if (policy == compression::Policy::disabled) {
+		return negotiated_config;
+	}
 
 	const bool required = (policy == compression::Policy::required);
 
@@ -266,9 +293,27 @@ void Setup::run(const util::zvalue& raw_capabilities)
 	if (!negotiate() && required) {
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::compression_negotiation_failure);
 	}
+
+	return negotiated_config;
 }
 
 // ------------------------------------------
+
+Algorithms Setup::prepare_algorithms_to_negotiate(
+	const util::std_strings& custom_algorithms_order) const
+{
+	if (!custom_algorithms_order.empty()) {
+		// prepare custom list of algorithms to negotiate
+		return to_algorithms(custom_algorithms_order);
+	}
+
+	// default order of algorithms to negotiate
+	return Algorithms{
+		Algorithm::zstd_stream,
+		Algorithm::lz4_message,
+		Algorithm::zlib_deflate_stream
+	};
+}
 
 bool Setup::gather_capabilities(const util::zvalue& raw_capabilities)
 {
@@ -278,7 +323,6 @@ bool Setup::gather_capabilities(const util::zvalue& raw_capabilities)
 
 bool Setup::negotiate()
 {
-	const Algorithms algorithms{ get_negotiated_algorithms() };
 	for (auto algorithm : algorithms) {
 		if (!is_algorithm_supported(algorithm)) continue;
 
@@ -290,16 +334,6 @@ bool Setup::negotiate()
 	}
 
 	return false;
-}
-
-Algorithms Setup::get_negotiated_algorithms() const
-{
-	// algorithms in the order how they should be negotiated
-	return Algorithms{
-		Algorithm::zstd_stream,
-		Algorithm::lz4_message,
-		Algorithm::zlib_deflate_stream
-	};
 }
 
 bool Setup::negotiate(const Configuration& config)
@@ -326,7 +360,6 @@ bool Setup::is_algorithm_supported_by_server(Algorithm algorithm) const
 
 bool Setup::is_any_compressor_available() const
 {
-	const Algorithms algorithms{ get_negotiated_algorithms() };
 	return std::any_of(
 		algorithms.begin(),
 		algorithms.end(),
@@ -354,14 +387,10 @@ bool Setup::is_compressor_available(const Algorithm algorithm) const
 
 // ----------------------------------------------------------------------------
 
-void run_setup(
-	Policy policy,
-	st_xmysqlnd_message_factory& msg_factory,
-	const util::zvalue& capabilities,
-	Configuration& negotiated_config)
+Configuration run_setup(const Setup_data& data)
 {
-	Setup setup(policy, msg_factory, negotiated_config);
-	setup.run(capabilities);
+	Setup setup(data);
+	return setup.run(data.capabilities);
 }
 
 } // namespace compression

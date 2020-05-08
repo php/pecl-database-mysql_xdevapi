@@ -20,6 +20,7 @@
 #define XMYSQLND_COMPRESSION_SETUP_H
 
 #include "xmysqlnd_compression_types.h"
+#include "util/strings.h"
 
 namespace mysqlx {
 
@@ -31,11 +32,15 @@ struct st_xmysqlnd_message_factory;
 
 namespace compression {
 
-void run_setup(
-	Policy policy,
-	st_xmysqlnd_message_factory& msg_factory,
-	const util::zvalue& capabilities,
-	Configuration& negotiated_config);
+struct Setup_data
+{
+	Policy policy;
+	const util::std_strings& algorithms;
+	st_xmysqlnd_message_factory& msg_factory;
+	const util::zvalue& capabilities;
+};
+
+Configuration run_setup(const Setup_data& data);
 
 } // namespace compression
 

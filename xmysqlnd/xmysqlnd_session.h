@@ -191,6 +191,7 @@ struct Session_auth_data
 	std::string password;
 	boost::optional<int> connection_timeout;
 	compression::Policy compression_policy{ compression::Policy::preferred };
+	util::std_strings compression_algorithms;
 
 	//SSL information
 	SSL_mode ssl_mode;
