@@ -1,13 +1,9 @@
 --TEST--
-mysqlx compression options
+mysqlx compression mode
 --SKIPIF--
 --FILE--
 <?php
-require("connect.inc");
-
-const Compression_disabled_msg =
-	"[10079][HY000] To enable given compression algorithm please build mysql_xdevapi with proper ".
-	"switch like --with-(zlib|lz4|zstd)=[DIR].";
+require("compression_utils.inc");
 
 // ---------------------------------------
 // correct options lower-case
