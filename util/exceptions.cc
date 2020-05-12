@@ -136,6 +136,7 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 		"To enable given compression algorithm please build mysql_xdevapi with proper switch like --with-(zlib|lz4|zstd)=[DIR]."},
 	{ xdevapi_exception::Code::compression_negotiation_failure,
 		"Compression requested but the compression algorithm negotiation failed."},
+	{ xdevapi_exception::Code::compression_invalid_algorithm_name, "Invalid algorithm name:" },
 };
 
 /* {{{ to_sql_state */

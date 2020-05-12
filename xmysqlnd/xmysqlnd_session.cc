@@ -2789,6 +2789,7 @@ private:
 	bool parse_boolean(const std::string& value_str) const;
 	int parse_int(const std::string& value_str) const;
 	compression::Policy parse_compression_policy(const std::string& compression_policy_str) const;
+	void verify_compression_algorithm(const std::string& algorithm_name) const;
 
 private:
 	const util::string& option_name;
@@ -3088,7 +3089,11 @@ void Extract_client_option::set_compression(const std::string& compression_polic
 
 void Extract_client_option::set_compression_algorithms(const std::string& compression_algorithms_str)
 {
-	auth.compression_algorithms = parse_single_or_array(compression_algorithms_str);
+	util::std_strings compression_algorithms = parse_single_or_array(compression_algorithms_str);
+	for (const auto& algorithm_name : compression_algorithms) {
+		verify_compression_algorithm(algorithm_name);
+	}
+	auth.compression_algorithms = std::move(compression_algorithms);
 }
 
 // -----------------
@@ -3180,6 +3185,25 @@ compression::Policy Extract_client_option::parse_compression_policy(
 
 	return it->second;
 }
+
+void Extract_client_option::verify_compression_algorithm(const std::string& algorithm_name) const
+{
+	bool is_valid_name = std::all_of(
+		algorithm_name.begin(),
+		algorithm_name.end(),
+		[](const char chr){ return std::isalnum(chr) || (chr == '_'); });
+
+	if (!is_valid_name) {
+		util::ostringstream os;
+		os << util::quotation_if_blank(algorithm_name)
+			<< " not recognized as a correct name of compression algorithm";
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::compression_invalid_algorithm_name,
+			os.str());
+	}
+}
+
+// -----------------
 
 enum_func_status extract_client_option(
 	const util::string& option_name,

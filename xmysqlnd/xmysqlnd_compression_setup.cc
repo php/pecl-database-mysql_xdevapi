@@ -247,7 +247,8 @@ public:
 	Configuration run(const util::zvalue& capabilities);
 
 private:
-	Algorithms prepare_algorithms_to_negotiate(const util::std_strings& custom_algorithms_order) const;
+	Algorithms prepare_algorithms_to_negotiate(
+		const boost::optional<util::std_strings>& algorithms_custom_order) const;
 	bool gather_capabilities(const util::zvalue& raw_capabilities);
 	bool negotiate();
 	bool negotiate(const Configuration& config);
@@ -300,11 +301,11 @@ Configuration Setup::run(const util::zvalue& raw_capabilities)
 // ------------------------------------------
 
 Algorithms Setup::prepare_algorithms_to_negotiate(
-	const util::std_strings& custom_algorithms_order) const
+	const boost::optional<util::std_strings>& algorithms_custom_order) const
 {
-	if (!custom_algorithms_order.empty()) {
+	if (algorithms_custom_order) {
 		// prepare custom list of algorithms to negotiate
-		return to_algorithms(custom_algorithms_order);
+		return to_algorithms(*algorithms_custom_order);
 	}
 
 	// default order of algorithms to negotiate

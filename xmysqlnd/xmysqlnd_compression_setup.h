@@ -35,7 +35,7 @@ namespace compression {
 struct Setup_data
 {
 	Policy policy;
-	const util::std_strings& algorithms;
+	const boost::optional<util::std_strings>& algorithms;
 	st_xmysqlnd_message_factory& msg_factory;
 	const util::zvalue& capabilities;
 };
