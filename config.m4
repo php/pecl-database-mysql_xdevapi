@@ -340,6 +340,14 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 	fi
 
 	case $host_os in
+		*freebsd*)
+			dnl due to unknown reason AC_CHECK_HEADER and AC_CHECK_LIB don't search
+			dnl /usr/local/* locations on FreeBSD, at least on our local testing farm (pb2)
+			dnl adding them explicitly is patch to fix that case
+			MYSQL_XDEVAPI_ADD_DIRS_TO_INCLUDE_SEARCH_PATH("/usr/local/include")
+			MYSQL_XDEVAPI_ADD_DIRS_TO_LIB_SEARCH_PATH("/usr/local/lib")
+			;;
+
 		*darwin*)
 			dnl On macOS there is problem with older protobuf libs which call deprecated
 			dnl atomic functions. It generates warnings, but causes compilation errors in
