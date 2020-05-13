@@ -447,7 +447,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 	PHP_ADD_INCLUDE([$ext_srcdir/xmysqlnd/cdkbase/extra/rapidjson/include])
 
 	PHP_ADD_BUILD_DIR([$ext_srcdir])
-	PHP_ADD_BUILD_DIR([$ext_srcdir/phputils])
+	PHP_ADD_BUILD_DIR([$ext_srcdir/util])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/crud_parsers])
 	PHP_ADD_BUILD_DIR([$ext_srcdir/xmysqlnd/proto_gen])
