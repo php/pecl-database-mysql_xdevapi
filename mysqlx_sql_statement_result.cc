@@ -122,8 +122,8 @@ static int mysqlx_sql_statement_read_next_result(st_mysqlx_sql_statement_result*
 	if (PASS == object->send_query_status) {
 		xmysqlnd_stmt * stmt = object->stmt;
 
-		const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_result_on_warning, nullptr };
-		const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_result_on_error, nullptr };
+		const st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_result_on_warning, nullptr };
+		const st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_result_on_error, nullptr };
 		XMYSQLND_STMT_RESULT * result;
 
 		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
@@ -517,7 +517,7 @@ static const zend_function_entry mysqlx_sql_statement_result_methods[] = {
 static zend_object_handlers mysqlx_object_sql_statement_result_handlers;
 static HashTable mysqlx_sql_statement_result_properties;
 
-const struct st_mysqlx_property_entry mysqlx_sql_statement_result_property_entries[] =
+const st_mysqlx_property_entry mysqlx_sql_statement_result_property_entries[] =
 {
 	{{nullptr,	0}, nullptr, nullptr}
 };

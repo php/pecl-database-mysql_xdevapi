@@ -498,7 +498,7 @@ mysqlx_table__select_property__name(const st_mysqlx_object* obj, zval* return_va
 static zend_object_handlers mysqlx_object_table__select_handlers;
 static HashTable mysqlx_table__select_properties;
 
-const struct st_mysqlx_property_entry mysqlx_table__select_property_entries[] =
+const st_mysqlx_property_entry mysqlx_table__select_property_entries[] =
 {
 #if 0
 	{{"name",	sizeof("name") - 1}, mysqlx_table__select_property__name,	nullptr},

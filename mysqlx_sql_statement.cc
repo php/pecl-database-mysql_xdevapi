@@ -371,11 +371,11 @@ mysqlx_fetch_data_with_callback(st_mysqlx_statement* object, st_xmysqlnd_exec_wi
 	const zend_bool on_rset_end_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_rset_end.fci);
 	const zend_bool on_stmt_ok_passed = ZEND_FCI_INITIALIZED(xmysqlnd_exec_with_cb_ctx->on_stmt_ok.fci);
 
-	const struct st_xmysqlnd_stmt_on_row_bind on_row = { exec_with_cb_handle_on_row, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { exec_with_cb_handle_on_warning, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_stmt_on_error_bind on_error = { exec_with_cb_handle_on_error, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_stmt_on_result_end_bind on_resultset_end = { on_rset_end_passed? exec_with_cb_handle_on_resultset_end : nullptr, xmysqlnd_exec_with_cb_ctx };
-	const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = { on_stmt_ok_passed? exec_with_cb_handle_on_statement_ok : nullptr, xmysqlnd_exec_with_cb_ctx };
+	const st_xmysqlnd_stmt_on_row_bind on_row = { exec_with_cb_handle_on_row, xmysqlnd_exec_with_cb_ctx };
+	const st_xmysqlnd_stmt_on_warning_bind on_warning = { exec_with_cb_handle_on_warning, xmysqlnd_exec_with_cb_ctx };
+	const st_xmysqlnd_stmt_on_error_bind on_error = { exec_with_cb_handle_on_error, xmysqlnd_exec_with_cb_ctx };
+	const st_xmysqlnd_stmt_on_result_end_bind on_resultset_end = { on_rset_end_passed? exec_with_cb_handle_on_resultset_end : nullptr, xmysqlnd_exec_with_cb_ctx };
+	const st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok = { on_stmt_ok_passed? exec_with_cb_handle_on_statement_ok : nullptr, xmysqlnd_exec_with_cb_ctx };
 
 	DBG_ENTER("mysqlx_fetch_data_with_callback");
 
@@ -473,8 +473,8 @@ mysqlx_sql_statement_get_results(
 			DBG_INF("ASYNC");
 			RETVAL_BOOL(PASS == object->send_query_status);
 		} else {
-			const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
-			const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
+			const st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
+			const st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
 			XMYSQLND_STMT_RESULT * result;
 			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
 				result = stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
@@ -616,8 +616,8 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 		if (use_callbacks) {
 			RETVAL_BOOL(PASS == mysqlx_fetch_data_with_callback(&data_object, &xmysqlnd_exec_with_cb_ctx));
 		} else {
-			const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
-			const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
+			const st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
+			const st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
 			XMYSQLND_STMT_RESULT * result;
 
 			if (data_object.execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
@@ -664,7 +664,7 @@ static const zend_function_entry mysqlx_sql_statement_methods[] = {
 static zend_object_handlers mysqlx_object_sql_statement_handlers;
 static HashTable mysqlx_sql_statement_properties;
 
-const struct st_mysqlx_property_entry mysqlx_sql_statement_property_entries[] =
+const st_mysqlx_property_entry mysqlx_sql_statement_property_entries[] =
 {
 	{{nullptr,	0}, nullptr, nullptr}
 };
@@ -774,8 +774,8 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 			DBG_INF("ASYNC");
 			RETVAL_BOOL(PASS == object->send_query_status);
 		} else {
-				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
-				const struct st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
+				const st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
+				const st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
 				XMYSQLND_STMT_RESULT * result;
 				if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
 					result = stmt->get_buffered_result(stmt,
@@ -899,7 +899,7 @@ static const zend_function_entry mysqlx_statement_methods[] = {
 static zend_object_handlers mysqlx_object_statement_handlers;
 static HashTable mysqlx_statement_properties;
 
-const struct st_mysqlx_property_entry mysqlx_statement_property_entries[] =
+const st_mysqlx_property_entry mysqlx_statement_property_entries[] =
 {
 	{{nullptr,	0}, nullptr, nullptr}
 };

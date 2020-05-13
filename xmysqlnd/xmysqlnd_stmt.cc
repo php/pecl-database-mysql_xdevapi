@@ -48,7 +48,7 @@ xmysqlnd_stmt::xmysqlnd_stmt(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_fa
 
 enum_func_status
 xmysqlnd_stmt::send_raw_message(xmysqlnd_stmt * const stmt,
-													  const struct st_xmysqlnd_pb_message_shell message_shell,
+													  const st_xmysqlnd_pb_message_shell message_shell,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info)
 {
@@ -285,11 +285,11 @@ handler_on_statement_ok(void * context)
 
 enum_func_status
 xmysqlnd_stmt::read_one_result(xmysqlnd_stmt * const stmt,
-													 const struct st_xmysqlnd_stmt_on_row_bind on_row,
-													 const struct st_xmysqlnd_stmt_on_warning_bind on_warning,
-													 const struct st_xmysqlnd_stmt_on_error_bind on_error,
-													 const struct st_xmysqlnd_stmt_on_result_end_bind on_resultset_end,
-													 const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok,
+													 const st_xmysqlnd_stmt_on_row_bind on_row,
+													 const st_xmysqlnd_stmt_on_warning_bind on_warning,
+													 const st_xmysqlnd_stmt_on_error_bind on_error,
+													 const st_xmysqlnd_stmt_on_result_end_bind on_resultset_end,
+													 const st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok,
 													 zend_bool * const has_more_results,
 													 MYSQLND_STATS * const stats,
 													 MYSQLND_ERROR_INFO * const error_info)
@@ -314,17 +314,17 @@ xmysqlnd_stmt::read_one_result(xmysqlnd_stmt * const stmt,
 		on_resultset_end,
 		on_statement_ok,
 	};
-	const struct st_xmysqlnd_meta_field_create_bind create_meta_field_bind = { create_meta_field, &create_ctx };
-	const struct st_xmysqlnd_on_row_field_bind handler_on_row_field_msg = { on_row.handler? handler_on_row_field : nullptr, &create_ctx };
-	const struct st_xmysqlnd_on_meta_field_bind handler_on_meta_field_msg = { handler_on_meta_field, &create_ctx };
-	const struct st_xmysqlnd_on_warning_bind handler_on_warning_msg = { on_warning.handler? handler_on_warning : nullptr, &create_ctx };
-	const struct st_xmysqlnd_on_error_bind handler_on_error_msg = { on_error.handler? handler_on_error : nullptr , on_error.handler? &create_ctx : nullptr };
-	const struct st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids_msg = {handler_on_generated_doc_ids, &read_ctx };
-	const struct st_xmysqlnd_on_execution_state_change_bind handler_on_exec_state_change_msg = { handler_on_exec_state_change, &create_ctx };
-	const struct st_xmysqlnd_on_session_var_change_bind handler_on_session_var_change = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_trx_state_change_bind handler_on_trx_state_change_msg = { handler_on_trx_state_change, &create_ctx };
-	const struct st_xmysqlnd_on_stmt_execute_ok_bind handler_on_stmt_execute_ok = { on_resultset_end.handler? handler_on_statement_ok : nullptr, &create_ctx };
-	const struct st_xmysqlnd_on_resultset_end_bind handler_on_resultset_end_msg = { on_statement_ok.handler? handler_on_resultset_end : nullptr, &create_ctx };
+	const st_xmysqlnd_meta_field_create_bind create_meta_field_bind = { create_meta_field, &create_ctx };
+	const st_xmysqlnd_on_row_field_bind handler_on_row_field_msg = { on_row.handler? handler_on_row_field : nullptr, &create_ctx };
+	const st_xmysqlnd_on_meta_field_bind handler_on_meta_field_msg = { handler_on_meta_field, &create_ctx };
+	const st_xmysqlnd_on_warning_bind handler_on_warning_msg = { on_warning.handler? handler_on_warning : nullptr, &create_ctx };
+	const st_xmysqlnd_on_error_bind handler_on_error_msg = { on_error.handler? handler_on_error : nullptr , on_error.handler? &create_ctx : nullptr };
+	const st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids_msg = {handler_on_generated_doc_ids, &read_ctx };
+	const st_xmysqlnd_on_execution_state_change_bind handler_on_exec_state_change_msg = { handler_on_exec_state_change, &create_ctx };
+	const st_xmysqlnd_on_session_var_change_bind handler_on_session_var_change = { nullptr, nullptr };
+	const st_xmysqlnd_on_trx_state_change_bind handler_on_trx_state_change_msg = { handler_on_trx_state_change, &create_ctx };
+	const st_xmysqlnd_on_stmt_execute_ok_bind handler_on_stmt_execute_ok = { on_resultset_end.handler? handler_on_statement_ok : nullptr, &create_ctx };
+	const st_xmysqlnd_on_resultset_end_bind handler_on_resultset_end_msg = { on_statement_ok.handler? handler_on_resultset_end : nullptr, &create_ctx };
 
 	DBG_ENTER("xmysqlnd_stmt::read_one_result");
 	DBG_INF_FMT("on_row.handler=%p", on_row.handler);
@@ -382,12 +382,12 @@ xmysqlnd_stmt::read_one_result(xmysqlnd_stmt * const stmt,
 
 enum_func_status
 xmysqlnd_stmt::read_all_results(xmysqlnd_stmt * const stmt,
-													  const struct st_xmysqlnd_stmt_on_row_bind on_row,
-													  const struct st_xmysqlnd_stmt_on_warning_bind on_warning,
-													  const struct st_xmysqlnd_stmt_on_error_bind on_error,
-													  const struct st_xmysqlnd_stmt_on_result_start_bind on_result_start,
-													  const struct st_xmysqlnd_stmt_on_result_end_bind on_resultset_end,
-													  const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok,
+													  const st_xmysqlnd_stmt_on_row_bind on_row,
+													  const st_xmysqlnd_stmt_on_warning_bind on_warning,
+													  const st_xmysqlnd_stmt_on_error_bind on_error,
+													  const st_xmysqlnd_stmt_on_result_start_bind on_result_start,
+													  const st_xmysqlnd_stmt_on_result_end_bind on_resultset_end,
+													  const st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info)
 {
@@ -423,8 +423,8 @@ xmysqlnd_stmt::has_more_results(xmysqlnd_stmt * stmt)
 XMYSQLND_STMT_RESULT *
 xmysqlnd_stmt::get_buffered_result(xmysqlnd_stmt * const stmt,
 														 zend_bool * const has_more_results,
-														 const struct st_xmysqlnd_stmt_on_warning_bind handler_on_warning_bind,
-														 const struct st_xmysqlnd_stmt_on_error_bind handler_on_error_bind,
+														 const st_xmysqlnd_stmt_on_warning_bind handler_on_warning_bind,
+														 const st_xmysqlnd_stmt_on_error_bind handler_on_error_bind,
 														 MYSQLND_STATS * const stats,
 														 MYSQLND_ERROR_INFO * const error_info)
 {
@@ -450,25 +450,25 @@ xmysqlnd_stmt::get_buffered_result(xmysqlnd_stmt * const stmt,
 		{ nullptr, nullptr },	/* on_statement_ok */
 	};
 
-	const struct st_xmysqlnd_meta_field_create_bind create_meta_field_bind = {
+	const st_xmysqlnd_meta_field_create_bind create_meta_field_bind = {
 		create_meta_field, &create_ctx };
-	const struct st_xmysqlnd_on_row_field_bind on_row_field = {
+	const st_xmysqlnd_on_row_field_bind on_row_field = {
 		handler_on_row_field, &create_ctx };
-	const struct st_xmysqlnd_on_meta_field_bind on_meta_field = {
+	const st_xmysqlnd_on_meta_field_bind on_meta_field = {
 		handler_on_meta_field, &create_ctx };
-	const struct st_xmysqlnd_on_warning_bind on_warning = {
+	const st_xmysqlnd_on_warning_bind on_warning = {
 		handler_on_warning_bind.handler? handler_on_warning : nullptr, &create_ctx };
-	const struct st_xmysqlnd_on_error_bind on_error = {
+	const st_xmysqlnd_on_error_bind on_error = {
 		(handler_on_error_bind.handler || error_info) ? handler_on_error : nullptr, &create_ctx };
-	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = {
+	const st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = {
 		handler_on_exec_state_change, &create_ctx };
-	const struct st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids_bind = {
+	const st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids_bind = {
 		handler_on_generated_doc_ids, &read_ctx };
-	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = {
+	const st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
+	const st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = {
 		handler_on_trx_state_change, &create_ctx };
-	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
+	const st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
+	const st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
 	DBG_ENTER("xmysqlnd_stmt::get_buffered_result");
 
 	/*
@@ -531,23 +531,23 @@ xmysqlnd_stmt::get_fwd_result(xmysqlnd_stmt * const stmt,
 													const size_t rows,
 													zend_bool * const has_more_rows_in_set,
 													zend_bool * const has_more_results,
-													const struct st_xmysqlnd_stmt_on_warning_bind handler_on_warning_bind,
-													const struct st_xmysqlnd_stmt_on_error_bind handler_on_error_bind,
+													const st_xmysqlnd_stmt_on_warning_bind handler_on_warning_bind,
+													const st_xmysqlnd_stmt_on_error_bind handler_on_error_bind,
 													MYSQLND_STATS * const stats,
 													MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_STMT_RESULT* result{nullptr};
-	const struct st_xmysqlnd_meta_field_create_bind create_meta_field_bind = { create_meta_field, &read_ctx };
-	const struct st_xmysqlnd_on_row_field_bind on_row_field = { handler_on_row_field, &read_ctx };
-	const struct st_xmysqlnd_on_meta_field_bind on_meta_field = { handler_on_meta_field, &read_ctx };
-	const struct st_xmysqlnd_on_warning_bind on_warning = { handler_on_warning_bind.handler? handler_on_warning : nullptr, &read_ctx };
-	const struct st_xmysqlnd_on_error_bind on_error = { (handler_on_error_bind.handler || error_info) ? handler_on_error : nullptr, &read_ctx };
-	const struct st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids_bind = {  handler_on_generated_doc_ids, &read_ctx };
-	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { handler_on_exec_state_change, &read_ctx };
-	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
+	const st_xmysqlnd_meta_field_create_bind create_meta_field_bind = { create_meta_field, &read_ctx };
+	const st_xmysqlnd_on_row_field_bind on_row_field = { handler_on_row_field, &read_ctx };
+	const st_xmysqlnd_on_meta_field_bind on_meta_field = { handler_on_meta_field, &read_ctx };
+	const st_xmysqlnd_on_warning_bind on_warning = { handler_on_warning_bind.handler? handler_on_warning : nullptr, &read_ctx };
+	const st_xmysqlnd_on_error_bind on_error = { (handler_on_error_bind.handler || error_info) ? handler_on_error : nullptr, &read_ctx };
+	const st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids_bind = {  handler_on_generated_doc_ids, &read_ctx };
+	const st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { handler_on_exec_state_change, &read_ctx };
+	const st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
+	const st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
+	const st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
+	const st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
 	DBG_ENTER("xmysqlnd_stmt::get_fwd_result");
 	DBG_INF_FMT("rows=" MYSQLX_LLU_SPEC, rows);
 
@@ -622,17 +622,17 @@ enum_func_status
 xmysqlnd_stmt::skip_one_result(xmysqlnd_stmt * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
 	struct st_xmysqlnd_stmt_bind_ctx create_ctx = { stmt, stats, error_info };
-	const struct st_xmysqlnd_meta_field_create_bind create_meta_field = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_row_field_bind on_row_field = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_meta_field_bind on_meta_field = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_warning_bind on_warning = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_error_bind on_error = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids_bind = {handler_on_generated_doc_ids, &read_ctx };
-	const struct st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { handler_on_exec_state_change, &create_ctx };
-	const struct st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
-	const struct st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
+	const st_xmysqlnd_meta_field_create_bind create_meta_field = { nullptr, nullptr };
+	const st_xmysqlnd_on_row_field_bind on_row_field = { nullptr, nullptr };
+	const st_xmysqlnd_on_meta_field_bind on_meta_field = { nullptr, nullptr };
+	const st_xmysqlnd_on_warning_bind on_warning = { nullptr, nullptr };
+	const st_xmysqlnd_on_error_bind on_error = { nullptr, nullptr };
+	const st_xmysqlnd_on_generated_doc_ids_bind handler_on_generated_doc_ids_bind = {handler_on_generated_doc_ids, &read_ctx };
+	const st_xmysqlnd_on_execution_state_change_bind on_exec_state_change = { handler_on_exec_state_change, &create_ctx };
+	const st_xmysqlnd_on_session_var_change_bind on_session_var_change = { nullptr, nullptr };
+	const st_xmysqlnd_on_trx_state_change_bind on_trx_state_change = { nullptr, nullptr };
+	const st_xmysqlnd_on_stmt_execute_ok_bind on_stmt_execute_ok = { nullptr, nullptr };
+	const st_xmysqlnd_on_resultset_end_bind on_resultset_end = { nullptr, nullptr };
 
 	DBG_ENTER("xmysqlnd_stmt::skip_one_result");
 	if (FAIL == stmt->get_msg_stmt_exec().init_read(&stmt->get_msg_stmt_exec(),

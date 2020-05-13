@@ -95,7 +95,7 @@ mysqlx_warning_property__code(const st_mysqlx_object* obj, zval* return_value)
 	DBG_RETURN(return_value);
 }
 
-static const struct st_mysqlx_property_entry mysqlx_warning_property_entries[] =
+static const st_mysqlx_property_entry mysqlx_warning_property_entries[] =
 {
 	{{"message",			sizeof("message") - 1},		mysqlx_warning_property__message,	nullptr},
 	{{"level",				sizeof("level") - 1},		mysqlx_warning_property__level,		nullptr},

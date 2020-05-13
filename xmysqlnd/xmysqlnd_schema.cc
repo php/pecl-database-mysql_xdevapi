@@ -230,7 +230,7 @@ xmysqlnd_schema::create_collection_object(
 struct st_create_collection_handler_ctx
 {
 	const xmysqlnd_schema * schema;
-	const struct st_xmysqlnd_schema_on_error_bind on_error;
+	const st_xmysqlnd_schema_on_error_bind on_error;
 };
 
 static const enum_hnd_func_status
@@ -362,7 +362,7 @@ bool xmysqlnd_schema::modify_collection(
 enum_func_status
 xmysqlnd_schema::drop_collection(
 	const util::string_view& collection_name,
-	const struct st_xmysqlnd_schema_on_error_bind handler_on_error)
+	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"drop_collection", sizeof("drop_collection") - 1 };
@@ -488,8 +488,8 @@ enum_func_status
 xmysqlnd_schema::get_db_objects(
 	const MYSQLND_CSTRING& /*collection_name*/,
 	const db_object_type_filter object_type_filter,
-	const struct st_xmysqlnd_schema_on_database_object_bind on_object,
-	const struct st_xmysqlnd_schema_on_error_bind handler_on_error)
+	const st_xmysqlnd_schema_on_database_object_bind on_object,
+	const st_xmysqlnd_schema_on_error_bind handler_on_error)
 {
 	enum_func_status ret;
 	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
@@ -498,7 +498,7 @@ xmysqlnd_schema::get_db_objects(
 		mnd_str2c(schema_name),
 		0
 	};
-	const struct st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_get_objects_var_binder, &var_binder_ctx };
+	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_get_objects_var_binder, &var_binder_ctx };
 
 	xmysqlnd_schema_get_db_objects_ctx handler_ctx{ this, object_type_filter, on_object, handler_on_error };
 	st_create_collection_handler_ctx error_handler_ctx{ this, handler_on_error };

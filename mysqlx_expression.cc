@@ -102,7 +102,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 static zend_object_handlers mysqlx_object_expression_handlers;
 static HashTable mysqlx_expression_properties;
 
-const struct st_mysqlx_property_entry mysqlx_expression_property_entries[] =
+const st_mysqlx_property_entry mysqlx_expression_property_entries[] =
 {
 	{{nullptr,	0}, nullptr, nullptr}
 };

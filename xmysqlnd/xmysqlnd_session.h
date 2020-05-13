@@ -658,18 +658,18 @@ public:
 
     const enum_func_status	query(const MYSQLND_CSTRING namespace_,
                                   const MYSQLND_CSTRING query,
-                                  const struct st_xmysqlnd_session_query_bind_variable_bind var_binder);
+                                  const st_xmysqlnd_session_query_bind_variable_bind var_binder);
 
     const enum_func_status	query_cb(
                                                                        const MYSQLND_CSTRING namespace_,
                                                                        const MYSQLND_CSTRING query,
-                                                                       const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
-                                                                       const struct st_xmysqlnd_session_on_result_start_bind on_result_start,
-                                                                       const struct st_xmysqlnd_session_on_row_bind on_row,
-                                                                       const struct st_xmysqlnd_session_on_warning_bind on_warning,
-                                                                       const struct st_xmysqlnd_session_on_error_bind on_error,
-                                                                       const struct st_xmysqlnd_session_on_result_end_bind on_result_end,
-                                                                       const struct st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
+                                                                       const st_xmysqlnd_session_query_bind_variable_bind var_binder,
+                                                                       const st_xmysqlnd_session_on_result_start_bind on_result_start,
+                                                                       const st_xmysqlnd_session_on_row_bind on_row,
+                                                                       const st_xmysqlnd_session_on_warning_bind on_warning,
+                                                                       const st_xmysqlnd_session_on_error_bind on_error,
+                                                                       const st_xmysqlnd_session_on_result_end_bind on_result_end,
+                                                                       const st_xmysqlnd_session_on_statement_ok_bind on_statement_ok);
 
     zend_ulong			get_server_version();
 
@@ -710,13 +710,13 @@ PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(
 extern const MYSQLND_CSTRING namespace_mysqlx;
 extern const MYSQLND_CSTRING namespace_sql;
 
-extern const struct st_xmysqlnd_session_query_bind_variable_bind noop__var_binder;
-extern const struct st_xmysqlnd_session_on_result_start_bind	noop__on_result_start;
-extern const struct st_xmysqlnd_session_on_row_bind			noop__on_row;
-extern const struct st_xmysqlnd_session_on_warning_bind		noop__on_warning;
-extern const struct st_xmysqlnd_session_on_error_bind			noop__on_error;
-extern const struct st_xmysqlnd_session_on_result_end_bind		noop__on_result_end;
-extern const struct st_xmysqlnd_session_on_statement_ok_bind	noop__on_statement_ok;
+extern const st_xmysqlnd_session_query_bind_variable_bind noop__var_binder;
+extern const st_xmysqlnd_session_on_result_start_bind	noop__on_result_start;
+extern const st_xmysqlnd_session_on_row_bind			noop__on_row;
+extern const st_xmysqlnd_session_on_warning_bind		noop__on_warning;
+extern const st_xmysqlnd_session_on_error_bind			noop__on_error;
+extern const st_xmysqlnd_session_on_result_end_bind		noop__on_result_end;
+extern const st_xmysqlnd_session_on_statement_ok_bind	noop__on_statement_ok;
 
 } // namespace drv
 

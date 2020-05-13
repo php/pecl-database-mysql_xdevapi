@@ -291,7 +291,7 @@ xmysqlnd_session_data::send_client_attributes()
 				any2zval(final_any,&value);
 				capability_values[0] = &value;
 
-				const struct st_xmysqlnd_on_error_bind on_error =
+				const st_xmysqlnd_on_error_bind on_error =
 				{ xmysqlnd_session_data_handler_on_error, (void*) this };
 
 				if( PASS == caps_set.send_request(&caps_set,
@@ -1005,7 +1005,7 @@ enum_func_status try_setup_crypto_connection(
 {
 	DBG_ENTER("try_setup_crypto_connection");
 	enum_func_status ret{FAIL};
-	const struct st_xmysqlnd_on_error_bind on_error =
+	const st_xmysqlnd_on_error_bind on_error =
 	{ xmysqlnd_session_data_handler_on_error, (void*) session };
 	//Attempt to set the TLS capa. flag.
 	st_xmysqlnd_msg__capabilities_set caps_set{	msg_factory.get__capabilities_set(&msg_factory) };
@@ -2198,13 +2198,13 @@ query_cb_handler_on_statement_ok(void * context, xmysqlnd_stmt * const stmt, con
 const enum_func_status
 xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
 											const MYSQLND_CSTRING query,
-											const struct st_xmysqlnd_session_query_bind_variable_bind var_binder,
-											const struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
-											const struct st_xmysqlnd_session_on_row_bind handler_on_row,
-											const struct st_xmysqlnd_session_on_warning_bind handler_on_warning,
-											const struct st_xmysqlnd_session_on_error_bind handler_on_error,
-											const struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end,
-											const struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok)
+											const st_xmysqlnd_session_query_bind_variable_bind var_binder,
+											const st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
+											const st_xmysqlnd_session_on_row_bind handler_on_row,
+											const st_xmysqlnd_session_on_warning_bind handler_on_warning,
+											const st_xmysqlnd_session_on_error_bind handler_on_error,
+											const st_xmysqlnd_session_on_result_end_bind handler_on_result_end,
+											const st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok)
 {
 	enum_func_status ret{FAIL};
 	DBG_ENTER("xmysqlnd_session::query_cb");
@@ -2303,7 +2303,7 @@ xmysqlnd_session_on_warning(
 const enum_func_status
 xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 										 const MYSQLND_CSTRING query,
-										 const struct st_xmysqlnd_session_query_bind_variable_bind var_binder)
+										 const st_xmysqlnd_session_query_bind_variable_bind var_binder)
 {
 	enum_func_status ret{FAIL};
 
@@ -2335,8 +2335,8 @@ xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
 				(PASS == (ret = stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info))))
 		{
 			do {
-				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { xmysqlnd_session_on_warning, nullptr };
-				const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
+				const st_xmysqlnd_stmt_on_warning_bind on_warning = { xmysqlnd_session_on_warning, nullptr };
+				const st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 				zend_bool has_more{FALSE};
 				XMYSQLND_STMT_RESULT * result = stmt->get_buffered_result(stmt, &has_more, on_warning, on_error, data->stats, data->error_info);
 				if (result) {
@@ -2371,8 +2371,8 @@ xmysqlnd_session::get_server_version()
 		xmysqlnd_stmt * stmt = create_statement_object(session_handle);
 		if (stmt && stmt_execute) {
 			if (PASS == stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(stmt_execute), data->stats, data->error_info)) {
-				const struct st_xmysqlnd_stmt_on_warning_bind on_warning = { nullptr, nullptr };
-				const struct st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
+				const st_xmysqlnd_stmt_on_warning_bind on_warning = { nullptr, nullptr };
+				const st_xmysqlnd_stmt_on_error_bind on_error = { nullptr, nullptr };
 				zend_bool has_more{FALSE};
 				XMYSQLND_STMT_RESULT * res = stmt->get_buffered_result(stmt, &has_more, on_warning, on_error, data->stats, data->error_info);
 				if (res) {

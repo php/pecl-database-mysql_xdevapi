@@ -729,7 +729,7 @@ static const zend_function_entry mysqlx_session_methods[] = {
 static zend_object_handlers mysqlx_object_session_handlers;
 static HashTable mysqlx_session_properties;
 
-const struct st_mysqlx_property_entry mysqlx_session_property_entries[] =
+const st_mysqlx_property_entry mysqlx_session_property_entries[] =
 {
 	{{nullptr,	0}, nullptr, nullptr}
 };

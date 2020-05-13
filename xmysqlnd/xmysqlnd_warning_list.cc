@@ -51,7 +51,7 @@ XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * cons
 	}
 
 	{
-		const struct st_xmysqlnd_warning warn = { mnd_dup_cstring(message, 0), code, level };
+		const st_xmysqlnd_warning warn = { mnd_dup_cstring(message, 0), code, level };
 		warn_list->warnings[warn_list->warning_count++] = warn;
 	}
 	DBG_VOID_RETURN;

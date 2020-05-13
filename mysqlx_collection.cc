@@ -592,7 +592,7 @@ mysqlx_collection_property__name(const st_mysqlx_object* obj, zval* return_value
 static zend_object_handlers mysqlx_object_collection_handlers;
 static HashTable mysqlx_collection_properties;
 
-const struct st_mysqlx_property_entry mysqlx_collection_property_entries[] =
+const st_mysqlx_property_entry mysqlx_collection_property_entries[] =
 {
 	{{"name",	sizeof("name") - 1}, mysqlx_collection_property__name,	nullptr},
 	{{nullptr,	0}, nullptr, nullptr}

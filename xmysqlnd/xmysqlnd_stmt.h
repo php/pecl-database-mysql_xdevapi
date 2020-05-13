@@ -45,7 +45,7 @@ struct st_xmysqlnd_stmt_on_result_start_bind
 
 struct st_xmysqlnd_stmt_on_row_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, xmysqlnd_stmt * const stmt, const struct st_xmysqlnd_stmt_result_meta * const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
+	const enum_hnd_func_status (*handler)(void * context, xmysqlnd_stmt * const stmt, const st_xmysqlnd_stmt_result_meta * const meta, const zval * const row, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 	void * ctx;
 };
 
@@ -73,7 +73,7 @@ struct st_xmysqlnd_stmt_on_result_end_bind
 
 struct st_xmysqlnd_stmt_on_statement_ok_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, xmysqlnd_stmt * const stmt, const struct st_xmysqlnd_stmt_execution_state * const exec_state);
+	const enum_hnd_func_status (*handler)(void * context, xmysqlnd_stmt * const stmt, const st_xmysqlnd_stmt_execution_state * const exec_state);
 	void * ctx;
 };
 
@@ -108,36 +108,36 @@ public:
 	xmysqlnd_stmt(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const obj_factory,
 						 XMYSQLND_SESSION cur_session);
 	enum_func_status	send_raw_message(xmysqlnd_stmt * const stmt,
-										 const struct st_xmysqlnd_pb_message_shell message_shell,
+										 const st_xmysqlnd_pb_message_shell message_shell,
 										 MYSQLND_STATS * const stats,
 										 MYSQLND_ERROR_INFO * const error_info);
 
 
 	enum_func_status	read_one_result(xmysqlnd_stmt * const stmt,
-										const struct st_xmysqlnd_stmt_on_row_bind on_row,
-										const struct st_xmysqlnd_stmt_on_warning_bind on_warning,
-										const struct st_xmysqlnd_stmt_on_error_bind on_error,
-										const struct st_xmysqlnd_stmt_on_result_end_bind on_resultset_end,
-										const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok,
+										const st_xmysqlnd_stmt_on_row_bind on_row,
+										const st_xmysqlnd_stmt_on_warning_bind on_warning,
+										const st_xmysqlnd_stmt_on_error_bind on_error,
+										const st_xmysqlnd_stmt_on_result_end_bind on_resultset_end,
+										const st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok,
 										zend_bool * const has_more_results,
 										MYSQLND_STATS * const stats,
 										MYSQLND_ERROR_INFO * const error_info);
 
 	enum_func_status	read_all_results(xmysqlnd_stmt * const stmt,
-										 const struct st_xmysqlnd_stmt_on_row_bind on_row,
-										const struct st_xmysqlnd_stmt_on_warning_bind on_warning,
-										 const struct st_xmysqlnd_stmt_on_error_bind on_error,
-										 const struct st_xmysqlnd_stmt_on_result_start_bind on_result_start,
-										 const struct st_xmysqlnd_stmt_on_result_end_bind on_resultset_end,
-										 const struct st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok,
+										 const st_xmysqlnd_stmt_on_row_bind on_row,
+										const st_xmysqlnd_stmt_on_warning_bind on_warning,
+										 const st_xmysqlnd_stmt_on_error_bind on_error,
+										 const st_xmysqlnd_stmt_on_result_start_bind on_result_start,
+										 const st_xmysqlnd_stmt_on_result_end_bind on_resultset_end,
+										 const st_xmysqlnd_stmt_on_statement_ok_bind on_statement_ok,
 										 MYSQLND_STATS * const stats,
 										 MYSQLND_ERROR_INFO * const error_info);
 	zend_bool           has_more_results(xmysqlnd_stmt * stmt);
 
 	st_xmysqlnd_stmt_result *		get_buffered_result(xmysqlnd_stmt * const stmt,
 													zend_bool * const has_more_results,
-													const struct st_xmysqlnd_stmt_on_warning_bind on_warning,
-													const struct st_xmysqlnd_stmt_on_error_bind on_error,
+													const st_xmysqlnd_stmt_on_warning_bind on_warning,
+													const st_xmysqlnd_stmt_on_error_bind on_error,
 													MYSQLND_STATS * const stats,
 													MYSQLND_ERROR_INFO * const error_info);
 
@@ -145,8 +145,8 @@ public:
 												const size_t rows,
 												zend_bool * const has_more_rows_in_set,
 												zend_bool * const has_more_results,
-												const struct st_xmysqlnd_stmt_on_warning_bind on_warning,
-												const struct st_xmysqlnd_stmt_on_error_bind on_error,
+												const st_xmysqlnd_stmt_on_warning_bind on_warning,
+												const st_xmysqlnd_stmt_on_error_bind on_error,
 												MYSQLND_STATS * const stats,
 												MYSQLND_ERROR_INFO * const error_info);
 

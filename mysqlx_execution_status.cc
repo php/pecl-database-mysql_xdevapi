@@ -101,7 +101,7 @@ mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, 
 	DBG_RETURN(return_value);
 }
 
-static const struct st_mysqlx_property_entry mysqlx_execution_status_property_entries[] =
+static const st_mysqlx_property_entry mysqlx_execution_status_property_entries[] =
 {
 	{{"affectedItems", sizeof("affectedItems") - 1}, mysqlx_execution_status_property__affected_items, nullptr},
 	{{"matchedItems", sizeof("matchedItems") - 1}, mysqlx_execution_status_property__matched_items, nullptr},

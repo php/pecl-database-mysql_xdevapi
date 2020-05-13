@@ -305,7 +305,7 @@ static const zend_function_entry mysqlx_row_result_methods[] = {
 static zend_object_handlers mysqlx_object_row_result_handlers;
 static HashTable mysqlx_row_result_properties;
 
-const struct st_mysqlx_property_entry mysqlx_row_result_property_entries[] =
+const st_mysqlx_property_entry mysqlx_row_result_property_entries[] =
 {
 	{{nullptr,	0}, nullptr, nullptr}
 };
