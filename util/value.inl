@@ -15,9 +15,9 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-namespace mysqlx {
+#include "exceptions.h"
 
-namespace util {
+namespace mysqlx::util {
 
 template<typename T>
 zvalue::zvalue(std::initializer_list<T> values)
@@ -172,6 +172,18 @@ inline bool zvalue::is_reference() const
 	return type() == Type::Reference;
 }
 
+inline zvalue::operator bool() const
+{
+	switch (type()) {
+	case Type::Undefined:
+	case Type::Null:
+		return false;
+
+	default:
+		return true;
+	}
+}
+
 // -----------------------------------------------------------------------------
 
 template<>
@@ -244,6 +256,196 @@ inline const char* zvalue::to_value<const char*>() const
 
 // -----------------------------------------------------------------------------
 
+template<>
+inline std::optional<bool> zvalue::to_optional_value<bool>() const
+{
+	return is_bool() ? std::make_optional(to_bool()) : std::nullopt;
+}
+
+// ---------------------
+
+template<>
+inline std::optional<int32_t> zvalue::to_optional_value<int32_t>() const
+{
+	return is_long() ? std::make_optional(to_int32()) : std::nullopt;
+}
+
+template<>
+inline std::optional<int64_t> zvalue::to_optional_value<int64_t>() const
+{
+	return is_long() ? std::make_optional(to_int64()) : std::nullopt;
+}
+
+// ---------------------
+
+template<>
+inline std::optional<uint32_t> zvalue::to_optional_value<uint32_t>() const
+{
+	return is_long() ? std::make_optional(to_uint32()) : std::nullopt;
+}
+
+template<>
+inline std::optional<uint64_t> zvalue::to_optional_value<uint64_t>() const
+{
+	return is_long() ? std::make_optional(to_uint64()) : std::nullopt;
+}
+
+// ---------------------
+
+template<>
+inline std::optional<double> zvalue::to_optional_value<double>() const
+{
+	return is_double() ? std::make_optional(to_double()) : std::nullopt;
+}
+
+// ---------------------
+
+template<>
+inline std::optional<string> zvalue::to_optional_value<string>() const
+{
+	return is_string() ? std::make_optional(to_string()) : std::nullopt;
+}
+
+template<>
+inline std::optional<string_view> zvalue::to_optional_value<string_view>() const
+{
+	return is_string() ? std::make_optional(to_string_view()) : std::nullopt;
+}
+
+template<>
+inline std::optional<std::string> zvalue::to_optional_value<std::string>() const
+{
+	return is_string() ? std::make_optional(to_std_string()) : std::nullopt;
+}
+
+template<>
+inline std::optional<const char*> zvalue::to_optional_value<const char*>() const
+{
+	return is_string() ? std::make_optional(c_str()) : std::nullopt;
+}
+
+// -----------------------------------------------------------------------------
+
+template<>
+inline bool zvalue::to_obligatory_value<bool>() const
+{
+	if (!is_bool()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"boolean");
+	}
+	return to_bool();
+}
+
+// ---------------------
+
+template<>
+inline int32_t zvalue::to_obligatory_value<int32_t>() const
+{
+	if (!is_long()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"long");
+	}
+	return to_int32();
+}
+
+template<>
+inline int64_t zvalue::to_obligatory_value<int64_t>() const
+{
+	if (!is_long()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"long");
+	}
+	return to_int64();
+}
+
+// ---------------------
+
+template<>
+inline uint32_t zvalue::to_obligatory_value<uint32_t>() const
+{
+	if (!is_long()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"long");
+	}
+	return to_uint32();
+}
+
+template<>
+inline uint64_t zvalue::to_obligatory_value<uint64_t>() const
+{
+	if (!is_long()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"long");
+	}
+	return to_uint64();
+}
+
+// ---------------------
+
+template<>
+inline double zvalue::to_obligatory_value<double>() const
+{
+	if (!is_double()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"double");
+	}
+	return to_double();
+}
+
+// ---------------------
+
+template<>
+inline string zvalue::to_obligatory_value<string>() const
+{
+	if (!is_string()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"string");
+	}
+	return to_string();
+}
+
+template<>
+inline string_view zvalue::to_obligatory_value<string_view>() const
+{
+	if (!is_string()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"string");
+	}
+	return to_string_view();
+}
+
+template<>
+inline std::string zvalue::to_obligatory_value<std::string>() const
+{
+	if (!is_string()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"string");
+	}
+	return to_std_string();
+}
+
+template<>
+inline const char* zvalue::to_obligatory_value<const char*>() const
+{
+	if (!is_string()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_invalid_type,
+			"string");
+	}
+	return c_str();
+}
+
+// -----------------------------------------------------------------------------
+
 inline std::size_t zvalue::length() const
 {
 	return size();
@@ -286,24 +488,68 @@ inline void zvalue::swap(zvalue& rhs) noexcept
 
 // -----------------------------------------------------------------------------
 
-inline const zvalue zvalue::get_property(const string& name) const
+inline bool zvalue::has_property(const string& name) const
+{
+	return has_property(name.c_str(), name.length());
+}
+
+inline bool zvalue::has_property(const string_view& name) const
+{
+	return has_property(name.c_str(), name.length());
+}
+
+inline bool zvalue::has_property(const std::string& name) const
+{
+	return has_property(name.c_str(), name.length());
+}
+
+inline bool zvalue::has_property(const char* name) const
+{
+	return has_property(name, std::strlen(name));
+}
+
+// -----------------------------------------------------------------------------
+
+inline zvalue zvalue::get_property(const string& name) const
 {
 	return get_property(name.c_str(), name.length());
 }
 
-inline const zvalue zvalue::get_property(const string_view& name) const
+inline zvalue zvalue::get_property(const string_view& name) const
 {
 	return get_property(name.c_str(), name.length());
 }
 
-inline const zvalue zvalue::get_property(const std::string& name) const
+inline zvalue zvalue::get_property(const std::string& name) const
 {
 	return get_property(name.c_str(), name.length());
 }
 
-inline const zvalue zvalue::get_property(const char* name) const
+inline zvalue zvalue::get_property(const char* name) const
 {
 	return get_property(name, std::strlen(name));
+}
+
+// -----------------------------------------------------------------------------
+
+inline zvalue zvalue::require_property(const string& name) const
+{
+	return require_property(name.c_str(), name.length());
+}
+
+inline zvalue zvalue::require_property(const string_view& name) const
+{
+	return require_property(name.c_str(), name.length());
+}
+
+inline zvalue zvalue::require_property(const std::string& name) const
+{
+	return require_property(name.c_str(), name.length());
+}
+
+inline zvalue zvalue::require_property(const char* name) const
+{
+	return require_property(name, std::strlen(name));
 }
 
 // ---------------------
@@ -379,86 +625,86 @@ inline bool zvalue::contains(const char* key) const
 
 // ---------------------
 
-inline const zvalue zvalue::find(long index) const
+inline zvalue zvalue::find(long index) const
 {
 	return find(static_cast<std::size_t>(index));
 }
 
-inline const zvalue zvalue::find(const string& key) const
+inline zvalue zvalue::find(const string& key) const
 {
 	return find(key.c_str(), key.length());
 }
 
-inline const zvalue zvalue::find(const string_view& key) const
+inline zvalue zvalue::find(const string_view& key) const
 {
 	return find(key.c_str(), key.length());
 }
 
-inline const zvalue zvalue::find(const std::string& key) const
+inline zvalue zvalue::find(const std::string& key) const
 {
 	return find(key.c_str(), key.length());
 }
 
-inline const zvalue zvalue::find(const char* key) const
+inline zvalue zvalue::find(const char* key) const
 {
 	return find(key, std::strlen(key));
 }
 
 // ---------------------
 
-inline const zvalue zvalue::operator[](std::size_t index) const
+inline zvalue zvalue::operator[](std::size_t index) const
 {
 	return find(index);
 }
 
-inline const zvalue zvalue::operator[](long index) const
+inline zvalue zvalue::operator[](long index) const
 {
 	return find(index);
 }
 
-inline const zvalue zvalue::operator[](const string_view& key) const
+inline zvalue zvalue::operator[](const string_view& key) const
 {
 	return find(key);
 }
 
-inline const zvalue zvalue::operator[](const string& key) const
+inline zvalue zvalue::operator[](const string& key) const
 {
 	return find(key);
 }
 
-inline const zvalue zvalue::operator[](const std::string& key) const
+inline zvalue zvalue::operator[](const std::string& key) const
 {
 	return find(key);
 }
 
-inline const zvalue zvalue::operator[](const char* key) const
+inline zvalue zvalue::operator[](const char* key) const
 {
 	return find(key);
 }
 
 // ---------------------
 
-inline const zvalue zvalue::at(long index) const
+inline zvalue zvalue::at(long index) const
 {
 	return at(static_cast<std::size_t>(index));
 }
 
-inline const zvalue zvalue::at(const string& key) const
+inline zvalue zvalue::at(const string& key) const
 {
 	return at(key.c_str(), key.length());
 }
 
-inline const zvalue zvalue::at(const string_view& key) const
+inline zvalue zvalue::at(const string_view& key) const
 {
 	return at(key.c_str(), key.length());
 }
 
-inline const zvalue zvalue::at(const std::string& key) const
+inline zvalue zvalue::at(const std::string& key) const
 {
 	return at(key.c_str(), key.length());
 }
 
-inline const zvalue zvalue::at(const char* key) const
+inline zvalue zvalue::at(const char* key) const
 {
 	return at(key, std::strlen(key));
 }
@@ -581,6 +827,27 @@ inline bool zvalue::erase(const char* key)
 
 // -----------------------------------------------------------------------------
 
+inline zvalue::keys_range::keys_range(const zvalue& ref) : ref(ref)
+{
+}
+
+inline zvalue::key_iterator zvalue::keys_range::begin() const
+{
+	return ref.kbegin();
+}
+
+inline zvalue::key_iterator zvalue::keys_range::end() const
+{
+	return ref.kend();
+}
+
+inline zvalue::keys_range zvalue::keys() const
+{
+	return keys_range(*this);
+}
+
+// -----------------------------------------------------------------------------
+
 inline zvalue::values_range::values_range(const zvalue& ref) : ref(ref)
 {
 }
@@ -622,6 +889,4 @@ inline zval* zvalue::ptr() const
 	return const_cast<zval*>(&zv);
 }
 
-} // namespace util
-
-} // namespace mysqlx
+} // namespace mysqlx::util

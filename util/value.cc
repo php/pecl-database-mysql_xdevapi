@@ -38,9 +38,7 @@
 	http://www.phpinternalsbook.com/php5/zvals/memory_management.html
 */
 
-namespace mysqlx {
-
-namespace util {
+namespace mysqlx::util {
 
 zvalue::zvalue()
 {
@@ -606,12 +604,29 @@ std::size_t zvalue::properties_count() const
 	return ht ? zend_hash_num_elements(ht) : 0;
 }
 
-const zvalue zvalue::get_property(const char* name, std::size_t name_length) const
+bool zvalue::has_property(const char* name, std::size_t name_length) const
+{
+	util::zvalue property{ get_property(name, name_length) };
+	return !property.is_undef();
+}
+
+zvalue zvalue::get_property(const char* name, std::size_t name_length) const
 {
 	assert(is_object());
 	zval rv;
 	ZVAL_UNDEF(&rv);
 	return zvalue(zend_read_property(Z_OBJCE(zv), ptr(), name, name_length, true, &rv));
+}
+
+zvalue zvalue::require_property(const char* name, std::size_t name_length) const
+{
+	util::zvalue property{ get_property(name, name_length) };
+	if (!property) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::object_property_not_exist,
+			name);
+	}
+	return property;
 }
 
 void zvalue::set_property(const char* name, std::size_t name_length, const zvalue& value)
@@ -642,21 +657,21 @@ bool zvalue::contains(const char* key, std::size_t key_length) const
 
 // ---------------------
 
-const zvalue zvalue::find(std::size_t index) const
+zvalue zvalue::find(std::size_t index) const
 {
 	assert(is_array());
 	zval* elem{ zend_hash_index_find(Z_ARRVAL(ref()), index) };
 	return elem ? zvalue(*elem) : zvalue();
 }
 
-const zvalue zvalue::find(const char* key, std::size_t key_length) const
+zvalue zvalue::find(const char* key, std::size_t key_length) const
 {
 	assert(is_array());
 	zval* elem{ zend_hash_str_find(Z_ARRVAL(ref()), key, key_length) };
 	return elem ? zvalue(*elem) : zvalue();
 }
 
-const zvalue zvalue::at(std::size_t index) const
+zvalue zvalue::at(std::size_t index) const
 {
 	assert(is_array());
 	zval* elem{ zend_hash_index_find(Z_ARRVAL(ref()), index) };
@@ -670,7 +685,7 @@ const zvalue zvalue::at(std::size_t index) const
 	return zvalue(*elem);
 }
 
-const zvalue zvalue::at(const char* key, std::size_t key_length) const
+zvalue zvalue::at(const char* key, std::size_t key_length) const
 {
 	assert(is_array());
 	zval* elem{ zend_hash_str_find(Z_ARRVAL(ref()), key, key_length) };
@@ -812,6 +827,65 @@ zvalue::iterator zvalue::end() const
 
 // -----------------------------------------------------------------------------
 
+zvalue::key_iterator::key_iterator(HashTable* ht, HashPosition size, HashPosition pos)
+	: ht(ht)
+	, size(size)
+	, pos(pos)
+{
+}
+
+zvalue::key_iterator zvalue::key_iterator::operator++(int)
+{
+	key_iterator it(ht, size, pos);
+	++(*this);
+	return it;
+}
+
+zvalue::key_iterator& zvalue::key_iterator::operator++()
+{
+	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
+		pos = HT_INVALID_IDX;
+	}
+	return *this;
+}
+
+zvalue::key_iterator::key_type zvalue::key_iterator::operator*() const
+{
+	zvalue key;
+	zend_hash_get_current_key_zval_ex(ht, key.ptr(), &pos);
+	assert(!key.is_null());
+	return key;
+}
+
+bool zvalue::key_iterator::operator==(const key_iterator& rhs) const
+{
+	return pos == rhs.pos;
+}
+
+bool zvalue::key_iterator::operator!=(const key_iterator& rhs) const
+{
+	return pos != rhs.pos;
+}
+
+// ---------------------
+
+zvalue::key_iterator zvalue::kbegin() const
+{
+	assert(is_array() || is_object());
+	HashTable* ht{ HASH_OF(ptr()) };
+	HashPosition pos{ HT_INVALID_IDX };
+	zend_hash_internal_pointer_reset_ex(ht, &pos);
+	return key_iterator(ht, static_cast<HashPosition>(size()), pos);
+}
+
+zvalue::key_iterator zvalue::kend() const
+{
+	assert(is_array() || is_object());
+	return key_iterator(HASH_OF(ptr()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
+}
+
+// -----------------------------------------------------------------------------
+
 zvalue::value_iterator::value_iterator(HashTable* ht, HashPosition size, HashPosition pos)
 	: ht(ht)
 	, size(size)
@@ -866,6 +940,97 @@ zvalue::value_iterator zvalue::vend() const
 	return value_iterator(HASH_OF(ptr()), static_cast<HashPosition>(size()), HT_INVALID_IDX);
 }
 
-} // namespace util
+// -----------------------------------------------------------------------------
 
-} // namespace mysqlx
+namespace {
+
+class Serializer
+{
+public:
+	Serializer(util::ostringstream& os);
+
+public:
+	void store(const zvalue& zv);
+
+private:
+	void store_composite(const zvalue& zv);
+
+private:
+	util::ostringstream& os;
+};
+
+Serializer::Serializer(util::ostringstream& os)
+	: os(os)
+{
+}
+
+void Serializer::store(const zvalue& zv)
+{
+	switch (zv.type()) {
+	case zvalue::Type::Undefined:
+		os << "undefined";
+		break;
+
+	case zvalue::Type::Null:
+		os << "null";
+		break;
+
+	case zvalue::Type::False:
+		os << "false";
+		break;
+
+	case zvalue::Type::True:
+		os << "true";
+		break;
+
+	case zvalue::Type::Long:
+		os << zv.to_long();
+		break;
+
+	case zvalue::Type::Double:
+		os << zv.to_double();
+		break;
+
+	case zvalue::Type::String:
+		os << "'" << zv.to_string() << "'";
+		break;
+
+	case zvalue::Type::Array:
+	case zvalue::Type::Object:
+		store_composite(zv);
+		break;
+
+	default:
+		assert(!"unknown type!");
+	}
+}
+
+void Serializer::store_composite(const zvalue& zv)
+{
+	assert(zv.is_array() || zv.is_object());
+	os << "[";
+	bool first_elem = true;
+	for (const auto& elem : zv) {
+		if (first_elem) {
+			first_elem = false;
+		} else {
+			os << ", ";
+		}
+		store(elem.first);
+		os << ": ";
+		store(elem.second);
+	}
+	os << "]";
+}
+
+} // anonymous namespace
+
+util::string zvalue::serialize() const
+{
+	util::ostringstream os;
+	Serializer serializer(os);
+	serializer.store(*this);
+	return os.str();
+}
+
+} // namespace mysqlx::util
