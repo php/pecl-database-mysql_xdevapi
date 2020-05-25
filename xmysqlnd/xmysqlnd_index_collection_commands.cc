@@ -56,7 +56,7 @@ bool Index_field::is_geojson() const
 
 bool Index_field::is_required() const
 {
-	return required ? required.get() : is_geojson();
+	return required ? required.value() : is_geojson();
 }
 
 // -----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ Index_definition::Index_definition(const util::string_view& index_name)
 	}
 }
 
-boost::optional<util::string> Index_definition::get_type_str() const
+std::optional<util::string> Index_definition::get_type_str() const
 {
 	using Type_to_str = std::map<Index_definition::Type, std::string>;
 	static const Type_to_str type_to_str = {
@@ -78,8 +78,10 @@ boost::optional<util::string> Index_definition::get_type_str() const
 		{ Index_definition::Type::Spatial, "SPATIAL" }
 	};
 
-	if (type) return util::to_string(type_to_str.at(type.get()));
-	return boost::optional<util::string>();
+	if (type) {
+		return util::to_string(type_to_str.at(type.value()));
+	}
+	return std::nullopt;
 }
 
 /****************************** COLLECTION.CREATE_INDEX() *******************************************************/

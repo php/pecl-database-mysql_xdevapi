@@ -20,7 +20,7 @@
 
 #include "util/strings.h"
 #include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace google { namespace protobuf { namespace io { class CodedInputStream; } } }
 
@@ -107,18 +107,18 @@ void add_field_to_object(const util::string& key, T value, std::unique_ptr<Objec
 template<typename K, typename T>
 void add_optional_field_to_object(
 	const K& key,
-	const boost::optional<T>& value,
+	const std::optional<T>& value,
 	Object* pb_obj)
 {
 	if (value) {
-		add_field_to_object(key, value.get(), pb_obj);
+		add_field_to_object(key, *value, pb_obj);
 	}
 }
 
 template<typename K, typename T>
 void add_optional_field_to_object(
 	const K& key,
-	const boost::optional<T>& value,
+	const std::optional<T>& value,
 	std::unique_ptr<Object>& pb_obj)
 {
 	add_optional_field_to_object(key, value, pb_obj.get());

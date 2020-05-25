@@ -28,6 +28,8 @@
 
 #include "util/strings.h"
 
+#include <optional>
+
 namespace mysqlx {
 
 namespace drv {
@@ -262,7 +264,7 @@ struct st_xmysqlnd_msg__session_reset
 
 	st_xmysqlnd_on_error_bind on_error;
 
-	boost::optional<bool> keep_open;
+	std::optional<bool> keep_open;
 };
 
 struct st_xmysqlnd_msg__session_close

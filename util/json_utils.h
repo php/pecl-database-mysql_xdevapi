@@ -21,8 +21,6 @@
 
 #include "strings.h"
 #include "xmysqlnd/proto_gen/mysqlx_datatypes.pb.h"
-#include <boost/version.hpp>
-#include <boost/property_tree/json_parser.hpp>
 
 namespace mysqlx {
 
@@ -32,10 +30,12 @@ class zvalue;
 
 namespace json {
 
-void to_zv_string(zval* src, zval* dest);
-util::zvalue to_zv_string(const util::zvalue& src);
+void encode_document(zval* src, zval* dest);
+util::zvalue encode_document(const util::zvalue& src);
 
-util::zvalue to_zv_object(const char* src, const std::size_t src_len);
+util::zvalue parse_document(const char* doc, const std::size_t doc_len);
+util::zvalue parse_document(const util::string_view& doc);
+// util::zvalue parse_document(const std::string_view& options_json);
 
 
 bool can_be_document(const util::zvalue& value);
@@ -46,25 +46,11 @@ util::zvalue ensure_doc_id(
 	zval* raw_doc,
 	const string_view& id);
 
+//rapidjson::Document parse_doc(const char* doc, std::size_t doc_len);
+
 util::zvalue to_zval(const char* doc, std::size_t doc_len);
 
 void to_any(const char* doc, std::size_t doc_len, Mysqlx::Datatypes::Any& any);
-
-/*
-	in older versions of boost (e.g. 1.53.0 which is at the moment still officially
-	delivered as the newest one package for CentOS7) there is bug in boost::property_tree
-	it doesn't support strings with custom allocator - somewhere deep in code there is
-	applied std::string directly with standard allocator
-	compiler fails at conversion std::string <=> util::string (custom allocator)
-	in newer versions it is fixed
-	the oldest version we've successfully tried is 1.59.0
-	and beginning with that version we apply util::string, while for older one std::string
-*/
-#if 105900 <= BOOST_VERSION
-using ptree_string = util::string;
-#else
-using ptree_string = std::string;
-#endif
 
 } // namespace json
 

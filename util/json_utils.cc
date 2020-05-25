@@ -43,7 +43,7 @@ namespace util {
 
 namespace json {
 
-void to_zv_string(zval* src, zval* dest)
+void encode_document(zval* src, zval* dest)
 {
 	smart_str buf = { 0 };
 	JSON_G(error_code) = PHP_JSON_ERROR_NONE;
@@ -67,26 +67,31 @@ void to_zv_string(zval* src, zval* dest)
 	smart_str_free(&buf);
 }
 
-util::zvalue to_zv_string(const util::zvalue& src)
+util::zvalue encode_document(const util::zvalue& src)
 {
 	util::zvalue dest;
-	to_zv_string(src.ptr(), dest.ptr());
+	encode_document(src.ptr(), dest.ptr());
 	return dest;
 }
 
-util::zvalue to_zv_object(const char* src, const std::size_t src_len)
+util::zvalue parse_document(const char* doc, const std::size_t doc_len)
 {
 	util::zvalue dest;
 	if (php_json_decode(
 		dest.ptr(),
-		const_cast<char*>(src),
-		static_cast<int>(src_len),
+		const_cast<char*>(doc),
+		static_cast<int>(doc_len),
 		false,
 		PHP_JSON_PARSER_DEFAULT_DEPTH) != SUCCESS)
 	{
 		throw xdevapi_exception(xdevapi_exception::Code::json_parse_error);
 	}
 	return dest;
+}
+
+util::zvalue parse_document(const util::string_view& doc)
+{
+	return parse_document(doc.c_str(), doc.length());
 }
 
 namespace {
@@ -192,7 +197,7 @@ void Ensure_doc_id::process_array()
 void Ensure_doc_id::process_object()
 {
 	util::zvalue doc_as_str;
-	to_zv_string(raw_doc, doc_as_str.ptr());
+	encode_document(raw_doc, doc_as_str.ptr());
 	decode_json(doc_as_str.ptr());
 	store_id();
 }
@@ -237,6 +242,23 @@ util::zvalue ensure_doc_id(
 
 //------------------------------------------------------------------------------
 
+rapidjson::Document parse_doc(const char* doc, std::size_t doc_len)
+{
+	rapidjson::Document document;
+	document.Parse(doc, doc_len);
+
+	if (document.HasParseError()) {
+		util::ostringstream err;
+		err << "(character " << document.GetErrorOffset() << "): "
+			<< GetParseError_En(document.GetParseError());
+		throw xdevapi_exception(xdevapi_exception::Code::json_parse_error, err.str());
+	}
+
+	return document;
+}
+
+//------------------------------------------------------------------------------
+
 namespace {
 
 class Json_to_zval
@@ -258,15 +280,7 @@ util::zvalue Json_to_zval::run(
 	const char* doc,
 	std::size_t doc_len)
 {
-	rapidjson::Document document;
-	document.Parse(doc, doc_len);
-
-	if (document.HasParseError()) {
-		util::ostringstream err;
-		err << "(character " << document.GetErrorOffset() << "): "
-			<< GetParseError_En(document.GetParseError());
-		throw xdevapi_exception(xdevapi_exception::Code::json_parse_error, err.str());
-	}
+	rapidjson::Document document{ parse_doc(doc, doc_len) };
 	return to_value(document);
 }
 
@@ -378,15 +392,7 @@ void Json_to_any::run(
 	std::size_t doc_len,
 	Mysqlx::Datatypes::Any& result)
 {
-	rapidjson::Document document;
-	document.Parse(doc, doc_len);
-
-	if (document.HasParseError()) {
-		util::ostringstream err;
-		err << "(character " << document.GetErrorOffset() << "): "
-			<< GetParseError_En(document.GetParseError());
-		throw xdevapi_exception(xdevapi_exception::Code::json_parse_error, err.str());
-	}
+	rapidjson::Document document{ parse_doc(doc, doc_len) };
 	to_value(document, result);
 }
 

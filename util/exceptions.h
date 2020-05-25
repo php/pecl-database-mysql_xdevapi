@@ -115,6 +115,10 @@ struct xdevapi_exception : public std::runtime_error
 		compression_not_supported,
 		compressor_not_available,
 		compression_negotiation_failure,
+		object_property_not_exist,
+		object_property_invalid_type,
+		json_object_expected,
+		json_array_expected,
 	};
 
 	xdevapi_exception(Code code);

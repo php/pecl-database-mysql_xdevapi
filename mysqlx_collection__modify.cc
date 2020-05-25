@@ -240,7 +240,7 @@ drv::Modify_value Collection_modify::prepare_value(
 				value = get_mysqlx_expression(value.ptr());
 				is_expression = true;
 			} else {
-				value = util::json::to_zv_string(value);
+				value = util::json::encode_document(value);
 				is_document = true;
 			}
 			break;
@@ -261,7 +261,7 @@ drv::Modify_value Collection_modify::prepare_value(
 			break;
 
 		case util::zvalue::Type::Array:
-			value = util::json::to_zv_string(value);
+			value = util::json::encode_document(value);
 			is_document = true;
 			break;
 

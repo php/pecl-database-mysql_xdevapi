@@ -39,6 +39,7 @@ extern "C" {
 #include "util/object.h"
 #include "util/json_utils.h"
 #include "util/string_utils.h"
+#include <iostream>
 
 namespace mysqlx {
 
@@ -48,9 +49,6 @@ using namespace drv;
 
 namespace
 {
-
-using ptree_string = util::json::ptree_string;
-using ptree = boost::property_tree::basic_ptree<ptree_string, ptree_string>;
 
 class Index_definition_parser
 {
@@ -63,12 +61,12 @@ public:
 	Index_definition run();
 
 private:
-	boost::optional<Index_definition::Type> parse_type();
+	std::optional<Index_definition::Type> parse_type();
 
 	Index_definition::Fields parse_fields();
-	Index_field parse_field(ptree& field_description);
+	Index_field parse_field(const util::zvalue& field_description);
 
-	void verify_field_traits(ptree& field_description);
+	void verify_field_traits(const util::zvalue& field_description);
 	void verify_field_trait(const std::string& field_trait_name);
 
 	void verify_field(const Index_field& field);
@@ -77,7 +75,7 @@ private:
 	void verify_field_geojson_properties(const Index_field& field);
 
 private:
-	ptree index_desc;
+	util::zvalue index_desc;
 	Index_definition index_def;
 };
 
@@ -86,23 +84,30 @@ private:
 Index_definition_parser::Index_definition_parser(
 	const util::string_view& index_name,
 	const util::string_view& index_desc_json)
-	: index_def(index_name)
+	: index_desc(util::json::parse_document(index_desc_json))
+	, index_def(index_name)
 {
-	util::istringstream is(index_desc_json.to_string());
-	boost::property_tree::read_json(is, index_desc);
 }
 
 Index_definition Index_definition_parser::run()
 {
+	if (!index_desc.is_object()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::json_object_expected,
+			"index options");
+	}
+
 	index_def.type = parse_type();
 	index_def.fields = parse_fields();
 	return index_def;
 }
 
-boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
+std::optional<Index_definition::Type> Index_definition_parser::parse_type()
 {
-	auto index_type = index_desc.get_optional<ptree_string>("type");
-	if (!index_type) return boost::optional<Index_definition::Type>();
+	auto index_type = index_desc.get_property("type");
+	if (!index_type) {
+		return std::nullopt;
+	}
 
 	using Str_to_type = std::map<std::string, Index_definition::Type>;
 	static const Str_to_type str_to_type = {
@@ -110,7 +115,7 @@ boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
 		{ "SPATIAL", Index_definition::Type::Spatial }
 	};
 
-	auto it = str_to_type.find(util::to_std_string(index_type.get()));
+	auto it = str_to_type.find(index_type.to_obligatory_value<std::string>());
 	if (it == str_to_type.end()) {
 		throw std::invalid_argument("incorrect index type");
 	}
@@ -121,7 +126,14 @@ boost::optional<Index_definition::Type> Index_definition_parser::parse_type()
 Index_definition::Fields Index_definition_parser::parse_fields()
 {
 	Index_definition::Fields fields;
-	for (ptree::value_type& field_desc : index_desc.get_child("fields")) {
+	util::zvalue fields_desc{ index_desc.get_property("fields") };
+	if (!fields_desc.is_array()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::json_array_expected,
+			"index fields");
+	}
+
+	for (const auto& field_desc : fields_desc) {
 		const Index_field& field = parse_field(field_desc.second);
 		verify_field(field);
 		fields.push_back(field);
@@ -129,26 +141,25 @@ Index_definition::Fields Index_definition_parser::parse_fields()
 	return fields;
 }
 
-Index_field Index_definition_parser::parse_field(ptree& field_description)
+Index_field Index_definition_parser::parse_field(const util::zvalue& field_description)
 {
 	verify_field_traits(field_description);
-	auto collation{ field_description.get_optional<ptree_string>("collation") };
-	const Index_field field {
-		util::to_string(field_description.get<ptree_string>("field")),
-		util::to_string(field_description.get<ptree_string>("type")),
-		field_description.get_optional<bool>("required"),
-		collation ? util::to_string(collation.get()) : boost::optional<util::string>(),
-		field_description.get_optional<unsigned int>("options"),
-		field_description.get_optional<unsigned int>("srid"),
-		field_description.get_optional<bool>("array"),
+	Index_field field{
+		field_description.require_property("field").to_obligatory_value<util::string>(),
+		field_description.require_property("type").to_obligatory_value<util::string>(),
+		field_description.get_property("required").to_optional_value<bool>(),
+		field_description.get_property("collation").to_optional_value<util::string>(),
+		field_description.get_property("options").to_optional_value<unsigned int>(),
+		field_description.get_property("srid").to_optional_value<unsigned int>(),
+		field_description.get_property("array").to_optional_value<bool>(),
 	};
 	return field;
 }
 
-void Index_definition_parser::verify_field_traits(ptree& field_description)
+void Index_definition_parser::verify_field_traits(const util::zvalue& field_description)
 {
-	for (auto field_trait : field_description) {
-		const std::string field_trait_name{ field_trait.first.data() };
+	for (const auto& field_trait : field_description.keys()) {
+		const std::string field_trait_name{ field_trait.to_obligatory_value<std::string>() };
 		verify_field_trait(field_trait_name);
 	}
 }
