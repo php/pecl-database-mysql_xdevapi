@@ -39,7 +39,7 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::fetch_fail, "Couldn't fetch data" },
 	{ xdevapi_exception::Code::meta_fail, "Unable to extract metadata" },
 	{ xdevapi_exception::Code::add_doc, "Error adding document" },
-	{ xdevapi_exception::Code::json_fail, "Error serializing document to JSON" },
+	{ xdevapi_exception::Code::json_fail, "Error serializing document to JSON, code:" },
 	{ xdevapi_exception::Code::add_index_field_err, "Error while adding an index field" },
 	{ xdevapi_exception::Code::add_orderby_fail, "Error while adding a orderby expression" },
 	{ xdevapi_exception::Code::add_sort_fail, "Error while adding a sort expression" },
@@ -129,7 +129,7 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::url_list_not_allowed,
 		"URI with a list of URL not allowed." },
 	{ xdevapi_exception::Code::out_of_range, "out of range" },
-	{ xdevapi_exception::Code::json_parse_error, "json parse error" },
+	{ xdevapi_exception::Code::json_parse_error, "json parse error, code:" },
 	{ xdevapi_exception::Code::compression_not_supported,
 		"Compression requested but the server does not support it." },
 	{ xdevapi_exception::Code::compressor_not_available,
@@ -179,6 +179,11 @@ string to_error_msg(unsigned int code, const string& what)
 
 xdevapi_exception::xdevapi_exception(Code code)
 	: xdevapi_exception(code, nullptr)
+{
+}
+
+xdevapi_exception::xdevapi_exception(Code code, int error_number)
+	: xdevapi_exception(code, std::to_string(error_number))
 {
 }
 

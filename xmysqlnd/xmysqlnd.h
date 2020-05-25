@@ -36,7 +36,6 @@ extern "C" {
 
 #include "php_mysql_xdevapi.h"
 #include "xmysqlnd_enum_n_def.h"
-#include "xmysqlnd_structs.h"
 
 namespace mysqlx {
 

@@ -40,7 +40,6 @@ extern "C" {
 #include "xmysqlnd_stmt_result.h"
 #include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_session.h"
-#include "xmysqlnd_structs.h"
 #include "xmysqlnd_zval2any.h"
 #include "php_mysqlx.h"
 #include "xmysqlnd_utils.h"

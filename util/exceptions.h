@@ -122,6 +122,7 @@ struct xdevapi_exception : public std::runtime_error
 	};
 
 	xdevapi_exception(Code code);
+	xdevapi_exception(Code code, int error_number);
 	xdevapi_exception(Code code, const string& msg);
 	xdevapi_exception(Code code, const char* msg);
 	xdevapi_exception(Code code, const std::string& msg);
