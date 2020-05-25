@@ -815,8 +815,11 @@ zvalue::iterator zvalue::begin() const
 	assert(is_array() || is_object());
 	HashTable* ht{ HASH_OF(ptr()) };
 	HashPosition pos{ HT_INVALID_IDX };
-	zend_hash_internal_pointer_reset_ex(ht, &pos);
-	return iterator(ht, static_cast<HashPosition>(size()), pos);
+	std::size_t count = size();
+	if (count) {
+		zend_hash_internal_pointer_reset_ex(ht, &pos);
+	}
+	return iterator(ht, static_cast<HashPosition>(count), pos);
 }
 
 zvalue::iterator zvalue::end() const
@@ -874,8 +877,11 @@ zvalue::key_iterator zvalue::kbegin() const
 	assert(is_array() || is_object());
 	HashTable* ht{ HASH_OF(ptr()) };
 	HashPosition pos{ HT_INVALID_IDX };
-	zend_hash_internal_pointer_reset_ex(ht, &pos);
-	return key_iterator(ht, static_cast<HashPosition>(size()), pos);
+	std::size_t count = size();
+	if (count) {
+		zend_hash_internal_pointer_reset_ex(ht, &pos);
+	}
+	return key_iterator(ht, static_cast<HashPosition>(count), pos);
 }
 
 zvalue::key_iterator zvalue::kend() const
@@ -930,8 +936,11 @@ zvalue::value_iterator zvalue::vbegin() const
 	assert(is_array() || is_object());
 	HashTable* ht{ HASH_OF(ptr()) };
 	HashPosition pos{ HT_INVALID_IDX };
-	zend_hash_internal_pointer_reset_ex(ht, &pos);
-	return value_iterator(ht, static_cast<HashPosition>(size()), pos);
+	std::size_t count = size();
+	if (count) {
+		zend_hash_internal_pointer_reset_ex(ht, &pos);
+	}
+	return value_iterator(ht, static_cast<HashPosition>(count), pos);
 }
 
 zvalue::value_iterator zvalue::vend() const
