@@ -39,7 +39,6 @@ extern "C" {
 #include "util/object.h"
 #include "util/json_utils.h"
 #include "util/string_utils.h"
-#include <iostream>
 
 namespace mysqlx {
 
@@ -126,7 +125,7 @@ std::optional<Index_definition::Type> Index_definition_parser::parse_type()
 Index_definition::Fields Index_definition_parser::parse_fields()
 {
 	Index_definition::Fields fields;
-	util::zvalue fields_desc{ index_desc.get_property("fields") };
+	util::zvalue fields_desc = index_desc.get_property("fields");
 	if (!fields_desc.is_array()) {
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::json_array_expected,

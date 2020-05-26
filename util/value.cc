@@ -620,7 +620,7 @@ zvalue zvalue::get_property(const char* name, std::size_t name_length) const
 
 zvalue zvalue::require_property(const char* name, std::size_t name_length) const
 {
-	util::zvalue property{ get_property(name, name_length) };
+	zvalue property = get_property(name, name_length);
 	if (!property) {
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::object_property_not_exist,
@@ -962,7 +962,7 @@ public:
 	void store(const zvalue& zv);
 
 private:
-	void store_composite(const zvalue& zv);
+	void store_composite(const zvalue& zv, const char* opening_tag, const char* closing_tag);
 
 private:
 	util::ostringstream& os;
@@ -1005,8 +1005,11 @@ void Serializer::store(const zvalue& zv)
 		break;
 
 	case zvalue::Type::Array:
+		store_composite(zv, "[", "]");
+		break;
+
 	case zvalue::Type::Object:
-		store_composite(zv);
+		store_composite(zv, "{", "}");
 		break;
 
 	default:
@@ -1014,10 +1017,10 @@ void Serializer::store(const zvalue& zv)
 	}
 }
 
-void Serializer::store_composite(const zvalue& zv)
+void Serializer::store_composite(const zvalue& zv, const char* opening_tag, const char* closing_tag)
 {
 	assert(zv.is_array() || zv.is_object());
-	os << "[";
+	os << opening_tag;
 	bool first_elem = true;
 	for (const auto& elem : zv) {
 		if (first_elem) {
@@ -1029,7 +1032,7 @@ void Serializer::store_composite(const zvalue& zv)
 		os << ": ";
 		store(elem.second);
 	}
-	os << "]";
+	os << closing_tag;
 }
 
 } // anonymous namespace
