@@ -40,7 +40,6 @@ extern "C" {
 #include "xmysqlnd_stmt_result.h"
 #include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_session.h"
-#include "xmysqlnd_structs.h"
 #include "xmysqlnd_zval2any.h"
 #include "php_mysqlx.h"
 #include "xmysqlnd_utils.h"
@@ -121,13 +120,13 @@ xmysqlnd_is_capability_present(
 } // anonymous namespace
 
 bool set_connection_timeout(
-	const boost::optional<int>& connection_timeout,
+	const std::optional<int>& connection_timeout,
 	MYSQLND_VIO* vio)
 {
 	const int Dont_set_connection_timeout{ 0 };
 	int timeout{ Dont_set_connection_timeout };
 	if (connection_timeout) {
-		timeout = connection_timeout.get();
+		timeout = connection_timeout.value();
 	} else {
 		timeout = drv::Environment::get_as_int(
 			drv::Environment::Variable::Mysqlx_connection_timeout);
@@ -608,7 +607,7 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 			st_xmysqlnd_message_factory msg_factory{ create_message_factory() };
 			st_xmysqlnd_msg__session_reset conn_reset_msg{ msg_factory.get__session_reset(&msg_factory) };
 			if (keep_open) {
-				conn_reset_msg.keep_open.reset(keep_open);
+				conn_reset_msg.keep_open.emplace(keep_open);
 			}
 			DBG_INF("Connection reset, sending SESS_RESET");
 			if ((conn_reset_msg.send_request(&conn_reset_msg) != PASS)
@@ -714,7 +713,7 @@ bool xmysqlnd_session_data::is_session_properly_supported()
 	conn_expectations_close.send_request(&conn_expectations_close);
 	conn_expectations_close.read_response(&conn_expectations_close);
 
-	session_properly_supported.reset(conn_expectations_open.result == st_xmysqlnd_msg__expectations_open::Result::ok);
+	session_properly_supported.emplace(conn_expectations_open.result == st_xmysqlnd_msg__expectations_open::Result::ok);
 	return *session_properly_supported;
 }
 

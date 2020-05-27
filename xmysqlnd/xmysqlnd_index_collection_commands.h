@@ -20,7 +20,7 @@
 
 #include "xmysqlnd_crud_commands.h"
 #include "util/strings.h"
-#include <boost/optional.hpp>
+#include <optional>
 #include "xmysqlnd/xmysqlnd_session.h"
 
 namespace mysqlx {
@@ -35,11 +35,11 @@ struct Index_field
 {
 	util::string path;
 	util::string type;
-	boost::optional<bool> required;
-	boost::optional<util::string> collation;
-	boost::optional<unsigned int> options;
-	boost::optional<unsigned int> srid;
-	boost::optional<bool> is_array;
+	std::optional<bool> required;
+	std::optional<util::string> collation;
+	std::optional<unsigned int> options;
+	std::optional<unsigned int> srid;
+	std::optional<bool> is_array;
 
 	bool is_geojson() const;
 	bool is_required() const;
@@ -57,13 +57,13 @@ struct Index_definition : util::custom_allocable
 	using Fields = util::vector<Index_field>;
 
 	util::string name;
-	boost::optional<bool> is_unique;
-	boost::optional<Type> type;
+	std::optional<bool> is_unique;
+	std::optional<Type> type;
 	Fields fields;
 
 	Index_definition(const util::string_view& index_name);
 
-	boost::optional<util::string> get_type_str() const;
+	std::optional<util::string> get_type_str() const;
 };
 
 bool collection_create_index_execute(XMYSQLND_SESSION session,

@@ -331,7 +331,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 	PHP_REQUIRE_CXX
 	AC_LANG([C++])
 
-	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++14 \
+	MYSQL_XDEVAPI_CXXFLAGS="-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -std=c++17 \
 		-Wall -Wno-unused-function -Wformat-security -Wformat-extra-args"
 
 	if test "$PHP_DEV_MODE" == "yes" || test "$PHP_DEV_MODE_ENABLED" == "yes"; then

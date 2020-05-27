@@ -144,7 +144,9 @@ void Message_extractor::run(const util::bytes& uncompressed_payload)
 		std::size_t msg_length = extract_length();
 		xmysqlnd_server_message_type msg_type = extract_type();
 		util::bytes msg_payload = extract_payload(msg_length);
-		messages.emplace_back(msg_type, std::move(msg_payload));
+		// due to some mysterious reasons this line causes vs2017 internal error
+		// messages.emplace_back(msg_type, std::move(msg_payload));
+		messages.push_back({msg_type, msg_payload});
 	}
 }
 

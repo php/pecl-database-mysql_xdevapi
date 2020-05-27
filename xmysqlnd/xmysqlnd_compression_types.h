@@ -19,7 +19,7 @@
 #ifndef XMYSQLND_COMPRESSION_TYPES_H
 #define XMYSQLND_COMPRESSION_TYPES_H
 
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace mysqlx {
 
@@ -53,11 +53,11 @@ struct Configuration
 
 	// informs the server that it can combine multiple types of
 	// messages into a single compressed payload
-	boost::optional<bool> combine_mixed_messages;
+	std::optional<bool> combine_mixed_messages;
 
 	// if set this informs the server that it should not combine
 	// more than x number of messages inside a single compressed payload.
-	boost::optional<int> max_combine_messages;
+	std::optional<int> max_combine_messages;
 
 	Configuration(Algorithm algorithm = Algorithm::none);
 	bool enabled() const;

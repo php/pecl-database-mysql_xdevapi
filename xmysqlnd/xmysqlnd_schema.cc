@@ -28,6 +28,7 @@
 #include "xmysqlnd_stmt_result_meta.h"
 #include "xmysqlnd_structs.h"
 #include "xmysqlnd_utils.h"
+#include "xmysqlnd_zval2any.h"
 #include "util/json_utils.h"
 #include "util/pb_utils.h"
 
@@ -261,13 +262,11 @@ static const enum_hnd_func_status schema_op_var_binder(void * context,
 
 	util::pb::add_field_to_object("schema", ctx->schema_name, stmt_obj);
 	util::pb::add_field_to_object("name", ctx->collection_name, stmt_obj);
-	if (!util::is_empty(ctx->collection_options)) {
+	if (!ctx->collection_options.empty()) {
 		Mysqlx::Datatypes::Object_ObjectField* collection_options{ stmt_obj->add_fld() };
 		collection_options->set_key("options");
-		util::json::to_any(
-			ctx->collection_options.s,
-			ctx->collection_options.l,
-			*collection_options->mutable_value());
+		util::zvalue parsed_coll_options = util::json::parse_document(ctx->collection_options);
+		zval2any(parsed_coll_options, *collection_options->mutable_value());
 	}
 
 	DBG_RETURN(HND_PASS);
@@ -285,8 +284,8 @@ xmysqlnd_collection_op(
 
 	st_collection_op_var_binder_ctx var_binder_ctx = {
 		mnd_str2c(schema->get_name()),
-		collection_name.to_nd_cstr(),
-		collection_options.to_nd_cstr()
+		collection_name,
+		collection_options
 	};
 	const st_xmysqlnd_session_query_bind_variable_bind var_binder{ schema_op_var_binder, &var_binder_ctx };
 

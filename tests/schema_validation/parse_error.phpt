@@ -51,6 +51,6 @@ require(__DIR__."/../connect.inc");
 clean_test_db();
 ?>
 --EXPECTF--
-[10077][HY000] json parse error (character 16): Invalid value.
-[10077][HY000] json parse error (character 35): Missing a comma or '}' after an object member.
+[10077][HY000] json parse error, code: 4
+[10077][HY000] json parse error, code: 4
 done!%A

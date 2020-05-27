@@ -189,7 +189,7 @@ struct Session_auth_data
 	unsigned int port;
 	std::string username;
 	std::string password;
-	boost::optional<int> connection_timeout;
+	std::optional<int> connection_timeout;
 	compression::Policy compression_policy{ compression::Policy::preferred };
 	boost::optional<util::std_strings> compression_algorithms;
 
@@ -412,7 +412,7 @@ private:
 };
 
 bool set_connection_timeout(
-	const boost::optional<int>& connection_timeout,
+	const std::optional<int>& connection_timeout,
 	MYSQLND_VIO* vio);
 
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
@@ -495,7 +495,7 @@ public:
 		- Session::Close meant Connection::Close
 		more details: WL#12375 WL#12396
 	*/
-	mutable boost::optional<bool>      session_properly_supported;
+	mutable std::optional<bool>      session_properly_supported;
 	/* stats */
 	MYSQLND_STATS*                     stats;
 	zend_bool		                   own_stats;

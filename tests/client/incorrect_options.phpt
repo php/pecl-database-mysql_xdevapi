@@ -76,7 +76,7 @@ $pooling_options = '{
 assert_client_fail_with_options($pooling_options);
 
 $pooling_options = '{
-	"enabled": "false",
+	"enabled": false,
   	"queueTimeOut": -5000
 }';
 assert_client_fail_with_options($pooling_options);
@@ -97,16 +97,16 @@ print "done!\n";
 ?>
 --EXPECTF--
 [10052][HY000] Invalid argument. Client option 'enabled' does not support value 'incorrect_boolen_value'.
-[10052][HY000] Invalid argument. Client option 'enabled' does not support value '1.5'.
+[10052][HY000] Invalid argument. Client option 'enabled' does not support value 1.5.
 [10052][HY000] Invalid argument. Client option 'unknown_option' is not recognized as valid.
 [10052][HY000] Invalid argument. Client option 'non_existing_option' is not recognized as valid.
-[10052][HY000] Invalid argument. Client option 'maxSize' does not support value '-10'.
-[10052][HY000] Invalid argument. Client option 'maxSize' does not support value '0'.
+[10052][HY000] Invalid argument. Client option 'maxSize' does not support value -10.
+[10052][HY000] Invalid argument. Client option 'maxSize' does not support value 0.
 [10052][HY000] Invalid argument. Client option 'maxSize' does not support value 'eleven'.
 [10052][HY000] Invalid argument. Client option 'maxIdleTime' does not support value 'incorrect_idle_time'.
-[10052][HY000] Invalid argument. Client option 'maxIdleTime' does not support value '-100'.
-[10052][HY000] Invalid argument. Client option 'maxIdleTime' does not support value 'true'.
+[10052][HY000] Invalid argument. Client option 'maxIdleTime' does not support value -100.
+[10052][HY000] Invalid argument. Client option 'maxIdleTime' does not support value true.
 [10052][HY000] Invalid argument. Client option 'queueTimeOut' does not support value 'non_default_queue_time'.
-[10052][HY000] Invalid argument. Client option 'queueTimeOut' does not support value '-5000'.
-[10052][HY000] Invalid argument. Client option 'queueTimeOut' does not support value 'false'.
+[10052][HY000] Invalid argument. Client option 'queueTimeOut' does not support value -5000.
+[10052][HY000] Invalid argument. Client option 'queueTimeOut' does not support value false.
 done!%A

@@ -20,10 +20,9 @@
 
 #include "strings.h"
 #include "string_utils.h"
+#include <optional>
 
-namespace mysqlx {
-
-namespace util {
+namespace mysqlx::util {
 
 class zvalue
 {
@@ -145,7 +144,12 @@ class zvalue
 		bool is_object() const;
 		bool is_reference() const;
 
+		// returns true if type is neither undefined nor null (i.e. type != Undefined && type != Null)
+		operator bool() const;
+
 	public:
+		// call below methods only if U are fully sure they have proper type (or it may crash)
+		// else use to_optional_value or to_obligatory_value
 		bool to_bool() const;
 
 		int to_int() const;
@@ -170,6 +174,14 @@ class zvalue
 
 		template<typename T>
 		T to_value() const;
+
+		// if value is undefined or has incompatible type, then return std::nullopt
+		template<typename T>
+		std::optional<T> to_optional_value() const;
+
+		// if value is undefined or has incompatible type, then throws exception
+		template<typename T>
+		T to_obligatory_value() const;
 
 	public:
 		// applicable only for string and array
@@ -225,11 +237,25 @@ class zvalue
 		// object
 		std::size_t properties_count() const;
 
-		const zvalue get_property(const string& name) const;
-		const zvalue get_property(const string_view& name) const;
-		const zvalue get_property(const std::string& name) const;
-		const zvalue get_property(const char* name) const;
-		const zvalue get_property(const char* name, std::size_t name_length) const;
+		bool has_property(const string& name) const;
+		bool has_property(const string_view& name) const;
+		bool has_property(const std::string& name) const;
+		bool has_property(const char* name) const;
+		bool has_property(const char* name, std::size_t name_length) const;
+
+		// in case property doesn't exists it returns 'undefined' zvalue, i.e. is_undef() == true
+		zvalue get_property(const string& name) const;
+		zvalue get_property(const string_view& name) const;
+		zvalue get_property(const std::string& name) const;
+		zvalue get_property(const char* name) const;
+		zvalue get_property(const char* name, std::size_t name_length) const;
+
+		// in case property doesn't exists it throws an exception
+		zvalue require_property(const string& name) const;
+		zvalue require_property(const string_view& name) const;
+		zvalue require_property(const std::string& name) const;
+		zvalue require_property(const char* name) const;
+		zvalue require_property(const char* name, std::size_t name_length) const;
 
 		void set_property(const string& name, const zvalue& value);
 		void set_property(const string_view& name, const zvalue& value);
@@ -256,35 +282,35 @@ class zvalue
 
 		// it returns value, not reference!
 		// returns empty result (is_undef() == true) in case given index/key not found
-		const zvalue find(std::size_t index) const;
-		const zvalue find(long index) const;
+		zvalue find(std::size_t index) const;
+		zvalue find(long index) const;
 
-		const zvalue find(const string& key) const;
-		const zvalue find(const string_view& key) const;
-		const zvalue find(const std::string& key) const;
-		const zvalue find(const char* key) const;
-		const zvalue find(const char* key, std::size_t key_length) const;
+		zvalue find(const string& key) const;
+		zvalue find(const string_view& key) const;
+		zvalue find(const std::string& key) const;
+		zvalue find(const char* key) const;
+		zvalue find(const char* key, std::size_t key_length) const;
 
 		// it returns value, not reference!
 		// returns empty result (is_undef() == true) in case given index/key not found
-		const zvalue operator[](std::size_t index) const;
-		const zvalue operator[](long index) const;
+		zvalue operator[](std::size_t index) const;
+		zvalue operator[](long index) const;
 
-		const zvalue operator[](const string& key) const;
-		const zvalue operator[](const string_view& key) const;
-		const zvalue operator[](const std::string& key) const;
-		const zvalue operator[](const char* key) const;
+		zvalue operator[](const string& key) const;
+		zvalue operator[](const string_view& key) const;
+		zvalue operator[](const std::string& key) const;
+		zvalue operator[](const char* key) const;
 
 		// it returns value, not reference!
 		// throws an exception in case given index/key not found
-		const zvalue at(std::size_t index) const;
-		const zvalue at(long index) const;
+		zvalue at(std::size_t index) const;
+		zvalue at(long index) const;
 
-		const zvalue at(const string& key) const;
-		const zvalue at(const string_view& key) const;
-		const zvalue at(const std::string& key) const;
-		const zvalue at(const char* key) const;
-		const zvalue at(const char* key, std::size_t key_length) const;
+		zvalue at(const string& key) const;
+		zvalue at(const string_view& key) const;
+		zvalue at(const std::string& key) const;
+		zvalue at(const char* key) const;
+		zvalue at(const char* key, std::size_t key_length) const;
 
 		// inserts new item, or overwrites existing one if given index/key already exists
 		void insert(std::size_t index, const zvalue& value);
@@ -362,6 +388,47 @@ class zvalue
 		iterator end() const;
 
 	public:
+		// to iterate through array items as keys (values are not returned)
+		class key_iterator
+		{
+			public:
+				using key_type = zvalue;
+				using difference_type = std::ptrdiff_t;
+				using pointer = key_type*;
+				using reference = key_type&;
+				using iterator_category = std::forward_iterator_tag;
+
+			public:
+				explicit key_iterator(HashTable* ht, HashPosition size, HashPosition pos);
+
+				key_iterator operator++(int);
+				key_iterator& operator++();
+
+				key_type operator*() const;
+
+				bool operator==(const key_iterator& rhs) const;
+				bool operator!=(const key_iterator& rhs) const;
+
+			private:
+				HashTable* ht;
+				HashPosition size;
+				mutable HashPosition pos;
+		};
+
+		key_iterator kbegin() const;
+		key_iterator kend() const;
+
+		struct keys_range
+		{
+			keys_range(const zvalue& ref);
+			key_iterator begin() const;
+			key_iterator end() const;
+			const zvalue& ref;
+		};
+
+		keys_range keys() const;
+
+	public:
 		// to iterate through array items as zvalues (keys are not returned)
 		class value_iterator
 		{
@@ -409,13 +476,15 @@ class zvalue
 		const zval* c_ptr() const;
 		zval* ptr() const;
 
+	public:
+		// diagnostics
+		util::string serialize() const;
+
 	private:
 		zval zv;
 };
 
-} // namespace util
-
-} // namespace mysqlx
+} // namespace mysqlx::util
 
 #include "value.inl"
 

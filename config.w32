@@ -836,7 +836,7 @@ function get_compiler_options() {
 	return [
 		get_treat_warnings_as_errors(),
 		"/EHsc", // enable exceptions
-		"/std:c++14" // standard compliance
+		"/std:c++17" // standard compliance
 	].join(' ');
 }
 

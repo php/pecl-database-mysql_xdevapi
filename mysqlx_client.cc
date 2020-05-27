@@ -57,9 +57,6 @@ struct Client_options
 
 //------------------------------------------------------------------------------
 
-using ptree_string = util::json::ptree_string;
-using ptree = boost::property_tree::basic_ptree<ptree_string, ptree_string>;
-
 class Client_options_parser
 {
 public:
@@ -86,21 +83,25 @@ private:
 		const T& option_value) const;
 
 private:
-	ptree options_desc;
+	util::zvalue options_desc;
 	Client_options client_options;
-
 }; // Client_options_parser
 
 // ---------
 
 Client_options_parser::Client_options_parser(const util::string_view& options_json)
+	: options_desc(util::json::parse_document(options_json))
 {
-	util::istringstream is(options_json.to_string());
-	boost::property_tree::read_json(is, options_desc);
 }
 
 Client_options Client_options_parser::run()
 {
+	if (!options_desc.is_object()) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::json_object_expected,
+			"client options");
+	}
+
 	verify_options_description();
 	assign_options();
 	return client_options;
@@ -108,8 +109,8 @@ Client_options Client_options_parser::run()
 
 void Client_options_parser::verify_options_description()
 {
-	for (auto option : options_desc) {
-		const std::string option_name{ option.first.data() };
+	for (const auto& option : options_desc.keys()) {
+		const std::string option_name{ option.to_std_string() };
 		verify_option(option_name);
 	}
 }
@@ -147,24 +148,25 @@ void Client_options_parser::assign_option(
 	T& client_option,
 	Value_checker value_checker)
 {
-	auto option_desc{ options_desc.get_optional<T>(option_name) };
+	util::zvalue option_desc = options_desc.get_property(option_name);
 	if (!option_desc) {
-		auto option_desc_as_str{ options_desc.get_optional<ptree_string>(option_name) };
-		if (!option_desc_as_str) return;
-
-		throw util::xdevapi_exception(
-			util::xdevapi_exception::Code::invalid_argument,
-			prepare_option_value_not_supported_msg(option_name, option_desc_as_str.get()));
+		return;
 	}
 
-	auto option_value{ option_desc.get() };
-	if (!value_checker(option_value)) {
+	auto option_value{ option_desc.to_optional_value<T>() };
+	if (!option_value) {
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::invalid_argument,
-			prepare_option_value_not_supported_msg(option_name, option_value));
+			prepare_option_value_not_supported_msg(option_name, option_desc.serialize()));
 	}
 
-	client_option = option_value;
+	if (!value_checker(*option_value)) {
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::invalid_argument,
+			prepare_option_value_not_supported_msg(option_name, *option_value));
+	}
+
+	client_option = *option_value;
 }
 
 template<typename T>
@@ -173,7 +175,7 @@ util::string Client_options_parser::prepare_option_value_not_supported_msg(
 	const T& option_value) const
 {
 	util::ostringstream os;
-	os << "Client option '" << option_name << "' does not support value '" << option_value << "'.";
+	os << "Client option '" << option_name << "' does not support value " << option_value << ".";
 	return os.str();
 }
 
@@ -181,7 +183,9 @@ util::string Client_options_parser::prepare_option_value_not_supported_msg(
 
 Client_options parse_client_options(const util::string_view& options_json)
 {
-	if (options_json.empty()) return Client_options();
+	if (options_json.empty()) {
+		return Client_options();
+	}
 
 	Client_options_parser client_opts_parser(options_json);
 	return client_opts_parser.run();

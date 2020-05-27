@@ -114,7 +114,7 @@ enum xmysqlnd_data_model
 	XMYSQLND_MODEL_COLLECTION
 };
 
-struct Message_data
+struct Message_data : public util::custom_allocable
 {
 	Message_data(
 		xmysqlnd_server_message_type packet_type,

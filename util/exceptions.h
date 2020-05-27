@@ -116,9 +116,14 @@ struct xdevapi_exception : public std::runtime_error
 		compressor_not_available,
 		compression_negotiation_failure,
 		compression_invalid_algorithm_name,
+		object_property_not_exist,
+		object_property_invalid_type,
+		json_object_expected,
+		json_array_expected,
 	};
 
 	xdevapi_exception(Code code);
+	xdevapi_exception(Code code, int error_number);
 	xdevapi_exception(Code code, const string& msg);
 	xdevapi_exception(Code code, const char* msg);
 	xdevapi_exception(Code code, const std::string& msg);
