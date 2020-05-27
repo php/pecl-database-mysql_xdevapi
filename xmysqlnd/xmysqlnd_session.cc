@@ -1690,8 +1690,15 @@ bool Authenticate::init_capabilities()
 
 void Authenticate::setup_compression()
 {
-	compression::Configuration compression_cfg;
-	compression::run_setup(auth->compression_policy, msg_factory, capabilities, compression_cfg);
+	const compression::Setup_data setup_data{
+		auth->compression_policy,
+		auth->compression_algorithms,
+		msg_factory,
+		capabilities
+	};
+	const compression::Configuration compression_cfg{
+		compression::run_setup(setup_data)
+	};
 	session->compression_executor.reset(compression_cfg);
 }
 
@@ -2776,11 +2783,13 @@ private:
 	void set_ssl_ciphers(const std::string& ssl_ciphers);
 	void set_connect_timeout(const std::string& timeout_str);
 	void set_compression(const std::string& compression_str);
+	void set_compression_algorithms(const std::string& compression_algorithms_str);
 
 	util::std_strings parse_single_or_array(const std::string& value) const;
 	bool parse_boolean(const std::string& value_str) const;
 	int parse_int(const std::string& value_str) const;
 	compression::Policy parse_compression_policy(const std::string& compression_policy_str) const;
+	void verify_compression_algorithm(const std::string& algorithm_name) const;
 
 private:
 	const util::string& option_name;
@@ -2795,16 +2804,12 @@ struct Client_option_info
 	enum Trait {
 		None = 0x0,
 		Requires_value = 0x1,
-		Is_secure = 0x2,
-		Is_boolean = 0x4,
-		Is_integer = 0x8
+		Is_secure = 0x2
 	};
 	int traits;
 	bool has_trait(Trait trait) const { return (traits & trait) == trait; }
 	bool requires_value() const { return has_trait(Trait::Requires_value); }
 	bool is_secure() const { return has_trait(Trait::Is_secure); }
-	bool is_boolean() const { return has_trait(Trait::Is_boolean); }
-	bool is_integer() const { return has_trait(Trait::Is_integer); }
 
 	Extract_client_option::Setter setter;
 };
@@ -2840,8 +2845,9 @@ void Extract_client_option::run()
 		{ "tls-versions", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_versions }},
 		{ "tls-ciphersuite", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
 		{ "tls-ciphersuites", {Option_trait::Is_secure | Option_trait::Requires_value, &Extract_client_option::set_tls_ciphersuites }},
-		{ "connect-timeout", {Option_trait::Is_integer | Option_trait::Requires_value, &Extract_client_option::set_connect_timeout }},
-		{ "compression", {Option_trait::Is_boolean | Option_trait::Requires_value, &Extract_client_option::set_compression }},
+		{ "connect-timeout", {Option_trait::Requires_value, &Extract_client_option::set_connect_timeout }},
+		{ "compression", {Option_trait::Requires_value, &Extract_client_option::set_compression }},
+		{ "compression-algorithms", {Option_trait::Requires_value, &Extract_client_option::set_compression_algorithms }},
 	};
 
 	auto it{ option_to_info.find(option_name.c_str()) };
@@ -3081,6 +3087,15 @@ void Extract_client_option::set_compression(const std::string& compression_polic
 	auth.compression_policy = parse_compression_policy(compression_policy_str);
 }
 
+void Extract_client_option::set_compression_algorithms(const std::string& compression_algorithms_str)
+{
+	util::std_strings compression_algorithms = parse_single_or_array(compression_algorithms_str);
+	for (const auto& algorithm_name : compression_algorithms) {
+		verify_compression_algorithm(algorithm_name);
+	}
+	auth.compression_algorithms = std::move(compression_algorithms);
+}
+
 // -----------------
 
 util::std_strings Extract_client_option::parse_single_or_array(const std::string& value) const
@@ -3170,6 +3185,25 @@ compression::Policy Extract_client_option::parse_compression_policy(
 
 	return it->second;
 }
+
+void Extract_client_option::verify_compression_algorithm(const std::string& algorithm_name) const
+{
+	bool is_valid_name = std::all_of(
+		algorithm_name.begin(),
+		algorithm_name.end(),
+		[](const char chr){ return std::isalnum(chr) || (chr == '_'); });
+
+	if (!is_valid_name) {
+		util::ostringstream os;
+		os << util::quotation_if_blank(algorithm_name)
+			<< " not recognized as a correct name of compression algorithm";
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::compression_invalid_algorithm_name,
+			os.str());
+	}
+}
+
+// -----------------
 
 enum_func_status extract_client_option(
 	const util::string& option_name,

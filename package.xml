@@ -71,7 +71,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="Makefile.frag" role="src" />
    <file name="Makefile.frag.w32" role="src" />
    <file name="README" role="doc" />
-   <file name="config-win.h" role="src" />
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
    <file name="examples.php" role="test" />
@@ -184,7 +183,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="collection_modifysetunset.phpt" role="test" />
     <file name="collection_remove.phpt" role="test" />
     <file name="complex_query.phpt" role="test" />
-    <file name="compression_options.phpt" role="test" />
     <file name="connect.inc" role="test" />
     <file name="connection_test_uri_string.phpt" role="test" />
     <file name="createdrop_schema.phpt" role="test" />
@@ -278,6 +276,16 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="simple_vs_common.phpt" role="test" />
      <file name="waiting_timeout.phpt" role="test" />
      <file name="waiting_timeout_close_open.phpt" role="test" />
+    </dir>
+    <dir name="compression">
+     <file name="algorithm_alias.phpt" role="test" />
+     <file name="algorithm_empty.phpt" role="test" />
+     <file name="algorithm_incorrect.phpt" role="test" />
+     <file name="algorithm_name.phpt" role="test" />
+     <file name="algorithm_name_alias.phpt" role="test" />
+     <file name="algorithm_unknown.phpt" role="test" />
+     <file name="compression_utils.inc" role="test" />
+     <file name="mode.phpt" role="test" />
     </dir>
     <dir name="crud_json">
      <file name="crud_json_utils.inc" role="test" />
@@ -434,6 +442,15 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
      <file name="get_empty_default_schema.phpt" role="test" />
      <file name="incorrect_default_schema.phpt" role="test" />
      <file name="schema_utils.inc" role="test" />
+    </dir>
+    <dir name="schema_validation">
+     <file name="create_common.phpt" role="test" />
+     <file name="create_no_schema.phpt" role="test" />
+     <file name="create_simple.phpt" role="test" />
+     <file name="modify_off.phpt" role="test" />
+     <file name="modify_schema.phpt" role="test" />
+     <file name="modify_strict.phpt" role="test" />
+     <file name="parse_error.phpt" role="test" />
     </dir>
     <dir name="session">
      <file name="from_collection.phpt" role="test" />

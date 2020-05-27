@@ -115,6 +115,7 @@ struct xdevapi_exception : public std::runtime_error
 		compression_not_supported,
 		compressor_not_available,
 		compression_negotiation_failure,
+		compression_invalid_algorithm_name,
 	};
 
 	xdevapi_exception(Code code);
