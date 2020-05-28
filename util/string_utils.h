@@ -80,6 +80,11 @@ inline string to_string(const string& str)
 	return str;
 }
 
+inline string to_string(const string_view& view)
+{
+	return string(view.data(), view.length());
+}
+
 inline string to_string(const std::string& str)
 {
 	return string(str.c_str(), str.length());

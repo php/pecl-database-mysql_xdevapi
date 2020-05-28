@@ -213,6 +213,11 @@ xdevapi_exception::xdevapi_exception(unsigned int code, const char* sql_state, c
 {
 }
 
+xdevapi_exception::xdevapi_exception(unsigned int code, const string_view& sql_state, const string_view& msg)
+	: xdevapi_exception(code, sql_state.to_string(), msg.to_string())
+{
+}
+
 xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
 	: std::runtime_error(prepare_reason_msg(code, sql_state, msg).c_str())
 	, code(code)

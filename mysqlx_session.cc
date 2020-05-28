@@ -127,13 +127,11 @@ Session_data& fetch_session_data(T* from, bool allow_closed = false)
 static zend_bool
 mysqlx_throw_exception_from_session_if_needed(const XMYSQLND_SESSION_DATA session)
 {
-    const unsigned int error_num = session->get_error_no();
+    const int error_num = session->get_error_no();
 	DBG_ENTER("mysqlx_throw_exception_from_session_if_needed");
 	if (error_num) {
-        MYSQLND_CSTRING sqlstate = { session->get_sqlstate() , 0 };
-        MYSQLND_CSTRING errmsg = { session->get_error_str() , 0 };
-		sqlstate.l = strlen(sqlstate.s);
-		errmsg.l = strlen(errmsg.s);
+        const char* sqlstate = session->get_sqlstate();
+        const char* errmsg = session->get_error_str();
 		mysqlx_new_exception(error_num, sqlstate, errmsg);
 		DBG_RETURN(TRUE);
 	}
@@ -222,8 +220,8 @@ mysqlx_session_command_handler_on_error(
 	XMYSQLND_SESSION session,
 	xmysqlnd_stmt * const /*stmt*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
 	DBG_ENTER("mysqlx_session_command_handler_on_error");
     if (session) {

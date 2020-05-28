@@ -30,24 +30,23 @@ extern "C" {
 
 namespace mysqlx {
 
+const char* GENERAL_SQL_STATE = "HY000"; //Same as for the server
+
 namespace devapi {
 
-zend_class_entry * mysqlx_exception_class_entry;
+zend_class_entry* mysqlx_exception_class_entry;
 
 struct st_mysqlx_exception
 {
-	MYSQLND_STRING msg;
-	unsigned int level;
-	unsigned int code;
-	zend_bool persistent;
+	util::string msg;
+	unsigned int level = 0;
+	unsigned int code = 0;
 };
 
 void
-RAISE_EXCEPTION(const int errcode, const char * const msg)
+RAISE_EXCEPTION(int errcode, const char* msg)
 {
-	const MYSQLND_CSTRING sqlstate = { GENERAL_SQL_STATE, sizeof(GENERAL_SQL_STATE) - 1 };
-	const MYSQLND_CSTRING errmsg = { msg, sizeof(msg) - 1 };
-	mysqlx_new_exception(errcode, sqlstate, errmsg);
+	mysqlx_new_exception(errcode, GENERAL_SQL_STATE, msg);
 }
 
 static const zend_function_entry mysqlx_exception_methods[] = {
@@ -59,8 +58,8 @@ mysqlx_exception_property__message(const st_mysqlx_object* obj, zval* return_val
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
 	DBG_ENTER("mysqlx_exception_property__message");
-	if (object->msg.s) {
-		ZVAL_STRINGL(return_value, object->msg.s, object->msg.l);
+	if (!object->msg.empty()) {
+		ZVAL_STRINGL(return_value, object->msg.c_str(), object->msg.length());
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -126,11 +125,11 @@ mysqlx_unregister_exception_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+mysqlx_new_exception(int code, const util::string_view& sql_state, const util::string_view& message)
 {
 	char* msg{nullptr};
 	DBG_ENTER("mysqlx_new_exception");
-	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.l, sql_state.s, message.l, message.s);
+	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.length(), sql_state.c_str(), message.length(), message.c_str());
 	if (msg) {
 		zend_throw_exception(mysqlx_exception_class_entry, msg, code);
 		mnd_efree(msg);
@@ -139,7 +138,7 @@ mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, c
 }
 
 void
-mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING /*sql_state*/, const char * const format, ...)
+mysqlx_new_exception_ex(int code, const util::string_view& /*sql_state*/, const char* format, ...)
 {
 	va_list args;
 	char * msg;

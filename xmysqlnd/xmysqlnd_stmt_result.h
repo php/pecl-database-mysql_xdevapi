@@ -29,7 +29,7 @@ class xmysqlnd_stmt;
 struct st_xmysqlnd_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_rowset;
-struct st_xmysqlnd_warning_list;
+struct xmysqlnd_warning_list;
 
 
 typedef struct st_xmysqlnd_stmt_result			XMYSQLND_STMT_RESULT;
@@ -54,7 +54,7 @@ typedef void				(*func_xmysqlnd_stmt_result__free_rows)(XMYSQLND_STMT_RESULT * c
 typedef enum_func_status	(*func_xmysqlnd_stmt_result__attach_rowset)(XMYSQLND_STMT_RESULT * const result, st_xmysqlnd_rowset* const st_xmysqlnd_rowset, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_stmt_result__attach_meta)(XMYSQLND_STMT_RESULT * const result, st_xmysqlnd_stmt_result_meta* const meta, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 typedef enum_func_status	(*func_xmysqlnd_stmt_result__attach_execution_state)(XMYSQLND_STMT_RESULT * const result, st_xmysqlnd_stmt_execution_state* const exec_state);
-typedef enum_func_status	(*func_xmysqlnd_stmt_result__attach_warning_list)(XMYSQLND_STMT_RESULT * const result, st_xmysqlnd_warning_list* const warning_list);
+typedef enum_func_status	(*func_xmysqlnd_stmt_result__attach_warning_list)(XMYSQLND_STMT_RESULT * const result, xmysqlnd_warning_list* const warning_list);
 
 
 typedef XMYSQLND_STMT_RESULT *	(*func_xmysqlnd_stmt_result__get_reference)(XMYSQLND_STMT_RESULT * const result);
@@ -102,7 +102,7 @@ struct st_xmysqlnd_stmt_result : public util::custom_allocable
 	st_xmysqlnd_rowset* rowset;
 	st_xmysqlnd_stmt_result_meta* meta;
 	st_xmysqlnd_stmt_execution_state* exec_state;
-	st_xmysqlnd_warning_list* warnings;
+	xmysqlnd_warning_list* warnings;
 
 	MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result) m;
 	size_t		refcount;

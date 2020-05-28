@@ -21,120 +21,73 @@
 #include "xmysqlnd_wireprotocol.h"
 #include "xmysqlnd_driver.h"
 #include "xmysqlnd_warning_list.h"
+#include "util/string_utils.h"
 
 namespace mysqlx {
 
 namespace drv {
 
-static enum_func_status
-XMYSQLND_METHOD(xmysqlnd_warning_list, init)(
-	XMYSQLND_WARNING_LIST* const /*warn_list*/,
-	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const /*factory*/,
-	MYSQLND_STATS* const /*stats*/,
-	MYSQLND_ERROR_INFO* const /*error_info*/)
+xmysqlnd_warning_list::xmysqlnd_warning_list()
 {
-	DBG_ENTER("xmysqlnd_warning_list::init");
-	DBG_RETURN(PASS);
-}
-
-static void
-XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning)(XMYSQLND_WARNING_LIST * const warn_list,
-													const enum xmysqlnd_stmt_warning_level level,
-													const unsigned int code,
-													const MYSQLND_CSTRING message)
-{
-	DBG_ENTER("xmysqlnd_warning_list::add_warning");
-	if (!warn_list->warnings || warn_list->warnings_allocated == warn_list->warning_count) {
-		warn_list->warnings_allocated = ((warn_list->warnings_allocated + 1) * 5)/ 3;
-		warn_list->warnings = static_cast<st_xmysqlnd_warning*>(mnd_erealloc(warn_list->warnings,
-											warn_list->warnings_allocated * sizeof(struct st_xmysqlnd_warning)));
-	}
-
-	{
-		const st_xmysqlnd_warning warn = { mnd_dup_cstring(message, 0), code, level };
-		warn_list->warnings[warn_list->warning_count++] = warn;
-	}
+	DBG_ENTER("xmysqlnd_warning_list::xmysqlnd_warning_list");
 	DBG_VOID_RETURN;
 }
 
-static unsigned int
-XMYSQLND_METHOD(xmysqlnd_warning_list, count)(const XMYSQLND_WARNING_LIST * const warn_list)
+void
+xmysqlnd_warning_list::add_warning(
+	const xmysqlnd_stmt_warning_level level,
+	const unsigned int code,
+	const util::string_view& message)
 {
-	DBG_ENTER("xmysqlnd_warning_list::count");
-	DBG_RETURN(warn_list->warning_count);
+	DBG_ENTER("xmysqlnd_warning_list::add_warning");
+	// marines: TODO problems with custom allocator vs emplace_back && in-place initialization
+	// st_xmysqlnd_warning warning = {util::to_string(message), code, level};
+	// warnings.emplace_back(util::to_string(message), code, level);
+	warnings.push_back({util::to_string(message), code, level});
+	DBG_VOID_RETURN;
 }
 
-static const XMYSQLND_WARNING
-XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning)(const XMYSQLND_WARNING_LIST * const warn_list, unsigned int offset)
+std::size_t
+xmysqlnd_warning_list::count() const
 {
-	XMYSQLND_WARNING ret = { {nullptr, 0}, 0, XSTMT_WARN_NONE };
+	DBG_ENTER("xmysqlnd_warning_list::count");
+	DBG_RETURN(warnings.size());
+}
+
+XMYSQLND_WARNING
+xmysqlnd_warning_list::get_warning(std::size_t index) const
+{
+	XMYSQLND_WARNING ret;
 	DBG_ENTER("xmysqlnd_warning_list::get_warning");
-	if (offset < warn_list->warning_count) {
-		ret.message = mnd_str2c(warn_list->warnings[offset].message);
-		ret.code = warn_list->warnings[offset].code;
-		ret.level = warn_list->warnings[offset].level;
+	if (index < warnings.size()) {
+		ret = warnings[index];
 	}
 	DBG_RETURN(ret);
 }
 
-static void
-XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents)(XMYSQLND_WARNING_LIST * const warn_list)
+void
+xmysqlnd_warning_list::free_contents()
 {
 	DBG_ENTER("xmysqlnd_warning_list::free_contents");
-	if (warn_list->warnings) {
-		if (warn_list->warning_count) {
-			DBG_INF_FMT("Freeing %u warning(s)", warn_list->warning_count);
-			for (unsigned int i{0}; i < warn_list->warning_count; ++i) {
-				mnd_efree(warn_list->warnings[i].message.s);
-			}
-		}
-		mnd_efree(warn_list->warnings);
-		warn_list->warnings = nullptr;
-	}
+	warnings.clear();
 	DBG_VOID_RETURN;
 }
 
-static void
-XMYSQLND_METHOD(xmysqlnd_warning_list, dtor)(XMYSQLND_WARNING_LIST * const warn_list)
-{
-	DBG_ENTER("xmysqlnd_warning_list::dtor");
-	if (warn_list) {
-		warn_list->m->free_contents(warn_list);
-		mnd_efree(warn_list);
-	}
-	DBG_VOID_RETURN;
-}
-
-static
-MYSQLND_CLASS_METHODS_START(xmysqlnd_warning_list)
-	XMYSQLND_METHOD(xmysqlnd_warning_list, init),
-	XMYSQLND_METHOD(xmysqlnd_warning_list, add_warning),
-	XMYSQLND_METHOD(xmysqlnd_warning_list, count),
-	XMYSQLND_METHOD(xmysqlnd_warning_list, get_warning),
-	XMYSQLND_METHOD(xmysqlnd_warning_list, free_contents),
-	XMYSQLND_METHOD(xmysqlnd_warning_list, dtor),
-MYSQLND_CLASS_METHODS_END;
-
-
-PHP_MYSQL_XDEVAPI_API MYSQLND_CLASS_METHODS_INSTANCE_DEFINE(xmysqlnd_warning_list);
-
-PHP_MYSQL_XDEVAPI_API XMYSQLND_WARNING_LIST *
+XMYSQLND_WARNING_LIST *
 xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	XMYSQLND_WARNING_LIST* result{nullptr};
 	DBG_ENTER("xmysqlnd_warning_list_create");
-	result = object_factory->get_warnings_list(object_factory, persistent, stats, error_info);
+	result = new xmysqlnd_warning_list();
 	DBG_RETURN(result);
 }
 
-PHP_MYSQL_XDEVAPI_API void
+void
 xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST * const warn_list)
 {
 	DBG_ENTER("xmysqlnd_warning_list_free");
 	DBG_INF_FMT("warn_list=%p", warn_list);
-	if (warn_list) {
-		warn_list->m->dtor(warn_list);
-	}
+	delete warn_list;
 	DBG_VOID_RETURN;
 }
 

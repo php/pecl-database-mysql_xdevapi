@@ -96,10 +96,10 @@ mysqlx_sql_stmt_result_on_warning(
 	xmysqlnd_stmt * const /*stmt*/,
 	const enum xmysqlnd_stmt_warning_level /*level*/,
 	const unsigned int /*code*/,
-	const MYSQLND_CSTRING /*message*/)
+	const util::string_view& /*message*/)
 {
 	DBG_ENTER("mysqlx_sql_stmt_result_on_warning");
-	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
+	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.length(), message.data());
 	DBG_RETURN(HND_AGAIN);
 }
 
@@ -108,8 +108,8 @@ mysqlx_sql_stmt_result_on_error(
 	void * /*context*/,
 	xmysqlnd_stmt * const /*stmt*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
 	DBG_ENTER("mysqlx_sql_stmt_result_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -310,7 +310,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarningsCount)
 	const XMYSQLND_WARNING_LIST* const warnings = data_object.result->warnings;
 	/* Maybe check here if there was an error and throw an Exception or return a warning */
 	if (warnings) {
-		const size_t value = warnings->m->count(warnings);
+		const size_t value = warnings->count();
 		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
 			ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
@@ -336,10 +336,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarnings)
 	const XMYSQLND_WARNING_LIST * const warnings = data_object.result->warnings;
 	/* Maybe check here if there was an error and throw an Exception or return a warning */
 	if (warnings) {
-		const unsigned int count{warnings->m->count(warnings)};
+		const std::size_t count{warnings->count()};
 		array_init_size(return_value, count);
 		for (unsigned int i{0}; i < count; ++i) {
-			const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
+			const XMYSQLND_WARNING warning = warnings->get_warning(i);
 			util::zvalue warning_zv;
 			mysqlx_new_warning(warning_zv.ptr(), warning.message, warning.level, warning.code);
 

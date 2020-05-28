@@ -154,8 +154,8 @@ mysqlx_table_on_error(
 	XMYSQLND_SESSION session,
 	xmysqlnd_stmt* const /*stmt*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
 	DBG_ENTER("mysqlx_table_on_error");
 	const unsigned int UnknownDatabaseCode{1049};

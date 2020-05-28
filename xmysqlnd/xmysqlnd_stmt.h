@@ -34,7 +34,7 @@ class xmysqlnd_session;
 typedef std::shared_ptr<xmysqlnd_session> XMYSQLND_SESSION;
 struct st_xmysqlnd_stmt_result;
 struct st_xmysqlnd_stmt_execution_state;
-struct st_xmysqlnd_warning_list;
+struct xmysqlnd_warning_list;
 struct st_xmysqlnd_rowset;
 
 struct st_xmysqlnd_stmt_on_result_start_bind
@@ -52,14 +52,14 @@ struct st_xmysqlnd_stmt_on_row_bind
 
 struct st_xmysqlnd_stmt_on_warning_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, xmysqlnd_stmt * const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const util::string_view& message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_stmt_on_error_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, xmysqlnd_stmt * const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, xmysqlnd_stmt * const stmt, const unsigned int code, const util::string_view& sql_state, const util::string_view& message);
 	void * ctx;
 };
 
@@ -91,7 +91,7 @@ struct st_xmysqlnd_stmt_bind_ctx
 	st_xmysqlnd_rowset* rowset;
 	st_xmysqlnd_stmt_result_meta* meta;
 	st_xmysqlnd_stmt_result* result;
-	st_xmysqlnd_warning_list* warnings;
+	xmysqlnd_warning_list* warnings;
 	st_xmysqlnd_stmt_execution_state* exec_state;
 
 	st_xmysqlnd_stmt_on_row_bind on_row;
@@ -154,7 +154,7 @@ public:
 	enum_func_status				skip_all_results(xmysqlnd_stmt * const stmt, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
 	st_xmysqlnd_stmt_result_meta *	create_meta(void * ctx);
 	st_xmysqlnd_stmt_execution_state *	create_execution_state(void * ctx);
-	st_xmysqlnd_warning_list *			create_warning_list(void * ctx);
+	xmysqlnd_warning_list *			create_warning_list(void * ctx);
 	xmysqlnd_stmt *					get_reference(xmysqlnd_stmt * const stmt);
 	enum_func_status				free_reference(xmysqlnd_stmt * const stmt);
 	void							free_contents(xmysqlnd_stmt * const stmt);
@@ -184,7 +184,6 @@ public: //To be removed anyway
 
 
 xmysqlnd_stmt * xmysqlnd_stmt_create(XMYSQLND_SESSION session,
-													  const zend_bool persistent,
 													  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 													  MYSQLND_STATS * const stats,
 													  MYSQLND_ERROR_INFO * const error_info);
@@ -219,8 +218,8 @@ struct Prepare_statement_entry
 
 const enum_hnd_func_status prepare_st_on_error_handler(void * context,
 												 const unsigned int code,
-												 const MYSQLND_CSTRING sql_state,
-												 const MYSQLND_CSTRING message);
+												 const util::string_view& sql_state,
+												 const util::string_view& message);
 
 #define DEFAULT_PS_ID 1
 

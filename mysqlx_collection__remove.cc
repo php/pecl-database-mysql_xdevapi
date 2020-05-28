@@ -180,9 +180,9 @@ void Collection_remove::execute(zval* resultset)
 	DBG_INF_FMT("remove_op=%p collection=%p", remove_op, collection);
 	if (remove_op && collection) {
 		if (FALSE == xmysqlnd_crud_collection_remove__is_initialized(remove_op)) {
-			static const unsigned int errcode{10002};
-			static const MYSQLND_CSTRING sqlstate = { "HY000", sizeof("HY000") - 1 };
-			static const MYSQLND_CSTRING errmsg = { "Remove not completely initialized", sizeof("Remove not completely initialized") - 1 };
+			const int errcode{10002};
+			const char* sqlstate = "HY000";
+			const char* errmsg = "Remove not completely initialized";
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
 			xmysqlnd_stmt* stmt{ collection->remove(remove_op) };

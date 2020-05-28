@@ -40,7 +40,7 @@ class xmysqlnd_session_data;
 struct st_xmysqlnd_stmt_result;
 struct st_xmysqlnd_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;
-struct st_xmysqlnd_warning_list;
+struct xmysqlnd_warning_list;
 struct st_xmysqlnd_level3_io;
 struct st_xmysqlnd_pb_message_shell;
 
@@ -58,14 +58,14 @@ struct Message_context
 
 struct st_xmysqlnd_on_warning_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const util::string_view& message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_on_error_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, const unsigned int code, const util::string_view& sql_state, const util::string_view& message);
 	void * ctx;
 };
 

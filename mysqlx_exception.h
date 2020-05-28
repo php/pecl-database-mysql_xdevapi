@@ -18,19 +18,21 @@
 #ifndef MYSQLX_EXCEPTION_H
 #define MYSQLX_EXCEPTION_H
 
+#include "util/strings.h"
+
 namespace mysqlx {
+
+extern const char* GENERAL_SQL_STATE;
 
 namespace devapi {
 
 extern zend_class_entry * mysqlx_exception_class_entry;
 
-void mysqlx_new_exception(const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING msg);
-void mysqlx_new_exception_ex(const unsigned int code, const MYSQLND_CSTRING sql_state, const char * const format, ...);
+void mysqlx_new_exception(int code, const util::string_view& sql_state, const util::string_view& msg);
+void mysqlx_new_exception_ex(int code, const util::string_view& sql_state, const char* format, ...);
 
 void mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
-
-#define GENERAL_SQL_STATE "HY000" //Same as for the server
 
 //What follows is a list of *general* error message, better to avoid continuos
 //duplications of those messages and put them all here.
@@ -83,7 +85,7 @@ void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);
 #define err_msg_compression_not_supported  10042, "Compression requested but the server does not support it."
 #define err_msg_compres_negotiation_failed 10043, "Compression requested but the compression algorithm negotiation failed."
 
-extern void RAISE_EXCEPTION(const int errcode, const char * const msg);
+extern void RAISE_EXCEPTION(int errcode, const char* msg);
 
 //This is a very common exception
 #define RAISE_EXCEPTION_FETCH_FAIL() RAISE_EXCEPTION(err_msg_fetch_fail)

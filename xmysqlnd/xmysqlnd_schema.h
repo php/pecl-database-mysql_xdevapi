@@ -40,7 +40,7 @@ struct st_xmysqlnd_schema_on_database_object_bind
 
 struct st_xmysqlnd_schema_on_error_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const xmysqlnd_schema * const schema, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, const xmysqlnd_schema * const schema, const unsigned int code, const util::string_view& sql_state, const util::string_view& message);
 	void * ctx;
 };
 

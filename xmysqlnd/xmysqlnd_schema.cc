@@ -236,8 +236,8 @@ collection_op_handler_on_error(void * context,
 							   XMYSQLND_SESSION session,
 							   xmysqlnd_stmt * const /*stmt*/,
 							   const unsigned int code,
-							   const MYSQLND_CSTRING sql_state,
-							   const MYSQLND_CSTRING message)
+							   const util::string_view& sql_state,
+							   const util::string_view& message)
 {
 	st_create_collection_handler_ctx* ctx = (st_create_collection_handler_ctx*) context;
 	DBG_ENTER("collection_op_handler_on_error");

@@ -225,10 +225,10 @@ collection_index_on_error(
 	XMYSQLND_SESSION session,
 	xmysqlnd_stmt* const /*stmt*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
-	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
+	throw util::xdevapi_exception(code, sql_state, message);
 }
 
 } // anonymous namespace

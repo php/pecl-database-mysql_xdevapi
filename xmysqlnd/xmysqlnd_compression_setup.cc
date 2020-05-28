@@ -167,8 +167,8 @@ private:
 	static const enum_hnd_func_status handler_on_error(
 		void* context,
 		const unsigned int code,
-		const MYSQLND_CSTRING sql_state,
-		const MYSQLND_CSTRING message);
+		const util::string_view& sql_state,
+		const util::string_view& message);
 
 private:
 	st_xmysqlnd_message_factory& msg_factory;
@@ -227,13 +227,10 @@ std::string Negotiate::to_string(Algorithm algorithm) const
 const enum_hnd_func_status Negotiate::handler_on_error(
 	void* context,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
-	throw util::xdevapi_exception(
-		code,
-		util::string(sql_state.s, sql_state.l),
-		util::string(message.s, message.l));
+	throw util::xdevapi_exception(code, sql_state, message);
 }
 
 // ----------------------------------------------------------------------------

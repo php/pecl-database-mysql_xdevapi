@@ -169,8 +169,8 @@ mysqlx_scheme_on_error(
 	XMYSQLND_SESSION session,
 	xmysqlnd_stmt* const /*stmt*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
 	DBG_ENTER("mysqlx_scheme_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -203,8 +203,8 @@ mysqlx_schema_on_error(
 	void* /*context*/,
 	const xmysqlnd_schema* const /*schema*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
 	DBG_ENTER("mysqlx_schema_on_error");
 	mysqlx_new_exception(code, sql_state, message);
@@ -215,10 +215,10 @@ const enum_hnd_func_status on_drop_db_object_error(
 	void* /*context*/,
 	const xmysqlnd_schema * const /*schema*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
-	throw util::xdevapi_exception(code, util::string(sql_state.s, sql_state.l), util::string(message.s, message.l));
+	throw util::xdevapi_exception(code, sql_state, message);
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)

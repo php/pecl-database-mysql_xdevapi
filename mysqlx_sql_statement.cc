@@ -194,7 +194,7 @@ exec_with_cb_handle_on_warning(
 	xmysqlnd_stmt * const /*stmt*/,
 	const enum xmysqlnd_stmt_warning_level /*level*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING message)
+	const util::string_view& message)
 {
 	enum_hnd_func_status ret{HND_AGAIN};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -207,7 +207,7 @@ exec_with_cb_handle_on_warning(
 		zval return_value;
 
 		ZVAL_LONG(code_zv, code);
-		ZVAL_STRINGL(message_zv, message.s, message.l);
+		ZVAL_STRINGL(message_zv, message.data(), message.length());
 
 		ZVAL_COPY(user_context, ctx->ctx);
 
@@ -235,8 +235,8 @@ exec_with_cb_handle_on_error(
 	void * context,
 	xmysqlnd_stmt * const /*stmt*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
 	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
 	st_xmysqlnd_exec_with_cb_ctx* ctx = (st_xmysqlnd_exec_with_cb_ctx*) context;
@@ -250,8 +250,8 @@ exec_with_cb_handle_on_error(
 		zval return_value;
 
 		ZVAL_LONG(code_zv, code);
-		ZVAL_STRINGL(sql_state_zv, sql_state.s, sql_state.l);
-		ZVAL_STRINGL(message_zv, message.s, message.l);
+		ZVAL_STRINGL(sql_state_zv, sql_state.data(), sql_state.length());
+		ZVAL_STRINGL(message_zv, message.data(), message.length());
 
 		ZVAL_COPY(user_context, ctx->ctx);
 
@@ -440,10 +440,10 @@ mysqlx_sql_stmt_on_warning(
 	xmysqlnd_stmt * const /*stmt*/,
 	const enum xmysqlnd_stmt_warning_level /*level*/,
 	const unsigned int /*code*/,
-	const MYSQLND_CSTRING /*message*/)
+	const util::string_view& /*message*/)
 {
 	DBG_ENTER("mysqlx_sql_stmt_on_warning");
-	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
+	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.length(), message.data());
 	DBG_RETURN(HND_AGAIN);
 }
 
@@ -452,8 +452,8 @@ mysqlx_sql_stmt_on_error(
 	void * /*context*/,
 	xmysqlnd_stmt * const /*stmt*/,
 	const unsigned int code,
-	const MYSQLND_CSTRING sql_state,
-	const MYSQLND_CSTRING message)
+	const util::string_view& sql_state,
+	const util::string_view& message)
 {
 	DBG_ENTER("mysqlx_sql_stmt_on_error");
 	mysqlx_new_exception(code, sql_state, message);

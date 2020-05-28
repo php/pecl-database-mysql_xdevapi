@@ -137,7 +137,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarningsCount)
 	const XMYSQLND_WARNING_LIST* const warnings = data_object.result->warnings;
 	/* Maybe check here if there was an error and throw an Exception or return a warning */
 	if (warnings) {
-		const size_t value = warnings->m->count(warnings);
+		const size_t value = warnings->count();
 		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
 			ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
@@ -164,10 +164,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarnings)
 	const XMYSQLND_WARNING_LIST* const warnings = data_object.result->warnings;
 	/* Maybe check here if there was an error and throw an Exception or return a warning */
 	if (warnings) {
-		const unsigned int count{warnings->m->count(warnings)};
+		const std::size_t count{warnings->count()};
 		array_init_size(return_value, count);
 		for (unsigned int i{0}; i < count; ++i) {
-			const XMYSQLND_WARNING warning = warnings->m->get_warning(warnings, i);
+			const XMYSQLND_WARNING warning = warnings->get_warning(i);
 			util::zvalue warning_zv;
 			mysqlx_new_warning(warning_zv.ptr(), warning.message, warning.level, warning.code);
 			if (!warning_zv.is_undef()) {

@@ -38,7 +38,7 @@ struct st_xmysqlnd_rowset_buffered;
 struct st_xmysqlnd_rowset_fwd;
 struct st_xmysqlnd_result_field_meta;
 struct st_xmysqlnd_protocol_frame_codec;
-struct st_xmysqlnd_warning_list;
+struct xmysqlnd_warning_list;
 struct st_xmysqlnd_stmt_execution_state;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
@@ -134,7 +134,7 @@ typedef struct st_xmysqlnd_protocol_frame_codec * (*func_xmysqlnd_object_factory
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);
 
-typedef struct st_xmysqlnd_warning_list * (*func_xmysqlnd_object_factory__get_warnings_list)(
+typedef struct xmysqlnd_warning_list * (*func_xmysqlnd_object_factory__get_warnings_list)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,

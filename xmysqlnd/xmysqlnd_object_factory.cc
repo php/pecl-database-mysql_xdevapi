@@ -333,19 +333,9 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_warnings_list)(const MYSQLND_CLASS_
 														   MYSQLND_STATS* stats,
 														   MYSQLND_ERROR_INFO* error_info)
 {
-	XMYSQLND_WARNING_LIST* object = new XMYSQLND_WARNING_LIST;
-
 	DBG_ENTER("xmysqlnd_object_factory::get_warnings_list");
 	DBG_INF_FMT("persistent=%u", persistent);
-	if (object) {
-		object->persistent = persistent;
-		object->m = xmysqlnd_warning_list_get_methods();
-
-		if (PASS != object->m->init(object, factory, stats, error_info)) {
-			object->m->dtor(object);
-			object = nullptr;
-		}
-	}
+	XMYSQLND_WARNING_LIST* object = new XMYSQLND_WARNING_LIST;
 	DBG_RETURN(object);
 }
 

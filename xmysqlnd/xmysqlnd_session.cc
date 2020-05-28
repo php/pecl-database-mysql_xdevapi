@@ -1109,11 +1109,11 @@ void raise_session_error(
 }
 
 const enum_hnd_func_status
-xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const util::string_view& sql_state, const util::string_view& message)
 {
 	xmysqlnd_session_data* session = static_cast<xmysqlnd_session_data*>(context);
 	DBG_ENTER("xmysqlnd_stmt::handler_on_error");
-	raise_session_error(session, code, sql_state.s, message.s);
+	raise_session_error(session, code, sql_state.data(), message.data());
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 
@@ -1158,10 +1158,10 @@ on_muted_auth_warning(
 		void* /*context*/,
 		const xmysqlnd_stmt_warning_level level,
 		const unsigned int code,
-		const MYSQLND_CSTRING message)
+		const util::string_view& message)
 {
 	DBG_ENTER("on_muted_auth_warning");
-	DBG_INF_FMT("[%4u] %d %s", code, level, message.s ? message.s : "");
+	DBG_INF_FMT("[%4u] %d %s", code, level, message.data());
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 
@@ -1169,11 +1169,11 @@ const enum_hnd_func_status
 on_muted_auth_error(
 		void* /*context*/,
 		const unsigned int code,
-		const MYSQLND_CSTRING sql_state,
-		const MYSQLND_CSTRING message)
+		const util::string_view& sql_state,
+		const util::string_view& message)
 {
 	DBG_ENTER("on_muted_auth_error");
-	DBG_INF_FMT("[%4u][%s] %s", code, sql_state.s ? sql_state.s : "", message.s ? message.s : "");
+	DBG_INF_FMT("[%4u][%s] %s", code, sql_state.data(), message.data());
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 
@@ -2146,7 +2146,7 @@ query_cb_handler_on_warning(void * context,
 							xmysqlnd_stmt * const stmt,
 							const enum xmysqlnd_stmt_warning_level level,
 							const unsigned int code,
-							const MYSQLND_CSTRING message)
+							const util::string_view& message)
 {
 	enum_hnd_func_status ret;
 	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
@@ -2162,8 +2162,8 @@ const enum_hnd_func_status
 query_cb_handler_on_error(void * context,
 						  xmysqlnd_stmt * const stmt,
 						  const unsigned int code,
-						  const MYSQLND_CSTRING sql_state,
-						  const MYSQLND_CSTRING message)
+						  const util::string_view& sql_state,
+						  const util::string_view& message)
 {
 	enum_hnd_func_status ret;
 	const st_xmysqlnd_query_cb_ctx* ctx = (const st_xmysqlnd_query_cb_ctx* ) context;
@@ -2299,10 +2299,10 @@ xmysqlnd_session_on_warning(
 	xmysqlnd_stmt* const /*stmt*/,
 	const enum xmysqlnd_stmt_warning_level /*level*/,
 	const unsigned int /*code*/,
-	const MYSQLND_CSTRING /*message*/)
+	const util::string_view& /*message*/)
 {
 	DBG_ENTER("xmysqlnd_session_on_warning");
-	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.l, message.s);
+	//php_error_docref(nullptr, E_WARNING, "[%d] %*s", code, message.length(), message.data());
 	DBG_RETURN(HND_AGAIN);
 }
 
@@ -2431,7 +2431,7 @@ xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 {
 	xmysqlnd_stmt* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_session::create_statement_object");
-	stmt = xmysqlnd_stmt_create(session_handle, false, data->object_factory, data->stats, data->error_info);
+	stmt = xmysqlnd_stmt_create(session_handle, data->object_factory, data->stats, data->error_info);
 	DBG_RETURN(stmt);
 }
 

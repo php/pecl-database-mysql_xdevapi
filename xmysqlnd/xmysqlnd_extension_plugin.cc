@@ -31,7 +31,6 @@
 #include "xmysqlnd_rowset_fwd.h"
 #include "xmysqlnd_rowset_buffered.h"
 #include "xmysqlnd_stmt_execution_state.h"
-#include "xmysqlnd_warning_list.h"
 #include "xmysqlnd_extension_plugin.h"
 
 namespace mysqlx {
@@ -284,18 +283,6 @@ _xmysqlnd_pfc_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_pac
 	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_protocol_packet_frame_codec) = methods;
 }
 
-static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) *
-_xmysqlnd_warning_list_get_methods()
-{
-	return MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_warning_list);
-}
-
-static void
-_xmysqlnd_warning_list_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * const methods)
-{
-	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_warning_list) = methods;
-}
-
 static const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) *
 _xmysqlnd_stmt_execution_state_get_methods()
 {
@@ -341,10 +328,6 @@ PHP_MYSQL_XDEVAPI_API struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_
 	{
 		_xmysqlnd_pfc_get_methods,
 		_xmysqlnd_pfc_set_methods,
-	},
-	{
-		_xmysqlnd_warning_list_get_methods,
-		_xmysqlnd_warning_list_set_methods,
 	},
 	{
 		_xmysqlnd_stmt_execution_state_get_methods,

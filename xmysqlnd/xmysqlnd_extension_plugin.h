@@ -50,7 +50,6 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset_fwd);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_result_meta);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_rowset);
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec);
-MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list);
 
 struct st_xmysqlnd_plugin__plugin_area_getters
 {
@@ -134,12 +133,6 @@ struct st_xmysqlnd_plugin_methods_xetters
 		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_protocol_packet_frame_codec) * const methods);
 	} pfc;
 
-	struct st_xmnd_warning_list_xetters
-	{
-		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * (*get)();
-		void (*set)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_warning_list) * const methods);
-	} warning_list;
-
 	struct st_xmnd_stmt_execution_state_xetters
 	{
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state) * (*get)();
@@ -173,9 +166,6 @@ PHP_MYSQL_XDEVAPI_API extern struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_
 
 #define xmysqlnd_pfc_get_methods()						xmysqlnd_plugin_methods_xetters.pfc.get()
 #define xmysqlnd_pfc_set_methods(m)						xmysqlnd_plugin_methods_xetters.pfc.set((m))
-
-#define xmysqlnd_warning_list_get_methods()				xmysqlnd_plugin_methods_xetters.warning_list.get()
-#define xmysqlnd_warning_list_set_methods(m)			xmysqlnd_plugin_methods_xetters.warning_list.set((m))
 
 #define xmysqlnd_stmt_execution_state_get_methods()		xmysqlnd_plugin_methods_xetters.stmt_exec_state.get()
 #define xmysqlnd_stmt_execution_state_set_methods(m)	xmysqlnd_plugin_methods_xetters.stmt_exec_state.set((m))

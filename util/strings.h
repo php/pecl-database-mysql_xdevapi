@@ -116,6 +116,11 @@ struct string_view
 		return str;
 	}
 
+	const char* data() const
+	{
+		return str;
+	}
+
 	size_t length() const
 	{
 		return len;

@@ -380,13 +380,13 @@ on_suppress_auth_warning(
 		void* context,
 		const xmysqlnd_stmt_warning_level level,
 		const unsigned int code,
-		const MYSQLND_CSTRING message);
+		const util::string_view& message);
 const enum_hnd_func_status
 on_suppress_auth_error(
 		void* context,
 		const unsigned int code,
-		const MYSQLND_CSTRING sql_state,
-		const MYSQLND_CSTRING message);
+		const util::string_view& sql_state,
+		const util::string_view& message);
 
 class Gather_auth_mechanisms
 {
@@ -415,7 +415,7 @@ bool set_connection_timeout(
 	const std::optional<int>& connection_timeout,
 	MYSQLND_VIO* vio);
 
-const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const util::string_view& sql_state, const util::string_view& message);
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_auth_continue(void* context,const MYSQLND_CSTRING input,MYSQLND_STRING* const output);
 enum_func_status           xmysqlnd_session_data_set_client_id(void * context, const size_t id);
 
@@ -527,14 +527,14 @@ struct st_xmysqlnd_session_on_row_bind
 
 struct st_xmysqlnd_session_on_warning_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const util::string_view& message);
 	void * ctx;
 };
 
 
 struct st_xmysqlnd_session_on_error_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message);
+	const enum_hnd_func_status (*handler)(void * context, XMYSQLND_SESSION session, xmysqlnd_stmt* const stmt, const unsigned int code, const util::string_view& sql_state, const util::string_view& message);
 	void * ctx;
 };
 

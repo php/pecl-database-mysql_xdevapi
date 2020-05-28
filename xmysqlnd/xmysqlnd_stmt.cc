@@ -170,7 +170,7 @@ handler_on_meta_field(void * context, st_xmysqlnd_result_field_meta* field)
 }
 
 static const enum_hnd_func_status
-handler_on_warning(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const MYSQLND_CSTRING message)
+handler_on_warning(void * context, const enum xmysqlnd_stmt_warning_level level, const unsigned int code, const util::string_view& message)
 {
 	st_xmysqlnd_stmt_bind_ctx* const ctx = (st_xmysqlnd_stmt_bind_ctx*) context;
 	enum_hnd_func_status ret{HND_AGAIN};
@@ -183,13 +183,13 @@ handler_on_warning(void * context, const enum xmysqlnd_stmt_warning_level level,
 		ctx->warnings = xmysqlnd_warning_list_create(ctx->stmt->get_persistent(), ctx->stmt->object_factory, ctx->stats, ctx->error_info);
 	}
 	if (ctx->warnings) {
-		ctx->warnings->m->add_warning(ctx->warnings, level, code, message);
+		ctx->warnings->add_warning(level, code, message);
 	}
 	DBG_RETURN(ret);
 }
 
 static const enum_hnd_func_status
-handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING sql_state, const MYSQLND_CSTRING message)
+handler_on_error(void * context, const unsigned int code, const util::string_view& sql_state, const util::string_view& message)
 {
 	const st_xmysqlnd_stmt_bind_ctx* const ctx = (const st_xmysqlnd_stmt_bind_ctx* ) context;
 	enum_hnd_func_status ret{HND_PASS_RETURN_FAIL};
@@ -197,7 +197,7 @@ handler_on_error(void * context, const unsigned int code, const MYSQLND_CSTRING 
 	if (ctx->on_error.handler) {
 		ret = ctx->on_error.handler(ctx->on_error.ctx, ctx->stmt, code, sql_state, message);
 	} else if (ctx->error_info) {
-		SET_CLIENT_ERROR(ctx->error_info, code, sql_state.s, message.s);
+		SET_CLIENT_ERROR(ctx->error_info, code, sql_state.data(), message.data());
 	}
 	DBG_RETURN(ret);
 }
@@ -715,14 +715,13 @@ xmysqlnd_stmt::cleanup(xmysqlnd_stmt * const stmt)
 
 xmysqlnd_stmt *
 xmysqlnd_stmt_create(XMYSQLND_SESSION session,
-						  const zend_bool persistent,
 						  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 						  MYSQLND_STATS * const stats,
 						  MYSQLND_ERROR_INFO * const error_info)
 {
 	xmysqlnd_stmt* stmt{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_create");
-	stmt = object_factory->get_stmt(object_factory, session, persistent, stats, error_info);
+	stmt = object_factory->get_stmt(object_factory, session, false, stats, error_info);
 	if (stmt) {
 		stmt = stmt->get_reference(stmt);
 	}
@@ -1022,8 +1021,8 @@ void Prepare_stmt_data::set_finalized_bind(
 
 const enum_hnd_func_status prepare_st_on_error_handler(void * context,
 												 const unsigned int code,
-												 const MYSQLND_CSTRING sql_state,
-												 const MYSQLND_CSTRING message)
+												 const util::string_view& sql_state,
+												 const util::string_view& message)
 {
 	DBG_ENTER("prepare_st_on_error_handler");
 	static const uint32_t unknown_message_code { 1047 };
