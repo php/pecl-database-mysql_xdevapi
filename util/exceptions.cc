@@ -137,7 +137,6 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::compression_negotiation_failure,
 		"Compression requested but the compression algorithm negotiation failed." },
 	{ xdevapi_exception::Code::compression_invalid_algorithm_name, "Invalid algorithm name:" },
-		"Compression requested but the compression algorithm negotiation failed." },
 	{ xdevapi_exception::Code::object_property_not_exist,
 		"Object property doesn't exist:" },
 	{ xdevapi_exception::Code::object_property_invalid_type,
