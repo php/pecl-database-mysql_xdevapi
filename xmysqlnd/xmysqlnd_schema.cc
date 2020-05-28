@@ -115,13 +115,10 @@ schema_sql_op_var_binder(
 			ret = HND_PASS;
 			{
 				enum_func_status result;
-				zval zv;
-				ZVAL_UNDEF(&zv);
-				ZVAL_STRINGL(&zv, param->s, param->l);
+				util::zvalue zv(param->s, param->l);
 				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->l, param->s);
-				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, &zv);
+				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, zv.ptr());
 
-				zval_ptr_dtor(&zv);
 				if (FAIL == result) {
 					ret = HND_FAIL;
 				}
