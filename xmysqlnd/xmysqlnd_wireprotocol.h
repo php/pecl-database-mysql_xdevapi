@@ -40,7 +40,7 @@ class xmysqlnd_session_data;
 struct st_xmysqlnd_stmt_result;
 struct st_xmysqlnd_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;
-struct xmysqlnd_warning_list;
+class xmysqlnd_warning_list;
 struct st_xmysqlnd_level3_io;
 struct st_xmysqlnd_pb_message_shell;
 

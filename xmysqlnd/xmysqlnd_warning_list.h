@@ -26,12 +26,14 @@ namespace mysqlx {
 namespace drv {
 
 // marines: TODO problems with custom allocator vs emplace_back && in-place initialization
-typedef struct st_xmysqlnd_warning //: public util::custom_allocable
+struct st_xmysqlnd_warning //: public util::custom_allocable
 {
 	util::string message;
 	unsigned int code;
 	xmysqlnd_stmt_warning_level level;
-} XMYSQLND_WARNING;
+};
+
+using XMYSQLND_WARNING = st_xmysqlnd_warning;
 
 class xmysqlnd_warning_list : public util::custom_allocable
 {
@@ -49,7 +51,7 @@ private:
 	util::vector<st_xmysqlnd_warning> warnings;
 };
 
-typedef struct xmysqlnd_warning_list XMYSQLND_WARNING_LIST;
+using XMYSQLND_WARNING_LIST = xmysqlnd_warning_list;
 
 XMYSQLND_WARNING_LIST* xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 void xmysqlnd_warning_list_free(XMYSQLND_WARNING_LIST* const list);

@@ -34,7 +34,7 @@ class xmysqlnd_session;
 typedef std::shared_ptr<xmysqlnd_session> XMYSQLND_SESSION;
 struct st_xmysqlnd_stmt_result;
 struct st_xmysqlnd_stmt_execution_state;
-struct xmysqlnd_warning_list;
+class xmysqlnd_warning_list;
 struct st_xmysqlnd_rowset;
 
 struct st_xmysqlnd_stmt_on_result_start_bind

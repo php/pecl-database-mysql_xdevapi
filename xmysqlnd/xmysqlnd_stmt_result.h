@@ -29,7 +29,7 @@ class xmysqlnd_stmt;
 struct st_xmysqlnd_stmt_result_meta;
 struct st_xmysqlnd_stmt_execution_state;
 struct st_xmysqlnd_rowset;
-struct xmysqlnd_warning_list;
+class xmysqlnd_warning_list;
 
 
 typedef struct st_xmysqlnd_stmt_result			XMYSQLND_STMT_RESULT;
