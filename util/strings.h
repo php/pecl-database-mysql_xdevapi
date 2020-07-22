@@ -24,6 +24,7 @@ struct st_mysqlnd_string;
 struct st_mysqlnd_const_string;
 }
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <cstring>
 #include <boost/format.hpp>

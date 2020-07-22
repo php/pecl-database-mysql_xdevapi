@@ -337,7 +337,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarnings)
 	/* Maybe check here if there was an error and throw an Exception or return a warning */
 	if (warnings) {
 		const std::size_t count{warnings->count()};
-		array_init_size(return_value, count);
+		array_init_size(return_value, static_cast<uint32_t>(count));
 		for (std::size_t i{0}; i < count; ++i) {
 			const XMYSQLND_WARNING warning = warnings->get_warning(i);
 			util::zvalue warning_zv;
