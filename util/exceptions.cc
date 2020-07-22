@@ -178,7 +178,7 @@ string to_error_msg(unsigned int code, const string_view& what)
 //------------------------------------------------------------------------------
 
 xdevapi_exception::xdevapi_exception(Code code)
-	: xdevapi_exception(code, nullptr)
+	: xdevapi_exception(code, string_view{})
 {
 }
 
