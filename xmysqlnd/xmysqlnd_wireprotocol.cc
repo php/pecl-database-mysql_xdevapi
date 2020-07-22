@@ -64,17 +64,6 @@ struct st_xmysqlnd_inspect_changed_variable_bind
 	void * ctx;
 };
 
-
-MYSQLND_CSTRING
-xmysqlnd_field_type_name(const unsigned int type)
-{
-	MYSQLND_CSTRING ret = { nullptr, 0 };
-	const std::string & field = Mysqlx::Resultset::ColumnMetaData::FieldType_Name((Mysqlx::Resultset::ColumnMetaData::FieldType) type);
-	ret.s = field.c_str();
-	ret.l = field.size();
-	return ret;
-}
-
 static int
 get_datetime_type(const XMYSQLND_RESULT_FIELD_META* const field_meta)
 {
@@ -97,7 +86,7 @@ xmysqlnd_inspect_changed_variable(const st_xmysqlnd_on_session_var_change_bind o
 	const bool has_value = message.has_value();
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 	if (has_param && has_value) {
-		const MYSQLND_CSTRING name = { message.param().c_str(), message.param().size() };
+		const util::string_view name = message.param();
 		zval zv;
 		ZVAL_UNDEF(&zv);
 		if (PASS == scalar2zval(message.value(), &zv)) {
@@ -121,7 +110,8 @@ xmysqlnd_inspect_warning(const st_xmysqlnd_on_warning_bind on_warning, const Mys
 		const unsigned int code = has_code? warning.code() : 1000;
 		const xmysqlnd_stmt_warning_level level{
 			has_level ? static_cast<xmysqlnd_stmt_warning_level>(warning.level()) : XSTMT_WARN_WARNING};
-		const MYSQLND_CSTRING warn_message = { has_msg? warning.msg().c_str():"", has_msg? warning.msg().size():0 };
+		constexpr util::string_view Empty_message = "";
+		const util::string_view warn_message{ has_msg ? warning.msg() : Empty_message };
 
 		DBG_INF_FMT("level[%s] is %s", has_level? "SET":"NOT SET",
 									   has_level? Mysqlx::Notice::Warning::Level_Name(warning.level()).c_str() : "n/a");
@@ -175,14 +165,10 @@ xmysqlnd_inspect_generated_doc_ids(const st_xmysqlnd_on_generated_doc_ids_bind o
 	DBG_ENTER("xmysqlnd_inspect_generated_doc_ids");
 	enum_hnd_func_status ret{HND_AGAIN};
 	for( int idx{ 0 } ; idx < message.value_size(); ++idx ) {
-		MYSQLND_STRING value = scalar2string( message.value(idx) );
+		const util::string& value = scalar2string( message.value(idx) );
 		ret = on_execution_state_change.handler(
 					on_execution_state_change.ctx,
 					value );
-		if (value.s) {
-			mnd_sprintf_free(value.s);
-			value.s = nullptr;
-		}
 	}
 	DBG_RETURN(ret);
 }
@@ -667,19 +653,16 @@ on_ERROR(const Mysqlx::Error & error, const st_xmysqlnd_on_error_bind on_error)
 	DBG_INF_FMT("on_error.handler=%p", on_error.handler);
 
 	if (on_error.handler) {
-		const bool has_code = error.has_code();
 		const bool has_sql_state = error.has_sql_state();
-		const bool has_msg = error.has_msg();
+		constexpr std::string_view Unknown_sqlstate = UNKNOWN_SQLSTATE;
+		const util::string_view sql_state{ has_sql_state? error.sql_state() : Unknown_sqlstate };
 
-		const MYSQLND_CSTRING sql_state = {
-			has_sql_state? error.sql_state().c_str() : UNKNOWN_SQLSTATE,
-			has_sql_state? error.sql_state().size()  : sizeof(UNKNOWN_SQLSTATE) - 1
-		};
+		const bool has_code = error.has_code();
 		const unsigned int code = has_code? error.code() : CR_UNKNOWN_ERROR;
-		const MYSQLND_CSTRING error_message = {
-			has_msg? error.msg().c_str() : "Unknown server error",
-			has_msg? error.msg().size() : sizeof("Unknown server error") - 1
-		};
+
+		const bool has_msg = error.has_msg();
+		constexpr std::string_view Unknown_server_error = "Unknown server error";
+		const util::string_view error_message{ has_msg? error.msg() : Unknown_server_error };
 
 		ret = on_error.handler(on_error.ctx, code, sql_state, error_message);
 	}
@@ -774,7 +757,6 @@ xmysqlnd_capabilities_get__init_read(st_xmysqlnd_msg__capabilities_get* const ms
 }
 
 
-/* {{{ xmysqlnd_get_capabilities_get_message */
 static st_xmysqlnd_msg__capabilities_get
 xmysqlnd_get_capabilities_get_message(Message_context& msg_ctx)
 {
@@ -872,7 +854,6 @@ xmysqlnd_capabilities_set__init_read(st_xmysqlnd_msg__capabilities_set* const ms
 }
 
 
-/* {{{ xmysqlnd_get_capabilities_set_message */
 static st_xmysqlnd_msg__capabilities_set
 xmysqlnd_get_capabilities_set_message(Message_context& msg_ctx)
 {
@@ -928,22 +909,19 @@ auth_start_on_AUTHENTICATE_CONTINUE(const Mysqlx::Session::AuthenticateContinue&
 	st_xmysqlnd_msg__auth_start* const ctx = static_cast<st_xmysqlnd_msg__auth_start* >(context);
 	DBG_ENTER("auth_start_on_AUTHENTICATE_CONTINUE");
 	if (ctx->on_auth_continue.handler) {
-		const MYSQLND_CSTRING handler_input = { message.auth_data().c_str(), message.auth_data().size() };
-		MYSQLND_STRING handler_output = { nullptr, 0 };
+		const util::string_view handler_input = message.auth_data();
+		util::string handler_output;
 
 		ret = ctx->on_auth_continue.handler(ctx->on_auth_continue.ctx, handler_input, &handler_output);
-		DBG_INF_FMT("handler_output[%d]=[%s]", handler_output.l, handler_output.s);
-		if (handler_output.s) {
+		DBG_INF_FMT("handler_output[%d]=[%s]", handler_output.length(), handler_output.data());
+		if (!handler_output.empty()) {
 			size_t bytes_sent;
 			Mysqlx::Session::AuthenticateContinue msg;
-			msg.set_auth_data(handler_output.s, handler_output.l);
+			msg.set_auth_data(handler_output.data(), handler_output.length());
 
 			if (FAIL == xmysqlnd_send_message(COM_AUTH_CONTINUE, msg, ctx->msg_ctx, &bytes_sent)) {
 				ret = HND_FAIL;
 			}
-
-			/* send */
-			mnd_efree(handler_output.s);
 		}
 	}
 	DBG_RETURN(ret);
@@ -1004,12 +982,12 @@ xmysqlnd_authentication_start__read_response(st_xmysqlnd_msg__auth_start* msg, z
 }
 
 enum_func_status
-xmysqlnd_authentication_start__send_request(st_xmysqlnd_msg__auth_start* msg, const MYSQLND_CSTRING auth_mech_name, const MYSQLND_CSTRING auth_data)
+xmysqlnd_authentication_start__send_request(st_xmysqlnd_msg__auth_start* msg, const util::string_view& auth_mech_name, const util::string_view& auth_data)
 {
 	size_t bytes_sent;
 	Mysqlx::Session::AuthenticateStart message;
-	message.set_mech_name(auth_mech_name.s, auth_mech_name.l);
-	message.set_auth_data(auth_data.s, auth_data.l);
+	message.set_mech_name(auth_mech_name.data(), auth_mech_name.length());
+	message.set_auth_data(auth_data.data(), auth_data.length());
 	return xmysqlnd_send_message(COM_AUTH_START, message, msg->msg_ctx, &bytes_sent);
 }
 
@@ -1516,17 +1494,17 @@ enum_func_status xmysqlnd_row_string_field_to_zval( zval* zv,
 }
 
 static enum_func_status
-xmysqlnd_row_field_to_zval(const MYSQLND_CSTRING buffer,
+xmysqlnd_row_field_to_zval(const util::string_view& buffer,
 						   const XMYSQLND_RESULT_FIELD_META * const field_meta,
 						   const unsigned int /*i*/,
 						   zval * zv)
 {
 	enum_func_status ret{PASS};
-	const uint8_t * buf = reinterpret_cast<const uint8_t*>(buffer.s);
-	const size_t buf_size = buffer.l;
+	const uint8_t * buf = reinterpret_cast<const uint8_t*>(buffer.data());
+	const size_t buf_size = buffer.length();
 	DBG_ENTER("xmysqlnd_row_field_to_zval");
 	DBG_INF_FMT("buf_size=%u", static_cast<unsigned int>(buf_size));
-	DBG_INF_FMT("name    =%s", field_meta->name.s);
+	DBG_INF_FMT("name    =%s", field_meta->name.c_str());
 	/*
 		  Precaution, as if something misbehaves and doesn't initialize `zv` then `zv` will be at
 		  the same place in the stack and have the previous value. String reuse will lead to
@@ -1619,7 +1597,7 @@ stmt_execute_on_RSET_ROW(const Mysqlx::Resultset::Row& message, void* context)
 	ctx->has_more_results = TRUE;
 	if (ctx->on_row_field.handler) {
 		for (unsigned int i{0}; i < ctx->field_count; ++i) {
-			const MYSQLND_CSTRING buffer = { message.field(i).c_str(), message.field(i).size() };
+			const util::string_view buffer = message.field(i);
 			ret = ctx->on_row_field.handler(ctx->on_row_field.ctx, buffer, i, xmysqlnd_row_field_to_zval);
 
 			if (ret != HND_PASS && ret != HND_AGAIN) {

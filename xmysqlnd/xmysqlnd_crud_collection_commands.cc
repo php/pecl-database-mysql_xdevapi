@@ -168,13 +168,12 @@ Mysqlx::Expr::Expr* parse_expression(
 template< typename MSG >
 enum_func_status
 xmysqlnd_crud_collection__add_sort(MSG& message,
-								   const MYSQLND_CSTRING & sort)
+								   const util::string_view& sort)
 {
 	DBG_ENTER("xmysqlnd_crud_collection__add_sort");
-	DBG_INF_FMT("sort=%*s", sort.l, sort.s);
+	DBG_INF_FMT("sort=%*s", sort.length(), sort.data());
 	try {
-		const std::string source(sort.s, sort.l);
-		if( false == mysqlx::devapi::parser::orderby(source, true, &message) ) {
+		if( false == mysqlx::devapi::parser::orderby(std::string{ sort }, true, &message) ) {
 			DBG_ERR_FMT("Unable to parser the orderby expression");
 			DBG_RETURN(FAIL);
 		}
@@ -192,12 +191,12 @@ xmysqlnd_crud_collection__add_sort(MSG& message,
 
 XMYSQLND_CRUD_COLLECTION_OP__ADD *
 xmysqlnd_crud_collection_add__create(
-	const MYSQLND_CSTRING schema,
-	const MYSQLND_CSTRING object_name)
+	const util::string_view& schema,
+	const util::string_view& object_name)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_add__create");
-	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l,
-				schema.s, object_name.l, object_name.s);
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.length(),
+				schema.data(), object_name.length(), object_name.data());
 	XMYSQLND_CRUD_COLLECTION_OP__ADD * ret = new st_xmysqlnd_crud_collection_op__add(
 				schema, object_name);
 	DBG_RETURN(ret);
@@ -270,11 +269,11 @@ void st_xmysqlnd_crud_collection_op__add::bind_docs()
 /****************************** COLLECTION.REMOVE() *******************************************************/
 
 XMYSQLND_CRUD_COLLECTION_OP__REMOVE *
-xmysqlnd_crud_collection_remove__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
+xmysqlnd_crud_collection_remove__create(const util::string_view& schema, const util::string_view& object_name)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__create");
-	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
-	XMYSQLND_CRUD_COLLECTION_OP__REMOVE * ret = new struct st_xmysqlnd_crud_collection_op__remove(schema, object_name);
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.length(), schema.data(), object_name.length(), object_name.data());
+	XMYSQLND_CRUD_COLLECTION_OP__REMOVE * ret = new st_xmysqlnd_crud_collection_op__remove(schema, object_name);
 	DBG_RETURN(ret);
 }
 
@@ -330,7 +329,7 @@ xmysqlnd_crud_collection_remove__bind_value(
 }
 
 enum_func_status
-xmysqlnd_crud_collection_remove__add_sort(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const MYSQLND_CSTRING sort)
+xmysqlnd_crud_collection_remove__add_sort(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const util::string_view& sort)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__add_sort");
 	const enum_func_status ret = xmysqlnd_crud_collection__add_sort(obj->message, sort);
@@ -363,11 +362,11 @@ struct st_xmysqlnd_pb_message_shell
 /****************************** COLLECTION.MODIFY() *******************************************************/
 
 XMYSQLND_CRUD_COLLECTION_OP__MODIFY *
-xmysqlnd_crud_collection_modify__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
+xmysqlnd_crud_collection_modify__create(const util::string_view& schema, const util::string_view& object_name)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_modify__create");
-	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
-	XMYSQLND_CRUD_COLLECTION_OP__MODIFY * ret = new struct st_xmysqlnd_crud_collection_op__modify(schema, object_name);
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.length(), schema.data(), object_name.length(), object_name.data());
+	XMYSQLND_CRUD_COLLECTION_OP__MODIFY * ret = new st_xmysqlnd_crud_collection_op__modify(schema, object_name);
 	DBG_RETURN(ret);
 }
 
@@ -423,7 +422,7 @@ xmysqlnd_crud_collection_modify__bind_value(
 }
 
 bool
-xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const MYSQLND_CSTRING sort)
+xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const util::string_view& sort)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_modify__add_sort");
 	const enum_func_status ret = xmysqlnd_crud_collection__add_sort(obj->message, sort);
@@ -446,7 +445,7 @@ xmysqlnd_crud_collection_modify__add_operation(
 	DBG_INF_FMT("operation=%s", Mysqlx::Crud::UpdateOperation::UpdateType_Name(op_type).c_str());
 	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u",
 		path.length(),
-		path.c_str(),
+		path.data(),
 		value.ptr(),
 		static_cast<unsigned>(is_expression),
 		static_cast<unsigned>(is_document),
@@ -472,7 +471,7 @@ xmysqlnd_crud_collection_modify__add_operation(
 
 	try {
 		const std::string Default_path("$");
-		const std::string& source(path.empty() ? Default_path : path.to_std_string());
+		const std::string& source(path.empty() ? Default_path : std::string{ path });
 		docpath.reset(mysqlx::devapi::parser::parse(source, true));
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
@@ -621,12 +620,12 @@ st_xmysqlnd_pb_message_shell
 /****************************** COLLECTION.FIND() *******************************************************/
 
 XMYSQLND_CRUD_COLLECTION_OP__FIND *
-xmysqlnd_crud_collection_find__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
+xmysqlnd_crud_collection_find__create(const util::string_view& schema, const util::string_view& object_name)
 {
 	XMYSQLND_CRUD_COLLECTION_OP__FIND* ret{nullptr};
 	DBG_ENTER("xmysqlnd_crud_collection_find__create");
-	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
-	ret = new struct st_xmysqlnd_crud_collection_op__find(schema, object_name);
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.length(), schema.data(), object_name.length(), object_name.data());
+	ret = new st_xmysqlnd_crud_collection_op__find(schema, object_name);
 	DBG_RETURN(ret);
 }
 
@@ -639,12 +638,11 @@ xmysqlnd_crud_collection_find__destroy(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
 }
 
 enum_func_status
-xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING criteria)
+xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__set_criteria");
 	try {
-		const std::string source(criteria.s, criteria.l);
-		Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings);
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(std::string{ criteria }, obj->bindings);
 		obj->message.set_allocated_criteria(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
@@ -683,7 +681,7 @@ xmysqlnd_crud_collection_find__bind_value(
 }
 
 enum_func_status
-xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING sort)
+xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& sort)
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_crud_collection_find__add_sort");
@@ -692,12 +690,11 @@ xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj,
 }
 
 enum_func_status
-xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING search_field)
+xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& search_field)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__add_grouping");
 	try {
-		const std::string source(search_field.s, search_field.l);
-		Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings, false);
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(std::string{ search_field }, obj->bindings, false);
 		obj->message.mutable_grouping()->AddAllocated(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
@@ -711,12 +708,12 @@ xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * 
 
 enum_func_status
 xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj,
-										  const MYSQLND_CSTRING field,
+										  const util::string_view& field,
 										  const zend_bool /*is_expression*/,
 										  const zend_bool allow_alias)
 {
 	const bool is_document = (obj->message.data_model() == Mysqlx::Crud::DOCUMENT);
-	const std::string source(field.s, field.l);
+	const std::string source(field);
 	DBG_ENTER("xmysqlnd_crud_collection_find__set_fields");
 	if (allow_alias) {
 		try {
@@ -764,12 +761,11 @@ xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * ob
 }
 
 enum_func_status
-xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING criteria)
+xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__set_having");
 	try {
-		const std::string source(criteria.s, criteria.l);
-		Mysqlx::Expr::Expr* expr_criteria = parse_expression(source, obj->bindings);
+		Mysqlx::Expr::Expr* expr_criteria = parse_expression(std::string{ criteria }, obj->bindings);
 		obj->message.set_allocated_grouping_criteria(expr_criteria);
 	} catch (cdk::Error &e) {
 		php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
@@ -920,12 +916,12 @@ st_xmysqlnd_stmt_op__execute::finalize_bind()
 }
 
 XMYSQLND_STMT_OP__EXECUTE *
-xmysqlnd_stmt_execute__create(const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt)
+xmysqlnd_stmt_execute__create(const std::string_view& namespace_, const util::string_view& stmt)
 {
 	XMYSQLND_STMT_OP__EXECUTE* ret{nullptr};
 	DBG_ENTER("xmysqlnd_stmt_execute__create");
-	DBG_INF_FMT("namespace_=%*s stmt=%*s", namespace_.l, namespace_.s, stmt.l, stmt.s);
-	ret = new struct st_xmysqlnd_stmt_op__execute(namespace_, stmt, false);
+	DBG_INF_FMT("namespace_=%*s stmt=%*s", namespace_.length(), namespace_.data(), stmt.length(), stmt.data());
+	ret = new st_xmysqlnd_stmt_op__execute(namespace_, stmt, false);
 	DBG_RETURN(ret);
 }
 

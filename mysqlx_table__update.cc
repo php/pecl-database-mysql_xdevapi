@@ -100,12 +100,12 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 
 	zval* object_zv{nullptr};
 	zval* value{nullptr};
-	MYSQLND_CSTRING table_field = {nullptr, 0};
+	util::param_string table_field;
 	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
 												&object_zv, mysqlx_table__update_class_entry,
-											 	&(table_field.s), &(table_field.l),
+												&table_field.str, &table_field.len,
 												&value))
 	{
 		DBG_VOID_RETURN;
@@ -143,7 +143,12 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 		enum_func_status ret{FAIL};
 		switch (op_type) {
 			case TWO_PARAM_OP__SET:
-				ret = xmysqlnd_crud_table_update__set(data_object.crud_op, table_field, value, is_expression, is_document);
+				ret = xmysqlnd_crud_table_update__set(
+					data_object.crud_op,
+					table_field.to_view(),
+					value,
+					is_expression,
+					is_document);
 				break;
 		}
 
@@ -164,10 +169,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 	DBG_ENTER("mysqlx_table__update::where");
 
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING where_expr = {nullptr, 0};
+	util::param_string where_expr;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__update_class_entry,
-												&(where_expr.s), &(where_expr.l)))
+												&where_expr.str, &where_expr.len))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -176,8 +181,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 
 	RETVAL_FALSE;
 
-	if (data_object.crud_op && where_expr.s && where_expr.l) {
-		if (PASS == xmysqlnd_crud_table_update__set_criteria(data_object.crud_op, where_expr)) {
+	if (!where_expr.empty()) {
+		if (PASS == xmysqlnd_crud_table_update__set_criteria(data_object.crud_op, where_expr.to_view())) {
 			ZVAL_COPY(return_value, object_zv);
 		}
 	}
@@ -213,7 +218,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 		switch (Z_TYPE(orderby_expr[i])) {
 		case IS_STRING:
 			{
-				const MYSQLND_CSTRING orderby_expr_str = { Z_STRVAL(orderby_expr[i]),
+				const util::string_view orderby_expr_str{ Z_STRVAL(orderby_expr[i]),
 												Z_STRLEN(orderby_expr[i]) };
 				if (PASS == xmysqlnd_crud_table_update__add_orderby(data_object.crud_op, orderby_expr_str)) {
 					ZVAL_COPY(return_value, object_zv);
@@ -224,7 +229,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 			{
 				zval* entry{nullptr};
 				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(orderby_expr[i]), entry) {
-					const MYSQLND_CSTRING orderby_expr_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+					const util::string_view orderby_expr_str{ Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
 						DBG_VOID_RETURN;
@@ -299,7 +304,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 		zend_bool op_success{TRUE};
 		MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
 			if (key) {
-				const MYSQLND_CSTRING variable = { ZSTR_VAL(key), ZSTR_LEN(key) };
+				const util::string_view variable{ ZSTR_VAL(key), ZSTR_LEN(key) };
 				if (FAIL == xmysqlnd_crud_table_update__bind_value(data_object.crud_op, variable, val)) {
 					RAISE_EXCEPTION(err_msg_bind_fail);
 					op_success = FALSE;
@@ -379,8 +384,8 @@ mysqlx_table__update_property__name(const st_mysqlx_object* obj, zval* return_va
 {
 	const st_mysqlx_table__update* object = (const st_mysqlx_table__update* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table__update_property__name");
-	if (object->table && object->table->get_name().s) {
-		ZVAL_STRINGL(return_value, object->table->get_name().s, object->table->get_name().l);
+	if (object->table && !object->table->get_name().empty()) {
+		ZVAL_STRINGL(return_value, object->table->get_name().data(), object->table->get_name().length());
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -402,9 +407,9 @@ static HashTable mysqlx_table__update_properties;
 const st_mysqlx_property_entry mysqlx_table__update_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_table__update_property__name,	nullptr},
+	{std::string_view("name"), mysqlx_table__update_property__name,	nullptr},
 #endif
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void
@@ -459,8 +464,8 @@ mysqlx_new_table__update(zval* return_value, xmysqlnd_table* table)
 		util::init_object<st_mysqlx_table__update>(mysqlx_table__update_class_entry, return_value) };
 	data_object.table = table->get_reference();
 	data_object.crud_op = xmysqlnd_crud_table_update__create(
-		mnd_str2c(data_object.table->get_schema()->get_name()),
-		mnd_str2c(data_object.table->get_name()));
+		data_object.table->get_schema()->get_name(),
+		data_object.table->get_name());
 	DBG_VOID_RETURN;
 }
 

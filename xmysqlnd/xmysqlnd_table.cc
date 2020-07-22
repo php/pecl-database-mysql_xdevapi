@@ -38,7 +38,7 @@ namespace drv {
 
 xmysqlnd_table::xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const cur_obj_factory,
 										   xmysqlnd_schema * const cur_schema,
-										   const MYSQLND_CSTRING cur_table_name,
+										   const util::string_view& cur_table_name,
 											zend_bool is_persistent)
 {
 	DBG_ENTER("xmysqlnd_table::st_xmysqlnd_table_data");
@@ -46,8 +46,8 @@ xmysqlnd_table::xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::table_creation_failed);
 	}
 	persistent = is_persistent;
-	table_name = mnd_dup_cstring(cur_table_name, persistent);
-	DBG_INF_FMT("name=[%d]%*s", table_name.l, table_name.l, table_name.s);
+	table_name = cur_table_name;
+	DBG_INF_FMT("name=[%d]%*s", table_name.length(), table_name.length(), table_name.c_str());
 
 	object_factory = cur_obj_factory;
 }
@@ -56,8 +56,8 @@ xmysqlnd_table::xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_
 
 struct table_or_view_var_binder_ctx
 {
-	const MYSQLND_CSTRING schema_name;
-	const MYSQLND_CSTRING table_name;
+	util::string_view schema_name;
+	util::string_view table_name;
 	unsigned int counter;
 };
 
@@ -82,7 +82,7 @@ static const enum_hnd_func_status table_op_var_binder(
 
 struct table_or_view_op_ctx
 {
-	const MYSQLND_CSTRING expected_name;
+	util::string_view expected_name;
 	zval* exists;
 };
 
@@ -100,10 +100,10 @@ table_or_view_exists_in_database_op(
 	table_or_view_op_ctx* ctx = static_cast<table_or_view_op_ctx*>(context);
 	DBG_ENTER("table_or_view_exists_in_database_op");
 	if (ctx && row) {
-		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
-		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
+		const util::string_view object_name{ Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
+		const util::string_view object_type{ Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
 
-		if (equal_mysqlnd_cstr(object_name, ctx->expected_name)
+		if ((object_name == ctx->expected_name)
 			&& (is_table_object_type(object_type) || is_view_object_type(object_type)))
 		{
 			ZVAL_TRUE(ctx->exists);
@@ -122,19 +122,19 @@ xmysqlnd_table::exists_in_database(
 	ZVAL_FALSE(exists);
 
 	enum_func_status ret;
-	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
+	constexpr util::string_view query = "list_objects";
 	xmysqlnd_schema * schema = get_schema();
 	auto session = schema->get_session();
 
 	table_or_view_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->get_name()),
-		mnd_str2c(get_name()),
+		schema->get_name(),
+		get_name(),
 		0
 	};
 	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
 
 	table_or_view_op_ctx on_row_ctx = {
-		mnd_str2c(get_name()),
+		get_name(),
 		exists
 	};
 
@@ -169,10 +169,10 @@ check_is_view_op(
 	table_or_view_op_ctx* ctx = static_cast<table_or_view_op_ctx*>(context);
 	DBG_ENTER("check_is_view_op");
 	if (ctx && row) {
-		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
-		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
+		const util::string_view object_name{ Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
+		const util::string_view object_type{ Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
 
-		if (equal_mysqlnd_cstr(object_name, ctx->expected_name) && is_view_object_type(object_type)) {
+		if ((object_name == ctx->expected_name) && is_view_object_type(object_type)) {
 			ZVAL_TRUE(ctx->exists);
 			DBG_RETURN(HND_PASS);
 		}
@@ -189,19 +189,19 @@ xmysqlnd_table::is_view(
 	ZVAL_FALSE(exists);
 
 	enum_func_status ret;
-	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
+	constexpr util::string_view query = "list_objects";
 	xmysqlnd_schema * schema = get_schema();
 	auto session = schema->get_session();
 
 	table_or_view_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->get_name()),
-		mnd_str2c(get_name()),
+		schema->get_name(),
+		get_name(),
 		0
 	};
 	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { table_op_var_binder, &var_binder_ctx };
 
 	table_or_view_op_ctx on_row_ctx = {
-		mnd_str2c(get_name()),
+		get_name(),
 		exists
 	};
 
@@ -263,11 +263,11 @@ xmysqlnd_table::count(
 	auto session = schema->get_session();
 
 	char* query_str;
-	mnd_sprintf(&query_str, 0, "SELECT COUNT(*) FROM %s.%s", schema->get_name().s, get_name().s);
+	mnd_sprintf(&query_str, 0, "SELECT COUNT(*) FROM %s.%s", schema->get_name().data(), get_name().data());
 	if (!query_str) {
 		DBG_RETURN(FAIL);
 	}
-	const MYSQLND_CSTRING query = {query_str, strlen(query_str)};
+	const util::string_view query{query_str, strlen(query_str)};
 
 	st_table_sql_single_result_ctx on_row_ctx = {
 		counter
@@ -515,10 +515,7 @@ void
 xmysqlnd_table::free_contents()
 {
 	DBG_ENTER("xmysqlnd_table::free_contents");
-	if (table_name.s) {
-		mnd_efree(table_name.s);
-		table_name.s = nullptr;
-	}
+	table_name.clear();
 	DBG_VOID_RETURN;
 }
 
@@ -534,7 +531,7 @@ xmysqlnd_table::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 
 PHP_MYSQL_XDEVAPI_API xmysqlnd_table *
 xmysqlnd_table_create(xmysqlnd_schema * schema,
-						   const MYSQLND_CSTRING table_name,
+						   const util::string_view& table_name,
 						   const zend_bool persistent,
 						   const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 						   MYSQLND_STATS * const stats,
@@ -542,7 +539,7 @@ xmysqlnd_table_create(xmysqlnd_schema * schema,
 {
 	xmysqlnd_table* ret{nullptr};
 	DBG_ENTER("xmysqlnd_table_create");
-	if (table_name.s && table_name.l) {
+	if (!table_name.empty()) {
 		ret = object_factory->get_table(object_factory, schema, table_name, persistent, stats, error_info);
 		if (ret) {
 			ret = ret->get_reference();

@@ -102,7 +102,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count)(XMYSQLND_S
 
 static void
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, add_generated_doc_id)(XMYSQLND_STMT_EXECUTION_STATE * const state,
-																	 const MYSQLND_STRING id)
+																	 const util::string& id)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::add_generated_doc_id");
 	state->generated_doc_ids.push_back( util::to_string(id) );

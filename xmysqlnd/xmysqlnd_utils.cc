@@ -27,28 +27,6 @@ namespace mysqlx {
 
 namespace drv {
 
-MYSQLND_STRING make_mysqlnd_str(const char * str) {
-	if( str == nullptr ) {
-		return { nullptr, 0 };
-	}
-	const size_t len = strlen(str);
-	char * newstr = new char[ len + 1 ];
-	std::copy(str,str + len + 1, newstr);
-	return { newstr, len };
-}
-
-MYSQLND_CSTRING make_mysqlnd_cstr(const char * str) {
-	MYSQLND_STRING new_str = make_mysqlnd_str(str);
-	return { new_str.s, new_str.l };
-}
-
-bool
-equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs)
-{
-	if (lhs.l != rhs.l) return false;
-	return !memcmp(lhs.s, rhs.s, lhs.l);
-}
-
 void
 xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
 {

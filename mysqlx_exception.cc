@@ -94,10 +94,10 @@ mysqlx_exception_property__code(const st_mysqlx_object* obj, zval* return_value)
 
 static const st_mysqlx_property_entry mysqlx_exception_property_entries[] =
 {
-	{{"message",			sizeof("message") - 1},		mysqlx_exception_property__message,	nullptr},
-	{{"level",				sizeof("level") - 1},		mysqlx_exception_property__level,		nullptr},
-	{{"code",				sizeof("code") - 1},		mysqlx_exception_property__code,		nullptr},
-	{{nullptr, 				0},							nullptr, 								nullptr}
+	{std::string_view("message"), mysqlx_exception_property__message,	nullptr},
+	{std::string_view("level"), mysqlx_exception_property__level,		nullptr},
+	{std::string_view("code"), mysqlx_exception_property__code,		nullptr},
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static zend_object_handlers mysqlx_object_exception_handlers;
@@ -129,7 +129,7 @@ mysqlx_new_exception(int code, const util::string_view& sql_state, const util::s
 {
 	char* msg{nullptr};
 	DBG_ENTER("mysqlx_new_exception");
-	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.length(), sql_state.c_str(), message.length(), message.c_str());
+	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.length(), sql_state.data(), message.length(), message.data());
 	if (msg) {
 		zend_throw_exception(mysqlx_exception_class_entry, msg, code);
 		mnd_efree(msg);

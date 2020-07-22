@@ -44,8 +44,6 @@ class xmysqlnd_warning_list;
 struct st_xmysqlnd_level3_io;
 struct st_xmysqlnd_pb_message_shell;
 
-MYSQLND_CSTRING xmysqlnd_field_type_name(const unsigned int type);
-
 struct Message_context
 {
 	MYSQLND_VIO* vio;
@@ -72,7 +70,7 @@ struct st_xmysqlnd_on_error_bind
 
 struct st_xmysqlnd_on_session_var_change_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING name, const zval * value);
+	const enum_hnd_func_status (*handler)(void * context, const util::string_view& name, const zval * value);
 	void * ctx;
 };
 
@@ -111,7 +109,7 @@ struct st_xmysqlnd_msg__capabilities_set
 
 struct st_xmysqlnd_on_auth_continue_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING input, MYSQLND_STRING * output);
+	const enum_hnd_func_status (*handler)(void * context, const util::string_view& input, util::string* output);
 	void * ctx;
 };
 
@@ -125,8 +123,8 @@ struct st_xmysqlnd_on_client_id_bind
 struct st_xmysqlnd_msg__auth_start
 {
 	enum_func_status (*send_request)(st_xmysqlnd_msg__auth_start* msg,
-									 const MYSQLND_CSTRING auth_mech_name,
-									 const MYSQLND_CSTRING auth_data);
+									 const util::string_view& auth_mech_name,
+									 const util::string_view& auth_data);
 
 	enum_func_status (*read_response)(st_xmysqlnd_msg__auth_start* msg,
 									  zval * auth_start_response);
@@ -153,11 +151,11 @@ struct st_xmysqlnd_meta_field_create_bind
 	void * ctx;
 };
 
-typedef enum_func_status (*func_xmysqlnd_wireprotocol__row_field_decoder)(const MYSQLND_CSTRING buffer, const st_xmysqlnd_result_field_meta* const field_meta, const unsigned int idx, zval * out_zv);
+typedef enum_func_status (*func_xmysqlnd_wireprotocol__row_field_decoder)(const util::string_view& buffer, const st_xmysqlnd_result_field_meta* const field_meta, const unsigned int idx, zval * out_zv);
 
 struct st_xmysqlnd_on_row_field_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const MYSQLND_CSTRING buffer, const unsigned int idx, const func_xmysqlnd_wireprotocol__row_field_decoder decoder);
+	const enum_hnd_func_status (*handler)(void * context, const util::string_view& buffer, const unsigned int idx, const func_xmysqlnd_wireprotocol__row_field_decoder decoder);
 	void * ctx;
 };
 
@@ -176,7 +174,7 @@ struct st_xmysqlnd_on_execution_state_change_bind
 
 struct st_xmysqlnd_on_generated_doc_ids_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const MYSQLND_STRING id);
+	const enum_hnd_func_status (*handler)(void * context, const util::string& id);
 	void * ctx;
 };
 

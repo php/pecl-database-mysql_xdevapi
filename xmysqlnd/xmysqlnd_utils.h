@@ -25,16 +25,6 @@ namespace mysqlx {
 
 namespace drv {
 
-template<typename String>
-bool is_empty_str(const String& mystr)
-{
-	return (mystr.s == nullptr) || (mystr.l == 0);
-}
-
-MYSQLND_CSTRING make_mysqlnd_cstr(const char * str);
-MYSQLND_STRING make_mysqlnd_str(const char * str);
-bool equal_mysqlnd_cstr(const MYSQLND_CSTRING& lhs, const MYSQLND_CSTRING& rhs);
-
 void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
 void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
 

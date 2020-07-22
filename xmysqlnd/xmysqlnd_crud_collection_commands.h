@@ -37,7 +37,7 @@ namespace mysqlx {
 namespace drv {
 
 typedef struct st_xmysqlnd_crud_collection_op__add XMYSQLND_CRUD_COLLECTION_OP__ADD;
-XMYSQLND_CRUD_COLLECTION_OP__ADD  * xmysqlnd_crud_collection_add__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);
+XMYSQLND_CRUD_COLLECTION_OP__ADD  * xmysqlnd_crud_collection_add__create(const util::string_view& schema, const util::string_view& collection);
 void                                xmysqlnd_crud_collection_add__destroy(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
 enum_func_status                    xmysqlnd_crud_collection_add__set_upsert(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
 enum_func_status                    xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj, zval * doc);
@@ -46,7 +46,7 @@ struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_add__get_protobuf_m
 
 typedef struct st_xmysqlnd_crud_collection_op__remove XMYSQLND_CRUD_COLLECTION_OP__REMOVE;
 
-XMYSQLND_CRUD_COLLECTION_OP__REMOVE * xmysqlnd_crud_collection_remove__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);
+XMYSQLND_CRUD_COLLECTION_OP__REMOVE * xmysqlnd_crud_collection_remove__create(const util::string_view& schema, const util::string_view& collection);
 void xmysqlnd_crud_collection_remove__destroy(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
 enum_func_status xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const std::string& criteria);
 enum_func_status xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t limit);
@@ -55,7 +55,7 @@ enum_func_status xmysqlnd_crud_collection_remove__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__REMOVE* obj,
 	const util::string& name,
 	zval* value);
-enum_func_status xmysqlnd_crud_collection_remove__add_sort(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const MYSQLND_CSTRING sort);
+enum_func_status xmysqlnd_crud_collection_remove__add_sort(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const util::string_view& sort);
 enum_func_status xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
 st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
 zend_bool xmysqlnd_crud_collection_remove__is_initialized(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
@@ -63,7 +63,7 @@ zend_bool xmysqlnd_crud_collection_remove__is_initialized(XMYSQLND_CRUD_COLLECTI
 
 struct Modify_value
 {
-	const util::string_view& path;
+	const util::string_view path;
 	util::zvalue value;
 	bool is_expression;
 	bool is_document;
@@ -71,7 +71,7 @@ struct Modify_value
 };
 
 typedef struct st_xmysqlnd_crud_collection_op__modify XMYSQLND_CRUD_COLLECTION_OP__MODIFY;
-XMYSQLND_CRUD_COLLECTION_OP__MODIFY * xmysqlnd_crud_collection_modify__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);
+XMYSQLND_CRUD_COLLECTION_OP__MODIFY * xmysqlnd_crud_collection_modify__create(const util::string_view& schema, const util::string_view& collection);
 void xmysqlnd_crud_collection_modify__destroy(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * obj);
 bool xmysqlnd_crud_collection_modify__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const std::string& criteria);
 bool xmysqlnd_crud_collection_modify__set_limit(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const size_t limit);
@@ -80,7 +80,7 @@ bool xmysqlnd_crud_collection_modify__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
 	const util::string& name,
 	zval* value);
-bool xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const MYSQLND_CSTRING sort);
+bool xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const util::string_view& sort);
 
 bool xmysqlnd_crud_collection_modify__unset(
 	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
@@ -109,20 +109,20 @@ bool xmysqlnd_crud_collection_modify__is_initialized(XMYSQLND_CRUD_COLLECTION_OP
 
 
 typedef struct st_xmysqlnd_crud_collection_op__find XMYSQLND_CRUD_COLLECTION_OP__FIND;
-XMYSQLND_CRUD_COLLECTION_OP__FIND * xmysqlnd_crud_collection_find__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING collection);
+XMYSQLND_CRUD_COLLECTION_OP__FIND * xmysqlnd_crud_collection_find__create(const util::string_view& schema, const util::string_view& collection);
 void xmysqlnd_crud_collection_find__destroy(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
-enum_func_status xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING criteria);
+enum_func_status xmysqlnd_crud_collection_find__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& criteria);
 enum_func_status xmysqlnd_crud_collection_find__set_limit(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t limit);
 enum_func_status xmysqlnd_crud_collection_find__set_offset(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const size_t offset);
 enum_func_status xmysqlnd_crud_collection_find__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__FIND* obj,
 	const util::string& name,
 	zval* value);
-enum_func_status xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING sort);
-enum_func_status xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING search_field);
-enum_func_status xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const MYSQLND_CSTRING criteria);
+enum_func_status xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& sort);
+enum_func_status xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& search_field);
+enum_func_status xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& criteria);
 enum_func_status xmysqlnd_crud_collection_find__set_fields(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj,
-														   const MYSQLND_CSTRING field,
+														   const util::string_view& field,
 														   const zend_bool is_expression,
 														   const zend_bool allow_alias);
 enum_func_status xmysqlnd_crud_collection_find__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj);
@@ -135,7 +135,7 @@ enum_func_status xmysqlnd_crud_collection_find_set_lock_waiting_option(XMYSQLND_
 
 
 typedef struct st_xmysqlnd_stmt_op__execute XMYSQLND_STMT_OP__EXECUTE;
-XMYSQLND_STMT_OP__EXECUTE* xmysqlnd_stmt_execute__create(const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING stmt);
+XMYSQLND_STMT_OP__EXECUTE* xmysqlnd_stmt_execute__create(const std::string_view& namespace_, const util::string_view& stmt);
 void xmysqlnd_stmt_execute__destroy(XMYSQLND_STMT_OP__EXECUTE* obj);
 Mysqlx::Sql::StmtExecute& xmysqlnd_stmt_execute__get_pb_msg(XMYSQLND_STMT_OP__EXECUTE* obj);
 zend_bool xmysqlnd_stmt_execute__is_initialized(XMYSQLND_STMT_OP__EXECUTE* obj);
@@ -179,12 +179,12 @@ struct st_xmysqlnd_crud_collection_op__find
 	Mysqlx::Crud::Find message;
 	Bindings bindings;
 	uint32_t ps_message_id;
-	st_xmysqlnd_crud_collection_op__find(const MYSQLND_CSTRING & schema,
-										 const MYSQLND_CSTRING & object_name) :
+	st_xmysqlnd_crud_collection_op__find(const util::string_view& schema,
+										 const util::string_view& object_name) :
 		ps_message_id{ 0 }
 	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.mutable_collection()->set_schema(schema.data(), schema.length());
+		message.mutable_collection()->set_name(object_name.data(), object_name.length());
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
@@ -198,11 +198,11 @@ struct st_xmysqlnd_crud_collection_op__add
 	std::vector<zval> docs_zv;
 
 	st_xmysqlnd_crud_collection_op__add(
-		const MYSQLND_CSTRING& schema,
-		const MYSQLND_CSTRING& object_name)
+		const util::string_view& schema,
+		const util::string_view& object_name)
 	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.mutable_collection()->set_schema(schema.data(), schema.length());
+		message.mutable_collection()->set_name(object_name.data(), object_name.length());
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
@@ -223,12 +223,12 @@ struct st_xmysqlnd_crud_collection_op__modify
 	Bindings bindings;
 	uint32_t ps_message_id;
 
-	st_xmysqlnd_crud_collection_op__modify(const MYSQLND_CSTRING & schema,
-										   const MYSQLND_CSTRING & object_name) :
+	st_xmysqlnd_crud_collection_op__modify(const util::string_view& schema,
+										   const util::string_view& object_name) :
 		ps_message_id{ 0 }
 	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.mutable_collection()->set_schema(schema.data(), schema.length());
+		message.mutable_collection()->set_name(object_name.data(), object_name.length());
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
@@ -241,12 +241,12 @@ struct st_xmysqlnd_crud_collection_op__remove
 	Bindings bindings;
 	uint32_t ps_message_id;
 
-	st_xmysqlnd_crud_collection_op__remove(const MYSQLND_CSTRING & schema,
-										   const MYSQLND_CSTRING & object_name) :
+	st_xmysqlnd_crud_collection_op__remove(const util::string_view& schema,
+										   const util::string_view& object_name) :
 		ps_message_id{ 0 }
 	{
-		message.mutable_collection()->set_schema(schema.s, schema.l);
-		message.mutable_collection()->set_name(object_name.s, object_name.l);
+		message.mutable_collection()->set_schema(schema.data(), schema.length());
+		message.mutable_collection()->set_name(object_name.data(), object_name.length());
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
@@ -261,15 +261,15 @@ struct st_xmysqlnd_stmt_op__execute
     Mysqlx::Sql::StmtExecute message;
     uint32_t ps_message_id;
 
-    st_xmysqlnd_stmt_op__execute(const MYSQLND_CSTRING & namespace_,
-                                 const MYSQLND_CSTRING & stmt,
+    st_xmysqlnd_stmt_op__execute(const util::string_view& namespace_,
+                                 const util::string_view& stmt,
                                  const bool compact_meta)
         : params{nullptr},
           params_allocated{0},
           ps_message_id{0}
     {
-        message.set_namespace_(namespace_.s, namespace_.l);
-        message.set_stmt(stmt.s, stmt.l);
+        message.set_namespace_(namespace_.data(), namespace_.length());
+        message.set_stmt(stmt.data(), stmt.length());
         message.set_compact_metadata(compact_meta);
     }
 

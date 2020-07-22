@@ -103,7 +103,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 		if(Z_TYPE_P(where_expr) != IS_STRING) {
 			RAISE_EXCEPTION(err_msg_wrong_param_4);
 		} else {
-			const MYSQLND_CSTRING where_expr_str = {Z_STRVAL_P(where_expr), Z_STRLEN_P(where_expr)};
+			const util::string_view where_expr_str{Z_STRVAL_P(where_expr), Z_STRLEN_P(where_expr)};
 			if (PASS == xmysqlnd_crud_table_delete__set_criteria(data_object.crud_op, where_expr_str)) {
 				ZVAL_COPY(return_value, object_zv);
 			}
@@ -141,7 +141,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 		{
 		case IS_STRING:
 			{
-				const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL(orderby_expr[i]),
+				const util::string_view orderby_expr_str{Z_STRVAL(orderby_expr[i]),
 													Z_STRLEN(orderby_expr[i])};
 				if (PASS == xmysqlnd_crud_table_delete__add_orderby(data_object.crud_op, orderby_expr_str)) {
 					ZVAL_COPY(return_value, object_zv);
@@ -153,7 +153,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 				zval* entry{nullptr};
 				MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL(orderby_expr[i]), entry)
 				{
-					const MYSQLND_CSTRING orderby_expr_str = {Z_STRVAL_P(entry), Z_STRLEN_P(entry)};
+					const util::string_view orderby_expr_str{Z_STRVAL_P(entry), Z_STRLEN_P(entry)};
 					if (Z_TYPE_P(entry) != IS_STRING) {
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
 						DBG_VOID_RETURN;
@@ -228,7 +228,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 		{
 			if (key)
 			{
-				const MYSQLND_CSTRING variable = {ZSTR_VAL(key), ZSTR_LEN(key)};
+				const util::string_view variable{ZSTR_VAL(key), ZSTR_LEN(key)};
 				if (FAIL == xmysqlnd_crud_table_delete__bind_value(data_object.crud_op, variable, val))
 				{
 					RAISE_EXCEPTION(err_msg_bind_fail);
@@ -303,8 +303,8 @@ mysqlx_table__delete_property__name(const st_mysqlx_object* obj, zval* return_va
 {
 	const st_mysqlx_table__delete* object = (const st_mysqlx_table__delete* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table__delete_property__name");
-	if (object->table && object->table->get_name().s) {
-		ZVAL_STRINGL(return_value, object->table->get_name().s, object->table->get_name().l);
+	if (object->table && !object->table->get_name().empty()) {
+		ZVAL_STRINGL(return_value, object->table->get_name().data(), object->table->get_name().length());
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -326,9 +326,9 @@ static HashTable mysqlx_table__delete_properties;
 const st_mysqlx_property_entry mysqlx_table__delete_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_table__delete_property__name,	nullptr},
+	{std::string_view("name"), mysqlx_table__delete_property__name,	nullptr},
 #endif
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void
@@ -383,8 +383,8 @@ mysqlx_new_table__delete(zval* return_value, xmysqlnd_table* table)
 		util::init_object<st_mysqlx_table__delete>(mysqlx_table__delete_class_entry, return_value) };
 	data_object.table = table->get_reference();
 	data_object.crud_op = xmysqlnd_crud_table_delete__create(
-		mnd_str2c(data_object.table->get_schema()->get_name()),
-		mnd_str2c(data_object.table->get_name()));
+		data_object.table->get_schema()->get_name(),
+		data_object.table->get_name());
 	DBG_VOID_RETURN;
 }
 

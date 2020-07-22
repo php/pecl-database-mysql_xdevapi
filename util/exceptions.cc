@@ -32,8 +32,8 @@ namespace util {
 namespace
 {
 
-const char* const General_sql_state{ GENERAL_SQL_STATE };
-const char* const Unknown_error_message{ "Unknown error" };
+constexpr string_view General_sql_state{ "HY000" };
+constexpr string_view Unknown_error_message{ "Unknown error" };
 
 const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::fetch_fail, "Couldn't fetch data" },
@@ -147,13 +147,12 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 		"Invalid format of document, JSON array expected: " },
 };
 
-/* {{{ to_sql_state */
-string to_sql_state(const string& sql_state)
+string_view to_sql_state(const string_view& sql_state)
 {
 	return sql_state.empty() ? General_sql_state : sql_state;
 }
 
-string to_error_msg(xdevapi_exception::Code code, const string& what)
+string to_error_msg(xdevapi_exception::Code code, const string_view& what)
 {
 	string msg;
 	auto it{ code_to_err_msg.find(code) };
@@ -166,10 +165,10 @@ string to_error_msg(xdevapi_exception::Code code, const string& what)
 		msg += what;
 	}
 
-	return msg.empty() ? Unknown_error_message : msg;
+	return msg.empty() ? string{Unknown_error_message} : msg;
 }
 
-string to_error_msg(unsigned int code, const string& what)
+string to_error_msg(unsigned int code, const string_view& what)
 {
 	return to_error_msg(static_cast<xdevapi_exception::Code>(code), what);
 }
@@ -188,37 +187,12 @@ xdevapi_exception::xdevapi_exception(Code code, int error_number)
 {
 }
 
-xdevapi_exception::xdevapi_exception(Code code, const string& msg)
-	: xdevapi_exception(static_cast<unsigned int>(code), msg)
-{
-}
-
-xdevapi_exception::xdevapi_exception(Code code, const char* msg)
-	: xdevapi_exception(static_cast<unsigned int>(code), General_sql_state, msg)
-{
-}
-
-xdevapi_exception::xdevapi_exception(Code code, const std::string& msg)
-	: xdevapi_exception(code, util::to_string(msg))
-{
-}
-
-xdevapi_exception::xdevapi_exception(unsigned int code, const string& msg)
-	: xdevapi_exception(code, General_sql_state, msg)
-{
-}
-
-xdevapi_exception::xdevapi_exception(unsigned int code, const char* sql_state, const char* msg)
-	: xdevapi_exception(code, to_string(sql_state), to_string(msg))
+xdevapi_exception::xdevapi_exception(Code code, const string_view& msg)
+	: xdevapi_exception(static_cast<int>(code), General_sql_state, msg)
 {
 }
 
 xdevapi_exception::xdevapi_exception(unsigned int code, const string_view& sql_state, const string_view& msg)
-	: xdevapi_exception(code, sql_state.to_string(), msg.to_string())
-{
-}
-
-xdevapi_exception::xdevapi_exception(unsigned int code, const string& sql_state, const string& msg)
 	: std::runtime_error(prepare_reason_msg(code, sql_state, msg).c_str())
 	, code(code)
 {
@@ -272,17 +246,12 @@ void raise_unknown_exception()
 
 //------------------------------------------------------------------------------
 
-string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what)
+string prepare_reason_msg(unsigned int code, const string_view& sql_state, const string_view& what)
 {
 	ostringstream os;
 	os << '[' << code << "][" << to_sql_state(sql_state) << "] " << to_error_msg(code, what);
 	const string& reason = os.str();
 	return reason;
-}
-
-string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what)
-{
-	return prepare_reason_msg(code, to_string(sql_state), to_string(what));
 }
 
 void log_warning(const string& msg)
@@ -293,7 +262,7 @@ void log_warning(const string& msg)
 void set_error_info(util::xdevapi_exception::Code code, MYSQLND_ERROR_INFO* error_info)
 {
 	error_info->error_no = static_cast<unsigned int>(code);
-	strcpy(error_info->sqlstate, General_sql_state);
+	strcpy(error_info->sqlstate, General_sql_state.data());
 	error_info->error[0] = 0;
 }
 

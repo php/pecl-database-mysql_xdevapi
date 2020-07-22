@@ -21,6 +21,7 @@
 #define XMYSQLND_ZVAL2ANY_H
 
 #include "proto_gen/mysqlx_datatypes.pb.h"
+#include "util/strings.h"
 
 namespace mysqlx {
 
@@ -42,7 +43,7 @@ void repeated2log(
 	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated);
 uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
 int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
-MYSQLND_STRING scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
+util::string scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
 
 } // namespace drv
 

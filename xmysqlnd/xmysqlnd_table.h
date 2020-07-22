@@ -36,7 +36,7 @@ public:
 	xmysqlnd_table() = default;
 	xmysqlnd_table(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const cur_obj_factory,
 				xmysqlnd_schema* const cur_schema,
-				const MYSQLND_CSTRING cur_table_name,
+				const util::string_view& cur_table_name,
 				zend_bool is_persistent);
 	enum_func_status		exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 	enum_func_status		is_view(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
@@ -53,12 +53,12 @@ public:
 	xmysqlnd_schema* get_schema() {
 		return schema;
 	}
-	MYSQLND_STRING get_name() {
+	const util::string& get_name() const {
 		return table_name;
 	}
 private:
 	xmysqlnd_schema* schema;
-	MYSQLND_STRING table_name;
+	util::string table_name;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
@@ -68,7 +68,7 @@ private:
 
 
 PHP_MYSQL_XDEVAPI_API xmysqlnd_table * xmysqlnd_table_create(xmysqlnd_schema* schema,
-														const MYSQLND_CSTRING table_name,
+														const util::string_view& table_name,
 														const zend_bool persistent,
 														const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														MYSQLND_STATS * const stats,

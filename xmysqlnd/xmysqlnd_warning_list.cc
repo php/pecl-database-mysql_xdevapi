@@ -65,15 +65,7 @@ xmysqlnd_warning_list::get_warning(std::size_t index) const
 	DBG_RETURN(ret);
 }
 
-void
-xmysqlnd_warning_list::free_contents()
-{
-	DBG_ENTER("xmysqlnd_warning_list::free_contents");
-	warnings.clear();
-	DBG_VOID_RETURN;
-}
-
-XMYSQLND_WARNING_LIST *
+XMYSQLND_WARNING_LIST*
 xmysqlnd_warning_list_create(const zend_bool persistent, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory, MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info)
 {
 	XMYSQLND_WARNING_LIST* result{nullptr};

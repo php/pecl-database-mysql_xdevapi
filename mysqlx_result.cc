@@ -170,7 +170,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 	const XMYSQLND_WARNING_LIST* const warnings = data_object.result->warnings;
 	/* Maybe check here if there was an error and throw an Exception or return a warning */
 	if (warnings) {
-		const size_t value = warnings->count();
+		const std::size_t value = warnings->count();
 		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
 			ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
@@ -198,7 +198,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 	if (warnings) {
 		const std::size_t count{warnings->count()};
 		array_init_size(return_value, count);
-		for (unsigned int i{0}; i < count; ++i) {
+		for (std::size_t i{0}; i < count; ++i) {
 			const XMYSQLND_WARNING warning = warnings->get_warning(i);
 			util::zvalue warning_zv;
 			mysqlx_new_warning(warning_zv.ptr(), warning.message, warning.level, warning.code);
@@ -230,7 +230,7 @@ static HashTable mysqlx_result_properties;
 
 const st_mysqlx_property_entry mysqlx_result_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void

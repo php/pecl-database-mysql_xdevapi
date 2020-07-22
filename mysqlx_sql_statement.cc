@@ -666,7 +666,7 @@ static HashTable mysqlx_sql_statement_properties;
 
 const st_mysqlx_property_entry mysqlx_sql_statement_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 
@@ -715,7 +715,7 @@ mysqlx_unregister_sql_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_sql_stmt(zval* return_value, xmysqlnd_stmt* stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query)
+mysqlx_new_sql_stmt(zval* return_value, xmysqlnd_stmt* stmt, const std::string_view& namespace_, const util::string_view& query)
 {
 	DBG_ENTER("mysqlx_new_sql_stmt");
 
@@ -901,7 +901,7 @@ static HashTable mysqlx_statement_properties;
 
 const st_mysqlx_property_entry mysqlx_statement_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 

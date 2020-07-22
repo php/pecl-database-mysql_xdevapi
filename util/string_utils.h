@@ -71,10 +71,6 @@ inline string to_string(zval* zv)
 	return to_string(*zv);
 }
 
-string to_string(const st_mysqlnd_string& s); // MYSQLND_STRING
-string to_string(const st_mysqlnd_const_string& s); // MYSQLND_CSTRING
-
-
 inline string to_string(const string& str)
 {
 	return str;
@@ -154,6 +150,11 @@ st_mysqlnd_string literal_to_mysqlnd_str(const char (&literal)[Length])
 inline st_mysqlnd_const_string to_mysqlnd_cstr(const string& str)
 {
 	return st_mysqlnd_const_string{ str.c_str(), str.length() };
+}
+
+inline st_mysqlnd_const_string to_mysqlnd_cstr(const string_view& str)
+{
+	return st_mysqlnd_const_string{ str.data(), str.length() };
 }
 
 inline bool is_empty(const st_mysqlnd_string& mysqlnd_str)

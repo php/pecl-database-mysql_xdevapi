@@ -103,12 +103,12 @@ mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, 
 
 static const st_mysqlx_property_entry mysqlx_execution_status_property_entries[] =
 {
-	{{"affectedItems", sizeof("affectedItems") - 1}, mysqlx_execution_status_property__affected_items, nullptr},
-	{{"matchedItems", sizeof("matchedItems") - 1}, mysqlx_execution_status_property__matched_items, nullptr},
-	{{"foundItems", sizeof("foundItems") - 1}, mysqlx_execution_status_property__found_items, nullptr},
-	{{"lastInsertId", sizeof("lastInsertId") - 1}, mysqlx_execution_status_property__last_insert_id, nullptr},
-	{{"lastDocumentId", sizeof("lastDocumentId") - 1}, mysqlx_execution_status_property__last_document_id, nullptr},
-	{{nullptr, 0}, nullptr, nullptr}
+	{std::string_view("affectedItems"), mysqlx_execution_status_property__affected_items, nullptr},
+	{std::string_view("matchedItems"), mysqlx_execution_status_property__matched_items, nullptr},
+	{std::string_view("foundItems"), mysqlx_execution_status_property__found_items, nullptr},
+	{std::string_view("lastInsertId"), mysqlx_execution_status_property__last_insert_id, nullptr},
+	{std::string_view("lastDocumentId"), mysqlx_execution_status_property__last_document_id, nullptr},
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static zend_object_handlers mysqlx_object_execution_status_handlers;

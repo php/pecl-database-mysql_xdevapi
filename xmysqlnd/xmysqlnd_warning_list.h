@@ -19,7 +19,7 @@
 #define XMYSQLND_WARNING_LIST_H
 
 #include "xmysqlnd_driver.h"
-#include "xmysqlnd_wireprotocol.h" /* enum xmysqlnd_stmt_warning_level */
+#include "xmysqlnd_wireprotocol_types.h" /* enum xmysqlnd_stmt_warning_level */
 
 namespace mysqlx {
 
@@ -45,7 +45,6 @@ public:
 		const util::string_view& message);
 	std::size_t count() const;
 	XMYSQLND_WARNING get_warning(std::size_t index) const;
-	void free_contents();
 
 private:
 	util::vector<st_xmysqlnd_warning> warnings;

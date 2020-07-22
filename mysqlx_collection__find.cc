@@ -105,15 +105,15 @@ bool Collection_find::init(
 
 	collection = coll->get_reference();
 	find_op = xmysqlnd_crud_collection_find__create(
-		mnd_str2c(collection->get_schema()->get_name()),
-		mnd_str2c(collection->get_name()));
+		collection->get_schema()->get_name(),
+		collection->get_name());
 
 	if (!find_op) return false;
 
 	if (search_expression.empty()) return true;
 
 	return xmysqlnd_crud_collection_find__set_criteria(
-		find_op, search_expression.to_nd_cstr()) == PASS;
+		find_op, search_expression) == PASS;
 }
 
 Collection_find::~Collection_find()
@@ -150,7 +150,7 @@ bool Collection_find::fields(util::zvalue& fields)
 
 	enum_func_status ret{PASS};
 	if (fields.is_string()) {
-		const MYSQLND_CSTRING field_str{ fields.c_str(), fields.length() };
+		const util::string_view& field_str = fields.to_string_view();
 		ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
 	} else if (fields.is_array()) {
 		for (auto it{ fields.vbegin() }; it != fields.vend(); ++it) {
@@ -168,7 +168,7 @@ bool Collection_find::fields(util::zvalue& fields)
 				RAISE_EXCEPTION(err_msg_wrong_param_1);
 				DBG_RETURN(false);
 			}
-			MYSQLND_CSTRING field_str{ field.c_str(), field.length() };
+			const util::string_view& field_str = field.to_string_view();
 			ret = xmysqlnd_crud_collection_find__set_fields(find_op, field_str, is_expression, TRUE);
 			if(ret==FAIL)
 				break;
@@ -208,7 +208,7 @@ bool Collection_find::add_operation(
 		switch (sort_expr.type()) {
 		case util::zvalue::Type::String:
 			{
-				const MYSQLND_CSTRING sort_expr_str{ sort_expr.c_str(), sort_expr.length() };
+				const util::string_view& sort_expr_str = sort_expr.to_string_view();
 				if (Collection_find::Operation::Sort == operation) {
 					if (FAIL == xmysqlnd_crud_collection_find__add_sort(find_op, sort_expr_str)) {
 						DBG_RETURN(false);
@@ -228,8 +228,7 @@ bool Collection_find::add_operation(
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
 						DBG_RETURN(false);
 					}
-					const MYSQLND_CSTRING sort_expr_str{
-						sort_expr_entry.c_str(), sort_expr_entry.length() };
+					const util::string_view& sort_expr_str = sort_expr_entry.to_string_view();
 					enum_func_status ret{FAIL};
 					if (Collection_find::Operation::Sort == operation) {
 						ret = xmysqlnd_crud_collection_find__add_sort(find_op, sort_expr_str);
@@ -270,8 +269,7 @@ bool Collection_find::group_by(
 bool Collection_find::having(const util::string_view& search_condition)
 {
 	DBG_ENTER("mysqlx_collection__find::having");
-	const MYSQLND_CSTRING search_condition_str{ search_condition.c_str(), search_condition.length() };
-	DBG_RETURN(PASS == xmysqlnd_crud_collection_find__set_having(find_op, search_condition_str));
+	DBG_RETURN(PASS == xmysqlnd_crud_collection_find__set_having(find_op, search_condition));
 }
 
 bool Collection_find::limit(zend_long rows)
@@ -456,7 +454,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 	DBG_ENTER("mysqlx_collection__find::having");
 
 	zval* object_zv{nullptr};
-	util::string_view search_condition;
+	util::param_string search_condition;
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, collection_find_class_entry,
@@ -466,7 +464,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	if (coll_find.having(search_condition)) {
+	if (coll_find.having(search_condition.to_view())) {
 		util::zvalue::copy_to(object_zv, return_value);
 	}
 
@@ -629,7 +627,7 @@ static HashTable collection_find_properties;
 
 const st_mysqlx_property_entry collection_find_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void

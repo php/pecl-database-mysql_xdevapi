@@ -128,7 +128,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 	RETVAL_LONG(0);
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_doc_result>(object_zv) };
-	size_t warning_count{ 0 };
+	std::size_t warning_count{ 0 };
 	const XMYSQLND_WARNING_LIST* const warnings = data_object.result->warnings;
 	/* Maybe check here if there was an error and throw an Exception or return a warning */
 	if (warnings) {
@@ -161,7 +161,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 	if (warnings) {
 		const std::size_t count{warnings->count()};
 		array_init_size(return_value, count);
-		for (unsigned int i{0}; i < count; ++i) {
+		for (std::size_t i{0}; i < count; ++i) {
 			const XMYSQLND_WARNING warning = warnings->get_warning(i);
 			util::zvalue warning_zv;
 			mysqlx_new_warning(warning_zv.ptr(), warning.message, warning.level, warning.code);
@@ -194,7 +194,7 @@ static HashTable mysqlx_doc_result_properties;
 
 const st_mysqlx_property_entry mysqlx_doc_result_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void

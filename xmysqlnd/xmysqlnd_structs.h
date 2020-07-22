@@ -24,7 +24,7 @@ namespace drv {
 
 struct st_collection_op_var_binder_ctx
 {
-	const MYSQLND_CSTRING schema_name;
+	util::string_view schema_name;
 	util::string_view collection_name;
 	util::string_view collection_options;
 };

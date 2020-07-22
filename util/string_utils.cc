@@ -48,16 +48,6 @@ string to_string(const zval& zv)
 	}
 }
 
-string to_string(const MYSQLND_STRING& s)
-{
-	return string(s.s, s.l);
-}
-
-string to_string(const MYSQLND_CSTRING& s)
-{
-	return string(s.s, s.l);
-}
-
 strings to_strings(zval* zvals, int count)
 {
 	strings strings;
@@ -86,7 +76,7 @@ zend_string* to_zend_string(formatter& fmt)
 
 string
 escape_identifier( const string& identifier ) {
-	std::stringstream result;
+	util::stringstream result;
 	result << '`';
 	for( const auto& ch : identifier ) {
 		if( ch == '`' ) {
@@ -96,7 +86,7 @@ escape_identifier( const string& identifier ) {
 		}
 	}
 	result << '`';
-	return result.str().c_str();
+	return result.str();
 }
 
 bool to_int(const string& str, int* value)

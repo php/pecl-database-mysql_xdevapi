@@ -48,7 +48,7 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_type)(XMYSQLND_RESULT_FIELD_META
 }
 
 static inline enum_func_status
-xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, const size_t value_len, const zend_bool persistent MYSQLND_MEM_D)
+xmysqlnd_set_mysqlnd_string(util::string* str, const char * const value, const size_t value_len, const zend_bool persistent MYSQLND_MEM_D)
 {
 #if ZEND_DEBUG
 	UNUSED(__zend_lineno);
@@ -56,9 +56,8 @@ xmysqlnd_set_mysqlnd_string(MYSQLND_STRING * str, const char * const value, cons
 #endif
 
 	if (value) {
-		str->s = value_len? mnd_pestrndup(value, value_len, 0) : (char *) mysqlnd_empty_string;
-		str->l = value_len;
-		return str->s? PASS:FAIL;
+		*str = value ? value : "";
+		return !str->empty() ? PASS:FAIL;
 	}
 	return PASS;
 }
@@ -71,18 +70,17 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, set_name)(XMYSQLND_RESULT_FIELD_META
 	DBG_ENTER("xmysqlnd_result_field_meta::set_name");
 	if (len) {
 		field->zend_hash_key.sname = zend_string_init(str, len, field->persistent);
-		field->name.s = ZSTR_VAL(field->zend_hash_key.sname);
+		field->name = util::to_string(field->zend_hash_key.sname);
 	} else {
 		field->zend_hash_key.sname = ZSTR_EMPTY_ALLOC();
-		field->name.s = (char*) mysqlnd_empty_string;
+		field->name.clear();
 	}
-	field->name.l = len;
 
 	if (field->zend_hash_key.is_numeric == ZEND_HANDLE_NUMERIC(field->zend_hash_key.sname, idx)) {
 		field->zend_hash_key.key = idx;
 	}
 
-	DBG_RETURN(field->name.s? PASS:FAIL);
+	DBG_RETURN(!field->name.empty()? PASS:FAIL);
 }
 
 static enum_func_status
@@ -173,12 +171,12 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, clone)(const XMYSQLND_RESULT_FIELD_M
 	cloned = xmysqlnd_result_field_meta_create(origin->persistent, origin->object_factory, stats, error_info);
 	if (cloned) {
 		cloned->m->set_type(cloned, origin->type);
-		cloned->m->set_name(cloned, origin->name.s, origin->name.l);
-		cloned->m->set_original_name(cloned, origin->original_name.s, origin->original_name.l);
-		cloned->m->set_table(cloned, origin->table.s, origin->table.l);
-		cloned->m->set_original_table(cloned, origin->original_table.s, origin->original_table.l);
-		cloned->m->set_schema(cloned, origin->schema.s, origin->schema.l);
-		cloned->m->set_catalog(cloned, origin->catalog.s, origin->catalog.l);
+		cloned->m->set_name(cloned, origin->name.data(), origin->name.length());
+		cloned->m->set_original_name(cloned, origin->original_name.data(), origin->original_name.length());
+		cloned->m->set_table(cloned, origin->table.data(), origin->table.length());
+		cloned->m->set_original_table(cloned, origin->original_table.data(), origin->original_table.length());
+		cloned->m->set_schema(cloned, origin->schema.c_str(), origin->schema.length());
+		cloned->m->set_catalog(cloned, origin->catalog.data(), origin->catalog.length());
 		cloned->m->set_collation(cloned, origin->collation);
 		cloned->m->set_fractional_digits(cloned, origin->fractional_digits);
 		cloned->m->set_length(cloned, origin->length);
@@ -193,35 +191,12 @@ XMYSQLND_METHOD(xmysqlnd_result_field_meta, free_contents)(XMYSQLND_RESULT_FIELD
 {
 	DBG_ENTER("xmysqlnd_result_field_meta::free_contents");
 
-	/* Don't free field->name.s as it is a pointer to field->zend_hash_key.sname */
-	field->name.s = nullptr;
-	field->name.l = 0;
-
-	if (field->original_name.s && field->original_name.s != mysqlnd_empty_string) {
-		mnd_efree(field->original_name.s);
-		field->original_name.s = nullptr;
-		field->original_name.l = 0;
-	}
-	if (field->table.s && field->table.s != mysqlnd_empty_string) {
-		mnd_efree(field->table.s);
-		field->table.s = nullptr;
-		field->table.l = 0;
-	}
-	if (field->original_table.s && field->original_table.s != mysqlnd_empty_string) {
-		mnd_efree(field->original_table.s);
-		field->original_table.s = nullptr;
-		field->original_table.l = 0;
-	}
-	if (field->schema.s && field->schema.s != mysqlnd_empty_string) {
-		mnd_efree(field->schema.s);
-		field->schema.s = nullptr;
-		field->schema.l = 0;
-	}
-	if (field->catalog.s && field->catalog.s != mysqlnd_empty_string) {
-		mnd_efree(field->catalog.s);
-		field->catalog.s = nullptr;
-		field->catalog.l = 0;
-	}
+	field->name.clear();
+	field->original_name.clear();
+	field->table.clear();
+	field->original_table.clear();
+	field->schema.clear();
+	field->catalog.clear();
 	if (field->zend_hash_key.sname) {
 		zend_string_release(field->zend_hash_key.sname);
 		field->zend_hash_key.sname = nullptr;

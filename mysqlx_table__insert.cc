@@ -169,8 +169,8 @@ mysqlx_table__insert_property__name(const st_mysqlx_object* obj, zval* return_va
 {
 	const st_mysqlx_table__insert* object = (const st_mysqlx_table__insert* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table__insert_property__name");
-	if (object->table && object->table->get_name().s) {
-		ZVAL_STRINGL(return_value, object->table->get_name().s, object->table->get_name().l);
+	if (object->table && !object->table->get_name().empty()) {
+		ZVAL_STRINGL(return_value, object->table->get_name().data(), object->table->get_name().length());
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -192,9 +192,9 @@ static HashTable mysqlx_table__insert_properties;
 const st_mysqlx_property_entry mysqlx_table__insert_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_table__insert_property__name,	nullptr},
+	{std::string_view("name"), mysqlx_table__insert_property__name,	nullptr},
 #endif
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void
@@ -253,8 +253,8 @@ mysqlx_new_table__insert(
 		util::init_object<st_mysqlx_table__insert>(mysqlx_table__insert_class_entry, return_value) };
 	data_object.table = table->get_reference();
 	data_object.crud_op = xmysqlnd_crud_table_insert__create(
-		mnd_str2c(data_object.table->get_schema()->get_name()),
-		mnd_str2c(data_object.table->get_name()),
+		data_object.table->get_schema()->get_name(),
+		data_object.table->get_name(),
 		columns,
 		num_of_columns);
 	DBG_VOID_RETURN;

@@ -145,7 +145,7 @@ class zvalue
 		bool is_reference() const;
 
 		// returns true if type is neither undefined nor null (i.e. type != Undefined && type != Null)
-		operator bool() const;
+		bool has_value() const;
 
 	public:
 		// call below methods only if U are fully sure they have proper type (or it may crash)

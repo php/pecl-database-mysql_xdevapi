@@ -89,7 +89,7 @@ zval* Hash_table::find(const long key)
 
 zval* Hash_table::find(const string_view& key)
 {
-	return zend_hash_str_find(ht, key.str, key.len);
+	return zend_hash_str_find(ht, key.data(), key.length());
 }
 
 // -----------------------------------------------------------------------------

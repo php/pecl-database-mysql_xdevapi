@@ -41,7 +41,7 @@ namespace drv {
 
 xmysqlnd_collection::xmysqlnd_collection(
 								xmysqlnd_schema * const cur_schema,
-								const MYSQLND_CSTRING cur_collection_name,
+								const util::string_view& cur_collection_name,
 								zend_bool is_persistent)
 {
 	DBG_ENTER("xmysqlnd_collection::xmysqlnd_collection");
@@ -49,15 +49,15 @@ xmysqlnd_collection::xmysqlnd_collection(
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::schema_creation_failed);
 	}
 	persistent = is_persistent;
-	collection_name = mnd_dup_cstring(cur_collection_name, persistent);
-	DBG_INF_FMT("name=[%d]%*s", collection_name.l, collection_name.l, collection_name.s);
+	collection_name = cur_collection_name;
+	DBG_INF_FMT("name=[%d]%*s", collection_name.length(), collection_name.length(), collection_name.data());
 
 }
 
 struct st_collection_exists_in_database_var_binder_ctx
 {
-	const MYSQLND_CSTRING schema_name;
-	const MYSQLND_CSTRING collection_name;
+	util::string_view schema_name;
+	util::string_view collection_name;
 	unsigned int counter;
 };
 
@@ -83,7 +83,7 @@ static const enum_hnd_func_status collection_op_var_binder(
 
 struct collection_exists_in_database_ctx
 {
-	const MYSQLND_CSTRING expected_collection_name;
+	util::string_view expected_collection_name;
 	zval* exists;
 };
 
@@ -101,10 +101,10 @@ collection_mysqlx_op_on_row(
 	collection_exists_in_database_ctx* ctx = static_cast<collection_exists_in_database_ctx*>(context);
 	DBG_ENTER("collection_mysqlx_op_on_row");
 	if (ctx && row) {
-		const MYSQLND_CSTRING object_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
-		const MYSQLND_CSTRING object_type = { Z_STRVAL(row[1]), Z_STRLEN(row[1]) };
+		const util::string_view object_name( Z_STRVAL(row[0]), Z_STRLEN(row[0]) );
+		const util::string_view object_type( Z_STRVAL(row[1]), Z_STRLEN(row[1]) );
 
-		if (equal_mysqlnd_cstr(object_name, ctx->expected_collection_name)
+		if ((object_name == ctx->expected_collection_name)
 			&& is_collection_object_type(object_type))
 		{
 			ZVAL_TRUE(ctx->exists);
@@ -122,17 +122,17 @@ xmysqlnd_collection::exists_in_database(
 	ZVAL_FALSE(exists);
 
 	enum_func_status ret;
-	static const MYSQLND_CSTRING query = {"list_objects", sizeof("list_objects") - 1 };
+	constexpr util::string_view query = "list_objects";
 
 	st_collection_exists_in_database_var_binder_ctx var_binder_ctx = {
-		mnd_str2c(schema->get_name()),
-		mnd_str2c(collection_name),
+		schema->get_name(),
+		collection_name,
 		0
 	};
 	const st_xmysqlnd_session_query_bind_variable_bind var_binder = { collection_op_var_binder, &var_binder_ctx };
 
 	collection_exists_in_database_ctx on_row_ctx = {
-		mnd_str2c(collection_name),
+		collection_name,
 		exists
 	};
 
@@ -189,11 +189,11 @@ xmysqlnd_collection::count(
 	auto session = schema->get_session();
 
 	char* query_str{nullptr};
-	mnd_sprintf(&query_str, 0, "SELECT COUNT(*) FROM %s.%s", schema->get_name().s, get_name().s);
+	mnd_sprintf(&query_str, 0, "SELECT COUNT(*) FROM %s.%s", schema->get_name().data(), get_name().data());
 	if (!query_str) {
 		DBG_RETURN(FAIL);
 	}
-	const MYSQLND_CSTRING query = {query_str, strlen(query_str)};
+	const util::string_view query{query_str};
 
  	st_collection_sql_single_result_ctx on_row_ctx = {
 		counter
@@ -420,10 +420,7 @@ void
 xmysqlnd_collection::free_contents()
 {
 	DBG_ENTER("xmysqlnd_collection::free_contents");
-	if (collection_name.s) {
-		mnd_efree(get_name().s);
-		collection_name.s = nullptr;
-	}
+	collection_name.clear();
 	DBG_VOID_RETURN;
 }
 
@@ -439,7 +436,7 @@ xmysqlnd_collection::cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_i
 
 PHP_MYSQL_XDEVAPI_API xmysqlnd_collection *
 xmysqlnd_collection_create(xmysqlnd_schema * schema,
-								const MYSQLND_CSTRING collection_name,
+								const util::string_view& collection_name,
 								const zend_bool persistent,
 								const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 								MYSQLND_STATS * const stats,
@@ -447,7 +444,7 @@ xmysqlnd_collection_create(xmysqlnd_schema * schema,
 {
 	xmysqlnd_collection* ret{nullptr};
 	DBG_ENTER("xmysqlnd_collection_create");
-	if (collection_name.s && collection_name.l) {
+	if (!collection_name.empty()) {
 		ret = object_factory->get_collection(object_factory, schema, collection_name, persistent, stats, error_info);
 		if (ret) {
 			ret = ret->get_reference();

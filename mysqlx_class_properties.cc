@@ -43,13 +43,13 @@ mysqlx_property_set_forbidden(st_mysqlx_object* /*not_used1*/, zval* /*not_used2
 }
 
 static void
-mysqlx_add_property(HashTable * properties, const MYSQLND_CSTRING property_name, const func_mysqlx_property_get get, const func_mysqlx_property_set set)
+mysqlx_add_property(HashTable * properties, const std::string_view& property_name, const func_mysqlx_property_get get, const func_mysqlx_property_set set)
 {
-	struct st_mysqlx_property property;
 	DBG_ENTER("mysqlx_add_property");
-	DBG_INF_FMT("property=%s  getter=%p setter=%p", property_name.s, get, set);
+	DBG_INF_FMT("property=%s  getter=%p setter=%p", property_name.data(), get, set);
 
-	property.name		= zend_string_init(property_name.s, property_name.l, 1);
+	st_mysqlx_property property;
+	property.name		= zend_string_init(property_name.data(), property_name.length(), 1);
 	property.get_value	= get? get : mysqlx_property_get_forbidden;
 	property.set_value	= set? set : mysqlx_property_set_forbidden;
 
@@ -62,7 +62,7 @@ mysqlx_add_property(HashTable * properties, const MYSQLND_CSTRING property_name,
 void
 mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries)
 {
-	for (unsigned int i{0}; entries[i].property_name.s != nullptr; ++i) {
+	for (unsigned int i{0}; !entries[i].property_name.empty(); ++i) {
 		mysqlx_add_property(ht, entries[i].property_name, entries[i].get_value, entries[i].set_value);
 	}
 }

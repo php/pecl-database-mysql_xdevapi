@@ -143,7 +143,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_table>(object_zv) };
 
-	RETVAL_STRINGL(data_object.table->get_name().s, data_object.table->get_name().l);
+	RETVAL_STRINGL(data_object.table->get_name().data(), data_object.table->get_name().length());
 
 	DBG_VOID_RETURN;
 }
@@ -272,9 +272,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 	}
 
 	if(session != nullptr) {
-		MYSQLND_STRING schema_name{ data_object.table->get_schema()->get_name() };
 		xmysqlnd_schema* schema = session->create_schema_object(
-					mnd_str2c(schema_name));
+			data_object.table->get_schema()->get_name());
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
 		} else {
@@ -430,8 +429,8 @@ mysqlx_table_property__name(const st_mysqlx_object* obj, zval* return_value)
 {
 	const st_mysqlx_table* object = (const st_mysqlx_table* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table_property__name");
-	if (object->table && object->table->get_name().s) {
-		ZVAL_STRINGL(return_value, object->table->get_name().s, object->table->get_name().l);
+	if (object->table && !object->table->get_name().empty()) {
+		ZVAL_STRINGL(return_value, object->table->get_name().data(), object->table->get_name().length());
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -450,8 +449,8 @@ static HashTable mysqlx_table_properties;
 
 const st_mysqlx_property_entry mysqlx_table_property_entries[] =
 {
-	{{"name",	sizeof("name") - 1}, mysqlx_table_property__name,	nullptr},
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view("name"), mysqlx_table_property__name,	nullptr},
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void

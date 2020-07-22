@@ -201,7 +201,7 @@ get_schemas_handler_on_row(void * context,
 			array_init(ctx->list);
 		}
 		if (Z_TYPE_P(ctx->list) == IS_ARRAY) {
-			const MYSQLND_CSTRING schema_name = { Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
+			const util::string_view schema_name{ Z_STRVAL(row[0]), Z_STRLEN(row[0]) };
 			xmysqlnd_schema * schema = session->create_schema_object(schema_name);
 			if (schema) {
 				zval zv;
@@ -243,7 +243,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 	RETVAL_FALSE;
 	if (XMYSQLND_SESSION session = data_object.session) {
 		const st_xmysqlnd_session_query_bind_variable_bind var_binder{ nullptr, nullptr };
-		const MYSQLND_CSTRING list_query{ "SHOW DATABASES", sizeof("SHOW DATABASES") - 1 };
+		constexpr util::string_view list_query("SHOW DATABASES");
 		zval list;
 		st_mysqlx_get_schemas_ctx ctx{ &list };
 		const st_xmysqlnd_session_on_result_start_bind on_result_start{ nullptr, nullptr };
@@ -284,7 +284,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 	if (XMYSQLND_SESSION session = data_object.session) {
 		util::string_view schema_name{ session->get_data()->default_schema };
 		if (!schema_name.empty()) {
-			xmysqlnd_schema* schema = session->create_schema_object(schema_name.to_nd_cstr());
+			xmysqlnd_schema* schema = session->create_schema_object(schema_name);
 			if (schema) {
 				mysqlx_new_schema(return_value, schema);
 			} else {
@@ -301,7 +301,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 	DBG_ENTER("mysqlx_session::getSchema");
 
 	zval* object_zv{nullptr};
-	util::string_view schema_name;
+	util::param_string schema_name;
 	if (util::zend::parse_method_parameters(execute_data,
 									 getThis(),
 									 "Os", &object_zv,
@@ -312,7 +312,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 
 	auto& data_object{ fetch_session_data(object_zv) };
 	if (XMYSQLND_SESSION session = data_object.session) {
-		xmysqlnd_schema * schema = session->create_schema_object(schema_name.to_nd_cstr());
+		xmysqlnd_schema * schema = session->create_schema_object(schema_name.to_view());
 		if (schema) {
 			mysqlx_new_schema(return_value, schema);
 		} else {
@@ -327,8 +327,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 
 static void
 mysqlx_execute_session_query(XMYSQLND_SESSION  session,
-								  const MYSQLND_CSTRING namespace_,
-								  const MYSQLND_CSTRING query,
+								  const std::string_view& namespace_,
+								  const util::string_view& query,
 								  const zend_long flags,
 								  zval * const return_value,
 								  const unsigned int argc,
@@ -379,15 +379,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 
 	zval* object_zv{nullptr};
 	XMYSQLND_SESSION session;
-	MYSQLND_CSTRING query{nullptr, 0};
+	util::param_string query;
 
 	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
-																	   &(query.s), &(query.l)) == FAILURE)
+																	   &query.str, &query.len) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
 
-	if (!query.l) {
+	if (query.empty()) {
 		php_error_docref(nullptr, E_WARNING, "Empty query");
 		RETVAL_FALSE;
 		DBG_VOID_RETURN;
@@ -397,7 +397,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 	if ((session = data_object.session)) {
 		xmysqlnd_stmt * const stmt = session->create_statement_object(session);
 		if (stmt) {
-			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query);
+			mysqlx_new_sql_stmt(return_value, stmt, namespace_sql, query.to_view());
 			if (Z_TYPE_P(return_value) == IS_NULL) {
 				xmysqlnd_stmt_free(stmt, nullptr, nullptr);
 				mysqlx_throw_exception_from_session_if_needed(session->data);
@@ -413,20 +413,17 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 	DBG_ENTER("mysqlx_session::quoteName");
 
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING name{nullptr, 0};
+	util::param_string name;
 	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
-																	   &(name.s), &(name.l)) == FAILURE)
+																	   &(name.str), &(name.len)) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
 
 	auto& data_object{ fetch_session_data(object_zv) };
 	if (XMYSQLND_SESSION session = data_object.session) {
-        MYSQLND_STRING quoted_name = session->data->quote_name(name);
-		RETVAL_STRINGL(quoted_name.s, quoted_name.l);
-		if (quoted_name.s) {
-			mnd_efree(quoted_name.s);
-		}
+        util::string quoted_name = session->data->quote_name(name.to_view());
+		RETVAL_STRINGL(quoted_name.c_str(), quoted_name.length());
 		mysqlx_throw_exception_from_session_if_needed(session->data);
 	} else {
 		RETVAL_FALSE;
@@ -440,17 +437,18 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 	DBG_ENTER("mysqlx_session::createSchema");
 
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING schema_name{nullptr, 0};
+	util::param_string schema_name;
 	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
-																	   &(schema_name.s), &(schema_name.l)) == FAILURE) {
+																	   &schema_name.str, &schema_name.len) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
 	auto& data_object{ fetch_session_data(object_zv) };
 	if (XMYSQLND_SESSION session = data_object.session) {
 		xmysqlnd_schema* schema{nullptr};
-		if ((PASS == session->create_db(schema_name)) &&
-			((schema = session->create_schema_object(schema_name)) != nullptr))
+		const util::string_view& schema_name_view = schema_name.to_view();
+		if ((PASS == session->create_db(schema_name_view)) &&
+			((schema = session->create_schema_object(schema_name_view)) != nullptr))
 		{
 			DBG_INF_FMT("schema=%p", schema);
 			mysqlx_new_schema(return_value, schema);
@@ -469,7 +467,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 	DBG_ENTER("mysqlx_session::dropSchema");
 
 	zval* object_zv{nullptr};
-	util::string_view schema_name;
+	util::param_string schema_name;
 	if (util::zend::parse_method_parameters(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
@@ -481,7 +479,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 	auto& data_object = fetch_session_data(object_zv);
 	try {
 		auto session = data_object.session;
-		if (PASS == session->drop_db(schema_name.to_nd_cstr())) {
+		if (PASS == session->drop_db(schema_name.to_view())) {
 			RETVAL_TRUE;
 		} else {
 			util::log_warning("cannot drop schema '" + schema_name.to_string() + "'");
@@ -498,7 +496,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, startTransaction)
 	DBG_ENTER("mysqlx_session::startTransaction");
 
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING query{"START TRANSACTION", sizeof("START TRANSACTION") - 1};
+	constexpr util::string_view query{"START TRANSACTION"};
 	zval* args{nullptr};
 	int argc{0};
 	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
@@ -521,7 +519,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, commit)
 	DBG_ENTER("mysqlx_session::commit");
 
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING query{"COMMIT", sizeof("COMMIT") - 1};
+	constexpr util::string_view query{"COMMIT"};
 	zval* args{nullptr};
 	int argc{0};
 	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
@@ -544,7 +542,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollback)
 	DBG_ENTER("mysqlx_session::rollback");
 
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING query{"ROLLBACK", sizeof("ROLLBACK") - 1};
+	constexpr util::string_view query{"ROLLBACK"};
 	zval* args{nullptr};
 	int argc{0};
 	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
@@ -576,7 +574,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, setSavepoint)
 	DBG_ENTER("mysqlx_session::setSavepoint");
 
 	zval* object_zv{nullptr};
-	util::string_view savepoint_name;
+	util::param_string savepoint_name;
 	if (util::zend::parse_method_parameters(
 		execute_data, getThis(), "O|s",
 		&object_zv, mysqlx_session_class_entry,
@@ -618,7 +616,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollbackTo)
 	DBG_ENTER("mysqlx_session::rollbackTo");
 
 	zval* object_zv{ nullptr };
-	util::string_view savepoint_name;
+	util::param_string savepoint_name;
 	if (util::zend::parse_method_parameters(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
@@ -651,7 +649,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, releaseSavepoint)
 	DBG_ENTER("mysqlx_session::releaseSavepoint");
 
 	zval* object_zv{ nullptr };
-	util::string_view savepoint_name;
+	util::param_string savepoint_name;
 	if (util::zend::parse_method_parameters(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
@@ -729,7 +727,7 @@ static HashTable mysqlx_session_properties;
 
 const st_mysqlx_property_entry mysqlx_session_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void
@@ -796,7 +794,7 @@ mysqlx_new_session(zval* return_value, drv::XMYSQLND_SESSION session)
 
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getSession)
 {
-	util::string_view uri_string;
+	util::param_string uri_string;
 
 	RETVAL_NULL();
 

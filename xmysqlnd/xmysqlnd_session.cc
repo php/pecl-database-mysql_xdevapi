@@ -61,8 +61,9 @@ extern "C" {
 #include <chrono>
 #include <memory>
 #include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #ifndef PHP_WIN32
@@ -81,9 +82,6 @@ extern "C" {
 namespace mysqlx {
 
 namespace drv {
-
-const MYSQLND_CSTRING namespace_mysqlx{ "mysqlx", sizeof("mysqlx") - 1 };
-const MYSQLND_CSTRING namespace_sql{ "sql", sizeof("sql") - 1 };
 
 namespace {
 
@@ -225,18 +223,18 @@ xmysqlnd_session_data::prepare_client_attr_object()
 			std::unique_ptr<Mysqlx::Datatypes::Scalar_String> string_value{nullptr};
 			std::unique_ptr<Mysqlx::Datatypes::Any>           any{nullptr};
 
+			const auto& connection_attrib = connection_attribs[idx];
 			Mysqlx::Datatypes::Object_ObjectField* field = values->add_fld();
-			field->set_key(connection_attribs[idx].first.c_str());
 
-			try{
-				scalar.reset(new Mysqlx::Datatypes::Scalar);
-				string_value.reset(new Mysqlx::Datatypes::Scalar_String);
-				any.reset(new Mysqlx::Datatypes::Any);
-			}catch(std::exception&){
-				break;
-			}
+			const auto& connection_attrib_key = connection_attrib.first;
+			field->set_key(connection_attrib_key.c_str(), connection_attrib_key.length());
 
-			string_value->set_value(connection_attribs[idx].second.c_str());
+			scalar.reset(new Mysqlx::Datatypes::Scalar);
+			string_value.reset(new Mysqlx::Datatypes::Scalar_String);
+			any.reset(new Mysqlx::Datatypes::Any);
+
+			const auto& connection_attrib_value = connection_attrib.second;
+			string_value->set_value(connection_attrib_value.c_str(), connection_attrib_value.length());
 			scalar->set_type(Mysqlx::Datatypes::Scalar_Type_V_STRING);
 			scalar->set_allocated_v_string(string_value.release());
 
@@ -247,6 +245,7 @@ xmysqlnd_session_data::prepare_client_attr_object()
 
 		if( idx < capa_count ) {
 			delete values;
+			values = nullptr;
 		}
 	}
 	return values;
@@ -332,7 +331,7 @@ xmysqlnd_session_data::send_client_attributes()
 
 enum_func_status
 xmysqlnd_session_data::connect_handshake(
-	const MYSQLND_CSTRING scheme_name,
+	const util::string_view& scheme_name,
 	const util::string& default_schema,
 	const size_t set_capabilities)
 {
@@ -341,7 +340,7 @@ xmysqlnd_session_data::connect_handshake(
 
 	if (set_connection_options(auth.get(), io.vio)
 		&& (PASS == io.vio->data->m.connect(io.vio,
-											scheme_name,
+											util::to_mysqlnd_cstr(scheme_name),
 											persistent,
 											stats,
 											error_info))
@@ -359,7 +358,7 @@ xmysqlnd_session_data::connect_handshake(
 
 enum_func_status
 xmysqlnd_session_data::authenticate(
-	const MYSQLND_CSTRING scheme_name,
+	const util::string_view& scheme_name,
 	const util::string& default_schema,
 	const size_t /*set_capabilities*/,
 	const bool re_auth)
@@ -428,7 +427,7 @@ xmysqlnd_session_data::connect(
 
 	/* Attempt to connect */
 	if( ret == PASS ) {
-		const MYSQLND_CSTRING local_scheme = { scheme.c_str(), scheme.length() };
+		const util::string_view local_scheme{ scheme.c_str(), scheme.length() };
 		ret = connect_handshake( local_scheme, def_schema,
 								 set_capabilities);
 		if( (ret != PASS) && (error_info->error_no == 0)) {
@@ -505,36 +504,20 @@ xmysqlnd_session_data::connect(
 	DBG_RETURN(ret);
 }
 
-MYSQLND_STRING
-xmysqlnd_session_data::quote_name(const MYSQLND_CSTRING name)
+util::string
+xmysqlnd_session_data::quote_name(const util::string_view& name)
 {
-	MYSQLND_STRING ret = { nullptr, 0 };
 	DBG_ENTER("xmysqlnd_session_data::quote_name");
-	DBG_INF_FMT("name=%s", name.s);
-	if (name.s && name.l) {
-		unsigned int occurs{0};
-		for (unsigned int i{0}; i < name.l; ++i) {
-			if (name.s[i] == '`') {
-				++occurs;
-			}
-		}
-		ret.l = name.l + occurs + 2 /* quotes */;
-		ret.s = static_cast<char*>(mnd_emalloc(ret.l + 1));
-		ret.s[0] = '`';
-		if (occurs) {
-			char *p = &ret.s[0];				/* should start at 0 because we pre-increment in the loop */
-			for (unsigned int i{0}; i < name.l; ++i) {
-				const char ch = name.s[i];
-				*++p = ch;						/* we pre-increment, because we start at 0 (which is `) before the loop */
-				if (UNEXPECTED(ch == '`')) {
-					*++p = ch;
-				}
-			}
-		} else {
-			memcpy(&(ret.s[1]), name.s, name.l);
-		}
-		ret.s[ret.l - 1] = '`';
-		ret.s[ret.l] = '\0';
+	DBG_INF_FMT("name=%s", name.data());
+	util::string ret;
+	if (!name.empty()) {
+		ret = '`';
+		boost::replace_all_copy(
+			std::back_inserter(ret),
+			name,
+			"`",
+			"``");
+		ret += '`';
 	}
 	DBG_RETURN(ret);
 }
@@ -846,7 +829,7 @@ xmysqlnd_session_data::~xmysqlnd_session_data()
 
 void xmysqlnd_session_data::cleanup()
 {
-	DBG_ENTER("xmysqlnd_session_data::reset");
+	DBG_ENTER("xmysqlnd_session_data::cleanup");
 
 	if (io.pfc) {
 		io.pfc->data->m.free_contents(io.pfc);
@@ -1013,9 +996,9 @@ enum_func_status try_setup_crypto_connection(
 	zval ** capability_values = (zval **) mnd_ecalloc(2, sizeof(zval*));
 	zval  name, value;
 
-	const MYSQLND_CSTRING cstr_name = { "tls", 3 };
+	constexpr util::string_view cstr_name("tls");
 
-	ZVAL_STRINGL(&name,cstr_name.s,cstr_name.l);
+	ZVAL_STRINGL(&name,cstr_name.data(),cstr_name.length());
 
 	capability_names[0] = &name;
 	ZVAL_TRUE(&value);
@@ -1120,21 +1103,18 @@ xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, 
 const enum_hnd_func_status
 xmysqlnd_session_data_handler_on_auth_continue(
 		void* context,
-		const MYSQLND_CSTRING input,
-		MYSQLND_STRING* const output)
+		const util::string_view& input,
+		util::string* const output)
 {
 	DBG_ENTER("xmysqlnd_stmt::handler_on_auth_continue");
 
-	const MYSQLND_CSTRING salt{ input };
-	DBG_INF_FMT("salt[%d]=%s", salt.l, salt.s);
+	const util::string_view salt{ input };
+	DBG_INF_FMT("salt[%d]=%s", salt.length(), salt.data());
 
 	Auth_plugin* auth_plugin{ static_cast<Auth_plugin*>(context) };
-	const util::string& auth_data{ auth_plugin->prepare_continue_auth_data(salt) };
-	output->l = auth_data.length();
-	output->s = static_cast<char*>(mnd_emalloc(output->l));
-	memcpy(output->s, auth_data.c_str(), output->l);
+	*output = auth_plugin->prepare_continue_auth_data(salt);
 
-	xmysqlnd_dump_string_to_log("output", output->s, output->l);
+	xmysqlnd_dump_string_to_log("output", output->c_str(), output->length());
 
 	DBG_RETURN(HND_AGAIN);
 }
@@ -1192,17 +1172,17 @@ Auth_scrambler::~Auth_scrambler()
 }
 
 void Auth_scrambler::run(
-		const MYSQLND_CSTRING& salt,
+		const util::string_view& salt,
 		util::vector<char>& result)
 {
-	if (drv::is_empty_str(salt)) return;
+	if (salt.empty()) return;
 
 	if (calc_hash(salt)) {
 		hex_hash(result);
 	}
 }
 
-bool Auth_scrambler::calc_hash(const MYSQLND_CSTRING& salt)
+bool Auth_scrambler::calc_hash(const util::string_view& salt)
 {
 	if (context.password.empty()) return false;
 
@@ -1229,7 +1209,7 @@ public:
 	Mysql41_auth_scrambler(const Authentication_context& context);
 
 protected:
-	void scramble(const MYSQLND_CSTRING& salt) override;
+	void scramble(const util::string_view& salt) override;
 
 };
 
@@ -1240,7 +1220,7 @@ Mysql41_auth_scrambler::Mysql41_auth_scrambler(const Authentication_context& con
 {
 }
 
-void Mysql41_auth_scrambler::scramble(const MYSQLND_CSTRING& salt)
+void Mysql41_auth_scrambler::scramble(const util::string_view& salt)
 {
 	/*
 		CLIENT_HASH=xor(sha256(sha256(sha256(password)), nonce), sha256(password))
@@ -1248,7 +1228,7 @@ void Mysql41_auth_scrambler::scramble(const MYSQLND_CSTRING& salt)
 	const util::string& password{ context.password };
 	php_mysqlnd_scramble(
 				hash.data(),
-				reinterpret_cast<const unsigned char*>(salt.s),
+				reinterpret_cast<const unsigned char*>(salt.data()),
 				reinterpret_cast<const unsigned char*>(password.c_str()),
 				password.length());
 }
@@ -1263,7 +1243,7 @@ public:
 	Sha256_mem_auth_scrambler(const Authentication_context& context);
 
 protected:
-	void scramble(const MYSQLND_CSTRING& salt) override;
+	void scramble(const util::string_view& salt) override;
 
 private:
 	void hash_data(
@@ -1286,11 +1266,11 @@ Sha256_mem_auth_scrambler::Sha256_mem_auth_scrambler(const Authentication_contex
 {
 }
 
-void Sha256_mem_auth_scrambler::scramble(const MYSQLND_CSTRING& salt)
+void Sha256_mem_auth_scrambler::scramble(const util::string_view& salt)
 {
 	const util::string& password{ context.password };
 	hash_data(
-		reinterpret_cast<const unsigned char*>(salt.s),
+		reinterpret_cast<const unsigned char*>(salt.data()),
 		reinterpret_cast<const unsigned char*>(password.c_str()),
 		static_cast<unsigned int>(password.length()),
 		hash.data());
@@ -1362,7 +1342,7 @@ util::string Auth_plugin_base::prepare_start_auth_data()
 	return util::string();
 }
 
-util::string Auth_plugin_base::prepare_continue_auth_data(const MYSQLND_CSTRING& /*salt*/)
+util::string Auth_plugin_base::prepare_continue_auth_data(const util::string_view& /*salt*/)
 {
 	assert("call should never happen- method should be overriden!");
 	return util::string();
@@ -1378,7 +1358,7 @@ void Auth_plugin_base::add_prefix_to_auth_data()
 	add_to_auth_data('\0');
 }
 
-void Auth_plugin_base::add_scramble_to_auth_data(const MYSQLND_CSTRING& salt)
+void Auth_plugin_base::add_scramble_to_auth_data(const util::string_view& salt)
 {
 	std::unique_ptr<Auth_scrambler> scrambler{ get_scrambler() };
 	util::vector<char> scramble;
@@ -1443,7 +1423,7 @@ class Mysql41_auth_plugin : public Auth_plugin_base
 public:
 	Mysql41_auth_plugin(const Authentication_context& context);
 
-	util::string prepare_continue_auth_data(const MYSQLND_CSTRING& salt) override;
+	util::string prepare_continue_auth_data(const util::string_view& salt) override;
 
 protected:
 	std::unique_ptr<Auth_scrambler> get_scrambler() override;
@@ -1455,7 +1435,7 @@ Mysql41_auth_plugin::Mysql41_auth_plugin(const Authentication_context& context)
 {
 }
 
-util::string Mysql41_auth_plugin::prepare_continue_auth_data(const MYSQLND_CSTRING& salt)
+util::string Mysql41_auth_plugin::prepare_continue_auth_data(const util::string_view& salt)
 {
 	/*
 		auth_data = "SCHEMA\0USER\0*SCRAMBLE\0"
@@ -1479,7 +1459,7 @@ class Sha256_mem_auth_plugin : public Auth_plugin_base
 public:
 	Sha256_mem_auth_plugin(const Authentication_context& context);
 
-	util::string prepare_continue_auth_data(const MYSQLND_CSTRING& salt) override;
+	util::string prepare_continue_auth_data(const util::string_view& salt) override;
 
 protected:
 	std::unique_ptr<Auth_scrambler> get_scrambler() override;
@@ -1491,7 +1471,7 @@ Sha256_mem_auth_plugin::Sha256_mem_auth_plugin(const Authentication_context& con
 {
 }
 
-util::string Sha256_mem_auth_plugin::prepare_continue_auth_data(const MYSQLND_CSTRING& salt)
+util::string Sha256_mem_auth_plugin::prepare_continue_auth_data(const util::string_view& salt)
 {
 	/*
 		auth_data = "SCHEMA\0USER\0SCRAMBLE"
@@ -1514,7 +1494,7 @@ class External_auth_plugin : public Auth_plugin_base
 public:
 	External_auth_plugin(const Authentication_context& context);
 
-	util::string prepare_continue_auth_data(const MYSQLND_CSTRING& salt) override;
+	util::string prepare_continue_auth_data(const util::string_view& salt) override;
 
 };
 
@@ -1523,7 +1503,7 @@ External_auth_plugin::External_auth_plugin(const Authentication_context& context
 {
 }
 
-util::string External_auth_plugin::prepare_continue_auth_data(const MYSQLND_CSTRING& /*salt*/)
+util::string External_auth_plugin::prepare_continue_auth_data(const util::string_view& /*salt*/)
 {
 	return auth_data_to_string();
 }
@@ -1629,7 +1609,7 @@ bool Gather_auth_mechanisms::run()
 
 Authenticate::Authenticate(
 	xmysqlnd_session_data* session,
-	const MYSQLND_CSTRING& scheme,
+	const util::string_view& scheme,
 	const util::string& def_schema)
 	: session(session)
 	, scheme(scheme)
@@ -1762,8 +1742,8 @@ bool Authenticate::authenticate_with_plugin(std::unique_ptr<Auth_plugin>& auth_p
 	st_xmysqlnd_msg__auth_start auth_start_msg{ msg_factory.get__auth_start(&msg_factory) };
 	auto ret{ auth_start_msg.send_request(
 		&auth_start_msg,
-		util::to_mysqlnd_cstr(auth_mech_name),
-		util::to_mysqlnd_cstr(auth_data))
+		auth_mech_name,
+		auth_data)
 	};
 
 	if (ret != PASS) return false;
@@ -1918,9 +1898,8 @@ xmysqlnd_session::reset()
 	enum_func_status ret{ get_data()->send_reset(keep_session_open) };
 	bool need_reauth_after_reset{ !keep_session_open };
 	if ((ret == PASS) && need_reauth_after_reset) {
-		MYSQLND_CSTRING schema{ data->scheme.c_str(), data->scheme.length() };
 		const util::string default_schema{ util::to_string(data->default_schema) };
-		ret = data->authenticate(schema, default_schema, 0, true);
+		ret = data->authenticate(data->scheme, default_schema, 0, true);
 	}
 	DBG_RETURN(ret);
 }
@@ -2051,49 +2030,44 @@ void Uuid_generator::assign_timestamp( Uuid_format& uuid )
 }
 
 enum_func_status
-xmysqlnd_session::xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db)
+xmysqlnd_session::xmysqlnd_schema_operation(const util::string_view& operation, const util::string_view& db)
 {
-	enum_func_status ret{FAIL};
-	const MYSQLND_STRING quoted_db = data->quote_name(db);
 	DBG_ENTER("xmysqlnd_schema_operation");
 	DBG_INF_FMT("db=%s", db);
-
-	if (quoted_db.s && quoted_db.l) {
-		util::string query_content(operation.s, operation.l);
-		query_content.append(quoted_db.s, quoted_db.l);
-		const MYSQLND_CSTRING select_query = { query_content.c_str(), query_content.length() };
-		mnd_efree(quoted_db.s);
-
-		ret = query( namespace_sql, select_query, noop__var_binder);
+	enum_func_status ret{FAIL};
+	if (!db.empty()) {
+		const util::string& quoted_db = data->quote_name(db);
+		const util::string schema_query = operation.data() + quoted_db;
+		ret = query(namespace_sql, schema_query, noop__var_binder);
 	}
 	DBG_RETURN(ret);
 }
 
 const enum_func_status
-xmysqlnd_session::select_db(const MYSQLND_CSTRING db)
+xmysqlnd_session::select_db(const util::string_view& db)
 {
 	enum_func_status ret;
-	static const MYSQLND_CSTRING operation = { "USE ", sizeof("USE ") - 1 };
+	constexpr std::string_view operation("USE ");
 	DBG_ENTER("xmysqlnd_session::select_db");
 	ret = xmysqlnd_schema_operation( operation, db);
 	DBG_RETURN(ret);
 }
 
 const enum_func_status
-xmysqlnd_session::create_db(const MYSQLND_CSTRING db)
+xmysqlnd_session::create_db(const util::string_view& db)
 {
 	enum_func_status ret;
-	static const MYSQLND_CSTRING operation = { "CREATE DATABASE ", sizeof("CREATE DATABASE ") - 1 };
+	constexpr std::string_view operation("CREATE DATABASE ");
 	DBG_ENTER("xmysqlnd_session::create_db");
 	ret = xmysqlnd_schema_operation( operation, db);
 	DBG_RETURN(ret);
 }
 
 const enum_func_status
-xmysqlnd_session::drop_db(const MYSQLND_CSTRING db)
+xmysqlnd_session::drop_db(const util::string_view& db)
 {
 	enum_func_status ret;
-	static const MYSQLND_CSTRING operation = { "DROP DATABASE ", sizeof("DROP DATABASE ") - 1 };
+	constexpr util::string_view operation("DROP DATABASE ");
 	DBG_ENTER("xmysqlnd_session::drop_db");
 	ret = xmysqlnd_schema_operation( operation, db);
 	DBG_RETURN(ret);
@@ -2102,12 +2076,12 @@ xmysqlnd_session::drop_db(const MYSQLND_CSTRING db)
 struct st_xmysqlnd_query_cb_ctx
 {
 	XMYSQLND_SESSION session;
-	struct st_xmysqlnd_session_on_result_start_bind handler_on_result_start;
-	struct st_xmysqlnd_session_on_row_bind handler_on_row;
-	struct st_xmysqlnd_session_on_warning_bind handler_on_warning;
-	struct st_xmysqlnd_session_on_error_bind handler_on_error;
-	struct st_xmysqlnd_session_on_result_end_bind handler_on_result_end;
-	struct st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok;
+	st_xmysqlnd_session_on_result_start_bind handler_on_result_start;
+	st_xmysqlnd_session_on_row_bind handler_on_row;
+	st_xmysqlnd_session_on_warning_bind handler_on_warning;
+	st_xmysqlnd_session_on_error_bind handler_on_error;
+	st_xmysqlnd_session_on_result_end_bind handler_on_result_end;
+	st_xmysqlnd_session_on_statement_ok_bind handler_on_statement_ok;
 };
 
 const enum_hnd_func_status
@@ -2202,8 +2176,8 @@ query_cb_handler_on_statement_ok(void * context, xmysqlnd_stmt * const stmt, con
 }
 
 const enum_func_status
-xmysqlnd_session::query_cb(			const MYSQLND_CSTRING namespace_,
-											const MYSQLND_CSTRING query,
+xmysqlnd_session::query_cb(			const std::string_view& namespace_,
+											const util::string_view& query,
 											const st_xmysqlnd_session_query_bind_variable_bind var_binder,
 											const st_xmysqlnd_session_on_result_start_bind handler_on_result_start,
 											const st_xmysqlnd_session_on_row_bind handler_on_row,
@@ -2307,8 +2281,8 @@ xmysqlnd_session_on_warning(
 }
 
 const enum_func_status
-xmysqlnd_session::query(const MYSQLND_CSTRING namespace_,
-										 const MYSQLND_CSTRING query,
+xmysqlnd_session::query(const std::string_view& namespace_,
+										 const util::string_view& query,
 										 const st_xmysqlnd_session_query_bind_variable_bind var_binder)
 {
 	enum_func_status ret{FAIL};
@@ -2371,7 +2345,7 @@ xmysqlnd_session::get_server_version()
 {
 	DBG_ENTER("xmysqlnd_session::get_server_version");
 	if (server_version_string.empty()) {
-		const MYSQLND_CSTRING query = { "SELECT VERSION()", sizeof("SELECT VERSION()") - 1 };
+		constexpr util::string_view query("SELECT VERSION()");
 		XMYSQLND_STMT_OP__EXECUTE * stmt_execute = xmysqlnd_stmt_execute__create(namespace_sql, query);
 		XMYSQLND_SESSION session_handle(this);
 		xmysqlnd_stmt * stmt = create_statement_object(session_handle);
@@ -2436,12 +2410,12 @@ xmysqlnd_session::create_statement_object(XMYSQLND_SESSION session_handle)
 }
 
 xmysqlnd_schema *
-xmysqlnd_session::create_schema_object(const MYSQLND_CSTRING schema_name)
+xmysqlnd_session::create_schema_object(const util::string_view& schema_name)
 {
 	xmysqlnd_schema* schema{nullptr};
 	DBG_ENTER("xmysqlnd_session::create_schema_object");
-	DBG_INF_FMT("schema_name=%s", schema_name.s);
-	schema = xmysqlnd_schema_create(shared_from_this(), schema_name, false, data->object_factory, data->stats, data->error_info);
+	DBG_INF_FMT("schema_name=%s", schema_name.data());
+	schema = xmysqlnd_schema_create(shared_from_this(), schema_name, data->object_factory, data->stats, data->error_info);
 
 	DBG_RETURN(schema);
 }
@@ -4256,7 +4230,6 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 }
 
 
-/* {{{ verify_uri_address */
 int contains_list_of_url(
 		const util::string& uri
 )
@@ -4316,7 +4289,6 @@ int contains_list_of_url(
     return valid_list ? static_cast<int>( end ): 0;
 }
 
-/* {{{ list_of_addresses_parser */
 list_of_addresses_parser::list_of_addresses_parser(util::string uri)
 {
 	/*
@@ -4367,10 +4339,8 @@ list_of_addresses_parser::list_of_addresses_parser(util::string uri)
 		invalidate(); //Signal to 'parse' to actually not parse.
 	}
 }
-/* }}} */
 
 
-/* {{{ parse */
 vec_of_addresses list_of_addresses_parser::parse()
 {
 	DBG_ENTER("list_of_addresses_parser::parse");
@@ -4436,20 +4406,16 @@ vec_of_addresses list_of_addresses_parser::parse()
 	}
 	DBG_RETURN( list_of_addresses );
 }
-/* }}} */
 
 
-/* {{{ invalidate */
 void list_of_addresses_parser::invalidate()
 {
 	//Signal to 'parse' to actually not parse.
 	beg = 1;
 	end = 0;
 }
-/* }}} */
 
 
-/* {{{ parse_round_token */
 bool list_of_addresses_parser::parse_round_token(const util::string &str)
 {
 	/*
@@ -4519,10 +4485,8 @@ bool list_of_addresses_parser::parse_round_token(const util::string &str)
 	add_address(new_addr);
 	return true;
 }
-/* }}} */
 
 
-/* {{{ add_address */
 void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
 {
 	/*
@@ -4534,7 +4498,6 @@ void list_of_addresses_parser::add_address( vec_of_addresses::value_type addr )
 	list_of_addresses.push_back( { new_addr, addr.second } );
 }
 
-/* {{{ extract_uri_addresses */
 vec_of_addresses extract_uri_addresses(const util::string& uri)
 {
 	/*
@@ -4982,7 +4945,6 @@ Srv_hostname_list query_srv_list(
 }
 #endif
 
-/* {{{ requested_srv_lookup */
 static
 bool requested_srv_lookup(
 	const char* uri_string,
@@ -5003,10 +4965,8 @@ bool requested_srv_lookup(
 	}
 	return false;
 }
-/* }}} */
 
 
-/* {{{ convert_srv_hostname_to_uri */
 static
 vec_of_addresses convert_srv_hostname_to_uri(
 	const Srv_hostname_list& srv_hostnames,
@@ -5019,7 +4979,7 @@ vec_of_addresses convert_srv_hostname_to_uri(
 	 */
 	for( const auto elem : srv_hostnames ){
 		util::stringstream new_uri;
-		new_uri << namespace_mysqlx.s << "://" <<
+		new_uri << namespace_mysqlx << "://" <<
 				   node_url.user << ":" <<
 				   node_url.pass << "@" <<
 				   elem.first;
@@ -5030,10 +4990,8 @@ vec_of_addresses convert_srv_hostname_to_uri(
 	}
 	return uri;
 }
-/* }}} */
 
 
-/* {{{ dns_srv_get_hostname_list */
 static
 vec_of_addresses dns_srv_get_hostname_list(
 	const char* uri_string
@@ -5062,10 +5020,8 @@ vec_of_addresses dns_srv_get_hostname_list(
 	}
 	return {};
 }
-/* }}} */
 
 
-/* {{{ connect_session */
 PHP_MYSQL_XDEVAPI_API
 enum_func_status connect_session(
 	const char* uri_string,

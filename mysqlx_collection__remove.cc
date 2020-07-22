@@ -73,12 +73,12 @@ bool Collection_remove::init(
 	if (!coll || search_expression.empty()) return false;
 	collection = coll->get_reference();
 	remove_op = xmysqlnd_crud_collection_remove__create(
-		mnd_str2c(collection->get_schema()->get_name()),
-		mnd_str2c(collection->get_name()));
+		collection->get_schema()->get_name(),
+		collection->get_name());
 	if (!remove_op) return false;
 
 	return xmysqlnd_crud_collection_remove__set_criteria(
-		remove_op, search_expression.to_std_string()) == PASS;
+		remove_op, std::string{ search_expression }) == PASS;
 }
 
 Collection_remove::~Collection_remove()
@@ -107,7 +107,7 @@ bool Collection_remove::sort(
 		switch (sort_expr.type()) {
 		case util::zvalue::Type::String:
 			{
-				const MYSQLND_CSTRING sort_expr_str{ sort_expr.c_str(), sort_expr.length() };
+				const util::string_view sort_expr_str = sort_expr.to_string_view();
 				if (FAIL == xmysqlnd_crud_collection_remove__add_sort(remove_op,
 													sort_expr_str)) {
 					DBG_RETURN(false);
@@ -122,8 +122,7 @@ bool Collection_remove::sort(
 						RAISE_EXCEPTION(err_msg_wrong_param_1);
 						DBG_RETURN(false);
 					}
-					const MYSQLND_CSTRING sort_expr_str{
-						sort_expr_entry.c_str(), sort_expr_entry.length() };
+					const util::string_view sort_expr_str = sort_expr_entry.to_string_view();
 					if (FAIL == xmysqlnd_crud_collection_remove__add_sort(remove_op,
 															sort_expr_str)) {
 						RAISE_EXCEPTION(err_msg_add_sort_fail);
@@ -316,7 +315,7 @@ static HashTable collection_remove_properties;
 
 const st_mysqlx_property_entry collection_remove_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void

@@ -24,7 +24,6 @@ extern "C" {
 }
 #include "json_utils.h"
 #include "exceptions.h"
-#include "hash_table.h"
 #include "value.h"
 
 namespace mysqlx::util::json {
@@ -81,7 +80,7 @@ util::zvalue parse_document(const char* doc, const std::size_t doc_len)
 
 util::zvalue parse_document(const util::string_view& doc)
 {
-	return parse_document(doc.c_str(), doc.length());
+	return parse_document(doc.data(), doc.length());
 }
 
 namespace {

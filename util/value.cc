@@ -167,7 +167,7 @@ zvalue::zvalue(const string& value)
 }
 
 zvalue::zvalue(const string_view& value)
-	: zvalue(value.c_str(), value.length())
+	: zvalue(value.data(), value.length())
 {
 }
 
@@ -326,7 +326,7 @@ zvalue& zvalue::operator=(const string& value)
 
 zvalue& zvalue::operator=(const string_view& value)
 {
-	assign(value.c_str(), value.length());
+	assign(value.data(), value.length());
 	return *this;
 }
 
@@ -621,7 +621,7 @@ zvalue zvalue::get_property(const char* name, std::size_t name_length) const
 zvalue zvalue::require_property(const char* name, std::size_t name_length) const
 {
 	zvalue property = get_property(name, name_length);
-	if (!property) {
+	if (!property.has_value()) {
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::object_property_not_exist,
 			name);

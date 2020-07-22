@@ -272,24 +272,24 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 	if (meta) {
 		switch(selected_meta_field) {
 		case schema_name:
-			ZVAL_STRINGL(return_value,meta->schema.s,
-						 meta->schema.l);
+			ZVAL_STRINGL(return_value,meta->schema.c_str(),
+						 meta->schema.length());
 			break;
 		case table_name:
-			ZVAL_STRINGL(return_value,meta->original_table.s,
-						 meta->original_table.l);
+			ZVAL_STRINGL(return_value,meta->original_table.data(),
+						 meta->original_table.length());
 			break;
 		case table_label:
-			ZVAL_STRINGL(return_value,meta->table.s,
-						 meta->table.l);
+			ZVAL_STRINGL(return_value,meta->table.data(),
+						 meta->table.length());
 			break;
 		case column_name:
-			ZVAL_STRINGL(return_value,meta->original_name.s,
-						 meta->original_name.l);
+			ZVAL_STRINGL(return_value,meta->original_name.data(),
+						 meta->original_name.length());
 			break;
 		case column_label:
-			ZVAL_STRINGL(return_value,meta->name.s,
-						 meta->name.l);
+			ZVAL_STRINGL(return_value,meta->name.data(),
+						 meta->name.length());
 			break;
 		case type:
 			ZVAL_LONG(return_value,static_cast<zend_long>(get_column_type(meta)));
@@ -501,7 +501,7 @@ static HashTable mysqlx_column_result_properties;
 
 const st_mysqlx_property_entry mysqlx_column_result_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 } // anonymous namespace

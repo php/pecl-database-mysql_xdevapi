@@ -20,6 +20,7 @@
 
 #include "php_mysql_xdevapi.h"
 #include <memory>
+#include "util/strings.h"
 
 namespace mysqlx {
 
@@ -58,15 +59,14 @@ typedef class xmysqlnd_session_data* (*func_xmysqlnd_object_factory__get_session
 typedef class xmysqlnd_schema * (*func_xmysqlnd_object_factory__get_schema)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			XMYSQLND_SESSION session,
-			const MYSQLND_CSTRING schema_name,
-			const zend_bool persistent,
+			const util::string_view& schema_name,
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);
 
 typedef struct xmysqlnd_collection * (*func_xmysqlnd_object_factory__get_collection)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
-			class xmysqlnd_schema * schema,
-			const MYSQLND_CSTRING collection_name,
+			xmysqlnd_schema * schema,
+			const util::string_view& collection_name,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);
@@ -74,7 +74,7 @@ typedef struct xmysqlnd_collection * (*func_xmysqlnd_object_factory__get_collect
 typedef struct xmysqlnd_table * (*func_xmysqlnd_object_factory__get_table)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			class xmysqlnd_schema * schema,
-			const MYSQLND_CSTRING table_name,
+			const util::string_view& table_name,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
 			MYSQLND_ERROR_INFO * error_info);

@@ -42,13 +42,13 @@ namespace drv {
 enum_func_status
 xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 									 std::vector<Mysqlx::Datatypes::Scalar*> & bound_values,
-									 const MYSQLND_CSTRING & name,
+									 const util::string_view& name,
 									 zval * value)
 {
 	DBG_ENTER("xmysqlnd_crud_table__bind_value");
-	DBG_INF_FMT("name=%*s", name.l, name.s);
+	DBG_INF_FMT("name=%*s", name.length(), name.data());
 
-	const std::string var_name(name.s, name.l);
+	const std::string var_name(name.data(), name.length());
 	const std::vector<std::string>::iterator begin = placeholders.begin();
 	const std::vector<std::string>::iterator end = placeholders.end();
 	const std::vector<std::string>::const_iterator index = std::find(begin, end, var_name);
@@ -79,15 +79,14 @@ xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 template< typename MSG >
 enum_func_status
 xmysqlnd_crud_table__add_orderby(MSG& message,
-								   const MYSQLND_CSTRING & orderby)
+								   const util::string_view& orderby)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__add_orderby");
-	DBG_INF_FMT("orderby=%*s", orderby.l, orderby.s);
+	DBG_INF_FMT("orderby=%*s", orderby.length(), orderby.data());
 	const Mysqlx::Crud::DataModel data_model =
 			message.data_model();
 	try {
-		const std::string source(orderby.s, orderby.l);
-		if( false == mysqlx::devapi::parser::orderby( source,
+		if( false == mysqlx::devapi::parser::orderby( std::string{ orderby },
 											  data_model == Mysqlx::Crud::DOCUMENT,
 											  &message) ) {
 			DBG_ERR_FMT("Unable to parser the orderby expression");
@@ -169,8 +168,7 @@ void st_xmysqlnd_crud_table_op__insert::add_columns(zval * columns_zv,
 
 void st_xmysqlnd_crud_table_op__insert::add_column(zval * column_zv)
 {
-	const MYSQLND_CSTRING columns_zv_str = {Z_STRVAL_P(column_zv), Z_STRLEN_P(column_zv)};
-	const std::string column_name(columns_zv_str.s, columns_zv_str.l);
+	const std::string column_name(Z_STRVAL_P(column_zv), Z_STRLEN_P(column_zv));
 	column_names.push_back(column_name);
 }
 
@@ -242,14 +240,14 @@ void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx:
 
 
 XMYSQLND_CRUD_TABLE_OP__INSERT *
-xmysqlnd_crud_table_insert__create(const MYSQLND_CSTRING schema,
-							const MYSQLND_CSTRING table_name,
+xmysqlnd_crud_table_insert__create(const util::string& schema,
+							const util::string& table_name,
 							zval * columns,
 							const int num_of_columns)
 {
 	DBG_ENTER("xmysqlnd_crud_table_insert__create");
-	DBG_INF_FMT("schema=%*s table_name=%*s", schema.l, schema.s, table_name.l, table_name.s);
-	XMYSQLND_CRUD_TABLE_OP__INSERT * ret = new struct st_xmysqlnd_crud_table_op__insert(schema,
+	DBG_INF_FMT("schema=%*s table_name=%*s", schema.length(), schema.c_str(), table_name.length(), table_name.c_str());
+	XMYSQLND_CRUD_TABLE_OP__INSERT* ret = new st_xmysqlnd_crud_table_op__insert(schema,
 																table_name, columns,num_of_columns);
 	DBG_RETURN(ret);
 }
@@ -301,11 +299,11 @@ xmysqlnd_crud_table_insert__is_initialized(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 
 
 XMYSQLND_CRUD_TABLE_OP__DELETE *
-xmysqlnd_crud_table_delete__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
+xmysqlnd_crud_table_delete__create(const util::string& schema, const util::string& object_name)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__create");
-	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
-	XMYSQLND_CRUD_TABLE_OP__DELETE * ret = new struct st_xmysqlnd_crud_table_op__delete(schema, object_name);
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.length(), schema.c_str(), object_name.length(), object_name.c_str());
+	XMYSQLND_CRUD_TABLE_OP__DELETE * ret = new st_xmysqlnd_crud_table_op__delete(schema, object_name);
 	DBG_RETURN(ret);
 }
 
@@ -318,12 +316,11 @@ xmysqlnd_crud_table_delete__destroy(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 }
 
 enum_func_status
-xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING criteria)
+xmysqlnd_crud_table_delete__set_criteria(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const util::string_view& criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__set_criteria");
 	try {
-		const std::string source(criteria.s, criteria.l);
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( std::string{ criteria },
 										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
 										 obj->placeholders );
 		obj->message.set_allocated_criteria(exprCriteria);
@@ -351,7 +348,7 @@ xmysqlnd_crud_table_delete__set_limit(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, cons
 }
 
 enum_func_status
-xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING name, zval * value)
+xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const util::string_view& name, zval * value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__bind_value");
 	if (obj->placeholders.size() && !obj->message.has_criteria()) {
@@ -363,7 +360,7 @@ xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, con
 }
 
 enum_func_status
-xmysqlnd_crud_table_delete__add_orderby(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const MYSQLND_CSTRING orderby)
+xmysqlnd_crud_table_delete__add_orderby(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const util::string_view& orderby)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__add_orderby");
 	const enum_func_status ret = xmysqlnd_crud_table__add_orderby(obj->message, orderby);
@@ -402,11 +399,11 @@ xmysqlnd_crud_table_delete__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__DELETE 
 /****************************** TABLE.UPDATE() *******************************************************/
 
 XMYSQLND_CRUD_TABLE_OP__UPDATE *
-xmysqlnd_crud_table_update__create(const MYSQLND_CSTRING schema, const MYSQLND_CSTRING object_name)
+xmysqlnd_crud_table_update__create(const util::string& schema, const util::string& object_name)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__create");
-	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
-	XMYSQLND_CRUD_TABLE_OP__UPDATE * ret = new struct st_xmysqlnd_crud_table_op__update(schema, object_name);
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.length(), schema.c_str(), object_name.length(), object_name.c_str());
+	XMYSQLND_CRUD_TABLE_OP__UPDATE * ret = new st_xmysqlnd_crud_table_op__update(schema, object_name);
 	DBG_RETURN(ret);
 }
 
@@ -419,12 +416,11 @@ xmysqlnd_crud_table_update__destroy(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 }
 
 enum_func_status
-xmysqlnd_crud_table_update__set_criteria(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING criteria)
+xmysqlnd_crud_table_update__set_criteria(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const util::string_view& criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__set_criteria");
 	try {
-		const std::string source(criteria.s, criteria.l);
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( std::string{ criteria },
 										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
 										 obj->placeholders );
 		obj->message.set_allocated_criteria(exprCriteria);
@@ -460,7 +456,7 @@ xmysqlnd_crud_table_update__set_offset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, con
 }
 
 enum_func_status
-xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING name, zval * value)
+xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const util::string_view& name, zval * value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__bind_value");
 	if (obj->placeholders.size() && !obj->message.has_criteria()) {
@@ -472,7 +468,7 @@ xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, con
 }
 
 enum_func_status
-xmysqlnd_crud_table_update__add_orderby(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING orderby)
+xmysqlnd_crud_table_update__add_orderby(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const util::string_view& orderby)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__add_orderby");
 	const enum_func_status ret = xmysqlnd_crud_table__add_orderby(obj->message, orderby);
@@ -482,7 +478,7 @@ xmysqlnd_crud_table_update__add_orderby(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, co
 static enum_func_status
 xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 											   const Mysqlx::Crud::UpdateOperation_UpdateType op_type,
-											   const MYSQLND_CSTRING path,
+											   const util::string_view& path,
 											   const zval * const value,
 											   const zend_bool is_expression,
 											   const zend_bool is_document,
@@ -490,7 +486,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__add_operation");
 	DBG_INF_FMT("operation=%s", Mysqlx::Crud::UpdateOperation::UpdateType_Name(op_type).c_str());
-	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u", path.l, path.s, value, is_expression, is_document, validate_array);
+	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u", path.length(), path.data(), value, is_expression, is_document, validate_array);
 
 	if (value) {
 		DBG_INF_FMT("value_type=%u", Z_TYPE_P(value));
@@ -509,7 +505,8 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 	std::unique_ptr<Mysqlx::Expr::Expr> docpath(nullptr);
 
 	try {
-		const std::string source(path.l ? path.s : "$", path.l ? path.l : sizeof("$") - 1);
+		constexpr std::string_view Empty_path = "$";
+		const std::string source(path.empty() ? Empty_path : path);
 		old_parser_api::Expression_parser parser(source, obj->message.data_model() == Mysqlx::Crud::DOCUMENT);
 		docpath.reset(parser.column_field());
 	} catch (old_parser_api::Parser_error &e) {
@@ -553,7 +550,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 }
 
 enum_func_status
-xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MYSQLND_CSTRING path)
+xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const util::string_view& path)
 {
 	const Mysqlx::Crud::UpdateOperation_UpdateType op_type = Mysqlx::Crud::UpdateOperation::ITEM_REMOVE;
 	DBG_ENTER("xmysqlnd_crud_table_update__unset");
@@ -563,7 +560,7 @@ xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const MY
 
 enum_func_status
 xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
-									 const MYSQLND_CSTRING path,
+									 const util::string_view& path,
 									 const zval * const value,
 									 const zend_bool is_expression,
 									 const zend_bool is_document)
@@ -620,7 +617,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 		}
 
 		if (Z_TYPE(columns[i]) == IS_STRING) {
-			const MYSQLND_CSTRING column_str = { Z_STRVAL(columns[i]), Z_STRLEN(columns[i]) };
+			const util::string_view column_str{ Z_STRVAL(columns[i]), Z_STRLEN(columns[i]) };
 			ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);
 		} else if (Z_TYPE_P(columns) == IS_ARRAY) {
 			const zval* entry{nullptr};
@@ -629,7 +626,7 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 					devapi::RAISE_EXCEPTION(err_msg_wrong_param_1);
 					DBG_VOID_RETURN;
 				}
-				const MYSQLND_CSTRING column_str = { Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
+				const util::string_view column_str{ Z_STRVAL_P(entry), Z_STRLEN_P(entry) };
 				ret = xmysqlnd_crud_table_select__set_column(this, column_str, FALSE, TRUE);
 			} ZEND_HASH_FOREACH_END();
 		}
@@ -645,14 +642,14 @@ void st_xmysqlnd_crud_table_op__select::add_columns(const zval * columns,
 /****************************** TABLE.SELECT() xmysqlnd_crud_table_select__ **************************/
 
 XMYSQLND_CRUD_TABLE_OP__SELECT *
-xmysqlnd_crud_table_select__create(const MYSQLND_CSTRING schema,
-				const MYSQLND_CSTRING object_name,
+xmysqlnd_crud_table_select__create(const util::string& schema,
+				const util::string& object_name,
 				zval * columns, const int num_of_columns)
 {
 	XMYSQLND_CRUD_TABLE_OP__SELECT* ret{nullptr};
 	DBG_ENTER("xmysqlnd_crud_table_select__create");
-	DBG_INF_FMT("schema=%*s object_name=%*s", schema.l, schema.s, object_name.l, object_name.s);
-	ret = new struct st_xmysqlnd_crud_table_op__select(schema, object_name, columns, num_of_columns);
+	DBG_INF_FMT("schema=%*s object_name=%*s", schema.length(), schema.c_str(), object_name.length(), object_name.c_str());
+	ret = new st_xmysqlnd_crud_table_op__select(schema, object_name, columns, num_of_columns);
 	DBG_RETURN(ret);
 }
 
@@ -665,12 +662,11 @@ xmysqlnd_crud_table_select__destroy(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 }
 
 enum_func_status
-xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING criteria)
+xmysqlnd_crud_table_select__set_criteria(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const util::string_view& criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__set_criteria");
 	try {
-		const std::string source(criteria.s, criteria.l);
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( std::string{ criteria },
 										 obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
 										 obj->placeholders );
 		obj->message.set_allocated_criteria(exprCriteria);
@@ -706,7 +702,7 @@ xmysqlnd_crud_table_select__set_offset(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 }
 
 enum_func_status
-xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING name, zval * value)
+xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const util::string_view& name, zval * value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__bind_value");
 	if (obj->placeholders.size() && !obj->message.has_criteria()) {
@@ -718,7 +714,7 @@ xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 }
 
 enum_func_status
-xmysqlnd_crud_table_select__add_orderby(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING orderby)
+xmysqlnd_crud_table_select__add_orderby(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const util::string_view& orderby)
 {
 	enum_func_status ret;
 	DBG_ENTER("xmysqlnd_crud_table_select__add_orderby");
@@ -727,13 +723,12 @@ xmysqlnd_crud_table_select__add_orderby(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, co
 }
 
 enum_func_status
-xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING search_field)
+xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const util::string_view& search_field)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__add_grouping");
 	try {
 		const static bool is_document = false; /*should be false, no comparison with data_model */
-		const std::string source(search_field.s, search_field.l);
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( std::string{ search_field },
 										 is_document,
 										 obj->placeholders );
 		obj->message.mutable_grouping()->AddAllocated(exprCriteria);
@@ -751,12 +746,12 @@ xmysqlnd_crud_table_select__add_grouping(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, c
 
 enum_func_status
 xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
-										  const MYSQLND_CSTRING column,
+										  const util::string_view& column,
 										  const zend_bool /*is_expression*/,
 										  const zend_bool allow_alias)
 {
 	const bool is_document = (obj->message.data_model() == Mysqlx::Crud::DOCUMENT);
-	const std::string source(column.s, column.l);
+	const std::string source(column);
 	DBG_ENTER("xmysqlnd_crud_table_select__set_column");
 	if (allow_alias) {
 		try {
@@ -809,13 +804,12 @@ xmysqlnd_crud_table_select__set_column(XMYSQLND_CRUD_TABLE_OP__SELECT * obj,
 }
 
 enum_func_status
-xmysqlnd_crud_table_select__set_having(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const MYSQLND_CSTRING criteria)
+xmysqlnd_crud_table_select__set_having(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const util::string_view& criteria)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__set_having");
 	try {
 		const static zend_bool is_document = FALSE; /*should be TRUE, no comparison with data_model */
-		const std::string source(criteria.s, criteria.l);
-		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+		Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( std::string{ criteria },
 										 is_document,
 										 obj->placeholders );
 		obj->message.set_allocated_grouping_criteria(exprCriteria);

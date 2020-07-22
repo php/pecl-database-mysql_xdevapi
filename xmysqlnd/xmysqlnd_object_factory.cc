@@ -81,19 +81,16 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_session_data)(const MYSQLND_CLASS_M
 static xmysqlnd_schema *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_schema)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 													XMYSQLND_SESSION session,
-													 const MYSQLND_CSTRING schema_name,
-													 const zend_bool persistent,
+													 const util::string_view& schema_name,
 													 MYSQLND_STATS* stats,
 													 MYSQLND_ERROR_INFO* error_info)
 {
 	DBG_ENTER("xmysqlnd_object_factory::get_schema");
-	DBG_INF_FMT("persistent=%u", persistent);
 	xmysqlnd_schema*      object{nullptr};
 	try{
 		object = new xmysqlnd_schema(factory,
 										session,
-										schema_name,
-										persistent);
+										schema_name);
 	}catch(std::exception&)
 	{
 		DBG_RETURN(nullptr);
@@ -104,7 +101,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_schema)(const MYSQLND_CLASS_METHODS
 static xmysqlnd_collection *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_collection)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 														 xmysqlnd_schema* schema,
-														 const MYSQLND_CSTRING collection_name,
+														 const util::string_view& collection_name,
 														 const zend_bool persistent,
 														 MYSQLND_STATS* stats,
 														 MYSQLND_ERROR_INFO* error_info)
@@ -127,7 +124,7 @@ XMYSQLND_METHOD(xmysqlnd_object_factory, get_collection)(const MYSQLND_CLASS_MET
 static xmysqlnd_table *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_table)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 														 xmysqlnd_schema* schema,
-														 const MYSQLND_CSTRING table_name,
+														 const util::string_view& table_name,
 														 const zend_bool persistent,
 														 MYSQLND_STATS* stats,
 														 MYSQLND_ERROR_INFO* error_info)

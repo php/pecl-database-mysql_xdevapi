@@ -89,12 +89,12 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_result_field_meta)
 struct st_xmysqlnd_result_field_meta : public util::custom_allocable
 {
 	enum xmysqlnd_field_type type;
-	MYSQLND_STRING name;
-	MYSQLND_STRING original_name;
-	MYSQLND_STRING table;
-	MYSQLND_STRING original_table;
-	MYSQLND_STRING schema;
-	MYSQLND_STRING catalog;
+	util::string name;
+	util::string original_name;
+	util::string table;
+	util::string original_table;
+	util::string schema;
+	util::string catalog;
 	uint64_t collation;
 	uint32_t fractional_digits;
 	uint32_t length;

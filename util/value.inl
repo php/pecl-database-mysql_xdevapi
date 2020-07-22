@@ -172,7 +172,7 @@ inline bool zvalue::is_reference() const
 	return type() == Type::Reference;
 }
 
-inline zvalue::operator bool() const
+inline bool zvalue::has_value() const
 {
 	switch (type()) {
 	case Type::Undefined:
@@ -495,7 +495,7 @@ inline bool zvalue::has_property(const string& name) const
 
 inline bool zvalue::has_property(const string_view& name) const
 {
-	return has_property(name.c_str(), name.length());
+	return has_property(name.data(), name.length());
 }
 
 inline bool zvalue::has_property(const std::string& name) const
@@ -517,7 +517,7 @@ inline zvalue zvalue::get_property(const string& name) const
 
 inline zvalue zvalue::get_property(const string_view& name) const
 {
-	return get_property(name.c_str(), name.length());
+	return get_property(name.data(), name.length());
 }
 
 inline zvalue zvalue::get_property(const std::string& name) const
@@ -539,7 +539,7 @@ inline zvalue zvalue::require_property(const string& name) const
 
 inline zvalue zvalue::require_property(const string_view& name) const
 {
-	return require_property(name.c_str(), name.length());
+	return require_property(name.data(), name.length());
 }
 
 inline zvalue zvalue::require_property(const std::string& name) const
@@ -561,7 +561,7 @@ inline void zvalue::set_property(const string& name, const zvalue& value)
 
 inline void zvalue::set_property(const string_view& name, const zvalue& value)
 {
-	set_property(name.c_str(), name.length(), value);
+	set_property(name.data(), name.length(), value);
 }
 
 inline void zvalue::set_property(const std::string& name, const zvalue& value)
@@ -583,7 +583,7 @@ inline void zvalue::unset_property(const string& name)
 
 inline void zvalue::unset_property(const string_view& name)
 {
-	return unset_property(name.c_str(), name.length());
+	return unset_property(name.data(), name.length());
 }
 
 inline void zvalue::unset_property(const std::string& name)
@@ -610,7 +610,7 @@ inline bool zvalue::contains(const string& key) const
 
 inline bool zvalue::contains(const string_view& key) const
 {
-	return contains(key.c_str(), key.length());
+	return contains(key.data(), key.length());
 }
 
 inline bool zvalue::contains(const std::string& key) const
@@ -637,7 +637,7 @@ inline zvalue zvalue::find(const string& key) const
 
 inline zvalue zvalue::find(const string_view& key) const
 {
-	return find(key.c_str(), key.length());
+	return find(key.data(), key.length());
 }
 
 inline zvalue zvalue::find(const std::string& key) const
@@ -696,7 +696,7 @@ inline zvalue zvalue::at(const string& key) const
 
 inline zvalue zvalue::at(const string_view& key) const
 {
-	return at(key.c_str(), key.length());
+	return at(key.data(), key.length());
 }
 
 inline zvalue zvalue::at(const std::string& key) const
@@ -723,7 +723,7 @@ inline void zvalue::insert(const string& key, const zvalue& value)
 
 inline void zvalue::insert(const string_view& key, const zvalue& value)
 {
-	insert(key.c_str(), key.length(), value);
+	insert(key.data(), key.length(), value);
 }
 
 inline void zvalue::insert(const std::string& key, const zvalue& value)
@@ -750,7 +750,7 @@ inline void zvalue::insert(const string& key, zvalue&& value)
 
 inline void zvalue::insert(const string_view& key, zvalue&& value)
 {
-	insert(key.c_str(), key.length(), value);
+	insert(key.data(), key.length(), value);
 }
 
 inline void zvalue::insert(const std::string& key, zvalue&& value)
@@ -812,7 +812,7 @@ inline bool zvalue::erase(const string& key)
 
 inline bool zvalue::erase(const string_view& key)
 {
-	return erase(key.c_str(), key.length());
+	return erase(key.data(), key.length());
 }
 
 inline bool zvalue::erase(const std::string& key)

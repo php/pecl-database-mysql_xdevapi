@@ -52,13 +52,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
 	UNUSED(return_value);
 	zval* object_zv{nullptr};
-	MYSQLND_CSTRING expression = {nullptr, 0};
+	util::param_string expression;
 
 	DBG_ENTER("mysqlx_expression::__construct");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_expression_class_entry,
-												&(expression.s), &(expression.l)))
+												&(expression.str), &(expression.len)))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -70,8 +70,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 			DBG_VOID_RETURN;
 		}
-		DBG_INF_FMT("expression=[%*s]", expression.l, expression.s);
-		ZVAL_STRINGL(&object->expression, expression.s, expression.l);
+		DBG_INF_FMT("expression=[%*s]", expression.length(), expression.data());
+		ZVAL_STRINGL(&object->expression, expression.data(), expression.length());
 	}
 
 
@@ -86,15 +86,15 @@ static const zend_function_entry mysqlx_expression_methods[] = {
 
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 {
-	MYSQLND_CSTRING expression = {nullptr, 0};
+	util::param_string expression;
 
 	DBG_ENTER("mysql_xdevapi__Expression");
 	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s",
-										 &(expression.s), &(expression.l)))
+										 &expression.str, &expression.len))
 	{
 		DBG_VOID_RETURN;
 	}
-	mysqlx_new_expression(return_value, expression);
+	mysqlx_new_expression(return_value, expression.to_view());
 
 	DBG_VOID_RETURN;
 }
@@ -104,7 +104,7 @@ static HashTable mysqlx_expression_properties;
 
 const st_mysqlx_property_entry mysqlx_expression_property_entries[] =
 {
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void
@@ -149,13 +149,13 @@ mysqlx_unregister_expression_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_expression(zval* return_value, const MYSQLND_CSTRING expression)
+mysqlx_new_expression(zval* return_value, const util::string_view& expression)
 {
 	DBG_ENTER("mysqlx_new_expression");
 
 	st_mysqlx_expression& data_object{
 		util::init_object<st_mysqlx_expression>(mysqlx_expression_class_entry, return_value) };
-	ZVAL_STRINGL(&data_object.expression, expression.s, expression.l);
+	ZVAL_STRINGL(&data_object.expression, expression.data(), expression.length());
 
 	DBG_VOID_RETURN;
 }

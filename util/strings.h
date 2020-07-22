@@ -34,6 +34,8 @@ namespace mysqlx {
 
 namespace util {
 
+using string_view = std::string_view;
+
 template<typename CharT, typename Traits = std::char_traits<CharT>>
 using basic_string = std::basic_string<CharT, Traits, allocator<CharT>>;
 using string = basic_string<char>;
@@ -70,7 +72,7 @@ using wformatter = basic_formatter<wchar_t>;
 	common scenario:
 
 	0)
-	util::string_view index_name;
+	util::param_string index_name;
 	[...]
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data, getThis(), "Os+",
@@ -80,21 +82,27 @@ using wformatter = basic_formatter<wchar_t>;
 	1) then optionally make some checks (whether is empty or make some 	comparison
 	like == ), or immediately get proper util::string via to_string() member routine
 */
-struct string_view
+struct param_string
 {
-	string_view() = default;
-	string_view(const char* s) : string_view(s, s ? std::strlen(s) : 0) {}
-	string_view(const char* s, const size_t l) : str(s), len(l) {}
-	string_view(const string& s) : string_view(s.c_str(), s.length()) {}
-	string_view(const std::string& s) : string_view(s.c_str(), s.length()) {}
-	string_view(zval* zv);
-
-	string_view(const st_mysqlnd_string& s); // MYSQLND_STRING
-	string_view(const st_mysqlnd_const_string& s); // MYSQLND_CSTRING
+	param_string() = default;
+	param_string(const char* cstr)
+		: str(cstr)
+		, len(std::strlen(cstr))
+	{}
 
 	bool empty() const
 	{
 		return (str == nullptr) || (*str == '\0');
+	}
+
+	string_view to_view() const
+	{
+		return string_view(str, len);
+	}
+
+	std::string_view to_std_view() const
+	{
+		return std::string_view(str, len);
 	}
 
 	string to_string() const
@@ -106,10 +114,6 @@ struct string_view
 	{
 		return std::string(str, len);
 	}
-
-	st_mysqlnd_const_string to_nd_cstr() const;
-
-	void to_zval(zval* dest) const;
 
 	const char* c_str() const
 	{
@@ -131,50 +135,8 @@ struct string_view
 		return len;
 	}
 
-	bool operator==(const string_view& rhs) const
-	{
-		return std::strcmp(str, rhs.str) == 0;
-	}
-
-	bool operator==(const char* rhs) const
-	{
-		return std::strcmp(str, rhs) == 0;
-	}
-
-	bool operator==(const string& rhs) const
-	{
-		return rhs == str;
-	}
-
-	bool operator==(const std::string& rhs) const
-	{
-		return rhs == str;
-	}
-
-	template<typename T>
-	bool operator!=(const T& rhs) const
-	{
-		return !operator==(rhs);
-	}
-
-	char operator[](std::size_t index) const
-	{
-		assert(index < len);
-		return *(str + index);
-	}
-
-	const char* begin() const
-	{
-		return str;
-	}
-
-	const char* end() const
-	{
-		return str + len;
-	}
-
 	const char* str{nullptr};
-	size_t len{0};
+	std::size_t len{0};
 };
 
 // ------------------------------------------------------------------------------

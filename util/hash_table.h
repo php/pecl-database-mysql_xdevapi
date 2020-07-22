@@ -19,12 +19,11 @@
 #define MYSQL_XDEVAPI_UTIL_HASH_TABLE_H
 
 #include <cstddef>
+#include "strings.h"
 
 namespace mysqlx {
 
 namespace util {
-
-struct string_view;
 
 class Hash_table
 {

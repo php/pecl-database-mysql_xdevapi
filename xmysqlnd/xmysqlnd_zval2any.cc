@@ -132,7 +132,6 @@ zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any)
 	return zval2any(zv.ptr(), any);
 }
 
-/* {{{ scalar2zval */
 enum_func_status
 scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
 {
@@ -331,40 +330,36 @@ scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
 	DBG_RETURN(ret);
 }
 
-MYSQLND_STRING
+util::string
 scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
 {
-	MYSQLND_STRING ret = {nullptr, 0};
+	util::string ret;
 	DBG_ENTER("scalar2string");
 	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
 	switch (scalar.type()) {
 		case Scalar_Type_V_SINT:
-			ret.l = mnd_sprintf(&ret.s, 0, MYSQLX_LLU_SPEC, scalar.v_signed_int());
+			ret = util::to_string(scalar.v_signed_int());
 			break;
 		case Scalar_Type_V_UINT:
-			ret.l = mnd_sprintf(&ret.s, 0, MYSQLX_LLU_SPEC, scalar.v_unsigned_int());
+			ret = util::to_string(scalar.v_unsigned_int());
 			break;
 		case Scalar_Type_V_NULL:
 			break;
-		case Scalar_Type_V_OCTETS: {
-			const MYSQLND_CSTRING from = { scalar.v_octets().value().c_str(), scalar.v_octets().value().size() };
-			ret = mnd_dup_cstring(from, FALSE /*persistent*/);
+		case Scalar_Type_V_OCTETS:
+			ret.assign(scalar.v_octets().value().c_str(), scalar.v_octets().value().size());
 			break;
-		}
 		case Scalar_Type_V_DOUBLE:
-			ret.l = mnd_sprintf(&ret.s, 0, "%f", scalar.v_double());
+			ret = util::to_string(scalar.v_double());
 			break;
 		case Scalar_Type_V_FLOAT:
-			ret.l = mnd_sprintf(&ret.s, 0, "%f", mysql_float_to_double(scalar.v_float(), -1));
+			ret = util::to_string(scalar.v_float());
 			break;
 		case Scalar_Type_V_BOOL:{
-			const MYSQLND_CSTRING from = { scalar.v_bool()? "TRUE":"FALSE", scalar.v_bool()? sizeof("TRUE")-1: sizeof("FALSE")-1 };
-			ret = mnd_dup_cstring(from, FALSE /*persistent*/);
+			ret = scalar.v_bool() ? "TRUE" : "FALSE";
 			break;
 		}
 		case Scalar_Type_V_STRING:{
-			const MYSQLND_CSTRING from = { scalar.v_string().value().c_str(), scalar.v_string().value().size() };
-			ret = mnd_dup_cstring(from, FALSE /*persistent*/);
+			ret.assign(scalar.v_string().value().c_str(), scalar.v_string().value().size());
 			break;
 		}
 		default:

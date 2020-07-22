@@ -80,7 +80,7 @@ struct st_xmysqlnd_query_builder
 {
 	enum_func_status (*create)(st_xmysqlnd_query_builder* builder);
 	void (*destroy)(st_xmysqlnd_query_builder* builder);
-	MYSQLND_STRING query;
+	util::string query;
 };
 
 typedef struct st_xmysqlnd_session_state XMYSQLND_SESSION_STATE;
@@ -254,7 +254,7 @@ using Auth_mechanisms = util::vector<Auth_mechanism>;
 struct Authentication_context
 {
 	xmysqlnd_session_data* session;
-	MYSQLND_CSTRING scheme;
+	util::string_view scheme;
 	util::string username;
 	util::string password;
 	util::string default_schema;
@@ -273,12 +273,12 @@ public:
 	virtual ~Auth_scrambler();
 
 	void run(
-			const MYSQLND_CSTRING& salt,
+			const util::string_view& salt,
 			util::vector<char>& result);
 
 protected:
-	bool calc_hash(const MYSQLND_CSTRING& salt);
-	virtual void scramble(const MYSQLND_CSTRING& salt) = 0;
+	bool calc_hash(const util::string_view& salt);
+	virtual void scramble(const util::string_view& salt) = 0;
 	void hex_hash(util::vector<char>& hexed_hash);
 
 protected:
@@ -297,7 +297,7 @@ public:
 	virtual ~Auth_plugin() {}
 	virtual const char* get_mech_name() const = 0;
 	virtual util::string prepare_start_auth_data() = 0;
-	virtual util::string prepare_continue_auth_data(const MYSQLND_CSTRING& salt) = 0;
+	virtual util::string prepare_continue_auth_data(const util::string_view& salt) = 0;
 };
 
 // -------------
@@ -312,11 +312,11 @@ protected:
 public:
 	const char* get_mech_name() const override;
 	util::string prepare_start_auth_data() override;
-	util::string prepare_continue_auth_data(const MYSQLND_CSTRING& salt) override;
+	util::string prepare_continue_auth_data(const util::string_view& salt) override;
 
 protected:
 	void add_prefix_to_auth_data();
-	void add_scramble_to_auth_data(const MYSQLND_CSTRING& salt);
+	void add_scramble_to_auth_data(const util::string_view& salt);
 
 	void add_to_auth_data(const util::string& str);
 	void add_to_auth_data(const util::vector<char>& data);
@@ -338,7 +338,7 @@ class Authenticate
 public:
 	Authenticate(
 		xmysqlnd_session_data* session,
-		const MYSQLND_CSTRING& scheme,
+		const util::string_view& scheme,
 		const util::string& default_schema);
 	~Authenticate();
 
@@ -358,7 +358,7 @@ private:
 	bool is_multiple_auth_mechanisms_algorithm() const;
 private:
 	xmysqlnd_session_data* session;
-	const MYSQLND_CSTRING& scheme;
+	const util::string_view scheme;
 	const util::string& default_schema;
 
 	st_xmysqlnd_message_factory msg_factory;
@@ -416,7 +416,7 @@ bool set_connection_timeout(
 	MYSQLND_VIO* vio);
 
 const enum_hnd_func_status xmysqlnd_session_data_handler_on_error(void * context, const unsigned int code, const util::string_view& sql_state, const util::string_view& message);
-const enum_hnd_func_status xmysqlnd_session_data_handler_on_auth_continue(void* context,const MYSQLND_CSTRING input,MYSQLND_STRING* const output);
+const enum_hnd_func_status xmysqlnd_session_data_handler_on_auth_continue(void* context,const util::string_view& input,util::string* const output);
 enum_func_status           xmysqlnd_session_data_set_client_id(void * context, const size_t id);
 
 class xmysqlnd_session_data : public util::permanent_allocable
@@ -437,12 +437,12 @@ public:
 
 	st_xmysqlnd_message_factory create_message_factory();
 	std::string get_scheme(const std::string& hostname, unsigned int port);
-	enum_func_status  connect_handshake(
-		const MYSQLND_CSTRING scheme,
+	enum_func_status connect_handshake(
+		const util::string_view& scheme,
 		const util::string& default_schema,
 		const size_t set_capabilities);
 	enum_func_status authenticate(
-		const MYSQLND_CSTRING scheme,
+		const util::string_view& scheme,
 		const util::string& default_schema,
 		const size_t set_capabilities,
 		const bool re_auth = false);
@@ -450,7 +450,7 @@ public:
 		const util::string& default_schema,
 		unsigned int port,
 		size_t set_capabilities);
-	MYSQLND_STRING    quote_name(const MYSQLND_CSTRING name);
+	util::string quote_name(const util::string_view& name);
 	unsigned int      get_error_no();
 	const char*       get_error_str();
 	const char*       get_sqlstate();
@@ -646,24 +646,24 @@ public:
 	xmysqlnd_session(const xmysqlnd_session& rhs) = delete;
 	xmysqlnd_session& operator=(const xmysqlnd_session& rhs) = delete;
 
-	enum_func_status xmysqlnd_schema_operation(const MYSQLND_CSTRING operation, const MYSQLND_CSTRING db);
+	enum_func_status xmysqlnd_schema_operation(const util::string_view& operation, const util::string_view& db);
 
 	const enum_func_status connect(
 		const util::string& default_schema,
 		const unsigned int port,
 		const size_t set_capabilities);
 	const enum_func_status reset();
-	const enum_func_status	create_db(const MYSQLND_CSTRING db);
-	const enum_func_status	select_db(const MYSQLND_CSTRING db);
-	const enum_func_status	drop_db(const MYSQLND_CSTRING db);
+	const enum_func_status create_db(const util::string_view& db);
+	const enum_func_status select_db(const util::string_view& db);
+	const enum_func_status drop_db(const util::string_view& db);
 
-    const enum_func_status	query(const MYSQLND_CSTRING namespace_,
-                                  const MYSQLND_CSTRING query,
+    const enum_func_status	query(const std::string_view& namespace_,
+                                  const util::string_view& query,
                                   const st_xmysqlnd_session_query_bind_variable_bind var_binder);
 
     const enum_func_status	query_cb(
-                                                                       const MYSQLND_CSTRING namespace_,
-                                                                       const MYSQLND_CSTRING query,
+                                                                       const std::string_view& namespace_,
+                                                                       const util::string_view& query,
                                                                        const st_xmysqlnd_session_query_bind_variable_bind var_binder,
                                                                        const st_xmysqlnd_session_on_result_start_bind on_result_start,
                                                                        const st_xmysqlnd_session_on_row_bind on_row,
@@ -676,7 +676,7 @@ public:
 
     xmysqlnd_stmt* create_statement_object(XMYSQLND_SESSION session_handle);
 
-	xmysqlnd_schema* create_schema_object(const MYSQLND_CSTRING schema_name);
+	xmysqlnd_schema* create_schema_object(const util::string_view& schema_name);
 
     const enum_func_status close(const enum_xmysqlnd_session_close_type close_type);
 	bool is_closed() const { return data->is_closed(); }
@@ -708,8 +708,8 @@ PHP_MYSQL_XDEVAPI_API enum_func_status xmysqlnd_new_session_connect(
 	const char* uri_string,
 	zval* return_value);
 
-extern const MYSQLND_CSTRING namespace_mysqlx;
-extern const MYSQLND_CSTRING namespace_sql;
+constexpr util::string_view namespace_mysqlx{ "mysqlx" };
+constexpr util::string_view namespace_sql{ "sql" };
 
 extern const st_xmysqlnd_session_query_bind_variable_bind noop__var_binder;
 extern const st_xmysqlnd_session_on_result_start_bind	noop__on_result_start;

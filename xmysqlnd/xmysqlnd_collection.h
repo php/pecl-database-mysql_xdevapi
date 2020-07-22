@@ -36,7 +36,7 @@ struct xmysqlnd_collection : public util::custom_allocable
 public:
 	xmysqlnd_collection() = default;
 	xmysqlnd_collection(xmysqlnd_schema * const cur_schema,
-								const MYSQLND_CSTRING cur_collection_name,
+								const util::string_view& cur_collection_name,
 								zend_bool is_persistent);
 	enum_func_status		exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 	enum_func_status		count( struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
@@ -49,7 +49,7 @@ public:
 	enum_func_status		free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 	void					free_contents();
 	void					cleanup(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
-	MYSQLND_STRING          get_name(){
+	const util::string& get_name() const {
 		return collection_name;
 	}
 	xmysqlnd_schema*     get_schema(){
@@ -57,13 +57,13 @@ public:
 	}
 private:
 	xmysqlnd_schema*	schema;
-	MYSQLND_STRING      collection_name;
+	util::string        collection_name;
 	zend_bool           persistent;
 	unsigned int	    refcount;
 };
 
 PHP_MYSQL_XDEVAPI_API xmysqlnd_collection * xmysqlnd_collection_create(xmysqlnd_schema* schema,
-																  const MYSQLND_CSTRING collection_name,
+																  const util::string_view& collection_name,
 																  const zend_bool persistent,
 																  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 																  MYSQLND_STATS * const stats,

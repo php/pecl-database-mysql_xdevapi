@@ -149,7 +149,7 @@ void Client_options_parser::assign_option(
 	Value_checker value_checker)
 {
 	util::zvalue option_desc = options_desc.get_property(option_name);
-	if (!option_desc) {
+	if (!option_desc.has_value()) {
 		return;
 	}
 
@@ -601,7 +601,7 @@ HashTable client_properties;
 
 const st_mysqlx_property_entry client_property_entries[] =
 {
-	{{nullptr, 0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 void
@@ -632,7 +632,7 @@ mysqlx_new_client(
 
 	Client_data& data_object{ util::init_object<Client_data>(client_class_entry, return_value) };
 	Client_state_manager& csm{ Client_state_manager::get() };
-	data_object.state = csm.get_client_state(connection_uri.to_std_string(), client_options_desc);
+	data_object.state = csm.get_client_state(std::string{ connection_uri }, client_options_desc);
 
 	DBG_VOID_RETURN;
 }
@@ -664,8 +664,8 @@ mysqlx_unregister_client_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 {
-	util::string_view connection_uri;
-	util::string_view client_options_desc;
+	util::param_string connection_uri;
+	util::param_string client_options_desc;
 
 	RETVAL_NULL();
 
@@ -680,7 +680,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 	#if PHP_DEBUG
 	drv::verify_connection_string(connection_uri.to_string());
 	#endif
-	mysqlx_new_client(connection_uri.to_string(), client_options_desc, return_value);
+	mysqlx_new_client(connection_uri.to_view(), client_options_desc.to_view(), return_value);
 
 	DBG_VOID_RETURN;
 }

@@ -20,6 +20,7 @@
 
 #include "mysqlnd_api.h"
 #include "mysqlx_object.h"
+#include <string_view>
 
 namespace mysqlx {
 
@@ -30,7 +31,7 @@ typedef int    (*func_mysqlx_property_set)(st_mysqlx_object* obj, zval *newval);
 
 struct st_mysqlx_property_entry
 {
-	MYSQLND_CSTRING property_name;
+	std::string_view property_name;
 	func_mysqlx_property_get get_value;
 	func_mysqlx_property_set set_value;
 };

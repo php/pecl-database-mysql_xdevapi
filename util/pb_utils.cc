@@ -184,7 +184,7 @@ void to_any(
 	const util::string_view& value,
 	Any& any)
 {
-	to_any(value.c_str(), value.length(), any);
+	to_any(value.data(), value.length(), any);
 }
 
 void to_any(

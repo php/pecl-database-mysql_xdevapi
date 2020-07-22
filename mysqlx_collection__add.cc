@@ -85,12 +85,6 @@ enum class Add_op_status
 	noop
 };
 
-struct doc_add_op_return_status
-{
-	Add_op_status return_status;
-	MYSQLND_CSTRING doc_id;
-};
-
 Add_op_status
 collection_add_string(
 	st_xmysqlnd_crud_collection_op__add* add_op,
@@ -159,8 +153,8 @@ bool Collection_add::add_docs(
 		if( !coll ) return false;
 		collection = coll->get_reference();
 		add_op = xmysqlnd_crud_collection_add__create(
-			mnd_str2c(collection->get_schema()->get_name()),
-			mnd_str2c(collection->get_name()));
+			collection->get_schema()->get_name(),
+			collection->get_name());
 		if (!add_op) return false;
 	}
 
@@ -304,8 +298,8 @@ mysqlx_collection__add_property__name(const st_mysqlx_object* obj, zval* return_
 {
 	const Collection_add* object = (const Collection_add *) (obj->ptr);
 	DBG_ENTER("mysqlx_collection__add_property__name");
-	if (object->collection && object->collection->get_name().s) {
-		ZVAL_STRINGL(return_value, object->collection->get_name().s, object->collection->get_name().l);
+	if (object->collection && !object->collection->get_name().empty()) {
+		ZVAL_STRINGL(return_value, object->collection->get_name().data(), object->collection->get_name().length());
 	} else {
 		/*
 		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
@@ -327,9 +321,9 @@ static HashTable collection_add_properties;
 const st_mysqlx_property_entry collection_add_property_entries[] =
 {
 #if 0
-	{{"name",	sizeof("name") - 1}, mysqlx_collection__add_property__name,	nullptr},
+	{std::string_view("name"), mysqlx_collection__add_property__name,	nullptr},
 #endif
-	{{nullptr,	0}, nullptr, nullptr}
+	{std::string_view{}, nullptr, nullptr}
 };
 
 static void

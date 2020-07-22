@@ -111,7 +111,7 @@ static XMYSQLND_RESULT_FIELD_META * create_meta_field(void * context)
 }
 
 static const enum_hnd_func_status handler_on_row_field(void * context,
-														  const MYSQLND_CSTRING buffer,
+														  const util::string_view& buffer,
 														  const unsigned int idx,
 														  const func_xmysqlnd_wireprotocol__row_field_decoder decoder)
 {
@@ -235,7 +235,7 @@ handler_on_exec_state_change(void * context, const enum xmysqlnd_execution_state
 }
 
 static const enum_hnd_func_status
-handler_on_generated_doc_ids(void * context, const MYSQLND_STRING id)
+handler_on_generated_doc_ids(void * context, const util::string& id)
 {
 	st_xmysqlnd_stmt_bind_ctx* const ctx = static_cast<st_xmysqlnd_stmt_bind_ctx*>( context );
 	enum_hnd_func_status ret{HND_AGAIN};

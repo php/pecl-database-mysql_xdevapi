@@ -124,13 +124,8 @@ struct xdevapi_exception : public std::runtime_error
 
 	xdevapi_exception(Code code);
 	xdevapi_exception(Code code, int error_number);
-	xdevapi_exception(Code code, const string& msg);
-	xdevapi_exception(Code code, const char* msg);
-	xdevapi_exception(Code code, const std::string& msg);
-	xdevapi_exception(unsigned int code, const string& msg);
-	xdevapi_exception(unsigned int code, const char* sql_state, const char* msg);
+	xdevapi_exception(Code code, const string_view& msg);
 	xdevapi_exception(unsigned int code, const string_view& sql_state, const string_view& msg);
-	xdevapi_exception(unsigned int code, const string& sql_state, const string& msg);
 
 	unsigned int code;
 };
@@ -154,8 +149,7 @@ void raise_doc_ref_exception(const doc_ref_exception& e);
 void raise_common_exception(const std::exception& e);
 void raise_unknown_exception();
 
-string prepare_reason_msg(unsigned int code, const string& sql_state, const string& what);
-string prepare_reason_msg(unsigned int code, const char* sql_state, const char* what);
+string prepare_reason_msg(unsigned int code, const string_view& sql_state, const string_view& what);
 void log_warning(const string& msg);
 
 void set_error_info(

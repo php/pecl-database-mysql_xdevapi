@@ -104,7 +104,7 @@ Index_definition Index_definition_parser::run()
 std::optional<Index_definition::Type> Index_definition_parser::parse_type()
 {
 	auto index_type = index_desc.get_property("type");
-	if (!index_type) {
+	if (!index_type.has_value()) {
 		return std::nullopt;
 	}
 

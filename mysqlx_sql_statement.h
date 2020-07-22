@@ -82,7 +82,7 @@ void execute_new_statement_read_response(
 void mysqlx_register_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_sql_statement_class(SHUTDOWN_FUNC_ARGS);
 
-void mysqlx_new_sql_stmt(zval* return_value, drv::xmysqlnd_stmt* stmt, const MYSQLND_CSTRING namespace_, const MYSQLND_CSTRING query);
+void mysqlx_new_sql_stmt(zval* return_value, drv::xmysqlnd_stmt* stmt, const std::string_view& namespace_, const util::string_view& query);
 void mysqlx_sql_statement_bind_one_param(zval * object_zv, const zval * param_zv, zval* return_value);
 void mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const zend_long flags, zval* return_value);
 

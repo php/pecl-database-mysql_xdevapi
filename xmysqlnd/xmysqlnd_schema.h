@@ -34,7 +34,7 @@ struct st_xmysqlnd_session_on_error_bind;
 
 struct st_xmysqlnd_schema_on_database_object_bind
 {
-	void (*handler)(void * context, xmysqlnd_schema * const schema, const MYSQLND_CSTRING object_name, const MYSQLND_CSTRING object_type);
+	void (*handler)(void * context, xmysqlnd_schema * const schema, const util::string_view& object_name, const util::string_view& object_type);
 	void * ctx;
 };
 
@@ -44,9 +44,9 @@ struct st_xmysqlnd_schema_on_error_bind
 	void * ctx;
 };
 
-bool is_table_object_type(const MYSQLND_CSTRING& object_type);
-bool is_collection_object_type(const MYSQLND_CSTRING& object_type);
-bool is_view_object_type(const MYSQLND_CSTRING& object_type);
+bool is_table_object_type(const util::string_view& object_type);
+bool is_collection_object_type(const util::string_view& object_type);
+bool is_view_object_type(const util::string_view& object_type);
 
 enum class db_object_type_filter
 {
@@ -60,13 +60,12 @@ public:
 	xmysqlnd_schema() = default;
 	xmysqlnd_schema(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const obj_factory,
 							XMYSQLND_SESSION session,
-							const MYSQLND_CSTRING schema_name,
-							zend_bool is_persistent);
+							const util::string_view& schema_name);
 	~xmysqlnd_schema();
 	void cleanup();
 
 	enum_func_status        exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-	xmysqlnd_collection* create_collection_object(const MYSQLND_CSTRING collection_name);
+	xmysqlnd_collection* create_collection_object(const util::string_view& collection_name);
 	xmysqlnd_collection* create_collection(
 		const util::string_view& collection_name,
 		const util::string_view& collection_options,
@@ -76,14 +75,14 @@ public:
 		const util::string_view& collection_options,
 		const st_xmysqlnd_schema_on_error_bind on_error);
 	enum_func_status        drop_collection(const util::string_view& collection_name,const st_xmysqlnd_schema_on_error_bind on_error);
-	xmysqlnd_table*      create_table_object(const MYSQLND_CSTRING table_name);
+	xmysqlnd_table*      create_table_object(const util::string_view& table_name);
 	enum_func_status        drop_table(const util::string_view& table_name,const st_xmysqlnd_schema_on_error_bind on_error);
-	enum_func_status        get_db_objects(const MYSQLND_CSTRING& collection_name,const db_object_type_filter object_type_filter,const st_xmysqlnd_schema_on_database_object_bind on_object,const st_xmysqlnd_schema_on_error_bind on_error);
+	enum_func_status        get_db_objects(const util::string_view& collection_name,const db_object_type_filter object_type_filter,const st_xmysqlnd_schema_on_database_object_bind on_object,const st_xmysqlnd_schema_on_error_bind on_error);
 
 	xmysqlnd_schema *	    get_reference();
 	enum_func_status	    free_reference(MYSQLND_STATS * stats, MYSQLND_ERROR_INFO * error_info);
 	void				    free_contents();
-	MYSQLND_STRING          get_name() {
+	const util::string& get_name() const {
 		return schema_name;
 	}
 	XMYSQLND_SESSION        get_session() {
@@ -97,7 +96,7 @@ public:
 	}
 private:
 	XMYSQLND_SESSION session;
-	MYSQLND_STRING schema_name;
+	util::string schema_name;
 
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * object_factory;
 
@@ -107,8 +106,7 @@ private:
 
 
 xmysqlnd_schema* xmysqlnd_schema_create(XMYSQLND_SESSION session,
-														  const MYSQLND_CSTRING schema_name,
-														  const zend_bool persistent,
+														  const util::string_view& schema_name,
 														  const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const object_factory,
 														  MYSQLND_STATS * const stats,
 														  MYSQLND_ERROR_INFO * const error_info);

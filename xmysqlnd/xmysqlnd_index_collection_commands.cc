@@ -62,7 +62,7 @@ bool Index_field::is_required() const
 // -----------------------------------------------------------------------------
 
 Index_definition::Index_definition(const util::string_view& index_name)
-	: name(index_name.to_string())
+	: name(index_name)
 	, is_unique(false) //TODO temporary - shouldn't be needed in future version of server
 {
 	if (index_name.empty())	{
@@ -91,8 +91,8 @@ namespace
 
 struct collection_create_index_var_binder_ctx
 {
-	const util::string_view& schema_name;
-	const util::string_view& collection_name;
+	const util::string_view schema_name;
+	const util::string_view collection_name;
 	const Index_definition& index_def;
 };
 
@@ -191,7 +191,7 @@ bool collection_create_index_execute(
 {
 	DBG_ENTER("collection_create_index_execute");
 
-	const MYSQLND_CSTRING query{"create_collection_index", sizeof("create_collection_index") - 1 };
+	constexpr util::string_view query("create_collection_index");
 
 	collection_create_index_var_binder_ctx var_binder_ctx{
 		schema_name,
@@ -225,9 +225,9 @@ namespace
 
 struct collection_drop_index_var_binder_ctx
 {
-	const util::string_view& schema_name;
-	const util::string_view& collection_name;
-	const util::string_view& index_name;
+	const util::string_view schema_name;
+	const util::string_view collection_name;
+	const util::string_view index_name;
 };
 
 const enum_hnd_func_status
@@ -263,7 +263,7 @@ bool collection_drop_index_execute(
 {
 	DBG_ENTER("xmysqlnd_collection_drop_index__execute");
 
-	const MYSQLND_CSTRING query{"drop_collection_index", sizeof("drop_collection_index") - 1 };
+	constexpr util::string_view query("drop_collection_index");
 
 	collection_drop_index_var_binder_ctx var_binder_ctx{
 		schema_name,
