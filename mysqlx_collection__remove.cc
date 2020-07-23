@@ -180,8 +180,8 @@ void Collection_remove::execute(zval* resultset)
 	if (remove_op && collection) {
 		if (FALSE == xmysqlnd_crud_collection_remove__is_initialized(remove_op)) {
 			const int errcode{10002};
-			const char* sqlstate = "HY000";
-			const char* errmsg = "Remove not completely initialized";
+			constexpr util::string_view sqlstate = "HY000";
+			constexpr util::string_view errmsg = "Remove not completely initialized";
 			mysqlx_new_exception(errcode, sqlstate, errmsg);
 		} else {
 			xmysqlnd_stmt* stmt{ collection->remove(remove_op) };

@@ -80,7 +80,7 @@ using wformatter = basic_formatter<wchar_t>;
 		&object_zv, table_create_class_entry,
 		&index_name.str, &index_name.len))
 
-	1) then optionally make some checks (whether is empty or make some 	comparison
+	1) then optionally make some checks (whether is empty or make some comparison
 	like == ), or immediately get proper util::string via to_string() member routine
 */
 struct param_string

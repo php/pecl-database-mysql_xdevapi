@@ -43,7 +43,7 @@ xmysqlnd_warning_list::add_warning(
 	// marines: TODO problems with custom allocator vs emplace_back && in-place initialization
 	// st_xmysqlnd_warning warning = {util::to_string(message), code, level};
 	// warnings.emplace_back(util::to_string(message), code, level);
-	warnings.push_back({util::to_string(message), code, level});
+	warnings.push_back({util::string(message), code, level});
 	DBG_VOID_RETURN;
 }
 

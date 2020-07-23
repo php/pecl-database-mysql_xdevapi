@@ -427,8 +427,7 @@ xmysqlnd_session_data::connect(
 
 	/* Attempt to connect */
 	if( ret == PASS ) {
-		const util::string_view local_scheme{ scheme.c_str(), scheme.length() };
-		ret = connect_handshake( local_scheme, def_schema,
+		ret = connect_handshake( scheme, def_schema,
 								 set_capabilities);
 		if( (ret != PASS) && (error_info->error_no == 0)) {
 			SET_OOM_ERROR(error_info);

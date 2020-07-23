@@ -105,7 +105,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, add_generated_doc_id)(XMYSQLND_ST
 																	 const util::string& id)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::add_generated_doc_id");
-	state->generated_doc_ids.push_back( util::to_string(id) );
+	state->generated_doc_ids.push_back(id);
 	DBG_VOID_RETURN;
 }
 
