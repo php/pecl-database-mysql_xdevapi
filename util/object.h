@@ -22,6 +22,7 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_object.h"
 #include "exceptions.h"
+#include "value.h"
 
 namespace mysqlx {
 
@@ -187,12 +188,18 @@ Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
 }
 
 template<typename Data_object>
-Data_object& fetch_data_object(zval* from)
+Data_object& fetch_data_object(raw_zval* from)
 {
 	using namespace devapi;
 
 	st_mysqlx_object* mysqlx_object{ Z_MYSQLX_P(from) };
 	return fetch_data_object<Data_object>(mysqlx_object);
+}
+
+template<typename Data_object>
+Data_object& fetch_data_object(zvalue& from)
+{
+	return fetch_data_object<Data_object>(from.ptr());
 }
 
 template<typename Data_object>
@@ -205,9 +212,9 @@ Data_object& fetch_data_object(zend_object* from)
 }
 
 template<typename Data_object>
-Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
+Data_object& init_object(zend_class_entry* ce, zvalue& mysqlx_object)
 {
-	if ((SUCCESS == object_init_ex(mysqlx_object, ce)) && (IS_OBJECT == Z_TYPE_P(mysqlx_object))) {
+	if ((SUCCESS == object_init_ex(mysqlx_object.ptr(), ce)) && mysqlx_object.is_object()) {
 		auto& data_object = util::fetch_data_object<Data_object>(mysqlx_object);
 		return data_object;
 	} else {

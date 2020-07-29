@@ -377,16 +377,10 @@ void Collection_modify::execute(zval* resultset)
 	} else {
 		xmysqlnd_stmt* stmt = collection->modify(modify_op);
 		if (stmt) {
-			util::zvalue stmt_zv;
-			mysqlx_new_stmt(stmt_zv.ptr(), stmt);
-
-			if (stmt_zv.is_null()) {
-				xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-			} else if (stmt_zv.is_object()) {
-				zend_long flags{0};
-				mysqlx_statement_execute_read_response(
-					Z_MYSQLX_P(stmt_zv.ptr()), flags, MYSQLX_RESULT, resultset);
-			}
+			util::zvalue stmt_obj = mysqlx_new_stmt(stmt);
+			zend_long flags{0};
+			mysqlx_statement_execute_read_response(
+				Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, resultset);
 		}
 	}
 
@@ -405,7 +399,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 {
 	DBG_ENTER("mysqlx_collection__modify::sort");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zval* sort_expressions{nullptr};
 	int num_of_expr{0};
 
@@ -430,7 +424,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 {
 	DBG_ENTER("mysqlx_collection__modify::limit");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zend_long rows{0};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
@@ -452,7 +446,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 {
 	DBG_ENTER("mysqlx_collection__modify::skip");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zend_long position{0};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
@@ -479,7 +473,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 {
 	DBG_ENTER("mysqlx_collection__modify::bind");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zval* bind_vars{nullptr};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
@@ -502,7 +496,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, set)
 {
 	DBG_ENTER("mysqlx_collection__modify::set");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	util::param_string path;
 	zval* value{nullptr};
 
@@ -527,7 +521,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 {
 	DBG_ENTER("mysqlx_collection__modify::replace");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	util::param_string path;
 	zval* value{nullptr};
 
@@ -552,7 +546,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 {
 	DBG_ENTER("mysqlx_collection__modify::patch");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	util::param_string document_contents;
 
 	if (FAILURE == util::zend::parse_method_parameters(
@@ -575,7 +569,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 {
 	DBG_ENTER("mysqlx_collection__modify::arrayInsert");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	util::param_string path;
 	zval* value{nullptr};
 
@@ -600,7 +594,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 {
 	DBG_ENTER("mysqlx_collection__modify::arrayAppend");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	util::param_string path;
 	zval* value{nullptr};
 
@@ -625,7 +619,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 {
 	DBG_ENTER("mysqlx_collection__modify::unset");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zval* variables{nullptr};
 	int num_of_variables{0};
 
@@ -651,7 +645,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 {
 	DBG_ENTER("mysqlx_collection__modify::execute");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, collection_modify_class_entry))
@@ -736,22 +730,20 @@ mysqlx_unregister_collection__modify_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&collection_modify_properties);
 }
 
-void
+util::zvalue
 mysqlx_new_collection__modify(
-	zval* return_value,
 	const util::string_view& search_expression,
 	xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__modify");
 
-	Collection_modify& coll_modify{ util::init_object<Collection_modify>(collection_modify_class_entry, return_value) };
+	util::zvalue coll_modify_obj;
+	Collection_modify& coll_modify{ util::init_object<Collection_modify>(collection_modify_class_entry, coll_modify_obj) };
 	if (!coll_modify.init(collection, search_expression)) {
-		zval_ptr_dtor(return_value);
-		ZVAL_NULL(return_value);
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::modify_fail);
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(coll_modify_obj);
 }
 
 } // namespace devapi

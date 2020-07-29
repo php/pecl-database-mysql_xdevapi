@@ -59,8 +59,7 @@ private:
 	std::vector<util::zvalue> docs;
 };
 
-void mysqlx_new_collection__add(
-	zval* return_value,
+util::zvalue mysqlx_new_collection__add(
 	drv::xmysqlnd_collection* schema,
 	zval* docs,
 	int num_of_docs);

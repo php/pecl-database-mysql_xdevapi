@@ -63,18 +63,13 @@ ZEND_END_ARG_INFO()
 enum_func_status
 execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
 {
-	util::zvalue stmt_zv;
-	mysqlx_new_stmt(stmt_zv.ptr(), &stmt);
-	if (stmt_zv.is_null()) {
-		xmysqlnd_stmt_free(&stmt, nullptr, nullptr);
-		return FAIL;
-	}
-	if (!stmt_zv.is_object()) {
-		return FAIL;
-	}
+	util::zvalue stmt_obj = mysqlx_new_stmt(&stmt);
 	zend_long flags{0};
-	mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_zv.ptr()),
-						flags, MYSQLX_RESULT, resultset);
+	mysqlx_statement_execute_read_response(
+		Z_MYSQLX_P(stmt_obj.ptr()),
+		flags,
+		MYSQLX_RESULT,
+		resultset);
 	return PASS;
 }
 
@@ -241,7 +236,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 {
 	DBG_ENTER("mysqlx_collection__add::execute");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv,
 												collection_add_class_entry))
@@ -257,7 +252,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 {
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zval* docs{nullptr};
 	int num_of_docs{0};
 
@@ -370,23 +365,21 @@ mysqlx_unregister_collection__add_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&collection_add_properties);
 }
 
-void
+util::zvalue
 mysqlx_new_collection__add(
-	zval* return_value,
 	xmysqlnd_collection* collection,
 	zval* docs,
 	int num_of_docs)
 {
 	DBG_ENTER("mysqlx_new_collection__add");
 
-	Collection_add& coll_add{ util::init_object<Collection_add>(collection_add_class_entry, return_value) };
+	util::zvalue coll_add_obj;
+	Collection_add& coll_add{ util::init_object<Collection_add>(collection_add_class_entry, coll_add_obj) };
 	if (!coll_add.add_docs(collection, docs, num_of_docs)) {
-		zval_ptr_dtor(return_value);
-		ZVAL_NULL(return_value);
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::add_doc);
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(coll_add_obj);
 }
 
 } // namespace devapi

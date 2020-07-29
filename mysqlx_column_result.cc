@@ -257,7 +257,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					meta_fields selected_meta_field)
 {
 	DBG_ENTER("get_column_meta_field");
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 								&object_zv,
 								mysqlx_column_result_class_entry))
@@ -506,18 +506,18 @@ const st_mysqlx_property_entry mysqlx_column_result_property_entries[] =
 
 } // anonymous namespace
 
-void
+util::zvalue
 mysqlx_new_column_result(
-	zval* return_value,
 	const st_xmysqlnd_result_field_meta* meta)
 {
-	DBG_ENTER("mysqlx_new_column");
+	DBG_ENTER("mysqlx_new_column_result");
 
+	util::zvalue column_result;
 	st_mysqlx_column_result& data_object{
-		util::init_object<st_mysqlx_column_result>(mysqlx_column_result_class_entry, return_value) };
+		util::init_object<st_mysqlx_column_result>(mysqlx_column_result_class_entry, column_result) };
 	data_object.meta = meta;
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(column_result);
 }
 
 static zend_object *

@@ -159,19 +159,20 @@ mysqlx_unregister_execution_status_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_execution_status_properties);
 }
 
-void
-mysqlx_new_execution_status(zval* return_value, const XMYSQLND_STMT_EXECUTION_STATE* const status)
+util::zvalue
+mysqlx_new_execution_status(const XMYSQLND_STMT_EXECUTION_STATE* const status)
 {
 	DBG_ENTER("mysqlx_new_execution_status");
 
+	util::zvalue execution_status;
 	st_mysqlx_execution_status& data_object{
-		util::init_object<st_mysqlx_execution_status>(mysqlx_execution_status_class_entry, return_value) };
+		util::init_object<st_mysqlx_execution_status>(mysqlx_execution_status_class_entry, execution_status) };
 	data_object.items_affected = status->m->get_affected_items_count(status);
 	data_object.items_matched = status->m->get_matched_items_count(status);
 	data_object.items_found = status->m->get_found_items_count(status);
 	data_object.last_insert_id = status->m->get_last_insert_id(status);
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(execution_status);
 }
 
 } // namespace devapi

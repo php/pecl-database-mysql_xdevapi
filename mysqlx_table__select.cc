@@ -111,7 +111,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 {
 	DBG_ENTER("mysqlx_table__select::where");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	util::param_string where_expr;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__select_class_entry,
@@ -139,7 +139,7 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 {
 	DBG_ENTER("mysqlx_table__select__add_sort_or_grouping");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zval* sort_expr{nullptr};
 	int num_of_expr{0};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
@@ -242,7 +242,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 {
 	DBG_ENTER("mysqlx_table__select::having");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	util::param_string search_condition;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__select_class_entry,
@@ -268,7 +268,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 {
 	DBG_ENTER("mysqlx_table__select::limit");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zend_long rows;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, mysqlx_table__select_class_entry,
@@ -299,7 +299,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 {
 	DBG_ENTER("mysqlx_table__select::offset");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zend_long position;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, mysqlx_table__select_class_entry,
@@ -330,7 +330,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 {
 	DBG_ENTER("mysqlx_table__select::bind");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	HashTable * bind_variables;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
 												&object_zv, mysqlx_table__select_class_entry,
@@ -364,7 +364,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 {
 	DBG_ENTER("mysqlx_table__select::lockShared");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 		&object_zv, mysqlx_table__select_class_entry,
@@ -391,7 +391,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 {
 	DBG_ENTER("mysqlx_table__select::lockExclusive");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
 		&object_zv, mysqlx_table__select_class_entry,
@@ -419,7 +419,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 	DBG_ENTER("mysqlx_table__select::execute");
 
 	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__select_class_entry))
@@ -435,21 +435,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 
 	xmysqlnd_stmt* stmt{ data_object.table->select(data_object.crud_op) };
 	if (stmt) {
-		zval stmt_zv;
-		ZVAL_UNDEF(&stmt_zv);
-		mysqlx_new_stmt(&stmt_zv, stmt);
-		if (Z_TYPE(stmt_zv) == IS_NULL) {
-			xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-		}
-		if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-			zval zv;
-			ZVAL_UNDEF(&zv);
-			mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT_ROW, &zv);
-
-			ZVAL_COPY(return_value, &zv);
-			zval_dtor(&zv);
-		}
-		zval_ptr_dtor(&stmt_zv);
+		util::zvalue stmt_obj = mysqlx_new_stmt(stmt);
+		mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT_ROW, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -550,23 +537,23 @@ mysqlx_unregister_table__select_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_table__select_properties);
 }
 
-void
+util::zvalue
 mysqlx_new_table__select(
-	zval* return_value,
 	xmysqlnd_table* table,
 	zval* columns,
 	const int num_of_columns)
 {
 	DBG_ENTER("mysqlx_new_table__select");
+	util::zvalue table_select_obj;
 	st_mysqlx_table__select& data_object{
-		util::init_object<st_mysqlx_table__select>(mysqlx_table__select_class_entry, return_value) };
+		util::init_object<st_mysqlx_table__select>(mysqlx_table__select_class_entry, table_select_obj) };
 	data_object.table = table->get_reference();
 	data_object.crud_op = xmysqlnd_crud_table_select__create(
 		data_object.table->get_schema()->get_name(),
 		data_object.table->get_name(),
 		columns,
 		num_of_columns);
-	DBG_VOID_RETURN;
+	DBG_RETURN(table_select_obj);
 }
 
 Mysqlx::Crud::Find* get_stmt_from_table_select(zval* object_zv)

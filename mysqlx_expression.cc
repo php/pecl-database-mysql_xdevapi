@@ -51,7 +51,7 @@ ZEND_END_ARG_INFO()
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
 	UNUSED(return_value);
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	util::param_string expression;
 
 	DBG_ENTER("mysqlx_expression::__construct");
@@ -94,7 +94,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 	{
 		DBG_VOID_RETURN;
 	}
-	mysqlx_new_expression(return_value, expression.to_view());
+	mysqlx_new_expression(expression.to_view()).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -148,16 +148,17 @@ mysqlx_unregister_expression_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_expression_properties);
 }
 
-void
-mysqlx_new_expression(zval* return_value, const util::string_view& expression)
+util::zvalue
+mysqlx_new_expression(const util::string_view& expression)
 {
 	DBG_ENTER("mysqlx_new_expression");
 
+	util::zvalue expression_obj;
 	st_mysqlx_expression& data_object{
-		util::init_object<st_mysqlx_expression>(mysqlx_expression_class_entry, return_value) };
+		util::init_object<st_mysqlx_expression>(mysqlx_expression_class_entry, expression_obj) };
 	ZVAL_STRINGL(&data_object.expression, expression.data(), expression.length());
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(expression_obj);
 }
 
 zend_bool

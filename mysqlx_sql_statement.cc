@@ -124,10 +124,9 @@ exec_with_cb_handle_on_row(void * context,
 		array_init_size(meta_container, col_count);
 		for (unsigned int i{0}; i < col_count; ++i) {
 			const XMYSQLND_RESULT_FIELD_META * field_meta = meta->m->get_field(meta, i);
-			zval meta_field_zv;
-			ZVAL_UNDEF(&meta_field_zv);
-			mysqlx_new_column_result(&meta_field_zv, meta->m->get_field(meta, i));
-			zend_hash_next_index_insert(Z_ARRVAL_P(meta_container), &meta_field_zv);
+			util::zvalue meta_field_obj = mysqlx_new_column_result(meta->m->get_field(meta, i));
+			zend_hash_next_index_insert(Z_ARRVAL_P(meta_container), meta_field_obj.ptr());
+			meta_field_obj.invalidate();
 
 			if (field_meta->zend_hash_key.is_numeric == FALSE) {
 				zend_hash_update(Z_ARRVAL_P(row_container), field_meta->zend_hash_key.sname, (zval *) &row[i]);
@@ -318,14 +317,14 @@ exec_with_cb_handle_on_statement_ok(void * context,
 	DBG_ENTER("exec_with_cb_handle_on_statement_ok");
 	if (ctx) {
 		zval params[2];
-		zval * user_context = &params[0];
-		zval * exec_status_zv = &params[1];
+		zval* user_context = &params[0];
+		zval* exec_status_zv = &params[1];
 		zval return_value;
 
 		ZVAL_COPY(user_context, ctx->ctx);
 
 		ZVAL_UNDEF(exec_status_zv);
-		mysqlx_new_execution_status(exec_status_zv, exec_state);
+		mysqlx_new_execution_status(exec_state).move_to(exec_status_zv);
 		if (Z_TYPE_P(exec_status_zv) != IS_UNDEF) {
 
 			ZVAL_UNDEF(&return_value);
@@ -397,6 +396,7 @@ mysqlx_fetch_data_with_callback(st_mysqlx_statement* object, st_xmysqlnd_exec_wi
 }
 
 void
+// TODO: what return_value is for?
 mysqlx_sql_statement_bind_one_param(zval* object_zv, const zval* param_zv, zval* return_value)
 {
 	DBG_ENTER("mysqlx_sql_statement_bind_one_param");
@@ -415,7 +415,7 @@ mysqlx_sql_statement_bind_one_param(zval* object_zv, const zval* param_zv, zval*
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 {
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zval* param_zv{nullptr};
 
 	DBG_ENTER("mysqlx_sql_statement::bind");
@@ -487,7 +487,7 @@ mysqlx_sql_statement_get_results(
 						object->has_more_rows_in_set? "TRUE":"FALSE");
 
 			if (result) {
-				mysqlx_new_sql_stmt_result(return_value, result, object);
+				mysqlx_new_sql_stmt_result(result, object).move_to(return_value);
 			} else {
 				RAISE_EXCEPTION_FETCH_FAIL();
 				/* Or we should close the connection, rendering it unusable at this point ?*/
@@ -545,7 +545,7 @@ mysqlx_sql_statement_execute(
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, execute)
 {
 	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 
 	DBG_ENTER("mysqlx_sql_statement::execute");
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
@@ -564,7 +564,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, hasMoreResults)
 {
 	DBG_ENTER("mysqlx_sql_statement::hasMoreResults");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_class_entry))
 	{
@@ -583,7 +583,7 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 {
 	DBG_ENTER("mysqlx_sql_statement_read_result");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zend_bool use_callbacks{FALSE};
 	st_xmysqlnd_exec_with_cb_ctx xmysqlnd_exec_with_cb_ctx{};
 	if (ZEND_NUM_ARGS() == 0) {
@@ -628,7 +628,7 @@ static void mysqlx_sql_statement_read_result(INTERNAL_FUNCTION_PARAMETERS, zend_
 
 			DBG_INF_FMT("result=%p  has_more_results=%s", result, data_object.has_more_results? "TRUE":"FALSE");
 			if (result) {
-				mysqlx_new_sql_stmt_result(return_value, result, &data_object);
+				mysqlx_new_sql_stmt_result(result, &data_object).move_to(return_value);
 			} else {
 				RAISE_EXCEPTION_FETCH_FAIL();
 				/* Or we should close the connection, rendering it unusable at this point ?*/
@@ -714,13 +714,14 @@ mysqlx_unregister_sql_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_sql_statement_properties);
 }
 
-void
-mysqlx_new_sql_stmt(zval* return_value, xmysqlnd_stmt* stmt, const std::string_view& namespace_, const util::string_view& query)
+util::zvalue
+mysqlx_new_sql_stmt(xmysqlnd_stmt* stmt, const std::string_view& namespace_, const util::string_view& query)
 {
 	DBG_ENTER("mysqlx_new_sql_stmt");
 
+	util::zvalue sql_stmt_obj;
 	st_mysqlx_statement& data_object{
-		util::init_object<st_mysqlx_statement>(mysqlx_sql_statement_class_entry, return_value) };
+		util::init_object<st_mysqlx_statement>(mysqlx_sql_statement_class_entry, sql_stmt_obj) };
 	data_object.stmt = stmt;
 	data_object.stmt_execute = xmysqlnd_stmt_execute__create(namespace_, query);
 	data_object.execute_flags = 0;
@@ -729,7 +730,7 @@ mysqlx_new_sql_stmt(zval* return_value, xmysqlnd_stmt* stmt, const std::string_v
 	data_object.has_more_results = FALSE;
 	data_object.has_more_rows_in_set = FALSE;
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(sql_stmt_obj);
 }
 
 /*********************************************************************/
@@ -798,19 +799,19 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 					switch(result_type)
 					{
 						case MYSQLX_RESULT:
-							mysqlx_new_result(return_value, result);
+							mysqlx_new_result(result).move_to(return_value);
 							break;
 
 						case MYSQLX_RESULT_DOC:
-							mysqlx_new_doc_result(return_value, result);
+							mysqlx_new_doc_result(result).move_to(return_value);
 							break;
 
 						case MYSQLX_RESULT_ROW:
-							mysqlx_new_row_result(return_value, result);
+							mysqlx_new_row_result(result).move_to(return_value);
 							break;
 
 						case MYSQLX_RESULT_SQL:
-							mysqlx_new_sql_stmt_result(return_value, result, object);
+							mysqlx_new_sql_stmt_result(result, object).move_to(return_value);;
 							break;
 
 						default:
@@ -834,23 +835,11 @@ void execute_new_statement_read_response(
 	const mysqlx_result_type result_type,
 	zval* return_value)
 {
-	zval stmt_zv;
-	ZVAL_UNDEF(&stmt_zv);
-	mysqlx_new_stmt(&stmt_zv, stmt);
-	if (Z_TYPE(stmt_zv) == IS_NULL) {
-		xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-	} else if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-		zval zv;
-		ZVAL_UNDEF(&zv);
-		//TODO WARNINGS
-		//zend_long flags{0};
-		mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, result_type, &zv);
-//		mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
-
-		ZVAL_COPY(return_value, &zv);
-		zval_dtor(&zv);
-	}
-	zval_ptr_dtor(&stmt_zv);
+	util::zvalue stmt_obj = mysqlx_new_stmt(stmt);
+	//TODO WARNINGS
+	//zend_long flags{0};
+	mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, result_type, return_value);
+	//mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, __construct)
@@ -862,7 +851,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, hasMoreResults)
 {
 	DBG_ENTER("mysqlx_statement::hasMoreResults");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_statement_class_entry))
 	{
@@ -943,13 +932,14 @@ mysqlx_unregister_statement_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_statement_properties);
 }
 
-void
-mysqlx_new_stmt(zval* return_value, xmysqlnd_stmt * stmt)
+util::zvalue
+mysqlx_new_stmt(xmysqlnd_stmt * stmt)
 {
 	DBG_ENTER("mysqlx_new_stmt");
 
+	util::zvalue stmt_obj;
 	st_mysqlx_statement& data_object{
-		util::init_object<st_mysqlx_statement>(mysqlx_statement_class_entry, return_value) };
+		util::init_object<st_mysqlx_statement>(mysqlx_statement_class_entry, stmt_obj) };
 	data_object.stmt = stmt;
 	data_object.stmt_execute = nullptr;
 	data_object.execute_flags = 0;
@@ -958,7 +948,7 @@ mysqlx_new_stmt(zval* return_value, xmysqlnd_stmt * stmt)
 	data_object.has_more_results = FALSE;
 	data_object.has_more_rows_in_set = FALSE;
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(stmt_obj);
 }
 
 } // namespace devapi

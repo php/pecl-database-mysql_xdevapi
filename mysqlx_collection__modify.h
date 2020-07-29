@@ -84,8 +84,7 @@ private:
 
 };
 
-void mysqlx_new_collection__modify(
-	zval* return_value,
+util::zvalue mysqlx_new_collection__modify(
 	const util::string_view& search_expression,
 	drv::xmysqlnd_collection* collection);
 void mysqlx_register_collection__modify_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);

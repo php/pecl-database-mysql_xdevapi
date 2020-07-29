@@ -186,15 +186,10 @@ void Collection_remove::execute(zval* resultset)
 		} else {
 			xmysqlnd_stmt* stmt{ collection->remove(remove_op) };
 			if (stmt) {
-				util::zvalue stmt_zv;
-				mysqlx_new_stmt(stmt_zv.ptr(), stmt);
-				if (stmt_zv.is_null()) {
-					xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-				} else if (stmt_zv.is_object()) {
-					zend_long flags{0};
-					mysqlx_statement_execute_read_response(
-						Z_MYSQLX_P(stmt_zv.ptr()), flags, MYSQLX_RESULT, resultset);
-				}
+				util::zvalue stmt_obj = mysqlx_new_stmt(stmt);
+				zend_long flags{0};
+				mysqlx_statement_execute_read_response(
+					Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, resultset);
 			}
 		}
 	}
@@ -214,7 +209,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, sort)
 {
 	DBG_ENTER("mysqlx_collection__remove::sort");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zval* sort_expressions{nullptr};
 	int num_of_expr{0};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
@@ -238,7 +233,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 {
 	DBG_ENTER("mysqlx_collection__remove::limit");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zend_long rows{0};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_remove_class_entry,
@@ -264,7 +259,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 {
 	DBG_ENTER("mysqlx_collection__remove::bind");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	zval* bind_vars{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_remove_class_entry,
@@ -286,7 +281,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 {
 	DBG_ENTER("mysqlx_collection__remove::execute");
 
-	zval* object_zv{nullptr};
+	raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, collection_remove_class_entry))
 	{
@@ -360,20 +355,18 @@ mysqlx_unregister_collection__remove_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&collection_remove_properties);
 }
 
-void
+util::zvalue
 mysqlx_new_collection__remove(
-	zval* return_value,
 	const util::string_view& search_expression,
 	xmysqlnd_collection* collection)
 {
 	DBG_ENTER("mysqlx_new_collection__remove");
-	Collection_remove& coll_remove{ util::init_object<Collection_remove>(collection_remove_class_entry, return_value) };
+	util::zvalue coll_remove_obj;
+	Collection_remove& coll_remove{ util::init_object<Collection_remove>(collection_remove_class_entry, coll_remove_obj) };
 	if (!coll_remove.init(collection, search_expression)) {
-		zval_ptr_dtor(return_value);
-		ZVAL_NULL(return_value);
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::remove_fail);
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(coll_remove_obj);
 }
 
 } // namespace devapi

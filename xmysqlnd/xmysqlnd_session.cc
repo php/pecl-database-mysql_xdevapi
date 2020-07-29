@@ -2511,7 +2511,7 @@ xmysqlnd_session_connect(XMYSQLND_SESSION session,
 mysqlx::devapi::Session_data * create_new_session(zval * session_zval)
 {
 	DBG_ENTER("create_new_session");
-	devapi::mysqlx_new_session(session_zval);
+	devapi::mysqlx_new_session().move_to(session_zval);
 	auto& data_object{ util::fetch_data_object<devapi::Session_data>(session_zval) };
 	DBG_RETURN(&data_object);
 }

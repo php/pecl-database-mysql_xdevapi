@@ -19,6 +19,7 @@
 #define MYSQLX_EXPRESSION_H
 
 #include "util/strings.h"
+#include "util/value.h"
 
 namespace mysqlx {
 
@@ -26,7 +27,7 @@ namespace devapi {
 
 zend_bool is_a_mysqlx_expression(const zval * const value);
 zval* get_mysqlx_expression(const zval * const object_zv);
-void mysqlx_new_expression(zval* return_value, const util::string_view& expression);
+util::zvalue mysqlx_new_expression(const util::string_view& expression);
 void mysqlx_register_expression_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_expression_class(SHUTDOWN_FUNC_ARGS);
 
