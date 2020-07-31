@@ -26,7 +26,7 @@ class xmysqlnd_schema;
 
 namespace devapi {
 
-util::zvalue mysqlx_new_schema(drv::xmysqlnd_schema* schema);
+util::zvalue create_schema(drv::xmysqlnd_schema* schema);
 void mysqlx_register_schema_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_schema_class(SHUTDOWN_FUNC_ARGS);
 

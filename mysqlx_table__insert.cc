@@ -73,7 +73,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 {
 	DBG_ENTER("mysqlx_table__insert::values");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zval* values{nullptr};
 	zend_bool op_failed{FALSE};
 	int num_of_values{0};
@@ -113,7 +113,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 {
 	DBG_ENTER("mysqlx_table__insert::execute");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__insert_class_entry))
 	{
@@ -131,7 +131,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 		} else {
 			xmysqlnd_stmt* stmt = data_object.table->insert(data_object.crud_op);
 			if (stmt) {
-				util::zvalue stmt_obj = mysqlx_new_stmt(stmt);
+				util::zvalue stmt_obj = create_stmt(stmt);
 				zend_long flags{0};
 				mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, return_value);
 			}
@@ -229,12 +229,12 @@ mysqlx_unregister_table__insert_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 util::zvalue
-mysqlx_new_table__insert(
+create_table_insert(
 	xmysqlnd_table* table,
 	zval* columns,
 	const int num_of_columns)
 {
-	DBG_ENTER("mysqlx_new_table__insert");
+	DBG_ENTER("create_table_insert");
 	util::zvalue table_insert_obj;
 	st_mysqlx_table__insert& data_object{
 		util::init_object<st_mysqlx_table__insert>(mysqlx_table__insert_class_entry, table_insert_obj) };

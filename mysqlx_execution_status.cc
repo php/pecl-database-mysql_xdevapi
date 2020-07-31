@@ -160,9 +160,9 @@ mysqlx_unregister_execution_status_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 util::zvalue
-mysqlx_new_execution_status(const XMYSQLND_STMT_EXECUTION_STATE* const status)
+create_execution_status(const XMYSQLND_STMT_EXECUTION_STATE* const status)
 {
-	DBG_ENTER("mysqlx_new_execution_status");
+	DBG_ENTER("create_execution_status");
 
 	util::zvalue execution_status;
 	st_mysqlx_execution_status& data_object{

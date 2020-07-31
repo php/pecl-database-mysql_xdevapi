@@ -27,7 +27,7 @@ namespace devapi {
 
 void mysqlx_register_warning_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_warning_class(SHUTDOWN_FUNC_ARGS);
-util::zvalue mysqlx_new_warning(const util::string& msg, unsigned int level, const unsigned int code);
+util::zvalue create_warning(const util::string& msg, unsigned int level, const unsigned int code);
 
 } // namespace devapi
 

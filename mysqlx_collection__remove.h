@@ -59,7 +59,7 @@ private:
 
 };
 
-util::zvalue mysqlx_new_collection__remove(
+util::zvalue create_collection_remove(
 	const util::string_view& search_expression,
 	drv::xmysqlnd_collection* collection);
 void mysqlx_register_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);

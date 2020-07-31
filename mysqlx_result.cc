@@ -72,7 +72,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, __construct)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 {
 	DBG_ENTER("mysqlx_result::getAffectedItemsCount");
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
@@ -101,7 +101,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAffectedItemsCount)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAutoIncrementValue)
 {
 	DBG_ENTER("mysqlx_result::getAutoIncrementValue");
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
@@ -131,7 +131,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getAutoIncrementValue)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 {
     DBG_ENTER("mysqlx_result::getGeneratedIds");
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
@@ -158,7 +158,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getGeneratedIds)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 {
 	DBG_ENTER("mysqlx_result::getWarningsCount");
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
@@ -185,7 +185,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarningsCount)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 {
 	DBG_ENTER("mysqlx_result::getWarnings");
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_result_class_entry))
 	{
@@ -200,10 +200,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 		array_init_size(return_value, static_cast<uint32_t>(count));
 		for (std::size_t i{0}; i < count; ++i) {
 			const XMYSQLND_WARNING warning = warnings->get_warning(i);
-			util::zvalue warning_zv = mysqlx_new_warning(warning.message, warning.level, warning.code);
-			if (!warning_zv.is_undef()) {
-				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), warning_zv.ptr());
-				warning_zv.invalidate();
+			util::zvalue warning_obj = create_warning(warning.message, warning.level, warning.code);
+			if (!warning_obj.is_undef()) {
+				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), warning_obj.ptr());
+				warning_obj.invalidate();
 			}
 		}
 	}
@@ -274,9 +274,9 @@ mysqlx_unregister_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 util::zvalue
-mysqlx_new_result(XMYSQLND_STMT_RESULT* result)
+create_result(XMYSQLND_STMT_RESULT* result)
 {
-	DBG_ENTER("mysqlx_new_result");
+	DBG_ENTER("create_result");
 
 	util::zvalue result_obj;
 	st_mysqlx_result& data_object{

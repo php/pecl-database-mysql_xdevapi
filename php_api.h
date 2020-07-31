@@ -71,6 +71,4 @@ extern "C" {
 
 #endif
 
-using raw_zval = zval;
-
 #endif // MYSQL_XDEVAPI_PHP_API_H

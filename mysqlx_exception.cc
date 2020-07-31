@@ -46,7 +46,7 @@ struct st_mysqlx_exception
 void
 RAISE_EXCEPTION(int errcode, const char* msg)
 {
-	mysqlx_new_exception(errcode, GENERAL_SQL_STATE, msg);
+	create_exception(errcode, GENERAL_SQL_STATE, msg);
 }
 
 static const zend_function_entry mysqlx_exception_methods[] = {
@@ -125,10 +125,10 @@ mysqlx_unregister_exception_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_exception(int code, const util::string_view& sql_state, const util::string_view& message)
+create_exception(int code, const util::string_view& sql_state, const util::string_view& message)
 {
 	char* msg{nullptr};
-	DBG_ENTER("mysqlx_new_exception");
+	DBG_ENTER("create_exception");
 	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.length(), sql_state.data(), message.length(), message.data());
 	if (msg) {
 		zend_throw_exception(mysqlx_exception_class_entry, msg, code);
@@ -138,12 +138,12 @@ mysqlx_new_exception(int code, const util::string_view& sql_state, const util::s
 }
 
 void
-mysqlx_new_exception_ex(int code, const util::string_view& /*sql_state*/, const char* format, ...)
+create_exception_ex(int code, const util::string_view& /*sql_state*/, const char* format, ...)
 {
 	va_list args;
 	char * msg;
 
-	DBG_ENTER("mysqlx_new_exception");
+	DBG_ENTER("create_exception");
 	va_start(args, format);
 	mnd_vsprintf(&msg, 0, format, args);
 	va_end(args);

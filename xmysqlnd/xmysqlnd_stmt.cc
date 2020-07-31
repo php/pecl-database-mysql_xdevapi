@@ -1032,7 +1032,7 @@ const enum_hnd_func_status prepare_st_on_error_handler(void * context,
 		DBG_INF_FMT("Disabling support for prepare statement, not supported by server.");
 		ctx->set_supported_ps( false );
 	} else {
-		mysqlx::devapi::mysqlx_new_exception(code, sql_state, message);
+		mysqlx::devapi::create_exception(code, sql_state, message);
 		DBG_RETURN(HND_PASS_RETURN_FAIL);
 	}
 

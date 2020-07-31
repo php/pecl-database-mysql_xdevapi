@@ -63,7 +63,7 @@ ZEND_END_ARG_INFO()
 enum_func_status
 execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
 {
-	util::zvalue stmt_obj = mysqlx_new_stmt(&stmt);
+	util::zvalue stmt_obj = create_stmt(&stmt);
 	zend_long flags{0};
 	mysqlx_statement_execute_read_response(
 		Z_MYSQLX_P(stmt_obj.ptr()),
@@ -125,13 +125,12 @@ collection_add_array(
 
 bool Collection_add::add_docs(
 	xmysqlnd_collection* coll,
-	zval* documents,
-	int num_of_documents)
+	const util::raw_zvals& documents)
 {
-	if (!documents || !num_of_documents) return false;
+	if (documents.empty()) return false;
 
-	for (int i{0}; i < num_of_documents; ++i) {
-		auto doc_type{ Z_TYPE(documents[i]) };
+	for (const auto& doc : documents) {
+		auto doc_type{ Z_TYPE(doc) };
 		if (doc_type != IS_STRING &&
 			doc_type != IS_OBJECT &&
 			doc_type != IS_ARRAY) {
@@ -153,8 +152,8 @@ bool Collection_add::add_docs(
 		if (!add_op) return false;
 	}
 
-	for (int i{0}; i < num_of_documents; ++i) {
-		docs.push_back(util::zvalue::clone_from(&documents[i]));
+	for (auto doc : documents) {
+		docs.push_back(util::zvalue::clone_from(&doc));
 	}
 
 	return true;
@@ -166,7 +165,8 @@ bool Collection_add::add_docs(
 	zval* doc)
 {
 	const int num_of_documents = 1;
-	if (!add_docs(coll, doc, num_of_documents)) return false;
+	util::raw_zvals docs{doc, num_of_documents};
+	if (!add_docs(coll, docs)) return false;
 	return xmysqlnd_crud_collection_add__set_upsert(add_op) == PASS;
 }
 
@@ -236,7 +236,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 {
 	DBG_ENTER("mysqlx_collection__add::execute");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv,
 												collection_add_class_entry))
@@ -252,17 +252,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 {
-	raw_zval* object_zv{nullptr};
-	zval* docs{nullptr};
-	int num_of_docs{0};
+	util::raw_zval* object_zv{nullptr};
+	util::raw_zvals docs;
 
 	DBG_ENTER("mysqlx_collection::add");
 
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 												&object_zv,
 												collection_add_class_entry,
-												&docs,
-												&num_of_docs))
+												&docs.data,
+												&docs.size))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -271,7 +270,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 	 * For subsequent calls to add_docs, the xmysqlnd_collection is set to NULL
 	 */
 	Collection_add& coll_add = util::fetch_data_object<Collection_add>(object_zv);
-	if (coll_add.add_docs(nullptr, docs, num_of_docs)) {
+	if (coll_add.add_docs(nullptr, docs)) {
 		util::zvalue::copy_to(object_zv, return_value);
 	}
 
@@ -366,16 +365,15 @@ mysqlx_unregister_collection__add_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 util::zvalue
-mysqlx_new_collection__add(
+create_collection_add(
 	xmysqlnd_collection* collection,
-	zval* docs,
-	int num_of_docs)
+	const util::raw_zvals& docs)
 {
-	DBG_ENTER("mysqlx_new_collection__add");
+	DBG_ENTER("create_collection_add");
 
 	util::zvalue coll_add_obj;
 	Collection_add& coll_add{ util::init_object<Collection_add>(collection_add_class_entry, coll_add_obj) };
-	if (!coll_add.add_docs(collection, docs, num_of_docs)) {
+	if (!coll_add.add_docs(collection, docs)) {
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::add_doc);
 	}
 

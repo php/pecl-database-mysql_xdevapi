@@ -541,7 +541,7 @@ zvalue zvalue::clone() const
 	return result;
 }
 
-zvalue zvalue::clone_from(zval* src)
+zvalue zvalue::clone_from(const zval* src)
 {
 	zvalue result;
 	ZVAL_DUP(&result.zv, src);

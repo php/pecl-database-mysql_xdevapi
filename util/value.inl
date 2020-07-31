@@ -889,4 +889,28 @@ inline zval* zvalue::ptr() const
 	return const_cast<zval*>(&zv);
 }
 
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+inline raw_zvals::raw_zvals(raw_zval* data, int size)
+	: data(data)
+	, size(size)
+{
+}
+
+inline bool raw_zvals::empty() const
+{
+	return !data || !size;
+}
+
+inline raw_zval* raw_zvals::begin() const
+{
+	return data;
+}
+
+inline raw_zval* raw_zvals::end() const
+{
+	return data + size;
+}
+
 } // namespace mysqlx::util

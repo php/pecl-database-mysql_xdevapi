@@ -109,7 +109,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 {
 	DBG_ENTER("mysqlx_table::getSession");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data,
 		getThis(),
@@ -125,7 +125,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSession)
 	RETVAL_FALSE;
 
 	XMYSQLND_SESSION session{ data_object.table->get_schema()->get_session() };
-	mysqlx_new_session(session).move_to(return_value);
+	create_session(session).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -134,7 +134,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getName)
 {
 	DBG_ENTER("mysqlx_table::getName");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
@@ -162,7 +162,7 @@ mysqlx_table_on_error(
 	if (code == UnknownDatabaseCode) {
 		DBG_RETURN(HND_PASS);
 	} else {
-		mysqlx_new_exception(code, sql_state, message);
+		create_exception(code, sql_state, message);
 		DBG_RETURN(HND_PASS_RETURN_FAIL);
 	}
 }
@@ -171,7 +171,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, existsInDatabase)
 {
 	DBG_ENTER("mysqlx_table::existsInDatabase");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
@@ -197,7 +197,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, isView)
 {
 	DBG_ENTER("mysqlx_table::isView");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(
 		execute_data,
 		getThis(),
@@ -227,7 +227,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, count)
 {
 	DBG_ENTER("mysqlx_table::count");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
@@ -255,7 +255,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 	DBG_ENTER("mysqlx_table::getSchema");
 
 	XMYSQLND_SESSION session;
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(
 				execute_data,
 				getThis(), "O",
@@ -275,7 +275,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, getSchema)
 		xmysqlnd_schema* schema = session->create_schema_object(
 			data_object.table->get_schema()->get_name());
 		if (schema) {
-			mysqlx_new_schema(schema).move_to(return_value);
+			create_schema(schema).move_to(return_value);
 		} else {
 			RAISE_EXCEPTION(10001,"Invalid object of class schema");
 		}
@@ -292,7 +292,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 {
 	DBG_ENTER("mysqlx_table::insert");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zval* columns{nullptr};
 	int num_of_columns{0};
 	if (FAILURE == util::zend::parse_method_parameters(
@@ -323,7 +323,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, insert)
 	RETVAL_FALSE;
 
 	if (num_of_columns > 0) {
-		mysqlx_new_table__insert(
+		create_table_insert(
 			data_object.table,
 			columns,
 			num_of_columns)
@@ -337,7 +337,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 {
 	DBG_ENTER("mysqlx_table::select");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zval* columns{nullptr};
 	int num_of_columns{0};
 	if (FAILURE == util::zend::parse_method_parameters(
@@ -356,7 +356,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, select)
 	if (columns) {
 		DBG_INF_FMT("Num of columns: %d",
 					num_of_columns);
-		mysqlx_new_table__select(
+		create_table_select(
 			data_object.table,
 			columns,
 			num_of_columns)
@@ -370,7 +370,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 {
 	DBG_ENTER("mysqlx_table::update");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
@@ -381,7 +381,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, update)
 
 	RETVAL_FALSE;
 
-	mysqlx_new_table__update(data_object.table).move_to(return_value);
+	create_table_update(data_object.table).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -390,7 +390,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 {
 	DBG_ENTER("mysqlx_table::delete");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table_class_entry))
 	{
@@ -401,7 +401,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 
 	RETVAL_FALSE;
 
-	mysqlx_new_table__delete(data_object.table).move_to(return_value);
+	create_table_delete(data_object.table).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -498,9 +498,9 @@ mysqlx_unregister_table_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 util::zvalue
-mysqlx_new_table(xmysqlnd_table* table)
+create_table(xmysqlnd_table* table)
 {
-	DBG_ENTER("mysqlx_new_table");
+	DBG_ENTER("create_table");
 	util::zvalue table_obj;
 	st_mysqlx_table& data_object{
 		util::init_object<st_mysqlx_table>(mysqlx_table_class_entry, table_obj) };

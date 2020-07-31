@@ -143,9 +143,9 @@ mysqlx_unregister_warning_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 util::zvalue
-mysqlx_new_warning(const util::string& msg, unsigned int level, const unsigned int code)
+create_warning(const util::string& msg, unsigned int level, const unsigned int code)
 {
-	DBG_ENTER("mysqlx_new_warning");
+	DBG_ENTER("create_warning");
 	util::zvalue warning_obj;
 	st_mysqlx_warning& data_object{
 		util::init_object<st_mysqlx_warning>(mysqlx_warning_class_entry, warning_obj) };

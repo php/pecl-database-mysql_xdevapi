@@ -43,8 +43,7 @@ public:
 
 	bool add_docs(
 		drv::xmysqlnd_collection* collection,
-		zval* docs,
-		int num_of_docs);
+		const util::raw_zvals& documents);
 	bool add_docs(
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& single_doc_id,
@@ -59,10 +58,9 @@ private:
 	std::vector<util::zvalue> docs;
 };
 
-util::zvalue mysqlx_new_collection__add(
+util::zvalue create_collection_add(
 	drv::xmysqlnd_collection* schema,
-	zval* docs,
-	int num_of_docs);
+	const util::raw_zvals& docs);
 void mysqlx_register_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_collection__add_class(SHUTDOWN_FUNC_ARGS);
 

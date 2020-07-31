@@ -182,11 +182,11 @@ void Collection_remove::execute(zval* resultset)
 			const int errcode{10002};
 			constexpr util::string_view sqlstate = "HY000";
 			constexpr util::string_view errmsg = "Remove not completely initialized";
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			create_exception(errcode, sqlstate, errmsg);
 		} else {
 			xmysqlnd_stmt* stmt{ collection->remove(remove_op) };
 			if (stmt) {
-				util::zvalue stmt_obj = mysqlx_new_stmt(stmt);
+				util::zvalue stmt_obj = create_stmt(stmt);
 				zend_long flags{0};
 				mysqlx_statement_execute_read_response(
 					Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, resultset);
@@ -209,7 +209,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, sort)
 {
 	DBG_ENTER("mysqlx_collection__remove::sort");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zval* sort_expressions{nullptr};
 	int num_of_expr{0};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
@@ -233,7 +233,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 {
 	DBG_ENTER("mysqlx_collection__remove::limit");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zend_long rows{0};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
 												&object_zv, collection_remove_class_entry,
@@ -259,7 +259,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 {
 	DBG_ENTER("mysqlx_collection__remove::bind");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zval* bind_vars{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_remove_class_entry,
@@ -281,7 +281,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 {
 	DBG_ENTER("mysqlx_collection__remove::execute");
 
-	raw_zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
 												&object_zv, collection_remove_class_entry))
 	{
@@ -356,11 +356,11 @@ mysqlx_unregister_collection__remove_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 util::zvalue
-mysqlx_new_collection__remove(
+create_collection_remove(
 	const util::string_view& search_expression,
 	xmysqlnd_collection* collection)
 {
-	DBG_ENTER("mysqlx_new_collection__remove");
+	DBG_ENTER("create_collection_remove");
 	util::zvalue coll_remove_obj;
 	Collection_remove& coll_remove{ util::init_object<Collection_remove>(collection_remove_class_entry, coll_remove_obj) };
 	if (!coll_remove.init(collection, search_expression)) {

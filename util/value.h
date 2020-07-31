@@ -24,6 +24,21 @@
 
 namespace mysqlx::util {
 
+using raw_zval = zval;
+
+struct raw_zvals
+{
+	raw_zvals() = default;
+	raw_zvals(raw_zval* data, int size);
+
+	bool empty() const;
+	raw_zval* begin() const;
+	raw_zval* end() const;
+
+	raw_zval* data = nullptr;
+	int size = 0;
+};
+
 class zvalue
 {
 	public:
@@ -203,7 +218,7 @@ class zvalue
 		// new fully separated item, not just next reference incremented
 		zvalue clone() const;
 
-		static zvalue clone_from(zval* src);
+		static zvalue clone_from(const zval* src);
 
 		// take over ownership of passed zval
 		void acquire(zval* zv);
