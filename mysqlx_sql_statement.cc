@@ -134,7 +134,7 @@ exec_with_cb_handle_on_row(void * context,
 				zend_hash_index_update(Z_ARRVAL_P(row_container), field_meta->zend_hash_key.key, (zval *) &row[i]);
 			}
 		}
-		ZVAL_COPY(user_context, ctx->ctx);
+		util::zvalue::copy_from_to(ctx->ctx, user_context);
 
 		ZVAL_UNDEF(&return_value);
 		ctx->on_row.fci.retval = &return_value;
@@ -208,7 +208,7 @@ exec_with_cb_handle_on_warning(
 		ZVAL_LONG(code_zv, code);
 		ZVAL_STRINGL(message_zv, message.data(), message.length());
 
-		ZVAL_COPY(user_context, ctx->ctx);
+		util::zvalue::copy_from_to(ctx->ctx, user_context);
 
 		ZVAL_UNDEF(&return_value);
 		ctx->on_warning.fci.retval = &return_value;
@@ -252,7 +252,7 @@ exec_with_cb_handle_on_error(
 		ZVAL_STRINGL(sql_state_zv, sql_state.data(), sql_state.length());
 		ZVAL_STRINGL(message_zv, message.data(), message.length());
 
-		ZVAL_COPY(user_context, ctx->ctx);
+		util::zvalue::copy_from_to(ctx->ctx, user_context);
 
 		ZVAL_UNDEF(&return_value);
 		ctx->on_error.fci.retval = &return_value;
@@ -286,7 +286,7 @@ exec_with_cb_handle_on_resultset_end(void * context, xmysqlnd_stmt * const /*stm
 		zval * has_more_zv = &params[1];
 		zval return_value;
 
-		ZVAL_COPY(user_context, ctx->ctx);
+		util::zvalue::copy_from_to(ctx->ctx, user_context);
 		ZVAL_BOOL(has_more_zv, has_more);
 
 		/* Add statement status here and pass it to the function */
@@ -321,7 +321,7 @@ exec_with_cb_handle_on_statement_ok(void * context,
 		zval* exec_status_zv = &params[1];
 		zval return_value;
 
-		ZVAL_COPY(user_context, ctx->ctx);
+		util::zvalue::copy_from_to(ctx->ctx, user_context);
 
 		ZVAL_UNDEF(exec_status_zv);
 		create_execution_status(exec_state).move_to(exec_status_zv);
@@ -428,7 +428,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 	mysqlx_sql_statement_bind_one_param(object_zv, param_zv, return_value);
 	if (Z_TYPE_P(return_value) == IS_TRUE)
 	{
-		ZVAL_COPY(return_value, object_zv);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -734,29 +734,28 @@ create_sql_stmt(xmysqlnd_stmt* stmt, const std::string_view& namespace_, const u
 }
 
 /*********************************************************************/
-void
+util::zvalue
 mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_object,
 											const zend_long flags,
-											const enum mysqlx_result_type result_type,
-											zval* return_value)
+											const enum mysqlx_result_type result_type)
 {
 	st_mysqlx_statement* object = (st_mysqlx_statement*) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_statement_execute");
 
+	util::zvalue return_value(false);
+
 	if (!object) {
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		DBG_ERR_FMT("invalid object of class %s on %s::%d", ZSTR_VAL(mysqlx_object->zo.ce->name), __FILE__, __LINE__);
-		DBG_VOID_RETURN;
+		DBG_RETURN(return_value);
 	}
-
-	RETVAL_FALSE;
 
 	if ((flags | MYSQLX_EXECUTE_ALL_FLAGS) != MYSQLX_EXECUTE_ALL_FLAGS) {
 		util::ostringstream os;
 		os << "Invalid flags. Unknown " << (flags - (flags | MYSQLX_EXECUTE_ALL_FLAGS));
 		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
 
-		DBG_VOID_RETURN;
+		DBG_RETURN(return_value);
 	}
 	DBG_INF_FMT("flags=%lu", flags);
 	DBG_INF_FMT("%sSYNC", (flags & MYSQLX_EXECUTE_FLAG_ASYNC)? "A":"");
@@ -773,7 +772,7 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 
 		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
 			DBG_INF("ASYNC");
-			RETVAL_BOOL(PASS == object->send_query_status);
+			return_value = (PASS == object->send_query_status);
 		} else {
 				const st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
 				const st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
@@ -799,24 +798,24 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 					switch(result_type)
 					{
 						case MYSQLX_RESULT:
-							create_result(result).move_to(return_value);
+							return_value = create_result(result);
 							break;
 
 						case MYSQLX_RESULT_DOC:
-							create_doc_result(result).move_to(return_value);
+							return_value = create_doc_result(result);
 							break;
 
 						case MYSQLX_RESULT_ROW:
-							create_row_result(result).move_to(return_value);
+							return_value = create_row_result(result);
 							break;
 
 						case MYSQLX_RESULT_SQL:
-							create_sql_stmt_result(result, object).move_to(return_value);;
+							return_value = create_sql_stmt_result(result, object);
 							break;
 
 						default:
 							assert(!"unknown result type!");
-							RETVAL_FALSE;
+							return_value = false;
 					}
 				} else {
 					RAISE_EXCEPTION_FETCH_FAIL();
@@ -826,20 +825,7 @@ mysqlx_statement_execute_read_response(const st_mysqlx_object* const mysqlx_obje
 			}
 
 	}
-	DBG_VOID_RETURN;
-}
-
-void execute_new_statement_read_response(
-	drv::xmysqlnd_stmt* stmt,
-	const zend_long flags,
-	const mysqlx_result_type result_type,
-	zval* return_value)
-{
-	util::zvalue stmt_obj = create_stmt(stmt);
-	//TODO WARNINGS
-	//zend_long flags{0};
-	mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, result_type, return_value);
-	//mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
+	DBG_RETURN(return_value);
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_statement, __construct)

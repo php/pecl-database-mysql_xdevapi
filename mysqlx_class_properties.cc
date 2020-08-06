@@ -79,7 +79,7 @@ mysqlx_property_get_value(util::raw_zval * object, util::raw_zval * member, int 
 	mysqlx_obj = Z_MYSQLX_P(object);
 
 	if (Z_TYPE_P(member) != IS_STRING) {
-		ZVAL_COPY(&tmp_member, member);
+		util::zvalue::copy_from_to(member, &tmp_member);
 		convert_to_string(&tmp_member);
 		member = &tmp_member;
 	}
@@ -119,7 +119,7 @@ mysqlx_property_set_value(util::raw_zval * object, util::raw_zval * member, util
 	DBG_ENTER("mysqlx_property_set_value");
 
 	if (Z_TYPE_P(member) != IS_STRING) {
-		ZVAL_COPY(&tmp_member, member);
+		util::zvalue::copy_from_to(member, &tmp_member);
 		convert_to_string(&tmp_member);
 		member = &tmp_member;
 	}

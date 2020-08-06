@@ -60,17 +60,15 @@ ZEND_END_ARG_INFO()
 
 //------------------------------------------------------------------------------
 
-enum_func_status
-execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
+util::zvalue
+execute_statement(xmysqlnd_stmt& stmt)
 {
 	util::zvalue stmt_obj = create_stmt(&stmt);
 	zend_long flags{0};
-	mysqlx_statement_execute_read_response(
+	return mysqlx_statement_execute_read_response(
 		Z_MYSQLX_P(stmt_obj.ptr()),
 		flags,
-		MYSQLX_RESULT,
-		resultset);
-	return PASS;
+		MYSQLX_RESULT);
 }
 
 enum class Add_op_status
@@ -152,8 +150,8 @@ bool Collection_add::add_docs(
 		if (!add_op) return false;
 	}
 
-	for (auto doc : documents) {
-		docs.push_back(util::zvalue::clone_from(&doc));
+	for (const auto& doc : documents) {
+		docs.push_back(doc);
 	}
 
 	return true;
@@ -162,10 +160,10 @@ bool Collection_add::add_docs(
 bool Collection_add::add_docs(
 	xmysqlnd_collection* coll,
 	const util::string_view& /*doc_id*/,
-	zval* doc)
+	const util::zvalue& doc)
 {
 	const int num_of_documents = 1;
-	util::raw_zvals docs{doc, num_of_documents};
+	util::raw_zvals docs{doc.ptr(), num_of_documents};
 	if (!add_docs(coll, docs)) return false;
 	return xmysqlnd_crud_collection_add__set_upsert(add_op) == PASS;
 }
@@ -181,7 +179,7 @@ Collection_add::~Collection_add()
 	}
 }
 
-void Collection_add::execute(zval* resultset)
+util::zvalue Collection_add::execute()
 {
 	DBG_ENTER("Collection_add::execute");
 
@@ -209,11 +207,12 @@ void Collection_add::execute(zval* resultset)
 		}
 	}
 
+	util::zvalue resultset;
 	enum_func_status execute_ret_status{PASS};
 	if ( docs.size() > noop_cnt ) {
 		xmysqlnd_stmt* stmt = collection->add(add_op);
 		if( nullptr != stmt ) {
-			execute_ret_status = execute_statement(*stmt, resultset);
+			resultset = execute_statement(*stmt);
 		} else {
 			execute_ret_status = FAIL;
 		}
@@ -221,7 +220,8 @@ void Collection_add::execute(zval* resultset)
 	if (FAIL == execute_ret_status && !EG(exception)) {
 		RAISE_EXCEPTION(err_msg_add_doc);
 	}
-	DBG_VOID_RETURN;
+
+	DBG_RETURN(resultset);
 }
 
 //------------------------------------------------------------------------------
@@ -245,7 +245,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 	}
 
 	Collection_add& coll_add = util::fetch_data_object<Collection_add>(object_zv);
-	coll_add.execute(return_value);
+	coll_add.execute().move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -271,7 +271,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 	 */
 	Collection_add& coll_add = util::fetch_data_object<Collection_add>(object_zv);
 	if (coll_add.add_docs(nullptr, docs)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -285,29 +285,6 @@ static const zend_function_entry mysqlx_collection__add_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-
-#if 0
-static zval *
-mysqlx_collection__add_property__name(const st_mysqlx_object* obj, zval* return_value)
-{
-	const Collection_add* object = (const Collection_add *) (obj->ptr);
-	DBG_ENTER("mysqlx_collection__add_property__name");
-	if (object->collection && !object->collection->get_name().empty()) {
-		ZVAL_STRINGL(return_value, object->collection->get_name().data(), object->collection->get_name().length());
-	} else {
-		/*
-		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
-		  and ISSET will say 'true' while for EG(unin) it is false.
-		  In short:
-		  return nullptr; -> isset()===false, value is nullptr
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
-		*/
-		return_value = nullptr;
-	}
-	DBG_RETURN(return_value);
-}
-
-#endif
 
 static zend_object_handlers collection_add_handlers;
 static HashTable collection_add_properties;

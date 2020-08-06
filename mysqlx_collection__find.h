@@ -57,18 +57,13 @@ public:
 
 	bool add_operation(
 		Operation op,
-		zval* sort_expressions,
-		int num_of_expr);
+		const util::raw_zvals& sort_expressions);
 
-	bool group_by(
-		zval* sort_expressions,
-		int num_of_expr);
+	bool group_by(const util::raw_zvals& sort_expressions);
 
 	bool having(const util::string_view& search_condition);
 
-	bool sort(
-		zval* sort_expressions,
-		int num_of_expr);
+	bool sort(const util::raw_zvals& sort_expressions);
 
 	bool limit(zend_long rows);
 
@@ -79,10 +74,8 @@ public:
 	bool lock_shared(int lock_waiting_option);
 	bool lock_exclusive(int lock_waiting_option);
 
-	void execute(zval* resultset);
-	void execute(
-		zend_long flags,
-		zval* resultset);
+	util::zvalue execute();
+	util::zvalue execute(zend_long flags);
 
 	Mysqlx::Crud::Find* get_stmt();
 
@@ -99,7 +92,7 @@ util::zvalue create_collection_find(
 void mysqlx_register_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_collection__find_class(SHUTDOWN_FUNC_ARGS);
 
-Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv);
+Mysqlx::Crud::Find* get_stmt_from_collection_find(util::raw_zval* object_zv);
 
 } // namespace devapi
 

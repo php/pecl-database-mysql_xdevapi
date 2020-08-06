@@ -389,8 +389,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 
 	util::zvalue bind_variables{{"id", id.to_view()}};
 	if (coll_find.bind(bind_variables)) {
-		coll_find.execute(return_value);
-		fetch_one_from_doc_result(return_value);
+		const util::zvalue resultset = coll_find.execute();
+		fetch_one_from_doc_result(resultset).move_to(return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -428,8 +428,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 
 	const util::string_view Doc_root_path("$");
 	util::zvalue doc_with_id(util::json::ensure_doc_id(doc, id.to_view()));
-	if (coll_modify.set(Doc_root_path, doc_with_id.ptr())) {
-		coll_modify.execute(return_value);
+	if (coll_modify.set(Doc_root_path, doc_with_id)) {
+		coll_modify.execute().move_to(return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -456,8 +456,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 
 	Collection_add coll_add;
 	util::zvalue doc_with_id(util::json::ensure_doc_id(doc, id.to_view()));
-	if (coll_add.add_docs(data_object.collection, id.to_view(), doc_with_id.ptr())) {
-		coll_add.execute(return_value);
+	if (coll_add.add_docs(data_object.collection, id.to_view(), doc_with_id)) {
+		coll_add.execute().move_to(return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -487,7 +487,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 
 	util::zvalue bind_variables{{"id", id.to_view()}};
 	if (coll_remove.bind(bind_variables)) {
-		coll_remove.execute(return_value);
+		coll_remove.execute().move_to(return_value);
 	}
 
 	DBG_VOID_RETURN;

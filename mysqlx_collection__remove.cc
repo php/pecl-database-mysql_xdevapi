@@ -92,18 +92,16 @@ Collection_remove::~Collection_remove()
 	}
 }
 
-bool Collection_remove::sort(
-	zval* sort_expressions,
-	int num_of_expr)
+bool Collection_remove::sort(const util::raw_zvals& sort_expressions)
 {
 	DBG_ENTER("Collection_remove::sort");
 
-	if (!sort_expressions) {
+	if (sort_expressions.empty()) {
 		DBG_RETURN(false);
 	}
 
-	for( int i{0}; i < num_of_expr ; ++i ) {
-		const util::zvalue sort_expr(sort_expressions[i]);
+	for (util::raw_zval raw_sort_expr : sort_expressions) {
+		const util::zvalue sort_expr(raw_sort_expr);
 		switch (sort_expr.type()) {
 		case util::zvalue::Type::String:
 			{
@@ -148,7 +146,7 @@ bool Collection_remove::limit(zend_long rows)
 		DBG_RETURN(false);
 	}
 
-	DBG_RETURN(PASS == xmysqlnd_crud_collection_remove__set_limit(remove_op, rows));
+	DBG_RETURN(PASS == xmysqlnd_crud_collection_remove__set_limit(remove_op, static_cast<std::size_t>(rows)));
 }
 
 bool Collection_remove::bind(const util::zvalue& bind_variables)
@@ -172,11 +170,12 @@ bool Collection_remove::bind(const util::zvalue& bind_variables)
 	DBG_RETURN(true);
 }
 
-void Collection_remove::execute(zval* resultset)
+util::zvalue Collection_remove::execute()
 {
 	DBG_ENTER("Collection_remove::execute");
 
 	DBG_INF_FMT("remove_op=%p collection=%p", remove_op, collection);
+	util::zvalue resultset;
 	if (remove_op && collection) {
 		if (FALSE == xmysqlnd_crud_collection_remove__is_initialized(remove_op)) {
 			const int errcode{10002};
@@ -188,13 +187,13 @@ void Collection_remove::execute(zval* resultset)
 			if (stmt) {
 				util::zvalue stmt_obj = create_stmt(stmt);
 				zend_long flags{0};
-				mysqlx_statement_execute_read_response(
-					Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, resultset);
+				resultset = mysqlx_statement_execute_read_response(
+					Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT);
 			}
 		}
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(resultset);
 }
 
 //------------------------------------------------------------------------------
@@ -210,20 +209,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, sort)
 	DBG_ENTER("mysqlx_collection__remove::sort");
 
 	util::raw_zval* object_zv{nullptr};
-	zval* sort_expressions{nullptr};
-	int num_of_expr{0};
+	util::raw_zvals sort_expressions;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_remove_class_entry,
-									&sort_expressions,
-									&num_of_expr))
+									&sort_expressions.data,
+									&sort_expressions.size))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
-	if (coll_remove.sort(sort_expressions, num_of_expr)) {
-		util::zvalue::copy_to(object_zv, return_value);
+	if (coll_remove.sort(sort_expressions)) {
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -249,7 +247,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 
 	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 	if (coll_remove.limit(rows)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -260,7 +258,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 	DBG_ENTER("mysqlx_collection__remove::bind");
 
 	util::raw_zval* object_zv{nullptr};
-	zval* bind_vars{nullptr};
+	util::raw_zval* bind_vars{nullptr};
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
 												&object_zv, collection_remove_class_entry,
 												&bind_vars))
@@ -271,7 +269,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 	util::zvalue bind_variables(bind_vars);
 	if (coll_remove.bind(bind_variables)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -289,7 +287,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 	}
 
 	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
-	coll_remove.execute(return_value);
+	coll_remove.execute().move_to(return_value);
 
 	DBG_VOID_RETURN;
 }

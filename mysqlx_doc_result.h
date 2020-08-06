@@ -40,7 +40,7 @@ util::zvalue create_doc_result(drv::st_xmysqlnd_stmt_result* result);
 void mysqlx_register_doc_result_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_doc_result_class(SHUTDOWN_FUNC_ARGS);
 
-void fetch_one_from_doc_result(zval* return_value);
+util::zvalue fetch_one_from_doc_result(const util::zvalue& resultset);
 
 } // namespace devapi
 

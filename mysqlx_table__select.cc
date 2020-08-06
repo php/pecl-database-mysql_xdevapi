@@ -126,7 +126,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 
 	if (!where_expr.empty()) {
 		if (PASS == xmysqlnd_crud_table_select__set_criteria(data_object.crud_op, where_expr.to_view())) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 }
@@ -181,11 +181,11 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 				const util::string_view sort_expr_str{ Z_STRVAL(sort_expr[i]), Z_STRLEN(sort_expr[i]) };
 				if (ADD_SORT == op_type) {
 					if (PASS == xmysqlnd_crud_table_select__add_orderby(data_object.crud_op, sort_expr_str)) {
-						ZVAL_COPY(return_value, object_zv);
+						util::zvalue::copy_from_to(object_zv, return_value);
 					}
 				} else if (ADD_GROUPING == op_type) {
 					if (PASS == xmysqlnd_crud_table_select__add_grouping(data_object.crud_op, sort_expr_str)) {
-						ZVAL_COPY(return_value, object_zv);
+						util::zvalue::copy_from_to(object_zv, return_value);
 					}
 				}
 				break;
@@ -212,7 +212,7 @@ mysqlx_table__select__add_sort_or_grouping(INTERNAL_FUNCTION_PARAMETERS, const u
 					}
 				} ZEND_HASH_FOREACH_END();
 				if( FAIL != ret ) {
-					ZVAL_COPY(return_value, object_zv);
+					util::zvalue::copy_from_to(object_zv, return_value);
 				}
 			}
 			break;
@@ -257,7 +257,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 
 	if (data_object.crud_op && data_object.table) {
 		if (PASS == xmysqlnd_crud_table_select__set_having(data_object.crud_op, search_condition.to_view())) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 
@@ -288,7 +288,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, limit)
 
 	if (data_object.crud_op && data_object.table) {
 		if (PASS == xmysqlnd_crud_table_select__set_limit(data_object.crud_op, rows)) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 
@@ -319,7 +319,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, offset)
 
 	if (data_object.crud_op && data_object.table) {
 		if (PASS == xmysqlnd_crud_table_select__set_offset(data_object.crud_op, position)) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 
@@ -355,7 +355,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
-		ZVAL_COPY(return_value, object_zv);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 	DBG_VOID_RETURN;
 }
@@ -381,7 +381,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockShared)
 	if ((xmysqlnd_crud_table_select__enable_lock_shared(crud_op) == PASS)
 		&& (xmysqlnd_crud_table_select_set_lock_waiting_option(crud_op, waiting_option) == PASS))
 	{
-		ZVAL_COPY(return_value, object_zv);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -408,7 +408,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, lockExclusive)
 	if ((xmysqlnd_crud_table_select__enable_lock_exclusive(crud_op) == PASS)
 		&& (xmysqlnd_crud_table_select_set_lock_waiting_option(crud_op, waiting_option) == PASS))
 	{
-		ZVAL_COPY(return_value, object_zv);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -436,7 +436,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 	xmysqlnd_stmt* stmt{ data_object.table->select(data_object.crud_op) };
 	if (stmt) {
 		util::zvalue stmt_obj = create_stmt(stmt);
-		mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT_ROW, return_value);
+		mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT_ROW).move_to(return_value);
 	}
 
 	DBG_VOID_RETURN;

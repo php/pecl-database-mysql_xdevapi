@@ -99,34 +99,37 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 	DBG_ENTER("mysqlx_table__update__2_param_op");
 
 	util::raw_zval* object_zv{nullptr};
-	zval* value{nullptr};
+	util::raw_zval* raw_value{nullptr};
 	util::param_string table_field;
 	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
 	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
 												&object_zv, mysqlx_table__update_class_entry,
 												&table_field.str, &table_field.len,
-												&value))
+												&raw_value))
 	{
 		DBG_VOID_RETURN;
 	}
-	switch (Z_TYPE_P(value)) {
-		case IS_OBJECT:
+
+
+	util::zvalue value(*raw_value);
+	switch (value.type()) {
+		case util::zvalue::Type::Object:
 			if (op_type == TWO_PARAM_OP__SET) {
-				if (is_a_mysqlx_expression(value)) {
+				if (is_expression_object(value)) {
 					/* get the string */
-					value = get_mysqlx_expression(value);
+					value = get_expression_object(value);
 					is_expression = TRUE;
 				}
 				break;
 			}
 			/* fall-through */
-		case IS_STRING:
-		case IS_DOUBLE:
-		case IS_TRUE:
-		case IS_FALSE:
-		case IS_LONG:
-		case IS_NULL:
+		case util::zvalue::Type::String:
+		case util::zvalue::Type::Double:
+		case util::zvalue::Type::True:
+		case util::zvalue::Type::False:
+		case util::zvalue::Type::Long:
+		case util::zvalue::Type::Null:
 			break;
 		default:{
 			RAISE_EXCEPTION(err_msg_invalid_type);
@@ -153,7 +156,7 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 		}
 
 		if (PASS == ret) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -183,7 +186,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 
 	if (!where_expr.empty()) {
 		if (PASS == xmysqlnd_crud_table_update__set_criteria(data_object.crud_op, where_expr.to_view())) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 
@@ -221,7 +224,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 				const util::string_view orderby_expr_str{ Z_STRVAL(orderby_expr[i]),
 												Z_STRLEN(orderby_expr[i]) };
 				if (PASS == xmysqlnd_crud_table_update__add_orderby(data_object.crud_op, orderby_expr_str)) {
-					ZVAL_COPY(return_value, object_zv);
+					util::zvalue::copy_from_to(object_zv, return_value);
 				}
 			}
 			break;
@@ -239,7 +242,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 						DBG_VOID_RETURN;
 					}
 				} ZEND_HASH_FOREACH_END();
-				ZVAL_COPY(return_value, object_zv);
+				util::zvalue::copy_from_to(object_zv, return_value);
 			}
 			break;
 		default:
@@ -274,7 +277,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 
 	if (data_object.crud_op) {
 		if (PASS == xmysqlnd_crud_table_update__set_limit(data_object.crud_op, rows)) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 
@@ -313,7 +316,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 			}
 		} ZEND_HASH_FOREACH_END();
 		if( op_success ) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -343,7 +346,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 			if (stmt) {
 				util::zvalue stmt_obj = create_stmt(stmt);
 				zend_long flags{0};
-				mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, return_value);
+				mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT).move_to(return_value);
 			}
 		}
 	}

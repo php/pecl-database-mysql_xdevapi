@@ -169,7 +169,7 @@ xmysqlnd_plugin__get_plugin_pfc_data(const XMYSQLND_PFC * object, unsigned int p
 	DBG_RETURN(reinterpret_cast<void**>(const_cast<XMYSQLND_PFC*>(object) + sizeof(XMYSQLND_PFC) + plugin_id * sizeof(void *)));
 }
 
-struct st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
+st_xmysqlnd_plugin__plugin_area_getters xmysqlnd_plugin_area_getters =
 {
 	xmysqlnd_plugin__get_session_plugin_area,
 	xmysqlnd_plugin__get_session_data_plugin_area,
@@ -295,7 +295,7 @@ _xmysqlnd_stmt_execution_state_set_methods(const MYSQLND_CLASS_METHODS_TYPE(xmys
 	MYSQLND_CLASS_METHODS_INSTANCE_NAME(xmysqlnd_stmt_execution_state) = methods;
 }
 
-PHP_MYSQL_XDEVAPI_API struct st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
+PHP_MYSQL_XDEVAPI_API st_xmysqlnd_plugin_methods_xetters xmysqlnd_plugin_methods_xetters =
 {
 	{
 		_xmysqlnd_object_factory_get_methods,

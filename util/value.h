@@ -24,6 +24,8 @@
 
 namespace mysqlx::util {
 
+class param_string;
+
 using raw_zval = zval;
 
 struct raw_zvals
@@ -82,6 +84,7 @@ class zvalue
 		zvalue(const string_view& value);
 		zvalue(const std::string& value);
 		zvalue(const char* value);
+		zvalue(const param_string& value);
 		zvalue(const char* value, std::size_t length);
 
 		zvalue(std::initializer_list<std::pair<const char*, zvalue>> values);
@@ -127,6 +130,7 @@ class zvalue
 		zvalue& operator=(const string_view& value);
 		zvalue& operator=(const std::string& value);
 		zvalue& operator=(const char* value);
+		zvalue& operator=(const param_string& value);
 
 		void assign(const char* value, std::size_t length);
 
@@ -158,6 +162,8 @@ class zvalue
 		bool is_array() const;
 		bool is_object() const;
 		bool is_reference() const;
+
+		bool is_instance_of(const zend_class_entry* class_entry) const;
 
 		// returns true if type is neither undefined nor null (i.e. type != Undefined && type != Null)
 		bool has_value() const;
@@ -219,6 +225,7 @@ class zvalue
 		zvalue clone() const;
 
 		static zvalue clone_from(const zval* src);
+		static zvalue clone_from(const zval& src);
 
 		// take over ownership of passed zval
 		void acquire(zval* zv);
@@ -228,13 +235,13 @@ class zvalue
 		void copy_to(zval* zv);
 		void copy_to(zval& zv);
 
-		static void copy_to(zval* src, zval* dst);
+		static void copy_from_to(zval* src, zval* dst);
 
 		// moves value to zv, and sets type to undefined
 		void move_to(zval* zv);
 		void move_to(zval& zv);
 
-		static void move_to(zval* src, zval* dst);
+		static void move_from_to(zval* src, zval* dst);
 
 		// increment / decrement reference counter if type is refcounted, else does nothing
 		void inc_ref() const;

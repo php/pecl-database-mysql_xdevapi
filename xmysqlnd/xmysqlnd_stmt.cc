@@ -429,7 +429,7 @@ xmysqlnd_stmt::get_buffered_result(xmysqlnd_stmt * const stmt,
 														 MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_STMT_RESULT* result{nullptr};
-	struct st_xmysqlnd_stmt_bind_ctx create_ctx =
+	st_xmysqlnd_stmt_bind_ctx create_ctx =
 	{
 		stmt,
 		stats,
@@ -621,7 +621,7 @@ xmysqlnd_stmt::get_fwd_result(xmysqlnd_stmt * const stmt,
 enum_func_status
 xmysqlnd_stmt::skip_one_result(xmysqlnd_stmt * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_xmysqlnd_stmt_bind_ctx create_ctx = { stmt, stats, error_info };
+	st_xmysqlnd_stmt_bind_ctx create_ctx = { stmt, stats, error_info };
 	const st_xmysqlnd_meta_field_create_bind create_meta_field = { nullptr, nullptr };
 	const st_xmysqlnd_on_row_field_bind on_row_field = { nullptr, nullptr };
 	const st_xmysqlnd_on_meta_field_bind on_meta_field = { nullptr, nullptr };

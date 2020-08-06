@@ -197,7 +197,7 @@ Data_object& fetch_data_object(raw_zval* from)
 }
 
 template<typename Data_object>
-Data_object& fetch_data_object(zvalue& from)
+Data_object& fetch_data_object(const zvalue& from)
 {
 	return fetch_data_object<Data_object>(from.ptr());
 }

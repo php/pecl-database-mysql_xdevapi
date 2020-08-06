@@ -64,7 +64,7 @@ public:
 	~xmysqlnd_schema();
 	void cleanup();
 
-	enum_func_status        exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+	enum_func_status        exists_in_database(st_xmysqlnd_session_on_error_bind on_error, zval* exists);
 	xmysqlnd_collection* create_collection_object(const util::string_view& collection_name);
 	xmysqlnd_collection* create_collection(
 		const util::string_view& collection_name,

@@ -63,7 +63,7 @@ enum_func_status xmysqlnd_crud_table_update__add_orderby(XMYSQLND_CRUD_TABLE_OP_
 //enum_func_status xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const util::string_view& path);
 enum_func_status xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 													  const util::string_view& path,
-													  const zval * const value,
+													  const util::zvalue& value,
 													  const zend_bool is_expression,
 													  const zend_bool is_document);
 enum_func_status xmysqlnd_crud_table_update__finalize_bind(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj);

@@ -36,11 +36,7 @@ static zend_class_entry * mysqlx_expression_class_entry;
 
 struct st_mysqlx_expression : public util::custom_allocable
 {
-	~st_mysqlx_expression()
-	{
-		zval_ptr_dtor(&expression);
-	}
-	zval expression;
+	util::zvalue expression;
 };
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_expression__construct, 0, ZEND_RETURN_VALUE, 1)
@@ -63,17 +59,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 		DBG_VOID_RETURN;
 	}
 
-	{
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(object_zv);
-		st_mysqlx_expression* object = (st_mysqlx_expression*) mysqlx_object->ptr;
-		if (!object) {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-			DBG_VOID_RETURN;
-		}
-		DBG_INF_FMT("expression=[%*s]", expression.length(), expression.data());
-		ZVAL_STRINGL(&object->expression, expression.data(), expression.length());
-	}
-
+	DBG_INF_FMT("expression=[%*s]", expression.length(), expression.data());
+	st_mysqlx_expression& data_object = util::fetch_data_object<st_mysqlx_expression>(object_zv);
+	data_object.expression = expression;
 
 	DBG_VOID_RETURN;
 }
@@ -156,33 +144,24 @@ create_expression(const util::string_view& expression)
 	util::zvalue expression_obj;
 	st_mysqlx_expression& data_object{
 		util::init_object<st_mysqlx_expression>(mysqlx_expression_class_entry, expression_obj) };
-	ZVAL_STRINGL(&data_object.expression, expression.data(), expression.length());
+	data_object.expression = expression;
 
 	DBG_RETURN(expression_obj);
 }
 
-zend_bool
-is_a_mysqlx_expression(const zval * const value)
+bool
+is_expression_object(const util::zvalue& value)
 {
-	return (instanceof_function(Z_OBJCE_P(value), mysqlx_expression_class_entry));
+	return value.is_instance_of(mysqlx_expression_class_entry);
 }
 
-zval*
-get_mysqlx_expression(const zval * const object_zv)
+util::zvalue
+get_expression_object(const util::zvalue& value)
 {
-	zval* ret{nullptr};
-	DBG_ENTER("get_mysqlx_expression");
-	if (instanceof_function(Z_OBJCE_P(object_zv), mysqlx_expression_class_entry)) {
-		const st_mysqlx_object* const mysqlx_object = Z_MYSQLX_P(object_zv);
-		st_mysqlx_expression* object = (st_mysqlx_expression*) mysqlx_object->ptr;
-		if (!object) {
-			php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
-		} else {
-			ret = &object->expression;
-		}
-
-	}
-	DBG_RETURN(ret);
+	DBG_ENTER("get_expression_object");
+	assert(is_expression_object(value));
+	st_mysqlx_expression& data_object = util::fetch_data_object<st_mysqlx_expression>(value);
+	DBG_RETURN(data_object.expression);
 }
 
 } // namespace devapi

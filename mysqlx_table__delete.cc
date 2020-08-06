@@ -105,7 +105,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 		} else {
 			const util::string_view where_expr_str{Z_STRVAL_P(where_expr), Z_STRLEN_P(where_expr)};
 			if (PASS == xmysqlnd_crud_table_delete__set_criteria(data_object.crud_op, where_expr_str)) {
-				ZVAL_COPY(return_value, object_zv);
+				util::zvalue::copy_from_to(object_zv, return_value);
 			}
 		}
 	}
@@ -144,7 +144,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 				const util::string_view orderby_expr_str{Z_STRVAL(orderby_expr[i]),
 													Z_STRLEN(orderby_expr[i])};
 				if (PASS == xmysqlnd_crud_table_delete__add_orderby(data_object.crud_op, orderby_expr_str)) {
-					ZVAL_COPY(return_value, object_zv);
+					util::zvalue::copy_from_to(object_zv, return_value);
 				}
 			}
 			break;
@@ -164,7 +164,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 						DBG_VOID_RETURN;
 					}
 				} ZEND_HASH_FOREACH_END();
-				ZVAL_COPY(return_value, object_zv);
+				util::zvalue::copy_from_to(object_zv, return_value);
 			}
 			break;
 		default:
@@ -198,7 +198,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 	auto& data_object{ util::fetch_data_object<st_mysqlx_table__delete>(object_zv) };
 	if (data_object.crud_op) {
 		if (PASS == xmysqlnd_crud_table_delete__set_limit(data_object.crud_op, rows)) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 
@@ -236,7 +236,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
-		ZVAL_COPY(return_value, object_zv);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 	DBG_VOID_RETURN;
 }
@@ -264,7 +264,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 			if (stmt) {
 				util::zvalue stmt_obj = create_stmt(stmt);
 				zend_long flags{0};
-				mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, return_value);
+				mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT).move_to(return_value);
 			}
 		}
 	}

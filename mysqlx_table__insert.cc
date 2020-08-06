@@ -103,7 +103,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 	}
 
 	if( op_failed == FALSE ) {
-		ZVAL_COPY(return_value, object_zv);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -133,7 +133,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 			if (stmt) {
 				util::zvalue stmt_obj = create_stmt(stmt);
 				zend_long flags{0};
-				mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, return_value);
+				mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT).move_to(return_value);
 			}
 		}
 	}

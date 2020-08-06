@@ -166,7 +166,7 @@ schema_sql_op_on_row(
 
 enum_func_status
 xmysqlnd_schema::exists_in_database(
-	struct st_xmysqlnd_session_on_error_bind on_error,
+	st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_schema::exists_in_database");
@@ -487,7 +487,7 @@ xmysqlnd_schema::get_db_objects(
 	enum_func_status ret;
 	constexpr util::string_view query("list_objects");
 
-	struct st_collection_get_objects_var_binder_ctx var_binder_ctx = {
+	st_collection_get_objects_var_binder_ctx var_binder_ctx = {
 		schema_name,
 		0
 	};

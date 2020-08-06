@@ -85,7 +85,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchOne)
 	if (FALSE == data_object.result->m.eof(result)) {
 		util::zvalue row;
 		if (PASS == data_object.result->m.fetch_current(result, row.ptr(), nullptr, nullptr)) {
-			xmysqlnd_utils_decode_doc_row(row.ptr(), return_value);
+			xmysqlnd_utils_decode_doc_row(row).move_to(return_value);
 			data_object.result->m.next(result, nullptr, nullptr);
 		}
 	}
@@ -108,7 +108,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 	if (data_object.result) {
 		util::zvalue set;
 		if (PASS == data_object.result->m.fetch_all(data_object.result, set.ptr(), nullptr, nullptr)) {
-			xmysqlnd_utils_decode_doc_rows(set.ptr(), return_value);
+			xmysqlnd_utils_decode_doc_rows(set).move_to(return_value);
 		}
 	}
 	util::zend::ensure_is_array(return_value);
@@ -250,32 +250,25 @@ create_doc_result(XMYSQLND_STMT_RESULT* result)
 	DBG_RETURN(new_doc_obj);
 }
 
-void fetch_one_from_doc_result(zval* return_value) {
+util::zvalue fetch_one_from_doc_result(const util::zvalue& resultset) {
 	DBG_ENTER("fetch_one_from_doc_result");
 
-	if (Z_TYPE_P(return_value) != IS_OBJECT) {
-		RETVAL_NULL();
-		DBG_VOID_RETURN;
-	}
+	assert(resultset.is_object());
 
-	st_mysqlx_doc_result& doc_result = util::fetch_data_object<st_mysqlx_doc_result>(return_value);
+	util::zvalue row;
 
+	st_mysqlx_doc_result& doc_result = util::fetch_data_object<st_mysqlx_doc_result>(resultset);
 	if (TRUE == doc_result.result->m.eof(doc_result.result)) {
-		RETVAL_NULL();
-		DBG_VOID_RETURN;
+		DBG_RETURN(row);
 	}
 
-	zval row;
-	ZVAL_UNDEF(&row);
-	if (PASS == doc_result.result->m.fetch_current(doc_result.result, &row, nullptr, nullptr)) {
-		xmysqlnd_utils_decode_doc_row(&row, return_value);
-		zval_ptr_dtor(&row);
+	util::zvalue encoded_row;
+	if (PASS == doc_result.result->m.fetch_current(doc_result.result, encoded_row.ptr(), nullptr, nullptr)) {
+		row = xmysqlnd_utils_decode_doc_row(encoded_row);
 		doc_result.result->m.next(doc_result.result, nullptr, nullptr);
-	} else {
-		RETVAL_NULL();
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(row);
 }
 
 } // namespace devapi

@@ -235,8 +235,8 @@ drv::Modify_value Collection_modify::prepare_value(
 
 	switch (value.type()) {
 		case util::zvalue::Type::Object:
-			if (is_a_mysqlx_expression(value.ptr())) {
-				value = get_mysqlx_expression(value.ptr());
+			if (is_expression_object(value)) {
+				value = get_expression_object(value);
 				is_expression = true;
 			} else {
 				value = util::json::encode_document(value);
@@ -274,7 +274,7 @@ drv::Modify_value Collection_modify::prepare_value(
 
 bool Collection_modify::set(
 	const util::string_view& path,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("Collection_modify::set");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__set(modify_op, prepare_value(path, value)));
@@ -367,11 +367,11 @@ bool Collection_modify::array_append(
 	DBG_RETURN(xmysqlnd_crud_collection_modify__array_append(modify_op, prepare_value(path, value)));
 }
 
-void Collection_modify::execute(zval* resultset)
+util::zvalue Collection_modify::execute()
 {
 	DBG_ENTER("Collection_modify::execute");
-
 	DBG_INF_FMT("modify_op=%p collection=%p", modify_op, collection);
+	util::zvalue resultset;
 	if (!xmysqlnd_crud_collection_modify__is_initialized(modify_op)) {
 		RAISE_EXCEPTION(err_msg_modify_fail);
 	} else {
@@ -379,12 +379,14 @@ void Collection_modify::execute(zval* resultset)
 		if (stmt) {
 			util::zvalue stmt_obj = create_stmt(stmt);
 			zend_long flags{0};
-			mysqlx_statement_execute_read_response(
-				Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT, resultset);
+			resultset = mysqlx_statement_execute_read_response(
+				Z_MYSQLX_P(stmt_obj.ptr()),
+				flags,
+				MYSQLX_RESULT);
 		}
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(resultset);
 }
 
 //------------------------------------------------------------------------------
@@ -414,7 +416,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.sort(sort_expressions, num_of_expr)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -436,7 +438,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.limit(rows)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -463,7 +465,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.skip(position)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -486,7 +488,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	util::zvalue bind_variables(bind_vars);
 	if (coll_modify.bind(bind_variables)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -511,7 +513,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, set)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.set(path.to_view(), value)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -536,7 +538,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.replace(path.to_view(), value)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -559,7 +561,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.patch(document_contents.to_view())) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -584,7 +586,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.array_insert(path.to_view(), value)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -609,7 +611,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.array_append(path.to_view(), value)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -635,7 +637,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
 	if (coll_modify.unset(variables, num_of_variables)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -654,7 +656,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	coll_modify.execute(return_value);
+	coll_modify.execute().move_to(return_value);
 
 	DBG_VOID_RETURN;
 }

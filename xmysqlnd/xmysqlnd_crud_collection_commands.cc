@@ -230,7 +230,7 @@ xmysqlnd_crud_collection_add__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__ADD * o
 struct st_xmysqlnd_pb_message_shell
 		xmysqlnd_crud_collection_add__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
 	return ret;
 }
 
@@ -303,7 +303,7 @@ xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOV
 }
 
 enum_func_status
-xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t limit)
+xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const std::size_t limit)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__set_limit");
 	obj->message.mutable_limit()->set_row_count(limit);
@@ -311,7 +311,7 @@ xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE *
 }
 
 enum_func_status
-xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t offset)
+xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const std::size_t offset)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__set_skip");
 	obj->message.mutable_limit()->set_offset(offset);
@@ -355,7 +355,7 @@ xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMO
 struct st_xmysqlnd_pb_message_shell
 		xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
 	return ret;
 }
 
@@ -850,7 +850,7 @@ xmysqlnd_crud_collection_find_set_lock_waiting_option(
 struct st_xmysqlnd_pb_message_shell
 		xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };
 	return ret;
 }
 
@@ -984,7 +984,7 @@ xmysqlnd_stmt_execute__is_initialized(XMYSQLND_STMT_OP__EXECUTE * obj)
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_SQL_STMT_EXECUTE };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_SQL_STMT_EXECUTE };
 	return ret;
 }
 

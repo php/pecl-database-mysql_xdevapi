@@ -54,7 +54,7 @@ public:
 
 	bool set(
 		const util::string_view& path,
-		zval* value);
+		const util::zvalue& value);
 	bool unset(
 		zval* variables,
 		int num_of_variables);
@@ -70,7 +70,7 @@ public:
 		const util::string_view& path,
 		zval* value);
 
-	void execute(zval* return_value);
+	util::zvalue execute();
 
 private:
 	drv::Modify_value prepare_value(

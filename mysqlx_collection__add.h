@@ -47,10 +47,10 @@ public:
 	bool add_docs(
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& single_doc_id,
-		zval* doc);
+		const util::zvalue& doc);
 
 public:
-	void execute(zval* resultset);
+	util::zvalue execute();
 
 private:
 	drv::xmysqlnd_collection* collection{nullptr};

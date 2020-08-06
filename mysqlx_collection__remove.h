@@ -46,12 +46,10 @@ public:
 		const util::string_view& search_expression);
 
 public:
-	bool sort(
-		zval* sort_expressions,
-		int num_of_expr);
+	bool sort(const util::raw_zvals& sort_expressions);
 	bool limit(zend_long rows);
 	bool bind(const util::zvalue& bind_variables);
-	void execute(zval* return_value);
+	util::zvalue execute();
 
 private:
 	drv::xmysqlnd_collection* collection{nullptr};

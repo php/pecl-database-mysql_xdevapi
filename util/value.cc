@@ -181,6 +181,11 @@ zvalue::zvalue(const char* value)
 {
 }
 
+zvalue::zvalue(const param_string& value)
+	: zvalue(value.c_str(), value.length())
+{
+}
+
 zvalue::zvalue(const char* value, std::size_t length)
 {
 	ZVAL_UNDEF(&zv);
@@ -342,6 +347,13 @@ zvalue& zvalue::operator=(const char* value)
 	return *this;
 }
 
+
+zvalue& zvalue::operator=(const param_string& value)
+{
+	assign(value.c_str(), value.length());
+	return *this;
+}
+
 void zvalue::assign(const char* value, std::size_t length)
 {
 	assert(value && length);
@@ -353,6 +365,13 @@ zvalue& zvalue::operator=(std::initializer_list<std::pair<const char*, zvalue>> 
 {
 	insert(values);
 	return *this;
+}
+
+// -----------------------------------------------------------------------------
+
+bool zvalue::is_instance_of(const zend_class_entry* class_entry) const
+{
+	return instanceof_function(Z_OBJCE(zv), class_entry);
 }
 
 // -----------------------------------------------------------------------------
@@ -548,6 +567,11 @@ zvalue zvalue::clone_from(const zval* src)
 	return result;
 }
 
+zvalue zvalue::clone_from(const zval& src)
+{
+	return clone_from(&src);
+}
+
 void zvalue::acquire(zval* src)
 {
 	assert(src);
@@ -562,7 +586,7 @@ void zvalue::copy_to(zval* dst)
 	ZVAL_ZVAL(dst, &zv, 1, 0);
 }
 
-void zvalue::copy_to(zval* src, zval* dst)
+void zvalue::copy_from_to(zval* src, zval* dst)
 {
 	assert(src && dst);
 	ZVAL_ZVAL(dst, src, 1, 0);
@@ -575,7 +599,7 @@ void zvalue::move_to(zval* dst)
 	ZVAL_UNDEF(&zv);
 }
 
-void zvalue::move_to(zval* src, zval* dst)
+void zvalue::move_from_to(zval* src, zval* dst)
 {
 	assert(src && dst);
 	ZVAL_ZVAL(dst, src, 1, 1);
