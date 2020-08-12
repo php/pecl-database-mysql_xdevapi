@@ -17,7 +17,8 @@
 */
 #include "php_api.h"
 #include "value.h"
-#include "util/exceptions.h"
+#include "arguments.h"
+#include "exceptions.h"
 
 /*
 	useful links:
@@ -372,6 +373,14 @@ zvalue& zvalue::operator=(std::initializer_list<std::pair<const char*, zvalue>> 
 bool zvalue::is_instance_of(const zend_class_entry* class_entry) const
 {
 	return instanceof_function(Z_OBJCE(zv), class_entry);
+}
+
+void zvalue::ensure_is_array(zval* zv)
+{
+	if (Z_TYPE_P(zv) == IS_ARRAY) return;
+
+	zval_ptr_dtor(zv);
+	array_init_size(zv, 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -791,45 +800,13 @@ bool zvalue::erase(const char* key, std::size_t key_length)
 
 // -----------------------------------------------------------------------------
 
-zvalue::iterator::iterator(HashTable* ht, HashPosition size, HashPosition pos)
-	: ht(ht)
-	, size(size)
-	, pos(pos)
-{
-}
-
-zvalue::iterator zvalue::iterator::operator++(int)
-{
-	iterator it(ht, size, pos);
-	++(*this);
-	return it;
-}
-
-zvalue::iterator& zvalue::iterator::operator++()
-{
-	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
-		pos = HT_INVALID_IDX;
-	}
-	return *this;
-}
-
-zvalue::iterator::value_type zvalue::iterator::operator*() const
+std::pair<zvalue, zvalue> zvalue::Getter_key_value::operator()(HashTable* ht, HashPosition pos) const
 {
 	zvalue key;
 	zend_hash_get_current_key_zval_ex(ht, key.ptr(), &pos);
 	assert(!key.is_null());
 	zvalue value(zend_hash_get_current_data_ex(ht, &pos));
 	return std::make_pair(key, value);
-}
-
-bool zvalue::iterator::operator==(const iterator& rhs) const
-{
-	return pos == rhs.pos;
-}
-
-bool zvalue::iterator::operator!=(const iterator& rhs) const
-{
-	return pos != rhs.pos;
 }
 
 // ---------------------
@@ -854,44 +831,12 @@ zvalue::iterator zvalue::end() const
 
 // -----------------------------------------------------------------------------
 
-zvalue::key_iterator::key_iterator(HashTable* ht, HashPosition size, HashPosition pos)
-	: ht(ht)
-	, size(size)
-	, pos(pos)
-{
-}
-
-zvalue::key_iterator zvalue::key_iterator::operator++(int)
-{
-	key_iterator it(ht, size, pos);
-	++(*this);
-	return it;
-}
-
-zvalue::key_iterator& zvalue::key_iterator::operator++()
-{
-	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
-		pos = HT_INVALID_IDX;
-	}
-	return *this;
-}
-
-zvalue::key_iterator::key_type zvalue::key_iterator::operator*() const
+zvalue zvalue::Getter_key::operator()(HashTable* ht, HashPosition pos) const
 {
 	zvalue key;
 	zend_hash_get_current_key_zval_ex(ht, key.ptr(), &pos);
 	assert(!key.is_null());
 	return key;
-}
-
-bool zvalue::key_iterator::operator==(const key_iterator& rhs) const
-{
-	return pos == rhs.pos;
-}
-
-bool zvalue::key_iterator::operator!=(const key_iterator& rhs) const
-{
-	return pos != rhs.pos;
 }
 
 // ---------------------
@@ -916,41 +861,9 @@ zvalue::key_iterator zvalue::kend() const
 
 // -----------------------------------------------------------------------------
 
-zvalue::value_iterator::value_iterator(HashTable* ht, HashPosition size, HashPosition pos)
-	: ht(ht)
-	, size(size)
-	, pos(pos)
-{
-}
-
-zvalue::value_iterator zvalue::value_iterator::operator++(int)
-{
-	value_iterator it(ht, size, pos);
-	++(*this);
-	return it;
-}
-
-zvalue::value_iterator& zvalue::value_iterator::operator++()
-{
-	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
-		pos = HT_INVALID_IDX;
-	}
-	return *this;
-}
-
-zvalue::value_iterator::value_type zvalue::value_iterator::operator*() const
+zvalue zvalue::Getter_value::operator()(HashTable* ht, HashPosition pos) const
 {
 	return zend_hash_get_current_data_ex(ht, &pos);
-}
-
-bool zvalue::value_iterator::operator==(const value_iterator& rhs) const
-{
-	return pos == rhs.pos;
-}
-
-bool zvalue::value_iterator::operator!=(const value_iterator& rhs) const
-{
-	return pos != rhs.pos;
 }
 
 // ---------------------

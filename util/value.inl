@@ -827,6 +827,51 @@ inline bool zvalue::erase(const char* key)
 
 // -----------------------------------------------------------------------------
 
+template<typename Value_type, typename Getter>
+zvalue::generic_iterator<Value_type, Getter>::generic_iterator(HashTable* ht, HashPosition size, HashPosition pos)
+	: ht(ht)
+	, size(size)
+	, pos(pos)
+{
+}
+
+template<typename Value_type, typename Getter>
+zvalue::generic_iterator<Value_type, Getter> zvalue::generic_iterator<Value_type, Getter>::operator++(int)
+{
+	generic_iterator it(ht, size, pos);
+	++(*this);
+	return it;
+}
+
+template<typename Value_type, typename Getter>
+zvalue::generic_iterator<Value_type, Getter>& zvalue::generic_iterator<Value_type, Getter>::operator++()
+{
+	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
+		pos = HT_INVALID_IDX;
+	}
+	return *this;
+}
+
+template<typename Value_type, typename Getter>
+Value_type zvalue::generic_iterator<Value_type, Getter>::operator*() const
+{
+	return Getter()(ht, pos);
+}
+
+template<typename Value_type, typename Getter>
+bool zvalue::generic_iterator<Value_type, Getter>::operator==(const generic_iterator& rhs) const
+{
+	return pos == rhs.pos;
+}
+
+template<typename Value_type, typename Getter>
+bool zvalue::generic_iterator<Value_type, Getter>::operator!=(const generic_iterator& rhs) const
+{
+	return pos != rhs.pos;
+}
+
+// -----------------------------------------------------------------------------
+
 inline zvalue::keys_range::keys_range(const zvalue& ref) : ref(ref)
 {
 }
@@ -887,30 +932,6 @@ inline const zval* zvalue::c_ptr() const
 inline zval* zvalue::ptr() const
 {
 	return const_cast<zval*>(&zv);
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-inline raw_zvals::raw_zvals(raw_zval* data, int size)
-	: data(data)
-	, size(size)
-{
-}
-
-inline bool raw_zvals::empty() const
-{
-	return !data || !size;
-}
-
-inline raw_zval* raw_zvals::begin() const
-{
-	return data;
-}
-
-inline raw_zval* raw_zvals::end() const
-{
-	return data + size;
 }
 
 } // namespace mysqlx::util

@@ -26,21 +26,6 @@ namespace mysqlx::util {
 
 class param_string;
 
-using raw_zval = zval;
-
-struct raw_zvals
-{
-	raw_zvals() = default;
-	raw_zvals(raw_zval* data, int size);
-
-	bool empty() const;
-	raw_zval* begin() const;
-	raw_zval* end() const;
-
-	raw_zval* data = nullptr;
-	int size = 0;
-};
-
 class zvalue
 {
 	public:
@@ -167,6 +152,9 @@ class zvalue
 
 		// returns true if type is neither undefined nor null (i.e. type != Undefined && type != Null)
 		bool has_value() const;
+
+		// if type of zv is other than array then dispose it, and assign empty array
+		static void ensure_is_array(zval* zv);
 
 	public:
 		// call below methods only if U are fully sure they have proper type (or it may crash)
@@ -379,63 +367,53 @@ class zvalue
 		bool erase(const char* key, std::size_t key_length);
 
 	public:
-		// to iterate through array items as pair<key, value>
-		class iterator
+		template<typename Value_type, typename Getter>
+		class generic_iterator
 		{
 			public:
-				using value_type = std::pair<zvalue, zvalue>;
+				using value_type = Value_type;
 				using difference_type = std::ptrdiff_t;
 				using pointer = value_type*;
 				using reference = value_type&;
 				using iterator_category = std::forward_iterator_tag;
 
 			public:
-				explicit iterator(HashTable* ht, HashPosition size, HashPosition pos);
+				explicit generic_iterator(HashTable* ht, HashPosition size, HashPosition pos);
 
-				iterator operator++(int);
-				iterator& operator++();
+				generic_iterator operator++(int);
+				generic_iterator& operator++();
 
 				value_type operator*() const;
 
-				bool operator==(const iterator& rhs) const;
-				bool operator!=(const iterator& rhs) const;
+				bool operator==(const generic_iterator& rhs) const;
+				bool operator!=(const generic_iterator& rhs) const;
 
 			private:
 				HashTable* ht;
 				HashPosition size;
 				mutable HashPosition pos;
 		};
+
+	public:
+		// to iterate through array items as pair<key, value>
+		struct Getter_key_value
+		{
+			std::pair<zvalue, zvalue> operator()(HashTable* ht, HashPosition pos) const;
+		};
+
+		using iterator = generic_iterator<std::pair<zvalue, zvalue>, Getter_key_value>;
 
 		iterator begin() const;
 		iterator end() const;
 
 	public:
 		// to iterate through array items as keys (values are not returned)
-		class key_iterator
+		struct Getter_key
 		{
-			public:
-				using key_type = zvalue;
-				using difference_type = std::ptrdiff_t;
-				using pointer = key_type*;
-				using reference = key_type&;
-				using iterator_category = std::forward_iterator_tag;
-
-			public:
-				explicit key_iterator(HashTable* ht, HashPosition size, HashPosition pos);
-
-				key_iterator operator++(int);
-				key_iterator& operator++();
-
-				key_type operator*() const;
-
-				bool operator==(const key_iterator& rhs) const;
-				bool operator!=(const key_iterator& rhs) const;
-
-			private:
-				HashTable* ht;
-				HashPosition size;
-				mutable HashPosition pos;
+			zvalue operator()(HashTable* ht, HashPosition pos) const;
 		};
+
+		using key_iterator = generic_iterator<zvalue, Getter_key>;
 
 		key_iterator kbegin() const;
 		key_iterator kend() const;
@@ -451,32 +429,13 @@ class zvalue
 		keys_range keys() const;
 
 	public:
-		// to iterate through array items as zvalues (keys are not returned)
-		class value_iterator
+		// to iterate through array items as values (keys are not returned)
+		struct Getter_value
 		{
-			public:
-				using value_type = zvalue;
-				using difference_type = std::ptrdiff_t;
-				using pointer = value_type*;
-				using reference = value_type&;
-				using iterator_category = std::forward_iterator_tag;
-
-			public:
-				explicit value_iterator(HashTable* ht, HashPosition size, HashPosition pos);
-
-				value_iterator operator++(int);
-				value_iterator& operator++();
-
-				value_type operator*() const;
-
-				bool operator==(const value_iterator& rhs) const;
-				bool operator!=(const value_iterator& rhs) const;
-
-			private:
-				HashTable* ht;
-				HashPosition size;
-				mutable HashPosition pos;
+			zvalue operator()(HashTable* ht, HashPosition pos) const;
 		};
+
+		using value_iterator = generic_iterator<zvalue, Getter_value>;
 
 		value_iterator vbegin() const;
 		value_iterator vend() const;
