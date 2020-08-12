@@ -15,24 +15,41 @@
   | Authors: Darek Slusarczyk <marines@php.net>                          |
   +----------------------------------------------------------------------+
 */
-#ifndef MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
-#define MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
+#include "arguments.h"
 
-#include <utility>
+namespace mysqlx::util {
 
-namespace mysqlx::util::zend {
+arg_zvals::iterator::iterator(const raw_zval* data)
+	: it(data)
+{
+}
 
-void ensure_is_array(zval* zv);
+arg_zvals::iterator arg_zvals::iterator::operator++(int)
+{
+	iterator iter(it);
+	++it;
+	return iter;
+}
 
-void free_error_info_list(
-	MYSQLND_ERROR_INFO* error_info,
-	zend_bool persistent);
+arg_zvals::iterator& arg_zvals::iterator::operator++()
+{
+	++it;
+	return *this;
+}
 
-// ----------------
+arg_zvals::iterator::value_type arg_zvals::iterator::operator*() const
+{
+	return *it;
+}
 
-bool is_module_loaded(const char* module_name);
-bool is_openssl_loaded();
+bool arg_zvals::iterator::operator==(const iterator& rhs) const
+{
+	return it == rhs.it;
+}
 
-} // namespace mysqlx::util::zend
+bool arg_zvals::iterator::operator!=(const iterator& rhs) const
+{
+	return it != rhs.it;
+}
 
-#endif // MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
+} // namespace mysqlx::util

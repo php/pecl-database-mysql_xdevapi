@@ -341,21 +341,4 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 		##__VA_ARGS__); \
 }
 
-#define	MYSQL_XDEVAPI_PHP_METHOD(class_name, name) \
-static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
-static PHP_METHOD(class_name, name) \
-{ \
-	util::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
-} \
-static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
-
-
-#define	MYSQL_XDEVAPI_PHP_FUNCTION(name) \
-static void function_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
-PHP_FUNCTION(name) \
-{ \
-	util::safe_call_php_function(function_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
-} \
-static void function_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
-
 #endif // MYSQL_XDEVAPI_PHP_OBJECT_H

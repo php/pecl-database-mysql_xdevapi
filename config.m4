@@ -240,7 +240,9 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 
 	mysqlx_util=" \
 		util/allocator.cc \
+		util/arguments.cc \
 		util/exceptions.cc \
+		util/functions.cc \
 		util/json_utils.cc \
 		util/object.cc \
 		util/pb_utils.cc \
