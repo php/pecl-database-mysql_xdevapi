@@ -34,8 +34,8 @@
 #include "mysqlx_sql_statement.h"
 #include "mysqlx_table__update.h"
 #include "util/allocator.h"
+#include "util/functions.h"
 #include "util/object.h"
-#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -103,7 +103,7 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 	util::param_string table_field;
 	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Osz",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Osz",
 												&object_zv, mysqlx_table__update_class_entry,
 												&table_field.str, &table_field.len,
 												&raw_value))
@@ -173,7 +173,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string where_expr;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__update_class_entry,
 												&where_expr.str, &where_expr.len))
 	{
@@ -200,7 +200,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, orderby)
 	util::raw_zval* object_zv{nullptr};
 	zval* orderby_expr{nullptr};
 	int num_of_expr{0};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 												&object_zv,
 												mysqlx_table__update_class_entry,
 												&orderby_expr,
@@ -259,7 +259,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, limit)
 
 	util::raw_zval* object_zv{nullptr};
 	zend_long rows;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 												&object_zv, mysqlx_table__update_class_entry,
 												&rows))
 	{
@@ -290,7 +290,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, bind)
 
 	util::raw_zval* object_zv{nullptr};
 	HashTable * bind_variables;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oh",
 												&object_zv, mysqlx_table__update_class_entry,
 												&bind_variables))
 	{
@@ -327,7 +327,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 	DBG_ENTER("mysqlx_table__update::execute");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__update_class_entry))
 	{
 		DBG_VOID_RETURN;

@@ -34,9 +34,10 @@
 #include "mysqlx_doc_result.h"
 #include "mysqlx_base_result.h"
 #include "util/allocator.h"
+#include "util/arguments.h"
+#include "util/functions.h"
 #include "util/object.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -72,7 +73,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchOne)
 {
 	DBG_ENTER("mysqlx_doc_result::fetchOne");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -98,7 +99,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 	DBG_ENTER("mysqlx_doc_result::fetchAll");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -111,7 +112,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, fetchAll)
 			xmysqlnd_utils_decode_doc_rows(set).move_to(return_value);
 		}
 	}
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -120,7 +121,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarningsCount)
 {
 	DBG_ENTER("mysqlx_doc_result::getWarningsCount");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -148,7 +149,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 {
 	DBG_ENTER("mysqlx_doc_result::getWarnings");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_doc_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -172,7 +173,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_doc_result, getWarnings)
 		}
 	}
 
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }

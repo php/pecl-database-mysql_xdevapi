@@ -24,7 +24,10 @@ namespace Mysqlx { namespace Crud { class Find; } }
 
 namespace mysqlx {
 
-namespace util { class zvalue; }
+namespace util {
+	class zvalue;
+	struct arg_zvals;
+}
 
 namespace drv {
 
@@ -57,13 +60,13 @@ public:
 
 	bool add_operation(
 		Operation op,
-		const util::raw_zvals& sort_expressions);
+		const util::arg_zvals& sort_expressions);
 
-	bool group_by(const util::raw_zvals& sort_expressions);
+	bool group_by(const util::arg_zvals& sort_expressions);
 
 	bool having(const util::string_view& search_condition);
 
-	bool sort(const util::raw_zvals& sort_expressions);
+	bool sort(const util::arg_zvals& sort_expressions);
 
 	bool limit(zend_long rows);
 

@@ -37,7 +37,7 @@
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
 #include "util/object.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 #include <limits>
 
 namespace mysqlx {
@@ -258,7 +258,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 {
 	DBG_ENTER("get_column_meta_field");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 								&object_zv,
 								mysqlx_column_result_class_entry))
 	{

@@ -28,7 +28,7 @@ void verify_call_parameters(
 	const char* type_spec);
 
 template<typename ...Args>
-int extract_method_arguments(
+int get_method_arguments(
 	zend_execute_data* execute_data,
 	zval* this_ptr,
 	const char* type_spec,
@@ -45,7 +45,7 @@ int extract_method_arguments(
 }
 
 template<typename ...Args>
-int extract_function_arguments(
+int get_function_arguments(
 	zend_execute_data* execute_data,
 	const char* type_spec,
 	Args&&... args)

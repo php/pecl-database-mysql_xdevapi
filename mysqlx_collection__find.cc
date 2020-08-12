@@ -39,9 +39,10 @@
 #include "mysqlx_collection__find.h"
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
+#include "util/arguments.h"
+#include "util/functions.h"
 #include "util/object.h"
 #include "util/value.h"
-#include "util/zend_utils.h"
 #include "xmysqlnd/xmysqlnd_utils.h"
 #include "xmysqlnd/crud_parsers/mysqlx_crud_parser.h"
 
@@ -184,12 +185,11 @@ bool Collection_find::fields(util::zvalue& fields)
 
 bool Collection_find::add_operation(
 	Collection_find::Operation operation,
-	const util::raw_zvals& sort_expressions)
+	const util::arg_zvals& sort_expressions)
 {
 	DBG_ENTER("Collection_find::add_operation");
 
-	for (const util::raw_zval* raw_sort_expr : sort_expressions) {
-		const util::zvalue sort_expr(raw_sort_expr);
+	for (auto sort_expr : sort_expressions) {
 		switch(sort_expr.type()) {
 		case util::zvalue::Type::String:
 		case util::zvalue::Type::Object:
@@ -200,13 +200,12 @@ bool Collection_find::add_operation(
 				nullptr,
 				E_WARNING,
 				"Only strings, objects and arrays can be added. Type is %u",
-				sort_expr_type);
+				static_cast<unsigned int>(sort_expr.type()));
 			DBG_RETURN(false);
 		}
 	}
 
-	for( int i{0}; i < num_of_expr ; ++i ) {
-		const util::zvalue sort_expr(sort_expressions[i]);
+	for (auto sort_expr : sort_expressions) {
 		switch (sort_expr.type()) {
 		case util::zvalue::Type::String:
 			{
@@ -252,13 +251,13 @@ bool Collection_find::add_operation(
 	DBG_RETURN(true);
 }
 
-bool Collection_find::sort(const util::raw_zvals& sort_expressions)
+bool Collection_find::sort(const util::arg_zvals& sort_expressions)
 {
 	DBG_ENTER("mysqlx_collection__find::sort");
 	DBG_RETURN(add_operation(Operation::Sort, sort_expressions));
 }
 
-bool Collection_find::group_by(const util::raw_zvals& sort_expressions)
+bool Collection_find::group_by(const util::arg_zvals& sort_expressions)
 {
 	DBG_ENTER("mysqlx_collection__find::group_by");
 	DBG_RETURN(add_operation(Operation::Group_by, sort_expressions));
@@ -379,7 +378,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, fields)
 	util::raw_zval* object_zv{nullptr};
 	util::raw_zval* raw_fields{nullptr};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
 												&raw_fields))
 	{
@@ -403,13 +402,13 @@ mysqlx_collection__find__add_sort_or_grouping(
 	DBG_ENTER("mysqlx_collection__find__add_sort_or_grouping");
 
 	util::raw_zval* object_zv{nullptr};
-	util::raw_zvals sort_expressions;
+	util::arg_zvals sort_expressions;
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_find_class_entry,
 									&sort_expressions.data,
-									&sort_expressions.size))
+									&sort_expressions.counter))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -447,7 +446,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 	util::raw_zval* object_zv{nullptr};
 	util::param_string search_condition;
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, collection_find_class_entry,
 												&(search_condition.str), &(search_condition.len)))
 	{
@@ -469,7 +468,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, limit)
 	util::raw_zval* object_zv{nullptr};
 	zend_long rows{0};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 												&object_zv, collection_find_class_entry,
 												&rows))
 	{
@@ -491,7 +490,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, offset)
 	util::raw_zval* object_zv{nullptr};
 	zend_long position{0};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 												&object_zv, collection_find_class_entry,
 												&position))
 	{
@@ -518,7 +517,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, bind)
 	util::raw_zval* object_zv{nullptr};
 	util::raw_zval* bind_vars{nullptr};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oz",
 												&object_zv, collection_find_class_entry,
 												&bind_vars))
 	{
@@ -540,7 +539,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockShared)
 
 	util::raw_zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O|l",
 		&object_zv, collection_find_class_entry,
 		&lock_waiting_option))
 	{
@@ -561,7 +560,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, lockExclusive)
 
 	util::raw_zval* object_zv{nullptr};
 	zend_long lock_waiting_option{MYSQLX_LOCK_DEFAULT};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O|l",
 		&object_zv, collection_find_class_entry,
 		&lock_waiting_option))
 	{
@@ -583,7 +582,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, execute)
 	util::raw_zval* object_zv{nullptr};
 	zend_long flags{MYSQLX_EXECUTE_FLAG_BUFFERED};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O|l",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O|l",
 												&object_zv, collection_find_class_entry,
 												&flags))
 	{

@@ -23,8 +23,9 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_expression.h"
 #include "util/allocator.h"
+#include "util/arguments.h"
+#include "util/functions.h"
 #include "util/object.h"
-#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -52,7 +53,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 
 	DBG_ENTER("mysqlx_expression::__construct");
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_expression_class_entry,
 												&(expression.str), &(expression.len)))
 	{
@@ -77,7 +78,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 	util::param_string expression;
 
 	DBG_ENTER("mysql_xdevapi__Expression");
-	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s",
+	if (FAILURE == util::get_function_arguments(execute_data, "s",
 										 &expression.str, &expression.len))
 	{
 		DBG_VOID_RETURN;

@@ -38,7 +38,7 @@
 #include "util/allocator.h"
 #include "util/object.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 
 namespace mysqlx {
 
@@ -159,7 +159,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, hasData)
 {
 	DBG_ENTER("mysqlx_sql_statement_result::hasData");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -175,7 +175,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, fetchOne)
 {
 	DBG_ENTER("mysqlx_sql_statement_result::fetchOne");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -198,7 +198,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, fetchAll)
 	DBG_ENTER("mysqlx_sql_statement_result::fetchAll");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -208,7 +208,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, fetchAll)
 	if (data_object.result) {
 		data_object.result->m.fetch_all(data_object.result, return_value, nullptr, nullptr);
 	}
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -217,7 +217,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getAffectedItemsCount)
 {
 	DBG_ENTER("mysqlx_sql_statement_result::getAffectedItemsCount");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -244,7 +244,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getLastInsertId)
 {
 	DBG_ENTER("mysqlx_sql_statement_result::getLastInsertId");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -273,7 +273,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getGeneratedIds)
 {
 	DBG_ENTER("mysqlx_sql_statement_result::getGeneratedIds");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -299,7 +299,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarningsCount)
 {
 	DBG_ENTER("mysqlx_sql_statement_result::getWarningsCount");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -326,7 +326,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarnings)
 {
 	DBG_ENTER("mysqlx_sql_statement_result::getWarnings");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -348,7 +348,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getWarnings)
 		}
 	}
 
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -380,7 +380,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnsCount)
 	DBG_ENTER("mysqlx_sql_statement_result::getColumnsCount");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -408,7 +408,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumns)
 	DBG_ENTER("mysqlx_sql_statement_result::getColumns");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -428,7 +428,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumns)
 		}
 	}
 
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -438,7 +438,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnNames)
 	DBG_ENTER("mysqlx_sql_statement_result::getColumns");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -463,7 +463,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getColumnNames)
 		}
 	}
 
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -472,7 +472,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, nextResult)
 {
 	DBG_ENTER("mysqlx_sql_statement_result::nextResult");
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_sql_statement_result_class_entry))
 	{
 		DBG_VOID_RETURN;

@@ -21,6 +21,7 @@
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
+#include "util/functions.h"
 #include "util/object.h"
 
 namespace mysqlx {

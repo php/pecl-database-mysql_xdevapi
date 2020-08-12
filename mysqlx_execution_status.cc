@@ -23,6 +23,7 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
 #include "util/allocator.h"
+#include "util/functions.h"
 #include "util/object.h"
 
 namespace mysqlx {

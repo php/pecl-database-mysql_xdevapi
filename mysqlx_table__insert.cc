@@ -31,7 +31,7 @@
 #include "mysqlx_table__insert.h"
 #include "util/allocator.h"
 #include "util/object.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 
 namespace mysqlx {
 
@@ -77,7 +77,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, values)
 	zval* values{nullptr};
 	zend_bool op_failed{FALSE};
 	int num_of_values{0};
-	if (FAILURE == util::zend::parse_method_parameters(
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "O+",
 		&object_zv,
 		mysqlx_table__insert_class_entry,
@@ -114,7 +114,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 	DBG_ENTER("mysqlx_table__insert::execute");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__insert_class_entry))
 	{
 		DBG_VOID_RETURN;

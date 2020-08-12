@@ -25,7 +25,7 @@ namespace mysqlx::util {
 
 /*
 	it is meant to work with PHP methods as wrapper for string params coming
-	from util::extract_method_arguments
+	from util::get_method_arguments
 	in general it keeps pointer/len of string parameter, has some helper routines, and its contents
 	INVALIDATES when called from MYSQL_XDEVAPI_PHP_METHOD ends
 
@@ -34,7 +34,7 @@ namespace mysqlx::util {
 	0)
 	util::param_string index_name;
 	[...]
-	if (FAILURE == util::extract_method_arguments(
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os+",
 		&object_zv, table_create_class_entry,
 		&index_name.str, &index_name.len))

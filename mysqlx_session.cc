@@ -35,7 +35,7 @@ extern "C" {
 #include "mysqlx_sql_statement.h"
 #include "util/object.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 
 namespace mysqlx {
 
@@ -143,7 +143,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getServerVersion)
 	DBG_ENTER("mysqlx_session::getServerVersion");
 
 	util::raw_zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -163,7 +163,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, generateUUID)
 	DBG_ENTER("mysqlx_session::generateUUID");
 
 	util::raw_zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 	RETVAL_FALSE;
@@ -234,7 +234,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchemas)
 	DBG_ENTER("mysqlx_session::getSchemas");
 
 	util::raw_zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -271,7 +271,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getDefaultSchema)
 	RETVAL_NULL();
 
 	util::raw_zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(
+	if (util::get_method_arguments(
 		execute_data,
 		getThis(),
 		"O", &object_zv,
@@ -301,7 +301,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string schema_name;
-	if (util::zend::parse_method_parameters(execute_data,
+	if (util::get_method_arguments(execute_data,
 									 getThis(),
 									 "Os", &object_zv,
 									 mysqlx_session_class_entry,
@@ -363,7 +363,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 	XMYSQLND_SESSION session;
 	util::param_string query;
 
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
+	if (util::get_method_arguments(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &query.str, &query.len) == FAILURE)
 	{
 		DBG_VOID_RETURN;
@@ -396,7 +396,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string name;
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
+	if (util::get_method_arguments(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &(name.str), &(name.len)) == FAILURE)
 	{
 		DBG_VOID_RETURN;
@@ -420,7 +420,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string schema_name;
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
+	if (util::get_method_arguments(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &schema_name.str, &schema_name.len) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
@@ -450,7 +450,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string schema_name;
-	if (util::zend::parse_method_parameters(
+	if (util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
 		&(schema_name.str), &(schema_name.len)) == FAILURE) {
@@ -481,7 +481,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, startTransaction)
 	constexpr util::string_view query{"START TRANSACTION"};
 	zval* args{nullptr};
 	int argc{0};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
@@ -504,7 +504,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, commit)
 	constexpr util::string_view query{"COMMIT"};
 	zval* args{nullptr};
 	int argc{0};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
@@ -527,7 +527,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollback)
 	constexpr util::string_view query{"ROLLBACK"};
 	zval* args{nullptr};
 	int argc{0};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE)
 	{
 		DBG_VOID_RETURN;
 	}
@@ -557,7 +557,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, setSavepoint)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string savepoint_name;
-	if (util::zend::parse_method_parameters(
+	if (util::get_method_arguments(
 		execute_data, getThis(), "O|s",
 		&object_zv, mysqlx_session_class_entry,
 		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
@@ -599,7 +599,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollbackTo)
 
 	zval* object_zv{ nullptr };
 	util::param_string savepoint_name;
-	if (util::zend::parse_method_parameters(
+	if (util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
 		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
@@ -632,7 +632,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, releaseSavepoint)
 
 	zval* object_zv{ nullptr };
 	util::param_string savepoint_name;
-	if (util::zend::parse_method_parameters(
+	if (util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
 		&(savepoint_name.str), &(savepoint_name.len)) == FAILURE) {
@@ -664,7 +664,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, close)
 	DBG_ENTER("mysqlx_session::close");
 
 	util::raw_zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_session_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
@@ -779,7 +779,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getSession)
 	RETVAL_NULL();
 
 	DBG_ENTER("mysql_xdevapi_getSession");
-	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s",
+	if (FAILURE == util::get_function_arguments(execute_data, "s",
 										 &(uri_string.str), &(uri_string.len)))
 	{
 		DBG_VOID_RETURN;

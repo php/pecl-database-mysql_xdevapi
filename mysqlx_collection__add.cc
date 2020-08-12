@@ -34,11 +34,12 @@
 #include "mysqlx_collection__add.h"
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
+#include "util/arguments.h"
+#include "util/functions.h"
 #include "util/json_utils.h"
 #include "util/object.h"
 #include "util/strings.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -123,20 +124,22 @@ collection_add_array(
 
 bool Collection_add::add_docs(
 	xmysqlnd_collection* coll,
-	const util::raw_zvals& documents)
+	const util::arg_zvals& documents)
 {
 	if (documents.empty()) return false;
 
 	for (const auto& doc : documents) {
-		auto doc_type{ Z_TYPE(doc) };
-		if (doc_type != IS_STRING &&
-			doc_type != IS_OBJECT &&
-			doc_type != IS_ARRAY) {
+		switch (doc.type()) {
+		case util::zvalue::Type::String:
+		case util::zvalue::Type::Object:
+		case util::zvalue::Type::Array:
+			break;
+		default:
 			php_error_docref(
 				nullptr,
 				E_WARNING,
 				"Only strings, objects and arrays can be added. Type is %u",
-				doc_type);
+				static_cast<unsigned int>(doc.type()));
 			return false;
 		}
 	}
@@ -150,7 +153,7 @@ bool Collection_add::add_docs(
 		if (!add_op) return false;
 	}
 
-	for (const auto& doc : documents) {
+	for (auto doc : documents) {
 		docs.push_back(doc);
 	}
 
@@ -163,7 +166,7 @@ bool Collection_add::add_docs(
 	const util::zvalue& doc)
 {
 	const int num_of_documents = 1;
-	util::raw_zvals docs{doc.ptr(), num_of_documents};
+	util::arg_zvals docs{doc.ptr(), num_of_documents};
 	if (!add_docs(coll, docs)) return false;
 	return xmysqlnd_crud_collection_add__set_upsert(add_op) == PASS;
 }
@@ -237,7 +240,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 	DBG_ENTER("mysqlx_collection__add::execute");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv,
 												collection_add_class_entry))
 	{
@@ -253,15 +256,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 {
 	util::raw_zval* object_zv{nullptr};
-	util::raw_zvals docs;
+	util::arg_zvals docs;
 
 	DBG_ENTER("mysqlx_collection::add");
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 												&object_zv,
 												collection_add_class_entry,
 												&docs.data,
-												&docs.size))
+												&docs.counter))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -344,7 +347,7 @@ mysqlx_unregister_collection__add_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 util::zvalue
 create_collection_add(
 	xmysqlnd_collection* collection,
-	const util::raw_zvals& docs)
+	const util::arg_zvals& docs)
 {
 	DBG_ENTER("create_collection_add");
 

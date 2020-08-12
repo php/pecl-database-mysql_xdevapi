@@ -34,7 +34,7 @@
 #include "mysqlx_table__delete.h"
 #include "util/allocator.h"
 #include "util/object.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 
 namespace mysqlx {
 
@@ -89,7 +89,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 
 	util::raw_zval* object_zv{nullptr};
 	zval* where_expr{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oz",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&where_expr))
 	{
@@ -120,7 +120,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 	util::raw_zval* object_zv{nullptr};
 	zval* orderby_expr{nullptr};
 	int num_of_expr{0};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 									&object_zv,
 									mysqlx_table__delete_class_entry,
 									&orderby_expr,
@@ -181,7 +181,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 
 	util::raw_zval* object_zv{nullptr};
 	zend_long rows;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&rows))
 	{
@@ -211,7 +211,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 
 	util::raw_zval* object_zv{nullptr};
 	HashTable * bind_variables;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oh",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&bind_variables))
 	{
@@ -246,7 +246,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 	DBG_ENTER("mysqlx_table__delete::execute");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__delete_class_entry))
 	{
 		DBG_VOID_RETURN;

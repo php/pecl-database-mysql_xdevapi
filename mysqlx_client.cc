@@ -22,10 +22,10 @@
 #include "mysqlx_session.h"
 #include "util/allocator.h"
 #include "util/exceptions.h"
+#include "util/functions.h"
 #include "util/json_utils.h"
 #include "util/object.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
@@ -559,7 +559,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 	DBG_ENTER("mysqlx_client::getSession");
 
 	util::raw_zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(
+	if (util::get_method_arguments(
 		execute_data, getThis(),
 		"O", &object_zv, client_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -577,7 +577,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 	DBG_ENTER("mysqlx_client::close");
 
 	util::raw_zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(
+	if (util::get_method_arguments(
 		execute_data, getThis(),
 		"O", &object_zv, client_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -670,7 +670,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 	RETVAL_NULL();
 
 	DBG_ENTER("mysql_xdevapi_getClient");
-	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s|s",
+	if (FAILURE == util::get_function_arguments(execute_data, "s|s",
 		&connection_uri.str, &connection_uri.len,
 		&client_options_desc.str, &client_options_desc.len))
 	{

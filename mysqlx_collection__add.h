@@ -24,6 +24,10 @@
 
 namespace mysqlx {
 
+namespace util {
+	struct arg_zvals;
+}
+
 namespace drv {
 
 struct xmysqlnd_collection;
@@ -43,7 +47,7 @@ public:
 
 	bool add_docs(
 		drv::xmysqlnd_collection* collection,
-		const util::raw_zvals& documents);
+		const util::arg_zvals& documents);
 	bool add_docs(
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& single_doc_id,
@@ -60,7 +64,7 @@ private:
 
 util::zvalue create_collection_add(
 	drv::xmysqlnd_collection* schema,
-	const util::raw_zvals& docs);
+	const util::arg_zvals& docs);
 void mysqlx_register_collection__add_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_collection__add_class(SHUTDOWN_FUNC_ARGS);
 

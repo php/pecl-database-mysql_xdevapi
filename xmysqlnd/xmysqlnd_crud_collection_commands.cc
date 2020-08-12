@@ -91,7 +91,7 @@ bool Bindings::bind(const util::string& var_name, zval* var_value)
 
 	Mysqlx::Datatypes::Any any;
 	if (FAIL == zval2any(var_value, any)) {
-		DBG_ERR("Error converting the zval to scalar");
+		DBG_ERR("Error converting the zvalue to scalar");
 		DBG_RETURN(false);
 	}
 	any2log(any);
@@ -517,7 +517,7 @@ xmysqlnd_crud_collection_modify__add_operation(
 		} else {
 			Mysqlx::Datatypes::Any any;
 			if (FAIL == zval2any(value.ptr(), any)) {
-				DBG_ERR("Error converting the zval to scalar");
+				DBG_ERR("Error converting the zvalue to scalar");
 				DBG_RETURN(false);
 			}
 			any2log(any);

@@ -38,10 +38,11 @@
 #include "mysqlx_collection__modify.h"
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
+#include "util/arguments.h"
+#include "util/functions.h"
 #include "util/json_utils.h"
 #include "util/object.h"
 #include "util/value.h"
-#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -130,18 +131,15 @@ Collection_modify::~Collection_modify()
 	}
 }
 
-bool Collection_modify::sort(
-	zval* sort_expressions,
-	int num_of_expr)
+bool Collection_modify::sort(const util::arg_zvals& sort_expressions)
 {
 	DBG_ENTER("Collection_modify::sort");
 
-	if (!sort_expressions) {
+	if (sort_expressions.empty()) {
 		DBG_RETURN(false);
 	}
 
-	for( int i{0}; i < num_of_expr; ++i ) {
-		const util::zvalue sort_expr(sort_expressions[i]);
+	for (auto sort_expr : sort_expressions) {
 		switch (sort_expr.type()) {
 		case util::zvalue::Type::String:
 			{
@@ -280,18 +278,15 @@ bool Collection_modify::set(
 	DBG_RETURN(xmysqlnd_crud_collection_modify__set(modify_op, prepare_value(path, value)));
 }
 
-bool Collection_modify::unset(
-	zval* variables,
-	int num_of_variables)
+bool Collection_modify::unset(const util::arg_zvals& variables)
 {
 	DBG_ENTER("Collection_modify::unset");
 
-	if (num_of_variables <= 0) {
+	if (variables.empty()) {
 		DBG_RETURN(false);
 	}
 
-	for (int i{0}; i < num_of_variables; ++i) {
-		const util::zvalue variable(variables[i]);
+	for (auto variable : variables) {
 		switch (variable.type())
 		{
 		case util::zvalue::Type::String:
@@ -333,7 +328,7 @@ bool Collection_modify::unset(
 
 bool Collection_modify::replace(
 	const util::string_view& path,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("Collection_modify::replace");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__replace(modify_op, prepare_value(path, value)));
@@ -402,20 +397,19 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, sort)
 	DBG_ENTER("mysqlx_collection__modify::sort");
 
 	util::raw_zval* object_zv{nullptr};
-	zval* sort_expressions{nullptr};
-	int num_of_expr{0};
+	util::arg_zvals sort_expressions;
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_modify_class_entry,
-									&sort_expressions,
-									&num_of_expr))
+									&sort_expressions.data,
+									&sort_expressions.counter))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	if (coll_modify.sort(sort_expressions, num_of_expr)) {
+	if (coll_modify.sort(sort_expressions)) {
 		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
@@ -429,7 +423,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, limit)
 	util::raw_zval* object_zv{nullptr};
 	zend_long rows{0};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 												&object_zv, collection_modify_class_entry,
 												&rows))
 	{
@@ -451,7 +445,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, skip)
 	util::raw_zval* object_zv{nullptr};
 	zend_long position{0};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 												&object_zv, collection_modify_class_entry,
 												&position))
 	{
@@ -476,9 +470,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, bind)
 	DBG_ENTER("mysqlx_collection__modify::bind");
 
 	util::raw_zval* object_zv{nullptr};
-	zval* bind_vars{nullptr};
+	util::raw_zval* bind_vars{nullptr};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oz",
 												&object_zv, collection_modify_class_entry,
 												&bind_vars))
 	{
@@ -500,9 +494,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, set)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string path;
-	zval* value{nullptr};
+	util::raw_zval* value{nullptr};
 
-	if (FAILURE == util::zend::parse_method_parameters(
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Osz",
 		&object_zv, collection_modify_class_entry,
 		&path.str, &path.len,
@@ -525,9 +519,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string path;
-	zval* value{nullptr};
+	util::raw_zval* value{nullptr};
 
-	if (FAILURE == util::zend::parse_method_parameters(
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Osz",
 		&object_zv, collection_modify_class_entry,
 		&path.str, &path.len,
@@ -551,7 +545,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 	util::raw_zval* object_zv{nullptr};
 	util::param_string document_contents;
 
-	if (FAILURE == util::zend::parse_method_parameters(
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, collection_modify_class_entry,
 		&(document_contents.str), &(document_contents.len)))
@@ -575,7 +569,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 	util::param_string path;
 	zval* value{nullptr};
 
-	if (FAILURE == util::zend::parse_method_parameters(
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Osz",
 		&object_zv, collection_modify_class_entry,
 		&path.str, &path.len,
@@ -600,7 +594,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 	util::param_string path;
 	zval* value{nullptr};
 
-	if (FAILURE == util::zend::parse_method_parameters(
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Osz",
 		&object_zv, collection_modify_class_entry,
 		&path.str, &path.len,
@@ -622,21 +616,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, unset)
 	DBG_ENTER("mysqlx_collection__modify::unset");
 
 	util::raw_zval* object_zv{nullptr};
-	zval* variables{nullptr};
-	int num_of_variables{0};
+	util::arg_zvals variables;
 
-	if (FAILURE == util::zend::parse_method_parameters(
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "O+",
 		&object_zv,
 		collection_modify_class_entry,
-		&variables,
-		&num_of_variables))
+		&variables.data,
+		&variables.counter))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_modify& coll_modify = util::fetch_data_object<Collection_modify>(object_zv);
-	if (coll_modify.unset(variables, num_of_variables)) {
+	if (coll_modify.unset(variables)) {
 		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
@@ -649,7 +642,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 
 	util::raw_zval* object_zv{nullptr};
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, collection_modify_class_entry))
 	{
 		DBG_VOID_RETURN;

@@ -35,9 +35,10 @@
 #include "mysqlx_sql_statement.h"
 #include "mysqlx_collection__remove.h"
 #include "util/allocator.h"
+#include "util/arguments.h"
+#include "util/functions.h"
 #include "util/object.h"
 #include "util/value.h"
-#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -92,7 +93,7 @@ Collection_remove::~Collection_remove()
 	}
 }
 
-bool Collection_remove::sort(const util::raw_zvals& sort_expressions)
+bool Collection_remove::sort(const util::arg_zvals& sort_expressions)
 {
 	DBG_ENTER("Collection_remove::sort");
 
@@ -100,8 +101,7 @@ bool Collection_remove::sort(const util::raw_zvals& sort_expressions)
 		DBG_RETURN(false);
 	}
 
-	for (util::raw_zval raw_sort_expr : sort_expressions) {
-		const util::zvalue sort_expr(raw_sort_expr);
+	for (auto sort_expr : sort_expressions) {
 		switch (sort_expr.type()) {
 		case util::zvalue::Type::String:
 			{
@@ -209,12 +209,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, sort)
 	DBG_ENTER("mysqlx_collection__remove::sort");
 
 	util::raw_zval* object_zv{nullptr};
-	util::raw_zvals sort_expressions;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	util::arg_zvals sort_expressions;
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_remove_class_entry,
 									&sort_expressions.data,
-									&sort_expressions.size))
+									&sort_expressions.counter))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -233,7 +233,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 
 	util::raw_zval* object_zv{nullptr};
 	zend_long rows{0};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 												&object_zv, collection_remove_class_entry,
 												&rows))
 	{
@@ -259,7 +259,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 
 	util::raw_zval* object_zv{nullptr};
 	util::raw_zval* bind_vars{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oz",
 												&object_zv, collection_remove_class_entry,
 												&bind_vars))
 	{
@@ -280,7 +280,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 	DBG_ENTER("mysqlx_collection__remove::execute");
 
 	util::raw_zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, collection_remove_class_entry))
 	{
 		DBG_VOID_RETURN;

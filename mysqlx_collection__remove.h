@@ -22,7 +22,10 @@
 
 namespace mysqlx {
 
-namespace util { class zvalue; }
+namespace util {
+	class zvalue;
+	struct arg_zvals;
+}
 
 namespace drv {
 
@@ -46,7 +49,7 @@ public:
 		const util::string_view& search_expression);
 
 public:
-	bool sort(const util::raw_zvals& sort_expressions);
+	bool sort(const util::arg_zvals& sort_expressions);
 	bool limit(zend_long rows);
 	bool bind(const util::zvalue& bind_variables);
 	util::zvalue execute();

@@ -22,7 +22,10 @@
 
 namespace mysqlx {
 
-namespace util { class zvalue; }
+namespace util {
+	class zvalue;
+	struct arg_zvals;
+}
 
 namespace drv {
 
@@ -45,9 +48,7 @@ public:
 		drv::xmysqlnd_collection* collection,
 		const util::string_view& search_expression);
 public:
-	bool sort(
-		zval* sort_expressions,
-		int num_of_expr);
+	bool sort(const util::arg_zvals& sort_expressions);
 	bool limit(zend_long rows);
 	bool skip(zend_long position);
 	bool bind(const util::zvalue& bind_variables);
@@ -55,12 +56,10 @@ public:
 	bool set(
 		const util::string_view& path,
 		const util::zvalue& value);
-	bool unset(
-		zval* variables,
-		int num_of_variables);
+	bool unset(const util::arg_zvals& variables);
 	bool replace(
 		const util::string_view& path,
-		zval* value);
+		const util::zvalue& value);
 	bool patch(const util::string_view& document_contents);
 
 	bool array_insert(

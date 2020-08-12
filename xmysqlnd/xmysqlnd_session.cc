@@ -49,6 +49,7 @@ extern "C" {
 #include "php_variables.h"
 #include "mysqlx_exception.h"
 #include "util/exceptions.h"
+#include "util/functions.h"
 #include "util/object.h"
 #include "util/string_utils.h"
 #include "util/url_utils.h"
