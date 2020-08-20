@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2020-04-10</date>
+	<date>2020-06-26</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.20</release>
+		<release>8.0.21</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,8 +61,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#13001 DevAPI: Connection compression
-		orabug #30864458: some methods should not be reported as deprecated anymore
+		WL#13014 DevAPI: Add schema validation to create collection
+		orabug #30134490: apply helpers from util/object.h
+		orabug #31084747: single doc tests failing in php-7.4
+		changes in config.m4|w32 to improve resolving 3rdParty libs
 	</notes>
  <contents>
   <dir name="/">
@@ -765,6 +767,23 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2020-04-10</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.20</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#13001 DevAPI: Connection compression
+			orabug #30864458: some methods should not be reported as deprecated anymore
+		</notes>
+	</release>
 	<release>
 		<date>2020-01-10</date>
 		<time>20:00:00</time>
