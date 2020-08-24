@@ -857,46 +857,11 @@ struct st_xmysqlnd_pb_message_shell
 /****************************** SQL EXECUTE *******************************************************/
 
 enum_func_status
-st_xmysqlnd_stmt_op__execute::bind_one_param(const zval * param_zv)
+st_xmysqlnd_stmt_op__execute::bind_one_param(const util::zvalue& param)
 {
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::bind_one_stmt_param");
-	const unsigned int param_no = params_allocated;
-	DBG_RETURN(bind_one_param(param_no, param_zv));
-}
-
-enum_func_status
-st_xmysqlnd_stmt_op__execute::bind_one_param(const unsigned int param_no, const zval * param_zv)
-{
-	enum_func_status ret{FAIL};
-	DBG_ENTER("st_xmysqlnd_stmt_op__execute::bind_one_stmt_param");
-	DBG_INF_FMT("params=%p", params);
-	if (!params || param_no >= params_allocated) {
-		DBG_INF("Not enough space for params, realloc");
-		params = (zval*) mnd_erealloc(params, (param_no + 1) * sizeof(zval));
-		if (!params) {
-			DBG_RETURN(FAIL);
-		}
-		/* Now we have a hole between the last allocated and the new param_no which is not zeroed. Zero it! */
-		memset(&params[params_allocated], 0, (param_no - params_allocated + 1) * sizeof(zval));
-
-		params_allocated = param_no + 1;
-		ret = PASS;
-	}
-	zval_ptr_dtor(&params[param_no]);
-
-	ZVAL_COPY_VALUE(&params[param_no], param_zv);
-	Z_TRY_ADDREF(params[param_no]);
-#ifdef PHP_DEBUG
-	switch (ret) {
-	case PASS:
-		DBG_INF("PASS");
-		break;
-	case FAIL:
-		DBG_INF("FAIL");
-		break;
-	}
-#endif
-	DBG_RETURN(ret);
+	params.push_back(param);
+	DBG_RETURN(PASS);
 }
 
 enum_func_status
@@ -904,9 +869,9 @@ st_xmysqlnd_stmt_op__execute::finalize_bind()
 {
 	enum_func_status ret{PASS};
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::finalize_bind");
-	for (unsigned int i{0}; i < params_allocated; ++i) {
+	for (const auto& param : params) {
 		Mysqlx::Datatypes::Any * arg = message.add_args();
-		ret = zval2any(&(params[i]), *arg);
+		ret = zval2any(param, *arg);
 		if (FAIL == ret) {
 			break;
 		}
@@ -940,23 +905,23 @@ Mysqlx::Sql::StmtExecute& xmysqlnd_stmt_execute__get_pb_msg(XMYSQLND_STMT_OP__EX
 }
 
 enum_func_status
-xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE * obj, const zval * param_zv)
+xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE * obj, const util::zvalue& param)
 {
 	DBG_ENTER("xmysqlnd_stmt_execute__bind_one_param_add");
-	const enum_func_status ret = obj->bind_one_param(param_zv);
+	const enum_func_status ret = obj->bind_one_param(param);
 	DBG_RETURN(ret);
 }
 
 enum_func_status
-xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE * obj, const unsigned int param_no, const zval * param_zv)
+xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE * obj, const util::zvalue& param)
 {
 	DBG_ENTER("xmysqlnd_stmt_execute__bind_one_param");
-	const enum_func_status ret = obj->bind_one_param(param_no, param_zv);
+	const enum_func_status ret = obj->bind_one_param(param);
 	DBG_RETURN(ret);
 }
 
 enum_func_status
-xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE * obj, zval * value)
+xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE * obj, const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_stmt_execute__bind_value");
 	Mysqlx::Datatypes::Any * arg = obj->message.add_args();

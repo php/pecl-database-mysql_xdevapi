@@ -64,10 +64,10 @@ public:
 
 	bool array_insert(
 		const util::string_view& path,
-		zval* value);
+		const util::zvalue& value);
 	bool array_append(
 		const util::string_view& path,
-		zval* value);
+		const util::zvalue& value);
 
 	util::zvalue execute();
 

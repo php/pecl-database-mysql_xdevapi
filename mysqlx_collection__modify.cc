@@ -348,7 +348,7 @@ bool Collection_modify::patch(const util::string_view& document_contents)
 
 bool Collection_modify::array_insert(
 	const util::string_view& path,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("Collection_modify::array_insert");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__array_insert(modify_op, prepare_value(path, value, true)));
@@ -356,7 +356,7 @@ bool Collection_modify::array_insert(
 
 bool Collection_modify::array_append(
 	const util::string_view& path,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("Collection_modify::array_append");
 	DBG_RETURN(xmysqlnd_crud_collection_modify__array_append(modify_op, prepare_value(path, value)));
@@ -567,7 +567,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string path;
-	zval* value{nullptr};
+	util::raw_zval* value{nullptr};
 
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Osz",
@@ -592,7 +592,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string path;
-	zval* value{nullptr};
+	util::raw_zval* value{nullptr};
 
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Osz",

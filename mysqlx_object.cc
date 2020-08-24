@@ -39,7 +39,7 @@ mysqlx_object_free_storage(zend_object* object)
 }
 
 HashTable *
-mysqlx_object_get_debug_info(zval *object, int *is_temp)
+mysqlx_object_get_debug_info(util::raw_zval* object, int* is_temp)
 {
 	st_mysqlx_object* mysqlx_obj = Z_MYSQLX_P(object);
 	HashTable *retval;
@@ -50,8 +50,8 @@ mysqlx_object_get_debug_info(zval *object, int *is_temp)
 	void* raw_property{nullptr};
 	MYSQLX_HASH_FOREACH_PTR(mysqlx_obj->properties, raw_property) {
 		st_mysqlx_property* property = static_cast<st_mysqlx_property*>(raw_property);
-		zval rv, member;
-		zval* value{nullptr};
+		util::raw_zval rv, member;
+		util::raw_zval* value{nullptr};
 
 		ZVAL_STR(&member, property->name);
 

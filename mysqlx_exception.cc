@@ -53,11 +53,11 @@ static const zend_function_entry mysqlx_exception_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
 
-static zval *
-mysqlx_exception_property__message(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_exception_property_message(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
-	DBG_ENTER("mysqlx_exception_property__message");
+	DBG_ENTER("mysqlx_exception_property_message");
 	if (!object->msg.empty()) {
 		ZVAL_STRINGL(return_value, object->msg.c_str(), object->msg.length());
 	} else {
@@ -73,20 +73,20 @@ mysqlx_exception_property__message(const st_mysqlx_object* obj, zval* return_val
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_exception_property__level(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_exception_property_level(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
-	DBG_ENTER("mysqlx_exception_property__level");
+	DBG_ENTER("mysqlx_exception_property_level");
 	ZVAL_LONG(return_value, object->level);
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_exception_property__code(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_exception_property_code(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
-	DBG_ENTER("mysqlx_exception_property__code");
+	DBG_ENTER("mysqlx_exception_property_code");
 	/* code is 32 bit unsigned and on 32bit system won't fit into 32 bit signed zend_long, but this won't happen in practice*/
 	ZVAL_LONG(return_value, object->code);
 	DBG_RETURN(return_value);
@@ -94,9 +94,9 @@ mysqlx_exception_property__code(const st_mysqlx_object* obj, zval* return_value)
 
 static const st_mysqlx_property_entry mysqlx_exception_property_entries[] =
 {
-	{std::string_view("message"), mysqlx_exception_property__message,	nullptr},
-	{std::string_view("level"), mysqlx_exception_property__level,		nullptr},
-	{std::string_view("code"), mysqlx_exception_property__code,		nullptr},
+	{std::string_view("message"), mysqlx_exception_property_message,	nullptr},
+	{std::string_view("level"), mysqlx_exception_property_level,		nullptr},
+	{std::string_view("code"), mysqlx_exception_property_code,		nullptr},
 	{std::string_view{}, nullptr, nullptr}
 };
 

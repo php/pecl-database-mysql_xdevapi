@@ -28,18 +28,16 @@ class zvalue;
 
 namespace json {
 
-void encode_document(zval* src, zval* dest);
-util::zvalue encode_document(const util::zvalue& src);
+zvalue encode_document(const zvalue& src);
 
-util::zvalue parse_document(const char* doc, const std::size_t doc_len);
-util::zvalue parse_document(const util::string_view& doc);
+zvalue parse_document(const string_view& doc);
 
-bool can_be_document(const util::zvalue& value);
-bool can_be_array(const util::zvalue& value);
-bool can_be_binding(const util::zvalue& value);
+bool can_be_document(const zvalue& value);
+bool can_be_array(const zvalue& value);
+bool can_be_binding(const zvalue& value);
 
-util::zvalue ensure_doc_id(
-	zval* raw_doc,
+zvalue ensure_doc_id(
+	const zvalue& raw_doc,
 	const string_view& id);
 
 } // namespace json

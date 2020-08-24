@@ -402,7 +402,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 
 	util::raw_zval* object_zv{nullptr};
 	util::param_string id;
-	zval* doc{nullptr};
+	util::raw_zval* doc{nullptr};
 
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Osz",
@@ -439,7 +439,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 {
 	util::raw_zval* object_zv{nullptr};
 	util::param_string id;
-	zval* doc{nullptr};
+	util::raw_zval* doc{nullptr};
 
 	DBG_ENTER("mysqlx_collection::addOrReplaceOne");
 
@@ -513,7 +513,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 	RETVAL_FALSE;
 
 	auto& data_object = util::fetch_data_object<st_mysqlx_collection>(object_zv);
-	create_collection_index(data_object.collection, index_name.to_view(), index_desc_json.to_view(), return_value);
+	create_collection_index(data_object.collection, index_name.to_view(), index_desc_json.to_view()).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -534,7 +534,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 	}
 
 	auto& data_object = util::fetch_data_object<st_mysqlx_collection>(object_zv);
-	drop_collection_index(data_object.collection, index_name.to_view(), return_value);
+	drop_collection_index(data_object.collection, index_name.to_view()).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -566,8 +566,8 @@ static const zend_function_entry mysqlx_collection_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
 
-static zval *
-mysqlx_collection_property__name(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_collection_property__name(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_collection* object = (const st_mysqlx_collection* ) (obj->ptr);
 	DBG_ENTER("mysqlx_collection_property__name");

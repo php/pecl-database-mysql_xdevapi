@@ -28,13 +28,13 @@ extern "C" {
 
 namespace mysqlx::util::json {
 
-void encode_document(zval* src, zval* dest)
+zvalue encode_document(const zvalue& src)
 {
 	smart_str buf = { 0 };
 	JSON_G(error_code) = PHP_JSON_ERROR_NONE;
 	JSON_G(encode_max_depth) = PHP_JSON_PARSER_DEFAULT_DEPTH;
-	const int encode_flag = (Z_TYPE_P(src) == IS_OBJECT) ? PHP_JSON_FORCE_OBJECT : 0;
-	php_json_encode(&buf, src, encode_flag);
+	const int encode_flag = src.is_object() ? PHP_JSON_FORCE_OBJECT : 0;
+	php_json_encode(&buf, src.ptr(), encode_flag);
 
 	if (JSON_G(error_code) != PHP_JSON_ERROR_NONE) {
 		smart_str_free(&buf);
@@ -49,25 +49,19 @@ void encode_document(zval* src, zval* dest)
 	{
 		buf.s->val[buf.s->len] = '\0';
 	}
-	ZVAL_UNDEF(dest);
-	ZVAL_STRINGL(dest, buf.s->val, buf.s->len);
-	smart_str_free(&buf);
-}
 
-util::zvalue encode_document(const util::zvalue& src)
-{
-	util::zvalue dest;
-	encode_document(src.ptr(), dest.ptr());
+	zvalue dest(buf.s->val, buf.s->len);
+	smart_str_free(&buf);
 	return dest;
 }
 
-util::zvalue parse_document(const char* doc, const std::size_t doc_len)
+zvalue parse_document(const string_view& doc)
 {
-	util::zvalue dest;
+	zvalue dest;
 	if (php_json_decode(
 		dest.ptr(),
-		const_cast<char*>(doc),
-		static_cast<int>(doc_len),
+		const_cast<char*>(doc.data()),
+		static_cast<int>(doc.length()),
 		false,
 		PHP_JSON_PARSER_DEFAULT_DEPTH) != SUCCESS)
 	{
@@ -78,14 +72,9 @@ util::zvalue parse_document(const char* doc, const std::size_t doc_len)
 	return dest;
 }
 
-util::zvalue parse_document(const util::string_view& doc)
-{
-	return parse_document(doc.data(), doc.length());
-}
-
 namespace {
 
-bool is_first_char(const util::zvalue& value, const char chr)
+bool is_first_char(const zvalue& value, const char chr)
 {
 	assert(value.is_string());
 	if (value.empty()) return false;
@@ -95,17 +84,17 @@ bool is_first_char(const util::zvalue& value, const char chr)
 
 } // anonymous namespace
 
-bool can_be_document(const util::zvalue& value)
+bool can_be_document(const zvalue& value)
 {
 	return is_first_char(value, '{');
 }
 
-bool can_be_array(const util::zvalue& value)
+bool can_be_array(const zvalue& value)
 {
 	return is_first_char(value, '[');
 }
 
-bool can_be_binding(const util::zvalue& value)
+bool can_be_binding(const zvalue& value)
 {
 	return is_first_char(value, ':');
 }
@@ -116,47 +105,47 @@ class Ensure_doc_id
 {
 	public:
 		Ensure_doc_id(
-			zval* raw_doc,
+			const zvalue& raw_doc,
 			const string_view& doc_id);
 
 	public:
-		util::zvalue run();
+		zvalue run();
 
 	private:
 		void process_string();
 		void process_array();
 		void process_object();
 
-		void decode_json(zval* doc_as_str);
+		void decode_json(const zvalue& doc_as_str);
 		void store_id();
 
 	private:
-		zval* raw_doc{nullptr};
+		const zvalue& raw_doc;
 		const string_view& doc_id;
-		util::zvalue doc_with_id;
+		zvalue doc_with_id;
 
 };
 
 //------------------------------------------------------------------------------
 
-Ensure_doc_id::Ensure_doc_id(zval* src, const string_view& id)
+Ensure_doc_id::Ensure_doc_id(const zvalue& src, const string_view& id)
 	: raw_doc(src)
 	, doc_id(id)
 {
 }
 
-util::zvalue Ensure_doc_id::run()
+zvalue Ensure_doc_id::run()
 {
-	switch(Z_TYPE_P(raw_doc)) {
-		case IS_STRING:
+	switch(raw_doc.type()) {
+		case zvalue::Type::String:
 			process_string();
 			break;
 
-		case IS_ARRAY:
+		case zvalue::Type::Array:
 			process_array();
 			break;
 
-		case IS_OBJECT:
+		case zvalue::Type::Object:
 			process_object();
 			break;
 
@@ -174,29 +163,25 @@ void Ensure_doc_id::process_string()
 
 void Ensure_doc_id::process_array()
 {
-	HashTable* ht = Z_ARRVAL_P(raw_doc);
-	if (zend_array_count(ht) <= 0) {
+	if (raw_doc.size() <= 0) {
 		throw xdevapi_exception(xdevapi_exception::Code::json_fail);
 	}
 
-	doc_with_id = zvalue::clone_from(raw_doc);
+	doc_with_id = raw_doc.clone();
 	store_id();
 }
 
 void Ensure_doc_id::process_object()
 {
-	util::zvalue doc_as_str;
-	encode_document(raw_doc, doc_as_str.ptr());
-	decode_json(doc_as_str.ptr());
+	const zvalue doc_as_str = encode_document(raw_doc);
+	decode_json(doc_as_str);
 	store_id();
 }
 
-void Ensure_doc_id::decode_json(zval* doc_as_str)
+void Ensure_doc_id::decode_json(const zvalue& doc_as_str)
 {
-	assert(Z_TYPE_P(doc_as_str) == IS_STRING);
-	const char* doc_str = Z_STRVAL_P(doc_as_str);
-	std::size_t doc_len = static_cast<std::size_t>(Z_STRLEN_P(doc_as_str));
-	doc_with_id = parse_document(doc_str, doc_len);
+	assert(doc_as_str.is_string());
+	doc_with_id = parse_document(doc_as_str.to_string_view());
 	if (!doc_with_id.is_array() && !doc_with_id.is_object()) {
 		throw xdevapi_exception(xdevapi_exception::Code::json_fail);
 	}
@@ -206,11 +191,11 @@ void Ensure_doc_id::store_id()
 {
 	const char* Id_column_name = "_id";
 	switch (doc_with_id.type()) {
-	case util::zvalue::Type::Array:
+	case zvalue::Type::Array:
 		doc_with_id.insert(Id_column_name, doc_id);
 		break;
 
-	case util::zvalue::Type::Object:
+	case zvalue::Type::Object:
 		doc_with_id.set_property(Id_column_name, doc_id);
 		break;
 
@@ -221,8 +206,8 @@ void Ensure_doc_id::store_id()
 
 } // anonymous namespace
 
-util::zvalue ensure_doc_id(
-	zval* raw_doc,
+zvalue ensure_doc_id(
+	const zvalue& raw_doc,
 	const string_view& id)
 {
 	Ensure_doc_id edi(raw_doc, id);

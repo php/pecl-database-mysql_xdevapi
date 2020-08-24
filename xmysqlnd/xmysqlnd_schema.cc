@@ -113,7 +113,7 @@ schema_sql_op_var_binder(
 				enum_func_status result;
 				util::zvalue zv(*param);
 				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->length(), param->data());
-				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, zv.ptr());
+				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, zv);
 
 				if (FAIL == result) {
 					ret = HND_FAIL;

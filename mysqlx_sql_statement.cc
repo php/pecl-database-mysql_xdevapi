@@ -395,22 +395,21 @@ mysqlx_fetch_data_with_callback(st_mysqlx_statement* object, st_xmysqlnd_exec_wi
 	DBG_RETURN(ret);
 }
 
-void
-// TODO: what return_value is for?
-mysqlx_sql_statement_bind_one_param(zval* object_zv, const zval* param_zv, zval* return_value)
+bool
+mysqlx_sql_statement_bind_one_param(zval* object_zv, const util::zvalue& param)
 {
 	DBG_ENTER("mysqlx_sql_statement_bind_one_param");
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_statement>(object_zv) };
 
-	RETVAL_TRUE;
+	bool result = true;
 	if (TRUE == data_object.in_execution) {
 		php_error_docref(nullptr, E_WARNING, "Statement in execution. Please fetch all data first.");
-		RETVAL_FALSE;
-	} else if (data_object.stmt_execute && FAIL == xmysqlnd_stmt_execute__bind_one_param_add(data_object.stmt_execute, param_zv)) {
-		RETVAL_FALSE;
+		result = false;
+	} else if (data_object.stmt_execute && FAIL == xmysqlnd_stmt_execute__bind_one_param_add(data_object.stmt_execute, param)) {
+		result = false;
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(result);
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
@@ -425,9 +424,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, bind)
 	{
 		DBG_VOID_RETURN;
 	}
-	mysqlx_sql_statement_bind_one_param(object_zv, param_zv, return_value);
-	if (Z_TYPE_P(return_value) == IS_TRUE)
-	{
+	if (mysqlx_sql_statement_bind_one_param(object_zv, param_zv)) {
 		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 

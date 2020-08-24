@@ -234,15 +234,14 @@ collection_index_on_error(
 } // anonymous namespace
 
 
-void create_collection_index(
+util::zvalue create_collection_index(
 	drv::xmysqlnd_collection* collection,
 	const util::string_view& index_name,
-	const util::string_view& index_desc_json,
-	zval* return_value)
+	const util::string_view& index_desc_json)
 {
 	DBG_ENTER("create_collection_index");
 
-	RETVAL_FALSE;
+	util::zvalue result(false);
 
 	auto session{collection->get_schema()->get_session()};
 	const util::string_view schema_name{collection->get_schema()->get_name()};
@@ -256,31 +255,30 @@ void create_collection_index(
 		collection_name,
 		index_def,
 		on_error)) {
-		RETVAL_TRUE;
+		result = true;
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(result);
 }
 
-void drop_collection_index(
+util::zvalue drop_collection_index(
 	xmysqlnd_collection* collection,
-	const util::string_view& index_name,
-	zval* return_value)
+	const util::string_view& index_name)
 {
 	try {
 		auto session{collection->get_schema()->get_session()};
 		const util::string_view schema_name{collection->get_schema()->get_name()};
 		const util::string_view collection_name{collection->get_name()};
 		const st_xmysqlnd_session_on_error_bind on_error{ collection_index_on_error, nullptr };
-		RETVAL_BOOL(drv::collection_drop_index_execute(
+		return drv::collection_drop_index_execute(
 			session,
 			schema_name,
 			collection_name,
 			index_name,
-			on_error));
+			on_error);
 	} catch (std::exception& e) {
 		util::log_warning(e.what());
-		RETVAL_FALSE;
+		return false;
 	}
 }
 

@@ -139,9 +139,9 @@ XMYSQLND_STMT_OP__EXECUTE* xmysqlnd_stmt_execute__create(const std::string_view&
 void xmysqlnd_stmt_execute__destroy(XMYSQLND_STMT_OP__EXECUTE* obj);
 Mysqlx::Sql::StmtExecute& xmysqlnd_stmt_execute__get_pb_msg(XMYSQLND_STMT_OP__EXECUTE* obj);
 zend_bool xmysqlnd_stmt_execute__is_initialized(XMYSQLND_STMT_OP__EXECUTE* obj);
-enum_func_status xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE* obj, const zval * param_zv);
-enum_func_status xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE* obj, const unsigned int param_no, const zval * param_zv);
-enum_func_status xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE* obj, zval * value);
+enum_func_status xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE* obj, const util::zvalue& param);
+enum_func_status xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE* obj, const util::zvalue& param);
+enum_func_status xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE* obj, const util::zvalue& value);
 enum_func_status xmysqlnd_stmt_execute__finalize_bind(XMYSQLND_STMT_OP__EXECUTE* obj);
 
 st_xmysqlnd_pb_message_shell xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE* obj);
@@ -255,8 +255,7 @@ struct st_xmysqlnd_crud_collection_op__remove
 
 struct st_xmysqlnd_stmt_op__execute
 {
-    zval* params{nullptr};
-    unsigned int params_allocated;
+    util::vector<util::zvalue> params;
 
     Mysqlx::Sql::StmtExecute message;
     uint32_t ps_message_id;
@@ -264,28 +263,15 @@ struct st_xmysqlnd_stmt_op__execute
     st_xmysqlnd_stmt_op__execute(const util::string_view& namespace_,
                                  const util::string_view& stmt,
                                  const bool compact_meta)
-        : params{nullptr},
-          params_allocated{0},
-          ps_message_id{0}
+        : ps_message_id{0}
     {
         message.set_namespace_(namespace_.data(), namespace_.length());
         message.set_stmt(stmt.data(), stmt.length());
         message.set_compact_metadata(compact_meta);
     }
 
-    enum_func_status bind_one_param(const zval * param_zv);
-    enum_func_status bind_one_param(const unsigned int param_no, const zval * param_zv);
+    enum_func_status bind_one_param(const util::zvalue& param);
     enum_func_status finalize_bind();
-
-    ~st_xmysqlnd_stmt_op__execute()
-    {
-        if (params) {
-            for(unsigned int i{0}; i < params_allocated; ++i ) {
-                zval_ptr_dtor(&params[i]);
-            }
-            mnd_efree(params);
-        }
-    }
 };
 
 } // namespace drv

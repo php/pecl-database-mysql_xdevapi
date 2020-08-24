@@ -265,18 +265,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnNames)
 
 	if (meta) {
 		const unsigned int count{meta->m->get_field_count(meta)};
-		array_init_size(return_value, count);
+		util::zvalue column_names = util::zvalue::create_array(count);
 		for (unsigned int i{0}; i < count; ++i) {
 			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
-			zval column_name;
-
-			ZVAL_UNDEF(&column_name);
-			ZVAL_STRINGL(&column_name, column->name.data(), column->name.length());
-
-			if (Z_TYPE(column_name) != IS_UNDEF) {
-				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_name);
-			}
+			const util::string& column_name = column->name;
+			column_names.push_back(column_name);
 		}
+		column_names.move_to(return_value);
 	}
 
 	util::zvalue::ensure_is_array(return_value);

@@ -285,8 +285,8 @@ static const zend_function_entry mysqlx_table__delete_methods[] = {
 };
 
 #if 0
-static zval *
-mysqlx_table__delete_property__name(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_table__delete_property__name(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_table__delete* object = (const st_mysqlx_table__delete* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table__delete_property__name");

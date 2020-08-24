@@ -30,7 +30,7 @@ void verify_call_parameters(
 template<typename ...Args>
 int get_method_arguments(
 	zend_execute_data* execute_data,
-	zval* this_ptr,
+	util::raw_zval* this_ptr,
 	const char* type_spec,
 	Args&&... args)
 {

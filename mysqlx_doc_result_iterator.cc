@@ -151,8 +151,8 @@ static zend_object_iterator_funcs mysqlx_doc_result_iterator_funcs =
 	XMYSQLND_METHOD(mysqlx_doc_result_iterator, rewind),
 };
 
-static zend_object_iterator *
-mysqlx_doc_result_create_iterator(zend_class_entry * ce, zval * object, int by_ref)
+static zend_object_iterator*
+mysqlx_doc_result_create_iterator(zend_class_entry* ce, util::raw_zval* object, int by_ref)
 {
 	DBG_ENTER("mysqlx_doc_result_create_iterator");
 	auto iterator = util::create_result_iterator<st_mysqlx_doc_result, st_mysqlx_doc_result_iterator>(
