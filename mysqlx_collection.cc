@@ -306,7 +306,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, find)
 {
 	DBG_ENTER("mysqlx_collection::find");
 	util::raw_zval* object_zv{nullptr};
-	util::param_string search_expr;
+	util::arg_string search_expr;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O|s",
 												&object_zv, mysqlx_collection_class_entry,
 												&(search_expr.str), &(search_expr.len)))
@@ -326,7 +326,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, modify)
 {
 	DBG_ENTER("mysqlx_collection::modify");
 	util::raw_zval* object_zv{nullptr};
-	util::param_string search_expr;
+	util::arg_string search_expr;
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
@@ -347,7 +347,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, remove)
 {
 	DBG_ENTER("mysqlx_collection::remove");
 	util::raw_zval* object_zv{nullptr};
-	util::param_string search_expr;
+	util::arg_string search_expr;
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_collection_class_entry,
@@ -369,7 +369,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, getOne)
 	DBG_ENTER("mysqlx_collection::getOne");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string id;
+	util::arg_string id;
 
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os",
@@ -401,7 +401,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 	DBG_ENTER("mysqlx_collection::replaceOne");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string id;
+	util::arg_string id;
 	util::raw_zval* doc{nullptr};
 
 	if (FAILURE == util::get_method_arguments(
@@ -438,7 +438,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, replaceOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 {
 	util::raw_zval* object_zv{nullptr};
-	util::param_string id;
+	util::arg_string id;
 	util::raw_zval* doc{nullptr};
 
 	DBG_ENTER("mysqlx_collection::addOrReplaceOne");
@@ -466,7 +466,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, addOrReplaceOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 {
 	util::raw_zval* object_zv{nullptr};
-	util::param_string id;
+	util::arg_string id;
 
 	DBG_ENTER("mysqlx_collection::removeOne");
 
@@ -496,8 +496,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, removeOne)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 {
 	util::raw_zval* object_zv{nullptr};
-	util::param_string index_name;
-	util::param_string index_desc_json;
+	util::arg_string index_name;
+	util::arg_string index_desc_json;
 
 	DBG_ENTER("mysqlx_collection::createIndex");
 
@@ -521,7 +521,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, createIndex)
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 {
 	util::raw_zval* object_zv{nullptr};
-	util::param_string index_name;
+	util::arg_string index_name;
 
 	DBG_ENTER("mysqlx_collection::dropIndex");
 

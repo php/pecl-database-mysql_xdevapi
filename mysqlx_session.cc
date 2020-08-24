@@ -291,7 +291,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, getSchema)
 	DBG_ENTER("mysqlx_session::getSchema");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string schema_name;
+	util::arg_string schema_name;
 	if (util::get_method_arguments(execute_data,
 									 getThis(),
 									 "Os", &object_zv,
@@ -350,7 +350,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, sql)
 
 	util::raw_zval* object_zv{nullptr};
 	XMYSQLND_SESSION session;
-	util::param_string query;
+	util::arg_string query;
 
 	if (util::get_method_arguments(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &query.str, &query.len) == FAILURE)
@@ -384,7 +384,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, quoteName)
 	DBG_ENTER("mysqlx_session::quoteName");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string name;
+	util::arg_string name;
 	if (util::get_method_arguments(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &(name.str), &(name.len)) == FAILURE)
 	{
@@ -408,7 +408,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, createSchema)
 	DBG_ENTER("mysqlx_session::createSchema");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string schema_name;
+	util::arg_string schema_name;
 	if (util::get_method_arguments(execute_data, getThis(), "Os", &object_zv, mysqlx_session_class_entry,
 																	   &schema_name.str, &schema_name.len) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -438,7 +438,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, dropSchema)
 	DBG_ENTER("mysqlx_session::dropSchema");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string schema_name;
+	util::arg_string schema_name;
 	if (util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
@@ -545,7 +545,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, setSavepoint)
 	DBG_ENTER("mysqlx_session::setSavepoint");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string savepoint_name;
+	util::arg_string savepoint_name;
 	if (util::get_method_arguments(
 		execute_data, getThis(), "O|s",
 		&object_zv, mysqlx_session_class_entry,
@@ -587,7 +587,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, rollbackTo)
 	DBG_ENTER("mysqlx_session::rollbackTo");
 
 	zval* object_zv{ nullptr };
-	util::param_string savepoint_name;
+	util::arg_string savepoint_name;
 	if (util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
@@ -620,7 +620,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, releaseSavepoint)
 	DBG_ENTER("mysqlx_session::releaseSavepoint");
 
 	zval* object_zv{ nullptr };
-	util::param_string savepoint_name;
+	util::arg_string savepoint_name;
 	if (util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_session_class_entry,
@@ -763,7 +763,7 @@ create_session(drv::XMYSQLND_SESSION session)
 
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getSession)
 {
-	util::param_string uri_string;
+	util::arg_string uri_string;
 
 	RETVAL_NULL();
 

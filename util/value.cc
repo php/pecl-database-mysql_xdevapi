@@ -182,7 +182,7 @@ zvalue::zvalue(const char* value)
 {
 }
 
-zvalue::zvalue(const param_string& value)
+zvalue::zvalue(const arg_string& value)
 	: zvalue(value.c_str(), value.length())
 {
 }
@@ -349,7 +349,7 @@ zvalue& zvalue::operator=(const char* value)
 }
 
 
-zvalue& zvalue::operator=(const param_string& value)
+zvalue& zvalue::operator=(const arg_string& value)
 {
 	assign(value.c_str(), value.length());
 	return *this;

@@ -49,7 +49,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_expression, __construct)
 {
 	UNUSED(return_value);
 	util::raw_zval* object_zv{nullptr};
-	util::param_string expression;
+	util::arg_string expression;
 
 	DBG_ENTER("mysqlx_expression::__construct");
 
@@ -75,7 +75,7 @@ static const zend_function_entry mysqlx_expression_methods[] = {
 
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi__expression)
 {
-	util::param_string expression;
+	util::arg_string expression;
 
 	DBG_ENTER("mysql_xdevapi__Expression");
 	if (FAILURE == util::get_function_arguments(execute_data, "s",

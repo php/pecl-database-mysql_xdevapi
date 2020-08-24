@@ -112,7 +112,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, where)
 	DBG_ENTER("mysqlx_table__select::where");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string where_expr;
+	util::arg_string where_expr;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__select_class_entry,
 												&where_expr.str, &where_expr.len))
@@ -243,7 +243,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, having)
 	DBG_ENTER("mysqlx_table__select::having");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string search_condition;
+	util::arg_string search_condition;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__select_class_entry,
 												&search_condition.str, &search_condition.len))

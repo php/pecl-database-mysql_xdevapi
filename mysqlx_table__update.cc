@@ -100,7 +100,7 @@ mysqlx_table__update__2_param_op(INTERNAL_FUNCTION_PARAMETERS, const unsigned in
 
 	util::raw_zval* object_zv{nullptr};
 	util::raw_zval* raw_value{nullptr};
-	util::param_string table_field;
+	util::arg_string table_field;
 	zend_bool is_expression{FALSE};
 	const zend_bool is_document = FALSE;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Osz",
@@ -172,7 +172,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, where)
 	DBG_ENTER("mysqlx_table__update::where");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string where_expr;
+	util::arg_string where_expr;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_table__update_class_entry,
 												&where_expr.str, &where_expr.len))

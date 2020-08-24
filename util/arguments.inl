@@ -18,53 +18,53 @@
 
 namespace mysqlx::util {
 
-inline param_string::param_string(const char* cstr)
+inline arg_string::arg_string(const char* cstr)
 	: str(cstr)
 	, len(std::strlen(cstr))
 {
 }
 
-inline bool param_string::empty() const
+inline bool arg_string::empty() const
 {
 	return (str == nullptr) || (*str == '\0');
 }
 
-inline string_view param_string::to_view() const
+inline string_view arg_string::to_view() const
 {
 	return string_view(str, len);
 }
 
-inline std::string_view param_string::to_std_view() const
+inline std::string_view arg_string::to_std_view() const
 {
 	return std::string_view(str, len);
 }
 
-inline string param_string::to_string() const
+inline string arg_string::to_string() const
 {
 	return string(str, len);
 }
 
-inline std::string param_string::to_std_string() const
+inline std::string arg_string::to_std_string() const
 {
 	return std::string(str, len);
 }
 
-inline const char* param_string::c_str() const
+inline const char* arg_string::c_str() const
 {
 	return str;
 }
 
-inline const char* param_string::data() const
+inline const char* arg_string::data() const
 {
 	return str;
 }
 
-inline size_t param_string::length() const
+inline size_t arg_string::length() const
 {
 	return len;
 }
 
-inline size_t param_string::size() const
+inline size_t arg_string::size() const
 {
 	return len;
 }

@@ -24,7 +24,7 @@
 
 namespace mysqlx::util {
 
-class param_string;
+struct arg_string;
 
 class zvalue
 {
@@ -69,7 +69,7 @@ class zvalue
 		zvalue(const string_view& value);
 		zvalue(const std::string& value);
 		zvalue(const char* value);
-		zvalue(const param_string& value);
+		zvalue(const arg_string& value);
 		zvalue(const char* value, std::size_t length);
 
 		zvalue(std::initializer_list<std::pair<const char*, zvalue>> values);
@@ -115,7 +115,7 @@ class zvalue
 		zvalue& operator=(const string_view& value);
 		zvalue& operator=(const std::string& value);
 		zvalue& operator=(const char* value);
-		zvalue& operator=(const param_string& value);
+		zvalue& operator=(const arg_string& value);
 
 		void assign(const char* value, std::size_t length);
 
@@ -464,6 +464,8 @@ class zvalue
 	private:
 		zval zv;
 };
+
+using zvalues = vector<zvalue>;
 
 } // namespace mysqlx::util
 

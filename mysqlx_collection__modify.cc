@@ -493,7 +493,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, set)
 	DBG_ENTER("mysqlx_collection__modify::set");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string path;
+	util::arg_string path;
 	util::raw_zval* value{nullptr};
 
 	if (FAILURE == util::get_method_arguments(
@@ -518,7 +518,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, replace)
 	DBG_ENTER("mysqlx_collection__modify::replace");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string path;
+	util::arg_string path;
 	util::raw_zval* value{nullptr};
 
 	if (FAILURE == util::get_method_arguments(
@@ -543,7 +543,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, patch)
 	DBG_ENTER("mysqlx_collection__modify::patch");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string document_contents;
+	util::arg_string document_contents;
 
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os",
@@ -566,7 +566,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayInsert)
 	DBG_ENTER("mysqlx_collection__modify::arrayInsert");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string path;
+	util::arg_string path;
 	util::raw_zval* value{nullptr};
 
 	if (FAILURE == util::get_method_arguments(
@@ -591,7 +591,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, arrayAppend)
 	DBG_ENTER("mysqlx_collection__modify::arrayAppend");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string path;
+	util::arg_string path;
 	util::raw_zval* value{nullptr};
 
 	if (FAILURE == util::get_method_arguments(

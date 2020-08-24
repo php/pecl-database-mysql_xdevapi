@@ -226,9 +226,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 	DBG_ENTER("mysqlx_schema::createCollection");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string collection_name;
-	const util::param_string Empty_collection_options = "{}";
-	util::param_string collection_options(Empty_collection_options);
+	util::arg_string collection_name;
+	const util::arg_string Empty_collection_options = "{}";
+	util::arg_string collection_options(Empty_collection_options);
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os|s",
 		&object_zv, mysqlx_schema_class_entry,
@@ -261,8 +261,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, modifyCollection)
 	DBG_ENTER("mysqlx_schema::modifyCollection");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string collection_name;
-	util::param_string collection_options;
+	util::arg_string collection_name;
+	util::arg_string collection_options;
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Oss",
 		&object_zv, mysqlx_schema_class_entry,
@@ -292,7 +292,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 	DBG_ENTER("mysqlx_schema::dropCollection");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string collection_name;
+	util::arg_string collection_name;
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_schema_class_entry,
@@ -319,7 +319,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 	DBG_ENTER("mysqlx_schema::getCollection");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string collection_name;
+	util::arg_string collection_name;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(collection_name.str), &(collection_name.len)))
@@ -343,7 +343,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 	DBG_ENTER("mysqlx_schema::getTable");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string table_name;
+	util::arg_string table_name;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(table_name.str), &(table_name.len)))
@@ -365,7 +365,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 	DBG_ENTER("mysqlx_schema::getCollectionAsTable");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string collection_name;
+	util::arg_string collection_name;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(collection_name.str), &(collection_name.len)))

@@ -664,8 +664,8 @@ mysqlx_unregister_client_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 {
-	util::param_string connection_uri;
-	util::param_string client_options_desc;
+	util::arg_string connection_uri;
+	util::arg_string client_options_desc;
 
 	RETVAL_NULL();
 

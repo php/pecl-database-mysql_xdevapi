@@ -32,7 +32,7 @@ namespace mysqlx::util {
 	common scenario:
 
 	0)
-	util::param_string index_name;
+	util::arg_string index_name;
 	[...]
 	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os+",
@@ -42,10 +42,10 @@ namespace mysqlx::util {
 	1) then optionally make some checks (whether is empty or make some comparison
 	like == ), or immediately get proper util::string via to_string() member routine
 */
-struct param_string
+struct arg_string
 {
-	param_string() = default;
-	param_string(const char* cstr);
+	arg_string() = default;
+	arg_string(const char* cstr);
 
 	bool empty() const;
 

@@ -444,7 +444,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, having)
 	DBG_ENTER("mysqlx_collection__find::having");
 
 	util::raw_zval* object_zv{nullptr};
-	util::param_string search_condition;
+	util::arg_string search_condition;
 
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, collection_find_class_entry,
