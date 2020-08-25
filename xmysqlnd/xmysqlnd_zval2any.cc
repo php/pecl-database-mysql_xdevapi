@@ -36,235 +36,240 @@ using namespace Mysqlx::Datatypes;
 
 namespace {
 
-void zval2object(zval* zv, Mysqlx::Datatypes::Any& any)
+void zval2array(const util::zvalue& zv, Mysqlx::Datatypes::Any& any)
 {
+	assert(zv.is_array());
+	any.set_type(Any_Type_ARRAY);
+	for (const auto& value : zv.values()) {
+		Mysqlx::Datatypes::Any* new_value = any.mutable_array()->add_value();
+		zval2any(value, *new_value);
+	}
+}
+
+void zval2object(const util::zvalue& obj_zv, Mysqlx::Datatypes::Any& any)
+{
+	assert(obj_zv.is_object());
 	any.set_type(Any_Type_OBJECT);
 	Mysqlx::Datatypes::Object* obj{ any.mutable_obj() };
-	HashTable* properties{ zend_std_get_properties(zv) };
-	zend_string* property_name{nullptr};
-	zval* property_value{nullptr};
-	MYSQLX_HASH_FOREACH_STR_KEY_VAL(properties, property_name, property_value) {
-		if (property_name && property_value) {
-			Mysqlx::Datatypes::Object_ObjectField* field{ obj->add_fld() };
-			field->set_key(ZSTR_VAL(property_name), ZSTR_LEN(property_name));
-			Mysqlx::Datatypes::Any* field_value{ field->mutable_value() };
-			zval2any(property_value, *field_value);
-		}
-	} ZEND_HASH_FOREACH_END();
+	for (const auto& [property_name, property_value] : obj_zv) {
+		Mysqlx::Datatypes::Object_ObjectField* field{ obj->add_fld() };
+
+		assert(property_name.is_string());
+		field->set_key(property_name.c_str(), property_name.length());
+
+		Mysqlx::Datatypes::Any* field_value{ field->mutable_value() };
+		zval2any(property_value, *field_value);
+	}
+}
+
+void zval2str(const util::zvalue& zv, Mysqlx::Datatypes::Any& any)
+{
+	assert(zv.is_string());
+	any.set_type(Any_Type_SCALAR);
+	any.mutable_scalar()->set_type(Scalar_Type_V_STRING);
+	any.mutable_scalar()->mutable_v_string()->set_value(zv.c_str(), zv.length());
+}
+
+void zval2other(const util::zvalue& zv, Mysqlx::Datatypes::Any& any)
+{
+	util::zvalue other = zv.clone();
+	convert_to_string(other.ptr());
+	if (other.is_string()) {
+		zval2str(other, any);
+	}
 }
 
 } // anonymous namespace
 
-enum_func_status
-zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any)
+void
+zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any & any)
 {
 	DBG_ENTER("zval2any");
-	switch (Z_TYPE_P(zv)) {
-		case IS_UNDEF:
+	switch (zv.type()) {
+		case util::zvalue::Type::Undefined:
 			DBG_INF("IS_UNDEF");
-			/* fallthrough */
-		case IS_NULL:
+			[[fallthrough]];
+
+		case util::zvalue::Type::Null:
 			DBG_INF("IS_NULL");
 			any.set_type(Any_Type_SCALAR);
 			any.mutable_scalar()->set_type(Scalar_Type_V_NULL);
 			break;
-		case IS_FALSE:
+
+		case util::zvalue::Type::False:
 			DBG_INF("IS_FALSE");
 			any.set_type(Any_Type_SCALAR);
 			any.mutable_scalar()->set_type(Scalar_Type_V_BOOL);
 			any.mutable_scalar()->set_v_bool(false);
 			break;
-		case IS_TRUE:
+
+		case util::zvalue::Type::True:
 			DBG_INF("IS_TRUE");
 			any.set_type(Any_Type_SCALAR);
 			any.mutable_scalar()->set_type(Scalar_Type_V_BOOL);
 			any.mutable_scalar()->set_v_bool(true);
 			break;
-		case IS_LONG:
-			DBG_INF_FMT("IS_LONG=%lu", Z_LVAL_P(zv));
+
+		case util::zvalue::Type::Long:
+			DBG_INF_FMT("IS_LONG=%lu", zv.to_zlong());
 			any.set_type(Any_Type_SCALAR);
 			any.mutable_scalar()->set_type(Scalar_Type_V_SINT);
-			any.mutable_scalar()->set_v_signed_int(Z_LVAL_P(zv));
+			any.mutable_scalar()->set_v_signed_int(zv.to_zlong());
 			break;
-		case IS_DOUBLE:
-			DBG_INF_FMT("IS_DOUBLE=%f", Z_DVAL_P(zv));
+
+		case util::zvalue::Type::Double:
+			DBG_INF_FMT("IS_DOUBLE=%f", zv.to_double());
 			any.set_type(Any_Type_SCALAR);
 			any.mutable_scalar()->set_type(Scalar_Type_V_DOUBLE);
-			any.mutable_scalar()->set_v_double(Z_DVAL_P(zv));
+			any.mutable_scalar()->set_v_double(zv.to_double());
 			break;
-		case IS_STRING:
-			DBG_INF_FMT("IS_STRING=%s", Z_STRVAL_P(zv));
-			any.set_type(Any_Type_SCALAR);
-			any.mutable_scalar()->set_type(Scalar_Type_V_STRING);
-			any.mutable_scalar()->mutable_v_string()->set_value(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
+
+		case util::zvalue::Type::String:
+			DBG_INF_FMT("IS_STRING=%s", zv.c_str());
+			zval2str(zv, any);
 			break;
-		case IS_ARRAY: {
+
+		case util::zvalue::Type::Array:
 			DBG_INF("IS_ARRAY");
-			zval* entry{nullptr};
-			any.set_type(Any_Type_ARRAY);
-			MYSQLX_HASH_FOREACH_VAL(Z_ARR_P(zv), entry) {
-				DBG_INF("ENTRY");
-				Mysqlx::Datatypes::Any entry_any;
-				Mysqlx::Datatypes::Any * new_value = any.mutable_array()->add_value();
-				ZVAL_DEREF(entry);
-				zval2any(entry, entry_any);
-				new_value->CopyFrom(entry_any); /* maybe Swap() as the internal value will be empty anyway */
-			} ZEND_HASH_FOREACH_END();
+			zval2array(zv, any);
 			break;
-		}
-		case IS_OBJECT: {
+
+		case util::zvalue::Type::Object:
 			DBG_INF("IS_OBJECT");
-			zval2object(const_cast<zval*>(zv), any);
+			zval2object(zv, any);
 			break;
-		}
+
 		default:
-			zval to_str;
-			ZVAL_COPY(&to_str, zv);
-			convert_to_string(&to_str);
+			zval2other(zv, any);
 			break;
 	}
-	DBG_RETURN(PASS);
+	DBG_VOID_RETURN;
 }
 
-enum_func_status
-zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any)
+namespace {
+
+template<typename SignedInt>
+util::zvalue sint2zval(SignedInt sint)
 {
-	return zval2any(zv.ptr(), any);
+#if SIZEOF_ZEND_LONG==4
+	if ((sint < ZEND_LONG_MIN) || (ZEND_LONG_MAX < sint)) {
+		return util::to_string(sint);
+	}
+#endif
+	return sint;
 }
 
-enum_func_status
-scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv)
+template<typename UnsignedInt>
+util::zvalue uint2zval(UnsignedInt uint)
 {
-	DBG_ENTER("scalar2zval");
-	zval_ptr_dtor(zv);
-	ZVAL_UNDEF(zv);
+#if SIZEOF_ZEND_LONG==4
+	if (uint > ZEND_ULONG_MAX) {
+		return util::to_string(uint);
+	}
+#endif
+	return uint;
+}
+
+} // anonymous namespace
+
+util::zvalue scalar2zval(const Mysqlx::Datatypes::Scalar& scalar)
+{
 	switch (scalar.type()) {
 		case Scalar_Type_V_SINT:
-#if SIZEOF_ZEND_LONG==4
-			if (UNEXPECTED(scalar.v_signed_int() >= ZEND_LONG_MAX)) {
-				char tmp[22];
-				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_signed_int()).c_str());
-				ZVAL_STRING(zv, tmp);
-			} else
-#endif
-			{
-				ZVAL_LONG(zv, static_cast<zend_long>(scalar.v_signed_int()));
-			}
-			break;
+			return sint2zval(scalar.v_signed_int());
+
 		case Scalar_Type_V_UINT:
-#if SIZEOF_ZEND_LONG==8
-			if (scalar.v_unsigned_int() > 9223372036854775807L) {
-#elif SIZEOF_ZEND_LONG==4
-			if (scalar.v_unsigned_int() > L64(2147483647)) {
-#endif
-				char tmp[22];
-				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
-				ZVAL_STRING(zv, tmp);
-			} else {
-				ZVAL_LONG(zv, static_cast<zend_long>(scalar.v_unsigned_int()));
-			}
-			break;
+			return uint2zval(scalar.v_unsigned_int());
+
 		case Scalar_Type_V_NULL:
-			ZVAL_NULL(zv);
-			break;
-		case Scalar_Type_V_OCTETS:
-			ZVAL_STRINGL(zv, scalar.v_octets().value().c_str(), scalar.v_octets().value().size() - 1);
-			break;
+			return nullptr;
+
+		case Scalar_Type_V_OCTETS: {
+			const auto& octets = scalar.v_octets().value();
+			return util::zvalue(octets.c_str(), octets.size());
+		}
+
 		case Scalar_Type_V_DOUBLE:
-			ZVAL_DOUBLE(zv, scalar.v_double());
-			break;
+			return scalar.v_double();
+
 		case Scalar_Type_V_FLOAT:
-			ZVAL_DOUBLE(zv, mysql_float_to_double(scalar.v_float(), -1)); // Fixlength, without meta maybe bad results (see mysqlnd)
-			break;
+			return mysql_float_to_double(scalar.v_float(), -1); // Fixlength, without meta maybe bad results (see mysqlnd)
+
 		case Scalar_Type_V_BOOL:
-			ZVAL_BOOL(zv, scalar.v_bool());
-			break;
-		case Scalar_Type_V_STRING:
-			ZVAL_STRINGL(zv, scalar.v_string().value().c_str(), scalar.v_string().value().size());
-			break;
+			return scalar.v_bool();
+
+		case Scalar_Type_V_STRING: {
+			const auto& str = scalar.v_string().value();
+			return util::zvalue(str.c_str(), str.size());
+		}
+
 		default:
-			php_error_docref(nullptr, E_WARNING, "Unknown new type %s (%d)", Mysqlx::Datatypes::Scalar::Type_Name(scalar.type()).c_str(), scalar.type());
-			DBG_RETURN(FAIL);
-			;// assert
+			php_error_docref(
+				nullptr,
+				E_WARNING,
+				"Unknown new type %s (%d)",
+				Mysqlx::Datatypes::Scalar::Type_Name(scalar.type()).c_str(),
+				scalar.type());
+			return util::zvalue();
 	}
-	DBG_RETURN(PASS);
 }
 
-enum_func_status
-any2zval(const Mysqlx::Datatypes::Any & any, zval * zv)
+namespace {
+
+util::zvalue array2zval(const Mysqlx::Datatypes::Array& array)
 {
-	DBG_ENTER("any2zval");
-	zval_ptr_dtor(zv);
-	ZVAL_UNDEF(zv);
+	util::zvalue result = util::zvalue::create_array(array.value_size());
+	for (int i{0}; i < array.value_size(); ++i) {
+		result.push_back(any2zval(array.value(i)));
+	}
+	return result;
+}
+
+util::zvalue object2zval(const Mysqlx::Datatypes::Object& obj)
+{
+	util::zvalue result = util::zvalue::create_object();
+	const int fields_count{ obj.fld_size() };
+	for (int i{0}; i < fields_count; ++i) {
+		const auto& field{ obj.fld(i) };
+		result.set_property(field.key(), any2zval(field.value()));
+	}
+	return result;
+}
+
+} // anonymous namespace
+
+util::zvalue
+any2zval(const Mysqlx::Datatypes::Any& any)
+{
 	switch (any.type()) {
 		case Any_Type_SCALAR:
-			scalar2zval(any.scalar(), zv);
-			break;
-		case Any_Type_OBJECT: {
-			zval properties;
-			ZVAL_UNDEF(&properties);
-			const int fields_count{ any.obj().fld_size() };
-			array_init_size(&properties, fields_count);
+			return scalar2zval(any.scalar());
 
-			for (int i{0}; i < fields_count; ++i) {
-				zval entry;
-				ZVAL_UNDEF(&entry);
-				const auto& field{ any.obj().fld(i) };
-				any2zval(field.value(), &entry);
-				if (Z_REFCOUNTED(entry)) {
-					Z_ADDREF(entry);
-				}
-				add_assoc_zval_ex(&properties, field.key().c_str(), field.key().size(), &entry);
-				zend_hash_next_index_insert(Z_ARRVAL(properties), &entry);
-			}
+		case Any_Type_OBJECT:
+			return object2zval(any.obj());
 
-			object_init(zv);
-			zend_merge_properties(zv, Z_ARRVAL(properties));
-			zval_ptr_dtor(&properties);
-			break;
-		}
 		case Any_Type_ARRAY:
-			array_init_size(zv, any.array().value_size());
-			for (int i{0}; i < any.array().value_size(); ++i) {
-				zval entry;
-				ZVAL_UNDEF(&entry);
-				any2zval(any.array().value(i), &entry);
-				zend_hash_next_index_insert(Z_ARRVAL_P(zv), &entry);
-			}
-			break;
+			return array2zval(any.array());
+
 		default:
-#ifndef PHP_DEBUG
-			php_error_docref(nullptr, E_WARNING, "Unknown type %s . Please report to the developers.", Any::Type_Name(any.type()).c_str());
-			DBG_RETURN(FAIL);
-#else
-			DBG_INF_FMT("UNHANDLED TYPE");
-			exit(0);
-#endif
+			assert("UNHANDLED TYPE");
+			php_error_docref(
+				nullptr,
+				E_WARNING,
+				"Unknown type %s . Please report to the developers.",
+				Any::Type_Name(any.type()).c_str());
+			return util::zvalue();
 	}
-	DBG_RETURN(PASS);
 }
 
-enum_func_status any2zval(const Mysqlx::Datatypes::Any& any, util::zvalue& zv)
+uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar& scalar)
 {
-	return any2zval(any, zv.ptr());
-}
-
-util::zvalue any2zval(const Mysqlx::Datatypes::Any& any)
-{
-	util::zvalue value;
-	any2zval(any, value.ptr());
-	return value;
-}
-
-uint64_t
-scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
-{
-	uint64_t ret{0};
 	DBG_ENTER("scalar2uint");
+	uint64_t ret{0};
 	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
 	switch (scalar.type()) {
 		case Scalar_Type_V_SINT:
-			ret = scalar.v_signed_int();
+			ret = static_cast<uint64_t>(scalar.v_signed_int());
 			break;
 		case Scalar_Type_V_UINT:
 			ret = scalar.v_unsigned_int();
@@ -273,7 +278,7 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = 0;
 			break;
 		case Scalar_Type_V_OCTETS:
-			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), nullptr, 10);
+			ret = std::stoull(scalar.v_octets().value());
 			break;
 		case Scalar_Type_V_DOUBLE:
 			ret = static_cast<uint64_t>(scalar.v_double());
@@ -282,175 +287,29 @@ scalar2uint(const Mysqlx::Datatypes::Scalar & scalar)
 			ret = static_cast<uint64_t>(mysql_float_to_double(scalar.v_float(), -1));
 			break;
 		case Scalar_Type_V_BOOL:
-			ret = scalar.v_bool();
+			ret = scalar.v_bool() ? 1 : 0;
 			break;
 		case Scalar_Type_V_STRING:
-			ret = ZEND_STRTOL(scalar.v_string().value().c_str(), nullptr, 10);
+			ret = std::stoull(scalar.v_string().value());
 			break;
 		default:
-			;// assert
+			assert(!"unexpected type");
 	}
 	DBG_RETURN(ret);
 }
 
-int64_t
-scalar2sint(const Mysqlx::Datatypes::Scalar & scalar)
+util::string scalar2string(const Mysqlx::Datatypes::Scalar& scalar)
 {
-	int64_t ret{0};
-	DBG_ENTER("scalar2uint");
-	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
-	switch (scalar.type()) {
-		case Scalar_Type_V_SINT:
-			ret = scalar.v_signed_int();
-			break;
-		case Scalar_Type_V_UINT:
-			ret = scalar.v_unsigned_int();
-			break;
-		case Scalar_Type_V_NULL:
-			ret = 0;
-			break;
-		case Scalar_Type_V_OCTETS:
-			ret = ZEND_STRTOL(scalar.v_octets().value().c_str(), nullptr, 10);
-			break;
-		case Scalar_Type_V_DOUBLE:
-			ret = static_cast<int64_t>(scalar.v_double());
-			break;
-		case Scalar_Type_V_FLOAT:
-			ret = static_cast<int64_t>(mysql_float_to_double(scalar.v_float(), -1));
-			break;
-		case Scalar_Type_V_BOOL:
-			ret = scalar.v_bool();
-			break;
-		case Scalar_Type_V_STRING:
-			ret = ZEND_STRTOL(scalar.v_string().value().c_str(), nullptr, 10);
-			break;
-		default:
-			;// assert
-	}
-	DBG_RETURN(ret);
+	util::zvalue value = scalar2zval(scalar);
+	return value.serialize(false);
 }
 
-util::string
-scalar2string(const Mysqlx::Datatypes::Scalar & scalar)
-{
-	util::string ret;
-	DBG_ENTER("scalar2string");
-	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
-	switch (scalar.type()) {
-		case Scalar_Type_V_SINT:
-			ret = util::to_string(scalar.v_signed_int());
-			break;
-		case Scalar_Type_V_UINT:
-			ret = util::to_string(scalar.v_unsigned_int());
-			break;
-		case Scalar_Type_V_NULL:
-			break;
-		case Scalar_Type_V_OCTETS:
-			ret.assign(scalar.v_octets().value().c_str(), scalar.v_octets().value().size());
-			break;
-		case Scalar_Type_V_DOUBLE:
-			ret = util::to_string(scalar.v_double());
-			break;
-		case Scalar_Type_V_FLOAT:
-			ret = util::to_string(scalar.v_float());
-			break;
-		case Scalar_Type_V_BOOL:{
-			ret = scalar.v_bool() ? "TRUE" : "FALSE";
-			break;
-		}
-		case Scalar_Type_V_STRING:{
-			ret.assign(scalar.v_string().value().c_str(), scalar.v_string().value().size());
-			break;
-		}
-		default:
-			;// assert
-	}
-	DBG_RETURN(ret);
-}
-
-void
-scalar2log(const Mysqlx::Datatypes::Scalar & scalar)
+void scalar2log(const Mysqlx::Datatypes::Scalar& scalar)
 {
 	DBG_ENTER("scalar2log");
 	DBG_INF_FMT("subtype=%s", Scalar::Type_Name(scalar.type()).c_str());
-	switch (scalar.type()) {
-		case Scalar_Type_V_SINT:
-#if SIZEOF_ZEND_LONG==4
-			if (UNEXPECTED(scalar.v_signed_int() >= ZEND_LONG_MAX)) {
-				char tmp[22];
-				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
-				DBG_INF_FMT("value=%s", tmp);
-			} else
-#endif
-			{
-				DBG_INF_FMT("value=" MYSQLX_LLU_SPEC, scalar.v_signed_int());
-			}
-			break;
-		case Scalar_Type_V_UINT:
-#if SIZEOF_ZEND_LONG==8
-			if (scalar.v_unsigned_int() > 9223372036854775807L) {
-#elif SIZEOF_ZEND_LONG==4
-			if (scalar.v_unsigned_int() > L64(2147483647)) {
-#endif
-				char tmp[22];
-				snprintf(tmp, sizeof(tmp), "%s", util::to_string(scalar.v_unsigned_int()).c_str());
-				DBG_INF_FMT("value=%s", tmp);
-			} else {
-				DBG_INF_FMT("value=" MYSQLX_LLU_SPEC, scalar.v_unsigned_int());
-			}
-			break;
-		case Scalar_Type_V_NULL:
-			break;
-		case Scalar_Type_V_OCTETS:
-			DBG_INF_FMT("value=[%*s]", scalar.v_octets().value().size(), scalar.v_octets().value().c_str());
-			break;
-		case Scalar_Type_V_DOUBLE:
-			DBG_INF_FMT("value=%f", scalar.v_double());
-			break;
-		case Scalar_Type_V_FLOAT:
-			DBG_INF_FMT("value=%f", mysql_float_to_double(scalar.v_float(), -1));
-			break;
-		case Scalar_Type_V_BOOL:
-			DBG_INF_FMT("value=%s", scalar.v_bool()? "TRUE":"FALSE");
-			break;
-		case Scalar_Type_V_STRING:
-			DBG_INF_FMT("value=[%*s]", scalar.v_string().value().size(), scalar.v_string().value().c_str());
-			break;
-		default:
-			;// assert
-	}
-	DBG_VOID_RETURN;
-}
-
-void
-any2log(const Mysqlx::Datatypes::Any & any)
-{
-	DBG_ENTER("any2log");
-	DBG_INF_FMT("type=%s", Any::Type_Name(any.type()).c_str());
-	switch (any.type()) {
-		case Any_Type_SCALAR:
-			scalar2log(any.scalar());
-			break;
-		case Any_Type_OBJECT: {
-			for (int i{0}; i < any.obj().fld_size(); ++i) {
-				any2log(any.obj().fld(i).value());
-			}
-			break;
-		}
-		case Any_Type_ARRAY:
-			for (int i{0}; i < any.array().value_size(); ++i) {
-				any2log(any.array().value(i));
-			}
-			break;
-		default:
-#ifndef PHP_DEBUG
-			DBG_INF_FMT("Unknown type %s . Please report to the developers.", Any::Type_Name(any.type()).c_str());
-			DBG_VOID_RETURN;
-#else
-			DBG_INF_FMT("UNHANDLED TYPE");
-			exit(0);
-#endif
-	}
+	const util::string& str = scalar2string(scalar);
+	DBG_INF_FMT("value=[%*s]", str.c_str(), str.length());
 	DBG_VOID_RETURN;
 }
 
@@ -460,6 +319,44 @@ void repeated2log(
 	for (auto scalar : repeated) {
 		scalar2log(scalar);
 	}
+}
+
+void object2log(const Mysqlx::Datatypes::Object& obj)
+{
+	for (int i{0}; i < obj.fld_size(); ++i) {
+		any2log(obj.fld(i).value());
+	}
+}
+
+void array2log(const Mysqlx::Datatypes::Array& arr)
+{
+	for (int i{0}; i < arr.value_size(); ++i) {
+		any2log(arr.value(i));
+	}
+}
+
+void any2log(const Mysqlx::Datatypes::Any& any)
+{
+	DBG_ENTER("any2log");
+	DBG_INF_FMT("type=%s", Any::Type_Name(any.type()).c_str());
+	switch (any.type()) {
+		case Any_Type_SCALAR:
+			scalar2log(any.scalar());
+			break;
+
+		case Any_Type_OBJECT:
+			object2log(any.obj());
+			break;
+
+		case Any_Type_ARRAY:
+			array2log(any.array());
+			break;
+
+		default:
+			DBG_INF_FMT("Unknown type %s . Please report to the developers.", Any::Type_Name(any.type()).c_str());
+			assert(!"unhandled type");
+	}
+	DBG_VOID_RETURN;
 }
 
 } // namespace drv

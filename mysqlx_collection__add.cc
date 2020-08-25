@@ -84,7 +84,7 @@ collection_add_string(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	util::zvalue& doc)
 {
-	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, doc.ptr()) ) {
+	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, doc) ) {
 		return Add_op_status::success;
 	}
 	return Add_op_status::fail;
@@ -97,7 +97,7 @@ collection_add_object(
 {
 	Add_op_status ret = Add_op_status::fail;
 	util::zvalue new_doc(util::json::encode_document(doc));
-	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, new_doc.ptr()) ) {
+	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, new_doc) ) {
 		ret = Add_op_status::success;
 	}
 	return ret;

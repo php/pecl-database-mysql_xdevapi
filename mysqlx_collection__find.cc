@@ -297,14 +297,12 @@ bool Collection_find::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("mysqlx_collection__find::bind");
 
-	for (const auto& variable_value : bind_variables) {
-		const util::zvalue& var_name{ variable_value.first };
+	for (const auto& [var_name, var_value] : bind_variables) {
 		if (!var_name.is_string()) {
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}
-		const util::zvalue& var_value{ variable_value.second };
-		if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, var_name.to_string(), var_value.ptr())) {
+		if (FAIL == xmysqlnd_crud_collection_find__bind_value(find_op, var_name.to_string(), var_value)) {
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}

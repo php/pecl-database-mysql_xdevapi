@@ -32,6 +32,8 @@
 
 namespace mysqlx {
 
+namespace util { class zvalue; }
+
 namespace drv {
 
 namespace compression { class Executor; }
@@ -70,7 +72,7 @@ struct st_xmysqlnd_on_error_bind
 
 struct st_xmysqlnd_on_session_var_change_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const util::string_view& name, const zval * value);
+	const enum_hnd_func_status (*handler)(void * context, const util::string_view& name, const util::zvalue& value);
 	void * ctx;
 };
 
@@ -115,7 +117,7 @@ struct st_xmysqlnd_on_auth_continue_bind
 
 struct st_xmysqlnd_on_client_id_bind
 {
-	enum_func_status (*handler)(void * context, const size_t id);
+	enum_func_status (*handler)(void * context, const uint64_t id);
 	void * ctx;
 };
 
@@ -168,7 +170,7 @@ struct st_xmysqlnd_on_meta_field_bind
 
 struct st_xmysqlnd_on_execution_state_change_bind
 {
-	const enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_execution_state_type type, const size_t value);
+	const enum_hnd_func_status (*handler)(void * context, const enum xmysqlnd_execution_state_type type, const uint64_t value);
 	void * ctx;
 };
 

@@ -78,7 +78,7 @@ util::std_strings Bindings::get_placeholders() const
 	return placeholders;
 }
 
-bool Bindings::bind(const util::string& var_name, zval* var_value)
+bool Bindings::bind(const util::string& var_name, const util::zvalue& var_value)
 {
 	DBG_ENTER("Bindings::bind");
 	DBG_INF_FMT("name=%*s", var_name.length(), var_name.c_str());
@@ -90,10 +90,7 @@ bool Bindings::bind(const util::string& var_name, zval* var_value)
 	}
 
 	Mysqlx::Datatypes::Any any;
-	if (FAIL == zval2any(var_value, any)) {
-		DBG_ERR("Error converting the zvalue to scalar");
-		DBG_RETURN(false);
-	}
+	zval2any(var_value, any);
 	any2log(any);
 
 	auto& bound_value = it->second;
@@ -235,34 +232,31 @@ struct st_xmysqlnd_pb_message_shell
 }
 
 enum_func_status
-xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj,
-									  zval * values_zv)
+xmysqlnd_crud_collection_add__add_doc(
+	XMYSQLND_CRUD_COLLECTION_OP__ADD * obj,
+	const util::zvalue& doc)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_add__add_doc");
 	enum_func_status ret{PASS};
-	obj->add_document(values_zv);
+	obj->add_document(doc);
 	DBG_RETURN(ret);
 }
 
-void st_xmysqlnd_crud_collection_op__add::add_document(zval* doc)
+void st_xmysqlnd_crud_collection_op__add::add_document(const util::zvalue& doc)
 {
-	zval new_doc;
-	ZVAL_DUP(&new_doc, doc);
-	docs_zv.push_back(new_doc);
+	docs.push_back(doc.clone());
 }
 
 void st_xmysqlnd_crud_collection_op__add::bind_docs()
 {
-	for (auto& values_zv : docs_zv)
-	{
+	for (auto& doc : docs) {
 		::Mysqlx::Crud::Insert_TypedRow* row = message.add_row();
 		Mysqlx::Expr::Expr * field = row->add_field();
 		field->set_type(Mysqlx::Expr::Expr::LITERAL);
 
 		Mysqlx::Datatypes::Scalar * literal = field->mutable_literal();
 		literal->set_type(Mysqlx::Datatypes::Scalar::V_STRING);
-		literal->mutable_v_string()->set_value(Z_STRVAL(values_zv),
-											   Z_STRLEN(values_zv));
+		literal->mutable_v_string()->set_value(doc.c_str(), doc.length());
 	}
 }
 
@@ -322,7 +316,7 @@ enum_func_status
 xmysqlnd_crud_collection_remove__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__REMOVE* obj,
 	const util::string& name,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__bind_value");
 	DBG_RETURN(obj->bindings.bind(name, value) ? PASS : FAIL);
@@ -415,7 +409,7 @@ bool
 xmysqlnd_crud_collection_modify__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
 	const util::string& name,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_modify__bind_value");
 	DBG_RETURN(obj->bindings.bind(name, value));
@@ -516,10 +510,7 @@ xmysqlnd_crud_collection_modify__add_operation(
 			}
 		} else {
 			Mysqlx::Datatypes::Any any;
-			if (FAIL == zval2any(value.ptr(), any)) {
-				DBG_ERR("Error converting the zvalue to scalar");
-				DBG_RETURN(false);
-			}
+			zval2any(value, any);
 			any2log(any);
 
 			operation->mutable_value()->set_type(Mysqlx::Expr::Expr::LITERAL);
@@ -674,7 +665,7 @@ enum_func_status
 xmysqlnd_crud_collection_find__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__FIND* obj,
 	const util::string& name,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__bind_value");
 	DBG_RETURN(obj->bindings.bind(name, value) ? PASS : FAIL);
@@ -871,11 +862,7 @@ st_xmysqlnd_stmt_op__execute::finalize_bind()
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::finalize_bind");
 	for (const auto& param : params) {
 		Mysqlx::Datatypes::Any * arg = message.add_args();
-		ret = zval2any(param, *arg);
-		if (FAIL == ret) {
-			break;
-		}
-
+		zval2any(param, *arg);
 	}
 	DBG_RETURN(ret);
 }
@@ -921,12 +908,12 @@ xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE * obj, const uti
 }
 
 enum_func_status
-xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE * obj, const util::zvalue& value)
+xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE* obj, const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_stmt_execute__bind_value");
 	Mysqlx::Datatypes::Any * arg = obj->message.add_args();
-	const enum_func_status ret = zval2any(value, *arg);
-	DBG_RETURN(ret);
+	zval2any(value, *arg);
+	DBG_RETURN(PASS);
 }
 
 enum_func_status

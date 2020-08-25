@@ -40,7 +40,7 @@ typedef struct st_xmysqlnd_crud_collection_op__add XMYSQLND_CRUD_COLLECTION_OP__
 XMYSQLND_CRUD_COLLECTION_OP__ADD  * xmysqlnd_crud_collection_add__create(const util::string_view& schema, const util::string_view& collection);
 void                                xmysqlnd_crud_collection_add__destroy(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
 enum_func_status                    xmysqlnd_crud_collection_add__set_upsert(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
-enum_func_status                    xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj, zval * doc);
+enum_func_status                    xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj, const util::zvalue& doc);
 enum_func_status                    xmysqlnd_crud_collection_add__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
 struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_add__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
 
@@ -54,7 +54,7 @@ enum_func_status xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECT
 enum_func_status xmysqlnd_crud_collection_remove__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__REMOVE* obj,
 	const util::string& name,
-	zval* value);
+	const util::zvalue& value);
 enum_func_status xmysqlnd_crud_collection_remove__add_sort(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const util::string_view& sort);
 enum_func_status xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
 st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
@@ -79,7 +79,7 @@ bool xmysqlnd_crud_collection_modify__set_skip(XMYSQLND_CRUD_COLLECTION_OP__MODI
 bool xmysqlnd_crud_collection_modify__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
 	const util::string& name,
-	zval* value);
+	const util::zvalue& value);
 bool xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const util::string_view& sort);
 
 bool xmysqlnd_crud_collection_modify__unset(
@@ -117,7 +117,7 @@ enum_func_status xmysqlnd_crud_collection_find__set_offset(XMYSQLND_CRUD_COLLECT
 enum_func_status xmysqlnd_crud_collection_find__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__FIND* obj,
 	const util::string& name,
-	zval* value);
+	const util::zvalue& value);
 enum_func_status xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& sort);
 enum_func_status xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& search_field);
 enum_func_status xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& criteria);
@@ -162,7 +162,7 @@ public:
 	void add_placeholder(const util::string& placeholder);
 	void add_placeholders(const util::std_strings& placeholders);
 	util::std_strings get_placeholders() const;
-	bool bind(const util::string& placeholder, zval* value);
+	bool bind(const util::string& placeholder, const util::zvalue& value);
 	bool finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args);
 	Bound_values get_bound_values() const;
 
@@ -195,7 +195,7 @@ struct st_xmysqlnd_crud_collection_op__add
 {
 	Mysqlx::Crud::Insert message;
 
-	std::vector<zval> docs_zv;
+	util::zvalues docs;
 
 	st_xmysqlnd_crud_collection_op__add(
 		const util::string_view& schema,
@@ -206,15 +206,8 @@ struct st_xmysqlnd_crud_collection_op__add
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	void add_document(zval* doc);
+	void add_document(const util::zvalue& doc);
 	void bind_docs();
-
-	~st_xmysqlnd_crud_collection_op__add() {
-		for( auto& values_zv : docs_zv ) {
-			zval_dtor(&values_zv);
-		}
-		docs_zv.clear();
-	}
 };
 
 struct st_xmysqlnd_crud_collection_op__modify
@@ -255,7 +248,7 @@ struct st_xmysqlnd_crud_collection_op__remove
 
 struct st_xmysqlnd_stmt_op__execute
 {
-    util::vector<util::zvalue> params;
+    util::zvalues params;
 
     Mysqlx::Sql::StmtExecute message;
     uint32_t ps_message_id;

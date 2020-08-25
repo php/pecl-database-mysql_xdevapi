@@ -203,7 +203,7 @@ handler_on_error(void * context, const unsigned int code, const util::string_vie
 }
 
 static const enum_hnd_func_status
-handler_on_exec_state_change(void * context, const enum xmysqlnd_execution_state_type type, const size_t value)
+handler_on_exec_state_change(void * context, const enum xmysqlnd_execution_state_type type, const uint64_t value)
 {
 	st_xmysqlnd_stmt_bind_ctx* const ctx = (st_xmysqlnd_stmt_bind_ctx*) context;
 	enum_hnd_func_status ret{HND_AGAIN};
@@ -968,10 +968,7 @@ bool Prepare_stmt_data::bind_values(
 	std::vector<Mysqlx::Datatypes::Scalar*> converted_params;
 	for( unsigned int i{0}; i < params_allocated; ++i ) {
 		Mysqlx::Datatypes::Any arg;
-		ret = zval2any(&(params[i]), arg);
-		if( FAIL == ret ) {
-			break;
-		}
+		zval2any(&(params[i]), arg);
 		Mysqlx::Datatypes::Scalar * new_param = new Mysqlx::Datatypes::Scalar;
 		new_param->CopyFrom(arg.scalar());
 		converted_params.push_back( new_param );

@@ -276,19 +276,11 @@ xmysqlnd_session_data::send_client_attributes()
 				final_any.set_allocated_obj(values);
 				final_any.set_type( Mysqlx::Datatypes::Any_Type::Any_Type_OBJECT );
 
-				zval name;
-				ZVAL_NULL(&name);
+				util::zvalue name("session_connect_attrs");
 
-				zval value;
-				ZVAL_NULL(&value);
-
-				ZVAL_STRINGL(&name,
-							 "session_connect_attrs",
-							 strlen("session_connect_attrs"));
-				capability_names[0] = &name;
-
-				any2zval(final_any,&value);
-				capability_values[0] = &value;
+				util::zvalue value = any2zval(final_any);
+				capability_names[0] = name.ptr();
+				capability_values[0] = value.ptr();
 
 				const st_xmysqlnd_on_error_bind on_error =
 				{ xmysqlnd_session_data_handler_on_error, (void*) this };
@@ -298,25 +290,15 @@ xmysqlnd_session_data::send_client_attributes()
 												  capability_names,
 												  capability_values) ) {
 					DBG_INF_FMT("Successfully submitted the connection attributes to the server.");
-					zval zvalue;
-					ZVAL_NULL(&zvalue);
+					util::zvalue zvalue;
 					caps_get.init_read(&caps_get, on_error);
 					ret = caps_get.read_response(&caps_get,
-												 &zvalue);
+												 zvalue.ptr());
 					if( ret == PASS ) {
 						DBG_INF_FMT("Server response OK for the submitted connection attributes.");
 					} else {
 						DBG_ERR_FMT("Negative response from the server for the submitted connection attributes");
 					}
-
-					zval_ptr_dtor(&zvalue);
-				}
-
-				zval_ptr_dtor(&name);
-				zval_ptr_dtor(&value);
-			} else{
-				if( values ) {
-					delete values;
 				}
 			}
 		}
@@ -994,26 +976,22 @@ enum_func_status try_setup_crypto_connection(
 
 	zval ** capability_names = (zval **) mnd_ecalloc(2, sizeof(zval*));
 	zval ** capability_values = (zval **) mnd_ecalloc(2, sizeof(zval*));
-	zval  name, value;
-
 	constexpr util::string_view cstr_name("tls");
+	util::zvalue name(cstr_name);
+	util::zvalue value(true);
 
-	ZVAL_STRINGL(&name,cstr_name.data(),cstr_name.length());
-
-	capability_names[0] = &name;
-	ZVAL_TRUE(&value);
-	capability_values[0] = &value;
+	capability_names[0] = name.ptr();
+	capability_values[0] = value.ptr();
 	if( PASS == caps_set.send_request(&caps_set,
 									  1,
 									  capability_names,
 									  capability_values))
 	{
 		DBG_INF_FMT("Cap. send request with tls=true success, reading response..!");
-		zval zvalue;
-		ZVAL_NULL(&zvalue);
+		util::zvalue zvalue;
 		caps_get.init_read(&caps_get, on_error);
 		ret = caps_get.read_response(&caps_get,
-									 &zvalue);
+									 zvalue.ptr());
 		if( ret == PASS ) {
 			DBG_INF_FMT("Cap. response OK, setting up TLS options.!");
 			php_stream_context * context = php_stream_context_alloc();
@@ -1037,12 +1015,9 @@ enum_func_status try_setup_crypto_connection(
 			DBG_ERR_FMT("Negative response from the server, not able to setup TLS.");
 			util::set_error_info(util::xdevapi_exception::Code::cannot_setup_tls, session->error_info);
 		}
-		zval_ptr_dtor(&zvalue);
 	}
 
 	//Cleanup
-	zval_ptr_dtor(&name);
-	zval_ptr_dtor(&value);
 	if( capability_names ) {
 		mnd_efree(capability_names);
 	}
@@ -1120,7 +1095,7 @@ xmysqlnd_session_data_handler_on_auth_continue(
 }
 
 enum_func_status
-xmysqlnd_session_data_set_client_id(void * context, const size_t id)
+xmysqlnd_session_data_set_client_id(void * context, const uint64_t id)
 {
 	enum_func_status ret{FAIL};
 	xmysqlnd_session_data * session = (xmysqlnd_session_data *) context;

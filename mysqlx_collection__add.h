@@ -59,7 +59,7 @@ public:
 private:
 	drv::xmysqlnd_collection* collection{nullptr};
 	drv::st_xmysqlnd_crud_collection_op__add* add_op{nullptr};
-	std::vector<util::zvalue> docs;
+	util::zvalues docs;
 };
 
 util::zvalue create_collection_add(

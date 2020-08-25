@@ -191,7 +191,7 @@ void to_any(
 	const util::zvalue& zv,
 	Any& any)
 {
-	drv::zval2any(zv.c_ptr(), any);
+	drv::zval2any(zv, any);
 }
 
 void to_any(

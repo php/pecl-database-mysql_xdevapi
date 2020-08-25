@@ -331,30 +331,27 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, bind)
 	DBG_ENTER("mysqlx_table__select::bind");
 
 	util::raw_zval* object_zv{nullptr};
-	HashTable * bind_variables;
+	HashTable* bind_variables_ht;
 	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oh",
 												&object_zv, mysqlx_table__select_class_entry,
-												&bind_variables))
+												&bind_variables_ht))
 	{
 		DBG_VOID_RETURN;
 	}
 
+	RETVAL_NULL();
+
 	auto& data_object{ util::fetch_data_object<st_mysqlx_table__select>(object_zv) };
-
-	RETVAL_FALSE;
-
 	if (data_object.crud_op && data_object.table) {
-		zend_string * key;
-		zval* val{nullptr};
-		MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val) {
-			if (key) {
-				const util::string_view variable{ ZSTR_VAL(key), ZSTR_LEN(key) };
-				if (FAIL == xmysqlnd_crud_table_select__bind_value(data_object.crud_op, variable, val)) {
+		util::zvalue bind_variables(bind_variables_ht);
+		for (const auto& [key, value] : bind_variables) {
+			if (key.is_string()) {
+				if (FAIL == xmysqlnd_crud_table_select__bind_value(data_object.crud_op, key.to_string_view(), value)) {
 					RAISE_EXCEPTION(err_msg_bind_fail);
 					DBG_VOID_RETURN;
 				}
 			}
-		} ZEND_HASH_FOREACH_END();
+		}
 		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 	DBG_VOID_RETURN;

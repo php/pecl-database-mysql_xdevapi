@@ -87,11 +87,8 @@ xmysqlnd_inspect_changed_variable(const st_xmysqlnd_on_session_var_change_bind o
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 	if (has_param && has_value) {
 		const util::string_view name = message.param();
-		zval zv;
-		ZVAL_UNDEF(&zv);
-		if (PASS == scalar2zval(message.value(), &zv)) {
-			ret = on_session_var_change.handler(on_session_var_change.ctx, name, &zv);
-		}
+		util::zvalue zv = scalar2zval(message.value());
+		ret = on_session_var_change.handler(on_session_var_change.ctx, name, zv);
 	}
 
 	DBG_RETURN(ret);
@@ -148,7 +145,7 @@ xmysqlnd_inspect_changed_exec_state(const st_xmysqlnd_on_execution_state_change_
 		ret = on_execution_state_change.handler(
 			on_execution_state_change.ctx,
 			state_type,
-			static_cast<size_t>(scalar2uint(message.value(0))));
+			scalar2uint(message.value(0)));
 	}
 
 #ifdef PHP_DEBUG
@@ -223,7 +220,7 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 				if (on_client_id.handler) {
 					const enum_func_status status = on_client_id.handler(
 						on_client_id.ctx,
-						static_cast<size_t>(scalar2uint(message.value(0))));
+						scalar2uint(message.value(0)));
 					ret = (status == PASS)? HND_AGAIN : HND_FAIL;
 				}
 				break;

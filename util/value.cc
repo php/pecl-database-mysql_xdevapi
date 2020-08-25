@@ -122,6 +122,16 @@ zvalue::zvalue(const zval* rhs)
 	}
 }
 
+zvalue::zvalue(const HashTable* ht)
+{
+	if (ht) {
+		ZVAL_ARR(&zv, const_cast<HashTable*>(ht));
+		inc_ref();
+	} else {
+		ZVAL_UNDEF(&zv);
+	}
+}
+
 zvalue::zvalue(std::nullptr_t /*value*/)
 {
 	ZVAL_NULL(&zv);
@@ -263,6 +273,18 @@ zvalue& zvalue::operator=(const zval* rhs)
 	zval_ptr_dtor(&zv);
 	if (rhs) {
 		ZVAL_ZVAL(&zv, const_cast<zval*>(rhs), 1, 0);
+	} else {
+		ZVAL_UNDEF(&zv);
+	}
+	return *this;
+}
+
+zvalue& zvalue::operator=(const HashTable* ht)
+{
+	zval_ptr_dtor(&zv);
+	if (ht) {
+		ZVAL_ARR(&zv, const_cast<HashTable*>(ht));
+		inc_ref();
 	} else {
 		ZVAL_UNDEF(&zv);
 	}
@@ -893,7 +915,7 @@ namespace {
 class Serializer
 {
 public:
-	Serializer(util::ostringstream& os);
+	Serializer(util::ostringstream& os, bool decorate);
 
 public:
 	void store(const zvalue& zv);
@@ -903,10 +925,12 @@ private:
 
 private:
 	util::ostringstream& os;
+	const bool decorate;
 };
 
-Serializer::Serializer(util::ostringstream& os)
+Serializer::Serializer(util::ostringstream& os, bool decorate)
 	: os(os)
+	, decorate(decorate)
 {
 }
 
@@ -938,7 +962,9 @@ void Serializer::store(const zvalue& zv)
 		break;
 
 	case zvalue::Type::String:
-		os << "'" << zv.to_string() << "'";
+		if (decorate) os << "'";
+		os << zv.to_string();
+		if (decorate) os << "'";
 		break;
 
 	case zvalue::Type::Array:
@@ -974,10 +1000,10 @@ void Serializer::store_composite(const zvalue& zv, const char* opening_tag, cons
 
 } // anonymous namespace
 
-util::string zvalue::serialize() const
+util::string zvalue::serialize(bool decorate) const
 {
 	util::ostringstream os;
-	Serializer serializer(os);
+	Serializer serializer(os, decorate);
 	serializer.store(*this);
 	return os.str();
 }

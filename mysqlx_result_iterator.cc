@@ -55,7 +55,6 @@ XMYSQLND_METHOD(mysqlx__result_iterator, dtor)(zend_object_iterator * iter)
 
 	/* cleanup handled in sxe_object_dtor as we dont always have an iterator wrapper */
 	zval_ptr_dtor(&iterator->intern.data);
-	delete iterator;
 	DBG_VOID_RETURN;
 }
 

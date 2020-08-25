@@ -205,14 +205,12 @@ bool Collection_modify::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("Collection_modify::bind");
 
-	for (const auto& variable_value : bind_variables) {
-		const util::zvalue& var_name{ variable_value.first };
+	for (const auto& [var_name, var_value] : bind_variables) {
 		if (!var_name.is_string()) {
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}
-		const util::zvalue& var_value{ variable_value.second };
-		if (!xmysqlnd_crud_collection_modify__bind_value(modify_op, var_name.to_string(), var_value.ptr())) {
+		if (!xmysqlnd_crud_collection_modify__bind_value(modify_op, var_name.to_string(), var_value)) {
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}

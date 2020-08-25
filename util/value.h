@@ -56,6 +56,8 @@ class zvalue
 		zvalue(zval&& zv);
 		zvalue(const zval* zv);
 
+		zvalue(const HashTable* ht);
+
 		zvalue(std::nullptr_t value);
 		zvalue(bool value);
 		zvalue(int32_t value);
@@ -101,6 +103,8 @@ class zvalue
 		zvalue& operator=(const zval& rhs);
 		zvalue& operator=(zval&& rhs);
 		zvalue& operator=(const zval* rhs);
+
+		zvalue& operator=(const HashTable* ht);
 
 		zvalue& operator=(std::nullptr_t value);
 		zvalue& operator=(bool value);
@@ -458,8 +462,7 @@ class zvalue
 		zval* ptr() const;
 
 	public:
-		// diagnostics
-		util::string serialize() const;
+		util::string serialize(bool decorate = true) const;
 
 	private:
 		zval zv;
