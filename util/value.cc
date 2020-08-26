@@ -203,9 +203,10 @@ zvalue::zvalue(const char* value, std::size_t length)
 	assign(value, length);
 }
 
-zvalue::zvalue(std::initializer_list<std::pair<const char*, zvalue>> values)
+zvalue::zvalue(std::initializer_list<std::pair<string_view, zvalue>> values)
 {
 	ZVAL_UNDEF(&zv);
+	reserve(values.size());
 	insert(values);
 }
 
@@ -370,7 +371,6 @@ zvalue& zvalue::operator=(const char* value)
 	return *this;
 }
 
-
 zvalue& zvalue::operator=(const arg_string& value)
 {
 	assign(value.c_str(), value.length());
@@ -384,8 +384,10 @@ void zvalue::assign(const char* value, std::size_t length)
 	ZVAL_STRINGL(&zv, value, length);
 }
 
-zvalue& zvalue::operator=(std::initializer_list<std::pair<const char*, zvalue>> values)
+zvalue& zvalue::operator=(std::initializer_list<std::pair<string_view, zvalue>> values)
 {
+	reset();
+	reserve(values.size());
 	insert(values);
 	return *this;
 }

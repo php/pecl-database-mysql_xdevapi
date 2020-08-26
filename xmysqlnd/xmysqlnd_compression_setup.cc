@@ -188,7 +188,7 @@ bool Negotiate::run(const Configuration& config)
 		"compression":{"algorithm": "deflate_stream", "server_max_combine_messages" : 10 })
 		"compression":{"algorithm": "lz4_message", "server_combine_mixed_messages" : true })
 	*/
-	util::zvalue cap_compression_name("compression");
+	constexpr util::string_view cap_compression_name("compression");
 	util::zvalue cap_compression_value(util::zvalue::create_object());
 	cap_compression_value.set_property(PROPERTY_ALGORITHM, to_string(config.algorithm));
 	if (config.combine_mixed_messages) {
@@ -199,9 +199,8 @@ bool Negotiate::run(const Configuration& config)
 	}
 
 	st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
-	zval* cap_names[]{cap_compression_name.ptr()};
-	zval* cap_values[]{cap_compression_value.ptr()};
-	if (caps_set.send_request(&caps_set, 1, cap_names, cap_values) != PASS) {
+	const util::zvalue capabilities = { {cap_compression_name, cap_compression_value} };
+	if (caps_set.send_request(&caps_set, capabilities) != PASS) {
 		return false;
 	}
 

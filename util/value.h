@@ -74,7 +74,7 @@ class zvalue
 		zvalue(const arg_string& value);
 		zvalue(const char* value, std::size_t length);
 
-		zvalue(std::initializer_list<std::pair<const char*, zvalue>> values);
+		zvalue(std::initializer_list<std::pair<string_view, zvalue>> values);
 
 		template<typename T>
 		zvalue(std::initializer_list<T> values);
@@ -123,7 +123,7 @@ class zvalue
 
 		void assign(const char* value, std::size_t length);
 
-		zvalue& operator=(std::initializer_list<std::pair<const char*, zvalue>> values);
+		zvalue& operator=(std::initializer_list<std::pair<string_view, zvalue>> values);
 
 		template<typename T>
 		zvalue& operator=(std::initializer_list<T> values);
@@ -348,10 +348,8 @@ class zvalue
 		template<typename Key, typename Value>
 		void insert(const std::pair<Key, Value>& key_value);
 
-		void insert(std::initializer_list<std::pair<const char*, zvalue>> values);
-
 		template<typename Key, typename Value>
-		void append(std::initializer_list<std::pair<Key, Value>> values);
+		void insert(std::initializer_list<std::pair<Key, Value>> values);
 
 		// adds new item at the next free index
 		void push_back(const zvalue& value);

@@ -481,7 +481,7 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__add_operation");
 	DBG_INF_FMT("operation=%s", Mysqlx::Crud::UpdateOperation::UpdateType_Name(op_type).c_str());
-	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u", path.length(), path.data(), value, is_expression, is_document, validate_array);
+	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u", path.length(), path.data(), value.ptr(), is_expression, is_document, validate_array);
 
 	DBG_INF_FMT("value_type=%u", value.type());
 	switch (value.type()) {

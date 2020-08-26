@@ -23,6 +23,7 @@ template<typename T>
 zvalue::zvalue(std::initializer_list<T> values)
 {
 	ZVAL_UNDEF(&zv);
+	reserve(values.size());
 	push_back(values);
 }
 
@@ -75,6 +76,8 @@ zvalue::zvalue(const map<Key, Value>& values)
 template<typename T>
 zvalue& zvalue::operator=(std::initializer_list<T> values)
 {
+	reset();
+	reserve(values.size());
 	push_back(values);
 	return *this;
 }
@@ -82,6 +85,7 @@ zvalue& zvalue::operator=(std::initializer_list<T> values)
 template<typename T>
 zvalue& zvalue::operator=(const vector<T>& values)
 {
+	reset();
 	reserve(values.size());
 	for (const auto& value : values) {
 		push_back(value);
@@ -92,6 +96,7 @@ zvalue& zvalue::operator=(const vector<T>& values)
 template<typename T>
 zvalue& zvalue::operator=(const set<T>& values)
 {
+	reset();
 	reserve(values.size());
 	for (const auto& value : values) {
 		push_back(value);
@@ -102,6 +107,7 @@ zvalue& zvalue::operator=(const set<T>& values)
 template<typename Key, typename Value>
 zvalue& zvalue::operator=(const map<Key, Value>& values)
 {
+	reset();
 	reserve(values.size());
 	for (const auto& value : values) {
 		insert(value.first, value.second);
@@ -771,15 +777,9 @@ void zvalue::insert(const std::pair<Key, Value>& key_value)
 	insert(key_value.first, key_value.second);
 }
 
-inline void zvalue::insert(std::initializer_list<std::pair<const char*, zvalue>> values)
-{
-	append(values);
-}
-
 template<typename Key, typename Value>
-void zvalue::append(std::initializer_list<std::pair<Key, Value>> values)
+void zvalue::insert(std::initializer_list<std::pair<Key, Value>> values)
 {
-	reserve(values.size());
 	for_each(
 		values.begin(),
 		values.end(),
@@ -792,7 +792,6 @@ void zvalue::append(std::initializer_list<std::pair<Key, Value>> values)
 template<typename T>
 void zvalue::push_back(std::initializer_list<T> values)
 {
-	reserve(values.size());
 	for (const auto& value : values) {
 		push_back(value);
 	}

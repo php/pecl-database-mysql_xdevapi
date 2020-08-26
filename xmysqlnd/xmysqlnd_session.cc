@@ -99,23 +99,6 @@ inline bool is_tlsv13_supported() {
 }
 
 
-zend_bool
-xmysqlnd_is_capability_present(
-	const zval* capabilities,
-	const std::string& cap_name,
-	zend_bool* found
-)
-{
-	zval* zv = zend_hash_str_find(Z_ARRVAL_P(capabilities), cap_name.c_str(), cap_name.length());
-	if (!zv || Z_TYPE_P(zv) == IS_UNDEF) {
-		*found = FALSE;
-		return FALSE;
-	}
-	*found = TRUE;
-	convert_to_boolean(zv);
-	return Z_TYPE_P(zv) == IS_TRUE? TRUE:FALSE;
-}
-
 } // anonymous namespace
 
 bool set_connection_timeout(
@@ -215,38 +198,23 @@ xmysqlnd_session_data::get_scheme(
 Mysqlx::Datatypes::Object*
 xmysqlnd_session_data::prepare_client_attr_object()
 {
-	const std::size_t capa_count{ connection_attribs.size()};
 	Mysqlx::Datatypes::Object*        values = new (std::nothrow) Mysqlx::Datatypes::Object;
 	if(values){
-		std::size_t idx{ 0 };
-		for( ; idx < capa_count; ++idx) {
-			std::unique_ptr<Mysqlx::Datatypes::Scalar>        scalar{nullptr};
-			std::unique_ptr<Mysqlx::Datatypes::Scalar_String> string_value{nullptr};
-			std::unique_ptr<Mysqlx::Datatypes::Any>           any{nullptr};
-
-			const auto& connection_attrib = connection_attribs[idx];
+		for(const auto& [connection_attrib_key, connection_attrib_value] : connection_attribs) {
 			Mysqlx::Datatypes::Object_ObjectField* field = values->add_fld();
-
-			const auto& connection_attrib_key = connection_attrib.first;
 			field->set_key(connection_attrib_key.c_str(), connection_attrib_key.length());
 
-			scalar.reset(new Mysqlx::Datatypes::Scalar);
-			string_value.reset(new Mysqlx::Datatypes::Scalar_String);
-			any.reset(new Mysqlx::Datatypes::Any);
-
-			const auto& connection_attrib_value = connection_attrib.second;
+			std::unique_ptr string_value{ std::make_unique<Mysqlx::Datatypes::Scalar_String>() };
 			string_value->set_value(connection_attrib_value.c_str(), connection_attrib_value.length());
+
+			std::unique_ptr scalar{ std::make_unique<Mysqlx::Datatypes::Scalar>() };
 			scalar->set_type(Mysqlx::Datatypes::Scalar_Type_V_STRING);
 			scalar->set_allocated_v_string(string_value.release());
 
+			std::unique_ptr any{ std::make_unique<Mysqlx::Datatypes::Any>() };
 			any->set_allocated_scalar(scalar.release());
 			any->set_type( Mysqlx::Datatypes::Any_Type::Any_Type_SCALAR );
 			field->set_allocated_value(any.release());
-		}
-
-		if( idx < capa_count ) {
-			delete values;
-			values = nullptr;
 		}
 	}
 	return values;
@@ -265,49 +233,35 @@ xmysqlnd_session_data::send_client_attributes()
 		st_xmysqlnd_msg__capabilities_set caps_set{ msg_factory.get__capabilities_set(&msg_factory) };
 		st_xmysqlnd_msg__capabilities_get caps_get{ msg_factory.get__capabilities_get(&msg_factory) };
 
-		zval ** capability_names = static_cast<zval**>( mnd_ecalloc(1 , sizeof(zval*)));
-		zval ** capability_values = static_cast<zval**>( mnd_ecalloc(1, sizeof(zval*)));
+		Mysqlx::Datatypes::Object* values = prepare_client_attr_object();
 
-		if(  capability_names && capability_values ) {
-			Mysqlx::Datatypes::Object* values = prepare_client_attr_object();
+		if( values ) {
+			Mysqlx::Datatypes::Any final_any;
+			final_any.set_allocated_obj(values);
+			final_any.set_type( Mysqlx::Datatypes::Any_Type::Any_Type_OBJECT );
 
-			if( values ) {
-				Mysqlx::Datatypes::Any final_any;
-				final_any.set_allocated_obj(values);
-				final_any.set_type( Mysqlx::Datatypes::Any_Type::Any_Type_OBJECT );
+			constexpr util::string_view name("session_connect_attrs");
+			util::zvalue value = any2zval(final_any);
+			util::zvalue capabilities = { {name, value} };
 
-				util::zvalue name("session_connect_attrs");
+			const st_xmysqlnd_on_error_bind on_error =
+			{ xmysqlnd_session_data_handler_on_error, (void*) this };
 
-				util::zvalue value = any2zval(final_any);
-				capability_names[0] = name.ptr();
-				capability_values[0] = value.ptr();
-
-				const st_xmysqlnd_on_error_bind on_error =
-				{ xmysqlnd_session_data_handler_on_error, (void*) this };
-
-				if( PASS == caps_set.send_request(&caps_set,
-												  1, //session_connect_attrs
-												  capability_names,
-												  capability_values) ) {
-					DBG_INF_FMT("Successfully submitted the connection attributes to the server.");
-					util::zvalue zvalue;
-					caps_get.init_read(&caps_get, on_error);
-					ret = caps_get.read_response(&caps_get,
-												 zvalue.ptr());
-					if( ret == PASS ) {
-						DBG_INF_FMT("Server response OK for the submitted connection attributes.");
-					} else {
-						DBG_ERR_FMT("Negative response from the server for the submitted connection attributes");
-					}
+			if( PASS == caps_set.send_request(&caps_set, capabilities) ) {
+				DBG_INF_FMT("Successfully submitted the connection attributes to the server.");
+				util::zvalue capabilities;
+				caps_get.init_read(&caps_get, on_error);
+				ret = caps_get.read_response(&caps_get, &capabilities);
+				if( ret == PASS ) {
+					DBG_INF_FMT("Server response OK for the submitted connection attributes.");
+				} else {
+					DBG_ERR_FMT("Negative response from the server for the submitted connection attributes");
 				}
 			}
 		}
 		else {
 			DBG_ERR_FMT("Unable to allocate the memory for the capability objects");
 		}
-
-		mnd_efree(capability_names);
-		mnd_efree(capability_values);
 	}
 	DBG_RETURN(ret);
 }
@@ -974,24 +928,12 @@ enum_func_status try_setup_crypto_connection(
 	//Attempt to set the TLS capa. flag.
 	st_xmysqlnd_msg__capabilities_set caps_set{	msg_factory.get__capabilities_set(&msg_factory) };
 
-	zval ** capability_names = (zval **) mnd_ecalloc(2, sizeof(zval*));
-	zval ** capability_values = (zval **) mnd_ecalloc(2, sizeof(zval*));
-	constexpr util::string_view cstr_name("tls");
-	util::zvalue name(cstr_name);
-	util::zvalue value(true);
-
-	capability_names[0] = name.ptr();
-	capability_values[0] = value.ptr();
-	if( PASS == caps_set.send_request(&caps_set,
-									  1,
-									  capability_names,
-									  capability_values))
-	{
+	const util::zvalue capabilities = { {"tls", true} };
+	if( PASS == caps_set.send_request(&caps_set, capabilities)) {
 		DBG_INF_FMT("Cap. send request with tls=true success, reading response..!");
 		util::zvalue zvalue;
 		caps_get.init_read(&caps_get, on_error);
-		ret = caps_get.read_response(&caps_get,
-									 zvalue.ptr());
+		ret = caps_get.read_response(&caps_get, &zvalue);
 		if( ret == PASS ) {
 			DBG_INF_FMT("Cap. response OK, setting up TLS options.!");
 			php_stream_context * context = php_stream_context_alloc();
@@ -1015,14 +957,6 @@ enum_func_status try_setup_crypto_connection(
 			DBG_ERR_FMT("Negative response from the server, not able to setup TLS.");
 			util::set_error_info(util::xdevapi_exception::Code::cannot_setup_tls, session->error_info);
 		}
-	}
-
-	//Cleanup
-	if( capability_names ) {
-		mnd_efree(capability_names);
-	}
-	if( capability_values ) {
-		mnd_efree(capability_values);
 	}
 	DBG_RETURN(ret);
 }
@@ -1545,7 +1479,7 @@ util::strings to_auth_mech_names(const Auth_mechanisms& auth_mechanisms)
 
 Gather_auth_mechanisms::Gather_auth_mechanisms(
 	const Session_auth_data* auth,
-	const zval* capabilities,
+	const util::zvalue& capabilities,
 	Auth_mechanisms* auth_mechanisms)
 	: auth(auth)
 	, capabilities(capabilities)
@@ -1592,7 +1526,6 @@ Authenticate::Authenticate(
 	, msg_factory(session->create_message_factory())
 	, auth(session->auth.get())
 {
-	ZVAL_NULL(&capabilities);
 }
 
 Authenticate::~Authenticate()
@@ -1632,7 +1565,6 @@ bool Authenticate::init_capabilities()
 	caps_get = msg_factory.get__capabilities_get(&msg_factory);
 	if (caps_get.send_request(&caps_get) != PASS) return false;
 
-	ZVAL_NULL(&capabilities);
 	const st_xmysqlnd_on_error_bind on_error{
 		xmysqlnd_session_data_handler_on_error,
 		session
@@ -1658,9 +1590,8 @@ void Authenticate::setup_compression()
 
 bool Authenticate::init_connection()
 {
-	const std::string capability_tls{ "tls" };
-	zend_bool tls_set{FALSE};
-	xmysqlnd_is_capability_present(&capabilities, capability_tls, &tls_set);
+	constexpr std::string_view Capability_tls{ "tls" };
+	const bool tls_set = capabilities.contains(Capability_tls);
 
 	if (auth->ssl_mode == SSL_mode::disabled) return true;
 
@@ -1672,14 +1603,14 @@ bool Authenticate::init_connection()
 	}
 }
 
-zval Authenticate::get_capabilities()
+util::zvalue Authenticate::get_capabilities()
 {
 	return capabilities;
 }
 
 bool Authenticate::gather_auth_mechanisms()
 {
-	Gather_auth_mechanisms gather_auth_mechanisms(auth, &capabilities, &auth_mechanisms);
+	Gather_auth_mechanisms gather_auth_mechanisms(auth, capabilities, &auth_mechanisms);
 	return gather_auth_mechanisms.run();
 }
 
@@ -1780,19 +1711,18 @@ bool Gather_auth_mechanisms::is_tls_enabled() const
 
 bool Gather_auth_mechanisms::is_auth_mechanism_supported(Auth_mechanism auth_mechanism) const
 {
-	zval* entry{nullptr};
-	const zval* auth_mechs = zend_hash_str_find(Z_ARRVAL_P(capabilities),
-												"authentication.mechanisms", sizeof("authentication.mechanisms") - 1);
-	if (!capabilities || Z_TYPE_P(auth_mechs) != IS_ARRAY) {
+	constexpr util::string_view Auth_mechanisms = "authentication.mechanisms";
+	const util::zvalue auth_mechs = capabilities.find(Auth_mechanisms);
+	if (!auth_mechs.is_array()) {
 		return false;
 	}
 
 	const util::string& auth_mech_name{ auth_mechanism_to_str(auth_mechanism) };
-	MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(auth_mechs), entry) {
-		if (!strcasecmp(Z_STRVAL_P(entry), auth_mech_name.c_str())) {
+	for (const auto& auth_mech : auth_mechs.values()) {
+		if (auth_mech.is_string() && boost::iequals(auth_mech.to_string_view(), auth_mech_name)) {
 			return true;
 		}
-	} ZEND_HASH_FOREACH_END();
+	}
 
 	return false;
 }
