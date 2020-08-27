@@ -19,6 +19,7 @@
 #define MYSQL_XDEVAPI_UTIL_ZEND_UTILS_H
 
 #include <utility>
+#include "strings.h"
 
 namespace mysqlx::util::zend {
 
@@ -30,7 +31,7 @@ void free_error_info_list(
 
 // ----------------
 
-bool is_module_loaded(const char* module_name);
+bool is_module_loaded(const string_view& module_name);
 bool is_openssl_loaded();
 
 } // namespace mysqlx::util::zend

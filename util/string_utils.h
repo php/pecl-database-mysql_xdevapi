@@ -125,16 +125,12 @@ strings to_strings(zval* zvals, int count, Pred pred)
 	return strings;
 }
 
-zend_string* to_zend_string(const char* str);
-zend_string* to_zend_string(const string& str);
-zend_string* to_zend_string(formatter& fmt);
-
 //------------------------------------------------------------------------------
 
 /*
  * Escape an identifier name adding '`' everywhere needed
  */
-string escape_identifier( const string& identifier );
+string escape_identifier( const string_view& identifier );
 
 template<size_t Length>
 st_mysqlnd_string literal_to_mysqlnd_str(const char (&literal)[Length])

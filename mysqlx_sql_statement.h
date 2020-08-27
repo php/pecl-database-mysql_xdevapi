@@ -76,8 +76,8 @@ void mysqlx_register_sql_statement_class(INIT_FUNC_ARGS, zend_object_handlers* m
 void mysqlx_unregister_sql_statement_class(SHUTDOWN_FUNC_ARGS);
 
 util::zvalue create_sql_stmt(drv::xmysqlnd_stmt* stmt, const std::string_view& namespace_, const util::string_view& query);
-bool mysqlx_sql_statement_bind_one_param(zval * object_zv, const util::zvalue& param);
-void mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const zend_long flags, zval* return_value);
+bool mysqlx_sql_statement_bind_one_param(util::raw_zval* object_zv, const util::zvalue& param);
+util::zvalue mysqlx_sql_statement_execute(const st_mysqlx_object* const mysqlx_object, const zend_long flags);
 
 } // namespace devapi
 

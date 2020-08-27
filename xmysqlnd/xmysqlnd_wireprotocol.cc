@@ -1270,13 +1270,14 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 				DBG_INF_FMT("usecs   =" MYSQLX_LLU_SPEC, useconds);
 			} while (0);
 
-			auto str = util::formatter("%s%02u:%02u:%02u.%08u")
+			auto time_formatter = util::formatter("%s%02u:%02u:%02u.%08u")
 				% (neg ? "-" : "")
 				% hours
 				% minutes
 				% seconds
 				% useconds;
-			ZVAL_NEW_STR(zv, util::to_zend_string(str));
+			util::zvalue formatted_time = time_formatter.str();
+			formatted_time.move_to(zv);
 		}
 	}
 	DBG_RETURN( ret );
@@ -1319,14 +1320,15 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 				DBG_INF_FMT("usecs   =" MYSQLX_LLU_SPEC, useconds);
 			} while (0);
 
-			auto str = util::formatter("%04u-%02u-%02u %02u:%02u:%02u")
+			auto datetime_formatter = util::formatter("%04u-%02u-%02u %02u:%02u:%02u")
 				% year
 				% month
 				% day
 				% hours
 				% minutes
 				% seconds;
-			ZVAL_NEW_STR(zv, util::to_zend_string(str));
+			util::zvalue formatted_datetime = datetime_formatter.str();
+			formatted_datetime.move_to(zv);
 		}
 	}
 	DBG_RETURN( ret );
@@ -1363,11 +1365,12 @@ enum_func_status xmysqlnd_row_date_field_to_zval(
 				DBG_INF_FMT("day   =" MYSQLX_LLU_SPEC, day);
 			} while (0);
 
-			auto str = util::formatter("%04u-%02u-%02u")
+			auto date_formatter = util::formatter("%04u-%02u-%02u")
 				% year
 				% month
 				% day;
-			ZVAL_NEW_STR(zv, util::to_zend_string(str));
+			util::zvalue formatted_date = date_formatter.str();
+			formatted_date.move_to(zv);
 			ret = PASS;
 		}
 	}

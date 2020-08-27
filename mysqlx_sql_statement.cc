@@ -396,7 +396,7 @@ mysqlx_fetch_data_with_callback(st_mysqlx_statement* object, st_xmysqlnd_exec_wi
 }
 
 bool
-mysqlx_sql_statement_bind_one_param(zval* object_zv, const util::zvalue& param)
+mysqlx_sql_statement_bind_one_param(util::raw_zval* object_zv, const util::zvalue& param)
 {
 	DBG_ENTER("mysqlx_sql_statement_bind_one_param");
 
@@ -457,34 +457,32 @@ mysqlx_sql_stmt_on_error(
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 
-void
-mysqlx_sql_statement_get_results(
-		st_mysqlx_statement* object,
-		zval* return_value
-)
+util::zvalue
+mysqlx_sql_statement_get_results(st_mysqlx_statement* object)
 {
 	DBG_ENTER("mysqlx_sql_statement_get_results");
+	util::zvalue result;
 	xmysqlnd_stmt * stmt = object->stmt;
 	if (PASS == object->send_query_status) {
 		if (object->execute_flags & MYSQLX_EXECUTE_FLAG_ASYNC) {
 			DBG_INF("ASYNC");
-			RETVAL_BOOL(PASS == object->send_query_status);
+			result = (PASS == object->send_query_status);
 		} else {
 			const st_xmysqlnd_stmt_on_warning_bind on_warning = { mysqlx_sql_stmt_on_warning, nullptr };
 			const st_xmysqlnd_stmt_on_error_bind on_error = { mysqlx_sql_stmt_on_error, nullptr };
-			XMYSQLND_STMT_RESULT * result;
+			XMYSQLND_STMT_RESULT* stmt_result;
 			if (object->execute_flags & MYSQLX_EXECUTE_FLAG_BUFFERED) {
-				result = stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+				stmt_result = stmt->get_buffered_result(stmt, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
 			} else {
-				result = stmt->get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
+				stmt_result = stmt->get_fwd_result(stmt, MYSQLX_EXECUTE_FWD_PREFETCH_COUNT, &object->has_more_rows_in_set, &object->has_more_results, on_warning, on_error, nullptr, nullptr);
 			}
 
 			DBG_INF_FMT("has_more_results=%s   has_more_rows_in_set=%s",
 						object->has_more_results? "TRUE":"FALSE",
 						object->has_more_rows_in_set? "TRUE":"FALSE");
 
-			if (result) {
-				create_sql_stmt_result(result, object).move_to(return_value);
+			if (stmt_result) {
+				result = create_sql_stmt_result(stmt_result, object);
 			} else {
 				RAISE_EXCEPTION_FETCH_FAIL();
 				/* Or we should close the connection, rendering it unusable at this point ?*/
@@ -492,32 +490,30 @@ mysqlx_sql_statement_get_results(
 			}
 		}
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(result);
 }
 
-void
+util::zvalue
 mysqlx_sql_statement_execute(
-		const st_mysqlx_object* const mysqlx_object,
-		const zend_long flags,
-		zval* return_value
-)
+	const st_mysqlx_object* const mysqlx_object,
+	const zend_long flags)
 {
 	st_mysqlx_statement* object = (st_mysqlx_statement*) mysqlx_object->ptr;
 	DBG_ENTER("mysqlx_sql_statement_execute");
 
+	util::zvalue result;
+
 	if (!object || !object->stmt_execute) {
 		php_error_docref(nullptr, E_WARNING, "invalid object of class %s", ZSTR_VAL(mysqlx_object->zo.ce->name));
 		DBG_ERR_FMT("invalid object of class %s on %s::%d", ZSTR_VAL(mysqlx_object->zo.ce->name), __FILE__, __LINE__);
-		DBG_VOID_RETURN;
+		DBG_RETURN(result);
 	}
-
-	RETVAL_FALSE;
 
 	if ((flags | MYSQLX_EXECUTE_ALL_FLAGS) != MYSQLX_EXECUTE_ALL_FLAGS) {
 		util::ostringstream os;
 		os << "Invalid flags. Unknown " << (flags - (flags | MYSQLX_EXECUTE_ALL_FLAGS));
 		php_error_docref(nullptr, E_WARNING, "%s", os.str().c_str());
-		DBG_VOID_RETURN;
+		DBG_RETURN(result);
 	}
 	DBG_INF_FMT("flags=%lu", flags);
 	DBG_INF_FMT("%sSYNC", (flags & MYSQLX_EXECUTE_FLAG_ASYNC)? "A":"");
@@ -533,10 +529,10 @@ mysqlx_sql_statement_execute(
 			object->has_more_results = FALSE;
 			object->send_query_status = stmt->send_raw_message(stmt, xmysqlnd_stmt_execute__get_protobuf_message(object->stmt_execute), nullptr, nullptr);
 
-			mysqlx_sql_statement_get_results(object, return_value);
+			result = mysqlx_sql_statement_get_results(object);
         }
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(result);
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, execute)
@@ -552,7 +548,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement, execute)
 		DBG_VOID_RETURN;
 	}
 
-	mysqlx_sql_statement_execute(Z_MYSQLX_P(object_zv), flags, return_value);
+	mysqlx_sql_statement_execute(Z_MYSQLX_P(object_zv), flags).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }

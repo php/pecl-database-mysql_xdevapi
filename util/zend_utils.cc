@@ -19,6 +19,7 @@
 #include "mysqlnd_api.h"
 #include "zend_utils.h"
 #include "string_utils.h"
+#include "value.h"
 
 namespace mysqlx {
 
@@ -64,17 +65,15 @@ void free_error_info_list(
 
 // -----------------------------------------------------------------
 
-bool is_module_loaded(const char* module_name)
+bool is_module_loaded(const string_view& module_name)
 {
-	zend_string* module_zname{ to_zend_string(module_name) };
-	const bool is_loaded{ zend_hash_exists(&module_registry, module_zname) ? true : false };
-	zend_string_release(module_zname);
-	return is_loaded;
+	zvalue modules(&module_registry);
+	return modules.contains(module_name);
 }
 
 bool is_openssl_loaded()
 {
-	const char* Openssl_module_name{ "openssl" };
+	constexpr string_view Openssl_module_name{ "openssl" };
 	return is_module_loaded(Openssl_module_name);
 }
 

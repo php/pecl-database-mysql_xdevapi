@@ -481,7 +481,7 @@ public:
 	/* Used only in case of non network transports */
 	std::string                        socket_path;
 	std::string                        server_host_info;
-	size_t			                   client_id;
+	uint64_t		                   client_id;
 	const MYSQLND_CHARSET*             charset;
 	/* If error packet, we use these */
 	MYSQLND_ERROR_INFO*                error_info{nullptr};

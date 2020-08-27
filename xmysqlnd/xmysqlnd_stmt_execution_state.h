@@ -36,9 +36,9 @@ typedef size_t		(*func_xmysqlnd_stmt_execution_state__get_found_items_count)(con
 typedef uint64_t	(*func_xmysqlnd_stmt_execution_state__get_last_insert_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
 typedef const util::vector< util::string>* (*func_xmysqlnd_stmt_execution_state__get_generated_ids)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
 
-typedef void		(*func_xmysqlnd_stmt_execution_state__set_affected_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value);
-typedef void		(*func_xmysqlnd_stmt_execution_state__set_matched_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value);
-typedef void		(*func_xmysqlnd_stmt_execution_state__set_found_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value);
+typedef void		(*func_xmysqlnd_stmt_execution_state__set_affected_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value);
+typedef void		(*func_xmysqlnd_stmt_execution_state__set_matched_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value);
+typedef void		(*func_xmysqlnd_stmt_execution_state__set_found_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value);
 typedef void		(*func_xmysqlnd_stmt_execution_state__set_last_insert_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value);
 typedef void		(*func_xmysqlnd_stmt_execution_state__set_add_generated_doc_id)(XMYSQLND_STMT_EXECUTION_STATE * const state, const util::string& id);
 

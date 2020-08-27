@@ -74,7 +74,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_generated_ids)(const XMYSQLND
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
+XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::set_affected_items_count");
 	DBG_INF_FMT("value=" MYSQLX_LLU_SPEC, value);
@@ -83,7 +83,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_affected_items_count)(XMYSQLN
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
+XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::set_matched_items_count");
 	DBG_INF_FMT("value=" MYSQLX_LLU_SPEC, value);
@@ -92,7 +92,7 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_matched_items_count)(XMYSQLND
 }
 
 static void
-XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const size_t value)
+XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, set_found_items_count)(XMYSQLND_STMT_EXECUTION_STATE * const state, const uint64_t value)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::set_found_items_count");
 	DBG_INF_FMT("value=" MYSQLX_LLU_SPEC, value);

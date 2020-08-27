@@ -58,24 +58,8 @@ strings to_strings(zval* zvals, int count)
 	return strings;
 }
 
-zend_string* to_zend_string(const char* str)
-{
-	return zend_string_init(str, strlen(str), 0);
-}
-
-zend_string* to_zend_string(const string& str)
-{
-	return zend_string_init(str.c_str(), str.length(), 0);
-}
-
-zend_string* to_zend_string(formatter& fmt)
-{
-	const string& str{ fmt.str() };
-	return to_zend_string(str);
-}
-
 string
-escape_identifier( const string& identifier ) {
+escape_identifier( const string_view& identifier ) {
 	util::stringstream result;
 	result << '`';
 	for( const auto& ch : identifier ) {

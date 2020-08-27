@@ -35,18 +35,18 @@ using namespace drv;
 
 struct st_mysqlx_sql_result_iterator : util::custom_allocable
 {
-	zend_object_iterator  intern;
-	XMYSQLND_STMT_RESULT * result;
-	zval current_row;
+	zend_object_iterator intern;
+	XMYSQLND_STMT_RESULT* result;
+	util::zvalue current_row;
 	size_t row_num;
-	zend_bool started;
-	zend_bool usable;
+	bool started;
+	bool usable;
 };
 
 static void
 XMYSQLND_METHOD(mysqlx_sql_result_iterator, dtor)(zend_object_iterator * iter)
 {
-	st_mysqlx_sql_result_iterator* iterator = (st_mysqlx_sql_result_iterator*) iter;
+	st_mysqlx_sql_result_iterator* iterator = reinterpret_cast<st_mysqlx_sql_result_iterator*>(iter);
 	DBG_ENTER("mysqlx_sql_result_iterator::dtor");
 	if (iterator->result) {
 		iterator->result->m.free_reference(iterator->result, nullptr, nullptr);
@@ -54,7 +54,6 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, dtor)(zend_object_iterator * iter)
 
 	/* cleanup handled in sxe_object_dtor as we dont always have an iterator wrapper */
 	zval_ptr_dtor(&iterator->intern.data);
-	zval_ptr_dtor(&iterator->current_row);
 	DBG_VOID_RETURN;
 }
 
@@ -75,7 +74,7 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, current_data)(zend_object_iterator *
 	st_mysqlx_sql_result_iterator* iterator = (st_mysqlx_sql_result_iterator*) iter;
 	DBG_ENTER("mysqlx_sql_result_iterator::current_data");
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
-	DBG_RETURN((iterator->result && iterator->usable)? &iterator->current_row : nullptr);
+	DBG_RETURN((iterator->result && iterator->usable)? iterator->current_row.ptr() : nullptr);
 }
 
 static enum_func_status
@@ -85,11 +84,10 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, fetch_current_data)(zend_object_iter
 	DBG_ENTER("mysqlx_sql_result_iterator::fetch_current_data");
 	DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
 	if (iterator->result && iterator->usable) {
-		zval_ptr_dtor(&iterator->current_row);
-		ZVAL_UNDEF(&iterator->current_row);
+		iterator->current_row.reset();
 
-		if (PASS == iterator->result->m.fetch_current(iterator->result, &iterator->current_row, nullptr, nullptr) &&
-			IS_ARRAY == Z_TYPE(iterator->current_row))
+		if (PASS == iterator->result->m.fetch_current(iterator->result, iterator->current_row.ptr(), nullptr, nullptr) &&
+			iterator->current_row.is_array())
 		{
 			DBG_RETURN(PASS);
 		} else {
@@ -111,7 +109,7 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, next)(zend_object_iterator * iter)
 		{
 			iterator->row_num++;
 		} else {
-			iterator->usable = FALSE;
+			iterator->usable = false;
 		}
 	}
 	DBG_VOID_RETURN;
@@ -123,15 +121,15 @@ XMYSQLND_METHOD(mysqlx_sql_result_iterator, rewind)(zend_object_iterator * iter)
 	st_mysqlx_sql_result_iterator* iterator = (st_mysqlx_sql_result_iterator*) iter;
 	DBG_ENTER("mysqlx_sql_result_iterator::rewind");
 	if (iterator->result && iterator->usable) {
-		iterator->started = FALSE;
+		iterator->started = false;
 		iterator->row_num = 0;
 		if (PASS == iterator->result->m.rewind(iterator->result) &&
 			PASS == XMYSQLND_METHOD(mysqlx_sql_result_iterator, fetch_current_data)(iter))
 		{
-			iterator->usable = TRUE;
-			iterator->started = TRUE;
+			iterator->usable = true;
+			iterator->started = true;
 		} else {
-			iterator->usable = FALSE;
+			iterator->usable = false;
 		}
 //			XMYSQLND_METHOD(mysqlx_sql_result_iterator, next)(iter);
 		DBG_INF_FMT("usable=%s  started=%s  row_num=%u", iterator->usable? "TRUE":"FALSE", iterator->started? "TRUE":"FALSE", iterator->row_num);
