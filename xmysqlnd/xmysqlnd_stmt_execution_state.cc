@@ -38,21 +38,21 @@ XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, init)(
 	DBG_RETURN(PASS);
 }
 
-static size_t
+static uint64_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_affected_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_affected_items_count");
 	DBG_RETURN(state->items_affected);
 }
 
-static size_t
+static uint64_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_matched_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_matched_items_count");
 	DBG_RETURN(state->items_matched);
 }
 
-static size_t
+static uint64_t
 XMYSQLND_METHOD(xmysqlnd_stmt_execution_state, get_found_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state)
 {
 	DBG_ENTER("xmysqlnd_stmt_execution_state::get_found_items_count");

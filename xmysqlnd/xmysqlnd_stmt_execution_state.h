@@ -30,9 +30,9 @@ namespace drv {
 typedef struct st_xmysqlnd_stmt_execution_state XMYSQLND_STMT_EXECUTION_STATE;
 
 typedef enum_func_status	(*func_xmysqlnd_stmt_execution_state__init)(XMYSQLND_STMT_EXECUTION_STATE * const result, const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info);
-typedef size_t		(*func_xmysqlnd_stmt_execution_state__get_affected_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
-typedef size_t		(*func_xmysqlnd_stmt_execution_state__get_matched_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
-typedef size_t		(*func_xmysqlnd_stmt_execution_state__get_found_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
+typedef uint64_t	(*func_xmysqlnd_stmt_execution_state__get_affected_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
+typedef uint64_t	(*func_xmysqlnd_stmt_execution_state__get_matched_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
+typedef uint64_t	(*func_xmysqlnd_stmt_execution_state__get_found_items_count)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
 typedef uint64_t	(*func_xmysqlnd_stmt_execution_state__get_last_insert_id)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
 typedef const util::vector< util::string>* (*func_xmysqlnd_stmt_execution_state__get_generated_ids)(const XMYSQLND_STMT_EXECUTION_STATE * const state);
 
@@ -68,9 +68,9 @@ MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_stmt_execution_state)
 
 struct st_xmysqlnd_stmt_execution_state : public util::custom_allocable
 {
-	size_t items_affected;
-	size_t items_matched;
-	size_t items_found;
+	uint64_t items_affected;
+	uint64_t items_matched;
+	uint64_t items_found;
 	uint64_t last_insert_id;
 	util::vector< util::string> generated_doc_ids;
 
