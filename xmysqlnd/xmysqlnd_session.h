@@ -465,7 +465,7 @@ public:
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
 	bool is_session_properly_supported();
-	size_t            get_client_id();
+	uint64_t          get_client_id();
 	void              cleanup();
 public:
 	/* Operation related */

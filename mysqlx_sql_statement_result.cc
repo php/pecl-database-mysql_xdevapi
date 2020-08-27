@@ -228,12 +228,12 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, getAffectedItemsCount)
 	const XMYSQLND_STMT_EXECUTION_STATE* exec_state = data_object.result->exec_state;
 	/* Maybe check here if there was an error and throw an Exception or return a warning */
 	if (exec_state) {
-		const size_t value = exec_state->m->get_affected_items_count(exec_state);
+		const uint64_t value = exec_state->m->get_affected_items_count(exec_state);
 		if (UNEXPECTED(value >= ZEND_LONG_MAX)) {
 			ZVAL_NEW_STR(return_value, strpprintf(0, "%s", util::to_string(value).c_str()));
 			DBG_INF_FMT("value(S)=%s", Z_STRVAL_P(return_value));
 		} else {
-			RETVAL_LONG(value);
+			RETVAL_LONG(static_cast<zend_long>(value));
 			DBG_INF_FMT("value(L)=%lu", Z_LVAL_P(return_value));
 		}
 	}

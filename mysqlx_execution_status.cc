@@ -36,9 +36,9 @@ static zend_class_entry * mysqlx_execution_status_class_entry;
 
 struct st_mysqlx_execution_status : public util::custom_allocable
 {
-	size_t items_affected;
-	size_t items_matched;
-	size_t items_found;
+	uint64_t items_affected;
+	uint64_t items_matched;
+	uint64_t items_found;
 	uint64_t last_insert_id;
 
 	zend_bool persistent;
@@ -62,7 +62,7 @@ mysqlx_execution_status_property_affected_items(const st_mysqlx_object* obj, uti
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property_affected_items");
-	ZVAL_LONG(return_value, object->items_affected);
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->items_affected));
 	DBG_RETURN(return_value);
 }
 
@@ -71,7 +71,7 @@ mysqlx_execution_status_property_matched_items(const st_mysqlx_object* obj, util
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property_matched_items");
-	ZVAL_LONG(return_value, object->items_matched);
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->items_matched));
 	DBG_RETURN(return_value);
 }
 
@@ -80,7 +80,7 @@ mysqlx_execution_status_property_found_items(const st_mysqlx_object* obj, util::
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
 	DBG_ENTER("mysqlx_execution_status_property_found_items");
-	ZVAL_LONG(return_value, object->items_found);
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->items_found));
 	DBG_RETURN(return_value);
 }
 

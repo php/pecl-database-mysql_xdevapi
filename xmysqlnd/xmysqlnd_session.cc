@@ -636,7 +636,7 @@ bool xmysqlnd_session_data::is_session_properly_supported()
 	return *session_properly_supported;
 }
 
-size_t
+uint64_t
 xmysqlnd_session_data::get_client_id()
 {
 	return client_id;
