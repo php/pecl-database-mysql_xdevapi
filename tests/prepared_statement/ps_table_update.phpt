@@ -20,17 +20,17 @@ mysqlx prepared statement table update
 	);
 
     $res = $table->update()->set('name', 'Alfonso')->where('name = :name and age > :age')->bind(['name' => 'Cassidy', 'age' => 30])->execute();
-	verify_op_ps(0 ,1 ,1 ,2 ); //New PS
+	$stmt_id = get_stmt_id(0); //New PS
 	$res = $table->update()->set('name', 'Alfonso')->where('name = :name and age > :age')->bind(['name' => 'Tierney', 'age' => 40])->execute();
-	verify_op_ps(0 ,1 ,1 ,2 ); //Same PS
+	verify_op_ps(0 ,$stmt_id ,1 ,2 ); //Same PS
 	$res = $table->update()->set('age', 1)->limit(2)->where('age < :age and age != 1')->bind(['age' => 30])->execute();
-	verify_op_ps(2 ,3 ,2 ,3 ); //New PS
+	$stmt_id = get_stmt_id(2); //New PS
 	$res = $table->update()->set('age', 1)->limit(3)->where('age < :age and age != 1')->bind(['age' => 30])->execute();
-	verify_op_ps(2 ,3 ,2 ,3 ); //Same PS
+	verify_op_ps(2 ,$stmt_id ,2 ,3 ); //Same PS
 	$res = $table->update()->set('age', 1)->limit(3)->orderby("name DESC")->where('age < :age and age != 1')->bind(['age' => 30])->execute();
-	verify_op_ps(3 ,4 ,3 ,4 ); //New PS
+	$stmt_id = get_stmt_id(3); //New PS
 	$res = $table->update()->set('age', 1)->limit(1)->orderby("name DESC")->where('age < :age and age != 1')->bind(['age' => 10])->execute();
-	verify_op_ps(3 ,4 ,3 ,4 ); //Same PS
+	verify_op_ps(3 ,$stmt_id ,3 ,4 ); //Same PS
 
     verify_expectations();
 	print "done!\n";

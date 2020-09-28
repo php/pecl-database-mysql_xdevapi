@@ -20,18 +20,18 @@ mysqlx prepared statement table select
 	);
 
     $res = $table->select('name','age')->where('name like :name and age > :age')->bind(['name' => 'Tierney', 'age' => 34])->orderBy('age desc')->execute();
-	verify_op_ps(0, 1, 1, 2);//New PS
+	$stmt_id = get_stmt_id(0); //New PS
 	$data = $res->fetchAll();
 	expect_eq(count($data), 2);
 	expect_eq($data[0]["name"], "Tierney");
 	expect_eq($data[1]["name"], "Tierney");
 	$res = $table->select('name','age')->where('name like :name and age > :age')->bind(['name' => 'Mamie', 'age' => 22])->orderBy('age desc')->execute();
-	verify_op_ps(0, 1, 1, 2);//Same PS
+	verify_op_ps(0, $stmt_id, 1, 2);//Same PS
 	$data = $res->fetchAll();
 	expect_eq(count($data), 1);
 	expect_eq($data[0]["name"], "Mamie");
 	$res = $table->select('name','age')->where('age > :age')->limit(1)->bind(['age' => 22])->execute();
-	verify_op_ps(2, 3, 2, 3);//New PS
+	$stmt_id = get_stmt_id(2); //New PS
 	$data = $res->fetchAll();
 	expect_eq(count($data), 1);
 	expect_eq($data[0]["name"], "Mamie");
@@ -42,7 +42,7 @@ mysqlx prepared statement table select
 	);
 	for( $i = 1 ; $i <= 20 ; $i++ ) {
 	    $res = $table->select('name','age')->where('age > :age')->limit(1)->bind(['age' => 22 + $i])->execute();
-		verify_op_ps(2, 3, 2, 3);//Same PS
+		verify_op_ps(2, $stmt_id, 2, 3);//Same PS
 		$data = $res->fetchAll();
 		expect_eq(count($data), 1);
 		$results[$data[0]["name"]]++;

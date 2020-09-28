@@ -23,19 +23,19 @@ error_reporting=0
 
     verify_op_ps(0, 1, 0, 1);
 	$res = $coll->find('job like :job')->bind(['job' => 'Programmatore'])->limit(1)->offset(3)->sort('age asc')->execute();
-	verify_op_ps(1, 2, 1, 2); //New PS
+	$stmt_id = get_stmt_id(1); //New PS
 	$res = $coll->find('job like :job')->bind(['job' => 'Programmatrice'])->limit(4)->offset(1)->sort('age asc')->execute();
-	verify_op_ps(1, 2, 1, 2); //Same PS
+	verify_op_ps(1, $stmt_id, 1, 2); //Same PS
 	$data = $res->fetchAll();
 	expect_eq($data[0]["name"],"Mariangela");
 	$res = $coll->find('job like :job')->bind(['job' => 'Barista'])->limit(1)->offset(1)->sort('age asc')->execute();
-	verify_op_ps(1, 2, 1, 2); //Same PS
+	verify_op_ps(1, $stmt_id, 1, 2); //Same PS
 	$data = $res->fetchAll();
 	expect_eq($data[0]["name"],"Lucia");
 	$res = $coll->find('_id like :id')->bind(['id' => 1])->execute();
 	$data = $res->fetchAll();
 	expect_eq($data[0]["name"],"Marco");
-	verify_op_ps(2, 3, 2, 3); //New PS
+	$stmt_id = get_stmt_id(2); //New PS
 	$names = [
 	    "Lonardo",
 		"Riccardo",
@@ -51,7 +51,7 @@ error_reporting=0
 	    $res = $coll->find('_id like :id')->bind(['id' => $i])->execute();
 		$data = $res->fetchAll();
 		expect_eq($data[0]["name"],$names[$i-2]);
-		verify_op_ps(2, 3, 2, 3); //Same PS
+		verify_op_ps(2, $stmt_id, 2, 3); //Same PS
 	}
 
     verify_expectations();

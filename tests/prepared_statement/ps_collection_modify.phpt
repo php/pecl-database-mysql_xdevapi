@@ -43,17 +43,22 @@ error_reporting=0
 		    expect_null($res[$i]["hobby"]);
 		}
 	}
-	verify_op_ps( 3, 4, 9, 4 );
+	$stmt_id = get_stmt_id(3);
+	verify_op_ps( 3, $stmt_id, 9, 4 );
 	//Use the PS over and over.
 	for( $i = 0 ; $i < 10 ; $i++ ) {
 	    $coll->modify('age > :age')->set("hobby", "nr_1")->bind(['age' => 25 ] )->execute();
-		verify_op_ps( 3, 4, 9, 4 );
+		verify_op_ps( 3, $stmt_id, 9, 4 );
 	}
 
     //Generate new PSs
+	$prev_stmt_id = get_stmt_id(3);
 	for( $i = 0 ; $i < 5 ; $i++ ) {
 	    $coll->modify('age > :age')->set("hobby", "nr_" . ( 10 + $i ))->bind(['age' => 25 ] )->execute();
-		verify_op_ps( $i + 4, $i + 5 , $i + 3, $i + 5 );
+		$stmt_id = get_stmt_id($i + 4);
+		expect_true($prev_stmt_id != $stmt_id);
+		verify_op_ps( $i + 4, $stmt_id, $i + 3, $i + 5 );
+		$prev_stmt_id = $stmt_id;
 	}
 
     verify_expectations();

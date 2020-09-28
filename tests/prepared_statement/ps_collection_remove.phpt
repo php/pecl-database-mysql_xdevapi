@@ -23,17 +23,17 @@ error_reporting=0
 	);
 
     $coll->remove("job in 'Programmatore'")->limit(1)->execute();
-	verify_op_ps(0, 1, 1, 2);//New PS
+	$stmt_id = get_stmt_id(0); //New PS
 	$coll->remove("job in 'Programmatore'")->limit(2)->execute();
-	verify_op_ps(0, 1, 1, 2);//Same PS
+	verify_op_ps(0, $stmt_id, 1, 2);//Same PS
 	$coll->remove('age > :age')->bind(['age' => 30])->limit(1)->execute();
-	verify_op_ps(2, 3, 2, 3);//New PS
+	$stmt_id = get_stmt_id(2); //New PS
 	$coll->remove('age > :age')->bind(['age' => 31])->limit(2)->execute();
-	verify_op_ps(2, 3, 2, 3);//Same PS
+	verify_op_ps(2, $stmt_id, 2, 3);//Same PS
 	$coll->remove("job in ('Barista', 'Programmatore', 'Ballerino', 'Programmatrice','Disoccupato')")->limit(2)->sort(['age desc', 'name asc'])->execute();
-	verify_op_ps(3, 4, 3, 4);//New PS
+	$stmt_id = get_stmt_id(3); //New PS
 	$coll->remove("job in ('Barista', 'Programmatore', 'Ballerino', 'Programmatrice','Disoccupato')")->limit(2)->sort(['age desc', 'name asc'])->execute();
-	verify_op_ps(3, 4, 3, 4);//Same PS
+	verify_op_ps(3, $stmt_id, 3, 4);//Same PS
 
     $obj = $coll->find()->execute();
 	$res = $obj->fetchAll();

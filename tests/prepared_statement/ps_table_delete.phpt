@@ -22,22 +22,22 @@ mysqlx prepared statement table delete
 	);
 
     $table->delete()->where('name = :name')->orderby('age desc')->limit(2)->bind(['name' => 'Tierney'])->execute();
-	verify_op_ps(0, 1, 1, 2);//New PS
+	$stmt_id0 = get_stmt_id(0); //New PS
 	$table->delete()->where('name = :name')->orderby('age desc')->limit(2)->bind(['name' => 'Mamie'])->execute();
-	verify_op_ps(0, 1, 1, 2);//Same PS
+	verify_op_ps(0, $stmt_id0, 1, 2);//Same PS
 	$table->delete()->where('name = :name')->orderby('age desc')->limit(1)->bind(['name' => 'Mamie'])->execute();
-	verify_op_ps(0, 1, 1, 2);//Same PS
+	verify_op_ps(0, $stmt_id0, 1, 2);//Same PS
 	$table->delete()->where('name = :name')->orderby('age desc')->limit(6)->bind(['name' => 'Cassidy'])->execute();
-	verify_op_ps(0, 1, 1, 2);//Same PS
+	verify_op_ps(0, $stmt_id0, 1, 2);//Same PS
 
     $table->delete()->where('name = :name or age > :age')->limit(4)->bind(['name' => 'Polly', 'age' => 20])->execute();
-	verify_op_ps(2, 3, 2, 3);//New PS
+	$stmt_id1 = get_stmt_id(2); //New PS
 	$table->delete()->where('name = :name or age > :age')->limit(3)->bind(['name' => 'ARomy', 'age' => 17])->execute();
-	verify_op_ps(2, 3, 2, 3);//Same PS
+	verify_op_ps(2, $stmt_id1, 2, 3);//Same PS
 	$table->delete()->where('name = :name or age > :age')->limit(8)->bind(['name' => 'BRomy', 'age' => 17])->execute();
-	verify_op_ps(2, 3, 2, 3);//Same PS
+	verify_op_ps(2, $stmt_id1, 2, 3);//Same PS
 	$table->delete()->where('name = :name')->orderby('age desc')->limit(2)->bind(['name' => 'Tierney'])->execute();
-	verify_op_ps(0, 1, 1, 3);//Same (old) PS
+	verify_op_ps(0, $stmt_id0, 1, 3);//Same (old) PS
 
     verify_expectations();
 	print "done!\n";
