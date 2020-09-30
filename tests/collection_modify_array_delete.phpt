@@ -13,9 +13,8 @@ mysqlx collection modify, deleting elements from an array
 
 
 	$coll->modify("job in ('Programmatore', 'Cantante')")
-		->arrayAppend('job', ':nextJob')
-		->arrayAppend('job', ':yetAnotherJob')
-		->bind(['nextJob' => 'Volontario', 'yetAnotherJob' => 'Tassinaro'])
+		->arrayAppend('job', 'Volontario')
+		->arrayAppend('job', 'Tassinaro')
 		->execute();
 	$coll->modify("name in ('Riccardo', 'Carlo')")->unset('job[0]')->execute();
 	$coll->modify("name in ('Alfredo', 'Leonardo')")->unset('job[1]')->execute();
