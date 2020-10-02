@@ -19,14 +19,15 @@
 #define XMYSQLND_UTILS_H
 
 #include "util/strings.h"
+#include "util/value.h"
 #include "xmysqlnd/proto_gen/mysqlx_crud.pb.h"
 
 namespace mysqlx {
 
 namespace drv {
 
-void xmysqlnd_utils_decode_doc_row(zval* src, zval* dest);
-void xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest);
+util::zvalue xmysqlnd_utils_decode_doc_row(const util::zvalue& src);
+util::zvalue xmysqlnd_utils_decode_doc_rows(const util::zvalue& src);
 
 //https://en.wikipedia.org/wiki/Percent-encoding
 util::string decode_pct_path(const util::string& encoded_path);

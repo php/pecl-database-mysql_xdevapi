@@ -115,7 +115,7 @@ table_or_view_exists_in_database_op(
 
 enum_func_status
 xmysqlnd_table::exists_in_database(
-		struct st_xmysqlnd_session_on_error_bind on_error,
+	st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_table::exists_in_database");
@@ -251,7 +251,7 @@ table_sql_single_result_op_on_row(
 
 enum_func_status
 xmysqlnd_table::count(
-	struct st_xmysqlnd_session_on_error_bind on_error,
+	st_xmysqlnd_session_on_error_bind on_error,
 	zval* counter)
 {
 	DBG_ENTER("xmysqlnd_table::count");
@@ -303,7 +303,7 @@ xmysqlnd_table::insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op)
 	}
 	if (xmysqlnd_crud_table_insert__is_initialized(op)) {
 		st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
-		struct st_xmysqlnd_msg__table_insert table_insert = msg_factory.get__table_insert(&msg_factory);
+		st_xmysqlnd_msg__table_insert table_insert = msg_factory.get__table_insert(&msg_factory);
 		if (PASS == table_insert.send_insert_request(&table_insert, xmysqlnd_crud_table_insert__get_protobuf_message(op)))
 		{
 			stmt = session->create_statement_object(session);
@@ -335,7 +335,7 @@ xmysqlnd_table::opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op)
 		if (xmysqlnd_crud_table_delete__is_initialized(op))
 		{
 			st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
-			struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
+			st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
 			if (PASS == table_ud.send_delete_request(&table_ud, xmysqlnd_crud_table_delete__get_protobuf_message(op)))
 			{
 				stmt = session->create_statement_object(session);
@@ -395,7 +395,7 @@ xmysqlnd_table::update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op)
 		if (xmysqlnd_crud_table_update__is_initialized(op))
 		{
 			st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
-			struct st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
+			st_xmysqlnd_msg__collection_ud table_ud = msg_factory.get__collection_ud(&msg_factory);
 			if (PASS == table_ud.send_update_request(&table_ud, xmysqlnd_crud_table_update__get_protobuf_message(op)))
 			{
 				stmt = session->create_statement_object(session);

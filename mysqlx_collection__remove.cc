@@ -35,9 +35,10 @@
 #include "mysqlx_sql_statement.h"
 #include "mysqlx_collection__remove.h"
 #include "util/allocator.h"
+#include "util/arguments.h"
+#include "util/functions.h"
 #include "util/object.h"
 #include "util/value.h"
-#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -92,18 +93,15 @@ Collection_remove::~Collection_remove()
 	}
 }
 
-bool Collection_remove::sort(
-	zval* sort_expressions,
-	int num_of_expr)
+bool Collection_remove::sort(const util::arg_zvals& sort_expressions)
 {
 	DBG_ENTER("Collection_remove::sort");
 
-	if (!sort_expressions) {
+	if (sort_expressions.empty()) {
 		DBG_RETURN(false);
 	}
 
-	for( int i{0}; i < num_of_expr ; ++i ) {
-		const util::zvalue sort_expr(sort_expressions[i]);
+	for (auto sort_expr : sort_expressions) {
 		switch (sort_expr.type()) {
 		case util::zvalue::Type::String:
 			{
@@ -148,22 +146,20 @@ bool Collection_remove::limit(zend_long rows)
 		DBG_RETURN(false);
 	}
 
-	DBG_RETURN(PASS == xmysqlnd_crud_collection_remove__set_limit(remove_op, rows));
+	DBG_RETURN(PASS == xmysqlnd_crud_collection_remove__set_limit(remove_op, static_cast<std::size_t>(rows)));
 }
 
 bool Collection_remove::bind(const util::zvalue& bind_variables)
 {
 	DBG_ENTER("Collection_remove::bind");
 
-	for (const auto& variable_value : bind_variables) {
-		const util::zvalue& var_name{ variable_value.first };
+	for (const auto& [var_name, var_value] : bind_variables) {
 		if (!var_name.is_string()) {
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}
-		const util::zvalue& var_value{ variable_value.second };
 		if (FAIL == xmysqlnd_crud_collection_remove__bind_value(
-			remove_op, var_name.to_string(), var_value.ptr())) {
+			remove_op, var_name.to_string(), var_value)) {
 			RAISE_EXCEPTION(err_msg_bind_fail);
 			DBG_RETURN(false);
 		}
@@ -172,34 +168,30 @@ bool Collection_remove::bind(const util::zvalue& bind_variables)
 	DBG_RETURN(true);
 }
 
-void Collection_remove::execute(zval* resultset)
+util::zvalue Collection_remove::execute()
 {
 	DBG_ENTER("Collection_remove::execute");
 
 	DBG_INF_FMT("remove_op=%p collection=%p", remove_op, collection);
+	util::zvalue resultset;
 	if (remove_op && collection) {
 		if (FALSE == xmysqlnd_crud_collection_remove__is_initialized(remove_op)) {
 			const int errcode{10002};
 			constexpr util::string_view sqlstate = "HY000";
 			constexpr util::string_view errmsg = "Remove not completely initialized";
-			mysqlx_new_exception(errcode, sqlstate, errmsg);
+			create_exception(errcode, sqlstate, errmsg);
 		} else {
 			xmysqlnd_stmt* stmt{ collection->remove(remove_op) };
 			if (stmt) {
-				util::zvalue stmt_zv;
-				mysqlx_new_stmt(stmt_zv.ptr(), stmt);
-				if (stmt_zv.is_null()) {
-					xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-				} else if (stmt_zv.is_object()) {
-					zend_long flags{0};
-					mysqlx_statement_execute_read_response(
-						Z_MYSQLX_P(stmt_zv.ptr()), flags, MYSQLX_RESULT, resultset);
-				}
+				util::zvalue stmt_obj = create_stmt(stmt);
+				zend_long flags{0};
+				resultset = mysqlx_statement_execute_read_response(
+					Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT);
 			}
 		}
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(resultset);
 }
 
 //------------------------------------------------------------------------------
@@ -214,21 +206,20 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, sort)
 {
 	DBG_ENTER("mysqlx_collection__remove::sort");
 
-	zval* object_zv{nullptr};
-	zval* sort_expressions{nullptr};
-	int num_of_expr{0};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	util::raw_zval* object_zv{nullptr};
+	util::arg_zvals sort_expressions;
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 									&object_zv,
 									collection_remove_class_entry,
-									&sort_expressions,
-									&num_of_expr))
+									&sort_expressions.data,
+									&sort_expressions.counter))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
-	if (coll_remove.sort(sort_expressions, num_of_expr)) {
-		util::zvalue::copy_to(object_zv, return_value);
+	if (coll_remove.sort(sort_expressions)) {
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -238,9 +229,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 {
 	DBG_ENTER("mysqlx_collection__remove::limit");
 
-	zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zend_long rows{0};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 												&object_zv, collection_remove_class_entry,
 												&rows))
 	{
@@ -254,7 +245,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, limit)
 
 	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 	if (coll_remove.limit(rows)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -264,9 +255,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 {
 	DBG_ENTER("mysqlx_collection__remove::bind");
 
-	zval* object_zv{nullptr};
-	zval* bind_vars{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
+	util::raw_zval* object_zv{nullptr};
+	util::raw_zval* bind_vars{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oz",
 												&object_zv, collection_remove_class_entry,
 												&bind_vars))
 	{
@@ -276,7 +267,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, bind)
 	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
 	util::zvalue bind_variables(bind_vars);
 	if (coll_remove.bind(bind_variables)) {
-		util::zvalue::copy_to(object_zv, return_value);
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -286,15 +277,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 {
 	DBG_ENTER("mysqlx_collection__remove::execute");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, collection_remove_class_entry))
 	{
 		DBG_VOID_RETURN;
 	}
 
 	Collection_remove& coll_remove = util::fetch_data_object<Collection_remove>(object_zv);
-	coll_remove.execute(return_value);
+	coll_remove.execute().move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -360,20 +351,18 @@ mysqlx_unregister_collection__remove_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&collection_remove_properties);
 }
 
-void
-mysqlx_new_collection__remove(
-	zval* return_value,
+util::zvalue
+create_collection_remove(
 	const util::string_view& search_expression,
 	xmysqlnd_collection* collection)
 {
-	DBG_ENTER("mysqlx_new_collection__remove");
-	Collection_remove& coll_remove{ util::init_object<Collection_remove>(collection_remove_class_entry, return_value) };
+	DBG_ENTER("create_collection_remove");
+	util::zvalue coll_remove_obj;
+	Collection_remove& coll_remove{ util::init_object<Collection_remove>(collection_remove_class_entry, coll_remove_obj) };
 	if (!coll_remove.init(collection, search_expression)) {
-		zval_ptr_dtor(return_value);
-		ZVAL_NULL(return_value);
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::remove_fail);
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(coll_remove_obj);
 }
 
 } // namespace devapi

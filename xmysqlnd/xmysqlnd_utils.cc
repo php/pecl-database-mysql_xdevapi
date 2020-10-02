@@ -27,35 +27,34 @@ namespace mysqlx {
 
 namespace drv {
 
-void
-xmysqlnd_utils_decode_doc_row(zval* src, zval* dest)
+util::zvalue
+xmysqlnd_utils_decode_doc_row(const util::zvalue& src)
 {
-	HashTable * row_ht = Z_ARRVAL_P(src);
-	zval* row_data = zend_hash_str_find(row_ht, "doc", sizeof("doc") - 1);
-	if (row_data && Z_TYPE_P(row_data) == IS_STRING) {
+	assert(src.is_array());
+	util::zvalue row_data = src.find("doc");
+	util::zvalue dest;
+	if (row_data.is_string()) {
 		php_json_decode(
-			dest,
-			Z_STRVAL_P(row_data),
-			static_cast<int>(Z_STRLEN_P(row_data)),
+			dest.ptr(),
+			const_cast<char*>(row_data.c_str()),
+			static_cast<int>(row_data.length()),
 			TRUE,
 			PHP_JSON_PARSER_DEFAULT_DEPTH);
 	}
+	return dest;
 }
 
-void
-xmysqlnd_utils_decode_doc_rows(zval* src, zval* dest)
+util::zvalue
+xmysqlnd_utils_decode_doc_rows(const util::zvalue& src)
 {
-	array_init(dest);
-	if (Z_TYPE_P(src) == IS_ARRAY) {
-		zval* raw_row{nullptr};
-		MYSQLX_HASH_FOREACH_VAL(Z_ARRVAL_P(src), raw_row) {
-			zval row;
-			xmysqlnd_utils_decode_doc_row(raw_row, &row);
-			if (add_next_index_zval(dest, &row) == FAILURE) {
-				throw std::runtime_error("decode doc failure - cannot add element to result array");
-			}
-		} ZEND_HASH_FOREACH_END();
+	util::zvalue dest = util::zvalue::create_array();
+	if (src.is_array()) {
+		for (util::zvalue raw_row : src.values()) {
+			util::zvalue row = xmysqlnd_utils_decode_doc_row(raw_row);
+			dest.push_back(row);
+		}
 	}
+	return dest;
 }
 
 /* The ascii-to-ebcdic table: */

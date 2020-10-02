@@ -23,6 +23,7 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_execution_status.h"
 #include "util/allocator.h"
+#include "util/functions.h"
 #include "util/object.h"
 
 namespace mysqlx {
@@ -35,9 +36,9 @@ static zend_class_entry * mysqlx_execution_status_class_entry;
 
 struct st_mysqlx_execution_status : public util::custom_allocable
 {
-	size_t items_affected;
-	size_t items_matched;
-	size_t items_found;
+	uint64_t items_affected;
+	uint64_t items_matched;
+	uint64_t items_found;
 	uint64_t last_insert_id;
 
 	zend_bool persistent;
@@ -56,58 +57,58 @@ static const zend_function_entry mysqlx_execution_status_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
 
-static zval *
-mysqlx_execution_status_property__affected_items(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_execution_status_property_affected_items(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
-	DBG_ENTER("mysqlx_execution_status_property__affected_items");
-	ZVAL_LONG(return_value, object->items_affected);
+	DBG_ENTER("mysqlx_execution_status_property_affected_items");
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->items_affected));
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_execution_status_property__matched_items(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_execution_status_property_matched_items(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
-	DBG_ENTER("mysqlx_execution_status_property__matched_items");
-	ZVAL_LONG(return_value, object->items_matched);
+	DBG_ENTER("mysqlx_execution_status_property_matched_items");
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->items_matched));
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_execution_status_property__found_items(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_execution_status_property_found_items(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
-	DBG_ENTER("mysqlx_execution_status_property__found_items");
-	ZVAL_LONG(return_value, object->items_found);
+	DBG_ENTER("mysqlx_execution_status_property_found_items");
+	ZVAL_LONG(return_value, static_cast<zend_long>(object->items_found));
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_execution_status_property__last_insert_id(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_execution_status_property_last_insert_id(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
-	DBG_ENTER("mysqlx_execution_status_property__last_insert_id");
+	DBG_ENTER("mysqlx_execution_status_property_last_insert_id");
 	ZVAL_LONG(return_value, static_cast<zend_long>(object->last_insert_id));
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_execution_status_property__last_document_id(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_execution_status_property_last_document_id(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_execution_status* object = (st_mysqlx_execution_status*)(obj->ptr);
-	DBG_ENTER("mysqlx_execution_status_property__last_document_id");
+	DBG_ENTER("mysqlx_execution_status_property_last_document_id");
 	ZVAL_LONG(return_value, static_cast<zend_long>(object->last_insert_id));
 	DBG_RETURN(return_value);
 }
 
 static const st_mysqlx_property_entry mysqlx_execution_status_property_entries[] =
 {
-	{std::string_view("affectedItems"), mysqlx_execution_status_property__affected_items, nullptr},
-	{std::string_view("matchedItems"), mysqlx_execution_status_property__matched_items, nullptr},
-	{std::string_view("foundItems"), mysqlx_execution_status_property__found_items, nullptr},
-	{std::string_view("lastInsertId"), mysqlx_execution_status_property__last_insert_id, nullptr},
-	{std::string_view("lastDocumentId"), mysqlx_execution_status_property__last_document_id, nullptr},
+	{std::string_view("affectedItems"), mysqlx_execution_status_property_affected_items, nullptr},
+	{std::string_view("matchedItems"), mysqlx_execution_status_property_matched_items, nullptr},
+	{std::string_view("foundItems"), mysqlx_execution_status_property_found_items, nullptr},
+	{std::string_view("lastInsertId"), mysqlx_execution_status_property_last_insert_id, nullptr},
+	{std::string_view("lastDocumentId"), mysqlx_execution_status_property_last_document_id, nullptr},
 	{std::string_view{}, nullptr, nullptr}
 };
 
@@ -159,19 +160,20 @@ mysqlx_unregister_execution_status_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_execution_status_properties);
 }
 
-void
-mysqlx_new_execution_status(zval* return_value, const XMYSQLND_STMT_EXECUTION_STATE* const status)
+util::zvalue
+create_execution_status(const XMYSQLND_STMT_EXECUTION_STATE* const status)
 {
-	DBG_ENTER("mysqlx_new_execution_status");
+	DBG_ENTER("create_execution_status");
 
+	util::zvalue execution_status;
 	st_mysqlx_execution_status& data_object{
-		util::init_object<st_mysqlx_execution_status>(mysqlx_execution_status_class_entry, return_value) };
+		util::init_object<st_mysqlx_execution_status>(mysqlx_execution_status_class_entry, execution_status) };
 	data_object.items_affected = status->m->get_affected_items_count(status);
 	data_object.items_matched = status->m->get_matched_items_count(status);
 	data_object.items_found = status->m->get_found_items_count(status);
 	data_object.last_insert_id = status->m->get_last_insert_id(status);
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(execution_status);
 }
 
 } // namespace devapi

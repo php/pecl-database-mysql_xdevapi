@@ -79,7 +79,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <file name="config.w32" role="src" />
    <file name="examples.php" role="test" />
    <file name="json_api.h" role="src" />
-   <file name="mysql_xdevapi.def" role="src" />
    <file name="mysqlnd_api.h" role="src" />
    <file name="mysqlx_base_result.cc" role="src" />
    <file name="mysqlx_base_result.h" role="src" />
@@ -489,8 +488,6 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
     <file name="compiler_utils.h" role="src" />
     <file name="exceptions.cc" role="src" />
     <file name="exceptions.h" role="src" />
-    <file name="hash_table.cc" role="src" />
-    <file name="hash_table.h" role="src" />
     <file name="json_utils.cc" role="src" />
     <file name="json_utils.h" role="src" />
     <file name="object.cc" role="src" />

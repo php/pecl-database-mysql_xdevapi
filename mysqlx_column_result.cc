@@ -37,7 +37,7 @@
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
 #include "util/object.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 #include <limits>
 
 namespace mysqlx {
@@ -216,39 +216,33 @@ get_column_type(const st_xmysqlnd_result_field_meta* const meta)
 	}
 }
 
-zend_bool
+bool
 is_type_signed(const st_xmysqlnd_result_field_meta* const meta)
 {
-	zend_bool is_signed{FALSE};
 	switch(meta->type) {
 	case XMYSQLND_TYPE_SIGNED_INT:
-		is_signed = TRUE;
-		break;
+		return true;
+
 	case XMYSQLND_TYPE_FLOAT:
 	case XMYSQLND_TYPE_DOUBLE:
 	case XMYSQLND_TYPE_DECIMAL:
-		{
-			if(! (meta->flags_set && meta->flags & ALL_UNSIGNED) ) {
-				is_signed = TRUE;
-			}
-		}
-		break;
+		return !(meta->flags_set && (meta->flags & ALL_UNSIGNED));
+
 	default:
-		break;
+		return false;
 	}
-	return is_signed;
 }
 
-void
-get_column_length(zval* return_value, std::uint32_t length)
+util::zvalue
+get_column_length(std::uint32_t length)
 {
 #if SIZEOF_ZEND_LONG==4
 	if (static_cast<std::uint32_t>(std::numeric_limits<zend_long>::max()) < length) {
-		ZVAL_DOUBLE(return_value, length);
+		return static_cast<double>(length);
 	} else
 #endif /* #if SIZEOF_LONG==4 */
 	{
-		ZVAL_LONG(return_value, length);
+		return static_cast<zend_long>(length);
 	}
 }
 
@@ -257,8 +251,8 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					meta_fields selected_meta_field)
 {
 	DBG_ENTER("get_column_meta_field");
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 								&object_zv,
 								mysqlx_column_result_class_entry))
 	{
@@ -269,39 +263,35 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_column_result>(object_zv) };
 	const drv::st_xmysqlnd_result_field_meta* meta{ data_object.meta };
+	util::zvalue result;
 	if (meta) {
 		switch(selected_meta_field) {
 		case schema_name:
-			ZVAL_STRINGL(return_value,meta->schema.c_str(),
-						 meta->schema.length());
+			result = meta->schema;
 			break;
 		case table_name:
-			ZVAL_STRINGL(return_value,meta->original_table.data(),
-						 meta->original_table.length());
+			result = meta->original_table;
 			break;
 		case table_label:
-			ZVAL_STRINGL(return_value,meta->table.data(),
-						 meta->table.length());
+			result = meta->table;
 			break;
 		case column_name:
-			ZVAL_STRINGL(return_value,meta->original_name.data(),
-						 meta->original_name.length());
+			result = meta->original_name;
 			break;
 		case column_label:
-			ZVAL_STRINGL(return_value,meta->name.data(),
-						 meta->name.length());
+			result = meta->name;
 			break;
 		case type:
-			ZVAL_LONG(return_value,static_cast<zend_long>(get_column_type(meta)));
+			result = get_column_type(meta);
 			break;
 		case length:
-			get_column_length(return_value, meta->length);
+			result = get_column_length(meta->length);
 			break;
 		case fractional_digit:
-			ZVAL_LONG(return_value,meta->fractional_digits);
+			result = meta->fractional_digits;
 			break;
 		case is_number_signed:
-			ZVAL_BOOL(return_value,is_type_signed(meta));
+			result = is_type_signed(meta);
 			break;
 		case collation_name:
 		case characterset_name:
@@ -310,29 +300,25 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 					mysqlnd_find_charset_nr(static_cast<unsigned int>(meta->collation));
 				if( set != nullptr && set->collation != nullptr ) {
 					if( selected_meta_field == collation_name ) {
-						ZVAL_STRINGL(return_value,
-									 set->collation,
-									 strlen(set->collation));
+						result = set->collation;
 					} else {
-						ZVAL_STRINGL(return_value,
-									 set->name,
-									 strlen(set->name));
+						result = set->name;
 					}
 				}
 				else {
-					ZVAL_NULL(return_value);
+					result = nullptr;
 				}
 
 			}
 			break;
 		case is_padded:
 			{
-				zend_bool is_padded{FALSE};
 				if( meta->type == XMYSQLND_TYPE_BYTES &&
 					(meta->flags_set && meta->flags & BYTES_RIGHTPAD)) {
-					is_padded = TRUE;
+					result = true;
+				} else {
+					result = false;
 				}
-				ZVAL_BOOL(return_value,is_padded);
 			}
 			break;
 		default:
@@ -342,6 +328,7 @@ get_column_meta_field(INTERNAL_FUNCTION_PARAMETERS,
 	} else {
 		RAISE_EXCEPTION(err_msg_meta_fail);
 	}
+	result.move_to(return_value);
 	DBG_VOID_RETURN;
 }
 
@@ -506,18 +493,18 @@ const st_mysqlx_property_entry mysqlx_column_result_property_entries[] =
 
 } // anonymous namespace
 
-void
-mysqlx_new_column_result(
-	zval* return_value,
+util::zvalue
+create_column_result(
 	const st_xmysqlnd_result_field_meta* meta)
 {
-	DBG_ENTER("mysqlx_new_column");
+	DBG_ENTER("create_column_result");
 
+	util::zvalue column_result;
 	st_mysqlx_column_result& data_object{
-		util::init_object<st_mysqlx_column_result>(mysqlx_column_result_class_entry, return_value) };
+		util::init_object<st_mysqlx_column_result>(mysqlx_column_result_class_entry, column_result) };
 	data_object.meta = meta;
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(column_result);
 }
 
 static zend_object *

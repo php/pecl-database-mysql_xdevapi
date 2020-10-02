@@ -203,7 +203,7 @@ handler_on_error(void * context, const unsigned int code, const util::string_vie
 }
 
 static const enum_hnd_func_status
-handler_on_exec_state_change(void * context, const enum xmysqlnd_execution_state_type type, const size_t value)
+handler_on_exec_state_change(void * context, const enum xmysqlnd_execution_state_type type, const uint64_t value)
 {
 	st_xmysqlnd_stmt_bind_ctx* const ctx = (st_xmysqlnd_stmt_bind_ctx*) context;
 	enum_hnd_func_status ret{HND_AGAIN};
@@ -429,7 +429,7 @@ xmysqlnd_stmt::get_buffered_result(xmysqlnd_stmt * const stmt,
 														 MYSQLND_ERROR_INFO * const error_info)
 {
 	XMYSQLND_STMT_RESULT* result{nullptr};
-	struct st_xmysqlnd_stmt_bind_ctx create_ctx =
+	st_xmysqlnd_stmt_bind_ctx create_ctx =
 	{
 		stmt,
 		stats,
@@ -621,7 +621,7 @@ xmysqlnd_stmt::get_fwd_result(xmysqlnd_stmt * const stmt,
 enum_func_status
 xmysqlnd_stmt::skip_one_result(xmysqlnd_stmt * const stmt, zend_bool * const has_more_results, MYSQLND_STATS * const stats, MYSQLND_ERROR_INFO * const error_info)
 {
-	struct st_xmysqlnd_stmt_bind_ctx create_ctx = { stmt, stats, error_info };
+	st_xmysqlnd_stmt_bind_ctx create_ctx = { stmt, stats, error_info };
 	const st_xmysqlnd_meta_field_create_bind create_meta_field = { nullptr, nullptr };
 	const st_xmysqlnd_on_row_field_bind on_row_field = { nullptr, nullptr };
 	const st_xmysqlnd_on_meta_field_bind on_meta_field = { nullptr, nullptr };
@@ -968,10 +968,7 @@ bool Prepare_stmt_data::bind_values(
 	std::vector<Mysqlx::Datatypes::Scalar*> converted_params;
 	for( unsigned int i{0}; i < params_allocated; ++i ) {
 		Mysqlx::Datatypes::Any arg;
-		ret = zval2any(&(params[i]), arg);
-		if( FAIL == ret ) {
-			break;
-		}
+		zval2any(&(params[i]), arg);
 		Mysqlx::Datatypes::Scalar * new_param = new Mysqlx::Datatypes::Scalar;
 		new_param->CopyFrom(arg.scalar());
 		converted_params.push_back( new_param );
@@ -1032,7 +1029,7 @@ const enum_hnd_func_status prepare_st_on_error_handler(void * context,
 		DBG_INF_FMT("Disabling support for prepare statement, not supported by server.");
 		ctx->set_supported_ps( false );
 	} else {
-		mysqlx::devapi::mysqlx_new_exception(code, sql_state, message);
+		mysqlx::devapi::create_exception(code, sql_state, message);
 		DBG_RETURN(HND_PASS_RETURN_FAIL);
 	}
 

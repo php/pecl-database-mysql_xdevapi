@@ -39,7 +39,7 @@
 #include "util/allocator.h"
 #include "util/object.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 
 namespace mysqlx {
 
@@ -84,8 +84,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchOne)
 {
 	DBG_ENTER("mysqlx_row_result::fetchOne");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -107,8 +107,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 {
 	DBG_ENTER("mysqlx_row_result::fetchAll");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -116,7 +116,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, fetchAll)
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_row_result>(object_zv) };
 	data_object.result->m.fetch_all(data_object.result, return_value, nullptr, nullptr);
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -125,8 +125,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarningsCount)
 {
 	DBG_ENTER("mysqlx_row_result::getWarningsCount");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -153,8 +153,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarnings)
 {
 	DBG_ENTER("mysqlx_row_result::getWarnings");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -168,16 +168,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getWarnings)
 		array_init_size(return_value, static_cast<uint32_t>(count));
 		for (std::size_t i{0}; i < count; ++i) {
 			const XMYSQLND_WARNING warning = warnings->get_warning(i);
-			util::zvalue warning_zv;
-			mysqlx_new_warning(warning_zv.ptr(), warning.message, warning.level, warning.code);
-			if (!warning_zv.is_undef()) {
-				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), warning_zv.ptr());
-				warning_zv.invalidate();
+			util::zvalue warning_obj = create_warning(warning.message, warning.level, warning.code);
+			if (!warning_obj.is_undef()) {
+				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), warning_obj.ptr());
+				warning_obj.invalidate();
 			}
 		}
 	}
 
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -196,8 +195,8 @@ static st_xmysqlnd_stmt_result_meta* get_stmt_result_meta(INTERNAL_FUNCTION_PARA
 {
 	DBG_ENTER("get_stmt_result_meta");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_row_result_class_entry))
 	{
 		DBG_RETURN(nullptr);
@@ -246,17 +245,15 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumns)
 		array_init_size(return_value, count);
 		for (unsigned int i{0}; i < count; ++i) {
 			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
-			util::zvalue column_zv;
-			mysqlx_new_column_result(column_zv.ptr(), column);
-
-			if (!column_zv.is_undef()) {
-				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), column_zv.ptr());
-				column_zv.invalidate();
+			util::zvalue column_obj = create_column_result(column);
+			if (!column_obj.is_undef()) {
+				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), column_obj.ptr());
+				column_obj.invalidate();
 			}
 		}
 	}
 
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -268,21 +265,16 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_row_result, getColumnNames)
 
 	if (meta) {
 		const unsigned int count{meta->m->get_field_count(meta)};
-		array_init_size(return_value, count);
+		util::zvalue column_names = util::zvalue::create_array(count);
 		for (unsigned int i{0}; i < count; ++i) {
 			const XMYSQLND_RESULT_FIELD_META* column = meta->m->get_field(meta, i);
-			zval column_name;
-
-			ZVAL_UNDEF(&column_name);
-			ZVAL_STRINGL(&column_name, column->name.data(), column->name.length());
-
-			if (Z_TYPE(column_name) != IS_UNDEF) {
-				zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &column_name);
-			}
+			const util::string& column_name = column->name;
+			column_names.push_back(column_name);
 		}
+		column_names.move_to(return_value);
 	}
 
-	util::zend::ensure_is_array(return_value);
+	util::zvalue::ensure_is_array(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -351,16 +343,17 @@ mysqlx_unregister_row_result_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_row_result_properties);
 }
 
-void
-mysqlx_new_row_result(zval* return_value, XMYSQLND_STMT_RESULT* result)
+util::zvalue
+create_row_result(XMYSQLND_STMT_RESULT* result)
 {
-	DBG_ENTER("mysqlx_new_row_result");
+	DBG_ENTER("create_row_result");
 
+	util::zvalue row_result_obj;
 	st_mysqlx_row_result& data_object{
-		util::init_object<st_mysqlx_row_result>(mysqlx_row_result_class_entry, return_value) };
+		util::init_object<st_mysqlx_row_result>(mysqlx_row_result_class_entry, row_result_obj) };
 	data_object.result = result;
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(row_result_obj);
 }
 
 } // namespace devapi

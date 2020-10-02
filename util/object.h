@@ -22,6 +22,7 @@
 #include "mysqlx_class_properties.h"
 #include "mysqlx_object.h"
 #include "exceptions.h"
+#include "value.h"
 
 namespace mysqlx {
 
@@ -187,12 +188,18 @@ Data_object& fetch_data_object(devapi::st_mysqlx_object* mysqlx_object)
 }
 
 template<typename Data_object>
-Data_object& fetch_data_object(zval* from)
+Data_object& fetch_data_object(raw_zval* from)
 {
 	using namespace devapi;
 
 	st_mysqlx_object* mysqlx_object{ Z_MYSQLX_P(from) };
 	return fetch_data_object<Data_object>(mysqlx_object);
+}
+
+template<typename Data_object>
+Data_object& fetch_data_object(const zvalue& from)
+{
+	return fetch_data_object<Data_object>(from.ptr());
 }
 
 template<typename Data_object>
@@ -205,9 +212,9 @@ Data_object& fetch_data_object(zend_object* from)
 }
 
 template<typename Data_object>
-Data_object& init_object(zend_class_entry* ce, zval* mysqlx_object)
+Data_object& init_object(zend_class_entry* ce, zvalue& mysqlx_object)
 {
-	if ((SUCCESS == object_init_ex(mysqlx_object, ce)) && (IS_OBJECT == Z_TYPE_P(mysqlx_object))) {
+	if ((SUCCESS == object_init_ex(mysqlx_object.ptr(), ce)) && mysqlx_object.is_object()) {
 		auto& data_object = util::fetch_data_object<Data_object>(mysqlx_object);
 		return data_object;
 	} else {
@@ -333,22 +340,5 @@ void safe_call_php_function(php_function_t handler, INTERNAL_FUNCTION_PARAMETERS
 		property_entries, \
 		##__VA_ARGS__); \
 }
-
-#define	MYSQL_XDEVAPI_PHP_METHOD(class_name, name) \
-static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
-static PHP_METHOD(class_name, name) \
-{ \
-	util::safe_call_php_method(class_name##_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
-} \
-static void class_name##_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
-
-
-#define	MYSQL_XDEVAPI_PHP_FUNCTION(name) \
-static void function_##name##_body(INTERNAL_FUNCTION_PARAMETERS); \
-PHP_FUNCTION(name) \
-{ \
-	util::safe_call_php_function(function_##name##_body, INTERNAL_FUNCTION_PARAM_PASSTHRU); \
-} \
-static void function_##name##_body(INTERNAL_FUNCTION_PARAMETERS)
 
 #endif // MYSQL_XDEVAPI_PHP_OBJECT_H

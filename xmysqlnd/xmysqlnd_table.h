@@ -38,9 +38,9 @@ public:
 				xmysqlnd_schema* const cur_schema,
 				const util::string_view& cur_table_name,
 				zend_bool is_persistent);
-	enum_func_status		exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-	enum_func_status		is_view(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-	enum_func_status		count(struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
+	enum_func_status		exists_in_database(st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+	enum_func_status		is_view(st_xmysqlnd_session_on_error_bind on_error, zval* exists);
+	enum_func_status		count(st_xmysqlnd_session_on_error_bind on_error, zval* counter);
 	xmysqlnd_stmt*       insert(XMYSQLND_CRUD_TABLE_OP__INSERT * op);
 	xmysqlnd_stmt*       opdelete(XMYSQLND_CRUD_TABLE_OP__DELETE * op);
 	xmysqlnd_stmt*		update(XMYSQLND_CRUD_TABLE_OP__UPDATE * op);

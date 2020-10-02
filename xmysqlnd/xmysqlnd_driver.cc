@@ -202,7 +202,7 @@ static const MYSQLND_STRING xmysqlnd_stats_values_names[STAT_LAST] =
 	{ util::literal_to_mysqlnd_str("bytes_received_real_data_ps") }
 };
 
-static struct st_mysqlnd_plugin_core xmysqlnd_plugin_core =
+static st_mysqlnd_plugin_core xmysqlnd_plugin_core =
 {
 	{
 		MYSQLND_PLUGIN_API_VERSION,

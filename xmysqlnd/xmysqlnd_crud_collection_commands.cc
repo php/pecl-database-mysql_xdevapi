@@ -78,7 +78,7 @@ util::std_strings Bindings::get_placeholders() const
 	return placeholders;
 }
 
-bool Bindings::bind(const util::string& var_name, zval* var_value)
+bool Bindings::bind(const util::string& var_name, const util::zvalue& var_value)
 {
 	DBG_ENTER("Bindings::bind");
 	DBG_INF_FMT("name=%*s", var_name.length(), var_name.c_str());
@@ -90,10 +90,7 @@ bool Bindings::bind(const util::string& var_name, zval* var_value)
 	}
 
 	Mysqlx::Datatypes::Any any;
-	if (FAIL == zval2any(var_value, any)) {
-		DBG_ERR("Error converting the zval to scalar");
-		DBG_RETURN(false);
-	}
+	zval2any(var_value, any);
 	any2log(any);
 
 	auto& bound_value = it->second;
@@ -230,39 +227,36 @@ xmysqlnd_crud_collection_add__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__ADD * o
 struct st_xmysqlnd_pb_message_shell
 		xmysqlnd_crud_collection_add__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
 	return ret;
 }
 
 enum_func_status
-xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj,
-									  zval * values_zv)
+xmysqlnd_crud_collection_add__add_doc(
+	XMYSQLND_CRUD_COLLECTION_OP__ADD * obj,
+	const util::zvalue& doc)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_add__add_doc");
 	enum_func_status ret{PASS};
-	obj->add_document(values_zv);
+	obj->add_document(doc);
 	DBG_RETURN(ret);
 }
 
-void st_xmysqlnd_crud_collection_op__add::add_document(zval* doc)
+void st_xmysqlnd_crud_collection_op__add::add_document(const util::zvalue& doc)
 {
-	zval new_doc;
-	ZVAL_DUP(&new_doc, doc);
-	docs_zv.push_back(new_doc);
+	docs.push_back(doc.clone());
 }
 
 void st_xmysqlnd_crud_collection_op__add::bind_docs()
 {
-	for (auto& values_zv : docs_zv)
-	{
+	for (auto& doc : docs) {
 		::Mysqlx::Crud::Insert_TypedRow* row = message.add_row();
 		Mysqlx::Expr::Expr * field = row->add_field();
 		field->set_type(Mysqlx::Expr::Expr::LITERAL);
 
 		Mysqlx::Datatypes::Scalar * literal = field->mutable_literal();
 		literal->set_type(Mysqlx::Datatypes::Scalar::V_STRING);
-		literal->mutable_v_string()->set_value(Z_STRVAL(values_zv),
-											   Z_STRLEN(values_zv));
+		literal->mutable_v_string()->set_value(doc.c_str(), doc.length());
 	}
 }
 
@@ -303,7 +297,7 @@ xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOV
 }
 
 enum_func_status
-xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t limit)
+xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const std::size_t limit)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__set_limit");
 	obj->message.mutable_limit()->set_row_count(limit);
@@ -311,7 +305,7 @@ xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE *
 }
 
 enum_func_status
-xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t offset)
+xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const std::size_t offset)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__set_skip");
 	obj->message.mutable_limit()->set_offset(offset);
@@ -322,7 +316,7 @@ enum_func_status
 xmysqlnd_crud_collection_remove__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__REMOVE* obj,
 	const util::string& name,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_remove__bind_value");
 	DBG_RETURN(obj->bindings.bind(name, value) ? PASS : FAIL);
@@ -355,7 +349,7 @@ xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMO
 struct st_xmysqlnd_pb_message_shell
 		xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
 	return ret;
 }
 
@@ -415,7 +409,7 @@ bool
 xmysqlnd_crud_collection_modify__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
 	const util::string& name,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_modify__bind_value");
 	DBG_RETURN(obj->bindings.bind(name, value));
@@ -516,10 +510,7 @@ xmysqlnd_crud_collection_modify__add_operation(
 			}
 		} else {
 			Mysqlx::Datatypes::Any any;
-			if (FAIL == zval2any(value.ptr(), any)) {
-				DBG_ERR("Error converting the zval to scalar");
-				DBG_RETURN(false);
-			}
+			zval2any(value, any);
 			any2log(any);
 
 			operation->mutable_value()->set_type(Mysqlx::Expr::Expr::LITERAL);
@@ -674,7 +665,7 @@ enum_func_status
 xmysqlnd_crud_collection_find__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__FIND* obj,
 	const util::string& name,
-	zval* value)
+	const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_collection_find__bind_value");
 	DBG_RETURN(obj->bindings.bind(name, value) ? PASS : FAIL);
@@ -850,53 +841,18 @@ xmysqlnd_crud_collection_find_set_lock_waiting_option(
 struct st_xmysqlnd_pb_message_shell
 		xmysqlnd_crud_collection_find__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };
 	return ret;
 }
 
 /****************************** SQL EXECUTE *******************************************************/
 
 enum_func_status
-st_xmysqlnd_stmt_op__execute::bind_one_param(const zval * param_zv)
+st_xmysqlnd_stmt_op__execute::bind_one_param(const util::zvalue& param)
 {
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::bind_one_stmt_param");
-	const unsigned int param_no = params_allocated;
-	DBG_RETURN(bind_one_param(param_no, param_zv));
-}
-
-enum_func_status
-st_xmysqlnd_stmt_op__execute::bind_one_param(const unsigned int param_no, const zval * param_zv)
-{
-	enum_func_status ret{FAIL};
-	DBG_ENTER("st_xmysqlnd_stmt_op__execute::bind_one_stmt_param");
-	DBG_INF_FMT("params=%p", params);
-	if (!params || param_no >= params_allocated) {
-		DBG_INF("Not enough space for params, realloc");
-		params = (zval*) mnd_erealloc(params, (param_no + 1) * sizeof(zval));
-		if (!params) {
-			DBG_RETURN(FAIL);
-		}
-		/* Now we have a hole between the last allocated and the new param_no which is not zeroed. Zero it! */
-		memset(&params[params_allocated], 0, (param_no - params_allocated + 1) * sizeof(zval));
-
-		params_allocated = param_no + 1;
-		ret = PASS;
-	}
-	zval_ptr_dtor(&params[param_no]);
-
-	ZVAL_COPY_VALUE(&params[param_no], param_zv);
-	Z_TRY_ADDREF(params[param_no]);
-#ifdef PHP_DEBUG
-	switch (ret) {
-	case PASS:
-		DBG_INF("PASS");
-		break;
-	case FAIL:
-		DBG_INF("FAIL");
-		break;
-	}
-#endif
-	DBG_RETURN(ret);
+	params.push_back(param);
+	DBG_RETURN(PASS);
 }
 
 enum_func_status
@@ -904,13 +860,9 @@ st_xmysqlnd_stmt_op__execute::finalize_bind()
 {
 	enum_func_status ret{PASS};
 	DBG_ENTER("st_xmysqlnd_stmt_op__execute::finalize_bind");
-	for (unsigned int i{0}; i < params_allocated; ++i) {
+	for (const auto& param : params) {
 		Mysqlx::Datatypes::Any * arg = message.add_args();
-		ret = zval2any(&(params[i]), *arg);
-		if (FAIL == ret) {
-			break;
-		}
-
+		zval2any(param, *arg);
 	}
 	DBG_RETURN(ret);
 }
@@ -940,28 +892,28 @@ Mysqlx::Sql::StmtExecute& xmysqlnd_stmt_execute__get_pb_msg(XMYSQLND_STMT_OP__EX
 }
 
 enum_func_status
-xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE * obj, const zval * param_zv)
+xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE * obj, const util::zvalue& param)
 {
 	DBG_ENTER("xmysqlnd_stmt_execute__bind_one_param_add");
-	const enum_func_status ret = obj->bind_one_param(param_zv);
+	const enum_func_status ret = obj->bind_one_param(param);
 	DBG_RETURN(ret);
 }
 
 enum_func_status
-xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE * obj, const unsigned int param_no, const zval * param_zv)
+xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE * obj, const util::zvalue& param)
 {
 	DBG_ENTER("xmysqlnd_stmt_execute__bind_one_param");
-	const enum_func_status ret = obj->bind_one_param(param_no, param_zv);
+	const enum_func_status ret = obj->bind_one_param(param);
 	DBG_RETURN(ret);
 }
 
 enum_func_status
-xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE * obj, zval * value)
+xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE* obj, const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_stmt_execute__bind_value");
 	Mysqlx::Datatypes::Any * arg = obj->message.add_args();
-	const enum_func_status ret = zval2any(value, *arg);
-	DBG_RETURN(ret);
+	zval2any(value, *arg);
+	DBG_RETURN(PASS);
 }
 
 enum_func_status
@@ -984,7 +936,7 @@ xmysqlnd_stmt_execute__is_initialized(XMYSQLND_STMT_OP__EXECUTE * obj)
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_SQL_STMT_EXECUTE };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_SQL_STMT_EXECUTE };
 	return ret;
 }
 

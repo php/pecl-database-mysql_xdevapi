@@ -24,7 +24,10 @@ namespace Mysqlx { namespace Crud { class Find; } }
 
 namespace mysqlx {
 
-namespace util { class zvalue; }
+namespace util {
+	class zvalue;
+	struct arg_zvals;
+}
 
 namespace drv {
 
@@ -57,18 +60,13 @@ public:
 
 	bool add_operation(
 		Operation op,
-		zval* sort_expressions,
-		int num_of_expr);
+		const util::arg_zvals& sort_expressions);
 
-	bool group_by(
-		zval* sort_expressions,
-		int num_of_expr);
+	bool group_by(const util::arg_zvals& sort_expressions);
 
 	bool having(const util::string_view& search_condition);
 
-	bool sort(
-		zval* sort_expressions,
-		int num_of_expr);
+	bool sort(const util::arg_zvals& sort_expressions);
 
 	bool limit(zend_long rows);
 
@@ -79,10 +77,8 @@ public:
 	bool lock_shared(int lock_waiting_option);
 	bool lock_exclusive(int lock_waiting_option);
 
-	void execute(zval* resultset);
-	void execute(
-		zend_long flags,
-		zval* resultset);
+	util::zvalue execute();
+	util::zvalue execute(zend_long flags);
 
 	Mysqlx::Crud::Find* get_stmt();
 
@@ -93,14 +89,13 @@ private:
 
 extern zend_class_entry* collection_find_class_entry;
 
-void mysqlx_new_collection__find(
-	zval* return_value,
+util::zvalue create_collection_find(
 	const util::string_view& search_expression,
 	drv::xmysqlnd_collection* collection);
 void mysqlx_register_collection__find_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_collection__find_class(SHUTDOWN_FUNC_ARGS);
 
-Mysqlx::Crud::Find* get_stmt_from_collection_find(zval* object_zv);
+Mysqlx::Crud::Find* get_stmt_from_collection_find(util::raw_zval* object_zv);
 
 } // namespace devapi
 

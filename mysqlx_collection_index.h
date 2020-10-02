@@ -22,15 +22,13 @@ namespace mysqlx {
 
 namespace devapi {
 
-void create_collection_index(
+util::zvalue create_collection_index(
 	drv::xmysqlnd_collection* collection,
 	const util::string_view& index_name,
-	const util::string_view& index_desc_json,
-	zval* return_value);
+	const util::string_view& index_desc_json);
 
-void drop_collection_index(mysqlx::drv::xmysqlnd_collection *collection,
-	const util::string_view& index_name,
-	zval* return_value);
+util::zvalue drop_collection_index(mysqlx::drv::xmysqlnd_collection *collection,
+	const util::string_view& index_name);
 
 } // namespace devapi
 

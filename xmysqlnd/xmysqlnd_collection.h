@@ -38,8 +38,8 @@ public:
 	xmysqlnd_collection(xmysqlnd_schema * const cur_schema,
 								const util::string_view& cur_collection_name,
 								zend_bool is_persistent);
-	enum_func_status		exists_in_database(struct st_xmysqlnd_session_on_error_bind on_error, zval* exists);
-	enum_func_status		count( struct st_xmysqlnd_session_on_error_bind on_error, zval* counter);
+	enum_func_status		exists_in_database(st_xmysqlnd_session_on_error_bind on_error, util::raw_zval* exists);
+	enum_func_status		count(st_xmysqlnd_session_on_error_bind on_error, util::raw_zval* counter);
 	xmysqlnd_stmt*       add(XMYSQLND_CRUD_COLLECTION_OP__ADD * crud_op);
 	xmysqlnd_stmt*		remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op);
 	xmysqlnd_stmt*		modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op);

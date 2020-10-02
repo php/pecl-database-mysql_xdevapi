@@ -23,6 +23,7 @@ template<typename T>
 zvalue::zvalue(std::initializer_list<T> values)
 {
 	ZVAL_UNDEF(&zv);
+	reserve(values.size());
 	push_back(values);
 }
 
@@ -75,6 +76,8 @@ zvalue::zvalue(const map<Key, Value>& values)
 template<typename T>
 zvalue& zvalue::operator=(std::initializer_list<T> values)
 {
+	reset();
+	reserve(values.size());
 	push_back(values);
 	return *this;
 }
@@ -82,6 +85,7 @@ zvalue& zvalue::operator=(std::initializer_list<T> values)
 template<typename T>
 zvalue& zvalue::operator=(const vector<T>& values)
 {
+	reset();
 	reserve(values.size());
 	for (const auto& value : values) {
 		push_back(value);
@@ -92,6 +96,7 @@ zvalue& zvalue::operator=(const vector<T>& values)
 template<typename T>
 zvalue& zvalue::operator=(const set<T>& values)
 {
+	reset();
 	reserve(values.size());
 	for (const auto& value : values) {
 		push_back(value);
@@ -102,6 +107,7 @@ zvalue& zvalue::operator=(const set<T>& values)
 template<typename Key, typename Value>
 zvalue& zvalue::operator=(const map<Key, Value>& values)
 {
+	reset();
 	reserve(values.size());
 	for (const auto& value : values) {
 		insert(value.first, value.second);
@@ -771,15 +777,9 @@ void zvalue::insert(const std::pair<Key, Value>& key_value)
 	insert(key_value.first, key_value.second);
 }
 
-inline void zvalue::insert(std::initializer_list<std::pair<const char*, zvalue>> values)
-{
-	append(values);
-}
-
 template<typename Key, typename Value>
-void zvalue::append(std::initializer_list<std::pair<Key, Value>> values)
+void zvalue::insert(std::initializer_list<std::pair<Key, Value>> values)
 {
-	reserve(values.size());
 	for_each(
 		values.begin(),
 		values.end(),
@@ -792,7 +792,6 @@ void zvalue::append(std::initializer_list<std::pair<Key, Value>> values)
 template<typename T>
 void zvalue::push_back(std::initializer_list<T> values)
 {
-	reserve(values.size());
 	for (const auto& value : values) {
 		push_back(value);
 	}
@@ -823,6 +822,51 @@ inline bool zvalue::erase(const std::string& key)
 inline bool zvalue::erase(const char* key)
 {
 	return erase(key, std::strlen(key));
+}
+
+// -----------------------------------------------------------------------------
+
+template<typename Value_type, typename Getter>
+zvalue::generic_iterator<Value_type, Getter>::generic_iterator(HashTable* ht, HashPosition size, HashPosition pos)
+	: ht(ht)
+	, size(size)
+	, pos(pos)
+{
+}
+
+template<typename Value_type, typename Getter>
+zvalue::generic_iterator<Value_type, Getter> zvalue::generic_iterator<Value_type, Getter>::operator++(int)
+{
+	generic_iterator it(ht, size, pos);
+	++(*this);
+	return it;
+}
+
+template<typename Value_type, typename Getter>
+zvalue::generic_iterator<Value_type, Getter>& zvalue::generic_iterator<Value_type, Getter>::operator++()
+{
+	if ((zend_hash_move_forward_ex(ht, &pos) == FAILURE) || (pos >= size)) {
+		pos = HT_INVALID_IDX;
+	}
+	return *this;
+}
+
+template<typename Value_type, typename Getter>
+Value_type zvalue::generic_iterator<Value_type, Getter>::operator*() const
+{
+	return Getter()(ht, pos);
+}
+
+template<typename Value_type, typename Getter>
+bool zvalue::generic_iterator<Value_type, Getter>::operator==(const generic_iterator& rhs) const
+{
+	return pos == rhs.pos;
+}
+
+template<typename Value_type, typename Getter>
+bool zvalue::generic_iterator<Value_type, Getter>::operator!=(const generic_iterator& rhs) const
+{
+	return pos != rhs.pos;
 }
 
 // -----------------------------------------------------------------------------

@@ -22,7 +22,10 @@
 
 namespace mysqlx {
 
-namespace util { class zvalue; }
+namespace util {
+	class zvalue;
+	struct arg_zvals;
+}
 
 namespace drv {
 
@@ -46,12 +49,10 @@ public:
 		const util::string_view& search_expression);
 
 public:
-	bool sort(
-		zval* sort_expressions,
-		int num_of_expr);
+	bool sort(const util::arg_zvals& sort_expressions);
 	bool limit(zend_long rows);
 	bool bind(const util::zvalue& bind_variables);
-	void execute(zval* return_value);
+	util::zvalue execute();
 
 private:
 	drv::xmysqlnd_collection* collection{nullptr};
@@ -59,8 +60,7 @@ private:
 
 };
 
-void mysqlx_new_collection__remove(
-	zval* return_value,
+util::zvalue create_collection_remove(
 	const util::string_view& search_expression,
 	drv::xmysqlnd_collection* collection);
 void mysqlx_register_collection__remove_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);

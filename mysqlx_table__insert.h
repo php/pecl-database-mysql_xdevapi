@@ -22,7 +22,7 @@ namespace mysqlx {
 
 namespace devapi {
 
-void mysqlx_new_table__insert(zval* return_value, drv::xmysqlnd_table* schema, zval * columns,const int num_of_columns);
+util::zvalue create_table_insert(drv::xmysqlnd_table* schema, zval * columns,const int num_of_columns);
 void mysqlx_register_table__insert_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_table__insert_class(SHUTDOWN_FUNC_ARGS);
 

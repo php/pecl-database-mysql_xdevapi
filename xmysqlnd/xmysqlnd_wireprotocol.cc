@@ -87,11 +87,8 @@ xmysqlnd_inspect_changed_variable(const st_xmysqlnd_on_session_var_change_bind o
 	DBG_INF_FMT("value is %s", has_value? "SET":"NOT SET");
 	if (has_param && has_value) {
 		const util::string_view name = message.param();
-		zval zv;
-		ZVAL_UNDEF(&zv);
-		if (PASS == scalar2zval(message.value(), &zv)) {
-			ret = on_session_var_change.handler(on_session_var_change.ctx, name, &zv);
-		}
+		util::zvalue zv = scalar2zval(message.value());
+		ret = on_session_var_change.handler(on_session_var_change.ctx, name, zv);
 	}
 
 	DBG_RETURN(ret);
@@ -148,7 +145,7 @@ xmysqlnd_inspect_changed_exec_state(const st_xmysqlnd_on_execution_state_change_
 		ret = on_execution_state_change.handler(
 			on_execution_state_change.ctx,
 			state_type,
-			static_cast<size_t>(scalar2uint(message.value(0))));
+			scalar2uint(message.value(0)));
 	}
 
 #ifdef PHP_DEBUG
@@ -223,7 +220,7 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 				if (on_client_id.handler) {
 					const enum_func_status status = on_client_id.handler(
 						on_client_id.ctx,
-						static_cast<size_t>(scalar2uint(message.value(0))));
+						scalar2uint(message.value(0)));
 					ret = (status == PASS)? HND_AGAIN : HND_FAIL;
 				}
 				break;
@@ -670,17 +667,16 @@ on_ERROR(const Mysqlx::Error & error, const st_xmysqlnd_on_error_bind on_error)
 }
 
 /************************************** CAPABILITIES GET **************************************************/
-static void
-capabilities_to_zval(const Mysqlx::Connection::Capabilities & message, zval* return_value)
+static util::zvalue
+capabilities_to_zval(const Mysqlx::Connection::Capabilities& message)
 {
-	DBG_ENTER("capabilities_to_zv");
+	DBG_ENTER("capabilities_to_zval");
 	util::zvalue capabilities(util::zvalue::create_array(message.capabilities_size()));
 	for (int i{0}; i < message.capabilities_size(); ++i) {
 		const auto& capability{ message.capabilities(i) };
 		capabilities.insert(capability.name(), any2zval(capability.value()));
 	}
-	capabilities.move_to(return_value);
-	DBG_VOID_RETURN;
+	DBG_RETURN(capabilities);
 }
 
 static const enum_hnd_func_status
@@ -696,8 +692,8 @@ capabilities_get_on_ERROR(const Mysqlx::Error & error, void * context)
 static const enum_hnd_func_status
 capabilities_get_on_CAPABILITIES(const Mysqlx::Connection::Capabilities& message, void* context)
 {
-	st_xmysqlnd_msg__capabilities_get* const ctx = static_cast<st_xmysqlnd_msg__capabilities_get* >(context);
-	capabilities_to_zval(message, ctx->capabilities_zval);
+	st_xmysqlnd_msg__capabilities_get* const ctx = static_cast<st_xmysqlnd_msg__capabilities_get*>(context);
+	*ctx->capabilities = capabilities_to_zval(message);
 	return HND_PASS;
 }
 
@@ -728,10 +724,10 @@ static st_xmysqlnd_server_messages_handlers capabilities_get_handlers =
 
 
 enum_func_status
-xmysqlnd_capabilities_get__read_response(st_xmysqlnd_msg__capabilities_get* msg, zval * capabilities)
+xmysqlnd_capabilities_get__read_response(st_xmysqlnd_msg__capabilities_get* msg, util::zvalue* capabilities)
 {
 	DBG_ENTER("xmysqlnd_capabilities_get__read_response");
-	msg->capabilities_zval = capabilities;
+	msg->capabilities = capabilities;
 	const enum_func_status ret = xmysqlnd_receive_message(&capabilities_get_handlers,
 										msg,
 										msg->msg_ctx);
@@ -827,20 +823,17 @@ xmysqlnd_capabilities_set__read_response(st_xmysqlnd_msg__capabilities_set* msg,
 
 enum_func_status
 xmysqlnd_capabilities_set__send_request(st_xmysqlnd_msg__capabilities_set* msg,
-										const size_t cap_count,
-										zval ** capabilities_names,
-										zval ** capabilities_values)
+	const util::zvalue& capabilities)
 {
-	size_t bytes_sent;
 	Mysqlx::Connection::CapabilitiesSet message;
-	for (unsigned i{0}; i < cap_count; ++i) {
+	for (const auto& [cap_name, cap_value] : capabilities) {
 		Mysqlx::Connection::Capability * capability = message.mutable_capabilities()->add_capabilities();
-		capability->set_name(Z_STRVAL_P(capabilities_names[i]),
-							 Z_STRLEN_P(capabilities_names[i]));
+		capability->set_name(cap_name.c_str(), cap_name.length());
 		Mysqlx::Datatypes::Any any_entry;
-		zval2any(capabilities_values[i], any_entry);
+		zval2any(cap_value, any_entry);
 		capability->mutable_value()->CopyFrom(any_entry);
 	}
+	size_t bytes_sent = 0;
 	return xmysqlnd_send_message(COM_CAPABILITIES_SET, message, msg->msg_ctx, &bytes_sent);
 }
 
@@ -1277,13 +1270,14 @@ enum_func_status xmysqlnd_row_time_field_to_zval( zval* zv,
 				DBG_INF_FMT("usecs   =" MYSQLX_LLU_SPEC, useconds);
 			} while (0);
 
-			auto str = util::formatter("%s%02u:%02u:%02u.%08u")
+			auto time_formatter = util::formatter("%s%02u:%02u:%02u.%08u")
 				% (neg ? "-" : "")
 				% hours
 				% minutes
 				% seconds
 				% useconds;
-			ZVAL_NEW_STR(zv, util::to_zend_string(str));
+			util::zvalue formatted_time = time_formatter.str();
+			formatted_time.move_to(zv);
 		}
 	}
 	DBG_RETURN( ret );
@@ -1326,14 +1320,15 @@ enum_func_status xmysqlnd_row_datetime_field_to_zval( zval* zv,
 				DBG_INF_FMT("usecs   =" MYSQLX_LLU_SPEC, useconds);
 			} while (0);
 
-			auto str = util::formatter("%04u-%02u-%02u %02u:%02u:%02u")
+			auto datetime_formatter = util::formatter("%04u-%02u-%02u %02u:%02u:%02u")
 				% year
 				% month
 				% day
 				% hours
 				% minutes
 				% seconds;
-			ZVAL_NEW_STR(zv, util::to_zend_string(str));
+			util::zvalue formatted_datetime = datetime_formatter.str();
+			formatted_datetime.move_to(zv);
 		}
 	}
 	DBG_RETURN( ret );
@@ -1370,11 +1365,12 @@ enum_func_status xmysqlnd_row_date_field_to_zval(
 				DBG_INF_FMT("day   =" MYSQLX_LLU_SPEC, day);
 			} while (0);
 
-			auto str = util::formatter("%04u-%02u-%02u")
+			auto date_formatter = util::formatter("%04u-%02u-%02u")
 				% year
 				% month
 				% day;
-			ZVAL_NEW_STR(zv, util::to_zend_string(str));
+			util::zvalue formatted_date = date_formatter.str();
+			formatted_date.move_to(zv);
 			ret = PASS;
 		}
 	}

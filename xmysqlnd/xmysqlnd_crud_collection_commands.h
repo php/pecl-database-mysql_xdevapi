@@ -40,7 +40,7 @@ typedef struct st_xmysqlnd_crud_collection_op__add XMYSQLND_CRUD_COLLECTION_OP__
 XMYSQLND_CRUD_COLLECTION_OP__ADD  * xmysqlnd_crud_collection_add__create(const util::string_view& schema, const util::string_view& collection);
 void                                xmysqlnd_crud_collection_add__destroy(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
 enum_func_status                    xmysqlnd_crud_collection_add__set_upsert(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
-enum_func_status                    xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj, zval * doc);
+enum_func_status                    xmysqlnd_crud_collection_add__add_doc(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj, const util::zvalue& doc);
 enum_func_status                    xmysqlnd_crud_collection_add__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
 struct st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_add__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__ADD * obj);
 
@@ -49,12 +49,12 @@ typedef struct st_xmysqlnd_crud_collection_op__remove XMYSQLND_CRUD_COLLECTION_O
 XMYSQLND_CRUD_COLLECTION_OP__REMOVE * xmysqlnd_crud_collection_remove__create(const util::string_view& schema, const util::string_view& collection);
 void xmysqlnd_crud_collection_remove__destroy(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
 enum_func_status xmysqlnd_crud_collection_remove__set_criteria(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const std::string& criteria);
-enum_func_status xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t limit);
-enum_func_status xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const size_t offset);
+enum_func_status xmysqlnd_crud_collection_remove__set_limit(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const std::size_t limit);
+enum_func_status xmysqlnd_crud_collection_remove__set_skip(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const std::size_t offset);
 enum_func_status xmysqlnd_crud_collection_remove__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__REMOVE* obj,
 	const util::string& name,
-	zval* value);
+	const util::zvalue& value);
 enum_func_status xmysqlnd_crud_collection_remove__add_sort(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj, const util::string_view& sort);
 enum_func_status xmysqlnd_crud_collection_remove__finalize_bind(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
 st_xmysqlnd_pb_message_shell xmysqlnd_crud_collection_remove__get_protobuf_message(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * obj);
@@ -79,7 +79,7 @@ bool xmysqlnd_crud_collection_modify__set_skip(XMYSQLND_CRUD_COLLECTION_OP__MODI
 bool xmysqlnd_crud_collection_modify__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj,
 	const util::string& name,
-	zval* value);
+	const util::zvalue& value);
 bool xmysqlnd_crud_collection_modify__add_sort(XMYSQLND_CRUD_COLLECTION_OP__MODIFY* obj, const util::string_view& sort);
 
 bool xmysqlnd_crud_collection_modify__unset(
@@ -117,7 +117,7 @@ enum_func_status xmysqlnd_crud_collection_find__set_offset(XMYSQLND_CRUD_COLLECT
 enum_func_status xmysqlnd_crud_collection_find__bind_value(
 	XMYSQLND_CRUD_COLLECTION_OP__FIND* obj,
 	const util::string& name,
-	zval* value);
+	const util::zvalue& value);
 enum_func_status xmysqlnd_crud_collection_find__add_sort(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& sort);
 enum_func_status xmysqlnd_crud_collection_find__add_grouping(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& search_field);
 enum_func_status xmysqlnd_crud_collection_find__set_having(XMYSQLND_CRUD_COLLECTION_OP__FIND * obj, const util::string_view& criteria);
@@ -139,9 +139,9 @@ XMYSQLND_STMT_OP__EXECUTE* xmysqlnd_stmt_execute__create(const std::string_view&
 void xmysqlnd_stmt_execute__destroy(XMYSQLND_STMT_OP__EXECUTE* obj);
 Mysqlx::Sql::StmtExecute& xmysqlnd_stmt_execute__get_pb_msg(XMYSQLND_STMT_OP__EXECUTE* obj);
 zend_bool xmysqlnd_stmt_execute__is_initialized(XMYSQLND_STMT_OP__EXECUTE* obj);
-enum_func_status xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE* obj, const zval * param_zv);
-enum_func_status xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE* obj, const unsigned int param_no, const zval * param_zv);
-enum_func_status xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE* obj, zval * value);
+enum_func_status xmysqlnd_stmt_execute__bind_one_param_add(XMYSQLND_STMT_OP__EXECUTE* obj, const util::zvalue& param);
+enum_func_status xmysqlnd_stmt_execute__bind_one_param(XMYSQLND_STMT_OP__EXECUTE* obj, const util::zvalue& param);
+enum_func_status xmysqlnd_stmt_execute__bind_value(XMYSQLND_STMT_OP__EXECUTE* obj, const util::zvalue& value);
 enum_func_status xmysqlnd_stmt_execute__finalize_bind(XMYSQLND_STMT_OP__EXECUTE* obj);
 
 st_xmysqlnd_pb_message_shell xmysqlnd_stmt_execute__get_protobuf_message(XMYSQLND_STMT_OP__EXECUTE* obj);
@@ -162,7 +162,7 @@ public:
 	void add_placeholder(const util::string& placeholder);
 	void add_placeholders(const util::std_strings& placeholders);
 	util::std_strings get_placeholders() const;
-	bool bind(const util::string& placeholder, zval* value);
+	bool bind(const util::string& placeholder, const util::zvalue& value);
 	bool finalize(google::protobuf::RepeatedPtrField< ::Mysqlx::Datatypes::Scalar >* mutable_args);
 	Bound_values get_bound_values() const;
 
@@ -195,7 +195,7 @@ struct st_xmysqlnd_crud_collection_op__add
 {
 	Mysqlx::Crud::Insert message;
 
-	std::vector<zval> docs_zv;
+	util::zvalues docs;
 
 	st_xmysqlnd_crud_collection_op__add(
 		const util::string_view& schema,
@@ -206,15 +206,8 @@ struct st_xmysqlnd_crud_collection_op__add
 		message.set_data_model(Mysqlx::Crud::DOCUMENT);
 	}
 
-	void add_document(zval* doc);
+	void add_document(const util::zvalue& doc);
 	void bind_docs();
-
-	~st_xmysqlnd_crud_collection_op__add() {
-		for( auto& values_zv : docs_zv ) {
-			zval_dtor(&values_zv);
-		}
-		docs_zv.clear();
-	}
 };
 
 struct st_xmysqlnd_crud_collection_op__modify
@@ -255,8 +248,7 @@ struct st_xmysqlnd_crud_collection_op__remove
 
 struct st_xmysqlnd_stmt_op__execute
 {
-    zval* params{nullptr};
-    unsigned int params_allocated;
+    util::zvalues params;
 
     Mysqlx::Sql::StmtExecute message;
     uint32_t ps_message_id;
@@ -264,28 +256,15 @@ struct st_xmysqlnd_stmt_op__execute
     st_xmysqlnd_stmt_op__execute(const util::string_view& namespace_,
                                  const util::string_view& stmt,
                                  const bool compact_meta)
-        : params{nullptr},
-          params_allocated{0},
-          ps_message_id{0}
+        : ps_message_id{0}
     {
         message.set_namespace_(namespace_.data(), namespace_.length());
         message.set_stmt(stmt.data(), stmt.length());
         message.set_compact_metadata(compact_meta);
     }
 
-    enum_func_status bind_one_param(const zval * param_zv);
-    enum_func_status bind_one_param(const unsigned int param_no, const zval * param_zv);
+    enum_func_status bind_one_param(const util::zvalue& param);
     enum_func_status finalize_bind();
-
-    ~st_xmysqlnd_stmt_op__execute()
-    {
-        if (params) {
-            for(unsigned int i{0}; i < params_allocated; ++i ) {
-                zval_ptr_dtor(&params[i]);
-            }
-            mnd_efree(params);
-        }
-    }
 };
 
 } // namespace drv

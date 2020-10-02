@@ -33,7 +33,7 @@
 #include "util/allocator.h"
 #include "util/object.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 
 namespace mysqlx {
 
@@ -127,8 +127,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
 {
 	DBG_ENTER("mysqlx_schema::getSession");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(
 		execute_data,
 		getThis(),
 		"O",
@@ -140,7 +140,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getSession)
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_schema>(object_zv) };
 	XMYSQLND_SESSION session{ data_object.schema->get_session() };
-	mysqlx_new_session(return_value, session);
+	create_session(session).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -149,8 +149,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getName)
 {
 	DBG_ENTER("mysqlx_schema::getName");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_schema_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -173,7 +173,7 @@ mysqlx_scheme_on_error(
 	const util::string_view& message)
 {
 	DBG_ENTER("mysqlx_scheme_on_error");
-	mysqlx_new_exception(code, sql_state, message);
+	create_exception(code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 
@@ -181,8 +181,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, existsInDatabase)
 {
 	DBG_ENTER("mysqlx_schema::existsInDatabase");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_schema_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -207,7 +207,7 @@ mysqlx_schema_on_error(
 	const util::string_view& message)
 {
 	DBG_ENTER("mysqlx_schema_on_error");
-	mysqlx_new_exception(code, sql_state, message);
+	create_exception(code, sql_state, message);
 	DBG_RETURN(HND_PASS_RETURN_FAIL);
 }
 
@@ -225,11 +225,11 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 {
 	DBG_ENTER("mysqlx_schema::createCollection");
 
-	zval* object_zv{nullptr};
-	util::param_string collection_name;
-	const util::param_string Empty_collection_options = "{}";
-	util::param_string collection_options(Empty_collection_options);
-	if (FAILURE == util::zend::parse_method_parameters(
+	util::raw_zval* object_zv{nullptr};
+	util::arg_string collection_name;
+	const util::arg_string Empty_collection_options = "{}";
+	util::arg_string collection_options(Empty_collection_options);
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os|s",
 		&object_zv, mysqlx_schema_class_entry,
 		&(collection_name.str), &(collection_name.len),
@@ -250,12 +250,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, createCollection)
 				on_error) };
 		DBG_INF_FMT("collection=%p", collection);
 		if (collection) {
-			mysqlx_new_collection(return_value, collection);
-			DBG_INF_FMT("type=%d", Z_TYPE_P(return_value));
-			if (Z_TYPE_P(return_value) != IS_OBJECT) {
-				DBG_ERR("Something is wrong");
-				xmysqlnd_collection_free(collection, nullptr, nullptr);
-			}
+			create_collection(collection).move_to(return_value);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -265,10 +260,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, modifyCollection)
 {
 	DBG_ENTER("mysqlx_schema::modifyCollection");
 
-	zval* object_zv{nullptr};
-	util::param_string collection_name;
-	util::param_string collection_options;
-	if (FAILURE == util::zend::parse_method_parameters(
+	util::raw_zval* object_zv{nullptr};
+	util::arg_string collection_name;
+	util::arg_string collection_options;
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Oss",
 		&object_zv, mysqlx_schema_class_entry,
 		&collection_name.str, &collection_name.len,
@@ -296,9 +291,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, dropCollection)
 {
 	DBG_ENTER("mysqlx_schema::dropCollection");
 
-	zval* object_zv{nullptr};
-	util::param_string collection_name;
-	if (FAILURE == util::zend::parse_method_parameters(
+	util::raw_zval* object_zv{nullptr};
+	util::arg_string collection_name;
+	if (FAILURE == util::get_method_arguments(
 		execute_data, getThis(), "Os",
 		&object_zv, mysqlx_schema_class_entry,
 		&collection_name.str, &collection_name.len))
@@ -323,9 +318,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 {
 	DBG_ENTER("mysqlx_schema::getCollection");
 
-	zval* object_zv{nullptr};
-	util::param_string collection_name;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
+	util::raw_zval* object_zv{nullptr};
+	util::arg_string collection_name;
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(collection_name.str), &(collection_name.len)))
 	{
@@ -337,10 +332,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollection)
 	if ( !collection_name.empty() && data_object.schema) {
 		xmysqlnd_collection* const collection = data_object.schema->create_collection_object(collection_name.to_view());
 		if (collection) {
-			mysqlx_new_collection(return_value, collection);
-			if (Z_TYPE_P(return_value) != IS_OBJECT) {
-				xmysqlnd_collection_free(collection, nullptr, nullptr);
-			}
+			create_collection(collection).move_to(return_value);
 		}
 	}
 	DBG_VOID_RETURN;
@@ -350,9 +342,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 {
 	DBG_ENTER("mysqlx_schema::getTable");
 
-	zval* object_zv{nullptr};
-	util::param_string table_name;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
+	util::raw_zval* object_zv{nullptr};
+	util::arg_string table_name;
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(table_name.str), &(table_name.len)))
 	{
@@ -363,10 +355,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTable)
 	RETVAL_NULL();
 	if ( !table_name.empty() && data_object.schema) {
 		xmysqlnd_table* const table = data_object.schema->create_table_object(table_name.to_view());
-		mysqlx_new_table(return_value, table);
-		if (Z_TYPE_P(return_value) != IS_OBJECT) {
-			xmysqlnd_table_free(table, nullptr, nullptr);
-		}
+		create_table(table).move_to(return_value);
 	}
 	DBG_VOID_RETURN;
 }
@@ -375,9 +364,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 {
 	DBG_ENTER("mysqlx_schema::getCollectionAsTable");
 
-	zval* object_zv{nullptr};
-	util::param_string collection_name;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Os",
+	util::raw_zval* object_zv{nullptr};
+	util::arg_string collection_name;
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Os",
 												&object_zv, mysqlx_schema_class_entry,
 												&(collection_name.str), &(collection_name.len)))
 	{
@@ -387,93 +376,71 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollectionAsTable)
 	RETVAL_NULL();
 	if (!collection_name.empty() && data_object.schema) {
 		xmysqlnd_table* const table = data_object.schema->create_table_object(collection_name.to_view());
-		mysqlx_new_table(return_value, table);
-		if (Z_TYPE_P(return_value) != IS_OBJECT) {
-			xmysqlnd_table_free(table, nullptr, nullptr);
-		}
+		create_table(table).move_to(return_value);
 	}
 	DBG_VOID_RETURN;
 }
 
 struct st_mysqlx_on_db_object_ctx
 {
-	zval* list;
+	util::zvalue* list;
 };
 
 static void
 mysqlx_on_db_object(void* context, xmysqlnd_schema* const schema, const util::string_view& object_name, const util::string_view& object_type)
 {
-	st_mysqlx_on_db_object_ctx* ctx = static_cast<st_mysqlx_on_db_object_ctx*>(context);
-	zval zv;
-
 	DBG_ENTER("mysqlx_on_db_object");
 
-	ZVAL_UNDEF(&zv);
+	st_mysqlx_on_db_object_ctx* ctx = static_cast<st_mysqlx_on_db_object_ctx*>(context);
+	util::zvalue db_obj;
 
 	if ((object_type[0] == 'T') || (object_type[0] == 'V')) {
 		xmysqlnd_table* const table = schema->create_table_object(object_name);
 		if (table) {
-			mysqlx_new_table(&zv, table);
-			if (Z_TYPE(zv) == IS_OBJECT) {
-				add_assoc_zval_ex(ctx->list, object_name.data(), object_name.length(), &zv);
-			} else {
-				xmysqlnd_table_free(table, nullptr, nullptr);
-				zval_dtor(&zv);
-			}
+			db_obj = create_table(table);
+			ctx->list->insert(object_name, db_obj);
 		}
 	} else if (object_type[0] == 'C') {
 		xmysqlnd_collection* const collection = schema->create_collection_object(object_name);
 		if (collection) {
-			mysqlx_new_collection(&zv, collection);
-			if (Z_TYPE(zv) == IS_OBJECT) {
-				add_assoc_zval_ex(ctx->list, object_name.data(), object_name.length(), &zv);
-			} else {
-				xmysqlnd_collection_free(collection, nullptr, nullptr);
-				zval_dtor(&zv);
-			}
+			db_obj = create_collection(collection);
+			ctx->list->insert(object_name, db_obj);
 		}
 	}
 
 	DBG_VOID_RETURN;
 }
 
-static void
+static util::zvalue
 mysqlx_get_database_objects(
 	xmysqlnd_schema* schema,
-	const db_object_type_filter object_type_filter,
-	zval* return_value)
+	const db_object_type_filter object_type_filter)
 {
 	DBG_ENTER("mysqlx_get_database_objects");
-	if (schema){
-		zval list;
+	util::zvalue list = util::zvalue::create_array();
+	if (schema) {
 		st_mysqlx_on_db_object_ctx context{ &list };
 		const st_xmysqlnd_schema_on_database_object_bind on_object{ mysqlx_on_db_object, &context };
 		const st_xmysqlnd_schema_on_error_bind handler_on_error{ mysqlx_schema_on_error, nullptr };
 
-		ZVAL_UNDEF(&list);
-		array_init(&list);
-
-		if (PASS == schema->get_db_objects(schema->get_name(), object_type_filter, on_object, handler_on_error)) {
-			ZVAL_COPY_VALUE(return_value, &list);
-		} else {
-			zval_dtor(&list);
+		if (PASS != schema->get_db_objects(schema->get_name(), object_type_filter, on_object, handler_on_error)) {
+			list.clear();
 		}
 	}
-	DBG_VOID_RETURN;
+	DBG_RETURN(list);
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getTables)
 {
 	DBG_ENTER("mysqlx_schema::getTables");
 
-	zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_schema_class_entry) == FAILURE) {
+	util::raw_zval* object_zv{nullptr};
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_schema_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_schema>(object_zv) };
-	RETVAL_NULL();
-	mysqlx_get_database_objects(data_object.schema, drv::db_object_type_filter::table_or_view, return_value);
+	mysqlx_get_database_objects(data_object.schema, drv::db_object_type_filter::table_or_view).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -482,14 +449,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 {
 	DBG_ENTER("mysqlx_schema::getCollections");
 
-	zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(execute_data, getThis(), "O", &object_zv, mysqlx_schema_class_entry) == FAILURE) {
+	util::raw_zval* object_zv{nullptr};
+	if (util::get_method_arguments(execute_data, getThis(), "O", &object_zv, mysqlx_schema_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
 	}
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_schema>(object_zv) };
-	RETVAL_NULL();
-	mysqlx_get_database_objects(data_object.schema, drv::db_object_type_filter::collection, return_value);
+	mysqlx_get_database_objects(data_object.schema, drv::db_object_type_filter::collection).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -514,8 +480,8 @@ static const zend_function_entry mysqlx_schema_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
 
-static zval *
-mysqlx_schema_property__name(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_schema_property__name(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_schema* object = static_cast<const st_mysqlx_schema*>(obj->ptr);
 	DBG_ENTER("mysqlx_schema_property__name");
@@ -587,16 +553,17 @@ mysqlx_unregister_schema_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_schema_properties);
 }
 
-void
-mysqlx_new_schema(zval* return_value, xmysqlnd_schema* schema)
+util::zvalue
+create_schema(xmysqlnd_schema* schema)
 {
-	DBG_ENTER("mysqlx_new_schema");
+	DBG_ENTER("create_schema");
 
+	util::zvalue schema_obj;
 	st_mysqlx_schema& data_object{
-		util::init_object<st_mysqlx_schema>(mysqlx_schema_class_entry, return_value) };
+		util::init_object<st_mysqlx_schema>(mysqlx_schema_class_entry, schema_obj) };
 	data_object.schema = schema;
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(schema_obj);
 }
 
 } // namespace devapi

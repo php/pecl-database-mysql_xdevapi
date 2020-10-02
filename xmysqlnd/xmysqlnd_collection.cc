@@ -84,7 +84,7 @@ static const enum_hnd_func_status collection_op_var_binder(
 struct collection_exists_in_database_ctx
 {
 	util::string_view expected_collection_name;
-	zval* exists;
+	util::raw_zval* exists;
 };
 
 
@@ -94,7 +94,7 @@ collection_mysqlx_op_on_row(
 	XMYSQLND_SESSION session,
 	xmysqlnd_stmt * const /*stmt*/,
 	const XMYSQLND_STMT_RESULT_META * const /*meta*/,
-	const zval * const row,
+	const util::raw_zval * const row,
 	MYSQLND_STATS * const /*stats*/,
 	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
@@ -115,8 +115,8 @@ collection_mysqlx_op_on_row(
 
 enum_func_status
 xmysqlnd_collection::exists_in_database(
-	struct st_xmysqlnd_session_on_error_bind on_error,
-	zval* exists)
+	st_xmysqlnd_session_on_error_bind on_error,
+	util::raw_zval* exists)
 {
 	DBG_ENTER("xmysqlnd_collection::exists_in_database");
 	ZVAL_FALSE(exists);
@@ -153,7 +153,7 @@ xmysqlnd_collection::exists_in_database(
 
 struct st_collection_sql_single_result_ctx
 {
-	zval* result;
+	util::raw_zval* result;
 };
 
 
@@ -163,7 +163,7 @@ collection_sql_single_result_op_on_row(
 	XMYSQLND_SESSION session,
 	xmysqlnd_stmt * const /*stmt*/,
 	const XMYSQLND_STMT_RESULT_META * const /*meta*/,
-	const zval * const row,
+	const util::raw_zval * const row,
 	MYSQLND_STATS * const /*stats*/,
 	MYSQLND_ERROR_INFO * const /*error_info*/)
 {
@@ -177,8 +177,8 @@ collection_sql_single_result_op_on_row(
 
 enum_func_status
 xmysqlnd_collection::count(
-	struct st_xmysqlnd_session_on_error_bind on_error,
-	zval* counter)
+	st_xmysqlnd_session_on_error_bind on_error,
+	util::raw_zval* counter)
 {
 	DBG_ENTER("xmysqlnd_collection::count");
 	ZVAL_LONG(counter, 0);
@@ -254,7 +254,7 @@ xmysqlnd_collection::remove(XMYSQLND_CRUD_COLLECTION_OP__REMOVE * op)
 		}
 		if (xmysqlnd_crud_collection_remove__is_initialized(op)) {
 			st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
-			struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
+			st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
 			if (PASS == collection_ud.send_delete_request(&collection_ud, xmysqlnd_crud_collection_remove__get_protobuf_message(op))) {
 				stmt = session->create_statement_object(session);
 				stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);
@@ -310,7 +310,7 @@ xmysqlnd_collection::modify(XMYSQLND_CRUD_COLLECTION_OP__MODIFY * op)
 		}
 		if (xmysqlnd_crud_collection_modify__is_initialized(op)) {
 			st_xmysqlnd_message_factory msg_factory{ session->data->create_message_factory() };
-			struct st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
+			st_xmysqlnd_msg__collection_ud collection_ud = msg_factory.get__collection_ud(&msg_factory);
 			if (PASS == collection_ud.send_update_request(&collection_ud, xmysqlnd_crud_collection_modify__get_protobuf_message(op))) {
 				stmt = session->create_statement_object(session);
 				stmt->get_msg_stmt_exec() = msg_factory.get__sql_stmt_execute(&msg_factory);

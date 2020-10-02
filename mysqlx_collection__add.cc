@@ -34,11 +34,12 @@
 #include "mysqlx_collection__add.h"
 #include "mysqlx_exception.h"
 #include "util/allocator.h"
+#include "util/arguments.h"
+#include "util/functions.h"
 #include "util/json_utils.h"
 #include "util/object.h"
 #include "util/strings.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
 
 namespace mysqlx {
 
@@ -60,22 +61,15 @@ ZEND_END_ARG_INFO()
 
 //------------------------------------------------------------------------------
 
-enum_func_status
-execute_statement(xmysqlnd_stmt& stmt, zval* resultset)
+util::zvalue
+execute_statement(xmysqlnd_stmt& stmt)
 {
-	util::zvalue stmt_zv;
-	mysqlx_new_stmt(stmt_zv.ptr(), &stmt);
-	if (stmt_zv.is_null()) {
-		xmysqlnd_stmt_free(&stmt, nullptr, nullptr);
-		return FAIL;
-	}
-	if (!stmt_zv.is_object()) {
-		return FAIL;
-	}
+	util::zvalue stmt_obj = create_stmt(&stmt);
 	zend_long flags{0};
-	mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_zv.ptr()),
-						flags, MYSQLX_RESULT, resultset);
-	return PASS;
+	return mysqlx_statement_execute_read_response(
+		Z_MYSQLX_P(stmt_obj.ptr()),
+		flags,
+		MYSQLX_RESULT);
 }
 
 enum class Add_op_status
@@ -90,7 +84,7 @@ collection_add_string(
 	st_xmysqlnd_crud_collection_op__add* add_op,
 	util::zvalue& doc)
 {
-	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, doc.ptr()) ) {
+	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, doc) ) {
 		return Add_op_status::success;
 	}
 	return Add_op_status::fail;
@@ -103,7 +97,7 @@ collection_add_object(
 {
 	Add_op_status ret = Add_op_status::fail;
 	util::zvalue new_doc(util::json::encode_document(doc));
-	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, new_doc.ptr()) ) {
+	if( PASS == xmysqlnd_crud_collection_add__add_doc(add_op, new_doc) ) {
 		ret = Add_op_status::success;
 	}
 	return ret;
@@ -130,21 +124,22 @@ collection_add_array(
 
 bool Collection_add::add_docs(
 	xmysqlnd_collection* coll,
-	zval* documents,
-	int num_of_documents)
+	const util::arg_zvals& documents)
 {
-	if (!documents || !num_of_documents) return false;
+	if (documents.empty()) return false;
 
-	for (int i{0}; i < num_of_documents; ++i) {
-		auto doc_type{ Z_TYPE(documents[i]) };
-		if (doc_type != IS_STRING &&
-			doc_type != IS_OBJECT &&
-			doc_type != IS_ARRAY) {
+	for (const auto& doc : documents) {
+		switch (doc.type()) {
+		case util::zvalue::Type::String:
+		case util::zvalue::Type::Object:
+		case util::zvalue::Type::Array:
+			break;
+		default:
 			php_error_docref(
 				nullptr,
 				E_WARNING,
 				"Only strings, objects and arrays can be added. Type is %u",
-				doc_type);
+				static_cast<unsigned int>(doc.type()));
 			return false;
 		}
 	}
@@ -158,8 +153,8 @@ bool Collection_add::add_docs(
 		if (!add_op) return false;
 	}
 
-	for (int i{0}; i < num_of_documents; ++i) {
-		docs.push_back(util::zvalue::clone_from(&documents[i]));
+	for (auto doc : documents) {
+		docs.push_back(doc);
 	}
 
 	return true;
@@ -168,10 +163,11 @@ bool Collection_add::add_docs(
 bool Collection_add::add_docs(
 	xmysqlnd_collection* coll,
 	const util::string_view& /*doc_id*/,
-	zval* doc)
+	const util::zvalue& doc)
 {
 	const int num_of_documents = 1;
-	if (!add_docs(coll, doc, num_of_documents)) return false;
+	util::arg_zvals docs{doc.ptr(), num_of_documents};
+	if (!add_docs(coll, docs)) return false;
 	return xmysqlnd_crud_collection_add__set_upsert(add_op) == PASS;
 }
 
@@ -186,7 +182,7 @@ Collection_add::~Collection_add()
 	}
 }
 
-void Collection_add::execute(zval* resultset)
+util::zvalue Collection_add::execute()
 {
 	DBG_ENTER("Collection_add::execute");
 
@@ -214,11 +210,12 @@ void Collection_add::execute(zval* resultset)
 		}
 	}
 
+	util::zvalue resultset;
 	enum_func_status execute_ret_status{PASS};
 	if ( docs.size() > noop_cnt ) {
 		xmysqlnd_stmt* stmt = collection->add(add_op);
 		if( nullptr != stmt ) {
-			execute_ret_status = execute_statement(*stmt, resultset);
+			resultset = execute_statement(*stmt);
 		} else {
 			execute_ret_status = FAIL;
 		}
@@ -226,7 +223,8 @@ void Collection_add::execute(zval* resultset)
 	if (FAIL == execute_ret_status && !EG(exception)) {
 		RAISE_EXCEPTION(err_msg_add_doc);
 	}
-	DBG_VOID_RETURN;
+
+	DBG_RETURN(resultset);
 }
 
 //------------------------------------------------------------------------------
@@ -241,8 +239,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 {
 	DBG_ENTER("mysqlx_collection__add::execute");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv,
 												collection_add_class_entry))
 	{
@@ -250,24 +248,23 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, execute)
 	}
 
 	Collection_add& coll_add = util::fetch_data_object<Collection_add>(object_zv);
-	coll_add.execute(return_value);
+	coll_add.execute().move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 {
-	zval* object_zv{nullptr};
-	zval* docs{nullptr};
-	int num_of_docs{0};
+	util::raw_zval* object_zv{nullptr};
+	util::arg_zvals docs;
 
 	DBG_ENTER("mysqlx_collection::add");
 
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 												&object_zv,
 												collection_add_class_entry,
-												&docs,
-												&num_of_docs))
+												&docs.data,
+												&docs.counter))
 	{
 		DBG_VOID_RETURN;
 	}
@@ -276,8 +273,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 	 * For subsequent calls to add_docs, the xmysqlnd_collection is set to NULL
 	 */
 	Collection_add& coll_add = util::fetch_data_object<Collection_add>(object_zv);
-	if (coll_add.add_docs(nullptr, docs, num_of_docs)) {
-		util::zvalue::copy_to(object_zv, return_value);
+	if (coll_add.add_docs(nullptr, docs)) {
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 
 	DBG_VOID_RETURN;
@@ -291,29 +288,6 @@ static const zend_function_entry mysqlx_collection__add_methods[] = {
 
 	{nullptr, nullptr, nullptr}
 };
-
-#if 0
-static zval *
-mysqlx_collection__add_property__name(const st_mysqlx_object* obj, zval* return_value)
-{
-	const Collection_add* object = (const Collection_add *) (obj->ptr);
-	DBG_ENTER("mysqlx_collection__add_property__name");
-	if (object->collection && !object->collection->get_name().empty()) {
-		ZVAL_STRINGL(return_value, object->collection->get_name().data(), object->collection->get_name().length());
-	} else {
-		/*
-		  This means EG(uninitialized_value). If we return just return_value, this is an UNDEF-ed value
-		  and ISSET will say 'true' while for EG(unin) it is false.
-		  In short:
-		  return nullptr; -> isset()===false, value is nullptr
-		  return return_value; (without doing ZVAL_XXX)-> isset()===true, value is nullptr
-		*/
-		return_value = nullptr;
-	}
-	DBG_RETURN(return_value);
-}
-
-#endif
 
 static zend_object_handlers collection_add_handlers;
 static HashTable collection_add_properties;
@@ -370,23 +344,20 @@ mysqlx_unregister_collection__add_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&collection_add_properties);
 }
 
-void
-mysqlx_new_collection__add(
-	zval* return_value,
+util::zvalue
+create_collection_add(
 	xmysqlnd_collection* collection,
-	zval* docs,
-	int num_of_docs)
+	const util::arg_zvals& docs)
 {
-	DBG_ENTER("mysqlx_new_collection__add");
+	DBG_ENTER("create_collection_add");
 
-	Collection_add& coll_add{ util::init_object<Collection_add>(collection_add_class_entry, return_value) };
-	if (!coll_add.add_docs(collection, docs, num_of_docs)) {
-		zval_ptr_dtor(return_value);
-		ZVAL_NULL(return_value);
+	util::zvalue coll_add_obj;
+	Collection_add& coll_add{ util::init_object<Collection_add>(collection_add_class_entry, coll_add_obj) };
+	if (!coll_add.add_docs(collection, docs)) {
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::add_doc);
 	}
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(coll_add_obj);
 }
 
 } // namespace devapi

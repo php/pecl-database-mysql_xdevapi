@@ -46,18 +46,18 @@ struct st_mysqlx_exception
 void
 RAISE_EXCEPTION(int errcode, const char* msg)
 {
-	mysqlx_new_exception(errcode, GENERAL_SQL_STATE, msg);
+	create_exception(errcode, GENERAL_SQL_STATE, msg);
 }
 
 static const zend_function_entry mysqlx_exception_methods[] = {
 	{nullptr, nullptr, nullptr}
 };
 
-static zval *
-mysqlx_exception_property__message(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_exception_property_message(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
-	DBG_ENTER("mysqlx_exception_property__message");
+	DBG_ENTER("mysqlx_exception_property_message");
 	if (!object->msg.empty()) {
 		ZVAL_STRINGL(return_value, object->msg.c_str(), object->msg.length());
 	} else {
@@ -73,20 +73,20 @@ mysqlx_exception_property__message(const st_mysqlx_object* obj, zval* return_val
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_exception_property__level(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_exception_property_level(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
-	DBG_ENTER("mysqlx_exception_property__level");
+	DBG_ENTER("mysqlx_exception_property_level");
 	ZVAL_LONG(return_value, object->level);
 	DBG_RETURN(return_value);
 }
 
-static zval *
-mysqlx_exception_property__code(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_exception_property_code(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_exception* object = (const st_mysqlx_exception* ) (obj->ptr);
-	DBG_ENTER("mysqlx_exception_property__code");
+	DBG_ENTER("mysqlx_exception_property_code");
 	/* code is 32 bit unsigned and on 32bit system won't fit into 32 bit signed zend_long, but this won't happen in practice*/
 	ZVAL_LONG(return_value, object->code);
 	DBG_RETURN(return_value);
@@ -94,9 +94,9 @@ mysqlx_exception_property__code(const st_mysqlx_object* obj, zval* return_value)
 
 static const st_mysqlx_property_entry mysqlx_exception_property_entries[] =
 {
-	{std::string_view("message"), mysqlx_exception_property__message,	nullptr},
-	{std::string_view("level"), mysqlx_exception_property__level,		nullptr},
-	{std::string_view("code"), mysqlx_exception_property__code,		nullptr},
+	{std::string_view("message"), mysqlx_exception_property_message,	nullptr},
+	{std::string_view("level"), mysqlx_exception_property_level,		nullptr},
+	{std::string_view("code"), mysqlx_exception_property_code,		nullptr},
 	{std::string_view{}, nullptr, nullptr}
 };
 
@@ -125,10 +125,10 @@ mysqlx_unregister_exception_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 }
 
 void
-mysqlx_new_exception(int code, const util::string_view& sql_state, const util::string_view& message)
+create_exception(int code, const util::string_view& sql_state, const util::string_view& message)
 {
 	char* msg{nullptr};
-	DBG_ENTER("mysqlx_new_exception");
+	DBG_ENTER("create_exception");
 	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.length(), sql_state.data(), message.length(), message.data());
 	if (msg) {
 		zend_throw_exception(mysqlx_exception_class_entry, msg, code);
@@ -138,12 +138,12 @@ mysqlx_new_exception(int code, const util::string_view& sql_state, const util::s
 }
 
 void
-mysqlx_new_exception_ex(int code, const util::string_view& /*sql_state*/, const char* format, ...)
+create_exception_ex(int code, const util::string_view& /*sql_state*/, const char* format, ...)
 {
 	va_list args;
 	char * msg;
 
-	DBG_ENTER("mysqlx_new_exception");
+	DBG_ENTER("create_exception");
 	va_start(args, format);
 	mnd_vsprintf(&msg, 0, format, args);
 	va_end(args);

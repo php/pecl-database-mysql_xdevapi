@@ -34,7 +34,7 @@
 #include "mysqlx_table__delete.h"
 #include "util/allocator.h"
 #include "util/object.h"
-#include "util/zend_utils.h"
+#include "util/functions.h"
 
 namespace mysqlx {
 
@@ -87,9 +87,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 {
 	DBG_ENTER("mysqlx_table__delete::where");
 
-	zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zval* where_expr{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oz",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oz",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&where_expr))
 	{
@@ -105,7 +105,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, where)
 		} else {
 			const util::string_view where_expr_str{Z_STRVAL_P(where_expr), Z_STRLEN_P(where_expr)};
 			if (PASS == xmysqlnd_crud_table_delete__set_criteria(data_object.crud_op, where_expr_str)) {
-				ZVAL_COPY(return_value, object_zv);
+				util::zvalue::copy_from_to(object_zv, return_value);
 			}
 		}
 	}
@@ -117,10 +117,10 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 {
 	DBG_ENTER("mysqlx_table__delete::orderby");
 
-	zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zval* orderby_expr{nullptr};
 	int num_of_expr{0};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O+",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O+",
 									&object_zv,
 									mysqlx_table__delete_class_entry,
 									&orderby_expr,
@@ -144,7 +144,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 				const util::string_view orderby_expr_str{Z_STRVAL(orderby_expr[i]),
 													Z_STRLEN(orderby_expr[i])};
 				if (PASS == xmysqlnd_crud_table_delete__add_orderby(data_object.crud_op, orderby_expr_str)) {
-					ZVAL_COPY(return_value, object_zv);
+					util::zvalue::copy_from_to(object_zv, return_value);
 				}
 			}
 			break;
@@ -164,7 +164,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, orderby)
 						DBG_VOID_RETURN;
 					}
 				} ZEND_HASH_FOREACH_END();
-				ZVAL_COPY(return_value, object_zv);
+				util::zvalue::copy_from_to(object_zv, return_value);
 			}
 			break;
 		default:
@@ -179,9 +179,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 {
 	DBG_ENTER("mysqlx_table__delete::limit");
 
-	zval* object_zv{nullptr};
+	util::raw_zval* object_zv{nullptr};
 	zend_long rows;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Ol",
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Ol",
 		&object_zv, mysqlx_table__delete_class_entry,
 		&rows))
 	{
@@ -198,7 +198,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, limit)
 	auto& data_object{ util::fetch_data_object<st_mysqlx_table__delete>(object_zv) };
 	if (data_object.crud_op) {
 		if (PASS == xmysqlnd_crud_table_delete__set_limit(data_object.crud_op, rows)) {
-			ZVAL_COPY(return_value, object_zv);
+			util::zvalue::copy_from_to(object_zv, return_value);
 		}
 	}
 
@@ -209,34 +209,29 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, bind)
 {
 	DBG_ENTER("mysqlx_table__delete::bind");
 
-	zval* object_zv{nullptr};
-	HashTable * bind_variables;
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "Oh",
+	util::raw_zval* object_zv{nullptr};
+	HashTable* bind_variables_ht;
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "Oh",
 		&object_zv, mysqlx_table__delete_class_entry,
-		&bind_variables))
+		&bind_variables_ht))
 	{
 		DBG_VOID_RETURN;
 	}
 
-	RETVAL_FALSE;
+	RETVAL_NULL();
 
 	auto& data_object{ util::fetch_data_object<st_mysqlx_table__delete>(object_zv) };
 	if (data_object.crud_op) {
-		zend_string* key;
-		zval* val{nullptr};
-		MYSQLX_HASH_FOREACH_STR_KEY_VAL(bind_variables, key, val)
-		{
-			if (key)
-			{
-				const util::string_view variable{ZSTR_VAL(key), ZSTR_LEN(key)};
-				if (FAIL == xmysqlnd_crud_table_delete__bind_value(data_object.crud_op, variable, val))
-				{
+		util::zvalue bind_variables(bind_variables_ht);
+		for (const auto& [key, value] : bind_variables) {
+			if (key.is_string()) {
+				if (FAIL == xmysqlnd_crud_table_delete__bind_value(data_object.crud_op, key.to_string_view(), value)) {
 					RAISE_EXCEPTION(err_msg_bind_fail);
 					DBG_VOID_RETURN;
 				}
 			}
-		} ZEND_HASH_FOREACH_END();
-		ZVAL_COPY(return_value, object_zv);
+		}
+		util::zvalue::copy_from_to(object_zv, return_value);
 	}
 	DBG_VOID_RETURN;
 }
@@ -245,8 +240,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 {
 	DBG_ENTER("mysqlx_table__delete::execute");
 
-	zval* object_zv{nullptr};
-	if (FAILURE == util::zend::parse_method_parameters(execute_data, getThis(), "O",
+	util::raw_zval* object_zv{nullptr};
+	if (FAILURE == util::get_method_arguments(execute_data, getThis(), "O",
 												&object_zv, mysqlx_table__delete_class_entry))
 	{
 		DBG_VOID_RETURN;
@@ -262,22 +257,9 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 		} else {
 			xmysqlnd_stmt* stmt = data_object.table->opdelete(data_object.crud_op);
 			if (stmt) {
-				zval stmt_zv;
-				ZVAL_UNDEF(&stmt_zv);
-				mysqlx_new_stmt(&stmt_zv, stmt);
-				if (Z_TYPE(stmt_zv) == IS_NULL) {
-					xmysqlnd_stmt_free(stmt, nullptr, nullptr);
-				}
-				if (Z_TYPE(stmt_zv) == IS_OBJECT) {
-					zval zv;
-					ZVAL_UNDEF(&zv);
-					zend_long flags{0};
-					mysqlx_statement_execute_read_response(Z_MYSQLX_P(&stmt_zv), flags, MYSQLX_RESULT, &zv);
-
-					ZVAL_COPY(return_value, &zv);
-					zval_dtor(&zv);
-				}
-				zval_ptr_dtor(&stmt_zv);
+				util::zvalue stmt_obj = create_stmt(stmt);
+				zend_long flags{0};
+				mysqlx_statement_execute_read_response(Z_MYSQLX_P(stmt_obj.ptr()), flags, MYSQLX_RESULT).move_to(return_value);
 			}
 		}
 	}
@@ -298,8 +280,8 @@ static const zend_function_entry mysqlx_table__delete_methods[] = {
 };
 
 #if 0
-static zval *
-mysqlx_table__delete_property__name(const st_mysqlx_object* obj, zval* return_value)
+static util::raw_zval*
+mysqlx_table__delete_property__name(const st_mysqlx_object* obj, util::raw_zval* return_value)
 {
 	const st_mysqlx_table__delete* object = (const st_mysqlx_table__delete* ) (obj->ptr);
 	DBG_ENTER("mysqlx_table__delete_property__name");
@@ -375,17 +357,18 @@ mysqlx_unregister_table__delete_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_table__delete_properties);
 }
 
-void
-mysqlx_new_table__delete(zval* return_value, xmysqlnd_table* table)
+util::zvalue
+create_table_delete(xmysqlnd_table* table)
 {
-	DBG_ENTER("mysqlx_new_table__delete");
+	DBG_ENTER("create_table_delete");
+	util::zvalue table_delete_obj;
 	st_mysqlx_table__delete& data_object{
-		util::init_object<st_mysqlx_table__delete>(mysqlx_table__delete_class_entry, return_value) };
+		util::init_object<st_mysqlx_table__delete>(mysqlx_table__delete_class_entry, table_delete_obj) };
 	data_object.table = table->get_reference();
 	data_object.crud_op = xmysqlnd_crud_table_delete__create(
 		data_object.table->get_schema()->get_name(),
 		data_object.table->get_name());
-	DBG_VOID_RETURN;
+	DBG_RETURN(table_delete_obj);
 }
 
 } // namespace devapi

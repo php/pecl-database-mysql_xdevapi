@@ -22,10 +22,10 @@
 #include "mysqlx_session.h"
 #include "util/allocator.h"
 #include "util/exceptions.h"
+#include "util/functions.h"
 #include "util/json_utils.h"
 #include "util/object.h"
 #include "util/string_utils.h"
-#include "util/zend_utils.h"
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
@@ -532,7 +532,7 @@ struct Client_data : public util::custom_allocable
 	shared_client_state state;
 };
 
-Connection_pool& fetch_connection_pool(zval* from)
+Connection_pool& fetch_connection_pool(util::raw_zval* from)
 {
 	auto& data_object{ util::fetch_data_object<Client_data>(from) };
 	return data_object.state->conn_pool;
@@ -558,8 +558,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 {
 	DBG_ENTER("mysqlx_client::getSession");
 
-	zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(
+	util::raw_zval* object_zv{nullptr};
+	if (util::get_method_arguments(
 		execute_data, getThis(),
 		"O", &object_zv, client_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -567,7 +567,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, getSession)
 
 	auto& conn_pool{ fetch_connection_pool(object_zv) };
 	drv::XMYSQLND_SESSION connection{ conn_pool.get_connection() };
-	mysqlx_new_session(return_value, connection);
+	create_session(connection).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
@@ -576,8 +576,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 {
 	DBG_ENTER("mysqlx_client::close");
 
-	zval* object_zv{nullptr};
-	if (util::zend::parse_method_parameters(
+	util::raw_zval* object_zv{nullptr};
+	if (util::get_method_arguments(
 		execute_data, getThis(),
 		"O", &object_zv, client_class_entry) == FAILURE) {
 		DBG_VOID_RETURN;
@@ -622,19 +622,19 @@ client_object_allocator(zend_class_entry* class_type)
 	DBG_RETURN(&mysqlx_object->zo);
 }
 
-void
-mysqlx_new_client(
+util::zvalue
+create_client(
 	const util::string_view& connection_uri,
-	const util::string_view& client_options_desc,
-	zval* return_value)
+	const util::string_view& client_options_desc)
 {
-	DBG_ENTER("mysqlx_new_client");
+	DBG_ENTER("create_client");
 
-	Client_data& data_object{ util::init_object<Client_data>(client_class_entry, return_value) };
+	util::zvalue client_obj;
+	Client_data& client_data{ util::init_object<Client_data>(client_class_entry, client_obj) };
 	Client_state_manager& csm{ Client_state_manager::get() };
-	data_object.state = csm.get_client_state(std::string{ connection_uri }, client_options_desc);
+	client_data.state = csm.get_client_state(std::string{ connection_uri }, client_options_desc);
 
-	DBG_VOID_RETURN;
+	DBG_RETURN(client_obj);
 }
 
 } // anonymous namespace
@@ -664,13 +664,13 @@ mysqlx_unregister_client_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 
 MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 {
-	util::param_string connection_uri;
-	util::param_string client_options_desc;
+	util::arg_string connection_uri;
+	util::arg_string client_options_desc;
 
 	RETVAL_NULL();
 
 	DBG_ENTER("mysql_xdevapi_getClient");
-	if (FAILURE == util::zend::parse_function_parameters(execute_data, "s|s",
+	if (FAILURE == util::get_function_arguments(execute_data, "s|s",
 		&connection_uri.str, &connection_uri.len,
 		&client_options_desc.str, &client_options_desc.len))
 	{
@@ -680,7 +680,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 	#if PHP_DEBUG
 	drv::verify_connection_string(connection_uri.to_string());
 	#endif
-	mysqlx_new_client(connection_uri.to_view(), client_options_desc.to_view(), return_value);
+	create_client(connection_uri.to_view(), client_options_desc.to_view()).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }

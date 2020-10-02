@@ -29,21 +29,20 @@ namespace util { class zvalue; }
 
 namespace drv {
 
-enum_func_status scalar2zval(const Mysqlx::Datatypes::Scalar & scalar, zval * zv);
-enum_func_status zval2any(const zval * const zv, Mysqlx::Datatypes::Any & any);
-enum_func_status zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any);
+void zval2any(const util::zvalue& zv, Mysqlx::Datatypes::Any& any);
+Mysqlx::Datatypes::Any zval2any(const util::zvalue& zv);
 
-enum_func_status any2zval(const Mysqlx::Datatypes::Any & any, zval * zv);
-enum_func_status any2zval(const Mysqlx::Datatypes::Any& any, util::zvalue& zv);
+util::zvalue scalar2zval(const Mysqlx::Datatypes::Scalar& scalar);
 util::zvalue any2zval(const Mysqlx::Datatypes::Any& any);
 
-void any2log(const Mysqlx::Datatypes::Any & any);
-void scalar2log(const Mysqlx::Datatypes::Scalar & scalar);
+uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar& scalar);
+
+util::string scalar2string(const Mysqlx::Datatypes::Scalar& scalar);
+
+void scalar2log(const Mysqlx::Datatypes::Scalar& scalar);
 void repeated2log(
 	const google::protobuf::RepeatedPtrField< Mysqlx::Datatypes::Scalar >& repeated);
-uint64_t scalar2uint(const Mysqlx::Datatypes::Scalar & scalar);
-int64_t scalar2sint(const Mysqlx::Datatypes::Scalar & scalar);
-util::string scalar2string(const Mysqlx::Datatypes::Scalar & scalar);
+void any2log(const Mysqlx::Datatypes::Any& any);
 
 } // namespace drv
 

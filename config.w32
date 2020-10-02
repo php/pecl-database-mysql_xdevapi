@@ -102,8 +102,9 @@ var mysqlx_devapi_sources = [
 
 var mysqlx_util = [
 	"allocator.cc",
+	"arguments.cc",
 	"exceptions.cc",
-	"hash_table.cc",
+	"functions.cc",
 	"json_utils.cc",
 	"object.cc",
 	"pb_utils.cc",

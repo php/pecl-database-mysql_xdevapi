@@ -20,14 +20,15 @@
 
 #include "mysqlnd_api.h"
 #include "mysqlx_object.h"
+#include "util/value.h"
 #include <string_view>
 
 namespace mysqlx {
 
 namespace devapi {
 
-typedef zval * (*func_mysqlx_property_get)(const st_mysqlx_object* obj, zval *rv);
-typedef int    (*func_mysqlx_property_set)(st_mysqlx_object* obj, zval *newval);
+typedef util::raw_zval * (*func_mysqlx_property_get)(const st_mysqlx_object* obj, util::raw_zval *rv);
+typedef int    (*func_mysqlx_property_set)(st_mysqlx_object* obj, util::raw_zval *newval);
 
 struct st_mysqlx_property_entry
 {
@@ -44,18 +45,18 @@ struct st_mysqlx_property
 };
 
 #if PHP_VERSION_ID >= 70400 // PHP 7.4 or newer
-using property_set_value_return_type = zval*;
+using property_set_value_return_type = util::raw_zval*;
 #else // PHP older than 7.4
 using property_set_value_return_type = void;
 #endif
 
 void mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries);
 
-zval * mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_slot, zval * rv);
-property_set_value_return_type mysqlx_property_set_value(zval * object, zval * member, zval * value, void ** cache_slot);
-int mysqlx_object_has_property(zval * object, zval *member, int has_set_exists, void ** cache_slot);
+util::raw_zval * mysqlx_property_get_value(util::raw_zval * object, util::raw_zval * member, int type, void ** cache_slot, util::raw_zval * rv);
+property_set_value_return_type mysqlx_property_set_value(util::raw_zval * object, util::raw_zval * member, util::raw_zval * value, void ** cache_slot);
+int mysqlx_object_has_property(util::raw_zval * object, util::raw_zval *member, int has_set_exists, void ** cache_slot);
 
-void mysqlx_free_property_cb(zval *el);
+void mysqlx_free_property_cb(util::raw_zval *el);
 
 } // namespace devapi
 

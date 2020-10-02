@@ -343,7 +343,7 @@ public:
 	~Authenticate();
 
 	bool run(bool re_auth = false);
-	zval get_capabilities();
+	util::zvalue get_capabilities();
 private:
 	bool run_auth();
 	bool run_re_auth();
@@ -365,7 +365,7 @@ private:
 	st_xmysqlnd_msg__capabilities_get caps_get;
 	const Session_auth_data* auth;
 
-	zval capabilities;
+	util::zvalue capabilities;
 
 	Auth_mechanisms auth_mechanisms;
 
@@ -393,7 +393,7 @@ class Gather_auth_mechanisms
 public:
 	Gather_auth_mechanisms(
 			const Session_auth_data* auth,
-			const zval* capabilities,
+			const util::zvalue& capabilities,
 			Auth_mechanisms* auth_mechanisms);
 
 	bool run();
@@ -406,7 +406,7 @@ private:
 
 private:
 	const Session_auth_data* auth;
-	const zval* capabilities;
+	const util::zvalue& capabilities;
 	Auth_mechanisms& auth_mechanisms;
 
 };
@@ -465,7 +465,7 @@ public:
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
 	bool is_session_properly_supported();
-	size_t            get_client_id();
+	uint64_t          get_client_id();
 	void              cleanup();
 public:
 	/* Operation related */
@@ -481,7 +481,7 @@ public:
 	/* Used only in case of non network transports */
 	std::string                        socket_path;
 	std::string                        server_host_info;
-	size_t			                   client_id;
+	uint64_t		                   client_id;
 	const MYSQLND_CHARSET*             charset;
 	/* If error packet, we use these */
 	MYSQLND_ERROR_INFO*                error_info{nullptr};

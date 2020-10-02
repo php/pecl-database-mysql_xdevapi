@@ -22,7 +22,7 @@ namespace mysqlx {
 
 namespace devapi {
 
-void mysqlx_new_table__update(zval* return_value, drv::xmysqlnd_table* schema);
+util::zvalue create_table_update(drv::xmysqlnd_table* schema);
 void mysqlx_register_table__update_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_table__update_class(SHUTDOWN_FUNC_ARGS);
 

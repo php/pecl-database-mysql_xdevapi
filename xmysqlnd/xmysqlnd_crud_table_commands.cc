@@ -43,7 +43,7 @@ enum_func_status
 xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 									 std::vector<Mysqlx::Datatypes::Scalar*> & bound_values,
 									 const util::string_view& name,
-									 zval * value)
+									 const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_table__bind_value");
 	DBG_INF_FMT("name=%*s", name.length(), name.data());
@@ -58,19 +58,18 @@ xmysqlnd_crud_table__bind_value(std::vector<std::string> & placeholders,
 	}
 
 	Mysqlx::Datatypes::Any any;
-	if (FAIL == zval2any(value, any)) {
-		DBG_ERR("Error converting the zval to scalar");
-		DBG_RETURN(FAIL);
-	}
+	zval2any(value, any);
 	any2log(any);
 
-	DBG_INF_FMT("offset=%u", index - begin);
-	if (bound_values[index - begin]) {
-		delete bound_values[index - begin];
+	const auto offset = index - begin;
+	DBG_INF_FMT("offset=%u", offset);
+	auto& bound_value = bound_values[offset];
+	if (bound_value) {
+		delete bound_value;
 	}
-	bound_values[index - begin] = any.release_scalar();
+	bound_value = any.release_scalar();
 
-	scalar2log(*bound_values[index - begin]);
+	scalar2log(*bound_value);
 
 	DBG_INF("PASS");
 	DBG_RETURN(PASS);
@@ -225,11 +224,7 @@ void st_xmysqlnd_crud_table_op__insert::bind_row(zval* values_zv, ::Mysqlx::Crud
 void st_xmysqlnd_crud_table_op__insert::bind_row_field(zval* value_zv, ::Mysqlx::Crud::Insert_TypedRow* row)
 {
 	Mysqlx::Datatypes::Any any;
-	if (FAIL == zval2any(value_zv, any)) {
-		//TODO throw
-//		DBG_ERR("Error converting the zval to scalar");
-		//DBG_RETURN(FAIL);
-	}
+	zval2any(value_zv, any);
 	any2log(any);
 
 	Mysqlx::Expr::Expr * field = row->add_field();
@@ -282,7 +277,7 @@ xmysqlnd_crud_table_insert__finalize_bind(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_insert__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__INSERT * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_INSERT };
 	return ret;
 }
 
@@ -348,7 +343,7 @@ xmysqlnd_crud_table_delete__set_limit(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, cons
 }
 
 enum_func_status
-xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const util::string_view& name, zval * value)
+xmysqlnd_crud_table_delete__bind_value(XMYSQLND_CRUD_TABLE_OP__DELETE * obj, const util::string_view& name, const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_delete__bind_value");
 	if (obj->placeholders.size() && !obj->message.has_criteria()) {
@@ -392,7 +387,7 @@ xmysqlnd_crud_table_delete__finalize_bind(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_delete__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__DELETE * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_DELETE };
 	return ret;
 }
 
@@ -456,7 +451,7 @@ xmysqlnd_crud_table_update__set_offset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, con
 }
 
 enum_func_status
-xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const util::string_view& name, zval * value)
+xmysqlnd_crud_table_update__bind_value(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const util::string_view& name, const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__bind_value");
 	if (obj->placeholders.size() && !obj->message.has_criteria()) {
@@ -479,24 +474,25 @@ static enum_func_status
 xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 											   const Mysqlx::Crud::UpdateOperation_UpdateType op_type,
 											   const util::string_view& path,
-											   const zval * const value,
+											   const util::zvalue& value,
 											   const zend_bool is_expression,
 											   const zend_bool is_document,
 											   const zend_bool validate_array)
 {
 	DBG_ENTER("xmysqlnd_crud_table_update__add_operation");
 	DBG_INF_FMT("operation=%s", Mysqlx::Crud::UpdateOperation::UpdateType_Name(op_type).c_str());
-	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u", path.length(), path.data(), value, is_expression, is_document, validate_array);
+	DBG_INF_FMT("path=%*s  value=%p  is_expr=%u  is_document=%u  validate_array=%u", path.length(), path.data(), value.ptr(), is_expression, is_document, validate_array);
 
-	if (value) {
-		DBG_INF_FMT("value_type=%u", Z_TYPE_P(value));
-		switch (Z_TYPE_P(value)) {
-			case IS_ARRAY:
-			case IS_OBJECT:
-			case IS_RESOURCE:
-				DBG_ERR("Wrong value type");
-				DBG_RETURN(FAIL);
-		}
+	DBG_INF_FMT("value_type=%u", value.type());
+	switch (value.type()) {
+		case util::zvalue::Type::Array:
+		case util::zvalue::Type::Object:
+		case util::zvalue::Type::Resource:
+			DBG_ERR("Wrong value type");
+			DBG_RETURN(FAIL);
+		default:
+			// it is ok, no further action
+			break;
 	}
 
 	Mysqlx::Crud::UpdateOperation * operation = obj->message.mutable_operation()->Add();
@@ -519,31 +515,26 @@ xmysqlnd_crud_table_update__add_operation(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 	Mysqlx::Expr::ColumnIdentifier identifier(docpath->identifier());
 	operation->mutable_source()->CopyFrom(identifier);
 
-	if (value) {
-		if (Z_TYPE_P(value) == IS_STRING && (is_expression || is_document)) {
-			try {
-				const std::string source(Z_STRVAL_P(value), Z_STRLEN_P(value));
-				Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
-												 obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
-												 obj->placeholders );
-				operation->set_allocated_value(exprCriteria);
-			} catch (cdk::Error &e) {
-				php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
-				DBG_ERR_FMT("%s", e.what());
-				DBG_ERR("Parser error for document field");
-				DBG_RETURN(FAIL);
-			}
-		} else {
-			Mysqlx::Datatypes::Any any;
-			if (FAIL == zval2any(value, any)) {
-				DBG_ERR("Error converting the zval to scalar");
-				DBG_RETURN(FAIL);
-			}
-			any2log(any);
-
-			operation->mutable_value()->set_type(Mysqlx::Expr::Expr::LITERAL);
-			operation->mutable_value()->set_allocated_literal(any.release_scalar());
+	if (value.is_string() && (is_expression || is_document)) {
+		try {
+			const std::string& source = value.to_std_string();
+			Mysqlx::Expr::Expr * exprCriteria = mysqlx::devapi::parser::parse( source,
+												obj->message.data_model() == Mysqlx::Crud::DOCUMENT,
+												obj->placeholders );
+			operation->set_allocated_value(exprCriteria);
+		} catch (cdk::Error &e) {
+			php_error_docref(nullptr, E_WARNING, "Error while parsing, details: %s", e.what());
+			DBG_ERR_FMT("%s", e.what());
+			DBG_ERR("Parser error for document field");
+			DBG_RETURN(FAIL);
 		}
+	} else {
+		Mysqlx::Datatypes::Any any;
+		zval2any(value, any);
+		any2log(any);
+
+		operation->mutable_value()->set_type(Mysqlx::Expr::Expr::LITERAL);
+		operation->mutable_value()->set_allocated_literal(any.release_scalar());
 	}
 
 	DBG_RETURN(PASS);
@@ -561,7 +552,7 @@ xmysqlnd_crud_table_update__unset(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj, const ut
 enum_func_status
 xmysqlnd_crud_table_update__set(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj,
 									 const util::string_view& path,
-									 const zval * const value,
+									 const util::zvalue& value,
 									 const zend_bool is_expression,
 									 const zend_bool is_document)
 {
@@ -596,7 +587,7 @@ xmysqlnd_crud_table_update__finalize_bind(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_update__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__UPDATE * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_UPDATE };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_UPDATE };
 	return ret;
 }
 
@@ -702,7 +693,7 @@ xmysqlnd_crud_table_select__set_offset(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, con
 }
 
 enum_func_status
-xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const util::string_view& name, zval * value)
+xmysqlnd_crud_table_select__bind_value(XMYSQLND_CRUD_TABLE_OP__SELECT * obj, const util::string_view& name, const util::zvalue& value)
 {
 	DBG_ENTER("xmysqlnd_crud_table_select__bind_value");
 	if (obj->placeholders.size() && !obj->message.has_criteria()) {
@@ -902,7 +893,7 @@ xmysqlnd_crud_table_select_set_lock_waiting_option(
 struct st_xmysqlnd_pb_message_shell
 xmysqlnd_crud_table_select__get_protobuf_message(XMYSQLND_CRUD_TABLE_OP__SELECT * obj)
 {
-	struct st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };
+	st_xmysqlnd_pb_message_shell ret = { (void *) &obj->message, COM_CRUD_FIND };
 	return ret;
 }
 

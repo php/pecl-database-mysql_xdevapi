@@ -28,8 +28,8 @@ namespace devapi {
 
 extern zend_class_entry * mysqlx_exception_class_entry;
 
-void mysqlx_new_exception(int code, const util::string_view& sql_state, const util::string_view& msg);
-void mysqlx_new_exception_ex(int code, const util::string_view& sql_state, const char* format, ...);
+void create_exception(int code, const util::string_view& sql_state, const util::string_view& msg);
+void create_exception_ex(int code, const util::string_view& sql_state, const char* format, ...);
 
 void mysqlx_register_exception_class(INIT_FUNC_ARGS, zend_object_handlers* mysqlx_std_object_handlers);
 void mysqlx_unregister_exception_class(SHUTDOWN_FUNC_ARGS);

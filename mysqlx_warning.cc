@@ -21,6 +21,7 @@
 #include "php_mysqlx.h"
 #include "mysqlx_class_properties.h"
 #include "mysqlx_warning.h"
+#include "util/functions.h"
 #include "util/object.h"
 
 namespace mysqlx {
@@ -142,16 +143,17 @@ mysqlx_unregister_warning_class(UNUSED_SHUTDOWN_FUNC_ARGS)
 	zend_hash_destroy(&mysqlx_warning_properties);
 }
 
-void
-mysqlx_new_warning(zval* return_value, const util::string& msg, unsigned int level, const unsigned int code)
+util::zvalue
+create_warning(const util::string& msg, unsigned int level, const unsigned int code)
 {
-	DBG_ENTER("mysqlx_new_warning");
+	DBG_ENTER("create_warning");
+	util::zvalue warning_obj;
 	st_mysqlx_warning& data_object{
-		util::init_object<st_mysqlx_warning>(mysqlx_warning_class_entry, return_value) };
+		util::init_object<st_mysqlx_warning>(mysqlx_warning_class_entry, warning_obj) };
 	data_object.msg = msg;
 	data_object.level = level;
 	data_object.code = code;
-	DBG_VOID_RETURN;
+	DBG_RETURN(warning_obj);
 }
 
 } // namespace devapi

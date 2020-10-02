@@ -28,15 +28,15 @@ namespace devapi {
 
 using namespace drv;
 
-static zval *
-mysqlx_property_get_forbidden(const st_mysqlx_object* /*not_used1*/, zval* /*not_used2*/)
+static util::raw_zval *
+mysqlx_property_get_forbidden(const st_mysqlx_object* /*not_used1*/, util::raw_zval* /*not_used2*/)
 {
 	php_error_docref(nullptr, E_ERROR, "Write-only property");
 	return nullptr;
 }
 
 static int
-mysqlx_property_set_forbidden(st_mysqlx_object* /*not_used1*/, zval* /*not_used2*/)
+mysqlx_property_set_forbidden(st_mysqlx_object* /*not_used1*/, util::raw_zval* /*not_used2*/)
 {
 	php_error_docref(nullptr, E_ERROR, "Read-only property");
 	return FAILURE;
@@ -67,11 +67,11 @@ mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries)
 	}
 }
 
-zval *
-mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_slot, zval * rv)
+util::raw_zval *
+mysqlx_property_get_value(util::raw_zval * object, util::raw_zval * member, int type, void ** cache_slot, util::raw_zval * rv)
 {
-	zval tmp_member;
-	zval* retval{nullptr};
+	util::raw_zval tmp_member;
+	util::raw_zval* retval{nullptr};
 	const st_mysqlx_object* mysqlx_obj{nullptr};
 	const st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_get_value");
@@ -79,7 +79,7 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 	mysqlx_obj = Z_MYSQLX_P(object);
 
 	if (Z_TYPE_P(member) != IS_STRING) {
-		ZVAL_COPY(&tmp_member, member);
+		util::zvalue::copy_from_to(member, &tmp_member);
 		convert_to_string(&tmp_member);
 		member = &tmp_member;
 	}
@@ -111,15 +111,15 @@ mysqlx_property_get_value(zval * object, zval * member, int type, void ** cache_
 }
 
 property_set_value_return_type
-mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cache_slot)
+mysqlx_property_set_value(util::raw_zval * object, util::raw_zval * member, util::raw_zval * value, void **cache_slot)
 {
-	zval tmp_member;
+	util::raw_zval tmp_member;
 	st_mysqlx_object* mysqlx_obj{nullptr};
 	const st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_set_value");
 
 	if (Z_TYPE_P(member) != IS_STRING) {
-		ZVAL_COPY(&tmp_member, member);
+		util::zvalue::copy_from_to(member, &tmp_member);
 		convert_to_string(&tmp_member);
 		member = &tmp_member;
 	}
@@ -151,7 +151,7 @@ mysqlx_property_set_value(zval * object, zval * member, zval * value, void **cac
 }
 
 int
-mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, void **cache_slot)
+mysqlx_object_has_property(util::raw_zval * object, util::raw_zval * member, int has_set_exists, void **cache_slot)
 {
 	const st_mysqlx_object* mysqlx_obj = Z_MYSQLX_P(object);
 	const st_mysqlx_property* property{nullptr};
@@ -161,7 +161,7 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 	if ((property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)))) != nullptr) {
 		switch (has_set_exists) {
 			case 0:{
-				zval rv, *value;
+				util::raw_zval rv, *value;
 				ZVAL_UNDEF(&rv);
 				value = mysqlx_property_get_value(object, member, BP_VAR_IS, cache_slot, &rv);
 				if (value != &EG(uninitialized_zval)) {
@@ -172,7 +172,7 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 				break;
 			}
 			case 1: {
-				zval rv, *value;
+				util::raw_zval rv, *value;
 				ZVAL_UNDEF(&rv);
 				value = mysqlx_property_get_value(object, member, BP_VAR_IS, cache_slot, &rv);
 				if (value != &EG(uninitialized_zval)) {
@@ -198,7 +198,7 @@ mysqlx_object_has_property(zval * object, zval * member, int has_set_exists, voi
 }
 
 void
-mysqlx_free_property_cb(zval * el)
+mysqlx_free_property_cb(util::raw_zval * el)
 {
 	pefree(Z_PTR_P(el), 1);
 }

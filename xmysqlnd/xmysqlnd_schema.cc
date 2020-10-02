@@ -113,7 +113,7 @@ schema_sql_op_var_binder(
 				enum_func_status result;
 				util::zvalue zv(*param);
 				DBG_INF_FMT("[%d]=[%*s]", ctx->counter, param->length(), param->data());
-				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, ctx->counter, zv.ptr());
+				result = xmysqlnd_stmt_execute__bind_one_param(stmt_execute, zv);
 
 				if (FAIL == result) {
 					ret = HND_FAIL;
@@ -166,7 +166,7 @@ schema_sql_op_on_row(
 
 enum_func_status
 xmysqlnd_schema::exists_in_database(
-	struct st_xmysqlnd_session_on_error_bind on_error,
+	st_xmysqlnd_session_on_error_bind on_error,
 	zval* exists)
 {
 	DBG_ENTER("xmysqlnd_schema::exists_in_database");
@@ -487,7 +487,7 @@ xmysqlnd_schema::get_db_objects(
 	enum_func_status ret;
 	constexpr util::string_view query("list_objects");
 
-	struct st_collection_get_objects_var_binder_ctx var_binder_ctx = {
+	st_collection_get_objects_var_binder_ctx var_binder_ctx = {
 		schema_name,
 		0
 	};
