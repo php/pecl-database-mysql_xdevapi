@@ -65,6 +65,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 		orabug #31364076: mysqlndx switch from C++14 to C++17, and all related
 		orabug #31414039: mysqlndx apply std::string_view, remove MYSQLND_CSTRING
 		orabug #30084547: improve zval wrapper
+		orabug #31678047: prepared statements tests fail with the newest server
+		orabug #31958145: some secure connection / TLS tests fail on el8-x86-64bit
 	</notes>
  <contents>
   <dir name="/">
