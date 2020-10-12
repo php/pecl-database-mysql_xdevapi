@@ -62,9 +62,9 @@ function test_successful_not_elapsed_timeout($host, $timeout) {
 
 // ----------------
 
-function init_log($master_file_path) {
+function init_log($supervisor_file_path) {
 	global $log_filepath;
-	$log_filepath = $master_file_path . ".stdout";
+	$log_filepath = $supervisor_file_path . ".stdout";
 	if (file_exists($log_filepath)) unlink($log_filepath);
 }
 
@@ -120,12 +120,12 @@ function test_timeout_connection($host, $port, $timeout) {
 	return verify_connecting_time($connecting_time, $timeout);
 }
 
-function test_elapsed_timeout($timeout, $master_file_path) {
+function test_elapsed_timeout($timeout, $supervisor_file_path) {
 	global $Non_routable_hosts;
 	global $Non_routable_ports;
 	global $log_filepath;
 
-	init_log($master_file_path);
+	init_log($supervisor_file_path);
 	apply_env();
 
 	foreach ($Non_routable_ports as $port) {

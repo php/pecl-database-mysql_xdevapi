@@ -3401,7 +3401,7 @@ private:
 	either "mandatory", "approved" or "deprecated". The document also contains a
 	list of "unacceptable" cipher suites, but this is there only for the reference -
 	the OSSA group clarified that checking of acceptable cipher suites should be
-	done using white-list approach, not black-list."
+	done using allowlist approach, not blocklist."
 
 	link:
 	https://confluence.oraclecorp.com/confluence/display/GPS/Approved+Security+Technologies%3A+Standards+-+TLS+Ciphers+and+Versions
