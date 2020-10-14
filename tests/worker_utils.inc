@@ -73,10 +73,15 @@ function prepare_worker_cmdline($worker_path) {
 	return $worker_cmd;
 }
 
-function run_worker($supervisor_path) {
+function resolve_worker_path($supervisor_path) {
 	$supervisor_dir = pathinfo($supervisor_path, PATHINFO_DIRNAME);
 	$supervisor_fname = pathinfo($supervisor_path, PATHINFO_FILENAME);
 	$worker_path = $supervisor_dir.DIRECTORY_SEPARATOR.$supervisor_fname."_worker.php";
+	return $worker_path;
+}
+
+function run_worker($supervisor_path) {
+	$worker_path = resolve_worker_path($supervisor_path);
 	$worker_cmd = prepare_worker_cmdline($worker_path);
 
 	$descriptorspec = array(
