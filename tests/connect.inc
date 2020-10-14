@@ -24,7 +24,7 @@
 	$passwd = get_mysqlx_env("MYSQLX_TEST_PASSWD", "MYSQLX_PASSWD", "");
 	$db = get_mysqlx_env("MYSQLX_TEST_DB", "MYSQLX_DB", "testx");
 	$default_schema = get_mysqlx_env("MYSQLX_TEST_DEFAULT_SCHEMA", "MYSQLX_DEFAULT_SCHEMA", "");
-	$engine = get_mysqlx_env("MYSQLX_TEST_ENGINE", "MYSQLX_ENGINE", "MyISAM");
+	$engine = get_mysqlx_env("MYSQLX_TEST_ENGINE", "MYSQLX_ENGINE", "InnoDB");
 	$socket = get_mysqlx_env("MYSQLX_TEST_SOCKET", "MYSQLX_SOCKET", "");
 	$skip_on_connect_failure = get_mysqlx_env("MYSQLX_TEST_SKIP_CONNECT_FAILURE", "MYSQLX_SKIP_CONNECT_FAILURE", true);
 	$connect_flags = (int)get_mysqlx_env("MYSQLX_TEST_CONNECT_FLAGS", "MYSQLX_CONNECT_FLAGS", 0);
