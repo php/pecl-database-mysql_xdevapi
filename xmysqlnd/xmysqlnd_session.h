@@ -653,7 +653,7 @@ public:
 		MYSQLND_STATS* stats,
 		MYSQLND_ERROR_INFO* error_info);
 	xmysqlnd_session(xmysqlnd_session&& rhs) noexcept;
-	~xmysqlnd_session();
+	virtual ~xmysqlnd_session();
 
 	xmysqlnd_session() = delete;
 	xmysqlnd_session(const xmysqlnd_session& rhs) = delete;
