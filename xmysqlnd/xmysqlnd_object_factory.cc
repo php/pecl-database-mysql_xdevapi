@@ -63,13 +63,14 @@ static xmysqlnd_session_data *
 XMYSQLND_METHOD(xmysqlnd_object_factory, get_session_data)(const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
                                                                 const zend_bool persistent,
                                                                 MYSQLND_STATS* stats,
-                                                                MYSQLND_ERROR_INFO* error_info)
+                                                                MYSQLND_ERROR_INFO* error_info,
+																Session_callback* session_callback)
 {
 	DBG_ENTER("xmysqlnd_object_factory::get_session_data");
 	DBG_INF_FMT("persistent=%u", persistent);
 	xmysqlnd_session_data * object{ nullptr };
 	try{
-		object = new xmysqlnd_session_data( factory, stats, error_info );
+		object = new xmysqlnd_session_data( factory, stats, error_info, session_callback );
 	}catch(std::exception&)
 	{
 		DBG_RETURN(nullptr);

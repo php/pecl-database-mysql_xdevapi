@@ -125,6 +125,13 @@ struct Message_data : public util::custom_allocable
 
 using Messages = util::vector<Message_data>;
 
+struct Session_callback
+{
+	virtual void on_io_read_error() = 0;
+	virtual void on_server_shutdown() = 0;
+	virtual void on_session_was_killed() = 0;
+};
+
 } // namespace drv
 
 } // namespace mysqlx

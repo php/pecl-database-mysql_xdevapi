@@ -109,7 +109,7 @@ bool Session_data::close_connection()
 	if (session->is_pooled()) {
 		session->pool_callback->on_close(session);
 	} else {
-		session->close(SESSION_CLOSE_EXPLICIT);
+		session->close(Session_close_reason::Explicit);
 	}
 	return true;
 }
@@ -119,7 +119,8 @@ Session_data& fetch_session_data(T* from, bool allow_closed = false)
 {
 	auto& data_object{ util::fetch_data_object<Session_data>(from) };
 	if (!allow_closed && data_object.session->is_closed()) {
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::session_closed);
+		auto close_exception_code = data_object.session->get_data()->state.get_close_exception_code();
+		throw util::xdevapi_exception(close_exception_code);
 	}
 	return data_object;
 }

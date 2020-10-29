@@ -150,7 +150,8 @@ st_xmysqlnd_message_factory xmysqlnd_session_data::create_message_factory()
 		io.pfc,
 		stats,
 		error_info,
-		&compression_executor
+		&compression_executor,
+		session_callback
 	};
 	return get_message_factory(msg_ctx);
 }
@@ -340,7 +341,7 @@ xmysqlnd_session_data::connect(
 		if (state.get() < SESSION_CLOSE_SENT) {
 			XMYSQLND_INC_SESSION_STATISTIC(stats, XMYSQLND_STAT_CLOSE_IMPLICIT);
 			reconnect = TRUE;
-			send_close();
+			send_close(Session_close_reason::Implicit);
 		}
 
 		cleanup();
@@ -540,16 +541,16 @@ xmysqlnd_session_data::send_reset(bool keep_open)
 		}
 
 		case SESSION_CLOSED:
-			throw util::xdevapi_exception(util::xdevapi_exception::Code::session_closed);
+			throw util::xdevapi_exception(state.get_close_exception_code());
 	}
 
 	DBG_RETURN(ret);
 }
 
 enum_func_status
-xmysqlnd_session_data::send_close()
+xmysqlnd_session_data::send_close(Session_close_reason reason)
 {
-	DBG_ENTER("mysqlnd_send_close");
+	DBG_ENTER("xmysqlnd_session_data::send_close");
 
 	enum_func_status ret{PASS};
 	MYSQLND_VIO* vio{ io.vio };
@@ -585,7 +586,10 @@ xmysqlnd_session_data::send_close()
 			/* HANDLE COM_QUIT here */
 			vio->data->m.close_stream(vio, stats, error_info);
 		}
-		state.set(SESSION_CLOSED);
+		state.set_closed(reason);
+		if (state.has_closed_with_error()) {
+			throw util::xdevapi_exception(state.get_close_exception_code());
+		}
 		break;
 	}
 	case SESSION_ALLOCATED:
@@ -593,7 +597,10 @@ xmysqlnd_session_data::send_close()
 	case SESSION_CLOSE_SENT:
 		/* The user has killed its own connection */
 		vio->data->m.close_stream(vio, stats, error_info);
-		state.set(SESSION_CLOSED);
+		state.set_closed(reason);
+		if (state.has_closed_with_error()) {
+			throw util::xdevapi_exception(state.get_close_exception_code());
+		}
 		break;
 	case SESSION_CLOSED:
 		// already closed, do nothing
@@ -670,26 +677,95 @@ st_xmysqlnd_session_state::get() const
 	DBG_RETURN(state);
 }
 
+Session_close_reason
+st_xmysqlnd_session_state::get_close_reason() const
+{
+	return close_reason;
+}
+
+util::xdevapi_exception::Code
+st_xmysqlnd_session_state::get_close_exception_code() const
+{
+	static const std::map<Session_close_reason, util::xdevapi_exception::Code> reason_to_code =
+	{
+		{ Session_close_reason::Explicit, util::xdevapi_exception::Code::session_closed },
+		{ Session_close_reason::Implicit, util::xdevapi_exception::Code::session_closed },
+		{ Session_close_reason::Disconnect, util::xdevapi_exception::Code::session_closed },
+		{ Session_close_reason::Connection_io_read_error, util::xdevapi_exception::Code::connection_closed_io_read_error },
+		{ Session_close_reason::Connection_server_shutdown, util::xdevapi_exception::Code::connection_closed_server_shutdown },
+		{ Session_close_reason::Connection_session_was_killed, util::xdevapi_exception::Code::connection_closed_session_was_killed },
+	};
+
+	assert(is_closed());
+	const auto reason = get_close_reason();
+	auto it = reason_to_code.find(reason);
+	if (it != reason_to_code.end()) {
+		return it->second;
+	}
+	return util::xdevapi_exception::Code::session_closed;
+}
+
+bool
+st_xmysqlnd_session_state::is_closed() const
+{
+	return state == SESSION_CLOSED;
+}
+
+bool
+st_xmysqlnd_session_state::has_closed_with_error() const
+{
+	switch(get_close_reason()) {
+	case drv::Session_close_reason::None:
+	case drv::Session_close_reason::Explicit:
+	case drv::Session_close_reason::Implicit:
+	case drv::Session_close_reason::Disconnect:
+		return false;
+
+	case drv::Session_close_reason::Connection_io_read_error:
+	case drv::Session_close_reason::Connection_server_shutdown:
+	case drv::Session_close_reason::Connection_session_was_killed:
+		return true;
+
+	default:
+		assert(!"unknown close reason!");
+		return true;
+	}
+}
+
 void
 st_xmysqlnd_session_state::set(const enum xmysqlnd_session_state new_state)
 {
+	assert((new_state != SESSION_CLOSED) && "for SESSION_CLOSED use set_closed");
 	DBG_ENTER("xmysqlnd_session_state::set");
 	DBG_INF_FMT("New state=%u", state);
 	state = new_state;
 	DBG_VOID_RETURN;
 }
 
+void
+st_xmysqlnd_session_state::set_closed(Session_close_reason reason)
+{
+	DBG_ENTER("xmysqlnd_session_state::set_closed");
+	DBG_INF_FMT("reason=%u", reason);
+	state = SESSION_CLOSED;
+	close_reason = reason;
+	DBG_VOID_RETURN;
+}
+
 st_xmysqlnd_session_state::st_xmysqlnd_session_state()
+	: state(SESSION_ALLOCATED)
+	, close_reason(Session_close_reason::None)
 {
 	DBG_ENTER("st_xmysqlnd_session_state constructor");
-	state = SESSION_ALLOCATED;
 }
 
 xmysqlnd_session_data::xmysqlnd_session_data(
 	const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 	MYSQLND_STATS* mysqlnd_stats,
-	MYSQLND_ERROR_INFO* mysqlnd_error_info)
-	: savepoint_name_seed(1)
+	MYSQLND_ERROR_INFO* mysqlnd_error_info,
+	Session_callback* session_callback)
+	: session_callback(session_callback)
+	, savepoint_name_seed(1)
 {
 	DBG_ENTER("xmysqlnd_session_data::xmysqlnd_session_data");
 	object_factory = factory;
@@ -736,6 +812,8 @@ xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexce
 	socket_path = std::move(rhs.socket_path);
 	server_host_info = std::move(rhs.server_host_info);
 	compression_executor = std::move(rhs.compression_executor);
+	session_callback = rhs.session_callback;
+	rhs.session_callback = nullptr;
 	client_id = rhs.client_id;
 	rhs.client_id = 0;
 	charset = rhs.charset;
@@ -757,7 +835,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexce
 xmysqlnd_session_data::~xmysqlnd_session_data()
 {
 	DBG_ENTER("xmysqlnd_session_data::~xmysqlnd_session_data");
-	send_close();
+	send_close(Session_close_reason::Implicit);
 	cleanup();
 	free_contents();
 	DBG_VOID_RETURN;
@@ -779,6 +857,7 @@ void xmysqlnd_session_data::cleanup()
 
 	auth.reset();
 	compression_executor.reset();
+	session_callback = nullptr;
 	default_schema.clear();
 	scheme.clear();
 	server_host_info.clear();
@@ -1749,7 +1828,7 @@ xmysqlnd_session::xmysqlnd_session(
 	DBG_ENTER("xmysqlnd_session::xmysqlnd_session");
 
 	session_uuid = std::make_unique<Uuid_generator>();
-	xmysqlnd_session_data* session_data{ factory->get_session_data(factory, persistent, stats, error_info) };
+	xmysqlnd_session_data* session_data{ factory->get_session_data(factory, persistent, stats, error_info, this) };
 	if (session_data) {
 		data = std::shared_ptr<xmysqlnd_session_data>(session_data);
 	}
@@ -2326,28 +2405,50 @@ xmysqlnd_session::create_schema_object(const util::string_view& schema_name)
 }
 
 const enum_func_status
-xmysqlnd_session::close(const enum_xmysqlnd_session_close_type close_type)
+xmysqlnd_session::close(const Session_close_reason close_type)
 {
 	DBG_ENTER("xmysqlnd_session::close");
 
 	enum_func_status ret{FAIL};
 
 	if (data->state.get() >= SESSION_READY) {
-		static enum_xmysqlnd_collected_stats close_type_to_stat_map[SESSION_CLOSE_LAST] = {
-			XMYSQLND_STAT_CLOSE_EXPLICIT,
-			XMYSQLND_STAT_CLOSE_IMPLICIT,
-			XMYSQLND_STAT_CLOSE_DISCONNECT
+		using Reason_to_stat = std::map<Session_close_reason, xmysqlnd_collected_stats>;
+		static const Reason_to_stat reason_to_stat = {
+			{ Session_close_reason::Explicit, XMYSQLND_STAT_CLOSE_EXPLICIT },
+			{ Session_close_reason::Implicit, XMYSQLND_STAT_CLOSE_IMPLICIT },
+			{ Session_close_reason::Disconnect, XMYSQLND_STAT_CLOSE_DISCONNECT },
+			{ Session_close_reason::Connection_io_read_error, XMYSQLND_STAT_CLOSE_DISCONNECT },
+			{ Session_close_reason::Connection_server_shutdown, XMYSQLND_STAT_CLOSE_DISCONNECT },
+			{ Session_close_reason::Connection_session_was_killed, XMYSQLND_STAT_CLOSE_DISCONNECT },
 		};
-		XMYSQLND_INC_SESSION_STATISTIC(data->stats, close_type_to_stat_map[close_type]);
+		auto it = reason_to_stat.find(close_type);
+		if (it != reason_to_stat.end()) {
+			XMYSQLND_INC_SESSION_STATISTIC(data->stats, it->second);
+		}
 	}
 
 	/*
 		  Close now, free_reference will try,
 		  if we are last, but that's not a problem.
 		*/
-	ret = data->send_close();
+	ret = data->send_close(close_type);
 
 	DBG_RETURN(ret);
+}
+
+void xmysqlnd_session::on_io_read_error()
+{
+	data->send_close(Session_close_reason::Connection_io_read_error);
+}
+
+void xmysqlnd_session::on_server_shutdown()
+{
+	data->send_close(Session_close_reason::Connection_server_shutdown);
+}
+
+void xmysqlnd_session::on_session_was_killed()
+{
+	data->send_close(Session_close_reason::Connection_session_was_killed);
 }
 
 PHP_MYSQL_XDEVAPI_API XMYSQLND_SESSION

@@ -67,14 +67,16 @@ enum xmysqlnd_session_state
 	SESSION_CLOSED = 5,
 };
 
-
-typedef enum xmysqlnd_session_close_type
+enum class Session_close_reason
 {
-	SESSION_CLOSE_EXPLICIT = 0,
-	SESSION_CLOSE_IMPLICIT,
-	SESSION_CLOSE_DISCONNECT,
-	SESSION_CLOSE_LAST	/* for checking, should always be last */
-} enum_xmysqlnd_session_close_type;
+	None,
+	Explicit,
+	Implicit,
+	Disconnect,
+	Connection_io_read_error,
+	Connection_server_shutdown,
+	Connection_session_was_killed,
+};
 
 struct st_xmysqlnd_query_builder
 {
@@ -92,9 +94,15 @@ struct st_xmysqlnd_session_state : public util::permanent_allocable
 public:
 	st_xmysqlnd_session_state();
 	xmysqlnd_session_state get() const;
+	Session_close_reason get_close_reason() const;
+	util::xdevapi_exception::Code get_close_exception_code() const;
+	bool is_closed() const;
+	bool has_closed_with_error() const;
 	void set(const xmysqlnd_session_state new_state);
+	void set_closed(Session_close_reason reason);
 private:
 	xmysqlnd_session_state state;
+	Session_close_reason close_reason;
 };
 
 typedef struct st_xmysqlnd_session_options
@@ -425,7 +433,8 @@ public:
 	xmysqlnd_session_data(
 		const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory)* const factory,
 		MYSQLND_STATS* mysqlnd_stats,
-		MYSQLND_ERROR_INFO* mysqlnd_error_info);
+		MYSQLND_ERROR_INFO* mysqlnd_error_info,
+		Session_callback* session_callback);
 	xmysqlnd_session_data(xmysqlnd_session_data&& rhs) noexcept;
 	~xmysqlnd_session_data();
 
@@ -460,8 +469,8 @@ public:
 	enum_func_status  send_client_attributes();
 
 	enum_func_status  send_reset(bool keep_open);
-	enum_func_status  send_close();
-	bool is_closed() const { return state.get() == SESSION_CLOSED; }
+	enum_func_status  send_close(Session_close_reason reason);
+	bool is_closed() const { return state.is_closed(); }
 	size_t            negotiate_client_api_capabilities(const size_t flags);
 
 	bool is_session_properly_supported();
@@ -478,6 +487,7 @@ public:
 	std::string                        default_schema;
 	transport_types                    transport_type;
 	compression::Executor compression_executor;
+	Session_callback* session_callback{ nullptr };
 	/* Used only in case of non network transports */
 	std::string                        socket_path;
 	std::string                        server_host_info;
@@ -632,7 +642,10 @@ struct Connection_pool_callback
 	virtual void on_close(XMYSQLND_SESSION closing_connection) = 0;
 };
 
-class xmysqlnd_session : public util::permanent_allocable, public std::enable_shared_from_this<xmysqlnd_session>
+class xmysqlnd_session :
+	public util::permanent_allocable,
+	public Session_callback,
+	public std::enable_shared_from_this<xmysqlnd_session>
 {
 public:
 	xmysqlnd_session(
@@ -678,11 +691,16 @@ public:
 
 	xmysqlnd_schema* create_schema_object(const util::string_view& schema_name);
 
-    const enum_func_status close(const enum_xmysqlnd_session_close_type close_type);
+    const enum_func_status close(const Session_close_reason close_type);
 	bool is_closed() const { return data->is_closed(); }
 
 	void set_pooled(Connection_pool_callback* conn_pool_callback) { pool_callback = conn_pool_callback; }
 	bool is_pooled() const { return pool_callback != nullptr; }
+
+	// Session_callback
+	void on_io_read_error() override;
+	void on_server_shutdown() override;
+	void on_session_was_killed() override;
 
 	XMYSQLND_SESSION_DATA get_data();
 

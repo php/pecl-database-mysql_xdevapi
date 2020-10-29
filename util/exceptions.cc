@@ -145,6 +145,12 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 		"Invalid format of document, JSON object expected: " },
 	{ xdevapi_exception::Code::json_array_expected,
 		"Invalid format of document, JSON array expected: " },
+	{ xdevapi_exception::Code::connection_closed_io_read_error,
+		"Connection closed. Reason: connection idle too long" },
+	{ xdevapi_exception::Code::connection_closed_server_shutdown,
+		"Connection closed. Reason: server shutdown" },
+	{ xdevapi_exception::Code::connection_closed_session_was_killed,
+		"Connection closed. Reason: connection killed by a different session" },
 };
 
 string_view to_sql_state(const string_view& sql_state)

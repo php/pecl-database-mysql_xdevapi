@@ -41,6 +41,7 @@ struct st_xmysqlnd_result_field_meta;
 struct st_xmysqlnd_protocol_frame_codec;
 class xmysqlnd_warning_list;
 struct st_xmysqlnd_stmt_execution_state;
+struct Session_callback;
 
 MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory);
 
@@ -54,7 +55,8 @@ typedef class xmysqlnd_session_data* (*func_xmysqlnd_object_factory__get_session
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,
 			const zend_bool persistent,
 			MYSQLND_STATS * stats,
-			MYSQLND_ERROR_INFO * error_info);
+			MYSQLND_ERROR_INFO * error_info,
+			Session_callback* session_callback);
 
 typedef class xmysqlnd_schema * (*func_xmysqlnd_object_factory__get_schema)(
 			const MYSQLND_CLASS_METHODS_TYPE(xmysqlnd_object_factory) * const factory,

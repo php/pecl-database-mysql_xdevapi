@@ -94,8 +94,40 @@ xmysqlnd_inspect_changed_variable(const st_xmysqlnd_on_session_var_change_bind o
 	DBG_RETURN(ret);
 }
 
+void process_server_notifications(
+	const Message_context& msg_ctx,
+	unsigned int code)
+{
+	// codes basing on WL#14166: xproto: notify on connection close
+	const unsigned int Event_io_read_error = 1810;
+	const unsigned int Event_server_shutdown = 1053;
+	const unsigned int Event_session_was_killed = 3169;
+
+	auto session_callback = msg_ctx.session_callback;
+	switch(code) {
+		case Event_io_read_error:
+			session_callback->on_io_read_error();
+			break;
+
+		case Event_server_shutdown:
+			session_callback->on_server_shutdown();
+			break;
+
+		case Event_session_was_killed:
+			session_callback->on_session_was_killed();
+			break;
+
+		default:
+			// do nothing
+			break;
+	}
+}
+
 static enum_hnd_func_status
-xmysqlnd_inspect_warning(const st_xmysqlnd_on_warning_bind on_warning, const Mysqlx::Notice::Warning & warning)
+xmysqlnd_inspect_warning(
+	const Message_context& msg_ctx,
+	const st_xmysqlnd_on_warning_bind on_warning,
+	const Mysqlx::Notice::Warning & warning)
 {
 	enum_hnd_func_status ret{HND_PASS};
 	DBG_ENTER("xmysqlnd_inspect_warning");
@@ -117,6 +149,7 @@ xmysqlnd_inspect_warning(const st_xmysqlnd_on_warning_bind on_warning, const Mys
 		DBG_INF_FMT("messsage[%s] is %s", has_msg? "SET":"NOT SET",
 										  has_msg? warning.msg().c_str() : "n/a");
 
+		process_server_notifications(msg_ctx, code);
 		ret = on_warning.handler(on_warning.ctx, level, code, warn_message);
 	}
 	DBG_RETURN(ret);
@@ -234,13 +267,15 @@ xmysqlnd_inspect_changed_state(const Mysqlx::Notice::SessionStateChanged & messa
 }
 
 static enum_hnd_func_status
-xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
-							  const st_xmysqlnd_on_warning_bind on_warning,
-							  const st_xmysqlnd_on_session_var_change_bind on_session_var_change,
-							  const st_xmysqlnd_on_execution_state_change_bind on_exec_state_change,
-							  const st_xmysqlnd_on_trx_state_change_bind on_trx_state_change,
-							  const st_xmysqlnd_on_generated_doc_ids_bind on_generated_doc_ids,
-							  const st_xmysqlnd_on_client_id_bind on_client_id)
+xmysqlnd_inspect_notice_frame(
+	const Message_context& msg_ctx,
+	const Mysqlx::Notice::Frame & frame,
+	const st_xmysqlnd_on_warning_bind on_warning,
+	const st_xmysqlnd_on_session_var_change_bind on_session_var_change,
+	const st_xmysqlnd_on_execution_state_change_bind on_exec_state_change,
+	const st_xmysqlnd_on_trx_state_change_bind on_trx_state_change,
+	const st_xmysqlnd_on_generated_doc_ids_bind on_generated_doc_ids,
+	const st_xmysqlnd_on_client_id_bind on_client_id)
 {
 	enum_hnd_func_status ret{HND_AGAIN};
 	DBG_ENTER("xmysqlnd_inspect_notice_frame");
@@ -264,7 +299,7 @@ xmysqlnd_inspect_notice_frame(const Mysqlx::Notice::Frame & frame,
 					DBG_INF("Warning");
 					message.ParseFromArray(frame_payload_str, frame_payload_size);
 					if (on_warning.handler) {
-						ret = xmysqlnd_inspect_warning(on_warning, message);
+						ret = xmysqlnd_inspect_warning(msg_ctx, on_warning, message);
 					}
 					break;
 				}
@@ -885,13 +920,15 @@ auth_start_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 
 	DBG_ENTER("auth_start_on_NOTICE");
 
-	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
-																   on_warning,
-																   on_session_var_change,
-																   on_execution_state_change,
-																   on_trx_state_change,
-																   on_generated_doc_ids,
-																   ctx->on_client_id);
+	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(
+		ctx->msg_ctx,
+		message,
+		on_warning,
+		on_session_var_change,
+		on_execution_state_change,
+		on_trx_state_change,
+		on_generated_doc_ids,
+		ctx->on_client_id);
 	DBG_RETURN(ret);
 }
 
@@ -1022,13 +1059,15 @@ stmt_execute_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 	const st_xmysqlnd_on_client_id_bind on_client_id = { nullptr, nullptr };
 	DBG_ENTER("stmt_execute_on_NOTICE");
 
-	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
-																   ctx->on_warning,
-																   ctx->on_session_var_change,
-																   ctx->on_execution_state_change,
-																   ctx->on_trx_state_change,
-																   ctx->on_generated_doc_ids,
-																   on_client_id);
+	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(
+		ctx->msg_ctx,
+		message,
+		ctx->on_warning,
+		ctx->on_session_var_change,
+		ctx->on_execution_state_change,
+		ctx->on_trx_state_change,
+		ctx->on_generated_doc_ids,
+		on_client_id);
 
 	DBG_RETURN(ret);
 }
@@ -2358,13 +2397,15 @@ table_insert_on_NOTICE(const Mysqlx::Notice::Frame& message, void* context)
 	const st_xmysqlnd_on_client_id_bind on_client_id = { nullptr, nullptr };
 	const st_xmysqlnd_on_generated_doc_ids_bind on_generated_doc_ids = { nullptr, nullptr };
 
-	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(message,
-																   ctx->on_warning,
-																   ctx->on_session_var_change,
-																   ctx->on_execution_state_change,
-																   ctx->on_trx_state_change,
-																   on_generated_doc_ids,
-																   on_client_id);
+	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(
+		ctx->msg_ctx,
+		message,
+		ctx->on_warning,
+		ctx->on_session_var_change,
+		ctx->on_execution_state_change,
+		ctx->on_trx_state_change,
+		on_generated_doc_ids,
+		on_client_id);
 
 	DBG_RETURN(ret);
 }
@@ -2593,6 +2634,7 @@ view_cmd_on_NOTICE(const Mysqlx::Notice::Frame & message, void* context)
 	const st_xmysqlnd_on_generated_doc_ids_bind on_generated_doc_ids = { nullptr, nullptr };
 
 	const enum_hnd_func_status ret = xmysqlnd_inspect_notice_frame(
+		ctx->msg_ctx,
 		message,
 		ctx->on_warning,
 		ctx->on_session_var_change,

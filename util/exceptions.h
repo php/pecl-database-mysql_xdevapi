@@ -120,6 +120,9 @@ struct xdevapi_exception : public std::runtime_error
 		object_property_invalid_type,
 		json_object_expected,
 		json_array_expected,
+		connection_closed_io_read_error,
+		connection_closed_server_shutdown,
+		connection_closed_session_was_killed,
 	};
 
 	xdevapi_exception(Code code);

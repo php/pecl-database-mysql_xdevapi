@@ -54,6 +54,7 @@ struct Message_context
 	MYSQLND_STATS* stats;
 	MYSQLND_ERROR_INFO* error_info;
 	compression::Executor* compression_executor;
+	Session_callback* session_callback;
 };
 
 
