@@ -739,6 +739,7 @@ st_xmysqlnd_session_state::set(const enum xmysqlnd_session_state new_state)
 	DBG_ENTER("xmysqlnd_session_state::set");
 	DBG_INF_FMT("New state=%u", state);
 	state = new_state;
+	close_reason = Session_close_reason::None;
 	DBG_VOID_RETURN;
 }
 
@@ -2417,9 +2418,9 @@ xmysqlnd_session::close(const Session_close_reason close_type)
 			{ Session_close_reason::Explicit, XMYSQLND_STAT_CLOSE_EXPLICIT },
 			{ Session_close_reason::Implicit, XMYSQLND_STAT_CLOSE_IMPLICIT },
 			{ Session_close_reason::Disconnect, XMYSQLND_STAT_CLOSE_DISCONNECT },
-			{ Session_close_reason::Connection_io_read_error, XMYSQLND_STAT_CLOSE_DISCONNECT },
-			{ Session_close_reason::Connection_server_shutdown, XMYSQLND_STAT_CLOSE_DISCONNECT },
-			{ Session_close_reason::Connection_session_was_killed, XMYSQLND_STAT_CLOSE_DISCONNECT },
+			{ Session_close_reason::Connection_io_read_error, XMYSQLND_STAT_CLOSE_IMPLICIT },
+			{ Session_close_reason::Connection_server_shutdown, XMYSQLND_STAT_CLOSE_IMPLICIT },
+			{ Session_close_reason::Connection_session_was_killed, XMYSQLND_STAT_CLOSE_IMPLICIT },
 		};
 		auto it = reason_to_stat.find(close_type);
 		if (it != reason_to_stat.end()) {
