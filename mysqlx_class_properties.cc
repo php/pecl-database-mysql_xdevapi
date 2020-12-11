@@ -28,21 +28,23 @@ namespace devapi {
 
 using namespace drv;
 
-static util::raw_zval *
+namespace {
+
+util::raw_zval *
 mysqlx_property_get_forbidden(const st_mysqlx_object* /*not_used1*/, util::raw_zval* /*not_used2*/)
 {
 	php_error_docref(nullptr, E_ERROR, "Write-only property");
 	return nullptr;
 }
 
-static int
+int
 mysqlx_property_set_forbidden(st_mysqlx_object* /*not_used1*/, util::raw_zval* /*not_used2*/)
 {
 	php_error_docref(nullptr, E_ERROR, "Read-only property");
 	return FAILURE;
 }
 
-static void
+void
 mysqlx_add_property(HashTable * properties, const std::string_view& property_name, const func_mysqlx_property_get get, const func_mysqlx_property_set set)
 {
 	DBG_ENTER("mysqlx_add_property");
@@ -59,6 +61,25 @@ mysqlx_add_property(HashTable * properties, const std::string_view& property_nam
 	DBG_VOID_RETURN;
 }
 
+util::zvalue member_to_zvalue(zend_string* member)
+{
+	return util::zvalue(member);
+}
+
+util::zvalue member_to_zvalue(util::raw_zval* member)
+{
+	if (Z_TYPE_P(member) != IS_STRING) {
+		util::raw_zval tmp_member;
+		util::zvalue::copy_from_to(member, &tmp_member);
+		convert_to_string(&tmp_member);
+		member = &tmp_member;
+	}
+
+	return util::zvalue(member);
+}
+
+} // anonymous namespace
+
 void
 mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries)
 {
@@ -68,28 +89,26 @@ mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries)
 }
 
 util::raw_zval *
-mysqlx_property_get_value(util::raw_zval * object, util::raw_zval * member, int type, void ** cache_slot, util::raw_zval * rv)
+mysqlx_property_get_value(
+#if PHP_VERSION_ID >= 80000 // PHP 8.0 or newer
+	zend_object* object, zend_string* member,
+#else
+	util::raw_zval* object, util::raw_zval* member,
+#endif
+	int type, void** cache_slot, util::raw_zval* rv)
 {
-	util::raw_zval tmp_member;
-	util::raw_zval* retval{nullptr};
-	const st_mysqlx_object* mysqlx_obj{nullptr};
-	const st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_get_value");
+	const st_mysqlx_object* mysqlx_obj{ to_mysqlx_object(object) };
 
-	mysqlx_obj = Z_MYSQLX_P(object);
+	util::zvalue member_zval = member_to_zvalue(member);
+	DBG_INF_FMT("property=%s", member_zval.z_str());
 
-	if (Z_TYPE_P(member) != IS_STRING) {
-		util::zvalue::copy_from_to(member, &tmp_member);
-		convert_to_string(&tmp_member);
-		member = &tmp_member;
-	}
-
-	DBG_INF_FMT("property=%s", Z_STRVAL_P(member));
-
+	const st_mysqlx_property* property{ nullptr };
 	if (mysqlx_obj->properties != nullptr) {
-		property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)));
+		property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, member_zval.z_str()));
 	}
 
+	util::raw_zval* retval{nullptr};
 	if (property) {
 		DBG_INF("internal property");
 		retval = property->get_value(mysqlx_obj, rv);
@@ -103,33 +122,27 @@ mysqlx_property_get_value(util::raw_zval * object, util::raw_zval * member, int 
 		retval = standard_handlers->read_property(object, member, type, cache_slot, rv);
 	}
 
-	if (member == &tmp_member) {
-		zval_dtor(member);
-	}
-
 	DBG_RETURN(retval);
 }
 
 property_set_value_return_type
-mysqlx_property_set_value(util::raw_zval * object, util::raw_zval * member, util::raw_zval * value, void **cache_slot)
+mysqlx_property_set_value(
+#if PHP_VERSION_ID >= 80000 // PHP 8.0 or newer
+	zend_object* object, zend_string* member,
+#else
+	util::raw_zval* object, util::raw_zval* member,
+#endif
+	util::raw_zval* value, void** cache_slot)
 {
-	util::raw_zval tmp_member;
-	st_mysqlx_object* mysqlx_obj{nullptr};
-	const st_mysqlx_property* property{nullptr};
 	DBG_ENTER("mysqlx_property_set_value");
+	st_mysqlx_object* mysqlx_obj{ to_mysqlx_object(object) };
 
-	if (Z_TYPE_P(member) != IS_STRING) {
-		util::zvalue::copy_from_to(member, &tmp_member);
-		convert_to_string(&tmp_member);
-		member = &tmp_member;
-	}
+	util::zvalue member_zval = member_to_zvalue(member);
+	DBG_INF_FMT("property=%s", member_zval.z_str());
 
-	DBG_INF_FMT("property=%s", Z_STRVAL_P(member));
-
-	mysqlx_obj = Z_MYSQLX_P(object);
-
+	const st_mysqlx_property* property{nullptr};
 	if (mysqlx_obj->properties != nullptr) {
-		property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)));
+		property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, member_zval.z_str()));
 	}
 
 	if (property) {
@@ -137,10 +150,6 @@ mysqlx_property_set_value(util::raw_zval * object, util::raw_zval * member, util
 	} else {
 		const zend_object_handlers * standard_handlers = zend_get_std_object_handlers();
 		standard_handlers->write_property(object, member, value, cache_slot);
-	}
-
-	if (member == &tmp_member) {
-		zval_dtor(member);
 	}
 
 	#if PHP_VERSION_ID >= 70400 // PHP 7.4 or newer
@@ -151,14 +160,21 @@ mysqlx_property_set_value(util::raw_zval * object, util::raw_zval * member, util
 }
 
 int
-mysqlx_object_has_property(util::raw_zval * object, util::raw_zval * member, int has_set_exists, void **cache_slot)
+mysqlx_object_has_property(
+#if PHP_VERSION_ID >= 80000 // PHP 8.0 or newer
+	zend_object* object, zend_string* member,
+#else
+	util::raw_zval* object, util::raw_zval* member,
+#endif
+	int has_set_exists, void** cache_slot)
 {
-	const st_mysqlx_object* mysqlx_obj = Z_MYSQLX_P(object);
+	DBG_ENTER("mysqlx_object_has_property");
+	const st_mysqlx_object* mysqlx_obj{ to_mysqlx_object(object) };
+	util::zvalue member_zval = member_to_zvalue(member);
 	const st_mysqlx_property* property{nullptr};
 	int ret{0};
-	DBG_ENTER("mysqlx_object_has_property");
 
-	if ((property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, Z_STR_P(member)))) != nullptr) {
+	if ((property = static_cast<const st_mysqlx_property*>(zend_hash_find_ptr(mysqlx_obj->properties, member_zval.z_str()))) != nullptr) {
 		switch (has_set_exists) {
 			case 0:{
 				util::raw_zval rv, *value;

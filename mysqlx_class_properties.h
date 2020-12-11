@@ -52,9 +52,15 @@ using property_set_value_return_type = void;
 
 void mysqlx_add_properties(HashTable * ht, const st_mysqlx_property_entry* entries);
 
-util::raw_zval * mysqlx_property_get_value(util::raw_zval * object, util::raw_zval * member, int type, void ** cache_slot, util::raw_zval * rv);
-property_set_value_return_type mysqlx_property_set_value(util::raw_zval * object, util::raw_zval * member, util::raw_zval * value, void ** cache_slot);
-int mysqlx_object_has_property(util::raw_zval * object, util::raw_zval *member, int has_set_exists, void ** cache_slot);
+#if PHP_VERSION_ID >= 80000 // PHP 8.0 or newer
+util::raw_zval* mysqlx_property_get_value(zend_object* object, zend_string* member, int type, void** cache_slot, util::raw_zval* rv);
+property_set_value_return_type mysqlx_property_set_value(zend_object* object, zend_string* member, util::raw_zval* value, void** cache_slot);
+int mysqlx_object_has_property(zend_object* object, zend_string* member, int has_set_exists, void** cache_slot);
+#else
+util::raw_zval* mysqlx_property_get_value(util::raw_zval* object, util::raw_zval* member, int type, void** cache_slot, util::raw_zval* rv);
+property_set_value_return_type mysqlx_property_set_value(util::raw_zval* object, util::raw_zval* member, util::raw_zval* value, void** cache_slot);
+int mysqlx_object_has_property(util::raw_zval* object, util::raw_zval* member, int has_set_exists, void** cache_slot);
+#endif
 
 void mysqlx_free_property_cb(util::raw_zval *el);
 

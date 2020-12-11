@@ -41,6 +41,22 @@
 
 namespace mysqlx::util {
 
+namespace {
+
+#if PHP_VERSION_ID >= 80000 // PHP 8.0 or newer
+zend_object* to_property_object(const zvalue* zv)
+{
+	return zv->z_obj();
+}
+#else
+util::raw_zval* to_property_object(const zvalue* zv)
+{
+	return zv->ptr();
+}
+#endif
+
+} // anonymous namespace
+
 zvalue::zvalue()
 {
 	ZVAL_UNDEF(&zv);
@@ -201,6 +217,11 @@ zvalue::zvalue(const char* value, std::size_t length)
 {
 	ZVAL_UNDEF(&zv);
 	assign(value, length);
+}
+
+zvalue::zvalue(zend_string* value)
+{
+	ZVAL_STR(&zv, value);
 }
 
 zvalue::zvalue(std::initializer_list<std::pair<string_view, zvalue>> values)
@@ -384,6 +405,13 @@ void zvalue::assign(const char* value, std::size_t length)
 	ZVAL_STRINGL(&zv, value, length);
 }
 
+zvalue& zvalue::operator=(zend_string* value)
+{
+	zval_ptr_dtor(&zv);
+	ZVAL_STR(&zv, value);
+	return *this;
+}
+
 zvalue& zvalue::operator=(std::initializer_list<std::pair<string_view, zvalue>> values)
 {
 	reset();
@@ -529,6 +557,20 @@ const char* zvalue::c_str() const
 	return Z_STRVAL(zv);
 }
 
+zend_string* zvalue::z_str() const
+{
+	assert(is_string());
+	return Z_STR(zv);
+}
+
+// ---------------------
+
+zend_object* zvalue::z_obj() const
+{
+	assert(is_object());
+	return Z_OBJ(zv);
+}
+
 // -----------------------------------------------------------------------------
 
 std::size_t zvalue::size() const
@@ -672,7 +714,7 @@ zvalue zvalue::get_property(const char* name, std::size_t name_length) const
 	assert(is_object());
 	zval rv;
 	ZVAL_UNDEF(&rv);
-	return zvalue(zend_read_property(Z_OBJCE(zv), ptr(), name, name_length, true, &rv));
+	return zvalue(zend_read_property(Z_OBJCE(zv), to_property_object(this), name, name_length, true, &rv));
 }
 
 zvalue zvalue::require_property(const char* name, std::size_t name_length) const
@@ -689,13 +731,13 @@ zvalue zvalue::require_property(const char* name, std::size_t name_length) const
 void zvalue::set_property(const char* name, std::size_t name_length, const zvalue& value)
 {
 	assert(is_object());
-	zend_update_property(Z_OBJCE(zv), ptr(), name, name_length, value.ptr());
+	zend_update_property(Z_OBJCE(zv), to_property_object(this), name, name_length, value.ptr());
 }
 
 void zvalue::unset_property(const char* name, std::size_t name_length)
 {
 	assert(is_object());
-	zend_unset_property(Z_OBJCE(zv), ptr(), name, name_length);
+	zend_unset_property(Z_OBJCE(zv), to_property_object(this), name, name_length);
 }
 
 // -----------------------------------------------------------------------------

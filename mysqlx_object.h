@@ -48,9 +48,17 @@ typedef struct
 */
 st_mysqlx_object* mysqlx_fetch_object_from_zo(zend_object *obj);
 #define Z_MYSQLX_P(zv) mysqlx::devapi::mysqlx_fetch_object_from_zo(Z_OBJ_P((zv)))
+st_mysqlx_object* to_mysqlx_object(zend_object* object);
+st_mysqlx_object* to_mysqlx_object(util::raw_zval* object);
 
 void mysqlx_object_free_storage(zend_object * object);
-HashTable * mysqlx_object_get_debug_info(util::raw_zval* object, int* is_temp);
+HashTable * mysqlx_object_get_debug_info(
+#if PHP_VERSION_ID >= 80000 // PHP 8.0 or newer
+	zend_object* object,
+#else
+	util::raw_zval* object,
+#endif
+	int* is_temp);
 
 } // namespace devapi
 
