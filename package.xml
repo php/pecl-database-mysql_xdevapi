@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2020-08-20</date>
+	<date>2020-12-15</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.22</release>
+		<release>8.0.23</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,12 +61,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#14012: XProtocol -- support for configurable compression algorithms
-		orabug #31364076: mysqlndx switch from C++14 to C++17, and all related
-		orabug #31414039: mysqlndx apply std::string_view, remove MYSQLND_CSTRING
-		orabug #30084547: improve zval wrapper
-		orabug #31678047: prepared statements tests fail with the newest server
-		orabug #31958145: some secure connection / TLS tests fail on el8-x86-64bit
+		WL#14014: XProtocol: Support connection close notification
+		WL#14228: Replace language in APIs and source code/docs
+		orabug #30134451: mysqlndx replace raw zval with improved zvalue where possible
+		orabug #31589457: change default engine from MyISAM to InnoDB
 	</notes>
  <contents>
   <dir name="/">
@@ -485,9 +483,14 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
    <dir name="util">
     <file name="allocator.cc" role="src" />
     <file name="allocator.h" role="src" />
+    <file name="arguments.cc" role="src" />
+    <file name="arguments.h" role="src" />
+    <file name="arguments.inl" role="src" />
     <file name="compiler_utils.h" role="src" />
     <file name="exceptions.cc" role="src" />
     <file name="exceptions.h" role="src" />
+    <file name="functions.cc" role="src" />
+    <file name="functions.h" role="src" />
     <file name="json_utils.cc" role="src" />
     <file name="json_utils.h" role="src" />
     <file name="object.cc" role="src" />
@@ -766,6 +769,27 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2020-08-20</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.22</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			WL#14012: XProtocol -- support for configurable compression algorithms
+			orabug #31364076: mysqlndx switch from C++14 to C++17, and all related
+			orabug #31414039: mysqlndx apply std::string_view, remove MYSQLND_CSTRING
+			orabug #30084547: improve zval wrapper
+			orabug #31678047: prepared statements tests fail with the newest server
+			orabug #31958145: some secure connection / TLS tests fail on el8-x86-64bit
+		</notes>
+	</release>
 	<release>
 		<date>2020-06-26</date>
 		<time>20:00:00</time>
