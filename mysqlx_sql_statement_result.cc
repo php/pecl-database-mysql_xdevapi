@@ -48,6 +48,9 @@ using namespace drv;
 
 static zend_class_entry *mysqlx_sql_statement_result_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement_result__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_sql_statement_result__has_data, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -488,7 +491,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_sql_statement_result, nextResult)
 }
 
 static const zend_function_entry mysqlx_sql_statement_result_methods[] = {
-	PHP_ME(mysqlx_sql_statement_result, __construct,			nullptr,																ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_sql_statement_result, __construct, arginfo_mysqlx_sql_statement_result__construct, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_sql_statement_result, hasData,				arginfo_mysqlx_sql_statement_result__has_data,					ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_sql_statement_result, fetchOne,				arginfo_mysqlx_sql_statement_result__fetch_one,				ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_sql_statement_result, fetchAll,				arginfo_mysqlx_sql_statement_result__fetch_all,				ZEND_ACC_PUBLIC)

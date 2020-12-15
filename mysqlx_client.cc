@@ -560,6 +560,9 @@ Connection_pool& fetch_connection_pool(util::raw_zval* from)
 
 zend_class_entry* client_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_client__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_client__get_session, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -608,7 +611,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_client, close)
 }
 
 const zend_function_entry client_methods[] = {
-	PHP_ME(mysqlx_client, __construct, nullptr, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_client, __construct, arginfo_client__construct, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_client, getSession, arginfo_client__get_session, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_client, close, arginfo_client__close, ZEND_ACC_PUBLIC)
 	{nullptr, nullptr, nullptr}

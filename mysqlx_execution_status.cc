@@ -46,6 +46,8 @@ struct st_mysqlx_execution_status : public util::custom_allocable
 
 #define TYPE_NAME_ENABLED 1
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_execution_status__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
 
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_execution_status, __construct)
 {
@@ -53,7 +55,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_execution_status, __construct)
 }
 
 static const zend_function_entry mysqlx_execution_status_methods[] = {
-	PHP_ME(mysqlx_execution_status, __construct,				nullptr,			ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_execution_status, __construct, arginfo_mysqlx_execution_status__construct, ZEND_ACC_PRIVATE)
 	{nullptr, nullptr, nullptr}
 };
 

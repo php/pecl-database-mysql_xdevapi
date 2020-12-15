@@ -45,6 +45,9 @@ using namespace drv;
 
 zend_class_entry *mysqlx_session_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_session__create_schema, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, schema_name, IS_STRING, dont_allow_null)
 ZEND_END_ARG_INFO()
@@ -679,7 +682,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_session, __construct)
 }
 
 static const zend_function_entry mysqlx_session_methods[] = {
-	PHP_ME(mysqlx_session, __construct, 	nullptr, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_session, __construct, 	arginfo_mysqlx_session__construct, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_session, sql,			arginfo_mysqlx_session__sql, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, quoteName,		arginfo_mysqlx_session__quote_name, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_session, getServerVersion, arginfo_mysqlx_session__get_server_version, ZEND_ACC_PUBLIC)

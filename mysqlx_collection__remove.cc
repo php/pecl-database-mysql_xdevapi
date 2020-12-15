@@ -48,6 +48,9 @@ using namespace drv;
 
 static zend_class_entry* collection_remove_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__remove__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__remove__sort, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, sort_expressions)
 ZEND_END_ARG_INFO()
@@ -291,7 +294,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__remove, execute)
 }
 
 static const zend_function_entry mysqlx_collection__remove_methods[] = {
-	PHP_ME(mysqlx_collection__remove, __construct,	nullptr,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_collection__remove, __construct, arginfo_mysqlx_collection__remove__construct, ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_collection__remove, bind,	arginfo_mysqlx_collection__remove__bind,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__remove, sort,	arginfo_mysqlx_collection__remove__sort,		ZEND_ACC_PUBLIC)

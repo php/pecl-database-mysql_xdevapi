@@ -44,6 +44,9 @@ using namespace drv;
 
 static zend_class_entry *mysqlx_table__delete_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__delete__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__delete__where, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, where_expr)
 ZEND_END_ARG_INFO()
@@ -268,7 +271,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__delete, execute)
 }
 
 static const zend_function_entry mysqlx_table__delete_methods[] = {
-	PHP_ME(mysqlx_table__delete, __construct,	nullptr,									ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_table__delete, __construct, arginfo_mysqlx_table__delete__construct, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_table__delete, where,	arginfo_mysqlx_table__delete__where,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table__delete, orderby,	arginfo_mysqlx_table__delete__orderby,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table__delete, limit,	arginfo_mysqlx_table__delete__limit,	ZEND_ACC_PUBLIC)

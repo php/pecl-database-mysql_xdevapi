@@ -45,6 +45,10 @@ using namespace drv;
 static zend_class_entry *mysqlx_table_class_entry;
 
 /************************************** INHERITED START ****************************************/
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__get_session, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -407,7 +411,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table, delete)
 }
 
 static const zend_function_entry mysqlx_table_methods[] = {
-	PHP_ME(mysqlx_table, __construct,		nullptr,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_table, __construct, arginfo_mysqlx_table__construct, ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/
 	PHP_ME(mysqlx_table, getSession,		arginfo_mysqlx_table__get_session,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table, getName,			arginfo_mysqlx_table__get_name,			ZEND_ACC_PUBLIC)

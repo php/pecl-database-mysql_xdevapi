@@ -54,6 +54,9 @@ using namespace drv;
 
 zend_class_entry* collection_find_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__fields, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, projection)
 ZEND_END_ARG_INFO()
@@ -588,13 +591,13 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__find, execute)
 	}
 
 	Collection_find& coll_find = util::fetch_data_object<Collection_find>(object_zv);
-	coll_find.execute(flags).move_to(return_value);;
+	coll_find.execute(flags).move_to(return_value);
 
 	DBG_VOID_RETURN;
 }
 
 static const zend_function_entry mysqlx_collection__find_methods[] = {
-	PHP_ME(mysqlx_collection__find, __construct, nullptr, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_collection__find, __construct, arginfo_mysqlx_collection__find__construct, ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_collection__find, fields, arginfo_mysqlx_collection__find__fields, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__find, groupBy, arginfo_mysqlx_collection__find__group_by, ZEND_ACC_PUBLIC)

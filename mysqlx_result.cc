@@ -44,6 +44,9 @@ using namespace drv;
 
 static zend_class_entry *mysqlx_result_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_result__get_affected_items_count, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -214,7 +217,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_result, getWarnings)
 }
 
 static const zend_function_entry mysqlx_result_methods[] = {
-	PHP_ME(mysqlx_result, __construct,			nullptr,														ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_result, __construct, arginfo_mysqlx_result__construct, ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_result, getAffectedItemsCount,	arginfo_mysqlx_result__get_affected_items_count,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_result, getAutoIncrementValue, 	arginfo_mysqlx_result__get_auto_increment_value,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_result, getGeneratedIds,			arginfo_mysqlx_result__get_generated_ids,			ZEND_ACC_PUBLIC)

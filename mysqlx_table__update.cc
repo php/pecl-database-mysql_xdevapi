@@ -45,6 +45,9 @@ using namespace drv;
 
 static zend_class_entry *mysqlx_table__update_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__update__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__update__set, 0, ZEND_RETURN_VALUE, 2)
 	ZEND_ARG_TYPE_INFO(no_pass_by_ref, table_field, IS_STRING, dont_allow_null)
 	ZEND_ARG_INFO(no_pass_by_ref, expression_or_literal)
@@ -348,7 +351,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__update, execute)
 }
 
 static const zend_function_entry mysqlx_table__update_methods[] = {
-	PHP_ME(mysqlx_table__update, __construct,	nullptr,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_table__update, __construct, arginfo_mysqlx_table__update__construct, ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_table__update, set,		arginfo_mysqlx_table__update__set,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table__update, where,	arginfo_mysqlx_table__update__where,	ZEND_ACC_PUBLIC)
