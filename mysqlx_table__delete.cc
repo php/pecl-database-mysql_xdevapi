@@ -52,7 +52,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__delete__where, 0, ZEND_RETURN_VALUE
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__delete__orderby, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, orderby_expr)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, orderby_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__delete__limit, 0, ZEND_RETURN_VALUE, 1)

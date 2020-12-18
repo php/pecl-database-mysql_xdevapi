@@ -58,7 +58,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add__execute, 0, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add__add, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, json)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, json)
 ZEND_END_ARG_INFO()
 
 

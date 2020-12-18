@@ -62,7 +62,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__fields, 0, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__group_by, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expressions)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, sort_expressions)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__having, 0, ZEND_RETURN_VALUE, 1)
@@ -70,7 +70,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__having, 0, ZEND_RETURN_V
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__sort, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expressions)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, sort_expressions)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__find__limit, 0, ZEND_RETURN_VALUE, 1)

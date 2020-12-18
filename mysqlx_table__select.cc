@@ -56,7 +56,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__where, 0, ZEND_RETURN_VALUE
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__group_by, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__having, 0, ZEND_RETURN_VALUE, 1)
@@ -64,7 +64,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__having, 0, ZEND_RETURN_VALU
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__orderby, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__limit, 0, ZEND_RETURN_VALUE, 1)
