@@ -41,8 +41,12 @@ using namespace drv;
 
 static zend_class_entry *mysqlx_table__insert_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__insert__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__insert__values, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_TYPE_INFO(no_pass_by_ref, row_values, IS_ARRAY, dont_allow_null)
+	ZEND_ARG_VARIADIC_TYPE_INFO(no_pass_by_ref, row_values, IS_ARRAY, dont_allow_null)
 ZEND_END_ARG_INFO()
 
 
@@ -142,7 +146,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__insert, execute)
 }
 
 static const zend_function_entry mysqlx_table__insert_methods[] = {
-	PHP_ME(mysqlx_table__insert, __construct,	nullptr,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_table__insert, __construct, arginfo_mysqlx_table__insert__construct, ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_table__insert, values,		arginfo_mysqlx_table__insert__values,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table__insert, execute,		arginfo_mysqlx_table__insert__execute,		ZEND_ACC_PUBLIC)

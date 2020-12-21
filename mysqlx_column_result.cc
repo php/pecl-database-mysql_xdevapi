@@ -73,6 +73,9 @@ enum column_metadata_flags {
 
 static zend_class_entry *mysqlx_column_result_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_column_result_get_schema_name,
 					   0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -431,7 +434,8 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_column_result, isPadded)
 static const zend_function_entry mysqlx_column_result_methods[] = {
 	PHP_ME(mysqlx_column_result,
 		__construct,
-		nullptr,	ZEND_ACC_PRIVATE)
+		arginfo_mysqlx_column_result__construct,
+		ZEND_ACC_PRIVATE)
 	PHP_ME(mysqlx_column_result,
 		getSchemaName,
 		arginfo_mysqlx_column_result_get_schema_name,

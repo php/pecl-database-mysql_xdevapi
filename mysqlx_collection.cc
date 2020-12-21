@@ -54,6 +54,10 @@ zend_class_entry* mysqlx_collection_class_entry;
 } // anonymous namespace
 
 /************************************** INHERITED START ****************************************/
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__get_session, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -75,7 +79,7 @@ ZEND_END_ARG_INFO()
 /************************************** INHERITED END   ****************************************/
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, json)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, json)
 ZEND_END_ARG_INFO()
 
 
@@ -540,7 +544,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection, dropIndex)
 }
 
 static const zend_function_entry mysqlx_collection_methods[] = {
-	PHP_ME(mysqlx_collection, __construct,		nullptr,												ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_collection, __construct,		arginfo_mysqlx_collection__construct,			ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/
 	PHP_ME(mysqlx_collection, getSession,		arginfo_mysqlx_collection__get_session,		ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection, getName,			arginfo_mysqlx_collection__get_name,			ZEND_ACC_PUBLIC)

@@ -47,6 +47,10 @@ using namespace drv;
 static zend_class_entry *mysqlx_schema_class_entry;
 
 /************************************** INHERITED START ****************************************/
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_schema__get_session, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -461,7 +465,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_schema, getCollections)
 }
 
 static const zend_function_entry mysqlx_schema_methods[] = {
-	PHP_ME(mysqlx_schema, __construct, nullptr, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_schema, __construct, arginfo_mysqlx_schema__construct, ZEND_ACC_PRIVATE)
 	/************************************** INHERITED START ****************************************/
 	PHP_ME(mysqlx_schema, getSession, arginfo_mysqlx_schema__get_session, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_schema, getName, arginfo_mysqlx_schema__get_name, ZEND_ACC_PUBLIC)

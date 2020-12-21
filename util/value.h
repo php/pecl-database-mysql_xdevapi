@@ -73,6 +73,7 @@ class zvalue
 		zvalue(const char* value);
 		zvalue(const arg_string& value);
 		zvalue(const char* value, std::size_t length);
+		zvalue(zend_string* value);
 
 		zvalue(std::initializer_list<std::pair<string_view, zvalue>> values);
 
@@ -120,6 +121,7 @@ class zvalue
 		zvalue& operator=(const std::string& value);
 		zvalue& operator=(const char* value);
 		zvalue& operator=(const arg_string& value);
+		zvalue& operator=(zend_string* value);
 
 		void assign(const char* value, std::size_t length);
 
@@ -184,6 +186,9 @@ class zvalue
 		string_view to_string_view() const;
 		std::string to_std_string() const;
 		const char* c_str() const;
+		zend_string* z_str() const;
+
+		zend_object* z_obj() const;
 
 		template<typename T>
 		T to_value() const;

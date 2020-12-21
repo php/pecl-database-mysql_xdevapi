@@ -51,11 +51,14 @@ namespace {
 
 zend_class_entry* collection_add_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add__execute, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__add__add, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, json)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, json)
 ZEND_END_ARG_INFO()
 
 
@@ -281,7 +284,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__add, add)
 }
 
 static const zend_function_entry mysqlx_collection__add_methods[] = {
-	PHP_ME(mysqlx_collection__add, __construct,	nullptr,											ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_collection__add, __construct,	arginfo_mysqlx_collection__add__construct,		ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_collection__add,	execute,		arginfo_mysqlx_collection__add__execute,	ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__add,	add,			arginfo_mysqlx_collection__add__add,		ZEND_ACC_PUBLIC)

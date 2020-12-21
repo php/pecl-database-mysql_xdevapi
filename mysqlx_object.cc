@@ -31,6 +31,16 @@ st_mysqlx_object* mysqlx_fetch_object_from_zo(zend_object * obj)
 	return (st_mysqlx_object*)((char*)(obj) - XtOffsetOf(struct st_mysqlx_object, zo));
 }
 
+st_mysqlx_object* to_mysqlx_object(zend_object* object)
+{
+	return mysqlx_fetch_object_from_zo(object);
+}
+
+st_mysqlx_object* to_mysqlx_object(util::raw_zval* object)
+{
+	return Z_MYSQLX_P(object);
+}
+
 void
 mysqlx_object_free_storage(zend_object* object)
 {
@@ -39,9 +49,15 @@ mysqlx_object_free_storage(zend_object* object)
 }
 
 HashTable *
-mysqlx_object_get_debug_info(util::raw_zval* object, int* is_temp)
+mysqlx_object_get_debug_info(
+#if PHP_VERSION_ID >= 80000 // PHP 8.0 or newer
+	zend_object* object,
+#else
+	util::raw_zval* object,
+#endif
+	int* is_temp)
 {
-	st_mysqlx_object* mysqlx_obj = Z_MYSQLX_P(object);
+	st_mysqlx_object* mysqlx_obj = to_mysqlx_object(object);
 	HashTable *retval;
 
 	ALLOC_HASHTABLE(retval);
@@ -50,15 +66,19 @@ mysqlx_object_get_debug_info(util::raw_zval* object, int* is_temp)
 	void* raw_property{nullptr};
 	MYSQLX_HASH_FOREACH_PTR(mysqlx_obj->properties, raw_property) {
 		st_mysqlx_property* property = static_cast<st_mysqlx_property*>(raw_property);
-		util::raw_zval rv, member;
+		util::raw_zval rv;
 		util::raw_zval* value{nullptr};
 
-		ZVAL_STR(&member, property->name);
-
-		value = mysqlx_property_get_value(object, &member, BP_VAR_IS, 0, &rv);
+		util::zvalue prop_name(property->name);
+#if PHP_VERSION_ID >= 80000 // PHP 8.0 or newer
+		auto member = prop_name.z_str();
+#else
+		auto member = prop_name.ptr();
+#endif
+		value = mysqlx_property_get_value(object, member, BP_VAR_IS, 0, &rv);
 
 		if (value != &EG(uninitialized_zval)) {
-			zend_hash_add(retval, Z_STR(member), value);
+			zend_hash_add(retval, prop_name.z_str(), value);
 		}
 	} ZEND_HASH_FOREACH_END();
 

@@ -48,12 +48,15 @@ using namespace drv;
 
 zend_class_entry* mysqlx_table__select_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__where, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(no_pass_by_ref, where_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__group_by, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__having, 0, ZEND_RETURN_VALUE, 1)
@@ -61,7 +64,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__having, 0, ZEND_RETURN_VALU
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__orderby, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expr)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, sort_expr)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_table__select__limit, 0, ZEND_RETURN_VALUE, 1)
@@ -440,7 +443,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_table__select, execute)
 }
 
 static const zend_function_entry mysqlx_table__select_methods[] = {
-	PHP_ME(mysqlx_table__select, __construct, nullptr, ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_table__select, __construct, arginfo_mysqlx_table__select__construct, ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_table__select, where, arginfo_mysqlx_table__select__where, ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_table__select, groupBy, arginfo_mysqlx_table__select__group_by, ZEND_ACC_PUBLIC)

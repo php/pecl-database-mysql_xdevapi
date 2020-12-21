@@ -52,8 +52,11 @@ using namespace drv;
 
 static zend_class_entry* collection_modify_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__sort, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expressions)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, sort_expressions)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__limit, 0, ZEND_RETURN_VALUE, 1)
@@ -74,7 +77,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__set, 0, ZEND_RETURN_VA
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__unset, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, fields)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, fields)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_collection__modify__replace, 0, ZEND_RETURN_VALUE, 2)
@@ -653,7 +656,7 @@ MYSQL_XDEVAPI_PHP_METHOD(mysqlx_collection__modify, execute)
 }
 
 static const zend_function_entry mysqlx_collection__modify_methods[] = {
-	PHP_ME(mysqlx_collection__modify, 	__construct,	nullptr,												ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_collection__modify, __construct, arginfo_mysqlx_collection__modify__construct, ZEND_ACC_PRIVATE)
 
 	PHP_ME(mysqlx_collection__modify,	bind,		arginfo_mysqlx_collection__modify__bind,			ZEND_ACC_PUBLIC)
 	PHP_ME(mysqlx_collection__modify,	sort,		arginfo_mysqlx_collection__modify__sort,			ZEND_ACC_PUBLIC)

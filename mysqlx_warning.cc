@@ -39,13 +39,16 @@ struct st_mysqlx_warning : public util::custom_allocable
 	unsigned int code;
 };
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_mysqlx_warning__construct, 0, ZEND_RETURN_VALUE, 0)
+ZEND_END_ARG_INFO()
+
 MYSQL_XDEVAPI_PHP_METHOD(mysqlx_warning, __construct)
 {
 	UNUSED_INTERNAL_FUNCTION_PARAMETERS();
 }
 
 static const zend_function_entry mysqlx_warning_methods[] = {
-	PHP_ME(mysqlx_warning, __construct,	nullptr,	ZEND_ACC_PRIVATE)
+	PHP_ME(mysqlx_warning, __construct, arginfo_mysqlx_warning__construct, ZEND_ACC_PRIVATE)
 	{nullptr, nullptr, nullptr}
 };
 
