@@ -110,4 +110,12 @@ struct arg_zvals
 
 #include "arguments.inl"
 
+#if PHP_VERSION_ID >= 70200 // PHP 7.2 or newer
+#define	MYSQL_XDEVAPI_ARG_VARIADIC_TYPE_INFO(pass_by_ref, name, type_hint, allow_null) \
+	ZEND_ARG_VARIADIC_TYPE_INFO(pass_by_ref, name, type_hint, allow_null)
+#else
+#define	MYSQL_XDEVAPI_ARG_VARIADIC_TYPE_INFO(pass_by_ref, name, type_hint, allow_null) \
+	ZEND_ARG_VARIADIC_INFO(pass_by_ref, name)
+#endif
+
 #endif // MYSQL_XDEVAPI_UTIL_ARGUMENTS_H
