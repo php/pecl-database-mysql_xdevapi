@@ -28,7 +28,7 @@ namespace devapi {
 zend_class_entry * mysqlx_crud_operation_sortable_interface_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(mysqlx_crud_operation_sortable__sort, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(no_pass_by_ref, sort_expressions)
+	ZEND_ARG_VARIADIC_INFO(no_pass_by_ref, sort_expressions)
 ZEND_END_ARG_INFO()
 
 
