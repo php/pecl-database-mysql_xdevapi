@@ -168,7 +168,9 @@ mysqlx_register_result_iterator(zend_class_entry * ce)
 	ce->iterator_funcs.funcs = &mysqlx__result_iterator_funcs;
 #endif
 
+#if PHP_VERSION_ID < 80000
 	zend_class_implements(ce, 1, zend_ce_traversable);
+#endif
 }
 
 } // namespace devapi
