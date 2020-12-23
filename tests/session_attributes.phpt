@@ -19,11 +19,10 @@ function find_in_attr_arr( $attr, $key ) {
 function verify_connection_attrib( $session, $expected ) {
 		$res = $session->sql('select * from performance_schema.session_account_connect_attrs')->execute();
 		$data = $res->fetchAll();
-		expect_eq(count($expected), count($data));
 		if( $expected == null ) {
-		    expect_eq(count($data),0);
-		}
-		else{
+			expect_eq(count($data),0);
+		} else {
+			expect_eq(count($expected), count($data));
 		    foreach ($expected as $key => $value) {
 			   if( $value != "?" ) {
 			        $ret_val = find_in_attr_arr($data,$key);

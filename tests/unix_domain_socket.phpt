@@ -1,6 +1,6 @@
 --TEST--
 mysqlx Unix domain socket
---SKIPIF--
+--INI--
 default_socket_timeout=1
 --FILE--
 <?php

@@ -189,7 +189,7 @@
 
 		$res = exec_lock_cmd($cmd, $lock);
 		$vals = $res->fetchAll();
-		expect_eq(count($vals), count($expected_vals), "count($vals)");
+		expect_eq(count($vals), count($expected_vals), 'count($vals)');
 
 		for ($i = 0; $i < count($ids); $i++) {
 			check_value($vals[$i], $ids[$i], $expected_vals[$i]);

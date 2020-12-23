@@ -102,7 +102,7 @@ function drop_index($exists) {
 	global $Default_index_name;
 	global $coll;
 	expect_index($Default_index_name, $exists);
-	expect_eq($coll->dropIndex($Default_index_name), $exists, 'drop_index ' + $Default_index_name);
+	expect_eq($coll->dropIndex($Default_index_name), $exists, 'drop_index ' . $Default_index_name);
 }
 
 // -------
