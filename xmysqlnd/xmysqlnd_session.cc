@@ -4984,7 +4984,7 @@ vec_of_addresses convert_srv_hostname_to_uri(
 	/*
 	 * Convert the raw URL to valid URI
 	 */
-	for( const auto elem : srv_hostnames ){
+	for( const auto& elem : srv_hostnames ){
 		util::stringstream new_uri;
 		new_uri << namespace_mysqlx << "://" <<
 				   node_url.user << ":" <<
