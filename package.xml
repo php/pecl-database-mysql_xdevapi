@@ -61,6 +61,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
+        Release
     </notes>
  <contents>
   <dir name="/">
@@ -778,7 +779,7 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 		</stability>
 		<license uri="http://www.php.net/license">PHP</license>
 		<notes>
-            No changes in this release, only build number
+			No changes in this release, only build number
 		</notes>
 	</release>
 	<release>
