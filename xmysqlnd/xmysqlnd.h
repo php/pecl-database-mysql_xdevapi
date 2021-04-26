@@ -18,8 +18,8 @@
 #ifndef XMYSQLND_H
 #define XMYSQLND_H
 
-#define PHP_XMYSQLND_VERSION "mysql_xdevapi 8.0.24"
-#define XMYSQLND_VERSION_ID 80024
+#define PHP_XMYSQLND_VERSION "mysql_xdevapi 8.0.25"
+#define XMYSQLND_VERSION_ID 80025
 
 #if PHP_DEBUG
 #define MYSQLND_DBG_ENABLED 1
