@@ -20,16 +20,16 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 * Modern practices and syntax styles are used to get away from traditional SQL-String-Building. See Chapter 10, Building Expressions.
 </description>
  <lead>
-  <name>Dariusz Slusarczyk</name>
-  <user>marines</user>
-  <email>marines@php.net</email>
-  <active>yes</active>
- </lead>
- <lead>
   <name>Filip Janiszewski</name>
   <user>fjanisze</user>
   <email>fjanisze@php.net</email>
   <active>yes</active>
+ </lead>
+ <lead>
+  <name>Dariusz Slusarczyk</name>
+  <user>marines</user>
+  <email>marines@php.net</email>
+  <active>no</active>
  </lead>
  <lead>
   <name>Johannes Schlüter</name>
@@ -49,10 +49,10 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <email>mysqlre@php.net</email>
   <active>yes</active>
  </lead>
-	<date>2020-12-15</date>
+	<date>2020-04-15</date>
 	<time>20:00:00</time>
 	<version>
-		<release>8.0.23</release>
+		<release>8.0.24</release>
 		<api>1.0.0</api>
 	</version>
 	<stability>
@@ -61,11 +61,8 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
 	</stability>
 	<license uri="http://www.php.net/license">PHP</license>
 	<notes>
-		WL#14014: XProtocol: Support connection close notification
-		WL#14228: Replace language in APIs and source code/docs
-		orabug #30134451: mysqlndx replace raw zval with improved zvalue where possible
-		orabug #31589457: change default engine from MyISAM to InnoDB
-	</notes>
+        Release
+    </notes>
  <contents>
   <dir name="/">
    <file name="CREDITS" role="doc" />
@@ -769,6 +766,22 @@ The X DevAPI introduces a new, modern and easy-to-learn way to work with your da
   <configureoption default="autodetect" name="with-protobuf" prompt="Point out protobuf library install dir" />
  </extsrcrelease>
  <changelog>
+	<release>
+		<date>2020-04-15</date>
+		<time>20:00:00</time>
+		<version>
+			<release>8.0.24</release>
+			<api>1.0.0</api>
+		</version>
+		<stability>
+			<release>stable</release>
+			<api>stable</api>
+		</stability>
+		<license uri="http://www.php.net/license">PHP</license>
+		<notes>
+			No changes in this release, only build number
+		</notes>
+	</release>
 	<release>
 		<date>2020-08-20</date>
 		<time>20:00:00</time>
