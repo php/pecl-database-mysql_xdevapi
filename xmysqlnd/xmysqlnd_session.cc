@@ -3005,6 +3005,9 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 	}
 	for (const auto& tls_version_str : tls_versions) {
 		const Tls_version tls_version{ parse_tls_version(tls_version_str) };
+		if( tls_version == Tls_version::tls_v1_0 || tls_version == Tls_version::tls_v1_1 ) {
+            php_error_docref(nullptr, E_WARNING, "TLSv1 and TLSv1.1 are deprecated starting from MySQL 8.0.25 and should not be used.");
+        }
 		auth.tls_versions.push_back(tls_version);
 	}
 }
