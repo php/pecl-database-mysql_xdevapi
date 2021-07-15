@@ -68,6 +68,13 @@ using wformatter = basic_formatter<wchar_t>;
 using std_strings = std::vector<std::string>;
 using std_stringset = std::set<std::string>;
 
+void single_separator_split(
+        util::vector< util::string >& output,
+        const util::string& input,
+        const char separator
+);
+
+
 } // namespace util
 
 } // namespace mysqlx

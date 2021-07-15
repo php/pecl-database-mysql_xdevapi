@@ -178,17 +178,21 @@ void Verify_call_parameters::extract_type_spec_fragments(
 	util::string* required_args,
 	util::string* optional_args)
 {
-	util::strings type_spec_fragments;
-	const char* Optional_args_separator{ "|" };
-	boost::split(type_spec_fragments, type_spec, boost::is_any_of(Optional_args_separator));
-	if (type_spec_fragments.size() < 2) {
-		type_spec_fragments.resize(2);
-	} else if (2 < type_spec_fragments.size()) {
-		throw verify_error("only one optional args block is allowed");
+	bool separator_found{ false };
+	const char Optional_args_separator{ '|' };
+	for( size_t i { 0 } ; i < type_spec.size(); ++i ) {
+	    if( type_spec[i] == Optional_args_separator ) {
+	        if( separator_found ) {
+                throw verify_error("only one optional args block is allowed");
+	        }
+            *required_args = type_spec.substr( 0, i );
+            *optional_args = type_spec.substr( i + 1, type_spec.size() - i + 1 );
+            separator_found = true;
+	    }
 	}
-
-	*required_args = type_spec_fragments.front();
-	*optional_args = type_spec_fragments.back();
+	if( !separator_found ) {
+        *required_args = type_spec;
+	}
 }
 
 Type_spec Verify_call_parameters::create_type_spec(const util::string& raw_args)

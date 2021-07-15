@@ -449,11 +449,13 @@ xmysqlnd_session_data::quote_name(const util::string_view& name)
 	util::string ret;
 	if (!name.empty()) {
 		ret = '`';
-		boost::replace_all_copy(
-			std::back_inserter(ret),
-			name,
-			"`",
-			"``");
+		for( const auto& elem : name ) {
+		    if( elem == '`' ) {
+		        ret += "``";
+            } else {
+		        ret += elem;
+            }
+		}
 		ret += '`';
 	}
 	DBG_RETURN(ret);
@@ -2374,17 +2376,17 @@ xmysqlnd_session::get_server_version()
 		return 0;
 	}
 
-	std::vector<std::string> server_version_fragments;
-	const char* Version_separator{ "." };
-	boost::split(server_version_fragments, server_version_string, boost::is_any_of(Version_separator));
+	util::vector<util::string> server_version_fragments;
+	util::string version_string{ server_version_string };
+	mysqlx::util::single_separator_split(server_version_fragments, version_string, '.');
 
 	if (server_version_fragments.size() != 3) {
 		return 0;
 	}
 
-	zend_long major{ std::stol(server_version_fragments[0])};
-	zend_long minor{ std::stol(server_version_fragments[1])};
-	zend_long patch{ std::stol(server_version_fragments[2])};
+	zend_long major{ std::stol(server_version_fragments[0].c_str())};
+	zend_long minor{ std::stol(server_version_fragments[1].c_str())};
+	zend_long patch{ std::stol(server_version_fragments[2].c_str())};
 
 	DBG_RETURN( (zend_ulong)(major * Z_L(10000) + (zend_ulong)(minor * Z_L(100) + patch)) );
 }
@@ -3095,22 +3097,26 @@ util::std_strings Extract_client_option::parse_single_or_array(const std::string
 			]&...
 	*/
 	assert(!value.empty());
-	util::std_strings items;
-	if ((value.front() == '[') && (value.back() == ']')) {
-		const std::string contents(value.begin() + 1, value.end() - 1);
+	util::string val{ value.c_str() };
+	util::strings items;
+	if ((val.front() == '[') && (val.back() == ']')) {
+		const util::string contents(val.begin() + 1, val.end() - 1);
 		if (!contents.empty()) {
-			const char* Items_separator{ "," };
-			boost::split(items, contents, boost::is_any_of(Items_separator));
+            mysqlx::util::single_separator_split(items, contents, ',');
 		}
 	} else {
-		items.push_back(value);
+		items.push_back(val);
 	}
+	util::std_strings result;
 	std::for_each(
 		items.begin(),
 		items.end(),
-		[](std::string& str){ boost::trim<std::string>(str); }
+		[&result](util::string& str){
+		    boost::trim<util::string>(str);
+            result.push_back( str.c_str() );
+		}
 	);
-	return items;
+	return result;
 }
 
 bool Extract_client_option::parse_boolean(const std::string& value_str) const
@@ -4170,7 +4176,8 @@ Session_auth_data* extract_auth_information(const util::Url& node_url)
 		 */
 		const util::string& query{ node_url.query };
 		util::vector<util::string> auth_data;
-		boost::split(auth_data, query, boost::is_any_of("&"));
+
+        mysqlx::util::single_separator_split(auth_data, query, '&');
 
 		for (const auto& auth_option : auth_data) {
 			if (auth_option.empty()) {
@@ -4606,9 +4613,9 @@ parse_attribute( const util::string& attribute )
 	static const size_t max_attrib_key_size{ 32 };
 	static const size_t max_attrib_val_size{ 1024 };
 	util::vector<util::string> key_value;
-	boost::split( key_value,
+    mysqlx::util::single_separator_split( key_value,
 				  attribute,
-				  boost::is_any_of("="));
+				  '=');
 	if( key_value.empty() ) {
 		return { "", "" };
 	}
@@ -4648,9 +4655,9 @@ enum_func_status parse_conn_attrib(
 		if( is_a_list ) {
 			if( user_attribs.size() ) {
 				util::vector<util::string> attributes;
-				boost::split( attributes,
+                mysqlx::util::single_separator_split( attributes,
 							  user_attribs,
-							  boost::is_any_of(","));
+							  ',');
 				for( const auto& cur_attrib : attributes ) {
 					if( !cur_attrib.empty() ) {
 						auto result = parse_attribute( cur_attrib );

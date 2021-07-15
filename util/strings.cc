@@ -28,6 +28,30 @@ std::ostream& operator<<(std::ostream& os, const string& str)
 	return os << str.c_str();
 }
 
+
+void single_separator_split(
+        util::vector< util::string >& output,
+        const util::string& input,
+        const char separator
+)
+{
+    if( input.empty() ) {
+        return;
+    }
+    size_t idx{ 0 }, last{ 0 };
+    for( ; idx < input.size() ; ++idx ){
+        if( input[ idx ] == separator ) {
+            util::string token = input.substr( last, idx - last );
+            output.push_back( token );
+            last = idx + 1;
+        }
+    }
+    if( idx >= last ) {
+        util::string token = input.substr( last );
+        output.push_back( token );
+    }
+}
+
 } // namespace util
 
 } // namespace mysqlx
