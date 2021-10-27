@@ -177,8 +177,6 @@ enum class Auth_mechanism
 enum class Tls_version
 {
 	unspecified,
-	tls_v1_0,
-	tls_v1_1,
 	tls_v1_2,
 	tls_v1_3
 };

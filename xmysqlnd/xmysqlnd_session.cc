@@ -972,9 +972,11 @@ php_stream_xport_crypt_method_t to_stream_crypt_method(Tls_version tls_version)
 {
 	using Tls_version_to_crypt_method = std::map<Tls_version, php_stream_xport_crypt_method_t>;
 	static const Tls_version_to_crypt_method tls_version_to_crypt_method{
-		{ Tls_version::unspecified, STREAM_CRYPTO_METHOD_TLS_ANY_CLIENT },
-		{ Tls_version::tls_v1_0, STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT },
-		{ Tls_version::tls_v1_1, STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT },
+		#ifdef TLSv13_IS_SUPPORTED
+		{ Tls_version::unspecified, static_cast<php_stream_xport_crypt_method_t>(STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT) },
+		#else
+		{ Tls_version::unspecified, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
+		#endif
 		{ Tls_version::tls_v1_2, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
 		#ifdef TLSv13_IS_SUPPORTED
 		{ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT },
@@ -990,10 +992,6 @@ Crypt_methods prepare_crypt_methods(const Tls_versions& tls_versions)
 {
 	int tls_crypt_methods{ 0 };
 	for (Tls_version tls_version : tls_versions) {
-	    if( tls_version == Tls_version::tls_v1_0 || tls_version == Tls_version::tls_v1_1 ) {
-	        // Those crypto methods should not be used.
-            php_error_docref(nullptr, E_WARNING, "TLSv1 and TLSv1.1 are deprecated starting from MySQL 8.0.25 and should not be used.");
-        }
 		php_stream_xport_crypt_method_t tls_crypt_method{ to_stream_crypt_method(tls_version) };
 		tls_crypt_methods |= tls_crypt_method;
 	}
@@ -2764,7 +2762,6 @@ private:
 	void set_ssl_cafile(const std::string& ssl_cafile);
 	void set_ssl_capath(const std::string& ssl_capath);
 	void set_tls_versions(const std::string& raw_tls_versions);
-	Tls_version parse_tls_version(const std::string& tls_version_str) const;
 	void set_tls_ciphersuites(const std::string& raw_tls_ciphersuites);
 	void set_ssl_ciphers(const std::string& ssl_ciphers);
 	void set_connect_timeout(const std::string& timeout_str);
@@ -3009,43 +3006,47 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 	if (tls_versions.empty()) {
 		throw util::xdevapi_exception(util::xdevapi_exception::Code::empty_tls_versions);
 	}
-	for (const auto& tls_version_str : tls_versions) {
-		const Tls_version tls_version{ parse_tls_version(tls_version_str) };
-		auth.tls_versions.push_back(tls_version);
-	}
-}
 
-Tls_version Extract_client_option::parse_tls_version(const std::string& tls_version_str) const
-{
 	using name_to_protocol = std::map<std::string, Tls_version, util::iless>;
 	static const name_to_protocol name_to_protocols{
-		{ Tls_version_v1, Tls_version::tls_v1_0 },
-		{ Tls_version_v10, Tls_version::tls_v1_0 },
-		{ Tls_version_v11, Tls_version::tls_v1_1 },
 		{ Tls_version_v12, Tls_version::tls_v1_2 },
 		#ifdef TLSv13_IS_SUPPORTED
 		{ Tls_version_v13, Tls_version::tls_v1_3 },
 		#endif
 	};
-	auto it{ name_to_protocols.find(tls_version_str) };
-	if (it != name_to_protocols.end()) return it->second;
 
-	util::strings supported_protocols;
-	std::transform(
-		name_to_protocols.begin(),
-		name_to_protocols.end(),
-		std::back_inserter(supported_protocols),
-		[](const auto& name_protocol) { return util::to_string(name_protocol.first); }
-	);
+	bool depriated_version_used = false;
+	for (const auto& tls_version_str : tls_versions) {
+		if (tls_version_str.compare("TLSv1") == 0 || tls_version_str.compare("TLSv1.0") == 0 || tls_version_str.compare("TLSv1.1") == 0) {
+			depriated_version_used = true;
+			continue;
+		}
+		auto it{ name_to_protocols.find(tls_version_str) };
+		if (it != name_to_protocols.end()) {
+			const Tls_version tls_version{ it->second };
+			auth.tls_versions.push_back(tls_version);
+		}
+	}
 
-	util::ostringstream os;
-	os << util::quotation_if_blank(tls_version_str)
-		<< " not recognized as a valid TLS protocol version (should be one of "
-		<< boost::join(supported_protocols, ", ")
-		<< ')';
-	throw util::xdevapi_exception(
-		util::xdevapi_exception::Code::unknown_tls_version,
-		os.str());
+	if (auth.tls_versions.empty()) {
+		util::strings supported_protocols;
+		std::transform(
+			name_to_protocols.begin(),
+			name_to_protocols.end(),
+			std::back_inserter(supported_protocols),
+			[](const auto& name_protocol) { return util::to_string(name_protocol.first); }
+		);
+
+		util::ostringstream os;
+		os << "No valid TLS version specified, the only valid versions are "
+			<< boost::join(supported_protocols, ", ")
+			<< " (Note: versions TLSv1, TLSv1.0 and TLSv1.1 are no longer supported)";
+		throw util::xdevapi_exception(
+			util::xdevapi_exception::Code::unknown_tls_version,
+			os.str());
+	} else if (depriated_version_used) {
+		php_error_docref(nullptr, E_WARNING, "TLSv1, TLSv1.0 and TLSv1.1 are deprecated starting from MySQL 8.0.25 and should not be used.");
+	}
 }
 
 void Extract_client_option::set_tls_ciphersuites(const std::string& raw_tls_ciphersuites)
@@ -3461,10 +3462,7 @@ bool Map_ciphersuites_to_ciphers::need_mapping() const
 		tls_versions.begin(),
 		tls_versions.end(),
 		[](const Tls_version& tls_ver){
-			return (tls_ver == Tls_version::unspecified)
-				|| (tls_ver == Tls_version::tls_v1_0)
-				|| (tls_ver == Tls_version::tls_v1_1)
-				|| (tls_ver == Tls_version::tls_v1_2);
+			return (tls_ver == Tls_version::unspecified) || (tls_ver == Tls_version::tls_v1_2);
 		}
 	);
 }
@@ -4123,10 +4121,7 @@ bool Filter_ciphers::need_default_ciphers() const
 		tls_versions.begin(),
 		tls_versions.end(),
 		[](const Tls_version& tls_ver){
-			return (tls_ver == Tls_version::unspecified)
-				|| (tls_ver == Tls_version::tls_v1_0)
-				|| (tls_ver == Tls_version::tls_v1_1)
-				|| (tls_ver == Tls_version::tls_v1_2);
+			return (tls_ver == Tls_version::unspecified) || (tls_ver == Tls_version::tls_v1_2);
 		}
 	);
 }
