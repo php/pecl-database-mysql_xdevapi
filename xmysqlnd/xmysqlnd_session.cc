@@ -3003,39 +3003,41 @@ void Extract_client_option::set_ssl_capath(const std::string& ssl_capath)
 void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions)
 {
 	const util::std_strings& tls_versions{ parse_single_or_array(raw_tls_versions) };
-	if (tls_versions.empty()) {
-		throw util::xdevapi_exception(util::xdevapi_exception::Code::empty_tls_versions);
-	}
 
 	using name_to_protocol = std::map<std::string, Tls_version, util::iless>;
 	static const name_to_protocol name_to_protocols{
+		{ Tls_version_v1, Tls_version::unspecified },
+		{ Tls_version_v10, Tls_version::unspecified },
+		{ Tls_version_v11, Tls_version::unspecified },
 		{ Tls_version_v12, Tls_version::tls_v1_2 },
 		#ifdef TLSv13_IS_SUPPORTED
 		{ Tls_version_v13, Tls_version::tls_v1_3 },
 		#endif
 	};
 
-	bool depriated_version_used = false;
-	for (const auto& tls_version_str : tls_versions) {
-		if (tls_version_str.compare("TLSv1") == 0 || tls_version_str.compare("TLSv1.0") == 0 || tls_version_str.compare("TLSv1.1") == 0) {
-			depriated_version_used = true;
-			continue;
-		}
-		auto it{ name_to_protocols.find(tls_version_str) };
-		if (it != name_to_protocols.end()) {
-			const Tls_version tls_version{ it->second };
-			auth.tls_versions.push_back(tls_version);
+	bool unsupported_version_used = false;
+
+	if (!tls_versions.empty()) {
+		for (const auto& tls_version_str : tls_versions) {
+			auto it{ name_to_protocols.find(tls_version_str) };
+			if (it->second == Tls_version::unspecified) {
+				unsupported_version_used = true;
+				continue;
+			}
+			if (it != name_to_protocols.end()) {
+				const Tls_version tls_version{ it->second };
+				auth.tls_versions.push_back(tls_version);
+			}
 		}
 	}
 
 	if (auth.tls_versions.empty()) {
 		util::strings supported_protocols;
-		std::transform(
-			name_to_protocols.begin(),
-			name_to_protocols.end(),
-			std::back_inserter(supported_protocols),
-			[](const auto& name_protocol) { return util::to_string(name_protocol.first); }
-		);
+
+		for (auto const& name_protocol : name_to_protocols) {
+			if (name_protocol.second != Tls_version::unspecified)
+				supported_protocols.push_back(util::to_string(name_protocol.first));
+		}
 
 		util::ostringstream os;
 		os << "No valid TLS version specified, the only valid versions are "
@@ -3044,8 +3046,8 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::unknown_tls_version,
 			os.str());
-	} else if (depriated_version_used) {
-		php_error_docref(nullptr, E_WARNING, "TLSv1, TLSv1.0 and TLSv1.1 are deprecated starting from MySQL 8.0.25 and should not be used.");
+	} else if (unsupported_version_used) {
+		php_error_docref(nullptr, E_WARNING, "TLSv1 and TLSv1.1 are not supported starting from MySQL 8.0.28 and should not be used.");
 	}
 }
 

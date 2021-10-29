@@ -111,8 +111,6 @@ const std::map<xdevapi_exception::Code, const char* const> code_to_err_msg{
 	{ xdevapi_exception::Code::unknown_tls_version, "Unknown TLS version:" },
 	{ xdevapi_exception::Code::openssl_unavailable,
 		"trying to setup secure connection while OpenSSL is not available" },
-	{ xdevapi_exception::Code::empty_tls_versions,
-		"at least one TLS protocol version must be specified in tls-versions list" },
 	{ xdevapi_exception::Code::cannot_connect_by_ssl, "Cannot connect to MySQL by using SSL" },
 	{ xdevapi_exception::Code::cannot_setup_tls,
 		"Negative response from the server, not able to setup TLS." },

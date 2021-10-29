@@ -6,17 +6,17 @@ mysqlx incorrect TLS ciphersuites
 
 require_once(__DIR__."/tls_utils.inc");
 
-test_tls_connection('tls-versions=TLSv1&tls-ciphersuites=TLS_ECDH_anon_WITH_AES_256_CBC_SHA', false);
+test_tls_connection('tls-versions=TLSv1.2&tls-ciphersuites=TLS_ECDH_anon_WITH_AES_256_CBC_SHA', false);
 test_tls_connection('tls-versions=[TLSv1.2]&tls-ciphersuites=[TLS_DH_anon_WITH_AES_128_CBC_SHA]', false);
 test_tls_connection(
 	'tls-ciphersuites=[TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA,TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA]'
-	. '&tls-versions=TLSv1.1'
+	. '&tls-versions=TLSv1.2'
 	, false);
 
 test_tls_connection('tls-version=TLSv1.2&tls-ciphersuites=[TLS_ECDHE_ECDSA_WITH_RC4_128_SHA]', false);
 
 
-test_tls_connection('tls-version=TLSv1.0&tls-ciphersuites=TLS_RSA_WITH_NULL_SHA256', false);
+test_tls_connection('tls-version=TLSv1.2&tls-ciphersuites=TLS_RSA_WITH_NULL_SHA256', false);
 test_tls_connection('tls-version=TLSv1.2&tls-ciphersuites=[TLS_RSA_WITH_NULL_MD5]', false);
 test_tls_connection(
 	'tls-ciphersuites=[SSL_RSA_WITH_NULL_MD5,TLS_ECDH_ECDSA_WITH_RC4_128_SHA]'
