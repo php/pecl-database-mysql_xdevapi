@@ -973,7 +973,9 @@ php_stream_xport_crypt_method_t to_stream_crypt_method(Tls_version tls_version)
 	using Tls_version_to_crypt_method = std::map<Tls_version, php_stream_xport_crypt_method_t>;
 	static const Tls_version_to_crypt_method tls_version_to_crypt_method{
 		#ifdef TLSv13_IS_SUPPORTED
-		{ Tls_version::unspecified, static_cast<php_stream_xport_crypt_method_t>(STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT) },
+		{ Tls_version::unspecified,
+			static_cast<php_stream_xport_crypt_method_t>(STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT
+				| STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT) },
 		#else
 		{ Tls_version::unspecified, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
 		#endif
@@ -3015,7 +3017,7 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 		#endif
 	};
 
-	bool unsupported_version_used = false;
+	bool unsupported_version_used{ false };
 
 	if (!tls_versions.empty()) {
 		for (const auto& tls_version_str : tls_versions) {
