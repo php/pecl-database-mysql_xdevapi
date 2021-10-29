@@ -3008,6 +3008,7 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 
 	using name_to_protocol = std::map<std::string, Tls_version, util::iless>;
 	static const name_to_protocol name_to_protocols{
+		// Tls_version::unspecified locally used to filter the unsupported 
 		{ Tls_version_v1, Tls_version::unspecified },
 		{ Tls_version_v10, Tls_version::unspecified },
 		{ Tls_version_v11, Tls_version::unspecified },
@@ -3026,10 +3027,8 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 				unsupported_version_used = true;
 				continue;
 			}
-			if (it != name_to_protocols.end()) {
-				const Tls_version tls_version{ it->second };
-				auth.tls_versions.push_back(tls_version);
-			}
+			if (it != name_to_protocols.end())
+				auth.tls_versions.push_back(it->second);
 		}
 	}
 
