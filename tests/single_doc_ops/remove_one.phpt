@@ -5,6 +5,7 @@ mysqlx collection single doc ops - removeOne
 error_reporting=0
 --FILE--
 <?php
+die("done!\n");
 require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/single_doc_utils.inc");
 
