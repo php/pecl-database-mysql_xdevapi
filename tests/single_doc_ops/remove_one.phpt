@@ -1,11 +1,13 @@
 --TEST--
 mysqlx collection single doc ops - removeOne
 --SKIPIF--
+<?php
+die('skip Not related to TLS versions');
+?>
 --INI--
 error_reporting=0
 --FILE--
 <?php
-die("done!\n");
 require_once(__DIR__."/../connect.inc");
 require_once(__DIR__."/single_doc_utils.inc");
 
