@@ -53,9 +53,9 @@ function test_version($uri, $expect_success, $version)
 		$tls_uri = prepare_tls_uri($uri);
 		$session = mysql_xdevapi\getSession($tls_uri);
 		if (($expect_success && $session) || (!$expect_success && !$session)) {
-			$result = $session->sql("SELECT * FROM performance_schema.session_status WHERE VARIABLE_NAME IN ('Mysqlx_ssl_version')")->execute();
+			$result = $session->sql("SHOW STATUS LIKE 'mysqlx_ssl_version'")->execute();
 			$data = $result->fetchOne();
-			if( $data['VARIABLE_VALUE'] == $version ) {
+			if( $data['Value'] == $version ) {
 				test_step_ok();
 			} else {
 				test_step_failed($uri);
