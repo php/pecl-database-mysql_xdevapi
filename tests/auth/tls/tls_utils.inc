@@ -47,7 +47,7 @@ function skip_if_tls_ciphersuites_not_supported() {
 	die('skip TLS ciphersuites are not supported');
 }
 
-function test_version($uri, $expect_success, $version)
+function test_tls_version($uri, $expect_success, $version)
 {
 	try {
 		$tls_uri = prepare_tls_uri($uri);

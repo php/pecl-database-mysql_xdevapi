@@ -13,10 +13,10 @@ require(__DIR__."/tls_utils.inc");
 
 global $disable_ssl_opt;
 
-test_version('', true, 'TLSv1.2');
-test_version('tls-versions=[TLSv1.1,TLSv1.2]', true, 'TLSv1.2');
-test_version('tls-version=[foo,TLSv1.3]', false, '');
-test_version('tls-versions=[TLSv1.1,TLSv1.3]', false, '');
+test_tls_version('', true, 'TLSv1.2');
+test_tls_version('tls-versions=[TLSv1.1,TLSv1.2]', true, 'TLSv1.2');
+test_tls_version('tls-version=[foo,TLSv1.3]', false, '');
+test_tls_version('tls-versions=[TLSv1.1,TLSv1.3]', false, '');
 
 verify_expectations();
 print "done!\n";
