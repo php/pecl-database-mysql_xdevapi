@@ -24,7 +24,7 @@ function is_tls_v13_supported() {
 		if($session) {
 			$result = $session->sql("SELECT @@tls_version")->execute();
 			$data = $result->fetchOne();
-			if(str_contains($data['@@tls_version'], 'TLSv1.3')){
+			if(strstr($data['@@tls_version'], 'TLSv1.3')){
 				return true;
 			}
 		}
