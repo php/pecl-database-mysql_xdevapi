@@ -99,9 +99,9 @@ struct xdevapi_exception : public std::runtime_error
 		conn_attrib_dup_key,
 		unknown_client_conn_option,
 		unknown_ssl_mode,
-		unknown_tls_version, // not used but retained here, so the exception codes are consistent with the unit tests
+		unknown_tls_version, 
 		openssl_unavailable,
-		empty_tls_versions,
+		empty_tls_versions, // not used but retained here, so the exception codes are consistent with the unit tests
 		cannot_connect_by_ssl,
 		cannot_setup_tls,
 		no_valid_cipher_in_list,

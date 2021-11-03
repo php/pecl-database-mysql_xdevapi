@@ -3034,16 +3034,22 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 
 	if (auth.tls_versions.empty()) {
 		util::strings supported_protocols;
+		util::strings unsupported_protocols;
 
 		for (auto const& name_protocol : name_to_protocols) {
-			if (name_protocol.second != Tls_version::unspecified)
+			if (name_protocol.second == Tls_version::unspecified) {
+				unsupported_protocols.push_back(util::to_string(name_protocol.first));
+			} else {
 				supported_protocols.push_back(util::to_string(name_protocol.first));
+			}
 		}
 
 		util::ostringstream os;
 		os << "No valid TLS version specified, the only valid versions are "
 			<< boost::join(supported_protocols, ", ")
-			<< " (Note: versions TLSv1, TLSv1.0 and TLSv1.1 are no longer supported)";
+			<< " (Note: versions "
+			<< boost::join(unsupported_protocols, ", ")
+			<< " are no longer supported)";
 		throw util::xdevapi_exception(
 			util::xdevapi_exception::Code::unknown_tls_version,
 			os.str());

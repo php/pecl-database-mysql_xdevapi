@@ -19,13 +19,18 @@ function is_tls_v13_supported() {
 	if (PHP_VERSION_ID < 70400) return false;
 
 	try {
-		$tls_options = 'tls-versions=TLSv1.3';
-		$tls_uri = prepare_tls_uri($tls_options);
+		$tls_uri = prepare_tls_uri('');
 		$session = mysql_xdevapi\getSession($tls_uri);
-		return $session ? true : false;
-	} catch(Exception $e) {
-		return false;
-	}
+		if($session) {
+			$result = $session->sql("SELECT @@tls_version")->execute();
+			$data = $result->fetchOne();
+			if(str_contains($data['@@tls_version'], 'TLSv1.3')){
+				return true;
+			}
+		}
+	} catch(Exception $e) { }
+	
+	return false;
 }
 
 function are_tls_ciphersuites_supported() {
