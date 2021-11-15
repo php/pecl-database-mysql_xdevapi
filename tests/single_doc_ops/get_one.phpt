@@ -1,9 +1,6 @@
 --TEST--
 mysqlx collection single doc ops - getOne
 --SKIPIF--
-<?php
-die('skip Not related to TLS versions');
-?>
 --INI--
 error_reporting=0
 --FILE--

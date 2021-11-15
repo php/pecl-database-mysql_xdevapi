@@ -16,7 +16,7 @@ function test_tls_connection($tls_options, $expect_success, $verbose = false) {
 }
 
 function is_tls_v13_supported() {
-	if (PHP_VERSION_ID < 70400) return false;
+	if (OPENSSL_VERSION_NUMBER < 0x10101000) return false;
 
 	try {
 		$tls_uri = prepare_tls_uri('');
@@ -52,14 +52,16 @@ function test_tls_version($uri, $expect_success, $version)
 	try {
 		$tls_uri = prepare_tls_uri($uri);
 		$session = mysql_xdevapi\getSession($tls_uri);
-		if (($expect_success && $session) || (!$expect_success && !$session)) {
+		if ($expect_success && $session) {
 			$result = $session->sql("SHOW STATUS LIKE 'mysqlx_ssl_version'")->execute();
 			$data = $result->fetchOne();
 			if( $data['Value'] == $version ) {
 				test_step_ok();
 			} else {
-				test_step_failed($uri);
+				test_step_failed($uri . " expected version: (".$version.") " . "SHOW STATUS LIKE 'mysqlx_ssl_version': " . $data['Value'] );
 			}
+		} else if (!$expect_success && !$session) {
+			test_step_ok();
 		} else {
 			test_step_failed($uri);
 		}

@@ -90,14 +90,31 @@ namespace {
 #define TLSv13_IS_SUPPORTED
 #endif
 
-inline bool is_tlsv13_supported() {
-#ifdef TLSv13_IS_SUPPORTED
-	return true;
-#else
-	return false;
-#endif
-}
+bool is_tlsv13_supported()
+{
+	static bool res = false;
 
+	if (!res) {
+#ifdef TLSv13_IS_SUPPORTED
+		zval* pointer;
+
+		const char* version_number_constant = "OPENSSL_VERSION_NUMBER";
+
+		zend_string* version = zend_string_init(version_number_constant, strlen(version_number_constant), 0);
+
+		if ((pointer = zend_get_constant(version))!=0) {
+			if (Z_TYPE_P(pointer) == IS_LONG) {
+				if ((long)Z_LVAL_P(pointer) >= 0x10101000)
+					res = true;
+			}
+		}
+
+		zend_string_release(version);
+#endif
+	}
+
+	return res;
+}
 
 } // anonymous namespace
 
@@ -971,19 +988,19 @@ void setup_crypto_options(
 php_stream_xport_crypt_method_t to_stream_crypt_method(Tls_version tls_version)
 {
 	using Tls_version_to_crypt_method = std::map<Tls_version, php_stream_xport_crypt_method_t>;
-	static const Tls_version_to_crypt_method tls_version_to_crypt_method{
-		#ifdef TLSv13_IS_SUPPORTED
-		{ Tls_version::unspecified,
-			static_cast<php_stream_xport_crypt_method_t>(STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT
-				| STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT) },
-		#else
-		{ Tls_version::unspecified, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
-		#endif
+
+	Tls_version_to_crypt_method tls_version_to_crypt_method{
 		{ Tls_version::tls_v1_2, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
-		#ifdef TLSv13_IS_SUPPORTED
-		{ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT },
-		#endif
 	};
+
+	if (is_tlsv13_supported()) {
+		tls_version_to_crypt_method.insert({ Tls_version::unspecified,
+			static_cast<php_stream_xport_crypt_method_t>(STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT
+				| STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT) });
+		tls_version_to_crypt_method.insert({ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT });
+	} else {
+		tls_version_to_crypt_method.insert({ Tls_version::unspecified, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT });
+	}
 
 	return tls_version_to_crypt_method.at(tls_version);
 }
@@ -3007,16 +3024,18 @@ void Extract_client_option::set_tls_versions(const std::string& raw_tls_versions
 	const util::std_strings& tls_versions{ parse_single_or_array(raw_tls_versions) };
 
 	using name_to_protocol = std::map<std::string, Tls_version, util::iless>;
-	static const name_to_protocol name_to_protocols{
-		// Tls_version::unspecified locally used to filter the unsupported 
+
+	name_to_protocol name_to_protocols{
+		// Tls_version::unspecified locally used to filter the unsupported
 		{ Tls_version_v1, Tls_version::unspecified },
 		{ Tls_version_v10, Tls_version::unspecified },
 		{ Tls_version_v11, Tls_version::unspecified },
 		{ Tls_version_v12, Tls_version::tls_v1_2 },
-		#ifdef TLSv13_IS_SUPPORTED
-		{ Tls_version_v13, Tls_version::tls_v1_3 },
-		#endif
 	};
+
+	if (is_tlsv13_supported()) {
+		name_to_protocols.insert({ Tls_version_v13, Tls_version::tls_v1_3 });
+	}
 
 	bool unsupported_version_used{ false };
 
