@@ -16,7 +16,7 @@ function test_tls_connection($tls_options, $expect_success, $verbose = false) {
 }
 
 function is_tls_v13_supported() {
-	if (OPENSSL_VERSION_NUMBER < 0x10101000) return false;
+	if (PHP_VERSION_ID < 70400 || OPENSSL_VERSION_NUMBER < 0x10101000) return false;
 
 	try {
 		$tls_uri = prepare_tls_uri('');
