@@ -990,14 +990,14 @@ php_stream_xport_crypt_method_t to_stream_crypt_method(Tls_version tls_version)
 	using Tls_version_to_crypt_method = std::map<Tls_version, php_stream_xport_crypt_method_t>;
 
 	Tls_version_to_crypt_method tls_version_to_crypt_method{
+		{ Tls_version::unspecified, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
 		{ Tls_version::tls_v1_2, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT },
 	};
 
 #ifdef TLSv13_IS_SUPPORTED
 	if (is_tlsv13_supported()) {
-		tls_version_to_crypt_method.insert({ Tls_version::unspecified,
-			static_cast<php_stream_xport_crypt_method_t>(STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT
-				| STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT) });
+		tls_version_to_crypt_method[Tls_version::unspecified] = static_cast<php_stream_xport_crypt_method_t>(
+			STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT);
 		tls_version_to_crypt_method.insert({ Tls_version::tls_v1_3, STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT });
 	}
 #endif
