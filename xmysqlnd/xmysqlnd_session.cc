@@ -776,9 +776,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 	if (error_info) {
 		error_info = mysqlnd_error_info? mysqlnd_error_info : &error_info_impl;
 	} else {
-		if (FAIL == mysqlnd_error_info_init(&error_info_impl, persistent)) {
-			throw std::runtime_error("mysqlnd_error_info_init failed");
-		}
+		mysqlnd_error_info_init(&error_info_impl, persistent));
 		error_info = &error_info_impl;
 	}
 
