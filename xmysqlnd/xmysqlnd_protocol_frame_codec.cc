@@ -61,7 +61,7 @@ XMYSQLND_METHOD(xmysqlnd_pfc, send)(XMYSQLND_PFC * const pfc,
 	size_t to_be_sent;
 
 	DBG_ENTER("xmysqlnd_pfc::send");
-	DBG_INF_FMT("count=" MYSQLND_SZ_T_SPEC, count);
+	DBG_INF_FMT("count=%zu", count);
 	if (!vio || FALSE == vio->data->m.has_valid_stream(vio)) {
 		DBG_RETURN(FAIL);
 	}
