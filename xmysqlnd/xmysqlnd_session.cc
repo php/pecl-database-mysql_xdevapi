@@ -776,7 +776,7 @@ xmysqlnd_session_data::xmysqlnd_session_data(
 	if (error_info) {
 		error_info = mysqlnd_error_info? mysqlnd_error_info : &error_info_impl;
 	} else {
-		mysqlnd_error_info_init(&error_info_impl, persistent));
+		mysqlnd_error_info_init(&error_info_impl, persistent);
 		error_info = &error_info_impl;
 	}
 
