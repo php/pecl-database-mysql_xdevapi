@@ -13,12 +13,12 @@ test_tls_connection('tls-version=[]', false);
 test_tls_connection('tls-version=', false);
 
 global $disable_ssl_opt;
-test_tls_connection('tls-versions=[TLSv1,TLSv1.1,TLSv1.2]&'.$disable_ssl_opt, false);
-test_tls_connection($disable_ssl_opt.'&tls-versions=[TLSv1,TLSv1.2]', false);
+test_tls_connection('tls-versions=[TLSv1,TLSv1.1,TLSv1.2]&'.$disable_ssl_opt, true);
+test_tls_connection($disable_ssl_opt.'&tls-versions=[TLSv1,TLSv1.2]', true);
 
-test_tls_connection('tls-version=TLSv1.2&'.$disable_ssl_opt, false);
-test_tls_connection($disable_ssl_opt.'&tls-version=[TLSv1.2,TLSv1.1,TLSv1.0]', false);
-test_tls_connection($disable_ssl_opt.'&tls-version=[TLSv1.2,TLSv1]', false);
+test_tls_connection('tls-version=TLSv1.2&'.$disable_ssl_opt, true);
+test_tls_connection($disable_ssl_opt.'&tls-version=[TLSv1.2,TLSv1.1,TLSv1.0]', true);
+test_tls_connection($disable_ssl_opt.'&tls-version=[TLSv1.2,TLSv1]', true);
 
 verify_expectations();
 print "done!\n";
@@ -36,15 +36,11 @@ clean_test_db();
 [10052][HY000] Invalid argument. The argument to tls-version cannot be empty.
 
 Warning: mysql_xdevapi\getSession(): TLSv1 and TLSv1.1 are not supported starting from MySQL 8.0.28 and should not be used.%a
-[10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
 
 Warning: mysql_xdevapi\getSession(): TLSv1 and TLSv1.1 are not supported starting from MySQL 8.0.28 and should not be used.%a
-[10045][HY000] Inconsistent ssl options secure option 'tls-versions' can not be specified when SSL connections are disabled
-[10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
 
 Warning: mysql_xdevapi\getSession(): TLSv1 and TLSv1.1 are not supported starting from MySQL 8.0.28 and should not be used.%a
-[10045][HY000] Inconsistent ssl options secure option 'tls-version' can not be specified when SSL connections are disabled
 
 Warning: mysql_xdevapi\getSession(): TLSv1 and TLSv1.1 are not supported starting from MySQL 8.0.28 and should not be used.%a
-[10045][HY000] Inconsistent ssl options secure option 'tls-version' can not be specified when SSL connections are disabled
 done!%A
+

@@ -2882,31 +2882,15 @@ enum_func_status Extract_client_option::assign_ssl_mode(Session_auth_data& auth,
 		DBG_RETURN(PASS);
 	}
 
-	if (auth.ssl_mode == SSL_mode::not_specified) {
-		DBG_INF_FMT("Selected mode: %d", static_cast<int>(ssl_mode));
-		auth.ssl_mode = ssl_mode;
-		DBG_RETURN(PASS);
-	}
-
 	if ((auth.ssl_mode == SSL_mode::any_secure) && (ssl_mode != SSL_mode::disabled)) {
 		DBG_INF_FMT("Selected secure mode: %d", static_cast<int>(ssl_mode));
 		auth.ssl_mode = ssl_mode;
 		DBG_RETURN(PASS);
 	}
 
-	if ((auth.ssl_mode == SSL_mode::any_secure) && (ssl_mode == SSL_mode::disabled)) {
-		throw util::xdevapi_exception(
-			util::xdevapi_exception::Code::inconsistent_ssl_options,
-			"cannot disable SSL connections when secure options are used");
-		DBG_RETURN(FAIL);
-	}
-
-	const char* error_reason{ "Only one ssl mode is allowed." };
-	DBG_ERR_FMT(error_reason);
-	throw util::xdevapi_exception(
-		util::xdevapi_exception::Code::inconsistent_ssl_options,
-		error_reason);
-	DBG_RETURN(FAIL);
+	DBG_INF_FMT("Selected mode: %d", static_cast<int>(ssl_mode));
+	auth.ssl_mode = ssl_mode;
+	DBG_RETURN(PASS);
 }
 
 void Extract_client_option::ensure_ssl_mode()
@@ -2914,17 +2898,6 @@ void Extract_client_option::ensure_ssl_mode()
 	// some SSL options provided, assuming 'required' mode if not specified yet
 	if (auth.ssl_mode == SSL_mode::not_specified) {
 		assign_ssl_mode(SSL_mode::any_secure);
-	} else if (auth.ssl_mode == SSL_mode::disabled) {
-		/*
-			WL#10400 DevAPI: Ensure all Session connections are secure by default
-			- if ssl-mode=disabled is used appearance of any ssl option
-			such as ssl-ca would result in an error
-			- inconsistent options such as  ssl-mode=disabled&ssl-ca=xxxx
-			would result in an error returned to the user
-		*/
-		throw util::xdevapi_exception(
-			util::xdevapi_exception::Code::inconsistent_ssl_options,
-			"secure option '" + option_name + "' can not be specified when SSL connections are disabled");
 	}
 }
 
