@@ -19,7 +19,6 @@ test_tls_connection($disable_ssl_opt.'&tls-versions=[TLSv1,TLSv1.2]', true);
 test_tls_connection('tls-version=TLSv1.2&'.$disable_ssl_opt, true);
 test_tls_connection($disable_ssl_opt.'&tls-version=[TLSv1.2,TLSv1.1,TLSv1.0]', true);
 test_tls_connection($disable_ssl_opt.'&tls-version=[TLSv1.2,TLSv1]', true);
-
 verify_expectations();
 print "done!\n";
 ?>
