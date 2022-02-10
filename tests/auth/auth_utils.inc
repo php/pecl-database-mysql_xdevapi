@@ -119,8 +119,8 @@ function prepare_secure_uri($user) {
 }
 
 function test_secure_connection($user, $auth_method, $expect_success = true, $verbose = false) {
-	$uri = prepare_secure_uri($user);
-	test_connection($uri, $auth_method, $expect_success, $verbose);
+    $uri = prepare_secure_uri($user);
+    test_connection($uri, $auth_method, $expect_success, $verbose);
 }
 
 ?>

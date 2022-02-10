@@ -25,15 +25,15 @@ test_tls_connection('ssl-cipher=[EDH-RSA-DES-CBC-SHA]&tls-version=[TLSv1,TLSv1.2
 test_tls_connection('tls-versions=TLSv1.2&ssl-cipher=[EXP-EDH-RSA-DES-CBC-SHA]', false);
 
 global $disable_ssl_opt;
-test_tls_connection('ssl-ciphers=DHE-RSA-AES128-GCM-SHA256&'.$disable_ssl_opt, false);
-test_tls_connection('ssl-ciphers=[ECDHE-RSA-AES128-SHA256,AES128-SHA256]&'.$disable_ssl_opt, false);
-test_tls_connection($disable_ssl_opt.'&ssl-ciphers=[ECDH-RSA-AES128-SHA256]', false);
-test_tls_connection($disable_ssl_opt.'&ssl-ciphers=[ADH-AES256-SHA256,ECDHE-RSA-AES128-SHA256]', false);
+test_tls_connection('ssl-ciphers=DHE-RSA-AES128-GCM-SHA256&'.$disable_ssl_opt, true);
+test_tls_connection('ssl-ciphers=[ECDHE-RSA-AES128-SHA256,AES128-SHA256]&'.$disable_ssl_opt, true);
+test_tls_connection($disable_ssl_opt.'&ssl-ciphers=[ECDH-RSA-AES128-SHA256]', true);
+test_tls_connection($disable_ssl_opt.'&ssl-ciphers=[ADH-AES256-SHA256,ECDHE-RSA-AES128-SHA256]', true);
 
-test_tls_connection('ssl-cipher=ADH-AES128-GCM-SHA256&'.$disable_ssl_opt, false);
-test_tls_connection('ssl-cipher=[DHE-RSA-AES128-SHA256,ECDHE-ECDSA-AES128-GCM-SHA256]&'.$disable_ssl_opt, false);
-test_tls_connection($disable_ssl_opt.'&ssl-cipher=[AES128-GCM-SHA256,ECDH-RSA-AES128-SHA,DHE-RSA-SEED-SHA]', false);
-test_tls_connection($disable_ssl_opt.'&ssl-cipher=DH-DSS-AES128-SHA256', false);
+test_tls_connection('ssl-cipher=ADH-AES128-GCM-SHA256&'.$disable_ssl_opt, true);
+test_tls_connection('ssl-cipher=[DHE-RSA-AES128-SHA256,ECDHE-ECDSA-AES128-GCM-SHA256]&'.$disable_ssl_opt, true);
+test_tls_connection($disable_ssl_opt.'&ssl-cipher=[AES128-GCM-SHA256,ECDH-RSA-AES128-SHA,DHE-RSA-SEED-SHA]', true);
+test_tls_connection($disable_ssl_opt.'&ssl-cipher=DH-DSS-AES128-SHA256', true);
 
 verify_expectations();
 print "done!\n";
@@ -62,12 +62,4 @@ Warning: mysql_xdevapi\getSession(): TLSv1 and TLSv1.1 are not supported startin
 Warning: mysql_xdevapi\getSession(): TLSv1 and TLSv1.1 are not supported starting from MySQL 8.0.28 and should not be used.%a
 [10070][HY000] No valid cipher found in the ssl ciphers list.
 [10070][HY000] No valid cipher found in the ssl ciphers list.
-[10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
-[10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
-[10045][HY000] Inconsistent ssl options secure option 'ssl-ciphers' can not be specified when SSL connections are disabled
-[10045][HY000] Inconsistent ssl options secure option 'ssl-ciphers' can not be specified when SSL connections are disabled
-[10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
-[10045][HY000] Inconsistent ssl options cannot disable SSL connections when secure options are used
-[10045][HY000] Inconsistent ssl options secure option 'ssl-cipher' can not be specified when SSL connections are disabled
-[10045][HY000] Inconsistent ssl options secure option 'ssl-cipher' can not be specified when SSL connections are disabled
 done!%A

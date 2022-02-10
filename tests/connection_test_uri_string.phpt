@@ -55,14 +55,14 @@ default_socket_timeout=1
 		$session = mysql_xdevapi\getSession($wrong_ssl);
 		test_step_failed();
 	} catch(Exception $e) {
-		expect_eq( $e->getCode(), 10045, $e->getMessage() );
+		expect_eq( $e->getCode(), 10063, $e->getMessage() );
 	}
 	$wrong_ssl = $basic_uri.'/?ssl-mode=disabled&ssl-ca=/path/to/ca&ssl-default';
 	try {
 		$session = mysql_xdevapi\getSession($wrong_ssl);
 		test_step_failed();
 	} catch(Exception $e) {
-		expect_eq( $e->getCode(), 10045, $e->getMessage() );
+		expect_eq( $e->getCode(), 10063, $e->getMessage() );
 	}
 	try {
 		$session = mysql_xdevapi\getSession($basic_uri);
