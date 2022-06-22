@@ -129,7 +129,7 @@ create_exception(int code, const util::string_view& sql_state, const util::strin
 {
 	char* msg{nullptr};
 	DBG_ENTER("create_exception");
-	mnd_sprintf(&msg, 0, "[%*s] %*s", sql_state.length(), sql_state.data(), message.length(), message.data());
+	mnd_sprintf(&msg, 0, "[%*s] %*s", (int)sql_state.length(), sql_state.data(), message.length(), message.data());
 	if (msg) {
 		zend_throw_exception(mysqlx_exception_class_entry, msg, code);
 		mnd_efree(msg);

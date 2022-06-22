@@ -383,7 +383,13 @@ xmysqlnd_send_message(
 	char stack_buffer[SIZE_OF_STACK_BUFFER];
 	void* payload = stack_buffer;
 
-	const size_t payload_size = message.ByteSize();
+	const size_t payload_size =
+#if GOOGLE_PROTOBUF_VERSION < 3006001
+	message.ByteSize();
+#else
+	message.ByteSizeLong();
+#endif
+
 	if (payload_size > sizeof(stack_buffer)) {
 		payload = payload_size? mnd_emalloc(payload_size) : nullptr;
 		if (payload_size && !payload) {
