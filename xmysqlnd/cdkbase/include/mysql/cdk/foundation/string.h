@@ -375,6 +375,14 @@ size_t str_encode(
   at a time (single character can be encoded using one or more code units).
 */
 
+// FIXME: std::iterator<> is deprecated in c++17
+
+#ifndef _MSC_VER
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+
 template <class ENC>
 class char_iterator_base
   : public std::iterator<
@@ -557,6 +565,11 @@ public:
   }
 
 };  // char_iterator_base
+
+
+#ifndef _MSC_VER
+#pragma GCC diagnostic pop
+#endif
 
 
 /*
