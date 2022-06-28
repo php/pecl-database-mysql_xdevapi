@@ -3,8 +3,6 @@
 require_once(__DIR__."/../auth_utils.inc");
 
 const Default_connection_time_out = 10;
-const Timeout_test_user = "testuser";
-
 const Envar_non_routable_host = "MYSQLX_TEST_NON_ROUTABLE_HOST";
 const Envar_non_routable_host_port = "MYSQLX_TEST_NON_ROUTABLE_HOST_PORT";
 
@@ -43,7 +41,8 @@ $Non_routable_ports = [
 function prepare_uri_with_timeout($host, $port, $timeout) {
 	global $scheme;
 	global $passwd;
-	$uri = $scheme . '://' . Timeout_test_user . ':' . $passwd . '@' . $host;
+  global $user;
+	$uri = $scheme . '://' . $user . ':' . $passwd . '@' . $host;
 	if ($port !== null) $uri .=  ':' . $port;
 	if ($timeout !== null) $uri .= '/?connect-timeout=' . $timeout;
 	return $uri;
