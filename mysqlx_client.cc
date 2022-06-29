@@ -691,7 +691,7 @@ MYSQL_XDEVAPI_PHP_FUNCTION(mysql_xdevapi_getClient)
 	RETVAL_NULL();
 
 	DBG_ENTER("mysql_xdevapi_getClient");
-	if (FAILURE == util::get_function_arguments(execute_data, "s|s",
+	if (FAILURE == util::get_function_arguments(execute_data, "s|s!",
 		&connection_uri.str, &connection_uri.len,
 		&client_options_desc.str, &client_options_desc.len))
 	{
