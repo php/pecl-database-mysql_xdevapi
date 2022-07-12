@@ -1,6 +1,10 @@
 --TEST--
 mysqlx connection test / URI string
 --SKIPIF--
+<?php
+  // FIXME: on win error codes are different from expected
+  if(substr(PHP_OS,0,3) == 'WIN') echo 'skip'; 
+?>
 --INI--
 error_reporting=0
 default_socket_timeout=1

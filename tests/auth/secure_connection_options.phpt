@@ -8,6 +8,15 @@ default_socket_timeout=4
 <?php
 require_once(__DIR__."/auth_utils.inc");
 
+/*
+  FIXME: This test requires that it is possible to login to test user account 
+  without SSL. But this is not the case if the test account uses 
+  `caching_sha2_password` authentication, for example, because this 
+  authentication method requires SSL and then the test fails miserably.
+
+  Probably best to create and use dedicated account for these scenarios.
+*/
+
 function test_ssl_connection_options($user, $ssl_mode, $ssl_option = '', $expect_success = true, $only_report = false) {
 	global $connection_uri;
 	$uri = $connection_uri;
