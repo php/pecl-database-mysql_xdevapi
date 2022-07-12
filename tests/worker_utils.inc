@@ -62,10 +62,19 @@ function prepare_worker_cmdline($worker_path) {
 	}
 
 	$worker_cmd .= " -d extension_dir=".resolve_extension_dir();
-	if (!is_mysql_xdevapi_builtin()) {
+
+  /*
+    Note: Here we use the fact that PHP binary used to run the worker 
+    is the same as PHP that runs this test (and with the same 
+    configuration). Hence if one of the plugins is loaded into this 
+    PHP instance it should be also loaded in the instance running the 
+    worker.
+  */
+
+	if (!extension_loaded('mysql_xdevapi')) {
 		$worker_cmd .= " -d extension=".prepare_mysql_xdevapi_ext_filename();
 	}
-	if (!is_openssl_builtin()) {
+	if (!extension_loaded('openssl')) {
 		$worker_cmd .= " -d extension=".prepare_openssl_ext_filename();
 	}
 
