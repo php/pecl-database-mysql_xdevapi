@@ -30,30 +30,30 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-key=%s&auth=sha256_memory
+mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%S:%s/?ssl-key=%s&auth=sha256_memory
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES) in %s
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'%S' (using password: YES) in %s
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'%S' (using password: YES)
 ----------------------
-mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-key=%s&auth=unknown
+mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%S:%s/?ssl-key=%s&auth=unknown
 [10046][HY000] Invalid authentication mechanism unknown
 ----------------------
-mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-key=%s
+mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@%S:%s/?ssl-key=%s
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES) in %s
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES)
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'%S' (using password: YES) in %s
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'%S' (using password: YES)
 ----------------------
-mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-key=%s&auth=mysql41
+mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@%S:%s/?ssl-key=%s&auth=mysql41
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES) in %s
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES)
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'%S' (using password: YES) in %s
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'%S' (using password: YES)
 ----------------------
-mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-key=%s&auth=plain
+mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@%S:%s/?ssl-key=%s&auth=plain
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES) in %s
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES)
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'%S' (using password: YES) in %s
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'%S' (using password: YES)
 ----------------------
-mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-key=%s&auth=external
+mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%S:%s/?ssl-key=%s&auth=external
 
 Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s %A
 [1251][HY000] Invalid authentication method EXTERNAL

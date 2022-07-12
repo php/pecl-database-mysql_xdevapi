@@ -32,31 +32,31 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://%s:%S@127.0.0.1/?connect-timeout=-5
+mysqlx://%s:%S@%S/?connect-timeout=-5
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://%s:%S@127.0.0.1:81/?connect-timeout=-10
+mysqlx://%s:%S@%S:81/?connect-timeout=-10
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://%s:%S@127.0.0.1:80/?connect-timeout=this_is_incorrect_timeout
+mysqlx://%s:%S@%S:80/?connect-timeout=this_is_incorrect_timeout
 [10052][HY000] Invalid argument. The argument to connect-timeout must be an integer, but it is 'this_is_incorrect_timeout'.
 ----------------------
-mysqlx://%s:%S@127.0.0.1:82/?connect-timeout=invalid-time-out
+mysqlx://%s:%S@%S:82/?connect-timeout=invalid-time-out
 [10052][HY000] Invalid argument. The argument to connect-timeout must be an integer, but it is 'invalid-time-out'.
 ----------------------
-mysqlx://%s:%S@127.0.0.1/?connect-timeout=-1.1
+mysqlx://%s:%S@%S/?connect-timeout=-1.1
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://%s:%S@127.0.0.1:83/?connect-timeout=-10.101
+mysqlx://%s:%S@%S:83/?connect-timeout=-10.101
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://%s:%S@127.0.0.1/?connect-timeout= ,
+mysqlx://%s:%S@%S/?connect-timeout= ,
 [10052][HY000] Invalid argument. The argument to connect-timeout must be an integer, but it is ','.
 ----------------------
-mysqlx://%s:%S@127.0.0.1/?connect-timeout=++--
+mysqlx://%s:%S@%S/?connect-timeout=++--
 [10052][HY000] Invalid argument. The argument to connect-timeout must be an integer, but it is '++--'.
 ----------------------
-mysqlx://%s:%S@127.0.0.1/?connect-timeout=
+mysqlx://%s:%S@%S/?connect-timeout=
 [10052][HY000] Invalid argument. The argument to connect-timeout cannot be empty.
 ----------------------
 mysqlx://%s:%S@198.51.100.255/?connect-timeout=-5
@@ -86,31 +86,31 @@ mysqlx://%s:%S@198.51.100.255/?connect-timeout=++--
 mysqlx://%s:%S@198.51.100.255/?connect-timeout=
 [10052][HY000] Invalid argument. The argument to connect-timeout cannot be empty.
 ----------------------
-mysqlx://%s:%S@localhost/?connect-timeout=-5
+mysqlx://%s:%S@%S/?connect-timeout=-5
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://%s:%S@localhost:81/?connect-timeout=-10
+mysqlx://%s:%S@%S:81/?connect-timeout=-10
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://%s:%S@localhost:80/?connect-timeout=this_is_incorrect_timeout
+mysqlx://%s:%S@%S:80/?connect-timeout=this_is_incorrect_timeout
 [10052][HY000] Invalid argument. The argument to connect-timeout must be an integer, but it is 'this_is_incorrect_timeout'.
 ----------------------
-mysqlx://%s:%S@localhost:82/?connect-timeout=invalid-time-out
+mysqlx://%s:%S@%S:82/?connect-timeout=invalid-time-out
 [10052][HY000] Invalid argument. The argument to connect-timeout must be an integer, but it is 'invalid-time-out'.
 ----------------------
-mysqlx://%s:%S@localhost/?connect-timeout=-1.1
+mysqlx://%s:%S@%S/?connect-timeout=-1.1
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://%s:%S@localhost:83/?connect-timeout=-10.101
+mysqlx://%s:%S@%S:83/?connect-timeout=-10.101
 [10050][HY000] TypeError: The connection timeout value must be a positive integer (including 0).
 ----------------------
-mysqlx://%s:%S@localhost/?connect-timeout= ,
+mysqlx://%s:%S@%S/?connect-timeout= ,
 [10052][HY000] Invalid argument. The argument to connect-timeout must be an integer, but it is ','.
 ----------------------
-mysqlx://%s:%S@localhost/?connect-timeout=++--
+mysqlx://%s:%S@%S/?connect-timeout=++--
 [10052][HY000] Invalid argument. The argument to connect-timeout must be an integer, but it is '++--'.
 ----------------------
-mysqlx://%s:%S@localhost/?connect-timeout=
+mysqlx://%s:%S@%S/?connect-timeout=
 [10052][HY000] Invalid argument. The argument to connect-timeout cannot be empty.
 ----------------------
 done!%A

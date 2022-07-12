@@ -13,8 +13,8 @@ function test_successful_not_elapsed_timeouts($host, $timeout) {
 	test_successful_not_elapsed_timeout($host, 0);
 }
 
-test_successful_not_elapsed_timeouts("127.0.0.1", 4);
-test_successful_not_elapsed_timeouts("localhost", 7);
+test_successful_not_elapsed_timeouts($host, 4);
+test_successful_not_elapsed_timeouts($host, 7);
 
 verify_expectations();
 print "done!\n";
@@ -25,16 +25,16 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://%s:%S@127.0.0.1:%d/?connect-timeout=4
+mysqlx://%s:%S@%S:%d/?connect-timeout=4
 ----------------------
-mysqlx://%s:%S@127.0.0.1:%d
+mysqlx://%s:%S@%S:%d
 ----------------------
-mysqlx://%s:%S@127.0.0.1:%d/?connect-timeout=0
+mysqlx://%s:%S@%S:%d/?connect-timeout=0
 ----------------------
-mysqlx://%s:%S@localhost:%d/?connect-timeout=7
+mysqlx://%s:%S@%S:%d/?connect-timeout=7
 ----------------------
-mysqlx://%s:%S@localhost:%d
+mysqlx://%s:%S@%S:%d
 ----------------------
-mysqlx://%s:%S@localhost:%d/?connect-timeout=0
+mysqlx://%s:%S@%S:%d/?connect-timeout=0
 ----------------------
 done!%A

@@ -29,32 +29,32 @@ print "done!\n";
 	clean_test_db();
 ?>
 --EXPECTF--
-mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-mode=disabled&auth=sha256_memory
+mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%S:%s/?ssl-mode=disabled&auth=sha256_memory
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES) in %s on line %d
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'%S' (using password: YES) in %s on line %d
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'%S' (using password: YES)
 ----------------------
-mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-mode=disabled&auth=plain
+mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%S:%s/?ssl-mode=disabled&auth=plain
 
 Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method PLAIN in %s on line %d
 [1251][HY000] Invalid authentication method PLAIN
 ----------------------
-mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-mode=disabled&auth=external
+mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%S:%s/?ssl-mode=disabled&auth=external
 
 Warning: mysql_xdevapi\getSession(): [1251][HY000] Invalid authentication method EXTERNAL in %s on line %d
 [1251][HY000] Invalid authentication method EXTERNAL
 ----------------------
-mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@localhost:%s/?ssl-mode=disabled&auth=unsupported
+mysqlx://mysql_xdevapi_test_user_native:mysql_xdevapi_test_user_native_password@%S:%s/?ssl-mode=disabled&auth=unsupported
 [10046][HY000] Invalid authentication mechanism unsupported
 ----------------------
-mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-mode=disabled
+mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@%S:%s/?ssl-mode=disabled
 
 Warning: mysql_xdevapi\getSession(): [10054][HY000] Authentication failure. Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection in %s on line %d
 [10054][HY000] Authentication failure. Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
 ----------------------
-mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@localhost:%s/?ssl-mode=disabled&auth=mysql41
+mysqlx://mysql_xdevapi_test_user_unknown:mysql_xdevapi_test_user_unknown_password@%S:%s/?ssl-mode=disabled&auth=mysql41
 
-Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES) in %s on line %d
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'localhost' (using password: YES)
+Warning: mysql_xdevapi\getSession(): [1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'%S' (using password: YES) in %s on line %d
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_unknown'@'%S' (using password: YES)
 ----------------------
 done!%A

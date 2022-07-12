@@ -63,21 +63,21 @@ print "done!\n";
 ?>
 --EXPECTF--
 [10054][HY000] Authentication failure. Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'%S' (using password: YES)
 [1251][HY000] Invalid authentication method PLAIN
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'%S' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
 [10046][HY000] Invalid authentication mechanism UNSUPPORTED
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'%S' (using password: YES)
 [1251][HY000] Invalid authentication method PLAIN
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'%S' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
 [10046][HY000] Invalid authentication mechanism nonworking
 [10046][HY000] Invalid authentication mechanism MyqQl41
 [1251][HY000] Invalid authentication method PLAIN
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'%S' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
 [10046][HY000] Invalid authentication mechanism imProper
 [10054][HY000] Authentication failure. Authentication failed using MYSQL41, SHA256_MEMORY. Check username and password or try a secure connection
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_sha2'@'%S' (using password: YES)
 done!%A

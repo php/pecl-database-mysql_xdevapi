@@ -49,15 +49,15 @@ print "done!\n";
 ?>
 --EXPECTF--
 [1251][HY000] Invalid authentication method PLAIN
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'%S' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
 [10046][HY000] Invalid authentication mechanism WRONG
 [1251][HY000] Invalid authentication method PLAIN
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'%S' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
 [10046][HY000] Invalid authentication mechanism non-existent
 [1251][HY000] Invalid authentication method PLAIN
-[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'localhost' (using password: YES)
+[1045][HY000] Access denied for user 'mysql_xdevapi_test_user_native'@'%S' (using password: YES)
 [1251][HY000] Invalid authentication method EXTERNAL
 [10046][HY000] Invalid authentication mechanism InCorrect
 done!%A
