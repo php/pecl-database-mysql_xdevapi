@@ -252,7 +252,7 @@ void Verify_call_parameters::validate_type_spec(const Type_spec& type_specificat
 		/ next param gets separated if not reference
 		! Next param returns NULL if param type IS_NULL
 	*/
-	const util::string allowed_types{ "ldbahoOsz" };
+	const util::string allowed_types{ "ldbahoOsz!" };
 
 	const std::size_t disallowed_type_idx{ type_specification.args.find_first_not_of(allowed_types) };
 	if (disallowed_type_idx != util::string::npos) {
