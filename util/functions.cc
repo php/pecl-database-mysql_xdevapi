@@ -115,7 +115,7 @@ public:
 	void run();
 
 private:
-	void extract_type_spec_fragments(
+	bool extract_type_spec_fragments(
 		util::string* required_args,
 		util::string* optional_args);
 	Type_spec create_type_spec(const util::string& raw_args);
@@ -160,7 +160,16 @@ void Verify_call_parameters::run()
 {
 	util::string required_args;
 	util::string optional_args;
-	extract_type_spec_fragments(&required_args, &optional_args);
+
+	/*
+	  Skip verification if extract_type_spec_fragments() detects a type 
+	  specification that we can not handle (yet).
+
+	  FIXME: We should be able to handle all type specifications.
+	*/ 
+
+	if (!extract_type_spec_fragments(&required_args, &optional_args))
+	  return;
 
 	Type_spec type_spec_required_args{ create_type_spec(required_args) };
 	validate_type_spec(type_spec_required_args);
@@ -174,13 +183,26 @@ void Verify_call_parameters::run()
 	verify_optional_args_count(type_spec_optional_args);
 }
 
-void Verify_call_parameters::extract_type_spec_fragments(
+/*
+  Returns false if type specification can not be handled by our checker. For 
+  now this is the case when type specification contains nullable parameters.
+
+  FIXME: Correctly handle nullable parameters (bug#34384368)
+*/
+
+bool Verify_call_parameters::extract_type_spec_fragments(
 	util::string* required_args,
 	util::string* optional_args)
 {
 	bool separator_found{ false };
 	const char Optional_args_separator{ '|' };
+	const char Nullable_arg_specifier{ '!' };
+
 	for( size_t i { 0 } ; i < type_spec.size(); ++i ) {
+
+	    if( type_spec[i] == Nullable_arg_specifier)
+	      return false;
+
 	    if( type_spec[i] == Optional_args_separator ) {
 	        if( separator_found ) {
                 throw verify_error("only one optional args block is allowed");
@@ -193,6 +215,8 @@ void Verify_call_parameters::extract_type_spec_fragments(
 	if( !separator_found ) {
         *required_args = type_spec;
 	}
+
+	return true;
 }
 
 Type_spec Verify_call_parameters::create_type_spec(const util::string& raw_args)
