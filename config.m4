@@ -509,7 +509,7 @@ if test "$PHP_MYSQL_XDEVAPI" != "no" || test "$PHP_MYSQL_XDEVAPI_ENABLED" == "ye
 		fi
 	fi
 
-	PHP_DEF_HAVE([MYSQL_XDEVAPI], 1, [mysql-xdevapi support enabled])
+	AC_DEFINE([HAVE_MYSQL_XDEVAPI], [1], [mysql-xdevapi support enabled])
 
 	dnl expose metadata
 	dnl expose sources metadata
